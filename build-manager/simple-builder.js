@@ -1,0 +1,56 @@
+const assert = require('assert')
+const fs = require('fs')
+const yaml = require('yaml')
+const graphlib = require('@dagrejs/graphlib')
+
+class SimpleBuilder {
+  constructor (configName = null) {
+    this.config = yaml.parse(fs.readFileSync(configName, 'utf-8'))
+    this.checkConfig()
+  }
+
+  build () {
+    this.buildGraph()
+    this.checkCycles()
+    this.run()
+  }
+
+  checkConfig () {
+    assert(Array.isArray(this.config),
+           `Configuration must be array`)
+    this.config.forEach(rule => {
+      assert(('target' in rule) && (typeof rule.target === 'string'),
+             `Rule ${JSON.stringify(rule)} does not string as 'target'`)
+      assert(('depends' in rule) &&
+             Array.isArray(rule.depends) &&
+             rule.depends.every(dep => (typeof dep === 'string')),
+             `Rule ${JSON.stringify(rule)} does not have list of strings as 'depends'`)
+      assert(('actions' in rule) &&
+             Array.isArray(rule.actions) &&
+             rule.actions.every(action => (typeof action === 'string')),
+             `Rule ${JSON.stringify(rule)} does not have list of strings as 'actions'`)
+    })
+  }
+
+  buildGraph () {
+    this.graph = new graphlib.Graph()
+    this.config.forEach(rule => {
+      this.graph.setNode(rule.target, {
+        actions: rule.actions
+      })
+      rule.depends.forEach(dep => this.graph.setEdge(dep, rule.target))
+    })
+  }
+
+  checkCycles () {
+    const cycles = graphlib.alg.findCycles(this.graph)
+    assert.equal(cycles.length, 0,
+                 `Dependency graph contains cycles ${cycles}`)
+  }
+
+  run () {
+    assert.fail(`run method not implemented`)
+  }
+}
+
+module.exports = SimpleBuilder

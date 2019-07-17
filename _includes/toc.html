@@ -1,0 +1,29 @@
+{%- assign chunks = include.html | split: '<h2' -%}
+{%- assign numChunks = chunks | size -%}
+{%- assign sliceSize = numChunks | minus: 1 -%}
+{% if sliceSize == 0 %}
+<div class="dropdown disabled">
+  <span class="navtitle">▿ Contents</span>
+</div>
+{% else %}
+<div class="dropdown">
+  <span class="navtitle">▿ Contents</span>
+  <div class="dropdown-content">
+  {%- assign chunks = chunks | slice: 1, sliceSize -%}
+  {% for chunk in chunks %}
+    {%- assign heading = chunk | split: '</h2>' | first -%}
+    {%- assign prefix = heading | split: '>' | first | append: '>' -%}
+    {%- assign ident = prefix | split: 'id="' | last | split: '"' | first -%}
+    {%- assign text = heading | replace: prefix, '' -%}
+    <a href="#{{ident}}"><span class="nowrap">{{text}}</span></a>
+    {% unless forloop.last %}<br/>{% endunless %}
+  {% endfor %}
+  {% if is_lesson %}
+    <br/>
+    <a href="#keypoints"><span class="nowrap">Key Points</span></a>
+    <br/>
+    <a href="#exercises"><span class="nowrap">Exercises</span></a>
+  {% endif %}
+  </div>
+</div>
+{% endif %}
