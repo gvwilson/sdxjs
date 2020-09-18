@@ -1,0 +1,740 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <title>Layout Engine</title>
+  <meta name="relativeRoot" content="..">
+  <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
+  <link href="../static/trac.css" rel="stylesheet" type="text/css">
+  <link href="../static/site.css" rel="stylesheet" type="text/css">
+  <script src="../static/site.js"></script>
+  <script>window.onload = () => fixPage()</script>
+</head>
+<body id="_top">
+<nav>
+<div class="row">
+<div class="left2">
+<a href="http://third-bit.com"><img src="../static/logo.svg" alt="site logo" class="site-logo"/></a>
+<a href="../"><em>Software Tools in JavaScript</em></a>
+</div>
+<div class="right2">
+<div class="dropdown">
+<span class="navtitle">▿ Sections</span>
+<div class="dropdown-content" id="Sections">
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Chapters</span>
+<div class="dropdown-content" id="Chapters">
+<a href="../systems-programming/"><span class="nowrap">Systems Programming</span></a>
+<br/><a href="../unit-test/"><span class="nowrap">Unit Testing</span></a>
+<br/><a href="../file-backup/"><span class="nowrap">File Backup</span></a>
+<br/><a href="../style-checker/"><span class="nowrap">Style Checker</span></a>
+<br/><a href="../code-generator/"><span class="nowrap">Code Generator</span></a>
+<br/><a href="../page-templates/"><span class="nowrap">Page Templates</span></a>
+<br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
+<br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
+<br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
+<br/><a href="../text-editor/"><span class="nowrap">Text Editor</span></a>
+<br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
+<br/><a href="../http-server/"><span class="nowrap">HTTP Server</span></a>
+<br/><a href="../tabular-data/"><span class="nowrap">Tabular Data</span></a>
+<br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
+<br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Appendices</span>
+<div class="dropdown-content" id="Appendices">
+<a href="../license/"><span class="nowrap">License</span></a>
+<br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
+<br/><a href="../bib/"><span class="nowrap">Bibliography</span></a>
+<br/><a href="../links/"><span class="nowrap">Links</span></a>
+</div>
+</div>
+</div>
+</div>
+</nav>
+  <main>
+  <h1>Layout Engine</h1>
+<p>A pure-text layout engine showing how browsers decide what to put where,
+based on <a href="https://limpet.net/mbrubeck/2014/08/08/toy-layout-engine-1.html">Matt Brubeck's tutorial</a>.</p>
+<ul>
+<li>Inputs are:
+<ul>
+<li>A very small subset of HTML, which is converted to [DOM][dom] nodes</li>
+<li>A very small subset of CSS (which we represent as JSON so that we don't have to write another parser)</li>
+</ul>
+</li>
+<li>Processing is:
+<ul>
+<li>Produce a tree of styled nodes from the DOM</li>
+<li>Walk this tree to figure out where each visible element belongs</li>
+<li>Render this (as plain text)</li>
+</ul>
+</li>
+</ul>
+<h2 id="how-can-we-handle-a-small-subset-of-html%3F-%7B%23html-subset%7D">How can we handle a small subset of HTML? {#html-subset}</h2>
+<ul>
+<li>Our subset of HTML includes:
+<ul>
+<li>Plain text, which we store as instances of <code>TextNode</code></li>
+<li>Elements with attributes, which we store as instances of <code>TagNode</code></li>
+<li>Don't support [empty elements][empty-element] or comments</li>
+<li>Each attribute must have a single quoted value</li>
+</ul>
+</li>
+<li>Use regular expressions to parse, though <a href="https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454">this is a sin</a></li>
+</ul>
+<pre title="parse.js"><code class="language-js">const assert = require('assert')
+
+const {TextNode, TagNode} = require('./dom')
+
+const parseHTML = (text) => {
+  const chunks = chunkify(text.trim())
+  assert(isElement(chunks[0]),
+         `Must have enclosing outer node`)
+  const [node, remainder] = makeNode(chunks)
+  assert(remainder.length === 0,
+         `Cannot have dangling content`)
+  return node
+}
+
+const chunkify = (text) => {
+  const textAndTag = /^([^<]*)(<.+?>)(.*)$/
+  const raw = []
+  while (text) {
+    matches = text.match(textAndTag)
+    if (!matches) {
+      break
+    }
+    raw.push(matches[1])
+    raw.push(matches[2])
+    text = matches[3]
+  }
+  if (text) {
+    raw.push(text)
+  }
+  const nonEmpty = raw.filter(chunk => (chunk.length > 0))
+  return nonEmpty
+}
+
+const isElement = (chunk) => {
+  return chunk && (chunk[0] === '<')
+}
+
+const makeNode = (chunks) => {
+  assert(chunks.length > 0,
+         `Cannot make nodes without chunks`)
+
+  if (!isElement(chunks[0])) {
+    return [new TextNode(chunks[0]), chunks.slice(1)]
+  }
+
+  const node = makeOpening(chunks[0])
+  const closing = `</${node.tag}>`
+
+  let remainder = chunks.slice(1), child = null
+  while (remainder && (remainder[0] != closing)) {
+    [child, remainder] = makeNode(remainder)
+    node.children.push(child)
+  }
+
+  assert(remainder && (remainder[0] === closing),
+         `Node with tag ${node.tag} not closed`)
+  return [node, remainder.slice(1)]
+}
+
+const makeOpening = (chunk) => {
+  const tagAndAttr = /<(\w+)([^>]*)>/
+  const keyAndValue = /\s*(\w+)="([^"]*)"\s*/g
+  const outer = chunk.match(tagAndAttr)
+  const tag = outer[1]
+  const attributes = [...outer[2].trim().matchAll(keyAndValue)]
+        .reduce((obj, [all, key, value]) => {
+          obj[key] = value
+          return obj
+        }, {})
+  return new TagNode(tag, attributes, null)
+}
+
+module.exports = {parseHTML}
+</code></pre>
+<ul>
+<li>The nodes are straightforward</li>
+</ul>
+<pre title="dom.js"><code class="language-js">const assert = require('assert')
+
+class Node {
+  constructor () {
+  }
+}
+
+class TextNode extends Node {
+  constructor (text) {
+    assert(typeof text === 'string',
+           `TextNode requires string as constructor argument`)
+    super()
+    this.text = text
+  }
+
+  toString () {
+    return this.text
+  }
+}
+
+class TagNode extends Node {
+  constructor (tag, attributes, children) {
+    assert(typeof tag === 'string',
+           `TagNode requires string as tag`)
+    super()
+    this.tag = tag
+    this.attributes = {}
+    if (attributes !== null) {
+      assert(typeof attributes === 'object',
+             `Require object for attributes`)
+      this.attributes = Object.assign({}, attributes)
+    }
+    this.children = []
+    if (children !== null) {
+      assert(Array.isArray(children) &&
+             children.every(child => child instanceof Node),
+             `Require array of nodes for children`)
+      this.children = children.slice()
+    }
+  }
+
+  toString () {
+    const attr = Object.keys(this.attributes)
+          .sort()
+          .map(key => ` ${key}="${this.attributes[key]}"`)
+          .join('')
+    const children = this.children
+          .map(child => child.toString())
+          .join('')
+    return `<${this.tag}${attr}>${children}</${this.tag}>`
+  }
+}
+
+module.exports = {
+  Node,
+  TextNode,
+  TagNode
+}
+</code></pre>
+<h2 id="how-can-we-handle-a-small-subset-of-css%3F-%7B%23css-subset%7D">How can we handle a small subset of CSS? {#css-subset}</h2>
+<ul>
+<li>Our subset of CSS supports:
+<ul>
+<li>ID rules
+<ul>
+<li>[DOM selector][dom-selector] of the form <code>#name</code></li>
+<li>HTML of the form <code>&lt;tag id=&quot;name&quot;&gt;…&lt;/tag&gt;</code></li>
+</ul>
+</li>
+<li>Class rules
+<ul>
+<li>DOM selector of the form <code>.kind</code></li>
+<li>HTML of the form <code>&lt;tag class=&quot;kind&quot;&gt;…&lt;/tag&gt;</code></li>
+<li>Only one class per node</li>
+</ul>
+</li>
+<li>Tag rules
+<ul>
+<li>DOM selector of the form <code>tag</code></li>
+<li>HTML of the form <code>&lt;tag&gt;…&lt;/tag&gt;</code></li>
+</ul>
+</li>
+<li>ID rules take precedence over class rules, which take precedence over tag rules</li>
+</ul>
+</li>
+<li>Define a generic class for rules and a subclass for each type of rule</li>
+<li>Convert JSON to rule objects</li>
+<li>Provide a method for finding the rules for a given DOM node
+<ul>
+<li>Requires custom sorting</li>
+</ul>
+</li>
+<li>Also provide default settings for various kinds of nodes
+<ul>
+<li>These were added after building the next stage of the pipeline</li>
+</ul>
+</li>
+</ul>
+<pre title="css.js"><code class="language-js">const assert = require('assert')
+const deepmerge = require('deepmerge')
+
+class Rule {
+  constructor (order, selector, styles) {
+    this.order = order
+    this.selector = selector
+    this.styles = styles
+  }
+}
+
+class IdRule extends Rule {
+  constructor (selector, styles) {
+    assert(selector.startsWith('#') && (selector.length > 1),
+           `ID rule must start with # and have a selector`)
+    super(IdRule.ORDER, selector.slice(1), styles)
+  }
+
+  match (node) {
+    return ('id' in node.attributes)
+      && (node.attributes['id'] === this.selector)
+  }
+}
+IdRule.ORDER = 0
+
+class ClassRule extends Rule {
+  constructor (selector, styles) {
+    assert(selector.startsWith('.') && (selector.length > 1),
+           `Class rule must start with . and have a selector`)
+    super(ClassRule.ORDER, selector.slice(1), styles)
+  }
+
+  match (node) {
+    return ('class' in node.attributes)
+      && (node.attributes['class'] === this.selector)
+  }
+}
+ClassRule.ORDER = 1
+
+class TagRule extends Rule {
+  constructor (selector, styles) {
+    super(TagRule.ORDER, selector, styles)
+  }
+
+  match (node) {
+    return this.selector === node.tag
+  }
+}
+TagRule.ORDER = 2
+
+class CssRules {
+  constructor (json, mergeDefaults=true) {
+    const combined = mergeDefaults
+          ? deepmerge(CssRules.DEFAULT_RULES, json)
+          : json
+    this.rules = this.jsonToRules(combined)
+  }
+
+  jsonToRules (json) {
+    return Object.keys(json).map(selector => {
+      assert((typeof selector === 'string') && (selector.length > 0),
+             `Require non-empty string as selector`)
+      if (selector.startsWith('#')) {
+        return new IdRule(selector, json[selector])
+      }
+      if (selector.startsWith('.')) {
+        return new ClassRule(selector, json[selector])
+      }
+      return new TagRule(selector, json[selector])
+    })
+  }
+
+  findRules (node) {
+    const matches = this.rules.filter(rule => rule.match(node))
+    const sorted = matches.sort((left, right) => left.order - right.order)
+    return sorted
+  }
+}
+
+CssRules.DEFAULT_RULES = {
+  body: {
+    visible: true,
+    layout: 'vertical'
+  },
+  row: {
+    visible: true,
+    layout: 'horizontal'
+  },
+  col: {
+    visible: true,
+    layout: 'vertical'
+  },
+  p: {
+    visible: true,
+    layout: 'wrap'
+  }
+}
+
+CssRules.TEXT_RULES = {
+  visible: true
+}
+
+module.exports = {
+  IdRule,
+  ClassRule,
+  TagRule,
+  CssRules
+}
+</code></pre>
+<h2 id="how-can-we-construct-a-styled-tree%3F-%7B%23styled-tree%7D">How can we construct a styled tree? {#styled-tree}</h2>
+<ul>
+<li>
+<p>This is a good time to decide exactly what HTML and CSS we will support</p>
+<ul>
+<li><code>body</code> may contain <code>row</code> or <code>p</code> (paragraph), which are stacked vertically</li>
+<li><code>row</code> may contain <code>col</code> (column), which are laid out horizontally</li>
+<li><code>col</code> may contain <code>row</code> or <code>p</code>, which again are stacked vertically</li>
+<li>Could get rid of <code>body</code> and require an outermost <code>col</code>, but we're traditionalists</li>
+</ul>
+</li>
+<li>
+<p>Any element can specify <code>visible=false</code> to be taken out of the layout</p>
+<ul>
+<li>This is like HTML's <code>display</code> property (HTML's <code>visible</code> means &quot;take up space but don't render&quot;)</li>
+</ul>
+</li>
+<li>
+<p>Any element can specify <code>width</code> to fix its width</p>
+<ul>
+<li>Any text that overflows is lost</li>
+</ul>
+</li>
+<li>
+<p>A <code>p</code> must contain exactly one <code>TextNode</code>, and its text content is wrapped</p>
+</li>
+<li>
+<p>Construct a styled tree with:</p>
+<ul>
+<li>Nodes that are actually going to be rendered</li>
+<li>Rules collapsed to concrete attribute lists for each node</li>
+</ul>
+</li>
+</ul>
+<pre title="styled.js"><code class="language-js">const assert = require('assert')
+
+const {Node, TextNode, TagNode} = require('./dom')
+const {CssRules} = require('./css')
+
+class StyledNode {
+  constructor (dom, cssRules) {
+    assert(dom instanceof Node,
+           `Require a node`)
+    assert(cssRules instanceof CssRules,
+           `Require some rules`)
+
+    this.dom = dom
+    this.cssRules = cssRules
+
+    this.children = (this.dom instanceof TagNode)
+      ? this.dom.children.map(child => new StyledNode(child, this.cssRules))
+      : []
+
+    this.rules = (this.dom instanceof TagNode)
+      ? this.flattenRules(this.dom, this.cssRules)
+      : CssRules.TEXT_RULES
+  }
+
+  flattenRules (dom) {
+    const rules = this.cssRules.findRules(dom)
+    const result = rules.reverse().reduce((obj, rule) => {
+      obj = Object.assign(obj, rule.styles)
+      return obj
+    }, {})
+    return result
+  }
+
+  get (key, defaultValue=null) {
+    if (key in this.rules) {
+      return this.rules[key]
+    }
+    assert(defaultValue !== null,
+           `Cannot find ${key} and no default provided`)
+    return defaultValue
+  }
+}
+
+module.exports = {StyledNode}
+</code></pre>
+<h2 id="how-can-we-lay-out-a-styled-tree%3F-%7B%23layout%7D">How can we lay out a styled tree? {#layout}</h2>
+<ul>
+<li>Finally get to lay things out
+<ul>
+<li>If a node's layout is vertical:
+<ul>
+<li>Width of this node is width of parent</li>
+<li>Set widths of children to be width of this node</li>
+<li>Find heights of children</li>
+<li>Position children</li>
+<li>Height of this element is sum of heights of children</li>
+</ul>
+</li>
+<li>If a node's layout is horizontal:
+<ul>
+<li>Find widths of children</li>
+<li>Find heights of children</li>
+<li>Position children</li>
+<li>Max of heights becomes height of row</li>
+</ul>
+</li>
+<li>If a node's content wraps
+<ul>
+<li>Replace single text node with one node for each line</li>
+<li>Lay those out in a vertical stack</li>
+<li>Sum of heights becomes height of node</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<pre title="layout.js"><code class="language-js">const assert = require('assert')
+
+const {CssRules} = require('./css')
+const {TextNode, TagNode} = require('./dom')
+const {StyledNode} = require('./styled')
+
+//- let DebugDepth = 0
+//- let DebugIndent = '....................'
+
+const layout = (styled, box) => {
+//-  console.log(DebugIndent.slice(0, DebugDepth), 'layout >>', box, 'for', (styled instanceof TextNode) ? 'TextNode' : 'TagNode')
+//-  DebugDepth += 2
+  assert(styled instanceof StyledNode,
+         `Require styled node for layout`)
+  assert(styled.dom instanceof TagNode,
+         `Can only lay out tag nodes`)
+  assert(styled.get('visible'),
+         `Should not construct layout node for undisplayed styled node`)
+
+  styled.children = styled.children.filter(child => {
+    return child.get('visible')
+  })
+
+  switch (styled.get('layout')) {
+  case 'wrap' :
+    layoutWrap(styled, box)
+    break
+  case 'vertical' :
+    layoutVertical(styled, box)
+    break
+  case 'horizontal' :
+    layoutHorizontal(styled, box)
+    break
+  default :
+    assert(false,
+           `Unknown layout ${styled.get('layout')}`)
+  }
+
+  assert(styled.box,
+         `Failed to create box when placing styled node`)
+//-  DebugDepth -= 2
+//-  console.log(DebugIndent.slice(0, DebugDepth), 'layout <<', styled.box)
+}
+
+const layoutWrap = (styled, box) => {
+//-  console.log(DebugIndent.slice(0, DebugDepth), 'layoutWrap >>', box)
+  assert((styled.children.length === 1) && (styled.children[0].dom instanceof TextNode),
+         `Node must have a single block of text`)
+  assert(box.width > 0,
+         `Cannot wrap in a zero-width box`)
+  styled.box = {
+    x: box.x,
+    y: box.y,
+    width: box.width,
+    height: 0
+  }
+  const lines = splitText(box.width, styled.children[0].dom.text)
+  let y = box.y
+  styled.children = lines.map(line => {
+    const dom = new TextNode(line)
+    const child = new StyledNode(dom, new CssRules(CssRules.TEXT_RULES, false))
+    child.box = {
+      x: box.x,
+      y: y,
+      width: box.width < line.length ? box.width : line.length,
+      height: 1
+    }
+    y += 1
+    return child
+  })
+  styled.box.width = Math.min(...styled.children.map(child => child.box.width))
+  styled.box.height = lines.length
+//-  console.log(DebugIndent.slice(0, DebugDepth), 'layoutWrap <<', styled.box)
+}
+
+const layoutVertical = (styled, box) => {
+//-  console.log(DebugIndent.slice(0, DebugDepth), 'layoutVertical >>', box)
+  assert(styled.children.every(child => {
+    const layout = child.get('layout')
+    return (layout === 'horizontal') || (layout === 'wrap')
+  }), `Children of vertical element must be horizontal elements`)
+  styled.box = {
+    x: box.x,
+    y: box.y,
+    width: box.width,
+    height: 0
+  }
+  styled.children.forEach(child => {
+    layout(child, styled.box)
+    styled.box.y += child.box.height
+  })
+  styled.box.height = styled.box.y
+  styled.box.y = box.y
+//-  console.log(DebugIndent.slice(0, DebugDepth), 'layoutVertical <<', styled.box)
+}
+
+const layoutHorizontal = (styled, box) => {
+//-  console.log(DebugIndent.slice(0, DebugDepth), 'layoutHorizontal >>', box)
+  assert(styled.children.every(child => child.get('layout') === 'vertical'),
+         `All children of horizontal element must be vertical elements`)
+  styled.box = {
+    x: box.x,
+    y: box.y,
+    width: box.width,
+    height: 0
+  }
+  const minimum = styled.children.reduce((result, child) => {
+    const width = child.get('width', 0)
+    return width < result ? width : result
+  }, 0)
+  if (minimum < box.width) {
+    layoutHorizontalUnderflow(styled, box, minimum)
+  }
+  else {
+    layoutHorizontalOverflow(styled, box, minimum)
+  }
+  styled.box.height = Math.max(...styled.children.map(child => child.box.height))
+//-  console.log(DebugIndent.slice(0, DebugDepth), 'layoutHorizontal <<', styled.box)
+}
+
+const layoutHorizontalUnderflow = (styled, box, minimum) => {
+  const slack = box.width - minimum
+  const numElastic = styled.children.filter(child => child.get('width', 0) === 0).length
+  const elasticWidth = Math.floor(slack / numElastic)
+  let currentWidth = elasticWidth + (slack - (numElastic * elasticWidth))
+  let x = box.x
+  const result = []
+  styled.children.forEach(child => {
+    if (currentWidth > 0) {
+      const width = child.get('width', currentWidth)
+      currentWidth = elasticWidth
+      layout(child, {
+        x: x,
+        y: box.y,
+        width: width,
+        height: 0
+      })
+      x += width
+      result.push(child)
+    }
+  })
+  styled.children = result
+}
+
+const layoutHorizontalOverflow = (styled, box, minimum) => {
+  let x = box.x
+  let result = []
+  styled.children.forEach(child => {
+    const width = child.get('width', 0)
+    if ((width > 0) && (x < box.width)) {
+      layout(child, {
+        x: x,
+        y: box.y,
+        width: width,
+        height: 0
+      })
+      x += width
+      result.append(child)
+    }
+  })
+  styled.children = result
+}
+
+const splitText = (width, text) => {
+  const result = []
+  let current = null
+  text.trim().split(/\s+/).forEach(chunk => {
+    if (current === null) {
+      current = chunk
+    }
+    else {
+      const candidate = current + ' ' + chunk
+      if (candidate.length > width) {
+        result.push(current)
+        current = chunk
+      }
+      else {
+        current = candidate
+      }
+    }
+  })
+  result.push(current)
+  return result
+}
+
+module.exports = {layout}
+</code></pre>
+<ul>
+<li>And then render
+<ul>
+<li>Create a &quot;screen&quot; filled with background markers</li>
+<li>Walk the tree, asking each node to draw itself</li>
+<li>Only <code>TextNode</code>s actually</li>
+</ul>
+</li>
+</ul>
+<pre title="render.js"><code class="language-js">const assert = require('assert')
+
+const {TextNode, TagNode} = require('./dom')
+const {LayoutNode} = require('./layout')
+
+const render = (layout, width, height, fillChar = '.') => {
+  const screen = new Array(width).fill(null)
+  screen.forEach((val, i) => {
+    screen[i] = new Array(height).fill(fillChar)
+  })
+  fill(screen, layout, fillChar)
+  const temp = []
+  for (let y=0; y<height; y+=1) {
+    let chars = []
+    for (let x=0; x<width; x+=1) {
+      chars.push(screen[x][y])
+    }
+    temp.push(chars.join(''))
+  }
+  return temp.join('\n')
+}
+
+const fill = (screen, layout, fillChar) => {
+  if (layout.dom instanceof TagNode) {
+    layout.children.forEach(child => fill(screen, child, fillChar))
+    return
+  }
+
+  assert(layout.dom instanceof TextNode,
+         `Can only handle tag nodes and text nodes`)
+
+  const text = layout.dom.text
+  let i = 0
+  while ((i < layout.box.width) && (i < text.length)) {
+    screen[layout.box.x + i][layout.box.y] = text[i]
+    i += 1
+  }
+
+  while (i < layout.box.width) {
+    screen[layout.box.x + i][layout.box.y] = fillChar
+    i += 1
+  }
+}
+
+module.exports = {render}
+</code></pre>
+</main>
+<footer>
+<div class="row">
+<div class="left3">
+<a href="../module-bundler/"><em>&laquo; Module Bundler</em></a>
+</div>
+<div class="middle3">
+<a href="../license/"><img class="footer" src="../static/cc-by.svg" alt="License" /></a>
+<a href="https://github.com/gvwilson/e/"><img class="footer" src="../static/github.svg" alt="Repository" /></a>
+© 2020 <a href="../authors/">The Authors</a>
+</div>
+<div class="right3">
+<a href="../text-editor/"><em>Text Editor &raquo;</em></a>
+</div>
+</div>
+</footer>
+</body>
+</html>

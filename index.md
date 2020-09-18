@@ -1,27 +1,20 @@
 ---
-permalink: "/"
-title: "Software Tools in JavaScript"
 ---
 
 The best way to learn software design is by example,
 and the best examples are the tools that developers use themselves.
-This project draws inspiration from
-{% include cite.md keys="brown2011,brown2012,brown2016" %},
+This project draws inspiration from <cite>Brown2011, Brown2012, Brown2016</cite>,
 [Gitlet][gitlet],
 [various][browser-tutorial] [tutorials][db-tutorial],
 and most of all from
 the trilogy that introduced the Unix philosophy to an entire generation of programmers
-{% include cite.md keys="kernighan1979,kernighan1988,kernighan1983" %}
+<cite>Kernighan1979, Kernighan1988, Kernighan1983</cite>.
 
-All contributors must abide by our [Code of Conduct](./conduct/)
-and all decisions will be made by consensus using [Martha's Rules](./contributing/).
-Please see the [our contributors' guidelines]({{'/contributing/' | relative_url}}) for details
-and for a description of our development process and formatting rules.
-All royalties from sales of this book will be donated to [Bridge][bridge],
-which provides free training and professional development by industry experts
-to women, non-binary, and agender tech workers.
+All contributors must abide by our [Code of Conduct](./conduct/).
+Please see the our [contributors' guidelines](./contributing/)
+for a description of our development process and formatting rules.
 
-## Audience {#audience}
+## Audience
 
 -   Aïsha started writing VB macros for Excel in an accounting course and never looked back.
     She has spent the last three years doing front-end JavaScript work
@@ -46,11 +39,7 @@ to women, non-binary, and agender tech workers.
     This material will fill those gaps
     and give them starting points for a wide variety of course assignments.
 
-## Topics {#topics}
-
-{% include topics.html %}
-
-## Layout {#layout}
+## Layout
 
 We display JavaScript source code like this:
 
@@ -60,8 +49,7 @@ for (const thing in collection) {
 }
 ```
 
-and Unix shell commands like this:
-{: class="noindent"}
+<p class="noindent">and Unix shell commands like this:</p>
 
 ```sh
 for filename in *.dat
@@ -70,8 +58,7 @@ do
 done
 ```
 
-Data and output are shown in italics:
-{: class="noindent"}
+<p class="noindent">Data and output are shown in italics:</p>
 
 ```text
 Package,Releases
@@ -83,8 +70,6 @@ Package,Releases
 01changer,0
 ```
 
-## Dedication {#dedication}
+## Dedication
 
-*For Brian Kernighan, who taught us all how to write (about) software.*
-
-{% include links.md %}
+*For Brian Kernighan, who taught us all how to write about software.*

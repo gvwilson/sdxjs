@@ -1,1 +1,1 @@
-node template.js inputs/vars.json inputs/only-static-text-input.html
+node template.js input-vars.json input-only-static-text-input.html

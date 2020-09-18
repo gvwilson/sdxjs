@@ -1,14 +1,11 @@
 ---
-permalink: "/links/"
 ---
 
-<ul>
-{% for entry in site.data.links %}
-  <li>
-    <a href="{{entry.link}}">{{entry.name | markdownify | replace: '<p>', '' | replace: '</p>', ''}}</a>:
-    {{entry.lede | markdownify | replace: '<p>', '' | replace: '</p>', ''}}
-  </li>
-{% endfor %}
+<ul class="links">
+<% site.links.forEach(function(entry){ %>
+<li id="<%- entry.slug %>">
+<a href="<%- entry.url %>"><%- entry.name %></a>:
+<%- entry.lede %>
+</li>
+<% }) %>
 </ul>
-
-{% include links.md %}

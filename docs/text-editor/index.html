@@ -1,0 +1,594 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <title>Text Editor</title>
+  <meta name="relativeRoot" content="..">
+  <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
+  <link href="../static/trac.css" rel="stylesheet" type="text/css">
+  <link href="../static/site.css" rel="stylesheet" type="text/css">
+  <script src="../static/site.js"></script>
+  <script>window.onload = () => fixPage()</script>
+</head>
+<body id="_top">
+<nav>
+<div class="row">
+<div class="left2">
+<a href="http://third-bit.com"><img src="../static/logo.svg" alt="site logo" class="site-logo"/></a>
+<a href="../"><em>Software Tools in JavaScript</em></a>
+</div>
+<div class="right2">
+<div class="dropdown">
+<span class="navtitle">▿ Sections</span>
+<div class="dropdown-content" id="Sections">
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Chapters</span>
+<div class="dropdown-content" id="Chapters">
+<a href="../systems-programming/"><span class="nowrap">Systems Programming</span></a>
+<br/><a href="../unit-test/"><span class="nowrap">Unit Testing</span></a>
+<br/><a href="../file-backup/"><span class="nowrap">File Backup</span></a>
+<br/><a href="../style-checker/"><span class="nowrap">Style Checker</span></a>
+<br/><a href="../code-generator/"><span class="nowrap">Code Generator</span></a>
+<br/><a href="../page-templates/"><span class="nowrap">Page Templates</span></a>
+<br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
+<br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
+<br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
+<br/><a href="../text-editor/"><span class="nowrap">Text Editor</span></a>
+<br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
+<br/><a href="../http-server/"><span class="nowrap">HTTP Server</span></a>
+<br/><a href="../tabular-data/"><span class="nowrap">Tabular Data</span></a>
+<br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
+<br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Appendices</span>
+<div class="dropdown-content" id="Appendices">
+<a href="../license/"><span class="nowrap">License</span></a>
+<br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
+<br/><a href="../bib/"><span class="nowrap">Bibliography</span></a>
+<br/><a href="../links/"><span class="nowrap">Links</span></a>
+</div>
+</div>
+</div>
+</div>
+</nav>
+  <main>
+  <h1>Text Editor</h1>
+<p>A terminal editor based on <a href="https://github.com/hakash/termit">Termit</a> using <a href="https://github.com/cronvel/terminal-kit">terminal-kit</a>.</p>
+<h2 id="what-does-an-editor-need-to-be-able-to-do%3F-%7B%23capability%7D">What does an editor need to be able to do? {#capability}</h2>
+<ul>
+<li>Overall structure</li>
+</ul>
+<pre title="editor.js"><code class="language-js">const terminalKit = require('terminal-kit');
+const fs = require('fs');
+
+const Settings = {
+  statusBar: 'Ctrl+  X:save & eXit / C:exit / O:Open / S:Save / A:save As / K:cut line / U:paste line',
+  titleBar: 'Zepto',
+  shortDelay: 100,
+  mediumDelay: 2000,
+  longDelay: 3500
+}
+
+class Editor {
+  /*+ constructor + constructor.js +*/
+  /*+ initialize + init.js +*/
+  /*+ titles + titles.js +*/
+  /*+ file handling + file.js +*/
+  /*+ get a filename from the user + getfilename.js +*/
+  /*+ handle resizing + resize.js +*/
+  /*+ handling keystrokes + keystroke.js +*/
+  /*+ drawing + drawing.js +*/
+  /*+ cursor movement + movement.js +*/
+  /*+ larger movement + jump.js +*/
+  /*+ special characters + specialchar.js +*/
+  /*+ cut and paste + cutpaste.js +*/
+}
+
+Editor
+</code></pre>
+<h2 id="how-can-we-set-up%3F-%7B%23setup%7D">How can we set up? {#setup}</h2>
+<ul>
+<li>Constructor</li>
+</ul>
+<pre title="constructor.js"><code class="language-js">  constructor (options = {}) {
+    this.term = terminalKit.terminal
+    this.statusBarTimer = undefined
+    this.fileIsModified = false
+
+    this.screenBuffer = new terminalKit.ScreenBuffer({
+      dst: this.term,
+      height: this.term.height - 2,
+      y: 2
+    })
+
+    this.textBuffer = new terminalKit.TextBuffer({
+      dst: this.screenBuffer
+    })
+    this.textBuffer.setText('')
+  }
+</code></pre>
+<ul>
+<li>Initialize</li>
+</ul>
+<pre title="init.js"><code class="language-js">  init (file) {
+    this.term.on('resize', this.onResize.bind(this))
+    this.term.on('key', this.onKey.bind(this))
+
+    this.term.fullscreen(true)
+
+    this.textBuffer.moveTo(0, 0)
+    this.screenBuffer.moveTo(0, 0)
+
+    this.term.grabInput({
+      mouse: false
+    })
+    this.drawStatusBar()
+    this.drawTitleBar()
+
+    this.draw()
+
+    if (file) {
+      this.load(file)
+    }
+  }
+</code></pre>
+<ul>
+<li>Titles</li>
+</ul>
+<pre title="titles.js"><code class="language-js">  drawBar (pos, message, invert = false) {
+    if (invert) {
+      this.term.moveTo(pos.x, pos.y).styleReset.white.bold.eraseLine(' ' + message)
+    } else {
+      this.term.moveTo(pos.x, pos.y).styleReset.bgWhite.black.bold.eraseLine(' ' + message)
+    }
+  }
+
+  drawPrompt (prompt) {
+    this.drawBar({x: 0, y: this.term.height}, prompt, true)
+    if (this.statusBarTimer) {
+      clearTimeout(this.statusBarTimer)
+    }
+  }
+
+  drawStatusBar (message = Settings.statusBar, timeout = -1) {
+    this.drawBar({x: 0, y: this.term.height}, message)
+
+    this.textBuffer.draw()
+    this.screenBuffer.draw({delta: true})
+    this.textBuffer.drawCursor()
+    this.screenBuffer.drawCursor()
+
+    if (this.statusBarTimer) {
+      clearTimeout(this.statusBarTimer)
+    }
+
+    if (timeout >= 0) {
+      this.statusBarTimer = setTimeout(() => {
+        this.drawStatusBar()
+      }, timeout)
+    }
+  }
+
+  drawTitleBar () {
+    this.drawBar({x: 1, y: 1}, Settings.titleBar)
+  }
+</code></pre>
+<h2 id="how-should-the-editor-handle-files%3F-%7B%23file-handling%7D">How should the editor handle files? {#file-handling}</h2>
+<ul>
+<li>File handling</li>
+</ul>
+<pre title="file.js"><code class="language-js">  open () {
+    this.getFileNameFromUser('Open file: ', file => this.load(file))
+  }
+
+  saveAs (callback) {
+    this.getFileNameFromUser('Save as: ',
+                             file => this.save(file, callback),
+                             this.currentFile)
+  }
+
+  saveFile () {
+    if (!this.fileIsModified){
+      return
+    }
+
+    if (this.getText() === ''){
+      return
+    }
+
+    if (this.currentFile) {
+      this.save(this.currentFile)
+    } else {
+      this.saveAs()
+    }
+  }
+
+  saveAndExit () {
+    this.saveAs(err => {
+      if (err) {
+        this.drawStatusBar('ERR: Could not save file. Hit Ctrl + C to force exit.',
+                           Settings.longDelay)
+        return
+      }
+      this.exit()
+    })
+  }
+
+  exit () {
+    setTimeout(() => {
+      this.term.grabInput(false)
+      this.term.fullscreen(false)
+      setTimeout(() => process.exit(0), Settings.shortDelay)
+    }, Settings.shortDelay)
+  }
+
+  unload () {
+    this.term.grabInput(false)
+    this.term.fullscreen(false)
+  }
+
+  getText () {
+    return this.textBuffer.getText()
+  }
+</code></pre>
+<ul>
+<li>Loading and saving</li>
+</ul>
+<pre title="loadsave.js"><code class="language-js">  load (file) {
+    let content = ''
+    this.disableUserInteraction = true
+    try {
+      if (fs.existsSync(file)) {
+        content = fs.readFileSync(file, 'utf8')
+      }
+      this.currentFile = file
+    } catch (e) {
+      this.drawStatusBar('ERROR: Failed to load file: ' + file, Settings.longDelay)
+    }
+
+    this.textBuffer.moveTo(0, 0)
+    this.textBuffer.setText('')
+    this.textBuffer.insert(content)
+    this.textBuffer.moveTo(0, 0)
+    this.fileIsModified = false
+    this.disableUserInteraction = false
+    this.draw()
+  }
+
+  save (file, callback = () => {}) {
+    this.disableUserInteraction = true
+    try {
+      fs.writeFileSync(file, this.getText())
+      this.fileIsModified = false
+      this.currentFile = file
+      this.drawStatusBar('Saved!', Settings.mediumDelay)
+      this.disableUserInteraction = false
+      callback()
+    } catch (e) {
+      this.disableUserInteraction = false
+      callback(e)
+    }
+  }
+</code></pre>
+<ul>
+<li>Get a filename from the user</li>
+</ul>
+<pre title="getfilename.js"><code class="language-js">  getFileNameFromUser (prompt, callback, prefill = '') {
+    this.disableUserInteraction = true
+
+    this.drawPrompt(prompt)
+    const fileOptions = {
+      cancelable: true,
+      default: prefill
+    }
+    this.term.fileInput(fileOptions, (err, file) => {
+      this.disableUserInteraction = false
+      this.drawStatusBar()
+      if (err) {
+        this.drawStatusBar('An error occurred.', Settings.longDelay)
+        callback(err)
+        return
+      }
+      if (!file) {
+        return
+      }
+      callback(file)
+    })
+  }
+</code></pre>
+<h2 id="how-should-the-editor-handle-interactions%3F-%7B%23interactions%7D">How should the editor handle interactions? {#interactions}</h2>
+<ul>
+<li>Handle resizing</li>
+</ul>
+<pre title="resize.js"><code class="language-js">  onResize (width, height) {
+    if (this.resizeTimer) {
+      clearTimeout(this.resizeTimer)
+    }
+    this.resizeTimer = setTimeout(() => {
+      this.screenBuffer.resize({
+        x: 0,
+        y: 2,
+        width: width,
+        height: height - 2
+      })
+      this.drawStatusBar()
+      this.drawTitleBar()
+      this.draw()
+    }, Settings.shortDelay)
+  }
+</code></pre>
+<ul>
+<li>Handling keystrokes</li>
+</ul>
+<pre title="keystroke.js"><code class="language-js">  onKey (key, matches, data) {
+    if (this.disableUserInteraction && key !== 'CTRL_C') {
+      return
+    }
+
+    switch (key) {
+    case 'CTRL_C':
+      this.exit()
+      break
+    case 'CTRL_X':
+      this.saveAndExit()
+      break
+    case 'CTRL_S':
+      this.saveFile()
+      break
+    case 'CTRL_A':
+      this.saveAs()
+      break
+    case 'CTRL_O':
+      this.open()
+      break
+    case 'CTRL_K':
+      this.cutLine()
+      break
+    case 'CTRL_U':
+      this.pasteLine()
+      break
+    case 'PAGE_UP':
+      this.pgUp()
+      break
+    case 'PAGE_DOWN':
+      this.pgDown()
+      break
+    case 'UP':
+      this.up()
+      break
+    case 'DOWN':
+      this.down()
+      break
+    case 'LEFT':
+      this.left()
+      break
+    case 'RIGHT':
+      this.right()
+      break
+    case 'HOME':
+      this.startOfLine()
+      break
+    case 'END':
+      this.endOfLine()
+      break
+    case 'TAB':
+      this.tab()
+      break
+    case 'CTRL_HOME':
+      this.startOfText()
+      break
+    case 'CTRL_END':
+      this.endOfText()
+      break
+    case 'DELETE':
+      this.deleteChar()
+      break
+    case 'BACKSPACE':
+      this.backspace()
+      break
+    case 'ENTER':
+      this.newLine()
+      break
+    default:
+      if (data.isCharacter) {
+        this.fileIsModified = true
+        this.textBuffer.insert(key)
+        this.draw()
+      }
+      break
+    }
+  }
+</code></pre>
+<ul>
+<li>Drawing</li>
+</ul>
+<pre title="drawing.js"><code class="language-js">  draw (delta = true) {
+    this.textBuffer.draw()
+    this.screenBuffer.draw({delta: delta})
+    this.drawCursor()
+  }
+
+  drawCursor () {
+    let new_buffer_x = this.textBuffer.x
+    let new_buffer_y = this.textBuffer.y
+
+    if (this.textBuffer.x < -this.textBuffer.cx) {
+      new_buffer_x = Math.min(0, -this.textBuffer.cx + Math.floor(this.screenBuffer.width / 2))
+    } else if (this.textBuffer.x > -this.textBuffer.cx + this.screenBuffer.width - 1) {
+      new_buffer_x = (this.screenBuffer.width / 2) - this.textBuffer.cx
+    }
+
+    if (this.textBuffer.y < -this.textBuffer.cy) {
+      new_buffer_y = Math.min(0, -this.textBuffer.cy + Math.floor(this.screenBuffer.height / 2))
+    } else if (this.textBuffer.y > -this.textBuffer.cy + this.screenBuffer.height - 1) {
+      new_buffer_y = (this.screenBuffer.height / 2) - this.textBuffer.cy
+    }
+
+    if (new_buffer_y != this.textBuffer.y || new_buffer_x != this.textBuffer.x) {
+      this.textBuffer.x = new_buffer_x
+      this.textBuffer.y = new_buffer_y
+      this.textBuffer.draw()
+      this.screenBuffer.draw({delta: true})
+    }
+
+    this.textBuffer.drawCursor()
+    this.screenBuffer.drawCursor()
+  }
+</code></pre>
+<ul>
+<li>Cursor movement</li>
+</ul>
+<pre title="movement.js"><code class="language-js">  up () {
+    this.textBuffer.moveUp()
+    if (this.textBuffer.cx > this.textBuffer.buffer[this.textBuffer.cy].length - 1) {
+      this.textBuffer.moveToEndOfLine()
+    }
+    this.drawCursor()
+  }
+
+  down () {
+    if (this.textBuffer.getContentSize().height - 1 > this.textBuffer.cy) {
+      this.textBuffer.moveDown()
+      if (this.textBuffer.cx > this.textBuffer.buffer[this.textBuffer.cy].length - 1) {
+        this.textBuffer.moveToEndOfLine()
+      }
+      this.drawCursor()
+    }
+  }
+
+  left () {
+    this.textBuffer.moveBackward()
+    this.drawCursor()
+  }
+
+  right () {
+    if (this.textBuffer.cx < this.getLine().length) {
+      this.textBuffer.moveRight()
+    } else if (this.textBuffer.getContentSize().height - 1 > this.textBuffer.cy) {
+      this.textBuffer.moveTo(0, this.textBuffer.cy + 1)
+    }
+    this.drawCursor()
+  }
+
+  getLine () {
+    return this.textBuffer.buffer[this.textBuffer.cy].reduce((acc, curr) => {
+      acc += curr.char.trim()
+      return acc
+    }, '')
+  }
+</code></pre>
+<ul>
+<li>Larger movement</li>
+</ul>
+<h2 id="how-should-the-editor-handle-keystrokes%3F-%7B%23keystrokes%7D">How should the editor handle keystrokes? {#keystrokes}</h2>
+<pre title="jump.js"><code class="language-js">  startOfLine () {
+    this.textBuffer.moveToColumn(0)
+    this.drawCursor()
+  }
+
+  endOfLine () {
+    this.textBuffer.moveToEndOfLine()
+    this.drawCursor()
+  }
+
+  startOfText () {
+    this.textBuffer.moveTo(0, 0)
+    this.draw()
+  }
+
+  endOfText () {
+    const num_lines = this.textBuffer.getContentSize().height - 1
+    const last_line = this.textBuffer.buffer[num_lines]
+    this.textBuffer.moveTo(last_line.length, num_lines)
+    this.draw()
+  }
+
+  pgUp () {
+    this.textBuffer.cy = Math.max(0, this.textBuffer.cy - Math.floor(this.screenBuffer.height / 2))
+    this.draw()
+  }
+
+  pgDown () {
+    this.textBuffer.cy = Math.min(this.textBuffer.getContentSize().height - 1,
+                                  this.textBuffer.cy + Math.floor(this.screenBuffer.height / 2))
+    this.draw()
+  }
+</code></pre>
+<ul>
+<li>Special characters</li>
+</ul>
+<pre title="specialchar.js"><code class="language-js">  deleteChar () {
+    this.fileIsModified = true
+    this.textBuffer.delete(1)
+    this.draw()
+  }
+
+  backspace () {
+    this.fileIsModified = true
+    this.textBuffer.backDelete(1)
+    this.draw()
+  }
+
+  newLine () {
+    this.fileIsModified = true
+    this.textBuffer.newLine()
+    this.draw()
+  }
+
+  tab () {
+    this.fileIsModified = true
+    this.textBuffer.insert('\t')
+    this.draw()
+  }
+</code></pre>
+<ul>
+<li>Cut and paste</li>
+</ul>
+<pre title="cutpaste.js"><code class="language-js">  cutLine () {
+    this.lineCutBuffer = this.textBuffer.buffer[this.textBuffer.cy]
+    if (this.textBuffer.cy === 0 && this.textBuffer.buffer.length === 1) {
+      this.textBuffer.buffer[0] = []
+      this.textBuffer.moveToEndOfLine()
+    } else {
+      if (this.textBuffer.cy === this.textBuffer.buffer.length - 1) {
+        this.textBuffer.buffer.splice(this.textBuffer.cy, 1, [])
+      } else {
+        this.textBuffer.buffer.splice(this.textBuffer.cy, 1)
+      }
+      if (this.textBuffer.cx >= this.textBuffer.buffer[this.textBuffer.cy].length) {
+        this.textBuffer.moveToEndOfLine()
+      }
+    }
+    this.fileIsModified = true
+    this.draw()
+  }
+
+  pasteLine () {
+    if (this.lineCutBuffer) {
+      this.fileIsModified = true
+      this.textBuffer.buffer.splice(this.textBuffer.cy, 0, this.lineCutBuffer)
+      this.textBuffer.moveDown()
+      this.draw()
+    }
+  }
+</code></pre>
+</main>
+<footer>
+<div class="row">
+<div class="left3">
+<a href="../layout-engine/"><em>&laquo; Layout Engine</em></a>
+</div>
+<div class="middle3">
+<a href="../license/"><img class="footer" src="../static/cc-by.svg" alt="License" /></a>
+<a href="https://github.com/gvwilson/e/"><img class="footer" src="../static/github.svg" alt="Repository" /></a>
+© 2020 <a href="../authors/">The Authors</a>
+</div>
+<div class="right3">
+<a href="../doc-generator/"><em>Documentation Generator &raquo;</em></a>
+</div>
+</div>
+</footer>
+</body>
+</html>

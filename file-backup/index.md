@@ -11,17 +11,17 @@
     -   Is 100% reproducible
     -   Cannot be reversed
 
-{% include wildcard.md pattern="hash-text.*" values="js,sh,text" %}
+<%- include('/_inc/multi.html', {pat: 'hash-text.*', fill: 'js sh text'}) %>
 
 -   The hash code for a file:
     -   Will always be the same for the same content
     -   Is almost guaranteed to be different if even a single byte differs
 
-{% include wildcard.md pattern="hash-file.*" values="js,sh,text" %}
+<%- include('/_inc/multi.html', {pat: 'hash-file.*', fill: 'js sh text'}) %>
 
 -   More efficient to process the file as a [stream][stream]
 
-{% include wildcard.md pattern="hash-stream.*" values="js,sh,text" %}
+<%- include('/_inc/multi.html', {pat: 'hash-stream.*', fill: 'js sh text'}) %>
 
 -   Many files don't change after they're created, or only change very slowly
 -   Wasteful to copy them every time a backup is done
@@ -34,9 +34,9 @@
 
 -   Step 1: find all files and calculate their hashes
 
-{% include file.md file="hash-existing-promise.js" %}
+<%- include('/_inc/code.html', {file: 'hash-existing-promise.js'}) %>
 
-{% include wildcard.md pattern="run-hash-existing-promise.*" values="js,sh,text" %}
+<%- include('/_inc/multi.html', {pat: 'run-hash-existing-promise.*', fill: 'js sh text'}) %>
 
 -   This code is clearer than it would be with callbacks…
 -   …but the layer of promises around everything still obscures meaning
@@ -45,9 +45,9 @@
     -   `await` means "wait for a promise to resolve"
 -   Doing all the same things as the explicit `Promise`-based version, but easier to read
 
-{% include file.md file="hash-existing-async.js" %}
+<%- include('/_inc/code.html', {file: 'hash-existing-async.js'}) %>
 
-{% include wildcard.md pattern="run-hash-existing-async.*" values="js,sh,text" %}
+<%- include('/_inc/multi.html', {pat: 'run-hash-existing-async.*', fill: 'js sh text'}) %>
 
 ## How can we test JavaScript? {#testing}
 
@@ -55,18 +55,18 @@
     -   Backup directory contains `abcd1234.bck` (backup files) and `ssssssssss.csv` (manifest files)
     -   We assume no more than one backup per second (which will easily be false in practice)
 
-{% include file.md file="check-existing-files.js" %}
+<%- include('/_inc/code.html', {file: 'check-existing-files.js'}) %>
 
 -   Create testing directories with manufactured (shortened) hashes
 
-{% include wildcard.md pattern="tree-test.*" values="sh,text" %}
+<%- include('/_inc/multi.html', {pat: 'tree-test.*', fill: 'sh text'}) %>
 
 -   Use [Mocha][mocha] for testing
     -   Add `"test": "mocha */test/test-*.js"` to the `scripts` key of `package.json`,
         since we may add tests for other things later
 
-{% include file.md file="test/test-find.js" %}
-{% include wildcard.md pattern="test-check-filesystem.*" values="sh,text" %}
+<%- include('/_inc/code.html', {file: 'test/test-find.js'}) %>
+<%- include('/_inc/multi.html', {pat: 'test-check-filesystem.*', fill: 'sh text'}) %>
 
 ## How can we test code that modifies files? {#modify-files}
 
@@ -79,16 +79,14 @@
 -   Repeat previous tests using mock
     -   Results stay the same
 
-{% include file.md file="test/test-find-mock.js" %}
+<%- include('/_inc/code.html', {file: 'test/test-find-mock.js'}) %>
 
 -   Now write the code that does the file copying
 
-{% include file.md file="backup.js" %}
+<%- include('/_inc/code.html', {file: 'backup.js'}) %>
 
 -   And some tests
     -   Which are quite involved, since we want to check with actual file hashes
 
-{% include file.md file="test/test-backup.js" %}
-{% include wildcard.md pattern="test-backup.*" values="sh,text" %}
-
-{% include links.md %}
+<%- include('/_inc/code.html', {file: 'test/test-backup.js'}) %>
+<%- include('/_inc/multi.html', {pat: 'test-backup.*', fill: 'sh text'}) %>

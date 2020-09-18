@@ -1,0 +1,697 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <title>Build Manager</title>
+  <meta name="relativeRoot" content="..">
+  <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
+  <link href="../static/trac.css" rel="stylesheet" type="text/css">
+  <link href="../static/site.css" rel="stylesheet" type="text/css">
+  <script src="../static/site.js"></script>
+  <script>window.onload = () => fixPage()</script>
+</head>
+<body id="_top">
+<nav>
+<div class="row">
+<div class="left2">
+<a href="http://third-bit.com"><img src="../static/logo.svg" alt="site logo" class="site-logo"/></a>
+<a href="../"><em>Software Tools in JavaScript</em></a>
+</div>
+<div class="right2">
+<div class="dropdown">
+<span class="navtitle">▿ Sections</span>
+<div class="dropdown-content" id="Sections">
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Chapters</span>
+<div class="dropdown-content" id="Chapters">
+<a href="../systems-programming/"><span class="nowrap">Systems Programming</span></a>
+<br/><a href="../unit-test/"><span class="nowrap">Unit Testing</span></a>
+<br/><a href="../file-backup/"><span class="nowrap">File Backup</span></a>
+<br/><a href="../style-checker/"><span class="nowrap">Style Checker</span></a>
+<br/><a href="../code-generator/"><span class="nowrap">Code Generator</span></a>
+<br/><a href="../page-templates/"><span class="nowrap">Page Templates</span></a>
+<br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
+<br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
+<br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
+<br/><a href="../text-editor/"><span class="nowrap">Text Editor</span></a>
+<br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
+<br/><a href="../http-server/"><span class="nowrap">HTTP Server</span></a>
+<br/><a href="../tabular-data/"><span class="nowrap">Tabular Data</span></a>
+<br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
+<br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Appendices</span>
+<div class="dropdown-content" id="Appendices">
+<a href="../license/"><span class="nowrap">License</span></a>
+<br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
+<br/><a href="../bib/"><span class="nowrap">Bibliography</span></a>
+<br/><a href="../links/"><span class="nowrap">Links</span></a>
+</div>
+</div>
+</div>
+</div>
+</nav>
+  <main>
+  <h1>Build Manager</h1>
+<ul>
+<li>Rebuild files that depend on other files
+<ul>
+<li>Based on <a href="https://www.gnu.org/software/make/">Make</a> and <a href="https://www.npmjs.com/package/bajel">Bajel</a></li>
+<li>Draws on <cite>Smith2011</cite></li>
+</ul>
+</li>
+</ul>
+<h2 id="what's-in-a-build-manager%3F-%7B%23requirements%7D">What's in a build manager? {#requirements}</h2>
+<ul>
+<li>Every rule has:
+<ul>
+<li>A [target][build-target]</li>
+<li>[Dependencies][build-dependency]</li>
+<li>[Actions][build-action]</li>
+</ul>
+</li>
+<li>Forms a [directed acyclic graph][dag] (DAG)
+<ul>
+<li>Acyclic because if something depends on itself we can't ever finish updating it</li>
+</ul>
+</li>
+<li>A target is [stale][build-stale] if it is older than any of its dependencies
+<ul>
+<li>Use the actions to bring it up to date</li>
+</ul>
+</li>
+<li>So:
+<ul>
+<li>Read configuration</li>
+<li>Construct dependency graph</li>
+<li>Find out what nodes are stale</li>
+<li>Build everything that depends on them</li>
+<li>In [topological order][topological-order]</li>
+</ul>
+</li>
+</ul>
+<h2 id="where-should-we-start%3F-%7B%23starting-point%7D">Where should we start? {#starting-point}</h2>
+<ul>
+<li>Going to experiment with a lot of these so write a general-purpose driver
+<ul>
+<li>A simple example of the [Template Method][template-method-pattern] pattern</li>
+<li>The <code>build</code> method defined in the base class does some things and then calls <code>run</code></li>
+<li>The child class <em>must</em> define <code>run</code> to do its part</li>
+</ul>
+</li>
+<li>Driver loads a class, creates an instance, and asks it to build</li>
+</ul>
+<pre title="driver.js"><code class="language-js">const BuilderClass = require(process.argv[2])
+const builder = new BuilderClass(process.argv[3])
+builder.build()
+</code></pre>
+<ul>
+<li>Class that simple builders must be derived from</li>
+</ul>
+<pre title="simple-builder.js"><code class="language-js">const assert = require('assert')
+const fs = require('fs')
+const yaml = require('yaml')
+const graphlib = require('@dagrejs/graphlib')
+
+class SimpleBuilder {
+  constructor (configName = null) {
+    this.config = yaml.parse(fs.readFileSync(configName, 'utf-8'))
+    this.checkConfig()
+  }
+
+  build () {
+    this.buildGraph()
+    this.checkCycles()
+    this.run()
+  }
+
+  checkConfig () {
+    assert(Array.isArray(this.config),
+           `Configuration must be array`)
+    this.config.forEach(rule => {
+      assert(('target' in rule) && (typeof rule.target === 'string'),
+             `Rule ${JSON.stringify(rule)} does not string as 'target'`)
+      assert(('depends' in rule) &&
+             Array.isArray(rule.depends) &&
+             rule.depends.every(dep => (typeof dep === 'string')),
+             `Rule ${JSON.stringify(rule)} does not have list of strings as 'depends'`)
+      assert(('actions' in rule) &&
+             Array.isArray(rule.actions) &&
+             rule.actions.every(action => (typeof action === 'string')),
+             `Rule ${JSON.stringify(rule)} does not have list of strings as 'actions'`)
+    })
+  }
+
+  buildGraph () {
+    this.graph = new graphlib.Graph()
+    this.config.forEach(rule => {
+      this.graph.setNode(rule.target, {
+        actions: rule.actions
+      })
+      rule.depends.forEach(dep => this.graph.setEdge(dep, rule.target))
+    })
+  }
+
+  checkCycles () {
+    const cycles = graphlib.alg.findCycles(this.graph)
+    assert.equal(cycles.length, 0,
+                 `Dependency graph contains cycles ${cycles}`)
+  }
+
+  run () {
+    assert.fail(`run method not implemented`)
+  }
+}
+
+module.exports = SimpleBuilder
+</code></pre>
+<ul>
+<li>Example of derived (runnable) class</li>
+</ul>
+<pre title="display-only.js"><code class="language-js">const graphlib = require('@dagrejs/graphlib')
+
+const SimpleBuilder = require('./simple-builder')
+
+class DisplayOnly extends SimpleBuilder {
+  run () {
+    console.log(graphlib.json.write(this.graph))
+    console.log(graphlib.alg.topsort(this.graph))
+  }
+}
+
+module.exports = DisplayOnly
+</code></pre>
+<ul>
+<li>Configuration file</li>
+</ul>
+<pre title="three-simple-rules.yaml"><code class="language-yaml">- target: A
+  depends:
+  - B
+  - C
+  actions:
+  - "update A from B and C"
+- target: B
+  depends:
+  - C
+  actions:
+  - "update B from C"
+- target: C
+  depends: []
+  actions: []
+</code></pre>
+<ul>
+<li>Execution and output</li>
+</ul>
+  <pre title="display-only.sh"><code class="language-sh">node driver.js ./display-only three-simple-rules.yml
+</code></pre>
+  <pre title="display-only.text"><code class="language-text">{
+  options: { directed: true, multigraph: false, compound: false },
+  nodes: [
+    { v: 'A', value: [Object] },
+    { v: 'B', value: [Object] },
+    { v: 'C', value: [Object] }
+  ],
+  edges: [ { v: 'B', w: 'A' }, { v: 'C', w: 'A' }, { v: 'C', w: 'B' } ]
+}
+[ 'C', 'B', 'A' ]
+</code></pre>
+<h2 id="how-can-we-tell-if-a-file-is-stale%3F-%7B%23stale-files%7D">How can we tell if a file is stale? {#stale-files}</h2>
+<ul>
+<li>Classic approach is to compare timestamps</li>
+<li>For testing, take another configuration file and add fake timestamps to nodes</li>
+<li>Extra file
+<ul>
+<li>Clumsy to have the derived class magically know which argument to use</li>
+</ul>
+</li>
+</ul>
+<pre title="add-timestamps.yaml"><code class="language-yaml">A: 2
+B: 5
+C: 8
+</code></pre>
+<ul>
+<li>Execution</li>
+</ul>
+  <pre title="add-timestamps.js"><code class="language-js">const assert = require('assert')
+const fs = require('fs')
+const yaml = require('yaml')
+const graphlib = require('@dagrejs/graphlib')
+
+const SimpleBuilder = require('./simple-builder')
+
+class AddTimestamps extends SimpleBuilder {
+  run () {
+    this.decorate(process.argv[4])
+    console.log(this.graph.nodes().map(
+      n => `${n}: ${JSON.stringify(this.graph.node(n))}`
+    ))
+  }
+
+  decorate (filename) {
+    const decorations = yaml.parse(fs.readFileSync(filename, 'utf-8'))
+    for (const node of Object.keys(decorations)) {
+      this.graph.node(node).timestamp = decorations[node]
+    }
+    const missing = this.graph.nodes().filter(
+      n => !('timestamp' in this.graph.node(n))
+    )
+    assert.equal(missing.length, 0,
+                 `Timestamp missing for node(s) ${missing}`)
+  }
+}
+
+module.exports = AddTimestamps
+</code></pre>
+  <pre title="add-timestamps.sh"><code class="language-sh">node driver.js ./add-timestamps three-simple-rules.yml add-timestamps.yml
+</code></pre>
+  <pre title="add-timestamps.text"><code class="language-text">[
+  'A: {"actions":["update A from B and C"],"timestamp":2}',
+  'B: {"actions":["update B from C"],"timestamp":5}',
+  'C: {"actions":[],"timestamp":8}'
+]
+</code></pre>
+<ul>
+<li>Set current time to maximum file time</li>
+<li>For each file from the &quot;bottom&quot; to the top:
+<ul>
+<li>If file is older than any of its dependencies, update it</li>
+</ul>
+</li>
+</ul>
+  <pre title="update-on-timestamp.js"><code class="language-js">const graphlib = require('@dagrejs/graphlib')
+
+const AddTimestamps = require('./add-timestamps')
+
+class UpdateOnTimestamp extends AddTimestamps {
+  run () {
+    this.decorate(process.argv[4])
+    const sorted = graphlib.alg.topsort(this.graph)
+    const startTime = Math.max(...sorted.map(n => this.graph.node(n).timestamp))
+    console.log(`${startTime}: START`)
+    const endTime = sorted.reduce((currTime, node) => {
+      if (this.isStale(node)) {
+        console.log(`${currTime}: ${node}`)
+        this.graph.node(node).actions.forEach(a => console.log(`\t${a}`))
+        this.graph.node(node).timestamp = currTime
+        currTime += 1
+      }
+      return currTime
+    }, startTime + 1)
+    console.log(`${endTime}: END`)
+  }
+
+  isStale (node) {
+    return this.graph.predecessors(node).some(
+      other => this.graph.node(other).timestamp >= this.graph.node(node).timestamp 
+    )
+  }
+}
+
+module.exports = UpdateOnTimestamp
+</code></pre>
+  <pre title="update-on-timestamp.sh"><code class="language-sh">node driver.js ./update-on-timestamp three-simple-rules.yml add-timestamps.yml
+</code></pre>
+  <pre title="update-on-timestamp.text"><code class="language-text">8: START
+9: B
+	update B from C
+10: A
+	update A from B and C
+11: END
+</code></pre>
+<h2 id="how-can-we-add-generic-build-rules%3F-%7B%23generic-rules%7D">How can we add generic build rules? {#generic-rules}</h2>
+<ul>
+<li>We now want to add [build rules][build-rule]
+<ul>
+<li>&quot;Build all things in this set the same way&quot;</li>
+</ul>
+</li>
+<li>Need:
+<ul>
+<li>A way to define a set of files</li>
+<li>A way to specify a generic rule</li>
+<li>A way to fill in parts of that rule</li>
+</ul>
+</li>
+<li>Override <code>SimpleBuilder.buildGraph</code> to replace variables in actions with values
+<ul>
+<li>Object-oriented programming helps us change only what we need to change</li>
+<li>Depends on a good initial division into overridable chunks</li>
+</ul>
+</li>
+<li>Make provides [automatic variables][automatic-variable] with names like <code>$&lt;</code> and <code>$@</code></li>
+<li>Ours will be more readable
+<ul>
+<li><code>@TARGET</code> for the target</li>
+<li><code>@DEPENDENCIES</code> for all dependencies (in order)</li>
+<li><code>@DEP[1]</code>, <code>@DEP[2]</code>, etc., for specific dependencies
+<ul>
+<li>Count from 1 like humans do</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Build the action through brute force string substitution
+<ul>
+<li>Look at more efficient strategies in the exercises</li>
+</ul>
+</li>
+</ul>
+  <pre title="variable-expander.js"><code class="language-js">const graphlib = require('@dagrejs/graphlib')
+
+const UpdateOnTimestamp = require('./update-on-timestamp')
+
+class VariableExpander extends UpdateOnTimestamp {
+  buildGraph () {
+    super.buildGraph()
+    this.expandVariables()
+  }
+
+  expandVariables () {
+    this.graph.nodes().forEach(target => {
+      try {
+        const dependencies = this.graph.predecessors(target)
+        const actions = this.graph.node(target).actions
+        this.graph.node(target).actions = actions.map(act => {
+          act = act
+            .replace('@TARGET', target)
+            .replace('@DEPENDENCIES', dependencies.join(' ' ))
+          dependencies.forEach((dep, i) => {
+            act = act.replace(`@DEP[${i}]`, dependencies[i])
+          })
+          return act
+        })
+      }
+      catch (error) {
+        console.error(`Cannot find ${target} in graph`)
+        process.exit(1)
+      }
+    })
+  }
+}
+
+module.exports = VariableExpander
+</code></pre>
+  <pre title="variable-expander.text"><code class="language-text">8: START
+9: B
+	update B from C
+10: A
+	update A from B C
+11: END
+</code></pre>
+<ul>
+<li>Now we need [pattern rules][pattern-rule]</li>
+<li>First attempt at rules file looks like this</li>
+</ul>
+<pre title="pattern-rules.yaml"><code class="language-yaml">- target: left.out
+  depends: []
+  actions: []
+  timestamp: 1
+- target: left.in
+  depends: []
+  actions: []
+  timestamp: 2
+- target: right.out
+  depends: []
+  actions: []
+  timestamp: 1
+- target: right.in
+  depends: []
+  actions: []
+  timestamp: 3
+- target: %.out
+  depends:
+  - %.in
+  actions:
+  - "update @TARGET from @DEPENDENCIES"
+</code></pre>
+<ul>
+<li>First attempt at reading it doesn't work</li>
+</ul>
+  <pre title="pattern-user-attempt.js"><code class="language-js">const graphlib = require('@dagrejs/graphlib')
+
+const VariableExpander = require('./variable-expander')
+
+class PatternUserAttempt extends VariableExpander {
+  buildGraph () {
+    super.buildGraph()
+    this.extractRules()
+    this.expandVariables()
+  }
+
+  extractRules () {
+    this.rules = new Map()
+    this.graph.nodes().forEach(target => {
+      if (target.includes('%')) {
+        const data = {
+          actions: this.graph.node(target).actions
+        }
+        this.rules.set(target, data)
+      }
+    })
+    this.rules.forEach((value, key) => {
+      console.log('removing', key)
+      this.graph.removeNode(key)
+    })
+  }
+}
+
+module.exports = PatternUserAttempt
+</code></pre>
+  <pre title="pattern-user-attempt.sh"><code class="language-sh">node driver.js ./pattern-user-attempt pattern-rules.yml add-timestamps.yml
+</code></pre>
+  <pre title="pattern-user-attempt.text"><code class="language-text">Cannot find %.in in graph
+</code></pre>
+<ul>
+<li>Our simple graph loader creates nodes for dependencies even if they aren't targets</li>
+<li>So we wind up tripping over the lack of a node for <code>%.in</code> before we get to extracting rules</li>
+<li>Wind rewrite the rule loader to separate pattern rules from simple rules
+<ul>
+<li>Add a method to convert the build graph to JSON for display, since we now have an extra data structure</li>
+<li>Check that simple rules' dependencies don't include <code>%</code></li>
+<li>And add timestamps as an optional field to rules for testing purposes rather than having them in a separate file</li>
+</ul>
+</li>
+</ul>
+  <pre title="pattern-user-read.js"><code class="language-js">const assert = require('assert')
+const graphlib = require('@dagrejs/graphlib')
+
+const VariableExpander = require('./variable-expander')
+
+class PatternUserRead extends VariableExpander {
+  buildGraph () {
+    this.buildGraphAndRules()
+    this.expandVariables()
+  }
+
+  run () {
+    console.log(JSON.stringify(this.toJSON(), null, 2))
+  }
+
+  buildGraphAndRules () {
+    this.graph = new graphlib.Graph()
+    this.rules = new Map()
+    this.config.forEach(rule => {
+      if (rule.target.includes('%')) {
+        const data = {
+          actions: rule.actions,
+          depends: rule.depends
+        }
+        this.rules.set(rule.target, data)
+      }
+      else {
+        const timestamp = ('timestamp' in rule)
+          ? rule.timestamp
+          : null
+        this.graph.setNode(rule.target, {
+          actions: rule.actions,
+          timestamp: timestamp
+        })
+        rule.depends.forEach(dep => {
+          assert(!dep.includes('%'),
+                 `Cannot have '%' in a non-pattern rule`)
+          this.graph.setEdge(dep, rule.target)
+        })
+      }
+    })
+  }
+
+  toJSON () {
+    return {
+      graph: graphlib.json.write(this.graph),
+      rules: Array.from(this.rules.keys()).map(key => {
+        return {k: key, v: this.rules.get(key)}
+      })
+    }
+  }
+}
+
+module.exports = PatternUserRead
+</code></pre>
+  <pre title="pattern-user-read.sh"><code class="language-sh">node driver.js ./pattern-user-read pattern-rules.yml
+</code></pre>
+  <pre title="pattern-user-read.text"><code class="language-text">{
+  "graph": {
+    "options": {
+      "directed": true,
+      "multigraph": false,
+      "compound": false
+    },
+    "nodes": [
+      {
+        "v": "left.out",
+        "value": {
+          "actions": [],
+          "timestamp": 1
+        }
+      },
+      {
+        "v": "left.in",
+        "value": {
+          "actions": [],
+          "timestamp": 2
+        }
+      },
+      {
+        "v": "right.out",
+        "value": {
+          "actions": [],
+          "timestamp": 1
+        }
+      },
+      {
+        "v": "right.in",
+        "value": {
+          "actions": [],
+          "timestamp": 3
+        }
+      }
+    ],
+    "edges": []
+  },
+  "rules": [
+    {
+      "k": "%.out",
+      "v": {
+        "actions": [
+          "update @TARGET from @DEPENDENCIES"
+        ],
+        "depends": [
+          "%.in"
+        ]
+      }
+    }
+  ]
+}
+</code></pre>
+<ul>
+<li>Order of operations is important
+<ul>
+<li>Load file, separating simple rules from pattern rules</li>
+<li>Expand uses of the pattern rules to add more nodes to the graph</li>
+<li>Expand variables</li>
+<li>Run the completed graph</li>
+</ul>
+</li>
+<li>Because we used <code>run</code> to print the graph in <code>simple-user-read.js</code>, we have to:
+<ul>
+<li>Reimplement it here</li>
+<li>Call up to a grandparent</li>
+</ul>
+</li>
+<li>This tells us that we should refactor our base class(es) to create more [affordances][affordance]</li>
+</ul>
+  <pre title="pattern-user-run.js"><code class="language-js">const assert = require('assert')
+const graphlib = require('@dagrejs/graphlib')
+
+const PatternUserRead = require('./pattern-user-read')
+
+class PatternUserRun extends PatternUserRead {
+  buildGraph () {
+    this.buildGraphAndRules()
+    this.expandAllRules()
+    this.expandVariables()
+  }
+
+  expandAllRules () {
+    this.graph.nodes().forEach(target => {
+      if (this.graph.predecessors(target).length > 0) {
+        return
+      }
+      const data = this.graph.node(target)
+      if (data.actions.length > 0) {
+        return
+      }
+      const rule = this.findRule(target)
+      if (!rule) {
+        return
+      }
+      this.expandRule(target, rule)
+    })
+  }
+
+  findRule (target) {
+    const pattern = `%.${target.split('.')[1]}`
+    return this.rules.has(pattern)
+      ? this.rules.get(pattern)
+      : null
+  }
+
+  expandRule (target, rule) {
+    const stem = target.split('.')[0]
+    rule.depends
+      .map(dep => dep.replace('%', stem))
+      .forEach(dep => this.graph.setEdge(dep, target))
+    const actions = rule.actions.map(act => act.replace('%', stem))
+    const timestamp = this.graph.node(target).timestamp
+    this.graph.setNode(target, {
+      actions: actions,
+      timestamp: timestamp
+    })
+  }
+
+  run () {
+    const sorted = graphlib.alg.topsort(this.graph)
+    const startTime = Math.max(...sorted.map(n => this.graph.node(n).timestamp))
+    console.log(`${startTime}: START`)
+    const endTime = sorted.reduce((currTime, node) => {
+      if (this.isStale(node)) {
+        console.log(`${currTime}: ${node}`)
+        this.graph.node(node).actions.forEach(a => console.log(`\t${a}`))
+        this.graph.node(node).timestamp = currTime
+        currTime += 1
+      }
+      return currTime
+    }, startTime + 1)
+    console.log(`${endTime}: END`)
+  }
+}
+
+module.exports = PatternUserRun
+</code></pre>
+  <pre title="pattern-user-run.text"><code class="language-text">3: START
+4: left.out
+	update left.out from left.in
+5: right.out
+	update right.out from right.in
+6: END
+</code></pre>
+</main>
+<footer>
+<div class="row">
+<div class="left3">
+<a href="../tabular-data/"><em>&laquo; Tabular Data</em></a>
+</div>
+<div class="middle3">
+<a href="../license/"><img class="footer" src="../static/cc-by.svg" alt="License" /></a>
+<a href="https://github.com/gvwilson/e/"><img class="footer" src="../static/github.svg" alt="Repository" /></a>
+© 2020 <a href="../authors/">The Authors</a>
+</div>
+<div class="right3">
+<a href="../package-manager/"><em>Package Manager &raquo;</em></a>
+</div>
+</div>
+</footer>
+</body>
+</html>

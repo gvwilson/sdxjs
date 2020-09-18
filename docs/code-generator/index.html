@@ -1,0 +1,497 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <title>Code Generator</title>
+  <meta name="relativeRoot" content="..">
+  <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
+  <link href="../static/trac.css" rel="stylesheet" type="text/css">
+  <link href="../static/site.css" rel="stylesheet" type="text/css">
+  <script src="../static/site.js"></script>
+  <script>window.onload = () => fixPage()</script>
+</head>
+<body id="_top">
+<nav>
+<div class="row">
+<div class="left2">
+<a href="http://third-bit.com"><img src="../static/logo.svg" alt="site logo" class="site-logo"/></a>
+<a href="../"><em>Software Tools in JavaScript</em></a>
+</div>
+<div class="right2">
+<div class="dropdown">
+<span class="navtitle">▿ Sections</span>
+<div class="dropdown-content" id="Sections">
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Chapters</span>
+<div class="dropdown-content" id="Chapters">
+<a href="../systems-programming/"><span class="nowrap">Systems Programming</span></a>
+<br/><a href="../unit-test/"><span class="nowrap">Unit Testing</span></a>
+<br/><a href="../file-backup/"><span class="nowrap">File Backup</span></a>
+<br/><a href="../style-checker/"><span class="nowrap">Style Checker</span></a>
+<br/><a href="../code-generator/"><span class="nowrap">Code Generator</span></a>
+<br/><a href="../page-templates/"><span class="nowrap">Page Templates</span></a>
+<br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
+<br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
+<br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
+<br/><a href="../text-editor/"><span class="nowrap">Text Editor</span></a>
+<br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
+<br/><a href="../http-server/"><span class="nowrap">HTTP Server</span></a>
+<br/><a href="../tabular-data/"><span class="nowrap">Tabular Data</span></a>
+<br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
+<br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Appendices</span>
+<div class="dropdown-content" id="Appendices">
+<a href="../license/"><span class="nowrap">License</span></a>
+<br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
+<br/><a href="../bib/"><span class="nowrap">Bibliography</span></a>
+<br/><a href="../links/"><span class="nowrap">Links</span></a>
+</div>
+</div>
+</div>
+</div>
+</nav>
+  <main>
+  <h1>Code Generator</h1>
+<p>Code coverage like <a href="https://istanbul.js.org/">Istanbul</a> to show what has and hasn't been tested.</p>
+<h2 id="how-can-i-generate-javascript%3F-%7B%23generating%7D">How can I generate JavaScript? {#generating}</h2>
+<ul>
+<li>Use <code>escodegen</code> to turn an <code>acorn</code> parse tree back into code
+<ul>
+<li>Creates program text but does not run it</li>
+</ul>
+</li>
+<li>Look at the <code>acorn</code> parse tree for a simple function definition</li>
+</ul>
+  <pre title="func-def.js"><code class="language-js">const acorn = require('acorn')
+
+const text = `const func = (param) => {
+  return param + 1
+}`
+
+const ast = acorn.parse(text)
+console.log(JSON.stringify(ast, null, space=2))
+</code></pre>
+  <pre title="func-def.text"><code class="language-text">{
+  "type": "Program",
+  "start": 0,
+  "end": 46,
+  "body": [
+    {
+      "type": "VariableDeclaration",
+      "start": 0,
+      "end": 46,
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "start": 6,
+          "end": 46,
+          "id": {
+            "type": "Identifier",
+            "start": 6,
+            "end": 10,
+            "name": "func"
+          },
+          "init": {
+            "type": "ArrowFunctionExpression",
+            "start": 13,
+            "end": 46,
+            "id": null,
+            "expression": false,
+            "generator": false,
+            "async": false,
+            "params": [
+              {
+                "type": "Identifier",
+                "start": 14,
+                "end": 19,
+                "name": "param"
+              }
+            ],
+            "body": {
+              "type": "BlockStatement",
+              "start": 24,
+              "end": 46,
+              "body": [
+                {
+                  "type": "ReturnStatement",
+                  "start": 28,
+                  "end": 44,
+                  "argument": {
+                    "type": "BinaryExpression",
+                    "start": 35,
+                    "end": 44,
+                    "left": {
+                      "type": "Identifier",
+                      "start": 35,
+                      "end": 40,
+                      "name": "param"
+                    },
+                    "operator": "+",
+                    "right": {
+                      "type": "Literal",
+                      "start": 43,
+                      "end": 44,
+                      "value": 1,
+                      "raw": "1"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "kind": "const"
+    }
+  ],
+  "sourceType": "script"
+}
+</code></pre>
+<ul>
+<li>Pick out the node(s) of interest and reverse engineer them</li>
+</ul>
+  <pre title="one-plus-two.js"><code class="language-js">const escodegen = require('escodegen')
+
+const result = escodegen.generate({
+  type: 'BinaryExpression',
+  operator: '+',
+  left: { type: 'Literal', value: 40 },
+  right: { type: 'Literal', value: 2 }
+})
+console.log(result)
+</code></pre>
+  <pre title="one-plus-two.text"><code class="language-text">40 + 2
+</code></pre>
+<h2 id="how-can-i-count-how-often-functions-are-executed%3F-%7B%23counting%7D">How can I count how often functions are executed? {#counting}</h2>
+<ul>
+<li>Find all function declaration nodes</li>
+<li>Insert a node to increment an entry in a global variable <code>__counters</code></li>
+</ul>
+  <pre title="multi-func-counter.js"><code class="language-js">const acorn = require('acorn')
+const walk = require('acorn-walk')
+const escodegen = require('escodegen')
+
+const text = `
+const funcOuter = (param) => {
+  return param + 1
+}
+const funcInner = (param) => {
+  return param + 1
+}
+for (const i of [1, 3, 5]) {
+  funcOuter(funcInner(i) + funcInner(i))
+}
+`
+
+const main = () => {
+  const ast = acorn.parse(text)
+
+  const allNodes = []
+  walk.simple(ast, {
+    VariableDeclarator: (node, state) => {
+      if (node.init && (node.init.type == 'ArrowFunctionExpression')) {
+        state.push(node)
+      }
+    }
+  }, null, allNodes)
+
+  const names = {}
+  allNodes.forEach(node => insertCounter(names, node))
+  console.log(initializeCounters(names))
+  console.log(escodegen.generate(ast))
+  console.log(reportCounters())
+}
+
+const insertCounter = (names, node) => {
+  const name = node.id.name
+  names[name] = 0
+
+  const body = node.init.body.body
+  const increment = acorn.parse(`__counters['${name}'] += 1`)
+  body.unshift(increment)
+}
+
+const initializeCounters = (names) => {
+  body = Object.keys(names).map(n => `'${n}': 0`).join(',\n')
+  return 'const __counters = {\n' + body + '\n}'
+}
+
+const reportCounters = () => {
+  return 'console.log(__counters)'
+}
+
+main()
+</code></pre>
+  <pre title="multi-func-counter.text"><code class="language-text">const __counters = {
+'funcOuter': 0,
+'funcInner': 0
+}
+const funcOuter = param => {
+        __counters['funcOuter'] += 1;
+    return param + 1;
+};
+const funcInner = param => {
+        __counters['funcInner'] += 1;
+    return param + 1;
+};
+for (const i of [
+        1,
+        3,
+        5
+    ]) {
+    funcOuter(funcInner(i) + funcInner(i));
+}
+console.log(__counters)
+</code></pre>
+<h2 id="how-can-i-replace-a-function-with-another-function%3F-%7B%23replacing%7D">How can I replace a function with another function? {#replacing}</h2>
+<ul>
+<li>Use <code>...args</code> to capture and forward all arguments</li>
+<li>Handle and re-throw all errors</li>
+</ul>
+  <pre title="replace-func.js"><code class="language-js">let funcZero = () => console.log('funcZero')
+
+let funcOne = (first) => console.log(`funcOne(${first})`)
+
+let funcTwo = (first, second) => console.log(`funcTwo(${first}, ${second})`)
+
+let funcError = () => {
+  console.log('funcError')
+  throw new Error('from funcError')
+  console.log('should not reach this')
+}
+
+const runAll = (title) => {
+  console.log(title)
+  funcZero()
+  funcOne(1)
+  funcTwo(1, 2)
+  try {
+    funcError()
+  } catch (error) {
+    console.log(`caught ${error} as expected`)
+  }
+  console.log()
+}
+
+runAll('first time')
+
+let replace = (func) => {
+  return (...args) => {
+    console.log('before')
+    try {
+      result = func(...args)
+      console.log('after')
+      return result
+    } catch (error) {
+      console.log('error')
+      throw error
+    }
+  }
+}
+
+funcZero = replace(funcZero)
+funcOne = replace(funcOne)
+funcTwo = replace(funcTwo)
+funcError = replace(funcError)
+
+runAll('second time')
+</code></pre>
+  <pre title="replace-func.text"><code class="language-text">first time
+funcZero
+funcOne(1)
+funcTwo(1, 2)
+funcError
+caught Error: from funcError as expected
+
+second time
+before
+funcZero
+after
+before
+funcOne(1)
+after
+before
+funcTwo(1, 2)
+after
+before
+funcError
+error
+caught Error: from funcError as expected
+
+</code></pre>
+<h2 id="how-can-i-time-function-execution%3F-%7B%23timing%7D">How can I time function execution? {#timing}</h2>
+<ul>
+<li>Find all the function declarations</li>
+<li>Create a wrapper that
+<ul>
+<li>Records the start time</li>
+<li>Calls the original function</li>
+<li>Records the difference between the start time and the end time</li>
+</ul>
+</li>
+<li>Then replace a placeholder definition of <code>originalFunc</code> in the wrapper with the actual function definition</li>
+</ul>
+<pre title="time-func.js"><code class="language-js">const acorn = require('acorn')
+const walk = require('acorn-walk')
+const escodegen = require('escodegen')
+
+const timeFunc = (text) => {
+  const ast = acorn.parse(text)
+  const allNodes = gatherNodes(ast)
+  allNodes.forEach(node => wrapFuncDef(node))
+  return [
+    initializeCounters(allNodes),
+    escodegen.generate(ast),
+    reportCounters()
+  ].join('\n')
+}
+
+const gatherNodes = (ast) => {
+  const allNodes = []
+  walk.simple(ast, {
+    VariableDeclarator: (node, state) => {
+      if (node.init && (node.init.type == 'ArrowFunctionExpression')) {
+        state.push(node)
+      }
+    }
+  }, null, allNodes)
+  return allNodes
+}
+
+const wrapFuncDef = (originalAst) => {
+  const name = originalAst.id.name
+  const wrapperAst = makeWrapperAst(name)
+  wrapperAst.init.body.body[0].declarations[0].init = originalAst.init
+  originalAst.init = wrapperAst.init
+}
+
+const makeWrapperAst = (name) => {
+  const template = `const ${name} = (...originalArgs) => {
+    const originalFunc = () => {}
+    const startTime = Date.now()
+    try {
+      const result = originalFunc(...originalArgs)
+      const endTime = Date.now()
+      __counters['${name}'] += endTime - startTime
+      return result
+    } catch (error) {
+      const endTime = Date.now()
+      __counters['${name}'] += endTime - startTime
+      throw error
+    }
+  }`
+  return acorn.parse(template).body[0].declarations[0]
+}
+
+const initializeCounters = (nodes) => {
+  body = nodes.map(n => `'${n.id.name}': 0`).join(',\n')
+  return 'const __counters = {\n' + body + '\n}'
+}
+
+const reportCounters = () => {
+  return 'console.log(__counters)'
+}
+
+module.exports = timeFunc
+</code></pre>
+<ul>
+<li>A quick test</li>
+</ul>
+  <pre title="test-time-func.js"><code class="language-js">const timeFunc = require('./time-func')
+
+const text = `
+const fs = require('fs')
+
+const assignment = (range) => {
+  let j = 0
+  for (let i=0; i<range; i+=1) {
+    j = i
+  }
+}
+
+const readFile = (range, filename) => {
+  for (let i=0; i<range; i+=1) {
+    fs.readFileSync(filename)
+  }
+}
+
+const numLoops = 100000
+assignment(numLoops)
+readFile(numLoops, 'index.md')
+`
+
+const program = timeFunc(text)
+console.log(program)
+console.log('OUTPUT')
+eval(program)
+</code></pre>
+  <pre title="test-time-func.text"><code class="language-text">const __counters = {
+'assignment': 0,
+'readFile': 0
+}
+const fs = require('fs');
+const assignment = (...originalArgs) => {
+    const originalFunc = range => {
+        let j = 0;
+        for (let i = 0; i < range; i += 1) {
+            j = i;
+        }
+    };
+    const startTime = Date.now();
+    try {
+        const result = originalFunc(...originalArgs);
+        const endTime = Date.now();
+        __counters['assignment'] += endTime - startTime;
+        return result;
+    } catch (error) {
+        const endTime = Date.now();
+        __counters['assignment'] += endTime - startTime;
+        throw error;
+    }
+};
+const readFile = (...originalArgs) => {
+    const originalFunc = (range, filename) => {
+        for (let i = 0; i < range; i += 1) {
+            fs.readFileSync(filename);
+        }
+    };
+    const startTime = Date.now();
+    try {
+        const result = originalFunc(...originalArgs);
+        const endTime = Date.now();
+        __counters['readFile'] += endTime - startTime;
+        return result;
+    } catch (error) {
+        const endTime = Date.now();
+        __counters['readFile'] += endTime - startTime;
+        throw error;
+    }
+};
+const numLoops = 100000;
+assignment(numLoops);
+readFile(numLoops, 'index.md');
+console.log(__counters)
+OUTPUT
+{ assignment: 2, readFile: 1478 }
+</code></pre>
+</main>
+<footer>
+<div class="row">
+<div class="left3">
+<a href="../style-checker/"><em>&laquo; Style Checker</em></a>
+</div>
+<div class="middle3">
+<a href="../license/"><img class="footer" src="../static/cc-by.svg" alt="License" /></a>
+<a href="https://github.com/gvwilson/e/"><img class="footer" src="../static/github.svg" alt="Repository" /></a>
+© 2020 <a href="../authors/">The Authors</a>
+</div>
+<div class="right3">
+<a href="../page-templates/"><em>Page Templates &raquo;</em></a>
+</div>
+</div>
+</footer>
+</body>
+</html>

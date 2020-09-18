@@ -1,0 +1,630 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <title>Documentation Generator</title>
+  <meta name="relativeRoot" content="..">
+  <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
+  <link href="../static/trac.css" rel="stylesheet" type="text/css">
+  <link href="../static/site.css" rel="stylesheet" type="text/css">
+  <script src="../static/site.js"></script>
+  <script>window.onload = () => fixPage()</script>
+</head>
+<body id="_top">
+<nav>
+<div class="row">
+<div class="left2">
+<a href="http://third-bit.com"><img src="../static/logo.svg" alt="site logo" class="site-logo"/></a>
+<a href="../"><em>Software Tools in JavaScript</em></a>
+</div>
+<div class="right2">
+<div class="dropdown">
+<span class="navtitle">▿ Sections</span>
+<div class="dropdown-content" id="Sections">
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Chapters</span>
+<div class="dropdown-content" id="Chapters">
+<a href="../systems-programming/"><span class="nowrap">Systems Programming</span></a>
+<br/><a href="../unit-test/"><span class="nowrap">Unit Testing</span></a>
+<br/><a href="../file-backup/"><span class="nowrap">File Backup</span></a>
+<br/><a href="../style-checker/"><span class="nowrap">Style Checker</span></a>
+<br/><a href="../code-generator/"><span class="nowrap">Code Generator</span></a>
+<br/><a href="../page-templates/"><span class="nowrap">Page Templates</span></a>
+<br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
+<br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
+<br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
+<br/><a href="../text-editor/"><span class="nowrap">Text Editor</span></a>
+<br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
+<br/><a href="../http-server/"><span class="nowrap">HTTP Server</span></a>
+<br/><a href="../tabular-data/"><span class="nowrap">Tabular Data</span></a>
+<br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
+<br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Appendices</span>
+<div class="dropdown-content" id="Appendices">
+<a href="../license/"><span class="nowrap">License</span></a>
+<br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
+<br/><a href="../bib/"><span class="nowrap">Bibliography</span></a>
+<br/><a href="../links/"><span class="nowrap">Links</span></a>
+</div>
+</div>
+</div>
+</div>
+</nav>
+  <main>
+  <h1>Documentation Generator</h1>
+<ul>
+<li>Extract specially-formatted comments from code
+and generate documentation for the package like <a href="https://esdoc.org/">ESDoc</a>.</li>
+</ul>
+<h2 id="how-can-we-extract-documentation-comments%3F-%7B%23extracting%7D">How can we extract documentation comments? {#extracting}</h2>
+<ul>
+<li>Use <a href="https://github.com/acornjs/acorn">Acorn</a> once again to extract comments
+<ul>
+<li>Provide an <code>onComment</code> option with an array value</li>
+</ul>
+</li>
+<li>Test it out</li>
+</ul>
+<pre title="extract-comments.js"><code class="language-js">const fs = require('fs')
+const acorn = require('acorn')
+
+const text = fs.readFileSync(process.argv[2])
+const options = {locations: true, onComment: []}
+const ast = acorn.parse(text, options)
+console.log(JSON.stringify(options.onComment, null, 2))
+</code></pre>
+  <pre title="two-kinds-of-comment.js"><code class="language-js">// double-slash comment
+/* slash-star comment */
+</code></pre>
+  <pre title="two-kinds-of-comment.text"><code class="language-text">[
+  {
+    "type": "Line",
+    "value": " double-slash comment",
+    "start": 0,
+    "end": 23,
+    "loc": {
+      "start": {
+        "line": 1,
+        "column": 0
+      },
+      "end": {
+        "line": 1,
+        "column": 23
+      }
+    }
+  },
+  {
+    "type": "Block",
+    "value": " slash-star comment ",
+    "start": 24,
+    "end": 48,
+    "loc": {
+      "start": {
+        "line": 2,
+        "column": 0
+      },
+      "end": {
+        "line": 2,
+        "column": 24
+      }
+    }
+  }
+]
+</code></pre>
+<ul>
+<li>Show a subset of JSON going forward</li>
+</ul>
+<pre title="extract-comments-subset.js"><code class="language-js">const fs = require('fs')
+const acorn = require('acorn')
+
+const text = fs.readFileSync(process.argv[2])
+const options = {locations: true, onComment: []}
+const ast = acorn.parse(text, options)
+const subset = options.onComment.map(entry => {
+  return {
+    type: entry.type,
+    value: entry.value,
+    start: entry.loc.start.line,
+    end: entry.loc.end.line
+  }
+})
+console.log(JSON.stringify(subset, null, 2))
+</code></pre>
+  <pre title="two-kinds-of-comment-subset.sh"><code class="language-sh">node extract-comments-subset.js two-kinds-of-comment.js
+</code></pre>
+  <pre title="two-kinds-of-comment-subset.text"><code class="language-text">[
+  {
+    "type": "Line",
+    "value": " double-slash comment",
+    "start": 1,
+    "end": 1
+  },
+  {
+    "type": "Block",
+    "value": " slash-star comment ",
+    "start": 2,
+    "end": 2
+  }
+]
+</code></pre>
+<ul>
+<li>[Line comments][line-comment] can't span multiple lines
+<ul>
+<li>Consecutive line comments aren't combined</li>
+</ul>
+</li>
+</ul>
+  <pre title="multi-line-double-slash-comment.js"><code class="language-js">//
+// multi-line double-slash comment
+//
+</code></pre>
+  <pre title="multi-line-double-slash-comment.sh"><code class="language-sh">node extract-comments-subset.js multi-line-double-slash-comment.js
+</code></pre>
+  <pre title="multi-line-double-slash-comment.text"><code class="language-text">[
+  {
+    "type": "Line",
+    "value": "",
+    "start": 1,
+    "end": 1
+  },
+  {
+    "type": "Line",
+    "value": " multi-line double-slash comment",
+    "start": 2,
+    "end": 2
+  },
+  {
+    "type": "Line",
+    "value": "",
+    "start": 3,
+    "end": 3
+  }
+]
+</code></pre>
+<ul>
+<li>A [block comment][block-comment] can span any number of lines
+<ul>
+<li>Don't need to prefix each line with <code>*</code> but most people do for readability</li>
+</ul>
+</li>
+</ul>
+  <pre title="multi-line-slash-star-comment.js"><code class="language-js">/*
+ * multi-line slash-star comment
+ */
+</code></pre>
+  <pre title="multi-line-slash-star-comment.sh"><code class="language-sh">node extract-comments-subset.js multi-line-slash-star-comment.js
+</code></pre>
+  <pre title="multi-line-slash-star-comment.text"><code class="language-text">[
+  {
+    "type": "Block",
+    "value": "\n * multi-line slash-star comment\n ",
+    "start": 1,
+    "end": 3
+  }
+]
+</code></pre>
+<ul>
+<li>Could extract all block comments and use those for docs</li>
+<li>By convention, look for comments that start with <code>/**</code>
+<ul>
+<li>Which means the first character in the extracted text is <code>*</code></li>
+</ul>
+</li>
+</ul>
+  <pre title="doc-comment.js"><code class="language-js">/**
+ * doc comment
+ */
+
+</code></pre>
+  <pre title="doc-comment.text"><code class="language-text">[
+  {
+    "type": "Block",
+    "value": "*\n * doc comment\n ",
+    "start": 1,
+    "end": 3
+  }
+]
+</code></pre>
+<h2 id="what-input-will-we-try-to-handle%3F-%7B%23input%7D">What input will we try to handle? {#input}</h2>
+<ul>
+<li>Use <a href="https://github.github.com/gfm/">GitHub Flavored Markdown</a> with a few conventions</li>
+<li>Use <a href="https://marked.js.org/">marked.js</a> for parsing</li>
+<li>Function definitions look like this:</li>
+</ul>
+<pre title="example-01.js"><code class="language-js">/**
+ * # Demonstrate documentation generator.
+ */
+
+const util = require('./util-01')
+
+/**
+ * ## `main`: Main driver.
+ */
+const main = () => {
+  // Parse arguments.
+  // Process input stream.
+}
+
+/**
+ * ## `parseArgs`: Parse command-line arguments.
+ * - `args` (`string[]`): arguments to parse.
+ * - `defaults` (`Object`): default values.
+ * > Program configuration object.
+ */
+const parseArgs = (args, defaults) => {
+  // body would go here
+}
+
+/**
+ * ## `processData`: Process data from input stream, sending results to output stream.
+ * - `input` (`stream`): where to read.
+ * - `output` (`stream`): where to write.
+ * - `op` (`class`): what to do.
+ *    Use @DefaultProcessor unless told to do otherwise.
+ */
+const processData = (input, output, op=util.DefaultProcessor) => {
+  // body would go here
+}
+</code></pre>
+<ul>
+<li>Class definitions look like this:</li>
+</ul>
+<pre title="util-01.js"><code class="language-js">/**
+ * # Utilities for demonstrating documentation generator.
+ */
+
+/**
+ * ## `DefaultProcessor`: Default processing class.
+ */
+class DefaultProcessor {
+  /**
+   * ### `constructor`: Build default processor.
+   */
+  constructor () {
+    // body would go here
+  }
+
+  /**
+   * ### `run`: Pass input to output.
+   * - `input` (`stream`): where to read.
+   * - `output` (`stream`): where to write.
+   */
+  run (input, output) {
+    // body would go here
+  }
+}
+
+module.exports = DefaultProcessor
+</code></pre>
+<ul>
+<li>Lots of ugliness here
+<ul>
+<li>Repeating function and method names</li>
+<li>Have to remember the back-quotes for formatting code</li>
+</ul>
+</li>
+<li>But some good ideas
+<ul>
+<li>A link to <code>#</code> should turn into a cross-reference</li>
+</ul>
+</li>
+</ul>
+<h2 id="how-can-we-extract-and-format-comments%3F-%7B%23formatting%7D">How can we extract and format comments? {#formatting}</h2>
+<ul>
+<li>Processing looks like this</li>
+</ul>
+  <pre title="extract-and-format.js"><code class="language-js">const fs = require('fs')
+const acorn = require('acorn')
+const marked = require('marked')
+
+const main = () => {
+  const allComments = process.argv.slice(2)
+        .map(filename => {
+          const comments = extractComments(filename)
+          return {filename, comments}
+        })
+        .map(({filename, comments}) => {
+          comments = comments.map(comment => removePrefix(comment))
+          return {filename, comments}
+        })
+        .map(({filename, comments}) => {
+          const combined = comments
+                .map(comment => comment.stripped)
+                .join('\n\n')
+          return `# ${filename}\n\n${combined}`
+        })
+        .join('\n\n')
+  const html = marked(allComments, {gfm: true})
+  console.log(html)
+}
+
+const extractComments = (filename) => {
+  const text = fs.readFileSync(filename)
+  const options = {locations: true, onComment: []}
+  const ast = acorn.parse(text, options)
+  const subset = options.onComment
+        .filter(entry => entry.type === 'Block')
+        .map(entry => {
+          return {type: entry.type, value: entry.value, start: entry.start, end: entry.end}
+        })
+  return subset
+}
+
+const removePrefix = (comment) => {
+  comment.stripped = comment.value
+    .split('\n')
+    .slice(0, -1)
+    .map(line => line.replace(/^ *\/?\* */, ''))
+    .map(line => line.replace('*/', ''))
+    .join('\n')
+    .trim()
+  return comment
+}
+
+main()
+</code></pre>
+  <pre title="extract-and-format.sh"><code class="language-sh">node extract-and-format.js example-01.js util-01.js
+</code></pre>
+<div class="included-html"><h1 id="example-01js">example-01.js</h1>
+<h1 id="demonstrate-documentation-generator">Demonstrate documentation generator.</h1>
+<h2 id="main-main-driver"><code>main</code>: Main driver.</h2>
+<h2 id="parseargs-parse-command-line-arguments"><code>parseArgs</code>: Parse command-line arguments.</h2>
+<ul>
+<li><code>args</code> (<code>string[]</code>): arguments to parse.</li>
+<li><code>defaults</code> (<code>Object</code>): default values.<blockquote>
+<p>Program configuration object.</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="processdata-process-data-from-input-stream-sending-results-to-output-stream"><code>processData</code>: Process data from input stream, sending results to output stream.</h2>
+<ul>
+<li><code>input</code> (<code>stream</code>): where to read.</li>
+<li><code>output</code> (<code>stream</code>): where to write.</li>
+<li><code>op</code> (<code>class</code>): what to do.
+Use @DefaultProcessor unless told to do otherwise.</li>
+</ul>
+<h1 id="util-01js">util-01.js</h1>
+<h1 id="utilities-for-demonstrating-documentation-generator">Utilities for demonstrating documentation generator.</h1>
+<h2 id="defaultprocessor-default-processing-class"><code>DefaultProcessor</code>: Default processing class.</h2>
+<h3 id="constructor-build-default-processor"><code>constructor</code>: Build default processor.</h3>
+<h3 id="run-pass-input-to-output"><code>run</code>: Pass input to output.</h3>
+<ul>
+<li><code>input</code> (<code>stream</code>): where to read.</li>
+<li><code>output</code> (<code>stream</code>): where to write.</li>
+</ul>
+</div>
+<ul>
+<li>Lots of ugliness here
+<ul>
+<li>Double <code>h1</code> for each file (filename and title comment)</li>
+<li>Anchor IDs include full comments</li>
+<li>Cross-references don't resolve</li>
+<li>No links to (lines in) source files</li>
+</ul>
+</li>
+<li>Some visual issues can be resolved with CSS</li>
+<li>Remember: we can change our input format to make processing easier
+<ul>
+<li>As long as it also makes authoring easier</li>
+</ul>
+</li>
+</ul>
+<h2 id="how-can-we-avoid-duplicating-function-names%3F-%7B%23avoiding-duplication%7D">How can we avoid duplicating function names? {#avoiding-duplication}</h2>
+<ul>
+<li>If a comment is the first thing in a file, use it as title text
+<ul>
+<li>No heading marker required</li>
+</ul>
+</li>
+<li>For each other comment, find the node on the immediately following line
+<ul>
+<li>Can't return immediately when we find a match because methods are nested in classes</li>
+<li>Delete the line number we're seeking so that we only find the first matching node</li>
+</ul>
+</li>
+<li>Test case with one instance of each type of function</li>
+</ul>
+<pre title="find-following-input.js"><code class="language-js">/**
+ * Double the input.
+ */
+const double = (x) => 2 * x
+
+/**
+ * Triple the input.
+ */
+function triple(x) {
+  return 3 * x
+}
+
+/**
+ * Define a class.
+ */
+class Example {
+  /**
+   * Method description.
+   */
+  someMethod () {
+  }
+}
+</code></pre>
+<ul>
+<li>Extract and display information from nodes immediately following doc comments</li>
+</ul>
+  <pre title="find-following.js"><code class="language-js">const assert = require('assert')
+const fs = require('fs')
+const acorn = require('acorn')
+
+const main = () => {
+  const options = {locations: true, onComment: []}
+  const text = fs.readFileSync(process.argv[2])
+  const ast = acorn.parse(text, options)
+  const comments = options.onComment
+        .filter(entry => entry.type === 'Block')
+        .map(entry => {
+          return {value: entry.value, start: entry.loc.start.line, end: entry.loc.end.line}
+        })
+  const targets = new Set(comments.map(comment => comment.end + 1))
+  const nodes = []
+  findFollowing(ast, targets, nodes)
+  console.log(nodes.map(node => condense(node)))
+}
+
+const findFollowing = (node, targets, accum) => {
+  if ((!node) || (typeof node !== 'object') || (!('type' in node))) {
+    return
+  }
+
+  if (targets.has(node.loc.start.line)) {
+    accum.push(node)
+    targets.delete(node.loc.start.line)
+  }
+
+  for (let key in node) {
+    if (Array.isArray(node[key])) {
+      node[key].forEach(child => findFollowing(child, targets, accum))
+    }
+    else if (typeof node[key] === 'object') {
+      findFollowing(node[key], targets, accum)
+    }
+  }
+}
+
+const condense = (node) => {
+  const result = {
+    type: node.type,
+    start: node.loc.start.line
+  }
+  switch (node.type) {
+  case 'VariableDeclaration':
+    result.name = node.declarations[0].id.name
+    break
+  case 'FunctionDeclaration':
+    result.name = node.id.name
+    break
+  case 'ClassDeclaration':
+    result.name = node.id.name
+    break
+  case 'MethodDefinition':
+    result.name = node.key.name
+    break
+  default:
+    assert.fail(`Unknown node type ${node.type}`)
+    break
+  }
+  return result
+}
+
+main()
+</code></pre>
+  <pre title="find-following.sh"><code class="language-sh">node find-following.js find-following-input.js
+</code></pre>
+  <pre title="find-following.text"><code class="language-text">[
+  { type: 'VariableDeclaration', start: 4, name: 'double' },
+  { type: 'FunctionDeclaration', start: 9, name: 'triple' },
+  { type: 'ClassDeclaration', start: 16, name: 'Example' },
+  { type: 'MethodDefinition', start: 20, name: 'someMethod' }
+]
+</code></pre>
+<ul>
+<li>Use this to create better output</li>
+</ul>
+<pre title="fill-in-headers.js"><code class="language-js">const assert = require('assert')
+const marked = require('marked')
+
+const getComments = require('./get-comments.js')
+const getDefinitions = require('./get-definitions.js')
+
+const main = () => {
+  const filenames = process.argv.slice(2)
+  const allComments = getComments(filenames)
+  const allDefinitions = getDefinitions(filenames)
+  const combined = []
+  for (const [filename, comments] of allComments) {
+    const definitions = allDefinitions.get(filename)
+    const text = fillIn(filename, comments, definitions)
+    combined.push(text)
+  }
+  const html = marked(combined.join('\n\n'), {gfm: true})
+  console.log(html)
+}
+
+const fillIn = (filename, comments, definitions) => {
+  const map = definitions.reduce((map, def) => {
+    map.set(def.start, {name: def.name, type: def.type})
+    return map
+  }, new Map())
+
+  const filled = comments.map(comment => {
+    let text = comment.stripped
+    const target = comment.end + 1
+    if (map.has(target)) {
+      const def = map.get(target)
+      const level = def.type === 'MethodDefinition'
+            ? '###'
+            : '##'
+      const title = `${level} ${def.name}\n`
+      text = title + text
+    }
+    return text
+  })
+
+  return `# ${filename}\n\n` + filled.join('\n\n')
+}
+
+main()
+</code></pre>
+<div class="included-html"><h1 id="example-02js">example-02.js</h1>
+<p>Demonstrate documentation generator.</p>
+<h2 id="main">main</h2>
+<p>Main driver.</p>
+<h2 id="parseargs">parseArgs</h2>
+<p>Parse command-line arguments.</p>
+<ul>
+<li><code>args</code> (<code>string[]</code>): arguments to parse.</li>
+<li><code>defaults</code> (<code>Object</code>): default values.<blockquote>
+<p>Program configuration object.</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="processdata">processData</h2>
+<p>Process data from input stream, sending results to output stream.</p>
+<ul>
+<li><code>input</code> (<code>stream</code>): where to read.</li>
+<li><code>output</code> (<code>stream</code>): where to write.</li>
+<li><code>op</code> (<code>class</code>): what to do.
+Use @DefaultProcessor unless told to do otherwise.</li>
+</ul>
+<h1 id="util-02js">util-02.js</h1>
+<p>Utilities for demonstrating documentation generator.</p>
+<h2 id="defaultprocessor">DefaultProcessor</h2>
+<p>Default processing class.</p>
+<h3 id="constructor">constructor</h3>
+<p>Build default processor.</p>
+<h3 id="run">run</h3>
+<p>Pass input to output.</p>
+<ul>
+<li><code>input</code> (<code>stream</code>): where to read.</li>
+<li><code>output</code> (<code>stream</code>): where to write.</li>
+</ul>
+</div>
+</main>
+<footer>
+<div class="row">
+<div class="left3">
+<a href="../text-editor/"><em>&laquo; Text Editor</em></a>
+</div>
+<div class="middle3">
+<a href="../license/"><img class="footer" src="../static/cc-by.svg" alt="License" /></a>
+<a href="https://github.com/gvwilson/e/"><img class="footer" src="../static/github.svg" alt="Repository" /></a>
+© 2020 <a href="../authors/">The Authors</a>
+</div>
+<div class="right3">
+<a href="../http-server/"><em>HTTP Server &raquo;</em></a>
+</div>
+</div>
+</footer>
+</body>
+</html>

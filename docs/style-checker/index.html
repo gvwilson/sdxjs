@@ -1,0 +1,1007 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <title>Style Checker</title>
+  <meta name="relativeRoot" content="..">
+  <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
+  <link href="../static/trac.css" rel="stylesheet" type="text/css">
+  <link href="../static/site.css" rel="stylesheet" type="text/css">
+  <script src="../static/site.js"></script>
+  <script>window.onload = () => fixPage()</script>
+</head>
+<body id="_top">
+<nav>
+<div class="row">
+<div class="left2">
+<a href="http://third-bit.com"><img src="../static/logo.svg" alt="site logo" class="site-logo"/></a>
+<a href="../"><em>Software Tools in JavaScript</em></a>
+</div>
+<div class="right2">
+<div class="dropdown">
+<span class="navtitle">▿ Sections</span>
+<div class="dropdown-content" id="Sections">
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Chapters</span>
+<div class="dropdown-content" id="Chapters">
+<a href="../systems-programming/"><span class="nowrap">Systems Programming</span></a>
+<br/><a href="../unit-test/"><span class="nowrap">Unit Testing</span></a>
+<br/><a href="../file-backup/"><span class="nowrap">File Backup</span></a>
+<br/><a href="../style-checker/"><span class="nowrap">Style Checker</span></a>
+<br/><a href="../code-generator/"><span class="nowrap">Code Generator</span></a>
+<br/><a href="../page-templates/"><span class="nowrap">Page Templates</span></a>
+<br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
+<br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
+<br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
+<br/><a href="../text-editor/"><span class="nowrap">Text Editor</span></a>
+<br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
+<br/><a href="../http-server/"><span class="nowrap">HTTP Server</span></a>
+<br/><a href="../tabular-data/"><span class="nowrap">Tabular Data</span></a>
+<br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
+<br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Appendices</span>
+<div class="dropdown-content" id="Appendices">
+<a href="../license/"><span class="nowrap">License</span></a>
+<br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
+<br/><a href="../bib/"><span class="nowrap">Bibliography</span></a>
+<br/><a href="../links/"><span class="nowrap">Links</span></a>
+</div>
+</div>
+</div>
+</div>
+</nav>
+  <main>
+  <h1>Style Checker</h1>
+<ul>
+<li>Goal: check that source code conforms to style guidelines.
+<ul>
+<li>Tools like this are called [linters][linter] in honor of an early one named <code>lint</code>
+(which looked for fluff in source code).</li>
+</ul>
+</li>
+<li>Inspirations:
+<ul>
+<li><a href="https://eslint.org/">ESLint</a></li>
+</ul>
+</li>
+<li>Design:
+<ul>
+<li>Parse source to create an [abstract syntax tree][ast] (AST)</li>
+<li>[Walk][walk-a-tree] the AST and apply rules at each node</li>
+<li>Express each rule as a function that takes the node and an object for collecting results</li>
+<li>Report all results at the end</li>
+</ul>
+</li>
+</ul>
+<h2 id="how-can-we-parse-javascript-to-create-an-ast%3F">How can we parse JavaScript to create an AST?</h2>
+<ul>
+<li>Use <a href="https://github.com/acornjs/acorn">Acorn</a></li>
+</ul>
+  <pre title="parse-single-const.js"><code class="language-js">const acorn = require('acorn')
+
+const ast = acorn.parse('const x = 0', {locations: true})
+console.log(ast)
+</code></pre>
+  <pre title="parse-single-const.text"><code class="language-text">Node {
+  type: 'Program',
+  start: 0,
+  end: 11,
+  loc:
+   SourceLocation {
+     start: Position { line: 1, column: 0 },
+     end: Position { line: 1, column: 11 } },
+  body:
+   [ Node {
+       type: 'VariableDeclaration',
+       start: 0,
+       end: 11,
+       loc: [SourceLocation],
+       declarations: [Array],
+       kind: 'const' } ],
+  sourceType: 'script' }
+</code></pre>
+<h2 id="what-is-included-in-the-ast%3F">What is included in the AST?</h2>
+<ul>
+<li><a href="https://esprima.org/">Esprima</a> format</li>
+<li>Look at the result of parsing a slightly more complex program</li>
+</ul>
+  <pre title="parse-const-func-and-call.js"><code class="language-js">const acorn = require('acorn')
+
+const program = `const value = 2
+
+const double = (x) => {
+  const y = 2 * x
+  return y
+}
+
+const result = double(value)
+console.log(result)
+`
+
+const ast = acorn.parse(program, {locations: true})
+console.log(JSON.stringify(ast, null, 2))
+</code></pre>
+  <pre title="parse-const-func-and-call.text"><code class="language-text">{
+  "type": "Program",
+  "start": 0,
+  "end": 122,
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 0
+    },
+    "end": {
+      "line": 10,
+      "column": 0
+    }
+  },
+  "body": [
+    {
+      "type": "VariableDeclaration",
+      "start": 0,
+      "end": 15,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 0
+        },
+        "end": {
+          "line": 1,
+          "column": 15
+        }
+      },
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "start": 6,
+          "end": 15,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 6
+            },
+            "end": {
+              "line": 1,
+              "column": 15
+            }
+          },
+          "id": {
+            "type": "Identifier",
+            "start": 6,
+            "end": 11,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 6
+              },
+              "end": {
+                "line": 1,
+                "column": 11
+              }
+            },
+            "name": "value"
+          },
+          "init": {
+            "type": "Literal",
+            "start": 14,
+            "end": 15,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 14
+              },
+              "end": {
+                "line": 1,
+                "column": 15
+              }
+            },
+            "value": 2,
+            "raw": "2"
+          }
+        }
+      ],
+      "kind": "const"
+    },
+    {
+      "type": "VariableDeclaration",
+      "start": 17,
+      "end": 71,
+      "loc": {
+        "start": {
+          "line": 3,
+          "column": 0
+        },
+        "end": {
+          "line": 6,
+          "column": 1
+        }
+      },
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "start": 23,
+          "end": 71,
+          "loc": {
+            "start": {
+              "line": 3,
+              "column": 6
+            },
+            "end": {
+              "line": 6,
+              "column": 1
+            }
+          },
+          "id": {
+            "type": "Identifier",
+            "start": 23,
+            "end": 29,
+            "loc": {
+              "start": {
+                "line": 3,
+                "column": 6
+              },
+              "end": {
+                "line": 3,
+                "column": 12
+              }
+            },
+            "name": "double"
+          },
+          "init": {
+            "type": "ArrowFunctionExpression",
+            "start": 32,
+            "end": 71,
+            "loc": {
+              "start": {
+                "line": 3,
+                "column": 15
+              },
+              "end": {
+                "line": 6,
+                "column": 1
+              }
+            },
+            "id": null,
+            "expression": false,
+            "generator": false,
+            "async": false,
+            "params": [
+              {
+                "type": "Identifier",
+                "start": 33,
+                "end": 34,
+                "loc": {
+                  "start": {
+                    "line": 3,
+                    "column": 16
+                  },
+                  "end": {
+                    "line": 3,
+                    "column": 17
+                  }
+                },
+                "name": "x"
+              }
+            ],
+            "body": {
+              "type": "BlockStatement",
+              "start": 39,
+              "end": 71,
+              "loc": {
+                "start": {
+                  "line": 3,
+                  "column": 22
+                },
+                "end": {
+                  "line": 6,
+                  "column": 1
+                }
+              },
+              "body": [
+                {
+                  "type": "VariableDeclaration",
+                  "start": 43,
+                  "end": 58,
+                  "loc": {
+                    "start": {
+                      "line": 4,
+                      "column": 2
+                    },
+                    "end": {
+                      "line": 4,
+                      "column": 17
+                    }
+                  },
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "start": 49,
+                      "end": 58,
+                      "loc": {
+                        "start": {
+                          "line": 4,
+                          "column": 8
+                        },
+                        "end": {
+                          "line": 4,
+                          "column": 17
+                        }
+                      },
+                      "id": {
+                        "type": "Identifier",
+                        "start": 49,
+                        "end": 50,
+                        "loc": {
+                          "start": {
+                            "line": 4,
+                            "column": 8
+                          },
+                          "end": {
+                            "line": 4,
+                            "column": 9
+                          }
+                        },
+                        "name": "y"
+                      },
+                      "init": {
+                        "type": "BinaryExpression",
+                        "start": 53,
+                        "end": 58,
+                        "loc": {
+                          "start": {
+                            "line": 4,
+                            "column": 12
+                          },
+                          "end": {
+                            "line": 4,
+                            "column": 17
+                          }
+                        },
+                        "left": {
+                          "type": "Literal",
+                          "start": 53,
+                          "end": 54,
+                          "loc": {
+                            "start": {
+                              "line": 4,
+                              "column": 12
+                            },
+                            "end": {
+                              "line": 4,
+                              "column": 13
+                            }
+                          },
+                          "value": 2,
+                          "raw": "2"
+                        },
+                        "operator": "*",
+                        "right": {
+                          "type": "Identifier",
+                          "start": 57,
+                          "end": 58,
+                          "loc": {
+                            "start": {
+                              "line": 4,
+                              "column": 16
+                            },
+                            "end": {
+                              "line": 4,
+                              "column": 17
+                            }
+                          },
+                          "name": "x"
+                        }
+                      }
+                    }
+                  ],
+                  "kind": "const"
+                },
+                {
+                  "type": "ReturnStatement",
+                  "start": 61,
+                  "end": 69,
+                  "loc": {
+                    "start": {
+                      "line": 5,
+                      "column": 2
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 10
+                    }
+                  },
+                  "argument": {
+                    "type": "Identifier",
+                    "start": 68,
+                    "end": 69,
+                    "loc": {
+                      "start": {
+                        "line": 5,
+                        "column": 9
+                      },
+                      "end": {
+                        "line": 5,
+                        "column": 10
+                      }
+                    },
+                    "name": "y"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "kind": "const"
+    },
+    {
+      "type": "VariableDeclaration",
+      "start": 73,
+      "end": 101,
+      "loc": {
+        "start": {
+          "line": 8,
+          "column": 0
+        },
+        "end": {
+          "line": 8,
+          "column": 28
+        }
+      },
+      "declarations": [
+        {
+          "type": "VariableDeclarator",
+          "start": 79,
+          "end": 101,
+          "loc": {
+            "start": {
+              "line": 8,
+              "column": 6
+            },
+            "end": {
+              "line": 8,
+              "column": 28
+            }
+          },
+          "id": {
+            "type": "Identifier",
+            "start": 79,
+            "end": 85,
+            "loc": {
+              "start": {
+                "line": 8,
+                "column": 6
+              },
+              "end": {
+                "line": 8,
+                "column": 12
+              }
+            },
+            "name": "result"
+          },
+          "init": {
+            "type": "CallExpression",
+            "start": 88,
+            "end": 101,
+            "loc": {
+              "start": {
+                "line": 8,
+                "column": 15
+              },
+              "end": {
+                "line": 8,
+                "column": 28
+              }
+            },
+            "callee": {
+              "type": "Identifier",
+              "start": 88,
+              "end": 94,
+              "loc": {
+                "start": {
+                  "line": 8,
+                  "column": 15
+                },
+                "end": {
+                  "line": 8,
+                  "column": 21
+                }
+              },
+              "name": "double"
+            },
+            "arguments": [
+              {
+                "type": "Identifier",
+                "start": 95,
+                "end": 100,
+                "loc": {
+                  "start": {
+                    "line": 8,
+                    "column": 22
+                  },
+                  "end": {
+                    "line": 8,
+                    "column": 27
+                  }
+                },
+                "name": "value"
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "const"
+    },
+    {
+      "type": "ExpressionStatement",
+      "start": 102,
+      "end": 121,
+      "loc": {
+        "start": {
+          "line": 9,
+          "column": 0
+        },
+        "end": {
+          "line": 9,
+          "column": 19
+        }
+      },
+      "expression": {
+        "type": "CallExpression",
+        "start": 102,
+        "end": 121,
+        "loc": {
+          "start": {
+            "line": 9,
+            "column": 0
+          },
+          "end": {
+            "line": 9,
+            "column": 19
+          }
+        },
+        "callee": {
+          "type": "MemberExpression",
+          "start": 102,
+          "end": 113,
+          "loc": {
+            "start": {
+              "line": 9,
+              "column": 0
+            },
+            "end": {
+              "line": 9,
+              "column": 11
+            }
+          },
+          "object": {
+            "type": "Identifier",
+            "start": 102,
+            "end": 109,
+            "loc": {
+              "start": {
+                "line": 9,
+                "column": 0
+              },
+              "end": {
+                "line": 9,
+                "column": 7
+              }
+            },
+            "name": "console"
+          },
+          "property": {
+            "type": "Identifier",
+            "start": 110,
+            "end": 113,
+            "loc": {
+              "start": {
+                "line": 9,
+                "column": 8
+              },
+              "end": {
+                "line": 9,
+                "column": 11
+              }
+            },
+            "name": "log"
+          },
+          "computed": false
+        },
+        "arguments": [
+          {
+            "type": "Identifier",
+            "start": 114,
+            "end": 120,
+            "loc": {
+              "start": {
+                "line": 9,
+                "column": 12
+              },
+              "end": {
+                "line": 9,
+                "column": 18
+              }
+            },
+            "name": "result"
+          }
+        ]
+      }
+    }
+  ],
+  "sourceType": "script"
+}
+</code></pre>
+<h2 id="how-can-we-walk-the-ast%3F">How can we walk the AST?</h2>
+<ul>
+<li>Use a helper library <code>acorn-walk</code>
+<ul>
+<li>Provide a function to act on nodes of type <code>Identifier</code></li>
+<li>Accumulate comments in the <code>onComment</code> array during parsing</li>
+</ul>
+</li>
+</ul>
+  <pre title="walk-ast.js"><code class="language-js">const acorn = require('acorn')
+const walk = require('acorn-walk')
+
+const program = `// Constant
+const value = 2
+
+// Function
+const double = (x) => {
+  const y = 2 * x
+  return y
+}
+
+// Main body
+const result = double(value)
+console.log(result)
+`
+
+const options = {
+  locations: true,
+  onComment: []
+}
+const ast = acorn.parse(program, options)
+
+const state = {'decl': []}
+walk.simple(ast, {
+  Identifier: (node, state) => {
+    state.decl.push(node)
+  }
+}, null, state)
+
+state.decl.forEach(node => console.log(`identifier ${node.name} on line ${node.loc.start.line}`))
+console.log(`comments on lines ${options.onComment.map(node => node.loc.start.line).join(', ')}`)
+</code></pre>
+  <pre title="walk-ast.text"><code class="language-text">identifier x on line 6
+identifier y on line 7
+identifier double on line 11
+identifier value on line 11
+identifier console on line 12
+identifier result on line 12
+comments on lines 1, 4, 10
+</code></pre>
+<h2 id="how-can-we-apply-checks%3F">How can we apply checks?</h2>
+<ul>
+<li>Check the desired properties of nodes of interest</li>
+<li>Accumulate results on demand
+<ul>
+<li>Only create arrays of results when nodes of that type are encountered</li>
+<li>Only insert nodes that fail checks</li>
+</ul>
+</li>
+<li>Hm: why doesn't the parameter <code>x</code> show up as a violation?</li>
+</ul>
+  <pre title="check-name-lengths.js"><code class="language-js">const acorn = require('acorn')
+const walk = require('acorn-walk')
+
+const program = `// Constant
+const value = 2
+
+// Function
+const double = (x) => {
+  const y = 2 * x
+  return y
+}
+
+// Main body
+const result = double(value)
+console.log(result)
+`
+
+const applyCheck = (state, label, node, passes) => {
+  if (!passes) {
+    if (!state.hasOwnProperty(label)) {
+      state[label] = []
+    }
+    state[label].push(node)
+  }
+}
+
+const ast = acorn.parse(program, {locations: true})
+
+const state = {}
+walk.simple(ast, {
+  Identifier: (node, state) => {
+    applyCheck(state, 'name_length', node, node.name.length >= 4)
+  }
+}, null, state)
+
+state.name_length.forEach(
+  node => console.log(`${node.name} at line ${node.loc.start.line}`))
+</code></pre>
+  <pre title="check-name-lengths.text"><code class="language-text">x at line 6
+y at line 7
+</code></pre>
+<h2 id="how-does-the-ast-walker-work%3F">How does the AST walker work?</h2>
+<ul>
+<li>Use the [Visitor][visitor-pattern] design pattern</li>
+<li>Define a class with methods that
+<ul>
+<li>Walk the tree</li>
+<li>Take action at each kind of node</li>
+<li>Go through the children of that node</li>
+</ul>
+</li>
+<li>Users overrides the set of action methods they're interested in
+<ul>
+<li>Use [dynamic lookup][dynamic-lookup] to look up a method
+with the same name as the node type in the walker object</li>
+<li>I.e., use the walker object as a lookup table</li>
+</ul>
+</li>
+<li>Not the same architecture as <code>acorn-walk</code>
+<ul>
+<li>Easier to understand and extend</li>
+</ul>
+</li>
+</ul>
+  <pre title="walker-class.js"><code class="language-js">const acorn = require('acorn')
+
+// Generic tree walking class.
+class Walker {
+  // Construct a new AST tree walker.
+  constructor (ast) {
+    this.ast = ast
+  }
+
+  // Walk the tree.
+  walk (accumulator) {
+    this.stack = []
+    this._walk(this.ast, accumulator)
+    return accumulator
+  }
+
+  // Act on node and then on children.
+  _walk (node, accumulator) {
+    if (node && (typeof node === 'object') && ('type' in node)) {
+      this._doNode(node, accumulator)
+      this._doChildren(node, accumulator)
+    }
+  }
+
+  // Handle a single node by lookup.
+  _doNode (node, accumulator) {
+    if (node.type in this) {
+      this[node.type](node, accumulator)
+    }
+  }
+
+  // Recurse for anything interesting within the node.
+  _doChildren (node, accumulator) {
+    this.stack.push(node)
+    for (let key in node) {
+      if (Array.isArray(node[key])) {
+        node[key].forEach(child => {
+          this._walk(child, accumulator)
+        })
+      }
+      else if (typeof node[key] === 'object') {
+        this._walk(node[key], accumulator)
+      }
+    }
+    this.stack.pop(node)
+  }
+
+  // Is the current node a child of some other type of node?
+  _childOf (nodeTypes) {
+    return this.stack && nodeTypes.includes(this.stack.slice(-1)[0].type)
+  }
+}
+
+// Walk to accumulate variable and parameter definitions.
+class VariableWalker extends Walker {
+  Identifier (node, accumulator) {
+    if (this._childOf(['ArrowFunctionExpression', 'VariableDeclarator'])) {
+      accumulator.push(node.name)
+    }
+  }
+}
+
+// Test.
+const program = `const value = 2
+
+const double = (x) => {
+  const y = 2 * x
+  return y
+}
+
+const result = double(value)
+console.log(result)
+`
+
+const ast = acorn.parse(program, {locations: true})
+const walker = new VariableWalker(ast)
+const accumulator = []
+walker.walk(accumulator)
+console.log('definitions are', accumulator)
+</code></pre>
+  <pre title="walker-class.text"><code class="language-text">definitions are [ 'value', 'double', 'x', 'y', 'result' ]
+</code></pre>
+<h2 id="how-else-could-the-ast-walker-work%3F">How else could the AST walker work?</h2>
+<ul>
+<li>An alternative approach uses the [Iterator][iterator-pattern] pattern
+<ul>
+<li>Return elements of a complex structure one by one for processing</li>
+<li>Visitor takes computation to the nodes, Iterator gets the nodes for processing</li>
+</ul>
+</li>
+<li>Can implement in JavaScript using [generator functions][generator-function]</li>
+<li>Use <code>yield</code> to return a value and suspend processing to be resumed later
+<ul>
+<li>Result is a two-part structure with <code>value</code> and <code>done</code></li>
+</ul>
+</li>
+<li>Note that a generator function returns an object that then returns values</li>
+</ul>
+  <pre title="generator-example.js"><code class="language-js">function* threeWords () {
+  yield 'first'
+  yield 'second'
+  yield 'third'
+}
+
+const gen = threeWords()
+
+console.log(gen.next())
+console.log(gen.next())
+console.log(gen.next())
+console.log(gen.next())
+</code></pre>
+  <pre title="generator-example.text"><code class="language-text">{ value: 'first', done: false }
+{ value: 'second', done: false }
+{ value: 'third', done: false }
+{ value: undefined, done: true }
+</code></pre>
+<ul>
+<li>This generator takes an irregular nested array of strings and yields:
+<ul>
+<li>A string</li>
+<li>Another generator (using <code>yield*</code> to mean &quot;uses its values until they run out&quot;)</li>
+</ul>
+</li>
+</ul>
+<pre title="generator-tree.js"><code class="language-js">function* getNodes (here) {
+  if (typeof here === 'string') {
+    yield here
+  }
+  else if (Array.isArray(here)){
+    for (const child of here) {
+      yield* getNodes(child)
+    }
+  }
+  else {
+    throw new Exception(`unknown type "${typeof here}"`)
+  }
+}
+
+module.exports = getNodes
+</code></pre>
+<ul>
+<li>Manage iteration explicitly</li>
+</ul>
+  <pre title="generator-tree-while.js"><code class="language-js">const getNodes = require('./generator-tree')
+
+const nested = ['first', ['second', 'third']]
+const gen = getNodes(nested)
+let current = gen.next()
+while (!current.done) {
+  console.log(current.value)
+  current = gen.next()
+}
+</code></pre>
+  <pre title="generator-tree-while.text"><code class="language-text">first
+second
+third
+</code></pre>
+<ul>
+<li>But <code>for…of</code> knows how to work with generators</li>
+</ul>
+  <pre title="generator-tree-for.js"><code class="language-js">const getNodes = require('./generator-tree')
+
+const nested = ['first', ['second', 'third']]
+for (const value of getNodes(nested)) {
+  console.log(value)
+}
+</code></pre>
+  <pre title="generator-tree-for.text"><code class="language-text">first
+second
+third
+</code></pre>
+<ul>
+<li>Use this to count the number of expressions of various types in code</li>
+</ul>
+  <pre title="generator-count.js"><code class="language-js">const acorn = require('acorn')
+
+function* getNodes (node) {
+  if (node && (typeof node === 'object') && ('type' in node)) {
+    yield node
+    for (let key in node) {
+      if (Array.isArray(node[key])) {
+        for (const child of node[key]) {
+          yield* getNodes(child)
+        }
+      }
+      else if (typeof node[key] === 'object') {
+        yield* getNodes(node[key])
+      }
+    }
+  }
+}
+
+// Test.
+const program = `const value = 2
+
+const double = (x) => {
+  const y = 2 * x
+  return 2 * y + 1
+}
+
+const result = double(value)
+console.log(result)
+`
+
+const ast = acorn.parse(program, {locations: true})
+const result = {}
+for (const node of getNodes(ast)) {
+  if (node.type === 'BinaryExpression') {
+    if (node.operator in result) {
+      result[node.operator] += 1
+    }
+    else {
+      result[node.operator] = 1
+    }
+  }
+}
+console.log('counts are', result)
+</code></pre>
+  <pre title="generator-count.text"><code class="language-text">counts are { '*': 2, '+': 1 }
+</code></pre>
+<ul>
+<li>More difficult to do variable identifiers than previous Visitor approach
+<ul>
+<li>Generator doesn't keep state, so we have to maintain that outside for ourselves</li>
+</ul>
+</li>
+</ul>
+</main>
+<footer>
+<div class="row">
+<div class="left3">
+<a href="../file-backup/"><em>&laquo; File Backup</em></a>
+</div>
+<div class="middle3">
+<a href="../license/"><img class="footer" src="../static/cc-by.svg" alt="License" /></a>
+<a href="https://github.com/gvwilson/e/"><img class="footer" src="../static/github.svg" alt="Repository" /></a>
+© 2020 <a href="../authors/">The Authors</a>
+</div>
+<div class="right3">
+<a href="../code-generator/"><em>Code Generator &raquo;</em></a>
+</div>
+</div>
+</footer>
+</body>
+</html>

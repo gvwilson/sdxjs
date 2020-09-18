@@ -7,7 +7,7 @@
 
 -   List the contents of a directory (the wrong way).
 
-{% include file.md file="list-dir-wrong.js" %}
+<%- include('/_inc/code.html', {file: 'list-dir-wrong.js'}) %>
 
 -   Use `require(library-name)` to load a library
     -   Returns an object
@@ -15,7 +15,7 @@
         -   Allows us to give short nicknames to meaningfully-named libraries
     -   Use `library.component` to refer to things in the library
 
-{% include wildcard.md pattern="list-dir-wrong.*" values="sh,text" %}
+<%- include('/_inc/multi.html', {pat: 'list-dir-wrong.*', fill: 'sh text'}) %>
 
 -   Use the [`fs`][node-fs] library
 -   `fs.readdir` doesn't return anything
@@ -24,18 +24,18 @@
     -   Any operation that might delay, such as file I/O, is set aside to be run later
 -   Rewrite with an explicit function
 
-{% include file.md file="list-dir-function-defined.js" %}
+<%- include('/_inc/code.html', {file: 'list-dir-function-defined.js'}) %>
 
 -   Node callbacks always get an error (if any) as their first argument
     -   Use `console.error` to report it for now
     -   Do something more sensible once we understand exceptions
 -   The actual results are passed as the other argument (in this case, `files`)
 
-{% include wildcard.md pattern="list-dir-function-defined.*" values="sh,text"%}
+<%- include('/_inc/multi.html', {pat: 'list-dir-function-defined.*', fill: 'sh text'}) %>
 
 -   More idiomatic to define the callback [anonymously][anonymous-function] where it's used
 
-{% include file.md file="list-dir-function-anonymous.js" %}
+<%- include('/_inc/code.html', {file: 'list-dir-function-anonymous.js'}) %>
 
 -   So how do we get all the files to be copied?
 -   Use [`glob`][node-glob]
@@ -44,28 +44,28 @@
     -   Works by name, not by type
     -   So filenames that *don't* match `*.*` won't be detected
 
-{% include wildcard.md pattern="glob-all-files.*" values="js,text"%}
+<%- include('/_inc/multi.html', {pat: 'glob-all-files.*', fill: 'js text'}) %>
 
 -   Works, but we probably don't want to copy [Emacs][emacs] backup files (ending with `~`)
 -   We can get the list and then [filter][filter] those out
 
-{% include wildcard.md pattern="glob-get-then-filter-pedantic.*" values="js,text" %}
+<%- include('/_inc/multi.html', {pat: 'glob-get-then-filter-pedantic.*', fill: 'js text'}) %>
 
 -   `Array.filter` creates a new array containing all the items of the original that pass the test
 -   We can make this more idiomatic by:
     -   Removing the parentheses around the single parameter
     -   Writing a naked expression
 
-{% include file.md file="glob-get-then-filter-idiomatic.js" %}
+<%- include('/_inc/code.html', {file: 'glob-get-then-filter-idiomatic.js'}) %>
 
 -   Better just to have `glob` do it
 -   Documentation says there's an `options` argument
 
-{% include file.md file="glob-filter-with-options.js" %}
+<%- include('/_inc/code.html', {file: 'glob-filter-with-options.js'}) %>
 
 -   Now specify a source directory and fold that into the glob
 
-{% include file.md file="glob-with-source-directory.js" %}
+<%- include('/_inc/code.html', {file: 'glob-with-source-directory.js'}) %>
 
 -   This uses [string interpolation][string-interpolation]
     -   Back-quote the string
@@ -75,14 +75,14 @@
 -   Now we know that the paths will start with
 -   So we can take a second argument that specifies an output directory
 
-{% include file.md file="glob-with-dest-directory.js" %}
+<%- include('/_inc/code.html', {file: 'glob-with-dest-directory.js'}) %>
 
 -   This uses [destructuring assignment][destructuring-assignment]
     -   And only works if both source and destination are given on the command line
 
 -   Now ensure that the output directory exists
 
-{% include file.md file="glob-ensure-output-directory.js" %}
+<%- include('/_inc/code.html', {file: 'glob-ensure-output-directory.js'}) %>
 
 -   Use [`fs-extra`][node-fs-extra] instead of `fs` because it provides some useful utilities
 -   And use [`path`][node-path] to manipulate pathnames because someone else has figured out the string manipulation
@@ -93,15 +93,15 @@
 
 -   And now we copy the files
 
-{% include file.md file="copy-file-unfiltered.js" %}
+<%- include('/_inc/code.html', {file: 'copy-file-unfiltered.js'}) %>
 
 -   And it *almost* works
 
-{% include wildcard.md pattern="copy-file-unfiltered.*" values="sh,text" %}
+<%- include('/_inc/multi.html', {pat: 'copy-file-unfiltered.*', fill: 'sh text'}) %>
 
 -   Because `fs.realpath` is a directory, not a file, but matches our `glob`
 
-{% include file.md file="copy-file-filtered.js" %}
+<%- include('/_inc/code.html', {file: 'copy-file-filtered.js'}) %>
 
 -   This works...
 -   ...but four levels of asynchronous callbacks is hard to follow
@@ -111,28 +111,28 @@
 
 -   Most functions execute in order
 
-{% include wildcard.md pattern="not-callbacks-alone.*" values="js,text" %}
+<%- include('/_inc/multi.html', {pat: 'not-callbacks-alone.*', fill: 'js text'}) %>
 
 -   A handful of built-in functions delay execution
     -   `setTimeout`'s name suggests what it does
 
-{% include wildcard.md pattern="callbacks-with-timeouts.*" values="js,text" %}
+<%- include('/_inc/multi.html', {pat: 'callbacks-with-timeouts.*', fill: 'js text'}) %>
 
 -   Setting a timeout of zero has the effect of deferring execution without delay
     -   I.e., give something else a chance to run
 
-{% include wildcard.md pattern="callbacks-with-zero-timeouts.*" values="js,text" %}
+<%- include('/_inc/multi.html', {pat: 'callbacks-with-zero-timeouts.*', fill: 'js text'}) %>
 
 -   We can use this to build a generic [non-blocking][non-blocking-execution] function
 
-{% include wildcard.md pattern="non-blocking.*" values="js,text" %}
+<%- include('/_inc/multi.html', {pat: 'non-blocking.*', fill: 'js text'}) %>
 
 -   Why bother?
     -   Because we may want to give something else a chance to run
 -   Node provides `setImmediate` to do this for us
     -   And also `process.nextTick`, which doesn't do quite the same thing
 
-{% include wildcard.md pattern="set-immediate.*" values="js,text" %}
+<%- include('/_inc/multi.html', {pat: 'set-immediate.*', fill: 'js text'}) %>
 
 -   Let's build something better
     -   Based on [Trey Huffine's tutorial][huffine-promises]
@@ -151,7 +151,7 @@
 -   We pass this value to the first `then`, pass the result of that `then` to the second one, etc.
 -   If any of them fail, we pass the exception object to the error handler
 
-{% include file.md file="pledge.js" %}
+<%- include('/_inc/code.html', {file: 'pledge.js'}) %>
 
 -   There's one unfortunate trick: `bind`.
     -   When we create an object `obj` and call a method `meth`, JavaScript sets `this` inside `meth`
@@ -161,7 +161,7 @@
 
 -   Create a pledge and return a value
 
-{% include wildcard.md pattern="use-pledge-1.*" values="js,text" %}
+<%- include('/_inc/multi.html', {pat: 'use-pledge-1.*', fill: 'js text'}) %>
 
 -   Right: we don't use `return` with pledges, we call `resolve` or `reject`
     -   And we haven't done anything that defers execution
@@ -169,31 +169,31 @@
     -   `setTimeout` to defer execution
     -   A call to `resolve` to trigger whatever comes next
 
-{% include wildcard.md pattern="use-pledge-2.*" values="js,text" %}
+<%- include('/_inc/multi.html', {pat: 'use-pledge-2.*', fill: 'js text'}) %>
 
 -   A more complex example showing how to chain things
     -   And how exceptions are caught
 
-{% include wildcard.md pattern="use-pledge-3.*" values="js,text" %}
+<%- include('/_inc/multi.html', {pat: 'use-pledge-3.*', fill: 'js text'}) %>
 
 -   And finally an example where we explicitly signal a problem by calling `reject`
 
-{% include wildcard.md pattern="use-pledge-4.*" values="js,text" %}
+<%- include('/_inc/multi.html', {pat: 'use-pledge-4.*', fill: 'js text'}) %>
 
 -   Use this to build a line-counting program
 -   Use the [promisified][promisification] version of `fs-extra`
 
-{% include wildcard.md pattern="count-lines-single-file.*" values="js,sh,text" %}
+<%- include('/_inc/multi.html', {pat: 'count-lines-single-file.*', fill: 'js sh text'}) %>
 
 -   And there's `glob-promise` as well
 
-{% include wildcard.md pattern="count-lines-globbed-files.*" values="js,sh,text" %}
+<%- include('/_inc/multi.html', {pat: 'count-lines-globbed-files.*', fill: 'js sh text'}) %>
 
 -   Want filenames
 -   So construct temporary objects that have the information we need downstream
     -   Use object with named fields instead of array with positional values
 
-{% include file.md file="count-lines-print-filenames.js" %}
+<%- include('/_inc/code.html', {file: 'count-lines-print-filenames.js'}) %>
 
 -   Works until we run into a directory whose name name matches `*.*`
     -   Which we do in `node_modules`
@@ -202,11 +202,9 @@
     -   So we create a pair to pass down the chain
     -   Use `{filename, stats}` to give the objects keys and values that match up
 
-{% include wildcard.md pattern="count-lines-with-stat.*" values="js,sh,text" %}
+<%- include('/_inc/multi.html', {pat: 'count-lines-with-stat.*', fill: 'js sh text'}) %>
 
 -   Now make a histogram of how many files are of each length
     -   Only look at `.js` files with the `glob`
 
-{% include wildcard.md pattern="count-lines-histogram.*" values="js,sh,text" %}
-
-{% include links.md %}
+<%- include('/_inc/multi.html', {pat: 'count-lines-histogram.*', fill: 'js sh text'}) %>

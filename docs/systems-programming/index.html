@@ -1,0 +1,980 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <title>Systems Programming</title>
+  <meta name="relativeRoot" content="..">
+  <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
+  <link href="../static/trac.css" rel="stylesheet" type="text/css">
+  <link href="../static/site.css" rel="stylesheet" type="text/css">
+  <script src="../static/site.js"></script>
+  <script>window.onload = () => fixPage()</script>
+</head>
+<body id="_top">
+<nav>
+<div class="row">
+<div class="left2">
+<a href="http://third-bit.com"><img src="../static/logo.svg" alt="site logo" class="site-logo"/></a>
+<a href="../"><em>Software Tools in JavaScript</em></a>
+</div>
+<div class="right2">
+<div class="dropdown">
+<span class="navtitle">▿ Sections</span>
+<div class="dropdown-content" id="Sections">
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Chapters</span>
+<div class="dropdown-content" id="Chapters">
+<a href="../systems-programming/"><span class="nowrap">Systems Programming</span></a>
+<br/><a href="../unit-test/"><span class="nowrap">Unit Testing</span></a>
+<br/><a href="../file-backup/"><span class="nowrap">File Backup</span></a>
+<br/><a href="../style-checker/"><span class="nowrap">Style Checker</span></a>
+<br/><a href="../code-generator/"><span class="nowrap">Code Generator</span></a>
+<br/><a href="../page-templates/"><span class="nowrap">Page Templates</span></a>
+<br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
+<br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
+<br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
+<br/><a href="../text-editor/"><span class="nowrap">Text Editor</span></a>
+<br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
+<br/><a href="../http-server/"><span class="nowrap">HTTP Server</span></a>
+<br/><a href="../tabular-data/"><span class="nowrap">Tabular Data</span></a>
+<br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
+<br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Appendices</span>
+<div class="dropdown-content" id="Appendices">
+<a href="../license/"><span class="nowrap">License</span></a>
+<br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
+<br/><a href="../bib/"><span class="nowrap">Bibliography</span></a>
+<br/><a href="../links/"><span class="nowrap">Links</span></a>
+</div>
+</div>
+</div>
+</div>
+</nav>
+  <main>
+  <h1>Systems Programming</h1>
+<ul>
+<li>Goal: show how promises work and how they are implemented</li>
+</ul>
+<h2 id="how-can-i-copy-a-file-tree%3F-%7B%23copy-file-tree%7D">How can I copy a file tree? {#copy-file-tree}</h2>
+<ul>
+<li>List the contents of a directory (the wrong way).</li>
+</ul>
+<pre title="list-dir-wrong.js"><code class="language-js">const fs = require('fs')
+
+const srcDir = process.argv[2]
+const results = fs.readdir(srcDir)
+for (const name of results) {
+  console.log(name)
+}
+</code></pre>
+<ul>
+<li>Use <code>require(library-name)</code> to load a library
+<ul>
+<li>Returns an object</li>
+<li>Assign that to a constant
+<ul>
+<li>Allows us to give short nicknames to meaningfully-named libraries</li>
+</ul>
+</li>
+<li>Use <code>library.component</code> to refer to things in the library</li>
+</ul>
+</li>
+</ul>
+  <pre title="list-dir-wrong.sh"><code class="language-sh">node list-dir-wrong.js .
+</code></pre>
+  <pre title="list-dir-wrong.text"><code class="language-text">fs.js:137
+    throw new ERR_INVALID_CALLBACK();
+    ^
+
+TypeError [ERR_INVALID_CALLBACK]: Callback must be a function
+    at makeCallback (fs.js:137:11)
+    at Object.readdir (fs.js:735:14)
+    at Object.<anonymous> (/Users/stj/systems-programming/list-dir-wrong.js:4:20)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:279:19)
+</code></pre>
+<ul>
+<li>Use the <a href="https://nodejs.org/api/fs.html"><code>fs</code></a> library</li>
+<li><code>fs.readdir</code> doesn't return anything</li>
+<li><a href="https://nodejs.org/api/fs.html">Documentation</a> says that it takes a [callback][callback]</li>
+<li>JavaScript uses a [single-threaded][single-threaded] programming model
+<ul>
+<li>Any operation that might delay, such as file I/O, is set aside to be run later</li>
+</ul>
+</li>
+<li>Rewrite with an explicit function</li>
+</ul>
+<pre title="list-dir-function-defined.js"><code class="language-js">const fs = require('fs')
+
+const listContents = (err, files) => {
+  if (err) {
+    console.error(err)
+  } else {
+    for (const name of files) {
+      console.log(name)
+    }
+  }
+}
+
+const srcDir = process.argv[2]
+fs.readdir(srcDir, listContents)
+</code></pre>
+<ul>
+<li>Node callbacks always get an error (if any) as their first argument
+<ul>
+<li>Use <code>console.error</code> to report it for now</li>
+<li>Do something more sensible once we understand exceptions</li>
+</ul>
+</li>
+<li>The actual results are passed as the other argument (in this case, <code>files</code>)</li>
+</ul>
+  <pre title="list-dir-function-defined.sh"><code class="language-sh">node list-dir-function-defined.js .
+</code></pre>
+  <pre title="list-dir-function-defined.text"><code class="language-text">index.md
+list-dir-wrong.js
+list-dir-wrong.out
+list-dir-wrong.sh
+</code></pre>
+<ul>
+<li>More idiomatic to define the callback [anonymously][anonymous-function] where it's used</li>
+</ul>
+<pre title="list-dir-function-anonymous.js"><code class="language-js">const fs = require('fs')
+
+const srcDir = process.argv[2]
+fs.readdir(srcDir, (err, files) => {
+  if (err) {
+    console.error(err)
+  } else {
+    for (const name of files) {
+      console.log(name)
+    }
+  }
+})
+</code></pre>
+<ul>
+<li>So how do we get all the files to be copied?</li>
+<li>Use <a href="https://www.npmjs.com/package/glob"><code>glob</code></a>
+<ul>
+<li>[Globbing][globbing] is an old Unix name (short for &quot;global&quot;)</li>
+</ul>
+</li>
+<li>Start by getting all filenames
+<ul>
+<li>Works by name, not by type</li>
+<li>So filenames that <em>don't</em> match <code>*.*</code> won't be detected</li>
+</ul>
+</li>
+</ul>
+  <pre title="glob-all-files.js"><code class="language-js">const glob = require('glob')
+
+glob('**/*.*', (err, files) => {
+  if (err) {
+    console.log(err)
+  } else {
+    for (const filename of files) {
+      console.log(filename)
+    }
+  }
+})
+</code></pre>
+  <pre title="glob-all-files.text"><code class="language-text">glob-all-files.js
+glob-all-files.js~
+glob-all-files.out
+index.md
+index.md~
+list-dir-function-anonymous.js
+list-dir-function-defined.js
+list-dir-function-defined.out
+list-dir-function-defined.sh
+list-dir-wrong.js
+list-dir-wrong.out
+list-dir-wrong.sh
+</code></pre>
+<ul>
+<li>Works, but we probably don't want to copy <a href="https://www.gnu.org/software/emacs/">Emacs</a> backup files (ending with <code>~</code>)</li>
+<li>We can get the list and then [filter][filter] those out</li>
+</ul>
+  <pre title="glob-get-then-filter-pedantic.js"><code class="language-js">const glob = require('glob')
+
+glob('**/*.*', (err, files) => {
+  if (err) {
+    console.log(err)
+  } else {
+    files = files.filter((f) => { return !f.endsWith('~') })
+    for (const filename of files) {
+      console.log(filename)
+    }
+  }
+})
+</code></pre>
+  <pre title="glob-get-then-filter-pedantic.text"><code class="language-text">glob-all-files.js
+glob-get-then-filter-pedantic.js
+index.md
+list-dir-function-anonymous.js
+list-dir-function-defined.js
+list-dir-wrong.js
+</code></pre>
+<ul>
+<li><code>Array.filter</code> creates a new array containing all the items of the original that pass the test</li>
+<li>We can make this more idiomatic by:
+<ul>
+<li>Removing the parentheses around the single parameter</li>
+<li>Writing a naked expression</li>
+</ul>
+</li>
+</ul>
+<pre title="glob-get-then-filter-idiomatic.js"><code class="language-js">const glob = require('glob')
+
+glob('**/*.*', (err, files) => {
+  if (err) {
+    console.log(err)
+  } else {
+    files = files.filter(f => !f.endsWith('~'))
+    for (const filename of files) {
+      console.log(filename)
+    }
+  }
+})
+</code></pre>
+<ul>
+<li>Better just to have <code>glob</code> do it</li>
+<li>Documentation says there's an <code>options</code> argument</li>
+</ul>
+<pre title="glob-filter-with-options.js"><code class="language-js">const glob = require('glob')
+
+glob('**/*.*', {'ignore': '*~'}, (err, files) => {
+  if (err) {
+    console.log(err)
+  } else {
+    for (const filename of files) {
+      console.log(filename)
+    }
+  }
+})
+</code></pre>
+<ul>
+<li>Now specify a source directory and fold that into the glob</li>
+</ul>
+<pre title="glob-with-source-directory.js"><code class="language-js">const glob = require('glob')
+
+const srcDir = process.argv[2]
+
+glob(`${srcDir}/**/*.*`, {'ignore': '*~'}, (err, files) => {
+  if (err) {
+    console.log(err)
+  } else {
+    for (const filename of files) {
+      console.log(filename)
+    }
+  }
+})
+</code></pre>
+<ul>
+<li>
+<p>This uses [string interpolation][string-interpolation]</p>
+<ul>
+<li>Back-quote the string</li>
+<li>Use <code>${name}</code> to insert the value of an expression</li>
+<li>This is completely separate from the globbing</li>
+</ul>
+</li>
+<li>
+<p>Now we know that the paths will start with</p>
+</li>
+<li>
+<p>So we can take a second argument that specifies an output directory</p>
+</li>
+</ul>
+<pre title="glob-with-dest-directory.js"><code class="language-js">const glob = require('glob')
+
+const [srcDir, destDir] = process.argv.slice(2)
+
+glob(`${srcDir}/**/*.*`, {'ignore': '*~'}, (err, files) => {
+  if (err) {
+    console.log(err)
+  } else {
+    for (const srcName of files) {
+      const destName = srcName.replace(srcDir, destDir)
+      console.log(srcName, destName)
+    }
+  }
+})
+</code></pre>
+<ul>
+<li>
+<p>This uses [destructuring assignment][destructuring-assignment]</p>
+<ul>
+<li>And only works if both source and destination are given on the command line</li>
+</ul>
+</li>
+<li>
+<p>Now ensure that the output directory exists</p>
+</li>
+</ul>
+<pre title="glob-ensure-output-directory.js"><code class="language-js">const glob = require('glob')
+const fs = require('fs-extra')
+const path = require('path')
+
+const [srcRoot, destRoot] = process.argv.slice(2)
+
+glob(`${srcRoot}/**/*.*`, {'ignore': '*~'}, (err, files) => {
+  if (err) {
+    console.log(err)
+  } else {
+    for (const srcName of files) {
+      const destName = srcName.replace(srcRoot, destRoot)
+      const destDir = path.dirname(destName)
+      fs.ensureDir(destDir, (err) => {
+        if (err) {
+          console.error(err)
+        }
+      })
+    }
+  }
+})
+</code></pre>
+<ul>
+<li>
+<p>Use <a href="https://www.npmjs.com/package/fs-extra"><code>fs-extra</code></a> instead of <code>fs</code> because it provides some useful utilities</p>
+</li>
+<li>
+<p>And use <a href="https://nodejs.org/api/path.html"><code>path</code></a> to manipulate pathnames because someone else has figured out the string manipulation</p>
+</li>
+<li>
+<p>Gives us an empty tree of directories</p>
+</li>
+<li>
+<p>Note the name changes</p>
+<ul>
+<li>Use <code>srcRoot</code> and <code>destRoot</code> because we're going to need <code>destDir</code></li>
+<li>Yes, this was a bug...</li>
+</ul>
+</li>
+<li>
+<p>And now we copy the files</p>
+</li>
+</ul>
+<pre title="copy-file-unfiltered.js"><code class="language-js">const glob = require('glob')
+const fs = require('fs-extra')
+const path = require('path')
+
+const [srcRoot, destRoot] = process.argv.slice(2)
+
+glob(`${srcRoot}/**/*.*`, {'ignore': '*~'}, (err, files) => {
+  if (err) {
+    console.log(err)
+  } else {
+    for (const srcName of files) {
+      const destName = srcName.replace(srcRoot, destRoot)
+      const destDir = path.dirname(destName)
+      fs.ensureDir(destDir, (err) => {
+        if (err) {
+          console.error(err)
+        } else {
+          fs.copy(srcName, destName, (err) => {
+            if (err) {
+              console.error(err)
+            }
+          })
+        }
+      })
+    }
+  }
+})
+</code></pre>
+<ul>
+<li>And it <em>almost</em> works</li>
+</ul>
+  <pre title="copy-file-unfiltered.sh"><code class="language-sh">mkdir /tmp/out
+node glob-copy-file.js ../node_modules /tmp/out
+</code></pre>
+  <pre title="copy-file-unfiltered.text"><code class="language-text">{ Error: ENOENT: no such file or directory, chmod '/tmp/out/fs.realpath/package.json'
+    at Error (native)
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'chmod',
+  path: '/tmp/out/fs.realpath/package.json' }
+</code></pre>
+<ul>
+<li>Because <code>fs.realpath</code> is a directory, not a file, but matches our <code>glob</code></li>
+</ul>
+<pre title="copy-file-filtered.js"><code class="language-js">const glob = require('glob')
+const fs = require('fs-extra')
+const path = require('path')
+
+const [srcRoot, destRoot] = process.argv.slice(2)
+
+glob(`${srcRoot}/**/*.*`, {'ignore': '*~'}, (err, files) => {
+  if (err) {
+    console.log(err)
+  } else {
+    for (const srcName of files) {
+      fs.stat(srcName, (err, stats) => {
+        if (err) {
+          console.error(err)
+        } else if (stats.isFile()) {
+          const destName = srcName.replace(srcRoot, destRoot)
+          const destDir = path.dirname(destName)
+          fs.ensureDir(destDir, (err) => {
+            if (err) {
+              console.error(err)
+            } else {
+              fs.copy(srcName, destName, (err) => {
+                if (err) {
+                  console.error(err)
+                }
+              })
+            }
+          })
+        }
+      })
+    }
+  }
+})
+</code></pre>
+<ul>
+<li>This works...</li>
+<li>...but four levels of asynchronous callbacks is hard to follow</li>
+<li>We need a better mechanism</li>
+</ul>
+<h2 id="how-can-promises-make-this-cleaner%3F-%7B%23promises%7D">How can promises make this cleaner? {#promises}</h2>
+<ul>
+<li>Most functions execute in order</li>
+</ul>
+  <pre title="not-callbacks-alone.js"><code class="language-js">[1000, 1500, 500].forEach(t => {
+  console.log(t)
+})
+</code></pre>
+  <pre title="not-callbacks-alone.text"><code class="language-text">1000
+1500
+500
+</code></pre>
+<ul>
+<li>A handful of built-in functions delay execution
+<ul>
+<li><code>setTimeout</code>'s name suggests what it does</li>
+</ul>
+</li>
+</ul>
+  <pre title="callbacks-with-timeouts.js"><code class="language-js">[1000, 1500, 500].forEach(t => {
+  console.log(`about to setTimeout for ${t}`)
+  setTimeout(() => { console.log(`inside timer handler for ${t}`) }, t)
+})
+</code></pre>
+  <pre title="callbacks-with-timeouts.text"><code class="language-text">about to setTimeout for 1000
+about to setTimeout for 1500
+about to setTimeout for 500
+inside timer handler for 500
+inside timer handler for 1000
+inside timer handler for 1500
+</code></pre>
+<ul>
+<li>Setting a timeout of zero has the effect of deferring execution without delay
+<ul>
+<li>I.e., give something else a chance to run</li>
+</ul>
+</li>
+</ul>
+  <pre title="callbacks-with-zero-timeouts.js"><code class="language-js">[1000, 1500, 500].forEach(t => {
+  console.log(`about to setTimeout for ${t}`)
+  setTimeout(() => { console.log(`inside timer handler for ${t}`) }, 0)
+})
+</code></pre>
+  <pre title="callbacks-with-zero-timeouts.text"><code class="language-text">about to setTimeout for 1000
+about to setTimeout for 1500
+about to setTimeout for 500
+inside timer handler for 1000
+inside timer handler for 1500
+inside timer handler for 500
+</code></pre>
+<ul>
+<li>We can use this to build a generic [non-blocking][non-blocking-execution] function</li>
+</ul>
+  <pre title="non-blocking.js"><code class="language-js">const nonBlocking = (callback) => {
+  setTimeout(callback, 0)
+}
+
+[1000, 1500, 500].forEach(t => {
+  console.log(`about to do nonBlocking for ${t}`)
+  nonBlocking(() => console.log(`inside timer handler for ${t}`))
+})
+</code></pre>
+  <pre title="non-blocking.text"><code class="language-text">about to do nonBlocking for 1000
+about to do nonBlocking for 1500
+about to do nonBlocking for 500
+inside callback for 1000
+inside callback for 1500
+inside callback for 500
+</code></pre>
+<ul>
+<li>Why bother?
+<ul>
+<li>Because we may want to give something else a chance to run</li>
+</ul>
+</li>
+<li>Node provides <code>setImmediate</code> to do this for us
+<ul>
+<li>And also <code>process.nextTick</code>, which doesn't do quite the same thing</li>
+</ul>
+</li>
+</ul>
+  <pre title="set-immediate.js"><code class="language-js">[1000, 1500, 500].forEach(t => {
+  console.log(`about to do setImmediate for ${t}`)
+  setImmediate(() => console.log(`inside immediate handler for ${t}`))
+})
+</code></pre>
+  <pre title="set-immediate.text"><code class="language-text">about to do nextTick for 1000
+about to do nextTick for 1500
+about to do nextTick for 500
+inside timer handler for 1000
+inside timer handler for 1500
+inside timer handler for 500
+</code></pre>
+<ul>
+<li>Let's build something better
+<ul>
+<li>Based on <a href="https://levelup.gitconnected.com/understand-javascript-promises-by-building-a-promise-from-scratch-84c0fd855720">Trey Huffine's tutorial</a></li>
+</ul>
+</li>
+<li>Create a class called <code>Pledge</code>
+<ul>
+<li>Because the real thing is called <code>Promise</code></li>
+</ul>
+</li>
+<li>Its constructor requires a single function called <code>action</code></li>
+<li>This function must take take two callbacks as arguments:
+<ul>
+<li>What to do if the action completes successfully</li>
+<li>What to do if it doesn't</li>
+</ul>
+</li>
+<li><code>Pledge</code> will provide both of these callbacks to the action at the right time</li>
+<li>Give it two methods:
+<ul>
+<li><code>then</code> to enable more actions</li>
+<li><code>catch</code> to handle errors</li>
+</ul>
+</li>
+<li>We arbitrarily decide that we can have as many <code>then</code>s as we want, but only one <code>catch</code></li>
+<li>If the action completes successfully, it gives us a value</li>
+<li>We pass this value to the first <code>then</code>, pass the result of that <code>then</code> to the second one, etc.</li>
+<li>If any of them fail, we pass the exception object to the error handler</li>
+</ul>
+<pre title="pledge.js"><code class="language-js">class Pledge {
+  constructor (action) {
+    this.actionCallbacks = []
+    this.errorCallback = () => {}
+    action(this.onResolve.bind(this), this.onReject.bind(this))
+  }
+
+  then (thenHandler) {
+    this.actionCallbacks.push(thenHandler)
+    return this
+  }
+
+  catch (errorHandler) {
+    this.errorCallback = errorHandler
+    return this
+  }
+
+  onResolve (value) {
+    let storedValue = value
+    try {
+      this.actionCallbacks.forEach((action) => {
+        storedValue = action(storedValue)
+      })
+    } catch (error) {
+      this.actionCallbacks = []
+      this.onReject(error)
+    }
+  }
+
+  onReject (error) {
+    this.errorCallback(error)
+  }
+}
+
+module.exports = Pledge
+</code></pre>
+<ul>
+<li>
+<p>There's one unfortunate trick: <code>bind</code>.</p>
+<ul>
+<li>When we create an object <code>obj</code> and call a method <code>meth</code>, JavaScript sets <code>this</code> inside <code>meth</code></li>
+<li>If we use a method as a callback, <code>this</code> isn't set</li>
+<li>To convert the method to a plain old function with the right <code>this</code>, we use <code>bind</code></li>
+<li>See <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Function/bind">the documentation</a> for details</li>
+</ul>
+</li>
+<li>
+<p>Create a pledge and return a value</p>
+</li>
+</ul>
+  <pre title="use-pledge-1.js"><code class="language-js">const Pledge = require('./pledge')
+
+new Pledge((resolve, reject) => {
+  console.log('1. top of a single then clause')
+}).then((value) => {
+  console.log(`1. then with "${value}"`)
+  return '1. first then value'
+})
+</code></pre>
+  <pre title="use-pledge-1.text"><code class="language-text">1. top of a single then clause
+</code></pre>
+<ul>
+<li>Right: we don't use <code>return</code> with pledges, we call <code>resolve</code> or <code>reject</code>
+<ul>
+<li>And we haven't done anything that defers execution</li>
+</ul>
+</li>
+<li>Try that again with:
+<ul>
+<li><code>setTimeout</code> to defer execution</li>
+<li>A call to <code>resolve</code> to trigger whatever comes next</li>
+</ul>
+</li>
+</ul>
+  <pre title="use-pledge-2.js"><code class="language-js">const Pledge = require('./pledge')
+
+new Pledge((resolve, reject) => {
+  console.log('2. top of a single then clause')
+  setTimeout(() => {
+    console.log('2. about to call resolve callback')
+    resolve('2. resolved result')
+  }, 0)
+}).then((value) => {
+  console.log(`2. then with "${value}"`)
+  return '2. first then value'
+})
+</code></pre>
+  <pre title="use-pledge-2.text"><code class="language-text">2. top of a single then clause
+2. about to call resolve callback
+2. then with "2. resolved result"
+</code></pre>
+<ul>
+<li>A more complex example showing how to chain things
+<ul>
+<li>And how exceptions are caught</li>
+</ul>
+</li>
+</ul>
+  <pre title="use-pledge-3.js"><code class="language-js">const Pledge = require('./pledge')
+
+new Pledge((resolve, reject) => {
+  console.log('3. top of action callback with double then and a catch')
+  setTimeout(() => {
+    console.log('3. about to call resolve callback')
+    resolve('3. initial result')
+    console.log('3. after resolve callback')
+  }, 0)
+  console.log('3. end of action callback')
+}).then((value) => {
+  console.log(`3. first then with "${value}"`)
+  return '3. first then value'
+}).then((value) => {
+  console.log(`3. second then with "${value}" about to throw`)
+  throw new Error(`3. exception from second then with "${value}"`)
+}).catch((error) => {
+  console.log(`3. in catch block with "${error}`)
+})
+</code></pre>
+  <pre title="use-pledge-3.text"><code class="language-text">3. top of action callback with double then and a catch
+3. end of action callback
+3. about to call resolve callback
+3. first then with "3. initial result"
+3. second then with "3. first then value" about to throw
+3. in catch block with "Error: 3. exception from second then with "3. first then value"
+3. after resolve callback
+</code></pre>
+<ul>
+<li>And finally an example where we explicitly signal a problem by calling <code>reject</code></li>
+</ul>
+  <pre title="use-pledge-4.js"><code class="language-js">const Pledge = require('./pledge')
+
+new Pledge((resolve, reject) => {
+  console.log('4. top of action callback with deliberate error')
+  setTimeout(() => {
+    console.log('4. about to reject on purpose')
+    reject('4. error on purpose')
+  }, 0)
+}).then((value) => {
+  console.log(`4. should not be here with "${value}"`)
+}).catch((error) => {
+  console.log(`4. in error handler with "${error}"`)
+})
+</code></pre>
+  <pre title="use-pledge-4.text"><code class="language-text">4. top of action callback with deliberate error
+4. about to reject on purpose
+4. in error handler with "4. error on purpose"
+</code></pre>
+<ul>
+<li>Use this to build a line-counting program</li>
+<li>Use the [promisified][promisification] version of <code>fs-extra</code></li>
+</ul>
+  <pre title="count-lines-single-file.js"><code class="language-js">const fs = require('fs-extra-promise')
+
+const filename = process.argv[2]
+
+fs.readFileAsync(filename, {encoding: 'utf-8'})
+  .then(data => {
+    const length = data.split('\n').length - 1
+    console.log(`${filename}: ${length}`)
+  })
+  .catch(err => {
+    console.error(err.message)
+  })
+</code></pre>
+  <pre title="count-lines-single-file.sh"><code class="language-sh">node count-lines-single-file.js count-lines-single-file.js
+</code></pre>
+  <pre title="count-lines-single-file.text"><code class="language-text">count-lines-single-file.js: 12
+</code></pre>
+<ul>
+<li>And there's <code>glob-promise</code> as well</li>
+</ul>
+  <pre title="count-lines-globbed-files.js"><code class="language-js">const glob = require('glob-promise')
+const fs = require('fs-extra-promise')
+
+const main = (srcDir) => {
+  glob(`${srcDir}/**/*.*`)
+    .then(files => Promise.all(files.map(f => lineCount(f))))
+    .then(counts => counts.forEach(c => console.log(c)))
+    .catch(err => console.log(err.message))
+}
+
+const lineCount = (filename) => {
+  return new Promise((resolve, reject) => {
+    fs.readFileAsync(filename, {encoding: 'utf-8'})
+      .then(data => resolve(data.split('\n').length-1))
+      .catch(err => reject(err))
+  })
+}
+
+const srcDir = process.argv[2]
+main(srcDir)
+</code></pre>
+  <pre title="count-lines-globbed-files.sh"><code class="language-sh">node count-lines-globbed-files.js .
+</code></pre>
+  <pre title="count-lines-globbed-files.text"><code class="language-text">4
+4
+20
+12
+239
+4
+8
+3
+63
+4
+</code></pre>
+<ul>
+<li>Want filenames</li>
+<li>So construct temporary objects that have the information we need downstream
+<ul>
+<li>Use object with named fields instead of array with positional values</li>
+</ul>
+</li>
+</ul>
+<pre title="count-lines-print-filenames.js"><code class="language-js">const glob = require('glob-promise')
+const fs = require('fs-extra-promise')
+
+const main = (srcDir) => {
+  glob(`${srcDir}/**/*.*`)
+    .then(files => Promise.all(files.map(f => lineCount(f))))
+    .then(counts => counts.forEach(c => console.log(`${c.lines}: ${c.name}`)))
+    .catch(err => console.log(err.message))
+}
+
+const lineCount = (filename) => {
+  return new Promise((resolve, reject) => {
+    fs.readFileAsync(filename, {encoding: 'utf-8'})
+      .then(data => resolve({name: filename, lines: data.split('\n').length-1}))
+      .catch(err => reject(err))
+  })
+}
+
+const srcDir = process.argv[2]
+main(srcDir)
+</code></pre>
+<ul>
+<li>Works until we run into a directory whose name name matches <code>*.*</code>
+<ul>
+<li>Which we do in <code>node_modules</code></li>
+</ul>
+</li>
+<li>Need to use a <code>stat</code> call to check if something is a file or not
+<ul>
+<li>But <code>stat</code> returns a stats object that doesn't include the file's name</li>
+<li>So we create a pair to pass down the chain</li>
+<li>Use <code>{filename, stats}</code> to give the objects keys and values that match up</li>
+</ul>
+</li>
+</ul>
+  <pre title="count-lines-with-stat.js"><code class="language-js">const glob = require('glob-promise')
+const fs = require('fs-extra-promise')
+
+const main = (srcDir) => {
+  glob(`${srcDir}/**/*.*`)
+    .then(files => Promise.all(files.map(f => statPair(f))))
+    .then(files => files.filter(pair => pair.stats.isFile()))
+    .then(files => files.map(pair => pair.filename))
+    .then(files => Promise.all(files.map(f => lineCount(f))))
+    .then(counts => counts.forEach(c => console.log(`${c.lines}: ${c.name}`)))
+    .catch(err => console.log(err.message))
+}
+
+const statPair = (filename) => {
+  return new Promise((resolve, reject) => {
+    fs.statAsync(filename)
+      .then(stats => resolve({filename, stats}))
+      .catch(error => reject(error))
+  })
+}
+
+const lineCount = (filename) => {
+  return new Promise((resolve, reject) => {
+    fs.readFileAsync(filename, {encoding: 'utf-8'})
+      .then(data => resolve({name: filename, lines: data.split('\n').length-1}))
+      .catch(err => reject(err))
+  })
+}
+
+const srcDir = process.argv[2]
+main(srcDir)
+</code></pre>
+  <pre title="count-lines-with-stat.sh"><code class="language-sh">node count-lines-with-stat.js .
+</code></pre>
+  <pre title="count-lines-with-stat.text"><code class="language-text">4: ./callbacks-with-timeouts.js
+4: ./callbacks-with-zero-timeouts.js
+20: ./count-lines-globbed-files.js
+20: ./count-lines-print-filenames.js
+12: ./count-lines-single-file.js
+31: ./count-lines-with-stat.js
+278: ./index.md
+8: ./non-blocking.js
+3: ./not-callbacks-alone.js
+63: ./pledge.js
+4: ./set-immediate.js
+</code></pre>
+<ul>
+<li>Now make a histogram of how many files are of each length
+<ul>
+<li>Only look at <code>.js</code> files with the <code>glob</code></li>
+</ul>
+</li>
+</ul>
+  <pre title="count-lines-histogram.js"><code class="language-js">const glob = require('glob-promise')
+const fs = require('fs-extra-promise')
+
+const main = (srcDir) => {
+  glob(`${srcDir}/**/*.js`)
+    .then(files => Promise.all(files.map(f => statPair(f))))
+    .then(files => files.filter(pair => pair.stats.isFile()))
+    .then(files => files.map(pair => pair.filename))
+    .then(files => Promise.all(files.map(f => lineCount(f))))
+    .then(counts => makeHistogram(counts))
+    .then(histogram => display(histogram))
+    .catch(err => console.log(err.message))
+}
+
+const statPair = (filename) => {
+  return new Promise((resolve, reject) => {
+    fs.statAsync(filename)
+      .then(stats => resolve({filename, stats}))
+      .catch(error => reject(error))
+  })
+}
+
+const lineCount = (filename) => {
+  return new Promise((resolve, reject) => {
+    fs.readFileAsync(filename, {encoding: 'utf-8'})
+      .then(data => resolve(data.split('\n').length-1))
+      .catch(err => reject(err))
+  })
+}
+
+const makeHistogram = (lengths) => {
+  const largest = Math.max(...lengths)
+  const bins = new Array(largest + 1).fill(0)
+  lengths.forEach(n => { bins[n] += 1 })
+  return bins
+}
+
+const display = (bins) => {
+  bins.forEach((val, i) => console.log(`${i} ${val}`))
+}
+
+const srcDir = process.argv[2]
+main(srcDir)
+</code></pre>
+  <pre title="count-lines-histogram.sh"><code class="language-sh">node count-lines-histogram.js .
+</code></pre>
+  <pre title="count-lines-histogram.text"><code class="language-text">0 0
+1 0
+2 0
+3 1
+4 3
+5 0
+6 0
+7 1
+8 1
+9 0
+10 0
+11 2
+12 4
+13 1
+14 2
+15 0
+16 0
+17 0
+18 0
+19 0
+20 2
+21 1
+22 0
+23 0
+24 0
+25 0
+26 0
+27 1
+28 0
+29 0
+30 0
+31 2
+32 0
+33 1
+34 0
+35 1
+36 0
+37 0
+38 0
+39 0
+40 0
+41 0
+42 0
+43 1
+</code></pre>
+</main>
+<footer>
+<div class="row">
+<div class="left3">
+&nbsp;
+</div>
+<div class="middle3">
+<a href="../license/"><img class="footer" src="../static/cc-by.svg" alt="License" /></a>
+<a href="https://github.com/gvwilson/e/"><img class="footer" src="../static/github.svg" alt="Repository" /></a>
+© 2020 <a href="../authors/">The Authors</a>
+</div>
+<div class="right3">
+<a href="../unit-test/"><em>Unit Testing &raquo;</em></a>
+</div>
+</div>
+</footer>
+</body>
+</html>

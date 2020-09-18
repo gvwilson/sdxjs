@@ -1,5 +1,4 @@
 ---
-permalink: "/conduct/"
 title: "Code of Conduct"
 ---
 

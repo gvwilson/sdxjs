@@ -35,9 +35,9 @@
 -   Tests are run in the order in which they're registered, but we shouldn't rely on that
 -   After all tests are run, report counts
 
-{% include file.md file="dry-run.js" %}
+<%- include('/_inc/code.html', {file: 'dry-run.js'}) %>
 
-{% include file.md file="dry-run.text" %}
+<%- include('/_inc/code.html', {file: 'dry-run.text'}) %>
 
 -   Critique
     -   A bunch of global variables with similar names will lead to problems later
@@ -57,7 +57,7 @@
 -   Provide two flavors of output (terse one-liner and full details)
 -   Also provide raw material (title and results) for other formatters
 
-{% include file.md file="hope.js" %}
+<%- include('/_inc/code.html', {file: 'hope.js'}) %>
 
 ## How can we build a command-line driver for our test manager? {#driver}
 
@@ -65,7 +65,7 @@
 -   Example in `test-add.js`
     -   Keeping this simple is the most important part of our design
 
-{% include file.md file="test-add.js" %}
+<%- include('/_inc/code.html', {file: 'test-add.js'}) %>
 
 -   Load those [dynamically][dynamic-loading]
     -   This executes the code they contain
@@ -78,13 +78,13 @@
     -   Report results
 -   Doesn't export anything, just runs
 
-{% include file.md file="pray.js" %}
+<%- include('/_inc/code.html', {file: 'pray.js'}) %>
 
 -   Run
 
-{% include file.md file="pray.sh" %}
+<%- include('/_inc/code.html', {file: 'pray.sh'}) %>
 
-{% include file.md file="pray.text" %}
+<%- include('/_inc/code.html', {file: 'pray.text'}) %>
 
 -   Trace the [lifecycle][lifecycle]
     -   `pray` uses `glob` to find files with test
@@ -100,5 +100,3 @@
     -   And then gets a report from it
 -   Note that `1/0` is a failure rather than an error
     -   JavaScript thinks the result is `Infinity` rather than an exception
-
-{% include links.md %}

@@ -3,7 +3,7 @@
 
 -   Rebuild files that depend on other files
     -   Based on [Make][gnu-make] and [Bajel][bajel]
-    -   Draws on {% include cite.md keys="smith2011" %}
+    -   Draws on <cite>Smith2011</cite>
 
 ## What's in a build manager? {#requirements}
 
@@ -30,23 +30,23 @@
     -   The child class *must* define `run` to do its part
 -   Driver loads a class, creates an instance, and asks it to build
 
-{% include file.md file="driver.js" %}
+<%- include('/_inc/code.html', {file: 'driver.js'}) %>
 
 -   Class that simple builders must be derived from
 
-{% include file.md file="simple-builder.js" %}
+<%- include('/_inc/code.html', {file: 'simple-builder.js'}) %>
 
 -   Example of derived (runnable) class
 
-{% include file.md file="display-only.js" %}
+<%- include('/_inc/code.html', {file: 'display-only.js'}) %>
 
 -   Configuration file
 
-{% include file.md file="three-simple-rules.yaml" %}
+<%- include('/_inc/code.html', {file: 'three-simple-rules.yaml'}) %>
 
 -   Execution and output
 
-{% include wildcard.md pattern="display-only.*" values="sh,text" %}
+<%- include('/_inc/multi.html', {pat: 'display-only.*', fill: 'sh text'}) %>
 
 ## How can we tell if a file is stale? {#stale-files}
 
@@ -55,17 +55,17 @@
 -   Extra file
     -   Clumsy to have the derived class magically know which argument to use
 
-{% include file.md file="add-timestamps.yaml" %}
+<%- include('/_inc/code.html', {file: 'add-timestamps.yaml'}) %>
 
 -   Execution
 
-{% include wildcard.md pattern="add-timestamps.*" values="js,sh,text" %}
+<%- include('/_inc/multi.html', {pat: 'add-timestamps.*', fill: 'js sh text'}) %>
 
 -   Set current time to maximum file time
 -   For each file from the "bottom" to the top:
     -   If file is older than any of its dependencies, update it
 
-{% include wildcard.md pattern="update-on-timestamp.*" values="js,sh,text" %}
+<%- include('/_inc/multi.html', {pat: 'update-on-timestamp.*', fill: 'js sh text'}) %>
 
 ## How can we add generic build rules? {#generic-rules}
 
@@ -87,16 +87,16 @@
 -   Build the action through brute force string substitution
     -   Look at more efficient strategies in the exercises
 
-{% include wildcard.md pattern="variable-expander.*" values="js,text" %}
+<%- include('/_inc/multi.html', {pat: 'variable-expander.*', fill: 'js text'}) %>
 
 -   Now we need [pattern rules][pattern-rule]
 -   First attempt at rules file looks like this
 
-{% include file.md file="pattern-rules.yaml" %}
+<%- include('/_inc/code.html', {file: 'pattern-rules.yaml'}) %>
 
 -   First attempt at reading it doesn't work
 
-{% include wildcard.md pattern="pattern-user-attempt.*" values="js,sh,text" %}
+<%- include('/_inc/multi.html', {pat: 'pattern-user-attempt.*', fill: 'js sh text'}) %>
 
 -   Our simple graph loader creates nodes for dependencies even if they aren't targets
 -   So we wind up tripping over the lack of a node for `%.in` before we get to extracting rules
@@ -105,7 +105,7 @@
     -   Check that simple rules' dependencies don't include `%`
     -   And add timestamps as an optional field to rules for testing purposes rather than having them in a separate file
 
-{% include wildcard.md pattern="pattern-user-read.*" values="js,sh,text" %}
+<%- include('/_inc/multi.html', {pat: 'pattern-user-read.*', fill: 'js sh text'}) %>
 
 -   Order of operations is important
     -   Load file, separating simple rules from pattern rules
@@ -117,6 +117,4 @@
     -   Call up to a grandparent
 -   This tells us that we should refactor our base class(es) to create more [affordances][affordance]
 
-{% include wildcard.md pattern="pattern-user-run.*" values="js,text" %}
-
-{% include links.md %}
+<%- include('/_inc/multi.html', {pat: 'pattern-user-run.*', fill: 'js text'}) %>

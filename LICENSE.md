@@ -1,9 +1,8 @@
 ---
-permalink: "/license/"
-title: "License"
+title: License
 ---
 
-Hippocratic License Version 2.0.  
+<div align="center">Hippocratic License Version 2.0</div>
 
 Licensor hereby grants permission by this license ("License"), free of charge,
 to any person or entity (the "Licensee") obtaining a copy of this software and

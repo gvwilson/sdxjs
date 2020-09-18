@@ -1,0 +1,679 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <title>File Backup</title>
+  <meta name="relativeRoot" content="..">
+  <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
+  <link href="../static/trac.css" rel="stylesheet" type="text/css">
+  <link href="../static/site.css" rel="stylesheet" type="text/css">
+  <script src="../static/site.js"></script>
+  <script>window.onload = () => fixPage()</script>
+</head>
+<body id="_top">
+<nav>
+<div class="row">
+<div class="left2">
+<a href="http://third-bit.com"><img src="../static/logo.svg" alt="site logo" class="site-logo"/></a>
+<a href="../"><em>Software Tools in JavaScript</em></a>
+</div>
+<div class="right2">
+<div class="dropdown">
+<span class="navtitle">▿ Sections</span>
+<div class="dropdown-content" id="Sections">
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Chapters</span>
+<div class="dropdown-content" id="Chapters">
+<a href="../systems-programming/"><span class="nowrap">Systems Programming</span></a>
+<br/><a href="../unit-test/"><span class="nowrap">Unit Testing</span></a>
+<br/><a href="../file-backup/"><span class="nowrap">File Backup</span></a>
+<br/><a href="../style-checker/"><span class="nowrap">Style Checker</span></a>
+<br/><a href="../code-generator/"><span class="nowrap">Code Generator</span></a>
+<br/><a href="../page-templates/"><span class="nowrap">Page Templates</span></a>
+<br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
+<br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
+<br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
+<br/><a href="../text-editor/"><span class="nowrap">Text Editor</span></a>
+<br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
+<br/><a href="../http-server/"><span class="nowrap">HTTP Server</span></a>
+<br/><a href="../tabular-data/"><span class="nowrap">Tabular Data</span></a>
+<br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
+<br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Appendices</span>
+<div class="dropdown-content" id="Appendices">
+<a href="../license/"><span class="nowrap">License</span></a>
+<br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
+<br/><a href="../bib/"><span class="nowrap">Bibliography</span></a>
+<br/><a href="../links/"><span class="nowrap">Links</span></a>
+</div>
+</div>
+</div>
+</div>
+</nav>
+  <main>
+  <h1>File Backup</h1>
+<ul>
+<li>Goal: archiving files with a hashed index</li>
+<li>The basis of <a href="https://git-scm.com/">Git</a></li>
+</ul>
+<h2 id="what-is-a-hash-code-and-how-can-i-create-one-for-a-file%3F-%7B%23hash-code%7D">What is a hash code and how can I create one for a file? {#hash-code}</h2>
+<ul>
+<li>A [cryptographic hash function][cryptographic-hash-function]:
+<ul>
+<li>Turns data of arbitrary size into a fixed-size block of bits</li>
+<li>Is 100% reproducible</li>
+<li>Cannot be reversed</li>
+</ul>
+</li>
+</ul>
+  <pre title="hash-text.js"><code class="language-js">const crypto = require('crypto');
+
+// create a SHA1 hasher
+const hash = crypto.createHash('sha1');
+
+// encode as hex (rather than binary)
+hash.setEncoding('hex');
+
+// send it some text
+const text = process.argv[2]
+hash.write(text);
+
+// signal end of text
+hash.end();
+
+// display the result
+const sha1sum = hash.read();
+console.log(`SHA1 of "${text}" is ${sha1sum}`);
+</code></pre>
+  <pre title="hash-text.sh"><code class="language-sh">node hash-text.js something
+</code></pre>
+  <pre title="hash-text.text"><code class="language-text">SHA1 of "something" is 1af17e73721dbe0c40011b82ed4bb1a7dbe3ce29
+</code></pre>
+<ul>
+<li>The hash code for a file:
+<ul>
+<li>Will always be the same for the same content</li>
+<li>Is almost guaranteed to be different if even a single byte differs</li>
+</ul>
+</li>
+</ul>
+  <pre title="hash-file.js"><code class="language-js">const fs = require('fs')
+const crypto = require('crypto')
+
+const filename = process.argv[2];
+const data = fs.readFileSync(filename, 'utf-8');
+
+const hash = crypto.createHash('sha1').setEncoding('hex');
+hash.write(data);
+hash.end();
+const sha1sum = hash.read();
+
+console.log(`SHA1 of "${filename}" is ${sha1sum}`);
+</code></pre>
+  <pre title="hash-file.sh"><code class="language-sh">node hash-file.js hash-file.js
+</code></pre>
+  <pre title="hash-file.text"><code class="language-text">SHA1 of "hash-file.js" is dedd8f1b36dcf0dc80d7de7321bc775f5a43c0eb
+</code></pre>
+<ul>
+<li>More efficient to process the file as a [stream][stream]</li>
+</ul>
+  <pre title="hash-stream.js"><code class="language-js">const fs = require('fs')
+const crypto = require('crypto')
+
+const filename = process.argv[2]
+const hash = crypto.createHash('sha1').setEncoding('hex')
+fs.createReadStream(filename).pipe(hash)
+hash.on('finish', () => {
+  const final = hash.read()
+  console.log('final', final)
+})
+</code></pre>
+  <pre title="hash-stream.sh"><code class="language-sh">node hash-stream.js hash-stream.js
+</code></pre>
+  <pre title="hash-stream.text"><code class="language-text">final 189bfe92b4b1bd3e3c8bfd2004a4de81d33eb472
+</code></pre>
+<ul>
+<li>Many files don't change after they're created, or only change very slowly</li>
+<li>Wasteful to copy them every time a backup is done</li>
+<li>Instead:
+<ul>
+<li>Copy each file to <code>hash(file)</code></li>
+<li>Store a data structure that records directories' contents as JSON</li>
+<li>To restore from a particular date, copy [blobs][blob] to where they need to be</li>
+</ul>
+</li>
+</ul>
+<h2 id="how-can-async-and-await-simplify-code%3F-%7B%23async-await%7D">How can <code>async</code> and <code>await</code> simplify code? {#async-await}</h2>
+<ul>
+<li>Step 1: find all files and calculate their hashes</li>
+</ul>
+<pre title="hash-existing-promise.js"><code class="language-js">const fs = require('fs-extra-promise')
+const glob = require('glob-promise')
+const crypto = require('crypto')
+
+const statPath = (path) => {
+  return new Promise((resolve, reject) => {
+    fs.statAsync(path)
+      .then(stat => resolve([path, stat]))
+      .catch(err => reject(err))
+  })
+}
+
+const readPath = (path) => {
+  return new Promise((resolve, reject) => {
+    fs.readFileAsync(path)
+      .then(content => resolve([path, content]))
+      .catch(err => reject(err))
+  })
+}
+
+const hashPath = (path, content) => {
+  const hasher = crypto.createHash('sha1').setEncoding('hex')
+  hasher.write(content)
+  hasher.end()
+  return [path, hasher.read()]
+}
+
+const hashExisting = (rootDir) => {
+  const pattern = `${rootDir}/**/*`
+  const options = {}
+  return new Promise((resolve, reject) => {
+    glob(pattern, options)
+      .then(matches => Promise.all(matches.map(path => statPath(path))))
+      .then(pairs => pairs.filter(([path, stat]) => stat.isFile()))
+      .then(pairs => Promise.all(pairs.map(([path, stat]) => readPath(path))))
+      .then(pairs => Promise.all(pairs.map(([path, content]) => hashPath(path, content))))
+      .then(pairs => resolve(pairs))
+      .catch(err => reject(err))
+  })
+}
+
+module.exports = hashExisting
+</code></pre>
+  <pre title="run-hash-existing-promise.js"><code class="language-js">const hashExisting = require('./hash-existing-promise')
+
+const root = process.argv[2]
+hashExisting(root)
+  .then(pairs => pairs.forEach(([path, hash]) => console.log(path, hash)))
+</code></pre>
+  <pre title="run-hash-existing-promise.sh"><code class="language-sh">node run-hash-existing-promise.js .
+</code></pre>
+  <pre title="run-hash-existing-promise.text"><code class="language-text">./hash-existing.js 32017c7c77330bea574616c63b4ba19ffcef547f
+./hash-file.js dedd8f1b36dcf0dc80d7de7321bc775f5a43c0eb
+./hash-file.sh ff2f263c71ce98338adf4a8a65c297c9361e3e16
+./hash-file.text e9f869c54ae8bcbdc63044691f236506039ea14d
+./hash-stream.js 2edd22d2f82b06cc92b3580473098cdca7b1af15
+./hash-stream.sh 0dd6064f3005e832fef580f3de7fa0980fd81dee
+./hash-stream.text 40760e9c37471d99acd6b1a7bb8b857c8e210243
+./hash-text.js 8a0dd0cfb8b123444b251480fce8050ab6df11f4
+./hash-text.sh 4e85b91c9254c77cf887d2ca92ea0a8ed60c14b7
+./hash-text.text 4ae882fbcd46e408c9a0548f6547158bc982b40a
+./index.md b15ad93013ce65ea9d2e779681d9fe1ca319479f
+./run-hash-existing.js 671d0f057541b4ef6ce1ca9f434b07c9ff6752c3
+./run-hash-existing.sh 8a2a9da5db15463f41a977d3453bb0b4c52430f9
+./run-hash-existing.text da39a3ee5e6b4b0d3255bfef95601890afd80709
+</code></pre>
+<ul>
+<li>This code is clearer than it would be with callbacks…</li>
+<li>…but the layer of promises around everything still obscures meaning</li>
+<li>Modern JavaScript provides <code>async</code> and <code>await</code> keywords
+<ul>
+<li><code>async</code> means &quot;this function implicitly returns a <code>Promise</code>&quot;</li>
+<li><code>await</code> means &quot;wait for a promise to resolve&quot;</li>
+</ul>
+</li>
+<li>Doing all the same things as the explicit <code>Promise</code>-based version, but easier to read</li>
+</ul>
+<pre title="hash-existing-async.js"><code class="language-js">const fs = require('fs-extra-promise')
+const glob = require('glob-promise')
+const crypto = require('crypto')
+
+const statPath = async (path) => {
+  const stat = await fs.statAsync(path)
+  return [path, stat]
+}
+
+const readPath = async (path) => {
+  const content = await fs.readFileAsync(path)
+  return [path, content]
+}
+
+const hashPath = (path, content) => {
+  const hasher = crypto.createHash('sha1').setEncoding('hex')
+  hasher.write(content)
+  hasher.end()
+  return [path, hasher.read()]
+}
+
+const hashExisting = async (rootDir) => {
+  const pattern = `${rootDir}/**/*`
+  const options = {}
+  const matches = await glob(pattern, options)
+  const stats = await Promise.all(matches.map(path => statPath(path)))
+  const files = stats.filter(([path, stat]) => stat.isFile())
+  const contents = await Promise.all(files.map(([path, stat]) => readPath(path)))
+  const hashes = contents.map(([path, content]) => hashPath(path, content))
+  return hashes
+}
+
+module.exports = hashExisting
+</code></pre>
+  <pre title="run-hash-existing-async.js"><code class="language-js">const hashExisting = require('./hash-existing-async')
+
+const root = process.argv[2]
+hashExisting(root)
+  .then(pairs => pairs.forEach(([path, hash]) => console.log(path, hash)))
+</code></pre>
+  <pre title="run-hash-existing-async.sh"><code class="language-sh">node run-hash-existing-async.js .
+</code></pre>
+  <pre title="run-hash-existing-async.text"><code class="language-text">./hash-existing-async.js b7042f5650805162174752b9c9079b93866a8771
+./hash-existing-promise.js 63ebcc647084f40af927d396dafadc6aceb0b454
+./hash-file.js dedd8f1b36dcf0dc80d7de7321bc775f5a43c0eb
+./hash-file.sh ff2f263c71ce98338adf4a8a65c297c9361e3e16
+./hash-file.text e9f869c54ae8bcbdc63044691f236506039ea14d
+./hash-stream.js 2edd22d2f82b06cc92b3580473098cdca7b1af15
+./hash-stream.sh 0dd6064f3005e832fef580f3de7fa0980fd81dee
+./hash-stream.text 40760e9c37471d99acd6b1a7bb8b857c8e210243
+./hash-text.js 8a0dd0cfb8b123444b251480fce8050ab6df11f4
+./hash-text.sh 4e85b91c9254c77cf887d2ca92ea0a8ed60c14b7
+./hash-text.text 4ae882fbcd46e408c9a0548f6547158bc982b40a
+./index.md 3591933829503e2cb0d1bf2a8afa0051e191b392
+./run-hash-existing-async.js aed5703e1464d42fb4fb0fcccb06599696bcf837
+./run-hash-existing-async.sh 61ad0b69d3c998987ec9bf66399c6ce35f8df94d
+./run-hash-existing-async.text da39a3ee5e6b4b0d3255bfef95601890afd80709
+./run-hash-existing-promise.js 7e42746381122332d36bb2da719d4c838282411c
+./run-hash-existing-promise.sh 1c4142b279f301451aaddbe731d6ab42caf2c47a
+./run-hash-existing-promise.text 0bcb400fcde9e42297f35c6182bd8caeecf66624
+</code></pre>
+<h2 id="how-can-we-test-javascript%3F-%7B%23testing%7D">How can we test JavaScript? {#testing}</h2>
+<ul>
+<li>Step 2: see which files have and haven't been backed up already
+<ul>
+<li>Backup directory contains <code>abcd1234.bck</code> (backup files) and <code>ssssssssss.csv</code> (manifest files)</li>
+<li>We assume no more than one backup per second (which will easily be false in practice)</li>
+</ul>
+</li>
+</ul>
+<pre title="check-existing-files.js"><code class="language-js">const glob = require('glob-promise')
+const path = require('path')
+
+const findNewFiles = async (rootDir, pathHashPairs) => {
+  const hashToPath = pathHashPairs.reduce((obj, [path, hash]) => {
+    obj[hash] = path
+    return obj
+  }, {})
+
+  const pattern = `${rootDir}/*.bck`
+  const options = {}
+  const existingFiles = await glob(pattern, options)
+
+  existingFiles.forEach(filename => {
+    const stripped = path.basename(filename).replace(/\.bck$/, '')
+    delete hashToPath[stripped]
+  })
+
+  return hashToPath
+}
+
+module.exports = findNewFiles
+</code></pre>
+<ul>
+<li>Create testing directories with manufactured (shortened) hashes</li>
+</ul>
+  <pre title="tree-test.sh"><code class="language-sh">tree --charset unicode test
+</code></pre>
+  <pre title="tree-test.text"><code class="language-text">test
+|-- bck-0-csv-0
+|-- bck-1-csv-1
+|   |-- 0001.csv
+|   `-- abcd1234.bck
+|-- bck-4-csv-2
+|   |-- 0001.csv
+|   |-- 3028.csv
+|   |-- 3456cdef.bck
+|   |-- abcd1234.bck
+|   `-- bcde2345.bck
+|-- test-backup.js
+|-- test-find-mock.js
+`-- test-find.js
+
+3 directories, 10 files
+</code></pre>
+<ul>
+<li>Use <a href="https://mochajs.org/">Mocha</a> for testing
+<ul>
+<li>Add <code>&quot;test&quot;: &quot;mocha */test/test-*.js&quot;</code> to the <code>scripts</code> key of <code>package.json</code>,
+since we may add tests for other things later</li>
+</ul>
+</li>
+</ul>
+<pre title="test/test-find.js"><code class="language-js">const assert = require('assert')
+
+const findNewFiles = require('../check-existing-files')
+
+describe('checks for pre-existing hashes using actual filesystem', () => {
+  it('finds no pre-existing files when no files given and no files exist', async () => {
+    const expected = {}
+    const actual = await findNewFiles('file-backup/test/bck-0-csv-0', [])
+    assert.deepEqual(expected, actual,
+                     `Expected no files`)
+  })
+
+  it('finds some files when one file is given and no files exist', async () => {
+    const candidates = [['somefile.txt', '9876fedc']]
+    const expected = {'9876fedc': 'somefile.txt'}
+    const actual = await findNewFiles('file-backup/test/bck-0-csv-0', candidates)
+    assert.deepEqual(expected, actual,
+                     `Expected one file`)
+  })
+
+  it('finds nothing needs backup when there is a match', async () => {
+    const candidates = [['alpha.js', 'abcd1234']]
+    const expected = {}
+    const actual = await findNewFiles('file-backup/test/bck-1-csv-1', candidates)
+    assert.deepEqual(expected, actual,
+                     `Expected no files`)
+  })
+
+  it('finds something needs backup when there is a mismatch', async () => {
+    const candidates = [['alpha.js', 'a1b2c3d4']]
+    const expected = {'a1b2c3d4': 'alpha.js'}
+    const actual = await findNewFiles('file-backup/test/bck-1-csv-1', candidates)
+    assert.deepEqual(expected, actual,
+                     `Expected one file`)
+  })
+
+  it('finds mixed matches', async () => {
+    const candidates = [['matches.js', '3456cdef'],
+                        ['matches.txt', 'abcd1234'],
+                        ['mismatch.txt', '12345678']]
+    const expected = {'12345678': 'mismatch.txt'}
+    const actual = await findNewFiles('file-backup/test/bck-4-csv-2', candidates)
+    assert.deepEqual(expected, actual,
+                     `Expected one file`)
+  })
+})
+</code></pre>
+  <pre title="test-check-filesystem.sh"><code class="language-sh">npm run test
+</code></pre>
+  <pre title="test-check-filesystem.text"><code class="language-text">  checks for pre-existing hashes
+    ✓ finds no pre-existing files when no files given and no files exist
+    ✓ finds some files when one file is given and no files exist
+    ✓ finds nothing needs backup when there is a match
+    ✓ finds something needs backup when there is a mismatch
+    ✓ finds mixed matches
+
+
+  5 passing (22ms)
+</code></pre>
+<h2 id="how-can-we-test-code-that-modifies-files%3F-%7B%23modify-files%7D">How can we test code that modifies files? {#modify-files}</h2>
+<ul>
+<li>Step 3: copy the files that need copying and create a new timestamped CSV file</li>
+<li>The code itself will be relatively simple, but setup and cleanup will be annoying</li>
+<li>Better solution: use a [mock object][mock-object] instead of the real filesystem
+<ul>
+<li>Has the same interface as the real function/object/class/library</li>
+<li>But works differently for testing purposes</li>
+</ul>
+</li>
+<li>Install <a href="https://www.npmjs.com/package/mock-fs"><code>mock-fs</code></a></li>
+<li>Repeat previous tests using mock
+<ul>
+<li>Results stay the same</li>
+</ul>
+</li>
+</ul>
+<pre title="test/test-find-mock.js"><code class="language-js">const assert = require('assert')
+const mock = require('mock-fs')
+
+const findNewFiles = require('../check-existing-files')
+
+describe('checks for pre-existing hashes using mock filesystem', () => {
+
+  beforeEach(() => {
+    mock({
+      'bck-0-csv-0': {},
+      'bck-1-csv-1': {
+        '0001.csv': 'alpha.js,abcd1234',
+        'abcd1234.bck': 'alpha.js content'
+      },
+      'bck-4-csv-2': {
+        '0001.csv': ['alpha.js,abcd1234',
+                     'beta.txt,bcde2345'].join('\n'),
+        '3024.csv': ['alpha.js,abcd1234',
+                     'gamma.png,3456cdef',
+                     'subdir/renamed.txt,bcde2345'].join('\n'),
+        '3456cdef.bck': 'gamma.png content',
+        'abcd1234.bck': 'alpha content',
+        'bcde2345.bck': 'beta.txt became subdir/renamed.txt'
+      }
+    })
+  })
+
+  afterEach(() => {
+    mock.restore()
+  })
+
+  it('finds no pre-existing files when no files given and no files exist', async () => {
+    const expected = {}
+    const actual = await findNewFiles('bck-0-csv-0', [])
+    assert.deepEqual(expected, actual,
+                     `Expected no files`)
+  })
+
+  it('finds some files when one file is given and no files exist', async () => {
+    const candidates = [['somefile.txt', '9876fedc']]
+    const expected = {'9876fedc': 'somefile.txt'}
+    const actual = await findNewFiles('bck-0-csv-0', candidates)
+    assert.deepEqual(expected, actual,
+                     `Expected one file`)
+  })
+
+  it('finds nothing needs backup when there is a match', async () => {
+    const candidates = [['alpha.js', 'abcd1234']]
+    const expected = {}
+    const actual = await findNewFiles('bck-1-csv-1', candidates)
+    assert.deepEqual(expected, actual,
+                     `Expected no files`)
+  })
+
+  it('finds something needs backup when there is a mismatch', async () => {
+    const candidates = [['alpha.js', 'a1b2c3d4']]
+    const expected = {'a1b2c3d4': 'alpha.js'}
+    const actual = await findNewFiles('bck-1-csv-1', candidates)
+    assert.deepEqual(expected, actual,
+                     `Expected one file`)
+  })
+
+  it('finds mixed matches', async () => {
+    const candidates = [['matches.js', '3456cdef'],
+                        ['matches.txt', 'abcd1234'],
+                        ['mismatch.txt', '12345678']]
+    const expected = {'12345678': 'mismatch.txt'}
+    const actual = await findNewFiles('bck-4-csv-2', candidates)
+    assert.deepEqual(expected, actual,
+                     `Expected one file`)
+  })
+})
+</code></pre>
+<ul>
+<li>Now write the code that does the file copying</li>
+</ul>
+<pre title="backup.js"><code class="language-js">const fs = require('fs-extra-promise')
+
+const hashExisting = require('./hash-existing-async')
+const findNewFiles = require('./check-existing-files')
+
+const backup = async (src, dst, timestamp = null) => {
+  if (timestamp === null) {
+    timestamp = Math.round((new Date()).getTime() / 1000)
+  }
+  timestamp = String(timestamp).padStart(10, '0')
+
+  const existing = await hashExisting(src)
+  const needToCopy = await findNewFiles(dst, existing)
+  await copyFiles(dst, needToCopy)
+  await saveManifest(dst, timestamp, existing)
+}
+
+const copyFiles = async (dst, needToCopy) => {
+  const promises = Object.keys(needToCopy).map(hash => {
+    const srcPath = needToCopy[hash]
+    const dstPath = `${dst}/${hash}.bck`
+    fs.copyFileAsync(srcPath, dstPath)
+  })
+  return Promise.all(promises)
+}
+
+const saveManifest = async (dst, timestamp, pathHash) => {
+  pathHash = pathHash.sort()
+  const content = pathHash.map(([path, hash]) => `${path},${hash}`).join('\n')
+  const manifest = `${dst}/${timestamp}.csv`
+  fs.writeFileAsync(manifest, content)
+}
+
+module.exports = backup
+</code></pre>
+<ul>
+<li>And some tests
+<ul>
+<li>Which are quite involved, since we want to check with actual file hashes</li>
+</ul>
+</li>
+</ul>
+<pre title="test/test-backup.js"><code class="language-js">const assert = require('assert')
+const fs = require('fs-extra-promise')
+const glob = require('glob-promise')
+const mock = require('mock-fs')
+const crypto = require('crypto')
+
+const backup = require('../backup')
+
+const hashString = (data) => {
+  const hasher = crypto.createHash('sha1').setEncoding('hex')
+  hasher.write(data)
+  hasher.end()
+  return hasher.read()
+}
+
+const Contents = {
+  aaa: 'AAA',
+  bbb: 'BBB',
+  ccc: 'CCC'
+}
+
+const Hashes = Object.keys(Contents).reduce((obj, key) => {
+  obj[key] = hashString(Contents[key])
+  return obj
+}, {})
+
+const Fixture = {
+  'source': {
+    'alpha.txt': Contents.aaa,
+    'beta.txt': Contents.bbb,
+    gamma: {
+      'delta.txt': Contents.ccc
+    }
+  },
+  'backup': {}
+}
+
+const InitialBackups = Object.keys(Hashes).reduce((set, filename) => {
+  set.add(`backup/${Hashes[filename]}.bck`)
+  return set
+}, new Set())
+
+describe('check entire backup process', () => {
+
+  beforeEach(() => {
+    mock(Fixture)
+  })
+
+  afterEach(() => {
+    mock.restore()
+  })
+
+  it('creates an initial CSV manifest', async () => {
+    await backup('source', 'backup', timestamp=0)
+
+    assert.equal((await glob('backup/*')).length, 4,
+                 `Expected 4 files`)
+
+    const actualBackups = new Set(await glob('backup/*.bck'))
+    assert.deepEqual(actualBackups, InitialBackups,
+                     `Expected 3 backup files`)
+
+    const actualManifests = await glob('backup/*.csv')
+    assert.deepEqual(actualManifests, ['backup/0000000000.csv'],
+                     `Expected one manifest`)
+  })
+
+  it('does not duplicate files unnecessarily', async () => {
+    await backup('source', 'backup', timestamp=0)
+    assert.equal((await glob('backup/*')).length, 4,
+                 `Expected 4 files after first backup`)
+
+    await backup('source', 'backup', timestamp=1)
+    assert.equal((await glob('backup/*')).length, 5,
+                 `Expected 5 files after second backup`)
+    const actualBackups = new Set(await glob('backup/*.bck'))
+    assert.deepEqual(actualBackups, InitialBackups,
+                     `Expected 3 backup files after second backup`)
+
+    const actualManifests = (await glob('backup/*.csv')).sort()
+    assert.deepEqual(actualManifests, ['backup/0000000000.csv',
+                                       'backup/0000000001.csv'],
+                     `Expected two manifests`)
+  })
+
+  it('adds a file as needed', async () => {
+    await backup('source', 'backup', timestamp=0)
+    assert.equal((await glob('backup/*')).length, 4,
+                 `Expected 4 files after first backup`)
+
+    await fs.writeFileAsync('source/newfile.txt', 'NNN')
+    const hashOfNewFile = hashString('NNN')
+
+    await backup('source', 'backup', timestamp=1)
+    assert.equal((await glob('backup/*')).length, 6,
+                 `Expected 6 files after second backup`)
+    const expected = new Set(InitialBackups).add(`backup/${hashOfNewFile}.bck`)
+    const actualBackups = new Set(await glob('backup/*.bck'))
+    assert.deepEqual(actualBackups, expected,
+                     `Expected 4 backup files after second backup`)
+
+    const actualManifests = (await glob('backup/*.csv')).sort()
+    assert.deepEqual(actualManifests, ['backup/0000000000.csv',
+                                       'backup/0000000001.csv'],
+                     `Expected two manifests`)
+  })
+})
+</code></pre>
+  <pre title="test-backup.sh"><code class="language-sh">npm run test -- -g 'check entire backup process'
+</code></pre>
+  <pre title="test-backup.text"><code class="language-text">  check entire backup process
+    ✓ creates an initial CSV manifest
+    ✓ does not duplicate files unnecessarily
+    ✓ adds a file as needed
+</code></pre>
+</main>
+<footer>
+<div class="row">
+<div class="left3">
+<a href="../unit-test/"><em>&laquo; Unit Testing</em></a>
+</div>
+<div class="middle3">
+<a href="../license/"><img class="footer" src="../static/cc-by.svg" alt="License" /></a>
+<a href="https://github.com/gvwilson/e/"><img class="footer" src="../static/github.svg" alt="Repository" /></a>
+© 2020 <a href="../authors/">The Authors</a>
+</div>
+<div class="right3">
+<a href="../style-checker/"><em>Style Checker &raquo;</em></a>
+</div>
+</div>
+</footer>
+</body>
+</html>
