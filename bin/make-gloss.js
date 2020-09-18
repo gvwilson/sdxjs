@@ -7,15 +7,24 @@ import assert from 'assert'
 import fs from 'fs'
 import yaml from 'js-yaml'
 
-import {makeBib} from './bib.js'
+import {makeGloss} from './gloss.js'
 
 /**
  * Main driver.
  */
 const main = () => {
   const config = getConfiguration()
-  const data = yaml.safeLoad(fs.readFileSync(config.input))
-  const text = makeBib(data)
+  const data = config.input
+        .map(filename => yaml.safeLoad(fs.readFileSync(filename)))
+        .reduce((accum, current) => {
+          current.forEach(item => {
+            assert('slug' in item,
+                   `Every definition must have a slug ${JSON.stringify(item)}`)
+            accum[item.slug] = item
+          })
+          return accum
+        }, {})
+  const text = makeGloss(data)
   fs.writeFileSync(config.output, text)
 }
 
@@ -25,7 +34,7 @@ const main = () => {
  */
 const getConfiguration = () => {
   const parser = new argparse.ArgumentParser()
-  parser.add_argument('--input')
+  parser.add_argument('--input', {nargs: '+'})
   parser.add_argument('--output')
 
   const config = parser.parse_args()

@@ -74,7 +74,7 @@ modeled on [this one in Python][500lines-server].
 -   Unit testing this doesn't have to be hard
     -   We have a function that takes something with a `.write` method and produces a function
     -   That takes some data and writes some text
-    -   We can provide a [mock object][mock-object] to free our tests from concurrency
+    -   We can provide a <g key="mock_object">mock object</g> to free our tests from concurrency
 -   Replacement for the socket
 
 <%- include('/_inc/code.html', {file: 'test/socket.js'}) %>
@@ -103,8 +103,8 @@ modeled on [this one in Python][500lines-server].
         -   Call a user-defined method to do something useful
         -   Finalize the response object
         -   Send the header and body
-    -   A [protocol][protocol] for handling requests
-    -   A simple example of the [Template Method][template-method-pattern] pattern
+    -   A <g key="protocol">protocol</g> for handling requests
+    -   A simple example of the <g key="template_method_pattern">Template Method</g> pattern
 -   Use the [url][node-url] package to parse the request target
 
 <%- include('/_inc/code.html', {file: 'base-http-server.js'}) %>
@@ -117,7 +117,7 @@ modeled on [this one in Python][500lines-server].
 
 ## How can we parameterize requests? {#parameterizing}
 
--   The classic approach uses a [query string][query-string]
+-   The classic approach uses a <g key="query_string">query string</g>
     -   `http://some.domain/some/path/?firstKey=firstValue&secondKey=secondValue`
     -   Keys can be repeated
     -   Lands in the `.searchParams` object of the parsed URL
@@ -135,14 +135,14 @@ modeled on [this one in Python][500lines-server].
 
 <%- include('/_inc/multi.html', {pat: 'test-http-params-server.*', fill: 'sh text'}) %>
 
--   More modern approach is to send [JSON][json]
+-   More modern approach is to send <g key="json">JSON</g>
     -   Unlimited [sic] size
     -   Structured data
 -   Use [got][got] to construct request including URL and JSON
 
 <%- include('/_inc/code.html', {file: 'got-json-client.js'}) %>
 
--   Finally need to get the [HTTP headers][http-header] to check [MIME type][mime-type]
+-   Finally need to get the <g key="http_header">HTTP headers</g> to check <g key="mime_type">MIME type</g>
     -   Convert body of request from text to JSON if the type is `application/json`
 
 <%- include('/_inc/code.html', {file: 'http-json-server.js'}) %>

@@ -19,8 +19,8 @@
 
 -   Use the [`fs`][node-fs] library
 -   `fs.readdir` doesn't return anything
--   [Documentation][node-fs] says that it takes a [callback][callback]
--   JavaScript uses a [single-threaded][single-threaded] programming model
+-   [Documentation][node-fs] says that it takes a <g key="callback">callback</g>
+-   JavaScript uses a <g key="single_threaded">single-threaded</g> programming model
     -   Any operation that might delay, such as file I/O, is set aside to be run later
 -   Rewrite with an explicit function
 
@@ -33,13 +33,13 @@
 
 <%- include('/_inc/multi.html', {pat: 'list-dir-function-defined.*', fill: 'sh text'}) %>
 
--   More idiomatic to define the callback [anonymously][anonymous-function] where it's used
+-   More idiomatic to define the callback <g key="anonymous_function">anonymously</g> where it's used
 
 <%- include('/_inc/code.html', {file: 'list-dir-function-anonymous.js'}) %>
 
 -   So how do we get all the files to be copied?
 -   Use [`glob`][node-glob]
-    -   [Globbing][globbing] is an old Unix name (short for "global")
+    -   <g key="globbing">Globbing</g> is an old Unix name (short for "global")
 -   Start by getting all filenames
     -   Works by name, not by type
     -   So filenames that *don't* match `*.*` won't be detected
@@ -47,7 +47,7 @@
 <%- include('/_inc/multi.html', {pat: 'glob-all-files.*', fill: 'js text'}) %>
 
 -   Works, but we probably don't want to copy [Emacs][emacs] backup files (ending with `~`)
--   We can get the list and then [filter][filter] those out
+-   We can get the list and then <g key="filter">filter</g> those out
 
 <%- include('/_inc/multi.html', {pat: 'glob-get-then-filter-pedantic.*', fill: 'js text'}) %>
 
@@ -67,7 +67,7 @@
 
 <%- include('/_inc/code.html', {file: 'glob-with-source-directory.js'}) %>
 
--   This uses [string interpolation][string-interpolation]
+-   This uses <g key="string_interpolation">string interpolation</g>
     -   Back-quote the string
     -   Use `${name}` to insert the value of an expression
     -   This is completely separate from the globbing
@@ -77,7 +77,7 @@
 
 <%- include('/_inc/code.html', {file: 'glob-with-dest-directory.js'}) %>
 
--   This uses [destructuring assignment][destructuring-assignment]
+-   This uses <g key="destructuring_assignment">destructuring assignment</g>
     -   And only works if both source and destination are given on the command line
 
 -   Now ensure that the output directory exists
@@ -123,7 +123,7 @@
 
 <%- include('/_inc/multi.html', {pat: 'callbacks-with-zero-timeouts.*', fill: 'js text'}) %>
 
--   We can use this to build a generic [non-blocking][non-blocking-execution] function
+-   We can use this to build a generic <g key="non_blocking_execution">non-blocking</g> function
 
 <%- include('/_inc/multi.html', {pat: 'non-blocking.*', fill: 'js text'}) %>
 
@@ -181,7 +181,7 @@
 <%- include('/_inc/multi.html', {pat: 'use-pledge-4.*', fill: 'js text'}) %>
 
 -   Use this to build a line-counting program
--   Use the [promisified][promisification] version of `fs-extra`
+-   Use the <g key="promisification">promisified</g> version of `fs-extra`
 
 <%- include('/_inc/multi.html', {pat: 'count-lines-single-file.*', fill: 'js sh text'}) %>
 

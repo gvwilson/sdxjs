@@ -35,7 +35,7 @@ const fixGlossaryRefs = (relativeRoot) => {
     .forEach(node => {
       const key = node.getAttribute('key')
       const link = document.createElement('a')
-      link.setAttribute('href', `${relativeRoot}/glossary/#${key}`)
+      link.setAttribute('href', `${relativeRoot}/gloss/#${key}`)
       link.setAttribute('class', 'glossary-reference')
       link.innerHTML = node.innerHTML
       node.parentNode.replaceChild(link, node)

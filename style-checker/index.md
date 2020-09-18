@@ -2,13 +2,13 @@
 ---
 
 -   Goal: check that source code conforms to style guidelines.
-    -   Tools like this are called [linters][linter] in honor of an early one named `lint`
+    -   Tools like this are called <g key="linter">linters</g> in honor of an early one named `lint`
         (which looked for fluff in source code).
 -   Inspirations:
     -   [ESLint][eslint]
 -   Design:
-    -   Parse source to create an [abstract syntax tree][ast] (AST)
-    -   [Walk][walk-a-tree] the AST and apply rules at each node
+    -   Parse source to create an <g key="ast">abstract syntax tree</g> (AST)
+    -   <g key="walk_a_tree">Walk</g> the AST and apply rules at each node
     -   Express each rule as a function that takes the node and an object for collecting results
     -   Report all results at the end
 
@@ -45,13 +45,13 @@
 
 ## How does the AST walker work?
 
--   Use the [Visitor][visitor-pattern] design pattern
+-   Use the <g key="visitor_pattern">Visitor</g> design pattern
 -   Define a class with methods that
     -   Walk the tree
     -   Take action at each kind of node
     -   Go through the children of that node
 -   Users overrides the set of action methods they're interested in
-    -   Use [dynamic lookup][dynamic-lookup] to look up a method
+    -   Use <g key="dynamic_lookup">dynamic lookup</g> to look up a method
         with the same name as the node type in the walker object
     -   I.e., use the walker object as a lookup table
 -   Not the same architecture as `acorn-walk`
@@ -61,10 +61,10 @@
 
 ## How else could the AST walker work?
 
--   An alternative approach uses the [Iterator][iterator-pattern] pattern
+-   An alternative approach uses the <g key="iterator_pattern">Iterator</g> pattern
     -   Return elements of a complex structure one by one for processing
     -   Visitor takes computation to the nodes, Iterator gets the nodes for processing
--   Can implement in JavaScript using [generator functions][generator-function]
+-   Can implement in JavaScript using <g key="generator_function">generator functions</g>
 -   Use `yield` to return a value and suspend processing to be resumed later
     -   Result is a two-part structure with `value` and `done`
 -   Note that a generator function returns an object that then returns values

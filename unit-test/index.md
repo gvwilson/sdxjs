@@ -14,20 +14,20 @@
 
 -   Every unit test:
     -   Is a function of zero arguments so that it can be called uniformly
-    -   Creates a [fixture][fixture] to be tested
-    -   Uses [assertions][assertion]
-        to compare the [actual result][actual-result]
-        against the [expected result][expected-result]
+    -   Creates a <g key="fixture">fixture</g> to be tested
+    -   Uses <g key="assertion">assertions</g>
+        to compare the <g key="actual_result">actual result</g>
+        against the <g key="expected_result">expected result</g>
 -   Possible results are:
-    -   [Pass][pass-in-unit-test]: works as expected
-    -   [Fail][failure-in-unit-test]: something wrong with the code being tested
-    -   [Error][error-in-unit-test]: something wrong in the test itself
+    -   <g key="pass_in_unit_test">Pass</g>: works as expected
+    -   <g key="failure_in_unit_test">Fail</g>: something wrong with the code being tested
+    -   <g key="error_in_unit_test">Error</g>: something wrong in the test itself
 
 ## How can we separate test registration, execution, and reporting? {#separating}
 
--   Use [global variables][global-variable] to record tests and results
+-   Use <g key="global_variable">global variables</g> to record tests and results
 -   `hopeThat` records a callback and a message
-    -   Don't run tests immediately because we want to wrap each one in our own [exception handler][exception-handler]
+    -   Don't run tests immediately because we want to wrap each one in our own <g key="exception_handler">exception handler</g>
 -   `main` runs all registered tests
     -   If it completes without an exception, it passes
     -   If any of the `assert` calls raises an `AssertionError`, it fails
@@ -46,12 +46,12 @@
 
 ## How should we structure test registration? {#structuring}
 
--   The `hope` module uses the [Singleton][singleton-pattern] pattern
+-   The `hope` module uses the <g key="singleton_pattern">Singleton</g> pattern
     -   A class that only has one instance
     -   A structured way to manage global variables
 -   Defines class
     -   Exports an instance of that class
-    -   Relies on Node [caches][caching] modules so that each is only loaded once
+    -   Relies on Node <g key="caching">caches</g> modules so that each is only loaded once
 -   `Hope.test` records a test for later execution
 -   `Hope.run` executes each
 -   Provide two flavors of output (terse one-liner and full details)
@@ -67,9 +67,9 @@
 
 <%- include('/_inc/code.html', {file: 'test-add.js'}) %>
 
--   Load those [dynamically][dynamic-loading]
+-   Load those <g key="dynamic_loading">dynamically</g>
     -   This executes the code they contain
-    -   Which registers tests as a [side effect][side-effect]
+    -   Which registers tests as a <g key="side_effect">side effect</g>
 
 -   Final part is the command-line tool that finds and loads tests
     -   Parse command-line options
@@ -86,7 +86,7 @@
 
 <%- include('/_inc/code.html', {file: 'pray.text'}) %>
 
--   Trace the [lifecycle][lifecycle]
+-   Trace the <g key="lifecycle">lifecycle</g>
     -   `pray` uses `glob` to find files with test
     -   Loads `test-add.js` using `require`
     -   As `test-add.js` runs, it loads `hope.js`

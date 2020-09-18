@@ -7,7 +7,7 @@
     -   Option 3: use specially-named attributes in HTML
 -   We'll use Option 3 because it saves us writing a parser, and because it's unusual
 -   Design:
-    -   Walk the [DOM][dom] to find nodes with special attributes
+    -   Walk the <g key="dom">DOM</g> to find nodes with special attributes
     -   "Execute" the instructions in those nodes to generate text
     -   Save other text as-is
 
@@ -18,7 +18,7 @@
 ## How can we transform templates? {#transform-templates}
 
 -   How will we transform it?
-    -   Take a template, an output stream, and some variables (e.g., from [YAML][yaml] header)
+    -   Take a template, an output stream, and some variables (e.g., from <g key="yaml">YAML</g> header)
     -   Pass values in as an object
 
 <%- include('/_inc/code.html', {file: 'example-call.js'}) %>
@@ -31,14 +31,14 @@
 
 -   Need a way to keep track of variables' values
 -   Maintain a stack of lookup tables
-    -   Each [stack frame][stack-frame] is an object
+    -   Each <g key="stack_frame">stack frame</g> is an object
     -   `Env.find` looks up the list of stack frames
-    -   This is [dynamic scoping][dynamic-scoping] not [lexical scoping][lexical-scoping]
+    -   This is <g key="dynamic_scoping">dynamic scoping</g> not <g key="lexical_scoping">lexical scoping</g>
 
 <%- include('/_inc/code.html', {file: 'env.js'}) %>
 
 -   Structure is defined by our HTML parser
--   Handle nodes with and without children using the [Visitor pattern][visitor-pattern]
+-   Handle nodes with and without children using the <g key="visitor_pattern">Visitor pattern</g>
     -   `Visitor.walk()` without an argument assigns `undefined` to `node`, so we re-set to the root of the tree
     -   Alternative designs would be build-and-run or pass in the root with every call
 

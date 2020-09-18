@@ -8,24 +8,24 @@
 ## What's in a build manager? {#requirements}
 
 -   Every rule has:
-    -   A [target][build-target]
-    -   [Dependencies][build-dependency]
-    -   [Actions][build-action]
--   Forms a [directed acyclic graph][dag] (DAG)
+    -   A <g key="build_target">target</g>
+    -   <g key="build_dependency">Dependencies</g>
+    -   <g key="build_action">Actions</g>
+-   Forms a <g key="dag">directed acyclic graph</g> (DAG)
     -   Acyclic because if something depends on itself we can't ever finish updating it
--   A target is [stale][build-stale] if it is older than any of its dependencies
+-   A target is <g key="build_stale">stale</g> if it is older than any of its dependencies
     -   Use the actions to bring it up to date
 -   So:
     -   Read configuration
     -   Construct dependency graph
     -   Find out what nodes are stale
     -   Build everything that depends on them
-    -   In [topological order][topological-order]
+    -   In <g key="topological_order">topological order</g>
 
 ## Where should we start? {#starting-point}
 
 -   Going to experiment with a lot of these so write a general-purpose driver
-    -   A simple example of the [Template Method][template-method-pattern] pattern
+    -   A simple example of the <g key="template_method_pattern">Template Method</g> pattern
     -   The `build` method defined in the base class does some things and then calls `run`
     -   The child class *must* define `run` to do its part
 -   Driver loads a class, creates an instance, and asks it to build
@@ -69,7 +69,7 @@
 
 ## How can we add generic build rules? {#generic-rules}
 
--   We now want to add [build rules][build-rule]
+-   We now want to add <g key="build_rule">build rules</g>
     -   "Build all things in this set the same way"
 -   Need:
     -   A way to define a set of files
@@ -78,7 +78,7 @@
 -   Override `SimpleBuilder.buildGraph` to replace variables in actions with values
     -   Object-oriented programming helps us change only what we need to change
     -   Depends on a good initial division into overridable chunks
--   Make provides [automatic variables][automatic-variable] with names like `$<` and `$@`
+-   Make provides <g key="automatic_variable">automatic variables</g> with names like `$<` and `$@`
 -   Ours will be more readable
     -   `@TARGET` for the target
     -   `@DEPENDENCIES` for all dependencies (in order)
@@ -89,7 +89,7 @@
 
 <%- include('/_inc/multi.html', {pat: 'variable-expander.*', fill: 'js text'}) %>
 
--   Now we need [pattern rules][pattern-rule]
+-   Now we need <g key="pattern_rule">pattern rules</g>
 -   First attempt at rules file looks like this
 
 <%- include('/_inc/code.html', {file: 'pattern-rules.yaml'}) %>
@@ -115,6 +115,6 @@
 -   Because we used `run` to print the graph in `simple-user-read.js`, we have to:
     -   Reimplement it here
     -   Call up to a grandparent
--   This tells us that we should refactor our base class(es) to create more [affordances][affordance]
+-   This tells us that we should refactor our base class(es) to create more <g key="affordance">affordances</g>
 
 <%- include('/_inc/multi.html', {pat: 'pattern-user-run.*', fill: 'js text'}) %>

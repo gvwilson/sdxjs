@@ -5,7 +5,7 @@ A pure-text layout engine showing how browsers decide what to put where,
 based on [Matt Brubeck's tutorial][browser-tutorial].
 
 -   Inputs are:
-    -   A very small subset of HTML, which is converted to [DOM][dom] nodes
+    -   A very small subset of HTML, which is converted to <g key="dom">DOM</g> nodes
     -   A very small subset of CSS (which we represent as JSON so that we don't have to write another parser)
 -   Processing is:
     -   Produce a tree of styled nodes from the DOM
@@ -17,7 +17,7 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
 -   Our subset of HTML includes:
     -   Plain text, which we store as instances of `TextNode`
     -   Elements with attributes, which we store as instances of `TagNode`
-    -   Don't support [empty elements][empty-element] or comments
+    -   Don't support <g key="empty_element">empty elements</g> or comments
     -   Each attribute must have a single quoted value
 -   Use regular expressions to parse, though [this is a sin][stack-overflow-html-regex]
 
@@ -31,7 +31,7 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
 
 -   Our subset of CSS supports:
     -   ID rules
-        -   [DOM selector][dom-selector] of the form `#name`
+        -   <g key="dom_selector">DOM selector</g> of the form `#name`
         -   HTML of the form `<tag id="name">…</tag>`
     -   Class rules
         -   DOM selector of the form `.kind`

@@ -20,7 +20,7 @@
     -   Use the `eval` function to translate and run it
 -   Very dangerous
     -   Code may do arbitrary things
-    -   Ought to run it in a [sandbox][sandbox]
+    -   Ought to run it in a <g key="sandbox">sandbox</g>
 -   Evaluate an expression
 
 <%- include('/_inc/multi.html', {pat: 'eval-01.*', fill: 'js text'}) %>
@@ -53,7 +53,7 @@
 ## How can we avoid reloading files? {#avoid-reloading}
 
 -   Only want to load any single file once
--   So create a [cache][cache] using the [Singleton][singleton-pattern] pattern
+-   So create a <g key="cache">cache</g> using the <g key="singleton_pattern">Singleton</g> pattern
 -   Loader
 
 <%- include('/_inc/code.html', {file: 'need-01.js'}) %>
@@ -68,7 +68,7 @@
 <%- include('/_inc/multi.html', {pat: 'test-01.*', fill: 'js sh'}) %>
 
 -   Want to control where files are loaded from
--   Give our program a [search path][search-path]
+-   Give our program a <g key="search_path">search path</g>
     -   Colon-separated list of directories
 -   If module path starts with `./`, load locally
 

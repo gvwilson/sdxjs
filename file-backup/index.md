@@ -6,7 +6,7 @@
 
 ## What is a hash code and how can I create one for a file? {#hash-code}
 
--   A [cryptographic hash function][cryptographic-hash-function]:
+-   A <g key="cryptographic_hash_function">cryptographic hash function</g>:
     -   Turns data of arbitrary size into a fixed-size block of bits
     -   Is 100% reproducible
     -   Cannot be reversed
@@ -19,7 +19,7 @@
 
 <%- include('/_inc/multi.html', {pat: 'hash-file.*', fill: 'js sh text'}) %>
 
--   More efficient to process the file as a [stream][stream]
+-   More efficient to process the file as a <g key="stream">stream</g>
 
 <%- include('/_inc/multi.html', {pat: 'hash-stream.*', fill: 'js sh text'}) %>
 
@@ -28,7 +28,7 @@
 -   Instead:
     -   Copy each file to `hash(file)`
     -   Store a data structure that records directories' contents as JSON
-    -   To restore from a particular date, copy [blobs][blob] to where they need to be
+    -   To restore from a particular date, copy <g key="blob">blobs</g> to where they need to be
 
 ## How can `async` and `await` simplify code? {#async-await}
 
@@ -72,7 +72,7 @@
 
 -   Step 3: copy the files that need copying and create a new timestamped CSV file
 -   The code itself will be relatively simple, but setup and cleanup will be annoying
--   Better solution: use a [mock object][mock-object] instead of the real filesystem
+-   Better solution: use a <g key="mock_object">mock object</g> instead of the real filesystem
     -   Has the same interface as the real function/object/class/library
     -   But works differently for testing purposes
 -   Install [`mock-fs`][node-mock-fs]

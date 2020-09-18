@@ -20,12 +20,12 @@
 
 <%- include('/_inc/multi.html', {pat: 'two-kinds-of-comment-subset.*', fill: 'sh text'}) %>
 
--   [Line comments][line-comment] can't span multiple lines
+-   <g key="line_comment">Line comments</g> can't span multiple lines
     -   Consecutive line comments aren't combined
 
 <%- include('/_inc/multi.html', {pat: 'multi-line-double-slash-comment.*', fill: 'js sh text'}) %>
 
--   A [block comment][block-comment] can span any number of lines
+-   A <g key="block_comment">block comment</g> can span any number of lines
     -   Don't need to prefix each line with `*` but most people do for readability
 
 <%- include('/_inc/multi.html', {pat: 'multi-line-slash-star-comment.*', fill: 'js sh text'}) %>

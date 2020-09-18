@@ -16,6 +16,7 @@ import rimraf from 'rimraf'
 import yaml from 'js-yaml'
 
 import {makeBib} from './bib.js'
+import {makeGloss} from './gloss.js'
 
 /**
  * Default settings.
@@ -26,6 +27,8 @@ const DEFAULTS = {
   outputDir: '_site',
   bibInputFile: '_bib.yml',
   bibOutputFile: 'bib.md',
+  glossInputFile: '_gloss.yml',
+  glossOutputFile: 'gloss.md',
   rootDir: '.'
 }
 
@@ -51,6 +54,7 @@ const main = () => {
   const config = getConfiguration()
   const linksText = buildLinks(config)
   createBibFile(config)
+  createGlossFile(config)
   const allFiles = buildFileInfo(config)
   loadFiles(allFiles)
   rimraf.sync(config.outputDir)
@@ -67,6 +71,8 @@ const getConfiguration = () => {
   const parser = new argparse.ArgumentParser()
   parser.add_argument('--bibInput', {default: DEFAULTS.bibInputFile})
   parser.add_argument('--bibOutput', {default: DEFAULTS.bibOutputFile})
+  parser.add_argument('--glossInput', {default: DEFAULTS.glossInputFile})
+  parser.add_argument('--glossOutput', {default: DEFAULTS.glossOutputFile})
   parser.add_argument('-c', '--configFile', {default: DEFAULTS.configFile})
   parser.add_argument('-l', '--linksFile', {default: DEFAULTS.linksFile})
   parser.add_argument('-o', '--outputDir', {default: DEFAULTS.outputDir})
@@ -153,6 +159,21 @@ const createBibFile = (config) => {
   const data = yaml.safeLoad(fs.readFileSync(config.bibInput))
   const text = makeBib(data)
   fs.writeFileSync(config.bibOutput, text)
+}
+
+/**
+ * Make glossary file for translation if requested.
+ * @param {Object} config Program configuration.
+ */
+const createGlossFile = (config) => {
+  if (!('glossInput' in config) && !('glossOutput' in config)) {
+    return
+  }
+  assert(('glossInput' in config) && ('glossOutput' in config),
+         `Require both glossary input and output files`)
+  const data = yaml.safeLoad(fs.readFileSync(config.glossInput))
+  const text = makeGloss(data)
+  fs.writeFileSync(config.glossOutput, text)
 }
 
 /**
