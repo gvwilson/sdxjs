@@ -12,8 +12,8 @@ class VariableExpander extends UpdateOnTimestamp {
     this.graph.nodes().forEach(target => {
       try {
         const dependencies = this.graph.predecessors(target)
-        const actions = this.graph.node(target).actions
-        this.graph.node(target).actions = actions.map(act => {
+        const recipes = this.graph.node(target).recipes
+        this.graph.node(target).recipes = recipes.map(act => {
           act = act
             .replace('@TARGET', target)
             .replace('@DEPENDENCIES', dependencies.join(' ' ))

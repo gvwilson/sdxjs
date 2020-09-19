@@ -92,3 +92,15 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
 
 1.  Run `npm run build` to build the the website in `_site`
     and `npm run serve` to serve it locally on port 4000.
+
+1.  Rebuilding the glossary takes a bit of work---we hope it will be easier once `glosario-js` is installable.
+    In the meantime:
+    1.  Clone <https://github.com/carpentries/glosario/> somewhere (not in this repository).
+    1.  Run
+
+        ```
+        bin/gloss-keys.js index.md */index.md | ~/glosario/utils/merge-glossaries.py -w - ~/glosario/glossary.yml > _glosario.yml
+        ```
+
+        to create a local slice of the Glosario data.
+    1.  Run `npm run gloss` to regenerate `gloss.md` by comining the glossaries.

@@ -71,8 +71,8 @@
 <li>Every rule has:
 <ul>
 <li>A <g key="build_target">target</g></li>
-<li><g key="build_dependency">Dependencies</g></li>
-<li><g key="build_action">Actions</g></li>
+<li><g key="dependency">Dependencies</g></li>
+<li><g key="build_recipe">Recipes</g></li>
 </ul>
 </li>
 <li>Forms a <g key="dag">directed acyclic graph</g> (DAG)
@@ -82,7 +82,7 @@
 </li>
 <li>A target is <g key="build_stale">stale</g> if it is older than any of its dependencies
 <ul>
-<li>Use the actions to bring it up to date</li>
+<li>Use the recipes to bring it up to date</li>
 </ul>
 </li>
 <li>So:
@@ -140,10 +140,10 @@ class SimpleBuilder {
              Array.isArray(rule.depends) &&
              rule.depends.every(dep => (typeof dep === 'string')),
              `Rule ${JSON.stringify(rule)} does not have list of strings as 'depends'`)
-      assert(('actions' in rule) &&
-             Array.isArray(rule.actions) &&
-             rule.actions.every(action => (typeof action === 'string')),
-             `Rule ${JSON.stringify(rule)} does not have list of strings as 'actions'`)
+      assert(('recipes' in rule) &&
+             Array.isArray(rule.recipes) &&
+             rule.recipes.every(recipe => (typeof recipe === 'string')),
+             `Rule ${JSON.stringify(rule)} does not have list of strings as 'recipes'`)
     })
   }
 
@@ -151,7 +151,7 @@ class SimpleBuilder {
     this.graph = new graphlib.Graph()
     this.config.forEach(rule => {
       this.graph.setNode(rule.target, {
-        actions: rule.actions
+        recipes: rule.recipes
       })
       rule.depends.forEach(dep => this.graph.setEdge(dep, rule.target))
     })
@@ -193,16 +193,16 @@ module.exports = DisplayOnly
   depends:
   - B
   - C
-  actions:
+  recipes:
   - "update A from B and C"
 - target: B
   depends:
   - C
-  actions:
+  recipes:
   - "update B from C"
 - target: C
   depends: []
-  actions: []
+  recipes: []
 </code></pre>
 <ul>
 <li>Execution and output</li>
@@ -270,9 +270,9 @@ module.exports = AddTimestamps
 <pre title="add-timestamps.sh"><code class="language-sh">node driver.js ./add-timestamps three-simple-rules.yml add-timestamps.yml
 </code></pre>
 <pre title="add-timestamps.text"><code class="language-text">[
-  'A: {"actions":["update A from B and C"],"timestamp":2}',
-  'B: {"actions":["update B from C"],"timestamp":5}',
-  'C: {"actions":[],"timestamp":8}'
+  'A: {"recipes":["update A from B and C"],"timestamp":2}',
+  'B: {"recipes":["update B from C"],"timestamp":5}',
+  'C: {"recipes":[],"timestamp":8}'
 ]
 </code></pre>
 <ul>
@@ -296,7 +296,7 @@ class UpdateOnTimestamp extends AddTimestamps {
     const endTime = sorted.reduce((currTime, node) => {
       if (this.isStale(node)) {
         console.log(`${currTime}: ${node}`)
-        this.graph.node(node).actions.forEach(a => console.log(`\t${a}`))
+        this.graph.node(node).recipes.forEach(a => console.log(`\t${a}`))
         this.graph.node(node).timestamp = currTime
         currTime += 1
       }
@@ -337,7 +337,7 @@ module.exports = UpdateOnTimestamp
 <li>A way to fill in parts of that rule</li>
 </ul>
 </li>
-<li>Override <code>SimpleBuilder.buildGraph</code> to replace variables in actions with values
+<li>Override <code>SimpleBuilder.buildGraph</code> to replace variables in recipes with values
 <ul>
 <li>Object-oriented programming helps us change only what we need to change</li>
 <li>Depends on a good initial division into overridable chunks</li>
@@ -355,7 +355,7 @@ module.exports = UpdateOnTimestamp
 </li>
 </ul>
 </li>
-<li>Build the action through brute force string substitution
+<li>Build the recipe through brute force string substitution
 <ul>
 <li>Look at more efficient strategies in the exercises</li>
 </ul>
@@ -375,8 +375,8 @@ class VariableExpander extends UpdateOnTimestamp {
     this.graph.nodes().forEach(target => {
       try {
         const dependencies = this.graph.predecessors(target)
-        const actions = this.graph.node(target).actions
-        this.graph.node(target).actions = actions.map(act => {
+        const recipes = this.graph.node(target).recipes
+        this.graph.node(target).recipes = recipes.map(act => {
           act = act
             .replace('@TARGET', target)
             .replace('@DEPENDENCIES', dependencies.join(' ' ))
@@ -409,24 +409,24 @@ module.exports = VariableExpander
 </ul>
 <pre title="pattern-rules.yaml"><code class="language-yaml">- target: left.out
   depends: []
-  actions: []
+  recipes: []
   timestamp: 1
 - target: left.in
   depends: []
-  actions: []
+  recipes: []
   timestamp: 2
 - target: right.out
   depends: []
-  actions: []
+  recipes: []
   timestamp: 1
 - target: right.in
   depends: []
-  actions: []
+  recipes: []
   timestamp: 3
 - target: %.out
   depends:
   - %.in
-  actions:
+  recipes:
   - "update @TARGET from @DEPENDENCIES"
 </code></pre>
 <ul>
@@ -448,7 +448,7 @@ class PatternUserAttempt extends VariableExpander {
     this.graph.nodes().forEach(target => {
       if (target.includes('%')) {
         const data = {
-          actions: this.graph.node(target).actions
+          recipes: this.graph.node(target).recipes
         }
         this.rules.set(target, data)
       }
@@ -498,7 +498,7 @@ class PatternUserRead extends VariableExpander {
     this.config.forEach(rule => {
       if (rule.target.includes('%')) {
         const data = {
-          actions: rule.actions,
+          recipes: rule.recipes,
           depends: rule.depends
         }
         this.rules.set(rule.target, data)
@@ -508,7 +508,7 @@ class PatternUserRead extends VariableExpander {
           ? rule.timestamp
           : null
         this.graph.setNode(rule.target, {
-          actions: rule.actions,
+          recipes: rule.recipes,
           timestamp: timestamp
         })
         rule.depends.forEach(dep => {
@@ -545,28 +545,28 @@ module.exports = PatternUserRead
       {
         "v": "left.out",
         "value": {
-          "actions": [],
+          "recipes": [],
           "timestamp": 1
         }
       },
       {
         "v": "left.in",
         "value": {
-          "actions": [],
+          "recipes": [],
           "timestamp": 2
         }
       },
       {
         "v": "right.out",
         "value": {
-          "actions": [],
+          "recipes": [],
           "timestamp": 1
         }
       },
       {
         "v": "right.in",
         "value": {
-          "actions": [],
+          "recipes": [],
           "timestamp": 3
         }
       }
@@ -577,7 +577,7 @@ module.exports = PatternUserRead
     {
       "k": "%.out",
       "v": {
-        "actions": [
+        "recipes": [
           "update @TARGET from @DEPENDENCIES"
         ],
         "depends": [
@@ -623,7 +623,7 @@ class PatternUserRun extends PatternUserRead {
         return
       }
       const data = this.graph.node(target)
-      if (data.actions.length > 0) {
+      if (data.recipes.length > 0) {
         return
       }
       const rule = this.findRule(target)
@@ -646,10 +646,10 @@ class PatternUserRun extends PatternUserRead {
     rule.depends
       .map(dep => dep.replace('%', stem))
       .forEach(dep => this.graph.setEdge(dep, target))
-    const actions = rule.actions.map(act => act.replace('%', stem))
+    const recipes = rule.recipes.map(act => act.replace('%', stem))
     const timestamp = this.graph.node(target).timestamp
     this.graph.setNode(target, {
-      actions: actions,
+      recipes: recipes,
       timestamp: timestamp
     })
   }
@@ -661,7 +661,7 @@ class PatternUserRun extends PatternUserRead {
     const endTime = sorted.reduce((currTime, node) => {
       if (this.isStale(node)) {
         console.log(`${currTime}: ${node}`)
-        this.graph.node(node).actions.forEach(a => console.log(`\t${a}`))
+        this.graph.node(node).recipes.forEach(a => console.log(`\t${a}`))
         this.graph.node(node).timestamp = currTime
         currTime += 1
       }

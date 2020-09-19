@@ -19,7 +19,7 @@ class PatternUserRead extends VariableExpander {
     this.config.forEach(rule => {
       if (rule.target.includes('%')) {
         const data = {
-          actions: rule.actions,
+          recipes: rule.recipes,
           depends: rule.depends
         }
         this.rules.set(rule.target, data)
@@ -29,7 +29,7 @@ class PatternUserRead extends VariableExpander {
           ? rule.timestamp
           : null
         this.graph.setNode(rule.target, {
-          actions: rule.actions,
+          recipes: rule.recipes,
           timestamp: timestamp
         })
         rule.depends.forEach(dep => {

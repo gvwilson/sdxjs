@@ -9,12 +9,12 @@
 
 -   Every rule has:
     -   A <g key="build_target">target</g>
-    -   <g key="build_dependency">Dependencies</g>
-    -   <g key="build_action">Actions</g>
+    -   <g key="dependency">Dependencies</g>
+    -   <g key="build_recipe">Recipes</g>
 -   Forms a <g key="dag">directed acyclic graph</g> (DAG)
     -   Acyclic because if something depends on itself we can't ever finish updating it
 -   A target is <g key="build_stale">stale</g> if it is older than any of its dependencies
-    -   Use the actions to bring it up to date
+    -   Use the recipes to bring it up to date
 -   So:
     -   Read configuration
     -   Construct dependency graph
@@ -30,23 +30,23 @@
     -   The child class *must* define `run` to do its part
 -   Driver loads a class, creates an instance, and asks it to build
 
-<%- include('/_inc/code.html', {file: 'driver.js'}) %>
+<%- include('/inc/code.html', {file: 'driver.js'}) %>
 
 -   Class that simple builders must be derived from
 
-<%- include('/_inc/code.html', {file: 'simple-builder.js'}) %>
+<%- include('/inc/code.html', {file: 'simple-builder.js'}) %>
 
 -   Example of derived (runnable) class
 
-<%- include('/_inc/code.html', {file: 'display-only.js'}) %>
+<%- include('/inc/code.html', {file: 'display-only.js'}) %>
 
 -   Configuration file
 
-<%- include('/_inc/code.html', {file: 'three-simple-rules.yaml'}) %>
+<%- include('/inc/code.html', {file: 'three-simple-rules.yaml'}) %>
 
 -   Execution and output
 
-<%- include('/_inc/multi.html', {pat: 'display-only.*', fill: 'sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'display-only.*', fill: 'sh text'}) %>
 
 ## How can we tell if a file is stale?
 
@@ -55,17 +55,17 @@
 -   Extra file
     -   Clumsy to have the derived class magically know which argument to use
 
-<%- include('/_inc/code.html', {file: 'add-timestamps.yaml'}) %>
+<%- include('/inc/code.html', {file: 'add-timestamps.yaml'}) %>
 
 -   Execution
 
-<%- include('/_inc/multi.html', {pat: 'add-timestamps.*', fill: 'js sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'add-timestamps.*', fill: 'js sh text'}) %>
 
 -   Set current time to maximum file time
 -   For each file from the "bottom" to the top:
     -   If file is older than any of its dependencies, update it
 
-<%- include('/_inc/multi.html', {pat: 'update-on-timestamp.*', fill: 'js sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'update-on-timestamp.*', fill: 'js sh text'}) %>
 
 ## How can we add generic build rules?
 
@@ -75,7 +75,7 @@
     -   A way to define a set of files
     -   A way to specify a generic rule
     -   A way to fill in parts of that rule
--   Override `SimpleBuilder.buildGraph` to replace variables in actions with values
+-   Override `SimpleBuilder.buildGraph` to replace variables in recipes with values
     -   Object-oriented programming helps us change only what we need to change
     -   Depends on a good initial division into overridable chunks
 -   Make provides <g key="automatic_variable">automatic variables</g> with names like `$<` and `$@`
@@ -84,19 +84,19 @@
     -   `@DEPENDENCIES` for all dependencies (in order)
     -   `@DEP[1]`, `@DEP[2]`, etc., for specific dependencies
         -   Count from 1 like humans do
--   Build the action through brute force string substitution
+-   Build the recipe through brute force string substitution
     -   Look at more efficient strategies in the exercises
 
-<%- include('/_inc/multi.html', {pat: 'variable-expander.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'variable-expander.*', fill: 'js text'}) %>
 
 -   Now we need <g key="pattern_rule">pattern rules</g>
 -   First attempt at rules file looks like this
 
-<%- include('/_inc/code.html', {file: 'pattern-rules.yaml'}) %>
+<%- include('/inc/code.html', {file: 'pattern-rules.yaml'}) %>
 
 -   First attempt at reading it doesn't work
 
-<%- include('/_inc/multi.html', {pat: 'pattern-user-attempt.*', fill: 'js sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'pattern-user-attempt.*', fill: 'js sh text'}) %>
 
 -   Our simple graph loader creates nodes for dependencies even if they aren't targets
 -   So we wind up tripping over the lack of a node for `%.in` before we get to extracting rules
@@ -105,7 +105,7 @@
     -   Check that simple rules' dependencies don't include `%`
     -   And add timestamps as an optional field to rules for testing purposes rather than having them in a separate file
 
-<%- include('/_inc/multi.html', {pat: 'pattern-user-read.*', fill: 'js sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'pattern-user-read.*', fill: 'js sh text'}) %>
 
 -   Order of operations is important
     -   Load file, separating simple rules from pattern rules
@@ -117,4 +117,4 @@
     -   Call up to a grandparent
 -   This tells us that we should refactor our base class(es) to create more <g key="affordance">affordances</g>
 
-<%- include('/_inc/multi.html', {pat: 'pattern-user-run.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'pattern-user-run.*', fill: 'js text'}) %>

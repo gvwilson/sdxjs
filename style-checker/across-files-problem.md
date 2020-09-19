@@ -6,4 +6,4 @@ that implements the checks the user wants.
 The other command-line arguments must be
 the names of JavaScript source files to be checked:
 
-<%- include('/_inc/code.html', {file: 'sniff.sh'}) %>
+<%- include('/inc/code.html', {file: 'sniff.sh'}) %>

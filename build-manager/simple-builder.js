@@ -25,10 +25,10 @@ class SimpleBuilder {
              Array.isArray(rule.depends) &&
              rule.depends.every(dep => (typeof dep === 'string')),
              `Rule ${JSON.stringify(rule)} does not have list of strings as 'depends'`)
-      assert(('actions' in rule) &&
-             Array.isArray(rule.actions) &&
-             rule.actions.every(action => (typeof action === 'string')),
-             `Rule ${JSON.stringify(rule)} does not have list of strings as 'actions'`)
+      assert(('recipes' in rule) &&
+             Array.isArray(rule.recipes) &&
+             rule.recipes.every(recipe => (typeof recipe === 'string')),
+             `Rule ${JSON.stringify(rule)} does not have list of strings as 'recipes'`)
     })
   }
 
@@ -36,7 +36,7 @@ class SimpleBuilder {
     this.graph = new graphlib.Graph()
     this.config.forEach(rule => {
       this.graph.setNode(rule.target, {
-        actions: rule.actions
+        recipes: rule.recipes
       })
       rule.depends.forEach(dep => this.graph.setEdge(dep, rule.target))
     })

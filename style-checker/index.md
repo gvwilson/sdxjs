@@ -7,8 +7,8 @@
 -   Inspirations:
     -   [ESLint][eslint]
 -   Design:
-    -   Parse source to create an <g key="ast">abstract syntax tree</g> (AST)
-    -   <g key="walk_a_tree">Walk</g> the AST and apply rules at each node
+    -   Parse source to create an <g key="abstract_syntax_tree">abstract syntax tree</g> (AST)
+    -   <g key="walk_tree">Walk</g> the AST and apply rules at each node
     -   Express each rule as a function that takes the node and an object for collecting results
     -   Report all results at the end
 
@@ -16,14 +16,14 @@
 
 -   Use [Acorn][acorn]
 
-<%- include('/_inc/multi.html', {pat: 'parse-single-const.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'parse-single-const.*', fill: 'js text'}) %>
 
 ## What is included in the AST?
 
 -   [Esprima][esprima] format
 -   Look at the result of parsing a slightly more complex program
 
-<%- include('/_inc/multi.html', {pat: 'parse-const-func-and-call.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'parse-const-func-and-call.*', fill: 'js text'}) %>
 
 ## How can we walk the AST?
 
@@ -31,7 +31,7 @@
     -   Provide a function to act on nodes of type `Identifier`
     -   Accumulate comments in the `onComment` array during parsing
 
-<%- include('/_inc/multi.html', {pat: 'walk-ast.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'walk-ast.*', fill: 'js text'}) %>
 
 ## How can we apply checks?
 
@@ -41,7 +41,7 @@
     -   Only insert nodes that fail checks
 -   Hm: why doesn't the parameter `x` show up as a violation?
 
-<%- include('/_inc/multi.html', {pat: 'check-name-lengths.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'check-name-lengths.*', fill: 'js text'}) %>
 
 ## How does the AST walker work?
 
@@ -57,7 +57,7 @@
 -   Not the same architecture as `acorn-walk`
     -   Easier to understand and extend
 
-<%- include('/_inc/multi.html', {pat: 'walker-class.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'walker-class.*', fill: 'js text'}) %>
 
 ## How else could the AST walker work?
 
@@ -69,25 +69,25 @@
     -   Result is a two-part structure with `value` and `done`
 -   Note that a generator function returns an object that then returns values
 
-<%- include('/_inc/multi.html', {pat: 'generator-example.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'generator-example.*', fill: 'js text'}) %>
 
 -   This generator takes an irregular nested array of strings and yields:
     -   A string
     -   Another generator (using `yield*` to mean "uses its values until they run out")
 
-<%- include('/_inc/code.html', {file: 'generator-tree.js'}) %>
+<%- include('/inc/code.html', {file: 'generator-tree.js'}) %>
 
 -   Manage iteration explicitly
 
-<%- include('/_inc/multi.html', {pat: 'generator-tree-while.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'generator-tree-while.*', fill: 'js text'}) %>
 
 -   But `for…of` knows how to work with generators
 
-<%- include('/_inc/multi.html', {pat: 'generator-tree-for.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'generator-tree-for.*', fill: 'js text'}) %>
 
 -   Use this to count the number of expressions of various types in code
 
-<%- include('/_inc/multi.html', {pat: 'generator-count.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'generator-count.*', fill: 'js text'}) %>
 
 -   More difficult to do variable identifiers than previous Visitor approach
     -   Generator doesn't keep state, so we have to maintain that outside for ourselves

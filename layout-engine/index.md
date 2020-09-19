@@ -21,11 +21,11 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
     -   Each attribute must have a single quoted value
 -   Use regular expressions to parse, though [this is a sin][stack-overflow-html-regex]
 
-<%- include('/_inc/code.html', {file: 'parse.js'}) %>
+<%- include('/inc/code.html', {file: 'parse.js'}) %>
 
 -   The nodes are straightforward
 
-<%- include('/_inc/code.html', {file: 'dom.js'}) %>
+<%- include('/inc/code.html', {file: 'dom.js'}) %>
 
 ## How can we handle a small subset of CSS?
 
@@ -48,7 +48,7 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
 -   Also provide default settings for various kinds of nodes
     -   These were added after building the next stage of the pipeline
 
-<%- include('/_inc/code.html', {file: 'css.js'}) %>
+<%- include('/inc/code.html', {file: 'css.js'}) %>
 
 ## How can we construct a styled tree?
 
@@ -67,7 +67,7 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
    -   Nodes that are actually going to be rendered
    -   Rules collapsed to concrete attribute lists for each node
 
-<%- include('/_inc/code.html', {file: 'styled.js'}) %>
+<%- include('/inc/code.html', {file: 'styled.js'}) %>
 
 ## How can we lay out a styled tree?
 
@@ -88,11 +88,11 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
         -   Lay those out in a vertical stack
         -   Sum of heights becomes height of node
 
-<%- include('/_inc/code.html', {file: 'layout.js'}) %>
+<%- include('/inc/code.html', {file: 'layout.js'}) %>
 
 -   And then render
     -   Create a "screen" filled with background markers
     -   Walk the tree, asking each node to draw itself
     -   Only `TextNode`s actually 
 
-<%- include('/_inc/code.html', {file: 'render.js'}) %>
+<%- include('/inc/code.html', {file: 'render.js'}) %>

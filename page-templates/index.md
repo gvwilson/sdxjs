@@ -13,7 +13,7 @@
 
 -   What will a templated page look like?
 
-<%- include('/_inc/code.html', {file: 'input-loop.html'}) %>
+<%- include('/inc/code.html', {file: 'input-loop.html'}) %>
 
 ## How can we transform templates?
 
@@ -21,11 +21,11 @@
     -   Take a template, an output stream, and some variables (e.g., from <g key="yaml">YAML</g> header)
     -   Pass values in as an object
 
-<%- include('/_inc/code.html', {file: 'example-call.js'}) %>
+<%- include('/inc/code.html', {file: 'example-call.js'}) %>
 
 -   What will it generate?
 
-<%- include('/_inc/code.html', {file: 'output-loop.html'}) %>
+<%- include('/inc/code.html', {file: 'output-loop.html'}) %>
 
 ## How can we keep track of values?
 
@@ -35,14 +35,14 @@
     -   `Env.find` looks up the list of stack frames
     -   This is <g key="dynamic_scoping">dynamic scoping</g> not <g key="lexical_scoping">lexical scoping</g>
 
-<%- include('/_inc/code.html', {file: 'env.js'}) %>
+<%- include('/inc/code.html', {file: 'env.js'}) %>
 
 -   Structure is defined by our HTML parser
 -   Handle nodes with and without children using the <g key="visitor_pattern">Visitor pattern</g>
     -   `Visitor.walk()` without an argument assigns `undefined` to `node`, so we re-set to the root of the tree
     -   Alternative designs would be build-and-run or pass in the root with every call
 
-<%- include('/_inc/code.html', {file: 'visitor.js'}) %>
+<%- include('/inc/code.html', {file: 'visitor.js'}) %>
 
 ## How do we handle each type of node?
 
@@ -55,7 +55,7 @@
         -   Each pass creates a new stack frame
     -   Any other node: copy to output
 
-<%- include('/_inc/code.html', {file: 'expander.js'}) %>
+<%- include('/inc/code.html', {file: 'expander.js'}) %>
 
 ## What does this look like when we put it all together?
 
@@ -63,44 +63,44 @@
     -   Concatenates strings repeatedly
     -   Look at more efficient approaches in the exercises
 
-<%- include('/_inc/code.html', {file: 'template.js'}) %>
+<%- include('/inc/code.html', {file: 'template.js'}) %>
 
 ## How can we test this?
 
 -   Create a few tests
 -   Variable definitions shared by all tests
 
-<%- include('/_inc/code.html', {file: 'vars.json'}) %>
+<%- include('/inc/code.html', {file: 'vars.json'}) %>
 
 -   Static text should be copied over
 
-<%- include('/_inc/code.html', {file: 'input-static-text.html'}) %>
+<%- include('/inc/code.html', {file: 'input-static-text.html'}) %>
 
-<%- include('/_inc/code.html', {file: 'static-text.sh'}) %>
+<%- include('/inc/code.html', {file: 'static-text.sh'}) %>
 
-<%- include('/_inc/code.html', {file: 'output-static-text.html'}) %>
+<%- include('/inc/code.html', {file: 'output-static-text.html'}) %>
 
 -   Single constant should be substituted
 
-<%- include('/_inc/code.html', {file: 'input-single-constant.html'}) %>
-<%- include('/_inc/code.html', {file: 'output-single-constant.html'}) %>
+<%- include('/inc/code.html', {file: 'input-single-constant.html'}) %>
+<%- include('/inc/code.html', {file: 'output-single-constant.html'}) %>
 
 -   Single variable should be substituted
 
-<%- include('/_inc/code.html', {file: 'input-single-variable.html'}) %>
-<%- include('/_inc/code.html', {file: 'output-single-variable.html'}) %>
+<%- include('/inc/code.html', {file: 'input-single-variable.html'}) %>
+<%- include('/inc/code.html', {file: 'output-single-variable.html'}) %>
 
 -   Expand multiple variables
 
-<%- include('/_inc/code.html', {file: 'input-multiple-variables.html'}) %>
-<%- include('/_inc/code.html', {file: 'output-multiple-variables.html'}) %>
+<%- include('/inc/code.html', {file: 'input-multiple-variables.html'}) %>
+<%- include('/inc/code.html', {file: 'output-multiple-variables.html'}) %>
 
 -   Conditional expression
 
-<%- include('/_inc/code.html', {file: 'input-conditional.html'}) %>
-<%- include('/_inc/code.html', {file: 'output-conditional.html'}) %>
+<%- include('/inc/code.html', {file: 'input-conditional.html'}) %>
+<%- include('/inc/code.html', {file: 'output-conditional.html'}) %>
 
 -   Loop
 
-<%- include('/_inc/code.html', {file: 'input-loop.html'}) %>
-<%- include('/_inc/code.html', {file: 'output-loop.html'}) %>
+<%- include('/inc/code.html', {file: 'input-loop.html'}) %>
+<%- include('/inc/code.html', {file: 'output-loop.html'}) %>

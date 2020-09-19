@@ -41,7 +41,7 @@ for a description of our development process and formatting rules.
 
 ## Content
 
-<%- include('/_inc/contents.html') %>
+<%- include('/inc/contents.html') %>
 
 ## Layout
 

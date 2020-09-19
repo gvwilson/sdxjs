@@ -14,7 +14,7 @@ class PatternUserAttempt extends VariableExpander {
     this.graph.nodes().forEach(target => {
       if (target.includes('%')) {
         const data = {
-          actions: this.graph.node(target).actions
+          recipes: this.graph.node(target).recipes
         }
         this.rules.set(target, data)
       }

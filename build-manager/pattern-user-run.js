@@ -16,7 +16,7 @@ class PatternUserRun extends PatternUserRead {
         return
       }
       const data = this.graph.node(target)
-      if (data.actions.length > 0) {
+      if (data.recipes.length > 0) {
         return
       }
       const rule = this.findRule(target)
@@ -39,10 +39,10 @@ class PatternUserRun extends PatternUserRead {
     rule.depends
       .map(dep => dep.replace('%', stem))
       .forEach(dep => this.graph.setEdge(dep, target))
-    const actions = rule.actions.map(act => act.replace('%', stem))
+    const recipes = rule.recipes.map(act => act.replace('%', stem))
     const timestamp = this.graph.node(target).timestamp
     this.graph.setNode(target, {
-      actions: actions,
+      recipes: recipes,
       timestamp: timestamp
     })
   }
@@ -54,7 +54,7 @@ class PatternUserRun extends PatternUserRead {
     const endTime = sorted.reduce((currTime, node) => {
       if (this.isStale(node)) {
         console.log(`${currTime}: ${node}`)
-        this.graph.node(node).actions.forEach(a => console.log(`\t${a}`))
+        this.graph.node(node).recipes.forEach(a => console.log(`\t${a}`))
         this.graph.node(node).timestamp = currTime
         currTime += 1
       }

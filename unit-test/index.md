@@ -19,9 +19,9 @@
         to compare the <g key="actual_result">actual result</g>
         against the <g key="expected_result">expected result</g>
 -   Possible results are:
-    -   <g key="pass_in_unit_test">Pass</g>: works as expected
-    -   <g key="failure_in_unit_test">Fail</g>: something wrong with the code being tested
-    -   <g key="error_in_unit_test">Error</g>: something wrong in the test itself
+    -   <g key="unit_test_pass">Pass</g>: works as expected
+    -   <g key="unit_test_fail">Fail</g>: something wrong with the code being tested
+    -   <g key="unit_test_error">Error</g>: something wrong in the test itself
 
 ## How can we separate test registration, execution, and reporting?
 
@@ -35,9 +35,9 @@
 -   Tests are run in the order in which they're registered, but we shouldn't rely on that
 -   After all tests are run, report counts
 
-<%- include('/_inc/code.html', {file: 'dry-run.js'}) %>
+<%- include('/inc/code.html', {file: 'dry-run.js'}) %>
 
-<%- include('/_inc/code.html', {file: 'dry-run.text'}) %>
+<%- include('/inc/code.html', {file: 'dry-run.text'}) %>
 
 -   Critique
     -   A bunch of global variables with similar names will lead to problems later
@@ -57,7 +57,7 @@
 -   Provide two flavors of output (terse one-liner and full details)
 -   Also provide raw material (title and results) for other formatters
 
-<%- include('/_inc/code.html', {file: 'hope.js'}) %>
+<%- include('/inc/code.html', {file: 'hope.js'}) %>
 
 ## How can we build a command-line driver for our test manager?
 
@@ -65,7 +65,7 @@
 -   Example in `test-add.js`
     -   Keeping this simple is the most important part of our design
 
-<%- include('/_inc/code.html', {file: 'test-add.js'}) %>
+<%- include('/inc/code.html', {file: 'test-add.js'}) %>
 
 -   Load those <g key="dynamic_loading">dynamically</g>
     -   This executes the code they contain
@@ -78,13 +78,13 @@
     -   Report results
 -   Doesn't export anything, just runs
 
-<%- include('/_inc/code.html', {file: 'pray.js'}) %>
+<%- include('/inc/code.html', {file: 'pray.js'}) %>
 
 -   Run
 
-<%- include('/_inc/code.html', {file: 'pray.sh'}) %>
+<%- include('/inc/code.html', {file: 'pray.sh'}) %>
 
-<%- include('/_inc/code.html', {file: 'pray.text'}) %>
+<%- include('/inc/code.html', {file: 'pray.text'}) %>
 
 -   Trace the <g key="lifecycle">lifecycle</g>
     -   `pray` uses `glob` to find files with test
