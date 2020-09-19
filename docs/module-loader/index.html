@@ -56,6 +56,7 @@
 </nav>
   <main>
   <h1>Module Loader</h1>
+  <p class="lede">Loading libraries on demand</p>
 <ul>
 <li>Our files are getting too long to show in one block</li>
 <li>Write a tool that a text file with inclusion markers and turns it into loaded code</li>
@@ -97,14 +98,14 @@
 </li>
 <li>Evaluate an expression</li>
 </ul>
-  <pre title="eval-01.js"><code class="language-js">console.log(eval('2 + 2'))
+<pre title="eval-01.js"><code class="language-js">console.log(eval('2 + 2'))
 </code></pre>
-  <pre title="eval-01.text"><code class="language-text">4
+<pre title="eval-01.text"><code class="language-text">4
 </code></pre>
 <ul>
 <li>A more interesting example</li>
 </ul>
-  <pre title="eval-02.js"><code class="language-js">const x = 1
+<pre title="eval-02.js"><code class="language-js">const x = 1
 const y = 3
 const z = 5
 for (const name of ['x', 'y', 'z']) {
@@ -112,14 +113,14 @@ for (const name of ['x', 'y', 'z']) {
   console.log(name, '+ 1 =', eval(expr))
 }
 </code></pre>
-  <pre title="eval-02.text"><code class="language-text">x + 1 = 2
+<pre title="eval-02.text"><code class="language-text">x + 1 = 2
 y + 1 = 4
 z + 1 = 6
 </code></pre>
 <ul>
 <li>Variables created inside <code>eval</code> are local to it</li>
 </ul>
-  <pre title="eval-03.js"><code class="language-js">const code = `
+<pre title="eval-03.js"><code class="language-js">const code = `
   const x = 'hello'
   console.log('x in eval is', x)
 `
@@ -127,22 +128,22 @@ z + 1 = 6
 eval(code)
 console.log('typeof x after eval', typeof x)
 </code></pre>
-  <pre title="eval-03.text"><code class="language-text">x in eval is hello
+<pre title="eval-03.text"><code class="language-text">x in eval is hello
 typeof x after eval undefined
 </code></pre>
 <ul>
 <li>But <code>eval</code> can modify variables (just like a function can modify globals)</li>
 </ul>
-  <pre title="eval-04.js"><code class="language-js">let x = 'original'
+<pre title="eval-04.js"><code class="language-js">let x = 'original'
 eval('x = "modified"')
 console.log('x after eval is', x)
 </code></pre>
-  <pre title="eval-04.text"><code class="language-text">x after eval is modified
+<pre title="eval-04.text"><code class="language-text">x after eval is modified
 </code></pre>
 <ul>
 <li>If we create a structure with a known name, <code>eval</code> can modify that</li>
 </ul>
-  <pre title="eval-05.js"><code class="language-js">const seen = {}
+<pre title="eval-05.js"><code class="language-js">const seen = {}
 
 for (const name of ['x', 'y', 'z']) {
   const expr = `seen["${name}"] = "${name.toUpperCase()}"`
@@ -151,7 +152,7 @@ for (const name of ['x', 'y', 'z']) {
 
 console.log(seen)
 </code></pre>
-  <pre title="eval-05.text"><code class="language-text">{ x: 'X', y: 'Y', z: 'Z' }
+<pre title="eval-05.text"><code class="language-text">{ x: 'X', y: 'Y', z: 'Z' }
 </code></pre>
 <ul>
 <li>It doesn't matter where the text comes from</li>
@@ -163,7 +164,7 @@ Seen["from_loaded_file"] = "from loaded file"
 <ul>
 <li>Read the file and <code>eval</code> the text for its side effects</li>
 </ul>
-  <pre title="does-the-loading.js"><code class="language-js">const fs = require('fs')
+<pre title="does-the-loading.js"><code class="language-js">const fs = require('fs')
 
 const Seen = {}
 
@@ -173,9 +174,9 @@ console.log('before eval, Seen is', Seen)
 eval(content)
 console.log('after eval, Seen is', Seen)
 </code></pre>
-  <pre title="does-the-loading.sh"><code class="language-sh">node does-the-loading.js to-be-loaded.js
+<pre title="does-the-loading.sh"><code class="language-sh">node does-the-loading.js to-be-loaded.js
 </code></pre>
-  <pre title="does-the-loading.text"><code class="language-text">before eval, Seen is {}
+<pre title="does-the-loading.text"><code class="language-text">before eval, Seen is {}
 after eval, Seen is { from_loaded_file: 'from loaded file' }
 </code></pre>
 <h2 id="how-can-we-avoid-reloading-files%3F-%7B%23avoid-reloading%7D">How can we avoid reloading files? {#avoid-reloading}</h2>
@@ -228,11 +229,11 @@ report
 <ul>
 <li>File doing the importing</li>
 </ul>
-  <pre title="test-01.js"><code class="language-js">const need = require('./need-01')
+<pre title="test-01.js"><code class="language-js">const need = require('./need-01')
 const imported = need('./import-01.js')
 imported('called from test-01.js')
 </code></pre>
-  <pre title="test-01.sh"><code class="language-sh">node test-01.js
+<pre title="test-01.sh"><code class="language-sh">node test-01.js
 </code></pre>
 <ul>
 <li>Want to control where files are loaded from</li>
@@ -324,9 +325,9 @@ imported('called from test-02-a.js')
 <ul>
 <li>Set path when running Node</li>
 </ul>
-  <pre title="test-02-a.sh"><code class="language-sh">NEED_PATH=$PWD/modules-02/ node test-02-a.js
+<pre title="test-02-a.sh"><code class="language-sh">NEED_PATH=$PWD/modules-02/ node test-02-a.js
 </code></pre>
-  <pre title="test-02-a.text"><code class="language-text">..loading value for import-02-a.js
+<pre title="test-02-a.text"><code class="language-text">..loading value for import-02-a.js
 ....trying /Users/stj/package-manager/modules-02/import-02-a.js for import-02-a.js
 report in import-02-a.js with message "called from test-02-a.js"
 </code></pre>
@@ -344,7 +345,7 @@ report
 <ul>
 <li>And load that</li>
 </ul>
-  <pre title="test-02-b.js"><code class="language-js">const need = require('./need-02')
+<pre title="test-02-b.js"><code class="language-js">const need = require('./need-02')
 
 const imported = need('import-02-a.js')
 imported('called from test-02-b.js')
@@ -352,9 +353,9 @@ imported('called from test-02-b.js')
 const also_imported = need('import-02-b.js')
 also_imported('called from test-02-b.js')
 </code></pre>
-  <pre title="test-02-b.sh"><code class="language-sh">NEED_PATH=$PWD node test-02-b.js
+<pre title="test-02-b.sh"><code class="language-sh">NEED_PATH=$PWD node test-02-b.js
 </code></pre>
-  <pre title="test-02-b.text"><code class="language-text">..loading value for import-02-a.js
+<pre title="test-02-b.text"><code class="language-text">..loading value for import-02-a.js
 ....trying /Users/stj/package-manager/modules-02/import-02-a.js for import-02-a.js
 report in import-02-a.js with message "called from test-02-b.js"
 ..loading value for import-02-b.js
@@ -364,7 +365,7 @@ report in import-02-b.js with message "called from test-02-b.js"
 <ul>
 <li>And finally test re-importing</li>
 </ul>
-  <pre title="test-02-c.js"><code class="language-js">const need = require('./need-02')
+<pre title="test-02-c.js"><code class="language-js">const need = require('./need-02')
 
 const imported = need('import-02-a.js')
 imported('called from test-02-c.js')
@@ -372,9 +373,9 @@ imported('called from test-02-c.js')
 const imported_again = need('import-02-a.js')
 imported_again('called again from test-02-c.js')
 </code></pre>
-  <pre title="test-02-c.sh"><code class="language-sh">NEED_PATH=$PWD node test-02-c.js
+<pre title="test-02-c.sh"><code class="language-sh">NEED_PATH=$PWD node test-02-c.js
 </code></pre>
-  <pre title="test-02-c.text"><code class="language-text">..loading value for import-02-a.js
+<pre title="test-02-c.text"><code class="language-text">..loading value for import-02-a.js
 ....trying /Users/stj/package-manager/modules-02/import-02-a.js for import-02-a.js
 report in import-02-a.js with message "called from test-02-c.js"
 ..returning cached value for import-02-a.js

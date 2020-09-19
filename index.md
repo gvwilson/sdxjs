@@ -39,6 +39,10 @@ for a description of our development process and formatting rules.
     This material will fill those gaps
     and give them starting points for a wide variety of course assignments.
 
+## Content
+
+<%- include('/_inc/contents.html') %>
+
 ## Layout
 
 We display JavaScript source code like this:
