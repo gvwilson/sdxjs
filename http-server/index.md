@@ -4,7 +4,7 @@
 An HTTP server similar to [Express][express]
 modeled on [this one in Python][500lines-server].
 
-## How can we send messages via sockets? {#sockets}
+## How can we send messages via sockets?
 
 -   A simple socket client
 
@@ -31,7 +31,7 @@ modeled on [this one in Python][500lines-server].
 
 <%- include('/_inc/code.html', {file: 'socket-server.js'}) %>
 
-## How can we decompose the server? {#server-design}
+## How can we decompose the server?
 
 -   The handler needs to know the socket, but the callback only takes the data
     -   So the handler takes a socket as an argument and returns a function that takes data
@@ -43,7 +43,7 @@ modeled on [this one in Python][500lines-server].
 
 <%- include('/_inc/multi.html', {pat: 'always-send-success.*', fill: 'sh text'}) %>
 
-## How do HTTP requests and responses work? {#request-response}
+## How do HTTP requests and responses work?
 
 -   Now try constructing an HTTP response
     -   Ignore the incoming path
@@ -69,7 +69,7 @@ modeled on [this one in Python][500lines-server].
 
 <%- include('/_inc/multi.html', {pat: 'http-response-success.*', fill: 'text'}) %>
 
-## How can we test this? {#testing}
+## How can we test this?
 
 -   Unit testing this doesn't have to be hard
     -   We have a function that takes something with a `.write` method and produces a function
@@ -94,7 +94,7 @@ modeled on [this one in Python][500lines-server].
 
 <%- include('/_inc/multi.html', {pat: 'breaking-sandbox.*', fill: 'sh text'}) %>
 
-## How can we make servers easier to create? {#server-creation}
+## How can we make servers easier to create?
 
 -   Define a base class to wrap up the socket handling and request parsing
     -   Sequence is:
@@ -115,7 +115,7 @@ modeled on [this one in Python][500lines-server].
 <%- include('/_inc/code.html', {file: 'http-file-server.js'}) %>
 <%- include('/_inc/multi.html', {pat: 'test-http-file-server.*', fill: 'sh text'}) %>
 
-## How can we parameterize requests? {#parameterizing}
+## How can we parameterize requests?
 
 -   The classic approach uses a <g key="query_string">query string</g>
     -   `http://some.domain/some/path/?firstKey=firstValue&secondKey=secondValue`

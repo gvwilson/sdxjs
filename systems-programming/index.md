@@ -3,7 +3,7 @@
 
 -   Goal: show how promises work and how they are implemented
 
-## How can I copy a file tree? {#copy-file-tree}
+## How can I copy a file tree?
 
 -   List the contents of a directory (the wrong way).
 
@@ -107,7 +107,7 @@
 -   ...but four levels of asynchronous callbacks is hard to follow
 -   We need a better mechanism
 
-## How can promises make this cleaner? {#promises}
+## How can promises make this cleaner?
 
 -   Most functions execute in order
 

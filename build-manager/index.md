@@ -5,7 +5,7 @@
     -   Based on [Make][gnu-make] and [Bajel][bajel]
     -   Draws on <cite>Smith2011</cite>
 
-## What's in a build manager? {#requirements}
+## What's in a build manager?
 
 -   Every rule has:
     -   A <g key="build_target">target</g>
@@ -22,7 +22,7 @@
     -   Build everything that depends on them
     -   In <g key="topological_order">topological order</g>
 
-## Where should we start? {#starting-point}
+## Where should we start?
 
 -   Going to experiment with a lot of these so write a general-purpose driver
     -   A simple example of the <g key="template_method_pattern">Template Method</g> pattern
@@ -48,7 +48,7 @@
 
 <%- include('/_inc/multi.html', {pat: 'display-only.*', fill: 'sh text'}) %>
 
-## How can we tell if a file is stale? {#stale-files}
+## How can we tell if a file is stale?
 
 -   Classic approach is to compare timestamps
 -   For testing, take another configuration file and add fake timestamps to nodes
@@ -67,7 +67,7 @@
 
 <%- include('/_inc/multi.html', {pat: 'update-on-timestamp.*', fill: 'js sh text'}) %>
 
-## How can we add generic build rules? {#generic-rules}
+## How can we add generic build rules?
 
 -   We now want to add <g key="build_rule">build rules</g>
     -   "Build all things in this set the same way"

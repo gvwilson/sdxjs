@@ -200,11 +200,23 @@ const translateFile = (config, fileInfo, linksText) => {
   const fullContent = `${fileInfo.content}\n\n${linksText}`
   const expanded = ejs.render(fullContent, settings, context)
   const mdi = new MarkdownIt({html: true})
-        .use(MarkdownAnchor, {level: 2})
+        .use(MarkdownAnchor, {level: 1, slugify: slugify})
   const html = mdi.render(expanded)
   const outputPath = path.join(config.outputDir, fileInfo.output)
   ensureOutputDir(outputPath)
   fs.writeFileSync(outputPath, html)
+}
+
+/**
+ * Turn title text into anchor.
+ * @param {string} text Input text
+ * @returns {string} slug
+ */
+const slugify = (text) => {
+  return encodeURIComponent(text.trim()
+                            .toLowerCase()
+                            .replace(/[^ \w]/g, '')
+                            .replace(/\s+/g, '-'))
 }
 
 /**

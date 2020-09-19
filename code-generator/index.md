@@ -3,7 +3,7 @@
 
 Code coverage like [Istanbul][istanbul] to show what has and hasn't been tested.
 
-## How can I generate JavaScript? {#generating}
+## How can I generate JavaScript?
 
 -   Use `escodegen` to turn an `acorn` parse tree back into code
     -   Creates program text but does not run it
@@ -15,21 +15,21 @@ Code coverage like [Istanbul][istanbul] to show what has and hasn't been tested.
 
 <%- include('/_inc/multi.html', {pat: 'one-plus-two.*', fill: 'js text'}) %>
 
-## How can I count how often functions are executed? {#counting}
+## How can I count how often functions are executed?
 
 -   Find all function declaration nodes
 -   Insert a node to increment an entry in a global variable `__counters`
 
 <%- include('/_inc/multi.html', {pat: 'multi-func-counter.*', fill: 'js text'}) %>
 
-## How can I replace a function with another function? {#replacing}
+## How can I replace a function with another function?
 
 -   Use `...args` to capture and forward all arguments
 -   Handle and re-throw all errors
 
 <%- include('/_inc/multi.html', {pat: 'replace-func.*', fill: 'js text'}) %>
 
-## How can I time function execution? {#timing}
+## How can I time function execution?
 
 -   Find all the function declarations
 -   Create a wrapper that

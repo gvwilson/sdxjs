@@ -12,7 +12,7 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
     -   Walk this tree to figure out where each visible element belongs
     -   Render this (as plain text)
 
-## How can we handle a small subset of HTML? {#html-subset}
+## How can we handle a small subset of HTML?
 
 -   Our subset of HTML includes:
     -   Plain text, which we store as instances of `TextNode`
@@ -27,7 +27,7 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
 
 <%- include('/_inc/code.html', {file: 'dom.js'}) %>
 
-## How can we handle a small subset of CSS? {#css-subset}
+## How can we handle a small subset of CSS?
 
 -   Our subset of CSS supports:
     -   ID rules
@@ -50,7 +50,7 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
 
 <%- include('/_inc/code.html', {file: 'css.js'}) %>
 
-## How can we construct a styled tree? {#styled-tree}
+## How can we construct a styled tree?
 
 -   This is a good time to decide exactly what HTML and CSS we will support
     -   `body` may contain `row` or `p` (paragraph), which are stacked vertically
@@ -69,7 +69,7 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
 
 <%- include('/_inc/code.html', {file: 'styled.js'}) %>
 
-## How can we lay out a styled tree? {#layout}
+## How can we lay out a styled tree?
 
 -   Finally get to lay things out
     -   If a node's layout is vertical:

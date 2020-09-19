@@ -3,13 +3,13 @@
 
 A terminal editor based on [Termit][termit] using [terminal-kit][terminal-kit].
 
-## What does an editor need to be able to do? {#capability}
+## What does an editor need to be able to do?
 
 -   Overall structure
 
 <%- include('/_inc/code.html', {file: 'editor.js'}) %>
 
-## How can we set up? {#setup}
+## How can we set up?
 
 -   Constructor
 
@@ -23,7 +23,7 @@ A terminal editor based on [Termit][termit] using [terminal-kit][terminal-kit].
 
 <%- include('/_inc/code.html', {file: 'titles.js'}) %>
 
-## How should the editor handle files? {#file-handling}
+## How should the editor handle files?
 
 -   File handling
 
@@ -37,7 +37,7 @@ A terminal editor based on [Termit][termit] using [terminal-kit][terminal-kit].
 
 <%- include('/_inc/code.html', {file: 'getfilename.js'}) %>
 
-## How should the editor handle interactions? {#interactions}
+## How should the editor handle interactions?
 
 -   Handle resizing
 
@@ -57,7 +57,7 @@ A terminal editor based on [Termit][termit] using [terminal-kit][terminal-kit].
 
 -   Larger movement
 
-## How should the editor handle keystrokes? {#keystrokes}
+## How should the editor handle keystrokes?
 
 <%- include('/_inc/code.html', {file: 'jump.js'}) %>
 

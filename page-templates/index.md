@@ -15,7 +15,7 @@
 
 <%- include('/_inc/code.html', {file: 'input-loop.html'}) %>
 
-## How can we transform templates? {#transform-templates}
+## How can we transform templates?
 
 -   How will we transform it?
     -   Take a template, an output stream, and some variables (e.g., from <g key="yaml">YAML</g> header)
@@ -27,7 +27,7 @@
 
 <%- include('/_inc/code.html', {file: 'output-loop.html'}) %>
 
-## How can we keep track of values? {#values}
+## How can we keep track of values?
 
 -   Need a way to keep track of variables' values
 -   Maintain a stack of lookup tables
@@ -44,7 +44,7 @@
 
 <%- include('/_inc/code.html', {file: 'visitor.js'}) %>
 
-## How do we handle each type of node? {#node-handling}
+## How do we handle each type of node?
 
 -   What do we do with each node?
     -   Text: copy to output
@@ -57,7 +57,7 @@
 
 <%- include('/_inc/code.html', {file: 'expander.js'}) %>
 
-## What does this look like when we put it all together? {#integration}
+## What does this look like when we put it all together?
 
 -   Full program loads variable definitions from a JSON file
     -   Concatenates strings repeatedly
@@ -65,7 +65,7 @@
 
 <%- include('/_inc/code.html', {file: 'template.js'}) %>
 
-## How can we test this? {#testing}
+## How can we test this?
 
 -   Create a few tests
 -   Variable definitions shared by all tests

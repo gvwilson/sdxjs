@@ -4,7 +4,7 @@
 -   Goal: archiving files with a hashed index
 -   The basis of [Git][git]
 
-## What is a hash code and how can I create one for a file? {#hash-code}
+## What is a hash code and how can I create one for a file?
 
 -   A <g key="cryptographic_hash_function">cryptographic hash function</g>:
     -   Turns data of arbitrary size into a fixed-size block of bits
@@ -30,7 +30,7 @@
     -   Store a data structure that records directories' contents as JSON
     -   To restore from a particular date, copy <g key="blob">blobs</g> to where they need to be
 
-## How can `async` and `await` simplify code? {#async-await}
+## How can `async` and `await` simplify code?
 
 -   Step 1: find all files and calculate their hashes
 
@@ -49,7 +49,7 @@
 
 <%- include('/_inc/multi.html', {pat: 'run-hash-existing-async.*', fill: 'js sh text'}) %>
 
-## How can we test JavaScript? {#testing}
+## How can we test JavaScript?
 
 -   Step 2: see which files have and haven't been backed up already
     -   Backup directory contains `abcd1234.bck` (backup files) and `ssssssssss.csv` (manifest files)
@@ -68,7 +68,7 @@
 <%- include('/_inc/code.html', {file: 'test/test-find.js'}) %>
 <%- include('/_inc/multi.html', {pat: 'test-check-filesystem.*', fill: 'sh text'}) %>
 
-## How can we test code that modifies files? {#modify-files}
+## How can we test code that modifies files?
 
 -   Step 3: copy the files that need copying and create a new timestamped CSV file
 -   The code itself will be relatively simple, but setup and cleanup will be annoying

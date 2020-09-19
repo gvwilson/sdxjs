@@ -10,7 +10,7 @@
     -   We then execute the registered tests and capture results
     -   When all tests are done, we report
 
-## How should we handle unit testing? {#handling}
+## How should we handle unit testing?
 
 -   Every unit test:
     -   Is a function of zero arguments so that it can be called uniformly
@@ -23,7 +23,7 @@
     -   <g key="failure_in_unit_test">Fail</g>: something wrong with the code being tested
     -   <g key="error_in_unit_test">Error</g>: something wrong in the test itself
 
-## How can we separate test registration, execution, and reporting? {#separating}
+## How can we separate test registration, execution, and reporting?
 
 -   Use <g key="global_variable">global variables</g> to record tests and results
 -   `hopeThat` records a callback and a message
@@ -44,7 +44,7 @@
     -   We don't have a way to test that things raise `AssertionError` when they should
     -   Doesn't tell us which tests failed
 
-## How should we structure test registration? {#structuring}
+## How should we structure test registration?
 
 -   The `hope` module uses the <g key="singleton_pattern">Singleton</g> pattern
     -   A class that only has one instance
@@ -59,7 +59,7 @@
 
 <%- include('/_inc/code.html', {file: 'hope.js'}) %>
 
-## How can we build a command-line driver for our test manager? {#driver}
+## How can we build a command-line driver for our test manager?
 
 -   Find files named `test-*.js` below a user-specified root directory
 -   Example in `test-add.js`

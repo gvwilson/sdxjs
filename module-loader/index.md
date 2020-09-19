@@ -7,7 +7,7 @@
 
 <%- include('/_inc/code.html', {file: 'interpolation-example.js'}) %>
 
-## How can we evaluate JavaScript dynamically? {#dynamic-evaluation}
+## How can we evaluate JavaScript dynamically?
 
 -   Want to be able to load this dynamically just like `require`
     -   And display it in web page with the comments rather than the interpolated code
@@ -50,7 +50,7 @@
 
 <%- include('/_inc/multi.html', {pat: 'does-the-loading.*', fill: 'js sh text'}) %>
 
-## How can we avoid reloading files? {#avoid-reloading}
+## How can we avoid reloading files?
 
 -   Only want to load any single file once
 -   So create a <g key="cache">cache</g> using the <g key="singleton_pattern">Singleton</g> pattern
@@ -98,7 +98,7 @@
 
 <%- include('/_inc/multi.html', {pat: 'test-02-c.*', fill: 'js sh text'}) %>
 
-## How can we interpolate pieces of code? {#interpolating}
+## How can we interpolate pieces of code?
 
 -   Now add interpolation
     -   `Cache.find` returns a directory and a file path (only interpolate from same directory)

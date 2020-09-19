@@ -4,7 +4,7 @@
 -   Extract specially-formatted comments from code
     and generate documentation for the package like [ESDoc][esdoc].
 
-## How can we extract documentation comments? {#extracting}
+## How can we extract documentation comments?
 
 -   Use [Acorn][acorn] once again to extract comments
     -   Provide an `onComment` option with an array value
@@ -36,7 +36,7 @@
 
 <%- include('/_inc/multi.html', {pat: 'doc-comment.*', fill: 'js text'}) %>
 
-## What input will we try to handle? {#input}
+## What input will we try to handle?
 
 -   Use [GitHub Flavored Markdown][gfm] with a few conventions
 -   Use [marked.js][marked] for parsing
@@ -54,7 +54,7 @@
 -   But some good ideas
     -   A link to `#` should turn into a cross-reference
 
-## How can we extract and format comments? {#formatting}
+## How can we extract and format comments?
 
 -   Processing looks like this
 
@@ -70,7 +70,7 @@
 -   Remember: we can change our input format to make processing easier
     -   As long as it also makes authoring easier
 
-## How can we avoid duplicating function names? {#avoiding-duplication}
+## How can we avoid duplicating function names?
 
 -   If a comment is the first thing in a file, use it as title text
     -   No heading marker required
