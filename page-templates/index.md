@@ -13,7 +13,7 @@
 
 -   What will a templated page look like?
 
-<%- include('/inc/code.html', {file: 'input-loop.html'}) %>
+<%- include('/inc/html.html', {file: 'input-loop.html'}) %>
 
 ## How can we transform templates?
 
@@ -25,7 +25,7 @@
 
 -   What will it generate?
 
-<%- include('/inc/code.html', {file: 'output-loop.html'}) %>
+<%- include('/inc/html.html', {file: 'output-loop.html'}) %>
 
 ## How can we keep track of values?
 
@@ -74,33 +74,33 @@
 
 -   Static text should be copied over
 
-<%- include('/inc/code.html', {file: 'input-static-text.html'}) %>
+<%- include('/inc/html.html', {file: 'input-static-text.html'}) %>
 
 <%- include('/inc/code.html', {file: 'static-text.sh'}) %>
 
-<%- include('/inc/code.html', {file: 'output-static-text.html'}) %>
+<%- include('/inc/html.html', {file: 'output-static-text.html'}) %>
 
 -   Single constant should be substituted
 
-<%- include('/inc/code.html', {file: 'input-single-constant.html'}) %>
-<%- include('/inc/code.html', {file: 'output-single-constant.html'}) %>
+<%- include('/inc/html.html', {file: 'input-single-constant.html'}) %>
+<%- include('/inc/html.html', {file: 'output-single-constant.html'}) %>
 
 -   Single variable should be substituted
 
-<%- include('/inc/code.html', {file: 'input-single-variable.html'}) %>
-<%- include('/inc/code.html', {file: 'output-single-variable.html'}) %>
+<%- include('/inc/html.html', {file: 'input-single-variable.html'}) %>
+<%- include('/inc/html.html', {file: 'output-single-variable.html'}) %>
 
 -   Expand multiple variables
 
-<%- include('/inc/code.html', {file: 'input-multiple-variables.html'}) %>
-<%- include('/inc/code.html', {file: 'output-multiple-variables.html'}) %>
+<%- include('/inc/html.html', {file: 'input-multiple-variables.html'}) %>
+<%- include('/inc/html.html', {file: 'output-multiple-variables.html'}) %>
 
 -   Conditional expression
 
-<%- include('/inc/code.html', {file: 'input-conditional.html'}) %>
-<%- include('/inc/code.html', {file: 'output-conditional.html'}) %>
+<%- include('/inc/html.html', {file: 'input-conditional.html'}) %>
+<%- include('/inc/html.html', {file: 'output-conditional.html'}) %>
 
 -   Loop
 
-<%- include('/inc/code.html', {file: 'input-loop.html'}) %>
-<%- include('/inc/code.html', {file: 'output-loop.html'}) %>
+<%- include('/inc/html.html', {file: 'input-loop.html'}) %>
+<%- include('/inc/html.html', {file: 'output-loop.html'}) %>
