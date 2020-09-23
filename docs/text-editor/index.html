@@ -39,6 +39,7 @@
 <br/><a href="../tabular-data/"><span class="nowrap">Tabular Data</span></a>
 <br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
 <br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
+<br/><a href="../conclusion/"><span class="nowrap">Conclusion</span></a>
 </div>
 </div>
 <div class="dropdown">
@@ -46,6 +47,7 @@
 <div class="dropdown-content" id="Appendices">
 <a href="../license/"><span class="nowrap">License</span></a>
 <br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
+<br/><a href="../contributing/"><span class="nowrap">Contributing</span></a>
 <br/><a href="../bib/"><span class="nowrap">Bibliography</span></a>
 <br/><a href="../gloss/"><span class="nowrap">Glossary</span></a>
 <br/><a href="../links/"><span class="nowrap">Links</span></a>
@@ -67,7 +69,7 @@
 const fs = require('fs');
 
 const Settings = {
-  statusBar: 'Ctrl+  X:save & eXit / C:exit / O:Open / S:Save / A:save As / K:cut line / U:paste line',
+  statusBar: 'Ctrl+  X:save &amp; eXit / C:exit / O:Open / S:Save / A:save As / K:cut line / U:paste line',
   titleBar: 'Zepto',
   shortDelay: 100,
   mediumDelay: 2000,
@@ -167,8 +169,8 @@ Editor
       clearTimeout(this.statusBarTimer)
     }
 
-    if (timeout >= 0) {
-      this.statusBarTimer = setTimeout(() => {
+    if (timeout &gt;= 0) {
+      this.statusBarTimer = setTimeout(() =&gt; {
         this.drawStatusBar()
       }, timeout)
     }
@@ -183,12 +185,12 @@ Editor
 <li>File handling</li>
 </ul>
 <pre title="file.js"><code class="language-js">  open () {
-    this.getFileNameFromUser('Open file: ', file => this.load(file))
+    this.getFileNameFromUser('Open file: ', file =&gt; this.load(file))
   }
 
   saveAs (callback) {
     this.getFileNameFromUser('Save as: ',
-                             file => this.save(file, callback),
+                             file =&gt; this.save(file, callback),
                              this.currentFile)
   }
 
@@ -209,7 +211,7 @@ Editor
   }
 
   saveAndExit () {
-    this.saveAs(err => {
+    this.saveAs(err =&gt; {
       if (err) {
         this.drawStatusBar('ERR: Could not save file. Hit Ctrl + C to force exit.',
                            Settings.longDelay)
@@ -220,10 +222,10 @@ Editor
   }
 
   exit () {
-    setTimeout(() => {
+    setTimeout(() =&gt; {
       this.term.grabInput(false)
       this.term.fullscreen(false)
-      setTimeout(() => process.exit(0), Settings.shortDelay)
+      setTimeout(() =&gt; process.exit(0), Settings.shortDelay)
     }, Settings.shortDelay)
   }
 
@@ -260,7 +262,7 @@ Editor
     this.draw()
   }
 
-  save (file, callback = () => {}) {
+  save (file, callback = () =&gt; {}) {
     this.disableUserInteraction = true
     try {
       fs.writeFileSync(file, this.getText())
@@ -286,7 +288,7 @@ Editor
       cancelable: true,
       default: prefill
     }
-    this.term.fileInput(fileOptions, (err, file) => {
+    this.term.fileInput(fileOptions, (err, file) =&gt; {
       this.disableUserInteraction = false
       this.drawStatusBar()
       if (err) {
@@ -309,7 +311,7 @@ Editor
     if (this.resizeTimer) {
       clearTimeout(this.resizeTimer)
     }
-    this.resizeTimer = setTimeout(() => {
+    this.resizeTimer = setTimeout(() =&gt; {
       this.screenBuffer.resize({
         x: 0,
         y: 2,
@@ -326,7 +328,7 @@ Editor
 <li>Handling keystrokes</li>
 </ul>
 <pre title="keystroke.js"><code class="language-js">  onKey (key, matches, data) {
-    if (this.disableUserInteraction && key !== 'CTRL_C') {
+    if (this.disableUserInteraction &amp;&amp; key !== 'CTRL_C') {
       return
     }
 
@@ -417,15 +419,15 @@ Editor
     let new_buffer_x = this.textBuffer.x
     let new_buffer_y = this.textBuffer.y
 
-    if (this.textBuffer.x < -this.textBuffer.cx) {
+    if (this.textBuffer.x &lt; -this.textBuffer.cx) {
       new_buffer_x = Math.min(0, -this.textBuffer.cx + Math.floor(this.screenBuffer.width / 2))
-    } else if (this.textBuffer.x > -this.textBuffer.cx + this.screenBuffer.width - 1) {
+    } else if (this.textBuffer.x &gt; -this.textBuffer.cx + this.screenBuffer.width - 1) {
       new_buffer_x = (this.screenBuffer.width / 2) - this.textBuffer.cx
     }
 
-    if (this.textBuffer.y < -this.textBuffer.cy) {
+    if (this.textBuffer.y &lt; -this.textBuffer.cy) {
       new_buffer_y = Math.min(0, -this.textBuffer.cy + Math.floor(this.screenBuffer.height / 2))
-    } else if (this.textBuffer.y > -this.textBuffer.cy + this.screenBuffer.height - 1) {
+    } else if (this.textBuffer.y &gt; -this.textBuffer.cy + this.screenBuffer.height - 1) {
       new_buffer_y = (this.screenBuffer.height / 2) - this.textBuffer.cy
     }
 
@@ -445,16 +447,16 @@ Editor
 </ul>
 <pre title="movement.js"><code class="language-js">  up () {
     this.textBuffer.moveUp()
-    if (this.textBuffer.cx > this.textBuffer.buffer[this.textBuffer.cy].length - 1) {
+    if (this.textBuffer.cx &gt; this.textBuffer.buffer[this.textBuffer.cy].length - 1) {
       this.textBuffer.moveToEndOfLine()
     }
     this.drawCursor()
   }
 
   down () {
-    if (this.textBuffer.getContentSize().height - 1 > this.textBuffer.cy) {
+    if (this.textBuffer.getContentSize().height - 1 &gt; this.textBuffer.cy) {
       this.textBuffer.moveDown()
-      if (this.textBuffer.cx > this.textBuffer.buffer[this.textBuffer.cy].length - 1) {
+      if (this.textBuffer.cx &gt; this.textBuffer.buffer[this.textBuffer.cy].length - 1) {
         this.textBuffer.moveToEndOfLine()
       }
       this.drawCursor()
@@ -467,16 +469,16 @@ Editor
   }
 
   right () {
-    if (this.textBuffer.cx < this.getLine().length) {
+    if (this.textBuffer.cx &lt; this.getLine().length) {
       this.textBuffer.moveRight()
-    } else if (this.textBuffer.getContentSize().height - 1 > this.textBuffer.cy) {
+    } else if (this.textBuffer.getContentSize().height - 1 &gt; this.textBuffer.cy) {
       this.textBuffer.moveTo(0, this.textBuffer.cy + 1)
     }
     this.drawCursor()
   }
 
   getLine () {
-    return this.textBuffer.buffer[this.textBuffer.cy].reduce((acc, curr) => {
+    return this.textBuffer.buffer[this.textBuffer.cy].reduce((acc, curr) =&gt; {
       acc += curr.char.trim()
       return acc
     }, '')
@@ -551,7 +553,7 @@ Editor
 </ul>
 <pre title="cutpaste.js"><code class="language-js">  cutLine () {
     this.lineCutBuffer = this.textBuffer.buffer[this.textBuffer.cy]
-    if (this.textBuffer.cy === 0 && this.textBuffer.buffer.length === 1) {
+    if (this.textBuffer.cy === 0 &amp;&amp; this.textBuffer.buffer.length === 1) {
       this.textBuffer.buffer[0] = []
       this.textBuffer.moveToEndOfLine()
     } else {
@@ -560,7 +562,7 @@ Editor
       } else {
         this.textBuffer.buffer.splice(this.textBuffer.cy, 1)
       }
-      if (this.textBuffer.cx >= this.textBuffer.buffer[this.textBuffer.cy].length) {
+      if (this.textBuffer.cx &gt;= this.textBuffer.buffer[this.textBuffer.cy].length) {
         this.textBuffer.moveToEndOfLine()
       }
     }

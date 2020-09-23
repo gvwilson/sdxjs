@@ -39,6 +39,7 @@
 <br/><a href="../tabular-data/"><span class="nowrap">Tabular Data</span></a>
 <br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
 <br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
+<br/><a href="../conclusion/"><span class="nowrap">Conclusion</span></a>
 </div>
 </div>
 <div class="dropdown">
@@ -46,6 +47,7 @@
 <div class="dropdown-content" id="Appendices">
 <a href="../license/"><span class="nowrap">License</span></a>
 <br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
+<br/><a href="../contributing/"><span class="nowrap">Contributing</span></a>
 <br/><a href="../bib/"><span class="nowrap">Bibliography</span></a>
 <br/><a href="../gloss/"><span class="nowrap">Glossary</span></a>
 <br/><a href="../links/"><span class="nowrap">Links</span></a>
@@ -67,17 +69,17 @@ modeled on <a href="http://aosabook.org/en/500L/a-simple-web-server.html">this o
 <pre title="simple-socket-client.js"><code class="language-js">const net = require('net')
 
 const client = new net.Socket()
-client.connect(8080, '127.0.0.1', () => {
+client.connect(8080, '127.0.0.1', () =&gt; {
   console.log('client connected')
   client.write('message from client')
 })
 
-client.on('data', (data) => {
+client.on('data', (data) =&gt; {
   console.log(`client received ${data}`)
   client.destroy()
 })
 
-client.on('close', () => {
+client.on('close', () =&gt; {
   console.log('client connection closed')
 })
 </code></pre>
@@ -90,28 +92,28 @@ const port = 8080
 
 const server = new Net.Server()
 
-server.listen(port, () => {
+server.listen(port, () =&gt; {
   console.log(`server listening on localhost:${port}`)
 })
 
-server.on('connection', (socket) => {
+server.on('connection', (socket) =&gt; {
   console.log('server new connection')
 
   socket.write('message from server')
 
-  socket.on('data', (data) => {
+  socket.on('data', (data) =&gt; {
     console.log(`server received from client: ${data.toString()}`)
   })
 
-  socket.on('end', () => {
+  socket.on('end', () =&gt; {
     console.log('server ending connection')
   })
 
-  socket.on('close', () => {
+  socket.on('close', () =&gt; {
     console.log('server closing socket')
   })
 
-  socket.on('error', (err) => {
+  socket.on('error', (err) =&gt; {
     console.log(`server error: ${err}`)
   })
 })
@@ -132,7 +134,7 @@ server.on('connection', (socket) => {
 </ul>
 </li>
 </ul>
-<pre title="run-simple-socket.sh"><code class="language-sh">node simple-socket-server.js &
+<pre title="run-simple-socket.sh"><code class="language-sh">node simple-socket-server.js &amp;
 sleep 1
 node simple-socket-client.js
 kill %1
@@ -165,25 +167,25 @@ const server = new Net.Server()
 
 let num_requests = 0
 
-server.listen(port, () => {
+server.listen(port, () =&gt; {
   console.log(`server listening on localhost:${port}`)
 })
 
-server.on('connection', (socket) => {
+server.on('connection', (socket) =&gt; {
   num_requests += 1
   console.log(`server new connection ${num_requests}`)
 
   socket.on('data', handlerFactory(socket))
 
-  socket.on('end', () => {
+  socket.on('end', () =&gt; {
     console.log('server ending connection')
   })
 
-  socket.on('close', () => {
+  socket.on('close', () =&gt; {
     console.log('server closing socket')
   })
 
-  socket.on('error', (err) => {
+  socket.on('error', (err) =&gt; {
     console.log(`server error: ${err}`)
   })
 })
@@ -197,7 +199,7 @@ server.on('connection', (socket) => {
 </ul>
 </li>
 </ul>
-<pre title="always-send-success.js"><code class="language-js">const handlerFactory = (socket) => (data) => {
+<pre title="always-send-success.js"><code class="language-js">const handlerFactory = (socket) =&gt; (data) =&gt; {
   console.log(`server received from client: ${data.toString()}`)
   socket.write('SUCCESS')
 }
@@ -207,7 +209,7 @@ module.exports = handlerFactory
 <ul>
 <li>Try running</li>
 </ul>
-<pre title="always-send-success.sh"><code class="language-sh">node socket-server.js ./always-send-success &
+<pre title="always-send-success.sh"><code class="language-sh">node socket-server.js ./always-send-success &amp;
 sleep 1
 node simple-socket-client.js
 kill %1
@@ -235,7 +237,7 @@ Content-Length: 7
 
 `
 
-const handlerFactory = (socket) => (data) => {
+const handlerFactory = (socket) =&gt; (data) =&gt; {
   console.log(`server received from client: ${data.toString()}`)
   socket.write(Header + 'SUCCESS')
 }
@@ -282,7 +284,7 @@ Connection: keep-alive
 </ul>
 <pre title="http-request-client.js"><code class="language-js">const net = require('net')
 
-const path = (process.argv.length > 2)
+const path = (process.argv.length &gt; 2)
       ? process.argv[2]
       : '/'
 
@@ -291,17 +293,17 @@ const request = `GET ${path} HTTP/1.1
 `
 
 const client = new net.Socket()
-client.connect(8080, '127.0.0.1', () => {
+client.connect(8080, '127.0.0.1', () =&gt; {
   client.write(request)
   client.end()
 })
 
-client.on('data', (data) => {
+client.on('data', (data) =&gt; {
   console.log('client receives:')
   console.log(data.toString())
 })
 
-client.on('close', () => {
+client.on('close', () =&gt; {
 })
 </code></pre>
 <ul>
@@ -366,8 +368,8 @@ Content-Length: 7
 
 `.replace('\n', '\r\n')
 
-describe('checks a constant HTTP response', () => {
-  it('constructs a handler and gets a response', async () => {
+describe('checks a constant HTTP response', () =&gt; {
+  it('constructs a handler and gets a response', async () =&gt; {
     const socket = new Socket()
     const handler = handlerFactory(socket)
     const request = Request_Header.replace('@path', '/')
@@ -391,7 +393,7 @@ Content-Length: @LENGTH
 
 PathPattern = /^GET\s+(.+)\s+HTTP\/1.1/
 
-const handlerFactory = (socket) => (data) => {
+const handlerFactory = (socket) =&gt; (data) =&gt; {
   let path = data.toString().match(PathPattern)[1]
   if (path.startsWith('/')) {
     path = `.${path}`
@@ -427,7 +429,7 @@ server closing socket
 </ol>
 </li>
 </ul>
-<pre title="breaking-sandbox.sh"><code class="language-sh">node socket-server.js ./http-response-parse &
+<pre title="breaking-sandbox.sh"><code class="language-sh">node socket-server.js ./http-response-parse &amp;
 sleep 1
 node http-request-client.js ../files/private.txt
 kill %1
@@ -475,19 +477,19 @@ class BaseHttpServer {
   }
 
   run () {
-    this.server.listen(this.port, () => {
+    this.server.listen(this.port, () =&gt; {
       console.log(`server listening on localhost:${this.port}`)
     })
-    this.server.on('connection', (socket) => {
+    this.server.on('connection', (socket) =&gt; {
       socket.on('data', this.handlerFactory(socket))
-      socket.on('error', (err) => {
+      socket.on('error', (err) =&gt; {
         console.log(`server error: ${err}`)
       })
     })
   }
 
   handlerFactory (socket) {
-    return (data) => {
+    return (data) =&gt; {
       const request = this.parseRequest(data.toString())
       const response = this.initializeResponse(request)
       this.handle(request, response)
@@ -557,7 +559,7 @@ module.exports = BaseHttpServer
 const server = new BaseHttpServer()
 server.run()
 </code></pre>
-<pre title="test-base-http-server.sh"><code class="language-sh">node test-base-http-server.js &
+<pre title="test-base-http-server.sh"><code class="language-sh">node test-base-http-server.js &amp;
 sleep 1
 node http-request-client.js
 kill %1
@@ -614,28 +616,33 @@ class HttpFileServer extends BaseHttpServer {
 const server = new HttpFileServer(process.argv[2])
 server.run()
 </code></pre>
-<pre title="test-http-file-server.sh"><code class="language-sh">node http-file-server.js . &
+<pre title="test-http-file-server.sh"><code class="language-sh">node http-file-server.js . &amp;
 sleep 1
-echo '----------------------------------------'
+echo '- - - - - - - - - - - - - - - - - - - -'
 node http-request-client.js /files/a.txt
-echo '----------------------------------------'
+echo '- - - - - - - - - - - - - - - - - - - -'
 node http-request-client.js ../files/private.txt
 kill %1
 </code></pre>
-<h2 id="server-listening-on-localhost8080"><pre title="test-http-file-server.text"><code class="language-text">server listening on localhost:8080</h2>
-<p>client receives:
+<pre title="test-http-file-server.text"><code class="language-text">server listening on localhost:8080
+- - - - - - - - - - - - - - - - - - - -
+client receives:
 HTTP/1.1 200 OK
 Content-Type: text/plain
-Content-Length: 19</p>
-<p>client receives:
-Contents of File A</p>
-<hr>
-<p>client receives:
+Content-Length: 19
+
+
+client receives:
+Contents of File A
+
+- - - - - - - - - - - - - - - - - - - -
+client receives:
 HTTP/1.1 404 Not Found
 Content-Type: text/plain
-Content-Length: 29</p>
-<p>Requested file does not exist
-</code></pre></p>
+Content-Length: 29
+
+Requested file does not exist
+</code></pre>
 <h2 id="how-can-we-parameterize-requests">How can we parameterize requests?</h2>
 <ul>
 <li>The classic approach uses a <g key="query_string">query string</g>
@@ -687,7 +694,7 @@ server.run()
 </ul>
 <pre title="http-params-client.js"><code class="language-js">const net = require('net')
 
-const query = (process.argv.length > 2)
+const query = (process.argv.length &gt; 2)
       ? '?' + process.argv.slice(2)
       : ''
 
@@ -696,43 +703,48 @@ const request = `GET /${query} HTTP/1.1
 `
 
 const client = new net.Socket()
-client.connect(8080, '127.0.0.1', () => {
+client.connect(8080, '127.0.0.1', () =&gt; {
   client.write(request)
   client.end()
 })
 
-client.on('data', (data) => {
+client.on('data', (data) =&gt; {
   console.log('client receives:')
   console.log(data.toString())
 })
 
-client.on('close', () => {
+client.on('close', () =&gt; {
 })
 </code></pre>
 <ul>
 <li>Testing</li>
 </ul>
-<pre title="test-http-params-server.sh"><code class="language-sh">node http-params-server.js &
+<pre title="test-http-params-server.sh"><code class="language-sh">node http-params-server.js &amp;
 sleep 1
-echo '----------------------------------------'
+echo '- - - - - - - - - - - - - - - - - - - -'
 node http-params-client.js level=moderate
-echo '----------------------------------------'
+echo '- - - - - - - - - - - - - - - - - - - -'
 node http-params-client.js unknown=something
 kill %1
 </code></pre>
-<h2 id="server-listening-on-localhost8080-2"><pre title="test-http-params-server.text"><code class="language-text">server listening on localhost:8080</h2>
-<p>client receives:
+<pre title="test-http-params-server.text"><code class="language-text">server listening on localhost:8080
+- - - - - - - - - - - - - - - - - - - -
+client receives:
 HTTP/1.1 200 OK
 Content-Type: text/plain
-Content-Length: 8</p>
-<h2 id="client-receivesmoderate">client receives:
-MODERATE</h2>
-<p>client receives:
+Content-Length: 8
+
+
+client receives:
+MODERATE
+- - - - - - - - - - - - - - - - - - - -
+client receives:
 HTTP/1.1 200 OK
 Content-Type: text/plain
-Content-Length: 3</p>
-<p>LOW
-</code></pre></p>
+Content-Length: 3
+
+LOW
+</code></pre>
 <ul>
 <li>More modern approach is to send <g key="json">JSON</g>
 <ul>
@@ -744,7 +756,7 @@ Content-Length: 3</p>
 </ul>
 <pre title="got-json-client.js"><code class="language-js">const got = require('got')
  
-const getter = async (url, word) => {
+const getter = async (url, word) =&gt; {
   const {body} = await got.post(url, {
     json: {key: word},
     responseType: 'json'
@@ -789,7 +801,7 @@ class HttpJsonServer extends BaseHttpServer {
     const separators = ['\r\n\r\n', '\n\n']
     for (const sep of separators) {
       const loc = data.indexOf(sep)
-      if (loc >= 0) {
+      if (loc &gt;= 0) {
         const head = data.slice(0, loc)
         const body = data.slice(loc + sep.length)
         return [head, body]
@@ -800,12 +812,12 @@ class HttpJsonServer extends BaseHttpServer {
 
   parseHead (head) {
     const lines = head.split('\n')
-          .map(line => line.trim())
-          .filter(line => line.length > 0)
+          .map(line =&gt; line.trim())
+          .filter(line =&gt; line.length &gt; 0)
     const parts = lines[0].match(HttpJsonServer.TARGET_PATTERN)
     const verb = parts[1]
     const raw = parts[2]
-    const headers = lines.slice(1).reduce((soFar, line) => {
+    const headers = lines.slice(1).reduce((soFar, line) =&gt; {
       const match = line.match(/^\s*(.+?)\s*:\s*(.+)\s*$/)
       const key = match[1].toLowerCase(), value = match[2]
       if (!soFar.has(key)) {
@@ -842,15 +854,16 @@ server.run()
 </ul>
 </li>
 </ul>
-<pre title="test-http-json-server.sh"><code class="language-sh">node http-json-server.js &
+<pre title="test-http-json-server.sh"><code class="language-sh">node http-json-server.js &amp;
 sleep 1
-echo '----------------------------------------'
+echo '- - - - - - - - - - - - - - - - - - - -'
 node got-json-client.js http://localhost:8080/ testing
 kill %1
 </code></pre>
-<h2 id="server-listening-on-localhost8080-3"><pre title="test-http-json-server.text"><code class="language-text">server listening on localhost:8080</h2>
-<p>{ result: 'testing' }
-</code></pre></p>
+<pre title="test-http-json-server.text"><code class="language-text">server listening on localhost:8080
+- - - - - - - - - - - - - - - - - - - -
+{ result: 'testing' }
+</code></pre>
 </main>
 <footer>
 <div class="row">

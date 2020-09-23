@@ -2,7 +2,7 @@
 ---
 
 -   Rebuild files that depend on other files
-    -   Based on [Make][gnu-make] and [Bajel][bajel]
+    -   Based on [Make][gnu-make], [Bajel][bajel], and [Jake][jake]
     -   Draws on <cite>Smith2011</cite>
 
 ## What's in a build manager?

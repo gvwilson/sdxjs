@@ -74,12 +74,55 @@ const buildToc = () => {
 }
 
 /**
+ * Fill in cross-references.
+ */
+const fixCrossRefs = (relativeRoot, numbering) => {
+  Array.from(document.querySelectorAll('xref'))
+    .forEach(node => {
+      const slug = node.getAttribute('key')
+      const content = node.innerHTML
+
+      const link = document.createElement('a')
+      const path = (slug === '/') ? '' : `${slug}/`
+      link.setAttribute('href', `${relativeRoot}/${path}`)
+      link.setAttribute('number', numbering[slug])
+
+      if (content) {
+        link.innerHTML = content
+      }
+      else if (numbering[slug] < 'A') {
+        link.innerHTML = `Chapter ${numbering[slug]}`
+      }
+      else {
+        link.innerHTML = `Appendix ${numbering[slug]}`
+      }
+
+      node.parentNode.replaceChild(link, node)
+    })
+}
+
+/**
  * Perform all in-page fixes.
  */
 const fixPage = () => {
   const relativeRoot = getRelativeRoot()
-  fixBibCites(relativeRoot)
-  fixGlossaryRefs(relativeRoot)
-  fixPreBlocks()
-  buildToc()
+  const xhr = new XMLHttpRequest()
+  xhr.open('GET', `${relativeRoot}/numbering.js`, true)
+  xhr.onload = function (e) {
+    if (xhr.readyState === 4) {
+      const numbering = JSON.parse(xhr.responseText)
+      fixBibCites(relativeRoot)
+      fixGlossaryRefs(relativeRoot)
+      fixPreBlocks()
+      fixCrossRefs(relativeRoot, numbering)
+      buildToc()
+    }
+    else {
+      console.error(xhr.statusText)
+    }
+  }
+  xhr.onerror = function (e) {
+    console.error(xhr.statusText)
+  }
+  xhr.send(null)
 }

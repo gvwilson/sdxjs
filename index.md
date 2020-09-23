@@ -3,15 +3,15 @@
 
 The best way to learn software design is by example,
 and the best examples are the tools that developers use themselves.
-This project draws inspiration from <cite>Brown2011, Brown2012, Brown2016</cite>,
+This project draws inspiration from <cite>Brown2011,Brown2012,Brown2016</cite>,
 [Gitlet][gitlet],
 [various][browser-tutorial] [tutorials][db-tutorial],
 and most of all from
 the trilogy that introduced the Unix philosophy to an entire generation of programmers
-<cite>Kernighan1979, Kernighan1988, Kernighan1983</cite>.
+<cite>Kernighan1979,Kernighan1988,Kernighan1983</cite>.
 
-All contributors must abide by our [Code of Conduct](./conduct/).
-Please see the our [contributors' guidelines](./contributing/)
+All contributors must abide by our <xref key="conduct">Code of Conduct</xref>.
+Please see the our <xref key="contributing">contributors' guidelines</xref>
 for a description of our development process and formatting rules.
 
 ## Audience
@@ -39,9 +39,11 @@ for a description of our development process and formatting rules.
     This material will fill those gaps
     and give them starting points for a wide variety of course assignments.
 
+<div class="html-only">
 ## Content
 
 <%- include('/inc/contents.html') %>
+</div>
 
 ## Layout
 

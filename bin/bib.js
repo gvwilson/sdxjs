@@ -209,7 +209,7 @@ const descriptionEnd = (entry) => {
 const key = (entry) => {
   assert('key' in entry,
          `Every entry must have key`)
-  return `<dt id="${entry.key}">${entry.key}</dt>`
+  return `<dt id="${entry.key}" class="bibliography">${entry.key}</dt>`
 }
 
 /**

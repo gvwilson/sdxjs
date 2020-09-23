@@ -1,7 +1,7 @@
 node http-file-server.js . &
 sleep 1
-echo '----------------------------------------'
+echo '- - - - - - - - - - - - - - - - - - - -'
 node http-request-client.js /files/a.txt
-echo '----------------------------------------'
+echo '- - - - - - - - - - - - - - - - - - - -'
 node http-request-client.js ../files/private.txt
 kill %1

@@ -39,6 +39,7 @@
 <br/><a href="../tabular-data/"><span class="nowrap">Tabular Data</span></a>
 <br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
 <br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
+<br/><a href="../conclusion/"><span class="nowrap">Conclusion</span></a>
 </div>
 </div>
 <div class="dropdown">
@@ -46,6 +47,7 @@
 <div class="dropdown-content" id="Appendices">
 <a href="../license/"><span class="nowrap">License</span></a>
 <br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
+<br/><a href="../contributing/"><span class="nowrap">Contributing</span></a>
 <br/><a href="../bib/"><span class="nowrap">Bibliography</span></a>
 <br/><a href="../gloss/"><span class="nowrap">Glossary</span></a>
 <br/><a href="../links/"><span class="nowrap">Links</span></a>
@@ -61,7 +63,7 @@
 <ul>
 <li>Rebuild files that depend on other files
 <ul>
-<li>Based on <a href="https://www.gnu.org/software/make/">Make</a> and <a href="https://www.npmjs.com/package/bajel">Bajel</a></li>
+<li>Based on <a href="https://www.gnu.org/software/make/">Make</a>, <a href="https://www.npmjs.com/package/bajel">Bajel</a>, and <a href="https://jakejs.com/">Jake</a></li>
 <li>Draws on <cite>Smith2011</cite></li>
 </ul>
 </li>
@@ -133,27 +135,27 @@ class SimpleBuilder {
   checkConfig () {
     assert(Array.isArray(this.config),
            `Configuration must be array`)
-    this.config.forEach(rule => {
-      assert(('target' in rule) && (typeof rule.target === 'string'),
+    this.config.forEach(rule =&gt; {
+      assert(('target' in rule) &amp;&amp; (typeof rule.target === 'string'),
              `Rule ${JSON.stringify(rule)} does not string as 'target'`)
-      assert(('depends' in rule) &&
-             Array.isArray(rule.depends) &&
-             rule.depends.every(dep => (typeof dep === 'string')),
+      assert(('depends' in rule) &amp;&amp;
+             Array.isArray(rule.depends) &amp;&amp;
+             rule.depends.every(dep =&gt; (typeof dep === 'string')),
              `Rule ${JSON.stringify(rule)} does not have list of strings as 'depends'`)
-      assert(('recipes' in rule) &&
-             Array.isArray(rule.recipes) &&
-             rule.recipes.every(recipe => (typeof recipe === 'string')),
+      assert(('recipes' in rule) &amp;&amp;
+             Array.isArray(rule.recipes) &amp;&amp;
+             rule.recipes.every(recipe =&gt; (typeof recipe === 'string')),
              `Rule ${JSON.stringify(rule)} does not have list of strings as 'recipes'`)
     })
   }
 
   buildGraph () {
     this.graph = new graphlib.Graph()
-    this.config.forEach(rule => {
+    this.config.forEach(rule =&gt; {
       this.graph.setNode(rule.target, {
         recipes: rule.recipes
       })
-      rule.depends.forEach(dep => this.graph.setEdge(dep, rule.target))
+      rule.depends.forEach(dep =&gt; this.graph.setEdge(dep, rule.target))
     })
   }
 
@@ -248,7 +250,7 @@ class AddTimestamps extends SimpleBuilder {
   run () {
     this.decorate(process.argv[4])
     console.log(this.graph.nodes().map(
-      n => `${n}: ${JSON.stringify(this.graph.node(n))}`
+      n =&gt; `${n}: ${JSON.stringify(this.graph.node(n))}`
     ))
   }
 
@@ -258,7 +260,7 @@ class AddTimestamps extends SimpleBuilder {
       this.graph.node(node).timestamp = decorations[node]
     }
     const missing = this.graph.nodes().filter(
-      n => !('timestamp' in this.graph.node(n))
+      n =&gt; !('timestamp' in this.graph.node(n))
     )
     assert.equal(missing.length, 0,
                  `Timestamp missing for node(s) ${missing}`)
@@ -291,12 +293,12 @@ class UpdateOnTimestamp extends AddTimestamps {
   run () {
     this.decorate(process.argv[4])
     const sorted = graphlib.alg.topsort(this.graph)
-    const startTime = Math.max(...sorted.map(n => this.graph.node(n).timestamp))
+    const startTime = Math.max(...sorted.map(n =&gt; this.graph.node(n).timestamp))
     console.log(`${startTime}: START`)
-    const endTime = sorted.reduce((currTime, node) => {
+    const endTime = sorted.reduce((currTime, node) =&gt; {
       if (this.isStale(node)) {
         console.log(`${currTime}: ${node}`)
-        this.graph.node(node).recipes.forEach(a => console.log(`\t${a}`))
+        this.graph.node(node).recipes.forEach(a =&gt; console.log(`\t${a}`))
         this.graph.node(node).timestamp = currTime
         currTime += 1
       }
@@ -307,7 +309,7 @@ class UpdateOnTimestamp extends AddTimestamps {
 
   isStale (node) {
     return this.graph.predecessors(node).some(
-      other => this.graph.node(other).timestamp >= this.graph.node(node).timestamp 
+      other =&gt; this.graph.node(other).timestamp &gt;= this.graph.node(node).timestamp 
     )
   }
 }
@@ -372,15 +374,15 @@ class VariableExpander extends UpdateOnTimestamp {
   }
 
   expandVariables () {
-    this.graph.nodes().forEach(target => {
+    this.graph.nodes().forEach(target =&gt; {
       try {
         const dependencies = this.graph.predecessors(target)
         const recipes = this.graph.node(target).recipes
-        this.graph.node(target).recipes = recipes.map(act => {
+        this.graph.node(target).recipes = recipes.map(act =&gt; {
           act = act
             .replace('@TARGET', target)
             .replace('@DEPENDENCIES', dependencies.join(' ' ))
-          dependencies.forEach((dep, i) => {
+          dependencies.forEach((dep, i) =&gt; {
             act = act.replace(`@DEP[${i}]`, dependencies[i])
           })
           return act
@@ -445,7 +447,7 @@ class PatternUserAttempt extends VariableExpander {
 
   extractRules () {
     this.rules = new Map()
-    this.graph.nodes().forEach(target => {
+    this.graph.nodes().forEach(target =&gt; {
       if (target.includes('%')) {
         const data = {
           recipes: this.graph.node(target).recipes
@@ -453,7 +455,7 @@ class PatternUserAttempt extends VariableExpander {
         this.rules.set(target, data)
       }
     })
-    this.rules.forEach((value, key) => {
+    this.rules.forEach((value, key) =&gt; {
       console.log('removing', key)
       this.graph.removeNode(key)
     })
@@ -495,7 +497,7 @@ class PatternUserRead extends VariableExpander {
   buildGraphAndRules () {
     this.graph = new graphlib.Graph()
     this.rules = new Map()
-    this.config.forEach(rule => {
+    this.config.forEach(rule =&gt; {
       if (rule.target.includes('%')) {
         const data = {
           recipes: rule.recipes,
@@ -511,7 +513,7 @@ class PatternUserRead extends VariableExpander {
           recipes: rule.recipes,
           timestamp: timestamp
         })
-        rule.depends.forEach(dep => {
+        rule.depends.forEach(dep =&gt; {
           assert(!dep.includes('%'),
                  `Cannot have '%' in a non-pattern rule`)
           this.graph.setEdge(dep, rule.target)
@@ -523,7 +525,7 @@ class PatternUserRead extends VariableExpander {
   toJSON () {
     return {
       graph: graphlib.json.write(this.graph),
-      rules: Array.from(this.rules.keys()).map(key => {
+      rules: Array.from(this.rules.keys()).map(key =&gt; {
         return {k: key, v: this.rules.get(key)}
       })
     }
@@ -618,12 +620,12 @@ class PatternUserRun extends PatternUserRead {
   }
 
   expandAllRules () {
-    this.graph.nodes().forEach(target => {
-      if (this.graph.predecessors(target).length > 0) {
+    this.graph.nodes().forEach(target =&gt; {
+      if (this.graph.predecessors(target).length &gt; 0) {
         return
       }
       const data = this.graph.node(target)
-      if (data.recipes.length > 0) {
+      if (data.recipes.length &gt; 0) {
         return
       }
       const rule = this.findRule(target)
@@ -644,9 +646,9 @@ class PatternUserRun extends PatternUserRead {
   expandRule (target, rule) {
     const stem = target.split('.')[0]
     rule.depends
-      .map(dep => dep.replace('%', stem))
-      .forEach(dep => this.graph.setEdge(dep, target))
-    const recipes = rule.recipes.map(act => act.replace('%', stem))
+      .map(dep =&gt; dep.replace('%', stem))
+      .forEach(dep =&gt; this.graph.setEdge(dep, target))
+    const recipes = rule.recipes.map(act =&gt; act.replace('%', stem))
     const timestamp = this.graph.node(target).timestamp
     this.graph.setNode(target, {
       recipes: recipes,
@@ -656,12 +658,12 @@ class PatternUserRun extends PatternUserRead {
 
   run () {
     const sorted = graphlib.alg.topsort(this.graph)
-    const startTime = Math.max(...sorted.map(n => this.graph.node(n).timestamp))
+    const startTime = Math.max(...sorted.map(n =&gt; this.graph.node(n).timestamp))
     console.log(`${startTime}: START`)
-    const endTime = sorted.reduce((currTime, node) => {
+    const endTime = sorted.reduce((currTime, node) =&gt; {
       if (this.isStale(node)) {
         console.log(`${currTime}: ${node}`)
-        this.graph.node(node).recipes.forEach(a => console.log(`\t${a}`))
+        this.graph.node(node).recipes.forEach(a =&gt; console.log(`\t${a}`))
         this.graph.node(node).timestamp = currTime
         currTime += 1
       }

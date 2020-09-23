@@ -1,0 +1,98 @@
+# Bajel build commands.
+
+help: # Show available commands.
+  exec: "fgrep -e ': #' build.yaml | fgrep -v -e build.yaml | column -t -s ':'"
+
+bib: # Rebuild bibliography.
+  deps:
+  - bib.md
+
+serve: # Run a server on port 4000.
+  exec: "http-server docs -p 4000"
+  deps:
+  - docs/index.html
+
+clean: # Tidy up workspace.
+  exec: "bin/clean.js book.aux book.log book.out book.pdf book.tex book.toc '**/*~'"
+
+html: # Rebuild HTML version.
+  deps:
+  - docs/index.html
+
+gloss: # Rebuild glossary file.
+  deps:
+  - gloss.md
+
+latex: # Create LaTeX version of material.
+  deps:
+  - book.tex
+
+pdf: # Create printable version of material.
+  deps:
+  - book.pdf
+
+# ----------------------------------------------------------------------
+
+# Fake target for dependencies (Bajel doesn't support wildcard expansion).
+source:
+  deps:
+  - index.md
+  - CONDUCT.md
+  - CONTRIBUTING.md
+  - LICENSE.md
+  - authors.md
+  - links.md
+  - build-manager/index.md
+  - code-generator/index.md
+  - conclusion/index.md
+  - doc-generator/index.md
+  - file-backup/index.md
+  - http-server/index.md
+  - layout-engine/index.md
+  - module-bundler/index.md
+  - module-loader/index.md
+  - package-manager/index.md
+  - page-templates/index.md
+  - style-checker/index.md
+  - systems-programming/index.md
+  - tabular-data/index.md
+  - text-editor/index.md
+  - unit-test/index.md
+
+bib.md:
+  exec: "bin/bib.js --input bib.yml --output bib.md"
+  deps:
+  - bin/bib.js
+  - bib.yml
+
+gloss.md:
+  exec: "bin/gloss.js --glosario --input gloss.yml --output gloss.md --sources index.md */*.md"
+  deps:
+  - source
+  - bin/gloss.js
+  - gloss.yml
+
+docs/index.html:
+  exec: "bin/html.js --rootDir . --outputDir docs --configFile config.yml --linksFile links.yml"
+  deps:
+  - source
+  - bin/html.js
+  - bib.md
+  - gloss.md
+  - inc/foot.html
+  - inc/head.html
+  - static/site.css
+  - static/site.js
+
+book.tex:
+  exec: "bin/latex.js --config config.yml --htmlDir docs --outputFile book.tex --head tex/head.tex --foot tex/foot.tex --numbering docs/numbering.js"
+  deps:
+  - bin/latex.js
+  - docs/index.html
+  - tex/foot.tex
+  - tex/head.tex
+
+book.pdf:
+  exec: "pdflatex book && pdflatex book"
+  deps:
+  - book.tex

@@ -39,6 +39,7 @@
 <br/><a href="../tabular-data/"><span class="nowrap">Tabular Data</span></a>
 <br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
 <br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
+<br/><a href="../conclusion/"><span class="nowrap">Conclusion</span></a>
 </div>
 </div>
 <div class="dropdown">
@@ -46,6 +47,7 @@
 <div class="dropdown-content" id="Appendices">
 <a href="../license/"><span class="nowrap">License</span></a>
 <br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
+<br/><a href="../contributing/"><span class="nowrap">Contributing</span></a>
 <br/><a href="../bib/"><span class="nowrap">Bibliography</span></a>
 <br/><a href="../gloss/"><span class="nowrap">Glossary</span></a>
 <br/><a href="../links/"><span class="nowrap">Links</span></a>
@@ -115,7 +117,7 @@ console.log(ast)
 
 const program = `const value = 2
 
-const double = (x) => {
+const double = (x) =&gt; {
   const y = 2 * x
   return y
 }
@@ -654,7 +656,7 @@ const program = `// Constant
 const value = 2
 
 // Function
-const double = (x) => {
+const double = (x) =&gt; {
   const y = 2 * x
   return y
 }
@@ -672,13 +674,13 @@ const ast = acorn.parse(program, options)
 
 const state = {'decl': []}
 walk.simple(ast, {
-  Identifier: (node, state) => {
+  Identifier: (node, state) =&gt; {
     state.decl.push(node)
   }
 }, null, state)
 
-state.decl.forEach(node => console.log(`identifier ${node.name} on line ${node.loc.start.line}`))
-console.log(`comments on lines ${options.onComment.map(node => node.loc.start.line).join(', ')}`)
+state.decl.forEach(node =&gt; console.log(`identifier ${node.name} on line ${node.loc.start.line}`))
+console.log(`comments on lines ${options.onComment.map(node =&gt; node.loc.start.line).join(', ')}`)
 </code></pre>
 <pre title="walk-ast.text"><code class="language-text">identifier x on line 6
 identifier y on line 7
@@ -706,7 +708,7 @@ const program = `// Constant
 const value = 2
 
 // Function
-const double = (x) => {
+const double = (x) =&gt; {
   const y = 2 * x
   return y
 }
@@ -716,7 +718,7 @@ const result = double(value)
 console.log(result)
 `
 
-const applyCheck = (state, label, node, passes) => {
+const applyCheck = (state, label, node, passes) =&gt; {
   if (!passes) {
     if (!state.hasOwnProperty(label)) {
       state[label] = []
@@ -729,13 +731,13 @@ const ast = acorn.parse(program, {locations: true})
 
 const state = {}
 walk.simple(ast, {
-  Identifier: (node, state) => {
-    applyCheck(state, 'name_length', node, node.name.length >= 4)
+  Identifier: (node, state) =&gt; {
+    applyCheck(state, 'name_length', node, node.name.length &gt;= 4)
   }
 }, null, state)
 
 state.name_length.forEach(
-  node => console.log(`${node.name} at line ${node.loc.start.line}`))
+  node =&gt; console.log(`${node.name} at line ${node.loc.start.line}`))
 </code></pre>
 <pre title="check-name-lengths.text"><code class="language-text">x at line 6
 y at line 7
@@ -781,7 +783,7 @@ class Walker {
 
   // Act on node and then on children.
   _walk (node, accumulator) {
-    if (node && (typeof node === 'object') && ('type' in node)) {
+    if (node &amp;&amp; (typeof node === 'object') &amp;&amp; ('type' in node)) {
       this._doNode(node, accumulator)
       this._doChildren(node, accumulator)
     }
@@ -799,7 +801,7 @@ class Walker {
     this.stack.push(node)
     for (let key in node) {
       if (Array.isArray(node[key])) {
-        node[key].forEach(child => {
+        node[key].forEach(child =&gt; {
           this._walk(child, accumulator)
         })
       }
@@ -812,7 +814,7 @@ class Walker {
 
   // Is the current node a child of some other type of node?
   _childOf (nodeTypes) {
-    return this.stack && nodeTypes.includes(this.stack.slice(-1)[0].type)
+    return this.stack &amp;&amp; nodeTypes.includes(this.stack.slice(-1)[0].type)
   }
 }
 
@@ -828,7 +830,7 @@ class VariableWalker extends Walker {
 // Test.
 const program = `const value = 2
 
-const double = (x) => {
+const double = (x) =&gt; {
   const y = 2 * x
   return y
 }
@@ -940,7 +942,7 @@ third
 <pre title="generator-count.js"><code class="language-js">const acorn = require('acorn')
 
 function* getNodes (node) {
-  if (node && (typeof node === 'object') && ('type' in node)) {
+  if (node &amp;&amp; (typeof node === 'object') &amp;&amp; ('type' in node)) {
     yield node
     for (let key in node) {
       if (Array.isArray(node[key])) {
@@ -958,7 +960,7 @@ function* getNodes (node) {
 // Test.
 const program = `const value = 2
 
-const double = (x) => {
+const double = (x) =&gt; {
   const y = 2 * x
   return 2 * y + 1
 }

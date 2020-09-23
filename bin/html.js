@@ -26,6 +26,11 @@ const DEFAULTS = {
 }
 
 /**
+ * Files to copy directly.
+ */
+const COPY_FILES = ['.nojekyll', 'CNAME']
+
+/**
  * File containing Markdown-formatted links.
  */
 const LINKS_FILE = 'links.md'
@@ -50,8 +55,7 @@ const main = () => {
   loadFiles(allFiles)
   rimraf.sync(config.outputDir)
   allFiles.forEach(fileInfo => translateFile(config, fileInfo, linksText))
-  copyFiles(config)
-  noJekyll(config)
+  finalize(config)
 }
 
 /**
@@ -177,10 +181,11 @@ const slugify = (text) => {
 }
 
 /**
- * Copy files verbatim.
+ * Copy static files and save numbering data.
  * @param {Object} config Configuration.
  */
-const copyFiles = (config) => {
+const finalize = (config) => {
+  // Simple files.
   const excludes = config.exclude.map(pattern => new minimatch.Minimatch(pattern))
   const toCopy = config.copy
         .map(pattern => path.join(config.rootDir, pattern))
@@ -192,15 +197,29 @@ const copyFiles = (config) => {
     ensureOutputDir(dest)
     fs.copyFileSync(source, dest)
   })
+
+  // Numbering.
+  const numbering = buildNumbering(config)
+  fs.writeFileSync(path.join(config.outputDir, 'numbering.js'),
+                   JSON.stringify(numbering, null, 2))
 }
 
 /**
- * Signal that the site is not built with Jekyll (for GitHub Pages).
+ * Build numbering lookup table for chapters and appendices.
  * @param {Object} config Configuration.
+ * @returns {Object} slug-to-number-or-letter lookup table.
  */
-const noJekyll = (config) => {
-  const filePath = path.join(config.outputDir, '.nojekyll')
-  fs.writeFileSync(filePath, 'no Jekyll')
+const buildNumbering = (config) => {
+  const result = {}
+  const numbered = [...config.extras, ...config.chapters]
+  numbered.forEach((fileInfo, i) => {
+    result[fileInfo.slug] = `${i+1}`
+  })
+  const start = 'A'.charCodeAt(0)
+  config.appendices.forEach((fileInfo, i) => {
+    result[fileInfo.slug] = String.fromCharCode(start + i)
+  })
+  return result
 }
 
 /**

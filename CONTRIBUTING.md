@@ -57,30 +57,36 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
 
 ## Format
 
-1.  We use [EJS][ejs] to create our website,
-    so please write in Markdown.
+1.  We use [EJS][ejs] to create our website.
+    Please write in Markdown where you can, and use HTML tags for special cases.
 
 1.  Each lesson is in a file `./slug/index.md`,
     where "slug" is a hyphenated short name for the topic (e.g., `writing-functions`).
 
-1.  `_config.yml` contains configuration information and metadata about lessons and external links.
-
-1.  Use relative links `[like this](../slug/)` to refer from one lesson to another.
+1.  `config.yml` contains configuration information and metadata about chapters and appendices.
 
 1.  Use level-2 headings for sub-topics, and phrase these as questions
     (e.g., "How do I check if a file exists?").
     Do not use headings below level 3.
 
-1.  Put definitions of external links in the `links` table in `_config.yml`
+1.  Put definitions of external links in `links.yml`
     and refer to them using `[text to display][link-key]`.
     Entries should be in alphabetical order by slug.
 
+1.  Write cross-references like `<xref key="slug"></xref>` or `<xref key="slug">some text</xref>`
+    to refer from one chapter or appendix to another.
+    (We cannot use the empty tag `<xref key="slug"/>` because the parser doesn't like it.)
+    `static/site.js` converts this to a glossary reference in the online version
+    and `bin/latex.js` converts it for the PDF version;
+    if no text is provided inside the tag,
+    we fill it in with `Chapter N` or `Appendix X`.
+
 1.  When defining a term, use `<g key="some_key">some text</g>`.
-    We do some post-processing in `static/site.js` to convert this to a glossary reference.
+    The key must exist in either `gloss.yml` (our local glossary),
+    and again, `static/site.js` and `bin/latex.js` convert this to a glossary reference.
 
 1.  Use `<cite>Key123,Key456</cite>` for bibliographic citations.
-    We do some post-processing in `static/site.js` to convert these to bibliographic citations.
-    The keys must match those in the `bib` section of `_config.yml`.
+    The keys must exist in `bib.yml`, and yes, `static/site.js` and `bin/latex.js` do the conversions.
 
 1.  Use first person plural ("we" rather than "you"),
     Simplified English (i.e., American spelling),
@@ -88,19 +94,10 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
     Do not use exclamation marks---few things are actually that surprising the first time around,
     and none the second.
 
-## Tools
+## Tasks and Tools
 
-1.  Run `npm run build` to build the the website in `_site`
-    and `npm run serve` to serve it locally on port 4000.
-
-1.  Rebuilding the glossary takes a bit of work---we hope it will be easier once `glosario-js` is installable.
-    In the meantime:
-    1.  Clone <https://github.com/carpentries/glosario/> somewhere (not in this repository).
-    1.  Run
-
-        ```
-        bin/gloss-keys.js index.md */index.md | ~/glosario/utils/merge-glossaries.py -w - ~/glosario/glossary.yml > _glosario.yml
-        ```
-
-        to create a local slice of the Glosario data.
-    1.  Run `npm run gloss` to regenerate `gloss.md` by comining the glossaries.
+1.  NPM doesn't allow us to document our tasks or make them depend on one another,
+    so we use [NPM][npm] to manage packages and [Bajel][bajel] to run tasks---run
+    `npx bajel help` to get help with the latter.
+    (Note that it's `npx` with an 'x' rather than `npm` with an 'm'.)
+    All of the commands are in `build.yaml` and all of our tools are in the `bin` directory.

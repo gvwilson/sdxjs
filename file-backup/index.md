@@ -30,7 +30,7 @@
     -   Store a data structure that records directories' contents as JSON
     -   To restore from a particular date, copy <g key="blob">blobs</g> to where they need to be
 
-## How can `async` and `await` simplify code?
+## How can async and await simplify code?
 
 -   Step 1: find all files and calculate their hashes
 

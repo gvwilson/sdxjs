@@ -39,7 +39,7 @@ const main = () => {
   download(config, GLOSARIO_URL).then(glosario => {
     const local = getGlossary(config)
     const merged = mergeGlossaries(glosario, local)
-    const required = getRequired(config)
+    const required = getRequired(config, merged)
     const filtered = filterGlossary(merged, required)
     const text = makeGloss(filtered)
     fs.writeFileSync(config.output, text)
@@ -99,16 +99,36 @@ const mergeGlossaries = (...glossaries) => {
  * @param {Object} gloss All glossary entries.
  */
 const getRequired = (config, gloss) => {
-  // Required in files.
-  const fromFiles = new Set(
+  let result = new Set()
+  let expanded = new Set(
     config.sources.map(filename => {
       const text = fs.readFileSync(filename, 'utf-8')
       return [...text.matchAll(/<g\s+key="(.+?)">/g)]
         .map(match => match[1])
     }).flat()
   )
-  // FIXME: transitive closure of cross-references.
-  return fromFiles
+  while (expanded.size > result.size) {
+    result = expanded
+    expanded = addKeysFromDefs(gloss, result)
+  }
+  return result
+}
+
+/**
+ * Expand definitions by looking at bodies of definitions.
+ * @param {Object} gloss All glossary entries.
+ * @param {Set} soFar Keys found so far.
+ * @returns {Set} Expanded set of keys.
+ */
+const addKeysFromDefs = (gloss, soFar) => {
+  const result = new Set()
+  for (let key of soFar) {
+    result.add(key)
+    for (match in gloss[key].en.def.matchAll(/]\(#(.+?)\)/g)) {
+      result.add(match[1])
+    }
+  }
+  return result
 }
 
 /**
@@ -162,14 +182,26 @@ const sortTerms = (data) => {
  */
 const makeEntry = (entry) => {
   const acronym = ('acronym' in entry.en) ? ` (${entry.en.acronym})` : ''
-  const term = `<dt id="${entry.slug}">${entry.en.term}${acronym}</dt>`
+  const term = `<dt id="${entry.slug}" class="glossary">${entry.en.term}${acronym}</dt>`
   const mdi = new MarkdownIt({html: true})
   const def = mdi.render(entry.en.def.replace('\n', ' '))
         .replace('<p>', '')
         .replace('</p>', '')
         .trim()
-  const body = `<dd>${def}</dd>`
+        .replace(/<a href="#(.+?)">(.+?)<\/a>/g, fixCrossRef)
+  const body = `<dd class="glossary">${def}</dd>`
   return `${term}\n${body}`
+}
+
+/**
+ * Fix internal cross-reference links.
+ * @param {string} match Entire matching string.
+ * @param {string} key Key embedded in URL.
+ * @param {string} value Visible text.
+ * @returns {string} Patched definition.
+ */
+const fixCrossRef = (match, key, value) => {
+  return `<g key="${key}">${value}</g>`
 }
 
 /**

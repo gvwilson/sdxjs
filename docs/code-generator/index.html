@@ -39,6 +39,7 @@
 <br/><a href="../tabular-data/"><span class="nowrap">Tabular Data</span></a>
 <br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
 <br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
+<br/><a href="../conclusion/"><span class="nowrap">Conclusion</span></a>
 </div>
 </div>
 <div class="dropdown">
@@ -46,6 +47,7 @@
 <div class="dropdown-content" id="Appendices">
 <a href="../license/"><span class="nowrap">License</span></a>
 <br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
+<br/><a href="../contributing/"><span class="nowrap">Contributing</span></a>
 <br/><a href="../bib/"><span class="nowrap">Bibliography</span></a>
 <br/><a href="../gloss/"><span class="nowrap">Glossary</span></a>
 <br/><a href="../links/"><span class="nowrap">Links</span></a>
@@ -70,7 +72,7 @@
 </ul>
 <pre title="func-def.js"><code class="language-js">const acorn = require('acorn')
 
-const text = `const func = (param) => {
+const text = `const func = (param) =&gt; {
   return param + 1
 }`
 
@@ -178,10 +180,10 @@ const walk = require('acorn-walk')
 const escodegen = require('escodegen')
 
 const text = `
-const funcOuter = (param) => {
+const funcOuter = (param) =&gt; {
   return param + 1
 }
-const funcInner = (param) => {
+const funcInner = (param) =&gt; {
   return param + 1
 }
 for (const i of [1, 3, 5]) {
@@ -189,26 +191,26 @@ for (const i of [1, 3, 5]) {
 }
 `
 
-const main = () => {
+const main = () =&gt; {
   const ast = acorn.parse(text)
 
   const allNodes = []
   walk.simple(ast, {
-    VariableDeclarator: (node, state) => {
-      if (node.init && (node.init.type == 'ArrowFunctionExpression')) {
+    VariableDeclarator: (node, state) =&gt; {
+      if (node.init &amp;&amp; (node.init.type == 'ArrowFunctionExpression')) {
         state.push(node)
       }
     }
   }, null, allNodes)
 
   const names = {}
-  allNodes.forEach(node => insertCounter(names, node))
+  allNodes.forEach(node =&gt; insertCounter(names, node))
   console.log(initializeCounters(names))
   console.log(escodegen.generate(ast))
   console.log(reportCounters())
 }
 
-const insertCounter = (names, node) => {
+const insertCounter = (names, node) =&gt; {
   const name = node.id.name
   names[name] = 0
 
@@ -217,12 +219,12 @@ const insertCounter = (names, node) => {
   body.unshift(increment)
 }
 
-const initializeCounters = (names) => {
-  body = Object.keys(names).map(n => `'${n}': 0`).join(',\n')
+const initializeCounters = (names) =&gt; {
+  body = Object.keys(names).map(n =&gt; `'${n}': 0`).join(',\n')
   return 'const __counters = {\n' + body + '\n}'
 }
 
-const reportCounters = () => {
+const reportCounters = () =&gt; {
   return 'console.log(__counters)'
 }
 
@@ -232,11 +234,11 @@ main()
 'funcOuter': 0,
 'funcInner': 0
 }
-const funcOuter = param => {
+const funcOuter = param =&gt; {
         __counters['funcOuter'] += 1;
     return param + 1;
 };
-const funcInner = param => {
+const funcInner = param =&gt; {
         __counters['funcInner'] += 1;
     return param + 1;
 };
@@ -254,19 +256,19 @@ console.log(__counters)
 <li>Use <code>...args</code> to capture and forward all arguments</li>
 <li>Handle and re-throw all errors</li>
 </ul>
-<pre title="replace-func.js"><code class="language-js">let funcZero = () => console.log('funcZero')
+<pre title="replace-func.js"><code class="language-js">let funcZero = () =&gt; console.log('funcZero')
 
-let funcOne = (first) => console.log(`funcOne(${first})`)
+let funcOne = (first) =&gt; console.log(`funcOne(${first})`)
 
-let funcTwo = (first, second) => console.log(`funcTwo(${first}, ${second})`)
+let funcTwo = (first, second) =&gt; console.log(`funcTwo(${first}, ${second})`)
 
-let funcError = () => {
+let funcError = () =&gt; {
   console.log('funcError')
   throw new Error('from funcError')
   console.log('should not reach this')
 }
 
-const runAll = (title) => {
+const runAll = (title) =&gt; {
   console.log(title)
   funcZero()
   funcOne(1)
@@ -281,8 +283,8 @@ const runAll = (title) => {
 
 runAll('first time')
 
-let replace = (func) => {
-  return (...args) => {
+let replace = (func) =&gt; {
+  return (...args) =&gt; {
     console.log('before')
     try {
       result = func(...args)
@@ -341,10 +343,10 @@ caught Error: from funcError as expected
 const walk = require('acorn-walk')
 const escodegen = require('escodegen')
 
-const timeFunc = (text) => {
+const timeFunc = (text) =&gt; {
   const ast = acorn.parse(text)
   const allNodes = gatherNodes(ast)
-  allNodes.forEach(node => wrapFuncDef(node))
+  allNodes.forEach(node =&gt; wrapFuncDef(node))
   return [
     initializeCounters(allNodes),
     escodegen.generate(ast),
@@ -352,11 +354,11 @@ const timeFunc = (text) => {
   ].join('\n')
 }
 
-const gatherNodes = (ast) => {
+const gatherNodes = (ast) =&gt; {
   const allNodes = []
   walk.simple(ast, {
-    VariableDeclarator: (node, state) => {
-      if (node.init && (node.init.type == 'ArrowFunctionExpression')) {
+    VariableDeclarator: (node, state) =&gt; {
+      if (node.init &amp;&amp; (node.init.type == 'ArrowFunctionExpression')) {
         state.push(node)
       }
     }
@@ -364,16 +366,16 @@ const gatherNodes = (ast) => {
   return allNodes
 }
 
-const wrapFuncDef = (originalAst) => {
+const wrapFuncDef = (originalAst) =&gt; {
   const name = originalAst.id.name
   const wrapperAst = makeWrapperAst(name)
   wrapperAst.init.body.body[0].declarations[0].init = originalAst.init
   originalAst.init = wrapperAst.init
 }
 
-const makeWrapperAst = (name) => {
-  const template = `const ${name} = (...originalArgs) => {
-    const originalFunc = () => {}
+const makeWrapperAst = (name) =&gt; {
+  const template = `const ${name} = (...originalArgs) =&gt; {
+    const originalFunc = () =&gt; {}
     const startTime = Date.now()
     try {
       const result = originalFunc(...originalArgs)
@@ -389,12 +391,12 @@ const makeWrapperAst = (name) => {
   return acorn.parse(template).body[0].declarations[0]
 }
 
-const initializeCounters = (nodes) => {
-  body = nodes.map(n => `'${n.id.name}': 0`).join(',\n')
+const initializeCounters = (nodes) =&gt; {
+  body = nodes.map(n =&gt; `'${n.id.name}': 0`).join(',\n')
   return 'const __counters = {\n' + body + '\n}'
 }
 
-const reportCounters = () => {
+const reportCounters = () =&gt; {
   return 'console.log(__counters)'
 }
 
@@ -408,15 +410,15 @@ module.exports = timeFunc
 const text = `
 const fs = require('fs')
 
-const assignment = (range) => {
+const assignment = (range) =&gt; {
   let j = 0
-  for (let i=0; i<range; i+=1) {
+  for (let i=0; i&lt;range; i+=1) {
     j = i
   }
 }
 
-const readFile = (range, filename) => {
-  for (let i=0; i<range; i+=1) {
+const readFile = (range, filename) =&gt; {
+  for (let i=0; i&lt;range; i+=1) {
     fs.readFileSync(filename)
   }
 }
@@ -436,10 +438,10 @@ eval(program)
 'readFile': 0
 }
 const fs = require('fs');
-const assignment = (...originalArgs) => {
-    const originalFunc = range => {
+const assignment = (...originalArgs) =&gt; {
+    const originalFunc = range =&gt; {
         let j = 0;
-        for (let i = 0; i < range; i += 1) {
+        for (let i = 0; i &lt; range; i += 1) {
             j = i;
         }
     };
@@ -455,9 +457,9 @@ const assignment = (...originalArgs) => {
         throw error;
     }
 };
-const readFile = (...originalArgs) => {
-    const originalFunc = (range, filename) => {
-        for (let i = 0; i < range; i += 1) {
+const readFile = (...originalArgs) =&gt; {
+    const originalFunc = (range, filename) =&gt; {
+        for (let i = 0; i &lt; range; i += 1) {
             fs.readFileSync(filename);
         }
     };
