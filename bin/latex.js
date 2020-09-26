@@ -246,7 +246,13 @@ const htmlToLatex = (config, fileInfo, node, accum) => {
     accum.push('}')
   }
   else if (node.nodeName === 'table') {
-    console.error('FIXME: table')
+    accum.push(tableToLatex(config, fileInfo, node))
+  }
+  else if (node.nodeName === 'td') {
+    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+  }
+  else if (node.nodeName === 'th') {
+    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
   }
   else if (node.nodeName === 'ul') {
     accum.push(`\\begin{itemize}`)
@@ -274,6 +280,34 @@ const htmlToLatex = (config, fileInfo, node, accum) => {
     process.exit(1)
   }
   return accum
+}
+
+/**
+ * Translate a single HTML table to LaTeX.
+ * @param {Object} config Program configuration.
+ * @param {Object} fileInfo Information about this file.
+ * @param {Object} node Root node of this conversion.
+ * @returns {string} Table as LaTeX.
+ */
+const tableToLatex = (config, fileInfo, node) => {
+  assert(node.nodeName === 'table',
+         `Calling tableToLatex with wrong node type "${node.nodeName}"`)
+  const immediate = node.childNodes.filter(child => child.nodeName === 'tbody')
+  assert(immediate.length === 1,
+         `Table must contain one tbody`)
+  const rows = immediate[0].childNodes
+        .filter(child => child.nodeName === 'tr')
+        .map(row => row.childNodes.filter(cell => (cell.nodeName === 'td') || (cell.nodeName === 'th')))
+  const lengths = rows.map(row => row.length)
+  assert(lengths.every(len => len === lengths[0]),
+         `Require all table rows to have the same number of cells`)
+  const spec = rows[0].map(x => 'l').join('')
+  const body = rows.map(row => {
+    const fields = row.map(cell => htmlToLatex(config, fileInfo, cell, []).flat().join(''))
+    const joined = fields.join(' & ')
+    return `${joined} \\\\\n`
+  }).join('')
+  return `\\begin{tabular}{${spec}}\n${body}\\end{tabular}\n`
 }
 
 /**
