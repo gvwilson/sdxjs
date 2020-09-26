@@ -162,6 +162,7 @@
 \newcommand\PageNumFont{\reset@font\fontsize{10}{12}\selectfont}
 \newcommand\ChapNumFont{\reset@font\fontsize{24}{24}\bfseries\selectfont}
 \newcommand\ChapTitleFont{\reset@font\fontsize{18}{20}\slshape\selectfont}
+\newcommand\ChapsubTitleFont{\reset@font\fontsize{11}{12}\slshape\selectfont}
 \newcommand\SectionHeadFont{\fontsize{12}{14}\bfseries\selectfont}
 \newcommand\SubsectionHeadFont{\fontsize{11}{13}\bfseries\selectfont}
 \newcommand\SubsubsectionHeadFont{\fontsize{10}{12}\bfseries\selectfont}
@@ -648,6 +649,8 @@
 \long\def\@ytrplarg#1[#2]#3{#1[{#2}][{#2}]{#3}}
 \long\def\@ztrplarg#1#2{#1[{#2}][{#2}]{#2}}
 
+\def\lede#1{\gdef\@lede{\ChapsubTitleFont#1}}
+
 
 \newcommand\chapter{\if@openright\cleardoublepage\else\clearpage\fi
   \make@cornermarks
@@ -658,7 +661,7 @@
 \if@ChapterResetsPage\global\c@page\@ne\fi
                     \global\@topnum\z@
                       \gdef\chapterauthor{\@ca}%
-  \gdef\endchapterauthors{\end@cas}%
+                       \gdef\endchapterauthors{\end@cas}%
                     \@afterindentfalse
                     \secdef\@chapter\@schapter
 %%%                     \@ifstar{\@schapter}{\@trplarg{\@chapter}}
@@ -699,8 +702,9 @@
     \vskip -15\p@
     \chap@rule
     \vskip 6\p@
-    {\baselineskip 20\p@\lineskip 20\p@\ChapTitleFont #1\par\vskip-15pt}%
-    \noindent\hbox{\vrule height.5pt width84pt}
+    {\baselineskip 20\p@\lineskip 20\p@\ChapTitleFont #1\par}%
+        \@lede\par\vskip-10pt
+    \noindent\hbox{\vrule height.5pt width84pt}\par
     \vskip28\p@}
             \if@ChapterTOCs
       \make@chaptoc

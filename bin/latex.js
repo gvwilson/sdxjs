@@ -86,7 +86,25 @@ const buildFilenames = (config) => {
  */
 const readFile = (fileInfo) => {
   const text = fs.readFileSync(fileInfo.filename, 'utf-8').trim()
-  fileInfo.doc = parse5.parse(text, {sourceCodeLocationInfo: true})
+  const patched = patchHtml(text)
+  fileInfo.doc = parse5.parse(patched, {sourceCodeLocationInfo: true})
+}
+
+/**
+ * Perform ugly patches on the HTML so that the LaTeX will come out right.
+ * (\lede{} must come before \chapter{}).
+ * @param {string} raw Original HTML.
+ * @returns {string} Patched HTML.
+ */
+const patchHtml = (raw) => {
+  if (!raw.includes('h1')) {
+    return raw
+  }
+  if (!raw.includes('<p class="lede">')) {
+    return raw.replace('<h1>', '<p class="lede"/><h1>')
+  }
+  return raw.replace(/<h1>(.+?)<\/h1>\s+<p class="lede">(.+?)<\/p>/,
+                     '<p class="lede">$2</p>\n<h1>$1</h1>')
 }
 
 /**
