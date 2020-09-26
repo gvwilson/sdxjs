@@ -40,7 +40,7 @@ for a description of our development process and formatting rules.
     and give them starting points for a wide variety of course assignments.
 
 <div class="html-only">
-## Content
+<h2>Content</h2>
 
 <%- include('/inc/contents.html') %>
 </div>
