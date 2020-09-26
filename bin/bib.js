@@ -31,7 +31,7 @@ const main = () => {
   const config = getConfiguration()
   const data = yaml.safeLoad(fs.readFileSync(config.input))
   const text = makeBib(data)
-  fs.writeFileSync(config.output, text)
+  fs.writeFileSync(config.output, text, 'utf-8')
 }
 
 /**

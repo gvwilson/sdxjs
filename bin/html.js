@@ -165,7 +165,7 @@ const translateFile = (config, fileInfo, linksText) => {
   const html = mdi.render(expanded)
   const outputPath = path.join(config.outputDir, fileInfo.output)
   ensureOutputDir(outputPath)
-  fs.writeFileSync(outputPath, html)
+  fs.writeFileSync(outputPath, html, 'utf-8')
 }
 
 /**
@@ -201,7 +201,8 @@ const finalize = (config) => {
   // Numbering.
   const numbering = buildNumbering(config)
   fs.writeFileSync(path.join(config.outputDir, 'numbering.js'),
-                   JSON.stringify(numbering, null, 2))
+                   JSON.stringify(numbering, null, 2),
+                   'utf-8')
 }
 
 /**

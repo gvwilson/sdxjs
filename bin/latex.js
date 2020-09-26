@@ -315,7 +315,7 @@ const nonAsciiEscape = (text) => {
  * @returns {string} Attribute value or null.
  */
 const getAttr = (node, name) => {
-  const found = node.attrs.filter(node => (node.name === name))
+  const found = node.attrs.filter(attr => (attr.name === name))
   assert(found.length < 2,
          `Node has multiple attributes ${name}`)
   return (found.length === 0) ? null : found[0].value

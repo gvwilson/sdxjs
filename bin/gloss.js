@@ -42,7 +42,7 @@ const main = () => {
     const required = getRequired(config, merged)
     const filtered = filterGlossary(merged, required)
     const text = makeGloss(filtered)
-    fs.writeFileSync(config.output, text)
+    fs.writeFileSync(config.output, text, 'utf-8')
   }).catch(err => {
     console.error('GOT ERROR', err)
   })
