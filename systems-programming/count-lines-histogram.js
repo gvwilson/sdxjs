@@ -36,7 +36,11 @@ const makeHistogram = (lengths) => {
 }
 
 const display = (bins) => {
-  bins.forEach((val, i) => console.log(`${i} ${val}`))
+  bins.forEach((val, i) => {
+    if (val > 0) {
+      console.log(`${i} ${val}`)
+    }
+  })
 }
 
 const srcDir = process.argv[2]

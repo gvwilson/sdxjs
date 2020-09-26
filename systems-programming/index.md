@@ -309,6 +309,22 @@ FIXME: diagram
 
 <%- include('/inc/multi.html', {pat: 'use-pledge-reject.*', fill: 'js text'}) %>
 
+## How are promises different?
+
+-   Let's rewrite our chained pledge with built-in promises
+
+<%- include('/inc/multi.html', {pat: 'use-promise-chained.*', fill: 'js text'}) %>
+
+-   It's almost the same, but the callbacks run after the main script finishes
+-   Common pattern is to return another promise from inside `then`
+    -   So the next `then` is called on the returned promise, not on the original promise
+
+<%- include('/inc/multi.html', {pat: 'promise-example.*', fill: 'js text'}) %>
+
+1.  If we use a promisified function from the library, we get a promise for free
+2.  If we want to plug in our own asynchronous functions, we need to create promises
+3.  If our code can run synchronously, just put it in `then`
+
 ## How can we build tools with promises?
 
 -   Use this to build a line-counting program
@@ -354,3 +370,5 @@ FIXME: diagram
 <%- include('/inc/multi.html', {pat: 'count-lines-histogram.*', fill: 'js sh text'}) %>
 
 -   This is complex, but a lot simpler than it would be if we were using callbacks
+-   <xref key="file-backup"></xref> will introduce a third tool that makes this even simpler
+-   But first we need to look at how to test code

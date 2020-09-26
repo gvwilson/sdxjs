@@ -1,2 +1,2 @@
 mkdir /tmp/out
-node glob-copy-file.js ../node_modules /tmp/out
+node copy-file-unfiltered.js ../node_modules /tmp/out

@@ -568,7 +568,7 @@ glob(`${srcRoot}/**/*.*`, {ignore: '*~'}, (err, files) =&gt; {
 <li>It <em>almost</em> works</li>
 </ul>
 <pre title="copy-file-unfiltered.sh"><code class="language-sh">mkdir /tmp/out
-node glob-copy-file.js ../node_modules /tmp/out
+node copy-file-unfiltered.js ../node_modules /tmp/out
 </code></pre>
 <pre title="copy-file-unfiltered.text"><code class="language-text">{ Error: ENOENT: no such file or directory, chmod '/tmp/out/fs.realpath/package.json'
     at Error (native)
@@ -904,6 +904,71 @@ new Pledge((resolve, reject) =&gt; {
 about to reject on purpose
 in error handler with "error on purpose"
 </code></pre>
+<h2 id="how-are-promises-different">How are promises different?</h2>
+<ul>
+<li>Let's rewrite our chained pledge with built-in promises</li>
+</ul>
+<pre title="use-promise-chained.js"><code class="language-js">new Promise((resolve, reject) =&gt; {
+  console.log('top of action callback with double then and a catch')
+  setTimeout(() =&gt; {
+    console.log('about to call resolve callback')
+    resolve('initial result')
+    console.log('after resolve callback')
+  }, 0)
+  console.log('end of action callback')
+}).then((value) =&gt; {
+  console.log(`first then with "${value}"`)
+  return 'first value'
+}).then((value) =&gt; {
+  console.log(`second then with "${value}"`)
+  return 'second value'
+})
+</code></pre>
+<pre title="use-promise-chained.text"><code class="language-text">top of action callback with double then and a catch
+end of action callback
+about to call resolve callback
+after resolve callback
+first then with "initial result"
+second then with "first value"
+</code></pre>
+<ul>
+<li>It's almost the same, but the callbacks run after the main script finishes</li>
+<li>Common pattern is to return another promise from inside <code>then</code>
+<ul>
+<li>So the next <code>then</code> is called on the returned promise, not on the original promise</li>
+</ul>
+</li>
+</ul>
+<pre title="promise-example.js"><code class="language-js">const delay = (message) =&gt; {
+  return new Promise((resolve, reject) =&gt; {
+    console.log(`constructing promise: ${message}`)
+    setTimeout(() =&gt; {
+      resolve(`resolving: ${message}`)
+    }, 1)
+  })
+}
+
+console.log('before')
+delay('outer delay').then((value) =&gt; {
+  console.log(`first then: ${value}`)
+  return delay('inner delay')
+}).then((value) =&gt; {
+  console.log(`second then: ${value}`)
+})
+console.log('after')
+</code></pre>
+<pre title="promise-example.text"><code class="language-text">before
+constructing promise: outer delay
+after
+first then: resolving: outer delay
+constructing promise: inner delay
+second then: resolving: inner delay
+</code></pre>
+<ol>
+<li>If we use a promisified function from the library, we get a promise for free</li>
+<li>If we want to plug in our own asynchronous functions, we need to create promises</li>
+<li>If our code can run synchronously, just put it in <code>then</code></li>
+</ol>
 <h2 id="how-can-we-build-tools-with-promises">How can we build tools with promises?</h2>
 <ul>
 <li>Use this to build a line-counting program</li>
@@ -1116,7 +1181,11 @@ const makeHistogram = (lengths) =&gt; {
 }
 
 const display = (bins) =&gt; {
-  bins.forEach((val, i) =&gt; console.log(`${i} ${val}`))
+  bins.forEach((val, i) =&gt; {
+    if (val &gt; 0) {
+      console.log(`${i} ${val}`)
+    }
+  })
 }
 
 const srcDir = process.argv[2]
@@ -1124,53 +1193,29 @@ main(srcDir)
 </code></pre>
 <pre title="count-lines-histogram.sh"><code class="language-sh">node count-lines-histogram.js .
 </code></pre>
-<pre title="count-lines-histogram.text"><code class="language-text">0 0
-1 0
-2 0
-3 1
+<pre title="count-lines-histogram.text"><code class="language-text">1 1
 4 3
-5 0
-6 0
 7 1
-8 1
-9 0
-10 0
+8 2
 11 2
-12 4
-13 1
-14 2
-15 0
-16 0
-17 0
-18 0
-19 0
+12 5
+13 2
+14 1
+15 1
+16 1
+17 3
 20 2
 21 1
-22 0
-23 0
-24 0
-25 0
-26 0
 27 1
-28 0
-29 0
-30 0
-31 2
-32 0
+31 1
 33 1
-34 0
 35 1
-36 0
-37 0
-38 0
-39 0
-40 0
-41 0
-42 0
-43 1
+47 1
 </code></pre>
 <ul>
 <li>This is complex, but a lot simpler than it would be if we were using callbacks</li>
+<li><xref key="file-backup"></xref> will introduce a third tool that makes this even simpler</li>
+<li>But first we need to look at how to test code</li>
 </ul>
 </main>
 <footer>
