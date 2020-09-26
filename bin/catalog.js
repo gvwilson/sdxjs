@@ -2,10 +2,10 @@
 
 'use strict'
 
-import argparse from 'argparse'
-import fs from 'fs'
-import parse5 from 'parse5'
-import yaml from 'js-yaml'
+const argparse = require('argparse')
+const fs = require('fs')
+const parse5 = require('parse5')
+const yaml = require('js-yaml')
 
 /**
  * Standard ignores.

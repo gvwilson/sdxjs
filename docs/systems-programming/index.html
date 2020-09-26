@@ -61,11 +61,33 @@
   <h1>Systems Programming</h1>
   <p class="lede">Using callbacks and promises to manipulate files and directories</p>
 <ul>
-<li>Goal: show how promises work and how they are implemented</li>
-</ul>
-<h2 id="how-can-i-copy-a-file-tree">How can I copy a file tree?</h2>
+<li>JavaScript is an <g key="asynchronous">asynchronous</g> language
 <ul>
-<li>List the contents of a directory (the wrong way).</li>
+<li>Its designers didn't want browsers to freeze while waiting for data</li>
+<li>So any operation that might be slow is implemented as &quot;describe what to do <em>later</em> when data is available&quot;</li>
+<li>And anything that touches files is slow compared from a CPU's point of view</li>
+</ul>
+</li>
+<li>JavaScript's original solution to this problem was hard to understand in programs of even moderate size
+<ul>
+<li>So a second layer was added, and then a third</li>
+<li>We need to understand all three layers in order to debug things when they go wrong</li>
+</ul>
+</li>
+<li>This chapter introduces the first two layers
+<ul>
+<li><xref key="file-backup"></xref> introduces the third</li>
+</ul>
+</li>
+<li>This chapter also shows how to load libraries and how to work with files and directories
+<ul>
+<li>Because we're going to be doing a lot of both</li>
+</ul>
+</li>
+</ul>
+<h2 id="how-can-i-list-a-directory">How can I list a directory?</h2>
+<ul>
+<li>Let's try listing the contents of a directory the way we would in Python or Java</li>
 </ul>
 <pre title="list-dir-wrong.js"><code class="language-js">const fs = require('fs')
 
@@ -88,6 +110,40 @@ for (const name of results) {
 </ul>
 </li>
 </ul>
+<blockquote>
+<p>**<code>require</code> versus <code>import</code></p>
+<p>In 2015, a new version of JavaScript called ES6 introduced the keyword <code>import</code> for importing modules.
+It improves on <code>require</code> in several ways, but Node still uses <code>require</code> by default.
+We can change our settings to use <code>import</code> instead,
+but even if we do,
+Node prints a warning message each time we run a program.
+We have therefore decided to stick to <code>require</code> in this book.</p>
+</blockquote>
+<ul>
+<li>Use the <a href="https://nodejs.org/api/fs.html"><code>fs</code></a> library (&quot;fs&quot; is short for &quot;<g key="filesystem">filesystem</g>&quot;)
+<ul>
+<li>Contains functions to create directories, read or delete files, etc.</li>
+</ul>
+</li>
+<li>The program's <g key="command_line_argument">command-line arguments</g> are stored in <code>process.argv</code>
+<ul>
+<li><code>process.argv[0]</code> is the name of the program used to run our code (in this case <code>node</code>)</li>
+<li><code>process.argv[1]</code> is the name of our program (in this case <code>list-dir-wrong.js</code>)</li>
+<li><code>process.argv[2]</code> is the first argument after the name of our program</li>
+</ul>
+</li>
+<li><code>fs.readdir</code> is supposed to return an array of strings (the names of the things in the directory)</li>
+<li>Use <code>for (const name of results)</code> to loop over the <em>contents</em> of that array
+<ul>
+<li><code>const name</code> means &quot;<code>name</code> is unchangeable inside the loop&quot;</li>
+</ul>
+</li>
+<li>And <code>console.log</code> is the equivalent of other languages' <code>print</code>
+<ul>
+<li>Strange name because its original purpose was to create <g key="log_message">log messages</g> in the browser <g key="console">console</g></li>
+</ul>
+</li>
+</ul>
 <pre title="list-dir-wrong.sh"><code class="language-sh">node list-dir-wrong.js .
 </code></pre>
 <pre title="list-dir-wrong.text"><code class="language-text">fs.js:137
@@ -107,19 +163,36 @@ TypeError [ERR_INVALID_CALLBACK]: Callback must be a function
     at startup (internal/bootstrap/node.js:279:19)
 </code></pre>
 <ul>
-<li>Use the <a href="https://nodejs.org/api/fs.html"><code>fs</code></a> library</li>
-<li><code>fs.readdir</code> doesn't return anything</li>
-<li><a href="https://nodejs.org/api/fs.html">Documentation</a> says that it takes a <g key="callback">callback</g></li>
-<li>JavaScript uses a <g key="single_threaded">single-threaded</g> programming model
+<li>Error message comes from something we didn't write whose source we would struggle to read
 <ul>
-<li>Any operation that might delay, such as file I/O, is set aside to be run later</li>
+<li>Our code is the third <code>at</code> line (look for the name of our file <code>list-dir-wrong.js</code>)</li>
+<li>Everything below it is what Node does to load and run our program</li>
 </ul>
 </li>
-<li>Rewrite with an explicit function</li>
+<li>The problem is that <code>fs.readdir</code> doesn't return anything</li>
+<li>Instead, its <a href="https://nodejs.org/api/fs.html">documentation</a> says that it takes a <g key="callback">callback function</g></li>
 </ul>
+<h2 id="what-is-a-callback-function">What is a callback function?</h2>
+<ul>
+<li>JavaScript uses a <g key="single_threaded">single-threaded</g> programming model
+<ul>
+<li>Any operation that might delay, such as file I/O, is split into &quot;start&quot; and &quot;data ready&quot;</li>
+<li>The &quot;start&quot; part is the code we already have</li>
+<li>We need to write a function that specifies what we want to do when our data is ready</li>
+</ul>
+</li>
+<li>JavaScript saves a reference to this function to call when the data is ready
+<ul>
+<li>The function must take a specific set of parameters</li>
+<li>A standard <g key="protocol">protocol</g> like the various kind of USB ports and connectors that allows us to plug things together</li>
+</ul>
+</li>
+</ul>
+<p>FIXME: diagram</p>
 <pre title="list-dir-function-defined.js"><code class="language-js">const fs = require('fs')
 
 const listContents = (err, files) =&gt; {
+  console.log('running callback')
   if (err) {
     console.error(err)
   } else {
@@ -131,6 +204,7 @@ const listContents = (err, files) =&gt; {
 
 const srcDir = process.argv[2]
 fs.readdir(srcDir, listContents)
+console.log('last line of program')
 </code></pre>
 <ul>
 <li>Node callbacks always get an error (if any) as their first argument
@@ -139,17 +213,52 @@ fs.readdir(srcDir, listContents)
 <li>Do something more sensible once we understand exceptions</li>
 </ul>
 </li>
-<li>The actual results are passed as the other argument (in this case, <code>files</code>)</li>
+<li>The results from successful execution are passed as the other argument (in this case, <code>files</code>)</li>
 </ul>
 <pre title="list-dir-function-defined.sh"><code class="language-sh">node list-dir-function-defined.js .
 </code></pre>
-<pre title="list-dir-function-defined.text"><code class="language-text">index.md
+<pre title="list-dir-function-defined.text"><code class="language-text">last line of program
+running callback
+index.md
 list-dir-wrong.js
 list-dir-wrong.out
 list-dir-wrong.sh
 </code></pre>
 <ul>
-<li>More idiomatic to define the callback <g key="anonymous_function">anonymously</g> where it's used</li>
+<li>Nothing else in this book will make sense if we don't understand the order of execution
+<ol>
+<li>Read the program file</li>
+<li>Execute the first line to load the <code>fs</code> library</li>
+<li>Define a function of two parameters and assign it to <code>listContents</code>
+<ul>
+<li>Remember, a function is just another kind of data</li>
+<li>Instead of being made up of numbers, characters, or pixels, it is made up of instructions</li>
+<li>But these are stored in memory like anything else</li>
+</ul>
+</li>
+<li>Get the name of the directory from the command-line arguments</li>
+<li>Call <code>fs.readdir</code> to start a filesystem operation
+<ul>
+<li>Tell it what directory we want to read</li>
+<li>And what function to call when data is available</li>
+</ul>
+</li>
+<li>Print a message to show we're at the end of the file</li>
+<li>Wait (this part is invisible)</li>
+<li>Filesystem operation finishes</li>
+<li>Our callback function runs and prints its output</li>
+</ol>
+</li>
+</ul>
+<h2 id="what-are-anonymous-functions">What are anonymous functions?</h2>
+<ul>
+<li>More idiomatic to define the callback as an <g key="anonymous_function">anonymous function</g> where it's used
+<ul>
+<li>Most callbacks are only used in one place, so there's no need to give them names</li>
+<li>Makes it easier to see what's going to happen when the operation completes</li>
+<li>But takes some getting used to, since the order of execution is now very different from the order of reading.</li>
+</ul>
+</li>
 </ul>
 <pre title="list-dir-function-anonymous.js"><code class="language-js">const fs = require('fs')
 
@@ -164,17 +273,18 @@ fs.readdir(srcDir, (err, files) =&gt; {
   }
 })
 </code></pre>
+<h2 id="how-can-we-select-a-set-of-files">How can we select a set of files?</h2>
 <ul>
-<li>So how do we get all the files to be copied?</li>
-<li>Use <a href="https://www.npmjs.com/package/glob"><code>glob</code></a>
+<li>Often want to copy just a subset of files
 <ul>
-<li><g key="globbing">Globbing</g> is an old Unix name (short for &quot;global&quot;)</li>
+<li>Include only those listed</li>
+<li>Copy everything except those explicitly excluded (the <code>.gitignore</code> model)</li>
 </ul>
 </li>
-<li>Start by getting all filenames
+<li>Use the <a href="https://www.npmjs.com/package/glob"><code>glob</code></a> module
 <ul>
-<li>Works by name, not by type</li>
-<li>So filenames that <em>don't</em> match <code>*.*</code> won't be detected</li>
+<li><g key="globbing">Globbing</g> (short for &quot;global&quot;) is an old Unix term for matching a set of files by name</li>
+<li>Like most of programming it works by filename, not by actual content type</li>
 </ul>
 </li>
 </ul>
@@ -204,7 +314,15 @@ list-dir-wrong.out
 list-dir-wrong.sh
 </code></pre>
 <ul>
-<li>Works, but we probably don't want to copy <a href="https://www.gnu.org/software/emacs/">Emacs</a> backup files (ending with <code>~</code>)</li>
+<li>Get filenames matching a pattern and then do something with the list
+<ul>
+<li>The leading <code>**</code> means &quot;recurse into subdirectories&quot;</li>
+<li>The <code>*.*</code> means &quot;any characters followed by '.' followed by any characters&quot;</li>
+<li>Names that <em>don't</em> match <code>*.*</code> won't be included</li>
+<li>And by default, names that start with <code>.</code> (like <code>.gitignore</code>) aren't included</li>
+</ul>
+</li>
+<li>Works, but we probably don't want to copy editor backup files ending with <code>~</code></li>
 <li>We can get the list and then <g key="filter">filter</g> those out</li>
 </ul>
 <pre title="glob-get-then-filter-pedantic.js"><code class="language-js">const glob = require('glob')
@@ -228,11 +346,18 @@ list-dir-function-defined.js
 list-dir-wrong.js
 </code></pre>
 <ul>
-<li><code>Array.filter</code> creates a new array containing all the items of the original that pass the test</li>
+<li><code>Array.filter</code> creates a new array containing all the items of the original that pass the test
+<ul>
+<li>The test is specified as a callback function called once for each item that returns a <g key="boolean">Boolean</g></li>
+</ul>
+</li>
+</ul>
+<p>FIXME: diagram</p>
+<ul>
 <li>We can make this more idiomatic by:
 <ul>
 <li>Removing the parentheses around the single parameter</li>
-<li>Writing a naked expression</li>
+<li>Writing just the expression we want the function to return</li>
 </ul>
 </li>
 </ul>
@@ -250,12 +375,17 @@ glob('**/*.*', (err, files) =&gt; {
 })
 </code></pre>
 <ul>
-<li>Better just to have <code>glob</code> do it</li>
-<li>Documentation says there's an <code>options</code> argument</li>
+<li>It turns out that <code>glob</code> can filter for us
+<ul>
+<li>Its documentation says it has an <code>options</code> argument</li>
+<li>We can pass an object full of key-value settings to control its behavior</li>
+<li>This is another common pattern in Node libraries and in our own code</li>
+</ul>
+</li>
 </ul>
 <pre title="glob-filter-with-options.js"><code class="language-js">const glob = require('glob')
 
-glob('**/*.*', {'ignore': '*~'}, (err, files) =&gt; {
+glob('**/*.*', {ignore: '*~'}, (err, files) =&gt; {
   if (err) {
     console.log(err)
   } else {
@@ -265,6 +395,36 @@ glob('**/*.*', {'ignore': '*~'}, (err, files) =&gt; {
   }
 })
 </code></pre>
+<ul>
+<li>Notice that we don't quote the key in this object
+<ul>
+<li>The keys in objects are almost always strings</li>
+<li>So if that string is simple enough that it won't confuse the parser, we don't need to put quotes around it</li>
+<li>&quot;Simple enough&quot; means &quot;only contains letters, digits, and the underscore&quot;</li>
+<li>Or equivalently &quot;looks like it could be a variable name&quot;</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>No one knows everything</strong></p>
+<p>We combined <code>glob.glob</code> and <code>Array.filter</code> in our functions for more than a year
+before someone pointed out the <code>ignore</code> option for <code>glob.glob</code>.
+This shows:</p>
+<ol>
+<li>
+<p>Life is short,
+so most of us find a way to solve the problem in front of us
+and re-use it rather than looking for something better.</p>
+</li>
+<li>
+<p>Code reviews aren't just about finding bugs:
+they are also the most effective way to transfer knowledge between programmers.
+Even if someone is much more experienced than you,
+there's a good chance you might have stumbled over a better way to do something
+than the one they're using (see point #1 above).</p>
+</li>
+</ol>
+</blockquote>
 <ul>
 <li>Now specify a source directory and fold that into the glob</li>
 </ul>
@@ -272,7 +432,7 @@ glob('**/*.*', {'ignore': '*~'}, (err, files) =&gt; {
 
 const srcDir = process.argv[2]
 
-glob(`${srcDir}/**/*.*`, {'ignore': '*~'}, (err, files) =&gt; {
+glob(`${srcDir}/**/*.*`, {ignore: '*~'}, (err, files) =&gt; {
   if (err) {
     console.log(err)
   } else {
@@ -283,26 +443,28 @@ glob(`${srcDir}/**/*.*`, {'ignore': '*~'}, (err, files) =&gt; {
 })
 </code></pre>
 <ul>
-<li>
-<p>This uses <g key="string_interpolation">string interpolation</g></p>
+<li>This uses <g key="string_interpolation">string interpolation</g>
 <ul>
 <li>Back-quote the string</li>
 <li>Use <code>${name}</code> to insert the value of an expression</li>
 <li>This is completely separate from the globbing</li>
 </ul>
 </li>
-<li>
-<p>Now we know that the paths will start with</p>
-</li>
-<li>
-<p>So we can take a second argument that specifies an output directory</p>
+</ul>
+<h2 id="how-can-we-copy-a-set-of-files">How can we copy a set of files?</h2>
+<ul>
+<li>We now have the <g key="path">paths</g> to the files we are copying</li>
+<li>So we can take a second argument that specifies an output directory
+<ul>
+<li>Construct the output path by replacing the name of the source directory with the name of the output directory</li>
+</ul>
 </li>
 </ul>
 <pre title="glob-with-dest-directory.js"><code class="language-js">const glob = require('glob')
 
 const [srcDir, destDir] = process.argv.slice(2)
 
-glob(`${srcDir}/**/*.*`, {'ignore': '*~'}, (err, files) =&gt; {
+glob(`${srcDir}/**/*.*`, {ignore: '*~'}, (err, files) =&gt; {
   if (err) {
     console.log(err)
   } else {
@@ -314,15 +476,20 @@ glob(`${srcDir}/**/*.*`, {'ignore': '*~'}, (err, files) =&gt; {
 })
 </code></pre>
 <ul>
-<li>
-<p>This uses <g key="destructuring_assignment">destructuring assignment</g></p>
+<li>This uses <g key="destructuring_assignment">destructuring assignment</g> to create two variables at once
 <ul>
-<li>And only works if both source and destination are given on the command line</li>
+<li>Only works if both source and destination are given on the command line, so we should check that</li>
 </ul>
 </li>
-<li>
-<p>Now ensure that the output directory exists</p>
+</ul>
+<p>FIXME: diagram</p>
+<ul>
+<li>But this only works if the destination directory already exists
+<ul>
+<li><code>fs</code> and equivalent libraries in other languages (mostly) won't create the directories we need automatically</li>
+</ul>
 </li>
+<li>This comes up so often that there is a function <code>ensureDir</code> to do what we need</li>
 </ul>
 <pre title="glob-ensure-output-directory.js"><code class="language-js">const glob = require('glob')
 const fs = require('fs-extra')
@@ -330,7 +497,7 @@ const path = require('path')
 
 const [srcRoot, destRoot] = process.argv.slice(2)
 
-glob(`${srcRoot}/**/*.*`, {'ignore': '*~'}, (err, files) =&gt; {
+glob(`${srcRoot}/**/*.*`, {ignore: '*~'}, (err, files) =&gt; {
   if (err) {
     console.log(err)
   } else {
@@ -347,25 +514,16 @@ glob(`${srcRoot}/**/*.*`, {'ignore': '*~'}, (err, files) =&gt; {
 })
 </code></pre>
 <ul>
-<li>
-<p>Use <a href="https://www.npmjs.com/package/fs-extra"><code>fs-extra</code></a> instead of <code>fs</code> because it provides some useful utilities</p>
-</li>
-<li>
-<p>And use <a href="https://nodejs.org/api/path.html"><code>path</code></a> to manipulate pathnames because someone else has figured out the string manipulation</p>
-</li>
-<li>
-<p>Gives us an empty tree of directories</p>
-</li>
-<li>
-<p>Note the name changes</p>
+<li><a href="https://www.npmjs.com/package/fs-extra"><code>fs-extra</code></a> provides some useful utilities on top of <code>fs</code></li>
+<li>And use <a href="https://nodejs.org/api/path.html"><code>path</code></a> to manipulate pathnames because someone else has figured out the string operations needed to handle various cases</li>
+<li>This code gives us an empty tree of directories</li>
+<li>Note the name changes
 <ul>
 <li>Use <code>srcRoot</code> and <code>destRoot</code> because we're going to need <code>destDir</code></li>
-<li>Yes, this was a bug...</li>
+<li>Yes, this was a bug…</li>
 </ul>
 </li>
-<li>
-<p>And now we copy the files</p>
-</li>
+<li>We can now copy the files</li>
 </ul>
 <pre title="copy-file-unfiltered.js"><code class="language-js">const glob = require('glob')
 const fs = require('fs-extra')
@@ -373,7 +531,7 @@ const path = require('path')
 
 const [srcRoot, destRoot] = process.argv.slice(2)
 
-glob(`${srcRoot}/**/*.*`, {'ignore': '*~'}, (err, files) =&gt; {
+glob(`${srcRoot}/**/*.*`, {ignore: '*~'}, (err, files) =&gt; {
   if (err) {
     console.log(err)
   } else {
@@ -396,7 +554,18 @@ glob(`${srcRoot}/**/*.*`, {'ignore': '*~'}, (err, files) =&gt; {
 })
 </code></pre>
 <ul>
-<li>And it <em>almost</em> works</li>
+<li>Three levels of callback
+<ul>
+<li>When <code>glob</code> has data, do things and then call <code>ensureDir</code></li>
+<li>When <code>ensureDir</code> completes, copy a file</li>
+<li>When <code>copy</code> finishes, check the error status</li>
+</ul>
+</li>
+<li>Trace this for two directories each containing one file</li>
+</ul>
+<p>FIXME: diagram</p>
+<ul>
+<li>It <em>almost</em> works</li>
 </ul>
 <pre title="copy-file-unfiltered.sh"><code class="language-sh">mkdir /tmp/out
 node glob-copy-file.js ../node_modules /tmp/out
@@ -409,7 +578,12 @@ node glob-copy-file.js ../node_modules /tmp/out
   path: '/tmp/out/fs.realpath/package.json' }
 </code></pre>
 <ul>
-<li>Because <code>fs.realpath</code> is a directory, not a file, but matches our <code>glob</code></li>
+<li><code>node_modules/fs.realpath</code> is a directory, not a file, but matches our <code>glob</code>
+<ul>
+<li>Use <code>fs.stat</code> to get the properties of something in the filesystem and then check if it's a file</li>
+<li>Name is short for &quot;status&quot;</li>
+</ul>
+</li>
 </ul>
 <pre title="copy-file-filtered.js"><code class="language-js">const glob = require('glob')
 const fs = require('fs-extra')
@@ -417,7 +591,7 @@ const path = require('path')
 
 const [srcRoot, destRoot] = process.argv.slice(2)
 
-glob(`${srcRoot}/**/*.*`, {'ignore': '*~'}, (err, files) =&gt; {
+glob(`${srcRoot}/**/*.*`, {ignore: '*~'}, (err, files) =&gt; {
   if (err) {
     console.log(err)
   } else {
@@ -446,17 +620,19 @@ glob(`${srcRoot}/**/*.*`, {'ignore': '*~'}, (err, files) =&gt; {
 })
 </code></pre>
 <ul>
-<li>This works...</li>
-<li>...but four levels of asynchronous callbacks is hard to follow</li>
+<li>This works…</li>
+<li>…but four levels of asynchronous callbacks is hard to understand</li>
 <li>We need a better mechanism</li>
 </ul>
-<h2 id="how-can-promises-make-this-cleaner">How can promises make this cleaner?</h2>
+<h2 id="how-can-we-manage-asynchronous-execution">How can we manage asynchronous execution?</h2>
 <ul>
-<li>Most functions execute in order</li>
+<li>Most functions execute in order
+<ul>
+<li><code>Array.forEach</code> does something once for each element of an array but doesn't build a new array like <code>Array.filter</code></li>
 </ul>
-<pre title="not-callbacks-alone.js"><code class="language-js">[1000, 1500, 500].forEach(t =&gt; {
-  console.log(t)
-})
+</li>
+</ul>
+<pre title="not-callbacks-alone.js"><code class="language-js">[1000, 1500, 500].forEach(t =&gt; console.log(t))
 </code></pre>
 <pre title="not-callbacks-alone.text"><code class="language-text">1000
 1500
@@ -465,13 +641,16 @@ glob(`${srcRoot}/**/*.*`, {'ignore': '*~'}, (err, files) =&gt; {
 <ul>
 <li>A handful of built-in functions delay execution
 <ul>
-<li><code>setTimeout</code>'s name suggests what it does</li>
+<li><code>setTimeout</code> runs a callback after a certain number of milliseconds</li>
+<li>First argument is a function of no arguments</li>
+<li>Second is the delay</li>
 </ul>
 </li>
 </ul>
+<p>FIXME: diagram</p>
 <pre title="callbacks-with-timeouts.js"><code class="language-js">[1000, 1500, 500].forEach(t =&gt; {
   console.log(`about to setTimeout for ${t}`)
-  setTimeout(() =&gt; { console.log(`inside timer handler for ${t}`) }, t)
+  setTimeout(() =&gt; console.log(`inside timer handler for ${t}`), t)
 })
 </code></pre>
 <pre title="callbacks-with-timeouts.text"><code class="language-text">about to setTimeout for 1000
@@ -482,15 +661,15 @@ inside timer handler for 1000
 inside timer handler for 1500
 </code></pre>
 <ul>
-<li>Setting a timeout of zero has the effect of deferring execution without delay
+<li>Setting a timeout of zero defers execution without delay
 <ul>
-<li>I.e., give something else a chance to run</li>
+<li>Which gives something else a chance to run</li>
 </ul>
 </li>
 </ul>
 <pre title="callbacks-with-zero-timeouts.js"><code class="language-js">[1000, 1500, 500].forEach(t =&gt; {
   console.log(`about to setTimeout for ${t}`)
-  setTimeout(() =&gt; { console.log(`inside timer handler for ${t}`) }, 0)
+  setTimeout(() =&gt; console.log(`inside timer handler for ${t}`), 0)
 })
 </code></pre>
 <pre title="callbacks-with-zero-timeouts.text"><code class="language-text">about to setTimeout for 1000
@@ -501,7 +680,7 @@ inside timer handler for 1500
 inside timer handler for 500
 </code></pre>
 <ul>
-<li>We can use this to build a generic <g key="non_blocking_execution">non-blocking</g> function</li>
+<li>We can use this to build a generic <g key="non_blocking_execution">non-blocking function</g></li>
 </ul>
 <pre title="non-blocking.js"><code class="language-js">const nonBlocking = (callback) =&gt; {
   setTimeout(callback, 0)
@@ -543,35 +722,73 @@ inside timer handler for 1000
 inside timer handler for 1500
 inside timer handler for 500
 </code></pre>
+<h2 id="how-do-promises-work">How do promises work?</h2>
 <ul>
 <li>Let's build something better
 <ul>
 <li>Based on <a href="https://levelup.gitconnected.com/understand-javascript-promises-by-building-a-promise-from-scratch-84c0fd855720">Trey Huffine's tutorial</a></li>
 </ul>
 </li>
-<li>Create a class called <code>Pledge</code>
+<li>Create a <g key="class">class</g> called <code>Pledge</code>
 <ul>
-<li>Because the real thing is called <code>Promise</code></li>
+<li>Because the real thing is called <code>Promise</code>, as in, &quot;I promise to do this later&quot;</li>
 </ul>
 </li>
-<li>Its constructor requires a single function called <code>action</code></li>
-<li>This function must take take two callbacks as arguments:
+<li>Start by showing how we want to use it</li>
+</ul>
+<pre title="use-pledge-motivation.js"><code class="language-js">const Pledge = require('./pledge')
+
+new Pledge((resolve, reject) =&gt; {
+  console.log('top of a single then clause')
+  setTimeout(() =&gt; {
+    console.log('about to call resolve callback')
+    resolve('this is the result')
+  }, 0)
+}).then(value =&gt; {
+  console.log(`in 'then' with "${value}"`)
+  return 'first then value'
+})
+</code></pre>
+<pre title="use-pledge-motivation.text"><code class="language-text">top of a single then clause
+about to call resolve callback
+in 'then' with "this is the result"
+</code></pre>
+<ul>
+<li>Create a new <code>Pledge</code> with a callback that takes <code>resolve</code> (everything worked) and <code>reject</code> (something failed)
+<ul>
+<li>That top-level callback does the first part of what we want to do (the part before we expect a delay)</li>
+<li>For demonstration purposes, we will use <code>setTimeout</code> to defer execution</li>
+<li>Then call to <code>resolve</code> to trigger whatever comes next</li>
+</ul>
+</li>
+<li>Look at the line with <code>then</code>
+<ul>
+<li>This is a call to a <g key="method">method</g> of the <code>Pledge</code> object</li>
+<li>Its argument is a callback that gets the value passed to <code>resolve</code></li>
+<li>This is where and how we handle the delayed execution.</li>
+</ul>
+</li>
+</ul>
+<p>FIXME: diagram</p>
+<ul>
+<li><code>Pledge</code>'s <g key="constructor">constructor</g> requires a single function called <code>action</code></li>
+<li>This function must take take two callbacks as arguments
 <ul>
 <li>What to do if the action completes successfully</li>
-<li>What to do if it doesn't</li>
+<li>What to do if it doesn't (i.e., how to handle errors)</li>
+<li><code>Pledge</code> will provide both of these callbacks to the action at the right time</li>
 </ul>
 </li>
-<li><code>Pledge</code> will provide both of these callbacks to the action at the right time</li>
-<li>Give it two methods:
+<li>Give the class two methods:
 <ul>
 <li><code>then</code> to enable more actions</li>
 <li><code>catch</code> to handle errors</li>
+<li>We arbitrarily decide that we can have as many <code>then</code>s as we want, but only one <code>catch</code></li>
 </ul>
 </li>
-<li>We arbitrarily decide that we can have as many <code>then</code>s as we want, but only one <code>catch</code></li>
 <li>If the action completes successfully, it gives us a value</li>
 <li>We pass this value to the first <code>then</code>, pass the result of that <code>then</code> to the second one, etc.</li>
-<li>If any of them fail, we pass the exception object to the error handler</li>
+<li>If any of them fail, we pass the <g key="exception">exception</g> to the error handler</li>
 </ul>
 <pre title="pledge.js"><code class="language-js">class Pledge {
   constructor (action) {
@@ -596,133 +813,105 @@ inside timer handler for 500
       this.actionCallbacks.forEach((action) =&gt; {
         storedValue = action(storedValue)
       })
-    } catch (error) {
+    } catch (err) {
       this.actionCallbacks = []
-      this.onReject(error)
+      this.onReject(err)
     }
   }
 
-  onReject (error) {
-    this.errorCallback(error)
+  onReject (err) {
+    this.errorCallback(err)
   }
 }
 
 module.exports = Pledge
 </code></pre>
 <ul>
-<li>
-<p>There's one unfortunate trick: <code>bind</code>.</p>
+<li>There is one unfortunate trick: <code>bind</code>.
 <ul>
 <li>When we create an object <code>obj</code> and call a method <code>meth</code>, JavaScript sets <code>this</code> inside <code>meth</code></li>
 <li>If we use a method as a callback, <code>this</code> isn't set</li>
-<li>To convert the method to a plain old function with the right <code>this</code>, we use <code>bind</code></li>
+<li>To convert the method to a plain old function with the right <code>this</code>, we have to use <code>bind</code></li>
 <li>See <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Function/bind">the documentation</a> for details</li>
 </ul>
 </li>
-<li>
-<p>Create a pledge and return a value</p>
-</li>
+<li>Let's create a pledge and return a value</li>
 </ul>
-<pre title="use-pledge-1.js"><code class="language-js">const Pledge = require('./pledge')
+<pre title="use-pledge-return.js"><code class="language-js">const Pledge = require('./pledge')
 
 new Pledge((resolve, reject) =&gt; {
-  console.log('1. top of a single then clause')
+  console.log('top of a single then clause')
 }).then((value) =&gt; {
-  console.log(`1. then with "${value}"`)
-  return '1. first then value'
+  console.log(`then with "${value}"`)
+  return 'first then value'
 })
 </code></pre>
-<pre title="use-pledge-1.text"><code class="language-text">1. top of a single then clause
+<pre title="use-pledge-return.text"><code class="language-text">top of a single then clause
 </code></pre>
 <ul>
-<li>Right: we don't use <code>return</code> with pledges, we call <code>resolve</code> or <code>reject</code>
-<ul>
-<li>And we haven't done anything that defers execution</li>
-</ul>
+<li>Why didn't this work?
+<ol>
+<li>We don't use <code>return</code> with pledges, we call <code>resolve</code> or <code>reject</code></li>
+<li>We haven't done anything that defers execution</li>
+</ol>
 </li>
-<li>Try that again with:
-<ul>
-<li><code>setTimeout</code> to defer execution</li>
-<li>A call to <code>resolve</code> to trigger whatever comes next</li>
+<li>Our original motivating example got this right…</li>
+<li>A more complex example showing how to chain things</li>
 </ul>
-</li>
-</ul>
-<pre title="use-pledge-2.js"><code class="language-js">const Pledge = require('./pledge')
+<pre title="use-pledge-chained.js"><code class="language-js">const Pledge = require('./pledge')
 
 new Pledge((resolve, reject) =&gt; {
-  console.log('2. top of a single then clause')
+  console.log('top of action callback with double then and a catch')
   setTimeout(() =&gt; {
-    console.log('2. about to call resolve callback')
-    resolve('2. resolved result')
+    console.log('about to call resolve callback')
+    resolve('initial result')
+    console.log('after resolve callback')
   }, 0)
+  console.log('end of action callback')
 }).then((value) =&gt; {
-  console.log(`2. then with "${value}"`)
-  return '2. first then value'
+  console.log(`first then with "${value}"`)
+  return 'first value'
+}).then((value) =&gt; {
+  console.log(`second then with "${value}"`)
+  return 'second value'
 })
 </code></pre>
-<pre title="use-pledge-2.text"><code class="language-text">2. top of a single then clause
-2. about to call resolve callback
-2. then with "2. resolved result"
-</code></pre>
-<ul>
-<li>A more complex example showing how to chain things
-<ul>
-<li>And how exceptions are caught</li>
-</ul>
-</li>
-</ul>
-<pre title="use-pledge-3.js"><code class="language-js">const Pledge = require('./pledge')
-
-new Pledge((resolve, reject) =&gt; {
-  console.log('3. top of action callback with double then and a catch')
-  setTimeout(() =&gt; {
-    console.log('3. about to call resolve callback')
-    resolve('3. initial result')
-    console.log('3. after resolve callback')
-  }, 0)
-  console.log('3. end of action callback')
-}).then((value) =&gt; {
-  console.log(`3. first then with "${value}"`)
-  return '3. first then value'
-}).then((value) =&gt; {
-  console.log(`3. second then with "${value}" about to throw`)
-  throw new Error(`3. exception from second then with "${value}"`)
-}).catch((error) =&gt; {
-  console.log(`3. in catch block with "${error}`)
-})
-</code></pre>
-<pre title="use-pledge-3.text"><code class="language-text">3. top of action callback with double then and a catch
-3. end of action callback
-3. about to call resolve callback
-3. first then with "3. initial result"
-3. second then with "3. first then value" about to throw
-3. in catch block with "Error: 3. exception from second then with "3. first then value"
-3. after resolve callback
+<pre title="use-pledge-chained.text"><code class="language-text">top of action callback with double then and a catch
+end of action callback
+about to call resolve callback
+first then with "initial result"
+second then with "first value"
+after resolve callback
 </code></pre>
 <ul>
 <li>And finally an example where we explicitly signal a problem by calling <code>reject</code></li>
 </ul>
-<pre title="use-pledge-4.js"><code class="language-js">const Pledge = require('./pledge')
+<pre title="use-pledge-reject.js"><code class="language-js">const Pledge = require('./pledge')
 
 new Pledge((resolve, reject) =&gt; {
-  console.log('4. top of action callback with deliberate error')
+  console.log('top of action callback with deliberate error')
   setTimeout(() =&gt; {
-    console.log('4. about to reject on purpose')
-    reject('4. error on purpose')
+    console.log('about to reject on purpose')
+    reject('error on purpose')
   }, 0)
 }).then((value) =&gt; {
-  console.log(`4. should not be here with "${value}"`)
-}).catch((error) =&gt; {
-  console.log(`4. in error handler with "${error}"`)
+  console.log(`should not be here with "${value}"`)
+}).catch((err) =&gt; {
+  console.log(`in error handler with "${err}"`)
 })
 </code></pre>
-<pre title="use-pledge-4.text"><code class="language-text">4. top of action callback with deliberate error
-4. about to reject on purpose
-4. in error handler with "4. error on purpose"
+<pre title="use-pledge-reject.text"><code class="language-text">top of action callback with deliberate error
+about to reject on purpose
+in error handler with "error on purpose"
 </code></pre>
+<h2 id="how-can-we-build-tools-with-promises">How can we build tools with promises?</h2>
 <ul>
 <li>Use this to build a line-counting program</li>
-<li>Use the <g key="promisification">promisified</g> version of <code>fs-extra</code></li>
+<li>Use the <g key="promisification">promisified</g> version of <code>fs-extra</code>
+<ul>
+<li>Turns all of the callbacks into promises for us</li>
+</ul>
+</li>
 </ul>
 <pre title="count-lines-single-file.js"><code class="language-js">const fs = require('fs-extra-promise')
 
@@ -741,8 +930,22 @@ fs.readFileAsync(filename, {encoding: 'utf-8'})
 </code></pre>
 <pre title="count-lines-single-file.text"><code class="language-text">count-lines-single-file.js: 12
 </code></pre>
+<blockquote>
+<p><strong>Character encoding</strong></p>
+<p>A <g key="character_encoding">character encoding</g> specifies how characters are stored as bytes.
+The most widely used is <g key="utf_8">UTF-8</g>,
+which stores characters common in Western European languages in a single byte
+and uses multi-byte sequences for other symbols.
+If we don't specify a character encoding,
+<code>fs.readFileAsync</code> gives us an array of bytes rather than an array of characters.</p>
+</blockquote>
 <ul>
-<li>And there's <code>glob-promise</code> as well</li>
+<li>We can use <code>glob-promise</code> to delay handling the output of <code>glob</code>
+<ul>
+<li>Use <code>Promise.all</code> to handle all the promises in an array</li>
+<li>For readability, put the creation of the promise in a separate function</li>
+</ul>
+</li>
 </ul>
 <pre title="count-lines-globbed-files.js"><code class="language-js">const glob = require('glob-promise')
 const fs = require('fs-extra-promise')
@@ -779,10 +982,11 @@ main(srcDir)
 4
 </code></pre>
 <ul>
-<li>Want filenames</li>
-<li>So construct temporary objects that have the information we need downstream
+<li>But we want to display filenames as well as counts</li>
+<li>So we construct temporary objects that have the information we need downstream
 <ul>
 <li>Use object with named fields instead of array with positional values</li>
+<li>It allows us to add or move fields without breaking code quite as often</li>
 </ul>
 </li>
 </ul>
@@ -838,7 +1042,7 @@ const statPair = (filename) =&gt; {
   return new Promise((resolve, reject) =&gt; {
     fs.statAsync(filename)
       .then(stats =&gt; resolve({filename, stats}))
-      .catch(error =&gt; reject(error))
+      .catch(err =&gt; reject(err))
   })
 }
 
@@ -892,7 +1096,7 @@ const statPair = (filename) =&gt; {
   return new Promise((resolve, reject) =&gt; {
     fs.statAsync(filename)
       .then(stats =&gt; resolve({filename, stats}))
-      .catch(error =&gt; reject(error))
+      .catch(err =&gt; reject(err))
   })
 }
 
@@ -965,6 +1169,9 @@ main(srcDir)
 42 0
 43 1
 </code></pre>
+<ul>
+<li>This is complex, but a lot simpler than it would be if we were using callbacks</li>
+</ul>
 </main>
 <footer>
 <div class="row">

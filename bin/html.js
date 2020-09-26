@@ -2,18 +2,18 @@
 
 'use strict'
 
-import argparse from 'argparse'
-import assert from 'assert'
-import ejs from 'ejs'
-import glob from 'glob'
-import fs from 'fs'
-import MarkdownIt from 'markdown-it'
-import MarkdownAnchor from 'markdown-it-anchor'
-import matter from 'gray-matter'
-import minimatch from 'minimatch'
-import path from 'path'
-import rimraf from 'rimraf'
-import yaml from 'js-yaml'
+const argparse = require('argparse')
+const assert = require('assert')
+const ejs = require('ejs')
+const glob = require('glob')
+const fs = require('fs')
+const MarkdownIt = require('markdown-it')
+const MarkdownAnchor = require('markdown-it-anchor')
+const matter = require('gray-matter')
+const minimatch = require('minimatch')
+const path = require('path')
+const rimraf = require('rimraf')
+const yaml = require('js-yaml')
 
 /**
  * Default settings.

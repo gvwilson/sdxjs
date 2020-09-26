@@ -21,14 +21,14 @@ class Pledge {
       this.actionCallbacks.forEach((action) => {
         storedValue = action(storedValue)
       })
-    } catch (error) {
+    } catch (err) {
       this.actionCallbacks = []
-      this.onReject(error)
+      this.onReject(err)
     }
   }
 
-  onReject (error) {
-    this.errorCallback(error)
+  onReject (err) {
+    this.errorCallback(err)
   }
 }
 

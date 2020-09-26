@@ -91,13 +91,13 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
 1.  Use first person plural ("we" rather than "you"),
     Simplified English (i.e., American spelling),
     and the Oxford comma.
-    Do not use exclamation marks---few things are actually that surprising the first time around,
+    Do not use exclamation marks—few things are actually that surprising the first time around,
     and none the second.
 
 ## Tasks and Tools
 
 1.  NPM doesn't allow us to document our tasks or make them depend on one another,
-    so we use [NPM][npm] to manage packages and [Bajel][bajel] to run tasks---run
+    so we use [NPM][npm] to manage packages and [Bajel][bajel] to run tasks—run
     `npx bajel help` to get help with the latter.
     (Note that it's `npx` with an 'x' rather than `npm` with an 'm'.)
     All of the commands are in `build.yaml` and all of our tools are in the `bin` directory.

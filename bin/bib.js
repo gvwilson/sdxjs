@@ -2,10 +2,10 @@
 
 'use strict'
 
-import argparse from 'argparse'
-import assert from 'assert'
-import fs from 'fs'
-import yaml from 'js-yaml'
+const argparse = require('argparse')
+const assert = require('assert')
+const fs = require('fs')
+const yaml = require('js-yaml')
 
 /**
  * Top of page.
@@ -56,7 +56,7 @@ const getConfiguration = () => {
  * Convert YAML bibliography into HTML.
  * @param {Array<Object>} data YAML information.
  */
-export const makeBib = (data) => {
+const makeBib = (data) => {
   const entries = data.map(entry => {
     assert('type' in entry,
            `All entries must have 'type'`)

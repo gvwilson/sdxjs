@@ -16,7 +16,7 @@ const statPair = (filename) => {
   return new Promise((resolve, reject) => {
     fs.statAsync(filename)
       .then(stats => resolve({filename, stats}))
-      .catch(error => reject(error))
+      .catch(err => reject(err))
   })
 }
 

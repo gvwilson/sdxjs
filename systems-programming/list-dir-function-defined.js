@@ -1,6 +1,7 @@
 const fs = require('fs')
 
 const listContents = (err, files) => {
+  console.log('running callback')
   if (err) {
     console.error(err)
   } else {
@@ -12,3 +13,4 @@ const listContents = (err, files) => {
 
 const srcDir = process.argv[2]
 fs.readdir(srcDir, listContents)
+console.log('last line of program')

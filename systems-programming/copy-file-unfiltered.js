@@ -4,7 +4,7 @@ const path = require('path')
 
 const [srcRoot, destRoot] = process.argv.slice(2)
 
-glob(`${srcRoot}/**/*.*`, {'ignore': '*~'}, (err, files) => {
+glob(`${srcRoot}/**/*.*`, {ignore: '*~'}, (err, files) => {
   if (err) {
     console.log(err)
   } else {

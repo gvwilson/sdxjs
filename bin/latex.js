@@ -2,13 +2,13 @@
 
 'use strict'
 
-import argparse from 'argparse'
-import assert from 'assert'
-import fs from 'fs'
-import parse5 from 'parse5'
-import path from 'path'
-import util from 'util'
-import yaml from 'js-yaml'
+const argparse = require('argparse')
+const assert = require('assert')
+const fs = require('fs')
+const parse5 = require('parse5')
+const path = require('path')
+const util = require('util')
+const yaml = require('js-yaml')
 
 /**
  * Nodes to skip entirely.
@@ -111,15 +111,20 @@ const htmlToLatex = (config, fileInfo, node, accum) => {
     accum.push(fullEscape(getAttr(node, 'href')))
     accum.push('}')
   }
+  else if (node.nodeName === 'blockquote') {
+    accum.push('\\begin{quotation}')
+    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    accum.push('\\end{quotation}')
+  }
   else if (node.nodeName === 'cite') {
     accum.push('\\cite{')
     node.childNodes.forEach(child => htmlToText(child, accum, fullEscape))
     accum.push('}')
   }
   else if (node.nodeName === 'code') {
-    accum.push('\\lstinline!')
+    accum.push('\\texttt{')
     node.childNodes.forEach(child => htmlToText(child, accum, fullEscape))
-    accum.push('!')
+    accum.push('}')
   }
   else if (node.nodeName === 'div') {
     const cls = getAttr(node, 'class')
@@ -215,8 +220,16 @@ const htmlToLatex = (config, fileInfo, node, accum) => {
     accum.push(`\\end{enumerate}`)
   }
   else if (node.nodeName === 'p') {
+    const cls = getAttr(node, 'class')
     accum.push(`\n`)
-    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    if (cls === 'lede') {
+      accum.push('\\lede{')
+      node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+      accum.push('}')
+    }
+    else {
+      node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    }
   }
   else if (node.nodeName === 'pre') {
     assert((node.childNodes.length === 1) && (node.childNodes[0].nodeName === 'code'),
@@ -226,6 +239,11 @@ const htmlToLatex = (config, fileInfo, node, accum) => {
     accum.push(`\\begin{lstlisting}${caption}\n`)
     node.childNodes[0].childNodes.forEach(child => htmlToText(child, accum, nonAsciiEscape))
     accum.push('\\end{lstlisting}')
+  }
+  else if (node.nodeName === 'strong') {
+    accum.push('\\textbf{')
+    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    accum.push('}')
   }
   else if (node.nodeName === 'table') {
     console.error('FIXME: table')
@@ -252,7 +270,7 @@ const htmlToLatex = (config, fileInfo, node, accum) => {
     accum.push(fullEscape(node.value))
   }
   else {
-    console.error('unknown', node.nodeName, filename, node.sourceCodeLocation.startLine)
+    console.error('unknown', node.nodeName, fileInfo.filename, node.sourceCodeLocation.startLine)
     process.exit(1)
   }
   return accum
@@ -281,16 +299,16 @@ const htmlToText = (node, accum, escape) => {
  */
 const fullEscape = (text) => {
   const result = text
-        .replace(/\\/g, '\\textbackslash')
-        .replace(/~/g, '\\textasciitilde')
-        .replace(/\^/g, '\\textasciicircum')
+        .replace(/{/g, '\\{')
+        .replace(/}/g, '\\}')
+        .replace(/\\/g, '\\textbackslash{}')
+        .replace(/~/g, '\\textasciitilde{}')
+        .replace(/\^/g, '\\textasciicircum{}')
         .replace(/\$/g, '\\$')
         .replace(/&/g, '\\&')
         .replace(/%/g, '\\%')
         .replace(/_/g, '\\_')
         .replace(/#/g, '\\#')
-        .replace(/{/g, '\\{')
-        .replace(/}/g, '\\}')
   return nonAsciiEscape(result)
 }
 

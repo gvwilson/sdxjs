@@ -21,7 +21,7 @@ const options = {
 }
 const ast = acorn.parse(program, options)
 
-const state = {'decl': []}
+const state = {decl: []}
 walk.simple(ast, {
   Identifier: (node, state) => {
     state.decl.push(node)

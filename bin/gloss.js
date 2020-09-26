@@ -2,12 +2,12 @@
 
 'use strict'
 
-import argparse from 'argparse'
-import assert from 'assert'
-import fs from 'fs'
-import MarkdownIt from 'markdown-it'
-import request from 'request'
-import yaml from 'js-yaml'
+const argparse = require('argparse')
+const assert = require('assert')
+const fs = require('fs')
+const MarkdownIt = require('markdown-it')
+const request = require('request')
+const yaml = require('js-yaml')
 
 /**
  * Glosario version of glossary.
@@ -122,11 +122,21 @@ const getRequired = (config, gloss) => {
  */
 const addKeysFromDefs = (gloss, soFar) => {
   const result = new Set()
+  let failed = false
   for (let key of soFar) {
-    result.add(key)
-    for (match in gloss[key].en.def.matchAll(/]\(#(.+?)\)/g)) {
-      result.add(match[1])
+    if (key in gloss) {
+      result.add(key)
+      for (match in gloss[key].en.def.matchAll(/]\(#(.+?)\)/g)) {
+        result.add(match[1])
+      }
     }
+    else {
+      console.error(`Unknown key "${key}"`)
+      failed = true
+    }
+  }
+  if (failed) {
+    process.exit(1)
   }
   return result
 }
@@ -150,7 +160,7 @@ const filterGlossary = (glossary, keys) => {
  * @param {Array<Object>} data YAML information.
  * @returns {string} HTML text.
  */
-export const makeGloss = (data) => {
+const makeGloss = (data) => {
   const slugs = sortTerms(data)
   const items = slugs.map(slug => makeEntry(data[slug]))
   return `${HEADER}${items.join('\n')}${FOOTER}`

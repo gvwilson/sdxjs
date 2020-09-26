@@ -2,6 +2,6 @@
 
 'use strict'
 
-import rimraf from 'rimraf'
+const rimraf = require('rimraf')
 
 process.argv.slice(2).forEach(pattern => rimraf.sync(pattern))
