@@ -25,7 +25,7 @@
         -   Allows us to give short nicknames to meaningfully-named libraries
     -   Use `library.component` to refer to things in the library
 
-> **`require` versus `import`
+> **`require` versus `import`**
 >
 > In 2015, a new version of JavaScript called ES6 introduced the keyword `import` for importing modules.
 > It improves on `require` in several ways, but Node still uses `require` by default.

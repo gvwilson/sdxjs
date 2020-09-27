@@ -92,19 +92,34 @@ const readFile = (fileInfo) => {
 
 /**
  * Perform ugly patches on the HTML so that the LaTeX will come out right.
- * (\lede{} must come before \chapter{}).
- * @param {string} raw Original HTML.
+ * @param {string} html Input HTML.
  * @returns {string} Patched HTML.
  */
-const patchHtml = (raw) => {
-  if (!raw.includes('h1')) {
-    return raw
+const patchHtml = (html) => {
+  // \lede{} must come before \chapter{} so
+  // <h1>...</h1> <p class="lede">...</p>
+  // =>
+  // <p class="lede">...</p> <h1>...</h1>
+  if (html.includes('h1')) {
+    if (html.includes('<p class="lede">')) {
+      html = html.replace(/<h1>(.+?)<\/h1>\s+<p class="lede">(.+?)<\/p>/,
+                          '<p class="lede">$2</p>\n<h1>$1</h1>')
+    }
+    else {
+      html = html.replace('<h1>', '<p class="lede"/><h1>')
+    }
   }
-  if (!raw.includes('<p class="lede">')) {
-    return raw.replace('<h1>', '<p class="lede"/><h1>')
-  }
-  return raw.replace(/<h1>(.+?)<\/h1>\s+<p class="lede">(.+?)<\/p>/,
-                     '<p class="lede">$2</p>\n<h1>$1</h1>')
+
+  // Convert blockquotes that are styled like asides.
+  // <blockquote><p><strong>...</strong></p> ... </blockquote>
+  // =>
+  // <blockquote class="aside"><p class="aside"><strong>...</strong></p> ... </blockquote>
+  html = html.replace(/<blockquote>\s*<p><strong>(.+?)<\/strong><\/p>([^]+?)<\/blockquote>/g,
+                      (match, first, second) => {
+                        return `<blockquote class="aside"><p class="aside">${first}</p>${second}</blockquote>`
+                      })
+
+  return html
 }
 
 /**
@@ -130,9 +145,17 @@ const htmlToLatex = (config, fileInfo, node, accum) => {
     accum.push('}')
   }
   else if (node.nodeName === 'blockquote') {
-    accum.push('\\begin{quotation}')
-    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
-    accum.push('\\end{quotation}')
+    const cls = getAttr(node, 'class')
+    if (cls === 'aside') {
+      accum.push('\\begin{aside}')
+      node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+      accum.push('\\end{aside}')
+    }
+    else {
+      accum.push('\\begin{quotation}')
+      node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+      accum.push('\\end{quotation}')
+    }
   }
   else if (node.nodeName === 'cite') {
     accum.push('\\cite{')
@@ -242,6 +265,11 @@ const htmlToLatex = (config, fileInfo, node, accum) => {
     accum.push(`\n`)
     if (cls === 'lede') {
       accum.push('\\lede{')
+      node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+      accum.push('}')
+    }
+    else if (cls === 'aside') {
+      accum.push('\\asidetitle{')
       node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
       accum.push('}')
     }
