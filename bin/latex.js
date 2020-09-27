@@ -7,7 +7,6 @@ const assert = require('assert')
 const fs = require('fs')
 const parse5 = require('parse5')
 const path = require('path')
-const util = require('util')
 const yaml = require('js-yaml')
 
 /**

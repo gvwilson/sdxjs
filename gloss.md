@@ -21,7 +21,7 @@
 <dt id="block_comment" class="glossary">block comment</dt>
 <dd class="glossary">A <g key="comment">comment</g> that spans multiple lines. Block comments may be marked with special start and end symbols, like <code>/*</code> and <code>*/</code> in C and its descendents, or each line may be prefixed with a marker like <code>#</code>.</dd>
 <dt id="boolean" class="glossary">Boolean</dt>
-<dd class="glossary">Relating to a variable or data type that can have either a logical value of <g key="true">true</g> or a value of <g key="false">false</g>. Named for George Boole, a 19th Century mathemetician. Binary systems, like all computers are built on this foundation of systems of logical evaluations between states of true and false, 1 or 0.</dd>
+<dd class="glossary">Relating to a variable or data type that can have either a logical value of <g key="true">true</g> or a value of <g key="false">false</g>. Named for George Boole, a 19th Century mathematician. Binary systems, like all computers are built on this foundation of systems of logical evaluations between states of true and false, 1 or 0.</dd>
 <dt id="build_recipe" class="glossary">build recipe</dt>
 <dd class="glossary">The part of a <g key="build_rule">build rule</g> that describes how to update something that has fallen out of date.</dd>
 <dt id="build_rule" class="glossary">build rule</dt>
@@ -33,7 +33,7 @@
 <dt id="caching" class="glossary">caching</dt>
 <dd class="glossary">To save a copy of some data in a local <g key="cache">cache</g> to make future access faster.</dd>
 <dt id="callback" class="glossary">callback function</dt>
-<dd class="glossary">A function A that is passed to another function B so that B can call it at some later point. Callbacks can be used <g key="synchronous">synchronously</g>, as in generic functions like <code>map</code> that invoke a callback function once for each element in a collection, or <g key="asynchronous">ascynrhonously</g>, as in a <g key="client">client</g> that runs a callback when a <g key="http_response">response</g> is received in answer to a <g key="http_request">request</g>.</dd>
+<dd class="glossary">A function A that is passed to another function B so that B can call it at some later point. Callbacks can be used <g key="synchronous">synchronously</g>, as in generic functions like <code>map</code> that invoke a callback function once for each element in a collection, or <g key="asynchronous">asynchronously</g>, as in a <g key="client">client</g> that runs a callback when a <g key="http_response">response</g> is received in answer to a <g key="http_request">request</g>.</dd>
 <dt id="character_encoding" class="glossary">character encoding</dt>
 <dd class="glossary">A specification of how characters are stored as bytes. The most commonly-used encoding today is <g key="utf_8">UTF-8</g>.</dd>
 <dt id="class" class="glossary">class</dt>
@@ -71,7 +71,7 @@
 <dt id="exception_handler" class="glossary">exception handler</dt>
 <dd class="glossary">A piece of code that deals with an <g key="exception">exception</g> after it is <g key="catch_exception">caught</g>, e.g., by writing a <g key="log_message">log message</g> or retrying the operation that failed.</dd>
 <dt id="expected_result" class="glossary">expected result (of test)</dt>
-<dd class="glossary">The value that a piece of software is suposed to produced when tested in a certain way, or the state in which it is supposed to leave the system.</dd>
+<dd class="glossary">The value that a piece of software is supposed to produced when tested in a certain way, or the state in which it is supposed to leave the system.</dd>
 <dt id="fail_test" class="glossary">fail (a test)</dt>
 <dd class="glossary">A test fails if the <g key="actual_result">actual result</g> does not match the <g key="expected_result">expected result</g>.</dd>
 <dt id="filesystem" class="glossary">filesystem</dt>
@@ -121,7 +121,7 @@
 <dt id="protocol" class="glossary">protocol</dt>
 <dd class="glossary">Any standard specifying how two pieces of software interact. A network protocol such as <g key="http">HTTP</g> defines the messages that <g key="client">clients</g> and <g key="server">servers</g> exchange on the World-Wide Web; <g key="oop">object-oriented</g> programs often define protocols for interactions between <g key="object">objects</g> of different <g key="class">classes</g>.</dd>
 <dt id="query_string" class="glossary">query string</dt>
-<dd class="glossary">The portion of a <g key="url">URL</g> after the quesiton mark <code>?</code> that specifies extra parameters for the <g key="http_request">HTTP request</g> as name-value pairs.</dd>
+<dd class="glossary">The portion of a <g key="url">URL</g> after the question mark <code>?</code> that specifies extra parameters for the <g key="http_request">HTTP request</g> as name-value pairs.</dd>
 <dt id="sandbox" class="glossary">sandbox</dt>
 <dd class="glossary">A testing environment that is separate from the production system, or an environment that is only allowed to perform a restricted set of operations for security reasons.</dd>
 <dt id="search_path" class="glossary">search path</dt>
