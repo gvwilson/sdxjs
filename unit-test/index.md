@@ -19,9 +19,9 @@
         to compare the <g key="actual_result">actual result</g>
         against the <g key="expected_result">expected result</g>
 -   Possible results are:
-    -   <g key="unit_test_pass">Pass</g>: works as expected
-    -   <g key="unit_test_fail">Fail</g>: something wrong with the code being tested
-    -   <g key="unit_test_error">Error</g>: something wrong in the test itself
+    -   <g key="pass_test">Pass</g>: works as expected
+    -   <g key="fail_test">Fail</g>: something wrong with the code being tested
+    -   <g key="error_test">Error</g>: something wrong in the test itself
 
 ## How can we separate test registration, execution, and reporting?
 

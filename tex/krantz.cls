@@ -649,8 +649,12 @@
 \long\def\@ytrplarg#1[#2]#3{#1[{#2}][{#2}]{#3}}
 \long\def\@ztrplarg#1#2{#1[{#2}][{#2}]{#2}}
 
-\def\lede#1{\gdef\@lede{\ChapsubTitleFont#1}}
 
+\newif\iflede
+\global\ledefalse
+
+\def\lede#1{\gdef\@lede{\ChapsubTitleFont#1}\par\vspace*{5pt}}
+\def\@lede{\par\vspace*{-15pt}}
 
 \newcommand\chapter{\if@openright\cleardoublepage\else\clearpage\fi
   \make@cornermarks
@@ -702,8 +706,8 @@
     \vskip -15\p@
     \chap@rule
     \vskip 6\p@
-    {\baselineskip 20\p@\lineskip 20\p@\ChapTitleFont #1\par}%
-        \@lede\par\vskip-10pt
+    {\baselineskip 20\p@\lineskip 20\p@\ChapTitleFont #1\par\vspace*{5pt}}%
+        \@lede\par\vskip-5pt
     \noindent\hbox{\vrule height.5pt width84pt}\par
     \vskip28\p@}
             \if@ChapterTOCs
@@ -711,7 +715,7 @@
     \else
 \fi
     \vskip 19.3\p@}
-    \def\theequation{\thechapter.\arabic{equation}}}%
+    \def\theequation{\thechapter.\arabic{equation}}\lede{}}%
 
 
 \def\@schapter#1{\if@twocolumn
