@@ -3,10 +3,6 @@
 help: # Show available commands.
   exec: "fgrep -e ': #' build.yaml | fgrep -v -e build.yaml | column -t -s ':'"
 
-bib: # Rebuild bibliography.
-  deps:
-  - bib.md
-
 serve: # Run a server on port 4000.
   exec: "http-server docs -p 4000"
   deps:
@@ -15,21 +11,44 @@ serve: # Run a server on port 4000.
 clean: # Tidy up workspace.
   exec: "bin/clean.js book.aux book.log book.out book.pdf book.tex book.toc '**/*~'"
 
-html: # Rebuild HTML version.
+bib.md: # Rebuild bibliography.
+  exec: "bin/bib.js --input bib.yml --output bib.md"
   deps:
-  - docs/index.html
+  - bin/bib.js
+  - bib.yml
 
-gloss: # Rebuild glossary file.
+docs/index.html: # Rebuild HTML version.
+  exec: "bin/html.js --rootDir . --outputDir docs --configFile config.yml --linksFile links.yml"
   deps:
+  - source
+  - bin/html.js
+  - bib.md
   - gloss.md
+  - inc/foot.html
+  - inc/head.html
+  - static/site.css
+  - static/site.js
 
-latex: # Create LaTeX version of material.
+gloss.md: # Rebuild glossary file.
+  exec: "bin/gloss.js --glosario --input gloss.yml --output gloss.md --sources index.md */*.md"
+  deps:
+  - source
+  - bin/gloss.js
+  - gloss.yml
+
+book.tex: # Create LaTeX version of material.
+  exec: "bin/latex.js --config config.yml --htmlDir docs --outputFile book.tex --head tex/head.tex --foot tex/foot.tex --numbering docs/numbering.js"
+  deps:
+  - bin/latex.js
+  - docs/index.html
+  - tex/foot.tex
+  - tex/head.tex
+  - tex/krantz.cls
+
+book.pdf: # Create printable version of material.
+  exec: "pdflatex book && pdflatex book"
   deps:
   - book.tex
-
-pdf: # Create printable version of material.
-  deps:
-  - book.pdf
 
 catalog: # Create catalog of nodes, attributes, and values.
   exec: "bin/catalog.js --ignore --input docs/index.html docs/*/index.html"
@@ -40,8 +59,6 @@ wordlist: # Create a list of words found in HTML files.
   exec: "bin/wordlist.js --input docs/index.html docs/*/index.html | aspell list | sort | uniq | diff -B - tex/wordlist.txt"
   deps:
   - docs/index.html
-
-# ----------------------------------------------------------------------
 
 # Fake target for dependencies (Bajel doesn't support wildcard expansion).
 source:
@@ -68,42 +85,3 @@ source:
   - tabular-data/index.md
   - text-editor/index.md
   - unit-test/index.md
-
-bib.md:
-  exec: "bin/bib.js --input bib.yml --output bib.md"
-  deps:
-  - bin/bib.js
-  - bib.yml
-
-gloss.md:
-  exec: "bin/gloss.js --glosario --input gloss.yml --output gloss.md --sources index.md */*.md"
-  deps:
-  - source
-  - bin/gloss.js
-  - gloss.yml
-
-docs/index.html:
-  exec: "bin/html.js --rootDir . --outputDir docs --configFile config.yml --linksFile links.yml"
-  deps:
-  - source
-  - bin/html.js
-  - bib.md
-  - gloss.md
-  - inc/foot.html
-  - inc/head.html
-  - static/site.css
-  - static/site.js
-
-book.tex:
-  exec: "bin/latex.js --config config.yml --htmlDir docs --outputFile book.tex --head tex/head.tex --foot tex/foot.tex --numbering docs/numbering.js"
-  deps:
-  - bin/latex.js
-  - docs/index.html
-  - tex/foot.tex
-  - tex/head.tex
-  - tex/krantz.cls
-
-book.pdf:
-  exec: "pdflatex book && pdflatex book"
-  deps:
-  - book.tex

@@ -59,6 +59,13 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
 
 1.  We use [EJS][ejs] to create our website.
     Please write in Markdown where you can, and use HTML tags for special cases.
+    (Note that you cannot nest Markdown inside HTML.)
+
+1.  Use first person plural ("we" rather than "you"),
+    Simplified English (i.e., American spelling),
+    and the Oxford comma.
+    Do not use exclamation marks—few things are actually that surprising the first time around,
+    and none the second.
 
 1.  Each lesson is in a file `./slug/index.md`,
     where "slug" is a hyphenated short name for the topic (e.g., `writing-functions`).
@@ -88,11 +95,8 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
 1.  Use `<cite>Key123,Key456</cite>` for bibliographic citations.
     The keys must exist in `bib.yml`, and yes, `static/site.js` and `bin/latex.js` do the conversions.
 
-1.  Use first person plural ("we" rather than "you"),
-    Simplified English (i.e., American spelling),
-    and the Oxford comma.
-    Do not use exclamation marks—few things are actually that surprising the first time around,
-    and none the second.
+1.  We indent our JavaScript in two-space increments and do not use semi-colons
+    to help make things fit the width of the page in the print edition.
 
 ## Tasks and Tools
 

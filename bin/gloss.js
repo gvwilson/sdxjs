@@ -12,7 +12,7 @@ const yaml = require('js-yaml')
 /**
  * Glosario version of glossary.
  */
-const GLOSARIO_URL = 'https://raw.githubusercontent.com/gvwilson/glosario/personal/glossary.yml'
+const GLOSARIO_URL = 'https://raw.githubusercontent.com/carpentries/glosario/master/glossary.yml'
 
 /**
  * Top of page.
