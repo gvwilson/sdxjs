@@ -48,6 +48,8 @@
 <dd class="glossary">A <g key="hash_function">hash function</g> that produces an apparently-random value for any input.</dd>
 <dt id="dependency" class="glossary">dependency</dt>
 <dd class="glossary">See <g key="prerequisite">prerequisite</g>.</dd>
+<dt id="design_pattern" class="glossary">design pattern</dt>
+<dd class="glossary">A recurring pattern in software design that is specific enough to be worth naming, but not so specific that a single best implementation can be provided by a <g key="library">library</g>. For example, <g key="data_frame">data frames</g> and database <g key="table">tables</g> are instances of the same pattern.</dd>
 <dt id="destructuring_assignment" class="glossary">destructuring assignment</dt>
 <dd class="glossary">Unpacking values from data structures and assigning them to multiple variables in a single statement.</dd>
 <dt id="dag" class="glossary">directed acyclic graph (DAG)</dt>

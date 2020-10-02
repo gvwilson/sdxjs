@@ -7,13 +7,13 @@ let HopePass = 0,
     HopeError = 0
 
 // Record a single test for running later.
-const hopeThat = (comment, callback) => {
-  HopeTests.push([comment, callback])
+const hopeThat = (message, callback) => {
+  HopeTests.push([message, callback])
 }
 
 // Run all of the tests that have been asked for and report summary.
 const main = () => {
-  HopeTests.forEach(([comment, test]) => {
+  HopeTests.forEach(([message, test]) => {
     try {
       test()
       HopePass += 1

@@ -10,8 +10,7 @@ class Hope {
   }
 
   test (comment, callback) {
-    const c = caller()
-    this.todo.push([`${c}::${comment}`, callback])
+    this.todo.push([`${caller()}::${comment}`, callback])
   }
 
   run () {

@@ -30,7 +30,7 @@ const parse = (args) => {
       case 'v' :
         options.output = 'verbose'
         break
-      case '_' :
+      case '_':
         break
       default :
         console.error(`unrecognized option ${key}`)

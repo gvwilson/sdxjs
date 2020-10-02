@@ -69,9 +69,14 @@
 <ul>
 <li>Find files containing tests</li>
 <li>Load those files</li>
-<li>Those files register the tests to be run</li>
+<li>As they load, those files register the tests to be run</li>
 <li>We then execute the registered tests and capture results</li>
 <li>When all tests are done, we report</li>
+</ul>
+</li>
+<li>Lots of other designs are possible
+<ul>
+<li>Load files and then inspect them to find and run tests</li>
 </ul>
 </li>
 </ul>
@@ -89,22 +94,32 @@ against the <g key="expected_result">expected result</g></li>
 <li>Possible results are:
 <ul>
 <li><g key="pass_test">Pass</g>: works as expected</li>
-<li><g key="fail_test">Fail</g>: something wrong with the code being tested</li>
-<li><g key="error_test">Error</g>: something wrong in the test itself</li>
+<li><g key="fail_test">Fail</g>: something is wrong with the code being tested</li>
+<li><g key="error_test">Error</g>: something wrong in the test itself,
+so we know nothing certain about the system being tested</li>
+</ul>
+</li>
+<li>We need some way to distinguish failure from error
+<ul>
+<li>Rely on the fact that exceptions are objects</li>
+<li>If the object is an instance of <code>assert.AssertionError</code>
+then it was <a href="#throw_exception">thrown</a> by an assertion,
+which (probably) means it's coming out of one of our checks</li>
+<li>Any other kind of assertion is unexpected</li>
 </ul>
 </li>
 </ul>
 <h2 id="how-can-we-separate-test-registration-execution-and-reporting">How can we separate test registration, execution, and reporting?</h2>
 <ul>
 <li>Use <g key="global_variable">global variables</g> to record tests and results</li>
-<li><code>hopeThat</code> records a callback and a message
+<li>The function <code>hopeThat</code> saves a message and a callback function
 <ul>
 <li>Don't run tests immediately because we want to wrap each one in our own <g key="exception_handler">exception handler</g></li>
 </ul>
 </li>
 <li><code>main</code> runs all registered tests
 <ul>
-<li>If it completes without an exception, it passes</li>
+<li>If a test completes without an exception, it passes</li>
 <li>If any of the <code>assert</code> calls raises an <code>AssertionError</code>, it fails</li>
 <li>If it raises any other exception, it's an error</li>
 </ul>
@@ -121,13 +136,13 @@ let HopePass = 0,
     HopeError = 0
 
 // Record a single test for running later.
-const hopeThat = (comment, callback) =&gt; {
-  HopeTests.push([comment, callback])
+const hopeThat = (message, callback) =&gt; {
+  HopeTests.push([message, callback])
 }
 
 // Run all of the tests that have been asked for and report summary.
 const main = () =&gt; {
-  HopeTests.forEach(([comment, test]) =&gt; {
+  HopeTests.forEach(([message, test]) =&gt; {
     try {
       test()
       HopePass += 1
@@ -177,30 +192,30 @@ error 1
 <ul>
 <li>Critique
 <ul>
-<li>A bunch of global variables with similar names will lead to problems later</li>
+<li>Doesn't tell us <em>which</em> tests failed</li>
 <li>We don't have a way to test that things raise <code>AssertionError</code> when they should</li>
-<li>Doesn't tell us which tests failed</li>
+<li>Those global variables should be bundled together somehow</li>
 </ul>
 </li>
 </ul>
 <h2 id="how-should-we-structure-test-registration">How should we structure test registration?</h2>
 <ul>
-<li>The <code>hope</code> module uses the <g key="singleton_pattern">Singleton</g> pattern
+<li>The <code>hope</code> module uses the <g key="singleton_pattern">Singleton</g> <g key="design_pattern">design pattern</g>
 <ul>
 <li>A class that only has one instance</li>
-<li>A structured way to manage global variables</li>
+<li>Singletons are a structured way to manage global variables</li>
+<li>Less code to rewrite and re-test if we change our minds later about only having one</li>
 </ul>
 </li>
-<li>Defines class
+<li>Defines class and exports an instance of that class
 <ul>
-<li>Exports an instance of that class</li>
 <li>Relies on Node <g key="caching">caches</g> modules so that each is only loaded once</li>
 </ul>
 </li>
 <li><code>Hope.test</code> records a test for later execution</li>
-<li><code>Hope.run</code> executes each</li>
+<li><code>Hope.run</code> executes all the tests registered so far</li>
 <li>Provide two flavors of output (terse one-liner and full details)</li>
-<li>Also provide raw material (title and results) for other formatters</li>
+<li>Also provide raw material (title and results) for inspection and formatting (e.g., as HTML)</li>
 </ul>
 <pre title="hope.js"><code class="language-js">const assert = require('assert')
 const caller = require('caller')
@@ -214,8 +229,7 @@ class Hope {
   }
 
   test (comment, callback) {
-    const c = caller()
-    this.todo.push([`${c}::${comment}`, callback])
+    this.todo.push([`${caller()}::${comment}`, callback])
   }
 
   run () {
@@ -263,14 +277,19 @@ class Hope {
 
 module.exports = new Hope()
 </code></pre>
+<ul>
+<li>Use the <code>caller</code> module to find the name of who's calling the current function
+<ul>
+<li>Gives the user more information</li>
+<li>Automatically correct (unlike handwritten strings that can fall out of step)</li>
+</ul>
+</li>
+</ul>
 <h2 id="how-can-we-build-a-commandline-driver-for-our-test-manager">How can we build a command-line driver for our test manager?</h2>
 <ul>
 <li>Find files named <code>test-*.js</code> below a user-specified root directory</li>
-<li>Example in <code>test-add.js</code>
-<ul>
-<li>Keeping this simple is the most important part of our design</li>
-</ul>
-</li>
+<li>Keeping these files simple is the most important part of our design</li>
+<li>Example in <code>test-add.js</code></li>
 </ul>
 <pre title="test-add.js"><code class="language-js">const assert = require('assert')
 const hope = require('./hope')
@@ -281,14 +300,20 @@ hope.test('Sum of 1 and 2', () =&gt; assert((1 + 2) === 3))
 <li>
 <p>Load those <g key="dynamic_loading">dynamically</g></p>
 <ul>
-<li>This executes the code they contain</li>
-<li>Which registers tests as a <g key="side_effect">side effect</g></li>
+<li><code>require</code> is just a function</li>
+<li>Takes a path as a parameter and reads that file</li>
+</ul>
+</li>
+<li>
+<p>Loading files executes the code they contain</p>
+<ul>
+<li>Which registers tests as a <g key="side_effect">side effect</g> of calls to <code>hope.test</code></li>
 </ul>
 </li>
 <li>
 <p>Final part is the command-line tool that finds and loads tests</p>
 <ul>
-<li>Parse command-line options</li>
+<li>Parse command-line arguments using <code>minimist</code> module</li>
 <li>Find and load all files that match <code>test-*.js</code></li>
 <li>Call <code>hope.run()</code> to run all the tests they have registered</li>
 <li>Report results</li>
@@ -330,7 +355,7 @@ const parse = (args) =&gt; {
       case 'v' :
         options.output = 'verbose'
         break
-      case '_' :
+      case '_':
         break
       default :
         console.error(`unrecognized option ${key}`)
@@ -342,9 +367,6 @@ const parse = (args) =&gt; {
 
 main(process.argv.slice(2))
 </code></pre>
-<ul>
-<li>Run</li>
-</ul>
 <pre title="pray.sh"><code class="language-sh">node pray.js -v
 </code></pre>
 <pre title="pray.text"><code class="language-text">passes:
@@ -357,17 +379,20 @@ errors:
   /Users/gvwilson/stj/unit-test/test-missing.js::Sum of x and 0
 </code></pre>
 <ul>
-<li>Trace the <g key="lifecycle">lifecycle</g>
+<li>Trace the <g key="lifecycle">lifecycle</g> of a pair of files <code>test-add.js</code> and <code>test-sub.js</code>
 <ul>
-<li><code>pray</code> uses <code>glob</code> to find files with test</li>
-<li>Loads <code>test-add.js</code> using <code>require</code></li>
+<li><code>pray</code> uses <code>glob</code> to find files with tests</li>
+<li>It loads <code>test-add.js</code> using <code>require</code></li>
 <li>As <code>test-add.js</code> runs, it loads <code>hope.js</code></li>
 <li>Which creates a single instance of the class <code>Hope</code></li>
 <li><code>test-add.js</code> uses <code>hope.test</code> to register a test (which does <em>not</em> run yet)</li>
-<li><code>pray</code> then loads <code>test-sub.js</code></li>
-<li><code>require('./hope')</code> does <em>not</em> reload <code>hope.js</code> because that's already in memory</li>
+<li><code>pray</code> then loads <code>test-sub.js</code>
+<ul>
+<li><code>require('./hope')</code> in <code>test-sub.js</code> does <em>not</em> reload <code>hope.js</code> because that's already in memory</li>
 <li>So the variable <code>hope</code> in <code>test-sub.js</code> refers to the same (unique) instance of <code>Hope</code> already created</li>
 <li>So when <code>test-sub.js</code> calls <code>hope.test</code>, its test is added to that object</li>
+</ul>
+</li>
 <li><code>pray</code> then asks that unique instance of <code>Hope</code> to run all of the tests</li>
 <li>And then gets a report from it</li>
 </ul>
