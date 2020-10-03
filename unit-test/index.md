@@ -74,8 +74,7 @@
 
 ## How can we build a command-line driver for our test manager?
 
--   Find files named `test-*.js` below a user-specified root directory
--   Keeping these files simple is the most important part of our design
+-   Keeping the files containing tests simple is the most important part of our design
 -   Example in `test-add.js`
 
 <%- include('/inc/code.html', {file: 'test-add.js'}) %>
@@ -85,15 +84,23 @@
     -   Takes a path as a parameter and reads that file
 -   Loading files executes the code they contain
     -   Which registers tests as a <g key="side_effect">side effect</g> of calls to `hope.test`
-
 -   Final part is the command-line tool that finds and loads tests
     -   Parse command-line arguments using `minimist` module
-    -   Find and load all files that match `test-*.js`
+    -   Use the filenames provided or find and load all files that match `test-*.js`
     -   Call `hope.run()` to run all the tests they have registered
     -   Report results
 -   Doesn't export anything, just runs
 
 <%- include('/inc/multi.html', {pat: 'pray.*', fill: 'js sh text'}) %>
+
+> **Filenames in `minimist`**
+>
+> If we use a command line like `pray.js -v something.js`,
+> then `something.js` becomes the value of `-v`.
+> To indicate that we want `something.js` added to the list of trailing filenames
+> associated with the special key `_` (a single underscore),
+> we have to write `pray.js -v -- something.js`.
+> The double dash is a common Unix convention for signalling the end of parameters.
 
 -   Trace the <g key="lifecycle">lifecycle</g> of a pair of files `test-add.js` and `test-sub.js`
     -   `pray` uses `glob` to find files with tests
