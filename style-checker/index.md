@@ -91,3 +91,36 @@
 
 -   More difficult to do variable identifiers than previous Visitor approach
     -   Generator doesn't keep state, so we have to maintain that outside for ourselves
+
+## Exercises
+
+### How long are functions?
+
+Derive a class from `Walker` that reports the length in lines of each function defined in the code being checked.
+
+### How deep are expressions?
+
+Derive a class from `Walker` that reports how deep each top-level expression in the source code is.
+For example,
+the depth of `1 + 2 * 3` is 2,
+while the depth of `max(1 + 2 + 3)` is 3
+(one level for the function call, one for the first addition, and one for the nested addition).
+
+### Downward and upward
+
+Modify `Walker` so that users can specify
+one action to take at a node on the way down the tree
+and a separate action to take on the way up.
+(Hint: require users to specify `Nodename_downward` and/or `Nodename_upward` methods in their class,
+then use string concatenation to construct method names while traversing the tree.)
+
+### Aggregating across files
+
+Create a command-line program called `sniff.js`
+that checks for style violations in any number of source files.
+The first command-line argument to `sniff.js` must be a JavaScript source file
+that exports a class derived from `Walker` called `Check`
+that implements the checks the user wants.
+The other command-line arguments must be the names of JavaScript source files to be checked:
+
+<%- include('/inc/code.html', {file: 'sniff.sh'}) %>
