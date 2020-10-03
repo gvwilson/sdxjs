@@ -290,6 +290,16 @@ const htmlToLatex = (config, fileInfo, node, accum) => {
     node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
     accum.push('}')
   }
+  else if (node.nodeName === 'sub') {
+    accum.push('\\textsubscript{')
+    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    accum.push('}')
+  }
+  else if (node.nodeName === 'sup') {
+    accum.push('\\textsuperscript{')
+    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    accum.push('}')
+  }
   else if (node.nodeName === 'table') {
     accum.push(tableToLatex(config, fileInfo, node))
   }

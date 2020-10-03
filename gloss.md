@@ -26,8 +26,6 @@
 <dd class="glossary">Software which is able to be used the same way as earlier versions of itself without problems.</dd>
 <dt id="binary" class="glossary">binary</dt>
 <dd class="glossary">A system which can have one of two possible states. In computing often represented as being in the state 0 or 1.  Represented in <g key="boolean">Boolean</g> logic as <g key="false">false</g> (0) or <g key="true">true</g> (1). Computers are built upon systems which store 0s and 1s as <g key="bit">bits</g>.</dd>
-<dt id="blob" class="glossary">binary large object (BLOB)</dt>
-<dd class="glossary">Data that is stored in a database without being interpreted in any way, such as an audio file. The term is also now used to refer to data transferred over a network or stored in a <g key="version_control_system">version control</g> <g key="repository">repository</g> as uninterpreted bits.</dd>
 <dt id="bit" class="glossary">bit</dt>
 <dd class="glossary">A unit of information representing representing alternatives, yes/no, <g key="true">true</g>/<g key="false">false</g>. In computing a state of either 0 or 1.</dd>
 <dt id="block_comment" class="glossary">block comment</dt>
@@ -264,8 +262,6 @@
 <dd class="glossary">A pattern for matching text, written as text itself. Regular expressions are sometimes called &quot;regexp&quot;, &quot;regex&quot;, or &quot;RE&quot;, and are as powerful as they are cryptic.</dd>
 <dt id="relational_database" class="glossary">relational database</dt>
 <dd class="glossary">A database that organizes information into tables, each of which has a fixed set of named fields (shown as columns) and a variable number of records (shown as rows).</dd>
-<dt id="repository" class="glossary">repository</dt>
-<dd class="glossary">A place where a <g key="version_control_system">version control system</g> stores the files that make up a project and the metadata that describes their history.</dd>
 <dt id="root_tree" class="glossary">root (in a tree)</dt>
 <dd class="glossary">The node in a tree of which all other nodes are direct or indirect <g key="child_tree">children</g>, or equivalently the only node in the tree that has no <g key="parent_tree">parent</g>.</dd>
 <dt id="s3" class="glossary">S3</dt>
@@ -334,8 +330,6 @@
 <dd class="glossary">FIXME</dd>
 <dt id="variable_program" class="glossary">variable (program)</dt>
 <dd class="glossary">A name in a program that has some data associated with it. A variable's value can be changed after definition.</dd>
-<dt id="version_control_system" class="glossary">version control system</dt>
-<dd class="glossary">A system for managing changes made to software during its development.</dd>
 <dt id="visitor_pattern" class="glossary">Visitor pattern</dt>
 <dd class="glossary">A <g key="design_pattern">design pattern</g> in which the operation to be done is taken to each element of a data structure in turn.  It is usually implemented by having a generator &quot;visitor&quot; that knows how to reach the structure's elements, and which is given a function or method to call for each in turn that carries out the specific operation.</dd>
 <dt id="walk_tree" class="glossary">walk (a tree)</dt>

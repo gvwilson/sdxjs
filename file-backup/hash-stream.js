@@ -8,3 +8,4 @@ hash.on('finish', () => {
   const final = hash.read()
   console.log('final', final)
 })
+console.log('program ends')

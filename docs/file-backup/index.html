@@ -24,6 +24,7 @@
 <span class="navtitle">▿ Chapters</span>
 <div class="dropdown-content" id="Chapters">
 <a href="../systems-programming/"><span class="nowrap">Systems Programming</span></a>
+<br/><a href="../promises/"><span class="nowrap">Promises</span></a>
 <br/><a href="../unit-test/"><span class="nowrap">Unit Testing</span></a>
 <br/><a href="../file-backup/"><span class="nowrap">File Backup</span></a>
 <br/><a href="../style-checker/"><span class="nowrap">Style Checker</span></a>
@@ -60,16 +61,26 @@
   <h1>File Backup</h1>
   <p class="lede">Archiving files with directory structure</p>
 <ul>
-<li>Goal: archiving files with a hashed index</li>
+<li>Goal: archiving files with an index that identifies each version so that we don't store redundant data</li>
 <li>The basis of <a href="https://git-scm.com/">Git</a></li>
 </ul>
 <h2 id="what-is-a-hash-code-and-how-can-i-create-one-for-a-file">What is a hash code and how can I create one for a file?</h2>
 <ul>
-<li>A <g key="cryptographic_hash_function">cryptographic hash function</g>:
+<li>A <g key="hash_function">hash function</g> turns arbitrary data into a fixed-length string of bits
 <ul>
-<li>Turns data of arbitrary size into a fixed-size block of bits</li>
-<li>Is 100% reproducible</li>
-<li>Cannot be reversed</li>
+<li>That bit string can then be used to place the object in a predictable place in a table</li>
+<li>Gives reasonably fast lookup for arbitrary keys</li>
+</ul>
+</li>
+<li>A <g key="cryptographic_hash_function">cryptographic hash function</g> produces keys that appear random
+<ul>
+<li>Leads to the fastest possible lookup on average</li>
+</ul>
+</li>
+<li>Easy to write a bad hash function but hard to write a strong one
+<ul>
+<li>Use a library to calculate a 160-bit [SHA-1] hash</li>
+<li>Not strong enough to deter a well-funded attacker, but that's not what we're using it for</li>
 </ul>
 </li>
 </ul>
@@ -100,7 +111,7 @@ console.log(`SHA1 of "${text}" is ${sha1sum}`);
 <li>The hash code for a file:
 <ul>
 <li>Will always be the same for the same content</li>
-<li>Is almost guaranteed to be different if even a single byte differs</li>
+<li>Is almost certain to be different if even a single byte differs</li>
 </ul>
 </li>
 </ul>
@@ -121,8 +132,28 @@ console.log(`SHA1 of "${filename}" is ${sha1sum}`);
 </code></pre>
 <pre title="hash-file.text"><code class="language-text">SHA1 of "hash-file.js" is dedd8f1b36dcf0dc80d7de7321bc775f5a43c0eb
 </code></pre>
+<blockquote>
+<p><strong>The Birthday Problem</strong></p>
+<p>The odds that two people share a birthday are 1/365 (ignoring February 29).
+The odds that they <em>don't</em> are therefore 364/365.
+When we add a third person,
+the odds that they don't share a birthday with either of the preceding two people are 363/365,
+so the overall odds that nobody shares a birthday are (365/365)×(364/365)×(363/365).
+If we keep calculating, there's a 50% chance of two people sharing a birthday in a group of just 23 people,
+and a 99.9% chance with 70 people.</p>
+<p>We can use the same math to calculate how many files we need to hash before there's a 50% chance of a collision.
+Instead of 365, we use 2<sup>160</sup> (the number of values that are 160 bits long),
+and quickly get into &quot;if every atom in the universe was a file there still wouldn't be collisions&quot; territory.</p>
+</blockquote>
 <ul>
-<li>More efficient to process the file as a <g key="stream">stream</g></li>
+<li>More efficient to process the file as a <g key="stream">stream</g>
+<ul>
+<li>Read the file in chunks</li>
+<li>Pass each chunk to an object containing a hashing function, which accumulates a result</li>
+<li>Tell the hashing object what to do when the stream finishes</li>
+<li>Another example of <a href="#asynchronous">asynchronous execution</a></li>
+</ul>
+</li>
 </ul>
 <pre title="hash-stream.js"><code class="language-js">const fs = require('fs')
 const crypto = require('crypto')
@@ -134,6 +165,7 @@ hash.on('finish', () =&gt; {
   const final = hash.read()
   console.log('final', final)
 })
+console.log('program ends')
 </code></pre>
 <pre title="hash-stream.sh"><code class="language-sh">node hash-stream.js hash-stream.js
 </code></pre>
@@ -144,9 +176,9 @@ hash.on('finish', () =&gt; {
 <li>Wasteful to copy them every time a backup is done</li>
 <li>Instead:
 <ul>
-<li>Copy each file to <code>hash(file)</code></li>
-<li>Store a data structure that records directories' contents as JSON</li>
-<li>To restore from a particular date, copy <g key="blob">blobs</g> to where they need to be</li>
+<li>Copy each file to something like <code>abcd1234.bck</code> where <code>abcd1234</code> is a hash of the file's contents</li>
+<li>Store a data structure that records filenames and hash keys at a particular instant</li>
+<li>To restore from a particular date, copy saved files to where they need to be</li>
 </ul>
 </li>
 </ul>
@@ -225,11 +257,15 @@ hashExisting(root)
 <li>…but the layer of promises around everything still obscures meaning</li>
 <li>Modern JavaScript provides <code>async</code> and <code>await</code> keywords
 <ul>
-<li><code>async</code> means &quot;this function implicitly returns a <code>Promise</code>&quot;</li>
+<li><code>async</code> means &quot;this function implicitly returns a promise&quot;</li>
 <li><code>await</code> means &quot;wait for a promise to resolve&quot;</li>
 </ul>
 </li>
-<li>Doing all the same things as the explicit <code>Promise</code>-based version, but easier to read</li>
+<li>Doing all the same things as the explicit promise-based version, but easier to read
+<ul>
+<li>In particular, allows us to mix asynchronous and synchronous code (<code>hashPath</code> doesn't delay computation)</li>
+</ul>
+</li>
 </ul>
 <pre title="hash-existing-async.js"><code class="language-js">const fs = require('fs-extra-promise')
 const glob = require('glob-promise')
@@ -296,8 +332,9 @@ hashExisting(root)
 <ul>
 <li>Step 2: see which files have and haven't been backed up already
 <ul>
-<li>Backup directory contains <code>abcd1234.bck</code> (backup files) and <code>ssssssssss.csv</code> (manifest files)</li>
-<li>We assume no more than one backup per second (which will easily be false in practice)</li>
+<li>Backup directory contains <code>abcd1234.bck</code> (backup files) and <code>ssssssssss.csv</code> (manifest files),
+where <code>ssssssssss</code> is the <a href="#utc">UTC</a> <a href="#timestamp">timestamp</a> of the backup's creation</li>
+<li>We assume no more than one backup per second (which is unsafe in practice)</li>
 </ul>
 </li>
 </ul>
@@ -325,7 +362,7 @@ const findNewFiles = async (rootDir, pathHashPairs) =&gt; {
 module.exports = findNewFiles
 </code></pre>
 <ul>
-<li>Create testing directories with manufactured (shortened) hashes</li>
+<li>Manually create testing directories with manufactured (shortened) hashes</li>
 </ul>
 <pre title="tree-test.sh"><code class="language-sh">tree --charset unicode test
 </code></pre>
@@ -349,6 +386,8 @@ module.exports = findNewFiles
 <ul>
 <li>Use <a href="https://mochajs.org/">Mocha</a> for testing
 <ul>
+<li>All tests are written using <code>async</code></li>
+<li>Mocha will automatically wait for them to complete before reporting results</li>
 <li>Add <code>&quot;test&quot;: &quot;mocha */test/test-*.js&quot;</code> to the <code>scripts</code> key of <code>package.json</code>,
 since we may add tests for other things later</li>
 </ul>
@@ -415,7 +454,11 @@ describe('checks for pre-existing hashes using actual filesystem', () =&gt; {
 </code></pre>
 <h2 id="how-can-we-test-code-that-modifies-files">How can we test code that modifies files?</h2>
 <ul>
-<li>Step 3: copy the files that need copying and create a new timestamped CSV file</li>
+<li>Step 3: copy the files that need copying and create a new timestamped <a href="#csv">CSV</a> file
+<ul>
+<li>Could use JSON, but CSV is easier for humans to read</li>
+</ul>
+</li>
 <li>The code itself will be relatively simple, but setup and cleanup will be annoying</li>
 <li>Better solution: use a <g key="mock_object">mock object</g> instead of the real filesystem
 <ul>
@@ -424,6 +467,7 @@ describe('checks for pre-existing hashes using actual filesystem', () =&gt; {
 </ul>
 </li>
 <li>Install <a href="https://www.npmjs.com/package/mock-fs"><code>mock-fs</code></a></li>
+<li>Create a mock filesystem with a JSON description of files and their contents</li>
 <li>Repeat previous tests using mock
 <ul>
 <li>Results stay the same</li>
