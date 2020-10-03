@@ -2,6 +2,8 @@
 ---
 
 <dl class="glossary">
+<dt id="abstract_method" class="glossary">abstract method</dt>
+<dd class="glossary">In <g key="oop">object-oriented programming</g>, a <g key="method">method</g> that is defined but not implemented. Programmers will define an abstract method in a <g key="parent_class">parent class</g> to specify operations that <g key="child_class">child classes</g> must provide.</dd>
 <dt id="abstract_syntax_tree" class="glossary">abstract syntax tree (AST)</dt>
 <dd class="glossary">A deeply nested data structure, or <g key="tree">tree</g>, that represents the structure of a program. For example, the AST might have a <g key="node">node</g> representing a <g key="while_loop"><code>while</code> loop</g> with one <g key="child_tree">child</g> representing the loop condition and another representing the <g key="loop_body">loop body</g>.</dd>
 <dt id="actual_result" class="glossary">actual result (of test)</dt>
@@ -10,50 +12,92 @@
 <dd class="glossary">A property of something that suggests how it can be used, such as a handle or button.</dd>
 <dt id="anonymous_function" class="glossary">anonymous function</dt>
 <dd class="glossary">A function that has not been assigned a name.  Anonymous functions are usually quite short, and are usually defined where they are used, e.g., as callbacks.</dd>
+<dt id="ascii" class="glossary">ASCII</dt>
+<dd class="glossary">A standard way to represent the characters commonly used in the Western European languages as 7- or 8-bit integers, now superceded by <g key="unicode">Unicode</g>.</dd>
 <dt id="assertion" class="glossary">assertion</dt>
 <dd class="glossary">A <g key="boolean">Boolean</g> expression that must be true at a certain point in a program.  Assertions may be built into the language (e.g., <g key="python">Python</g>'s <code>assert</code> statement) or provided as functions (e.g., R's <code>stopifnot</code>). They are often used in testing, but are also put in <g key="production_code">production code</g> to check that it is behaving correctly.</dd>
 <dt id="asynchronous" class="glossary">asynchronous</dt>
 <dd class="glossary">Not happening at the same time. In programming, an asynchronous operation is one that runs independently of another, or that starts at one time and ends at another.</dd>
+<dt id="attribute" class="glossary">attribute</dt>
+<dd class="glossary">A name-value pair associated with an object, used to store metadata about the object such as an array's dimensions.</dd>
 <dt id="automatic_variable" class="glossary">automatic variable</dt>
 <dd class="glossary">A variable that is automatically given a value in a <g key="build_rule">build rule</g>.  For example, Make automatically assigns the name of a rule's <g key="build_target">target</g> to the automatic variable <code>$@</code>.  Automatic variables are frequently used when writing <g key="pattern_rule">pattern rules</g>.</dd>
+<dt id="backward_compatible" class="glossary">backward-compatible</dt>
+<dd class="glossary">Software which is able to be used the same way as earlier versions of itself without problems.</dd>
+<dt id="binary" class="glossary">binary</dt>
+<dd class="glossary">A system which can have one of two possible states. In computing often represented as being in the state 0 or 1.  Represented in <g key="boolean">Boolean</g> logic as <g key="false">false</g> (0) or <g key="true">true</g> (1). Computers are built upon systems which store 0s and 1s as <g key="bit">bits</g>.</dd>
 <dt id="blob" class="glossary">binary large object (BLOB)</dt>
 <dd class="glossary">Data that is stored in a database without being interpreted in any way, such as an audio file. The term is also now used to refer to data transferred over a network or stored in a <g key="version_control_system">version control</g> <g key="repository">repository</g> as uninterpreted bits.</dd>
+<dt id="bit" class="glossary">bit</dt>
+<dd class="glossary">A unit of information representing representing alternatives, yes/no, <g key="true">true</g>/<g key="false">false</g>. In computing a state of either 0 or 1.</dd>
 <dt id="block_comment" class="glossary">block comment</dt>
 <dd class="glossary">A <g key="comment">comment</g> that spans multiple lines. Block comments may be marked with special start and end symbols, like <code>/*</code> and <code>*/</code> in C and its descendents, or each line may be prefixed with a marker like <code>#</code>.</dd>
 <dt id="boolean" class="glossary">Boolean</dt>
 <dd class="glossary">Relating to a variable or data type that can have either a logical value of <g key="true">true</g> or a value of <g key="false">false</g>. Named for George Boole, a 19th Century mathemetician. Binary systems, like all computers are built on this foundation of systems of logical evaluations between states of true and false, 1 or 0.</dd>
+<dt id="breadth_first" class="glossary">breadth first</dt>
+<dd class="glossary">To go through a nested data structure such as a <g key="tree">tree</g> by exploring all of one level, then going on to the next level and so on, or to explore a problem by examining the first step of each possible solution, and then trying the next for each.</dd>
+<dt id="bug_report" class="glossary">bug report</dt>
+<dd class="glossary">A collection of files, logs, or related information that describes either an unexpected output of some code or program or an unexpected error or warning. This information is used to help find and fix a bug in the program or code.</dd>
+<dt id="build_manager" class="glossary">build manager</dt>
+<dd class="glossary">A program that keeps track of how files depend on one another and runs commands to update any files that are out of date.  Build managers were invented to <g key="compile">compile</g> only those parts of programs that had changed, but are now often used to implement workflows in which plots depend on result files, which in turn depend on raw data files or configuration files.</dd>
 <dt id="build_recipe" class="glossary">build recipe</dt>
 <dd class="glossary">The part of a <g key="build_rule">build rule</g> that describes how to update something that has fallen out of date.</dd>
 <dt id="build_rule" class="glossary">build rule</dt>
 <dd class="glossary">A specification for a <g key="build_manager">build manager</g> that describes how some files depend on others and what to do if those files are out of date.</dd>
 <dt id="build_target" class="glossary">build target</dt>
 <dd class="glossary">The file(s) that a <g key="build_rule">build rule</g> will update if they are out of date compared to their <g key="dependency">dependencies</g>.</dd>
+<dt id="byte_code" class="glossary">byte code</dt>
+<dd class="glossary">A set of instructions designed to be executed efficiently by an <g key="interpreter">interpreter</g>.</dd>
 <dt id="cache" class="glossary">cache</dt>
 <dd class="glossary">Something that stores copies of data so that future requests for it can be satisfied more quickly. The CPU in a computer uses a hardware cache to hold recently-accessed values; many programs rely on a software cache to reduce network traffic and latency. Figuring out when something in a cache is out of date and should be replaced is one of the <g key="two_hard_problems">two hard problems in computer science</g>.</dd>
 <dt id="caching" class="glossary">caching</dt>
 <dd class="glossary">To save a copy of some data in a local <g key="cache">cache</g> to make future access faster.</dd>
+<dt id="call_stack" class="glossary">call stack</dt>
+<dd class="glossary">A data structure that stores information about the active subroutines executed.</dd>
 <dt id="callback" class="glossary">callback function</dt>
 <dd class="glossary">A function A that is passed to another function B so that B can call it at some later point. Callbacks can be used <g key="synchronous">synchronously</g>, as in generic functions like <code>map</code> that invoke a callback function once for each element in a collection, or <g key="asynchronous">ascynrhonously</g>, as in a <g key="client">client</g> that runs a callback when a <g key="http_response">response</g> is received in answer to a <g key="http_request">request</g>.</dd>
+<dt id="catch_exception" class="glossary">catch (an exception)</dt>
+<dd class="glossary">To accept responsibility for handling an error or other unexpected event. R prefers &quot;handling a condition&quot; to &quot;catching an exception&quot;.</dd>
 <dt id="character_encoding" class="glossary">character encoding</dt>
 <dd class="glossary">A specification of how characters are stored as bytes. The most commonly-used encoding today is <g key="utf_8">UTF-8</g>.</dd>
+<dt id="child_tree" class="glossary">child (in a tree)</dt>
+<dd class="glossary">A <g key="node">node</g> in a <g key="node">tree</g> that is below another node (call the <g key="parent_tree">parent</g>).</dd>
+<dt id="child_class" class="glossary">child class</dt>
+<dd class="glossary">In <g key="oop">object-oriented programming</g>, a class derived from another class (called the <g key="child_class">parent class</g>).</dd>
 <dt id="class" class="glossary">class</dt>
 <dd class="glossary">In <g key="oop">object-oriented programming</g>, a structure that combines data and operations (called <g key="method">methods</g>).  The program then uses a <g key="constructor">constructor</g> to create an <g key="object">object</g> with those properties and methods.  Programmers generally put generic or reusable behavior in <g key="parent_class">parent classes</g> and more detailed or specific behavior in <g key="child_class">child classes</g>.</dd>
+<dt id="client" class="glossary">client</dt>
+<dd class="glossary">Typically, a program such as a web browser that gets data from a <g key="server">server</g> and displays it to, or interacts with, users. The term is used more generally to refer to any program A that makes requests of another program B. A single program can be both a client and a server.</dd>
 <dt id="command_line_argument" class="glossary">command-line argument</dt>
 <dd class="glossary">A filename or control flag given to a command-line program when it is run.</dd>
+<dt id="cli" class="glossary">command-line interface (CLI)</dt>
+<dd class="glossary">A user interface that relies solely on text for commands and output, typically running in a <g key="shell">shell</g>.</dd>
+<dt id="comment" class="glossary">comment</dt>
+<dd class="glossary">Text written in a script that is not treated as code to be run, but rather as text that describes what the code is doing. These are usually short notes, often beginning with a <code>#</code> (in many programming languages).</dd>
+<dt id="compile" class="glossary">compile</dt>
+<dd class="glossary">To translate textual source into another form. Programs in <g key="compiled_language">compiled languages</g> are translated into machine instructions for a computer to run, and <g key="markdown">Markdown</g> is usually translated into <g key="html">HTML</g> for display.</dd>
+<dt id="compiled_language" class="glossary">compiled language</dt>
+<dd class="glossary">Originally, a language such as C or Fortran that is translated into machine instructions for execution. Languages such as Java are also compiled before execution, but into <g key="byte_code">byte code</g> instead of machine instructions, while languages like <g key="python">Python</g> are compiled to byte code on the fly.</dd>
 <dt id="console" class="glossary">console</dt>
 <dd class="glossary">FIXME</dd>
 <dt id="constructor" class="glossary">constructor</dt>
 <dd class="glossary">A function that creates an <g key="object">object</g> of a particular <g key="class">class</g>.  In the <g key="s3">S3</g> object system, constructors are a convention rather than a requirement.</dd>
 <dt id="cryptographic_hash_function" class="glossary">cryptographic hash function</dt>
 <dd class="glossary">A <g key="hash_function">hash function</g> that produces an apparently-random value for any input.</dd>
+<dt id="data_frame" class="glossary">data frame</dt>
+<dd class="glossary">A two-dimensional data structure for storing tabular data in memory. Rows represent <g key="record">records</g> and columns represent <a href="variable_data">variables</a>.</dd>
 <dt id="dependency" class="glossary">dependency</dt>
 <dd class="glossary">See <g key="prerequisite">prerequisite</g>.</dd>
+<dt id="depth_first" class="glossary">depth first</dt>
+<dd class="glossary">To go through a nested data structure such as a <g key="tree">tree</g> by going as far as possible down one path, then as far as possible down the next and so on, or to explore a problem by following one solution to its conclusion and then trying the next.</dd>
 <dt id="design_pattern" class="glossary">design pattern</dt>
 <dd class="glossary">A recurring pattern in software design that is specific enough to be worth naming, but not so specific that a single best implementation can be provided by a <g key="library">library</g>. For example, <g key="data_frame">data frames</g> and database <g key="table">tables</g> are instances of the same pattern.</dd>
 <dt id="destructuring_assignment" class="glossary">destructuring assignment</dt>
 <dd class="glossary">Unpacking values from data structures and assigning them to multiple variables in a single statement.</dd>
 <dt id="dag" class="glossary">directed acyclic graph (DAG)</dt>
 <dd class="glossary">A <g key="directed_graph">directed graph</g> which does not contain any loops (i.e., it is not possible to reach a <g key="node">node</g> from itself by following edges).</dd>
+<dt id="directed_graph" class="glossary">directed graph</dt>
+<dd class="glossary">A <g key="graph">graph</g> whose <g key="edge">edges</g> have directions.</dd>
 <dt id="dom" class="glossary">Document Object Model (DOM)</dt>
 <dd class="glossary">A standard in-memory representation of <g key="html">HTML</g> and <g key="xml">XML</g>. Each <g key="element">element</g> is stored as a <g key="node">node</g> in a <g key="tree">tree</g> with a set of named <g key="attribute">attributes</g>; contained elements are <g key="child_tree">child nodes</g>. Modern programming languages provide many libraries for searching and modifying the DOM.</dd>
 <dt id="dom_selector" class="glossary">DOM selector</dt>
@@ -64,6 +108,10 @@
 <dd class="glossary">To find a function or a property of an <g key="object">object</g> by name while a program is running. For example, instead of getting a specific property of an object using <code>obj.name</code>, a program might use <code>obj[someVariable]</code>, where <code>someVariable</code> could hold <code>&quot;name&quot;</code> or some other property name.</dd>
 <dt id="dynamic_scoping" class="glossary">dynamic scoping</dt>
 <dd class="glossary">To find the value of a <g key="variable_program">variable</g> by looking at what is on the <g key="call_stack">call stack</g> at the moment the lookup is done. Almost all programming languages use <g key="lexical_scoping">lexical_scoping</g> instead, since it is more predictable.</dd>
+<dt id="edge" class="glossary">edge</dt>
+<dd class="glossary">A connection between two <g key="node">nodes</g> in a <g key="graph">graph</g>.  An edge may have data associated with it, such as a name or distance.</dd>
+<dt id="element" class="glossary">element</dt>
+<dd class="glossary">A named component in an <g key="html">HTML</g> or <g key="xml">XML</g> document. Elements are usually written <code>&lt;name&gt;</code>...<code>&lt;/name&gt;</code>, where &quot;...&quot; represents the content of the element. Elements often have <g key="attribute">attributes</g>.</dd>
 <dt id="empty_element" class="glossary">empty element</dt>
 <dd class="glossary">An <g key="element">element</g> of an <g key="html">HTML</g> or <g key="xml">XML</g> document that has no <g key="child_tree">children</g>. Empty elements can always be written as <code>&lt;name&gt;&lt;/name&gt;</code>, but may also be written using the shorthand notation <code>&lt;name/&gt;</code> (with a slash after the name inside the angle brackets).</dd>
 <dt id="error_test" class="glossary">error (in a test)</dt>
@@ -74,84 +122,228 @@
 <dd class="glossary">A piece of code that deals with an <g key="exception">exception</g> after it is <g key="catch_exception">caught</g>, e.g., by writing a <g key="log_message">log message</g> or retrying the operation that failed.</dd>
 <dt id="expected_result" class="glossary">expected result (of test)</dt>
 <dd class="glossary">The value that a piece of software is suposed to produced when tested in a certain way, or the state in which it is supposed to leave the system.</dd>
+<dt id="export" class="glossary">export</dt>
+<dd class="glossary">To make something visible outside a <g key="module">module</g> so that other parts of a program can <g key="import">import</g> it. In most languages a module must export things explicitly in order to manage <g key="name_collision">name collision</g>.</dd>
 <dt id="fail_test" class="glossary">fail (a test)</dt>
 <dd class="glossary">A test fails if the <g key="actual_result">actual result</g> does not match the <g key="expected_result">expected result</g>.</dd>
+<dt id="false" class="glossary">false</dt>
+<dd class="glossary">The logical (<g key="boolean">Boolean</g>) state opposite of &quot;<g key="true">true</g>&quot;. Used in logic and programming to represent <g key="binary">binary</g> state of something.</dd>
+<dt id="field" class="glossary">field</dt>
+<dd class="glossary">A component of a <g key="record">record</g> containing a single value. Every record in a <g key="tibble">tibble</g> or database <g key="table">table</g> has the same fields.</dd>
+<dt id="filename_extension" class="glossary">filename extension</dt>
+<dd class="glossary">The last part of a filename, usually following the '.' symbol. Filename extensions are commonly used to indicate the type of content in the file, though there is usually no guarantee that this is correct.</dd>
 <dt id="filesystem" class="glossary">filesystem</dt>
 <dd class="glossary">The part of the operating system that manages how files are stored and retrieved.  Also used to refer to all of those files and directories or the specific way they are stored (as in &quot;the Unix filesystem&quot;).</dd>
 <dt id="filter" class="glossary">filter</dt>
 <dd class="glossary">As a verb, to choose a set of <g key="record">records</g> (i.e., rows of a table) based on the values they contain. As a noun, a command-line program that reads lines of text from files or <g key="stdin">standard input</g>, performs some operation on them (such as filtering), and writes to a file or <g key="stdout">stdout</g>.</dd>
 <dt id="fixture" class="glossary">fixture</dt>
 <dd class="glossary">The thing on which a test is run, such as the parameters to the function being tested or the file being processed.</dd>
+<dt id="for_loop" class="glossary">for loop</dt>
+<dd class="glossary">A statement in a program that repeats one or more other statements (the <g key="loop_body">loop body</g>) once for each item in a sequence, such as each number in a range or each element of a list.</dd>
 <dt id="generator_function" class="glossary">generator function</dt>
 <dd class="glossary">A function whose state is automatically saved when it returns a value so that execution can be restarted. Generator functions are typically used to produce streams of values that can be processed by <g key="for_loop">for loops</g>.</dd>
+<dt id="generic_function" class="glossary">generic function</dt>
+<dd class="glossary">A collection of functions with similar purpose, each operating on a different class of data.</dd>
 <dt id="global_variable" class="glossary">global variable</dt>
 <dd class="glossary">A variable defined outside any particular function, which is therefore visible to all functions.</dd>
 <dt id="globbing" class="glossary">globbing</dt>
 <dd class="glossary">To specify a set of filenames using a simplified form of <g key="regular_expression">regular expressions</g>, such as <code>*.dat</code> to mean &quot;all files whose names end in <code>.dat</code>&quot;. The name is derived from &quot;global&quot;.</dd>
+<dt id="graph" class="glossary">graph</dt>
+<dd class="glossary"><ol>
+<li>A plot or a chart that displays data, or 2. a data structure in which <g key="node">nodes</g> are connected to one another by <g key="edge">edges</g>.</li>
+</ol></dd>
+<dt id="hash_function" class="glossary">hash function</dt>
+<dd class="glossary">A function that turns arbitrary data into a bit array of a fixed size. Hash functions are used to determine where data should be stored in a <g key="hash_table">hash table</g>.</dd>
+<dt id="hash_table" class="glossary">hash table</dt>
+<dd class="glossary">A data structure that calculates a pseudo-random key for each value and stores the value in that location. Hash tables enable fast lookup for arbitrary data at the cost of extra memory.</dd>
 <dt id="http_header" class="glossary">HTTP header</dt>
 <dd class="glossary">A key-value pair at the top of an <g key="http">HTTP</g> <g key="http_request">request</g> or <g key="http_response">response</g> that carries additional information such as the user's preferred language or the length of the data being transferred.</dd>
+<dt id="http_request" class="glossary">HTTP request</dt>
+<dd class="glossary">A message sent from a <g key="client">client</g> to a <g key="server">server</g> using the <g key="http">HTTP</g> <g key="protocol">protocol</g> asking for data. A request usually asks for a web page, image, or other data.</dd>
+<dt id="http_response" class="glossary">HTTP response</dt>
+<dd class="glossary">A reply sent from a <g key="server">server</g> to a <g key="client">client</g> using the <g key="http">HTTP</g> <g key="protocol">protocol</g> in response to a <g key="http_request">request</g>. The response usually contains a web page, image, or data.</dd>
+<dt id="html" class="glossary">HyperText Markup Language (HTML)</dt>
+<dd class="glossary">The standard <g key="markup_language">markup language</g> used for web pages. HTML is represented in memory using <g key="dom">DOM</g>.</dd>
+<dt id="http" class="glossary">HyperText Transfer Protocol (HTTP)</dt>
+<dd class="glossary">The standard <g key="protocol">protocol</g> for data transfer on the World-Wide Web.  HTTP defines the format of <g key="http_request">requests</g> and <g key="http_response">responses</g>, the meanings of standard error codes, and other features.</dd>
+<dt id="import" class="glossary">import</dt>
+<dd class="glossary">To bring things from a <g key="module">module</g> into a program for use. In most languages a program can only import things that the module explicitly <g key="export">exports</g>.</dd>
+<dt id="instance" class="glossary">instance</dt>
+<dd class="glossary">FIXME</dd>
+<dt id="interpreted_language" class="glossary">interpreted language</dt>
+<dd class="glossary">A high-level language that is not executed directly by the computer, but instead is run by an <g key="interpreter">interpreter</g> that translates program instructions into machine commands on the fly.</dd>
+<dt id="interpreter" class="glossary">interpreter</dt>
+<dd class="glossary">A program whose job it is to run programs written in a high-level <g key="interpreted_language">interpreted language</g>.</dd>
+<dt id="issue" class="glossary">issue</dt>
+<dd class="glossary">A <g key="bug_report">bug report</g>, feature request, or other to-do item associated with a project. Also called a <g key="ticket">ticket</g>.</dd>
 <dt id="iterator_pattern" class="glossary">Iterator pattern</dt>
 <dd class="glossary">A <g key="design_pattern">design pattern</g> in which a temporary object or <g key="generator_function">generator function</g> produces each value from a collection in turn for processing. This pattern hides the differences between different kinds of data structures so that everything can be processed using loops.</dd>
 <dt id="json" class="glossary">JavaScript Object Notation (JSON)</dt>
 <dd class="glossary">A way to represent data by combining basic values like numbers and character strings in lists and name/value structures. The acronym stands for &quot;JavaScript Object Notation&quot;; unlike better-defined standards like <g key="xml">XML</g>, it is unencumbered by a syntax for comments or ways to define a <g key="schema">schema</g>.</dd>
 <dt id="lexical_scoping" class="glossary">lexical scoping</dt>
 <dd class="glossary">To look up the value associated with a name according to the textual structure of a program. Most programming languages use lexical scoping instead of <g key="dynamic_scoping">dynamic scoping</g> because the latter is less predictable.</dd>
+<dt id="library" class="glossary">library</dt>
+<dd class="glossary">A reusable software package, also often called a <g key="module">module</g>.</dd>
 <dt id="lifecycle" class="glossary">lifecycle</dt>
 <dd class="glossary">The steps that something is allowed or required to go through. The lifecycle of an <g key="object">object</g> runs from its <g key="constructor">construction</g> through the operations it can or must perform before it is destroyed; the lifecycle of an <g key="issue">issue</g> may be &quot;created&quot;, &quot;assigned&quot;, &quot;in progress&quot;, &quot;ready for review&quot;, and &quot;completed&quot;.</dd>
 <dt id="line_comment" class="glossary">line comment</dt>
 <dd class="glossary">A <g key="comment">comment</g> in a program that spans part of a single line, as opposed to a <g key="block_comment">block comment</g> that may span multiple lines.</dd>
 <dt id="linter" class="glossary">linter</dt>
 <dd class="glossary">A program that checks for common problems in software, such as violations of indentation rules or variable naming conventions. The name comes from the first tool of its kind, called <code>lint</code>.</dd>
+<dt id="log" class="glossary">log</dt>
+<dd class="glossary">A record of a program's execution containing <g key="log_message">messages</g> written via a <g key="logging_framework">logging framework</g> for later inspection.</dd>
 <dt id="log_message" class="glossary">log message</dt>
 <dd class="glossary">A single entry in a <g key="log">log</g> of a program's execution. Log messages are usually highly structured so that data (such as the time or the severity) can be recovered later.</dd>
+<dt id="logging_framework" class="glossary">logging framework</dt>
+<dd class="glossary">A software library that managing internal reporting for programs.</dd>
+<dt id="loop_body" class="glossary">loop body</dt>
+<dd class="glossary">The statement or statements executed by a loop.</dd>
+<dt id="markdown" class="glossary">Markdown</dt>
+<dd class="glossary">A markup language with a simple syntax intended as a replacement for HTML. Markdown is often used for README files, and is the basis for <a href="r_markdown">R markdown</a>.</dd>
+<dt id="markup_language" class="glossary">markup language</dt>
+<dd class="glossary">A set of rules for annotating text to define its meaning or how it should be displayed. The markup is usually not displayed, but instead controls how the underlying text is interpreted or shown. <g key="markdown">Markdown</g> and <g key="html">HTML</g> are widely-used markup languages for web pages.</dd>
 <dt id="method" class="glossary">method</dt>
 <dd class="glossary">An implementation of a <g key="generic_function">generic function</g> that handles objects of a specific class.</dd>
 <dt id="mime_type" class="glossary">MIME type</dt>
 <dd class="glossary">A standard way to identify the contents of files on the internet. The term is an acronym of &quot;multi-purpose Internet mail extension&quot;, and MIME types are often identified by <g key="filename_extension">filename extensions</g>, such as <code>.png</code> for PNG-formatted images.</dd>
 <dt id="mock_object" class="glossary">mock object</dt>
 <dd class="glossary">A simplified replacement for part of a program whose behavior is easy to control and predict. Mock objects are used in <g key="unit_test">unit tests</g> to simulate databases, web services, and other complex systems.</dd>
+<dt id="module" class="glossary">module</dt>
+<dd class="glossary">A reusable software package, also often called a <g key="library">library</g>.</dd>
+<dt id="multi_threaded" class="glossary">multi-threaded</dt>
+<dd class="glossary">Capable of performing several operations simultaneously. Multi-threaded programs are usually more efficient than <g key="single_threaded">single-threaded</g> ones, but also harder to understand and debug.</dd>
+<dt id="name_collision" class="glossary">name collision</dt>
+<dd class="glossary">The ambiguity that arises when two or more things in a program that have the same name are active at the same time. Most languages use <g key="namespace">namespaces</g> to prevent such collisions.</dd>
+<dt id="namespace" class="glossary">namespace</dt>
+<dd class="glossary">A collection of names in a program that exists in isolation from other namespaces. Each function, <g key="object">object</g>, <g key="class">class</g>, or <g key="module">module</g> in a program typically has its own namespace so that references to &quot;X&quot; in one part of a program don't accidentally refer to something called &quot;X&quot; in another part of the program.</dd>
+<dt id="node" class="glossary">node</dt>
+<dd class="glossary">An element of a <g key="graph">graph</g> that is connected to other nodes by <g key="edge">edges</g>. Nodes typically have data associated with them, such as names or weights.</dd>
 <dt id="non_blocking_execution" class="glossary">non-blocking execution</dt>
 <dd class="glossary">To allow a program to continue running while an operation is in progress. For example, many systems support non-blocking execution for file I/O so that the program can continue doing work while it waits for data to be read from or written to the <g key="filesystem">filesystem</g> (which is typically much slower than the CPU).</dd>
+<dt id="object" class="glossary">object</dt>
+<dd class="glossary">In <g key="oop">object-oriented programming</g>, a structure that contains the data for a specific instance of a <g key="class">class</g>. The operations the object is capable of are defined by the class's <g key="method">methods</g>.</dd>
+<dt id="oop" class="glossary">object-oriented programming (OOP)</dt>
+<dd class="glossary">A style of programming in which functions and data are bound together in objects that only interact with each other through well-defined interfaces.</dd>
+<dt id="observation" class="glossary">observation</dt>
+<dd class="glossary">FIXME</dd>
+<dt id="off_by_one_error" class="glossary">off-by-one error</dt>
+<dd class="glossary">A common error in programming in which the program refers to element <code>i</code> of a structure when it should refer to element <code>i-1</code> or <code>i+1</code>, or processes <code>N</code> elements when it should process <code>N-1</code> or <code>N+1</code>.</dd>
+<dt id="operating_system" class="glossary">operating system</dt>
+<dd class="glossary">A program that provides a standard interface to whatever hardware it is running on. Theoretically, any program that only interacts with the operating system should run on any computer that operating system runs on.</dd>
+<dt id="parent_tree" class="glossary">parent (in a tree)</dt>
+<dd class="glossary">A <g key="node">node</g> in a <g key="node">tree</g> that is above another node (call a <g key="child_tree">child</g>). Every node in a tree except the <g key="root_tree">root node</g> has a single parent.</dd>
+<dt id="parent_class" class="glossary">parent class</dt>
+<dd class="glossary">In <g key="oop">object-oriented programming</g>, the class from which another class (called the <g key="child_class">child class</g>) is derived.</dd>
 <dt id="pass_test" class="glossary">pass (a test)</dt>
 <dd class="glossary">A test passes if the <g key="actual_result">actual result</g> matches the <g key="expected_result">expected result</g>.</dd>
 <dt id="path" class="glossary">path (in filesystem)</dt>
 <dd class="glossary">A string that specifies a location in a <g key="filesystem">filesystem</g>. In Unix, the directories in a path are joined using <code>/</code>.</dd>
 <dt id="pattern_rule" class="glossary">pattern rule</dt>
 <dd class="glossary">A generic <g key="build_rule">build rule</g> that describes how to update any file whose name matches a pattern. Pattern rules often use <g key="automatic_variable">automatic variables</g> to represent the actual filenames.</dd>
+<dt id="pipe_shell" class="glossary">pipe (in the Unix shell)</dt>
+<dd class="glossary">The <code>|</code> used to make the output of one command the input of the next.</dd>
+<dt id="prerequisite" class="glossary">prerequisite</dt>
+<dd class="glossary">Something that a <g key="build_target">build target</g> depends on.</dd>
+<dt id="process" class="glossary">process</dt>
+<dd class="glossary">An <g key="operating_system">operating system</g>'s representation of a running program. A process typically has some memory, the identify of the user who is running it, and a set of connections to open files.</dd>
+<dt id="production_code" class="glossary">production code</dt>
+<dd class="glossary">Software that is delivered to an end user. The term is used to distinguish such code from test code, deployment infrastructure, and everything else that programmers write along the way.</dd>
 <dt id="promisification" class="glossary">promisification</dt>
 <dd class="glossary">FIXME</dd>
 <dt id="protocol" class="glossary">protocol</dt>
 <dd class="glossary">Any standard specifying how two pieces of software interact. A network protocol such as <g key="http">HTTP</g> defines the messages that <g key="client">clients</g> and <g key="server">servers</g> exchange on the World-Wide Web; <g key="oop">object-oriented</g> programs often define protocols for interactions between <g key="object">objects</g> of different <g key="class">classes</g>.</dd>
+<dt id="python" class="glossary">Python</dt>
+<dd class="glossary">A popular interpreted open-source programming language that relies on indentation to define control structure.</dd>
 <dt id="query_string" class="glossary">query string</dt>
 <dd class="glossary">The portion of a <g key="url">URL</g> after the quesiton mark <code>?</code> that specifies extra parameters for the <g key="http_request">HTTP request</g> as name-value pairs.</dd>
+<dt id="raise_exception" class="glossary">raise (an exception)</dt>
+<dd class="glossary">To signal that something unexpected or unusual has happened in a program by creating an <g key="exception">exception</g> and handing it to the error-handling system, which then tries to find a point in the program that will <g key="catch_exception">catch</g> it.</dd>
+<dt id="record" class="glossary">record</dt>
+<dd class="glossary">A group of related values that are stored together. A record may be represented as a <g key="tuple">tuple</g> or as a row in a <g key="table">table</g>; in the latter case, every record in the table has the same <g key="field">fields</g>.</dd>
+<dt id="regular_expression" class="glossary">regular expression</dt>
+<dd class="glossary">A pattern for matching text, written as text itself. Regular expressions are sometimes called &quot;regexp&quot;, &quot;regex&quot;, or &quot;RE&quot;, and are as powerful as they are cryptic.</dd>
+<dt id="relational_database" class="glossary">relational database</dt>
+<dd class="glossary">A database that organizes information into tables, each of which has a fixed set of named fields (shown as columns) and a variable number of records (shown as rows).</dd>
+<dt id="repository" class="glossary">repository</dt>
+<dd class="glossary">A place where a <g key="version_control_system">version control system</g> stores the files that make up a project and the metadata that describes their history.</dd>
+<dt id="root_tree" class="glossary">root (in a tree)</dt>
+<dd class="glossary">The node in a tree of which all other nodes are direct or indirect <g key="child_tree">children</g>, or equivalently the only node in the tree that has no <g key="parent_tree">parent</g>.</dd>
+<dt id="s3" class="glossary">S3</dt>
+<dd class="glossary">A framework for object-oriented programming in R.</dd>
 <dt id="sandbox" class="glossary">sandbox</dt>
 <dd class="glossary">A testing environment that is separate from the production system, or an environment that is only allowed to perform a restricted set of operations for security reasons.</dd>
+<dt id="schema" class="glossary">schema</dt>
+<dd class="glossary">A specification of the format of a dataset, including the name, format, and content of each <g key="table">table</g>.</dd>
 <dt id="search_path" class="glossary">search path</dt>
 <dd class="glossary">The list of directories that a program searches to find something. For example, the Unix <g key="shell">shell</g> uses the search path stored in the <code>PATH</code> variable when trying to find a program given its name.</dd>
+<dt id="server" class="glossary">server</dt>
+<dd class="glossary">Typically, a program such as a database manager or web server that provides data to a <g key="client">client</g> upon request.</dd>
+<dt id="shell" class="glossary">shell</dt>
+<dd class="glossary">A <g key="cli">command-line interface</g> that allows a user to interact with the operating system, such as Bash (for Unix) or PowerShell (for Windows).</dd>
 <dt id="side_effect" class="glossary">side effect</dt>
 <dd class="glossary">A change made by a function while it runs that is visible after the function finishes, such as modifying a <g key="global_variable">global variable</g> or writing to a file. Side effects make programs harder for people to understand, since the effects are not necessarily clear where the function is called.</dd>
 <dt id="single_threaded" class="glossary">single-threaded</dt>
 <dd class="glossary">A model of program execution in which only one thing can happen at a time. Single-threaded execution is easier for people to understand but less efficient than <g key="multi_threaded">multi-threaded</g> execution.</dd>
+<dt id="singleton" class="glossary">singleton</dt>
+<dd class="glossary">A set with only one element, or a <g key="class">class</g> with only one <g key="instance">instance</g>.</dd>
 <dt id="singleton_pattern" class="glossary">Singleton pattern</dt>
 <dd class="glossary">A <g key="design_pattern">design pattern</g> that creates a <g key="singleton">singleton</g> object to manage some resource or service, such as a database or <g key="cache">cache</g>.  In <g key="oop">object-oriented programming</g>, the pattern is usually implemented by hiding the <g key="constructor">constructor</g> of the class in some way so that it can only be called once.</dd>
 <dt id="stack_frame" class="glossary">stack frame</dt>
 <dd class="glossary">A section of the <g key="call_stack">call stack</g> that records details of a single call to a specific function.</dd>
 <dt id="build_stale" class="glossary">stale (in build)</dt>
 <dd class="glossary">To be out of date compared to a <g key="prerequisite">prerequisite</g>.  A <g key="build_manager">build manager</g>'s job is to find and update things that are stale.</dd>
+<dt id="stdin" class="glossary">standard input</dt>
+<dd class="glossary">A predefined communication channel for a <g key="process">process</g>, typically used to read input from the keyboard or from the previous process in a <g key="pipe_shell">pipe</g>.</dd>
+<dt id="stdout" class="glossary">standard output</dt>
+<dd class="glossary">A predefined communication channel for a <g key="process">process</g>, typically used to send output to the screen or to the next process in a <g key="pipe_shell">pipe</g>.</dd>
 <dt id="stream" class="glossary">stream</dt>
 <dd class="glossary">A sequential flow of data, such as the bits arriving across a network connection or the bytes read from a file.</dd>
 <dt id="string_interpolation" class="glossary">string interpolation</dt>
 <dd class="glossary">The process of inserting text corresponding to specified values into a string, usually to make output human-readable.</dd>
+<dt id="synchronous" class="glossary">synchronous</dt>
+<dd class="glossary">To happen at the same time. In programming, synchronous operations are ones that have to run simultaneously or complete at the same time.</dd>
+<dt id="table" class="glossary">table</dt>
+<dd class="glossary">A set of records in a <g key="relational_database">relational database</g> or observations in a <g key="data_frame">data frame</g>.  Tables are usually displayed as rows (each of which represents one <g key="record">record</g> or <g key="observation">observation</g>) and columns (each of which represents a <g key="field">field</g> or <g key="variable_data">variable</g>).</dd>
 <dt id="template_method_pattern" class="glossary">Template Method pattern</dt>
 <dd class="glossary">A <g key="design_pattern">design pattern</g> in which a <g key="parent_class">parent class</g> defines an overall sequence of operations by calling <g key="abstract_method">abstract methods</g> that <g key="child_class">child classes</g> must then implement. Each child class then behaves in the same general way, but implements the steps in different ways.</dd>
+<dt id="tibble" class="glossary">tibble</dt>
+<dd class="glossary">A modern replacement for R's data frame, which stores tabular data in columns and rows, defined and used in the <g key="tidyverse">tidyverse</g>.</dd>
+<dt id="ticket" class="glossary">ticket</dt>
+<dd class="glossary">See <g key="issue">issue</g>.</dd>
+<dt id="tidyverse" class="glossary">Tidyverse</dt>
+<dd class="glossary">A collection of R packages for operating on tabular data in consistent ways.</dd>
 <dt id="topological_order" class="glossary">topological order</dt>
 <dd class="glossary">Any ordering of the <g key="node">nodes</g> in a <g key="graph">graph</g> that respects the direction of its <g key="edge">edges</g>, i.e., if there is an edge from node A to node B, A comes before B in the ordering. There may be many topological orderings of a particular graph.</dd>
+<dt id="tree" class="glossary">tree</dt>
+<dd class="glossary">A <g key="graph">graph</g> in which every node except the <g key="root_tree">root</g> has exactly one <g key="parent_tree">parent</g>.</dd>
+<dt id="true" class="glossary">true</dt>
+<dd class="glossary">The logical (<g key="boolean">Boolean</g>) state opposite of &quot;<g key="false">false</g>&quot;. Used in logic and programming to represent <g key="binary">binary</g> state of something.</dd>
+<dt id="tuple" class="glossary">tuple</dt>
+<dd class="glossary">A value that has multiple parts, such as the three color components of a red-green-blue color specification.</dd>
+<dt id="two_hard_problems" class="glossary">two hard problems in computer science</dt>
+<dd class="glossary">Refers to a quote by Phil Karlton: &quot;There are only two hard problems in computer science: cache invalidation and naming things.&quot; Many variations add a third problem (most often &quot;<g key="off_by_one_error">off-by-one errors</g>&quot;).</dd>
+<dt id="unicode" class="glossary">Unicode</dt>
+<dd class="glossary">A standard that defines numeric codes for many thousands of characters and symbols. Unicode does not define how those numbers are stored; that is done by standards like <g key="utf_8">UTF-8</g>.</dd>
+<dt id="url" class="glossary">Uniform Resource Locator (URL)</dt>
+<dd class="glossary">A unique address on the World-Wide Web. URLs originally identified web pages, but may also represent datasets or database queries, particularly if they include a <g key="query_string">query string</g>.</dd>
+<dt id="unit_test" class="glossary">unit test</dt>
+<dd class="glossary">A test that exercises one function or feature of a piece of software and produces <g key="pass_test">pass</g>, <g key="fail_test">fail</g>, or <g key="error_test">error</g>.</dd>
 <dt id="utf_8" class="glossary">UTF-8</dt>
 <dd class="glossary">A way to store the numeric codes representing Unicode characters in memory that is <g key="backward_compatible">backward-compatible</g> with the older <g key="ascii">ASCII</g> standard.</dd>
+<dt id="variable_data" class="glossary">variable (data)</dt>
+<dd class="glossary">FIXME</dd>
+<dt id="variable_program" class="glossary">variable (program)</dt>
+<dd class="glossary">A name in a program that has some data associated with it. A variable's value can be changed after definition.</dd>
+<dt id="version_control_system" class="glossary">version control system</dt>
+<dd class="glossary">A system for managing changes made to software during its development.</dd>
 <dt id="visitor_pattern" class="glossary">Visitor pattern</dt>
 <dd class="glossary">A <g key="design_pattern">design pattern</g> in which the operation to be done is taken to each element of a data structure in turn.  It is usually implemented by having a generator &quot;visitor&quot; that knows how to reach the structure's elements, and which is given a function or method to call for each in turn that carries out the specific operation.</dd>
 <dt id="walk_tree" class="glossary">walk (a tree)</dt>
 <dd class="glossary">To visit each <g key="node">node</g> in a <g key="tree">tree</g> in some order, typically <g key="depth_first">depth-first</g> or <g key="breadth_first">breadth-first</g>.</dd>
+<dt id="while_loop" class="glossary">while loop</dt>
+<dd class="glossary">A statement in a program that repeats one or more other statements (the <g key="loop_body">loop body</g>) as long as a condition is true.</dd>
+<dt id="xml" class="glossary">XML</dt>
+<dd class="glossary">A set of rules for defining <g key="html">HTML</g>-like tags and using them to format documents (typically data). XML was popular in the early 2000s, but its complexity led many programmers to adopt <g key="json">JSON</g> instead.</dd>
 <dt id="yaml" class="glossary">YAML</dt>
 <dd class="glossary">Short for &quot;YAML Ain't Markup Language&quot;, a way to represent nested data using indentation rather than the parentheses and commas of <g key="json">JSON</g>. YAML is often used in configuration files and to define parameters for various flavors of <g key="markdown">Markdown</g> documents.</dd>
 

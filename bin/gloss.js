@@ -99,44 +99,32 @@ const mergeGlossaries = (...glossaries) => {
  * @param {Object} gloss All glossary entries.
  */
 const getRequired = (config, gloss) => {
-  let result = new Set()
-  let expanded = new Set(
+  const pending = new Set(
     config.sources.map(filename => {
       const text = fs.readFileSync(filename, 'utf-8')
       return [...text.matchAll(/<g\s+key="(.+?)">/g)]
         .map(match => match[1])
     }).flat()
   )
-  while (expanded.size > result.size) {
-    result = expanded
-    expanded = addKeysFromDefs(gloss, result)
-  }
-  return result
-}
-
-/**
- * Expand definitions by looking at bodies of definitions.
- * @param {Object} gloss All glossary entries.
- * @param {Set} soFar Keys found so far.
- * @returns {Set} Expanded set of keys.
- */
-const addKeysFromDefs = (gloss, soFar) => {
+  const queue = [...pending]
   const result = new Set()
-  let failed = false
-  for (let key of soFar) {
-    if (key in gloss) {
-      result.add(key)
-      for (match in gloss[key].en.def.matchAll(/]\(#(.+?)\)/g)) {
-        result.add(match[1])
-      }
+  while (queue.length > 0) {
+    const key = queue.pop()
+    pending.delete(key)
+    result.add(key)
+    if (!(key in gloss)) {
+      console.error('MISSING', key)
     }
     else {
-      console.error(`Unknown key "${key}"`)
-      failed = true
+      const matches = [...gloss[key].en.def.matchAll(/\(#(.+?)\)/g)]
+      matches.forEach(match => {
+        const newKey = match[1]
+        if (!result.has(newKey) && !pending.has(newKey)) {
+          pending.add(newKey)
+          queue.push(newKey)
+        }
+      })
     }
-  }
-  if (failed) {
-    process.exit(1)
   }
   return result
 }

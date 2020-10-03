@@ -287,8 +287,7 @@ module.exports = new Hope()
 </ul>
 <h2 id="how-can-we-build-a-commandline-driver-for-our-test-manager">How can we build a command-line driver for our test manager?</h2>
 <ul>
-<li>Find files named <code>test-*.js</code> below a user-specified root directory</li>
-<li>Keeping these files simple is the most important part of our design</li>
+<li>Keeping the files containing tests simple is the most important part of our design</li>
 <li>Example in <code>test-add.js</code></li>
 </ul>
 <pre title="test-add.js"><code class="language-js">const assert = require('assert')
@@ -297,44 +296,43 @@ const hope = require('./hope')
 hope.test('Sum of 1 and 2', () =&gt; assert((1 + 2) === 3))
 </code></pre>
 <ul>
-<li>
-<p>Load those <g key="dynamic_loading">dynamically</g></p>
+<li>Load those <g key="dynamic_loading">dynamically</g>
 <ul>
 <li><code>require</code> is just a function</li>
 <li>Takes a path as a parameter and reads that file</li>
 </ul>
 </li>
-<li>
-<p>Loading files executes the code they contain</p>
+<li>Loading files executes the code they contain
 <ul>
 <li>Which registers tests as a <g key="side_effect">side effect</g> of calls to <code>hope.test</code></li>
 </ul>
 </li>
-<li>
-<p>Final part is the command-line tool that finds and loads tests</p>
+<li>Final part is the command-line tool that finds and loads tests
 <ul>
 <li>Parse command-line arguments using <code>minimist</code> module</li>
-<li>Find and load all files that match <code>test-*.js</code></li>
+<li>Use the filenames provided or find and load all files that match <code>test-*.js</code></li>
 <li>Call <code>hope.run()</code> to run all the tests they have registered</li>
 <li>Report results</li>
 </ul>
 </li>
-<li>
-<p>Doesn't export anything, just runs</p>
-</li>
+<li>Doesn't export anything, just runs</li>
 </ul>
 <pre title="pray.js"><code class="language-js">const minimist = require('minimist')
 const glob = require('glob')
 const hope = require('./hope')
 
 const DEFAULTS = {
+  filenames: [],
   root: '.',
   output: 'terse'
 }
 
 const main = (args) =&gt; {
   const options = parse(args)
-  glob.sync(`${options.root}/**/test-*.js`).forEach(f =&gt; {
+  if (options.filenames.length === 0) {
+    options.filenames = glob.sync(`${options.root}/**/test-*.js`)
+  }
+  options.filenames.forEach(f =&gt; {
     require(f)
   })
   hope.run()
@@ -349,17 +347,18 @@ const parse = (args) =&gt; {
   const argv = minimist(args)
   for (const key in argv) {
     switch (key) {
-      case 'd' :
-        options.root = argv[key]
-        break
-      case 'v' :
-        options.output = 'verbose'
-        break
-      case '_':
-        break
-      default :
-        console.error(`unrecognized option ${key}`)
-        break
+    case 'd' :
+      options.root = argv[key]
+      break
+    case 'v' :
+      options.output = 'verbose'
+      break
+    case '_':
+      options.filenames = argv[key]
+      break
+    default :
+      console.error(`unrecognized option ${key}`)
+      break
     }
   }
   return options
@@ -378,6 +377,15 @@ fails:
 errors:
   /Users/gvwilson/stj/unit-test/test-missing.js::Sum of x and 0
 </code></pre>
+<blockquote>
+<p><strong>Filenames in <code>minimist</code></strong></p>
+<p>If we use a command line like <code>pray.js -v something.js</code>,
+then <code>something.js</code> becomes the value of <code>-v</code>.
+To indicate that we want <code>something.js</code> added to the list of trailing filenames
+associated with the special key <code>_</code> (a single underscore),
+we have to write <code>pray.js -v -- something.js</code>.
+The double dash is a common Unix convention for signalling the end of parameters.</p>
+</blockquote>
 <ul>
 <li>Trace the <g key="lifecycle">lifecycle</g> of a pair of files <code>test-add.js</code> and <code>test-sub.js</code>
 <ul>
@@ -403,6 +411,8 @@ errors:
 </ul>
 </li>
 </ul>
+<h2 id="how-do-we-handle-promises-in-tests">How do we handle promises in tests?</h2>
+<p>FIXME: explain how to manage tests that create promises (may require rewriting existing framework)</p>
 </main>
 <footer>
 <div class="row">
