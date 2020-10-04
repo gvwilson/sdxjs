@@ -1,26 +1,13 @@
 ---
 ---
 
-## Systems Programming
+<% site.chapters.filter(chapter => 'exercises' in chapter).forEach(chapter => { %>
+<h2><%- chapter.title %></h2>
 
-### Significant entries
+<% chapter.exercises.forEach(ex => { %>
+<h3><%- ex.title %></h3>
 
-FIXME: solution to exercise.
+<%- fs.readFileSync(`${root}/${chapter.slug}/x-${ex.slug}-solution.md`, 'utf-8') %>
 
-## Style Checker
-
-### How long are functions?
-
-FIXME: solution to exercise.
-
-### How deep are expressions?
-
-FIXME: solution to exercise.
-
-### Downward and upward
-
-FIXME: solution to exercise.
-
-### Aggregating across files
-
-FIXME: solution to exercise.
+<% }) %>
+<% }) %>

@@ -23,5 +23,6 @@
   "bib": "D",
   "gloss": "E",
   "links": "F",
-  "authors": "G"
+  "solutions": "G",
+  "authors": "H"
 }

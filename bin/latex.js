@@ -246,6 +246,11 @@ const htmlToLatex = (config, fileInfo, node, accum) => {
     node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
     accum.push('}')
   }
+  else if (node.nodeName === 'h3') {
+    accum.push(`\\subsection*{`)
+    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    accum.push('}')
+  }
   else if (node.nodeName === 'img') {
     const src = getAttr(node, 'src')
     accum.push(`\\image{${src}}`)
