@@ -15,6 +15,11 @@ const yaml = require('js-yaml')
 const SUFFIX = new Set(['.html', '.js', '.sh', '.text'])
 
 /**
+ * Maximum width of lines in code inclusions.
+ */
+const WIDTH = 60
+
+/**
  * Main driver.
  */
 const main = () => {
@@ -23,6 +28,7 @@ const main = () => {
   const html = loadHtml(config)
   checkInclusions(markdown)
   checkGloss(html)
+  checkWidths(html)
 }
 
 /**
@@ -74,8 +80,8 @@ const checkGloss = (files) => {
     const matches = [...text.matchAll(/<dt\s+id="(.+?)"\s+class="glossary">/g)]
     return matches.map(match => match[1])
   }).flat())
-  showSetDiff('glossary used but not defined', used, defined)
-  showSetDiff('glossary defined but not used', defined, used)
+  showSetDiff('Glossary used but not defined', used, defined)
+  showSetDiff('Glossary defined but not used', defined, used)
 }
 
 /**
@@ -83,12 +89,15 @@ const checkGloss = (files) => {
  * @param {Array<Object>} files File information.
  */
 const checkInclusions = (files) => {
+  const existing = new Set()
+  const included = new Set()
   files.forEach(({filename, text}) => {
-    const existing = glob.sync(`${path.dirname(filename)}/*.*`)
-          .filter(f => SUFFIX.has(path.extname(f)))
-    const included = getIncluded(filename, text)
-    showSetDiff('in directory but not included', existing, included)
+    glob.sync(`${path.dirname(filename)}/*.*`)
+      .filter(f => SUFFIX.has(path.extname(f)))
+      .forEach(f => existing.add(f))
+    getIncluded(filename, text).forEach(filename => included.add(filename))
   })
+  showSetDiff('In directories but not included', existing, included)
 }
 
 /**
@@ -117,6 +126,27 @@ const getIncluded = (filename, text) => {
     }
   })
   return result
+}
+
+/**
+ * Check widths of code inclusions.
+ * @param {Array<Object>} files File information.
+ */
+const checkWidths = (files) => {
+  const counts = files.reduce((accum, {filename, text}) => {
+    const matches = [...text.matchAll(/<pre\s+title="(.+?)"><code.+?>([^]+?)<\/code><\/pre>/g)]
+    const num = matches.reduce((accum, [match, title, body]) => {
+      const lines = body.split('\n').filter(line => line.length > WIDTH)
+      return accum + lines.length
+    }, 0)
+    accum[filename] = num
+    return accum
+  }, {})
+  const oversize = Object.keys(counts).filter(filename => counts[filename] > 0).sort()
+  if (oversize.length > 0) {
+    const result = oversize.map(filename => `${filename}: ${counts[filename]}`).join('\n- ')
+    console.log(`Over-length code lines:\n- ${result}`)
+  }
 }
 
 /**
