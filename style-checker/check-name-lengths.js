@@ -17,7 +17,7 @@ console.log(result)
 
 const applyCheck = (state, label, node, passes) => {
   if (!passes) {
-    if (!state.hasOwnProperty(label)) {
+    if (!(label in state)) {
       state[label] = []
     }
     state[label].push(node)

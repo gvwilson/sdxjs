@@ -2,34 +2,42 @@
 ---
 
 -   Goal: check that source code conforms to style guidelines.
-    -   Tools like this are called <g key="linter">linters</g> in honor of an early one named `lint`
-        (which looked for fluff in source code).
+    -   Tools like this are called <g key="linter">linters</g> in honor of an early one for C named `lint`
+        because it looked for fluff in source code
+    -   "That's legal, but you shouldn't do it"
 -   Inspirations:
     -   [ESLint][eslint]
 -   Design:
-    -   Parse source to create an <g key="abstract_syntax_tree">abstract syntax tree</g> (AST)
-    -   <g key="walk_tree">Walk</g> the AST and apply rules at each node
-    -   Express each rule as a function that takes the node and an object for collecting results
-    -   Report all results at the end
+    -   Parse source code to create a data structure
+    -   Go through the data structure and apply rules for each part of the program
+    -   Collect results and report them all at the end
 
 ## How can we parse JavaScript to create an AST?
 
--   Use [Acorn][acorn]
+-   A parser for a simple language like arithmetic or JSON is relatively easy to write
+    -   We could do it in a chapter
+-   A parser for a language as complex as JavaScript is much more work
+-   We will use [Acorn][acorn] instead
 
 <%- include('/inc/multi.html', {pat: 'parse-single-const.*', fill: 'js text'}) %>
 
-## What is included in the AST?
-
+-   Produces an <g key="abstract_syntax_tree">abstract syntax tree</g> (AST)
+    whose nodes store information about what's in the program
 -   [Esprima][esprima] format
+    -   But we can figure most of it out by inspection rather than by reading the standard
 -   Look at the result of parsing a slightly more complex program
+    -   A 9-line program produces over 500 lines of structure
 
 <%- include('/inc/multi.html', {pat: 'parse-const-func-and-call.*', fill: 'js text'}) %>
 
 ## How can we walk the AST?
 
--   Use a helper library `acorn-walk`
+-   To [walk a tree](#walk_tree) means to visit each node in turn
+-   Use a helper library `acorn-walk` to do this
     -   Provide a function to act on nodes of type `Identifier`
-    -   Accumulate comments in the `onComment` array during parsing
+    -   Use options to say that we want to record locations and to collect comments (in the array `onComment`)
+    -   We create an object called `state` to record declaration nodes as they're found
+    -   Then report them all at the end
 
 <%- include('/inc/multi.html', {pat: 'walk-ast.*', fill: 'js text'}) %>
 
@@ -39,23 +47,23 @@
 -   Accumulate results on demand
     -   Only create arrays of results when nodes of that type are encountered
     -   Only insert nodes that fail checks
--   Hm: why doesn't the parameter `x` show up as a violation?
-
 <%- include('/inc/multi.html', {pat: 'check-name-lengths.*', fill: 'js text'}) %>
+
+-   Why doesn't the parameter `x` show up as a violation?
 
 ## How does the AST walker work?
 
 -   Use the <g key="visitor_pattern">Visitor</g> design pattern
 -   Define a class with methods that
     -   Walk the tree
-    -   Take action at each kind of node
+    -   Take action depending on the kind of node
     -   Go through the children of that node
 -   Users overrides the set of action methods they're interested in
     -   Use <g key="dynamic_lookup">dynamic lookup</g> to look up a method
         with the same name as the node type in the walker object
     -   I.e., use the walker object as a lookup table
 -   Not the same architecture as `acorn-walk`
-    -   Easier to understand and extend
+    -   But easier to understand and extend
 
 <%- include('/inc/multi.html', {pat: 'walker-class.*', fill: 'js text'}) %>
 

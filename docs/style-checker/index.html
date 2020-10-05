@@ -64,8 +64,9 @@
 <ul>
 <li>Goal: check that source code conforms to style guidelines.
 <ul>
-<li>Tools like this are called <g key="linter">linters</g> in honor of an early one named <code>lint</code>
-(which looked for fluff in source code).</li>
+<li>Tools like this are called <g key="linter">linters</g> in honor of an early one for C named <code>lint</code>
+because it looked for fluff in source code</li>
+<li>&quot;That's legal, but you shouldn't do it&quot;</li>
 </ul>
 </li>
 <li>Inspirations:
@@ -75,16 +76,21 @@
 </li>
 <li>Design:
 <ul>
-<li>Parse source to create an <g key="abstract_syntax_tree">abstract syntax tree</g> (AST)</li>
-<li><g key="walk_tree">Walk</g> the AST and apply rules at each node</li>
-<li>Express each rule as a function that takes the node and an object for collecting results</li>
-<li>Report all results at the end</li>
+<li>Parse source code to create a data structure</li>
+<li>Go through the data structure and apply rules for each part of the program</li>
+<li>Collect results and report them all at the end</li>
 </ul>
 </li>
 </ul>
 <h2 id="how-can-we-parse-javascript-to-create-an-ast">How can we parse JavaScript to create an AST?</h2>
 <ul>
-<li>Use <a href="https://github.com/acornjs/acorn">Acorn</a></li>
+<li>A parser for a simple language like arithmetic or JSON is relatively easy to write
+<ul>
+<li>We could do it in a chapter</li>
+</ul>
+</li>
+<li>A parser for a language as complex as JavaScript is much more work</li>
+<li>We will use <a href="https://github.com/acornjs/acorn">Acorn</a> instead</li>
 </ul>
 <pre title="parse-single-const.js"><code class="language-js">const acorn = require('acorn')
 
@@ -109,10 +115,19 @@ console.log(ast)
        kind: 'const' } ],
   sourceType: 'script' }
 </code></pre>
-<h2 id="what-is-included-in-the-ast">What is included in the AST?</h2>
 <ul>
-<li><a href="https://esprima.org/">Esprima</a> format</li>
-<li>Look at the result of parsing a slightly more complex program</li>
+<li>Produces an <g key="abstract_syntax_tree">abstract syntax tree</g> (AST)
+whose nodes store information about what's in the program</li>
+<li><a href="https://esprima.org/">Esprima</a> format
+<ul>
+<li>But we can figure most of it out by inspection rather than by reading the standard</li>
+</ul>
+</li>
+<li>Look at the result of parsing a slightly more complex program
+<ul>
+<li>A 9-line program produces over 500 lines of structure</li>
+</ul>
+</li>
 </ul>
 <pre title="parse-const-func-and-call.js"><code class="language-js">const acorn = require('acorn')
 
@@ -643,10 +658,13 @@ console.log(JSON.stringify(ast, null, 2))
 </code></pre>
 <h2 id="how-can-we-walk-the-ast">How can we walk the AST?</h2>
 <ul>
-<li>Use a helper library <code>acorn-walk</code>
+<li>To <a href="#walk_tree">walk a tree</a> means to visit each node in turn</li>
+<li>Use a helper library <code>acorn-walk</code> to do this
 <ul>
 <li>Provide a function to act on nodes of type <code>Identifier</code></li>
-<li>Accumulate comments in the <code>onComment</code> array during parsing</li>
+<li>Use options to say that we want to record locations and to collect comments (in the array <code>onComment</code>)</li>
+<li>We create an object called <code>state</code> to record declaration nodes as they're found</li>
+<li>Then report them all at the end</li>
 </ul>
 </li>
 </ul>
@@ -700,7 +718,6 @@ comments on lines 1, 4, 10
 <li>Only insert nodes that fail checks</li>
 </ul>
 </li>
-<li>Hm: why doesn't the parameter <code>x</code> show up as a violation?</li>
 </ul>
 <pre title="check-name-lengths.js"><code class="language-js">const acorn = require('acorn')
 const walk = require('acorn-walk')
@@ -721,7 +738,7 @@ console.log(result)
 
 const applyCheck = (state, label, node, passes) =&gt; {
   if (!passes) {
-    if (!state.hasOwnProperty(label)) {
+    if (!(label in state)) {
       state[label] = []
     }
     state[label].push(node)
@@ -743,13 +760,16 @@ state.name_length.forEach(
 <pre title="check-name-lengths.text"><code class="language-text">x at line 6
 y at line 7
 </code></pre>
+<ul>
+<li>Why doesn't the parameter <code>x</code> show up as a violation?</li>
+</ul>
 <h2 id="how-does-the-ast-walker-work">How does the AST walker work?</h2>
 <ul>
 <li>Use the <g key="visitor_pattern">Visitor</g> design pattern</li>
 <li>Define a class with methods that
 <ul>
 <li>Walk the tree</li>
-<li>Take action at each kind of node</li>
+<li>Take action depending on the kind of node</li>
 <li>Go through the children of that node</li>
 </ul>
 </li>
@@ -762,7 +782,7 @@ with the same name as the node type in the walker object</li>
 </li>
 <li>Not the same architecture as <code>acorn-walk</code>
 <ul>
-<li>Easier to understand and extend</li>
+<li>But easier to understand and extend</li>
 </ul>
 </li>
 </ul>
