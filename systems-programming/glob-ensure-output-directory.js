@@ -2,16 +2,16 @@ const glob = require('glob')
 const fs = require('fs-extra')
 const path = require('path')
 
-const [srcRoot, destRoot] = process.argv.slice(2)
+const [srcRoot, dstRoot] = process.argv.slice(2)
 
 glob(`${srcRoot}/**/*.*`, {ignore: '*~'}, (err, files) => {
   if (err) {
     console.log(err)
   } else {
     for (const srcName of files) {
-      const destName = srcName.replace(srcRoot, destRoot)
-      const destDir = path.dirname(destName)
-      fs.ensureDir(destDir, (err) => {
+      const dstName = srcName.replace(srcRoot, dstRoot)
+      const dstDir = path.dirname(dstName)
+      fs.ensureDir(dstDir, (err) => {
         if (err) {
           console.error(err)
         }

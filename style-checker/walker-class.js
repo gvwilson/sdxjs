@@ -47,14 +47,16 @@ class Walker {
 
   // Is the current node a child of some other type of node?
   _childOf (nodeTypes) {
-    return this.stack && nodeTypes.includes(this.stack.slice(-1)[0].type)
+    return this.stack
+      && nodeTypes.includes(this.stack.slice(-1)[0].type)
   }
 }
 
 // Walk to accumulate variable and parameter definitions.
 class VariableWalker extends Walker {
   Identifier (node, accumulator) {
-    if (this._childOf(['ArrowFunctionExpression', 'VariableDeclarator'])) {
+    if (this._childOf(['ArrowFunctionExpression',
+                       'VariableDeclarator'])) {
       accumulator.push(node.name)
     }
   }

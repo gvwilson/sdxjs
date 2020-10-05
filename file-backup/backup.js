@@ -26,7 +26,8 @@ const copyFiles = async (dst, needToCopy) => {
 
 const saveManifest = async (dst, timestamp, pathHash) => {
   pathHash = pathHash.sort()
-  const content = pathHash.map(([path, hash]) => `${path},${hash}`).join('\n')
+  const content = pathHash.map(
+    ([path, hash]) => `${path},${hash}`).join('\n')
   const manifest = `${dst}/${timestamp}.csv`
   fs.writeFileAsync(manifest, content)
 }

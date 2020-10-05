@@ -30,10 +30,14 @@ const hashExisting = (rootDir) => {
   const options = {}
   return new Promise((resolve, reject) => {
     glob(pattern, options)
-      .then(matches => Promise.all(matches.map(path => statPath(path))))
-      .then(pairs => pairs.filter(([path, stat]) => stat.isFile()))
-      .then(pairs => Promise.all(pairs.map(([path, stat]) => readPath(path))))
-      .then(pairs => Promise.all(pairs.map(([path, content]) => hashPath(path, content))))
+      .then(matches => Promise.all(
+        matches.map(path => statPath(path))))
+      .then(pairs => pairs.filter(
+        ([path, stat]) => stat.isFile()))
+      .then(pairs => Promise.all(
+        pairs.map(([path, stat]) => readPath(path))))
+      .then(pairs => Promise.all(
+        pairs.map(([path, content]) => hashPath(path, content))))
       .then(pairs => resolve(pairs))
       .catch(err => reject(err))
   })

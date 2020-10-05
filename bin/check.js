@@ -17,7 +17,7 @@ const SUFFIX = new Set(['.html', '.js', '.sh', '.text'])
 /**
  * Maximum width of lines in code inclusions.
  */
-const WIDTH = 60
+const WIDTH = 70
 
 /**
  * Main driver.
@@ -136,7 +136,7 @@ const checkWidths = (files) => {
   const counts = files.reduce((accum, {filename, text}) => {
     const matches = [...text.matchAll(/<pre\s+title="(.+?)"><code.+?>([^]+?)<\/code><\/pre>/g)]
     const num = matches.reduce((accum, [match, title, body]) => {
-      const lines = body.split('\n').filter(line => line.length > WIDTH)
+      const lines = body.split('\n').filter(line => line.trimEnd().length > WIDTH)
       return accum + lines.length
     }, 0)
     accum[filename] = num

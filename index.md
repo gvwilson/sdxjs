@@ -76,6 +76,10 @@ Package,Releases
 01changer,0
 ```
 
+We occasionally wrap lines in source code just to make listings fit on the page.
+Where we need to break lines of output for the same reason,
+we end all but the last line with a single backslash `\`.
+
 ## Dedication
 
 *For Brian Kernighan, who taught us all how to write about software.*

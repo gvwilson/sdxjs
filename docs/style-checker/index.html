@@ -698,8 +698,13 @@ walk.simple(ast, {
   }
 }, null, state)
 
-state.decl.forEach(node =&gt; console.log(`identifier ${node.name} on line ${node.loc.start.line}`))
-console.log(`comments on lines ${options.onComment.map(node =&gt; node.loc.start.line).join(', ')}`)
+state.decl.forEach(node =&gt; console.log(
+  `identifier ${node.name} on line ${node.loc.start.line}`
+))
+const comments = options.onComment.map(
+  node =&gt; node.loc.start.line
+).join(', ')
+console.log(`comments on lines ${comments}`)
 </code></pre>
 <pre title="walk-ast.text"><code class="language-text">identifier x on line 6
 identifier y on line 7
@@ -835,14 +840,16 @@ class Walker {
 
   // Is the current node a child of some other type of node?
   _childOf (nodeTypes) {
-    return this.stack &amp;&amp; nodeTypes.includes(this.stack.slice(-1)[0].type)
+    return this.stack
+      &amp;&amp; nodeTypes.includes(this.stack.slice(-1)[0].type)
   }
 }
 
 // Walk to accumulate variable and parameter definitions.
 class VariableWalker extends Walker {
   Identifier (node, accumulator) {
-    if (this._childOf(['ArrowFunctionExpression', 'VariableDeclarator'])) {
+    if (this._childOf(['ArrowFunctionExpression',
+                       'VariableDeclarator'])) {
       accumulator.push(node.name)
     }
   }

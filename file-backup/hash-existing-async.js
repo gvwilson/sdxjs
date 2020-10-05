@@ -25,8 +25,10 @@ const hashExisting = async (rootDir) => {
   const matches = await glob(pattern, options)
   const stats = await Promise.all(matches.map(path => statPath(path)))
   const files = stats.filter(([path, stat]) => stat.isFile())
-  const contents = await Promise.all(files.map(([path, stat]) => readPath(path)))
-  const hashes = contents.map(([path, content]) => hashPath(path, content))
+  const contents = await Promise.all(
+    files.map(([path, stat]) => readPath(path)))
+  const hashes = contents.map(
+    ([path, content]) => hashPath(path, content))
   return hashes
 }
 

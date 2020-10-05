@@ -7,7 +7,8 @@ const main = (srcDir) => {
     .then(files => files.filter(pair => pair.stats.isFile()))
     .then(files => files.map(pair => pair.filename))
     .then(files => Promise.all(files.map(f => lineCount(f))))
-    .then(counts => counts.forEach(c => console.log(`${c.lines}: ${c.name}`)))
+    .then(counts => counts.forEach(
+      c => console.log(`${c.lines}: ${c.name}`)))
     .catch(err => console.log(err.message))
 }
 
@@ -22,7 +23,8 @@ const statPair = (filename) => {
 const lineCount = (filename) => {
   return new Promise((resolve, reject) => {
     fs.readFileAsync(filename, {encoding: 'utf-8'})
-      .then(data => resolve({name: filename, lines: data.split('\n').length-1}))
+      .then(data => resolve({name: filename,
+                             lines: data.split('\n').length-1}))
       .catch(err => reject(err))
   })
 }

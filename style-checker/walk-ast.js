@@ -28,5 +28,10 @@ walk.simple(ast, {
   }
 }, null, state)
 
-state.decl.forEach(node => console.log(`identifier ${node.name} on line ${node.loc.start.line}`))
-console.log(`comments on lines ${options.onComment.map(node => node.loc.start.line).join(', ')}`)
+state.decl.forEach(node => console.log(
+  `identifier ${node.name} on line ${node.loc.start.line}`
+))
+const comments = options.onComment.map(
+  node => node.loc.start.line
+).join(', ')
+console.log(`comments on lines ${comments}`)

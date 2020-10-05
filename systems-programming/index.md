@@ -192,7 +192,7 @@ FIXME: diagram
 -   And use [`path`][node-path] to manipulate pathnames because someone else has figured out the string operations needed to handle various cases
 -   This code gives us an empty tree of directories
 -   Note the name changes
-    -   Use `srcRoot` and `destRoot` because we're going to need `destDir`
+    -   Use `srcRoot` and `dstRoot` because we're going to need `dstDir`
     -   Yes, this was a bug…
 -   We can now copy the files
 

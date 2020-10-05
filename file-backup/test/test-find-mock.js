@@ -29,14 +29,14 @@ describe('checks for pre-existing hashes using mock filesystem', () => {
     mock.restore()
   })
 
-  it('finds no pre-existing files when no files given and no files exist', async () => {
+  it('finds no pre-existing files when none given and none exist', async () => {
     const expected = {}
     const actual = await findNewFiles('bck-0-csv-0', [])
     assert.deepEqual(expected, actual,
                      `Expected no files`)
   })
 
-  it('finds some files when one file is given and no files exist', async () => {
+  it('finds some files when one file is given and none exist', async () => {
     const candidates = [['somefile.txt', '9876fedc']]
     const expected = {'9876fedc': 'somefile.txt'}
     const actual = await findNewFiles('bck-0-csv-0', candidates)

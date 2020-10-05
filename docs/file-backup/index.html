@@ -219,10 +219,14 @@ const hashExisting = (rootDir) =&gt; {
   const options = {}
   return new Promise((resolve, reject) =&gt; {
     glob(pattern, options)
-      .then(matches =&gt; Promise.all(matches.map(path =&gt; statPath(path))))
-      .then(pairs =&gt; pairs.filter(([path, stat]) =&gt; stat.isFile()))
-      .then(pairs =&gt; Promise.all(pairs.map(([path, stat]) =&gt; readPath(path))))
-      .then(pairs =&gt; Promise.all(pairs.map(([path, content]) =&gt; hashPath(path, content))))
+      .then(matches =&gt; Promise.all(
+        matches.map(path =&gt; statPath(path))))
+      .then(pairs =&gt; pairs.filter(
+        ([path, stat]) =&gt; stat.isFile()))
+      .then(pairs =&gt; Promise.all(
+        pairs.map(([path, stat]) =&gt; readPath(path))))
+      .then(pairs =&gt; Promise.all(
+        pairs.map(([path, content]) =&gt; hashPath(path, content))))
       .then(pairs =&gt; resolve(pairs))
       .catch(err =&gt; reject(err))
   })
@@ -233,8 +237,9 @@ module.exports = hashExisting
 <pre title="run-hash-existing-promise.js"><code class="language-js">const hashExisting = require('./hash-existing-promise')
 
 const root = process.argv[2]
-hashExisting(root)
-  .then(pairs =&gt; pairs.forEach(([path, hash]) =&gt; console.log(path, hash)))
+hashExisting(root).then(pairs =&gt; pairs.forEach(
+  ([path, hash]) =&gt; console.log(path, hash)
+))
 </code></pre>
 <pre title="run-hash-existing-promise.sh"><code class="language-sh">node run-hash-existing-promise.js .
 </code></pre>
@@ -295,8 +300,10 @@ const hashExisting = async (rootDir) =&gt; {
   const matches = await glob(pattern, options)
   const stats = await Promise.all(matches.map(path =&gt; statPath(path)))
   const files = stats.filter(([path, stat]) =&gt; stat.isFile())
-  const contents = await Promise.all(files.map(([path, stat]) =&gt; readPath(path)))
-  const hashes = contents.map(([path, content]) =&gt; hashPath(path, content))
+  const contents = await Promise.all(
+    files.map(([path, stat]) =&gt; readPath(path)))
+  const hashes = contents.map(
+    ([path, content]) =&gt; hashPath(path, content))
   return hashes
 }
 
@@ -305,8 +312,8 @@ module.exports = hashExisting
 <pre title="run-hash-existing-async.js"><code class="language-js">const hashExisting = require('./hash-existing-async')
 
 const root = process.argv[2]
-hashExisting(root)
-  .then(pairs =&gt; pairs.forEach(([path, hash]) =&gt; console.log(path, hash)))
+hashExisting(root).then(
+  pairs =&gt; pairs.forEach(([path, hash]) =&gt; console.log(path, hash)))
 </code></pre>
 <pre title="run-hash-existing-async.sh"><code class="language-sh">node run-hash-existing-async.js .
 </code></pre>
@@ -322,12 +329,18 @@ hashExisting(root)
 ./hash-text.sh 4e85b91c9254c77cf887d2ca92ea0a8ed60c14b7
 ./hash-text.text 4ae882fbcd46e408c9a0548f6547158bc982b40a
 ./index.md 3591933829503e2cb0d1bf2a8afa0051e191b392
-./run-hash-existing-async.js aed5703e1464d42fb4fb0fcccb06599696bcf837
-./run-hash-existing-async.sh 61ad0b69d3c998987ec9bf66399c6ce35f8df94d
-./run-hash-existing-async.text da39a3ee5e6b4b0d3255bfef95601890afd80709
-./run-hash-existing-promise.js 7e42746381122332d36bb2da719d4c838282411c
-./run-hash-existing-promise.sh 1c4142b279f301451aaddbe731d6ab42caf2c47a
-./run-hash-existing-promise.text 0bcb400fcde9e42297f35c6182bd8caeecf66624
+./run-hash-existing-async.js \
+    aed5703e1464d42fb4fb0fcccb06599696bcf837
+./run-hash-existing-async.sh \
+    61ad0b69d3c998987ec9bf66399c6ce35f8df94d
+./run-hash-existing-async.text \
+    da39a3ee5e6b4b0d3255bfef95601890afd80709
+./run-hash-existing-promise.js \
+    7e42746381122332d36bb2da719d4c838282411c
+./run-hash-existing-promise.sh \
+    1c4142b279f301451aaddbe731d6ab42caf2c47a
+./run-hash-existing-promise.text \
+    0bcb400fcde9e42297f35c6182bd8caeecf66624
 </code></pre>
 <h2 id="how-can-we-test-javascript">How can we test JavaScript?</h2>
 <ul>
@@ -399,14 +412,14 @@ since we may add tests for other things later</li>
 const findNewFiles = require('../check-existing-files')
 
 describe('checks for pre-existing hashes using actual filesystem', () =&gt; {
-  it('finds no pre-existing files when no files given and no files exist', async () =&gt; {
+  it('finds no pre-existing files when none given and none exist', async () =&gt; {
     const expected = {}
     const actual = await findNewFiles('file-backup/test/bck-0-csv-0', [])
     assert.deepEqual(expected, actual,
                      `Expected no files`)
   })
 
-  it('finds some files when one file is given and no files exist', async () =&gt; {
+  it('finds some files when one file is given and none exist', async () =&gt; {
     const candidates = [['somefile.txt', '9876fedc']]
     const expected = {'9876fedc': 'somefile.txt'}
     const actual = await findNewFiles('file-backup/test/bck-0-csv-0', candidates)
@@ -444,8 +457,8 @@ describe('checks for pre-existing hashes using actual filesystem', () =&gt; {
 <pre title="test-check-filesystem.sh"><code class="language-sh">npm run test
 </code></pre>
 <pre title="test-check-filesystem.text"><code class="language-text">  checks for pre-existing hashes
-    ✓ finds no pre-existing files when no files given and no files exist
-    ✓ finds some files when one file is given and no files exist
+    ✓ finds no pre-existing files when none given and none exist
+    ✓ finds some files when one file is given and none exist
     ✓ finds nothing needs backup when there is a match
     ✓ finds something needs backup when there is a mismatch
     ✓ finds mixed matches
@@ -506,14 +519,14 @@ describe('checks for pre-existing hashes using mock filesystem', () =&gt; {
     mock.restore()
   })
 
-  it('finds no pre-existing files when no files given and no files exist', async () =&gt; {
+  it('finds no pre-existing files when none given and none exist', async () =&gt; {
     const expected = {}
     const actual = await findNewFiles('bck-0-csv-0', [])
     assert.deepEqual(expected, actual,
                      `Expected no files`)
   })
 
-  it('finds some files when one file is given and no files exist', async () =&gt; {
+  it('finds some files when one file is given and none exist', async () =&gt; {
     const candidates = [['somefile.txt', '9876fedc']]
     const expected = {'9876fedc': 'somefile.txt'}
     const actual = await findNewFiles('bck-0-csv-0', candidates)
@@ -579,7 +592,8 @@ const copyFiles = async (dst, needToCopy) =&gt; {
 
 const saveManifest = async (dst, timestamp, pathHash) =&gt; {
   pathHash = pathHash.sort()
-  const content = pathHash.map(([path, hash]) =&gt; `${path},${hash}`).join('\n')
+  const content = pathHash.map(
+    ([path, hash]) =&gt; `${path},${hash}`).join('\n')
   const manifest = `${dst}/${timestamp}.csv`
   fs.writeFileAsync(manifest, content)
 }
