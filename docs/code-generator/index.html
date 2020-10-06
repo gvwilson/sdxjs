@@ -61,15 +61,122 @@
   <main>
   <h1>Code Generator</h1>
   <p class="lede">Modifying code to track coverage and execution times</p>
-<p>Code coverage like <a href="https://istanbul.js.org/">Istanbul</a> to show what has and hasn't been tested.</p>
-<h2 id="how-can-i-generate-javascript">How can I generate JavaScript?</h2>
 <ul>
-<li>Use <code>escodegen</code> to turn an <code>acorn</code> parse tree back into code
+<li>Goal: figure out which parts of our code have and haven't been tested</li>
+<li>Build a <g key="code_coverage">code coverage</g> tool modeled on <a href="https://istanbul.js.org/">Istanbul</a>
 <ul>
-<li>Creates program text but does not run it</li>
+<li>Ours will keep track of which functions have(n't) been called</li>
+<li>More sophisticated ones report coverage line-by-line</li>
+<li>And can also keep track of which tests in multi-part <code>if</code> statements were responsible for execution</li>
 </ul>
 </li>
-<li>Look at the <code>acorn</code> parse tree for a simple function definition</li>
+</ul>
+<h2 id="how-can-we-replace-a-function-with-another-function">How can we replace a function with another function?</h2>
+<ul>
+<li>Use <code>...args</code> to capture all arguments and forward them to the original function</li>
+<li>This example handles and re-throws all errors</li>
+</ul>
+<pre title="replace-func.js"><code class="language-js">let funcZero = () =&gt; console.log('funcZero')
+
+let funcOne = (first) =&gt; console.log(`funcOne(${first})`)
+
+let funcTwo = (first, second) =&gt; console.log(`funcTwo(${first}, ${second})`)
+
+let funcError = () =&gt; {
+  console.log('funcError')
+  throw new Error('from funcError')
+  console.log('should not reach this')
+}
+
+const runAll = (title) =&gt; {
+  console.log(title)
+  funcZero()
+  funcOne(1)
+  funcTwo(1, 2)
+  try {
+    funcError()
+  } catch (error) {
+    console.log(`caught ${error} as expected`)
+  }
+  console.log()
+}
+
+runAll('first time')
+
+let replace = (func) =&gt; {
+  return (...args) =&gt; {
+    console.log('before')
+    try {
+      result = func(...args)
+      console.log('after')
+      return result
+    } catch (error) {
+      console.log('error')
+      throw error
+    }
+  }
+}
+
+funcZero = replace(funcZero)
+funcOne = replace(funcOne)
+funcTwo = replace(funcTwo)
+funcError = replace(funcError)
+
+runAll('second time')
+</code></pre>
+<pre title="replace-func.text"><code class="language-text">first time
+funcZero
+funcOne(1)
+funcTwo(1, 2)
+funcError
+caught Error: from funcError as expected
+
+second time
+before
+funcZero
+after
+before
+funcOne(1)
+after
+before
+funcTwo(1, 2)
+after
+before
+funcError
+error
+caught Error: from funcError as expected
+
+</code></pre>
+<ul>
+<li>This is an example of the <g key="decorator_pattern">Decorator</g> pattern
+<ul>
+<li>A function whose job is to modify the behavior of other functions</li>
+</ul>
+</li>
+<li>We could use it to solve our problem, but we would have to apply it to every one of our functions</li>
+<li>What we really want is a way to do this automatically for everything</li>
+</ul>
+<h2 id="how-can-we-generate-javascript">How can we generate JavaScript?</h2>
+<ul>
+<li>Two basic strategies
+<ul>
+<li>Generate code and modify that</li>
+<li>Modify a temporary copy of the source and then generate code</li>
+</ul>
+</li>
+<li>We can't use the first approach
+because JavaScript doesn't save the generated <g key="byte_code">byte code</g> for us to play with</li>
+<li>Could try to do the second with <g key="regular_expression">regular expressions</g>,
+but it's astonishing how irregular real-world code can be</li>
+<li>Adopt an intermediate approach
+<ul>
+<li>Parse the JavaScript with <a href="https://github.com/acornjs/acorn">Acorn</a> to create an <g key="abstract_syntax_tree">AST</g></li>
+<li>Modify the AST</li>
+<li>Use <a href="https://github.com/estools/escodegen/">Escodegen</a> to turn the AST back into JavaScript</li>
+<li>Code is just another kind of data...</li>
+</ul>
+</li>
+<li>Look at the Acorn parse tree for a simple function definition</li>
 </ul>
 <pre title="func-def.js"><code class="language-js">const acorn = require('acorn')
 
@@ -157,7 +264,7 @@ console.log(JSON.stringify(ast, null, space=2))
 }
 </code></pre>
 <ul>
-<li>Pick out the node(s) of interest and reverse engineer them</li>
+<li>Pick out some nodes and see if we can generate code from a handmade AST</li>
 </ul>
 <pre title="one-plus-two.js"><code class="language-js">const escodegen = require('escodegen')
 
@@ -171,10 +278,11 @@ console.log(result)
 </code></pre>
 <pre title="one-plus-two.text"><code class="language-text">40 + 2
 </code></pre>
-<h2 id="how-can-i-count-how-often-functions-are-executed">How can I count how often functions are executed?</h2>
+<h2 id="how-can-we-count-how-often-functions-are-executed">How can we count how often functions are executed?</h2>
 <ul>
 <li>Find all function declaration nodes</li>
 <li>Insert a node to increment an entry in a global variable <code>__counters</code></li>
+<li>Add text to create the counters</li>
 </ul>
 <pre title="multi-func-counter.js"><code class="language-js">const acorn = require('acorn')
 const walk = require('acorn-walk')
@@ -252,83 +360,14 @@ for (const i of [
 }
 console.log(__counters)
 </code></pre>
-<h2 id="how-can-i-replace-a-function-with-another-function">How can I replace a function with another function?</h2>
 <ul>
-<li>Use <code>...args</code> to capture and forward all arguments</li>
-<li>Handle and re-throw all errors</li>
+<li>This approach doesn't work if functions can have the same names
+<ul>
+<li>Which they can if we use modules or <g key="nested_function">nested functions</g></li>
 </ul>
-<pre title="replace-func.js"><code class="language-js">let funcZero = () =&gt; console.log('funcZero')
-
-let funcOne = (first) =&gt; console.log(`funcOne(${first})`)
-
-let funcTwo = (first, second) =&gt; console.log(`funcTwo(${first}, ${second})`)
-
-let funcError = () =&gt; {
-  console.log('funcError')
-  throw new Error('from funcError')
-  console.log('should not reach this')
-}
-
-const runAll = (title) =&gt; {
-  console.log(title)
-  funcZero()
-  funcOne(1)
-  funcTwo(1, 2)
-  try {
-    funcError()
-  } catch (error) {
-    console.log(`caught ${error} as expected`)
-  }
-  console.log()
-}
-
-runAll('first time')
-
-let replace = (func) =&gt; {
-  return (...args) =&gt; {
-    console.log('before')
-    try {
-      result = func(...args)
-      console.log('after')
-      return result
-    } catch (error) {
-      console.log('error')
-      throw error
-    }
-  }
-}
-
-funcZero = replace(funcZero)
-funcOne = replace(funcOne)
-funcTwo = replace(funcTwo)
-funcError = replace(funcError)
-
-runAll('second time')
-</code></pre>
-<pre title="replace-func.text"><code class="language-text">first time
-funcZero
-funcOne(1)
-funcTwo(1, 2)
-funcError
-caught Error: from funcError as expected
-
-second time
-before
-funcZero
-after
-before
-funcOne(1)
-after
-before
-funcTwo(1, 2)
-after
-before
-funcError
-error
-caught Error: from funcError as expected
-
-</code></pre>
-<h2 id="how-can-i-time-function-execution">How can I time function execution?</h2>
+</li>
+</ul>
+<h2 id="how-can-we-time-function-execution">How can we time function execution?</h2>
 <ul>
 <li>Find all the function declarations</li>
 <li>Create a wrapper that

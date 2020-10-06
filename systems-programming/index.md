@@ -13,7 +13,7 @@
 -   This chapter also shows how to load libraries and how to work with files and directories
     -   Because we're going to be doing a lot of both
 
-## How can I list a directory?
+## How can we list a directory?
 
 -   Let's try listing the contents of a directory the way we would in Python or Java
 

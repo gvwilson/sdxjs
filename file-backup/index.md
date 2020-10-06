@@ -4,7 +4,7 @@
 -   Goal: archiving files with an index that identifies each version so that we don't store redundant data
 -   The basis of [Git][git]
 
-## What is a hash code and how can I create one for a file?
+## What is a hash code and how can we create one for a file?
 
 -   A <g key="hash_function">hash function</g> turns arbitrary data into a fixed-length string of bits
     -   That bit string can then be used to place the object in a predictable place in a table
