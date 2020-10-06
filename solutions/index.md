@@ -7,7 +7,7 @@
 <% chapter.exercises.forEach(ex => { %>
 <h3><%- ex.title %></h3>
 
-<%- fs.readFileSync(`${root}/${chapter.slug}/x-${ex.slug}-solution.md`, 'utf-8') %>
+<%- fs.readFileSync(`${root}/${chapter.slug}/${ex.slug}/solution.md`, 'utf-8') %>
 
 <% }) %>
 <% }) %>

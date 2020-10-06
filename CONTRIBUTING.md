@@ -98,6 +98,20 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
 1.  We indent our JavaScript in two-space increments and do not use semi-colons
     to help make things fit the width of the page in the print edition.
 
+## Exercises
+
+1.  Create a sub-directory for each, e.g., `style-checker/some-question`.
+
+1.  Add a file in that sub-directory called `problem.md` and another called `solution.md`.
+    Do *not* put the exercise title in either file.
+
+1.  Put any files needed for the exercise in the same sub-directory,
+    and include the sub-directory name when including them in the Markdown.
+
+1.  Add a key `exercises` to the YAML for the chapter with sub-keys `slug` and `title`.
+    The slug must match the sub-directory name (e.g., `some-question`);
+    the title will be used as a level-3 heading in the chapter and in the solutions.
+
 ## Tasks and Tools
 
 1.  NPM doesn't allow us to document our tasks or make them depend on one another,
