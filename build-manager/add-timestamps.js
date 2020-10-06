@@ -1,6 +1,6 @@
 const assert = require('assert')
 const fs = require('fs')
-const yaml = require('yaml')
+const yaml = require('js-yaml')
 const graphlib = require('@dagrejs/graphlib')
 
 const SimpleBuilder = require('./simple-builder')
@@ -14,7 +14,7 @@ class AddTimestamps extends SimpleBuilder {
   }
 
   decorate (filename) {
-    const decorations = yaml.parse(fs.readFileSync(filename, 'utf-8'))
+    const decorations = yaml.safeLoad(fs.readFileSync(filename, 'utf-8'))
     for (const node of Object.keys(decorations)) {
       this.graph.node(node).timestamp = decorations[node]
     }
