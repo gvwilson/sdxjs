@@ -28,6 +28,7 @@ const main = () => {
   const html = loadHtml(config)
   checkInclusions(markdown)
   checkGloss(html)
+  checkTabs(html)
   checkWidths(html)
 }
 
@@ -101,6 +102,42 @@ const checkInclusions = (files) => {
 }
 
 /**
+ * Check for tabs in source files.
+ * @param {Array<Object>} files File information.
+ */
+const checkTabs = (files) => {
+  files.forEach(({filename, text}) => {
+    for (const c of text) {
+      if (c === '\t') {
+	console.log(`${filename} contains tabs`)
+	return
+      }
+    }
+  })
+}
+
+/**
+ * Check widths of code inclusions.
+ * @param {Array<Object>} files File information.
+ */
+const checkWidths = (files) => {
+  const counts = files.reduce((accum, {filename, text}) => {
+    const matches = [...text.matchAll(/<pre\s+title="(.+?)"><code.+?>([^]+?)<\/code><\/pre>/g)]
+    const num = matches.reduce((accum, [match, title, body]) => {
+      const lines = body.split('\n').filter(line => line.trimEnd().length > WIDTH)
+      return accum + lines.length
+    }, 0)
+    accum[filename] = num
+    return accum
+  }, {})
+  const oversize = Object.keys(counts).filter(filename => counts[filename] > 0).sort()
+  if (oversize.length > 0) {
+    const result = oversize.map(filename => `${filename}: ${counts[filename]}`).join('\n- ')
+    console.log(`Over-length code lines:\n- ${result}`)
+  }
+}
+
+/**
  * Get all the files included in a Markdown file.
  * @param {string} filename Which file.
  * @param {string} text Body of file.
@@ -126,27 +163,6 @@ const getIncluded = (filename, text) => {
     }
   })
   return result
-}
-
-/**
- * Check widths of code inclusions.
- * @param {Array<Object>} files File information.
- */
-const checkWidths = (files) => {
-  const counts = files.reduce((accum, {filename, text}) => {
-    const matches = [...text.matchAll(/<pre\s+title="(.+?)"><code.+?>([^]+?)<\/code><\/pre>/g)]
-    const num = matches.reduce((accum, [match, title, body]) => {
-      const lines = body.split('\n').filter(line => line.trimEnd().length > WIDTH)
-      return accum + lines.length
-    }, 0)
-    accum[filename] = num
-    return accum
-  }, {})
-  const oversize = Object.keys(counts).filter(filename => counts[filename] > 0).sort()
-  if (oversize.length > 0) {
-    const result = oversize.map(filename => `${filename}: ${counts[filename]}`).join('\n- ')
-    console.log(`Over-length code lines:\n- ${result}`)
-  }
 }
 
 /**

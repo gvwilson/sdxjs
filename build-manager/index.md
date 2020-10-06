@@ -42,7 +42,7 @@
 
 -   Configuration file
 
-<%- include('/inc/code.html', {file: 'three-simple-rules.yaml'}) %>
+<%- include('/inc/code.html', {file: 'three-simple-rules.yml'}) %>
 
 -   Execution and output
 
@@ -55,7 +55,7 @@
 -   Extra file
     -   Clumsy to have the derived class magically know which argument to use
 
-<%- include('/inc/code.html', {file: 'add-timestamps.yaml'}) %>
+<%- include('/inc/code.html', {file: 'add-timestamps.yml'}) %>
 
 -   Execution
 
@@ -92,7 +92,7 @@
 -   Now we need <g key="pattern_rule">pattern rules</g>
 -   First attempt at rules file looks like this
 
-<%- include('/inc/code.html', {file: 'pattern-rules.yaml'}) %>
+<%- include('/inc/code.html', {file: 'pattern-rules.yml'}) %>
 
 -   First attempt at reading it doesn't work
 

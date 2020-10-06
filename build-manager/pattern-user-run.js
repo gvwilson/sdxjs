@@ -54,7 +54,7 @@ class PatternUserRun extends PatternUserRead {
     const endTime = sorted.reduce((currTime, node) => {
       if (this.isStale(node)) {
         console.log(`${currTime}: ${node}`)
-        this.graph.node(node).recipes.forEach(a => console.log(`\t${a}`))
+        this.graph.node(node).recipes.forEach(a => console.log(`    ${a}`))
         this.graph.node(node).timestamp = currTime
         currTime += 1
       }

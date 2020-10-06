@@ -1,11 +1,11 @@
 const assert = require('assert')
 const fs = require('fs')
-const yaml = require('yaml')
+const yaml = require('js-yaml')
 const graphlib = require('@dagrejs/graphlib')
 
 class SimpleBuilder {
   constructor (configName = null) {
-    this.config = yaml.parse(fs.readFileSync(configName, 'utf-8'))
+    this.config = yaml.safeLoad(fs.readFileSync(configName, 'utf-8'))
     this.checkConfig()
   }
 
