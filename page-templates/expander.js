@@ -1,105 +1,84 @@
+const assert = require('assert')
+
 const Visitor = require('./visitor')
 const Env = require('./env')
+
+const HANDLERS = {
+  'q-if': require('./q-if'),
+  'q-loop': require('./q-loop'),
+  'q-num': require('./q-num'),
+  'q-var': require('./q-var')
+}
 
 class Expander extends Visitor {
   constructor (root, vars) {
     super(root)
     this.env = new Env(vars)
-    this.result = ''
+    this.handlers = HANDLERS
+    this.result = []
+  }
+
+  getResult () {
+    return this.result.join('')
   }
 
   open (node) {
-    let doRest = true
-
-    if (node.type === 'text') {
-      this.output(node.data)
+    if (node.nodeName === '#text') {
+      this.output(node.value)
+      return false
     }
 
-    else if (node.type !== 'tag') {
-      throw new Error(`Unknown node type ${node.type}`)
+    if (this.hasHandler(node)) {
+      return this.getHandler(node).open(this, node)
     }
 
-    else if ('q-num' in node.attribs) {
-      this.showTag(node, true)
-      this.output(node.attribs['q-num'])
-    }
-
-    else if ('q-var' in node.attribs) {
-      this.showTag(node, true)
-      this.output(this.env.find(node.attribs['q-var']))
-    }
-
-    else if ('q-if' in node.attribs) {
-      doRest = this.env.find(node.attribs['q-if'])
-      if (doRest) {
-        this.showTag(node, true)
-      }
-    }
-
-    else if ('q-loop' in node.attribs) {
-      let [indexName, targetName] = node.attribs['q-loop'].split(':')
-      delete node.attribs['q-loop']
-      const target = this.env.find(targetName)
-      for (let index of target) {
-        this.env.push({[indexName]: index})
-        this.walk(node)
-        this.env.pop()
-      }
-      doRest = false
-    }
-
-    else {
-      this.showTag(node, true)
-    }
-
-    return doRest
+    this.showTag(node, false)
+    return true
   }
 
   close (node) {
-    if (node.type !== 'tag') {
-      // do nothing
+    if (node.nodeName === '#text') {
+      return
     }
-
-    else if ('q-num' in node.attribs) {
-      this.showTag(node, false)
+    if (this.hasHandler(node)) {
+      this.getHandler(node).close(this, node)
     }
-
-    else if ('q-var' in node.attribs) {
-      this.showTag(node, false)
-    }
-
-    else if ('q-if' in node.attribs) {
-      if (this.env.find(node.attribs['q-if'])) {
-        this.showTag(node, false)
-      }
-    }
-
-    else if ('q-loop' in node.attribs) {
-      // do nothing
-    }
-
     else {
-      this.showTag(node, false)
+      this.showTag(node, true)
     }
   }
 
-  showTag (node, opening) {
-    if (opening) {
-      this.output(`<${node.name}`)
-      for (let a in node.attribs) {
-        if (!a.startsWith('q-')) {
-          this.output(` ${a}="${node.attribs[a]}"`)
-        }
+  hasHandler (node) {
+    return ('attrs' in node) &&
+      node.attrs.some(({name, value}) => name in this.handlers)
+  }
+
+  getHandler (node) {
+    assert('attrs' in node,
+           `Node does not have attributes`)
+    const possible = node.attrs.filter(({name, value}) => name in this.handlers)
+    assert(possible.length === 1,
+           `Should be exactly one handler`)
+    return this.handlers[possible[0].name]
+  }
+
+  showTag (node, closing) {
+    if (closing) {
+      this.output(`</${node.nodeName}>`)
+      return
+    }
+
+    this.output(`<${node.nodeName}`)
+    node.attrs.forEach(({name, value}) => {
+      if (!name.startsWith('q-')) {
+        this.output(` ${name}="${value}"`)
       }
-      this.output(`>`)
-    }
-    else {
-      this.output(`</${node.name}>`)
-    }
+    })
+    this.output(`>`)
   }
 
   output (text) {
-    this.result += (text === undefined) ? 'UNDEF' : text
+    this.result.push((text === undefined) ? 'UNDEF' : text)
   }
 }
 

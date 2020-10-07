@@ -1,13 +1,13 @@
 const fs = require('fs')
-const htmlparser = require('htmlparser2')
+const parse5 = require('parse5')
 const Expander = require('./expander')
 
 const main = () => {
   const vars = readJSON(process.argv[2])
-  const dom = readHtml(process.argv[3])
-  const expander = new Expander(dom, vars)
+  const doc = readHtml(process.argv[3]).childNodes[0]
+  const expander = new Expander(doc, vars)
   expander.walk()
-  console.log(expander.result)
+  console.log(expander.getResult())
 }
 
 const readJSON = (filename) => {
@@ -17,7 +17,7 @@ const readJSON = (filename) => {
 
 const readHtml = (filename) => {
   const text = fs.readFileSync(filename, 'utf-8')
-  return htmlparser.parseDOM(text)
+  return parse5.parse(text)
 }
 
 main()
