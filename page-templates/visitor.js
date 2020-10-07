@@ -1,4 +1,5 @@
-// Visit DOM nodes.
+const assert = require('assert')
+
 class Visitor {
   constructor (root) {
     this.root = root
@@ -8,29 +9,23 @@ class Visitor {
     if (node === undefined) {
       node = this.root
     }
-    if (node instanceof Array) {
-      for (let child of node) {
+    if (this.open(node)) {
+      node.childNodes.forEach(child => {
         this.walk(child)
-      }
+      })
     }
-    else if (node instanceof Object) {
-      if (this.open(node)) {
-        if ('children' in node) {
-          this.walk(node.children)
-        }
-        this.close(node)
-      }
-    }
-    else {
-      throw new Error(`unknown node ${node}`)
-    }
+    this.close(node)
   }
 
   open (node) {
-    return true
+    assert(false,
+           `Must implemented 'open'`)
   }
 
-  close (node) {}
+  close (node) {
+    assert(false,
+           `Must implemented 'close'`)
+  }
 }
 
 module.exports = Visitor
