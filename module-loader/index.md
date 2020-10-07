@@ -3,14 +3,16 @@
 
 -   Our files are getting too long to show in one block
 -   Write a tool that a text file with inclusion markers and turns it into loaded code
--   Source file has markers with text to put in displayed version and file to include when loading:
+-   Source file has specially-formatted comments containing two fields:
+    -   The text to put in the displayed version
+    -   The file to include when loading
 
 <%- include('/inc/code.html', {file: 'interpolation-example.js'}) %>
 
 ## How can we evaluate JavaScript dynamically?
 
--   Want to be able to load this dynamically just like `require`
-    -   And display it in web page with the comments rather than the interpolated code
+-   We want to load this dynamically just like `require` for running
+-   But display the comments in our web/print versions rather than the interpolated code
 -   Lifecycle of a JavaScript program
     -   Read text
     -   Translate it into runnable instructions
@@ -18,35 +20,42 @@
 -   We can do this whenever we want
     -   Reading text is straightforward
     -   Use the `eval` function to translate and run it
--   Very dangerous
-    -   Code may do arbitrary things
-    -   Ought to run it in a <g key="sandbox">sandbox</g>
+-   A security risk
+    -   Arbitrary code can do arbitrary things
+    -   At the very least, we ought to run it in a <g key="sandbox">sandbox</g>
 -   Evaluate an expression
 
-<%- include('/inc/multi.html', {pat: 'eval-01.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'eval-two-plus-two.*', fill: 'js text'}) %>
 
 -   A more interesting example
+    -   The string is different each time
+    -   Uses the variables that are in scope when `eval` is called
 
-<%- include('/inc/multi.html', {pat: 'eval-02.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'eval-loop.*', fill: 'js text'}) %>
 
 -   Variables created inside `eval` are local to it
 
-<%- include('/inc/multi.html', {pat: 'eval-03.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'eval-local-vars.*', fill: 'js text'}) %>
 
--   But `eval` can modify variables (just like a function can modify globals)
+-   But `eval` can modify variables outside the text
+    -   Just like a function can modify global variables
 
-<%- include('/inc/multi.html', {pat: 'eval-04.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'eval-global-vars.*', fill: 'js text'}) %>
 
--   If we create a structure with a known name, `eval` can modify that
+-   So if we create a structure with a known name, `eval` can modify that
 
-<%- include('/inc/multi.html', {pat: 'eval-05.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'eval-global-structure.*', fill: 'js text'}) %>
 
 -   It doesn't matter where the text comes from
--   Move the code that does the modifying into `to-be-loaded.js`
+-   So we can move the code that does the modifying into `to-be-loaded.js`
 
 <%- include('/inc/code.html', {file: 'to-be-loaded.js'}) %>
 
--   Read the file and `eval` the text for its side effects
+-   This doesn't work on its own because `Seen` isn't defined
+
+<%- include('/inc/code.html', {file: 'to-be-loaded.text'}) %>
+
+-   But if we read the file and `eval` the text after defining `Seen`, it does what we want
 
 <%- include('/inc/multi.html', {pat: 'does-the-loading.*', fill: 'js sh text'}) %>
 
@@ -56,73 +65,93 @@
 -   So create a <g key="cache">cache</g> using the <g key="singleton_pattern">Singleton</g> pattern
 -   Loader
 
-<%- include('/inc/code.html', {file: 'need-01.js'}) %>
+<%- include('/inc/code.html', {file: 'need-simple.js'}) %>
 
 -   File to import
     -   Final expression is the result of `eval`ing it
 
-<%- include('/inc/code.html', {file: 'import-01.js'}) %>
+<%- include('/inc/code.html', {file: 'import-simple.js'}) %>
 
 -   File doing the importing
 
-<%- include('/inc/multi.html', {pat: 'test-01.*', fill: 'js sh'}) %>
+<%- include('/inc/multi.html', {pat: 'test-simple.*', fill: 'js sh'}) %>
+
+## How can we control where our files are loaded from?
 
 -   Want to control where files are loaded from
 -   Give our program a <g key="search_path">search path</g>
-    -   Colon-separated list of directories
--   If module path starts with `./`, load locally
+    -   Colon-separated list of directories on Unix
+    -   Windows uses semi-colons
+    -   If module path starts with `./`, load locally
+-   These are all conventions
+    -   Someone did it this way years ago
+    -   (Almost) everyone has imitated it since
+    -   But no requirement and no guarantee
+-   A more sophisticated cache
 
-<%- include('/inc/code.html', {file: 'need-02.js'}) %>
+<%- include('/inc/code.html', {file: 'need-path.js'}) %>
 
--   File to import in `modules` subdirectory
+-   To test, put the files to import in the `modules` subdirectory
+    -   We could call the directory anything we want
 
-<%- include('/inc/code.html', {file: 'modules-02/import-02-a.js'}) %>
+<%- include('/inc/code.html', {file: 'modules/imported-left.js'}) %>
 
--   File doing the importing in current directory
+-   Put the file doing the importing in current directory
 
-<%- include('/inc/code.html', {file: 'test-02-a.js'}) %>
+<%- include('/inc/code.html', {file: 'test-import-left.js'}) %>
 
 -   Set path when running Node
+    -   `NAME=value command` defines the variable `NAME` just long enough for `command` to run
+    -   Shell variables being in UPPER CASE is another convention
 
-<%- include('/inc/multi.html', {pat: 'test-02-a.*', fill: 'sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'test-import-left.*', fill: 'sh text'}) %>
 
 -   Now create a second importable file
 
-<%- include('/inc/code.html', {file: 'modules-02/import-02-b.js'}) %>
+<%- include('/inc/code.html', {file: 'modules/imported-right.js'}) %>
 
--   And load that
+-   Load that twice to check that caching works
 
-<%- include('/inc/multi.html', {pat: 'test-02-b.*', fill: 'js sh text'}) %>
-
--   And finally test re-importing
-
-<%- include('/inc/multi.html', {pat: 'test-02-c.*', fill: 'js sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'test-import-right.*', fill: 'js sh text'}) %>
 
 ## How can we interpolate pieces of code?
 
 -   Now add interpolation
-    -   `Cache.find` returns a directory and a file path (only interpolate from same directory)
+    -   To keep things simple, we will only interpolate snippets in the same directory as the main file
+-   Modify `Cache.find` to return a directory and a file path
     -   Add `interpolate` to replace special comments
 
 <%- include('/inc/code.html', {file: 'caching.js'}) %>
 
 -   Can then have a file like:
 
-<%- include('/inc/code.html', {file: 'import-03-c.js'}) %>
+<%- include('/inc/code.html', {file: 'import-interpolate.js'}) %>
 
 -   And subfiles like this:
 
-<%- include('/inc/code.html', {file: 'import-03-c-topmethod.js'}) %>
+<%- include('/inc/code.html', {file: 'import-interpolate-topmethod.js'}) %>
 
--   But the included file is displayed in Jekyll like this
+-   And this:
 
-<%- include('/inc/code.html', {file: 'import-03-c.js'}) %>
+<%- include('/inc/code.html', {file: 'import-interpolate-bottommethod.js'}) %>
 
--   However, there's a problem: what if we import from `..` (as we do in testing?
--   Solution:
-    -   Find the directory of the file making the inclusion
-    -   Extract the directory from the path
-    -   Create a path for the included file from it
-    -   This would be a great place to use a side-by-side display of changes...
+-   Test it
 
-<%- include('/inc/code.html', {file: 'need-04.js'}) %>
+<%- include('/inc/multi.html', {pat: 'test-import-interpolate.*', fill: 'sh text'}) %>
+
+-   Lifecycle
+    -   Node starts to run `test-import-interpolate.js`
+    -   Sees `require('./need-interpolate')` so it reads and evaluates that code
+    -   Which creates a singleton cache object
+    -   Calls `need('./import-interpolate.js')` (our replacement for `require`)
+    -   Checks the cache: nope, nothing there
+    -   Loads `import-interpolate.js`
+    -   Finds two specially-formatted comments
+    -   Loads the file described by each and inserts the text in place of the comment
+    -   Uses `eval` on the resulting text
+    -   Stores the result of `eval` (which is a class) in the cache
+    -   Returns that class
+    -   We create an instance and call its method
+-   Next step is to modify our page templating system to detect specially-formatted comments
+    and do the string replacement
+    -   No `eval` or loading involved

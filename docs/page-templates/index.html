@@ -62,28 +62,25 @@
   <h1>Page Templates</h1>
   <p class="lede">Generating HTML pages from templates</p>
 <ul>
-<li>
-<p>Goal: expand HTML templates to create web pages.</p>
+<li>Goal: expand HTML templates to create web pages.
 <ul>
 <li>Option 1: put JavaScript directly in the page like <a href="https://ejs.co/">EJS</a></li>
 <li>Option 2: use a mini-language like <a href="https://jekyllrb.com/">Jekyll</a></li>
 <li>Option 3: use specially-named attributes in HTML</li>
 </ul>
 </li>
-<li>
-<p>We'll use Option 3 because it saves us writing a parser, and because it's unusual</p>
-</li>
-<li>
-<p>Design:</p>
+<li>We'll use Option 3 because it saves us writing a parser, and because it's unusual</li>
+<li>Design:
 <ul>
 <li>Walk the <g key="dom">DOM</g> to find nodes with special attributes</li>
 <li>&quot;Execute&quot; the instructions in those nodes to generate text</li>
 <li>Save other text as-is</li>
 </ul>
 </li>
-<li>
-<p>What will a templated page look like?</p>
-</li>
+</ul>
+<h2 id="what-will-our-system-look-like">What will our system look like?</h2>
+<ul>
+<li>What will a templated page look like?</li>
 </ul>
 <pre title="input-loop.html"><code class="language-html">
 &lt;p&gt;Expect three items&lt;/p&gt;
@@ -92,14 +89,13 @@
 &lt;/ul&gt;
 
 </code></pre>
-<h2 id="how-can-we-transform-templates">How can we transform templates?</h2>
 <ul>
-<li>How will we transform it?
+<li>Take a template, an output stream, and some variables
 <ul>
-<li>Take a template, an output stream, and some variables (e.g., from <g key="yaml">YAML</g> header)</li>
-<li>Pass values in as an object</li>
+<li>E.g., from a <g key="yaml">YAML</g> header in the file</li>
 </ul>
 </li>
+<li>Pass the values into the expansion as an object</li>
 </ul>
 <pre title="example-call.js"><code class="language-js">const variables = {
   "names": ["Johnson", "Vaughan", "Jackson"]
@@ -110,15 +106,14 @@ expander.walk()
 console.log(expander.result)
 </code></pre>
 <ul>
-<li>What will it generate?</li>
+<li>Output will look like HTML without any traces of how it was created</li>
 </ul>
 <pre title="output-loop.html"><code class="language-html">
-&lt;p&gt;Expect three items&lt;/p&gt;
+&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;&lt;p&gt;Expect three items&lt;/p&gt;
 &lt;ul&gt;
-  &lt;li&gt;Johnson&lt;/li&gt;
-  &lt;li&gt;Vaughan&lt;/li&gt;
-  &lt;li&gt;Jackson&lt;/li&gt;
+  &lt;li&gt;&lt;/span&gt;Johnson&lt;span&gt;&lt;/li&gt;&lt;li&gt;&lt;/span&gt;Vaughan&lt;span&gt;&lt;/li&gt;&lt;li&gt;&lt;/span&gt;Jackson&lt;span&gt;&lt;/li&gt;&lt;/li&gt;
 &lt;/ul&gt;
+&lt;/body&gt;&lt;/html&gt;
 
 </code></pre>
 <h2 id="how-can-we-keep-track-of-values">How can we keep track of values?</h2>
@@ -129,6 +124,11 @@ console.log(expander.result)
 <li>Each <g key="stack_frame">stack frame</g> is an object</li>
 <li><code>Env.find</code> looks up the list of stack frames</li>
 <li>This is <g key="dynamic_scoping">dynamic scoping</g> not <g key="lexical_scoping">lexical scoping</g></li>
+</ul>
+</li>
+<li>Why a stack and not just a single object?
+<ul>
+<li>So that variables inside loops don't affect one another</li>
 </ul>
 </li>
 </ul>
@@ -163,15 +163,15 @@ console.log(expander.result)
 module.exports = Env
 </code></pre>
 <ul>
-<li>Structure is defined by our HTML parser</li>
-<li>Handle nodes with and without children using the <g key="visitor_pattern">Visitor pattern</g>
+<li>Handle nodes using the <g key="visitor_pattern">Visitor pattern</g>
 <ul>
-<li><code>Visitor.walk()</code> without an argument assigns <code>undefined</code> to <code>node</code>, so we re-set to the root of the tree</li>
+<li><code>Visitor.walk()</code> gives <code>node</code> a default value of <code>undefined</code>, which signals that we want to restart</li>
 <li>Alternative designs would be build-and-run or pass in the root with every call</li>
 </ul>
 </li>
 </ul>
-<pre title="visitor.js"><code class="language-js">// Visit DOM nodes.
+<pre title="visitor.js"><code class="language-js">const assert = require('assert')
+
 class Visitor {
   constructor (root) {
     this.root = root
@@ -181,152 +181,128 @@ class Visitor {
     if (node === undefined) {
       node = this.root
     }
-    if (node instanceof Array) {
-      for (let child of node) {
+    if (this.open(node)) {
+      node.childNodes.forEach(child =&gt; {
         this.walk(child)
-      }
+      })
     }
-    else if (node instanceof Object) {
-      if (this.open(node)) {
-        if ('children' in node) {
-          this.walk(node.children)
-        }
-        this.close(node)
-      }
-    }
-    else {
-      throw new Error(`unknown node ${node}`)
-    }
+    this.close(node)
   }
 
   open (node) {
-    return true
+    assert(false,
+           `Must implemented 'open'`)
   }
 
-  close (node) {}
+  close (node) {
+    assert(false,
+           `Must implemented 'close'`)
+  }
 }
 
 module.exports = Visitor
 </code></pre>
 <h2 id="how-do-we-handle-each-type-of-node">How do we handle each type of node?</h2>
 <ul>
-<li>What do we do with each node?
-<ul>
 <li>Text: copy to output</li>
+<li>Nodes without special attributes: copy to output</li>
+<li>Or:
+<ul>
 <li>Node with <code>q-num</code> attribute: constant</li>
 <li>Node with <code>q-var</code> attribute: look up variable and output its value</li>
 <li>Node with <code>q-if</code> attribute: show content if variable is true</li>
-<li>Node with <code>q-loop</code> attribute: loop over the contents of a variable
+<li>Node with <code>q-loop</code> attribute: loop over the contents of a variable</li>
+</ul>
+</li>
+<li>We could put this all in one class</li>
+<li>Or create a small class to handle each case
 <ul>
-<li>Each pass creates a new stack frame</li>
+<li>The <g key="delegate_pattern">Delegate</g> design pattern</li>
+<li>Easier to expand in future</li>
 </ul>
 </li>
-<li>Any other node: copy to output</li>
 </ul>
-</li>
-</ul>
-<pre title="expander.js"><code class="language-js">const Visitor = require('./visitor')
+<pre title="expander.js"><code class="language-js">const assert = require('assert')
+
+const Visitor = require('./visitor')
 const Env = require('./env')
+
+const HANDLERS = {
+  'q-if': require('./q-if'),
+  'q-loop': require('./q-loop'),
+  'q-num': require('./q-num'),
+  'q-var': require('./q-var')
+}
 
 class Expander extends Visitor {
   constructor (root, vars) {
     super(root)
     this.env = new Env(vars)
-    this.result = ''
+    this.handlers = HANDLERS
+    this.result = []
+  }
+
+  getResult () {
+    return this.result.join('')
   }
 
   open (node) {
-    let doRest = true
-
-    if (node.type === 'text') {
-      this.output(node.data)
+    if (node.nodeName === '#text') {
+      this.output(node.value)
+      return false
     }
 
-    else if (node.type !== 'tag') {
-      throw new Error(`Unknown node type ${node.type}`)
+    if (this.hasHandler(node)) {
+      return this.getHandler(node).open(this, node)
     }
 
-    else if ('q-num' in node.attribs) {
-      this.showTag(node, true)
-      this.output(node.attribs['q-num'])
-    }
-
-    else if ('q-var' in node.attribs) {
-      this.showTag(node, true)
-      this.output(this.env.find(node.attribs['q-var']))
-    }
-
-    else if ('q-if' in node.attribs) {
-      doRest = this.env.find(node.attribs['q-if'])
-      if (doRest) {
-        this.showTag(node, true)
-      }
-    }
-
-    else if ('q-loop' in node.attribs) {
-      let [indexName, targetName] = node.attribs['q-loop'].split(':')
-      delete node.attribs['q-loop']
-      const target = this.env.find(targetName)
-      for (let index of target) {
-        this.env.push({[indexName]: index})
-        this.walk(node)
-        this.env.pop()
-      }
-      doRest = false
-    }
-
-    else {
-      this.showTag(node, true)
-    }
-
-    return doRest
+    this.showTag(node, false)
+    return true
   }
 
   close (node) {
-    if (node.type !== 'tag') {
-      // do nothing
+    if (node.nodeName === '#text') {
+      return
     }
-
-    else if ('q-num' in node.attribs) {
-      this.showTag(node, false)
+    if (this.hasHandler(node)) {
+      this.getHandler(node).close(this, node)
     }
-
-    else if ('q-var' in node.attribs) {
-      this.showTag(node, false)
-    }
-
-    else if ('q-if' in node.attribs) {
-      if (this.env.find(node.attribs['q-if'])) {
-        this.showTag(node, false)
-      }
-    }
-
-    else if ('q-loop' in node.attribs) {
-      // do nothing
-    }
-
     else {
-      this.showTag(node, false)
+      this.showTag(node, true)
     }
   }
 
-  showTag (node, opening) {
-    if (opening) {
-      this.output(`&lt;${node.name}`)
-      for (let a in node.attribs) {
-        if (!a.startsWith('q-')) {
-          this.output(` ${a}="${node.attribs[a]}"`)
-        }
+  hasHandler (node) {
+    return ('attrs' in node) &amp;&amp;
+      node.attrs.some(({name, value}) =&gt; name in this.handlers)
+  }
+
+  getHandler (node) {
+    assert('attrs' in node,
+           `Node does not have attributes`)
+    const possible = node.attrs.filter(({name, value}) =&gt; name in this.handlers)
+    assert(possible.length === 1,
+           `Should be exactly one handler`)
+    return this.handlers[possible[0].name]
+  }
+
+  showTag (node, closing) {
+    if (closing) {
+      this.output(`&lt;/${node.nodeName}&gt;`)
+      return
+    }
+
+    this.output(`&lt;${node.nodeName}`)
+    node.attrs.forEach(({name, value}) =&gt; {
+      if (!name.startsWith('q-')) {
+        this.output(` ${name}="${value}"`)
       }
-      this.output(`&gt;`)
-    }
-    else {
-      this.output(`&lt;/${node.name}&gt;`)
-    }
+    })
+    this.output(`&gt;`)
   }
 
   output (text) {
-    this.result += (text === undefined) ? 'UNDEF' : text
+    this.result.push((text === undefined) ? 'UNDEF' : text)
   }
 }
 
@@ -342,15 +318,15 @@ module.exports = Expander
 </li>
 </ul>
 <pre title="template.js"><code class="language-js">const fs = require('fs')
-const htmlparser = require('htmlparser2')
+const parse5 = require('parse5')
 const Expander = require('./expander')
 
 const main = () =&gt; {
   const vars = readJSON(process.argv[2])
-  const dom = readHtml(process.argv[3])
-  const expander = new Expander(dom, vars)
+  const doc = readHtml(process.argv[3]).childNodes[0]
+  const expander = new Expander(doc, vars)
   expander.walk()
-  console.log(expander.result)
+  console.log(expander.getResult())
 }
 
 const readJSON = (filename) =&gt; {
@@ -360,7 +336,7 @@ const readJSON = (filename) =&gt; {
 
 const readHtml = (filename) =&gt; {
   const text = fs.readFileSync(filename, 'utf-8')
-  return htmlparser.parseDOM(text)
+  return parse5.parse(text)
 }
 
 main()
@@ -395,19 +371,19 @@ main()
 &lt;/html&gt;
 
 </code></pre>
-<pre title="static-text.sh"><code class="language-sh">node template.js input-vars.json input-only-static-text-input.html
+<pre title="static-text.sh"><code class="language-sh">node template.js vars.json input-static-text.html
 </code></pre>
 <pre title="output-static-text.html"><code class="language-html">
-&lt;html&gt;
-  &lt;body&gt;
+&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;
     &lt;h1&gt;Only Static Text&lt;/h1&gt;
     &lt;p&gt;This document only contains:&lt;/p&gt;
     &lt;ul&gt;
       &lt;li&gt;static&lt;/li&gt;
       &lt;li&gt;text&lt;/li&gt;
     &lt;/ul&gt;
-  &lt;/body&gt;
-&lt;/html&gt;
+  
+
+&lt;/body&gt;&lt;/html&gt;
 
 </code></pre>
 <ul>
@@ -418,7 +394,8 @@ main()
 
 </code></pre>
 <pre title="output-single-constant.html"><code class="language-html">
-&lt;p&gt;123&lt;/p&gt;
+&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;&lt;p&gt;&lt;/span&gt;123&lt;span&gt;&lt;/p&gt;
+&lt;/body&gt;&lt;/html&gt;
 
 </code></pre>
 <ul>
@@ -429,7 +406,8 @@ main()
 
 </code></pre>
 <pre title="output-single-variable.html"><code class="language-html">
-&lt;p&gt;variableValue&lt;/p&gt;
+&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;&lt;p&gt;&lt;/span&gt;variableValue&lt;span&gt;&lt;/p&gt;
+&lt;/body&gt;&lt;/html&gt;
 
 </code></pre>
 <ul>
@@ -441,8 +419,9 @@ main()
 
 </code></pre>
 <pre title="output-multiple-variables.html"><code class="language-html">
-&lt;p&gt;firstValue&lt;/p&gt;
-&lt;p&gt;secondValue&lt;/p&gt;
+&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;&lt;p&gt;&lt;/span&gt;firstvalue&lt;span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;/span&gt;secondValue&lt;span&gt;&lt;/p&gt;
+&lt;/body&gt;&lt;/html&gt;
 
 </code></pre>
 <ul>
@@ -454,7 +433,9 @@ main()
 
 </code></pre>
 <pre title="output-conditional.html"><code class="language-html">
-&lt;p&gt;This should be shown.&lt;/p&gt;
+&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;&lt;/p&gt;This should be shown.&lt;p&gt;
+
+&lt;/body&gt;&lt;/html&gt;
 
 </code></pre>
 <ul>
@@ -468,12 +449,11 @@ main()
 
 </code></pre>
 <pre title="output-loop.html"><code class="language-html">
-&lt;p&gt;Expect three items&lt;/p&gt;
+&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;&lt;p&gt;Expect three items&lt;/p&gt;
 &lt;ul&gt;
-  &lt;li&gt;Johnson&lt;/li&gt;
-  &lt;li&gt;Vaughan&lt;/li&gt;
-  &lt;li&gt;Jackson&lt;/li&gt;
+  &lt;li&gt;&lt;/span&gt;Johnson&lt;span&gt;&lt;/li&gt;&lt;li&gt;&lt;/span&gt;Vaughan&lt;span&gt;&lt;/li&gt;&lt;li&gt;&lt;/span&gt;Jackson&lt;span&gt;&lt;/li&gt;&lt;/li&gt;
 &lt;/ul&gt;
+&lt;/body&gt;&lt;/html&gt;
 
 </code></pre>
 </main>

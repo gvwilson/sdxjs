@@ -86,6 +86,8 @@
 <dd class="glossary">A two-dimensional data structure for storing tabular data in memory. Rows represent <g key="record">records</g> and columns represent <a href="variable_data">variables</a>.</dd>
 <dt id="decorator_pattern" class="glossary">Decorator pattern</dt>
 <dd class="glossary">A <g key="design_pattern">design pattern</g> in which a function adds additional features to another function or a <g key="class">class</g> after its initial definition. Decorators are a feature of <g key="python">Python</g> and can be implemented in most other languages as well.</dd>
+<dt id="delegate_pattern" class="glossary">Delegate pattern</dt>
+<dd class="glossary">A <g key="design_pattern">design pattern</g> in which an object does most of the work to complete a task, but uses one of a set of other objects to complete some specific parts of the work. Delegation is often used instead of inheritance to customize objects' behavior.</dd>
 <dt id="dependency" class="glossary">dependency</dt>
 <dd class="glossary">See <g key="prerequisite">prerequisite</g>.</dd>
 <dt id="design_pattern" class="glossary">design pattern</dt>
