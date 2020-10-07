@@ -24,9 +24,12 @@ const WIDTH = 70
  */
 const main = () => {
   const config = getConfiguration()
+
   const markdown = loadMarkdown(config)
-  const html = loadHtml(config)
   checkInclusions(markdown)
+  checkLineEndings(markdown)
+
+  const html = loadHtml(config)
   checkGloss(html)
   checkTabs(html)
   checkWidths(html)
@@ -99,6 +102,18 @@ const checkInclusions = (files) => {
     getIncluded(filename, text).forEach(filename => included.add(filename))
   })
   showSetDiff('In directories but not included', existing, included)
+}
+
+/**
+ * Check for Windows line endings in source files.
+ * @param {Array<Object>} files File information.
+ */
+const checkLineEndings = (files) => {
+  const windows = files.filter(({text}) => text.includes('\r'))
+  if (windows.length > 0) {
+    const filenames = windows.map(({filename}) => filename).join('\n- ')
+    console.log(`file(s) contain Windows line endings\n- ${filenames}`)
+  }
 }
 
 /**
