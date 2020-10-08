@@ -1,24 +1,24 @@
 /**
  * Find the path to the website root in the page's metadata.
  */
-const getRelativeRoot = () => {
+const getPathToRoot = () => {
   return document
-    .querySelector('meta[name="relativeRoot"]')
+    .querySelector('meta[name="toRoot"]')
     .getAttribute('content')
 }
 
 /**
  * Find and fix bibliographic citations.
- * @param {string} relativeRoot Path to root of website.
+ * @param {string} toRoot Path to root of website.
  */
-const fixBibCites = (relativeRoot) => {
+const fixBibCites = (toRoot) => {
   Array.from(document.querySelectorAll('cite'))
     .forEach(node => {
       const keys = node.innerHTML
             .trim()
             .split(',')
             .map(key => key.trim())
-            .map(key => `<a href="${relativeRoot}/bib/#${key}">${key}</a>`)
+            .map(key => `<a href="${toRoot}/bib/#${key}">${key}</a>`)
             .join(', ')
       const cite = document.createElement('span')
       cite.innerHTML = `[${keys}]`
@@ -28,14 +28,14 @@ const fixBibCites = (relativeRoot) => {
 
 /**
  * Find and fix glossary references.
- * @param {string} relativeRoot Path to root of website.
+ * @param {string} toRoot Path to root of website.
  */
-const fixGlossaryRefs = (relativeRoot) => {
+const fixGlossaryRefs = (toRoot) => {
   Array.from(document.querySelectorAll('g'))
     .forEach(node => {
       const key = node.getAttribute('key')
       const link = document.createElement('a')
-      link.setAttribute('href', `${relativeRoot}/gloss/#${key}`)
+      link.setAttribute('href', `${toRoot}/gloss/#${key}`)
       link.setAttribute('class', 'glossary-reference')
       link.innerHTML = node.innerHTML
       node.parentNode.replaceChild(link, node)
@@ -76,7 +76,7 @@ const buildToc = () => {
 /**
  * Fill in cross-references.
  */
-const fixCrossRefs = (relativeRoot, numbering) => {
+const fixCrossRefs = (toRoot, numbering) => {
   Array.from(document.querySelectorAll('xref'))
     .forEach(node => {
       const slug = node.getAttribute('key')
@@ -84,7 +84,7 @@ const fixCrossRefs = (relativeRoot, numbering) => {
 
       const link = document.createElement('a')
       const path = (slug === '/') ? '' : `${slug}/`
-      link.setAttribute('href', `${relativeRoot}/${path}`)
+      link.setAttribute('href', `${toRoot}/${path}`)
       link.setAttribute('number', numbering[slug])
 
       if (content) {
@@ -105,16 +105,16 @@ const fixCrossRefs = (relativeRoot, numbering) => {
  * Perform all in-page fixes.
  */
 const fixPage = () => {
-  const relativeRoot = getRelativeRoot()
+  const toRoot = getPathToRoot()
   const xhr = new XMLHttpRequest()
-  xhr.open('GET', `${relativeRoot}/numbering.js`, true)
+  xhr.open('GET', `${toRoot}/numbering.js`, true)
   xhr.onload = function (e) {
     if (xhr.readyState === 4) {
       const numbering = JSON.parse(xhr.responseText)
-      fixBibCites(relativeRoot)
-      fixGlossaryRefs(relativeRoot)
+      fixBibCites(toRoot)
+      fixGlossaryRefs(toRoot)
       fixPreBlocks()
-      fixCrossRefs(relativeRoot, numbering)
+      fixCrossRefs(toRoot, numbering)
       buildToc()
     }
     else {

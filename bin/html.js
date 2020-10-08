@@ -150,22 +150,61 @@ const translateFile = (config, fileInfo, linksText) => {
   }
   const settings = {
     ...context,
-    path: path,
-    fs: fs,
     site: config,
     page: fileInfo,
-    relativeRoot: relativeRoot(fileInfo.output)
+    toRoot: toRoot(fileInfo.output),
+    _codeClass,
+    _exercise,
+    _readFile
   }
   const previous = settings.page.previous ? settings.page.previous.title : '-nope-'
   const next = settings.page.next ? settings.page.next.title : '-nope-'
-  const fullContent = `${fileInfo.content}\n\n${linksText}`
-  const expanded = ejs.render(fullContent, settings, context)
+  let content = `${fileInfo.content}\n\n${linksText}`
+  while (content.includes('<%')) {
+    content = ejs.render(content, settings, context)
+  }
   const mdi = new MarkdownIt({html: true})
         .use(MarkdownAnchor, {level: 1, slugify: slugify})
-  const html = mdi.render(expanded)
+  const html = mdi.render(content)
   const outputPath = path.join(config.outputDir, fileInfo.output)
   ensureOutputDir(outputPath)
   fs.writeFileSync(outputPath, html, 'utf-8')
+}
+
+/**
+ * Create class attribute of code inclusion.
+ * @param {string} filename Name of file.
+ * @returns {string} Class attribute.
+ */
+const _codeClass = (filename) => {
+  return `language-${path.extname(filename).slice(1)}`
+}
+
+/**
+ * Read exercise problem or solution for inclusion.
+ * @param {string} root Path to root.
+ * @param {Object} chapter Chapter information.
+ * @param {Object} exercise Exercise information.
+ * @param {string} which Either 'problem' or 'solution'
+ */
+const _exercise = (root, chapter, exercise, which) => {
+  const title = `<h3>${exercise.title}</h3>`
+  const path = `${root}/${chapter.slug}/${exercise.slug}/${which}.md`
+  const contents = fs.readFileSync(path, 'utf-8')
+  return `${title}\n\n${contents}\n`
+}
+
+/**
+ * Read file for code inclusion.
+ * @param {string} mainFile Name of file doing the inclusion.
+ * @param {string} subFile Name of file being included.
+ * @returns {string} File contents with minimal HTML escaping.
+ */
+const _readFile = (mainFile, subFile) => {
+  return fs.readFileSync(`${path.dirname(mainFile)}/${subFile}`, 'utf-8')
+    .replace(/&/g, '&amp;')
+    .replace(/>/g, '&gt;')
+    .replace(/</g, '&lt;')
 }
 
 /**
@@ -253,7 +292,7 @@ const ensureOutputDir = (outputPath) => {
  * @param {string} filePath Path to file.
  * @returns {string} Path from file to root directory.
  */
-const relativeRoot = (filePath) => {
+const toRoot = (filePath) => {
   const dirPath = path.dirname(filePath)
   return (dirPath === '.') ? '.' : dirPath.split('/').map(x => '..').join('/')
 }
