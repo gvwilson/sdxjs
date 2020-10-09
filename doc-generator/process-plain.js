@@ -1,6 +1,9 @@
 const fs = require('fs')
 const acorn = require('acorn')
-const marked = require('marked')
+const MarkdownIt = require('markdown-it')
+const MarkdownAnchor = require('markdown-it-anchor')
+
+const slugify = require('./slugify')
 
 const main = () => {
   const allComments = process.argv.slice(2)
@@ -19,7 +22,9 @@ const main = () => {
           return `# ${filename}\n\n${combined}`
         })
         .join('\n\n')
-  const html = marked(allComments, {gfm: true})
+  const md = new MarkdownIt({html: true})
+        .use(MarkdownAnchor, {level: 1, slugify: slugify})
+  const html = md.render(allComments)
   console.log(html)
 }
 
@@ -30,7 +35,12 @@ const extractComments = (filename) => {
   const subset = options.onComment
         .filter(entry => entry.type === 'Block')
         .map(entry => {
-          return {type: entry.type, value: entry.value, start: entry.start, end: entry.end}
+          return {
+            type: entry.type,
+            value: entry.value,
+            start: entry.start,
+            end: entry.end
+          }
         })
   return subset
 }

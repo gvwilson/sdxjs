@@ -1,4 +1,8 @@
 /**
+ * Overall file header.
+ */
+
+/**
  * Double the input.
  */
 const double = (x) => 2 * x

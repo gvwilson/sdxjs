@@ -9,7 +9,11 @@ const main = () => {
   const comments = options.onComment
         .filter(entry => entry.type === 'Block')
         .map(entry => {
-          return {value: entry.value, start: entry.loc.start.line, end: entry.loc.end.line}
+          return {
+            value: entry.value,
+            start: entry.loc.start.line,
+            end: entry.loc.end.line
+          }
         })
   const targets = new Set(comments.map(comment => comment.end + 1))
   const nodes = []

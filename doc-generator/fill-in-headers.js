@@ -1,8 +1,11 @@
 const assert = require('assert')
-const marked = require('marked')
+const MarkdownIt = require('markdown-it')
+const MarkdownAnchor = require('markdown-it-anchor')
 
 const getComments = require('./get-comments.js')
 const getDefinitions = require('./get-definitions.js')
+const fillIn = require('./fill-in.js')
+const slugify = require('./slugify')
 
 const main = () => {
   const filenames = process.argv.slice(2)
@@ -14,31 +17,10 @@ const main = () => {
     const text = fillIn(filename, comments, definitions)
     combined.push(text)
   }
-  const html = marked(combined.join('\n\n'), {gfm: true})
+  const md = new MarkdownIt({html: true})
+        .use(MarkdownAnchor, {level: 1, slugify: slugify})
+  const html = md.render(combined.join('\n\n'))
   console.log(html)
-}
-
-const fillIn = (filename, comments, definitions) => {
-  const map = definitions.reduce((map, def) => {
-    map.set(def.start, {name: def.name, type: def.type})
-    return map
-  }, new Map())
-
-  const filled = comments.map(comment => {
-    let text = comment.stripped
-    const target = comment.end + 1
-    if (map.has(target)) {
-      const def = map.get(target)
-      const level = def.type === 'MethodDefinition'
-            ? '###'
-            : '##'
-      const title = `${level} ${def.name}\n`
-      text = title + text
-    }
-    return text
-  })
-
-  return `# ${filename}\n\n` + filled.join('\n\n')
 }
 
 main()
