@@ -158,7 +158,8 @@ const translateFile = (config, fileInfo, linksText) => {
     toRoot: toRoot(fileInfo.output),
     _codeClass,
     _exercise,
-    _readFile
+    _readFile,
+    _readPage
   }
 
   // Since inclusions may contain inclusions, we need to provide the rendering
@@ -205,13 +206,25 @@ const _exercise = (render, root, chapter, exercise, which) => {
  * Read file for code inclusion.
  * @param {string} mainFile Name of file doing the inclusion.
  * @param {string} subFile Name of file being included.
- * @returns {string} File contents with minimal HTML escaping.
+ * @returns {string} File contents (possibly with minimal HTML escaping).
  */
 const _readFile = (mainFile, subFile) => {
   return fs.readFileSync(`${path.dirname(mainFile)}/${subFile}`, 'utf-8')
     .replace(/&/g, '&amp;')
     .replace(/>/g, '&gt;')
     .replace(/</g, '&lt;')
+}
+
+/**
+ * Read HTML page for inclusion.
+ * @param {string} mainFile Name of file doing the inclusion.
+ * @param {string} subFile Name of file being included.
+ * @returns {string} Contents of body.
+ */
+const _readPage = (mainFile, subFile) => {
+  const content = fs.readFileSync(`${path.dirname(mainFile)}/${subFile}`, 'utf-8')
+  // FIXME: extract body
+  return content
 }
 
 /**
