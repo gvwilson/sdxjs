@@ -115,7 +115,6 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
 ## Tasks and Tools
 
 1.  NPM doesn't allow us to document our tasks or make them depend on one another,
-    so we use [NPM][npm] to manage packages and [Bajel][bajel] to run tasks—run
-    `npx bajel help` to get help with the latter.
-    (Note that it's `npx` with an 'x' rather than `npm` with an 'm'.)
-    All of the commands are in `build.yml` and all of our tools are in the `bin` directory.
+    so we use [NPM][npm] to manage packages and GNU Make to run tasks:
+    run `make` to get help with the latter.
+    All of our tools are in the `bin` directory.

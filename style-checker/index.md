@@ -47,6 +47,7 @@
 -   Accumulate results on demand
     -   Only create arrays of results when nodes of that type are encountered
     -   Only insert nodes that fail checks
+
 <%- include('/inc/multi.html', {pat: 'check-name-lengths.*', fill: 'js text'}) %>
 
 -   Why doesn't the parameter `x` show up as a violation?

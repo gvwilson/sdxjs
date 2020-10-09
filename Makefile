@@ -31,11 +31,11 @@ commands :
 ## ----: ----
 
 ## serve: run a server on port 4000
-serve:
+serve: docs/index.html
 	@npm run serve
 
 ## check: check that everything is tidy
-check:
+check: docs/index.html
 	@bin/check.js \
 	--html ${HTML} \
 	--markdown ${MARKDOWN}
@@ -44,7 +44,7 @@ check:
 bib: bib.md
 
 bib.md: bin/bib.js bib.yml
-	@bin/bib.js \
+	bin/bib.js \
 	--input bib.yml \
 	--output bib.md
 
@@ -52,7 +52,7 @@ bib.md: bin/bib.js bib.yml
 gloss: gloss.md
 
 gloss.md: gloss.yml bin/gloss.js $(filter-out gloss.md,${MARKDOWN})
-	@bin/gloss.js \
+	bin/gloss.js \
 	--glosario \
 	--input gloss.yml \
 	--output gloss.md \
@@ -62,7 +62,7 @@ gloss.md: gloss.yml bin/gloss.js $(filter-out gloss.md,${MARKDOWN})
 html: docs/index.html docs/numbering.js
 
 docs/index.html docs/numbering.js: bin/html.js config.yml links.yml ${MARKDOWN}
-	@bin/html.js \
+	bin/html.js \
 	--rootDir . \
 	--outputDir docs \
 	--configFile config.yml \
@@ -72,7 +72,7 @@ docs/index.html docs/numbering.js: bin/html.js config.yml links.yml ${MARKDOWN}
 latex: book.tex
 
 book.tex: bin/latex.js docs/index.html ${TEX}
-	@bin/latex.js \
+	bin/latex.js \
 	--config config.yml \
 	--htmlDir docs \
 	--outputFile book.tex \
