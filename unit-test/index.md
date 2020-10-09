@@ -28,7 +28,7 @@
 -   We need some way to distinguish failure from error
     -   Rely on the fact that exceptions are objects
     -   If the object is an instance of `assert.AssertionError`
-        then it was [thrown](#throw_exception) by an assertion,
+        then it was <g key="throw_exception">thrown</g> by an assertion,
         which (probably) means it's coming out of one of our checks
     -   Any other kind of assertion is unexpected
 
@@ -44,9 +44,7 @@
 -   Tests are run in the order in which they're registered, but we shouldn't rely on that
 -   After all tests are run, report counts
 
-<%- include('/inc/code.html', {file: 'dry-run.js'}) %>
-
-<%- include('/inc/code.html', {file: 'dry-run.text'}) %>
+<%- include('/inc/multi.html', {pat: 'dry-run.*', fill: 'js text'}) %>
 
 -   Critique
     -   Doesn't tell us *which* tests failed

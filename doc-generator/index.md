@@ -71,6 +71,7 @@
 
 <%- include('/inc/code.html', {file: 'process-plain.sh'}) %>
 <%- include('/inc/html.html', {file: 'process-plain.html'}) %>
+<%- include('/inc/subpage.html', {file: 'process-plain.html'}) %>
 
 -   Lots of ugliness here
     -   Double `h1` for each file (filename and title comment)
@@ -103,3 +104,4 @@
 
 <%- include('/inc/code.html', {file: 'fill-in-headers.js'}) %>
 <%- include('/inc/html.html', {file: 'fill-in-headers.html'}) %>
+<%- include('/inc/subpage.html', {file: 'fill-in-headers.html'}) %>

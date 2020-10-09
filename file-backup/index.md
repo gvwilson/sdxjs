@@ -41,7 +41,7 @@
     -   Read the file in chunks
     -   Pass each chunk to an object containing a hashing function, which accumulates a result
     -   Tell the hashing object what to do when the stream finishes
-    -   Another example of [asynchronous execution](#asynchronous)
+    -   Another example of <g key="asynchronous">asynchronous</g> execution
 
 <%- include('/inc/multi.html', {pat: 'hash-stream.*', fill: 'js sh text'}) %>
 
@@ -76,7 +76,7 @@
 
 -   Step 2: see which files have and haven't been backed up already
     -   Backup directory contains `abcd1234.bck` (backup files) and `ssssssssss.csv` (manifest files),
-        where `ssssssssss` is the [UTC](#utc) [timestamp](#timestamp) of the backup's creation
+        where `ssssssssss` is the <g key="utc">UTC</g> <g key="timestamp">timestamp</g> of the backup's creation
     -   We assume no more than one backup per second (which is unsafe in practice)
 
 <%- include('/inc/code.html', {file: 'check-existing-files.js'}) %>

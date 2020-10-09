@@ -32,7 +32,7 @@
 
 ## How can we walk the AST?
 
--   To [walk a tree](#walk_tree) means to visit each node in turn
+-   To <g key="walk_tree">walk a tree</g> means to visit each node in turn
 -   Use a helper library `acorn-walk` to do this
     -   Provide a function to act on nodes of type `Identifier`
     -   Use options to say that we want to record locations and to collect comments (in the array `onComment`)

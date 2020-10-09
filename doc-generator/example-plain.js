@@ -16,7 +16,8 @@ const main = () => {
  * ## `parseArgs`: Parse command-line arguments.
  * - `args` (`string[]`): arguments to parse.
  * - `defaults` (`Object`): default values.
- * > Program configuration object.
+ *
+ * Returns: program configuration object.
  */
 const parseArgs = (args, defaults) => {
   // body would go here

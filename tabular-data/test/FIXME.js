@@ -1,6 +1,6 @@
 const assert = require('assert')
 
-const need = require('../../module-loader/need-04')
+const need = require('../../module-loader/need-interpolate')
 const DataFrame = need(__filename, '../dataframe.js')
 
 const ZeroRows = []

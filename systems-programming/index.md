@@ -108,6 +108,7 @@ FIXME: diagram
 -   Use the [`glob`][node-glob] module
     -   <g key="globbing">Globbing</g> (short for "global") is an old Unix term for matching a set of files by name
     -   Like most of programming it works by filename, not by actual content type
+
 <%- include('/inc/multi.html', {pat: 'glob-all-files.*', fill: 'js text'}) %>
 
 -   Get filenames matching a pattern and then do something with the list
