@@ -144,10 +144,13 @@ const loadFiles = (allFiles) => {
  * @param {string} linksText Markdown-formatted links table.
  */
 const translateFile = (config, fileInfo, linksText) => {
+  // Context contains variables required by EJS.
   const context = {
     root: config.rootDir,
     filename: fileInfo.source
   }
+
+  // Settings contains "local" variables for rendering.
   const settings = {
     ...context,
     site: config,
@@ -155,17 +158,21 @@ const translateFile = (config, fileInfo, linksText) => {
     toRoot: toRoot(fileInfo.output),
     _codeClass,
     _exercise,
-    _readFile
+    _readFile,
+    _readPage
   }
-  const previous = settings.page.previous ? settings.page.previous.title : '-nope-'
-  const next = settings.page.next ? settings.page.next.title : '-nope-'
-  let content = `${fileInfo.content}\n\n${linksText}`
-  while (content.includes('<%')) {
-    content = ejs.render(content, settings, context)
-  }
+
+  // Since inclusions may contain inclusions, we need to provide the rendering
+  // function to the renderer in the settings.
+  settings['_render'] = (text) => ejs.render(text, settings, context)
+
+  // Translate the page.
+  const translated = settings['_render'](`${fileInfo.content}\n\n${linksText}`)
   const mdi = new MarkdownIt({html: true})
         .use(MarkdownAnchor, {level: 1, slugify: slugify})
-  const html = mdi.render(content)
+  const html = mdi.render(translated)
+
+  // Save result.
   const outputPath = path.join(config.outputDir, fileInfo.output)
   ensureOutputDir(outputPath)
   fs.writeFileSync(outputPath, html, 'utf-8')
@@ -182,15 +189,16 @@ const _codeClass = (filename) => {
 
 /**
  * Read exercise problem or solution for inclusion.
+ * @param {function} render How to translate loaded file.
  * @param {string} root Path to root.
  * @param {Object} chapter Chapter information.
  * @param {Object} exercise Exercise information.
  * @param {string} which Either 'problem' or 'solution'
  */
-const _exercise = (root, chapter, exercise, which) => {
+const _exercise = (render, root, chapter, exercise, which) => {
   const title = `<h3>${exercise.title}</h3>`
   const path = `${root}/${chapter.slug}/${exercise.slug}/${which}.md`
-  const contents = fs.readFileSync(path, 'utf-8')
+  const contents = render(fs.readFileSync(path, 'utf-8'))
   return `${title}\n\n${contents}\n`
 }
 
@@ -198,13 +206,25 @@ const _exercise = (root, chapter, exercise, which) => {
  * Read file for code inclusion.
  * @param {string} mainFile Name of file doing the inclusion.
  * @param {string} subFile Name of file being included.
- * @returns {string} File contents with minimal HTML escaping.
+ * @returns {string} File contents (possibly with minimal HTML escaping).
  */
 const _readFile = (mainFile, subFile) => {
   return fs.readFileSync(`${path.dirname(mainFile)}/${subFile}`, 'utf-8')
     .replace(/&/g, '&amp;')
     .replace(/>/g, '&gt;')
     .replace(/</g, '&lt;')
+}
+
+/**
+ * Read HTML page for inclusion.
+ * @param {string} mainFile Name of file doing the inclusion.
+ * @param {string} subFile Name of file being included.
+ * @returns {string} Contents of body.
+ */
+const _readPage = (mainFile, subFile) => {
+  const content = fs.readFileSync(`${path.dirname(mainFile)}/${subFile}`, 'utf-8')
+  // FIXME: extract body
+  return content
 }
 
 /**

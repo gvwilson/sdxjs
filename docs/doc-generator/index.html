@@ -30,11 +30,11 @@
 <br/><a href="../style-checker/"><span class="nowrap">Style Checker</span></a>
 <br/><a href="../code-generator/"><span class="nowrap">Code Generator</span></a>
 <br/><a href="../page-templates/"><span class="nowrap">Page Templates</span></a>
+<br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
 <br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
 <br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
 <br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
 <br/><a href="../text-editor/"><span class="nowrap">Text Editor</span></a>
-<br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
 <br/><a href="../http-server/"><span class="nowrap">HTTP Server</span></a>
 <br/><a href="../tabular-data/"><span class="nowrap">Tabular Data</span></a>
 <br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
@@ -62,17 +62,17 @@
   <h1>Documentation Generator</h1>
   <p class="lede">Generating documentation from comments embedded in code</p>
 <ul>
-<li>Extract specially-formatted comments from code
-and generate documentation for the package like <a href="https://esdoc.org/">ESDoc</a>.</li>
+<li>Many programmers believe they're more likely to write documentation and keep it up to date
+if it's close to the code</li>
+<li>Tools that extract specially-formatted comments from code and turn them into documentation
+have been around since the 1980s</li>
+<li>Many are used for JavaScript, including <a href="https://jsdoc.app/">JSDoc</a> and <a href="https://esdoc.org/">ESDoc</a></li>
+<li>Good ones minimize the amount of duplicated information</li>
 </ul>
 <h2 id="how-can-we-extract-documentation-comments">How can we extract documentation comments?</h2>
 <ul>
-<li>Use <a href="https://github.com/acornjs/acorn">Acorn</a> once again to extract comments
-<ul>
-<li>Provide an <code>onComment</code> option with an array value</li>
-</ul>
-</li>
-<li>Test it out</li>
+<li>Use <a href="https://github.com/acornjs/acorn">Acorn</a> once again to extract comments</li>
+<li>Provide an <code>onComment</code> option with an array value for it to fill in</li>
 </ul>
 <pre title="extract-comments.js"><code class="language-js">const fs = require('fs')
 const acorn = require('acorn')
@@ -121,7 +121,7 @@ console.log(JSON.stringify(options.onComment, null, 2))
 ]
 </code></pre>
 <ul>
-<li>Show a subset of JSON going forward</li>
+<li>Extract a subset of the JSON with key features</li>
 </ul>
 <pre title="extract-comments-subset.js"><code class="language-js">const fs = require('fs')
 const acorn = require('acorn')
@@ -157,6 +157,7 @@ console.log(JSON.stringify(subset, null, 2))
 ]
 </code></pre>
 <ul>
+<li>Acorn distinguishes two kinds of comments</li>
 <li><g key="line_comment">Line comments</g> can't span multiple lines
 <ul>
 <li>Consecutive line comments aren't combined</li>
@@ -213,8 +214,7 @@ console.log(JSON.stringify(subset, null, 2))
 ]
 </code></pre>
 <ul>
-<li>Could extract all block comments and use those for docs</li>
-<li>By convention, look for comments that start with <code>/**</code>
+<li>By convention, use block comments that start with <code>/**</code> for documentation
 <ul>
 <li>Which means the first character in the extracted text is <code>*</code></li>
 </ul>
@@ -236,15 +236,15 @@ console.log(JSON.stringify(subset, null, 2))
 </code></pre>
 <h2 id="what-input-will-we-try-to-handle">What input will we try to handle?</h2>
 <ul>
-<li>Use <a href="https://github.github.com/gfm/">GitHub Flavored Markdown</a> with a few conventions</li>
-<li>Use <a href="https://marked.js.org/">marked.js</a> for parsing</li>
+<li>Use <g key="markdown">Markdown</a> for formatting</li>
+<li>Parse it with <a href="https://markdown-it.github.io/">markdown-it</a></li>
 <li>Function definitions look like this:</li>
 </ul>
-<pre title="example-01.js"><code class="language-js">/**
+<pre title="example-plain.js"><code class="language-js">/**
  * # Demonstrate documentation generator.
  */
 
-const util = require('./util-01')
+const util = require('./util-plain')
 
 /**
  * ## `main`: Main driver.
@@ -258,7 +258,7 @@ const main = () =&gt; {
  * ## `parseArgs`: Parse command-line arguments.
  * - `args` (`string[]`): arguments to parse.
  * - `defaults` (`Object`): default values.
- * &gt; Program configuration object.
+ * Returns: program configuration object.
  */
 const parseArgs = (args, defaults) =&gt; {
   // body would go here
@@ -278,7 +278,7 @@ const processData = (input, output, op=util.DefaultProcessor) =&gt; {
 <ul>
 <li>Class definitions look like this:</li>
 </ul>
-<pre title="util-01.js"><code class="language-js">/**
+<pre title="util-plain.js"><code class="language-js">/**
  * # Utilities for demonstrating documentation generator.
  */
 
@@ -306,25 +306,25 @@ class DefaultProcessor {
 module.exports = DefaultProcessor
 </code></pre>
 <ul>
-<li>Lots of ugliness here
+<li>Lots of unpleasantry here
 <ul>
 <li>Repeating function and method names</li>
 <li>Have to remember the back-quotes for formatting code</li>
+<li>Have to create titles ourselves</li>
 </ul>
 </li>
-<li>But some good ideas
-<ul>
-<li>A link to <code>#</code> should turn into a cross-reference</li>
-</ul>
-</li>
+<li>But it's a start</li>
 </ul>
 <h2 id="how-can-we-extract-and-format-comments">How can we extract and format comments?</h2>
 <ul>
 <li>Processing looks like this</li>
 </ul>
-<pre title="extract-and-format.js"><code class="language-js">const fs = require('fs')
+<pre title="process-plain.js"><code class="language-js">const fs = require('fs')
 const acorn = require('acorn')
-const marked = require('marked')
+const MarkdownIt = require('markdown-it')
+const MarkdownAnchor = require('markdown-it-anchor')
+
+const slugify = require('./slugify')
 
 const main = () =&gt; {
   const allComments = process.argv.slice(2)
@@ -343,7 +343,9 @@ const main = () =&gt; {
           return `# ${filename}\n\n${combined}`
         })
         .join('\n\n')
-  const html = marked(allComments, {gfm: true})
+  const md = new MarkdownIt({html: true})
+        .use(MarkdownAnchor, {level: 1, slugify: slugify})
+  const html = md.render(allComments)
   console.log(html)
 }
 
@@ -354,7 +356,12 @@ const extractComments = (filename) =&gt; {
   const subset = options.onComment
         .filter(entry =&gt; entry.type === 'Block')
         .map(entry =&gt; {
-          return {type: entry.type, value: entry.value, start: entry.start, end: entry.end}
+          return {
+            type: entry.type,
+            value: entry.value,
+            start: entry.start,
+            end: entry.end
+          }
         })
   return subset
 }
@@ -372,18 +379,26 @@ const removePrefix = (comment) =&gt; {
 
 main()
 </code></pre>
-<pre title="extract-and-format.sh"><code class="language-sh">node extract-and-format.js example-01.js util-01.js
+<ul>
+<li>Extract all special comments from all files and concatenate
+with source file's name as level-1 heading</li>
+<li>Convert that document from Markdown to HTML
+<ul>
+<li>Use our own function <code>slugify</code> to give elements IDs</li>
+</ul>
+</li>
+<li>Run and inspect output</li>
+</ul>
+<pre title="process-plain.sh"><code class="language-sh">node process-plain.js example-plain.js util-plain.js
 </code></pre>
-<pre title="extract-and-format.html"><code class="language-html">&lt;h1 id="example-01js"&gt;example-01.js&lt;/h1&gt;
+<pre title="process-plain.html"><code class="language-html">&lt;h1 id="exampleplainjs"&gt;example-plain.js&lt;/h1&gt;
 &lt;h1 id="demonstrate-documentation-generator"&gt;Demonstrate documentation generator.&lt;/h1&gt;
 &lt;h2 id="main-main-driver"&gt;&lt;code&gt;main&lt;/code&gt;: Main driver.&lt;/h2&gt;
-&lt;h2 id="parseargs-parse-command-line-arguments"&gt;&lt;code&gt;parseArgs&lt;/code&gt;: Parse command-line arguments.&lt;/h2&gt;
+&lt;h2 id="parseargs-parse-commandline-arguments"&gt;&lt;code&gt;parseArgs&lt;/code&gt;: Parse command-line arguments.&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;code&gt;args&lt;/code&gt; (&lt;code&gt;string[]&lt;/code&gt;): arguments to parse.&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;defaults&lt;/code&gt; (&lt;code&gt;Object&lt;/code&gt;): default values.&lt;blockquote&gt;
-&lt;p&gt;Program configuration object.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;defaults&lt;/code&gt; (&lt;code&gt;Object&lt;/code&gt;): default values.
+Returns: program configuration object.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id="processdata-process-data-from-input-stream-sending-results-to-output-stream"&gt;&lt;code&gt;processData&lt;/code&gt;: Process data from input stream, sending results to output stream.&lt;/h2&gt;
 &lt;ul&gt;
@@ -392,7 +407,7 @@ main()
 &lt;li&gt;&lt;code&gt;op&lt;/code&gt; (&lt;code&gt;class&lt;/code&gt;): what to do.
 Use @DefaultProcessor unless told to do otherwise.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h1 id="util-01js"&gt;util-01.js&lt;/h1&gt;
+&lt;h1 id="utilplainjs"&gt;util-plain.js&lt;/h1&gt;
 &lt;h1 id="utilities-for-demonstrating-documentation-generator"&gt;Utilities for demonstrating documentation generator.&lt;/h1&gt;
 &lt;h2 id="defaultprocessor-default-processing-class"&gt;&lt;code&gt;DefaultProcessor&lt;/code&gt;: Default processing class.&lt;/h2&gt;
 &lt;h3 id="constructor-build-default-processor"&gt;&lt;code&gt;constructor&lt;/code&gt;: Build default processor.&lt;/h3&gt;
@@ -403,27 +418,53 @@ Use @DefaultProcessor unless told to do otherwise.&lt;/li&gt;
 &lt;/ul&gt;
 
 </code></pre>
+<div class="subpage" title="process-plain.html"><h1 id="exampleplainjs">example-plain.js</h1>
+<h1 id="demonstrate-documentation-generator">Demonstrate documentation generator.</h1>
+<h2 id="main-main-driver"><code>main</code>: Main driver.</h2>
+<h2 id="parseargs-parse-commandline-arguments"><code>parseArgs</code>: Parse command-line arguments.</h2>
+<ul>
+<li><code>args</code> (<code>string[]</code>): arguments to parse.</li>
+<li><code>defaults</code> (<code>Object</code>): default values.
+Returns: program configuration object.</li>
+</ul>
+<h2 id="processdata-process-data-from-input-stream-sending-results-to-output-stream"><code>processData</code>: Process data from input stream, sending results to output stream.</h2>
+<ul>
+<li><code>input</code> (<code>stream</code>): where to read.</li>
+<li><code>output</code> (<code>stream</code>): where to write.</li>
+<li><code>op</code> (<code>class</code>): what to do.
+Use @DefaultProcessor unless told to do otherwise.</li>
+</ul>
+<h1 id="utilplainjs">util-plain.js</h1>
+<h1 id="utilities-for-demonstrating-documentation-generator">Utilities for demonstrating documentation generator.</h1>
+<h2 id="defaultprocessor-default-processing-class"><code>DefaultProcessor</code>: Default processing class.</h2>
+<h3 id="constructor-build-default-processor"><code>constructor</code>: Build default processor.</h3>
+<h3 id="run-pass-input-to-output"><code>run</code>: Pass input to output.</h3>
+<ul>
+<li><code>input</code> (<code>stream</code>): where to read.</li>
+<li><code>output</code> (<code>stream</code>): where to write.</li>
+</ul>
+</div>
 <ul>
 <li>Lots of ugliness here
 <ul>
 <li>Double <code>h1</code> for each file (filename and title comment)</li>
-<li>Anchor IDs include full comments</li>
-<li>Cross-references don't resolve</li>
-<li>No links to (lines in) source files</li>
+<li>Anchor IDs are hard to read</li>
+<li>No cross-references</li>
 </ul>
 </li>
-<li>Some visual issues can be resolved with CSS</li>
-<li>Remember: we can change our input format to make processing easier
+<li>Some visual issues can be resolved with CSS
 <ul>
+<li>And we can change our input format to make processing easier</li>
 <li>As long as it also makes authoring easier</li>
 </ul>
 </li>
+<li>But anything that's written twice will eventually be wrong in one place or another</li>
 </ul>
 <h2 id="how-can-we-avoid-duplicating-function-names">How can we avoid duplicating function names?</h2>
 <ul>
 <li>If a comment is the first thing in a file, use it as title text
 <ul>
-<li>No heading marker required</li>
+<li>Saves us having to write an explicit level-1 title in a comment</li>
 </ul>
 </li>
 <li>For each other comment, find the node on the immediately following line
@@ -432,9 +473,13 @@ Use @DefaultProcessor unless told to do otherwise.&lt;/li&gt;
 <li>Delete the line number we're seeking so that we only find the first matching node</li>
 </ul>
 </li>
-<li>Test case with one instance of each type of function</li>
+<li>Allows us to write tidier comments</li>
 </ul>
 <pre title="find-following-input.js"><code class="language-js">/**
+ * Overall file header.
+ */
+
+/**
  * Double the input.
  */
 const double = (x) =&gt; 2 * x
@@ -458,7 +503,13 @@ class Example {
 }
 </code></pre>
 <ul>
-<li>Extract and display information from nodes immediately following doc comments</li>
+<li>Extract and display information from nodes immediately following doc comments
+<ul>
+<li>Find all block comments</li>
+<li>Record last line of each</li>
+<li>Recurse through AST to find code on line immediately following</li>
+</ul>
+</li>
 </ul>
 <pre title="find-following.js"><code class="language-js">const assert = require('assert')
 const fs = require('fs')
@@ -471,7 +522,11 @@ const main = () =&gt; {
   const comments = options.onComment
         .filter(entry =&gt; entry.type === 'Block')
         .map(entry =&gt; {
-          return {value: entry.value, start: entry.loc.start.line, end: entry.loc.end.line}
+          return {
+            value: entry.value,
+            start: entry.loc.start.line,
+            end: entry.loc.end.line
+          }
         })
   const targets = new Set(comments.map(comment =&gt; comment.end + 1))
   const nodes = []
@@ -529,20 +584,23 @@ main()
 <pre title="find-following.sh"><code class="language-sh">node find-following.js find-following-input.js
 </code></pre>
 <pre title="find-following.text"><code class="language-text">[
-  { type: 'VariableDeclaration', start: 4, name: 'double' },
-  { type: 'FunctionDeclaration', start: 9, name: 'triple' },
-  { type: 'ClassDeclaration', start: 16, name: 'Example' },
-  { type: 'MethodDefinition', start: 20, name: 'someMethod' }
+  { type: 'VariableDeclaration', start: 8, name: 'double' },
+  { type: 'FunctionDeclaration', start: 13, name: 'triple' },
+  { type: 'ClassDeclaration', start: 20, name: 'Example' },
+  { type: 'MethodDefinition', start: 24, name: 'someMethod' }
 ]
 </code></pre>
 <ul>
 <li>Use this to create better output</li>
 </ul>
 <pre title="fill-in-headers.js"><code class="language-js">const assert = require('assert')
-const marked = require('marked')
+const MarkdownIt = require('markdown-it')
+const MarkdownAnchor = require('markdown-it-anchor')
 
 const getComments = require('./get-comments.js')
 const getDefinitions = require('./get-definitions.js')
+const fillIn = require('./fill-in.js')
+const slugify = require('./slugify')
 
 const main = () =&gt; {
   const filenames = process.argv.slice(2)
@@ -554,36 +612,15 @@ const main = () =&gt; {
     const text = fillIn(filename, comments, definitions)
     combined.push(text)
   }
-  const html = marked(combined.join('\n\n'), {gfm: true})
+  const md = new MarkdownIt({html: true})
+        .use(MarkdownAnchor, {level: 1, slugify: slugify})
+  const html = md.render(combined.join('\n\n'))
   console.log(html)
-}
-
-const fillIn = (filename, comments, definitions) =&gt; {
-  const map = definitions.reduce((map, def) =&gt; {
-    map.set(def.start, {name: def.name, type: def.type})
-    return map
-  }, new Map())
-
-  const filled = comments.map(comment =&gt; {
-    let text = comment.stripped
-    const target = comment.end + 1
-    if (map.has(target)) {
-      const def = map.get(target)
-      const level = def.type === 'MethodDefinition'
-            ? '###'
-            : '##'
-      const title = `${level} ${def.name}\n`
-      text = title + text
-    }
-    return text
-  })
-
-  return `# ${filename}\n\n` + filled.join('\n\n')
 }
 
 main()
 </code></pre>
-<pre title="fill-in-headers.html"><code class="language-html">&lt;h1 id="example-02js"&gt;example-02.js&lt;/h1&gt;
+<pre title="fill-in-headers.html"><code class="language-html">&lt;h1 id="fillinheadersinputjs"&gt;fill-in-headers-input.js&lt;/h1&gt;
 &lt;p&gt;Demonstrate documentation generator.&lt;/p&gt;
 &lt;h2 id="main"&gt;main&lt;/h2&gt;
 &lt;p&gt;Main driver.&lt;/p&gt;
@@ -591,21 +628,9 @@ main()
 &lt;p&gt;Parse command-line arguments.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;code&gt;args&lt;/code&gt; (&lt;code&gt;string[]&lt;/code&gt;): arguments to parse.&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;defaults&lt;/code&gt; (&lt;code&gt;Object&lt;/code&gt;): default values.&lt;blockquote&gt;
-&lt;p&gt;Program configuration object.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;defaults&lt;/code&gt; (&lt;code&gt;Object&lt;/code&gt;): default values.
+Returns: program configuration object.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id="processdata"&gt;processData&lt;/h2&gt;
-&lt;p&gt;Process data from input stream, sending results to output stream.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;input&lt;/code&gt; (&lt;code&gt;stream&lt;/code&gt;): where to read.&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;output&lt;/code&gt; (&lt;code&gt;stream&lt;/code&gt;): where to write.&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;op&lt;/code&gt; (&lt;code&gt;class&lt;/code&gt;): what to do.
-Use @DefaultProcessor unless told to do otherwise.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h1 id="util-02js"&gt;util-02.js&lt;/h1&gt;
-&lt;p&gt;Utilities for demonstrating documentation generator.&lt;/p&gt;
 &lt;h2 id="defaultprocessor"&gt;DefaultProcessor&lt;/h2&gt;
 &lt;p&gt;Default processing class.&lt;/p&gt;
 &lt;h3 id="constructor"&gt;constructor&lt;/h3&gt;
@@ -618,11 +643,33 @@ Use @DefaultProcessor unless told to do otherwise.&lt;/li&gt;
 &lt;/ul&gt;
 
 </code></pre>
+<div class="subpage" title="fill-in-headers.html"><h1 id="fillinheadersinputjs">fill-in-headers-input.js</h1>
+<p>Demonstrate documentation generator.</p>
+<h2 id="main">main</h2>
+<p>Main driver.</p>
+<h2 id="parseargs">parseArgs</h2>
+<p>Parse command-line arguments.</p>
+<ul>
+<li><code>args</code> (<code>string[]</code>): arguments to parse.</li>
+<li><code>defaults</code> (<code>Object</code>): default values.
+Returns: program configuration object.</li>
+</ul>
+<h2 id="defaultprocessor">DefaultProcessor</h2>
+<p>Default processing class.</p>
+<h3 id="constructor">constructor</h3>
+<p>Build default processor.</p>
+<h3 id="run">run</h3>
+<p>Pass input to output.</p>
+<ul>
+<li><code>input</code> (<code>stream</code>): where to read.</li>
+<li><code>output</code> (<code>stream</code>): where to write.</li>
+</ul>
+</div>
 </main>
 <footer>
 <div class="row">
 <div class="left3">
-<a href="../text-editor/"><em>&laquo; Text Editor</em></a>
+<a href="../page-templates/"><em>&laquo; Page Templates</em></a>
 </div>
 <div class="middle3">
 <a href="../license/"><img class="footer" src="../static/cc-by.svg" alt="License" /></a>
@@ -630,7 +677,7 @@ Use @DefaultProcessor unless told to do otherwise.&lt;/li&gt;
 © 2020 <a href="../authors/">The Authors</a>
 </div>
 <div class="right3">
-<a href="../http-server/"><em>HTTP Server &raquo;</em></a>
+<a href="../module-loader/"><em>Module Loader &raquo;</em></a>
 </div>
 </div>
 </footer>
