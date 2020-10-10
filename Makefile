@@ -1,5 +1,7 @@
+# Infer chapter slugs from presence of 'index.md' files.
 SLUGS=$(patsubst %/index.md,%,$(wildcard */index.md))
 
+# Complete list of Markdown source files.
 MARKDOWN=\
   index.md \
   CONDUCT.md \
@@ -10,6 +12,7 @@ MARKDOWN=\
   links.md \
   $(patsubst %,%/index.md,${SLUGS})
 
+# Corresponding list of HTML files.
 HTML=\
   docs/index.html \
   docs/conduct/index.html \
@@ -20,15 +23,19 @@ HTML=\
   docs/links/index.html \
   $(patsubst %,docs/%/index.html,${SLUGS})
 
-TEX=$(wildcard tex/*.tex) $(wildcard tex/*.cls)
+# Supporting LaTeX files for PDF version.
+TEX=\
+  $(wildcard tex/*.tex) \
+  $(wildcard tex/*.cls)
+
+# Directories containing sub-Makefiles for reproducing examples.
+SUBMAKEDIR=$(patsubst %/Makefile,%,$(wildcard */Makefile))
 
 .DEFAULT: commands
 
 ## commands: show available commands
 commands :
 	@grep -h -E '^##' ${MAKEFILE_LIST} | sed -e 's/## //g' | column -t -s ':'
-
-## ----: ----
 
 ## serve: run a server on port 4000
 serve: docs/index.html
@@ -40,6 +47,8 @@ check: docs/index.html
 	--html ${HTML} \
 	--markdown ${MARKDOWN}
 
+## ----: ----
+
 ## bib: rebuild bibliography
 bib: bib.md
 
@@ -47,6 +56,10 @@ bib.md: bin/bib.js bib.yml
 	bin/bib.js \
 	--input bib.yml \
 	--output bib.md
+
+## examples: rebuild all examples in sub-directories (slow)
+examples:
+	for d in ${SUBMAKEDIR}; do echo ""; echo $$d; make -C $$d; done
 
 ## gloss: rebuild glossary
 gloss: gloss.md
