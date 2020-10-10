@@ -60,7 +60,126 @@
   <main>
   <h1>Module Bundler</h1>
   <p class="lede">Turning many files into one</p>
-<p>FIXME: explain</p>
+<ul>
+<li>JavaScript was designed in a hurry 25 years ago to make pages interactive
+<ul>
+<li>Nobody realized it would become one of the most popular programming languages in the world</li>
+<li>Which means it didn't include support for things that large programs need</li>
+<li>Like creating multi-module bundles so that browsers could load a single file
+rather than making dozens or hundreds of requests</li>
+</ul>
+</li>
+<li>A <g key="module_bundler">module bundler</g> finds all the files that a set of source files depend on
+and combines them into a single loadable file
+<ul>
+<li>Much more efficient to load</li>
+<li>Ensures that dependencies actually resolve</li>
+</ul>
+</li>
+<li>Need to:
+<ul>
+<li>Find all dependencies</li>
+<li>Combine them into one file</li>
+<li>Ensure they can find each other correctly once loaded</li>
+</ul>
+</li>
+<li>Our approach is based on <a href="https://www.freecodecamp.org/news/lets-learn-how-module-bundlers-work-and-then-write-one-ourselves-b2e3fe6c88ae/">Adam Kelly's tutorial</a> and Ronan Amiel's <a href="https://github.com/ronami/minipack">Minipack</a></li>
+</ul>
+<h2 id="what-should-our-test-case-include">What should our test case include?</h2>
+<ul>
+<li>Use <g key="tdd">test-driven development</g> (TDD)
+<ul>
+<li>Create the test cases <em>before</em> writing the code to define what the code is supposed to do</li>
+<li>Studies don't support the claim that it makes programmers more productive,
+but it doesn't seem to do any harm either</li>
+</ul>
+</li>
+<li>Four cases
+<ul>
+<li>File A requires File B</li>
+<li>Files A and B both require File C, and only one copy of File C is included in the bundle</li>
+<li>Files A and B require File C using different paths</li>
+<li>Files A and B require each other (a <g key="circular_dependency">circular dependency</g>)</li>
+</ul>
+</li>
+<li>Create a file <code>main.js</code> as an <g key="entry_point">entry point</g>
+<ul>
+<li>Name the other files geometrically to help keep them straight</li>
+</ul>
+</li>
+</ul>
+<pre title="example/main.js"><code class="language-js">// main.js
+
+const topLeft = require('./top-left')
+const topRight = require('./top-right') // requires 'top-left'
+const bottomLeft = require('./subdir/bottom-left') // requires 'top-left' and 'bottom-right'
+const bottomRight = require('./subdir/bottom-right') // requires 'bottom-left'
+
+const main = () =&gt; {
+  const functions = [topLeft, topRight, bottomLeft, bottomRight]
+  functions.forEach(func =&gt; {
+    console.log(`${func('main')}`)
+  })
+}
+
+main()
+</code></pre>
+<pre title="example/top-left.js"><code class="language-js">// top-left.js
+
+const topLeft = (caller) =&gt; {
+  return `topLeft from ${caller}`
+}
+
+module.exports = topLeft
+</code></pre>
+<pre title="example/top-right.js"><code class="language-js">// top-right.js
+
+const topLeft = require('./top-left')
+
+const topRight = (caller) =&gt; {
+  const first = topLeft('topRight')
+  return `topRight from ${caller} with ${first}`
+}
+
+module.exports = topRight
+</code></pre>
+<pre title="example/subdir/bottom-left.js"><code class="language-js">// subdir/bottom-left.js
+
+const topLeft = require('../top-left')
+const bottomRight = require('./bottom-right')
+
+const bottomLeft = (caller) =&gt; {
+  const first = topLeft('bottomLeft')
+  const second = bottomRight('bottomLeft')
+  return `bottomLeft from ${caller} with ${first} and ${second}`
+}
+
+module.exports = bottomLeft
+</code></pre>
+<pre title="example/subdir/bottom-right.js"><code class="language-js">// subdir/bottom-right.js
+
+const bottomLeft = require('./bottom-left')
+
+const bottomRight = (caller) =&gt; {
+  return `bottomRight from ${caller}`
+}
+
+module.exports = bottomRight
+</code></pre>
+<p>FIXME: diagram</p>
+<ul>
+<li>We can run <code>main.js</code> directly</li>
+</ul>
+<pre title="example-directly.sh"><code class="language-sh">node example/main.js
+</code></pre>
+<pre title="example-directly.text"><code class="language-text">topLeft from main
+topRight from main with topLeft from topRight
+bottomLeft from main with topLeft from bottomLeft and bottomRight from bottomLeft
+bottomRight from main
+</code></pre>
+<ul>
+<li>When we're done, the bundled version should produce exactly the same output</li>
+</ul>
 </main>
 <footer>
 <div class="row">
