@@ -8,6 +8,7 @@ MARKDOWN=\
   CONTRIBUTING.md \
   LICENSE.md \
   authors.md \
+  bib.md \
   gloss.md \
   links.md \
   $(patsubst %,%/index.md,${SLUGS})
@@ -19,6 +20,7 @@ HTML=\
   docs/contributing/index.html \
   docs/license/index.html \
   docs/authors/index.html \
+  docs/bib/index.html \
   docs/gloss/index.html \
   docs/links/index.html \
   $(patsubst %,docs/%/index.html,${SLUGS})
