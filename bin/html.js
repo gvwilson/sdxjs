@@ -196,7 +196,7 @@ const _codeClass = (filename) => {
  * @param {string} which Either 'problem' or 'solution'
  */
 const _exercise = (render, root, chapter, exercise, which) => {
-  const title = `<h3>${exercise.title}</h3>`
+  const title = `<h3 class="exercise">${exercise.title}</h3>`
   const path = `${root}/${chapter.slug}/${exercise.slug}/${which}.md`
   const contents = render(fs.readFileSync(path, 'utf-8'))
   return `${title}\n\n${contents}\n`
