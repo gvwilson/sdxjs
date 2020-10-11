@@ -46,7 +46,7 @@
 -   And `console.log` is the equivalent of other languages' `print`
     -   Strange name because its original purpose was to create <g key="log_message">log messages</g> in the browser <g key="console">console</g>
 
-<%- include('/inc/multi.html', {pat: 'list-dir-wrong.*', fill: 'sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'list-dir-wrong.*', fill: 'sh txt'}) %>
 
 -   Error message comes from something we didn't write whose source we would struggle to read
     -   Our code is the third `at` line (look for the name of our file `list-dir-wrong.js`)
@@ -73,7 +73,7 @@ FIXME: diagram
     -   Do something more sensible once we understand exceptions
 -   The results from successful execution are passed as the other argument (in this case, `files`)
 
-<%- include('/inc/multi.html', {pat: 'list-dir-function-defined.*', fill: 'sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'list-dir-function-defined.*', fill: 'sh txt'}) %>
 
 -   Nothing else in this book will make sense if we don't understand the order of execution
     1.  Read the program file
@@ -109,7 +109,7 @@ FIXME: diagram
     -   <g key="globbing">Globbing</g> (short for "global") is an old Unix term for matching a set of files by name
     -   Like most of programming it works by filename, not by actual content type
 
-<%- include('/inc/multi.html', {pat: 'glob-all-files.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'glob-all-files.*', fill: 'js txt'}) %>
 
 -   Get filenames matching a pattern and then do something with the list
     -   The leading `**` means "recurse into subdirectories"
@@ -119,7 +119,7 @@ FIXME: diagram
 -   Works, but we probably don't want to copy editor backup files ending with `~`
 -   We can get the list and then <g key="filter">filter</g> those out
 
-<%- include('/inc/multi.html', {pat: 'glob-get-then-filter-pedantic.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'glob-get-then-filter-pedantic.*', fill: 'js txt'}) %>
 
 -   `Array.filter` creates a new array containing all the items of the original that pass the test
     -   The test is specified as a callback function called once for each item that returns a <g key="boolean">Boolean</g>
@@ -209,7 +209,7 @@ FIXME: diagram
 
 -   It *almost* works
 
-<%- include('/inc/multi.html', {pat: 'copy-file-unfiltered.*', fill: 'sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'copy-file-unfiltered.*', fill: 'sh txt'}) %>
 
 -   `node_modules/fs.realpath` is a directory, not a file, but matches our `glob`
     -   Use `fs.stat` to get the properties of something in the filesystem and then check if it's a file

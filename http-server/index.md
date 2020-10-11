@@ -23,7 +23,7 @@ modeled on [this one in Python][500lines-server].
     -   Run the client
     -   Kill the server
 
-<%- include('/inc/multi.html', {pat: 'run-simple-socket.*', fill: 'sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'run-simple-socket.*', fill: 'sh txt'}) %>
 
 -   Most of this stays the same from example to example
     -   So allow user to specify the name of a data handler from the command line
@@ -41,7 +41,7 @@ modeled on [this one in Python][500lines-server].
 
 -   Try running
 
-<%- include('/inc/multi.html', {pat: 'always-send-success.*', fill: 'sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'always-send-success.*', fill: 'sh txt'}) %>
 
 ## How do HTTP requests and responses work?
 
@@ -54,7 +54,7 @@ modeled on [this one in Python][500lines-server].
     -   Browser sends two requests: one for `/` and one for `/favicon.ico`
     -   Includes `User-Agent`, `Accept`, `Accept-Language`, and other headers
 
-<%- include('/inc/code.html', {file: 'http-response-browser.text'}) %>
+<%- include('/inc/code.html', {file: 'http-response-browser.txt'}) %>
 
 -   Now construct an HTTP request
     -   Line separators in header must be `\r\n`, not just `\n`
@@ -67,7 +67,7 @@ modeled on [this one in Python][500lines-server].
 -   Run the server and the client
     -   Server only sees what we send
 
-<%- include('/inc/multi.html', {pat: 'http-response-success.*', fill: 'text'}) %>
+<%- include('/inc/code.html', {file: 'http-response-success.txt'}) %>
 
 ## How can we test this?
 
@@ -85,14 +85,14 @@ modeled on [this one in Python][500lines-server].
 
 -   Parse the HTTP request and return text files
 
-<%- include('/inc/multi.html', {pat: 'http-response-parse.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'http-response-parse.*', fill: 'js txt'}) %>
 
 -   But there are three problems
     1.  Synchronous operation
     2.  Not everything is text
     3.  Security: if we use the path provided, we can potentially return any file on the system
 
-<%- include('/inc/multi.html', {pat: 'breaking-sandbox.*', fill: 'sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'breaking-sandbox.*', fill: 'sh txt'}) %>
 
 ## How can we make servers easier to create?
 
@@ -108,12 +108,12 @@ modeled on [this one in Python][500lines-server].
 -   Use the [url][node-url] package to parse the request target
 
 <%- include('/inc/code.html', {file: 'base-http-server.js'}) %>
-<%- include('/inc/multi.html', {pat: 'test-base-http-server.*', fill: 'js sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'test-base-http-server.*', fill: 'js sh txt'}) %>
 
 -   Serve files
 
 <%- include('/inc/code.html', {file: 'http-file-server.js'}) %>
-<%- include('/inc/multi.html', {pat: 'test-http-file-server.*', fill: 'sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'test-http-file-server.*', fill: 'sh txt'}) %>
 
 ## How can we parameterize requests?
 
@@ -133,7 +133,7 @@ modeled on [this one in Python][500lines-server].
 
 -   Testing
 
-<%- include('/inc/multi.html', {pat: 'test-http-params-server.*', fill: 'sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'test-http-params-server.*', fill: 'sh txt'}) %>
 
 -   More modern approach is to send <g key="json">JSON</g>
     -   Unlimited [sic] size
@@ -150,4 +150,4 @@ modeled on [this one in Python][500lines-server].
 -   After all that, echoing a value back seems like small potatoes
     -   We will do more sophisticated things in chapters to come
 
-<%- include('/inc/multi.html', {pat: 'test-http-json-server.*', fill: 'sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'test-http-json-server.*', fill: 'sh txt'}) %>

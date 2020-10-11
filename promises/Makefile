@@ -1,18 +1,18 @@
 TARGETS=\
-  callbacks-with-timeouts.text \
-  callbacks-with-zero-timeouts.text \
-  count-lines-globbed-files.text \
-  count-lines-histogram.text \
-  count-lines-single-file.text \
-  count-lines-with-stat.text \
-  non-blocking.text \
-  not-callbacks-alone.text \
-  promise-example.text \
-  set-immediate.text \
-  use-pledge-chained.text \
-  use-pledge-motivation.text \
-  use-pledge-reject.text \
-  use-pledge-return.text \
-  use-promise-chained.text
+  callbacks-with-timeouts.txt \
+  callbacks-with-zero-timeouts.txt \
+  count-lines-globbed-files.txt \
+  count-lines-histogram.txt \
+  count-lines-single-file.txt \
+  count-lines-with-stat.txt \
+  non-blocking.txt \
+  not-callbacks-alone.txt \
+  promise-example.txt \
+  set-immediate.txt \
+  use-pledge-chained.txt \
+  use-pledge-motivation.txt \
+  use-pledge-reject.txt \
+  use-pledge-return.txt \
+  use-promise-chained.txt
 
 include ../rules.mk

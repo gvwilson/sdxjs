@@ -66,7 +66,7 @@ done
 
 <p class="noindent">Data and output are shown in italics:</p>
 
-```text
+```txt
 Package,Releases
 0,1
 0-0,0

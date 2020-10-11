@@ -25,26 +25,26 @@
     -   At the very least, we ought to run it in a <g key="sandbox">sandbox</g>
 -   Evaluate an expression
 
-<%- include('/inc/multi.html', {pat: 'eval-two-plus-two.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'eval-two-plus-two.*', fill: 'js txt'}) %>
 
 -   A more interesting example
     -   The string is different each time
     -   Uses the variables that are in scope when `eval` is called
 
-<%- include('/inc/multi.html', {pat: 'eval-loop.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'eval-loop.*', fill: 'js txt'}) %>
 
 -   Variables created inside `eval` are local to it
 
-<%- include('/inc/multi.html', {pat: 'eval-local-vars.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'eval-local-vars.*', fill: 'js txt'}) %>
 
 -   But `eval` can modify variables outside the text
     -   Just like a function can modify global variables
 
-<%- include('/inc/multi.html', {pat: 'eval-global-vars.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'eval-global-vars.*', fill: 'js txt'}) %>
 
 -   So if we create a structure with a known name, `eval` can modify that
 
-<%- include('/inc/multi.html', {pat: 'eval-global-structure.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'eval-global-structure.*', fill: 'js txt'}) %>
 
 -   It doesn't matter where the text comes from
 -   So we can move the code that does the modifying into `to-be-loaded.js`
@@ -53,11 +53,11 @@
 
 -   This doesn't work on its own because `Seen` isn't defined
 
-<%- include('/inc/code.html', {file: 'to-be-loaded.text'}) %>
+<%- include('/inc/code.html', {file: 'to-be-loaded.txt'}) %>
 
 -   But if we read the file and `eval` the text after defining `Seen`, it does what we want
 
-<%- include('/inc/multi.html', {pat: 'does-the-loading.*', fill: 'js sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'does-the-loading.*', fill: 'js sh txt'}) %>
 
 ## How can we avoid reloading files?
 
@@ -104,7 +104,7 @@
     -   `NAME=value command` defines the variable `NAME` just long enough for `command` to run
     -   Shell variables being in UPPER CASE is another convention
 
-<%- include('/inc/multi.html', {pat: 'test-import-left.*', fill: 'sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'test-import-left.*', fill: 'sh txt'}) %>
 
 -   Now create a second importable file
 
@@ -112,7 +112,7 @@
 
 -   Load that twice to check that caching works
 
-<%- include('/inc/multi.html', {pat: 'test-import-right.*', fill: 'js sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'test-import-right.*', fill: 'js sh txt'}) %>
 
 ## How can we interpolate pieces of code?
 
@@ -137,7 +137,7 @@
 
 -   Test it
 
-<%- include('/inc/multi.html', {pat: 'test-import-interpolate.*', fill: 'sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'test-import-interpolate.*', fill: 'sh txt'}) %>
 
 -   Lifecycle
     -   Node starts to run `test-import-interpolate.js`

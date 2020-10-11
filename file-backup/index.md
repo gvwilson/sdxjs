@@ -15,13 +15,13 @@
     -   Use a library to calculate a 160-bit [SHA-1] hash
     -   Not strong enough to deter a well-funded attacker, but that's not what we're using it for
 
-<%- include('/inc/multi.html', {pat: 'hash-text.*', fill: 'js sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'hash-text.*', fill: 'js sh txt'}) %>
 
 -   The hash code for a file:
     -   Will always be the same for the same content
     -   Is almost certain to be different if even a single byte differs
 
-<%- include('/inc/multi.html', {pat: 'hash-file.*', fill: 'js sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'hash-file.*', fill: 'js sh txt'}) %>
 
 > **The Birthday Problem**
 >
@@ -43,7 +43,7 @@
     -   Tell the hashing object what to do when the stream finishes
     -   Another example of <g key="asynchronous">asynchronous</g> execution
 
-<%- include('/inc/multi.html', {pat: 'hash-stream.*', fill: 'js sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'hash-stream.*', fill: 'js sh txt'}) %>
 
 -   Many files don't change after they're created, or only change very slowly
 -   Wasteful to copy them every time a backup is done
@@ -58,7 +58,7 @@
 
 <%- include('/inc/code.html', {file: 'hash-existing-promise.js'}) %>
 
-<%- include('/inc/multi.html', {pat: 'run-hash-existing-promise.*', fill: 'js sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'run-hash-existing-promise.*', fill: 'js sh txt'}) %>
 
 -   This code is clearer than it would be with callbacks…
 -   …but the layer of promises around everything still obscures meaning
@@ -70,7 +70,7 @@
 
 <%- include('/inc/code.html', {file: 'hash-existing-async.js'}) %>
 
-<%- include('/inc/multi.html', {pat: 'run-hash-existing-async.*', fill: 'js sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'run-hash-existing-async.*', fill: 'js sh txt'}) %>
 
 ## How can we test JavaScript?
 
@@ -83,7 +83,7 @@
 
 -   Manually create testing directories with manufactured (shortened) hashes
 
-<%- include('/inc/multi.html', {pat: 'tree-test.*', fill: 'sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'tree-test.*', fill: 'sh txt'}) %>
 
 -   Use [Mocha][mocha] for testing
     -   All tests are written using `async`
@@ -92,7 +92,7 @@
         since we may add tests for other things later
 
 <%- include('/inc/code.html', {file: 'test/test-find.js'}) %>
-<%- include('/inc/multi.html', {pat: 'test-check-filesystem.*', fill: 'sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'test-check-filesystem.*', fill: 'sh txt'}) %>
 
 ## How can we test code that modifies files?
 
@@ -117,4 +117,4 @@
     -   Which are quite involved, since we want to check with actual file hashes
 
 <%- include('/inc/code.html', {file: 'test/test-backup.js'}) %>
-<%- include('/inc/multi.html', {pat: 'test-backup.*', fill: 'sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'test-backup.*', fill: 'sh txt'}) %>
