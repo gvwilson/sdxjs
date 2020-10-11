@@ -1,1 +1,1 @@
-node transitive-closure-only.js example/main.js
+node transitive-closure-only.js full/main.js

@@ -59,7 +59,7 @@ bib.md: bin/bib.js bib.yml
 
 ## examples: rebuild all examples in sub-directories (slow)
 examples:
-	for d in ${SUBMAKEDIR}; do echo ""; echo $$d; make -C $$d; done
+	@for d in ${SUBMAKEDIR}; do echo ""; echo $$d; make -C $$d; done
 
 ## gloss: rebuild glossary
 gloss: gloss.md

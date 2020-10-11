@@ -180,6 +180,8 @@
 <dd class="glossary">The standard <g key="markup_language">markup language</g> used for web pages. HTML is represented in memory using <g key="dom">DOM</g>.</dd>
 <dt id="http" class="glossary">HyperText Transfer Protocol (HTTP)</dt>
 <dd class="glossary">The standard <g key="protocol">protocol</g> for data transfer on the World-Wide Web.  HTTP defines the format of <g key="http_request">requests</g> and <g key="http_response">responses</g>, the meanings of standard error codes, and other features.</dd>
+<dt id="iifd" class="glossary">immediately-invoked function declaration (IIFD)</dt>
+<dd class="glossary">FIXME</dd>
 <dt id="import" class="glossary">import</dt>
 <dd class="glossary">To bring things from a <g key="module">module</g> into a program for use. In most languages a program can only import things that the module explicitly <g key="export">exports</g>.</dd>
 <dt id="instance" class="glossary">instance</dt>

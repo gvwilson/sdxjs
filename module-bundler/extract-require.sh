@@ -1,1 +1,1 @@
-node extract-require.js example/main.js
+node extract-require.js full/main.js

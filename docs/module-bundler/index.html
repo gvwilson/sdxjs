@@ -85,6 +85,211 @@ and combines them into a single loadable file
 </li>
 <li>Our approach is based on <a href="https://www.freecodecamp.org/news/lets-learn-how-module-bundlers-work-and-then-write-one-ourselves-b2e3fe6c88ae/">Adam Kelly's tutorial</a></li>
 </ul>
+<h2 id="how-can-we-safely-get-the-contents-of-a-module">How can we safely get the contents of a module?</h2>
+<ul>
+<li>Start with a simple file that exports a single function</li>
+</ul>
+<pre title="simple/other.js"><code class="language-js">const other = () =&gt; {
+  return 'message from other'
+}
+
+module.exports = other
+</code></pre>
+<ul>
+<li>We can read it and eval the content:</li>
+</ul>
+<pre title="capture-exports-pollute.js"><code class="language-js">const fs = require('fs')
+
+const main = () =&gt; {
+  const source = fs.readFileSync(process.argv[2], 'utf-8')
+  console.log('before', module)
+  eval(source)
+  console.log('after', module)
+}
+
+main()
+</code></pre>
+<pre title="capture-exports-pollute.sh"><code class="language-sh">node capture-exports-pollute.js simple/other.js
+</code></pre>
+<pre title="capture-exports-pollute.txt"><code class="language-txt">before Module {
+  id: '.',
+  path: '/Users/gvwilson/stjs/module-bundler',
+  exports: {},
+  parent: null,
+  filename: '/Users/gvwilson/stjs/module-bundler/capture-exports-pollute.js',
+  loaded: false,
+  children: [],
+  paths: [
+    '/Users/gvwilson/stjs/module-bundler/node_modules',
+    '/Users/gvwilson/stjs/node_modules',
+    '/Users/gvwilson/node_modules',
+    '/Users/node_modules',
+    '/node_modules'
+  ]
+}
+after Module {
+  id: '.',
+  path: '/Users/gvwilson/stjs/module-bundler',
+  exports: [Function: other],
+  parent: null,
+  filename: '/Users/gvwilson/stjs/module-bundler/capture-exports-pollute.js',
+  loaded: false,
+  children: [],
+  paths: [
+    '/Users/gvwilson/stjs/module-bundler/node_modules',
+    '/Users/gvwilson/stjs/node_modules',
+    '/Users/gvwilson/node_modules',
+    '/Users/node_modules',
+    '/node_modules'
+  ]
+}
+</code></pre>
+<ul>
+<li>But this adds the <code>other</code> function to <code>module.exports</code> of the caller
+<ul>
+<li>Because the <code>module</code> variable in scope when <code>eval</code> is called is the caller's <code>module</code></li>
+</ul>
+</li>
+<li>We need to create a new scope for the <code>eval</code> with something called <code>module</code> that <em>isn't</em> the caller's <code>module</code>
+<ul>
+<li>Show a bit less output to avoid cluttering the page</li>
+</ul>
+</li>
+</ul>
+<pre title="capture-exports-encapsulate.js"><code class="language-js">const fs = require('fs')
+
+const safeLoad = (module, filename) =&gt; {
+  const source = fs.readFileSync(process.argv[2], 'utf-8')
+  eval(source)
+}
+
+const main = () =&gt; {
+  console.log('caller before', module.id, module.exports)
+  const childModule = {}
+  safeLoad(childModule, process.argv[2])
+  console.log('caller after', module.id, module.exports)
+  console.log('childModule after', childModule)
+}
+
+main()
+</code></pre>
+<pre title="capture-exports-encapsulate.sh"><code class="language-sh">node capture-exports-encapsulate.js simple/other.js
+</code></pre>
+<pre title="capture-exports-encapsulate.txt"><code class="language-txt">caller before . {}
+caller after . {}
+childModule after { exports: [Function: other] }
+</code></pre>
+<h2 id="how-can-we-combine-multiple-files">How can we combine multiple files?</h2>
+<ul>
+<li>Concatenate the source of the files
+<ul>
+<li>But wrap each in a function that takes a parameter called <code>module</code></li>
+<li>And then save the value of <code>module.exports</code> (if any)</li>
+</ul>
+</li>
+<li>Result is going to look like this:</li>
+</ul>
+<pre title="concatenate-by-hand.js"><code class="language-js">const everything = {
+  'simple/other.js': ((module) =&gt; {
+    const other = () =&gt; {
+      return 'message from other'
+    }
+
+    module.exports = other
+    return module
+  })({})
+}
+
+console.log('everything', everything)
+</code></pre>
+<pre title="concatenate-by-hand.txt"><code class="language-txt">everything { 'simple/other.js': { exports: [Function: other] } }
+</code></pre>
+<ul>
+<li>Create a lookup table with one entry for each module</li>
+<li>Use the filename as a key
+<ul>
+<li>We will revisit this later</li>
+</ul>
+</li>
+<li>Create the function we need with a <code>module</code> parameter</li>
+<li>Call it immediately to get the module's exports
+<ul>
+<li>An <g key="iifd">immediately-invoked function declaration</g> (IFFD)</li>
+<li>Parentheses around function definition are required by JavaScript parser</li>
+<li>Pass in an empty object to be filled in and returned</li>
+</ul>
+</li>
+<li>We can create this by concatenating strings
+<ul>
+<li>It would be nice if JavaScript template literals could be defined in one place
+and filled in somewhere else</li>
+<li>Since they can't, we'll use string replacement</li>
+</ul>
+</li>
+<li>Note that we create <code>everything</code> rather than <code>const everything</code>
+<ul>
+<li>FIXME: why doesn't the latter work?</li>
+</ul>
+</li>
+<li>Testing this is a multi-step process
+<ul>
+<li>Run <code>concatenate-programmatically.js</code> with <code>simple/other.js</code> as an argument
+to create a file we can execute that contains a module definition</li>
+</ul>
+</li>
+</ul>
+<pre title="concatenate-programmatically.js"><code class="language-js">const fs = require('fs')
+
+const TOP = `everything = {`
+
+const TEMPLATE = `'FILENAME': ((module) =&gt; {
+BODY
+return module
+})({})`
+
+const BOTTOM = `}`
+
+const createEverything = (filenames) =&gt; {
+  const sections = filenames.map(filename =&gt; {
+    const body = fs.readFileSync(filename, 'utf-8')
+    return TEMPLATE
+      .replace('FILENAME', filename)
+      .replace('BODY', body)
+  })
+  return `${TOP}\n${sections.join('\n')}\n${BOTTOM}`
+}
+
+const main = () =&gt; {
+  const result = createEverything(process.argv.slice(2))
+  console.log(result)
+}
+
+main()
+</code></pre>
+<pre title="concatenate-programmatically.sh"><code class="language-sh">node concatenate-programmatically.js simple/other.js &gt; concatenate-programmatically-output.js
+</code></pre>
+<pre title="concatenate-programmatically-output.js"><code class="language-js">everything = {
+'simple/other.js': ((module) =&gt; {
+const other = () =&gt; {
+  return 'message from other'
+}
+
+module.exports = other
+
+return module
+})({})
+}
+</code></pre>
+<ul>
+<li>Load and evaluate that file and check that <code>everything</code> is defined correctly</li>
+</ul>
+<pre title="concatenate-programmatically-output-test.js"><code class="language-js">const fs = require('fs')
+const source = fs.readFileSync('concatenate-programmatically-output.js', 'utf-8')
+eval(source)
+console.log(everything)
+</code></pre>
+<pre title="concatenate-programmatically-output-test.txt"><code class="language-txt">{ 'simple/other.js': { exports: [Function: other] } }
+</code></pre>
 <h2 id="what-should-our-test-case-include">What should our test case include?</h2>
 <ul>
 <li>Use <g key="tdd">test-driven development</g> (TDD)
@@ -108,7 +313,7 @@ but it doesn't seem to do any harm either</li>
 </ul>
 </li>
 </ul>
-<pre title="example/main.js"><code class="language-js">// main.js
+<pre title="full/main.js"><code class="language-js">// main.js
 
 const topLeft = require('./top-left')
 const topRight = require('./top-right') // requires 'top-left'
@@ -124,7 +329,7 @@ const main = () =&gt; {
 
 main()
 </code></pre>
-<pre title="example/top-left.js"><code class="language-js">// top-left.js
+<pre title="full/top-left.js"><code class="language-js">// top-left.js
 
 const topLeft = (caller) =&gt; {
   return `topLeft from ${caller}`
@@ -132,7 +337,7 @@ const topLeft = (caller) =&gt; {
 
 module.exports = topLeft
 </code></pre>
-<pre title="example/top-right.js"><code class="language-js">// top-right.js
+<pre title="full/top-right.js"><code class="language-js">// top-right.js
 
 const topLeft = require('./top-left')
 
@@ -143,7 +348,7 @@ const topRight = (caller) =&gt; {
 
 module.exports = topRight
 </code></pre>
-<pre title="example/subdir/bottom-left.js"><code class="language-js">// subdir/bottom-left.js
+<pre title="full/subdir/bottom-left.js"><code class="language-js">// subdir/bottom-left.js
 
 const topLeft = require('../top-left')
 const bottomRight = require('./bottom-right')
@@ -156,7 +361,7 @@ const bottomLeft = (caller) =&gt; {
 
 module.exports = bottomLeft
 </code></pre>
-<pre title="example/subdir/bottom-right.js"><code class="language-js">// subdir/bottom-right.js
+<pre title="full/subdir/bottom-right.js"><code class="language-js">// subdir/bottom-right.js
 
 const bottomLeft = require('./bottom-left')
 
@@ -171,9 +376,9 @@ module.exports = bottomRight
 <li>Run <code>main.js</code> directly</li>
 <li>When we're done, we should have a single <code>.js</code> file that produces exactly the same output</li>
 </ul>
-<pre title="example-directly.sh"><code class="language-sh">node example/main.js
+<pre title="full-directly.sh"><code class="language-sh">node full/main.js
 </code></pre>
-<pre title="example-directly.text"><code class="language-text">topLeft from main
+<pre title="full-directly.txt"><code class="language-txt">topLeft from main
 topRight from main with topLeft from topRight
 bottomLeft from main with topLeft from bottomLeft and bottomRight from bottomLeft
 bottomRight from main
@@ -215,9 +420,9 @@ else {
   module.exports = getRequires
 }
 </code></pre>
-<pre title="extract-require.sh"><code class="language-sh">node extract-require.js example/main.js
+<pre title="extract-require.sh"><code class="language-sh">node extract-require.js full/main.js
 </code></pre>
-<pre title="extract-require.text"><code class="language-text">[
+<pre title="extract-require.txt"><code class="language-txt">[
   './top-left',
   './top-right',
   './subdir/bottom-left',
@@ -285,14 +490,14 @@ else {
   console.log(JSON.stringify(result, null, 2))
 }
 </code></pre>
-<pre title="transitive-closure-only.sh"><code class="language-sh">node transitive-closure-only.js example/main.js
+<pre title="transitive-closure-only.sh"><code class="language-sh">node transitive-closure-only.js full/main.js
 </code></pre>
-<pre title="transitive-closure-only.text"><code class="language-text">[
-  "/Users/gvwilson/stjs/module-bundler/example/main.js",
-  "/Users/gvwilson/stjs/module-bundler/example/subdir/bottom-right.js",
-  "/Users/gvwilson/stjs/module-bundler/example/subdir/bottom-left.js",
-  "/Users/gvwilson/stjs/module-bundler/example/top-left.js",
-  "/Users/gvwilson/stjs/module-bundler/example/top-right.js"
+<pre title="transitive-closure-only.txt"><code class="language-txt">[
+  "/Users/gvwilson/stjs/module-bundler/full/main.js",
+  "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-right.js",
+  "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-left.js",
+  "/Users/gvwilson/stjs/module-bundler/full/top-left.js",
+  "/Users/gvwilson/stjs/module-bundler/full/top-right.js"
 ]
 </code></pre>
 <ul>
@@ -342,74 +547,37 @@ else {
   module.exports = transitiveClosure
 }
 </code></pre>
-<pre title="transitive-closure.sh"><code class="language-sh">node transitive-closure.js example/main.js
+<pre title="transitive-closure.sh"><code class="language-sh">node transitive-closure.js full/main.js
 </code></pre>
-<pre title="transitive-closure.text"><code class="language-text">{
-  "seen": [
-    "/Users/gvwilson/stjs/module-bundler/example/main.js",
-    "/Users/gvwilson/stjs/module-bundler/example/subdir/bottom-right.js",
-    "/Users/gvwilson/stjs/module-bundler/example/subdir/bottom-left.js",
-    "/Users/gvwilson/stjs/module-bundler/example/top-left.js",
-    "/Users/gvwilson/stjs/module-bundler/example/top-right.js"
+<pre title="transitive-closure.txt"><code class="language-txt">{
+  "filenames": [
+    "/Users/gvwilson/stjs/module-bundler/full/main.js",
+    "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-right.js",
+    "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-left.js",
+    "/Users/gvwilson/stjs/module-bundler/full/top-left.js",
+    "/Users/gvwilson/stjs/module-bundler/full/top-right.js"
   ],
   "mapping": {
-    "/Users/gvwilson/stjs/module-bundler/example/main.js": {
-      "./top-left": "/Users/gvwilson/stjs/module-bundler/example/top-left.js",
-      "./top-right": "/Users/gvwilson/stjs/module-bundler/example/top-right.js",
-      "./subdir/bottom-left": "/Users/gvwilson/stjs/module-bundler/example/subdir/bottom-left.js",
-      "./subdir/bottom-right": "/Users/gvwilson/stjs/module-bundler/example/subdir/bottom-right.js"
+    "/Users/gvwilson/stjs/module-bundler/full/main.js": {
+      "./top-left": "/Users/gvwilson/stjs/module-bundler/full/top-left.js",
+      "./top-right": "/Users/gvwilson/stjs/module-bundler/full/top-right.js",
+      "./subdir/bottom-left": "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-left.js",
+      "./subdir/bottom-right": "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-right.js"
     },
-    "/Users/gvwilson/stjs/module-bundler/example/subdir/bottom-right.js": {
-      "./bottom-left": "/Users/gvwilson/stjs/module-bundler/example/subdir/bottom-left.js"
+    "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-right.js": {
+      "./bottom-left": "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-left.js"
     },
-    "/Users/gvwilson/stjs/module-bundler/example/subdir/bottom-left.js": {
-      "../top-left": "/Users/gvwilson/stjs/module-bundler/example/top-left.js",
-      "./bottom-right": "/Users/gvwilson/stjs/module-bundler/example/subdir/bottom-right.js"
+    "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-left.js": {
+      "../top-left": "/Users/gvwilson/stjs/module-bundler/full/top-left.js",
+      "./bottom-right": "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-right.js"
     },
-    "/Users/gvwilson/stjs/module-bundler/example/top-left.js": {},
-    "/Users/gvwilson/stjs/module-bundler/example/top-right.js": {
-      "./top-left": "/Users/gvwilson/stjs/module-bundler/example/top-left.js"
+    "/Users/gvwilson/stjs/module-bundler/full/top-left.js": {},
+    "/Users/gvwilson/stjs/module-bundler/full/top-right.js": {
+      "./top-left": "/Users/gvwilson/stjs/module-bundler/full/top-left.js"
     }
   }
 }
 </code></pre>
-<h2 id="how-can-we-combine-multiple-files-into-one-file">How can we combine multiple files into one file?</h2>
-<ul>
-<li>We could concatenate all of the files into one...
-<ul>
-<li>...but we would have name collisions...</li>
-<li>...and <code>requires</code> and <code>module.exports</code> wouldn't work</li>
-</ul>
-</li>
-<li>So read the source file...
-<ul>
-<li>...and eval it with our own <code>requires</code> and <code>module.exports</code> in place</li>
-</ul>
-</li>
-<li>Our <code>requires</code> will use the absolute path of the file calling it and the path given to <code>require</code>
-and look up the absolute path of the file to load</li>
-<li>We will create a <code>modules</code> object so that code can assign to <code>module.exports</code>,
-then take whatever is assigned to it and save it for future <code>require</code> calls</li>
-<li>It's a lot of bookkeeping, but unavoidable</li>
-</ul>
-<p>FIXME: diagram</p>
-<ul>
-<li>First step is to load all the code and signal that we don't have its exports yet</li>
-</ul>
-<pre title="load-code.js"><code class="language-js">const fs = require('fs')
-
-const loadCode = (allFilenames) =&gt; {
-  return allFilenames.reduce((soFar, filename) =&gt; {
-    soFar[filename] = fs.readFileSync(filename, 'utf-8')
-    return soFar
-  }, {})
-}
-
-module.exports = loadCode
-</code></pre>
-<ul>
-<li>Next is to get things to work without worrying about circular dependencies</li>
-</ul>
 </main>
 <footer>
 <div class="row">

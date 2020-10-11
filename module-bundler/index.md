@@ -16,6 +16,57 @@
     -   Ensure they can find each other correctly once loaded
 -   Our approach is based on [Adam Kelly's tutorial][bundler-tutorial]
 
+## How can we safely get the contents of a module?
+
+-   Start with a simple file that exports a single function
+
+<%- include('/inc/code.html', {file: 'simple/other.js'}) %>
+
+-   We can read it and eval the content:
+
+<%- include('/inc/multi.html', {pat: 'capture-exports-pollute.*', fill: 'js sh txt'}) %>
+
+-   But this adds the `other` function to `module.exports` of the caller
+    -   Because the `module` variable in scope when `eval` is called is the caller's `module`
+-   We need to create a new scope for the `eval` with something called `module` that *isn't* the caller's `module`
+    -   Show a bit less output to avoid cluttering the page
+
+<%- include('/inc/multi.html', {pat: 'capture-exports-encapsulate.*', fill: 'js sh txt'}) %>
+
+## How can we combine multiple files?
+
+-   Concatenate the source of the files
+    -   But wrap each in a function that takes a parameter called `module`
+    -   And then save the value of `module.exports` (if any)
+-   Result is going to look like this:
+
+<%- include('/inc/multi.html', {pat: 'concatenate-by-hand.*', fill: 'js txt'}) %>
+
+-   Create a lookup table with one entry for each module
+-   Use the filename as a key
+    -   We will revisit this later
+-   Create the function we need with a `module` parameter
+-   Call it immediately to get the module's exports
+    -   An <g key="iifd">immediately-invoked function declaration</g> (IFFD)
+    -   Parentheses around function definition are required by JavaScript parser
+    -   Pass in an empty object to be filled in and returned
+-   We can create this by concatenating strings
+    -   It would be nice if JavaScript template literals could be defined in one place
+        and filled in somewhere else
+    -   Since they can't, we'll use string replacement
+-   Note that we create `everything` rather than `const everything`
+    -   FIXME: why doesn't the latter work?
+-   Testing this is a multi-step process
+    -   Run `concatenate-programmatically.js` with `simple/other.js` as an argument
+        to create a file we can execute that contains a module definition
+
+<%- include('/inc/multi.html', {pat: 'concatenate-programmatically.*', fill: 'js sh'}) %>
+<%- include('/inc/code.html', {file: 'concatenate-programmatically-output.js'}) %>
+
+-   Load and evaluate that file and check that `everything` is defined correctly
+
+<%- include('/inc/multi.html', {pat: 'concatenate-programmatically-output-test.*', fill: 'js txt'}) %>
+
 ## What should our test case include?
 
 -   Use <g key="tdd">test-driven development</g> (TDD)
@@ -30,18 +81,18 @@
 -   Create a file `main.js` as an <g key="entry_point">entry point</g>
     -   Name the other files geometrically to help keep them straight
 
-<%- include('/inc/code.html', {file: 'example/main.js'}) %>
-<%- include('/inc/code.html', {file: 'example/top-left.js'}) %>
-<%- include('/inc/code.html', {file: 'example/top-right.js'}) %>
-<%- include('/inc/code.html', {file: 'example/subdir/bottom-left.js'}) %>
-<%- include('/inc/code.html', {file: 'example/subdir/bottom-right.js'}) %>
+<%- include('/inc/code.html', {file: 'full/main.js'}) %>
+<%- include('/inc/code.html', {file: 'full/top-left.js'}) %>
+<%- include('/inc/code.html', {file: 'full/top-right.js'}) %>
+<%- include('/inc/code.html', {file: 'full/subdir/bottom-left.js'}) %>
+<%- include('/inc/code.html', {file: 'full/subdir/bottom-right.js'}) %>
 
 FIXME: diagram
 
 -   Run `main.js` directly
 -   When we're done, we should have a single `.js` file that produces exactly the same output
 
-<%- include('/inc/multi.html', {pat: 'example-directly.*', fill: 'sh txt'}) %>
+<%- include('/inc/multi.html', {pat: 'full-directly.*', fill: 'sh txt'}) %>
 
 ## How can we find all the dependencies?
 
@@ -76,24 +127,3 @@ FIXME: diagram
     -   Values are primary keys
 
 <%- include('/inc/multi.html', {pat: 'transitive-closure.*', fill: 'js sh txt'}) %>
-
-## How can we combine multiple files into one file?
-
--   We could concatenate all of the files into one...
-    -   ...but we would have name collisions...
-    -   ...and `requires` and `module.exports` wouldn't work
--   So read the source file...
-    -   ...and eval it with our own `requires` and `module.exports` in place
--   Our `requires` will use the absolute path of the file calling it and the path given to `require`
-    and look up the absolute path of the file to load
--   We will create a `modules` object so that code can assign to `module.exports`,
-    then take whatever is assigned to it and save it for future `require` calls
--   It's a lot of bookkeeping, but unavoidable
-
-FIXME: diagram
-
--   First step is to load all the code and signal that we don't have its exports yet
-
-<%- include('/inc/code.html', {file: 'load-code.js'}) %>
-
--   Next is to get things to work without worrying about circular dependencies
