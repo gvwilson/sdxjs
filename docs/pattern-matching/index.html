@@ -114,8 +114,297 @@ described by <a href="https://en.wikipedia.org/wiki/Brian_Kernighan">Brian Kerni
 &quot;This is quite a useful class;
 in my own experience of using regular expressions on a day-to-day basis,
 it easily accounts for 95 percent of all instances.&quot;</p>
+<pre title="simple-regex.js"><code class="language-js">const match = (pattern, text) =&gt; {
+  // '^' at start of pattern matches start of text.
+  if (pattern[0] === '^') {
+    return matchHere(pattern, 1, text, 0)
+  }
+
+  // Try all possible starting points for pattern.
+  let iText = 0
+  do {
+    if (matchHere(pattern, 0, text, iText)) {
+      return true
+    }
+    iText += 1
+  } while (iText &lt; text.length)
+
+  // Nothing worked.
+  return false
+}
+
+const matchHere = (pattern, iPattern, text, iText) =&gt; {
+  // There is no more pattern to match.
+  if (iPattern === pattern.length) {
+    return true
+  }
+
+  // '$' at end of pattern matches end of text.
+  if ((iPattern === (pattern.length - 1)) &amp;&amp;
+      (pattern[iPattern] === '$') &amp;&amp;
+      (iText === text.length)) {
+    return true
+  }
+
+  // '*' following current character means match many.
+  if (((pattern.length - iPattern) &gt; 1) &amp;&amp; (pattern[iPattern+1] === '*')) {
+    while ((iText &lt; text.length) &amp;&amp; (text[iText] === pattern[iPattern])) {
+      iText += 1
+    }
+    return matchHere(pattern, iPattern+2, text, iText)
+  }
+
+  // Match a single character.
+  if ((pattern[iPattern] === '.') || (pattern[iPattern] === text[iText])) {
+    return matchHere(pattern, iPattern+1, text, iText+1)
+  }
+
+  // Nothing worked.
+  return false
+}
+
+const main = () =&gt; {
+  const tests = [
+    ['a', 'a', true],
+    ['b', 'a', false],
+    ['a', 'ab', true],
+    ['b', 'ab', true],
+    ['ab', 'ba', false],
+    ['^a', 'ab', true],
+    ['^b', 'ab', false],
+    ['a$', 'ab', false],
+    ['a$', 'ba', true],
+    ['a*', '', true],
+    ['a*', 'baac', true],
+    ['ab*c', 'ac', true],
+    ['ab*c', 'abc', true],
+    ['ab*c', 'abbbc', true],
+    ['ab*c', 'abxc', false]
+  ]
+  tests.forEach(([regexp, text, expected]) =&gt; {
+    const actual = match(regexp, text)
+    const result = (actual === expected) ? 'pass' : 'fail'
+    console.log(`"${regexp}" X "${text}": ${result}`)
+  })
+}
+
+main()
+</code></pre>
+<pre title="simple-regex.txt"><code class="language-txt">"a" X "a": pass
+"b" X "a": pass
+"a" X "ab": pass
+"b" X "ab": pass
+"ab" X "ba": pass
+"^a" X "ab": pass
+"^b" X "ab": pass
+"a$" X "ab": pass
+"a$" X "ba": pass
+"a*" X "": pass
+"a*" X "baac": pass
+"ab*c" X "ac": pass
+"ab*c" X "abc": pass
+"ab*c" X "abbbc": pass
+"ab*c" X "abxc": pass
+</code></pre>
 <h2 id="how-can-we-match-query-selectors">How can we match query selectors?</h2>
-<p>FIXME</p>
+<ul>
+<li>First step is to define the grammar we want to support</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Selector</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>elt</code></td>
+<td>Element with tag <code>&quot;elt&quot;</code></td>
+</tr>
+<tr>
+<td><code>.cls</code></td>
+<td>Element with <code>class=&quot;cls&quot;</code></td>
+</tr>
+<tr>
+<td><code>#ident</code></td>
+<td>Element with <code>id=&quot;ident&quot;</code></td>
+</tr>
+<tr>
+<td><code>parent child</code></td>
+<td><code>child</code> element inside a <code>parent</code> element</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>So <code>blockquote#important p.highlight</code> is a highlighted paragraph inside the blockquote whose ID is <code>&quot;important&quot;</code></li>
+<li>To find the first match:
+<ul>
+<li>Break the query string into pieces</li>
+<li>Recurse down the tree until the query string is exhausted or no matches found</li>
+<li>A <g key="depth_first_search">depth-first search</g></li>
+</ul>
+</li>
+</ul>
+<pre title="simple-selectors.js"><code class="language-js">const assert = require('assert')
+
+const select = (root, selector) =&gt; {
+  const selectors = selector.split(' ').filter(s =&gt; s.length &gt; 0)
+  return firstMatch(root, selectors)
+}
+
+const firstMatch = (node, selectors) =&gt; {
+  assert(selectors.length &gt; 0,
+         `Require selector(s)`)
+
+  // This node matches.
+  if (matchHere(node, selectors[0])) {
+    // This is the last selector, so matching worked.
+    if (selectors.length === 1) {
+      return node
+    }
+
+    // Try to match remaining selectors.
+    return firstChildMatch(node, selectors.slice(1))
+  }
+
+  // This node doesn't match, so try further down.
+  return firstChildMatch(node, selectors)
+}
+
+const firstChildMatch = (node, selectors) =&gt; {
+  // No children.
+  if ((!('childNodes' in node)) || (node.childNodes.length === 0)) {
+    return null
+  }
+
+  // First working match.
+  for (const child of node.childNodes) {
+    const match = firstMatch(child, selectors)
+    if (match) {
+      return match
+    }
+  }
+
+  // Nothing worked.
+  return null
+}
+
+const matchHere = (node, selector) =&gt; {
+  let tag = null, id = null, cls = null
+  if (selector.includes('#')) {
+    [tag, id] = selector.split('#')
+  }
+  else if (selector.includes('.')) {
+    [tag, cls] = selector.split('.')
+  }
+  else {
+    tag = selector
+  }
+  return (node.nodeName === tag)
+    &amp;&amp; ((id === null) || (getAttr(node, 'id') === id))
+    &amp;&amp; ((cls === null) || (getAttr(node, 'class') === cls))
+}
+
+const getAttr = (node, name) =&gt; {
+  const found = node.attrs.filter(attr =&gt; (attr.name === name))
+  assert(found.length &lt; 2,
+         `Node has multiple attributes ${name}`)
+  return (found.length === 0) ? null : found[0].value
+}
+
+module.exports = select
+</code></pre>
+<ul>
+<li><code>firstMatch</code> tries to match the first remaining selector
+<ul>
+<li>Either this node or one of its children</li>
+</ul>
+</li>
+<li><code>firstChildMatch</code> looks through children (if any) for remaining selectors</li>
+<li><code>matchHere</code> handles a single node and selector</li>
+</ul>
+<pre title="simple-selectors-test.js"><code class="language-js">const parse5 = require('parse5')
+
+const select = require('./simple-selectors')
+
+const HTML = `&lt;main&gt;
+  &lt;p&gt;text of first p&lt;/p&gt;
+  &lt;p id="id-01"&gt;text of p#id-01&lt;/p&gt;
+  &lt;p id="id-02"&gt;text of p#id-02&lt;/p&gt;
+  &lt;p class="class-03"&gt;text of p.class-03&lt;/p&gt;
+  &lt;div&gt;
+    &lt;p&gt;text of div / p&lt;/p&gt;
+    &lt;p id="id-04"&gt;text of div / p#id-04&lt;/p&gt;
+    &lt;p class="class-05"&gt;text of div / p.class-05&lt;/p&gt;
+    &lt;p class="class-06"&gt;should not be found&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div id="id-07"&gt;
+    &lt;p&gt;text of div#id-07 / p&lt;/p&gt;
+    &lt;p class="class-06"&gt;text of div#id-07 / p.class-06&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/main&gt;`
+
+const getText = (node) =&gt; {
+  if (!node) {
+    return 'MISSING NODE'
+  }
+  if (!('childNodes' in node)) {
+    return 'MISSING CHILDREN'
+  }
+  if (node.childNodes.length !== 1) {
+    return 'WRONG NUMBER OF CHILDREN'
+  }
+  if (node.childNodes[0].nodeName !== '#text') {
+    return 'NOT TEXT'
+  }
+  return node.childNodes[0].value
+}
+
+const main = () =&gt; {
+  const doc = parse5.parse(HTML)
+  const tests = [
+    ["p", "text of first p"],
+    ["p#id-01", "text of p#id-01"],
+    ["p#id-02", "text of p#id-02"],
+    ["p.class-03", "text of p.class-03"],
+    ["div p", "text of div / p"],
+    ["div p#id-04", "text of div / p#id-04"],
+    ["div p.class-05", "text of div / p.class-05"],
+    ["div#id-07 p", "text of div#id-07 / p"],
+    ["div#id-07 p.class-06", "text of div#id-07 / p.class-06"]
+  ]
+  tests.forEach(([selector, expected]) =&gt; {
+    const node = select(doc, selector)
+    const actual = getText(node)
+    const result = (actual === expected) ? 'pass' : 'fail'
+    console.log(`"${selector}": ${result}`)
+  })
+}
+
+main()
+</code></pre>
+<pre title="simple-selectors-test.txt"><code class="language-txt">"p": pass
+"p#id-01": pass
+"p#id-02": pass
+"p.class-03": pass
+"div p": pass
+"div p#id-04": pass
+"div p.class-05": pass
+"div#id-07 p": pass
+"div#id-07 p.class-06": pass
+</code></pre>
+<h2 id="exercises">Exercises</h2>
+<h3>Find all with regular expressions</h3>
+<p>Modify the regular expression matcher to return <em>all</em> matches rather than just the first one.</p>
+<h3>Find one or more with regular expressions</h3>
+<p>Extend the regular expression matcher to support <code>+</code>, meaning &quot;one or more&quot;.</p>
+<h3>Find all with query selectors</h3>
+<p>Modify the query selector so that it returns <em>all</em> matches, not just the first one.</p>
+<h3>Select based on attributes</h3>
+<p>Modify the query selector to handle <code>[attribute=&quot;value&quot;]</code> selectors,
+so that (for example) <code>div[align=center]</code> returns all <code>div</code> elements
+whose <code>align</code> attribute has the value <code>&quot;center&quot;</code>.</p>
 </main>
 <footer>
 <div class="row">
