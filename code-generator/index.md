@@ -12,7 +12,7 @@
 -   Use `...args` to capture all arguments and forward them to the original function
 -   This example handles and re-throws all errors
 
-<%- include('/inc/multi.html', {pat: 'replace-func.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'replace-func.*', fill: 'js txt'}) %>
 
 -   This is an example of the <g key="decorator_pattern">Decorator</g> pattern
     -   A function whose job is to modify the behavior of other functions
@@ -35,11 +35,11 @@
     -   Code is just another kind of data...
 -   Look at the Acorn parse tree for a simple function definition
 
-<%- include('/inc/multi.html', {pat: 'func-def.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'func-def.*', fill: 'js txt'}) %>
 
 -   Pick out some nodes and see if we can generate code from a handmade AST
 
-<%- include('/inc/multi.html', {pat: 'one-plus-two.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'one-plus-two.*', fill: 'js txt'}) %>
 
 ## How can we count how often functions are executed?
 
@@ -47,7 +47,7 @@
 -   Insert a node to increment an entry in a global variable `__counters`
 -   Add text to create the counters
 
-<%- include('/inc/multi.html', {pat: 'multi-func-counter.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'multi-func-counter.*', fill: 'js txt'}) %>
 
 -   This approach doesn't work if functions can have the same names
     -   Which they can if we use modules or <g key="nested_function">nested functions</g>
@@ -65,4 +65,4 @@
 
 -   A quick test
 
-<%- include('/inc/multi.html', {pat: 'test-time-func.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'test-time-func.*', fill: 'js txt'}) %>

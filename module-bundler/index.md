@@ -41,7 +41,7 @@ FIXME: diagram
 -   Run `main.js` directly
 -   When we're done, we should have a single `.js` file that produces exactly the same output
 
-<%- include('/inc/multi.html', {pat: 'example-directly.*', fill: 'sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'example-directly.*', fill: 'sh txt'}) %>
 
 ## How can we find all the dependencies?
 
@@ -49,7 +49,7 @@ FIXME: diagram
     -   Relatively straightforward given what we know about [Acorn][acorn]
     -   Though notice how we build the module so that it can be run from the command line *or* loaded
 
-<%- include('/inc/multi.html', {pat: 'extract-require.*', fill: 'js sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'extract-require.*', fill: 'js sh txt'}) %>
 
 -   To get all dependencies, need to find <g key="transitive_closure">transitive closure</g>
     -   Requirements of requirements of requirements of...
@@ -66,7 +66,7 @@ FIXME: diagram
 -   Also complicated by the fact that JavaScript's `Set` doesn't have an equivalent of `Array.pop`
     -   So we will maintain the "set" of pending items as a list
 
-<%- include('/inc/multi.html', {pat: 'transitive-closure-only.*', fill: 'js sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'transitive-closure-only.*', fill: 'js sh txt'}) %>
 
 -   This works...
 -   ...but we're not keeping track of the mapping from required names within files to absolute paths
@@ -75,7 +75,7 @@ FIXME: diagram
     -   Sub-keys are the paths actually used for loading
     -   Values are primary keys
 
-<%- include('/inc/multi.html', {pat: 'transitive-closure.*', fill: 'js sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'transitive-closure.*', fill: 'js sh txt'}) %>
 
 ## How can we combine multiple files into one file?
 

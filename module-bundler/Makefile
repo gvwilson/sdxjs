@@ -1,7 +1,7 @@
 TARGETS=\
-  example-directly.text \
-  extract-require.text \
-  transitive-closure.text \
-  transitive-closure-only.text
+  example-directly.txt \
+  extract-require.txt \
+  transitive-closure.txt \
+  transitive-closure-only.txt
 
 include ../rules.mk

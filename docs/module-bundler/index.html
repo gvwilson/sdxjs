@@ -83,7 +83,7 @@ and combines them into a single loadable file
 <li>Ensure they can find each other correctly once loaded</li>
 </ul>
 </li>
-<li>Our approach is based on <a href="https://www.freecodecamp.org/news/lets-learn-how-module-bundlers-work-and-then-write-one-ourselves-b2e3fe6c88ae/">Adam Kelly's tutorial</a> and Ronan Amiel's <a href="https://github.com/ronami/minipack">Minipack</a></li>
+<li>Our approach is based on <a href="https://www.freecodecamp.org/news/lets-learn-how-module-bundlers-work-and-then-write-one-ourselves-b2e3fe6c88ae/">Adam Kelly's tutorial</a></li>
 </ul>
 <h2 id="what-should-our-test-case-include">What should our test case include?</h2>
 <ul>
@@ -168,7 +168,8 @@ module.exports = bottomRight
 </code></pre>
 <p>FIXME: diagram</p>
 <ul>
-<li>We can run <code>main.js</code> directly</li>
+<li>Run <code>main.js</code> directly</li>
+<li>When we're done, we should have a single <code>.js</code> file that produces exactly the same output</li>
 </ul>
 <pre title="example-directly.sh"><code class="language-sh">node example/main.js
 </code></pre>
@@ -177,8 +178,237 @@ topRight from main with topLeft from topRight
 bottomLeft from main with topLeft from bottomLeft and bottomRight from bottomLeft
 bottomRight from main
 </code></pre>
+<h2 id="how-can-we-find-all-the-dependencies">How can we find all the dependencies?</h2>
 <ul>
-<li>When we're done, the bundled version should produce exactly the same output</li>
+<li>To get dependencies for one file, parse it and extract all the <code>require</code> calls
+<ul>
+<li>Relatively straightforward given what we know about <a href="https://github.com/acornjs/acorn">Acorn</a></li>
+<li>Though notice how we build the module so that it can be run from the command line <em>or</em> loaded</li>
+</ul>
+</li>
+</ul>
+<pre title="extract-require.js"><code class="language-js">const acorn = require('acorn')
+const fs = require('fs')
+const walk = require('acorn-walk')
+
+const getRequires = (filename) =&gt; {
+  const entryPointFile = filename
+  const text = fs.readFileSync(entryPointFile)
+  const ast = acorn.parse(text)
+  const requires = []
+  walk.simple(ast, {
+    CallExpression: (node, state) =&gt; {
+      if ((node.callee.type === 'Identifier') &amp;&amp;
+          (node.callee.name === 'require')) {
+        state.push(node.arguments[0].value)
+      }
+    }
+  }, null, requires)
+  return requires
+}
+
+if (require.main === module) {
+  const result = getRequires(process.argv[2])
+  console.log(result)
+}
+else {
+  module.exports = getRequires
+}
+</code></pre>
+<pre title="extract-require.sh"><code class="language-sh">node extract-require.js example/main.js
+</code></pre>
+<pre title="extract-require.text"><code class="language-text">[
+  './top-left',
+  './top-right',
+  './subdir/bottom-left',
+  './subdir/bottom-right'
+]
+</code></pre>
+<ul>
+<li>To get all dependencies, need to find <g key="transitive_closure">transitive closure</g>
+<ul>
+<li>Requirements of requirements of requirements of...</li>
+<li>But allow for the case of X and Y requiring each other</li>
+</ul>
+</li>
+<li>Algorithm uses two sets
+<ul>
+<li>Things we have seen (initially empty)</li>
+<li>Things we haven't looked at yet (initially the first file)</li>
+</ul>
+</li>
+<li>Keep taking items from <code>pending</code> until it is empty
+<ul>
+<li>If the current thing is already in <code>seen</code>, do nothing</li>
+<li>Otherwise get its dependencies and add them to either <code>seen</code> or <code>pending</code></li>
+</ul>
+</li>
+<li>Complicated by the fact that we can load something under different names
+<ul>
+<li><code>./subdir/bottom-left</code> from <code>main</code>, but <code>./bottom-left</code> from <code>./subdir/bottom-right</code></li>
+<li>We will use <g key="absolute_path">absolute paths</a> as unique identifiers</li>
+</ul>
+</li>
+<li>Also complicated by the fact that JavaScript's <code>Set</code> doesn't have an equivalent of <code>Array.pop</code>
+<ul>
+<li>So we will maintain the &quot;set&quot; of pending items as a list</li>
+</ul>
+</li>
+</ul>
+<pre title="transitive-closure-only.js"><code class="language-js">const path = require('path')
+
+const getRequires = require('./extract-require')
+
+const transitiveClosure = (entryPointPath) =&gt; {
+  const pending = [path.resolve(entryPointPath)]
+  const seen = new Set()
+  while (pending.length &gt; 0) {
+    const candidate = path.resolve(pending.pop())
+    if (seen.has(candidate)) {
+      continue
+    }
+    seen.add(candidate)
+    const candidateDir = path.dirname(candidate)
+    getRequires(candidate)
+      .map(raw =&gt; path.resolve(path.join(candidateDir, `${raw}.js`)))
+      .filter(cooked =&gt; !seen.has(cooked))
+      .forEach(cooked =&gt; pending.push(cooked))
+  }
+  return [...seen]
+}
+
+if (module.loaded) {
+  module.exports = transitiveClosure
+}
+else {
+  const result = transitiveClosure(process.argv[2])
+  console.log(JSON.stringify(result, null, 2))
+}
+</code></pre>
+<pre title="transitive-closure-only.sh"><code class="language-sh">node transitive-closure-only.js example/main.js
+</code></pre>
+<pre title="transitive-closure-only.text"><code class="language-text">[
+  "/Users/gvwilson/stjs/module-bundler/example/main.js",
+  "/Users/gvwilson/stjs/module-bundler/example/subdir/bottom-right.js",
+  "/Users/gvwilson/stjs/module-bundler/example/subdir/bottom-left.js",
+  "/Users/gvwilson/stjs/module-bundler/example/top-left.js",
+  "/Users/gvwilson/stjs/module-bundler/example/top-right.js"
+]
+</code></pre>
+<ul>
+<li>This works...</li>
+<li>...but we're not keeping track of the mapping from required names within files to absolute paths</li>
+<li>So modify transitive closure to construct and return a second structure
+<ul>
+<li>Primary keys are the absolute paths to the files being required</li>
+<li>Sub-keys are the paths actually used for loading</li>
+<li>Values are primary keys</li>
+</ul>
+</li>
+</ul>
+<pre title="transitive-closure.js"><code class="language-js">const path = require('path')
+
+const getRequires = require('./extract-require')
+
+const transitiveClosure = (entryPointPath) =&gt; {
+  const mapping = {}
+  const pending = [path.resolve(entryPointPath)]
+  const seen = new Set()
+  while (pending.length &gt; 0) {
+    const candidate = path.resolve(pending.pop())
+    if (seen.has(candidate)) {
+      continue
+    }
+    seen.add(candidate)
+    mapping[candidate] = {}
+    const candidateDir = path.dirname(candidate)
+    getRequires(candidate)
+      .map(raw =&gt; {
+        mapping[candidate][raw] = 
+          path.resolve(path.join(candidateDir, `${raw}.js`))
+        return mapping[candidate][raw]
+      })
+      .filter(cooked =&gt; cooked !== null)
+      .forEach(cooked =&gt; pending.push(cooked))
+  }
+  return {filenames: [...seen], mapping}
+}
+
+if (require.main === module) {
+  const result = transitiveClosure(process.argv[2])
+  console.log(JSON.stringify(result, null, 2))
+}
+else {
+  module.exports = transitiveClosure
+}
+</code></pre>
+<pre title="transitive-closure.sh"><code class="language-sh">node transitive-closure.js example/main.js
+</code></pre>
+<pre title="transitive-closure.text"><code class="language-text">{
+  "seen": [
+    "/Users/gvwilson/stjs/module-bundler/example/main.js",
+    "/Users/gvwilson/stjs/module-bundler/example/subdir/bottom-right.js",
+    "/Users/gvwilson/stjs/module-bundler/example/subdir/bottom-left.js",
+    "/Users/gvwilson/stjs/module-bundler/example/top-left.js",
+    "/Users/gvwilson/stjs/module-bundler/example/top-right.js"
+  ],
+  "mapping": {
+    "/Users/gvwilson/stjs/module-bundler/example/main.js": {
+      "./top-left": "/Users/gvwilson/stjs/module-bundler/example/top-left.js",
+      "./top-right": "/Users/gvwilson/stjs/module-bundler/example/top-right.js",
+      "./subdir/bottom-left": "/Users/gvwilson/stjs/module-bundler/example/subdir/bottom-left.js",
+      "./subdir/bottom-right": "/Users/gvwilson/stjs/module-bundler/example/subdir/bottom-right.js"
+    },
+    "/Users/gvwilson/stjs/module-bundler/example/subdir/bottom-right.js": {
+      "./bottom-left": "/Users/gvwilson/stjs/module-bundler/example/subdir/bottom-left.js"
+    },
+    "/Users/gvwilson/stjs/module-bundler/example/subdir/bottom-left.js": {
+      "../top-left": "/Users/gvwilson/stjs/module-bundler/example/top-left.js",
+      "./bottom-right": "/Users/gvwilson/stjs/module-bundler/example/subdir/bottom-right.js"
+    },
+    "/Users/gvwilson/stjs/module-bundler/example/top-left.js": {},
+    "/Users/gvwilson/stjs/module-bundler/example/top-right.js": {
+      "./top-left": "/Users/gvwilson/stjs/module-bundler/example/top-left.js"
+    }
+  }
+}
+</code></pre>
+<h2 id="how-can-we-combine-multiple-files-into-one-file">How can we combine multiple files into one file?</h2>
+<ul>
+<li>We could concatenate all of the files into one...
+<ul>
+<li>...but we would have name collisions...</li>
+<li>...and <code>requires</code> and <code>module.exports</code> wouldn't work</li>
+</ul>
+</li>
+<li>So read the source file...
+<ul>
+<li>...and eval it with our own <code>requires</code> and <code>module.exports</code> in place</li>
+</ul>
+</li>
+<li>Our <code>requires</code> will use the absolute path of the file calling it and the path given to <code>require</code>
+and look up the absolute path of the file to load</li>
+<li>We will create a <code>modules</code> object so that code can assign to <code>module.exports</code>,
+then take whatever is assigned to it and save it for future <code>require</code> calls</li>
+<li>It's a lot of bookkeeping, but unavoidable</li>
+</ul>
+<p>FIXME: diagram</p>
+<ul>
+<li>First step is to load all the code and signal that we don't have its exports yet</li>
+</ul>
+<pre title="load-code.js"><code class="language-js">const fs = require('fs')
+
+const loadCode = (allFilenames) =&gt; {
+  return allFilenames.reduce((soFar, filename) =&gt; {
+    soFar[filename] = fs.readFileSync(filename, 'utf-8')
+    return soFar
+  }, {})
+}
+
+module.exports = loadCode
+</code></pre>
+<ul>
+<li>Next is to get things to work without worrying about circular dependencies</li>
 </ul>
 </main>
 <footer>
