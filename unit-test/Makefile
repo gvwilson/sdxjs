@@ -1,5 +1,5 @@
 TARGETS=\
-  dry-run.text \
-  pray.text
+  dry-run.txt \
+  pray.txt
 
 include ../rules.mk

@@ -1,1 +1,1 @@
-node to-be-loaded.js >& to-be-loaded.text
+node to-be-loaded.js >& to-be-loaded.txt

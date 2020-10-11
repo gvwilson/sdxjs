@@ -3,11 +3,11 @@ all: ${TARGETS}
 targets:
 	@echo ${TARGETS}
 
-%.text: %.sh %.js
+%.txt: %.sh %.js
 	bash $< > $@
 
-%.text: %.sh
+%.txt: %.sh
 	bash $< > $@
 
-%.text: %.js
+%.txt: %.js
 	node $< > $@

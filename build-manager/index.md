@@ -46,7 +46,7 @@
 
 -   Execution and output
 
-<%- include('/inc/multi.html', {pat: 'display-only.*', fill: 'sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'display-only.*', fill: 'sh txt'}) %>
 
 ## How can we tell if a file is stale?
 
@@ -59,13 +59,13 @@
 
 -   Execution
 
-<%- include('/inc/multi.html', {pat: 'add-timestamps.*', fill: 'js sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'add-timestamps.*', fill: 'js sh txt'}) %>
 
 -   Set current time to maximum file time
 -   For each file from the "bottom" to the top:
     -   If file is older than any of its dependencies, update it
 
-<%- include('/inc/multi.html', {pat: 'update-on-timestamp.*', fill: 'js sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'update-on-timestamp.*', fill: 'js sh txt'}) %>
 
 ## How can we add generic build rules?
 
@@ -87,7 +87,7 @@
 -   Build the recipe through brute force string substitution
     -   Look at more efficient strategies in the exercises
 
-<%- include('/inc/multi.html', {pat: 'variable-expander.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'variable-expander.*', fill: 'js txt'}) %>
 
 -   Now we need <g key="pattern_rule">pattern rules</g>
 -   First attempt at rules file looks like this
@@ -96,7 +96,7 @@
 
 -   First attempt at reading it doesn't work
 
-<%- include('/inc/multi.html', {pat: 'pattern-user-attempt.*', fill: 'js sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'pattern-user-attempt.*', fill: 'js sh txt'}) %>
 
 -   Our simple graph loader creates nodes for dependencies even if they aren't targets
 -   So we wind up tripping over the lack of a node for `%.in` before we get to extracting rules
@@ -105,7 +105,7 @@
     -   Check that simple rules' dependencies don't include `%`
     -   And add timestamps as an optional field to rules for testing purposes rather than having them in a separate file
 
-<%- include('/inc/multi.html', {pat: 'pattern-user-read.*', fill: 'js sh text'}) %>
+<%- include('/inc/multi.html', {pat: 'pattern-user-read.*', fill: 'js sh txt'}) %>
 
 -   Order of operations is important
     -   Load file, separating simple rules from pattern rules
@@ -117,4 +117,4 @@
     -   Call up to a grandparent
 -   This tells us that we should refactor our base class(es) to create more <g key="affordance">affordances</g>
 
-<%- include('/inc/multi.html', {pat: 'pattern-user-run.*', fill: 'js text'}) %>
+<%- include('/inc/multi.html', {pat: 'pattern-user-run.*', fill: 'js txt'}) %>
