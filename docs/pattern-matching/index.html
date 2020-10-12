@@ -67,145 +67,13 @@
 <li>Used in everything from shell commands and text editors to web scrapers</li>
 </ul>
 </li>
-<li>Inspired pattern matching for many other kinds of data
-<ul>
-<li>Like <g key="query_selector">query selectors</a> for HTML</li>
-</ul>
-</li>
-<li>We will show how regular expressions work by re-implementing a simple matcher
+<li>Inspired pattern matching for many other kinds of data,
+like <g key="query_selector">query selectors</a> for HTML</li>
+<li>Start by showing how query selectors work</li>
+<li>Then show how simple regular expressions work by re-implementing a matcher
 described by <a href="https://en.wikipedia.org/wiki/Brian_Kernighan">Brian Kernighan</a> in <cite>Oram2007</cite></li>
-<li>Then go on to pattern-matching</li>
+<li>Then show part of a more general approach to matching</li>
 </ul>
-<h2 id="how-can-we-implement-a-simple-matcher">How can we implement a simple matcher?</h2>
-<ul>
-<li>Our matcher will initially handle just five cases:</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>Character</th>
-<th>Meaning</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><em>c</em></td>
-<td>Any literal character <em>c</em></td>
-</tr>
-<tr>
-<td>.</td>
-<td>Any single character</td>
-</tr>
-<tr>
-<td>^</td>
-<td>Beginning of input</td>
-</tr>
-<tr>
-<td>$</td>
-<td>End of input</td>
-</tr>
-<tr>
-<td>*</td>
-<td>Zero or more of the previous character</td>
-</tr>
-</tbody>
-</table>
-<p>As Kernighan said,
-&quot;This is quite a useful class;
-in my own experience of using regular expressions on a day-to-day basis,
-it easily accounts for 95 percent of all instances.&quot;</p>
-<pre title="simple-regex.js"><code class="language-js">const match = (pattern, text) =&gt; {
-  // '^' at start of pattern matches start of text.
-  if (pattern[0] === '^') {
-    return matchHere(pattern, 1, text, 0)
-  }
-
-  // Try all possible starting points for pattern.
-  let iText = 0
-  do {
-    if (matchHere(pattern, 0, text, iText)) {
-      return true
-    }
-    iText += 1
-  } while (iText &lt; text.length)
-
-  // Nothing worked.
-  return false
-}
-
-const matchHere = (pattern, iPattern, text, iText) =&gt; {
-  // There is no more pattern to match.
-  if (iPattern === pattern.length) {
-    return true
-  }
-
-  // '$' at end of pattern matches end of text.
-  if ((iPattern === (pattern.length - 1)) &amp;&amp;
-      (pattern[iPattern] === '$') &amp;&amp;
-      (iText === text.length)) {
-    return true
-  }
-
-  // '*' following current character means match many.
-  if (((pattern.length - iPattern) &gt; 1) &amp;&amp; (pattern[iPattern+1] === '*')) {
-    while ((iText &lt; text.length) &amp;&amp; (text[iText] === pattern[iPattern])) {
-      iText += 1
-    }
-    return matchHere(pattern, iPattern+2, text, iText)
-  }
-
-  // Match a single character.
-  if ((pattern[iPattern] === '.') || (pattern[iPattern] === text[iText])) {
-    return matchHere(pattern, iPattern+1, text, iText+1)
-  }
-
-  // Nothing worked.
-  return false
-}
-
-const main = () =&gt; {
-  const tests = [
-    ['a', 'a', true],
-    ['b', 'a', false],
-    ['a', 'ab', true],
-    ['b', 'ab', true],
-    ['ab', 'ba', false],
-    ['^a', 'ab', true],
-    ['^b', 'ab', false],
-    ['a$', 'ab', false],
-    ['a$', 'ba', true],
-    ['a*', '', true],
-    ['a*', 'baac', true],
-    ['ab*c', 'ac', true],
-    ['ab*c', 'abc', true],
-    ['ab*c', 'abbbc', true],
-    ['ab*c', 'abxc', false]
-  ]
-  tests.forEach(([regexp, text, expected]) =&gt; {
-    const actual = match(regexp, text)
-    const result = (actual === expected) ? 'pass' : 'fail'
-    console.log(`"${regexp}" X "${text}": ${result}`)
-  })
-}
-
-main()
-</code></pre>
-<pre title="simple-regex.txt"><code class="language-txt">"a" X "a": pass
-"b" X "a": pass
-"a" X "ab": pass
-"b" X "ab": pass
-"ab" X "ba": pass
-"^a" X "ab": pass
-"^b" X "ab": pass
-"a$" X "ab": pass
-"a$" X "ba": pass
-"a*" X "": pass
-"a*" X "baac": pass
-"ab*c" X "ac": pass
-"ab*c" X "abc": pass
-"ab*c" X "abbbc": pass
-"ab*c" X "abxc": pass
-</code></pre>
 <h2 id="how-can-we-match-query-selectors">How can we match query selectors?</h2>
 <ul>
 <li>First step is to define the grammar we want to support</li>
@@ -394,17 +262,592 @@ main()
 "div#id-07 p": pass
 "div#id-07 p.class-06": pass
 </code></pre>
+<h2 id="how-can-we-implement-a-simple-regular-expression-matcher">How can we implement a simple regular expression matcher?</h2>
+<ul>
+<li>Our matcher will initially handle just five cases:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Character</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>c</em></td>
+<td>Any literal character <em>c</em></td>
+</tr>
+<tr>
+<td>.</td>
+<td>Any single character</td>
+</tr>
+<tr>
+<td>^</td>
+<td>Beginning of input</td>
+</tr>
+<tr>
+<td>$</td>
+<td>End of input</td>
+</tr>
+<tr>
+<td>*</td>
+<td>Zero or more of the previous character</td>
+</tr>
+</tbody>
+</table>
+<p>It's small,
+but as Kernighan said,
+&quot;This is quite a useful class;
+in my own experience of using regular expressions on a day-to-day basis,
+it easily accounts for 95 percent of all instances.&quot;</p>
+<pre title="simple-regex.js"><code class="language-js">const match = (pattern, text) =&gt; {
+  // '^' at start of pattern matches start of text.
+  if (pattern[0] === '^') {
+    return matchHere(pattern, 1, text, 0)
+  }
+
+  // Try all possible starting points for pattern.
+  let iText = 0
+  do {
+    if (matchHere(pattern, 0, text, iText)) {
+      return true
+    }
+    iText += 1
+  } while (iText &lt; text.length)
+
+  // Nothing worked.
+  return false
+}
+
+const matchHere = (pattern, iPattern, text, iText) =&gt; {
+  // There is no more pattern to match.
+  if (iPattern === pattern.length) {
+    return true
+  }
+
+  // '$' at end of pattern matches end of text.
+  if ((iPattern === (pattern.length - 1)) &amp;&amp;
+      (pattern[iPattern] === '$') &amp;&amp;
+      (iText === text.length)) {
+    return true
+  }
+
+  // '*' following current character means match many.
+  if (((pattern.length - iPattern) &gt; 1) &amp;&amp; (pattern[iPattern+1] === '*')) {
+    while ((iText &lt; text.length) &amp;&amp; (text[iText] === pattern[iPattern])) {
+      iText += 1
+    }
+    return matchHere(pattern, iPattern+2, text, iText)
+  }
+
+  // Match a single character.
+  if ((pattern[iPattern] === '.') || (pattern[iPattern] === text[iText])) {
+    return matchHere(pattern, iPattern+1, text, iText+1)
+  }
+
+  // Nothing worked.
+  return false
+}
+
+const main = () =&gt; {
+  const tests = [
+    ['a', 'a', true],
+    ['b', 'a', false],
+    ['a', 'ab', true],
+    ['b', 'ab', true],
+    ['ab', 'ba', false],
+    ['^a', 'ab', true],
+    ['^b', 'ab', false],
+    ['a$', 'ab', false],
+    ['a$', 'ba', true],
+    ['a*', '', true],
+    ['a*', 'baac', true],
+    ['ab*c', 'ac', true],
+    ['ab*c', 'abc', true],
+    ['ab*c', 'abbbc', true],
+    ['ab*c', 'abxc', false]
+  ]
+  tests.forEach(([regexp, text, expected]) =&gt; {
+    const actual = match(regexp, text)
+    const result = (actual === expected) ? 'pass' : 'fail'
+    console.log(`"${regexp}" X "${text}": ${result}`)
+  })
+}
+
+main()
+</code></pre>
+<pre title="simple-regex.txt"><code class="language-txt">"a" X "a": pass
+"b" X "a": pass
+"a" X "ab": pass
+"b" X "ab": pass
+"ab" X "ba": pass
+"^a" X "ab": pass
+"^b" X "ab": pass
+"a$" X "ab": pass
+"a$" X "ba": pass
+"a*" X "": pass
+"a*" X "baac": pass
+"ab*c" X "ac": pass
+"ab*c" X "abc": pass
+"ab*c" X "abbbc": pass
+"ab*c" X "abxc": pass
+</code></pre>
+<ul>
+<li>This works, but it's hard to extend
+<ul>
+<li>Handling parentheses in patterns like <code>/a(bc)*d/</code> requires big changes</li>
+</ul>
+</li>
+</ul>
+<h2 id="how-can-we-implement-an-extensible-matcher">How can we implement an extensible matcher?</h2>
+<ul>
+<li>Implement each kind of match as an object
+<ul>
+<li>Object rather than function because it has extra information like &quot;what character do I match?&quot;</li>
+<li>Input is text and index to start matching at</li>
+<li>Output is index to continue matching at <em>or</em> <code>undefined</code> indicating that matching failed</li>
+</ul>
+</li>
+<li>Combine these objects to create a matcher
+<ul>
+<li>And then write something to translate text expressions into collections of matchers</li>
+<li>Or just stick with code</li>
+</ul>
+</li>
+<li>First step is to define test cases
+<ul>
+<li>Which also forces us to define our syntax</li>
+</ul>
+</li>
+</ul>
+<pre title="regex-initial/regex-complete.js"><code class="language-js">const Alt = require('./regex-alt')
+const Any = require('./regex-any')
+const End = require('./regex-end')
+const Lit = require('./regex-lit')
+const Seq = require('./regex-seq')
+const Start = require('./regex-start')
+
+const main = () =&gt; {
+  const tests = [
+    ['a', 'a', true, Lit('a')],
+    ['b', 'a', false, Lit('b')],
+    ['a', 'ab', true, Lit('a')],
+    ['b', 'ab', true, Lit('b')],
+    ['ab', 'ab', true, Seq(Lit('a'), Lit('b'))],
+    ['ba', 'ab', false, Seq(Lit('b'), Lit('a'))],
+    ['ab', 'ba', false, Lit('ab')],
+    ['^a', 'ab', true, Seq(Start(), Lit('a'))],
+    ['^b', 'ab', false, Seq(Start(), Lit('b'))],
+    ['a$', 'ab', false, Seq(Lit('a'), End())],
+    ['a$', 'ba', true, Seq(Lit('a'), End())],
+    ['a*', '', true, Any('a')],
+    ['a*', 'baac', true, Any('a')],
+    ['ab*c', 'ac', true, Seq(Lit('a'), Any('b'), Lit('c'))],
+    ['ab*c', 'abc', true, Seq(Lit('a'), Any('b'), Lit('c'))],
+    ['ab*c', 'abbbc', true, Seq(Lit('a'), Any('b'), Lit('c'))],
+    ['ab*c', 'abxc', false, Seq(Lit('a'), Any('b'), Lit('c'))],
+    ['ab|cd', 'xaby', true, Alt(Lit('ab'), Lit('cd'))],
+    ['ab|cd', 'acdc', true, Alt(Lit('ab'), Lit('cd'))],
+    ['a(b|c)d', 'xabdy', true, Seq(Lit('a'), Alt(Lit('b'), Lit('c')), Lit('d'))],
+    ['a(b|c)d', 'xabady', false, Seq(Lit('a'), Alt(Lit('b'), Lit('c')), Lit('d'))]
+  ]
+  tests.forEach(([pattern, text, expected, matcher]) =&gt; {
+    const actual = matcher.match(text)
+    const result = (actual === expected) ? 'pass' : 'fail'
+    console.log(`"${pattern}" X "${text}": ${result}`)
+  })
+}
+
+main()
+</code></pre>
+<ul>
+<li>Each matcher is a function that returns a matching object
+<ul>
+<li>Saves us having to type <code>new</code> all over the place</li>
+</ul>
+</li>
+<li>Create a <g key="base_class">base class</g> that all matchers will inherit from
+<ul>
+<li>Defines the <code>match</code> method that users will call</li>
+<li>So that no matter what kind of matcher we have at the top level, we can start matching</li>
+</ul>
+</li>
+<li>Creates a &quot;match here&quot; method that throws an error
+<ul>
+<li>So that if we forget to provide <code>_match</code> in a <g key="derived_class">derived class</g>
+our code will fail with a meaningful reminder</li>
+</ul>
+</li>
+</ul>
+<pre title="regex-initial/regex-base.js"><code class="language-js">class RegexBase {
+  constructor () {
+  }
+
+  match (text) {
+    for (let i=0; i&lt;text.length; i+=1) {
+      if (this._match(text, i)) {
+        return true
+      }
+    }
+    return false
+  }
+
+  _match (text, start) {
+    throw new Error(`derived classes must override '_match'`)
+  }
+}
+
+module.exports = RegexBase
+</code></pre>
+<ul>
+<li>Define empty versions of each class like this to get started</li>
+</ul>
+<pre title="regex-initial/regex-lit.js"><code class="language-js">const RegexBase = require('./regex-base')
+
+class RegexLit extends RegexBase {
+  constructor (chars) {
+    super()
+    this.chars = chars
+  }
+
+  _match (text, start) {
+    return undefined // FIXME
+  }
+}
+
+module.exports = (chars) =&gt; new RegexLit(chars)
+</code></pre>
+<ul>
+<li>Our tests now run, but most of them fail
+<ul>
+<li>&quot;Most&quot; because if we expect a match to fail, it does, so the test runner reports <code>true</code></li>
+<li>Tells us how much work we have to do</li>
+</ul>
+</li>
+</ul>
+<pre title="regex-initial/regex-complete.txt"><code class="language-txt">"a" X "a": fail
+"b" X "a": pass
+"a" X "ab": fail
+"b" X "ab": fail
+"ab" X "ab": fail
+"ba" X "ab": pass
+"ab" X "ba": pass
+"^a" X "ab": fail
+"^b" X "ab": pass
+"a$" X "ab": pass
+"a$" X "ba": fail
+"a*" X "": fail
+"a*" X "baac": fail
+"ab*c" X "ac": fail
+"ab*c" X "abc": fail
+"ab*c" X "abbbc": fail
+"ab*c" X "abxc": pass
+"ab|cd" X "xaby": fail
+"ab|cd" X "acdc": fail
+"a(b|c)d" X "xabdy": fail
+"a(b|c)d" X "xabady": pass
+</code></pre>
+<ul>
+<li>Start by implementing literal character string matcher</li>
+</ul>
+<pre title="regex-beginning/regex-lit.js"><code class="language-js">const RegexBase = require('./regex-base')
+
+class RegexLit extends RegexBase {
+  constructor (chars) {
+    super()
+    this.chars = chars
+  }
+
+  _match (text, start) {
+    const nextIndex = start + this.chars.length
+    if (nextIndex &gt; text.length) {
+      return undefined
+    }
+    if (text.slice(start, nextIndex) !== this.chars) {
+      return undefined
+    }
+    return nextIndex
+  }
+}
+
+module.exports = (chars) =&gt; new RegexLit(chars)
+</code></pre>
+<ul>
+<li>Some tests now pass, others still fail (as expected)</li>
+</ul>
+<pre title="regex-beginning/regex-complete.txt"><code class="language-txt">"a" X "a": pass
+"b" X "a": pass
+"a" X "ab": pass
+"b" X "ab": pass
+"ab" X "ab": fail
+"ba" X "ab": pass
+"ab" X "ba": pass
+"^a" X "ab": fail
+"^b" X "ab": pass
+"a$" X "ab": pass
+"a$" X "ba": fail
+"a*" X "": fail
+"a*" X "baac": fail
+"ab*c" X "ac": fail
+"ab*c" X "abc": fail
+"ab*c" X "abbbc": fail
+"ab*c" X "abxc": pass
+"ab|cd" X "xaby": fail
+"ab|cd" X "acdc": fail
+"a(b|c)d" X "xabdy": fail
+"a(b|c)d" X "xabady": pass
+</code></pre>
+<ul>
+<li>Do <code>RegexSeq</code> next so that we can combine other tests
+<ul>
+<li>This is why we have tests for <code>Seq(Lit('a'), Lit('b'))</code> and <code>Lit('ab')</code></li>
+<li>All children have to match in order without gaps</li>
+</ul>
+</li>
+<li>But wait a moment
+<ul>
+<li>Suppose we have the pattern <code>/a*ab/</code></li>
+<li>This ought to match the text <code>&quot;ab&quot;</code>, but will it?</li>
+<li>The <code>*</code> is <g key="greedy">greedy</g>: it matches as much as it can</li>
+<li>So <code>/a*/</code> will match the leading <code>&quot;a&quot;</code>, leaving nothing for the literal <code>/a/</code> to match</li>
+<li>Our current implementation doesn't give us a way to try alternatives</li>
+</ul>
+</li>
+<li>Re-think
+<ul>
+<li>Each matcher takes its own arguments and a <code>rest</code> parameter which is the rest of the matchers</li>
+<li>Provide <code>null</code> as a default in the creation function so we don't have to type it over and over again</li>
+<li>Try each of its possibilities and then see if the rest will also match</li>
+<li>Means we can get rid of <code>RegexSeq</code></li>
+</ul>
+</li>
+<li>Tests are a little harder to read</li>
+</ul>
+<pre title="regex-recursive/regex-complete.js"><code class="language-js">const Alt = require('./regex-alt')
+const Any = require('./regex-any')
+const End = require('./regex-end')
+const Lit = require('./regex-lit')
+const Start = require('./regex-start')
+
+const main = () =&gt; {
+  const tests = [
+    ['a', 'a', true, Lit('a')],
+    ['b', 'a', false, Lit('b')],
+    ['a', 'ab', true, Lit('a')],
+    ['b', 'ab', true, Lit('b')],
+    ['ab', 'ab', true, Lit('a', Lit('b'))],
+    ['ba', 'ab', false, Lit('b', Lit('a'))],
+    ['ab', 'ba', false, Lit('ab')],
+    ['^a', 'ab', true, Start(Lit('a'))],
+    ['^b', 'ab', false, Start(Lit('b'))],
+    ['a$', 'ab', false, Lit('a', End())],
+    ['a$', 'ba', true, Lit('a', End())],
+    ['a*', '', true, Any(Lit('a'))],
+    ['a*', 'baac', true, Any(Lit('a'))],
+    ['ab*c', 'ac', true, Lit('a', Any(Lit('b'), Lit('c')))],
+    ['ab*c', 'abc', true, Lit('a', Any(Lit('b'), Lit('c')))],
+    ['ab*c', 'abbbc', true, Lit('a', Any(Lit('b'), Lit('c')))],
+    ['ab*c', 'abxc', false, Lit('a', Any(Lit('b'), Lit('c')))],
+    ['ab|cd', 'xaby', true, Alt(Lit('ab'), Lit('cd'))],
+    ['ab|cd', 'acdc', true, Alt(Lit('ab'), Lit('cd'))],
+    ['a(b|c)d', 'xabdy', true, Lit('a', Alt(Lit('b'), Lit('c'), Lit('d')))],
+    ['a(b|c)d', 'xabady', false, Lit('a', Alt(Lit('b'), Lit('c'), Lit('d')))]
+  ]
+  tests.forEach(([pattern, text, expected, matcher]) =&gt; {
+    const actual = matcher.match(text)
+    const result = (actual === expected) ? 'pass' : 'fail'
+    console.log(`"${pattern}" X "${text}": ${result}`)
+  })
+}
+
+main()
+</code></pre>
+<ul>
+<li>Match a literal expression
+<ul>
+<li>Does all of the pattern match in the given text starting at this point?</li>
+<li>If so, does the rest of the overall pattern match?</li>
+</ul>
+</li>
+</ul>
+<pre title="regex-recursive/regex-lit.js"><code class="language-js">const RegexBase = require('./regex-base')
+
+class RegexLit extends RegexBase {
+  constructor (chars, rest) {
+    super(rest)
+    this.chars = chars
+  }
+
+  _match (text, start) {
+    const nextIndex = start + this.chars.length
+    if (nextIndex &gt; text.length) {
+      return undefined
+    }
+    if (text.slice(start, nextIndex) !== this.chars) {
+      return undefined
+    }
+    if (this.rest === null) {
+      return nextIndex
+    }
+    return this.rest._match(text, nextIndex)
+  }
+}
+
+module.exports = (chars, rest=null) =&gt; new RegexLit(chars, rest)
+</code></pre>
+<ul>
+<li>Matching the start <code>/^/</code> and end <code>/$/</code> anchors is just as straightforward</li>
+</ul>
+<pre title="regex-recursive/regex-start.js"><code class="language-js">const RegexBase = require('./regex-base')
+
+class RegexStart extends RegexBase {
+  constructor (rest) {
+    super(rest)
+  }
+
+  _match (text, start) {
+    if (start !== 0) {
+      return undefined
+    }
+    if (this.rest === null) {
+      return 0
+    }
+    return this.rest._match(text, start)
+  }
+}
+
+module.exports = (rest=null) =&gt; new RegexStart(rest)
+</code></pre>
+<pre title="regex-recursive/regex-end.js"><code class="language-js">const RegexBase = require('./regex-base')
+
+class RegexEnd extends RegexBase {
+  constructor (rest) {
+    super(rest)
+  }
+
+  _match (text, start) {
+    if (start !== text.length) {
+      return undefined
+    }
+    if (this.rest === null) {
+      return text.length
+    }
+    return this.rest._match(text, start)
+  }
+}
+
+module.exports = (rest=null) =&gt; new RegexEnd(rest)
+</code></pre>
+<ul>
+<li>Matching either/or is a matter of trying a pattern and the rest until one matches,
+and failing if neither does</li>
+</ul>
+<pre title="regex-recursive/regex-alt.js"><code class="language-js">const RegexBase = require('./regex-base')
+
+class RegexAlt extends RegexBase {
+  constructor (left, right, rest) {
+    super(rest)
+    this.left = left
+    this.right = right
+  }
+
+  _match (text, start) {
+    for (let pat of [this.left, this.right]) {
+      const afterPat = pat._match(text, start)
+      if (afterPat !== undefined) {
+        if (this.rest === null) {
+          return afterPat
+        }
+        const afterRest = this.rest._match(text, afterPat)
+        if (afterRest !== undefined) {
+          return afterRest
+        }
+      }
+    }
+    return undefined
+  }
+}
+
+module.exports = (left, right, rest=null) =&gt; new RegexAlt(left, right, rest)
+</code></pre>
+<ul>
+<li>Matching repetition is easy <em>if</em> we're willing to be inefficient
+<ul>
+<li>Try zero matches, then one, then two, and so on until something succeeds</li>
+<li>Which means we are repeatedly re-matching things we already know work</li>
+</ul>
+</li>
+</ul>
+<p>FIXME: diagram</p>
+<ul>
+<li>We also need to figure out how long to keep trying
+<ul>
+<li>Each non-empty repetition matches at least one character</li>
+<li>So the number of remaining characters is the maximum number of matches we have to try</li>
+</ul>
+</li>
+</ul>
+<pre title="regex-recursive/regex-any.js"><code class="language-js">const RegexBase = require('./regex-base')
+
+class RegexAny extends RegexBase {
+  constructor (child, rest) {
+    super(rest)
+    this.child = child
+  }
+
+  _match (text, start) {
+    const maxPossibleMatches = text.length - start
+    for (let numMatches = 0; numMatches &lt;= maxPossibleMatches; numMatches += 1) {
+      const afterMany = this._matchMany(text, start, numMatches)
+      if (afterMany !== undefined) {
+        return afterMany
+      }
+    }
+    return undefined
+  }
+
+  _matchMany (text, start, numMatches) {
+    for (let i = 0; i &lt; numMatches; i += 1) {
+      start = this.child._match(text, start)
+      if (start === undefined) {
+        return undefined
+      }
+    }
+    if (this.rest !== null) {
+      return this.rest._match(text, start)
+    }
+    return start
+  }
+}
+
+module.exports = (child, rest=null) =&gt; new RegexAny(child, rest)
+</code></pre>
+<ul>
+<li>The main point here is how extensible this approach is</li>
+<li>That extensibility comes from the lack of centralized decision-making
+<ul>
+<li>The <g key="chain_of_responsibility_pattern">Chain of Responsibility</g> design pattern</li>
+<li>&quot;Do my part and ask something else to handle the rest&quot;</li>
+</ul>
+</li>
+</ul>
 <h2 id="exercises">Exercises</h2>
-<h3 class="exercise">Find all with regular expressions</h3>
-<p>Modify the regular expression matcher to return <em>all</em> matches rather than just the first one.</p>
-<h3 class="exercise">Find one or more with regular expressions</h3>
-<p>Extend the regular expression matcher to support <code>+</code>, meaning &quot;one or more&quot;.</p>
 <h3 class="exercise">Find all with query selectors</h3>
 <p>Modify the query selector so that it returns <em>all</em> matches, not just the first one.</p>
 <h3 class="exercise">Select based on attributes</h3>
 <p>Modify the query selector to handle <code>[attribute=&quot;value&quot;]</code> selectors,
 so that (for example) <code>div[align=center]</code> returns all <code>div</code> elements
 whose <code>align</code> attribute has the value <code>&quot;center&quot;</code>.</p>
+<h3 class="exercise">Find all with regular expressions</h3>
+<p>Modify the regular expression matcher to return <em>all</em> matches rather than just the first one.</p>
+<h3 class="exercise">Find one or more with regular expressions</h3>
+<p>Extend the regular expression matcher to support <code>+</code>, meaning &quot;one or more&quot;.</p>
+<h3 class="exercise">Match sets of characters</h3>
+<p>Add a new regular expression matching class that matches any character from a set,
+so that <code>Charset('aeiou')</code> matches any lower-case vowel.</p>
+<h3 class="exercise">Make repetition more efficient</h3>
+<p>Rewrite <code>RegexAny</code> so that it does not repeatedly re-match text.</p>
 </main>
 <footer>
 <div class="row">
