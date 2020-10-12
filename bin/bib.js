@@ -28,28 +28,28 @@ const FOOTER = `
  * Main driver.
  */
 const main = () => {
-  const config = getConfiguration()
-  const data = yaml.safeLoad(fs.readFileSync(config.input))
+  const options = getOptions()
+  const data = yaml.safeLoad(fs.readFileSync(options.input))
   const text = makeBib(data)
-  fs.writeFileSync(config.output, text, 'utf-8')
+  fs.writeFileSync(options.output, text, 'utf-8')
 }
 
 /**
- * Build program configuration.
- * @returns {Object} Program configuration.
+ * Build program options.
+ * @returns {Object} Program options.
  */
-const getConfiguration = () => {
+const getOptions = () => {
   const parser = new argparse.ArgumentParser()
   parser.add_argument('--input')
   parser.add_argument('--output')
 
-  const config = parser.parse_args()
+  const options = parser.parse_args()
 
-  assert(config.input,
+  assert(options.input,
          `Need input file`)
-  assert(config.output,
+  assert(options.output,
          `Need output file`)
-  return config
+  return options
 }
 
 /**

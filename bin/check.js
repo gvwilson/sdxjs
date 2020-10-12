@@ -23,13 +23,15 @@ const WIDTH = 70
  * Main driver.
  */
 const main = () => {
-  const config = getConfiguration()
+  const options = getOptions()
 
-  const markdown = loadMarkdown(config)
+  checkExercises(options)
+
+  const markdown = loadMarkdown(options)
   checkInclusions(markdown)
   checkLineEndings(markdown)
 
-  const html = loadHtml(config)
+  const html = loadHtml(options)
   checkGloss(html)
   checkTabs(html)
   checkWidths(html)
@@ -37,10 +39,11 @@ const main = () => {
 
 /**
  * Parse command-line arguments.
- * @returns {Object} config Program configuration.
+ * @returns {Object} options Program options.
  */
-const getConfiguration = () => {
+const getOptions = () => {
   const parser = new argparse.ArgumentParser()
+  parser.add_argument('--config')
   parser.add_argument('--html', {nargs: '+'})
   parser.add_argument('--markdown', {nargs: '+'})
   return parser.parse_args()
@@ -48,11 +51,11 @@ const getConfiguration = () => {
 
 /**
  * Load Markdown.
- * @param {Object} config Program configuration.
+ * @param {Object} options Program options.
  * @returns {Array<Object>} Filenames and text.
  */
-const loadMarkdown = (config) => {
-  return config.markdown.map(filename => {
+const loadMarkdown = (options) => {
+  return options.markdown.map(filename => {
     const text = fs.readFileSync(filename, 'utf-8').trim()
     return {filename, text}
   })
@@ -60,15 +63,52 @@ const loadMarkdown = (config) => {
 
 /**
  * Load HTML.
- * @param {Object} config Program configuration.
+ * @param {Object} options Program options.
  * @returns {Array<Object>} Filenames, text, and DOM.
  */
-const loadHtml = (config) => {
-  return config.html.map(filename => {
+const loadHtml = (options) => {
+  return options.html.map(filename => {
     const text = fs.readFileSync(filename, 'utf-8').trim()
     const doc = parse5.parse(text, {sourceCodeLocationInfo: true})
     return {filename, text, doc}
   })
+}
+
+/**
+ * Check for mis-matches in exercise directories.
+ * @param {Object} options Program options.
+ */
+const checkExercises = (options) => {
+  const config = yaml.safeLoad(fs.readFileSync(options.config, 'utf-8'))
+  const expected = new Set()
+  const actual = new Set()
+  config.chapters
+    .forEach(chapter => {
+      if ('exercises' in chapter) {
+        chapter.exercises.map(exercise => `${chapter.slug}/${exercise.slug}`)
+          .forEach(full => expected.add(full))
+      }
+      glob.sync(`${chapter.slug}/*/problem.md`)
+        .map(problem => problem
+             .replace('/problem.md', ''))
+        .forEach(full => actual.add(full))
+    })
+  showSetDiff('Missing exercises', expected, actual)
+  showSetDiff('Unused exercises', actual, expected)
+
+  const problems = new Set()
+  const solutions = new Set()
+  config.chapters
+    .forEach(chapter => {
+      glob.sync(`${chapter.slug}/*/problem.md`)
+        .map(problem => problem.replace('/problem.md', ''))
+        .forEach(stem => problems.add(stem))
+      glob.sync(`${chapter.slug}/*/solution.md`)
+        .map(solution => solution.replace('/solution.md', ''))
+        .forEach(stem => solutions.add(stem))
+    })
+  showSetDiff('Problems without solutions', problems, solutions)
+  showSetDiff('Solutions without problems', solutions, problems)
 }
 
 /**

@@ -17,9 +17,9 @@ const IGNORE = new Set('pre code #comment head footer nav cite'.split(' '))
  * Main driver.
  */
 const main = () => {
-  const config = getConfiguration()
+  const options = getOptions()
   const known = new Set()
-  config.input.forEach(filename => {
+  options.input.forEach(filename => {
     const text = fs.readFileSync(filename, 'utf-8')
     const doc = parse5.parse(text, {sourceCodeLocationInfo: true})
     getWords(doc, known)
@@ -31,9 +31,9 @@ const main = () => {
 
 /**
  * Parse command-line arguments.
- * @returns {Object} config Program configuration.
+ * @returns {Object} options Program options.
  */
-const getConfiguration = () => {
+const getOptions = () => {
   const parser = new argparse.ArgumentParser()
   parser.add_argument('--input', {nargs: '+'})
   return parser.parse_args()

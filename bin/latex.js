@@ -23,25 +23,25 @@ const RECURSE_ONLY = new Set('#document html body main'.split(' '))
  * Main driver.
  */
 const main = () => {
-  const config = getConfiguration()
-  config.numbering = getNumbering(config)
-  buildFilenames(config)
-  config.entries.forEach(fileInfo => readFile(fileInfo))
-  config.entries.forEach(fileInfo => {
-    fileInfo.latex = htmlToLatex(config, fileInfo, fileInfo.doc, [])
+  const options = getOptions()
+  options.numbering = getNumbering(options)
+  buildFilenames(options)
+  options.entries.forEach(fileInfo => readFile(fileInfo))
+  options.entries.forEach(fileInfo => {
+    fileInfo.latex = htmlToLatex(options, fileInfo, fileInfo.doc, [])
   })
-  const allLatex = config.entries.map(fileInfo => fileInfo.latex).flat().join('')
-  config.head = fs.readFileSync(config.head, 'utf-8')
-  config.foot = fs.readFileSync(config.foot, 'utf-8')
-  const combined = `${config.head}\n${allLatex}\n${config.foot}`
-  fs.writeFileSync(config.outputFile, combined, 'utf-8')
+  const allLatex = options.entries.map(fileInfo => fileInfo.latex).flat().join('')
+  options.head = fs.readFileSync(options.head, 'utf-8')
+  options.foot = fs.readFileSync(options.foot, 'utf-8')
+  const combined = `${options.head}\n${allLatex}\n${options.foot}`
+  fs.writeFileSync(options.outputFile, combined, 'utf-8')
 }
 
 /**
  * Parse command-line arguments.
- * @returns {Object} config Program configuration.
+ * @returns {Object} options Program options.
  */
-const getConfiguration = () => {
+const getOptions = () => {
   const parser = new argparse.ArgumentParser()
   parser.add_argument('--config')
   parser.add_argument('--foot')
@@ -55,26 +55,26 @@ const getConfiguration = () => {
 
 /**
  * Get chapter numbering information.
- * @param {Object} config Program configuration.
+ * @param {Object} options Program options.
  * @returns {Object} Numbering.
  */
-const getNumbering = (config) => {
-  const text = fs.readFileSync(config.numbering, 'utf-8')
+const getNumbering = (options) => {
+  const text = fs.readFileSync(options.numbering, 'utf-8')
   return JSON.parse(text)
 }
 
 /**
- * Convert configuration values into filenames.
- * @param {Object} config Program configuration.
+ * Convert options values into filenames.
+ * @param {Object} options Program options.
  */
-const buildFilenames = (config) => {
-  config.entries = [...config.extras, ...config.chapters, ...config.appendices]
-  config.entries.forEach(fileInfo => {
+const buildFilenames = (options) => {
+  options.entries = [...options.extras, ...options.chapters, ...options.appendices]
+  options.entries.forEach(fileInfo => {
     if (fileInfo.slug === '/') {
-      fileInfo.filename = path.join(config.htmlDir, 'index.html')
+      fileInfo.filename = path.join(options.htmlDir, 'index.html')
     }
     else {
-      fileInfo.filename = path.join(config.htmlDir, fileInfo.slug, 'index.html')
+      fileInfo.filename = path.join(options.htmlDir, fileInfo.slug, 'index.html')
     }
   })
 }
@@ -123,22 +123,22 @@ const patchHtml = (html) => {
 
 /**
  * Translate a single HTML document to LaTeX.
- * @param {Object} config Program configuration.
+ * @param {Object} options Program options.
  * @param {Object} fileInfo Information about this file.
  * @param {Object} node Root node of this conversion.
  * @param {Array} accum Strings generated so far.
  * @returns {Array<string>} All strings.
  */
-const htmlToLatex = (config, fileInfo, node, accum) => {
+const htmlToLatex = (options, fileInfo, node, accum) => {
   if (SKIP_ENTIRELY.has(node.nodeName)) {
     // do nothing
   }
   else if (RECURSE_ONLY.has(node.nodeName)) {
-    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
   }
   else if (node.nodeName === 'a') {
     accum.push('\\hreffoot{')
-    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}{')
     accum.push(fullEscape(getAttr(node, 'href')))
     accum.push('}')
@@ -147,12 +147,12 @@ const htmlToLatex = (config, fileInfo, node, accum) => {
     const cls = getAttr(node, 'class')
     if (cls === 'aside') {
       accum.push('\\begin{aside}')
-      node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push('\\end{aside}')
     }
     else {
       accum.push('\\begin{quotation}')
-      node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push('\\end{quotation}')
     }
   }
@@ -177,22 +177,22 @@ const htmlToLatex = (config, fileInfo, node, accum) => {
       accum.push('\\end{lstlisting}')
     }
     else {
-      node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     }
   }
   else if (node.nodeName === 'dd') {
-    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
   }
   else if (node.nodeName === 'dl') {
     const cls = getAttr(node, 'class')
     if (cls === 'bibliography') {
       accum.push('\\begin{thebibliography}{ABCD}')
-      node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push('\\end{thebibliography}')
     }
     else {
       accum.push('\\begin{description}')
-      node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push('\\end{description}')
     }
   }
@@ -211,25 +211,25 @@ const htmlToLatex = (config, fileInfo, node, accum) => {
       assert(key,
              `Every glossary definition must have an id`)
       accum.push('\\glossitem{')
-      node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push('}{')
       accum.push(fullEscape(key))
       accum.push('}')
     }
     else {
       accum.push('\\item[')
-      node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push(']')
     }
   }
   else if (node.nodeName === 'em') {
     accum.push('\\emph{')
-    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}')
   }
   else if (node.nodeName === 'g') {
     accum.push('\\glossref{')
-    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}{')
     accum.push(fullEscape(getAttr(node, 'key')))
     accum.push('}')
@@ -240,7 +240,7 @@ const htmlToLatex = (config, fileInfo, node, accum) => {
     }
     else {
       accum.push('\\chapter{')
-      node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push('}\\label{')
       accum.push(fileInfo.slug)
       accum.push('}')
@@ -248,12 +248,12 @@ const htmlToLatex = (config, fileInfo, node, accum) => {
   }
   else if (node.nodeName === 'h2') {
     accum.push(`\\section{`)
-    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}')
   }
   else if (node.nodeName === 'h3') {
     accum.push(`\\subsection*{`)
-    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}')
   }
   else if (node.nodeName === 'img') {
@@ -262,11 +262,11 @@ const htmlToLatex = (config, fileInfo, node, accum) => {
   }
   else if (node.nodeName === 'li') {
     accum.push(`\\item `)
-    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
   }
   else if (node.nodeName === 'ol') {
     accum.push(`\\begin{enumerate}`)
-    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push(`\\end{enumerate}`)
   }
   else if (node.nodeName === 'p') {
@@ -274,16 +274,16 @@ const htmlToLatex = (config, fileInfo, node, accum) => {
     accum.push(`\n`)
     if (cls === 'lede') {
       accum.push('\\lede{')
-      node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push('}')
     }
     else if (cls === 'aside') {
       accum.push('\\asidetitle{')
-      node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push('}')
     }
     else {
-      node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     }
   }
   else if (node.nodeName === 'pre') {
@@ -297,43 +297,43 @@ const htmlToLatex = (config, fileInfo, node, accum) => {
   }
   else if (node.nodeName === 'strong') {
     accum.push('\\textbf{')
-    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}')
   }
   else if (node.nodeName === 'sub') {
     accum.push('\\textsubscript{')
-    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}')
   }
   else if (node.nodeName === 'sup') {
     accum.push('\\textsuperscript{')
-    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}')
   }
   else if (node.nodeName === 'table') {
-    accum.push(tableToLatex(config, fileInfo, node))
+    accum.push(tableToLatex(options, fileInfo, node))
   }
   else if (node.nodeName === 'td') {
-    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
   }
   else if (node.nodeName === 'th') {
-    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
   }
   else if (node.nodeName === 'ul') {
     accum.push(`\\begin{itemize}`)
-    node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push(`\\end{itemize}`)
   }
   else if (node.nodeName === 'xref') {
     const key = getAttr(node, 'key')
-    assert(key in config.numbering,
+    assert(key in options.numbering,
            `Unknown cross-reference "${key}"`)
-    const text = (config.numbering[key] < 'A') ? `\\chapref{${key}}` : `\\appref{${key}}`
+    const text = (options.numbering[key] < 'A') ? `\\chapref{${key}}` : `\\appref{${key}}`
     if (node.childNodes.length === 0) {
       accum.push(text)
     }
     else {
-      node.childNodes.forEach(child => htmlToLatex(config, fileInfo, child, accum))
+      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push(` (${text})`)
     }
   }
@@ -349,12 +349,12 @@ const htmlToLatex = (config, fileInfo, node, accum) => {
 
 /**
  * Translate a single HTML table to LaTeX.
- * @param {Object} config Program configuration.
+ * @param {Object} options Program options.
  * @param {Object} fileInfo Information about this file.
  * @param {Object} node Root node of this conversion.
  * @returns {string} Table as LaTeX.
  */
-const tableToLatex = (config, fileInfo, node) => {
+const tableToLatex = (options, fileInfo, node) => {
   assert(node.nodeName === 'table',
          `Calling tableToLatex with wrong node type "${node.nodeName}"`)
   const immediate = node.childNodes.filter(child => child.nodeName === 'tbody')
@@ -368,7 +368,7 @@ const tableToLatex = (config, fileInfo, node) => {
          `Require all table rows to have the same number of cells`)
   const spec = rows[0].map(x => 'l').join('')
   const body = rows.map(row => {
-    const fields = row.map(cell => htmlToLatex(config, fileInfo, cell, []).flat().join(''))
+    const fields = row.map(cell => htmlToLatex(options, fileInfo, cell, []).flat().join(''))
     const joined = fields.join(' & ')
     return `${joined} \\\\\n`
   }).join('')

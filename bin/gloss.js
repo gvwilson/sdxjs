@@ -35,48 +35,48 @@ const FOOTER = `
  * Main driver.
  */
 const main = () => {
-  const config = getConfiguration()
-  download(config, GLOSARIO_URL).then(glosario => {
-    const local = getGlossary(config)
+  const options = getOptions()
+  download(options, GLOSARIO_URL).then(glosario => {
+    const local = getGlossary(options)
     const merged = mergeGlossaries(glosario, local)
-    const required = getRequired(config, merged)
+    const required = getRequired(options, merged)
     const filtered = filterGlossary(merged, required)
     const text = makeGloss(filtered)
-    fs.writeFileSync(config.output, text, 'utf-8')
+    fs.writeFileSync(options.output, text, 'utf-8')
   }).catch(err => {
     console.error('GOT ERROR', err)
   })
 }
 
 /**
- * Build program configuration.
- * @returns {Object} Program configuration.
+ * Build program options.
+ * @returns {Object} Program options.
  */
-const getConfiguration = () => {
+const getOptions = () => {
   const parser = new argparse.ArgumentParser()
   parser.add_argument('--glosario', {action: 'store_true'})
   parser.add_argument('--input')
   parser.add_argument('--output')
   parser.add_argument('--sources', {nargs: '+'})
 
-  const config = parser.parse_args()
+  const options = parser.parse_args()
 
-  assert(config.input,
+  assert(options.input,
          `Need input file`)
-  assert(config.output,
+  assert(options.output,
          `Need output file`)
-  assert(config.sources,
+  assert(options.sources,
          `Need source files`)
-  return config
+  return options
 }
 
 /**
  * Get local glossary from file.
- * @param {Object} config Program configuration.
+ * @param {Object} options Program options.
  * @returns {Object} All entries keyed by slug.
  */
-const getGlossary = (config) => {
-  return yaml.safeLoad(fs.readFileSync(config.input, 'utf-8'))
+const getGlossary = (options) => {
+  return yaml.safeLoad(fs.readFileSync(options.input, 'utf-8'))
 }
 
 /**
@@ -95,12 +95,12 @@ const mergeGlossaries = (...glossaries) => {
 
 /**
  * Get required keys from files.
- * @param {Object} config Program configuration.
+ * @param {Object} options Program options.
  * @param {Object} gloss All glossary entries.
  */
-const getRequired = (config, gloss) => {
+const getRequired = (options, gloss) => {
   const pending = new Set(
-    config.sources.map(filename => {
+    options.sources.map(filename => {
       const text = fs.readFileSync(filename, 'utf-8')
       return [...text.matchAll(/<g\s+key="(.+?)">/g)]
         .map(match => match[1])
@@ -204,13 +204,13 @@ const fixCrossRef = (match, key, value) => {
 
 /**
  * Create a promise for downloading a file from a URL.
- * @param {Object} config Program configuration.
+ * @param {Object} options Program options.
  * @param {string} url What to download.
  * @returns {Promise} Something to wait on.
  */
-const download = (config, url) => {
+const download = (options, url) => {
   return new Promise((resolve, reject) => {
-    if (!config.glosario) {
+    if (!options.glosario) {
       resolve({})
     }
     request(url, (error, response, body) => {

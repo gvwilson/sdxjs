@@ -46,6 +46,7 @@ serve: docs/index.html
 ## check: check that everything is tidy
 check: docs/index.html
 	@bin/check.js \
+	--config config.yml \
 	--html ${HTML} \
 	--markdown ${MARKDOWN}
 

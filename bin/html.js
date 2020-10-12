@@ -49,20 +49,20 @@ const FOOTER = "<%- include('/inc/foot.html') %>"
  * Main driver.
  */
 const main = () => {
-  const config = getConfiguration()
-  const linksText = buildLinks(config)
-  const allFiles = buildFileInfo(config)
+  const options = getOptions()
+  const linksText = buildLinks(options)
+  const allFiles = buildFileInfo(options)
   loadFiles(allFiles)
-  rimraf.sync(config.outputDir)
-  allFiles.forEach(fileInfo => translateFile(config, fileInfo, linksText))
-  finalize(config)
+  rimraf.sync(options.outputDir)
+  allFiles.forEach(fileInfo => translateFile(options, fileInfo, linksText))
+  finalize(options)
 }
 
 /**
- * Build program configuration.
- * @returns {Object} Program configuration.
+ * Build program options.
+ * @returns {Object} Program options.
  */
-const getConfiguration = () => {
+const getOptions = () => {
   const parser = new argparse.ArgumentParser()
   parser.add_argument('-c', '--configFile', {default: DEFAULTS.configFile})
   parser.add_argument('-l', '--linksFile', {default: DEFAULTS.linksFile})
@@ -71,44 +71,44 @@ const getConfiguration = () => {
   const fromArgs = parser.parse_args()
 
   const fromFile = yaml.safeLoad(fs.readFileSync(fromArgs.configFile))
-  const config = {...fromArgs, ...fromFile}
+  const options = {...fromArgs, ...fromFile}
 
-  assert(config.linksFile,
+  assert(options.linksFile,
          `Need a links file`)
-  assert(config.outputDir,
+  assert(options.outputDir,
          `Need a site directory`)
-  assert(config.rootDir,
+  assert(options.rootDir,
          `Need a root directory`)
 
-  return config
+  return options
 }
 
 /**
  * Build table of Markdown links to append to pages during translation.
- * @param {Object} config Configuration.
+ * @param {Object} options Options.
  * @returns {string} Table of links to append to all Markdown files.
  */
-const buildLinks = (config) => {
-  config.links = yaml.safeLoad(fs.readFileSync(config.linksFile))
-  return config.links
+const buildLinks = (options) => {
+  options.links = yaml.safeLoad(fs.readFileSync(options.linksFile))
+  return options.links
     .map(entry => `[${entry.slug}]: ${entry.url}`)
     .join('\n')
 }
 
 /**
- * Extract files from configuration and decorate information records.
- * @param {Object} config Configuration.
+ * Extract files from options and decorate information records.
+ * @param {Object} options Options.
  * @returns {Array<Object>} File information.
  */
-const buildFileInfo = (config) => {
+const buildFileInfo = (options) => {
   // All files.
-  const allFiles = [...config.extras, ...config.chapters, ...config.appendices]
+  const allFiles = [...options.extras, ...options.chapters, ...options.appendices]
   allFiles.forEach((fileInfo, i) => {
     assert('slug' in fileInfo,
            `Every page must have a slug ${Object.keys(fileInfo)}`)
     fileInfo.index = i
     if (!('source' in fileInfo)) {
-      fileInfo.source = path.join(config.rootDir, fileInfo.slug, 'index.md')
+      fileInfo.source = path.join(options.rootDir, fileInfo.slug, 'index.md')
     }
     if (!('output' in fileInfo)) {
       fileInfo.output = path.join(fileInfo.slug, 'index.html')
@@ -116,7 +116,7 @@ const buildFileInfo = (config) => {
   })
 
   // Numbered pages.
-  const numbered = [...config.chapters, ...config.appendices]
+  const numbered = [...options.chapters, ...options.appendices]
   numbered.forEach((fileInfo, i) => {
     fileInfo.previous = (i > 0) ? numbered[i-1] : null
     fileInfo.next = (i < numbered.length-1) ? numbered[i+1] : null
@@ -139,21 +139,21 @@ const loadFiles = (allFiles) => {
 
 /**
  * Translate and save each file.
- * @param {Object} config Program configuration.
+ * @param {Object} options Program options.
  * @param {Object} fileInfo Information about file.
  * @param {string} linksText Markdown-formatted links table.
  */
-const translateFile = (config, fileInfo, linksText) => {
+const translateFile = (options, fileInfo, linksText) => {
   // Context contains variables required by EJS.
   const context = {
-    root: config.rootDir,
+    root: options.rootDir,
     filename: fileInfo.source
   }
 
   // Settings contains "local" variables for rendering.
   const settings = {
     ...context,
-    site: config,
+    site: options,
     page: fileInfo,
     toRoot: toRoot(fileInfo.output),
     _codeClass,
@@ -173,7 +173,7 @@ const translateFile = (config, fileInfo, linksText) => {
   const html = mdi.render(translated)
 
   // Save result.
-  const outputPath = path.join(config.outputDir, fileInfo.output)
+  const outputPath = path.join(options.outputDir, fileInfo.output)
   ensureOutputDir(outputPath)
   fs.writeFileSync(outputPath, html, 'utf-8')
 }
@@ -241,42 +241,42 @@ const slugify = (text) => {
 
 /**
  * Copy static files and save numbering data.
- * @param {Object} config Configuration.
+ * @param {Object} options Options.
  */
-const finalize = (config) => {
+const finalize = (options) => {
   // Simple files.
-  const excludes = config.exclude.map(pattern => new minimatch.Minimatch(pattern))
-  const toCopy = config.copy
-        .map(pattern => path.join(config.rootDir, pattern))
+  const excludes = options.exclude.map(pattern => new minimatch.Minimatch(pattern))
+  const toCopy = options.copy
+        .map(pattern => path.join(options.rootDir, pattern))
         .map(pattern => glob.sync(pattern))
         .flat()
         .filter(filename => !excludes.some(pattern => pattern.match(filename)))
   toCopy.forEach(source => {
-    const dest = makeOutputPath(config.outputDir, source)
+    const dest = makeOutputPath(options.outputDir, source)
     ensureOutputDir(dest)
     fs.copyFileSync(source, dest)
   })
 
   // Numbering.
-  const numbering = buildNumbering(config)
-  fs.writeFileSync(path.join(config.outputDir, 'numbering.js'),
+  const numbering = buildNumbering(options)
+  fs.writeFileSync(path.join(options.outputDir, 'numbering.js'),
                    JSON.stringify(numbering, null, 2),
                    'utf-8')
 }
 
 /**
  * Build numbering lookup table for chapters and appendices.
- * @param {Object} config Configuration.
+ * @param {Object} options Options.
  * @returns {Object} slug-to-number-or-letter lookup table.
  */
-const buildNumbering = (config) => {
+const buildNumbering = (options) => {
   const result = {}
-  const numbered = [...config.extras, ...config.chapters]
+  const numbered = [...options.extras, ...options.chapters]
   numbered.forEach((fileInfo, i) => {
     result[fileInfo.slug] = `${i+1}`
   })
   const start = 'A'.charCodeAt(0)
-  config.appendices.forEach((fileInfo, i) => {
+  options.appendices.forEach((fileInfo, i) => {
     result[fileInfo.slug] = String.fromCharCode(start + i)
   })
   return result
