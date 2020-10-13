@@ -171,6 +171,13 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     if (cls === 'html-only') {
       // skip
     }
+    else if (cls === 'latex-only') {
+      node.childNodes.forEach(child => {
+        assert(child.nodeName === '#text',
+               `latex-only divs may only contain text`)
+        accum.push(child.value)
+      })
+    }
     else if (cls === 'subpage') {
       accum.push(`\\begin{lstlisting}[caption=FIXME]\n`)
       accum.push('FIXME display sub-page')
