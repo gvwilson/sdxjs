@@ -24,19 +24,19 @@ const IGNORES = {
  * Main driver.
  */
 const main = () => {
-  const config = getConfiguration()
+  const options = getOptions()
   const result = {}
-  const ignores = config.ignore ? IGNORES : {}
-  config.input.forEach(filename => process(filename, result, ignores))
+  const ignores = options.ignore ? IGNORES : {}
+  options.input.forEach(filename => process(filename, result, ignores))
   setsToArrays(result)
   fs.writeFileSync(1, yaml.safeDump(result, {sortKeys: true}), 'utf-8')
 }
 
 /**
  * Parse command-line arguments.
- * @returns {Object} config Program configuration.
+ * @returns {Object} options Program options.
  */
-const getConfiguration = () => {
+const getOptions = () => {
   const parser = new argparse.ArgumentParser()
   parser.add_argument('--ignore', {action: 'store_true'})
   parser.add_argument('--input', {nargs: '+'})

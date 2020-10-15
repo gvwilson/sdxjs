@@ -8,6 +8,7 @@ MARKDOWN=\
   CONTRIBUTING.md \
   LICENSE.md \
   authors.md \
+  bib.md \
   gloss.md \
   links.md \
   $(patsubst %,%/index.md,${SLUGS})
@@ -19,6 +20,7 @@ HTML=\
   docs/contributing/index.html \
   docs/license/index.html \
   docs/authors/index.html \
+  docs/bib/index.html \
   docs/gloss/index.html \
   docs/links/index.html \
   $(patsubst %,docs/%/index.html,${SLUGS})
@@ -44,6 +46,7 @@ serve: docs/index.html
 ## check: check that everything is tidy
 check: docs/index.html
 	@bin/check.js \
+	--config config.yml \
 	--html ${HTML} \
 	--markdown ${MARKDOWN}
 
@@ -72,9 +75,9 @@ gloss.md: gloss.yml bin/gloss.js $(filter-out gloss.md,${MARKDOWN})
 	--sources index.md $(patsubst %,%/index.md,${SLUGS})
 
 ## html: rebuild html
-html: docs/index.html docs/numbering.js
+html: docs/index.html docs/numbering.js docs/static/site.css
 
-docs/index.html docs/numbering.js: bin/html.js config.yml links.yml ${MARKDOWN}
+docs/index.html docs/numbering.js docs/static/site.css: bin/html.js config.yml links.yml ${MARKDOWN} static/site.css
 	bin/html.js \
 	--rootDir . \
 	--outputDir docs \

@@ -42,6 +42,13 @@ for a description of our development process and formatting rules.
 <div class="html-only">
 <h2>Content</h2>
 
+Programmers have invented [a lot of different tools][programming-tools]
+to make their lives easier.
+We don't have space to cover all of them,
+and others, such as interactive debuggers and code-formatting tools,
+are beyond the scope of this book,
+but we hope these will illustrate key ideas in software design.
+
 <%- include('/inc/contents.html') %>
 </div>
 

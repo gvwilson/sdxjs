@@ -26,6 +26,8 @@
 <dd class="glossary">A variable that is automatically given a value in a <g key="build_rule">build rule</g>.  For example, Make automatically assigns the name of a rule's <g key="build_target">target</g> to the automatic variable <code>$@</code>.  Automatic variables are frequently used when writing <g key="pattern_rule">pattern rules</g>.</dd>
 <dt id="backward_compatible" class="glossary">backward-compatible</dt>
 <dd class="glossary">Software which is able to be used the same way as earlier versions of itself without problems.</dd>
+<dt id="base_class" class="glossary">base class</dt>
+<dd class="glossary">FIXME</dd>
 <dt id="binary" class="glossary">binary</dt>
 <dd class="glossary">A system which can have one of two possible states. In computing often represented as being in the state 0 or 1.  Represented in <g key="boolean">Boolean</g> logic as <g key="false">false</g> (0) or <g key="true">true</g> (1). Computers are built upon systems which store 0s and 1s as <g key="bit">bits</g>.</dd>
 <dt id="bit" class="glossary">bit</dt>
@@ -58,6 +60,8 @@
 <dd class="glossary">A function A that is passed to another function B so that B can call it at some later point. Callbacks can be used <g key="synchronous">synchronously</g>, as in generic functions like <code>map</code> that invoke a callback function once for each element in a collection, or <g key="asynchronous">ascynrhonously</g>, as in a <g key="client">client</g> that runs a callback when a <g key="http_response">response</g> is received in answer to a <g key="http_request">request</g>.</dd>
 <dt id="catch_exception" class="glossary">catch (an exception)</dt>
 <dd class="glossary">To accept responsibility for handling an error or other unexpected event. R prefers &quot;handling a condition&quot; to &quot;catching an exception&quot;.</dd>
+<dt id="chain_of_responsibility_pattern" class="glossary">Chain of Responsibility pattern</dt>
+<dd class="glossary">FIXME</dd>
 <dt id="character_encoding" class="glossary">character encoding</dt>
 <dd class="glossary">A specification of how characters are stored as bytes. The most commonly-used encoding today is <g key="utf_8">UTF-8</g>.</dd>
 <dt id="child_tree" class="glossary">child (in a tree)</dt>
@@ -102,6 +106,10 @@
 <dd class="glossary">A <g key="directed_graph">directed graph</g> showing how things depend on one another, such as the files to be updated by a <g key="build_manager">build manager</g>. If the dependency graph is not <g key="dag">acyclic</g>, the dependencies cannot be resolved.</dd>
 <dt id="depth_first" class="glossary">depth first</dt>
 <dd class="glossary">To go through a nested data structure such as a <g key="tree">tree</g> by going as far as possible down one path, then as far as possible down the next and so on, or to explore a problem by following one solution to its conclusion and then trying the next.</dd>
+<dt id="depth_first_search" class="glossary">depth-first search</dt>
+<dd class="glossary">FIXME</dd>
+<dt id="derived_class" class="glossary">derived class</dt>
+<dd class="glossary">FIXME</dd>
 <dt id="design_pattern" class="glossary">design pattern</dt>
 <dd class="glossary">A recurring pattern in software design that is specific enough to be worth naming, but not so specific that a single best implementation can be provided by a <g key="library">library</g>. For example, <g key="data_frame">data frames</g> and database <g key="table">tables</g> are instances of the same pattern.</dd>
 <dt id="destructuring_assignment" class="glossary">destructuring assignment</dt>
@@ -166,6 +174,8 @@
 <dd class="glossary"><ol>
 <li>A plot or a chart that displays data, or 2. a data structure in which <g key="node">nodes</g> are connected to one another by <g key="edge">edges</g>.</li>
 </ol></dd>
+<dt id="greedy" class="glossary">greedy</dt>
+<dd class="glossary">FIXME</dd>
 <dt id="hash_function" class="glossary">hash function</dt>
 <dd class="glossary">A function that turns arbitrary data into a bit array of a fixed size. Hash functions are used to determine where data should be stored in a <g key="hash_table">hash table</g>.</dd>
 <dt id="hash_table" class="glossary">hash table</dt>
@@ -190,6 +200,8 @@
 <dd class="glossary">A high-level language that is not executed directly by the computer, but instead is run by an <g key="interpreter">interpreter</g> that translates program instructions into machine commands on the fly.</dd>
 <dt id="interpreter" class="glossary">interpreter</dt>
 <dd class="glossary">A program whose job it is to run programs written in a high-level <g key="interpreted_language">interpreted language</g>.</dd>
+<dt id="iso_date_format" class="glossary">ISO date format</dt>
+<dd class="glossary">An international for formatting dates. While the full standard is complex, the most common form is <code>YYYY-MM-DD</code>, i.e., a four-digit year, a two-digit month, and a two-digit day separated by hyphens.</dd>
 <dt id="issue" class="glossary">issue</dt>
 <dd class="glossary">A <g key="bug_report">bug report</g>, feature request, or other to-do item associated with a project. Also called a <g key="ticket">ticket</g>.</dd>
 <dt id="iterator_pattern" class="glossary">Iterator pattern</dt>
@@ -262,6 +274,8 @@
 <dd class="glossary">A generic <g key="build_rule">build rule</g> that describes how to update any file whose name matches a pattern. Pattern rules often use <g key="automatic_variable">automatic variables</g> to represent the actual filenames.</dd>
 <dt id="pipe_shell" class="glossary">pipe (in the Unix shell)</dt>
 <dd class="glossary">The <code>|</code> used to make the output of one command the input of the next.</dd>
+<dt id="precedence" class="glossary">precedence</dt>
+<dd class="glossary">The priority of an operation. For example, multiplication has a higher precedence than addition, so <code>a+b*c</code> is read as &quot;the sum of <code>a</code> with the product of <code>b</code> and <code>c</code>&quot;.</dd>
 <dt id="prerequisite" class="glossary">prerequisite</dt>
 <dd class="glossary">Something that a <g key="build_target">build target</g> depends on.</dd>
 <dt id="process" class="glossary">process</dt>
@@ -274,6 +288,8 @@
 <dd class="glossary">Any standard specifying how two pieces of software interact. A network protocol such as <g key="http">HTTP</g> defines the messages that <g key="client">clients</g> and <g key="server">servers</g> exchange on the World-Wide Web; <g key="oop">object-oriented</g> programs often define protocols for interactions between <g key="object">objects</g> of different <g key="class">classes</g>.</dd>
 <dt id="python" class="glossary">Python</dt>
 <dd class="glossary">A popular interpreted open-source programming language that relies on indentation to define control structure.</dd>
+<dt id="query_selector" class="glossary">query selector</dt>
+<dd class="glossary">FIXME</dd>
 <dt id="query_string" class="glossary">query string</dt>
 <dd class="glossary">The portion of a <g key="url">URL</g> after the quesiton mark <code>?</code> that specifies extra parameters for the <g key="http_request">HTTP request</g> as name-value pairs.</dd>
 <dt id="raise_exception" class="glossary">raise (an exception)</dt>
@@ -335,7 +351,9 @@
 <dt id="tidyverse" class="glossary">Tidyverse</dt>
 <dd class="glossary">A collection of R packages for operating on tabular data in consistent ways.</dd>
 <dt id="timestamp" class="glossary">timestamp</dt>
-<dd class="glossary">A digital record of the instant at which something occurred. Timestamps are usually recorded in <g key="utc">UTC</g>.</dd>
+<dd class="glossary">A digital identifier showing the time at which something was created or accessed. Timestamps should use <g key="iso_date_format">ISO date format</g> for portability.</dd>
+<dt id="token" class="glossary">token</dt>
+<dd class="glossary">An indivisible unit of text for a parser, such as a variable name or a number. Exactly what constitutes a token depends on the language.</dd>
 <dt id="topological_order" class="glossary">topological order</dt>
 <dd class="glossary">Any ordering of the <g key="node">nodes</g> in a <g key="graph">graph</g> that respects the direction of its <g key="edge">edges</g>, i.e., if there is an edge from node A to node B, A comes before B in the ordering. There may be many topological orderings of a particular graph.</dd>
 <dt id="transitive_closure" class="glossary">transitive closure</dt>

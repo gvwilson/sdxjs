@@ -66,6 +66,14 @@ Affilia, 1(2), 1986, <a href="https://doi.org/10.1177/088610998600100206">10.117
 <em>Describes a lightweight set of rules for consensus-based decision making.</em>
 </dd>
 
+<dt id="Oram2007" class="bibliography">Oram2007</dt>
+<dd>
+Andy Oram and Greg Wilson (eds.):
+Beautiful Code: Leading Programmers Explain How They Think.
+O'Reilly, 2007, 978-0596510046.
+<em>Chapter-length descriptions and analyses of programmers' favorite pieces of software.</em>
+</dd>
+
 <dt id="Osmani2017" class="bibliography">Osmani2017</dt>
 <dd>
 Addy Osmani:
