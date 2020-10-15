@@ -63,7 +63,635 @@
   <main>
   <h1>Parsing Expressions</h1>
   <p class="lede">Turning text into code</p>
-<p>FIXME</p>
+<ul>
+<li>Please don't write parsers
+<ul>
+<li>Languages that are comfortable for people to read are often very difficult for computers</li>
+<li>And the world really (really) doesn't need more data formats</li>
+</ul>
+</li>
+<li>But someone has to
+<ul>
+<li>And understanding how they work can help make error messages comprehensible</li>
+</ul>
+</li>
+<li>So let's parse some simple regular expressions</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Character</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>c</em></td>
+<td>Any literal character <em>c</em></td>
+</tr>
+<tr>
+<td>^</td>
+<td>Beginning of input</td>
+</tr>
+<tr>
+<td>$</td>
+<td>End of input</td>
+</tr>
+<tr>
+<td>*</td>
+<td>Zero or more of the previous thing</td>
+</tr>
+<tr>
+<td>|</td>
+<td>Either/or</td>
+</tr>
+<tr>
+<td>(...)</td>
+<td>Grouping</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>So we should be able to parse <code>^(a|b|$)*z$</code> as
+&quot;start of text&quot;,
+&quot;any number of 'a', 'b', or '$'&quot;,
+&quot;a single 'z',
+and &quot;end of text&quot;.</li>
+<li>We will return a tree of objects rather than instances of the <code>RegexBase</code> classes
+from <xref key="pattern-matching"></xref> to keep things simple</li>
+</ul>
+<h2 id="how-can-we-break-text-into-tokens">How can we break text into tokens?</h2>
+<ul>
+<li>A <g key="token">token</g> is an atom of text, such as a number or a variable name</li>
+<li>In this case, our tokens are the characters <code>*</code>, <code>|</code>, <code>(</code>, <code>)</code>, <code>^</code>, and <code>$</code>,
+and any sequence of one or more other characters</li>
+<li>Look at each character
+<ul>
+<li>If it is a special character, create a token</li>
+<li>If it is a literal:
+<ul>
+<li>Combine it with the current literal if there is one</li>
+<li>Or start a new literal</li>
+</ul>
+</li>
+<li>Note that <code>^</code> and <code>$</code> are either special or regular depending on position</li>
+</ul>
+</li>
+</ul>
+<pre title="tokenizer-collapse.js"><code class="language-js">const SIMPLE = {
+  '*': 'Any',
+  '|': 'Alt',
+  '(': 'GroupStart',
+  ')': 'GroupEnd'
+}
+
+const tokenize = (text) =&gt; {
+  const result = []
+  for (let i = 0; i &lt; text.length; i += 1) {
+    const c = text[i]
+    if (c in SIMPLE) {
+      result.push({kind: SIMPLE[c], loc: i})
+    }
+    else if (c === '^') {
+      if (i === 0) {
+        result.push({kind: 'Start', loc: i})
+      }
+      else {
+        combineOrPush(result, c, i)
+      }
+    }
+    else if (c === '$') {
+      if (i === (text.length - 1)) {
+        result.push({kind: 'End', loc: i})
+      }
+      else {
+        combineOrPush(result, c, i)
+      }
+    }
+    else {
+      combineOrPush(result, c, i)
+    }
+  }
+
+  return result
+}
+
+const combineOrPush = (soFar, character, location) =&gt; {
+  const topIndex = soFar.length - 1
+  if ((soFar.length === 0) || (soFar[topIndex].token !== 'Lit')) {
+    soFar.push({kind: 'Lit', value: character, loc: location})
+  }
+  else {
+    soFar[topIndex].value += character
+  }
+}
+
+module.exports = tokenize
+</code></pre>
+<ul>
+<li>This is readable, efficient, and wrong
+<ul>
+<li>The expression <code>ab*</code> means &quot;a single <code>a</code> followed by zero or more <code>b</code>&quot;</li>
+<li>But if we combine the <code>a</code> and <code>b</code> as we read them,
+we wind up with &quot;zero or more repetitions of <code>ab</code>&quot;</li>
+<li>We didn't figure this out until we were implementing the next step</li>
+</ul>
+</li>
+<li>Solution is to treat each regular character as its own literal in this stage
+and combine things later
+<ul>
+<li>And we can get rid of the nested <code>if</code> for handling <code>^</code> and <code>$</code> as well</li>
+</ul>
+</li>
+</ul>
+<pre title="tokenizer.js"><code class="language-js">const SIMPLE = {
+  '*': 'Any',
+  '|': 'Alt',
+  '(': 'GroupStart',
+  ')': 'GroupEnd'
+}
+
+const tokenize = (text) =&gt; {
+  const result = []
+  for (let i = 0; i &lt; text.length; i += 1) {
+    const c = text[i]
+    if (c in SIMPLE) {
+      result.push({kind: SIMPLE[c], loc: i})
+    }
+    else if ((c === '^') &amp;&amp; (i === 0)){
+      result.push({kind: 'Start', loc: i})
+    }
+    else if ((c === '$') &amp;&amp; (i === (text.length - 1))) {
+      result.push({kind: 'End', loc: i})
+    }
+    else {
+      result.push({kind: 'Lit', loc: i, value: c})
+    }
+  }
+
+  return result
+}
+
+module.exports = tokenize
+</code></pre>
+<ul>
+<li>It's not done until it's tested</li>
+</ul>
+<pre title="test/test-tokenizer.js"><code class="language-js">const assert = require('assert')
+
+const tokenize = require('../tokenizer')
+
+describe('tokenizes correctly', async () =&gt; {
+  it('tokenizes a single character', () =&gt; {
+    assert.deepEqual(tokenize('a'), [{kind: 'Lit', value: 'a', loc: 0}])
+  })
+
+  it('tokenizes a sequence of characters', () =&gt; {
+    assert.deepEqual(tokenize('ab'), [{kind: 'Lit', value: 'a', loc: 0},
+                                      {kind: 'Lit', value: 'b', loc: 1}])
+  })
+
+  it('tokenizes start anchor alone', () =&gt; {
+    assert.deepEqual(tokenize('^'), [{kind: 'Start', loc: 0}])
+  })
+
+  it('tokenizes start anchor followed by characters', () =&gt; {
+    assert.deepEqual(tokenize('^a'), [{kind: 'Start', loc: 0},
+                                      {kind: 'Lit', value: 'a', loc: 1}])
+  })
+
+  it('tokenizes circumflex not at start', () =&gt; {
+    assert.deepEqual(tokenize('a^b'), [{kind: 'Lit', value: 'a', loc: 0},
+                                       {kind: 'Lit', value: '^', loc: 1},
+                                       {kind: 'Lit', value: 'b', loc: 2}])
+  })
+
+  it('tokenizes start anchor alone', () =&gt; {
+    assert.deepEqual(tokenize('$'), [{kind: 'End', loc: 0}])
+  })
+
+  it('tokenizes end anchor preceded by characters', () =&gt; {
+    assert.deepEqual(tokenize('a$'), [{kind: 'Lit', value: 'a', loc: 0},
+                                      {kind: 'End', loc: 1}])
+  })
+
+  it('tokenizes dollar sign not at end', () =&gt; {
+    assert.deepEqual(tokenize('a$b'), [{kind: 'Lit', value: 'a', loc: 0},
+                                       {kind: 'Lit', value: '$', loc: 1},
+                                       {kind: 'Lit', value: 'b', loc: 2}])
+  })
+
+  it('tokenizes repetition alone', () =&gt; {
+    assert.deepEqual(tokenize('*'), [{kind: 'Any', loc: 0}])
+  })
+
+  it('tokenizes repetition in string', () =&gt; {
+    assert.deepEqual(tokenize('a*b'), [{kind: 'Lit', value: 'a', loc: 0},
+                                       {kind: 'Any', loc: 1},
+                                       {kind: 'Lit', value: 'b', loc: 2}])
+  })
+
+  it('tokenizes repetition at end of string', () =&gt; {
+    assert.deepEqual(tokenize('a*'), [{kind: 'Lit', value: 'a', loc: 0},
+                                      {kind: 'Any', loc: 1}])
+  })
+
+  it('tokenizes alternation alone', () =&gt; {
+    assert.deepEqual(tokenize('|'), [{kind: 'Alt', loc: 0}])
+  })
+
+  it('tokenizes alternation in string', () =&gt; {
+    assert.deepEqual(tokenize('a|b'), [{kind: 'Lit', value: 'a', loc: 0},
+                                       {kind: 'Alt', loc: 1},
+                                       {kind: 'Lit', value: 'b', loc: 2}])
+  })
+
+  it('tokenizes alternation at start of string', () =&gt; {
+    assert.deepEqual(tokenize('|a'), [{kind: 'Alt', loc: 0},
+                                      {kind: 'Lit', value: 'a', loc: 1}])
+  })
+
+  it('tokenizes the start of a group alone', () =&gt; {
+    assert.deepEqual(tokenize('('), [{kind: 'GroupStart', loc: 0}])
+  })
+
+  it('tokenizes the start of a group in a string', () =&gt; {
+    assert.deepEqual(tokenize('a(b'), [{kind: 'Lit', value: 'a', loc: 0},
+                                       {kind: 'GroupStart', loc: 1},
+                                       {kind: 'Lit', value: 'b', loc: 2}])
+  })
+
+  it('tokenizes the end of a group alone', () =&gt; {
+    assert.deepEqual(tokenize(')'), [{kind: 'GroupEnd', loc: 0}])
+  })
+
+  it('tokenizes the end of a group at the end of a string', () =&gt; {
+    assert.deepEqual(tokenize('a)'), [{kind: 'Lit', value: 'a', loc: 0},
+                                      {kind: 'GroupEnd', loc: 1}])
+  })
+
+  it ('tokenizes a complex expression', () =&gt; {
+    assert.deepEqual(tokenize('^a*(bcd|e^)*f$gh$'), [
+      {kind: 'Start', loc: 0},
+      {kind: 'Lit', loc: 1, value: 'a'},
+      {kind: 'Any', loc: 2},
+      {kind: 'GroupStart', loc: 3},
+      {kind: 'Lit', loc: 4, value: 'b'},
+      {kind: 'Lit', loc: 5, value: 'c'},
+      {kind: 'Lit', loc: 6, value: 'd'},
+      {kind: 'Alt', loc: 7},
+      {kind: 'Lit', loc: 8, value: 'e'},
+      {kind: 'Lit', loc: 9, value: '^'},
+      {kind: 'GroupEnd', loc: 10},
+      {kind: 'Any', loc: 11},
+      {kind: 'Lit', loc: 12, value: 'f'},
+      {kind: 'Lit', loc: 13, value: '$'},
+      {kind: 'Lit', loc: 14, value: 'g'},
+      {kind: 'Lit', loc: 15, value: 'h'},
+      {kind: 'End', loc: 16}
+    ])
+  })
+})
+</code></pre>
+<pre title="tokenizer-test.txt"><code class="language-txt">
+&gt; e@1.0.0 test /home/gvwilson/stjs
+&gt; mocha */test/test-*.js "-g" "tokenizes correctly"
+
+
+
+  tokenizes correctly
+    ✓ tokenizes a single character
+    ✓ tokenizes a sequence of characters
+    ✓ tokenizes start anchor alone
+    ✓ tokenizes start anchor followed by characters
+    ✓ tokenizes circumflex not at start
+    ✓ tokenizes start anchor alone
+    ✓ tokenizes end anchor preceded by characters
+    ✓ tokenizes dollar sign not at end
+    ✓ tokenizes repetition alone
+    ✓ tokenizes repetition in string
+    ✓ tokenizes repetition at end of string
+    ✓ tokenizes alternation alone
+    ✓ tokenizes alternation in string
+    ✓ tokenizes alternation at start of string
+    ✓ tokenizes the start of a group alone
+    ✓ tokenizes the start of a group in a string
+    ✓ tokenizes the end of a group alone
+    ✓ tokenizes the end of a group at the end of a string
+    ✓ tokenizes a complex expression
+
+
+  19 passing (7ms)
+
+</code></pre>
+<h2 id="how-can-we-turn-a-stream-of-tokens-into-a-tree">How can we turn a stream of tokens into a tree?</h2>
+<ul>
+<li>Trace a few cases</li>
+<li>Regular expression is <code>/a/</code>, so we create a <code>Lit</code> token for the letter <code>a</code>
+<ul>
+<li>By &quot;create&quot;, we mean &quot;append to the output list&quot;</li>
+</ul>
+</li>
+<li>Now the regular expression is <code>/a*/</code>
+<ul>
+<li>We create a <code>Lit</code> token for the <code>a</code></li>
+<li>When we see the <code>*</code>,
+we take that <code>Lit</code> token off the tail of the output
+and replace it with an <code>Any</code> token that has the <code>Lit</code> token as its child</li>
+</ul>
+</li>
+<li>Next regular expression is <code>/(ab)/</code>
+<ul>
+<li>We don't know how long the group is going to be when we see the <code>(</code></li>
+<li>So we put it onto the output as a marker</li>
+<li>Then add the <code>Lit</code> tokens for the <code>a</code> and <code>b</code></li>
+<li>When we see the <code>)</code>, we pull tokens off the end of the output until we get to the <code>(</code> marker</li>
+<li>Put everything we found into a <code>Group</code> token and append it to the output</li>
+<li>This automatically handles <code>/(a*)/</code></li>
+</ul>
+</li>
+<li>What about <code>/a|b/</code>?
+<ul>
+<li>Append a <code>Lit</code> token for <code>a</code></li>
+<li>Get the <code>|</code> and... hm.</li>
+<li>We don't have the next token yet</li>
+</ul>
+</li>
+<li>Option 1: every time we push a token, check to see if the thing on the top of the stack is waiting to combine
+<ul>
+<li>But what about <code>/a|b*/</code>, which is supposed to mean &quot;one <code>a</code> or any number of <code>b</code>&quot;?</li>
+</ul>
+</li>
+<li>Solve this by leaving some partially-completed tokens in the output and compressing them later
+<ul>
+<li>For <code>/a|b/</code>, append <code>Lit</code> for <code>a</code></li>
+<li>When we see <code>|</code>, take the <code>Lit</code> token,
+make it the left child of the <code>Alt</code>,
+and append that without filling in the right child</li>
+<li>After all tokens have been handled,
+look for partially-completed <code>Alt</code> tokens and make whatever comes after the right child</li>
+<li>Again, this will automatically work for things like <code>/(ab)|c*|(de)/</code></li>
+</ul>
+</li>
+</ul>
+<pre title="parser.js"><code class="language-js">const assert = require('assert')
+
+const tokenize = require('./tokenizer')
+
+const parse = (text) =&gt; {
+  const result = []
+  const allTokens = tokenize(text)
+  for (let i = 0; i &lt; allTokens.length; i += 1) {
+    const token = allTokens[i]
+    const last = i === allTokens.length - 1
+    handle(result, token, last)
+  }
+  return compress(result)
+}
+
+const handle = (result, token, last) =&gt; {
+  if (token.kind === 'Lit') {
+    result.push(token)
+  }
+  
+  else if (token.kind === 'Start') {
+    assert(result.length === 0,
+           `Should not have start token after other tokens`)
+    result.push(token)
+  }
+  
+  else if (token.kind === 'End') {
+    assert(last,
+           `Should not have end token before other tokens`)
+    result.push(token)
+  }
+  
+  else if (token.kind === 'GroupStart') {
+    result.push(token)
+  }
+  
+  else if (token.kind === 'GroupEnd') {
+    result.push(groupEnd(result, token))
+  }
+  
+  else if (token.kind === 'Any') {
+    assert(result.length &gt; 0,
+           `No operand for '*' (location ${token.loc})`)
+    token.child = result.pop()
+    result.push(token)
+  }
+  
+  else if (token.kind === 'Alt') {
+    assert(result.length &gt; 0,
+           `No operand for '*' (location ${token.loc})`)
+    token.left = result.pop()
+    token.right = null
+    result.push(token)
+  }
+  
+  else {
+    assert(false, 'UNIMPLEMENTED')
+  }
+}
+
+const groupEnd = (result, token) =&gt; {
+  const group = {
+    kind: 'Group',
+    loc: null,
+    end: token.loc,
+    children: []
+  }
+  while (true) {
+    assert(result.length &gt; 0,
+           `Unmatched end parenthesis (location ${token.loc})`)
+    const child = result.pop()
+    if (child.kind === 'GroupStart') {
+      group.loc = child.loc
+      break
+    }
+    group.children.unshift(child)
+  }
+  return group
+}
+
+const compress = (raw) =&gt; {
+  const cooked = []
+  while (raw.length &gt; 0) {
+    const token = raw.pop()
+    if (token.kind === 'Alt') {
+      assert(cooked.length &gt; 0,
+             `No right operand for alt (location ${token.loc})`)
+      token.right = cooked.shift()
+    }
+    cooked.unshift(token)
+  }
+  return cooked
+}
+
+module.exports = parse
+</code></pre>
+<ul>
+<li>And some tests</li>
+</ul>
+<pre title="test/test-parser.js"><code class="language-js">const assert = require('assert')
+
+const parse = require('../parser')
+
+describe('parses correctly', async () =&gt; {
+  it('parses the empty string', () =&gt; {
+    assert.deepEqual(parse(''), [])
+  })
+
+  it('parses a single literal', () =&gt; {
+    assert.deepEqual(parse('a'), [
+      {kind: 'Lit', loc: 0, value: 'a'}
+    ])
+  })
+
+  it('parses multiple literals', () =&gt; {
+    assert.deepEqual(parse('ab'), [
+      {kind: 'Lit', loc: 0, value: 'a'},
+      {kind: 'Lit', loc: 1, value: 'b'}
+    ])
+  })
+
+  it('parses start anchors', () =&gt; {
+    assert.deepEqual(parse('^a'), [
+      {kind: 'Start', loc: 0},
+      {kind: 'Lit', loc: 1, value: 'a'}
+    ])
+  })
+
+  it('handles circumflex not at start', () =&gt; {
+    assert.deepEqual(parse('a^'), [
+      {kind: 'Lit', loc: 0, value: 'a'},
+      {kind: 'Lit', loc: 1, value: '^'}
+    ])
+  })
+
+  it('parses end anchors', () =&gt; {
+    assert.deepEqual(parse('a$'), [
+      {kind: 'Lit', loc: 0, value: 'a'},
+      {kind: 'End', loc: 1}
+    ])
+  })
+
+  it('parses circumflex not at start', () =&gt; {
+    assert.deepEqual(parse('$a'), [
+      {kind: 'Lit', loc: 0, value: '$'},
+      {kind: 'Lit', loc: 1, value: 'a'}
+    ])
+  })
+
+  it('parses empty groups', () =&gt; {
+    assert.deepEqual(parse('()'), [
+      {kind: 'Group', loc: 0, end: 1, children: []}
+    ])
+  })
+
+  it('parses groups containing characters', () =&gt; {
+    assert.deepEqual(parse('(a)'), [
+      {kind: 'Group', loc: 0, end: 2, children: [
+        {kind: 'Lit', loc: 1, value: 'a'}
+      ]}
+    ])
+  })
+
+  it('parses two groups containing characters', () =&gt; {
+    assert.deepEqual(parse('(a)(b)'), [
+      {kind: 'Group', loc: 0, end: 2, children: [
+        {kind: 'Lit', loc: 1, value: 'a'}
+      ]},
+      {kind: 'Group', loc: 3, end: 5, children: [
+        {kind: 'Lit', loc: 4, value: 'b'}
+      ]}
+    ])
+  })
+
+  it('parses any', () =&gt; {
+    assert.deepEqual(parse('a*'), [
+      {kind: 'Any', loc: 1, child:
+       {kind: 'Lit', loc: 0, value: 'a'}
+      }
+    ])
+  })
+
+  it('parses any of group', () =&gt; {
+    assert.deepEqual(parse('(ab)*'), [
+      {kind: 'Any', loc: 4, child:
+       {kind: 'Group', loc: 0, end: 3, children: [
+         {kind: 'Lit', loc: 1, value: 'a'},
+         {kind: 'Lit', loc: 2, value: 'b'}
+       ]}
+      }
+    ])
+  })
+
+  it('parses alt', () =&gt; {
+    assert.deepEqual(parse('a|b'), [
+      {kind: 'Alt', loc: 1,
+       left: {kind: 'Lit', loc: 0, value: 'a'},
+       right: {kind: 'Lit', loc: 2, value: 'b'}
+      }
+    ])
+  })
+
+  it('parses alt of any', () =&gt; {
+    assert.deepEqual(parse('a*|b'), [
+      {kind: 'Alt', loc: 2,
+       left: {kind: 'Any', loc: 1, child:
+              {kind: 'Lit', loc: 0, value: 'a'}},
+       right: {kind: 'Lit', loc: 3, value: 'b'}
+      }
+    ])
+  })
+
+  it('parses alt of groups', () =&gt; {
+    assert.deepEqual(parse('a|(bc)'), [
+      {kind: 'Alt', loc: 1,
+       left: {kind: 'Lit', loc: 0, value: 'a'},
+       right: {kind: 'Group', loc: 2, end: 5, children: [
+         {kind: 'Lit', loc: 3, value: 'b'},
+         {kind: 'Lit', loc: 4, value: 'c'}
+       ]}
+      }
+    ])
+  })
+})
+</code></pre>
+<pre title="parser-test.txt"><code class="language-txt">
+&gt; e@1.0.0 test /home/gvwilson/stjs
+&gt; mocha */test/test-*.js "-g" "parses correctly"
+
+
+
+  parses correctly
+    ✓ parses the empty string
+    ✓ parses a single literal
+    ✓ parses multiple literals
+    ✓ parses start anchors
+    ✓ handles circumflex not at start
+    ✓ parses end anchors
+    ✓ parses circumflex not at start
+    ✓ parses empty groups
+    ✓ parses groups containing characters
+    ✓ parses two groups containing characters
+    ✓ parses any
+    ✓ parses any of group
+    ✓ parses alt
+    ✓ parses alt of any
+    ✓ parses alt of groups
+
+
+  15 passing (6ms)
+
+</code></pre>
+<ul>
+<li>If we have more operators with different <g key="precedence">precedences</g>
+we should switch to the <a href="https://en.wikipedia.org/wiki/Shunting-yard_algorithm">shunting-yard algorithm</a></li>
+<li>But as we implied at the start,
+if our design requires us to write a parser we should try to come up with a better design</li>
+</ul>
 </main>
 <footer>
 <div class="row">
