@@ -164,8 +164,8 @@ const checkTabs = (files) => {
   files.forEach(({filename, text}) => {
     for (const c of text) {
       if (c === '\t') {
-	console.log(`${filename} contains tabs`)
-	return
+        console.log(`${filename} contains tabs`)
+        return
       }
     }
   })
