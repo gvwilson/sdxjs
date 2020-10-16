@@ -1,1 +1,0 @@
-node full/main.js

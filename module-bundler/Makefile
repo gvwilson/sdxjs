@@ -3,8 +3,9 @@ TARGETS=\
   capture-exports-pollute.txt \
   concatenate-by-hand.txt \
   concatenate-programmatically-output-test.txt \
-  full-directly.txt \
   extract-require.txt \
+  full/expected.txt \
+  simple/expected.txt \
   transitive-closure.txt \
   transitive-closure-only.txt
 

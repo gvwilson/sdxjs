@@ -335,6 +335,124 @@ main()
 caller after . {}
 childModule after { exports: [Function: other] }
 </code></pre>
+<h2 id="what-should-our-test-case-include">What should our test case include?</h2>
+<ul>
+<li>Use <g key="tdd">test-driven development</g> (TDD)
+<ul>
+<li>Create the test cases <em>before</em> writing the code to define what the code is supposed to do</li>
+<li>Studies don't support the claim that it makes programmers more productive,
+but it doesn't seem to do any harm either</li>
+</ul>
+</li>
+<li>Simple case: <code>main.js</code> requires <code>other.js</code> from same directory</li>
+</ul>
+<pre title="simple/main.js"><code class="language-js">const other = require('./other')
+
+const main = () =&gt; {
+  console.log(`main called other ${other()}`)
+}
+
+main()
+</code></pre>
+<pre title="simple/other.js"><code class="language-js">const other = () =&gt; {
+  return 'message from other'
+}
+
+module.exports = other
+</code></pre>
+<ul>
+<li>Expected behavior</li>
+</ul>
+<pre title="simple/expected.sh"><code class="language-sh">cd $(dirname $0) &amp;&amp; node main.js
+</code></pre>
+<pre title="simple/expected.txt"><code class="language-txt">main called other message from other
+</code></pre>
+<ul>
+<li>More complicated case
+<ul>
+<li>Name the files geometrically to help keep them straight</li>
+</ul>
+</li>
+<li><code>main.js</code> is the <g key="entry_point">entry point</g>
+<ul>
+<li><code>./top-left.js</code> doesn't require anything else</li>
+<li><code>./top-right.js</code> requires <code>./top-left.js</code> and <code>./subdir/bottom-right.js</code></li>
+<li><code>./bottom-left.js</code> requires <code>../top-left.js</code> and <code>./bottom-right.js</code></li>
+<li><code>./bottom-right.js</code> doesn't require anything else</li>
+</ul>
+</li>
+</ul>
+<pre title="full/main.js"><code class="language-js">// main.js
+
+const topLeft = require('./top-left')                // none
+const topRight = require('./top-right')              // needs top-left + bottom-right
+const bottomLeft = require('./subdir/bottom-left')   // needs top-left + bottom-right
+const bottomRight = require('./subdir/bottom-right') // none
+
+const main = () =&gt; {
+  const functions = [topLeft, topRight, bottomLeft, bottomRight]
+  functions.forEach(func =&gt; {
+    console.log(`${func('main')}`)
+  })
+}
+
+main()
+</code></pre>
+<pre title="full/top-left.js"><code class="language-js">// top-left.js
+
+const topLeft = (caller) =&gt; {
+  return `topLeft from ${caller}`
+}
+
+module.exports = topLeft
+</code></pre>
+<pre title="full/top-right.js"><code class="language-js">// top-right.js
+
+const topLeft = require('./top-left')
+const bottomRight = require('./subdir/bottom-right')
+
+const topRight = (caller) =&gt; {
+  const first = topLeft('topRight')
+  const second = bottomRight('topRight')
+  return `topRight from ${caller} with ${first} and ${second}`
+}
+
+module.exports = topRight
+</code></pre>
+<pre title="full/subdir/bottom-left.js"><code class="language-js">// subdir/bottom-left.js
+
+const topLeft = require('../top-left')
+const bottomRight = require('./bottom-right')
+
+const bottomLeft = (caller) =&gt; {
+  const first = topLeft('bottomLeft')
+  const second = bottomRight('bottomLeft')
+  return `bottomLeft from ${caller} with ${first} and ${second}`
+}
+
+module.exports = bottomLeft
+</code></pre>
+<pre title="full/subdir/bottom-right.js"><code class="language-js">// subdir/bottom-right.js
+
+const bottomRight = (caller) =&gt; {
+  return `bottomRight from ${caller}`
+}
+
+module.exports = bottomRight
+</code></pre>
+<ul>
+<li>Run <code>main.js</code> directly</li>
+<li>When we're done, we should have a single <code>.js</code> file that produces exactly the same output</li>
+</ul>
+<pre title="full/expected.sh"><code class="language-sh">cd $(dirname $0) &amp;&amp; node main.js
+</code></pre>
+<pre title="full/expected.txt"><code class="language-txt">topLeft from main
+topRight from main with topLeft from topRight and bottomRight from topRight
+bottomLeft from main with topLeft from bottomLeft and bottomRight from bottomLeft
+bottomRight from main
+</code></pre>
+<h2 id="how-can-we-load-a-single-file">How can we load a single file?</h2>
+<p>FIXME</p>
 <h2 id="how-can-we-combine-multiple-files">How can we combine multiple files?</h2>
 <ul>
 <li>Concatenate the source of the files
@@ -445,99 +563,6 @@ eval(source)
 console.log(everything)
 </code></pre>
 <pre title="concatenate-programmatically-output-test.txt"><code class="language-txt">{ 'simple/other.js': { exports: [Function: other] } }
-</code></pre>
-<h2 id="what-should-our-test-case-include">What should our test case include?</h2>
-<ul>
-<li>Use <g key="tdd">test-driven development</g> (TDD)
-<ul>
-<li>Create the test cases <em>before</em> writing the code to define what the code is supposed to do</li>
-<li>Studies don't support the claim that it makes programmers more productive,
-but it doesn't seem to do any harm either</li>
-</ul>
-</li>
-<li>Four cases
-<ul>
-<li>File A requires File B</li>
-<li>Files A and B both require File C, and only one copy of File C is included in the bundle</li>
-<li>Files A and B require File C using different paths</li>
-<li>Files A and B require each other (a FIXME)</li>
-</ul>
-</li>
-<li>Create a file <code>main.js</code> as an <g key="entry_point">entry point</g>
-<ul>
-<li>Name the other files geometrically to help keep them straight</li>
-</ul>
-</li>
-</ul>
-<pre title="full/main.js"><code class="language-js">// main.js
-
-const topLeft = require('./top-left')
-const topRight = require('./top-right') // requires 'top-left'
-const bottomLeft = require('./subdir/bottom-left') // requires 'top-left' and 'bottom-right'
-const bottomRight = require('./subdir/bottom-right') // requires 'bottom-left'
-
-const main = () =&gt; {
-  const functions = [topLeft, topRight, bottomLeft, bottomRight]
-  functions.forEach(func =&gt; {
-    console.log(`${func('main')}`)
-  })
-}
-
-main()
-</code></pre>
-<pre title="full/top-left.js"><code class="language-js">// top-left.js
-
-const topLeft = (caller) =&gt; {
-  return `topLeft from ${caller}`
-}
-
-module.exports = topLeft
-</code></pre>
-<pre title="full/top-right.js"><code class="language-js">// top-right.js
-
-const topLeft = require('./top-left')
-
-const topRight = (caller) =&gt; {
-  const first = topLeft('topRight')
-  return `topRight from ${caller} with ${first}`
-}
-
-module.exports = topRight
-</code></pre>
-<pre title="full/subdir/bottom-left.js"><code class="language-js">// subdir/bottom-left.js
-
-const topLeft = require('../top-left')
-const bottomRight = require('./bottom-right')
-
-const bottomLeft = (caller) =&gt; {
-  const first = topLeft('bottomLeft')
-  const second = bottomRight('bottomLeft')
-  return `bottomLeft from ${caller} with ${first} and ${second}`
-}
-
-module.exports = bottomLeft
-</code></pre>
-<pre title="full/subdir/bottom-right.js"><code class="language-js">// subdir/bottom-right.js
-
-const bottomLeft = require('./bottom-left')
-
-const bottomRight = (caller) =&gt; {
-  return `bottomRight from ${caller}`
-}
-
-module.exports = bottomRight
-</code></pre>
-<p>FIXME: diagram</p>
-<ul>
-<li>Run <code>main.js</code> directly</li>
-<li>When we're done, we should have a single <code>.js</code> file that produces exactly the same output</li>
-</ul>
-<pre title="full-directly.sh"><code class="language-sh">node full/main.js
-</code></pre>
-<pre title="full-directly.txt"><code class="language-txt">topLeft from main
-topRight from main with topLeft from topRight
-bottomLeft from main with topLeft from bottomLeft and bottomRight from bottomLeft
-bottomRight from main
 </code></pre>
 <h2 id="how-can-we-find-all-the-dependencies">How can we find all the dependencies?</h2>
 <ul>

@@ -79,6 +79,44 @@
 
 <%- include('/inc/multi.html', {pat: 'capture-exports-encapsulate.*', fill: 'js sh txt'}) %>
 
+## What should our test case include?
+
+-   Use <g key="tdd">test-driven development</g> (TDD)
+    -   Create the test cases *before* writing the code to define what the code is supposed to do
+    -   Studies don't support the claim that it makes programmers more productive,
+        but it doesn't seem to do any harm either
+-   Simple case: `main.js` requires `other.js` from same directory
+
+<%- include('/inc/code.html', {file: 'simple/main.js'}) %>
+<%- include('/inc/code.html', {file: 'simple/other.js'}) %>
+
+-   Expected behavior
+
+<%- include('/inc/multi.html', {pat: 'simple/expected.*', fill: 'sh txt'}) %>
+
+-   More complicated case
+    -   Name the files geometrically to help keep them straight
+-   `main.js` is the <g key="entry_point">entry point</g>
+    -   `./top-left.js` doesn't require anything else
+    -   `./top-right.js` requires `./top-left.js` and `./subdir/bottom-right.js`
+    -   `./bottom-left.js` requires `../top-left.js` and `./bottom-right.js`
+    -   `./bottom-right.js` doesn't require anything else
+
+<%- include('/inc/code.html', {file: 'full/main.js'}) %>
+<%- include('/inc/code.html', {file: 'full/top-left.js'}) %>
+<%- include('/inc/code.html', {file: 'full/top-right.js'}) %>
+<%- include('/inc/code.html', {file: 'full/subdir/bottom-left.js'}) %>
+<%- include('/inc/code.html', {file: 'full/subdir/bottom-right.js'}) %>
+
+-   Run `main.js` directly
+-   When we're done, we should have a single `.js` file that produces exactly the same output
+
+<%- include('/inc/multi.html', {pat: 'full/expected.*', fill: 'sh txt'}) %>
+
+## How can we load a single file?
+
+FIXME
+
 ## How can we combine multiple files?
 
 -   Concatenate the source of the files
@@ -112,33 +150,6 @@
 -   Load and evaluate that file and check that `everything` is defined correctly
 
 <%- include('/inc/multi.html', {pat: 'concatenate-programmatically-output-test.*', fill: 'js txt'}) %>
-
-## What should our test case include?
-
--   Use <g key="tdd">test-driven development</g> (TDD)
-    -   Create the test cases *before* writing the code to define what the code is supposed to do
-    -   Studies don't support the claim that it makes programmers more productive,
-        but it doesn't seem to do any harm either
--   Four cases
-    -   File A requires File B
-    -   Files A and B both require File C, and only one copy of File C is included in the bundle
-    -   Files A and B require File C using different paths
-    -   Files A and B require each other (a FIXME)
--   Create a file `main.js` as an <g key="entry_point">entry point</g>
-    -   Name the other files geometrically to help keep them straight
-
-<%- include('/inc/code.html', {file: 'full/main.js'}) %>
-<%- include('/inc/code.html', {file: 'full/top-left.js'}) %>
-<%- include('/inc/code.html', {file: 'full/top-right.js'}) %>
-<%- include('/inc/code.html', {file: 'full/subdir/bottom-left.js'}) %>
-<%- include('/inc/code.html', {file: 'full/subdir/bottom-right.js'}) %>
-
-FIXME: diagram
-
--   Run `main.js` directly
--   When we're done, we should have a single `.js` file that produces exactly the same output
-
-<%- include('/inc/multi.html', {pat: 'full-directly.*', fill: 'sh txt'}) %>
 
 ## How can we find all the dependencies?
 
