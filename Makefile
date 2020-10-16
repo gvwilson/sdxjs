@@ -25,6 +25,11 @@ HTML=\
   docs/links/index.html \
   $(patsubst %,docs/%/index.html,${SLUGS})
 
+# Complete list of JavaScript source files.
+JAVASCRIPT=\
+  $(wildcard $(patsubst %,%/*.js,${SLUGS})) \
+  $(wildcard $(patsubst %,%/*/*.js,${SLUGS}))
+
 # Supporting LaTeX files for PDF version.
 TEX=\
   $(wildcard tex/*.tex) \
@@ -43,9 +48,11 @@ commands :
 serve: docs/index.html
 	@npm run serve
 
-## check: check that everything is tidy
+## check: check that everything passes style rules
 check: docs/index.html
-	@bin/check.js \
+	-@npm run ejslint
+	-@standard ${JAVASCRIPT}
+	-@bin/check.js \
 	--config config.yml \
 	--html ${HTML} \
 	--markdown ${MARKDOWN}
@@ -114,6 +121,7 @@ settings:
 	@echo SLUGS = "${SLUGS}"
 	@echo MARKDOWN = "${MARKDOWN}"
 	@echo HTML = "${HTML}"
+	@echo JAVASCRIPT = "${JAVASCRIPT}"
 
 docs/index.html: index.md
 docs/conduct/index.html: CONDUCT.md
