@@ -1,7 +1,6 @@
 const assert = require('assert')
 const fs = require('fs')
 const yaml = require('js-yaml')
-const graphlib = require('@dagrejs/graphlib')
 
 const SimpleBuilder = require('./simple-builder')
 
@@ -21,8 +20,8 @@ class AddTimestamps extends SimpleBuilder {
     const missing = this.graph.nodes().filter(
       n => !('timestamp' in this.graph.node(n))
     )
-    assert.equal(missing.length, 0,
-                 `Timestamp missing for node(s) ${missing}`)
+    assert.strictEqual(missing.length, 0,
+      `Timestamp missing for node(s) ${missing}`)
   }
 }
 

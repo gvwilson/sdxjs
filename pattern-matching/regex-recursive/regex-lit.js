@@ -21,4 +21,4 @@ class RegexLit extends RegexBase {
   }
 }
 
-module.exports = (chars, rest=null) => new RegexLit(chars, rest)
+module.exports = (chars, rest = null) => new RegexLit(chars, rest)

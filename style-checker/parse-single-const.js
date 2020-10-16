@@ -1,4 +1,4 @@
 const acorn = require('acorn')
 
-const ast = acorn.parse('const x = 0', {locations: true})
+const ast = acorn.parse('const x = 0', { locations: true })
 console.log(ast)

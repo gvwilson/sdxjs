@@ -1,14 +1,12 @@
-function* getNodes (here) {
+function * getNodes (here) {
   if (typeof here === 'string') {
     yield here
-  }
-  else if (Array.isArray(here)){
+  } else if (Array.isArray(here)) {
     for (const child of here) {
-      yield* getNodes(child)
+      yield * getNodes(child)
     }
-  }
-  else {
-    throw new Exception(`unknown type "${typeof here}"`)
+  } else {
+    throw new Error(`unknown type "${typeof here}"`)
   }
 }
 

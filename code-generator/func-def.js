@@ -5,4 +5,4 @@ const text = `const func = (param) => {
 }`
 
 const ast = acorn.parse(text)
-console.log(JSON.stringify(ast, null, space=2))
+console.log(JSON.stringify(ast, null, 2))

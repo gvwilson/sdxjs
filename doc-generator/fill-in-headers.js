@@ -1,4 +1,3 @@
-const assert = require('assert')
 const MarkdownIt = require('markdown-it')
 const MarkdownAnchor = require('markdown-it-anchor')
 
@@ -17,8 +16,8 @@ const main = () => {
     const text = fillIn(filename, comments, definitions)
     combined.push(text)
   }
-  const md = new MarkdownIt({html: true})
-        .use(MarkdownAnchor, {level: 1, slugify: slugify})
+  const md = new MarkdownIt({ html: true })
+    .use(MarkdownAnchor, { level: 1, slugify: slugify })
   const html = md.render(combined.join('\n\n'))
   console.log(html)
 }

@@ -30,6 +30,6 @@ const parseArgs = (args, defaults) => {
  * - `op` (`class`): what to do.
  *    Use @DefaultProcessor unless told to do otherwise.
  */
-const processData = (input, output, op=util.DefaultProcessor) => {
+const processData = (input, output, op = util.DefaultProcessor) => {
   // body would go here
 }

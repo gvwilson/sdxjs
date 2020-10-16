@@ -32,13 +32,12 @@ class Walker {
   // Recurse for anything interesting within the node.
   _doChildren (node, accumulator) {
     this.stack.push(node)
-    for (let key in node) {
+    for (const key in node) {
       if (Array.isArray(node[key])) {
         node[key].forEach(child => {
           this._walk(child, accumulator)
         })
-      }
-      else if (typeof node[key] === 'object') {
+      } else if (typeof node[key] === 'object') {
         this._walk(node[key], accumulator)
       }
     }
@@ -47,8 +46,8 @@ class Walker {
 
   // Is the current node a child of some other type of node?
   _childOf (nodeTypes) {
-    return this.stack
-      && nodeTypes.includes(this.stack.slice(-1)[0].type)
+    return this.stack &&
+      nodeTypes.includes(this.stack.slice(-1)[0].type)
   }
 }
 
@@ -56,7 +55,7 @@ class Walker {
 class VariableWalker extends Walker {
   Identifier (node, accumulator) {
     if (this._childOf(['ArrowFunctionExpression',
-                       'VariableDeclarator'])) {
+      'VariableDeclarator'])) {
       accumulator.push(node.name)
     }
   }
@@ -74,7 +73,7 @@ const result = double(value)
 console.log(result)
 `
 
-const ast = acorn.parse(program, {locations: true})
+const ast = acorn.parse(program, { locations: true })
 const walker = new VariableWalker(ast)
 const accumulator = []
 walker.walk(accumulator)

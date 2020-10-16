@@ -4,7 +4,7 @@ const acorn = require('acorn')
 const getComments = (filenames) => {
   return filenames.reduce((map, filename) => {
     const comments = extractComments(filename)
-          .map(comment => removePrefix(comment))
+      .map(comment => removePrefix(comment))
     map.set(filename, comments)
     return map
   }, new Map())
@@ -12,18 +12,18 @@ const getComments = (filenames) => {
 
 const extractComments = (filename) => {
   const text = fs.readFileSync(filename)
-  const options = {locations: true, onComment: []}
+  const options = { locations: true, onComment: [] }
   const ast = acorn.parse(text, options)
   const subset = options.onComment
-        .filter(entry => entry.type === 'Block')
-        .map(entry => {
-          return {
-            type: entry.type,
-            value: entry.value,
-            start: entry.loc.start.line,
-            end: entry.loc.end.line
-          }
-        })
+    .filter(entry => entry.type === 'Block')
+    .map(entry => {
+      return {
+        type: entry.type,
+        value: entry.value,
+        start: entry.loc.start.line,
+        end: entry.loc.end.line
+      }
+    })
   return subset
 }
 

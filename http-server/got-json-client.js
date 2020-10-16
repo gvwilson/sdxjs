@@ -1,8 +1,8 @@
 const got = require('got')
- 
+
 const getter = async (url, word) => {
-  const {body} = await got.post(url, {
-    json: {key: word},
+  const { body } = await got.post(url, {
+    json: { key: word },
     responseType: 'json'
   })
   console.log(body)

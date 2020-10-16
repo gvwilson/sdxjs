@@ -137,7 +137,7 @@ class SimpleBuilder {
 
   checkConfig () {
     assert(Array.isArray(this.config),
-           `Configuration must be array`)
+      'Configuration must be array')
     this.config.forEach(rule =&gt; {
       assert(('target' in rule) &amp;&amp; (typeof rule.target === 'string'),
              `Rule ${JSON.stringify(rule)} does not string as 'target'`)
@@ -164,12 +164,12 @@ class SimpleBuilder {
 
   checkCycles () {
     const cycles = graphlib.alg.findCycles(this.graph)
-    assert.equal(cycles.length, 0,
-                 `Dependency graph contains cycles ${cycles}`)
+    assert.strictEqual(cycles.length, 0,
+      `Dependency graph contains cycles ${cycles}`)
   }
 
   run () {
-    assert.fail(`run method not implemented`)
+    assert.fail('run method not implemented')
   }
 }
 
@@ -245,7 +245,6 @@ C: 8
 <pre title="add-timestamps.js"><code class="language-js">const assert = require('assert')
 const fs = require('fs')
 const yaml = require('js-yaml')
-const graphlib = require('@dagrejs/graphlib')
 
 const SimpleBuilder = require('./simple-builder')
 
@@ -265,8 +264,8 @@ class AddTimestamps extends SimpleBuilder {
     const missing = this.graph.nodes().filter(
       n =&gt; !('timestamp' in this.graph.node(n))
     )
-    assert.equal(missing.length, 0,
-                 `Timestamp missing for node(s) ${missing}`)
+    assert.strictEqual(missing.length, 0,
+      `Timestamp missing for node(s) ${missing}`)
   }
 }
 
@@ -312,7 +311,7 @@ class UpdateOnTimestamp extends AddTimestamps {
 
   isStale (node) {
     return this.graph.predecessors(node).some(
-      other =&gt; this.graph.node(other).timestamp &gt;= this.graph.node(node).timestamp 
+      other =&gt; this.graph.node(other).timestamp &gt;= this.graph.node(node).timestamp
     )
   }
 }
@@ -366,9 +365,7 @@ module.exports = UpdateOnTimestamp
 </ul>
 </li>
 </ul>
-<pre title="variable-expander.js"><code class="language-js">const graphlib = require('@dagrejs/graphlib')
-
-const UpdateOnTimestamp = require('./update-on-timestamp')
+<pre title="variable-expander.js"><code class="language-js">const UpdateOnTimestamp = require('./update-on-timestamp')
 
 class VariableExpander extends UpdateOnTimestamp {
   buildGraph () {
@@ -384,14 +381,13 @@ class VariableExpander extends UpdateOnTimestamp {
         this.graph.node(target).recipes = recipes.map(act =&gt; {
           act = act
             .replace('@TARGET', target)
-            .replace('@DEPENDENCIES', dependencies.join(' ' ))
+            .replace('@DEPENDENCIES', dependencies.join(' '))
           dependencies.forEach((dep, i) =&gt; {
             act = act.replace(`@DEP[${i}]`, dependencies[i])
           })
           return act
         })
-      }
-      catch (error) {
+      } catch (error) {
         console.error(`Cannot find ${target} in graph`)
         process.exit(1)
       }
@@ -437,9 +433,7 @@ module.exports = VariableExpander
 <ul>
 <li>First attempt at reading it doesn't work</li>
 </ul>
-<pre title="pattern-user-attempt.js"><code class="language-js">const graphlib = require('@dagrejs/graphlib')
-
-const VariableExpander = require('./variable-expander')
+<pre title="pattern-user-attempt.js"><code class="language-js">const VariableExpander = require('./variable-expander')
 
 class PatternUserAttempt extends VariableExpander {
   buildGraph () {
@@ -507,8 +501,7 @@ class PatternUserRead extends VariableExpander {
           depends: rule.depends
         }
         this.rules.set(rule.target, data)
-      }
-      else {
+      } else {
         const timestamp = ('timestamp' in rule)
           ? rule.timestamp
           : null
@@ -518,7 +511,7 @@ class PatternUserRead extends VariableExpander {
         })
         rule.depends.forEach(dep =&gt; {
           assert(!dep.includes('%'),
-                 `Cannot have '%' in a non-pattern rule`)
+            'Cannot have \'%\' in a non-pattern rule')
           this.graph.setEdge(dep, rule.target)
         })
       }
@@ -529,7 +522,7 @@ class PatternUserRead extends VariableExpander {
     return {
       graph: graphlib.json.write(this.graph),
       rules: Array.from(this.rules.keys()).map(key =&gt; {
-        return {k: key, v: this.rules.get(key)}
+        return { k: key, v: this.rules.get(key) }
       })
     }
   }
@@ -610,8 +603,7 @@ module.exports = PatternUserRead
 </li>
 <li>This tells us that we should refactor our base class(es) to create more <g key="affordance">affordances</g></li>
 </ul>
-<pre title="pattern-user-run.js"><code class="language-js">const assert = require('assert')
-const graphlib = require('@dagrejs/graphlib')
+<pre title="pattern-user-run.js"><code class="language-js">const graphlib = require('@dagrejs/graphlib')
 
 const PatternUserRead = require('./pattern-user-read')
 

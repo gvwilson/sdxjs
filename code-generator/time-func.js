@@ -17,7 +17,7 @@ const gatherNodes = (ast) => {
   const allNodes = []
   walk.simple(ast, {
     VariableDeclarator: (node, state) => {
-      if (node.init && (node.init.type == 'ArrowFunctionExpression')) {
+      if (node.init && (node.init.type === 'ArrowFunctionExpression')) {
         state.push(node)
       }
     }
@@ -51,7 +51,7 @@ const makeWrapperAst = (name) => {
 }
 
 const initializeCounters = (nodes) => {
-  body = nodes.map(n => `'${n.id.name}': 0`).join(',\n')
+  const body = nodes.map(n => `'${n.id.name}': 0`).join(',\n')
   return 'const __counters = {\n' + body + '\n}'
 }
 

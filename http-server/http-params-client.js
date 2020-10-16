@@ -1,8 +1,8 @@
 const net = require('net')
 
 const query = (process.argv.length > 2)
-      ? '?' + process.argv.slice(2)
-      : ''
+  ? '?' + process.argv.slice(2)
+  : ''
 
 const request = `GET /${query} HTTP/1.1
 

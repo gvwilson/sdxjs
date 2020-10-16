@@ -1,4 +1,4 @@
-function* threeWords () {
+function * threeWords () {
   yield 'first'
   yield 'second'
   yield 'third'

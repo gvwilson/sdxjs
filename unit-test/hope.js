@@ -18,12 +18,10 @@ class Hope {
       try {
         test()
         this.passes.push(comment)
-      }
-      catch (e) {
+      } catch (e) {
         if (e instanceof assert.AssertionError) {
           this.fails.push(comment)
-        }
-        else {
+        } else {
           this.errors.push(comment)
         }
       }
@@ -50,9 +48,10 @@ class Hope {
   }
 
   cases () {
-    return [['passes', this.passes],
-            ['fails', this.fails],
-            ['errors', this.errors]]
+    return [
+      ['passes', this.passes],
+      ['fails', this.fails],
+      ['errors', this.errors]]
   }
 }
 

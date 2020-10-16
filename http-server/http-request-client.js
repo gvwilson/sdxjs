@@ -1,8 +1,8 @@
 const net = require('net')
 
 const path = (process.argv.length > 2)
-      ? process.argv[2]
-      : '/'
+  ? process.argv[2]
+  : '/'
 
 const request = `GET ${path} HTTP/1.1
 

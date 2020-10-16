@@ -24,7 +24,7 @@ const applyCheck = (state, label, node, passes) => {
   }
 }
 
-const ast = acorn.parse(program, {locations: true})
+const ast = acorn.parse(program, { locations: true })
 
 const state = {}
 walk.simple(ast, {

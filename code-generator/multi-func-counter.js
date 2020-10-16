@@ -20,7 +20,7 @@ const main = () => {
   const allNodes = []
   walk.simple(ast, {
     VariableDeclarator: (node, state) => {
-      if (node.init && (node.init.type == 'ArrowFunctionExpression')) {
+      if (node.init && (node.init.type === 'ArrowFunctionExpression')) {
         state.push(node)
       }
     }
@@ -43,7 +43,7 @@ const insertCounter = (names, node) => {
 }
 
 const initializeCounters = (names) => {
-  body = Object.keys(names).map(n => `'${n}': 0`).join(',\n')
+  const body = Object.keys(names).map(n => `'${n}': 0`).join(',\n')
   return 'const __counters = {\n' + body + '\n}'
 }
 

@@ -27,19 +27,18 @@ class Cache {
   }
 
   find (fileSpec) {
-    let filePath = undefined,
-        fileDir = undefined
+    let filePath
+    let fileDir
     if (fileSpec.startsWith('.')) {
       if (fs.existsSync(fileSpec)) {
         filePath = fileSpec
         fileDir = '.'
       }
-    }
-    else {
-      for (let dir of this.searchPath) {
-        const filePath = path.join(dir, fileSpec)
-        if (fs.existsSync(filePath)) {
-          filePath = filePath
+    } else {
+      for (const dir of this.searchPath) {
+        const tempPath = path.join(dir, fileSpec)
+        if (fs.existsSync(tempPath)) {
+          filePath = tempPath
           fileDir = dir
           break
         }

@@ -18,8 +18,8 @@ const main = (args) => {
   })
   hope.run()
   const result = (options.output === 'terse')
-        ? hope.terse()
-        : hope.verbose()
+    ? hope.terse()
+    : hope.verbose()
   console.log(result)
 }
 
@@ -28,18 +28,18 @@ const parse = (args) => {
   const argv = minimist(args)
   for (const key in argv) {
     switch (key) {
-    case 'd' :
-      options.root = argv[key]
-      break
-    case 'v' :
-      options.output = 'verbose'
-      break
-    case '_':
-      options.filenames = argv[key]
-      break
-    default :
-      console.error(`unrecognized option ${key}`)
-      break
+      case 'd' :
+        options.root = argv[key]
+        break
+      case 'v' :
+        options.output = 'verbose'
+        break
+      case '_':
+        options.filenames = argv[key]
+        break
+      default :
+        console.error(`unrecognized option ${key}`)
+        break
     }
   }
   return options

@@ -28,15 +28,14 @@ class Cache {
   }
 
   find (fileSpec) {
-    let result = undefined
+    let result
     if (fileSpec.startsWith('.')) {
       console.log(`..trying local file for ${fileSpec}`)
       if (fs.existsSync(fileSpec)) {
         result = fileSpec
       }
-    }
-    else {
-      for (let dir of this.searchPath) {
+    } else {
+      for (const dir of this.searchPath) {
         const filePath = path.join(dir, fileSpec)
         console.log(`trying ${filePath} for ${fileSpec}`)
         if (fs.existsSync(filePath)) {

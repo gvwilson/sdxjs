@@ -38,15 +38,15 @@ const getText = (node) => {
 const main = () => {
   const doc = parse5.parse(HTML)
   const tests = [
-    ["p", "text of first p"],
-    ["p#id-01", "text of p#id-01"],
-    ["p#id-02", "text of p#id-02"],
-    ["p.class-03", "text of p.class-03"],
-    ["div p", "text of div / p"],
-    ["div p#id-04", "text of div / p#id-04"],
-    ["div p.class-05", "text of div / p.class-05"],
-    ["div#id-07 p", "text of div#id-07 / p"],
-    ["div#id-07 p.class-06", "text of div#id-07 / p.class-06"]
+    ['p', 'text of first p'],
+    ['p#id-01', 'text of p#id-01'],
+    ['p#id-02', 'text of p#id-02'],
+    ['p.class-03', 'text of p.class-03'],
+    ['div p', 'text of div / p'],
+    ['div p#id-04', 'text of div / p#id-04'],
+    ['div p.class-05', 'text of div / p.class-05'],
+    ['div#id-07 p', 'text of div#id-07 / p'],
+    ['div#id-07 p.class-06', 'text of div#id-07 / p.class-06']
   ]
   tests.forEach(([selector, expected]) => {
     const node = select(doc, selector)

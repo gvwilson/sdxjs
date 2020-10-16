@@ -3,18 +3,18 @@ const fs = require('fs')
 const acorn = require('acorn')
 
 const main = () => {
-  const options = {locations: true, onComment: []}
+  const options = { locations: true, onComment: [] }
   const text = fs.readFileSync(process.argv[2])
   const ast = acorn.parse(text, options)
   const comments = options.onComment
-        .filter(entry => entry.type === 'Block')
-        .map(entry => {
-          return {
-            value: entry.value,
-            start: entry.loc.start.line,
-            end: entry.loc.end.line
-          }
-        })
+    .filter(entry => entry.type === 'Block')
+    .map(entry => {
+      return {
+        value: entry.value,
+        start: entry.loc.start.line,
+        end: entry.loc.end.line
+      }
+    })
   const targets = new Set(comments.map(comment => comment.end + 1))
   const nodes = []
   findFollowing(ast, targets, nodes)
@@ -31,11 +31,10 @@ const findFollowing = (node, targets, accum) => {
     targets.delete(node.loc.start.line)
   }
 
-  for (let key in node) {
+  for (const key in node) {
     if (Array.isArray(node[key])) {
       node[key].forEach(child => findFollowing(child, targets, accum))
-    }
-    else if (typeof node[key] === 'object') {
+    } else if (typeof node[key] === 'object') {
       findFollowing(node[key], targets, accum)
     }
   }
@@ -47,21 +46,21 @@ const condense = (node) => {
     start: node.loc.start.line
   }
   switch (node.type) {
-  case 'VariableDeclaration':
-    result.name = node.declarations[0].id.name
-    break
-  case 'FunctionDeclaration':
-    result.name = node.id.name
-    break
-  case 'ClassDeclaration':
-    result.name = node.id.name
-    break
-  case 'MethodDefinition':
-    result.name = node.key.name
-    break
-  default:
-    assert.fail(`Unknown node type ${node.type}`)
-    break
+    case 'VariableDeclaration':
+      result.name = node.declarations[0].id.name
+      break
+    case 'FunctionDeclaration':
+      result.name = node.id.name
+      break
+    case 'ClassDeclaration':
+      result.name = node.id.name
+      break
+    case 'MethodDefinition':
+      result.name = node.key.name
+      break
+    default:
+      assert.fail(`Unknown node type ${node.type}`)
+      break
   }
   return result
 }

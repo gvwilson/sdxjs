@@ -23,8 +23,7 @@ class PatternUserRead extends VariableExpander {
           depends: rule.depends
         }
         this.rules.set(rule.target, data)
-      }
-      else {
+      } else {
         const timestamp = ('timestamp' in rule)
           ? rule.timestamp
           : null
@@ -34,7 +33,7 @@ class PatternUserRead extends VariableExpander {
         })
         rule.depends.forEach(dep => {
           assert(!dep.includes('%'),
-                 `Cannot have '%' in a non-pattern rule`)
+            'Cannot have \'%\' in a non-pattern rule')
           this.graph.setEdge(dep, rule.target)
         })
       }
@@ -45,7 +44,7 @@ class PatternUserRead extends VariableExpander {
     return {
       graph: graphlib.json.write(this.graph),
       rules: Array.from(this.rules.keys()).map(key => {
-        return {k: key, v: this.rules.get(key)}
+        return { k: key, v: this.rules.get(key) }
       })
     }
   }

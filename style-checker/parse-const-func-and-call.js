@@ -11,5 +11,5 @@ const result = double(value)
 console.log(result)
 `
 
-const ast = acorn.parse(program, {locations: true})
+const ast = acorn.parse(program, { locations: true })
 console.log(JSON.stringify(ast, null, 2))

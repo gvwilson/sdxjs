@@ -1,10 +1,6 @@
 const RegexBase = require('./regex-base')
 
 class RegexStart extends RegexBase {
-  constructor (rest) {
-    super(rest)
-  }
-
   _match (text, start) {
     if (start !== 0) {
       return undefined
@@ -16,4 +12,4 @@ class RegexStart extends RegexBase {
   }
 }
 
-module.exports = (rest=null) => new RegexStart(rest)
+module.exports = (rest = null) => new RegexStart(rest)

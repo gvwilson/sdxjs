@@ -1,9 +1,6 @@
 class RegexBase {
-  constructor () {
-  }
-
   match (text) {
-    for (let i=0; i<text.length; i+=1) {
+    for (let i = 0; i < text.length; i += 1) {
       if (this._match(text, i)) {
         return true
       }
@@ -12,7 +9,7 @@ class RegexBase {
   }
 
   _match (text, start) {
-    throw new Error(`derived classes must override '_match'`)
+    throw new Error('derived classes must override \'_match\'')
   }
 }
 

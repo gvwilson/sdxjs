@@ -1,6 +1,6 @@
 const fillIn = (filename, comments, definitions) => {
   const map = definitions.reduce((map, def) => {
-    map.set(def.start, {name: def.name, type: def.type})
+    map.set(def.start, { name: def.name, type: def.type })
     return map
   }, new Map())
 
@@ -10,8 +10,8 @@ const fillIn = (filename, comments, definitions) => {
     if (map.has(target)) {
       const def = map.get(target)
       const level = def.type === 'MethodDefinition'
-            ? '###'
-            : '##'
+        ? '###'
+        : '##'
       const title = `${level} ${def.name}\n`
       text = title + text
     }

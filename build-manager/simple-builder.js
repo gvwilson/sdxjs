@@ -17,7 +17,7 @@ class SimpleBuilder {
 
   checkConfig () {
     assert(Array.isArray(this.config),
-           `Configuration must be array`)
+      'Configuration must be array')
     this.config.forEach(rule => {
       assert(('target' in rule) && (typeof rule.target === 'string'),
              `Rule ${JSON.stringify(rule)} does not string as 'target'`)
@@ -44,12 +44,12 @@ class SimpleBuilder {
 
   checkCycles () {
     const cycles = graphlib.alg.findCycles(this.graph)
-    assert.equal(cycles.length, 0,
-                 `Dependency graph contains cycles ${cycles}`)
+    assert.strictEqual(cycles.length, 0,
+      `Dependency graph contains cycles ${cycles}`)
   }
 
   run () {
-    assert.fail(`run method not implemented`)
+    assert.fail('run method not implemented')
   }
 }
 

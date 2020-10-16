@@ -2,7 +2,7 @@ const Net = require('net')
 const url = require('url')
 
 class BaseHttpServer {
-  constructor (port=BaseHttpServer.DEFAULT_PORT) {
+  constructor (port = BaseHttpServer.DEFAULT_PORT) {
     this.port = port
     this.server = new Net.Server()
   }

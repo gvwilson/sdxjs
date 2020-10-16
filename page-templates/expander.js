@@ -42,23 +42,22 @@ class Expander extends Visitor {
     }
     if (this.hasHandler(node)) {
       this.getHandler(node).close(this, node)
-    }
-    else {
+    } else {
       this.showTag(node, true)
     }
   }
 
   hasHandler (node) {
     return ('attrs' in node) &&
-      node.attrs.some(({name, value}) => name in this.handlers)
+      node.attrs.some(({ name, value }) => name in this.handlers)
   }
 
   getHandler (node) {
     assert('attrs' in node,
-           `Node does not have attributes`)
-    const possible = node.attrs.filter(({name, value}) => name in this.handlers)
+      'Node does not have attributes')
+    const possible = node.attrs.filter(({ name, value }) => name in this.handlers)
     assert(possible.length === 1,
-           `Should be exactly one handler`)
+      'Should be exactly one handler')
     return this.handlers[possible[0].name]
   }
 
@@ -69,12 +68,12 @@ class Expander extends Visitor {
     }
 
     this.output(`<${node.nodeName}`)
-    node.attrs.forEach(({name, value}) => {
+    node.attrs.forEach(({ name, value }) => {
       if (!name.startsWith('q-')) {
         this.output(` ${name}="${value}"`)
       }
     })
-    this.output(`>`)
+    this.output('>')
   }
 
   output (text) {

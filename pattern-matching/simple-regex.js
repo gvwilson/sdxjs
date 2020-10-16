@@ -31,16 +31,16 @@ const matchHere = (pattern, iPattern, text, iText) => {
   }
 
   // '*' following current character means match many.
-  if (((pattern.length - iPattern) > 1) && (pattern[iPattern+1] === '*')) {
+  if (((pattern.length - iPattern) > 1) && (pattern[iPattern + 1] === '*')) {
     while ((iText < text.length) && (text[iText] === pattern[iPattern])) {
       iText += 1
     }
-    return matchHere(pattern, iPattern+2, text, iText)
+    return matchHere(pattern, iPattern + 2, text, iText)
   }
 
   // Match a single character.
   if ((pattern[iPattern] === '.') || (pattern[iPattern] === text[iText])) {
-    return matchHere(pattern, iPattern+1, text, iText+1)
+    return matchHere(pattern, iPattern + 1, text, iText + 1)
   }
 
   // Nothing worked.

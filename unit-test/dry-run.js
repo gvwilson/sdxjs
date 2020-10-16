@@ -2,9 +2,9 @@ const assert = require('assert')
 
 // State of tests.
 const HopeTests = []
-let HopePass = 0,
-    HopeFail = 0,
-    HopeError = 0
+let HopePass = 0
+let HopeFail = 0
+let HopeError = 0
 
 // Record a single test for running later.
 const hopeThat = (message, callback) => {
@@ -17,12 +17,10 @@ const main = () => {
     try {
       test()
       HopePass += 1
-    }
-    catch (e) {
+    } catch (e) {
       if (e instanceof assert.AssertionError) {
         HopeFail += 1
-      }
-      else {
+      } else {
         HopeError += 1
       }
     }
@@ -37,8 +35,7 @@ const main = () => {
 const sign = (value) => {
   if (value < 0) {
     return -1
-  }
-  else {
+  } else {
     return 1
   }
 }

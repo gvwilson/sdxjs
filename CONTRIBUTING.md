@@ -67,10 +67,10 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
     Do not use exclamation marks—few things are actually that surprising the first time around,
     and none the second.
 
+1.  `config.yml` contains configuration information and metadata about chapters and appendices.
+
 1.  Each lesson is in a file `./slug/index.md`,
     where "slug" is a hyphenated short name for the topic (e.g., `writing-functions`).
-
-1.  `config.yml` contains configuration information and metadata about chapters and appendices.
 
 1.  Use level-2 headings for sub-topics, and phrase these as questions
     (e.g., "How do I check if a file exists?").
@@ -95,8 +95,9 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
 1.  Use `<cite>Key123,Key456</cite>` for bibliographic citations.
     The keys must exist in `bib.yml`, and yes, `static/site.js` and `bin/latex.js` do the conversions.
 
-1.  We indent our JavaScript in two-space increments and do not use semi-colons
-    to help make things fit the width of the page in the print edition.
+1.  We use [JavaScript Standard Style][standard-js] almost everywhere
+    ("almost" because some of our examples have to break the rules to illustrate points).
+    Please install `standard` and check your code with it before committing.
 
 ## Exercises
 

@@ -25,11 +25,11 @@ const runAll = (title) => {
 
 runAll('first time')
 
-let replace = (func) => {
+const replace = (func) => {
   return (...args) => {
     console.log('before')
     try {
-      result = func(...args)
+      const result = func(...args)
       console.log('after')
       return result
     } catch (error) {

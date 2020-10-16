@@ -1,5 +1,3 @@
-const graphlib = require('@dagrejs/graphlib')
-
 const VariableExpander = require('./variable-expander')
 
 class PatternUserAttempt extends VariableExpander {

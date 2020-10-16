@@ -31,4 +31,4 @@ class RegexAny extends RegexBase {
   }
 }
 
-module.exports = (child, rest=null) => new RegexAny(child, rest)
+module.exports = (child, rest = null) => new RegexAny(child, rest)

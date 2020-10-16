@@ -1,4 +1,3 @@
-const assert = require('assert')
 const graphlib = require('@dagrejs/graphlib')
 
 const PatternUserRead = require('./pattern-user-read')

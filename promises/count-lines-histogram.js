@@ -15,15 +15,15 @@ const main = (srcDir) => {
 const statPair = (filename) => {
   return new Promise((resolve, reject) => {
     fs.statAsync(filename)
-      .then(stats => resolve({filename, stats}))
+      .then(stats => resolve({ filename, stats }))
       .catch(err => reject(err))
   })
 }
 
 const lineCount = (filename) => {
   return new Promise((resolve, reject) => {
-    fs.readFileAsync(filename, {encoding: 'utf-8'})
-      .then(data => resolve(data.split('\n').length-1))
+    fs.readFileAsync(filename, { encoding: 'utf-8' })
+      .then(data => resolve(data.split('\n').length - 1))
       .catch(err => reject(err))
   })
 }

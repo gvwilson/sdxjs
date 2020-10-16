@@ -22,13 +22,11 @@ class HttpFileServer extends BaseHttpServer {
       response.status_code = 403
       response.status_message = 'Forbidden'
       response.body = 'Requested file is out of bounds'
-    }
-    else if (!fs.existsSync(filePath)) {
+    } else if (!fs.existsSync(filePath)) {
       response.status_code = 404
       response.status_message = 'Not Found'
       response.body = 'Requested file does not exist'
-    }
-    else {
+    } else {
       response.body = fs.readFileSync(filePath)
     }
   }

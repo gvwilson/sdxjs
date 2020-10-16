@@ -22,7 +22,7 @@ class UpdateOnTimestamp extends AddTimestamps {
 
   isStale (node) {
     return this.graph.predecessors(node).some(
-      other => this.graph.node(other).timestamp >= this.graph.node(node).timestamp 
+      other => this.graph.node(other).timestamp >= this.graph.node(node).timestamp
     )
   }
 }

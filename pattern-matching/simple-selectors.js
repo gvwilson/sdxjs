@@ -7,7 +7,7 @@ const select = (root, selector) => {
 
 const firstMatch = (node, selectors) => {
   assert(selectors.length > 0,
-         `Require selector(s)`)
+    'Require selector(s)')
 
   // This node matches.
   if (matchHere(node, selectors[0])) {
@@ -43,19 +43,17 @@ const firstChildMatch = (node, selectors) => {
 }
 
 const matchHere = (node, selector) => {
-  let tag = null, id = null, cls = null
+  let tag = null; let id = null; let cls = null
   if (selector.includes('#')) {
     [tag, id] = selector.split('#')
-  }
-  else if (selector.includes('.')) {
+  } else if (selector.includes('.')) {
     [tag, cls] = selector.split('.')
-  }
-  else {
+  } else {
     tag = selector
   }
-  return (node.nodeName === tag)
-    && ((id === null) || (getAttr(node, 'id') === id))
-    && ((cls === null) || (getAttr(node, 'class') === cls))
+  return (node.nodeName === tag) &&
+    ((id === null) || (getAttr(node, 'id') === id)) &&
+    ((cls === null) || (getAttr(node, 'class') === cls))
 }
 
 const getAttr = (node, name) => {

@@ -10,8 +10,8 @@ const main = (srcDir) => {
 
 const lineCount = (filename) => {
   return new Promise((resolve, reject) => {
-    fs.readFileAsync(filename, {encoding: 'utf-8'})
-      .then(data => resolve(data.split('\n').length-1))
+    fs.readFileAsync(filename, { encoding: 'utf-8' })
+      .then(data => resolve(data.split('\n').length - 1))
       .catch(err => reject(err))
   })
 }

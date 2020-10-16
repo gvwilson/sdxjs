@@ -6,7 +6,7 @@ Content-Length: @LENGTH
 
 `
 
-PathPattern = /^GET\s+(.+)\s+HTTP\/1.1/
+const PathPattern = /^GET\s+(.+)\s+HTTP\/1.1/
 
 const handlerFactory = (socket) => (data) => {
   let path = data.toString().match(PathPattern)[1]

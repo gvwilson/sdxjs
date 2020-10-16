@@ -16,44 +16,30 @@ const parse = (text) => {
 const handle = (result, token, last) => {
   if (token.kind === 'Lit') {
     result.push(token)
-  }
-  
-  else if (token.kind === 'Start') {
+  } else if (token.kind === 'Start') {
     assert(result.length === 0,
-           `Should not have start token after other tokens`)
+      'Should not have start token after other tokens')
     result.push(token)
-  }
-  
-  else if (token.kind === 'End') {
+  } else if (token.kind === 'End') {
     assert(last,
-           `Should not have end token before other tokens`)
+      'Should not have end token before other tokens')
     result.push(token)
-  }
-  
-  else if (token.kind === 'GroupStart') {
+  } else if (token.kind === 'GroupStart') {
     result.push(token)
-  }
-  
-  else if (token.kind === 'GroupEnd') {
+  } else if (token.kind === 'GroupEnd') {
     result.push(groupEnd(result, token))
-  }
-  
-  else if (token.kind === 'Any') {
+  } else if (token.kind === 'Any') {
     assert(result.length > 0,
            `No operand for '*' (location ${token.loc})`)
     token.child = result.pop()
     result.push(token)
-  }
-  
-  else if (token.kind === 'Alt') {
+  } else if (token.kind === 'Alt') {
     assert(result.length > 0,
            `No operand for '*' (location ${token.loc})`)
     token.left = result.pop()
     token.right = null
     result.push(token)
-  }
-  
-  else {
+  } else {
     assert(false, 'UNIMPLEMENTED')
   }
 }

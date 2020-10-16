@@ -3,13 +3,9 @@ const url = require('url')
 const BaseHttpServer = require('./base-http-server')
 
 class HttpJsonServer extends BaseHttpServer {
-  constructor () {
-    super()
-  }
-
   parseRequest (data) {
     data = data.toString()
-    const [head, body] = this.getHeadAndBody(data)
+    const { body } = this.getHeadAndBody(data)
     const [verb, raw, headers] = this.parseHead(data)
     return {
       url: new url.URL(raw, BaseHttpServer.DEFAULT_HOST),
@@ -26,7 +22,7 @@ class HttpJsonServer extends BaseHttpServer {
       if (loc >= 0) {
         const head = data.slice(0, loc)
         const body = data.slice(loc + sep.length)
-        return [head, body]
+        return { head, body }
       }
     }
     return ''
@@ -34,14 +30,15 @@ class HttpJsonServer extends BaseHttpServer {
 
   parseHead (head) {
     const lines = head.split('\n')
-          .map(line => line.trim())
-          .filter(line => line.length > 0)
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
     const parts = lines[0].match(HttpJsonServer.TARGET_PATTERN)
     const verb = parts[1]
     const raw = parts[2]
     const headers = lines.slice(1).reduce((soFar, line) => {
       const match = line.match(/^\s*(.+?)\s*:\s*(.+)\s*$/)
-      const key = match[1].toLowerCase(), value = match[2]
+      const key = match[1].toLowerCase()
+      const value = match[2]
       if (!soFar.has(key)) {
         soFar.set(key, [])
       }
@@ -60,7 +57,7 @@ class HttpJsonServer extends BaseHttpServer {
 
   handle (request, response) {
     const value = request.body.key
-    response.body = JSON.stringify({result: value})
+    response.body = JSON.stringify({ result: value })
   }
 }
 

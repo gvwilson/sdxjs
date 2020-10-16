@@ -1,6 +1,3 @@
-const fs = require('fs')
-const path = require('path')
-
 const BaseHttpServer = require('./base-http-server')
 
 class HttpParamsServer extends BaseHttpServer {
@@ -14,10 +11,8 @@ class HttpParamsServer extends BaseHttpServer {
   }
 
   handle (request, response) {
-    const level = request.url.searchParams.get('level')
-          || 'low'
-    const message = this.messages.get(level)
-          || `unknown level: ${level}`
+    const level = request.url.searchParams.get('level') || 'low'
+    const message = this.messages.get(level) || `unknown level: ${level}`
     response.body = message
   }
 }

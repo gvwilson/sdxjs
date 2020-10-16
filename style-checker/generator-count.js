@@ -1,16 +1,15 @@
 const acorn = require('acorn')
 
-function* getNodes (node) {
+function * getNodes (node) {
   if (node && (typeof node === 'object') && ('type' in node)) {
     yield node
-    for (let key in node) {
+    for (const key in node) {
       if (Array.isArray(node[key])) {
         for (const child of node[key]) {
-          yield* getNodes(child)
+          yield * getNodes(child)
         }
-      }
-      else if (typeof node[key] === 'object') {
-        yield* getNodes(node[key])
+      } else if (typeof node[key] === 'object') {
+        yield * getNodes(node[key])
       }
     }
   }
@@ -28,14 +27,13 @@ const result = double(value)
 console.log(result)
 `
 
-const ast = acorn.parse(program, {locations: true})
+const ast = acorn.parse(program, { locations: true })
 const result = {}
 for (const node of getNodes(ast)) {
   if (node.type === 'BinaryExpression') {
     if (node.operator in result) {
       result[node.operator] += 1
-    }
-    else {
+    } else {
       result[node.operator] = 1
     }
   }

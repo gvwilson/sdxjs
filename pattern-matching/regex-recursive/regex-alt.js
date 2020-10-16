@@ -8,7 +8,7 @@ class RegexAlt extends RegexBase {
   }
 
   _match (text, start) {
-    for (let pat of [this.left, this.right]) {
+    for (const pat of [this.left, this.right]) {
       const afterPat = pat._match(text, start)
       if (afterPat !== undefined) {
         if (this.rest === null) {
@@ -24,4 +24,4 @@ class RegexAlt extends RegexBase {
   }
 }
 
-module.exports = (left, right, rest=null) => new RegexAlt(left, right, rest)
+module.exports = (left, right, rest = null) => new RegexAlt(left, right, rest)

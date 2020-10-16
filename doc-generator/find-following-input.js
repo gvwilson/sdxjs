@@ -10,7 +10,7 @@ const double = (x) => 2 * x
 /**
  * Triple the input.
  */
-function triple(x) {
+function triple (x) {
   return 3 * x
 }
 
