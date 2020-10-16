@@ -12,6 +12,7 @@
 
 -   Use [Acorn][acorn] once again to extract comments
 -   Provide an `onComment` option with an array value for it to fill in
+    -   Don't bother assigning the AST produced by parsing to a variable because we're collecting side effects in `onComment`
 
 <%- include('/inc/code.html', {file: 'extract-comments.js'}) %>
 

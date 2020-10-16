@@ -13,7 +13,7 @@ const getComments = (filenames) => {
 const extractComments = (filename) => {
   const text = fs.readFileSync(filename)
   const options = { locations: true, onComment: [] }
-  const ast = acorn.parse(text, options)
+  acorn.parse(text, options)
   const subset = options.onComment
     .filter(entry => entry.type === 'Block')
     .map(entry => {

@@ -7,7 +7,7 @@ let funcTwo = (first, second) => console.log(`funcTwo(${first}, ${second})`)
 let funcError = () => {
   console.log('funcError')
   throw new Error('from funcError')
-  console.log('should not reach this')
+  console.log('should not reach this') // eslint-disable-line
 }
 
 const runAll = (title) => {

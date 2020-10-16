@@ -48,14 +48,26 @@ commands :
 serve: docs/index.html
 	@npm run serve
 
-## check: check that everything passes style rules
+## hygiene: run all checks
+hygiene:
+	-@make ejslint
+	-@make standard
+	-@make check
+
+## check: check that files match style rules
 check: docs/index.html
-	-@npm run ejslint
-	-@standard ${JAVASCRIPT}
 	-@bin/check.js \
 	--config config.yml \
 	--html ${HTML} \
 	--markdown ${MARKDOWN}
+
+## ejslint: run checks on template expansions
+ejslint:
+	@npm run ejslint
+
+## standard: run checks on code formatting
+standard:
+	@standard ${JAVASCRIPT}
 
 ## ----: ----
 

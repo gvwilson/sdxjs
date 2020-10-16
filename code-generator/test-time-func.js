@@ -24,4 +24,4 @@ readFile(numLoops, 'index.md')
 const program = timeFunc(text)
 console.log(program)
 console.log('OUTPUT')
-eval(program)
+eval(program) // eslint-disable-line

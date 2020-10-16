@@ -5,7 +5,7 @@
 /**
  * Main driver.
  */
-const main = () => {
+const main = () => { // eslint-disable-line
   // body would go here
 }
 
@@ -15,18 +15,18 @@ const main = () => {
  * - `defaults` (`Object`): default values.
  * > Program configuration object.
  */
-const parseArgs = (args, defaults) => {
+const parseArgs = (args, defaults) => { // eslint-disable-line
   // body would go here
 }
 
 /**
  * Default processing class.
  */
-class DefaultProcessor {
+class DefaultProcessor { // eslint-disable-line
   /**
    * Build default processor.
    */
-  constructor () {
+  constructor () { // eslint-disable-line
     // body would go here
   }
 

@@ -3,7 +3,7 @@ const acorn = require('acorn')
 
 const text = fs.readFileSync(process.argv[2])
 const options = { locations: true, onComment: [] }
-const ast = acorn.parse(text, options)
+acorn.parse(text, options)
 const subset = options.onComment.map(entry => {
   return {
     type: entry.type,

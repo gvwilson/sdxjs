@@ -9,7 +9,7 @@ class DefaultProcessor {
   /**
    * ### `constructor`: Build default processor.
    */
-  constructor () {
+  constructor () { // eslint-disable-line
     // body would go here
   }
 

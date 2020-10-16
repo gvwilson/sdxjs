@@ -48,7 +48,7 @@ hopeThat('Sign of positive is 1', () => assert(sign(19) === 1))
 hopeThat('Sign of zero is 0', () => assert(sign(0) === 0))
 
 // This one is an error.
-hopeThat('Sign misspelled is error', () => assert(sgn(1) === 1))
+hopeThat('Sign misspelled is error', () => assert(sgn(1) === 1)) // eslint-disable-line
 
 // Call the main driver.
 main()

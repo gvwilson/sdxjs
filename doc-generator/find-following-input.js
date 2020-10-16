@@ -5,19 +5,19 @@
 /**
  * Double the input.
  */
-const double = (x) => 2 * x
+const double = (x) => 2 * x // eslint-disable-line
 
 /**
  * Triple the input.
  */
-function triple (x) {
+function triple (x) { // eslint-disable-line
   return 3 * x
 }
 
 /**
  * Define a class.
  */
-class Example {
+class Example { // eslint-disable-line
   /**
    * Method description.
    */

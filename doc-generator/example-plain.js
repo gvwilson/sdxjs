@@ -7,7 +7,7 @@ const util = require('./util-plain')
 /**
  * ## `main`: Main driver.
  */
-const main = () => {
+const main = () => { // eslint-disable-line
   // Parse arguments.
   // Process input stream.
 }
@@ -19,7 +19,7 @@ const main = () => {
  *
  * Returns: program configuration object.
  */
-const parseArgs = (args, defaults) => {
+const parseArgs = (args, defaults) => { // eslint-disable-line
   // body would go here
 }
 
@@ -30,6 +30,6 @@ const parseArgs = (args, defaults) => {
  * - `op` (`class`): what to do.
  *    Use @DefaultProcessor unless told to do otherwise.
  */
-const processData = (input, output, op = util.DefaultProcessor) => {
+const processData = (input, output, op = util.DefaultProcessor) => { // eslint-disable-line
   // body would go here
 }

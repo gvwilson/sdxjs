@@ -95,7 +95,7 @@ const buildFileInfo = (options) => {
   const allFiles = [...options.extras, ...options.chapters, ...options.appendices]
   allFiles.forEach((fileInfo, i) => {
     assert('slug' in fileInfo,
-           `Every page must have a slug ${Object.keys(fileInfo)}`)
+      `Every page must have a slug ${Object.keys(fileInfo)}`)
     fileInfo.index = i
     if (!('source' in fileInfo)) {
       fileInfo.source = path.join(options.rootDir, fileInfo.slug, 'index.md')
@@ -199,7 +199,11 @@ const _exercise = (render, root, chapter, exercise, which) => {
  * @returns {string} File contents (possibly with minimal HTML escaping).
  */
 const _readFile = (mainFile, subFile) => {
-  return fs.readFileSync(`${path.dirname(mainFile)}/${subFile}`, 'utf-8')
+  let raw = fs.readFileSync(`${path.dirname(mainFile)}/${subFile}`, 'utf-8')
+  if (path.extname(subFile) === '.js') {
+    raw = raw.replace(/\s*\/\/\s*eslint-disable-line.*$/gm, '')
+  }
+  return raw
     .replace(/&/g, '&amp;')
     .replace(/>/g, '&gt;')
     .replace(/</g, '&lt;')
