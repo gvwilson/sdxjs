@@ -16,6 +16,52 @@
     -   Ensure they can find each other correctly once loaded
 -   Our approach is based on [Adam Kelly's tutorial][bundler-tutorial]
 
+## Do we need to handle circular dependencies?
+
+-   We can visualize the network of who requires whom as a <g key="directed_graph">directed graph</g>
+    -   If X requires Y, draw an arrow from X to Y
+-   A <g key="circular_dependency">circular dependency</g> exists if X depends on Y and Y depends on X
+    -   Either directly or indirectly
+-   May seem nonsensical, but can easily arise with <g key="plugin_architecture">plugin architectures</g>
+    -   Main program loads an extension
+    -   The extension calls utility functions defined alongside the main program
+-   Most <g key="compiled_language">compiled languages</g> can handle this
+    -   Compile each module into low-level instructions
+    -   <g key="link">Link</g> those to resolve dependencies
+    -   Then run
+-   But <g key="interpreted_language">interpreted languages</g> execute code as it loads
+    -   So if X is in the process of loading Y and Y tries to call X,
+        X may not (fully) exist yet
+-   It sort-of works in Python
+-   Create two files
+
+<%- include('/inc/code.html', {file: 'checking/major.py'}) %>
+<%- include('/inc/code.html', {file: 'checking/minor.py'}) %>
+
+-   Fails when run from the command line
+
+<%- include('/inc/multi.html', {pat: 'checking/py-command-line.*', fill: 'sh txt'}) %>
+
+-   But works in the interactive interpreter
+
+<%- include('/inc/code.html', {file: 'checking/py-interactive.txt'}) %>
+
+-   Equivalent in JavaScript
+
+<%- include('/inc/code.html', {file: 'checking/major.js'}) %>
+<%- include('/inc/code.html', {file: 'checking/minor.js'}) %>
+
+-   Fails on the command line
+
+<%- include('/inc/multi.html', {pat: 'checking/js-command-line.*', fill: 'sh txt'}) %>
+
+-   Also fails in the interactive interpreter
+
+<%- include('/inc/code.html', {file: 'checking/js-interactive.txt'}) %>
+
+-   So we will *not* handle circular dependencies
+    -   But we *will* detect them and generate a sensible error message
+
 ## How can we safely get the contents of a module?
 
 -   Start with a simple file that exports a single function
@@ -77,7 +123,7 @@
     -   File A requires File B
     -   Files A and B both require File C, and only one copy of File C is included in the bundle
     -   Files A and B require File C using different paths
-    -   Files A and B require each other (a <g key="circular_dependency">circular dependency</g>)
+    -   Files A and B require each other (a FIXME)
 -   Create a file `main.js` as an <g key="entry_point">entry point</g>
     -   Name the other files geometrically to help keep them straight
 

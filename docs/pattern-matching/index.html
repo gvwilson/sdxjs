@@ -125,7 +125,7 @@ const select = (root, selector) =&gt; {
 
 const firstMatch = (node, selectors) =&gt; {
   assert(selectors.length &gt; 0,
-         `Require selector(s)`)
+    'Require selector(s)')
 
   // This node matches.
   if (matchHere(node, selectors[0])) {
@@ -161,19 +161,17 @@ const firstChildMatch = (node, selectors) =&gt; {
 }
 
 const matchHere = (node, selector) =&gt; {
-  let tag = null, id = null, cls = null
+  let tag = null; let id = null; let cls = null
   if (selector.includes('#')) {
     [tag, id] = selector.split('#')
-  }
-  else if (selector.includes('.')) {
+  } else if (selector.includes('.')) {
     [tag, cls] = selector.split('.')
-  }
-  else {
+  } else {
     tag = selector
   }
-  return (node.nodeName === tag)
-    &amp;&amp; ((id === null) || (getAttr(node, 'id') === id))
-    &amp;&amp; ((cls === null) || (getAttr(node, 'class') === cls))
+  return (node.nodeName === tag) &amp;&amp;
+    ((id === null) || (getAttr(node, 'id') === id)) &amp;&amp;
+    ((cls === null) || (getAttr(node, 'class') === cls))
 }
 
 const getAttr = (node, name) =&gt; {
@@ -234,15 +232,15 @@ const getText = (node) =&gt; {
 const main = () =&gt; {
   const doc = parse5.parse(HTML)
   const tests = [
-    ["p", "text of first p"],
-    ["p#id-01", "text of p#id-01"],
-    ["p#id-02", "text of p#id-02"],
-    ["p.class-03", "text of p.class-03"],
-    ["div p", "text of div / p"],
-    ["div p#id-04", "text of div / p#id-04"],
-    ["div p.class-05", "text of div / p.class-05"],
-    ["div#id-07 p", "text of div#id-07 / p"],
-    ["div#id-07 p.class-06", "text of div#id-07 / p.class-06"]
+    ['p', 'text of first p'],
+    ['p#id-01', 'text of p#id-01'],
+    ['p#id-02', 'text of p#id-02'],
+    ['p.class-03', 'text of p.class-03'],
+    ['div p', 'text of div / p'],
+    ['div p#id-04', 'text of div / p#id-04'],
+    ['div p.class-05', 'text of div / p.class-05'],
+    ['div#id-07 p', 'text of div#id-07 / p'],
+    ['div#id-07 p.class-06', 'text of div#id-07 / p.class-06']
   ]
   tests.forEach(([selector, expected]) =&gt; {
     const node = select(doc, selector)
@@ -336,16 +334,16 @@ const matchHere = (pattern, iPattern, text, iText) =&gt; {
   }
 
   // '*' following current character means match many.
-  if (((pattern.length - iPattern) &gt; 1) &amp;&amp; (pattern[iPattern+1] === '*')) {
+  if (((pattern.length - iPattern) &gt; 1) &amp;&amp; (pattern[iPattern + 1] === '*')) {
     while ((iText &lt; text.length) &amp;&amp; (text[iText] === pattern[iPattern])) {
       iText += 1
     }
-    return matchHere(pattern, iPattern+2, text, iText)
+    return matchHere(pattern, iPattern + 2, text, iText)
   }
 
   // Match a single character.
   if ((pattern[iPattern] === '.') || (pattern[iPattern] === text[iText])) {
-    return matchHere(pattern, iPattern+1, text, iText+1)
+    return matchHere(pattern, iPattern + 1, text, iText + 1)
   }
 
   // Nothing worked.
@@ -483,11 +481,8 @@ our code will fail with a meaningful reminder</li>
 </li>
 </ul>
 <pre title="regex-initial/regex-base.js"><code class="language-js">class RegexBase {
-  constructor () {
-  }
-
   match (text) {
-    for (let i=0; i&lt;text.length; i+=1) {
+    for (let i = 0; i &lt; text.length; i += 1) {
       if (this._match(text, i)) {
         return true
       }
@@ -496,7 +491,7 @@ our code will fail with a meaningful reminder</li>
   }
 
   _match (text, start) {
-    throw new Error(`derived classes must override '_match'`)
+    throw new Error('derived classes must override \'_match\'')
   }
 }
 
@@ -696,7 +691,7 @@ class RegexLit extends RegexBase {
   }
 }
 
-module.exports = (chars, rest=null) =&gt; new RegexLit(chars, rest)
+module.exports = (chars, rest = null) =&gt; new RegexLit(chars, rest)
 </code></pre>
 <ul>
 <li>Matching the start <code>/^/</code> and end <code>/$/</code> anchors is just as straightforward</li>
@@ -704,10 +699,6 @@ module.exports = (chars, rest=null) =&gt; new RegexLit(chars, rest)
 <pre title="regex-recursive/regex-start.js"><code class="language-js">const RegexBase = require('./regex-base')
 
 class RegexStart extends RegexBase {
-  constructor (rest) {
-    super(rest)
-  }
-
   _match (text, start) {
     if (start !== 0) {
       return undefined
@@ -719,15 +710,11 @@ class RegexStart extends RegexBase {
   }
 }
 
-module.exports = (rest=null) =&gt; new RegexStart(rest)
+module.exports = (rest = null) =&gt; new RegexStart(rest)
 </code></pre>
 <pre title="regex-recursive/regex-end.js"><code class="language-js">const RegexBase = require('./regex-base')
 
 class RegexEnd extends RegexBase {
-  constructor (rest) {
-    super(rest)
-  }
-
   _match (text, start) {
     if (start !== text.length) {
       return undefined
@@ -739,7 +726,7 @@ class RegexEnd extends RegexBase {
   }
 }
 
-module.exports = (rest=null) =&gt; new RegexEnd(rest)
+module.exports = (rest = null) =&gt; new RegexEnd(rest)
 </code></pre>
 <ul>
 <li>Matching either/or is a matter of trying a pattern and the rest until one matches,
@@ -755,7 +742,7 @@ class RegexAlt extends RegexBase {
   }
 
   _match (text, start) {
-    for (let pat of [this.left, this.right]) {
+    for (const pat of [this.left, this.right]) {
       const afterPat = pat._match(text, start)
       if (afterPat !== undefined) {
         if (this.rest === null) {
@@ -771,7 +758,7 @@ class RegexAlt extends RegexBase {
   }
 }
 
-module.exports = (left, right, rest=null) =&gt; new RegexAlt(left, right, rest)
+module.exports = (left, right, rest = null) =&gt; new RegexAlt(left, right, rest)
 </code></pre>
 <ul>
 <li>Matching repetition is easy <em>if</em> we're willing to be inefficient
@@ -823,7 +810,7 @@ class RegexAny extends RegexBase {
   }
 }
 
-module.exports = (child, rest=null) =&gt; new RegexAny(child, rest)
+module.exports = (child, rest = null) =&gt; new RegexAny(child, rest)
 </code></pre>
 <ul>
 <li>The main point here is how extensible this approach is</li>

@@ -129,7 +129,7 @@ console.log(JSON.stringify(options.onComment, null, 2))
 const acorn = require('acorn')
 
 const text = fs.readFileSync(process.argv[2])
-const options = {locations: true, onComment: []}
+const options = { locations: true, onComment: [] }
 const ast = acorn.parse(text, options)
 const subset = options.onComment.map(entry =&gt; {
   return {
@@ -225,7 +225,6 @@ console.log(JSON.stringify(subset, null, 2))
 <pre title="doc-comment.js"><code class="language-js">/**
  * doc comment
  */
-
 </code></pre>
 <pre title="doc-comment.txt"><code class="language-txt">[
   {
@@ -274,7 +273,7 @@ const parseArgs = (args, defaults) =&gt; {
  * - `op` (`class`): what to do.
  *    Use @DefaultProcessor unless told to do otherwise.
  */
-const processData = (input, output, op=util.DefaultProcessor) =&gt; {
+const processData = (input, output, op = util.DefaultProcessor) =&gt; {
   // body would go here
 }
 </code></pre>
@@ -331,41 +330,41 @@ const slugify = require('./slugify')
 
 const main = () =&gt; {
   const allComments = process.argv.slice(2)
-        .map(filename =&gt; {
-          const comments = extractComments(filename)
-          return {filename, comments}
-        })
-        .map(({filename, comments}) =&gt; {
-          comments = comments.map(comment =&gt; removePrefix(comment))
-          return {filename, comments}
-        })
-        .map(({filename, comments}) =&gt; {
-          const combined = comments
-                .map(comment =&gt; comment.stripped)
-                .join('\n\n')
-          return `# ${filename}\n\n${combined}`
-        })
+    .map(filename =&gt; {
+      const comments = extractComments(filename)
+      return { filename, comments }
+    })
+    .map(({ filename, comments }) =&gt; {
+      comments = comments.map(comment =&gt; removePrefix(comment))
+      return { filename, comments }
+    })
+    .map(({ filename, comments }) =&gt; {
+      const combined = comments
+        .map(comment =&gt; comment.stripped)
         .join('\n\n')
-  const md = new MarkdownIt({html: true})
-        .use(MarkdownAnchor, {level: 1, slugify: slugify})
+      return `# ${filename}\n\n${combined}`
+    })
+    .join('\n\n')
+  const md = new MarkdownIt({ html: true })
+    .use(MarkdownAnchor, { level: 1, slugify: slugify })
   const html = md.render(allComments)
   console.log(html)
 }
 
 const extractComments = (filename) =&gt; {
   const text = fs.readFileSync(filename)
-  const options = {locations: true, onComment: []}
+  const options = { locations: true, onComment: [] }
   const ast = acorn.parse(text, options)
   const subset = options.onComment
-        .filter(entry =&gt; entry.type === 'Block')
-        .map(entry =&gt; {
-          return {
-            type: entry.type,
-            value: entry.value,
-            start: entry.start,
-            end: entry.end
-          }
-        })
+    .filter(entry =&gt; entry.type === 'Block')
+    .map(entry =&gt; {
+      return {
+        type: entry.type,
+        value: entry.value,
+        start: entry.start,
+        end: entry.end
+      }
+    })
   return subset
 }
 
@@ -490,7 +489,7 @@ const double = (x) =&gt; 2 * x
 /**
  * Triple the input.
  */
-function triple(x) {
+function triple (x) {
   return 3 * x
 }
 
@@ -519,18 +518,18 @@ const fs = require('fs')
 const acorn = require('acorn')
 
 const main = () =&gt; {
-  const options = {locations: true, onComment: []}
+  const options = { locations: true, onComment: [] }
   const text = fs.readFileSync(process.argv[2])
   const ast = acorn.parse(text, options)
   const comments = options.onComment
-        .filter(entry =&gt; entry.type === 'Block')
-        .map(entry =&gt; {
-          return {
-            value: entry.value,
-            start: entry.loc.start.line,
-            end: entry.loc.end.line
-          }
-        })
+    .filter(entry =&gt; entry.type === 'Block')
+    .map(entry =&gt; {
+      return {
+        value: entry.value,
+        start: entry.loc.start.line,
+        end: entry.loc.end.line
+      }
+    })
   const targets = new Set(comments.map(comment =&gt; comment.end + 1))
   const nodes = []
   findFollowing(ast, targets, nodes)
@@ -547,11 +546,10 @@ const findFollowing = (node, targets, accum) =&gt; {
     targets.delete(node.loc.start.line)
   }
 
-  for (let key in node) {
+  for (const key in node) {
     if (Array.isArray(node[key])) {
       node[key].forEach(child =&gt; findFollowing(child, targets, accum))
-    }
-    else if (typeof node[key] === 'object') {
+    } else if (typeof node[key] === 'object') {
       findFollowing(node[key], targets, accum)
     }
   }
@@ -563,21 +561,21 @@ const condense = (node) =&gt; {
     start: node.loc.start.line
   }
   switch (node.type) {
-  case 'VariableDeclaration':
-    result.name = node.declarations[0].id.name
-    break
-  case 'FunctionDeclaration':
-    result.name = node.id.name
-    break
-  case 'ClassDeclaration':
-    result.name = node.id.name
-    break
-  case 'MethodDefinition':
-    result.name = node.key.name
-    break
-  default:
-    assert.fail(`Unknown node type ${node.type}`)
-    break
+    case 'VariableDeclaration':
+      result.name = node.declarations[0].id.name
+      break
+    case 'FunctionDeclaration':
+      result.name = node.id.name
+      break
+    case 'ClassDeclaration':
+      result.name = node.id.name
+      break
+    case 'MethodDefinition':
+      result.name = node.key.name
+      break
+    default:
+      assert.fail(`Unknown node type ${node.type}`)
+      break
   }
   return result
 }
@@ -596,8 +594,7 @@ main()
 <ul>
 <li>Use this to create better output</li>
 </ul>
-<pre title="fill-in-headers.js"><code class="language-js">const assert = require('assert')
-const MarkdownIt = require('markdown-it')
+<pre title="fill-in-headers.js"><code class="language-js">const MarkdownIt = require('markdown-it')
 const MarkdownAnchor = require('markdown-it-anchor')
 
 const getComments = require('./get-comments.js')
@@ -615,8 +612,8 @@ const main = () =&gt; {
     const text = fillIn(filename, comments, definitions)
     combined.push(text)
   }
-  const md = new MarkdownIt({html: true})
-        .use(MarkdownAnchor, {level: 1, slugify: slugify})
+  const md = new MarkdownIt({ html: true })
+    .use(MarkdownAnchor, { level: 1, slugify: slugify })
   const html = md.render(combined.join('\n\n'))
   console.log(html)
 }

@@ -96,7 +96,7 @@ because it looked for fluff in source code</li>
 </ul>
 <pre title="parse-single-const.js"><code class="language-js">const acorn = require('acorn')
 
-const ast = acorn.parse('const x = 0', {locations: true})
+const ast = acorn.parse('const x = 0', { locations: true })
 console.log(ast)
 </code></pre>
 <pre title="parse-single-const.txt"><code class="language-txt">Node {
@@ -147,7 +147,7 @@ const result = double(value)
 console.log(result)
 `
 
-const ast = acorn.parse(program, {locations: true})
+const ast = acorn.parse(program, { locations: true })
 console.log(JSON.stringify(ast, null, 2))
 </code></pre>
 <pre title="parse-const-func-and-call.txt"><code class="language-txt">{
@@ -217,7 +217,7 @@ const options = {
 }
 const ast = acorn.parse(program, options)
 
-const state = {decl: []}
+const state = { decl: [] }
 walk.simple(ast, {
   Identifier: (node, state) =&gt; {
     state.decl.push(node)
@@ -276,7 +276,7 @@ const applyCheck = (state, label, node, passes) =&gt; {
   }
 }
 
-const ast = acorn.parse(program, {locations: true})
+const ast = acorn.parse(program, { locations: true })
 
 const state = {}
 walk.simple(ast, {
@@ -351,13 +351,12 @@ class Walker {
   // Recurse for anything interesting within the node.
   _doChildren (node, accumulator) {
     this.stack.push(node)
-    for (let key in node) {
+    for (const key in node) {
       if (Array.isArray(node[key])) {
         node[key].forEach(child =&gt; {
           this._walk(child, accumulator)
         })
-      }
-      else if (typeof node[key] === 'object') {
+      } else if (typeof node[key] === 'object') {
         this._walk(node[key], accumulator)
       }
     }
@@ -366,8 +365,8 @@ class Walker {
 
   // Is the current node a child of some other type of node?
   _childOf (nodeTypes) {
-    return this.stack
-      &amp;&amp; nodeTypes.includes(this.stack.slice(-1)[0].type)
+    return this.stack &amp;&amp;
+      nodeTypes.includes(this.stack.slice(-1)[0].type)
   }
 }
 
@@ -375,7 +374,7 @@ class Walker {
 class VariableWalker extends Walker {
   Identifier (node, accumulator) {
     if (this._childOf(['ArrowFunctionExpression',
-                       'VariableDeclarator'])) {
+      'VariableDeclarator'])) {
       accumulator.push(node.name)
     }
   }
@@ -393,7 +392,7 @@ const result = double(value)
 console.log(result)
 `
 
-const ast = acorn.parse(program, {locations: true})
+const ast = acorn.parse(program, { locations: true })
 const walker = new VariableWalker(ast)
 const accumulator = []
 walker.walk(accumulator)
@@ -417,7 +416,7 @@ console.log('definitions are', accumulator)
 </li>
 <li>Note that a generator function returns an object that then returns values</li>
 </ul>
-<pre title="generator-example.js"><code class="language-js">function* threeWords () {
+<pre title="generator-example.js"><code class="language-js">function * threeWords () {
   yield 'first'
   yield 'second'
   yield 'third'
@@ -443,17 +442,15 @@ console.log(gen.next())
 </ul>
 </li>
 </ul>
-<pre title="generator-tree.js"><code class="language-js">function* getNodes (here) {
+<pre title="generator-tree.js"><code class="language-js">function * getNodes (here) {
   if (typeof here === 'string') {
     yield here
-  }
-  else if (Array.isArray(here)){
+  } else if (Array.isArray(here)) {
     for (const child of here) {
-      yield* getNodes(child)
+      yield * getNodes(child)
     }
-  }
-  else {
-    throw new Exception(`unknown type "${typeof here}"`)
+  } else {
+    throw new Error(`unknown type "${typeof here}"`)
   }
 }
 
@@ -495,17 +492,16 @@ third
 </ul>
 <pre title="generator-count.js"><code class="language-js">const acorn = require('acorn')
 
-function* getNodes (node) {
+function * getNodes (node) {
   if (node &amp;&amp; (typeof node === 'object') &amp;&amp; ('type' in node)) {
     yield node
-    for (let key in node) {
+    for (const key in node) {
       if (Array.isArray(node[key])) {
         for (const child of node[key]) {
-          yield* getNodes(child)
+          yield * getNodes(child)
         }
-      }
-      else if (typeof node[key] === 'object') {
-        yield* getNodes(node[key])
+      } else if (typeof node[key] === 'object') {
+        yield * getNodes(node[key])
       }
     }
   }
@@ -523,14 +519,13 @@ const result = double(value)
 console.log(result)
 `
 
-const ast = acorn.parse(program, {locations: true})
+const ast = acorn.parse(program, { locations: true })
 const result = {}
 for (const node of getNodes(ast)) {
   if (node.type === 'BinaryExpression') {
     if (node.operator in result) {
       result[node.operator] += 1
-    }
-    else {
+    } else {
       result[node.operator] = 1
     }
   }

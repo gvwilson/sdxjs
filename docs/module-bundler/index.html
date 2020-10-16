@@ -88,6 +88,159 @@ and combines them into a single loadable file
 </li>
 <li>Our approach is based on <a href="https://www.freecodecamp.org/news/lets-learn-how-module-bundlers-work-and-then-write-one-ourselves-b2e3fe6c88ae/">Adam Kelly's tutorial</a></li>
 </ul>
+<h2 id="do-we-need-to-handle-circular-dependencies">Do we need to handle circular dependencies?</h2>
+<ul>
+<li>We can visualize the network of who requires whom as a <g key="directed_graph">directed graph</g>
+<ul>
+<li>If X requires Y, draw an arrow from X to Y</li>
+</ul>
+</li>
+<li>A <g key="circular_dependency">circular dependency</g> exists if X depends on Y and Y depends on X
+<ul>
+<li>Either directly or indirectly</li>
+</ul>
+</li>
+<li>May seem nonsensical, but can easily arise with <g key="plugin_architecture">plugin architectures</g>
+<ul>
+<li>Main program loads an extension</li>
+<li>The extension calls utility functions defined alongside the main program</li>
+</ul>
+</li>
+<li>Most <g key="compiled_language">compiled languages</g> can handle this
+<ul>
+<li>Compile each module into low-level instructions</li>
+<li><g key="link">Link</g> those to resolve dependencies</li>
+<li>Then run</li>
+</ul>
+</li>
+<li>But <g key="interpreted_language">interpreted languages</g> execute code as it loads
+<ul>
+<li>So if X is in the process of loading Y and Y tries to call X,
+X may not (fully) exist yet</li>
+</ul>
+</li>
+<li>It sort-of works in Python</li>
+<li>Create two files</li>
+</ul>
+<pre title="checking/major.py"><code class="language-py"># major.py
+
+import minor
+
+def top():
+    print("top")
+    minor.middle()
+
+def bottom():
+    print("bottom")
+
+top()
+</code></pre>
+<pre title="checking/minor.py"><code class="language-py"># minor.py
+
+import major
+
+def middle():
+    print("middle")
+    major.bottom()
+</code></pre>
+<ul>
+<li>Fails when run from the command line</li>
+</ul>
+<pre title="checking/py-command-line.sh"><code class="language-sh">python major.py
+</code></pre>
+<pre title="checking/py-command-line.txt"><code class="language-txt">top
+Traceback (most recent call last):
+  File "major.py", line 3, in &lt;module&gt;
+    import minor
+  File "/Users/gvwilson/stjs/module-bundler/checking/minor.py", line 3, in &lt;module&gt;
+    import major
+  File "/Users/gvwilson/stjs/module-bundler/checking/major.py", line 12, in &lt;module&gt;
+    top()
+  File "/Users/gvwilson/stjs/module-bundler/checking/major.py", line 7, in top
+    minor.middle()
+AttributeError: module 'minor' has no attribute 'middle'
+</code></pre>
+<ul>
+<li>But works in the interactive interpreter</li>
+</ul>
+<pre title="checking/py-interactive.txt"><code class="language-txt">&gt;&gt;&gt; import major
+top
+middle
+bottom
+</code></pre>
+<ul>
+<li>Equivalent in JavaScript</li>
+</ul>
+<pre title="checking/major.js"><code class="language-js">const { middle } = require('./minor')
+
+const top = () =&gt; {
+  console.log('top')
+  middle()
+}
+
+const bottom = () =&gt; {
+  console.log('bottom')
+}
+
+top()
+
+module.exports = { top, bottom }
+</code></pre>
+<pre title="checking/minor.js"><code class="language-js">const { bottom } = require('./major')
+
+const middle = () =&gt; {
+  console.log('middle')
+  bottom()
+}
+
+module.exports = { middle }
+</code></pre>
+<ul>
+<li>Fails on the command line</li>
+</ul>
+<pre title="checking/js-command-line.sh"><code class="language-sh">node major.js
+</code></pre>
+<pre title="checking/js-command-line.txt"><code class="language-txt">top
+middle
+/Users/gvwilson/stjs/module-bundler/checking/minor.js:5
+  bottom()
+  ^
+
+TypeError: bottom is not a function
+    at middle (/Users/gvwilson/stjs/module-bundler/checking/minor.js:5:3)
+    at top (/Users/gvwilson/stjs/module-bundler/checking/major.js:5:3)
+    at Object.&lt;anonymous&gt; (/Users/gvwilson/stjs/module-bundler/checking/major.js:12:1)
+    at Module._compile (internal/modules/cjs/loader.js:1151:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:1171:10)
+    at Module.load (internal/modules/cjs/loader.js:1000:32)
+    at Function.Module._load (internal/modules/cjs/loader.js:899:14)
+    at Function.executeUserEntryPoint [as runMain] (internal/modules/run_main.js:71:12)
+    at internal/main/run_main_module.js:17:47
+</code></pre>
+<ul>
+<li>Also fails in the interactive interpreter</li>
+</ul>
+<pre title="checking/js-interactive.txt"><code class="language-txt">&gt; const major = require('./major')
+top
+middle
+Uncaught TypeError: bottom is not a function
+    at middle (/Users/gvwilson/stjs/module-bundler/checking/minor.js:5:3)
+    at top (/Users/gvwilson/stjs/module-bundler/checking/major.js:5:3)
+    at Object.&lt;anonymous&gt; (/Users/gvwilson/stjs/module-bundler/checking/major.js:12:1)
+    at Module._compile (internal/modules/cjs/loader.js:1151:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:1171:10)
+    at Module.load (internal/modules/cjs/loader.js:1000:32)
+    at Function.Module._load (internal/modules/cjs/loader.js:899:14)
+    at Module.require (internal/modules/cjs/loader.js:1040:19)
+    at require (internal/modules/cjs/helpers.js:72:18)
+</code></pre>
+<ul>
+<li>So we will <em>not</em> handle circular dependencies
+<ul>
+<li>But we <em>will</em> detect them and generate a sensible error message</li>
+</ul>
+</li>
+</ul>
 <h2 id="how-can-we-safely-get-the-contents-of-a-module">How can we safely get the contents of a module?</h2>
 <ul>
 <li>Start with a simple file that exports a single function</li>
@@ -307,7 +460,7 @@ but it doesn't seem to do any harm either</li>
 <li>File A requires File B</li>
 <li>Files A and B both require File C, and only one copy of File C is included in the bundle</li>
 <li>Files A and B require File C using different paths</li>
-<li>Files A and B require each other (a <g key="circular_dependency">circular dependency</g>)</li>
+<li>Files A and B require each other (a FIXME)</li>
 </ul>
 </li>
 <li>Create a file <code>main.js</code> as an <g key="entry_point">entry point</g>
