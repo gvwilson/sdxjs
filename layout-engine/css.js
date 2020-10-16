@@ -12,13 +12,13 @@ class Rule {
 class IdRule extends Rule {
   constructor (selector, styles) {
     assert(selector.startsWith('#') && (selector.length > 1),
-           `ID rule must start with # and have a selector`)
+      'ID rule must start with # and have a selector')
     super(IdRule.ORDER, selector.slice(1), styles)
   }
 
   match (node) {
-    return ('id' in node.attributes)
-      && (node.attributes['id'] === this.selector)
+    return ('id' in node.attributes) &&
+      (node.attributes.id === this.selector)
   }
 }
 IdRule.ORDER = 0
@@ -26,13 +26,13 @@ IdRule.ORDER = 0
 class ClassRule extends Rule {
   constructor (selector, styles) {
     assert(selector.startsWith('.') && (selector.length > 1),
-           `Class rule must start with . and have a selector`)
+      'Class rule must start with . and have a selector')
     super(ClassRule.ORDER, selector.slice(1), styles)
   }
 
   match (node) {
-    return ('class' in node.attributes)
-      && (node.attributes['class'] === this.selector)
+    return ('class' in node.attributes) &&
+      (node.attributes.class === this.selector)
   }
 }
 ClassRule.ORDER = 1
@@ -49,17 +49,17 @@ class TagRule extends Rule {
 TagRule.ORDER = 2
 
 class CssRules {
-  constructor (json, mergeDefaults=true) {
+  constructor (json, mergeDefaults = true) {
     const combined = mergeDefaults
-          ? deepmerge(CssRules.DEFAULT_RULES, json)
-          : json
+      ? deepmerge(CssRules.DEFAULT_RULES, json)
+      : json
     this.rules = this.jsonToRules(combined)
   }
 
   jsonToRules (json) {
     return Object.keys(json).map(selector => {
       assert((typeof selector === 'string') && (selector.length > 0),
-             `Require non-empty string as selector`)
+        'Require non-empty string as selector')
       if (selector.startsWith('#')) {
         return new IdRule(selector, json[selector])
       }

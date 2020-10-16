@@ -1,14 +1,14 @@
 const assert = require('assert')
 
-const {Node, TextNode, TagNode} = require('./dom')
-const {CssRules} = require('./css')
+const { Node, TagNode } = require('./dom')
+const { CssRules } = require('./css')
 
 class StyledNode {
   constructor (dom, cssRules) {
     assert(dom instanceof Node,
-           `Require a node`)
+      'Require a node')
     assert(cssRules instanceof CssRules,
-           `Require some rules`)
+      'Require some rules')
 
     this.dom = dom
     this.cssRules = cssRules
@@ -31,7 +31,7 @@ class StyledNode {
     return result
   }
 
-  get (key, defaultValue=null) {
+  get (key, defaultValue = null) {
     if (key in this.rules) {
       return this.rules[key]
     }
@@ -41,4 +41,4 @@ class StyledNode {
   }
 }
 
-module.exports = {StyledNode}
+module.exports = { StyledNode }

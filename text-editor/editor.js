@@ -1,5 +1,5 @@
-const terminalKit = require('terminal-kit');
-const fs = require('fs');
+const terminalKit = require('terminal-kit')
+const fs = require('fs')
 
 const Settings = {
   statusBar: 'Ctrl+  X:save & eXit / C:exit / O:Open / S:Save / A:save As / K:cut line / U:paste line',

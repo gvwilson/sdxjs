@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const terminalKit = require('terminal-kit');
-const fs = require('fs');
+const terminalKit = require('terminal-kit')
+const fs = require('fs')
 
 const Settings = {
   statusBar: 'Ctrl+  X:save & eXit / C:exit / O:Open / S:Save / A:save As / K:cut line / U:paste line',
@@ -64,17 +64,17 @@ class Editor {
   }
 
   drawPrompt (prompt) {
-    this.drawBar({x: 0, y: this.term.height}, prompt, true)
+    this.drawBar({ x: 0, y: this.term.height }, prompt, true)
     if (this.statusBarTimer) {
       clearTimeout(this.statusBarTimer)
     }
   }
 
   drawStatusBar (message = Settings.statusBar, timeout = -1) {
-    this.drawBar({x: 0, y: this.term.height}, message)
+    this.drawBar({ x: 0, y: this.term.height }, message)
 
     this.textBuffer.draw()
-    this.screenBuffer.draw({delta: true})
+    this.screenBuffer.draw({ delta: true })
     this.textBuffer.drawCursor()
     this.screenBuffer.drawCursor()
 
@@ -90,7 +90,7 @@ class Editor {
   }
 
   drawTitleBar () {
-    this.drawBar({x: 1, y: 1}, Settings.titleBar)
+    this.drawBar({ x: 1, y: 1 }, Settings.titleBar)
   }
 
   open () {
@@ -135,16 +135,16 @@ class Editor {
 
   saveAs (callback) {
     this.getFileNameFromUser('Save as: ',
-                             file => this.save(file, callback),
-                             this.currentFile)
+      file => this.save(file, callback),
+      this.currentFile)
   }
 
   saveFile () {
-    if (!this.fileIsModified){
+    if (!this.fileIsModified) {
       return
     }
 
-    if (this.getText() === ''){
+    if (this.getText() === '') {
       return
     }
 
@@ -182,7 +182,7 @@ class Editor {
     this.saveAs(err => {
       if (err) {
         this.drawStatusBar('ERR: Could not save file. Hit Ctrl + C to force exit.',
-                           Settings.longDelay)
+          Settings.longDelay)
         return
       }
       this.exit()
@@ -225,106 +225,106 @@ class Editor {
     }
 
     switch (key) {
-    case 'CTRL_C':
-      this.exit()
-      break
-    case 'CTRL_X':
-      this.saveAndExit()
-      break
-    case 'CTRL_S':
-      this.saveFile()
-      break
-    case 'CTRL_A':
-      this.saveAs()
-      break
-    case 'CTRL_O':
-      this.open()
-      break
-    case 'CTRL_K':
-      this.cutLine()
-      break
-    case 'CTRL_U':
-      this.pasteLine()
-      break
-    case 'PAGE_UP':
-      this.pgUp()
-      break
-    case 'PAGE_DOWN':
-      this.pgDown()
-      break
-    case 'UP':
-      this.up()
-      break
-    case 'DOWN':
-      this.down()
-      break
-    case 'LEFT':
-      this.left()
-      break
-    case 'RIGHT':
-      this.right()
-      break
-    case 'HOME':
-      this.startOfLine()
-      break
-    case 'END':
-      this.endOfLine()
-      break
-    case 'TAB':
-      this.tab()
-      break
-    case 'CTRL_HOME':
-      this.startOfText()
-      break
-    case 'CTRL_END':
-      this.endOfText()
-      break
-    case 'DELETE':
-      this.deleteChar()
-      break
-    case 'BACKSPACE':
-      this.backspace()
-      break
-    case 'ENTER':
-      this.newLine()
-      break
-    default:
-      if (data.isCharacter) {
-        this.fileIsModified = true
-        this.textBuffer.insert(key)
-        this.draw()
-      }
-      break
+      case 'CTRL_C':
+        this.exit()
+        break
+      case 'CTRL_X':
+        this.saveAndExit()
+        break
+      case 'CTRL_S':
+        this.saveFile()
+        break
+      case 'CTRL_A':
+        this.saveAs()
+        break
+      case 'CTRL_O':
+        this.open()
+        break
+      case 'CTRL_K':
+        this.cutLine()
+        break
+      case 'CTRL_U':
+        this.pasteLine()
+        break
+      case 'PAGE_UP':
+        this.pgUp()
+        break
+      case 'PAGE_DOWN':
+        this.pgDown()
+        break
+      case 'UP':
+        this.up()
+        break
+      case 'DOWN':
+        this.down()
+        break
+      case 'LEFT':
+        this.left()
+        break
+      case 'RIGHT':
+        this.right()
+        break
+      case 'HOME':
+        this.startOfLine()
+        break
+      case 'END':
+        this.endOfLine()
+        break
+      case 'TAB':
+        this.tab()
+        break
+      case 'CTRL_HOME':
+        this.startOfText()
+        break
+      case 'CTRL_END':
+        this.endOfText()
+        break
+      case 'DELETE':
+        this.deleteChar()
+        break
+      case 'BACKSPACE':
+        this.backspace()
+        break
+      case 'ENTER':
+        this.newLine()
+        break
+      default:
+        if (data.isCharacter) {
+          this.fileIsModified = true
+          this.textBuffer.insert(key)
+          this.draw()
+        }
+        break
     }
   }
 
   draw (delta = true) {
     this.textBuffer.draw()
-    this.screenBuffer.draw({delta: delta})
+    this.screenBuffer.draw({ delta: delta })
     this.drawCursor()
   }
 
   drawCursor () {
-    let new_buffer_x = this.textBuffer.x
-    let new_buffer_y = this.textBuffer.y
+    let newBufferX = this.textBuffer.x
+    let newBufferY = this.textBuffer.y
 
     if (this.textBuffer.x < -this.textBuffer.cx) {
-      new_buffer_x = Math.min(0, -this.textBuffer.cx + Math.floor(this.screenBuffer.width / 2))
+      newBufferX = Math.min(0, -this.textBuffer.cx + Math.floor(this.screenBuffer.width / 2))
     } else if (this.textBuffer.x > -this.textBuffer.cx + this.screenBuffer.width - 1) {
-      new_buffer_x = (this.screenBuffer.width / 2) - this.textBuffer.cx
+      newBufferX = (this.screenBuffer.width / 2) - this.textBuffer.cx
     }
 
     if (this.textBuffer.y < -this.textBuffer.cy) {
-      new_buffer_y = Math.min(0, -this.textBuffer.cy + Math.floor(this.screenBuffer.height / 2))
+      newBufferY = Math.min(0, -this.textBuffer.cy + Math.floor(this.screenBuffer.height / 2))
     } else if (this.textBuffer.y > -this.textBuffer.cy + this.screenBuffer.height - 1) {
-      new_buffer_y = (this.screenBuffer.height / 2) - this.textBuffer.cy
+      newBufferY = (this.screenBuffer.height / 2) - this.textBuffer.cy
     }
 
-    if (new_buffer_y != this.textBuffer.y || new_buffer_x != this.textBuffer.x) {
-      this.textBuffer.x = new_buffer_x
-      this.textBuffer.y = new_buffer_y
+    if (newBufferY !== this.textBuffer.y || newBufferX !== this.textBuffer.x) {
+      this.textBuffer.x = newBufferX
+      this.textBuffer.y = newBufferY
       this.textBuffer.draw()
-      this.screenBuffer.draw({delta: true})
+      this.screenBuffer.draw({ delta: true })
     }
 
     this.textBuffer.drawCursor()
@@ -386,9 +386,9 @@ class Editor {
   }
 
   endOfText () {
-    const num_lines = this.textBuffer.getContentSize().height - 1
-    const last_line = this.textBuffer.buffer[num_lines]
-    this.textBuffer.moveTo(last_line.length, num_lines)
+    const numLines = this.textBuffer.getContentSize().height - 1
+    const lastLine = this.textBuffer.buffer[numLines]
+    this.textBuffer.moveTo(lastLine.length, numLines)
     this.draw()
   }
 
@@ -399,7 +399,7 @@ class Editor {
 
   pgDown () {
     this.textBuffer.cy = Math.min(this.textBuffer.getContentSize().height - 1,
-                                  this.textBuffer.cy + Math.floor(this.screenBuffer.height / 2))
+      this.textBuffer.cy + Math.floor(this.screenBuffer.height / 2))
     this.draw()
   }
 

@@ -25,14 +25,14 @@ const Hashes = Object.keys(Contents).reduce((obj, key) => {
 }, {})
 
 const Fixture = {
-  'source': {
+  source: {
     'alpha.txt': Contents.aaa,
     'beta.txt': Contents.bbb,
     gamma: {
       'delta.txt': Contents.ccc
     }
   },
-  'backup': {}
+  backup: {}
 }
 
 const InitialBackups = Object.keys(Hashes).reduce((set, filename) => {
@@ -41,7 +41,6 @@ const InitialBackups = Object.keys(Hashes).reduce((set, filename) => {
 }, new Set())
 
 describe('check entire backup process', () => {
-
   beforeEach(() => {
     mock(Fixture)
   })
@@ -51,57 +50,63 @@ describe('check entire backup process', () => {
   })
 
   it('creates an initial CSV manifest', async () => {
-    await backup('source', 'backup', timestamp=0)
+    await backup('source', 'backup', timestamp = 0)
 
-    assert.equal((await glob('backup/*')).length, 4,
-                 `Expected 4 files`)
+    assert.strictEqual((await glob('backup/*')).length, 4,
+      'Expected 4 files')
 
     const actualBackups = new Set(await glob('backup/*.bck'))
-    assert.deepEqual(actualBackups, InitialBackups,
-                     `Expected 3 backup files`)
+    assert.deepStrictEqual(actualBackups, InitialBackups,
+      'Expected 3 backup files')
 
     const actualManifests = await glob('backup/*.csv')
-    assert.deepEqual(actualManifests, ['backup/0000000000.csv'],
-                     `Expected one manifest`)
+    assert.deepStrictEqual(actualManifests, ['backup/0000000000.csv'],
+      'Expected one manifest')
   })
 
   it('does not duplicate files unnecessarily', async () => {
-    await backup('source', 'backup', timestamp=0)
-    assert.equal((await glob('backup/*')).length, 4,
-                 `Expected 4 files after first backup`)
+    await backup('source', 'backup', timestamp = 0)
+    assert.strictEqual((await glob('backup/*')).length, 4,
+      'Expected 4 files after first backup')
 
-    await backup('source', 'backup', timestamp=1)
-    assert.equal((await glob('backup/*')).length, 5,
-                 `Expected 5 files after second backup`)
+    await backup('source', 'backup', timestamp = 1)
+    assert.strictEqual((await glob('backup/*')).length, 5,
+      'Expected 5 files after second backup')
     const actualBackups = new Set(await glob('backup/*.bck'))
-    assert.deepEqual(actualBackups, InitialBackups,
-                     `Expected 3 backup files after second backup`)
+    assert.deepStrictEqual(actualBackups, InitialBackups,
+      'Expected 3 backup files after second backup')
 
     const actualManifests = (await glob('backup/*.csv')).sort()
-    assert.deepEqual(actualManifests, ['backup/0000000000.csv',
-                                       'backup/0000000001.csv'],
-                     `Expected two manifests`)
+    assert.deepStrictEqual(actualManifests,
+      [
+        'backup/0000000000.csv',
+        'backup/0000000001.csv'
+      ],
+      'Expected two manifests')
   })
 
   it('adds a file as needed', async () => {
-    await backup('source', 'backup', timestamp=0)
-    assert.equal((await glob('backup/*')).length, 4,
-                 `Expected 4 files after first backup`)
+    await backup('source', 'backup', timestamp = 0)
+    assert.strictEqual((await glob('backup/*')).length, 4,
+      'Expected 4 files after first backup')
 
     await fs.writeFileAsync('source/newfile.txt', 'NNN')
     const hashOfNewFile = hashString('NNN')
 
-    await backup('source', 'backup', timestamp=1)
-    assert.equal((await glob('backup/*')).length, 6,
-                 `Expected 6 files after second backup`)
+    await backup('source', 'backup', timestamp = 1)
+    assert.strictEqual((await glob('backup/*')).length, 6,
+      'Expected 6 files after second backup')
     const expected = new Set(InitialBackups).add(`backup/${hashOfNewFile}.bck`)
     const actualBackups = new Set(await glob('backup/*.bck'))
-    assert.deepEqual(actualBackups, expected,
-                     `Expected 4 backup files after second backup`)
+    assert.deepStrictEqual(actualBackups, expected,
+      'Expected 4 backup files after second backup')
 
     const actualManifests = (await glob('backup/*.csv')).sort()
-    assert.deepEqual(actualManifests, ['backup/0000000000.csv',
-                                       'backup/0000000001.csv'],
-                     `Expected two manifests`)
+    assert.deepStrictEqual(actualManifests,
+      [
+        'backup/0000000000.csv',
+        'backup/0000000001.csv'
+      ],
+      'Expected two manifests')
   })
 })

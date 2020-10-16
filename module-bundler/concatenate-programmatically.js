@@ -1,13 +1,13 @@
 const fs = require('fs')
 
-const TOP = `everything = {`
+const TOP = 'everything = {'
 
 const TEMPLATE = `'FILENAME': ((module) => {
 BODY
 return module
 })({})`
 
-const BOTTOM = `}`
+const BOTTOM = '}'
 
 const createEverything = (filenames) => {
   const sections = filenames.map(filename => {

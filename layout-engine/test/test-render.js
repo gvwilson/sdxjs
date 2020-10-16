@@ -1,23 +1,23 @@
 const assert = require('assert')
 
-const {TextNode, TagNode} = require('../dom')
-const {CssRules} = require('../css')
-const {StyledNode} = require('../styled')
-const {render} = require('../render')
+const { TextNode, TagNode } = require('../dom')
+const { CssRules } = require('../css')
+const { StyledNode } = require('../styled')
+const { render } = require('../render')
 
 const EmptyCSS = new CssRules({})
 
 const makeBox = (x, y, width, height) => {
-  return {x, y, width, height}
+  return { x, y, width, height }
 }
 
 const assignBoxes = (node, boxes) => {
   node.box = boxes[0]
   if ('children' in node) {
-    assert.equal(node.children.length, boxes.length - 1,
-                 `Must have as many boxes as children`)
+    assert.strictEqual(node.children.length, boxes.length - 1,
+      'Must have as many boxes as children')
     node.children.forEach((child, i) => {
-      assignBoxes(child, boxes[i+1])
+      assignBoxes(child, boxes[i + 1])
     })
   }
 }
@@ -29,8 +29,8 @@ describe('renders styled nodes', () => {
     const box = makeBox(0, 0, 1, 1)
     assignBoxes(styled, [box, [box]])
     const result = render(styled, 1, 1)
-    assert.equal(result, 'X',
-                 `Expected paragraph to fill the screen`)
+    assert.strictEqual(result, 'X',
+      'Expected paragraph to fill the screen')
   })
 
   it('pads a 2x2 screen with a 1-character paragraph', async () => {
@@ -40,8 +40,8 @@ describe('renders styled nodes', () => {
     assignBoxes(styled, [box, [box]])
     const result = render(styled, 2, 2)
     const expected = ['X.', '..'].join('\n')
-    assert.equal(result, expected,
-                 `Expected text to fill upper left corner of screen`)
+    assert.strictEqual(result, expected,
+      'Expected text to fill upper left corner of screen')
   })
 
   it('renders two consecutive paragraphs', async () => {
@@ -50,16 +50,16 @@ describe('renders styled nodes', () => {
       new TagNode('p', {}, [new TextNode('CD')])
     ])
     const styled = new StyledNode(dom, EmptyCSS)
-    const overallBox = makeBox(0, 0, 2, 2),
-          firstParaBox = makeBox(0, 0, 2, 1),
-          secondParaBox = makeBox(0, 1, 2, 1)
+    const overallBox = makeBox(0, 0, 2, 2)
+    const firstParaBox = makeBox(0, 0, 2, 1)
+    const secondParaBox = makeBox(0, 1, 2, 1)
     assignBoxes(styled, [overallBox,
-                         [firstParaBox, [firstParaBox]],
-                         [secondParaBox, [secondParaBox]]])
+      [firstParaBox, [firstParaBox]],
+      [secondParaBox, [secondParaBox]]])
     const result = render(styled, 2, 2)
     const expected = ['AB', 'CD'].join('\n')
-    assert.equal(result, expected,
-                 `Expected paragraphs to fill screen`)
+    assert.strictEqual(result, expected,
+      'Expected paragraphs to fill screen')
   })
 
   it('hides overflow of single paragraph', async () => {
@@ -68,8 +68,8 @@ describe('renders styled nodes', () => {
     const narrowBox = makeBox(0, 0, 2, 1)
     assignBoxes(styled, [narrowBox, [narrowBox]])
     const result = render(styled, 2, 1)
-    assert.equal(result, '12',
-                 `Expected paragraph to be truncated`)
+    assert.strictEqual(result, '12',
+      'Expected paragraph to be truncated')
   })
 
   it('puts columns side by side', async () => {
@@ -82,14 +82,14 @@ describe('renders styled nodes', () => {
       ])
     ])
     const styled = new StyledNode(dom, EmptyCSS)
-    const overallBox = makeBox(0, 0, 6, 1),
-          leftBox = makeBox(0, 0, 3, 1),
-          rightBox = makeBox(3, 0, 3, 1)
+    const overallBox = makeBox(0, 0, 6, 1)
+    const leftBox = makeBox(0, 0, 3, 1)
+    const rightBox = makeBox(3, 0, 3, 1)
     assignBoxes(styled, [overallBox,
-                         [leftBox, [leftBox, [leftBox]]],
-                         [rightBox, [rightBox, [rightBox]]]])
+      [leftBox, [leftBox, [leftBox]]],
+      [rightBox, [rightBox, [rightBox]]]])
     const result = render(styled, 6, 1)
-    assert.equal(result, 'LL.RR.',
-                 `Columns not laid out side by side`)
+    assert.strictEqual(result, 'LL.RR.',
+      'Columns not laid out side by side')
   })
 })

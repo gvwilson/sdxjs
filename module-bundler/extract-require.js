@@ -21,7 +21,6 @@ const getRequires = (filename) => {
 if (require.main === module) {
   const result = getRequires(process.argv[2])
   console.log(result)
-}
-else {
+} else {
   module.exports = getRequires
 }

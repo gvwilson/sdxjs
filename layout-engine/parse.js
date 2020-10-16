@@ -1,14 +1,14 @@
 const assert = require('assert')
 
-const {TextNode, TagNode} = require('./dom')
+const { TextNode, TagNode } = require('./dom')
 
 const parseHTML = (text) => {
   const chunks = chunkify(text.trim())
   assert(isElement(chunks[0]),
-         `Must have enclosing outer node`)
+    'Must have enclosing outer node')
   const [node, remainder] = makeNode(chunks)
   assert(remainder.length === 0,
-         `Cannot have dangling content`)
+    'Cannot have dangling content')
   return node
 }
 
@@ -16,7 +16,7 @@ const chunkify = (text) => {
   const textAndTag = /^([^<]*)(<.+?>)(.*)$/
   const raw = []
   while (text) {
-    matches = text.match(textAndTag)
+    const matches = text.match(textAndTag)
     if (!matches) {
       break
     }
@@ -37,7 +37,7 @@ const isElement = (chunk) => {
 
 const makeNode = (chunks) => {
   assert(chunks.length > 0,
-         `Cannot make nodes without chunks`)
+    'Cannot make nodes without chunks')
 
   if (!isElement(chunks[0])) {
     return [new TextNode(chunks[0]), chunks.slice(1)]
@@ -46,8 +46,8 @@ const makeNode = (chunks) => {
   const node = makeOpening(chunks[0])
   const closing = `</${node.tag}>`
 
-  let remainder = chunks.slice(1), child = null
-  while (remainder && (remainder[0] != closing)) {
+  let remainder = chunks.slice(1); let child = null
+  while (remainder && (remainder[0] !== closing)) {
     [child, remainder] = makeNode(remainder)
     node.children.push(child)
   }
@@ -63,11 +63,11 @@ const makeOpening = (chunk) => {
   const outer = chunk.match(tagAndAttr)
   const tag = outer[1]
   const attributes = [...outer[2].trim().matchAll(keyAndValue)]
-        .reduce((obj, [all, key, value]) => {
-          obj[key] = value
-          return obj
-        }, {})
+    .reduce((obj, [all, key, value]) => {
+      obj[key] = value
+      return obj
+    }, {})
   return new TagNode(tag, attributes, null)
 }
 
-module.exports = {parseHTML}
+module.exports = { parseHTML }

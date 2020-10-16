@@ -1,24 +1,24 @@
 const assert = require('assert')
 
-const {TextNode, TagNode} = require('../dom')
-const {CssRules} = require('../css')
-const {StyledNode} = require('../styled')
-const {layout} = require('../layout')
+const { TextNode, TagNode } = require('../dom')
+const { CssRules } = require('../css')
+const { StyledNode } = require('../styled')
+const { layout } = require('../layout')
 
 const EmptyCSS = new CssRules({})
 
 const makeBox = (x, y, width, height) => {
-  return {x, y, width, height}
+  return { x, y, width, height }
 }
 
 const checkBoxes = (node, boxes) => {
-  assert.deepEqual(node.box, boxes[0],
+  assert.deepStrictEqual(node.box, boxes[0],
                    `Mismatch between ${node} and ${boxes[0]}`)
   if ('children' in node) {
-    assert.equal(node.children.length, boxes.length - 1,
-                 `Must have as many boxes as children`)
+    assert.strictEqual(node.children.length, boxes.length - 1,
+      'Must have as many boxes as children')
     node.children.forEach((child, i) => {
-      checkBoxes(child, boxes[i+1])
+      checkBoxes(child, boxes[i + 1])
     })
   }
 }
@@ -47,12 +47,12 @@ describe('lays out nodes', () => {
     ])
     const styled = new StyledNode(dom, EmptyCSS)
     layout(styled, makeBox(0, 0, 2, 2))
-    const overallBox = makeBox(0, 0, 2, 2),
-          firstParaBox = makeBox(0, 0, 2, 1),
-          secondParaBox = makeBox(0, 1, 2, 1)
+    const overallBox = makeBox(0, 0, 2, 2)
+    const firstParaBox = makeBox(0, 0, 2, 1)
+    const secondParaBox = makeBox(0, 1, 2, 1)
     checkBoxes(styled, [overallBox,
-                        [firstParaBox, [firstParaBox]],
-                        [secondParaBox, [secondParaBox]]])
+      [firstParaBox, [firstParaBox]],
+      [secondParaBox, [secondParaBox]]])
   })
 
   it('lays out a single overflow paragraph', async () => {
@@ -74,13 +74,13 @@ describe('lays out nodes', () => {
     ])
     const styled = new StyledNode(dom, EmptyCSS)
     layout(styled, makeBox(0, 0, 6, 1))
-    const overallBox = makeBox(0, 0, 6, 1),
-          leftBox = makeBox(0, 0, 3, 1),
-          leftTextBox = makeBox(0, 0, 2, 1),
-          rightBox = makeBox(3, 0, 3, 1),
-          rightTextBox = makeBox(3, 0, 2, 1)
+    const overallBox = makeBox(0, 0, 6, 1)
+    const leftBox = makeBox(0, 0, 3, 1)
+    const leftTextBox = makeBox(0, 0, 2, 1)
+    const rightBox = makeBox(3, 0, 3, 1)
+    const rightTextBox = makeBox(3, 0, 2, 1)
     checkBoxes(styled, [overallBox,
-                        [leftBox, [leftTextBox, [leftTextBox]]],
-                        [rightBox, [rightTextBox, [rightTextBox]]]])
+      [leftBox, [leftTextBox, [leftTextBox]]],
+      [rightBox, [rightTextBox, [rightTextBox]]]])
   })
 })

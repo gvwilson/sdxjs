@@ -74,14 +74,18 @@ have been around since the 1980s</li>
 <h2 id="how-can-we-extract-documentation-comments">How can we extract documentation comments?</h2>
 <ul>
 <li>Use <a href="https://github.com/acornjs/acorn">Acorn</a> once again to extract comments</li>
-<li>Provide an <code>onComment</code> option with an array value for it to fill in</li>
+<li>Provide an <code>onComment</code> option with an array value for it to fill in
+<ul>
+<li>Don't bother assigning the AST produced by parsing to a variable because we're collecting side effects in <code>onComment</code></li>
+</ul>
+</li>
 </ul>
 <pre title="extract-comments.js"><code class="language-js">const fs = require('fs')
 const acorn = require('acorn')
 
 const text = fs.readFileSync(process.argv[2])
-const options = {locations: true, onComment: []}
-const ast = acorn.parse(text, options)
+const options = { locations: true, onComment: [] }
+acorn.parse(text, options)
 console.log(JSON.stringify(options.onComment, null, 2))
 </code></pre>
 <pre title="two-kinds-of-comment.js"><code class="language-js">// double-slash comment
@@ -130,7 +134,7 @@ const acorn = require('acorn')
 
 const text = fs.readFileSync(process.argv[2])
 const options = { locations: true, onComment: [] }
-const ast = acorn.parse(text, options)
+acorn.parse(text, options)
 const subset = options.onComment.map(entry =&gt; {
   return {
     type: entry.type,
@@ -354,7 +358,7 @@ const main = () =&gt; {
 const extractComments = (filename) =&gt; {
   const text = fs.readFileSync(filename)
   const options = { locations: true, onComment: [] }
-  const ast = acorn.parse(text, options)
+  acorn.parse(text, options)
   const subset = options.onComment
     .filter(entry =&gt; entry.type === 'Block')
     .map(entry =&gt; {

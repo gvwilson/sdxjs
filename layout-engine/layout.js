@@ -1,53 +1,50 @@
 const assert = require('assert')
 
-const {CssRules} = require('./css')
-const {TextNode, TagNode} = require('./dom')
-const {StyledNode} = require('./styled')
+const { CssRules } = require('./css')
+const { TextNode, TagNode } = require('./dom')
+const { StyledNode } = require('./styled')
 
-//- let DebugDepth = 0
-//- let DebugIndent = '....................'
+// - let DebugDepth = 0
+// - let DebugIndent = '....................'
 
 const layout = (styled, box) => {
-//-  console.log(DebugIndent.slice(0, DebugDepth), 'layout >>', box, 'for', (styled instanceof TextNode) ? 'TextNode' : 'TagNode')
-//-  DebugDepth += 2
+// -  console.log(DebugIndent.slice(0, DebugDepth), 'layout >>', box, 'for', (styled instanceof TextNode) ? 'TextNode' : 'TagNode')
+// -  DebugDepth += 2
   assert(styled instanceof StyledNode,
-         `Require styled node for layout`)
+    'Require styled node for layout')
   assert(styled.dom instanceof TagNode,
-         `Can only lay out tag nodes`)
+    'Can only lay out tag nodes')
   assert(styled.get('visible'),
-         `Should not construct layout node for undisplayed styled node`)
+    'Should not construct layout node for undisplayed styled node')
 
   styled.children = styled.children.filter(child => {
     return child.get('visible')
   })
 
   switch (styled.get('layout')) {
-  case 'wrap' :
-    layoutWrap(styled, box)
-    break
-  case 'vertical' :
-    layoutVertical(styled, box)
-    break
-  case 'horizontal' :
-    layoutHorizontal(styled, box)
-    break
-  default :
-    assert(false,
-           `Unknown layout ${styled.get('layout')}`)
+    case 'wrap' :
+      layoutWrap(styled, box)
+      break
+    case 'vertical' :
+      layoutVertical(styled, box)
+      break
+    case 'horizontal' :
+      layoutHorizontal(styled, box)
+      break
+    default :
+      assert(false,
+        `Unknown layout ${styled.get('layout')}`)
   }
 
   assert(styled.box,
-         `Failed to create box when placing styled node`)
-//-  DebugDepth -= 2
-//-  console.log(DebugIndent.slice(0, DebugDepth), 'layout <<', styled.box)
+    'Failed to create box when placing styled node')
 }
 
 const layoutWrap = (styled, box) => {
-//-  console.log(DebugIndent.slice(0, DebugDepth), 'layoutWrap >>', box)
   assert((styled.children.length === 1) && (styled.children[0].dom instanceof TextNode),
-         `Node must have a single block of text`)
+    'Node must have a single block of text')
   assert(box.width > 0,
-         `Cannot wrap in a zero-width box`)
+    'Cannot wrap in a zero-width box')
   styled.box = {
     x: box.x,
     y: box.y,
@@ -70,15 +67,15 @@ const layoutWrap = (styled, box) => {
   })
   styled.box.width = Math.min(...styled.children.map(child => child.box.width))
   styled.box.height = lines.length
-//-  console.log(DebugIndent.slice(0, DebugDepth), 'layoutWrap <<', styled.box)
+// -  console.log(DebugIndent.slice(0, DebugDepth), 'layoutWrap <<', styled.box)
 }
 
 const layoutVertical = (styled, box) => {
-//-  console.log(DebugIndent.slice(0, DebugDepth), 'layoutVertical >>', box)
+// -  console.log(DebugIndent.slice(0, DebugDepth), 'layoutVertical >>', box)
   assert(styled.children.every(child => {
     const layout = child.get('layout')
     return (layout === 'horizontal') || (layout === 'wrap')
-  }), `Children of vertical element must be horizontal elements`)
+  }), 'Children of vertical element must be horizontal elements')
   styled.box = {
     x: box.x,
     y: box.y,
@@ -91,13 +88,13 @@ const layoutVertical = (styled, box) => {
   })
   styled.box.height = styled.box.y
   styled.box.y = box.y
-//-  console.log(DebugIndent.slice(0, DebugDepth), 'layoutVertical <<', styled.box)
+// -  console.log(DebugIndent.slice(0, DebugDepth), 'layoutVertical <<', styled.box)
 }
 
 const layoutHorizontal = (styled, box) => {
-//-  console.log(DebugIndent.slice(0, DebugDepth), 'layoutHorizontal >>', box)
+// -  console.log(DebugIndent.slice(0, DebugDepth), 'layoutHorizontal >>', box)
   assert(styled.children.every(child => child.get('layout') === 'vertical'),
-         `All children of horizontal element must be vertical elements`)
+    'All children of horizontal element must be vertical elements')
   styled.box = {
     x: box.x,
     y: box.y,
@@ -110,12 +107,11 @@ const layoutHorizontal = (styled, box) => {
   }, 0)
   if (minimum < box.width) {
     layoutHorizontalUnderflow(styled, box, minimum)
-  }
-  else {
+  } else {
     layoutHorizontalOverflow(styled, box, minimum)
   }
   styled.box.height = Math.max(...styled.children.map(child => child.box.height))
-//-  console.log(DebugIndent.slice(0, DebugDepth), 'layoutHorizontal <<', styled.box)
+// -  console.log(DebugIndent.slice(0, DebugDepth), 'layoutHorizontal <<', styled.box)
 }
 
 const layoutHorizontalUnderflow = (styled, box, minimum) => {
@@ -144,7 +140,7 @@ const layoutHorizontalUnderflow = (styled, box, minimum) => {
 
 const layoutHorizontalOverflow = (styled, box, minimum) => {
   let x = box.x
-  let result = []
+  const result = []
   styled.children.forEach(child => {
     const width = child.get('width', 0)
     if ((width > 0) && (x < box.width)) {
@@ -167,14 +163,12 @@ const splitText = (width, text) => {
   text.trim().split(/\s+/).forEach(chunk => {
     if (current === null) {
       current = chunk
-    }
-    else {
+    } else {
       const candidate = current + ' ' + chunk
       if (candidate.length > width) {
         result.push(current)
         current = chunk
-      }
-      else {
+      } else {
         current = candidate
       }
     }
@@ -183,4 +177,4 @@ const splitText = (width, text) => {
   return result
 }
 
-module.exports = {layout}
+module.exports = { layout }

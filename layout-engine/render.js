@@ -1,7 +1,6 @@
 const assert = require('assert')
 
-const {TextNode, TagNode} = require('./dom')
-const {LayoutNode} = require('./layout')
+const { TextNode, TagNode } = require('./dom')
 
 const render = (layout, width, height, fillChar = '.') => {
   const screen = new Array(width).fill(null)
@@ -10,9 +9,9 @@ const render = (layout, width, height, fillChar = '.') => {
   })
   fill(screen, layout, fillChar)
   const temp = []
-  for (let y=0; y<height; y+=1) {
-    let chars = []
-    for (let x=0; x<width; x+=1) {
+  for (let y = 0; y < height; y += 1) {
+    const chars = []
+    for (let x = 0; x < width; x += 1) {
       chars.push(screen[x][y])
     }
     temp.push(chars.join(''))
@@ -27,7 +26,7 @@ const fill = (screen, layout, fillChar) => {
   }
 
   assert(layout.dom instanceof TextNode,
-         `Can only handle tag nodes and text nodes`)
+    'Can only handle tag nodes and text nodes')
 
   const text = layout.dom.text
   let i = 0
@@ -42,4 +41,4 @@ const fill = (screen, layout, fillChar) => {
   }
 }
 
-module.exports = {render}
+module.exports = { render }
