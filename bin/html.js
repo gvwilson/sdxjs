@@ -26,16 +26,6 @@ const DEFAULTS = {
 }
 
 /**
- * Files to copy directly.
- */
-const COPY_FILES = ['.nojekyll', 'CNAME']
-
-/**
- * File containing Markdown-formatted links.
- */
-const LINKS_FILE = 'links.md'
-
-/**
  * Header inclusion.
  */
 const HEADER = "<%- include('/inc/head.html') %>"
@@ -64,21 +54,21 @@ const main = () => {
  */
 const getOptions = () => {
   const parser = new argparse.ArgumentParser()
-  parser.add_argument('-c', '--configFile', {default: DEFAULTS.configFile})
-  parser.add_argument('-l', '--linksFile', {default: DEFAULTS.linksFile})
-  parser.add_argument('-o', '--outputDir', {default: DEFAULTS.outputDir})
-  parser.add_argument('-r', '--rootDir', {default: DEFAULTS.rootDir})
+  parser.add_argument('-c', '--configFile', { default: DEFAULTS.configFile })
+  parser.add_argument('-l', '--linksFile', { default: DEFAULTS.linksFile })
+  parser.add_argument('-o', '--outputDir', { default: DEFAULTS.outputDir })
+  parser.add_argument('-r', '--rootDir', { default: DEFAULTS.rootDir })
   const fromArgs = parser.parse_args()
 
   const fromFile = yaml.safeLoad(fs.readFileSync(fromArgs.configFile))
-  const options = {...fromArgs, ...fromFile}
+  const options = { ...fromArgs, ...fromFile }
 
   assert(options.linksFile,
-         `Need a links file`)
+    'Need a links file')
   assert(options.outputDir,
-         `Need a site directory`)
+    'Need a site directory')
   assert(options.rootDir,
-         `Need a root directory`)
+    'Need a root directory')
 
   return options
 }
@@ -118,8 +108,8 @@ const buildFileInfo = (options) => {
   // Numbered pages.
   const numbered = [...options.chapters, ...options.appendices]
   numbered.forEach((fileInfo, i) => {
-    fileInfo.previous = (i > 0) ? numbered[i-1] : null
-    fileInfo.next = (i < numbered.length-1) ? numbered[i+1] : null
+    fileInfo.previous = (i > 0) ? numbered[i - 1] : null
+    fileInfo.next = (i < numbered.length - 1) ? numbered[i + 1] : null
   })
 
   return allFiles
@@ -131,7 +121,7 @@ const buildFileInfo = (options) => {
  */
 const loadFiles = (allFiles) => {
   allFiles.forEach((fileInfo, i) => {
-    const {data, content} = matter(fs.readFileSync(fileInfo.source))
+    const { data, content } = matter(fs.readFileSync(fileInfo.source))
     Object.assign(fileInfo, data)
     fileInfo.content = `${HEADER}\n${content}\n${FOOTER}`
   })
@@ -164,12 +154,12 @@ const translateFile = (options, fileInfo, linksText) => {
 
   // Since inclusions may contain inclusions, we need to provide the rendering
   // function to the renderer in the settings.
-  settings['_render'] = (text) => ejs.render(text, settings, context)
+  settings._render = (text) => ejs.render(text, settings, context)
 
   // Translate the page.
-  const translated = settings['_render'](`${fileInfo.content}\n\n${linksText}`)
-  const mdi = new MarkdownIt({html: true})
-        .use(MarkdownAnchor, {level: 1, slugify: slugify})
+  const translated = settings._render(`${fileInfo.content}\n\n${linksText}`)
+  const mdi = new MarkdownIt({ html: true })
+    .use(MarkdownAnchor, { level: 1, slugify: slugify })
   const html = mdi.render(translated)
 
   // Save result.
@@ -234,9 +224,9 @@ const _readPage = (mainFile, subFile) => {
  */
 const slugify = (text) => {
   return encodeURIComponent(text.trim()
-                            .toLowerCase()
-                            .replace(/[^ \w]/g, '')
-                            .replace(/\s+/g, '-'))
+    .toLowerCase()
+    .replace(/[^ \w]/g, '')
+    .replace(/\s+/g, '-'))
 }
 
 /**
@@ -247,10 +237,10 @@ const finalize = (options) => {
   // Simple files.
   const excludes = options.exclude.map(pattern => new minimatch.Minimatch(pattern))
   const toCopy = options.copy
-        .map(pattern => path.join(options.rootDir, pattern))
-        .map(pattern => glob.sync(pattern))
-        .flat()
-        .filter(filename => !excludes.some(pattern => pattern.match(filename)))
+    .map(pattern => path.join(options.rootDir, pattern))
+    .map(pattern => glob.sync(pattern))
+    .flat()
+    .filter(filename => !excludes.some(pattern => pattern.match(filename)))
   toCopy.forEach(source => {
     const dest = makeOutputPath(options.outputDir, source)
     ensureOutputDir(dest)
@@ -260,8 +250,8 @@ const finalize = (options) => {
   // Numbering.
   const numbering = buildNumbering(options)
   fs.writeFileSync(path.join(options.outputDir, 'numbering.js'),
-                   JSON.stringify(numbering, null, 2),
-                   'utf-8')
+    JSON.stringify(numbering, null, 2),
+    'utf-8')
 }
 
 /**
@@ -273,7 +263,7 @@ const buildNumbering = (options) => {
   const result = {}
   const numbered = [...options.extras, ...options.chapters]
   numbered.forEach((fileInfo, i) => {
-    result[fileInfo.slug] = `${i+1}`
+    result[fileInfo.slug] = `${i + 1}`
   })
   const start = 'A'.charCodeAt(0)
   options.appendices.forEach((fileInfo, i) => {
@@ -289,7 +279,7 @@ const buildNumbering = (options) => {
  * @param {Object} suffixes Lookup table for suffix substitution.
  * @returns {string} Output file path.
  */
-const makeOutputPath = (output, source, suffixes={}) => {
+const makeOutputPath = (output, source, suffixes = {}) => {
   let dest = path.join(output, source)
   const ext = path.extname(dest)
   if (ext in suffixes) {
@@ -304,7 +294,7 @@ const makeOutputPath = (output, source, suffixes={}) => {
  */
 const ensureOutputDir = (outputPath) => {
   const dirName = path.dirname(outputPath)
-  fs.mkdirSync(dirName, {recursive: true})
+  fs.mkdirSync(dirName, { recursive: true })
 }
 
 /**

@@ -46,9 +46,9 @@ const getOptions = () => {
   const options = parser.parse_args()
 
   assert(options.input,
-         `Need input file`)
+    'Need input file')
   assert(options.output,
-         `Need output file`)
+    'Need output file')
   return options
 }
 
@@ -59,9 +59,9 @@ const getOptions = () => {
 const makeBib = (data) => {
   const entries = data.map(entry => {
     assert('type' in entry,
-           `All entries must have 'type'`)
+      'All entries must have "type"')
     assert(entry.type in ReferenceHandlers,
-           `Unknown reference type ${entry.type}`)
+      `Unknown reference type ${entry.type}`)
     return ReferenceHandlers[entry.type](entry)
   })
   return `${HEADER}${entries.join('\n\n')}${FOOTER}`
@@ -132,10 +132,8 @@ const ReferenceHandlers = {
  * @returns {string} HTML text.
  */
 const articleInfo = (entry) => {
-  assert(('journal' in entry) &&
-         ('year' in entry) &&
-         ('doi' in entry),
-         `Entry requires journal, year, and DOI`)
+  assert(('journal' in entry) && ('year' in entry) && ('doi' in entry),
+    'Entry requires journal, year, and DOI')
   let details = ''
   if ('volume' in entry) {
     details = `${entry.volume}`
@@ -156,10 +154,8 @@ const articleInfo = (entry) => {
  * @returns {string} HTML text.
  */
 const bookInfo = (entry) => {
-  assert(('publisher' in entry) &&
-         ('year' in entry) &&
-         ('isbn' in entry),
-         `Entry requires publisher, year, and ISBN`)
+  assert(('publisher' in entry) && ('year' in entry) && ('isbn' in entry),
+    'Entry requires publisher, year, and ISBN')
   return `${entry.publisher}, ${entry.year}, ${entry.isbn}.`
 }
 
@@ -170,13 +166,12 @@ const bookInfo = (entry) => {
  */
 const credit = (entry) => {
   assert(('author' in entry) || ('editor' in entry),
-         `Entry must have author or editor`)
+    'Entry must have author or editor')
   const suffix = ('editor' in entry) ? ' (eds.)' : ''
   let names = entry.author || entry.editor
   if (names.length === 2) {
     names = `${names[0]} and ${names[1]}`
-  }
-  else if (names.length > 2) {
+  } else if (names.length > 2) {
     const front = names.slice(0, -1).join(', ')
     names = `${front}, and ${names.slice(-1)}`
   }
@@ -189,7 +184,7 @@ const credit = (entry) => {
  * @returns {string} HTML text.
  */
 const descriptionBegin = (entry) => {
-  return `<dd>`
+  return '<dd>'
 }
 
 /**
@@ -198,7 +193,7 @@ const descriptionBegin = (entry) => {
  * @returns {string} HTML text.
  */
 const descriptionEnd = (entry) => {
-  return `</dd>`
+  return '</dd>'
 }
 
 /**
@@ -208,7 +203,7 @@ const descriptionEnd = (entry) => {
  */
 const key = (entry) => {
   assert('key' in entry,
-         `Every entry must have key`)
+    'Every entry must have key')
   return `<dt id="${entry.key}" class="bibliography">${entry.key}</dt>`
 }
 
@@ -219,7 +214,7 @@ const key = (entry) => {
  */
 const note = (entry) => {
   assert('note' in entry,
-         `Every entry must have note`)
+    'Every entry must have note')
   // FIXME: Markdown to HTML
   return `<em>${entry.note.trim()}</em>`
 }
@@ -231,7 +226,7 @@ const note = (entry) => {
  */
 const title = (entry, quote) => {
   assert('title' in entry,
-         `Every entry must have title`)
+    'Every entry must have title')
   let title = entry.title
   if ('url' in entry) {
     title = `<a href="${entry.url}">${title}</a>`

@@ -44,8 +44,8 @@ const main = () => {
 const getOptions = () => {
   const parser = new argparse.ArgumentParser()
   parser.add_argument('--config')
-  parser.add_argument('--html', {nargs: '+'})
-  parser.add_argument('--markdown', {nargs: '+'})
+  parser.add_argument('--html', { nargs: '+' })
+  parser.add_argument('--markdown', { nargs: '+' })
   return parser.parse_args()
 }
 
@@ -57,7 +57,7 @@ const getOptions = () => {
 const loadMarkdown = (options) => {
   return options.markdown.map(filename => {
     const text = fs.readFileSync(filename, 'utf-8').trim()
-    return {filename, text}
+    return { filename, text }
   })
 }
 
@@ -69,8 +69,8 @@ const loadMarkdown = (options) => {
 const loadHtml = (options) => {
   return options.html.map(filename => {
     const text = fs.readFileSync(filename, 'utf-8').trim()
-    const doc = parse5.parse(text, {sourceCodeLocationInfo: true})
-    return {filename, text, doc}
+    const doc = parse5.parse(text, { sourceCodeLocationInfo: true })
+    return { filename, text, doc }
   })
 }
 
@@ -90,7 +90,7 @@ const checkExercises = (options) => {
       }
       glob.sync(`${chapter.slug}/*/problem.md`)
         .map(problem => problem
-             .replace('/problem.md', ''))
+          .replace('/problem.md', ''))
         .forEach(full => actual.add(full))
     })
   showSetDiff('Missing exercises', expected, actual)
@@ -116,11 +116,11 @@ const checkExercises = (options) => {
  * @param {Array<Object>} files File information.
  */
 const checkGloss = (files) => {
-  const used = new Set(files.map(({text}) => {
+  const used = new Set(files.map(({ text }) => {
     const matches = [...text.matchAll(/<g\s+key="(.+?)">/g)]
     return matches.map(match => match[1])
   }).flat())
-  const defined = new Set(files.map(({text}) => {
+  const defined = new Set(files.map(({ text }) => {
     const matches = [...text.matchAll(/<dt\s+id="(.+?)"\s+class="glossary">/g)]
     return matches.map(match => match[1])
   }).flat())
@@ -135,7 +135,7 @@ const checkGloss = (files) => {
 const checkInclusions = (files) => {
   const existing = new Set()
   const included = new Set()
-  files.forEach(({filename, text}) => {
+  files.forEach(({ filename, text }) => {
     glob.sync(`${path.dirname(filename)}/*.*`)
       .filter(f => SUFFIX.has(path.extname(f)))
       .forEach(f => existing.add(f))
@@ -149,9 +149,9 @@ const checkInclusions = (files) => {
  * @param {Array<Object>} files File information.
  */
 const checkLineEndings = (files) => {
-  const windows = files.filter(({text}) => text.includes('\r'))
+  const windows = files.filter(({ text }) => text.includes('\r'))
   if (windows.length > 0) {
-    const filenames = windows.map(({filename}) => filename).join('\n- ')
+    const filenames = windows.map(({ filename }) => filename).join('\n- ')
     console.log(`file(s) contain Windows line endings\n- ${filenames}`)
   }
 }
@@ -161,7 +161,7 @@ const checkLineEndings = (files) => {
  * @param {Array<Object>} files File information.
  */
 const checkTabs = (files) => {
-  files.forEach(({filename, text}) => {
+  files.forEach(({ filename, text }) => {
     for (const c of text) {
       if (c === '\t') {
         console.log(`${filename} contains tabs`)
@@ -176,7 +176,7 @@ const checkTabs = (files) => {
  * @param {Array<Object>} files File information.
  */
 const checkWidths = (files) => {
-  const counts = files.reduce((accum, {filename, text}) => {
+  const counts = files.reduce((accum, { filename, text }) => {
     const matches = [...text.matchAll(/<pre\s+title="(.+?)"><code.+?>([^]+?)<\/code><\/pre>/g)]
     const num = matches.reduce((accum, [match, title, body]) => {
       const lines = body.split('\n').filter(line => line.trimEnd().length > WIDTH)
@@ -203,12 +203,11 @@ const getIncluded = (filename, text) => {
   const base = path.dirname(filename)
   const matches = [...text.matchAll(/<%-\s+include\('\/inc\/(.+?).html',\s*{(.+?)}\s*\)\s*%>/g)]
   matches.forEach(match => {
-    if ((match[1] === 'code') || (match[1] === 'html')){
+    if ((match[1] === 'code') || (match[1] === 'html')) {
       const f = match[2].match(/file:\s*'(.+?)'/)[1]
       const full = path.join(base, f)
       result.add(full)
-    }
-    else if (match[1] === 'multi') {
+    } else if (match[1] === 'multi') {
       const pair = match[2].match(/pat:\s*'(.+?)',\s*fill:\s*'(.+?)'/)
       const pat = pair[1]
       pair[2].split(' ').forEach(fill => {

@@ -3,10 +3,8 @@
 'use strict'
 
 const argparse = require('argparse')
-const assert = require('assert')
 const fs = require('fs')
 const parse5 = require('parse5')
-const yaml = require('js-yaml')
 
 /**
  * Nodes to ignore.
@@ -21,7 +19,7 @@ const main = () => {
   const known = new Set()
   options.input.forEach(filename => {
     const text = fs.readFileSync(filename, 'utf-8')
-    const doc = parse5.parse(text, {sourceCodeLocationInfo: true})
+    const doc = parse5.parse(text, { sourceCodeLocationInfo: true })
     getWords(doc, known)
   })
   for (const word of known) {
@@ -35,7 +33,7 @@ const main = () => {
  */
 const getOptions = () => {
   const parser = new argparse.ArgumentParser()
-  parser.add_argument('--input', {nargs: '+'})
+  parser.add_argument('--input', { nargs: '+' })
   return parser.parse_args()
 }
 
@@ -46,12 +44,10 @@ const getOptions = () => {
  */
 const getWords = (node, accum) => {
   if (IGNORE.has(node.nodeName)) {
-    return
-  }
-  else if ('childNodes' in node) {
+    // do nothing
+  } else if ('childNodes' in node) {
     node.childNodes.forEach(child => getWords(child, accum))
-  }
-  else if (node.nodeName === '#text') {
+  } else if (node.nodeName === '#text') {
     node.value.split(/\s+/g).forEach(word => {
       const tidied = tidy(word)
       if (tidied) {

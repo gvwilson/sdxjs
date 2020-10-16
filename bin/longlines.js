@@ -19,7 +19,7 @@ const main = () => {
       .forEach((line, i) => {
         line = line.trimEnd()
         if (line.length > WIDTH) {
-          console.log(`${filename} ${i+1} (${line.length})`)
+          console.log(`${filename} ${i + 1} (${line.length})`)
         }
       })
   })

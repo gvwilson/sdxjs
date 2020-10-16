@@ -54,19 +54,19 @@ const main = () => {
  */
 const getOptions = () => {
   const parser = new argparse.ArgumentParser()
-  parser.add_argument('--glosario', {action: 'store_true'})
+  parser.add_argument('--glosario', { action: 'store_true' })
   parser.add_argument('--input')
   parser.add_argument('--output')
-  parser.add_argument('--sources', {nargs: '+'})
+  parser.add_argument('--sources', { nargs: '+' })
 
   const options = parser.parse_args()
 
   assert(options.input,
-         `Need input file`)
+    'Need input file')
   assert(options.output,
-         `Need output file`)
+    'Need output file')
   assert(options.sources,
-         `Need source files`)
+    'Need source files')
   return options
 }
 
@@ -114,8 +114,7 @@ const getRequired = (options, gloss) => {
     result.add(key)
     if (!(key in gloss)) {
       console.error('MISSING', key)
-    }
-    else {
+    } else {
       const matches = [...gloss[key].en.def.matchAll(/\(#(.+?)\)/g)]
       matches.forEach(match => {
         const newKey = match[1]
@@ -165,8 +164,7 @@ const sortTerms = (data) => {
     const rightTerm = data[right].en.term.toLowerCase()
     if (leftTerm < rightTerm) {
       return -1
-    }
-    else if (leftTerm > rightTerm) {
+    } else if (leftTerm > rightTerm) {
       return 1
     }
     return 0
@@ -181,12 +179,12 @@ const sortTerms = (data) => {
 const makeEntry = (entry) => {
   const acronym = ('acronym' in entry.en) ? ` (${entry.en.acronym})` : ''
   const term = `<dt id="${entry.slug}" class="glossary">${entry.en.term}${acronym}</dt>`
-  const mdi = new MarkdownIt({html: true})
+  const mdi = new MarkdownIt({ html: true })
   const def = mdi.render(entry.en.def.replace('\n', ' '))
-        .replace('<p>', '')
-        .replace('</p>', '')
-        .trim()
-        .replace(/<a href="#(.+?)">(.+?)<\/a>/g, fixCrossRef)
+    .replace('<p>', '')
+    .replace('</p>', '')
+    .trim()
+    .replace(/<a href="#(.+?)">(.+?)<\/a>/g, fixCrossRef)
   const body = `<dd class="glossary">${def}</dd>`
   return `${term}\n${body}`
 }
@@ -217,8 +215,8 @@ const download = (options, url) => {
       if (error) {
         reject(error)
       }
-      if (response.statusCode != 200) {
-        reject(`Invalid response: status code <${response.statusCode}>`)
+      if (response.statusCode !== 200) {
+        reject(new Error(`Invalid response: status code <${response.statusCode}>`))
       }
       resolve(yaml.safeLoad(body))
     })

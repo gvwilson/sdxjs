@@ -29,7 +29,7 @@ const main = () => {
   const ignores = options.ignore ? IGNORES : {}
   options.input.forEach(filename => process(filename, result, ignores))
   setsToArrays(result)
-  fs.writeFileSync(1, yaml.safeDump(result, {sortKeys: true}), 'utf-8')
+  fs.writeFileSync(1, yaml.safeDump(result, { sortKeys: true }), 'utf-8')
 }
 
 /**
@@ -38,8 +38,8 @@ const main = () => {
  */
 const getOptions = () => {
   const parser = new argparse.ArgumentParser()
-  parser.add_argument('--ignore', {action: 'store_true'})
-  parser.add_argument('--input', {nargs: '+'})
+  parser.add_argument('--ignore', { action: 'store_true' })
+  parser.add_argument('--input', { nargs: '+' })
   return parser.parse_args()
 }
 
@@ -52,7 +52,7 @@ const getOptions = () => {
  */
 const process = (filename, result, ignores) => {
   const text = fs.readFileSync(filename, 'utf-8').trim()
-  const doc = parse5.parse(text, {sourceCodeLocationInfo: true})
+  const doc = parse5.parse(text, { sourceCodeLocationInfo: true })
   recurse(doc, result, ignores)
   return result
 }
@@ -71,7 +71,7 @@ const recurse = (node, result, ignores) => {
   }
   // Attributes.
   if ('attrs' in node) {
-    node.attrs.forEach(({name, value}) => {
+    node.attrs.forEach(({ name, value }) => {
       if ((tag in ignores) && ignores[tag].has(name)) {
         return // ignore
       }
