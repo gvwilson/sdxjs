@@ -14,7 +14,7 @@
     -   Find all dependencies
     -   Combine them into one file
     -   Ensure they can find each other correctly once loaded
--   Our approach is based on [Adam Kelly's tutorial][bundler-tutorial]
+-   Our approach is based on <cite>Casciaro2020</cite>
 
 ## Do we need to handle circular dependencies?
 

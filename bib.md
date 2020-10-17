@@ -26,6 +26,14 @@ Lulu, 2016, 978-1329871274.
 <em>Scale models of real applications, with commentary from their creators.</em>
 </dd>
 
+<dt id="Casciaro2020" class="bibliography">Casciaro2020</dt>
+<dd>
+Mario Casciaro and Luciano Mammino:
+Node.js Design Patterns.
+Packt, 2020, 978-1839214110.
+<em>A readable, up-to-date technical exploration of Node's more advanced capabilities.</em>
+</dd>
+
 <dt id="Davis2018" class="bibliography">Davis2018</dt>
 <dd>
 Ashley Davis:
