@@ -234,112 +234,148 @@ const tokenize = require('../tokenizer')
 
 describe('tokenizes correctly', async () =&gt; {
   it('tokenizes a single character', () =&gt; {
-    assert.deepEqual(tokenize('a'), [{kind: 'Lit', value: 'a', loc: 0}])
+    assert.deepStrictEqual(tokenize('a'), [
+      { kind: 'Lit', value: 'a', loc: 0 }
+    ])
   })
 
   it('tokenizes a sequence of characters', () =&gt; {
-    assert.deepEqual(tokenize('ab'), [{kind: 'Lit', value: 'a', loc: 0},
-                                      {kind: 'Lit', value: 'b', loc: 1}])
+    assert.deepStrictEqual(tokenize('ab'), [
+      { kind: 'Lit', value: 'a', loc: 0 },
+      { kind: 'Lit', value: 'b', loc: 1 }
+    ])
   })
 
   it('tokenizes start anchor alone', () =&gt; {
-    assert.deepEqual(tokenize('^'), [{kind: 'Start', loc: 0}])
+    assert.deepStrictEqual(tokenize('^'), [
+      { kind: 'Start', loc: 0 }
+    ])
   })
 
   it('tokenizes start anchor followed by characters', () =&gt; {
-    assert.deepEqual(tokenize('^a'), [{kind: 'Start', loc: 0},
-                                      {kind: 'Lit', value: 'a', loc: 1}])
+    assert.deepStrictEqual(tokenize('^a'), [
+      { kind: 'Start', loc: 0 },
+      { kind: 'Lit', value: 'a', loc: 1 }
+    ])
   })
 
   it('tokenizes circumflex not at start', () =&gt; {
-    assert.deepEqual(tokenize('a^b'), [{kind: 'Lit', value: 'a', loc: 0},
-                                       {kind: 'Lit', value: '^', loc: 1},
-                                       {kind: 'Lit', value: 'b', loc: 2}])
+    assert.deepStrictEqual(tokenize('a^b'), [
+      { kind: 'Lit', value: 'a', loc: 0 },
+      { kind: 'Lit', value: '^', loc: 1 },
+      { kind: 'Lit', value: 'b', loc: 2 }
+    ])
   })
 
   it('tokenizes start anchor alone', () =&gt; {
-    assert.deepEqual(tokenize('$'), [{kind: 'End', loc: 0}])
+    assert.deepStrictEqual(tokenize('$'), [
+      { kind: 'End', loc: 0 }
+    ])
   })
 
   it('tokenizes end anchor preceded by characters', () =&gt; {
-    assert.deepEqual(tokenize('a$'), [{kind: 'Lit', value: 'a', loc: 0},
-                                      {kind: 'End', loc: 1}])
+    assert.deepStrictEqual(tokenize('a$'), [
+      { kind: 'Lit', value: 'a', loc: 0 },
+      { kind: 'End', loc: 1 }
+    ])
   })
 
   it('tokenizes dollar sign not at end', () =&gt; {
-    assert.deepEqual(tokenize('a$b'), [{kind: 'Lit', value: 'a', loc: 0},
-                                       {kind: 'Lit', value: '$', loc: 1},
-                                       {kind: 'Lit', value: 'b', loc: 2}])
+    assert.deepStrictEqual(tokenize('a$b'), [
+      { kind: 'Lit', value: 'a', loc: 0 },
+      { kind: 'Lit', value: '$', loc: 1 },
+      { kind: 'Lit', value: 'b', loc: 2 }
+    ])
   })
 
   it('tokenizes repetition alone', () =&gt; {
-    assert.deepEqual(tokenize('*'), [{kind: 'Any', loc: 0}])
+    assert.deepStrictEqual(tokenize('*'), [
+      { kind: 'Any', loc: 0 }
+    ])
   })
 
   it('tokenizes repetition in string', () =&gt; {
-    assert.deepEqual(tokenize('a*b'), [{kind: 'Lit', value: 'a', loc: 0},
-                                       {kind: 'Any', loc: 1},
-                                       {kind: 'Lit', value: 'b', loc: 2}])
+    assert.deepStrictEqual(tokenize('a*b'), [
+      { kind: 'Lit', value: 'a', loc: 0 },
+      { kind: 'Any', loc: 1 },
+      { kind: 'Lit', value: 'b', loc: 2 }
+    ])
   })
 
   it('tokenizes repetition at end of string', () =&gt; {
-    assert.deepEqual(tokenize('a*'), [{kind: 'Lit', value: 'a', loc: 0},
-                                      {kind: 'Any', loc: 1}])
+    assert.deepStrictEqual(tokenize('a*'), [
+      { kind: 'Lit', value: 'a', loc: 0 },
+      { kind: 'Any', loc: 1 }
+    ])
   })
 
   it('tokenizes alternation alone', () =&gt; {
-    assert.deepEqual(tokenize('|'), [{kind: 'Alt', loc: 0}])
+    assert.deepStrictEqual(tokenize('|'), [
+      { kind: 'Alt', loc: 0 }
+    ])
   })
 
   it('tokenizes alternation in string', () =&gt; {
-    assert.deepEqual(tokenize('a|b'), [{kind: 'Lit', value: 'a', loc: 0},
-                                       {kind: 'Alt', loc: 1},
-                                       {kind: 'Lit', value: 'b', loc: 2}])
+    assert.deepStrictEqual(tokenize('a|b'), [
+      { kind: 'Lit', value: 'a', loc: 0 },
+      { kind: 'Alt', loc: 1 },
+      { kind: 'Lit', value: 'b', loc: 2 }
+    ])
   })
 
   it('tokenizes alternation at start of string', () =&gt; {
-    assert.deepEqual(tokenize('|a'), [{kind: 'Alt', loc: 0},
-                                      {kind: 'Lit', value: 'a', loc: 1}])
+    assert.deepStrictEqual(tokenize('|a'), [
+      { kind: 'Alt', loc: 0 },
+      { kind: 'Lit', value: 'a', loc: 1 }
+    ])
   })
 
   it('tokenizes the start of a group alone', () =&gt; {
-    assert.deepEqual(tokenize('('), [{kind: 'GroupStart', loc: 0}])
+    assert.deepStrictEqual(tokenize('('), [
+      { kind: 'GroupStart', loc: 0 }
+    ])
   })
 
   it('tokenizes the start of a group in a string', () =&gt; {
-    assert.deepEqual(tokenize('a(b'), [{kind: 'Lit', value: 'a', loc: 0},
-                                       {kind: 'GroupStart', loc: 1},
-                                       {kind: 'Lit', value: 'b', loc: 2}])
+    assert.deepStrictEqual(tokenize('a(b'), [
+      { kind: 'Lit', value: 'a', loc: 0 },
+      { kind: 'GroupStart', loc: 1 },
+      { kind: 'Lit', value: 'b', loc: 2 }
+    ])
   })
 
   it('tokenizes the end of a group alone', () =&gt; {
-    assert.deepEqual(tokenize(')'), [{kind: 'GroupEnd', loc: 0}])
+    assert.deepStrictEqual(tokenize(')'), [
+      { kind: 'GroupEnd', loc: 0 }
+    ])
   })
 
   it('tokenizes the end of a group at the end of a string', () =&gt; {
-    assert.deepEqual(tokenize('a)'), [{kind: 'Lit', value: 'a', loc: 0},
-                                      {kind: 'GroupEnd', loc: 1}])
+    assert.deepStrictEqual(tokenize('a)'), [
+      { kind: 'Lit', value: 'a', loc: 0 },
+      { kind: 'GroupEnd', loc: 1 }
+    ])
   })
 
-  it ('tokenizes a complex expression', () =&gt; {
-    assert.deepEqual(tokenize('^a*(bcd|e^)*f$gh$'), [
-      {kind: 'Start', loc: 0},
-      {kind: 'Lit', loc: 1, value: 'a'},
-      {kind: 'Any', loc: 2},
-      {kind: 'GroupStart', loc: 3},
-      {kind: 'Lit', loc: 4, value: 'b'},
-      {kind: 'Lit', loc: 5, value: 'c'},
-      {kind: 'Lit', loc: 6, value: 'd'},
-      {kind: 'Alt', loc: 7},
-      {kind: 'Lit', loc: 8, value: 'e'},
-      {kind: 'Lit', loc: 9, value: '^'},
-      {kind: 'GroupEnd', loc: 10},
-      {kind: 'Any', loc: 11},
-      {kind: 'Lit', loc: 12, value: 'f'},
-      {kind: 'Lit', loc: 13, value: '$'},
-      {kind: 'Lit', loc: 14, value: 'g'},
-      {kind: 'Lit', loc: 15, value: 'h'},
-      {kind: 'End', loc: 16}
+  it('tokenizes a complex expression', () =&gt; {
+    assert.deepStrictEqual(tokenize('^a*(bcd|e^)*f$gh$'), [
+      { kind: 'Start', loc: 0 },
+      { kind: 'Lit', loc: 1, value: 'a' },
+      { kind: 'Any', loc: 2 },
+      { kind: 'GroupStart', loc: 3 },
+      { kind: 'Lit', loc: 4, value: 'b' },
+      { kind: 'Lit', loc: 5, value: 'c' },
+      { kind: 'Lit', loc: 6, value: 'd' },
+      { kind: 'Alt', loc: 7 },
+      { kind: 'Lit', loc: 8, value: 'e' },
+      { kind: 'Lit', loc: 9, value: '^' },
+      { kind: 'GroupEnd', loc: 10 },
+      { kind: 'Any', loc: 11 },
+      { kind: 'Lit', loc: 12, value: 'f' },
+      { kind: 'Lit', loc: 13, value: '$' },
+      { kind: 'Lit', loc: 14, value: 'g' },
+      { kind: 'Lit', loc: 15, value: 'h' },
+      { kind: 'End', loc: 16 }
     ])
   })
 })
@@ -516,121 +552,159 @@ const parse = require('../parser')
 
 describe('parses correctly', async () =&gt; {
   it('parses the empty string', () =&gt; {
-    assert.deepEqual(parse(''), [])
+    assert.deepStrictEqual(parse(''), [])
   })
 
   it('parses a single literal', () =&gt; {
-    assert.deepEqual(parse('a'), [
-      {kind: 'Lit', loc: 0, value: 'a'}
+    assert.deepStrictEqual(parse('a'), [
+      { kind: 'Lit', loc: 0, value: 'a' }
     ])
   })
 
   it('parses multiple literals', () =&gt; {
-    assert.deepEqual(parse('ab'), [
-      {kind: 'Lit', loc: 0, value: 'a'},
-      {kind: 'Lit', loc: 1, value: 'b'}
+    assert.deepStrictEqual(parse('ab'), [
+      { kind: 'Lit', loc: 0, value: 'a' },
+      { kind: 'Lit', loc: 1, value: 'b' }
     ])
   })
 
   it('parses start anchors', () =&gt; {
-    assert.deepEqual(parse('^a'), [
-      {kind: 'Start', loc: 0},
-      {kind: 'Lit', loc: 1, value: 'a'}
+    assert.deepStrictEqual(parse('^a'), [
+      { kind: 'Start', loc: 0 },
+      { kind: 'Lit', loc: 1, value: 'a' }
     ])
   })
 
   it('handles circumflex not at start', () =&gt; {
-    assert.deepEqual(parse('a^'), [
-      {kind: 'Lit', loc: 0, value: 'a'},
-      {kind: 'Lit', loc: 1, value: '^'}
+    assert.deepStrictEqual(parse('a^'), [
+      { kind: 'Lit', loc: 0, value: 'a' },
+      { kind: 'Lit', loc: 1, value: '^' }
     ])
   })
 
   it('parses end anchors', () =&gt; {
-    assert.deepEqual(parse('a$'), [
-      {kind: 'Lit', loc: 0, value: 'a'},
-      {kind: 'End', loc: 1}
+    assert.deepStrictEqual(parse('a$'), [
+      { kind: 'Lit', loc: 0, value: 'a' },
+      { kind: 'End', loc: 1 }
     ])
   })
 
   it('parses circumflex not at start', () =&gt; {
-    assert.deepEqual(parse('$a'), [
-      {kind: 'Lit', loc: 0, value: '$'},
-      {kind: 'Lit', loc: 1, value: 'a'}
+    assert.deepStrictEqual(parse('$a'), [
+      { kind: 'Lit', loc: 0, value: '$' },
+      { kind: 'Lit', loc: 1, value: 'a' }
     ])
   })
 
   it('parses empty groups', () =&gt; {
-    assert.deepEqual(parse('()'), [
-      {kind: 'Group', loc: 0, end: 1, children: []}
+    assert.deepStrictEqual(parse('()'), [
+      { kind: 'Group', loc: 0, end: 1, children: [] }
     ])
   })
 
   it('parses groups containing characters', () =&gt; {
-    assert.deepEqual(parse('(a)'), [
-      {kind: 'Group', loc: 0, end: 2, children: [
-        {kind: 'Lit', loc: 1, value: 'a'}
-      ]}
+    assert.deepStrictEqual(parse('(a)'), [
+      {
+        kind: 'Group',
+        loc: 0,
+        end: 2,
+        children: [
+          { kind: 'Lit', loc: 1, value: 'a' }
+        ]
+      }
     ])
   })
 
   it('parses two groups containing characters', () =&gt; {
-    assert.deepEqual(parse('(a)(b)'), [
-      {kind: 'Group', loc: 0, end: 2, children: [
-        {kind: 'Lit', loc: 1, value: 'a'}
-      ]},
-      {kind: 'Group', loc: 3, end: 5, children: [
-        {kind: 'Lit', loc: 4, value: 'b'}
-      ]}
+    assert.deepStrictEqual(parse('(a)(b)'), [
+      {
+        kind: 'Group',
+        loc: 0,
+        end: 2,
+        children: [
+          { kind: 'Lit', loc: 1, value: 'a' }
+        ]
+      },
+      {
+        kind: 'Group',
+        loc: 3,
+        end: 5,
+        children: [
+          { kind: 'Lit', loc: 4, value: 'b' }
+        ]
+      }
     ])
   })
 
   it('parses any', () =&gt; {
-    assert.deepEqual(parse('a*'), [
-      {kind: 'Any', loc: 1, child:
-       {kind: 'Lit', loc: 0, value: 'a'}
+    assert.deepStrictEqual(parse('a*'), [
+      {
+        kind: 'Any',
+        loc: 1,
+        child: { kind: 'Lit', loc: 0, value: 'a' }
       }
     ])
   })
 
   it('parses any of group', () =&gt; {
-    assert.deepEqual(parse('(ab)*'), [
-      {kind: 'Any', loc: 4, child:
-       {kind: 'Group', loc: 0, end: 3, children: [
-         {kind: 'Lit', loc: 1, value: 'a'},
-         {kind: 'Lit', loc: 2, value: 'b'}
-       ]}
+    assert.deepStrictEqual(parse('(ab)*'), [
+      {
+        kind: 'Any',
+        loc: 4,
+        child: {
+          kind: 'Group',
+          loc: 0,
+          end: 3,
+          children: [
+            { kind: 'Lit', loc: 1, value: 'a' },
+            { kind: 'Lit', loc: 2, value: 'b' }
+          ]
+        }
       }
     ])
   })
 
   it('parses alt', () =&gt; {
-    assert.deepEqual(parse('a|b'), [
-      {kind: 'Alt', loc: 1,
-       left: {kind: 'Lit', loc: 0, value: 'a'},
-       right: {kind: 'Lit', loc: 2, value: 'b'}
+    assert.deepStrictEqual(parse('a|b'), [
+      {
+        kind: 'Alt',
+        loc: 1,
+        left: { kind: 'Lit', loc: 0, value: 'a' },
+        right: { kind: 'Lit', loc: 2, value: 'b' }
       }
     ])
   })
 
   it('parses alt of any', () =&gt; {
-    assert.deepEqual(parse('a*|b'), [
-      {kind: 'Alt', loc: 2,
-       left: {kind: 'Any', loc: 1, child:
-              {kind: 'Lit', loc: 0, value: 'a'}},
-       right: {kind: 'Lit', loc: 3, value: 'b'}
+    assert.deepStrictEqual(parse('a*|b'), [
+      {
+        kind: 'Alt',
+        loc: 2,
+        left: {
+          kind: 'Any',
+          loc: 1,
+          child: { kind: 'Lit', loc: 0, value: 'a' }
+        },
+        right: { kind: 'Lit', loc: 3, value: 'b' }
       }
     ])
   })
 
   it('parses alt of groups', () =&gt; {
-    assert.deepEqual(parse('a|(bc)'), [
-      {kind: 'Alt', loc: 1,
-       left: {kind: 'Lit', loc: 0, value: 'a'},
-       right: {kind: 'Group', loc: 2, end: 5, children: [
-         {kind: 'Lit', loc: 3, value: 'b'},
-         {kind: 'Lit', loc: 4, value: 'c'}
-       ]}
+    assert.deepStrictEqual(parse('a|(bc)'), [
+      {
+        kind: 'Alt',
+        loc: 1,
+        left: { kind: 'Lit', loc: 0, value: 'a' },
+        right: {
+          kind: 'Group',
+          loc: 2,
+          end: 5,
+          children: [
+            { kind: 'Lit', loc: 3, value: 'b' },
+            { kind: 'Lit', loc: 4, value: 'c' }
+          ]
+        }
       }
     ])
   })

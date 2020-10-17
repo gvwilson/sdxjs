@@ -1,3 +1,4 @@
+/* eslint-disable no-eval */
 const seen = {}
 
 for (const name of ['x', 'y', 'z']) {

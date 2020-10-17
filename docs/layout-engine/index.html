@@ -94,15 +94,15 @@ based on <a href="https://limpet.net/mbrubeck/2014/08/08/toy-layout-engine-1.htm
 </ul>
 <pre title="parse.js"><code class="language-js">const assert = require('assert')
 
-const {TextNode, TagNode} = require('./dom')
+const { TextNode, TagNode } = require('./dom')
 
 const parseHTML = (text) =&gt; {
   const chunks = chunkify(text.trim())
   assert(isElement(chunks[0]),
-         `Must have enclosing outer node`)
+    'Must have enclosing outer node')
   const [node, remainder] = makeNode(chunks)
   assert(remainder.length === 0,
-         `Cannot have dangling content`)
+    'Cannot have dangling content')
   return node
 }
 
@@ -110,7 +110,7 @@ const chunkify = (text) =&gt; {
   const textAndTag = /^([^&lt;]*)(&lt;.+?&gt;)(.*)$/
   const raw = []
   while (text) {
-    matches = text.match(textAndTag)
+    const matches = text.match(textAndTag)
     if (!matches) {
       break
     }
@@ -131,7 +131,7 @@ const isElement = (chunk) =&gt; {
 
 const makeNode = (chunks) =&gt; {
   assert(chunks.length &gt; 0,
-         `Cannot make nodes without chunks`)
+    'Cannot make nodes without chunks')
 
   if (!isElement(chunks[0])) {
     return [new TextNode(chunks[0]), chunks.slice(1)]
@@ -140,8 +140,8 @@ const makeNode = (chunks) =&gt; {
   const node = makeOpening(chunks[0])
   const closing = `&lt;/${node.tag}&gt;`
 
-  let remainder = chunks.slice(1), child = null
-  while (remainder &amp;&amp; (remainder[0] != closing)) {
+  let remainder = chunks.slice(1); let child = null
+  while (remainder &amp;&amp; (remainder[0] !== closing)) {
     [child, remainder] = makeNode(remainder)
     node.children.push(child)
   }
@@ -157,14 +157,14 @@ const makeOpening = (chunk) =&gt; {
   const outer = chunk.match(tagAndAttr)
   const tag = outer[1]
   const attributes = [...outer[2].trim().matchAll(keyAndValue)]
-        .reduce((obj, [all, key, value]) =&gt; {
-          obj[key] = value
-          return obj
-        }, {})
+    .reduce((obj, [all, key, value]) =&gt; {
+      obj[key] = value
+      return obj
+    }, {})
   return new TagNode(tag, attributes, null)
 }
 
-module.exports = {parseHTML}
+module.exports = { parseHTML }
 </code></pre>
 <ul>
 <li>The nodes are straightforward</li>
@@ -172,14 +172,12 @@ module.exports = {parseHTML}
 <pre title="dom.js"><code class="language-js">const assert = require('assert')
 
 class Node {
-  constructor () {
-  }
 }
 
 class TextNode extends Node {
   constructor (text) {
     assert(typeof text === 'string',
-           `TextNode requires string as constructor argument`)
+      'TextNode requires string as constructor argument')
     super()
     this.text = text
   }
@@ -192,32 +190,31 @@ class TextNode extends Node {
 class TagNode extends Node {
   constructor (tag, attributes, children) {
     assert(typeof tag === 'string',
-           `TagNode requires string as tag`)
+      'TagNode requires string as tag')
     super()
     this.tag = tag
     this.attributes = {}
     if (attributes !== null) {
       assert(typeof attributes === 'object',
-             `Require object for attributes`)
+        'Require object for attributes')
       this.attributes = Object.assign({}, attributes)
     }
     this.children = []
     if (children !== null) {
-      assert(Array.isArray(children) &amp;&amp;
-             children.every(child =&gt; child instanceof Node),
-             `Require array of nodes for children`)
+      assert(Array.isArray(children) &amp;&amp; children.every(child =&gt; child instanceof Node),
+        'Require array of nodes for children')
       this.children = children.slice()
     }
   }
 
   toString () {
     const attr = Object.keys(this.attributes)
-          .sort()
-          .map(key =&gt; ` ${key}="${this.attributes[key]}"`)
-          .join('')
+      .sort()
+      .map(key =&gt; ` ${key}="${this.attributes[key]}"`)
+      .join('')
     const children = this.children
-          .map(child =&gt; child.toString())
-          .join('')
+      .map(child =&gt; child.toString())
+      .join('')
     return `&lt;${this.tag}${attr}&gt;${children}&lt;/${this.tag}&gt;`
   }
 }
@@ -281,13 +278,13 @@ class Rule {
 class IdRule extends Rule {
   constructor (selector, styles) {
     assert(selector.startsWith('#') &amp;&amp; (selector.length &gt; 1),
-           `ID rule must start with # and have a selector`)
+      'ID rule must start with # and have a selector')
     super(IdRule.ORDER, selector.slice(1), styles)
   }
 
   match (node) {
-    return ('id' in node.attributes)
-      &amp;&amp; (node.attributes['id'] === this.selector)
+    return ('id' in node.attributes) &amp;&amp;
+      (node.attributes.id === this.selector)
   }
 }
 IdRule.ORDER = 0
@@ -295,13 +292,13 @@ IdRule.ORDER = 0
 class ClassRule extends Rule {
   constructor (selector, styles) {
     assert(selector.startsWith('.') &amp;&amp; (selector.length &gt; 1),
-           `Class rule must start with . and have a selector`)
+      'Class rule must start with . and have a selector')
     super(ClassRule.ORDER, selector.slice(1), styles)
   }
 
   match (node) {
-    return ('class' in node.attributes)
-      &amp;&amp; (node.attributes['class'] === this.selector)
+    return ('class' in node.attributes) &amp;&amp;
+      (node.attributes.class === this.selector)
   }
 }
 ClassRule.ORDER = 1
@@ -318,17 +315,17 @@ class TagRule extends Rule {
 TagRule.ORDER = 2
 
 class CssRules {
-  constructor (json, mergeDefaults=true) {
+  constructor (json, mergeDefaults = true) {
     const combined = mergeDefaults
-          ? deepmerge(CssRules.DEFAULT_RULES, json)
-          : json
+      ? deepmerge(CssRules.DEFAULT_RULES, json)
+      : json
     this.rules = this.jsonToRules(combined)
   }
 
   jsonToRules (json) {
     return Object.keys(json).map(selector =&gt; {
       assert((typeof selector === 'string') &amp;&amp; (selector.length &gt; 0),
-             `Require non-empty string as selector`)
+        'Require non-empty string as selector')
       if (selector.startsWith('#')) {
         return new IdRule(selector, json[selector])
       }
@@ -412,15 +409,15 @@ module.exports = {
 </ul>
 <pre title="styled.js"><code class="language-js">const assert = require('assert')
 
-const {Node, TextNode, TagNode} = require('./dom')
-const {CssRules} = require('./css')
+const { Node, TagNode } = require('./dom')
+const { CssRules } = require('./css')
 
 class StyledNode {
   constructor (dom, cssRules) {
     assert(dom instanceof Node,
-           `Require a node`)
+      'Require a node')
     assert(cssRules instanceof CssRules,
-           `Require some rules`)
+      'Require some rules')
 
     this.dom = dom
     this.cssRules = cssRules
@@ -443,7 +440,7 @@ class StyledNode {
     return result
   }
 
-  get (key, defaultValue=null) {
+  get (key, defaultValue = null) {
     if (key in this.rules) {
       return this.rules[key]
     }
@@ -453,7 +450,7 @@ class StyledNode {
   }
 }
 
-module.exports = {StyledNode}
+module.exports = { StyledNode }
 </code></pre>
 <h2 id="how-can-we-lay-out-a-styled-tree">How can we lay out a styled tree?</h2>
 <ul>
@@ -488,54 +485,51 @@ module.exports = {StyledNode}
 </ul>
 <pre title="layout.js"><code class="language-js">const assert = require('assert')
 
-const {CssRules} = require('./css')
-const {TextNode, TagNode} = require('./dom')
-const {StyledNode} = require('./styled')
+const { CssRules } = require('./css')
+const { TextNode, TagNode } = require('./dom')
+const { StyledNode } = require('./styled')
 
-//- let DebugDepth = 0
-//- let DebugIndent = '....................'
+// - let DebugDepth = 0
+// - let DebugIndent = '....................'
 
 const layout = (styled, box) =&gt; {
-//-  console.log(DebugIndent.slice(0, DebugDepth), 'layout &gt;&gt;', box, 'for', (styled instanceof TextNode) ? 'TextNode' : 'TagNode')
-//-  DebugDepth += 2
+// -  console.log(DebugIndent.slice(0, DebugDepth), 'layout &gt;&gt;', box, 'for', (styled instanceof TextNode) ? 'TextNode' : 'TagNode')
+// -  DebugDepth += 2
   assert(styled instanceof StyledNode,
-         `Require styled node for layout`)
+    'Require styled node for layout')
   assert(styled.dom instanceof TagNode,
-         `Can only lay out tag nodes`)
+    'Can only lay out tag nodes')
   assert(styled.get('visible'),
-         `Should not construct layout node for undisplayed styled node`)
+    'Should not construct layout node for undisplayed styled node')
 
   styled.children = styled.children.filter(child =&gt; {
     return child.get('visible')
   })
 
   switch (styled.get('layout')) {
-  case 'wrap' :
-    layoutWrap(styled, box)
-    break
-  case 'vertical' :
-    layoutVertical(styled, box)
-    break
-  case 'horizontal' :
-    layoutHorizontal(styled, box)
-    break
-  default :
-    assert(false,
-           `Unknown layout ${styled.get('layout')}`)
+    case 'wrap' :
+      layoutWrap(styled, box)
+      break
+    case 'vertical' :
+      layoutVertical(styled, box)
+      break
+    case 'horizontal' :
+      layoutHorizontal(styled, box)
+      break
+    default :
+      assert(false,
+        `Unknown layout ${styled.get('layout')}`)
   }
 
   assert(styled.box,
-         `Failed to create box when placing styled node`)
-//-  DebugDepth -= 2
-//-  console.log(DebugIndent.slice(0, DebugDepth), 'layout &lt;&lt;', styled.box)
+    'Failed to create box when placing styled node')
 }
 
 const layoutWrap = (styled, box) =&gt; {
-//-  console.log(DebugIndent.slice(0, DebugDepth), 'layoutWrap &gt;&gt;', box)
   assert((styled.children.length === 1) &amp;&amp; (styled.children[0].dom instanceof TextNode),
-         `Node must have a single block of text`)
+    'Node must have a single block of text')
   assert(box.width &gt; 0,
-         `Cannot wrap in a zero-width box`)
+    'Cannot wrap in a zero-width box')
   styled.box = {
     x: box.x,
     y: box.y,
@@ -558,15 +552,15 @@ const layoutWrap = (styled, box) =&gt; {
   })
   styled.box.width = Math.min(...styled.children.map(child =&gt; child.box.width))
   styled.box.height = lines.length
-//-  console.log(DebugIndent.slice(0, DebugDepth), 'layoutWrap &lt;&lt;', styled.box)
+// -  console.log(DebugIndent.slice(0, DebugDepth), 'layoutWrap &lt;&lt;', styled.box)
 }
 
 const layoutVertical = (styled, box) =&gt; {
-//-  console.log(DebugIndent.slice(0, DebugDepth), 'layoutVertical &gt;&gt;', box)
+// -  console.log(DebugIndent.slice(0, DebugDepth), 'layoutVertical &gt;&gt;', box)
   assert(styled.children.every(child =&gt; {
     const layout = child.get('layout')
     return (layout === 'horizontal') || (layout === 'wrap')
-  }), `Children of vertical element must be horizontal elements`)
+  }), 'Children of vertical element must be horizontal elements')
   styled.box = {
     x: box.x,
     y: box.y,
@@ -579,13 +573,13 @@ const layoutVertical = (styled, box) =&gt; {
   })
   styled.box.height = styled.box.y
   styled.box.y = box.y
-//-  console.log(DebugIndent.slice(0, DebugDepth), 'layoutVertical &lt;&lt;', styled.box)
+// -  console.log(DebugIndent.slice(0, DebugDepth), 'layoutVertical &lt;&lt;', styled.box)
 }
 
 const layoutHorizontal = (styled, box) =&gt; {
-//-  console.log(DebugIndent.slice(0, DebugDepth), 'layoutHorizontal &gt;&gt;', box)
+// -  console.log(DebugIndent.slice(0, DebugDepth), 'layoutHorizontal &gt;&gt;', box)
   assert(styled.children.every(child =&gt; child.get('layout') === 'vertical'),
-         `All children of horizontal element must be vertical elements`)
+    'All children of horizontal element must be vertical elements')
   styled.box = {
     x: box.x,
     y: box.y,
@@ -598,12 +592,11 @@ const layoutHorizontal = (styled, box) =&gt; {
   }, 0)
   if (minimum &lt; box.width) {
     layoutHorizontalUnderflow(styled, box, minimum)
-  }
-  else {
+  } else {
     layoutHorizontalOverflow(styled, box, minimum)
   }
   styled.box.height = Math.max(...styled.children.map(child =&gt; child.box.height))
-//-  console.log(DebugIndent.slice(0, DebugDepth), 'layoutHorizontal &lt;&lt;', styled.box)
+// -  console.log(DebugIndent.slice(0, DebugDepth), 'layoutHorizontal &lt;&lt;', styled.box)
 }
 
 const layoutHorizontalUnderflow = (styled, box, minimum) =&gt; {
@@ -632,7 +625,7 @@ const layoutHorizontalUnderflow = (styled, box, minimum) =&gt; {
 
 const layoutHorizontalOverflow = (styled, box, minimum) =&gt; {
   let x = box.x
-  let result = []
+  const result = []
   styled.children.forEach(child =&gt; {
     const width = child.get('width', 0)
     if ((width &gt; 0) &amp;&amp; (x &lt; box.width)) {
@@ -655,14 +648,12 @@ const splitText = (width, text) =&gt; {
   text.trim().split(/\s+/).forEach(chunk =&gt; {
     if (current === null) {
       current = chunk
-    }
-    else {
+    } else {
       const candidate = current + ' ' + chunk
       if (candidate.length &gt; width) {
         result.push(current)
         current = chunk
-      }
-      else {
+      } else {
         current = candidate
       }
     }
@@ -671,7 +662,7 @@ const splitText = (width, text) =&gt; {
   return result
 }
 
-module.exports = {layout}
+module.exports = { layout }
 </code></pre>
 <ul>
 <li>And then render
@@ -684,8 +675,7 @@ module.exports = {layout}
 </ul>
 <pre title="render.js"><code class="language-js">const assert = require('assert')
 
-const {TextNode, TagNode} = require('./dom')
-const {LayoutNode} = require('./layout')
+const { TextNode, TagNode } = require('./dom')
 
 const render = (layout, width, height, fillChar = '.') =&gt; {
   const screen = new Array(width).fill(null)
@@ -694,9 +684,9 @@ const render = (layout, width, height, fillChar = '.') =&gt; {
   })
   fill(screen, layout, fillChar)
   const temp = []
-  for (let y=0; y&lt;height; y+=1) {
-    let chars = []
-    for (let x=0; x&lt;width; x+=1) {
+  for (let y = 0; y &lt; height; y += 1) {
+    const chars = []
+    for (let x = 0; x &lt; width; x += 1) {
       chars.push(screen[x][y])
     }
     temp.push(chars.join(''))
@@ -711,7 +701,7 @@ const fill = (screen, layout, fillChar) =&gt; {
   }
 
   assert(layout.dom instanceof TextNode,
-         `Can only handle tag nodes and text nodes`)
+    'Can only handle tag nodes and text nodes')
 
   const text = layout.dom.text
   let i = 0
@@ -726,7 +716,7 @@ const fill = (screen, layout, fillChar) =&gt; {
   }
 }
 
-module.exports = {render}
+module.exports = { render }
 </code></pre>
 </main>
 <footer>

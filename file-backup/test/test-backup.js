@@ -50,7 +50,7 @@ describe('check entire backup process', () => {
   })
 
   it('creates an initial CSV manifest', async () => {
-    await backup('source', 'backup', timestamp = 0)
+    await backup('source', 'backup', 0)
 
     assert.strictEqual((await glob('backup/*')).length, 4,
       'Expected 4 files')
@@ -65,11 +65,11 @@ describe('check entire backup process', () => {
   })
 
   it('does not duplicate files unnecessarily', async () => {
-    await backup('source', 'backup', timestamp = 0)
+    await backup('source', 'backup', 0)
     assert.strictEqual((await glob('backup/*')).length, 4,
       'Expected 4 files after first backup')
 
-    await backup('source', 'backup', timestamp = 1)
+    await backup('source', 'backup', 1)
     assert.strictEqual((await glob('backup/*')).length, 5,
       'Expected 5 files after second backup')
     const actualBackups = new Set(await glob('backup/*.bck'))
@@ -86,14 +86,14 @@ describe('check entire backup process', () => {
   })
 
   it('adds a file as needed', async () => {
-    await backup('source', 'backup', timestamp = 0)
+    await backup('source', 'backup', 0)
     assert.strictEqual((await glob('backup/*')).length, 4,
       'Expected 4 files after first backup')
 
     await fs.writeFileAsync('source/newfile.txt', 'NNN')
     const hashOfNewFile = hashString('NNN')
 
-    await backup('source', 'backup', timestamp = 1)
+    await backup('source', 'backup', 1)
     assert.strictEqual((await glob('backup/*')).length, 6,
       'Expected 6 files after second backup')
     const expected = new Set(InitialBackups).add(`backup/${hashOfNewFile}.bck`)

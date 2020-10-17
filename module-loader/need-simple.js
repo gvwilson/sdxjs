@@ -1,3 +1,4 @@
+/* eslint-disable no-eval */
 const fs = require('fs')
 
 class Cache {

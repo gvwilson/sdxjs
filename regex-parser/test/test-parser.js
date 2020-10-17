@@ -2,8 +2,8 @@ const assert = require('assert')
 
 const parse = require('../parser')
 
-describe('parses correctly', async () => { // eslint-disable-line
-  it('parses the empty string', () => { // eslint-disable-line
+describe('parses correctly', async () => {
+  it('parses the empty string', () => {
     assert.deepStrictEqual(parse(''), [])
   })
 

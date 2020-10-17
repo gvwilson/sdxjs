@@ -201,7 +201,9 @@ const _exercise = (render, root, chapter, exercise, which) => {
 const _readFile = (mainFile, subFile) => {
   let raw = fs.readFileSync(`${path.dirname(mainFile)}/${subFile}`, 'utf-8')
   if (path.extname(subFile) === '.js') {
-    raw = raw.replace(/\s*\/\/\s*eslint-disable-line.*$/gm, '')
+    raw = raw
+      .replace(/\s*\/\/\s*eslint-disable-line.*$/gm, '')
+      .replace(/\s*\/\*\s*eslint-disable\s+.*\*\/\s*$/gm, '')
   }
   return raw
     .replace(/&/g, '&amp;')

@@ -254,7 +254,8 @@ module.exports = other
 <ul>
 <li>We can read it and eval the content:</li>
 </ul>
-<pre title="capture-exports-pollute.js"><code class="language-js">const fs = require('fs')
+<pre title="capture-exports-pollute.js"><code class="language-js">
+const fs = require('fs')
 
 const main = () =&gt; {
   const source = fs.readFileSync(process.argv[2], 'utf-8')
@@ -312,7 +313,8 @@ after Module {
 </ul>
 </li>
 </ul>
-<pre title="capture-exports-encapsulate.js"><code class="language-js">const fs = require('fs')
+<pre title="capture-exports-encapsulate.js"><code class="language-js">
+const fs = require('fs')
 
 const safeLoad = (module, filename) =&gt; {
   const source = fs.readFileSync(process.argv[2], 'utf-8')
@@ -514,14 +516,14 @@ to create a file we can execute that contains a module definition</li>
 </ul>
 <pre title="concatenate-programmatically.js"><code class="language-js">const fs = require('fs')
 
-const TOP = `everything = {`
+const TOP = 'everything = {'
 
 const TEMPLATE = `'FILENAME': ((module) =&gt; {
 BODY
 return module
 })({})`
 
-const BOTTOM = `}`
+const BOTTOM = '}'
 
 const createEverything = (filenames) =&gt; {
   const sections = filenames.map(filename =&gt; {
@@ -557,7 +559,8 @@ return module
 <ul>
 <li>Load and evaluate that file and check that <code>everything</code> is defined correctly</li>
 </ul>
-<pre title="concatenate-programmatically-output-test.js"><code class="language-js">const fs = require('fs')
+<pre title="concatenate-programmatically-output-test.js"><code class="language-js">
+const fs = require('fs')
 const source = fs.readFileSync('concatenate-programmatically-output.js', 'utf-8')
 eval(source)
 console.log(everything)
@@ -596,8 +599,7 @@ const getRequires = (filename) =&gt; {
 if (require.main === module) {
   const result = getRequires(process.argv[2])
   console.log(result)
-}
-else {
+} else {
   module.exports = getRequires
 }
 </code></pre>
@@ -665,8 +667,7 @@ const transitiveClosure = (entryPointPath) =&gt; {
 
 if (module.loaded) {
   module.exports = transitiveClosure
-}
-else {
+} else {
   const result = transitiveClosure(process.argv[2])
   console.log(JSON.stringify(result, null, 2))
 }
@@ -710,21 +711,20 @@ const transitiveClosure = (entryPointPath) =&gt; {
     const candidateDir = path.dirname(candidate)
     getRequires(candidate)
       .map(raw =&gt; {
-        mapping[candidate][raw] = 
+        mapping[candidate][raw] =
           path.resolve(path.join(candidateDir, `${raw}.js`))
         return mapping[candidate][raw]
       })
       .filter(cooked =&gt; cooked !== null)
       .forEach(cooked =&gt; pending.push(cooked))
   }
-  return {filenames: [...seen], mapping}
+  return { filenames: [...seen], mapping }
 }
 
 if (require.main === module) {
   const result = transitiveClosure(process.argv[2])
   console.log(JSON.stringify(result, null, 2))
-}
-else {
+} else {
   module.exports = transitiveClosure
 }
 </code></pre>

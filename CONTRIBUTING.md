@@ -97,7 +97,9 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
 
 1.  We use [JavaScript Standard Style][standard-js] almost everywhere
     ("almost" because some of our examples have to break the rules to illustrate points).
-    Please install `standard` and check your code with it before committing.
+    Please install `standard` and check your code with it using `make standard` before committing;
+    if you need to break a rule, add an [ESLint][eslint] directive to the source file:
+    `bin/html.js` removes these during Markdown-to-HTML conversion.
 
 ## Exercises
 

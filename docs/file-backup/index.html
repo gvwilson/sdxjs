@@ -434,42 +434,44 @@ describe('checks for pre-existing hashes using actual filesystem', () =&gt; {
   it('finds no pre-existing files when none given and none exist', async () =&gt; {
     const expected = {}
     const actual = await findNewFiles('file-backup/test/bck-0-csv-0', [])
-    assert.deepEqual(expected, actual,
-                     `Expected no files`)
+    assert.deepStrictEqual(expected, actual,
+      'Expected no files')
   })
 
   it('finds some files when one file is given and none exist', async () =&gt; {
     const candidates = [['somefile.txt', '9876fedc']]
-    const expected = {'9876fedc': 'somefile.txt'}
+    const expected = { '9876fedc': 'somefile.txt' }
     const actual = await findNewFiles('file-backup/test/bck-0-csv-0', candidates)
-    assert.deepEqual(expected, actual,
-                     `Expected one file`)
+    assert.deepStrictEqual(expected, actual,
+      'Expected one file')
   })
 
   it('finds nothing needs backup when there is a match', async () =&gt; {
     const candidates = [['alpha.js', 'abcd1234']]
     const expected = {}
     const actual = await findNewFiles('file-backup/test/bck-1-csv-1', candidates)
-    assert.deepEqual(expected, actual,
-                     `Expected no files`)
+    assert.deepStrictEqual(expected, actual,
+      'Expected no files')
   })
 
   it('finds something needs backup when there is a mismatch', async () =&gt; {
     const candidates = [['alpha.js', 'a1b2c3d4']]
-    const expected = {'a1b2c3d4': 'alpha.js'}
+    const expected = { a1b2c3d4: 'alpha.js' }
     const actual = await findNewFiles('file-backup/test/bck-1-csv-1', candidates)
-    assert.deepEqual(expected, actual,
-                     `Expected one file`)
+    assert.deepStrictEqual(expected, actual,
+      'Expected one file')
   })
 
   it('finds mixed matches', async () =&gt; {
-    const candidates = [['matches.js', '3456cdef'],
-                        ['matches.txt', 'abcd1234'],
-                        ['mismatch.txt', '12345678']]
-    const expected = {'12345678': 'mismatch.txt'}
+    const candidates = [
+      ['matches.js', '3456cdef'],
+      ['matches.txt', 'abcd1234'],
+      ['mismatch.txt', '12345678']
+    ]
+    const expected = { 12345678: 'mismatch.txt' }
     const actual = await findNewFiles('file-backup/test/bck-4-csv-2', candidates)
-    assert.deepEqual(expected, actual,
-                     `Expected one file`)
+    assert.deepStrictEqual(expected, actual,
+      'Expected one file')
   })
 })
 </code></pre>
@@ -511,7 +513,6 @@ const mock = require('mock-fs')
 const findNewFiles = require('../check-existing-files')
 
 describe('checks for pre-existing hashes using mock filesystem', () =&gt; {
-
   beforeEach(() =&gt; {
     mock({
       'bck-0-csv-0': {},
@@ -521,10 +522,10 @@ describe('checks for pre-existing hashes using mock filesystem', () =&gt; {
       },
       'bck-4-csv-2': {
         '0001.csv': ['alpha.js,abcd1234',
-                     'beta.txt,bcde2345'].join('\n'),
+          'beta.txt,bcde2345'].join('\n'),
         '3024.csv': ['alpha.js,abcd1234',
-                     'gamma.png,3456cdef',
-                     'subdir/renamed.txt,bcde2345'].join('\n'),
+          'gamma.png,3456cdef',
+          'subdir/renamed.txt,bcde2345'].join('\n'),
         '3456cdef.bck': 'gamma.png content',
         'abcd1234.bck': 'alpha content',
         'bcde2345.bck': 'beta.txt became subdir/renamed.txt'
@@ -539,42 +540,42 @@ describe('checks for pre-existing hashes using mock filesystem', () =&gt; {
   it('finds no pre-existing files when none given and none exist', async () =&gt; {
     const expected = {}
     const actual = await findNewFiles('bck-0-csv-0', [])
-    assert.deepEqual(expected, actual,
-                     `Expected no files`)
+    assert.deepStrictEqual(expected, actual,
+      'Expected no files')
   })
 
   it('finds some files when one file is given and none exist', async () =&gt; {
     const candidates = [['somefile.txt', '9876fedc']]
-    const expected = {'9876fedc': 'somefile.txt'}
+    const expected = { '9876fedc': 'somefile.txt' }
     const actual = await findNewFiles('bck-0-csv-0', candidates)
-    assert.deepEqual(expected, actual,
-                     `Expected one file`)
+    assert.deepStrictEqual(expected, actual,
+      'Expected one file')
   })
 
   it('finds nothing needs backup when there is a match', async () =&gt; {
     const candidates = [['alpha.js', 'abcd1234']]
     const expected = {}
     const actual = await findNewFiles('bck-1-csv-1', candidates)
-    assert.deepEqual(expected, actual,
-                     `Expected no files`)
+    assert.deepStrictEqual(expected, actual,
+      'Expected no files')
   })
 
   it('finds something needs backup when there is a mismatch', async () =&gt; {
     const candidates = [['alpha.js', 'a1b2c3d4']]
-    const expected = {'a1b2c3d4': 'alpha.js'}
+    const expected = { a1b2c3d4: 'alpha.js' }
     const actual = await findNewFiles('bck-1-csv-1', candidates)
-    assert.deepEqual(expected, actual,
-                     `Expected one file`)
+    assert.deepStrictEqual(expected, actual,
+      'Expected one file')
   })
 
   it('finds mixed matches', async () =&gt; {
     const candidates = [['matches.js', '3456cdef'],
-                        ['matches.txt', 'abcd1234'],
-                        ['mismatch.txt', '12345678']]
-    const expected = {'12345678': 'mismatch.txt'}
+      ['matches.txt', 'abcd1234'],
+      ['mismatch.txt', '12345678']]
+    const expected = { 12345678: 'mismatch.txt' }
     const actual = await findNewFiles('bck-4-csv-2', candidates)
-    assert.deepEqual(expected, actual,
-                     `Expected one file`)
+    assert.deepStrictEqual(expected, actual,
+      'Expected one file')
   })
 })
 </code></pre>
@@ -651,14 +652,14 @@ const Hashes = Object.keys(Contents).reduce((obj, key) =&gt; {
 }, {})
 
 const Fixture = {
-  'source': {
+  source: {
     'alpha.txt': Contents.aaa,
     'beta.txt': Contents.bbb,
     gamma: {
       'delta.txt': Contents.ccc
     }
   },
-  'backup': {}
+  backup: {}
 }
 
 const InitialBackups = Object.keys(Hashes).reduce((set, filename) =&gt; {
@@ -667,7 +668,6 @@ const InitialBackups = Object.keys(Hashes).reduce((set, filename) =&gt; {
 }, new Set())
 
 describe('check entire backup process', () =&gt; {
-
   beforeEach(() =&gt; {
     mock(Fixture)
   })
@@ -677,58 +677,64 @@ describe('check entire backup process', () =&gt; {
   })
 
   it('creates an initial CSV manifest', async () =&gt; {
-    await backup('source', 'backup', timestamp=0)
+    await backup('source', 'backup', timestamp = 0)
 
-    assert.equal((await glob('backup/*')).length, 4,
-                 `Expected 4 files`)
+    assert.strictEqual((await glob('backup/*')).length, 4,
+      'Expected 4 files')
 
     const actualBackups = new Set(await glob('backup/*.bck'))
-    assert.deepEqual(actualBackups, InitialBackups,
-                     `Expected 3 backup files`)
+    assert.deepStrictEqual(actualBackups, InitialBackups,
+      'Expected 3 backup files')
 
     const actualManifests = await glob('backup/*.csv')
-    assert.deepEqual(actualManifests, ['backup/0000000000.csv'],
-                     `Expected one manifest`)
+    assert.deepStrictEqual(actualManifests, ['backup/0000000000.csv'],
+      'Expected one manifest')
   })
 
   it('does not duplicate files unnecessarily', async () =&gt; {
-    await backup('source', 'backup', timestamp=0)
-    assert.equal((await glob('backup/*')).length, 4,
-                 `Expected 4 files after first backup`)
+    await backup('source', 'backup', timestamp = 0)
+    assert.strictEqual((await glob('backup/*')).length, 4,
+      'Expected 4 files after first backup')
 
-    await backup('source', 'backup', timestamp=1)
-    assert.equal((await glob('backup/*')).length, 5,
-                 `Expected 5 files after second backup`)
+    await backup('source', 'backup', timestamp = 1)
+    assert.strictEqual((await glob('backup/*')).length, 5,
+      'Expected 5 files after second backup')
     const actualBackups = new Set(await glob('backup/*.bck'))
-    assert.deepEqual(actualBackups, InitialBackups,
-                     `Expected 3 backup files after second backup`)
+    assert.deepStrictEqual(actualBackups, InitialBackups,
+      'Expected 3 backup files after second backup')
 
     const actualManifests = (await glob('backup/*.csv')).sort()
-    assert.deepEqual(actualManifests, ['backup/0000000000.csv',
-                                       'backup/0000000001.csv'],
-                     `Expected two manifests`)
+    assert.deepStrictEqual(actualManifests,
+      [
+        'backup/0000000000.csv',
+        'backup/0000000001.csv'
+      ],
+      'Expected two manifests')
   })
 
   it('adds a file as needed', async () =&gt; {
-    await backup('source', 'backup', timestamp=0)
-    assert.equal((await glob('backup/*')).length, 4,
-                 `Expected 4 files after first backup`)
+    await backup('source', 'backup', timestamp = 0)
+    assert.strictEqual((await glob('backup/*')).length, 4,
+      'Expected 4 files after first backup')
 
     await fs.writeFileAsync('source/newfile.txt', 'NNN')
     const hashOfNewFile = hashString('NNN')
 
-    await backup('source', 'backup', timestamp=1)
-    assert.equal((await glob('backup/*')).length, 6,
-                 `Expected 6 files after second backup`)
+    await backup('source', 'backup', timestamp = 1)
+    assert.strictEqual((await glob('backup/*')).length, 6,
+      'Expected 6 files after second backup')
     const expected = new Set(InitialBackups).add(`backup/${hashOfNewFile}.bck`)
     const actualBackups = new Set(await glob('backup/*.bck'))
-    assert.deepEqual(actualBackups, expected,
-                     `Expected 4 backup files after second backup`)
+    assert.deepStrictEqual(actualBackups, expected,
+      'Expected 4 backup files after second backup')
 
     const actualManifests = (await glob('backup/*.csv')).sort()
-    assert.deepEqual(actualManifests, ['backup/0000000000.csv',
-                                       'backup/0000000001.csv'],
-                     `Expected two manifests`)
+    assert.deepStrictEqual(actualManifests,
+      [
+        'backup/0000000000.csv',
+        'backup/0000000001.csv'
+      ],
+      'Expected two manifests')
   })
 })
 </code></pre>
