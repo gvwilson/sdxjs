@@ -7,6 +7,6 @@ TARGETS=\
   test-backup.txt \
   tree-test.txt
 
-#  test-check-filesystem.txt
+#  test-check-filesystem.txt FIXME
 
 include ../rules.mk

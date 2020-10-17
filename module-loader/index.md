@@ -1,157 +1,130 @@
 ---
 ---
 
--   Our files are getting too long to show in one block
--   Write a tool that a text file with inclusion markers and turns it into loaded code
--   Source file has specially-formatted comments containing two fields:
-    -   The text to put in the displayed version
-    -   The file to include when loading
+-   <xref key="file-interpolator"></xref> showed how to use `eval` to load code dynamically
+-   We can use this to build our own version of `require`
+    -   Take the name of a source file as an argument
+    -   Return whatever that file exports
+-   Key requirement is to avoid accidentally overwriting things
+    -   If we just `eval` the loaded code and it happens to define a variable called `x`,
+        anything called `x` already in our program might be overwritten
+-   Our approach is based on <cite>Casciaro2020</cite>
 
-<%- include('/inc/code.html', {file: 'interpolation-example.js'}) %>
+## How can we implement namespaces?
 
-## How can we evaluate JavaScript dynamically?
+-   A <g key="namespace">namespace</a> is a collection of names in a program that are isolated from other namespaces
+    -   Most modern languages provide namespaces as a feature so that programmers don't accidentally step on each other's toes
+    -   JavaScript doesn't have this, so we have to implement it ourselves
+-   We can create a namespace by:
+    -   Defining the things we care about inside a function (which gives us a temporary namespace when it runs)
+    -   Having the function return the things we want
+-   Gives us code like this:
 
--   We want to load this dynamically just like `require` for running
--   But display the comments in our web/print versions rather than the interpolated code
--   Lifecycle of a JavaScript program
-    -   Read text
-    -   Translate it into runnable instructions
-    -   Run those instructions
--   We can do this whenever we want
-    -   Reading text is straightforward
-    -   Use the `eval` function to translate and run it
--   A security risk
-    -   Arbitrary code can do arbitrary things
-    -   At the very least, we ought to run it in a <g key="sandbox">sandbox</g>
--   Evaluate an expression
+<%- include('/inc/multi.html', {pat: 'manual-namespacing.*', fill: 'js txt'}) %>
 
-<%- include('/inc/multi.html', {pat: 'eval-two-plus-two.*', fill: 'js txt'}) %>
+-   We could require every module to define a setup function like this for users to call
+-   Or we can wrap this up and call it automatically
+    -   `() => {...}` defines a function
+    -   `(() => {...})()` defines a function and immediately calls it
+    -   The extra parentheses around the original definition force the parser to evaluate things in the right order
+    -   This is called an <g key="iife">immediately-invoked function expression</g> (IIFE)
 
--   A more interesting example
-    -   The string is different each time
-    -   Uses the variables that are in scope when `eval` is called
+<%- include('/inc/multi.html', {pat: 'automatic-namespacing.*', fill: 'js txt'}) %>
 
-<%- include('/inc/multi.html', {pat: 'eval-loop.*', fill: 'js txt'}) %>
+## How can we load a module?
 
--   Variables created inside `eval` are local to it
+-   We want the module we are loading to export names by assigning to `module.exports`
+-   So we need to provide an object called `module` *and* create a IIFE
+    -   Handle the problem of the module loading other modules later
+-   Our `loadModule` function takes a filename and returns a newly-created module object
+    -   The parameter to the function we build and `eval` must be called `module` so that we can assign to `module.exports`
+    -   For clarity, we call the object we pass in `result` in `loadModule`
 
-<%- include('/inc/multi.html', {pat: 'eval-local-vars.*', fill: 'js txt'}) %>
+<%- include('/inc/code.html', {file: 'load-module-only.js'}) %>
 
--   But `eval` can modify variables outside the text
-    -   Just like a function can modify global variables
+-   Use this as a test
 
-<%- include('/inc/multi.html', {pat: 'eval-global-vars.*', fill: 'js txt'}) %>
+<%- include('/inc/code.html', {file: 'small-module.js'}) %>
+<%- include('/inc/multi.html', {pat: 'test-load-module-only.*', fill: 'js sh txt'}) %>
 
--   So if we create a structure with a known name, `eval` can modify that
+## Do we need to handle circular dependencies?
 
-<%- include('/inc/multi.html', {pat: 'eval-global-structure.*', fill: 'js txt'}) %>
+-   We can visualize the network of who requires whom as a <g key="directed_graph">directed graph</g>
+    -   If X requires Y, draw an arrow from X to Y
+-   A <g key="circular_dependency">circular dependency</g> exists if X depends on Y and Y depends on X
+    -   Either directly or indirectly
+-   May seem nonsensical, but can easily arise with <g key="plugin_architecture">plugin architectures</g>
+    -   Main program loads an extension
+    -   The extension calls utility functions defined alongside the main program
+-   Most <g key="compiled_language">compiled languages</g> can handle this
+    -   Compile each module into low-level instructions
+    -   <g key="link">Link</g> those to resolve dependencies
+    -   Then run
+-   But <g key="interpreted_language">interpreted languages</g> execute code as it loads
+    -   So if X is in the process of loading Y and Y tries to call X,
+        X may not (fully) exist yet
+-   It sort-of works in Python
+-   Create two files
 
--   It doesn't matter where the text comes from
--   So we can move the code that does the modifying into `to-be-loaded.js`
+<%- include('/inc/code.html', {file: 'checking/major.py'}) %>
+<%- include('/inc/code.html', {file: 'checking/minor.py'}) %>
 
-<%- include('/inc/code.html', {file: 'to-be-loaded.js'}) %>
+-   Fails when run from the command line
 
--   This doesn't work on its own because `Seen` isn't defined
+<%- include('/inc/code.html', {file: 'py-command-line.txt'}) %>
 
-<%- include('/inc/code.html', {file: 'to-be-loaded.txt'}) %>
+-   But works in the interactive interpreter
 
--   But if we read the file and `eval` the text after defining `Seen`, it does what we want
+<%- include('/inc/code.html', {file: 'py-interactive.txt'}) %>
 
-<%- include('/inc/multi.html', {pat: 'does-the-loading.*', fill: 'js sh txt'}) %>
+-   Equivalent in JavaScript
 
-## How can we avoid reloading files?
+<%- include('/inc/code.html', {file: 'checking/major.js'}) %>
+<%- include('/inc/code.html', {file: 'checking/minor.js'}) %>
 
--   Only want to load any single file once
--   So create a <g key="cache">cache</g> using the <g key="singleton_pattern">Singleton</g> pattern
--   Loader
+-   Fails on the command line
 
-<%- include('/inc/code.html', {file: 'need-simple.js'}) %>
+<%- include('/inc/code.html', {file: 'js-command-line.txt'}) %>
 
--   File to import
-    -   Final expression is the result of `eval`ing it
+-   Also fails in the interactive interpreter
 
-<%- include('/inc/code.html', {file: 'import-simple.js'}) %>
+<%- include('/inc/code.html', {file: 'js-interactive.txt'}) %>
 
--   File doing the importing
+-   So we will *not* handle circular dependencies
+    -   But we *will* detect them and generate a sensible error message
 
-<%- include('/inc/multi.html', {pat: 'test-simple.*', fill: 'js sh'}) %>
+## How can a module load another module?
 
-## How can we control where our files are loaded from?
+-   We need to provide the module with a function called `require`
+    -   Check a cache to see if the file has already been loaded
+    -   Load it if it isn't there
+    -   Either way, return the result
+-   Use absolute paths as cache keys
+    -   Suppose `major.js` imports `subdir/minor.js`
+    -   When `minor.js` imports `../major.js`, we need to know it's already loaded
+-   How to make the cache available?
+    -   Make it a property of the `require` function
+-   To reduce confusion, we will call our function `need` instead of `require`
 
--   Want to control where files are loaded from
--   Give our program a <g key="search_path">search path</g>
-    -   Colon-separated list of directories on Unix
-    -   Windows uses semi-colons
-    -   If module path starts with `./`, load locally
--   These are all conventions
-    -   Someone did it this way years ago
-    -   (Almost) everyone has imitated it since
-    -   But no requirement and no guarantee
--   A more sophisticated cache
+<%- include('/inc/code.html', {file: 'need.js'}) %>
 
-<%- include('/inc/code.html', {file: 'need-path.js'}) %>
+-   Need to modify `loadModule` to take our function `need` as a parameter
+    -   Again, we'll have "modules" call `need('something.js')` instead of `require('something')` for clarity
+-   Test with the same small module that doesn't need anything else to make sure we haven't broken anything
 
--   To test, put the files to import in the `modules` subdirectory
-    -   We could call the directory anything we want
+<%- include('/inc/multi.html', {pat: 'test-need-small-module.*', fill: 'js txt'}) %>
 
-<%- include('/inc/code.html', {file: 'modules/imported-left.js'}) %>
+-   Test again with a module that loads something else
 
--   Put the file doing the importing in current directory
+<%- include('/inc/code.html', {file: 'large-module.js'}) %>
 
-<%- include('/inc/code.html', {file: 'test-import-left.js'}) %>
+<%- include('/inc/multi.html', {pat: 'test-need-large-module.js', fill: 'js txt'}) %>
 
--   Set path when running Node
-    -   `NAME=value command` defines the variable `NAME` just long enough for `command` to run
-    -   Shell variables being in UPPER CASE is another convention
+-   Doesn't work because our made-up function has `need` as a parameter and also as a constant
+-   Not a problem with Node because `require` is predefined
+-   So we will rely on our loader to provide it
+    -   Which means we can only run loaded modules by `need`ing them
 
-<%- include('/inc/multi.html', {pat: 'test-import-left.*', fill: 'sh txt'}) %>
+<%- include('/inc/code.html', {file: 'large-needless.js'}) %>
 
--   Now create a second importable file
-
-<%- include('/inc/code.html', {file: 'modules/imported-right.js'}) %>
-
--   Load that twice to check that caching works
-
-<%- include('/inc/multi.html', {pat: 'test-import-right.*', fill: 'js sh txt'}) %>
-
-## How can we interpolate pieces of code?
-
--   Now add interpolation
-    -   To keep things simple, we will only interpolate snippets in the same directory as the main file
--   Modify `Cache.find` to return a directory and a file path
-    -   Add `interpolate` to replace special comments
-
-<%- include('/inc/code.html', {file: 'caching.js'}) %>
-
--   Can then have a file like:
-
-<%- include('/inc/code.html', {file: 'import-interpolate.js'}) %>
-
--   And subfiles like this:
-
-<%- include('/inc/code.html', {file: 'import-interpolate-topmethod.js'}) %>
-
--   And this:
-
-<%- include('/inc/code.html', {file: 'import-interpolate-bottommethod.js'}) %>
-
--   Test it
-
-<%- include('/inc/multi.html', {pat: 'test-import-interpolate.*', fill: 'sh txt'}) %>
-
--   Lifecycle
-    -   Node starts to run `test-import-interpolate.js`
-    -   Sees `require('./need-interpolate')` so it reads and evaluates that code
-    -   Which creates a singleton cache object
-    -   Calls `need('./import-interpolate.js')` (our replacement for `require`)
-    -   Checks the cache: nope, nothing there
-    -   Loads `import-interpolate.js`
-    -   Finds two specially-formatted comments
-    -   Loads the file described by each and inserts the text in place of the comment
-    -   Uses `eval` on the resulting text
-    -   Stores the result of `eval` (which is a class) in the cache
-    -   Returns that class
-    -   We create an instance and call its method
--   Next step is to modify our page templating system to detect specially-formatted comments
-    and do the string replacement
-    -   No `eval` or loading involved
+<%- include('/inc/multi.html', {pat: 'test-need-large-needless.*', fill: 'js txt'}) %>

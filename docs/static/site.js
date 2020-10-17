@@ -102,6 +102,20 @@ const fixCrossRefs = (toRoot, numbering) => {
 }
 
 /**
+ * Add links to source files.
+ */
+const fixPreTitles = () => {
+  Array.from(document.querySelectorAll('pre[title]'))
+    .forEach(node => {
+      const filename = node.getAttribute('title')
+      const div = document.createElement('div')
+      div.setAttribute('class', 'file-link')
+      div.innerHTML = `<a href="${filename}">${filename}</a>`
+      node.appendChild(div)
+    })
+}
+
+/**
  * Perform all in-page fixes.
  */
 const fixPage = () => {
@@ -115,6 +129,7 @@ const fixPage = () => {
       fixGlossaryRefs(toRoot)
       fixPreBlocks()
       fixCrossRefs(toRoot, numbering)
+      fixPreTitles()
       buildToc()
     }
     else {

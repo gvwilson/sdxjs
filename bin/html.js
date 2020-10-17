@@ -240,24 +240,43 @@ const slugify = (text) => {
  * @param {Object} options Options.
  */
 const finalize = (options) => {
-  // Simple files.
+  // Miscellaneous files.
   const excludes = options.exclude.map(pattern => new minimatch.Minimatch(pattern))
-  const toCopy = options.copy
+  const miscFiles = options.copy
     .map(pattern => path.join(options.rootDir, pattern))
     .map(pattern => glob.sync(pattern))
     .flat()
     .filter(filename => !excludes.some(pattern => pattern.match(filename)))
-  toCopy.forEach(source => {
-    const dest = makeOutputPath(options.outputDir, source)
-    ensureOutputDir(dest)
-    fs.copyFileSync(source, dest)
-  })
+  copyFiles(options, miscFiles)
+
+  // Source files.
+  const sourceFiles = [...options.chapters, ...options.appendices]
+    .map(entry => entry.slug)
+    .map(slug => options.sourceFiles.map(pattern => `${slug}/**/${pattern}`))
+    .flat()
+    .map(pattern => path.join(options.rootDir, pattern))
+    .map(pattern => glob.sync(pattern))
+    .flat()
+  copyFiles(options, sourceFiles)
 
   // Numbering.
   const numbering = buildNumbering(options)
   fs.writeFileSync(path.join(options.outputDir, 'numbering.js'),
     JSON.stringify(numbering, null, 2),
     'utf-8')
+}
+
+/**
+ * Copy a set of files, making directories as needed.
+ * @param {Object} options Options.
+ * @param {Array<string>} filenames What to copy.
+ */
+const copyFiles = (options, filenames) => {
+  filenames.forEach(source => {
+    const dest = makeOutputPath(options.outputDir, source)
+    ensureOutputDir(dest)
+    fs.copyFileSync(source, dest)
+  })
 }
 
 /**

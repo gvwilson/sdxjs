@@ -101,6 +101,15 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
     if you need to break a rule, add an [ESLint][eslint] directive to the source file:
     `bin/html.js` removes these during Markdown-to-HTML conversion.
 
+1.  There is a Makefile in each topic directory that rebuilds all of the included files for that topic.
+    1.  All output is saved in `.txt` files
+        (except for a few cases where the output is runnable JavaScript, which is saved in `.js` files).
+    1.  The rules to re-run simple cases that don't require command-line arguments or error handling
+        are in `./rules.mk`.
+    1.  More complicated cases are in shell scripts (`.sh` files).
+        All the mechanics of re-running examples must be in the `.sh` file rather than the Makefile
+        so that the commands used to re-create an example can be included in the chapter file.
+
 ## Exercises
 
 1.  Create a sub-directory for each, e.g., `style-checker/some-question`.

@@ -5,5 +5,4 @@ TARGETS=\
 include ../rules.mk
 
 parser-test.txt: parser.js tokenizer.js
-
 tokenizer-test.js: tokenizer.js

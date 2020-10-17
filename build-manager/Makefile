@@ -8,6 +8,3 @@ TARGETS=\
   variable-expander.txt
 
 include ../rules.mk
-
-pattern-user-attempt.txt: pattern-user-attempt.js
-	(bash pattern-user-attempt.sh >& pattern-user-attempt.txt) || true

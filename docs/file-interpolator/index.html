@@ -1,0 +1,530 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <title>File Interpolator</title>
+  <meta name="toRoot" content="..">
+  <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
+  <link href="../static/site.css" rel="stylesheet" type="text/css">
+  <script src="../static/site.js"></script>
+  <script>window.onload = () => fixPage()</script>
+</head>
+<body id="_top">
+<nav>
+<div class="row">
+<div class="left2">
+<a href="http://third-bit.com"><img src="../static/logo.svg" alt="site logo" class="site-logo"/></a>
+<a href="../"><em>Software Tools in JavaScript</em></a>
+</div>
+<div class="right2">
+<div class="dropdown">
+<span class="navtitle">▿ Sections</span>
+<div class="dropdown-content" id="Sections">
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Chapters</span>
+<div class="dropdown-content" id="Chapters">
+<a href="../systems-programming/"><span class="nowrap">Systems Programming</span></a>
+<br/><a href="../promises/"><span class="nowrap">Promises</span></a>
+<br/><a href="../unit-test/"><span class="nowrap">Unit Testing</span></a>
+<br/><a href="../file-backup/"><span class="nowrap">File Backup</span></a>
+<br/><a href="../style-checker/"><span class="nowrap">Style Checker</span></a>
+<br/><a href="../pattern-matching/"><span class="nowrap">Pattern Matching</span></a>
+<br/><a href="../regex-parser/"><span class="nowrap">Parsing Expressions</span></a>
+<br/><a href="../code-generator/"><span class="nowrap">Code Generator</span></a>
+<br/><a href="../page-templates/"><span class="nowrap">Page Templates</span></a>
+<br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
+<br/><a href="../file-interpolator/"><span class="nowrap">File Interpolator</span></a>
+<br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
+<br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
+<br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
+<br/><a href="../text-editor/"><span class="nowrap">Text Editor</span></a>
+<br/><a href="../http-server/"><span class="nowrap">HTTP Server</span></a>
+<br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
+<br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
+<br/><a href="../issue-tracker/"><span class="nowrap">Issue Tracker</span></a>
+<br/><a href="../conclusion/"><span class="nowrap">Conclusion</span></a>
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Appendices</span>
+<div class="dropdown-content" id="Appendices">
+<a href="../license/"><span class="nowrap">License</span></a>
+<br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
+<br/><a href="../contributing/"><span class="nowrap">Contributing</span></a>
+<br/><a href="../bib/"><span class="nowrap">Bibliography</span></a>
+<br/><a href="../gloss/"><span class="nowrap">Glossary</span></a>
+<br/><a href="../links/"><span class="nowrap">Links</span></a>
+<br/><a href="../solutions/"><span class="nowrap">Solutions</span></a>
+<br/><a href="../authors/"><span class="nowrap">Authors</span></a>
+</div>
+</div>
+</div>
+</div>
+</nav>
+  <main>
+  <h1>File Interpolator</h1>
+  <p class="lede">Manage source files that have been broken into pieces</p>
+<ul>
+<li>Our files are getting too long to show in one block</li>
+<li>Write a tool that a text file with inclusion markers and turns it into loaded code</li>
+<li>Source file has specially-formatted comments containing two fields:
+<ul>
+<li>The text to put in the displayed version</li>
+<li>The file to include when loading</li>
+</ul>
+</li>
+</ul>
+<pre title="interpolation-example.js"><code class="language-js">class Something {
+  /*+ constructor + something_constructor.js +*/
+
+  /*+ a long method + a_long_method.js +*/
+
+  /*+ another long method + another_long_method.js +*/
+}
+</code></pre>
+<h2 id="how-can-we-evaluate-javascript-dynamically">How can we evaluate JavaScript dynamically?</h2>
+<ul>
+<li>We want to load this dynamically just like <code>require</code> for running</li>
+<li>But display the comments in our web/print versions rather than the interpolated code</li>
+<li>Lifecycle of a JavaScript program
+<ul>
+<li>Read text</li>
+<li>Translate it into runnable instructions</li>
+<li>Run those instructions</li>
+</ul>
+</li>
+<li>We can do this whenever we want
+<ul>
+<li>Reading text is straightforward</li>
+<li>Use the <code>eval</code> function to translate and run it</li>
+</ul>
+</li>
+<li>A security risk
+<ul>
+<li>Arbitrary code can do arbitrary things</li>
+<li>At the very least, we ought to run it in a <g key="sandbox">sandbox</g></li>
+</ul>
+</li>
+<li>Evaluate an expression</li>
+</ul>
+<pre title="eval-two-plus-two.js"><code class="language-js">
+console.log(eval('2 + 2'))
+</code></pre>
+<pre title="eval-two-plus-two.txt"><code class="language-txt">4
+</code></pre>
+<ul>
+<li>A more interesting example
+<ul>
+<li>The string is different each time</li>
+<li>Uses the variables that are in scope when <code>eval</code> is called</li>
+</ul>
+</li>
+</ul>
+<pre title="eval-loop.js"><code class="language-js">
+const x = 1
+const y = 3
+const z = 5
+for (const name of ['x', 'y', 'z']) {
+  const expr = `${name} + 1`
+  console.log(name, '+ 1 =', eval(expr))
+}
+</code></pre>
+<pre title="eval-loop.txt"><code class="language-txt">x + 1 = 2
+y + 1 = 4
+z + 1 = 6
+</code></pre>
+<ul>
+<li>Variables created inside <code>eval</code> are local to it</li>
+</ul>
+<pre title="eval-local-vars.js"><code class="language-js">
+const code = `
+  const x = 'hello'
+  console.log('x in eval is', x)
+`
+
+eval(code)
+console.log('typeof x after eval', typeof x)
+</code></pre>
+<pre title="eval-local-vars.txt"><code class="language-txt">x in eval is hello
+typeof x after eval undefined
+</code></pre>
+<ul>
+<li>But <code>eval</code> can modify variables outside the text
+<ul>
+<li>Just like a function can modify global variables</li>
+</ul>
+</li>
+</ul>
+<pre title="eval-global-vars.js"><code class="language-js">
+let x = 'original'
+eval('x = "modified"')
+console.log('x after eval is', x)
+</code></pre>
+<pre title="eval-global-vars.txt"><code class="language-txt">x after eval is modified
+</code></pre>
+<ul>
+<li>So if we create a structure with a known name, <code>eval</code> can modify that</li>
+</ul>
+<pre title="eval-global-structure.js"><code class="language-js">
+const seen = {}
+
+for (const name of ['x', 'y', 'z']) {
+  const expr = `seen["${name}"] = "${name.toUpperCase()}"`
+  eval(expr)
+}
+
+console.log(seen)
+</code></pre>
+<pre title="eval-global-structure.txt"><code class="language-txt">{ x: 'X', y: 'Y', z: 'Z' }
+</code></pre>
+<ul>
+<li>It doesn't matter where the text comes from</li>
+<li>So we can move the code that does the modifying into <code>to-be-loaded.js</code></li>
+</ul>
+<pre title="to-be-loaded.js"><code class="language-js">// Modify a global structure defined by whoever loads us.
+Seen.from_loaded_file = 'from loaded file'
+</code></pre>
+<ul>
+<li>This doesn't work on its own because <code>Seen</code> isn't defined</li>
+</ul>
+<pre title="to-be-loaded.txt"><code class="language-txt">/Users/gvwilson/stjs/file-interpolator/to-be-loaded.js:2
+Seen.from_loaded_file = 'from loaded file'
+^
+
+ReferenceError: Seen is not defined
+    at Object.&lt;anonymous&gt; (/Users/gvwilson/stjs/file-interpolator/to-be-loaded.js:2:1)
+    at Module._compile (internal/modules/cjs/loader.js:1151:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:1171:10)
+    at Module.load (internal/modules/cjs/loader.js:1000:32)
+    at Function.Module._load (internal/modules/cjs/loader.js:899:14)
+    at Function.executeUserEntryPoint [as runMain] (internal/modules/run_main.js:71:12)
+    at internal/main/run_main_module.js:17:47
+</code></pre>
+<ul>
+<li>But if we read the file and <code>eval</code> the text after defining <code>Seen</code>, it does what we want</li>
+</ul>
+<pre title="does-the-loading.js"><code class="language-js">
+const fs = require('fs')
+
+const Seen = {}
+
+const filename = process.argv[2]
+const content = fs.readFileSync(filename, 'utf-8')
+console.log('before eval, Seen is', Seen)
+eval(content)
+console.log('after eval, Seen is', Seen)
+</code></pre>
+<pre title="does-the-loading.sh"><code class="language-sh">node does-the-loading.js to-be-loaded.js
+</code></pre>
+<pre title="does-the-loading.txt"><code class="language-txt">before eval, Seen is {}
+after eval, Seen is { from_loaded_file: 'from loaded file' }
+</code></pre>
+<h2 id="how-can-we-avoid-reloading-files">How can we avoid reloading files?</h2>
+<ul>
+<li>Only want to load any single file once</li>
+<li>So create a <g key="cache">cache</g> using the <g key="singleton_pattern">Singleton</g> pattern</li>
+<li>Loader</li>
+</ul>
+<pre title="need-simple.js"><code class="language-js">
+const fs = require('fs')
+
+class Cache {
+  constructor () {
+    this.loaded = new Map()
+  }
+
+  need (name) {
+    if (this.loaded.has(name)) {
+      console.log(`returning cached value for ${name}`)
+      return this.loaded.get(name)
+    }
+    console.log(`loading ${name}`)
+    const content = fs.readFileSync(name, 'utf-8')
+    const result = eval(content)
+    this.loaded.set(name, result)
+    return result
+  }
+}
+
+const cache = new Cache()
+
+module.exports = (name) =&gt; {
+  return cache.need(name)
+}
+</code></pre>
+<ul>
+<li>File to import
+<ul>
+<li>Final expression is the result of <code>eval</code>ing it</li>
+</ul>
+</li>
+</ul>
+<pre title="import-simple.js"><code class="language-js">// Define.
+const report = (message) =&gt; {
+  console.log(`report in import-01.js with message "${message}"`)
+}
+
+// Export.
+report
+</code></pre>
+<ul>
+<li>File doing the importing</li>
+</ul>
+<pre title="test-simple.js"><code class="language-js">const need = require('./need-simple')
+const imported = need('./import-simple.js')
+imported('called from test-simple.js')
+</code></pre>
+<pre title="test-simple.sh"><code class="language-sh">node test-simple.js
+</code></pre>
+<h2 id="how-can-we-control-where-our-files-are-loaded-from">How can we control where our files are loaded from?</h2>
+<ul>
+<li>Want to control where files are loaded from</li>
+<li>Give our program a <g key="search_path">search path</g>
+<ul>
+<li>Colon-separated list of directories on Unix</li>
+<li>Windows uses semi-colons</li>
+<li>If module path starts with <code>./</code>, load locally</li>
+</ul>
+</li>
+<li>These are all conventions
+<ul>
+<li>Someone did it this way years ago</li>
+<li>(Almost) everyone has imitated it since</li>
+<li>But no requirement and no guarantee</li>
+</ul>
+</li>
+<li>A more sophisticated cache</li>
+</ul>
+<pre title="need-path.js"><code class="language-js">
+const fs = require('fs')
+const path = require('path')
+
+class Cache {
+  constructor () {
+    this.loaded = new Map()
+    this.constructSearchPath()
+  }
+
+  need (fileSpec) {
+    if (this.loaded.has(fileSpec)) {
+      console.log(`returning cached value for ${fileSpec}`)
+      return this.loaded.get(fileSpec)
+    }
+    console.log(`loading value for ${fileSpec}`)
+    const filePath = this.find(fileSpec)
+    const content = fs.readFileSync(filePath, 'utf-8')
+    const result = eval(content)
+    this.loaded.set(fileSpec, result)
+    return result
+  }
+
+  constructSearchPath () {
+    this.searchPath = []
+    if ('NEED_PATH' in process.env) {
+      this.searchPath = process.env.NEED_PATH.split(':').filter(x =&gt; x.length &gt; 0)
+    }
+  }
+
+  find (fileSpec) {
+    let result
+    if (fileSpec.startsWith('.')) {
+      console.log(`..trying local file for ${fileSpec}`)
+      if (fs.existsSync(fileSpec)) {
+        result = fileSpec
+      }
+    } else {
+      for (const dir of this.searchPath) {
+        const filePath = path.join(dir, fileSpec)
+        console.log(`trying ${filePath} for ${fileSpec}`)
+        if (fs.existsSync(filePath)) {
+          result = filePath
+          break
+        }
+      }
+    }
+    if (result === undefined) {
+      throw new Error(`unable to import ${fileSpec}: no match found`)
+    }
+    return result
+  }
+}
+
+const cache = new Cache()
+
+module.exports = (fileSpec) =&gt; {
+  return cache.need(fileSpec)
+}
+</code></pre>
+<ul>
+<li>To test, put the files to import in the <code>modules</code> subdirectory
+<ul>
+<li>We could call the directory anything we want</li>
+</ul>
+</li>
+</ul>
+<pre title="modules/imported-left.js"><code class="language-js">// Define.
+const report = (message) =&gt; {
+  console.log(`in LEFT with message "${message}"`)
+}
+
+// Export.
+report
+</code></pre>
+<ul>
+<li>Put the file doing the importing in current directory</li>
+</ul>
+<pre title="test-import-left.js"><code class="language-js">const need = require('./need-path')
+const imported = need('imported-left.js')
+imported('called from test-import-left.js')
+</code></pre>
+<ul>
+<li>Set path when running Node
+<ul>
+<li><code>NAME=value command</code> defines the variable <code>NAME</code> just long enough for <code>command</code> to run</li>
+<li>Shell variables being in UPPER CASE is another convention</li>
+</ul>
+</li>
+</ul>
+<pre title="test-import-left.sh"><code class="language-sh">NEED_PATH=$PWD/modules/ node test-import-left.js
+</code></pre>
+<pre title="test-import-left.txt"><code class="language-txt">loading value for imported-left.js
+trying /Users/gvwilson/stjs/file-interpolator/modules/imported-left.js for imported-left.js
+in LEFT with message "called from test-import-left.js"
+</code></pre>
+<ul>
+<li>Now create a second importable file</li>
+</ul>
+<pre title="modules/imported-right.js"><code class="language-js">// Define.
+const report = (message) =&gt; {
+  console.log(`in RIGHT with message "${message}"`)
+}
+
+// Export.
+report
+</code></pre>
+<ul>
+<li>Load that twice to check that caching works</li>
+</ul>
+<pre title="test-import-right.js"><code class="language-js">const need = require('./need-path')
+
+const imported = need('imported-right.js')
+imported('called from test-import-right.js')
+
+const alsoImported = need('imported-right.js')
+alsoImported('called from test-import-right.js')
+</code></pre>
+<pre title="test-import-right.sh"><code class="language-sh">NEED_PATH=$PWD/modules/ node test-import-right.js
+</code></pre>
+<pre title="test-import-right.txt"><code class="language-txt">loading value for imported-right.js
+trying /Users/gvwilson/stjs/file-interpolator/modules/imported-right.js for imported-right.js
+in RIGHT with message "called from test-import-right.js"
+returning cached value for imported-right.js
+in RIGHT with message "called from test-import-right.js"
+</code></pre>
+<h2 id="how-can-we-interpolate-pieces-of-code">How can we interpolate pieces of code?</h2>
+<ul>
+<li>Now add interpolation
+<ul>
+<li>To keep things simple, we will only interpolate snippets in the same directory as the main file</li>
+</ul>
+</li>
+<li>Modify <code>Cache.find</code> to return a directory and a file path
+<ul>
+<li>Add <code>interpolate</code> to replace special comments</li>
+</ul>
+</li>
+</ul>
+<pre title="caching.js"><code class="language-js">class Cache {
+  // ...
+  interpolate (fileDir, outer) {
+    return outer.replace(Cache.INTERPOLATE_PAT, (match, comment, filename) =&gt; {
+      filename = filename.trim()
+      const filePath = path.join(fileDir, filename)
+      if (!fs.existsSync(filePath)) {
+        throw new Error(`Cannot find ${filePath}`)
+      }
+      const inner = fs.readFileSync(filePath, 'utf-8')
+      return inner
+    })
+  }
+  // ...
+}
+Cache.INTERPOLATE_PAT = /\/\*\+(.+?)\+(.+?)\+\*\//g
+</code></pre>
+<ul>
+<li>Can then have a file like:</li>
+</ul>
+<pre title="import-interpolate.js"><code class="language-js">class Example {
+  constructor (msg) {
+    this.constructorMessage = msg
+  }
+  /*+ top method + import-interpolate-topmethod.js +*/
+  /*+ bottom method + import-interpolate-bottommethod.js +*/
+}
+
+Example
+</code></pre>
+<ul>
+<li>And subfiles like this:</li>
+</ul>
+<pre title="import-interpolate-topmethod.js"><code class="language-js">topMethod (msg) {
+  this.bottomMethod(`(topMethod ${msg})`)
+}
+</code></pre>
+<ul>
+<li>And this:</li>
+</ul>
+<pre title="import-interpolate-bottommethod.js"><code class="language-js">bottomMethod (msg) {
+  console.log(`(bottomMethod ${msg})`)
+}
+</code></pre>
+<ul>
+<li>Test it</li>
+</ul>
+<pre title="test-import-interpolate.sh"><code class="language-sh">node test-import-interpolate.js
+</code></pre>
+<pre title="test-import-interpolate.txt"><code class="language-txt">(bottomMethod (topMethod called from test-import-interpolate.js))
+</code></pre>
+<ul>
+<li>Lifecycle
+<ul>
+<li>Node starts to run <code>test-import-interpolate.js</code></li>
+<li>Sees <code>require('./need-interpolate')</code> so it reads and evaluates that code</li>
+<li>Which creates a singleton cache object</li>
+<li>Calls <code>need('./import-interpolate.js')</code> (our replacement for <code>require</code>)</li>
+<li>Checks the cache: nope, nothing there</li>
+<li>Loads <code>import-interpolate.js</code></li>
+<li>Finds two specially-formatted comments</li>
+<li>Loads the file described by each and inserts the text in place of the comment</li>
+<li>Uses <code>eval</code> on the resulting text</li>
+<li>Stores the result of <code>eval</code> (which is a class) in the cache</li>
+<li>Returns that class</li>
+<li>We create an instance and call its method</li>
+</ul>
+</li>
+<li>But is this a good idea?
+<ul>
+<li>Not really: standard style-checking tools complain about fragments</li>
+<li>And we'd have to modify our page template system to show things correctly</li>
+<li>No tool exists in isolation</li>
+</ul>
+</li>
+</ul>
+</main>
+<footer>
+<div class="row">
+<div class="left3">
+<a href="../doc-generator/"><em>&laquo; Documentation Generator</em></a>
+</div>
+<div class="middle3">
+<a href="../license/"><img class="footer" src="../static/cc-by.svg" alt="License" /></a>
+<a href="https://github.com/gvwilson/e/"><img class="footer" src="../static/github.svg" alt="Repository" /></a>
+© 2020 <a href="../authors/">The Authors</a>
+</div>
+<div class="right3">
+<a href="../module-loader/"><em>Module Loader &raquo;</em></a>
+</div>
+</div>
+</footer>
+</body>
+</html>

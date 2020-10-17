@@ -74,6 +74,8 @@
 <dd class="glossary">In <g key="oop">object-oriented programming</g>, a structure that combines data and operations (called <g key="method">methods</g>).  The program then uses a <g key="constructor">constructor</g> to create an <g key="object">object</g> with those properties and methods.  Programmers generally put generic or reusable behavior in <g key="parent_class">parent classes</g> and more detailed or specific behavior in <g key="child_class">child classes</g>.</dd>
 <dt id="client" class="glossary">client</dt>
 <dd class="glossary">Typically, a program such as a web browser that gets data from a <g key="server">server</g> and displays it to, or interacts with, users. The term is used more generally to refer to any program A that makes requests of another program B. A single program can be both a client and a server.</dd>
+<dt id="closure" class="glossary">closure</dt>
+<dd class="glossary">A set of variables defined in the same <g key="scope">scope</g> whose existence has been preserved after that scope has ended.</dd>
 <dt id="code_coverage" class="glossary">code coverage (in testing)</dt>
 <dd class="glossary">How much of a library or program is executed when tests run. This is normally reported as a percentage of lines of code: for example, if 40 out of 50 lines in a file are run during testing, those tests have 80% code coverage.</dd>
 <dt id="command_line_argument" class="glossary">command-line argument</dt>
@@ -190,7 +192,7 @@
 <dd class="glossary">The standard <g key="markup_language">markup language</g> used for web pages. HTML is represented in memory using <g key="dom">DOM</g>.</dd>
 <dt id="http" class="glossary">HyperText Transfer Protocol (HTTP)</dt>
 <dd class="glossary">The standard <g key="protocol">protocol</g> for data transfer on the World-Wide Web.  HTTP defines the format of <g key="http_request">requests</g> and <g key="http_response">responses</g>, the meanings of standard error codes, and other features.</dd>
-<dt id="iifd" class="glossary">immediately-invoked function declaration (IIFD)</dt>
+<dt id="iife" class="glossary">immediately-invoked function expression (IIFE)</dt>
 <dd class="glossary">FIXME</dd>
 <dt id="import" class="glossary">import</dt>
 <dd class="glossary">To bring things from a <g key="module">module</g> into a program for use. In most languages a program can only import things that the module explicitly <g key="export">exports</g>.</dd>
@@ -220,6 +222,8 @@
 <dd class="glossary">To combine separately <g key="compile">compiled</g> modules into a single runnable program.</dd>
 <dt id="linter" class="glossary">linter</dt>
 <dd class="glossary">A program that checks for common problems in software, such as violations of indentation rules or variable naming conventions. The name comes from the first tool of its kind, called <code>lint</code>.</dd>
+<dt id="local_variable" class="glossary">local variable</dt>
+<dd class="glossary">A variable defined inside a function which is only visible within that function.</dd>
 <dt id="log" class="glossary">log</dt>
 <dd class="glossary">A record of a program's execution containing <g key="log_message">messages</g> written via a <g key="logging_framework">logging framework</g> for later inspection.</dd>
 <dt id="log_message" class="glossary">log message</dt>
@@ -312,6 +316,8 @@
 <dd class="glossary">A testing environment that is separate from the production system, or an environment that is only allowed to perform a restricted set of operations for security reasons.</dd>
 <dt id="schema" class="glossary">schema</dt>
 <dd class="glossary">A specification of the format of a dataset, including the name, format, and content of each <g key="table">table</g>.</dd>
+<dt id="scope" class="glossary">scope</dt>
+<dd class="glossary">The portion of a program within which a definition can be seen and used. Cf. <g key="closure">closure</g>, <g key="global_variable">global variable</g>, and <g key="local_variable">local variable</g>.</dd>
 <dt id="search_path" class="glossary">search path</dt>
 <dd class="glossary">The list of directories that a program searches to find something. For example, the Unix <g key="shell">shell</g> uses the search path stored in the <code>PATH</code> variable when trying to find a program given its name.</dd>
 <dt id="server" class="glossary">server</dt>

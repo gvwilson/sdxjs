@@ -10,6 +10,3 @@ TARGETS=\
   walker-class.txt
 
 include ../rules.mk
-
-parse-const-func-and-call.txt: parse-const-func-and-call.sh parse-const-func-and-call.js
-	bash $<

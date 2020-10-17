@@ -94,9 +94,9 @@ gloss.md: gloss.yml bin/gloss.js $(filter-out gloss.md,${MARKDOWN})
 	--sources index.md $(patsubst %,%/index.md,${SLUGS})
 
 ## html: rebuild html
-html: docs/index.html docs/numbering.js docs/static/site.css
+html: docs/index.html docs/numbering.js docs/static/site.css docs/static/site.js
 
-docs/index.html docs/numbering.js docs/static/site.css: bin/html.js config.yml links.yml ${MARKDOWN} static/site.css
+docs/index.html docs/numbering.js docs/static/site.css docs/static/site.js: bin/html.js config.yml links.yml ${MARKDOWN} static/site.css static/site.js
 	bin/html.js \
 	--rootDir . \
 	--outputDir docs \

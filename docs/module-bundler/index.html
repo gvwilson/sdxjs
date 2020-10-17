@@ -33,6 +33,7 @@
 <br/><a href="../code-generator/"><span class="nowrap">Code Generator</span></a>
 <br/><a href="../page-templates/"><span class="nowrap">Page Templates</span></a>
 <br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
+<br/><a href="../file-interpolator/"><span class="nowrap">File Interpolator</span></a>
 <br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
 <br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
 <br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
@@ -79,6 +80,12 @@ and combines them into a single loadable file
 <li>Ensures that dependencies actually resolve</li>
 </ul>
 </li>
+<li>Requires an <g key="entry_point">entry points</g>
+<ul>
+<li>Where processing starts</li>
+<li>Equivalently, the top level</li>
+</ul>
+</li>
 <li>Need to:
 <ul>
 <li>Find all dependencies</li>
@@ -86,497 +93,58 @@ and combines them into a single loadable file
 <li>Ensure they can find each other correctly once loaded</li>
 </ul>
 </li>
-<li>Our approach is based on <cite>Casciaro2020</cite></li>
-</ul>
-<h2 id="do-we-need-to-handle-circular-dependencies">Do we need to handle circular dependencies?</h2>
+<li>Think of test cases before starting to write code
 <ul>
-<li>We can visualize the network of who requires whom as a <g key="directed_graph">directed graph</g>
-<ul>
-<li>If X requires Y, draw an arrow from X to Y</li>
+<li><g key="tdd">Test-driven development</g> (TDD)</li>
+<li>Research doesn't support claims that it makes programmers significantly more productive,
+but it helps give direction to this chapter</li>
 </ul>
 </li>
-<li>A <g key="circular_dependency">circular dependency</g> exists if X depends on Y and Y depends on X
+<li>Case 1: a single file that doesn't require anything else
 <ul>
-<li>Either directly or indirectly</li>
+<li>Because if this doesn't work, nothing else will</li>
 </ul>
 </li>
-<li>May seem nonsensical, but can easily arise with <g key="plugin_architecture">plugin architectures</g>
+<li>Case 2: <code>main.js</code> requires <code>other.js</code>, which doesn't require anything
 <ul>
-<li>Main program loads an extension</li>
-<li>The extension calls utility functions defined alongside the main program</li>
-</ul>
-</li>
-<li>Most <g key="compiled_language">compiled languages</g> can handle this
-<ul>
-<li>Compile each module into low-level instructions</li>
-<li><g key="link">Link</g> those to resolve dependencies</li>
-<li>Then run</li>
-</ul>
-</li>
-<li>But <g key="interpreted_language">interpreted languages</g> execute code as it loads
-<ul>
-<li>So if X is in the process of loading Y and Y tries to call X,
-X may not (fully) exist yet</li>
-</ul>
-</li>
-<li>It sort-of works in Python</li>
-<li>Create two files</li>
-</ul>
-<pre title="checking/major.py"><code class="language-py"># major.py
-
-import minor
-
-def top():
-    print("top")
-    minor.middle()
-
-def bottom():
-    print("bottom")
-
-top()
-</code></pre>
-<pre title="checking/minor.py"><code class="language-py"># minor.py
-
-import major
-
-def middle():
-    print("middle")
-    major.bottom()
-</code></pre>
-<ul>
-<li>Fails when run from the command line</li>
-</ul>
-<pre title="checking/py-command-line.sh"><code class="language-sh">python major.py
-</code></pre>
-<pre title="checking/py-command-line.txt"><code class="language-txt">top
-Traceback (most recent call last):
-  File "major.py", line 3, in &lt;module&gt;
-    import minor
-  File "/Users/gvwilson/stjs/module-bundler/checking/minor.py", line 3, in &lt;module&gt;
-    import major
-  File "/Users/gvwilson/stjs/module-bundler/checking/major.py", line 12, in &lt;module&gt;
-    top()
-  File "/Users/gvwilson/stjs/module-bundler/checking/major.py", line 7, in top
-    minor.middle()
-AttributeError: module 'minor' has no attribute 'middle'
-</code></pre>
-<ul>
-<li>But works in the interactive interpreter</li>
-</ul>
-<pre title="checking/py-interactive.txt"><code class="language-txt">&gt;&gt;&gt; import major
-top
-middle
-bottom
-</code></pre>
-<ul>
-<li>Equivalent in JavaScript</li>
-</ul>
-<pre title="checking/major.js"><code class="language-js">const { middle } = require('./minor')
-
-const top = () =&gt; {
-  console.log('top')
-  middle()
-}
-
-const bottom = () =&gt; {
-  console.log('bottom')
-}
-
-top()
-
-module.exports = { top, bottom }
-</code></pre>
-<pre title="checking/minor.js"><code class="language-js">const { bottom } = require('./major')
-
-const middle = () =&gt; {
-  console.log('middle')
-  bottom()
-}
-
-module.exports = { middle }
-</code></pre>
-<ul>
-<li>Fails on the command line</li>
-</ul>
-<pre title="checking/js-command-line.sh"><code class="language-sh">node major.js
-</code></pre>
-<pre title="checking/js-command-line.txt"><code class="language-txt">top
-middle
-/Users/gvwilson/stjs/module-bundler/checking/minor.js:5
-  bottom()
-  ^
-
-TypeError: bottom is not a function
-    at middle (/Users/gvwilson/stjs/module-bundler/checking/minor.js:5:3)
-    at top (/Users/gvwilson/stjs/module-bundler/checking/major.js:5:3)
-    at Object.&lt;anonymous&gt; (/Users/gvwilson/stjs/module-bundler/checking/major.js:12:1)
-    at Module._compile (internal/modules/cjs/loader.js:1151:30)
-    at Object.Module._extensions..js (internal/modules/cjs/loader.js:1171:10)
-    at Module.load (internal/modules/cjs/loader.js:1000:32)
-    at Function.Module._load (internal/modules/cjs/loader.js:899:14)
-    at Function.executeUserEntryPoint [as runMain] (internal/modules/run_main.js:71:12)
-    at internal/main/run_main_module.js:17:47
-</code></pre>
-<ul>
-<li>Also fails in the interactive interpreter</li>
-</ul>
-<pre title="checking/js-interactive.txt"><code class="language-txt">&gt; const major = require('./major')
-top
-middle
-Uncaught TypeError: bottom is not a function
-    at middle (/Users/gvwilson/stjs/module-bundler/checking/minor.js:5:3)
-    at top (/Users/gvwilson/stjs/module-bundler/checking/major.js:5:3)
-    at Object.&lt;anonymous&gt; (/Users/gvwilson/stjs/module-bundler/checking/major.js:12:1)
-    at Module._compile (internal/modules/cjs/loader.js:1151:30)
-    at Object.Module._extensions..js (internal/modules/cjs/loader.js:1171:10)
-    at Module.load (internal/modules/cjs/loader.js:1000:32)
-    at Function.Module._load (internal/modules/cjs/loader.js:899:14)
-    at Module.require (internal/modules/cjs/loader.js:1040:19)
-    at require (internal/modules/cjs/helpers.js:72:18)
-</code></pre>
-<ul>
-<li>So we will <em>not</em> handle circular dependencies
-<ul>
-<li>But we <em>will</em> detect them and generate a sensible error message</li>
+<li>First test of dependencies</li>
 </ul>
 </li>
 </ul>
-<h2 id="how-can-we-safely-get-the-contents-of-a-module">How can we safely get the contents of a module?</h2>
-<ul>
-<li>Start with a simple file that exports a single function</li>
-</ul>
-<pre title="simple/other.js"><code class="language-js">const other = () =&gt; {
-  return 'message from other'
-}
-
-module.exports = other
+<pre title="expected-simple.txt"><code class="language-txt">other called from main
 </code></pre>
 <ul>
-<li>We can read it and eval the content:</li>
-</ul>
-<pre title="capture-exports-pollute.js"><code class="language-js">
-const fs = require('fs')
-
-const main = () =&gt; {
-  const source = fs.readFileSync(process.argv[2], 'utf-8')
-  console.log('before', module)
-  eval(source)
-  console.log('after', module)
-}
-
-main()
-</code></pre>
-<pre title="capture-exports-pollute.sh"><code class="language-sh">node capture-exports-pollute.js simple/other.js
-</code></pre>
-<pre title="capture-exports-pollute.txt"><code class="language-txt">before Module {
-  id: '.',
-  path: '/Users/gvwilson/stjs/module-bundler',
-  exports: {},
-  parent: null,
-  filename: '/Users/gvwilson/stjs/module-bundler/capture-exports-pollute.js',
-  loaded: false,
-  children: [],
-  paths: [
-    '/Users/gvwilson/stjs/module-bundler/node_modules',
-    '/Users/gvwilson/stjs/node_modules',
-    '/Users/gvwilson/node_modules',
-    '/Users/node_modules',
-    '/node_modules'
-  ]
-}
-after Module {
-  id: '.',
-  path: '/Users/gvwilson/stjs/module-bundler',
-  exports: [Function: other],
-  parent: null,
-  filename: '/Users/gvwilson/stjs/module-bundler/capture-exports-pollute.js',
-  loaded: false,
-  children: [],
-  paths: [
-    '/Users/gvwilson/stjs/module-bundler/node_modules',
-    '/Users/gvwilson/stjs/node_modules',
-    '/Users/gvwilson/node_modules',
-    '/Users/node_modules',
-    '/node_modules'
-  ]
-}
-</code></pre>
+<li>Case 3: best described with a diagram
 <ul>
-<li>But this adds the <code>other</code> function to <code>module.exports</code> of the caller
-<ul>
-<li>Because the <code>module</code> variable in scope when <code>eval</code> is called is the caller's <code>module</code></li>
-</ul>
-</li>
-<li>We need to create a new scope for the <code>eval</code> with something called <code>module</code> that <em>isn't</em> the caller's <code>module</code>
-<ul>
-<li>Show a bit less output to avoid cluttering the page</li>
+<li><code>./main</code> requires all four of the files below</li>
+<li><code>./top-left</code> doesn't require anything</li>
+<li><code>./top-right</code> requires <code>top-left</code> and <code>bottom-right</code></li>
+<li><code>./subdir/bottom-left</code> also requires <code>top-left</code> and <code>bottom-right</code></li>
+<li><code>./subdir/bottom-right</code> doesn't require anything</li>
 </ul>
 </li>
 </ul>
-<pre title="capture-exports-encapsulate.js"><code class="language-js">
-const fs = require('fs')
-
-const safeLoad = (module, filename) =&gt; {
-  const source = fs.readFileSync(process.argv[2], 'utf-8')
-  eval(source)
-}
-
-const main = () =&gt; {
-  console.log('caller before', module.id, module.exports)
-  const childModule = {}
-  safeLoad(childModule, process.argv[2])
-  console.log('caller after', module.id, module.exports)
-  console.log('childModule after', childModule)
-}
-
-main()
-</code></pre>
-<pre title="capture-exports-encapsulate.sh"><code class="language-sh">node capture-exports-encapsulate.js simple/other.js
-</code></pre>
-<pre title="capture-exports-encapsulate.txt"><code class="language-txt">caller before . {}
-caller after . {}
-childModule after { exports: [Function: other] }
-</code></pre>
-<h2 id="what-should-our-test-case-include">What should our test case include?</h2>
-<ul>
-<li>Use <g key="tdd">test-driven development</g> (TDD)
-<ul>
-<li>Create the test cases <em>before</em> writing the code to define what the code is supposed to do</li>
-<li>Studies don't support the claim that it makes programmers more productive,
-but it doesn't seem to do any harm either</li>
-</ul>
-</li>
-<li>Simple case: <code>main.js</code> requires <code>other.js</code> from same directory</li>
-</ul>
-<pre title="simple/main.js"><code class="language-js">const other = require('./other')
-
-const main = () =&gt; {
-  console.log(`main called other ${other()}`)
-}
-
-main()
-</code></pre>
-<pre title="simple/other.js"><code class="language-js">const other = () =&gt; {
-  return 'message from other'
-}
-
-module.exports = other
-</code></pre>
-<ul>
-<li>Expected behavior</li>
-</ul>
-<pre title="simple/expected.sh"><code class="language-sh">cd $(dirname $0) &amp;&amp; node main.js
-</code></pre>
-<pre title="simple/expected.txt"><code class="language-txt">main called other message from other
-</code></pre>
-<ul>
-<li>More complicated case
-<ul>
-<li>Name the files geometrically to help keep them straight</li>
-</ul>
-</li>
-<li><code>main.js</code> is the <g key="entry_point">entry point</g>
-<ul>
-<li><code>./top-left.js</code> doesn't require anything else</li>
-<li><code>./top-right.js</code> requires <code>./top-left.js</code> and <code>./subdir/bottom-right.js</code></li>
-<li><code>./bottom-left.js</code> requires <code>../top-left.js</code> and <code>./bottom-right.js</code></li>
-<li><code>./bottom-right.js</code> doesn't require anything else</li>
-</ul>
-</li>
-</ul>
-<pre title="full/main.js"><code class="language-js">// main.js
-
-const topLeft = require('./top-left')                // none
-const topRight = require('./top-right')              // needs top-left + bottom-right
-const bottomLeft = require('./subdir/bottom-left')   // needs top-left + bottom-right
-const bottomRight = require('./subdir/bottom-right') // none
-
-const main = () =&gt; {
-  const functions = [topLeft, topRight, bottomLeft, bottomRight]
-  functions.forEach(func =&gt; {
-    console.log(`${func('main')}`)
-  })
-}
-
-main()
-</code></pre>
-<pre title="full/top-left.js"><code class="language-js">// top-left.js
-
-const topLeft = (caller) =&gt; {
-  return `topLeft from ${caller}`
-}
-
-module.exports = topLeft
-</code></pre>
-<pre title="full/top-right.js"><code class="language-js">// top-right.js
-
-const topLeft = require('./top-left')
-const bottomRight = require('./subdir/bottom-right')
-
-const topRight = (caller) =&gt; {
-  const first = topLeft('topRight')
-  const second = bottomRight('topRight')
-  return `topRight from ${caller} with ${first} and ${second}`
-}
-
-module.exports = topRight
-</code></pre>
-<pre title="full/subdir/bottom-left.js"><code class="language-js">// subdir/bottom-left.js
-
-const topLeft = require('../top-left')
-const bottomRight = require('./bottom-right')
-
-const bottomLeft = (caller) =&gt; {
-  const first = topLeft('bottomLeft')
-  const second = bottomRight('bottomLeft')
-  return `bottomLeft from ${caller} with ${first} and ${second}`
-}
-
-module.exports = bottomLeft
-</code></pre>
-<pre title="full/subdir/bottom-right.js"><code class="language-js">// subdir/bottom-right.js
-
-const bottomRight = (caller) =&gt; {
-  return `bottomRight from ${caller}`
-}
-
-module.exports = bottomRight
-</code></pre>
-<ul>
-<li>Run <code>main.js</code> directly</li>
-<li>When we're done, we should have a single <code>.js</code> file that produces exactly the same output</li>
-</ul>
-<pre title="full/expected.sh"><code class="language-sh">cd $(dirname $0) &amp;&amp; node main.js
-</code></pre>
-<pre title="full/expected.txt"><code class="language-txt">topLeft from main
+<pre title="expected-full.txt"><code class="language-txt">topLeft from main
 topRight from main with topLeft from topRight and bottomRight from topRight
 bottomLeft from main with topLeft from bottomLeft and bottomRight from bottomLeft
 bottomRight from main
 </code></pre>
-<h2 id="how-can-we-load-a-single-file">How can we load a single file?</h2>
-<p>FIXME</p>
-<h2 id="how-can-we-combine-multiple-files">How can we combine multiple files?</h2>
 <ul>
-<li>Concatenate the source of the files
+<li>We do not handle <g key="circular_dependency">circular dependencies</g>
 <ul>
-<li>But wrap each in a function that takes a parameter called <code>module</code></li>
-<li>And then save the value of <code>module.exports</code> (if any)</li>
-</ul>
-</li>
-<li>Result is going to look like this:</li>
-</ul>
-<pre title="concatenate-by-hand.js"><code class="language-js">const everything = {
-  'simple/other.js': ((module) =&gt; {
-    const other = () =&gt; {
-      return 'message from other'
-    }
-
-    module.exports = other
-    return module
-  })({})
-}
-
-console.log('everything', everything)
-</code></pre>
-<pre title="concatenate-by-hand.txt"><code class="language-txt">everything { 'simple/other.js': { exports: [Function: other] } }
-</code></pre>
-<ul>
-<li>Create a lookup table with one entry for each module</li>
-<li>Use the filename as a key
-<ul>
-<li>We will revisit this later</li>
-</ul>
-</li>
-<li>Create the function we need with a <code>module</code> parameter</li>
-<li>Call it immediately to get the module's exports
-<ul>
-<li>An <g key="iifd">immediately-invoked function declaration</g> (IFFD)</li>
-<li>Parentheses around function definition are required by JavaScript parser</li>
-<li>Pass in an empty object to be filled in and returned</li>
-</ul>
-</li>
-<li>We can create this by concatenating strings
-<ul>
-<li>It would be nice if JavaScript template literals could be defined in one place
-and filled in somewhere else</li>
-<li>Since they can't, we'll use string replacement</li>
-</ul>
-</li>
-<li>Note that we create <code>everything</code> rather than <code>const everything</code>
-<ul>
-<li>FIXME: why doesn't the latter work?</li>
-</ul>
-</li>
-<li>Testing this is a multi-step process
-<ul>
-<li>Run <code>concatenate-programmatically.js</code> with <code>simple/other.js</code> as an argument
-to create a file we can execute that contains a module definition</li>
+<li>Because Node itself doesn't (<xref key="module-loader"></xref>)</li>
 </ul>
 </li>
 </ul>
-<pre title="concatenate-programmatically.js"><code class="language-js">const fs = require('fs')
-
-const TOP = 'everything = {'
-
-const TEMPLATE = `'FILENAME': ((module) =&gt; {
-BODY
-return module
-})({})`
-
-const BOTTOM = '}'
-
-const createEverything = (filenames) =&gt; {
-  const sections = filenames.map(filename =&gt; {
-    const body = fs.readFileSync(filename, 'utf-8')
-    return TEMPLATE
-      .replace('FILENAME', filename)
-      .replace('BODY', body)
-  })
-  return `${TOP}\n${sections.join('\n')}\n${BOTTOM}`
-}
-
-const main = () =&gt; {
-  const result = createEverything(process.argv.slice(2))
-  console.log(result)
-}
-
-main()
-</code></pre>
-<pre title="concatenate-programmatically.sh"><code class="language-sh">node concatenate-programmatically.js simple/other.js &gt; concatenate-programmatically-output.js
-</code></pre>
-<pre title="concatenate-programmatically-output.js"><code class="language-js">everything = {
-'simple/other.js': ((module) =&gt; {
-const other = () =&gt; {
-  return 'message from other'
-}
-
-module.exports = other
-
-return module
-})({})
-}
-</code></pre>
-<ul>
-<li>Load and evaluate that file and check that <code>everything</code> is defined correctly</li>
-</ul>
-<pre title="concatenate-programmatically-output-test.js"><code class="language-js">
-const fs = require('fs')
-const source = fs.readFileSync('concatenate-programmatically-output.js', 'utf-8')
-eval(source)
-console.log(everything)
-</code></pre>
-<pre title="concatenate-programmatically-output-test.txt"><code class="language-txt">{ 'simple/other.js': { exports: [Function: other] } }
-</code></pre>
 <h2 id="how-can-we-find-all-the-dependencies">How can we find all the dependencies?</h2>
 <ul>
 <li>To get dependencies for one file, parse it and extract all the <code>require</code> calls
 <ul>
 <li>Relatively straightforward given what we know about <a href="https://github.com/acornjs/acorn">Acorn</a></li>
-<li>Though notice how we build the module so that it can be run from the command line <em>or</em> loaded</li>
 </ul>
 </li>
 </ul>
-<pre title="extract-require.js"><code class="language-js">const acorn = require('acorn')
+<pre title="get-requires.js"><code class="language-js">const acorn = require('acorn')
 const fs = require('fs')
 const walk = require('acorn-walk')
 
@@ -596,27 +164,21 @@ const getRequires = (filename) =&gt; {
   return requires
 }
 
-if (require.main === module) {
-  const result = getRequires(process.argv[2])
-  console.log(result)
-} else {
-  module.exports = getRequires
-}
+module.exports = getRequires
 </code></pre>
-<pre title="extract-require.sh"><code class="language-sh">node extract-require.js full/main.js
+<pre title="test-get-requires.js"><code class="language-js">const getRequires = require('./get-requires')
+
+const result = getRequires(process.argv[2])
+console.log(result)
 </code></pre>
-<pre title="extract-require.txt"><code class="language-txt">[
-  './top-left',
-  './top-right',
-  './subdir/bottom-left',
-  './subdir/bottom-right'
-]
+<pre title="test-get-requires.sh"><code class="language-sh">node test-get-requires.js get-requires.js
+</code></pre>
+<pre title="test-get-requires.txt"><code class="language-txt">[ 'acorn', 'fs', 'acorn-walk' ]
 </code></pre>
 <ul>
 <li>To get all dependencies, need to find <g key="transitive_closure">transitive closure</g>
 <ul>
 <li>Requirements of requirements of requirements of...</li>
-<li>But allow for the case of X and Y requiring each other</li>
 </ul>
 </li>
 <li>Algorithm uses two sets
@@ -645,36 +207,36 @@ if (require.main === module) {
 </ul>
 <pre title="transitive-closure-only.js"><code class="language-js">const path = require('path')
 
-const getRequires = require('./extract-require')
+const getRequires = require('./get-requires')
 
 const transitiveClosure = (entryPointPath) =&gt; {
   const pending = [path.resolve(entryPointPath)]
-  const seen = new Set()
+  const filenames = new Set()
   while (pending.length &gt; 0) {
     const candidate = path.resolve(pending.pop())
-    if (seen.has(candidate)) {
+    if (filenames.has(candidate)) {
       continue
     }
-    seen.add(candidate)
+    filenames.add(candidate)
     const candidateDir = path.dirname(candidate)
     getRequires(candidate)
       .map(raw =&gt; path.resolve(path.join(candidateDir, `${raw}.js`)))
-      .filter(cooked =&gt; !seen.has(cooked))
+      .filter(cooked =&gt; !filenames.has(cooked))
       .forEach(cooked =&gt; pending.push(cooked))
   }
-  return [...seen]
+  return [...filenames]
 }
 
-if (module.loaded) {
-  module.exports = transitiveClosure
-} else {
-  const result = transitiveClosure(process.argv[2])
-  console.log(JSON.stringify(result, null, 2))
-}
+module.exports = transitiveClosure
 </code></pre>
-<pre title="transitive-closure-only.sh"><code class="language-sh">node transitive-closure-only.js full/main.js
+<pre title="test-transitive-closure-only.js"><code class="language-js">const transitiveClosure = require('./transitive-closure-only')
+
+const result = transitiveClosure(process.argv[2])
+console.log(JSON.stringify(result, null, 2))
 </code></pre>
-<pre title="transitive-closure-only.txt"><code class="language-txt">[
+<pre title="test-transitive-closure-only.sh"><code class="language-sh">node test-transitive-closure-only.js full/main.js
+</code></pre>
+<pre title="test-transitive-closure-only.txt"><code class="language-txt">[
   "/Users/gvwilson/stjs/module-bundler/full/main.js",
   "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-right.js",
   "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-left.js",
@@ -685,28 +247,28 @@ if (module.loaded) {
 <ul>
 <li>This works...</li>
 <li>...but we're not keeping track of the mapping from required names within files to absolute paths</li>
-<li>So modify transitive closure to construct and return a second structure
+<li>So modify transitive closure to construct and return a two-level structure
 <ul>
 <li>Primary keys are the absolute paths to the files being required</li>
-<li>Sub-keys are the paths actually used for loading</li>
-<li>Values are primary keys</li>
+<li>Sub-keys are the paths they refer to when loading things</li>
+<li>Values are top-level keys</li>
 </ul>
 </li>
 </ul>
 <pre title="transitive-closure.js"><code class="language-js">const path = require('path')
 
-const getRequires = require('./extract-require')
+const getRequires = require('./get-requires')
 
 const transitiveClosure = (entryPointPath) =&gt; {
   const mapping = {}
   const pending = [path.resolve(entryPointPath)]
-  const seen = new Set()
+  const filenames = new Set()
   while (pending.length &gt; 0) {
     const candidate = path.resolve(pending.pop())
-    if (seen.has(candidate)) {
+    if (filenames.has(candidate)) {
       continue
     }
-    seen.add(candidate)
+    filenames.add(candidate)
     mapping[candidate] = {}
     const candidateDir = path.dirname(candidate)
     getRequires(candidate)
@@ -718,46 +280,402 @@ const transitiveClosure = (entryPointPath) =&gt; {
       .filter(cooked =&gt; cooked !== null)
       .forEach(cooked =&gt; pending.push(cooked))
   }
-  return { filenames: [...seen], mapping }
+  return mapping
 }
 
-if (require.main === module) {
-  const result = transitiveClosure(process.argv[2])
-  console.log(JSON.stringify(result, null, 2))
-} else {
-  module.exports = transitiveClosure
-}
+module.exports = transitiveClosure
 </code></pre>
-<pre title="transitive-closure.sh"><code class="language-sh">node transitive-closure.js full/main.js
+<pre title="test-transitive-closure.js"><code class="language-js">const transitiveClosure = require('./transitive-closure')
+
+const result = transitiveClosure(process.argv[2])
+console.log(JSON.stringify(result, null, 2))
 </code></pre>
-<pre title="transitive-closure.txt"><code class="language-txt">{
-  "filenames": [
-    "/Users/gvwilson/stjs/module-bundler/full/main.js",
-    "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-right.js",
-    "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-left.js",
-    "/Users/gvwilson/stjs/module-bundler/full/top-left.js",
-    "/Users/gvwilson/stjs/module-bundler/full/top-right.js"
-  ],
-  "mapping": {
-    "/Users/gvwilson/stjs/module-bundler/full/main.js": {
-      "./top-left": "/Users/gvwilson/stjs/module-bundler/full/top-left.js",
-      "./top-right": "/Users/gvwilson/stjs/module-bundler/full/top-right.js",
-      "./subdir/bottom-left": "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-left.js",
-      "./subdir/bottom-right": "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-right.js"
-    },
-    "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-right.js": {
-      "./bottom-left": "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-left.js"
-    },
-    "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-left.js": {
-      "../top-left": "/Users/gvwilson/stjs/module-bundler/full/top-left.js",
-      "./bottom-right": "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-right.js"
-    },
-    "/Users/gvwilson/stjs/module-bundler/full/top-left.js": {},
-    "/Users/gvwilson/stjs/module-bundler/full/top-right.js": {
-      "./top-left": "/Users/gvwilson/stjs/module-bundler/full/top-left.js"
-    }
+<pre title="test-transitive-closure.sh"><code class="language-sh">node test-transitive-closure.js full/main.js
+</code></pre>
+<pre title="test-transitive-closure.txt"><code class="language-txt">{
+  "/Users/gvwilson/stjs/module-bundler/full/main.js": {
+    "./top-left": "/Users/gvwilson/stjs/module-bundler/full/top-left.js",
+    "./top-right": "/Users/gvwilson/stjs/module-bundler/full/top-right.js",
+    "./subdir/bottom-left": "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-left.js",
+    "./subdir/bottom-right": "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-right.js"
+  },
+  "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-right.js": {},
+  "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-left.js": {
+    "../top-left": "/Users/gvwilson/stjs/module-bundler/full/top-left.js",
+    "./bottom-right": "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-right.js"
+  },
+  "/Users/gvwilson/stjs/module-bundler/full/top-left.js": {},
+  "/Users/gvwilson/stjs/module-bundler/full/top-right.js": {
+    "./top-left": "/Users/gvwilson/stjs/module-bundler/full/top-left.js",
+    "./subdir/bottom-right": "/Users/gvwilson/stjs/module-bundler/full/subdir/bottom-right.js"
   }
 }
+</code></pre>
+<h2 id="how-can-we-safely-combine-several-files-into-one">How can we safely combine several files into one?</h2>
+<ul>
+<li>Use the same method as in <xref key="module-loader"></xref>
+<ul>
+<li>Wrap the source code in an <g key="iife">IIFE</g></li>
+<li>Give it a <code>module</code> object to fill in</li>
+<li>And an implementation of <code>require</code> to resolve dependencies <em>within the same file</em></li>
+</ul>
+</li>
+<li>For example, suppose we have this file</li>
+</ul>
+<pre title="sanity-check-unwrapped.js"><code class="language-js">const main = () =&gt; {
+  console.log('in main')
+}
+
+module.exports = main
+</code></pre>
+<ul>
+<li>The wrapped version will look like this:</li>
+</ul>
+<pre title="sanity-check-wrapped.js"><code class="language-js">const wrapper = (module, require) =&gt; {
+  const main = () =&gt; {
+    console.log('in main')
+  }
+
+  module.exports = main
+}
+</code></pre>
+<ul>
+<li>And we can test it like this</li>
+</ul>
+<pre title="sanity-check-test.js"><code class="language-js">const wrapper = (module, require) =&gt; {
+  const main = () =&gt; {
+    console.log('in main')
+  }
+
+  module.exports = main
+}
+
+const need = (name) =&gt; null
+const temp = {}
+wrapper(temp, need)
+temp.exports()
+</code></pre>
+<pre title="sanity-check-test.txt"><code class="language-txt">in main
+</code></pre>
+<ul>
+<li>But we want to do this for multiple files</li>
+<li>So we will create a map of these functions with absolute paths as keys</li>
+<li>And wrap the loading in a function so that we don't accidentally step on anyone else's toys</li>
+</ul>
+<pre title="combine-files.js"><code class="language-js">const fs = require('fs')
+const path = require('path')
+
+const HEAD = `const initialize = (creators) =&gt; {
+`
+
+const TAIL = `
+}
+`
+
+const combineFiles = (allFilenames) =&gt; {
+  const body = allFilenames
+    .map(filename =&gt; {
+      const key = path.resolve(filename)
+      const source = fs.readFileSync(filename, 'utf-8')
+      const func = `(module, require) =&gt; {${source}}`
+      const entry = `creators.set('${key}',\n${func})`
+      return `// ${key}\n${entry}\n`
+    })
+    .join('\n')
+  const func = `${HEAD}\n${body}\n${TAIL}`
+  return func
+}
+
+module.exports = combineFiles
+</code></pre>
+<ul>
+<li>Breaking it down
+<ul>
+<li><code>HEAD</code> creates a function of no arguments and a lookup table</li>
+<li><code>TAIL</code> returns the lookup table from that function</li>
+<li>In between, <code>combineFiles</code> adds an entry to the lookup table for each file</li>
+</ul>
+</li>
+<li>Test it with our intermediate two-file case</li>
+</ul>
+<pre title="test-combine-files.js"><code class="language-js">const combineFiles = require('./combine-files')
+
+console.log(combineFiles(process.argv.slice(2)))
+</code></pre>
+<pre title="test-combine-files-simple.sh"><code class="language-sh">node test-combine-files.js simple/main.js simple/other.js
+</code></pre>
+<pre title="test-combine-files-simple.txt"><code class="language-txt">const initialize = (creators) =&gt; {
+
+// /Users/gvwilson/stjs/module-bundler/simple/main.js
+creators.set('/Users/gvwilson/stjs/module-bundler/simple/main.js',
+(module, require) =&gt; {const other = require('./other')
+
+const main = () =&gt; {
+  console.log(other('main'))
+}
+
+module.exports = main
+})
+
+// /Users/gvwilson/stjs/module-bundler/simple/other.js
+creators.set('/Users/gvwilson/stjs/module-bundler/simple/other.js',
+(module, require) =&gt; {const other = (caller) =&gt; {
+  return `other called from ${caller}`
+}
+
+module.exports = other
+})
+
+
+}
+
+</code></pre>
+<ul>
+<li>We can check that this works by loading the file and calling <code>initialize</code></li>
+</ul>
+<pre title="show-combine-files-simple.txt"><code class="language-txt">Map(2) {
+  '/Users/gvwilson/stjs/module-bundler/simple/main.js' =&gt; [Function (anonymous)],
+  '/Users/gvwilson/stjs/module-bundler/simple/other.js' =&gt; [Function (anonymous)]
+}
+</code></pre>
+<ul>
+<li>This has not created our exports yet</li>
+<li>Instead, it has created a lookup table of functions that can create what we asked for</li>
+</ul>
+<h2 id="how-can-files-access-each-other">How can files access each other?</h2>
+<ul>
+<li>We have:
+<ul>
+<li>A map from absolute filenames to functions that create the exports for those modules</li>
+<li>A map from absolute filenames to pairs of (written import name, absolute filename)</li>
+<li>An entry point</li>
+</ul>
+</li>
+<li>So we:
+<ul>
+<li>Look up the function associated with the entry point</li>
+<li>Run it, giving it an empty module object and a <code>require</code> function (more below)</li>
+<li>Get the <code>exports</code> from the module object</li>
+</ul>
+</li>
+<li>Our replacement for <code>require</code> is only allowed to take one argument</li>
+<li>But it actually needs four things
+<ul>
+<li>The argument to the user's <code>require</code> call</li>
+<li>The absolute path of the file making the call</li>
+<li>The two lookup tables</li>
+</ul>
+</li>
+<li>The lookup tables can't be global variables because of possible name collisions</li>
+<li>So we will use <g key="closure">closures</g>
+<ul>
+<li>A function that takes the two tables as arguments...</li>
+<li>...and returns a function that takes an absolute path identifying this module...</li>
+<li>...and returns a function that takes a local path inside a module and returns the exports</li>
+<li>Each layer of wrappers remembers more information</li>
+</ul>
+</li>
+<li>We're also going to need a third structure: a cache for the modules we've already loaded</li>
+<li>To prove it works, we will look up the function <code>main</code> in the first file and call it
+<ul>
+<li>If we were loading in the browser, we'd capture the exports in a variable for later use</li>
+</ul>
+</li>
+</ul>
+<pre title="create-bundle.js"><code class="language-js">const fs = require('fs')
+const path = require('path')
+
+const transitiveClosure = require('./transitive-closure')
+
+const HEAD = `const creators = new Map()
+const cache = new Map()
+
+const makeRequire = (absPath) =&gt; {
+  return (localPath) =&gt; {
+    const actualKey = translate[absPath][localPath]
+    if (!cache.has(actualKey)) {
+      const m = {}
+      creators.get(actualKey)(m)
+      cache.set(actualKey, m.exports)
+    }
+    return cache.get(actualKey)
+  }
+}
+
+const initialize = (creators) =&gt; {
+`
+
+const TAIL = `
+}
+
+initialize(creators)
+`
+
+const makeProof = (entryPoint) =&gt; `
+const start = creators.get('${entryPoint}')
+const m = {}
+start(m)
+m.exports()
+`
+
+const createBundle = (entryPoint) =&gt; {
+  entryPoint = path.resolve(entryPoint)
+  const translationTable = transitiveClosure(entryPoint)
+  const translate = `const translate = ${JSON.stringify(translationTable, null, 2)}`
+  const creators = Object.keys(translationTable).map(filename =&gt; makeCreator(filename))
+  const proof = makeProof(entryPoint)
+  return [
+    translate,
+    HEAD,
+    ...creators,
+    TAIL,
+    proof
+  ].join('\n')
+}
+
+const makeCreator = (filename) =&gt; {
+  const key = path.resolve(filename)
+  const source = fs.readFileSync(filename, 'utf-8')
+  const func = `(module, require = makeRequire('${key}')) =&gt;\n{${source}}`
+  const entry = `creators.set('${key}',\n${func})`
+  return `// ${key}\n${entry}\n`
+}
+
+module.exports = createBundle
+</code></pre>
+<ul>
+<li>This code is really hard to read
+<ul>
+<li>What is being printed in the output vs. what is being executed right now</li>
+<li>The levels of nesting needed to capture variables safely</li>
+<li>Took much more time per line of finished code than anything except the promises in <xref key="promises"></xref></li>
+</ul>
+</li>
+<li>Run this to create a bundled version of the single file</li>
+</ul>
+<pre title="test-create-bundle-single.sh"><code class="language-sh">node test-create-bundle.js single/main.js &gt; bundle-single.js
+</code></pre>
+<pre title="bundle-single.js"><code class="language-js">const translate = {
+  "/Users/gvwilson/stjs/module-bundler/single/main.js": {}
+}
+const creators = new Map()
+const cache = new Map()
+
+const makeRequire = (absPath) =&gt; {
+  return (localPath) =&gt; {
+    const actualKey = translate[absPath][localPath]
+    if (!cache.has(actualKey)) {
+      const m = {}
+      creators.get(actualKey)(m)
+      cache.set(actualKey, m.exports)
+    }
+    return cache.get(actualKey)
+  }
+}
+
+const initialize = (creators) =&gt; {
+
+// /Users/gvwilson/stjs/module-bundler/single/main.js
+creators.set('/Users/gvwilson/stjs/module-bundler/single/main.js',
+(module, require = makeRequire('/Users/gvwilson/stjs/module-bundler/single/main.js')) =&gt;
+{const main = () =&gt; {
+  console.log('in main')
+}
+
+module.exports = main
+})
+
+
+}
+
+initialize(creators)
+
+
+const start = creators.get('/Users/gvwilson/stjs/module-bundler/single/main.js')
+const m = {}
+start(m)
+m.exports()
+
+</code></pre>
+<ul>
+<li>And when we run it</li>
+</ul>
+<pre title="test-bundle-single.txt"><code class="language-txt">in main
+</code></pre>
+<ul>
+<li>That was a lot of work to print one line
+<ul>
+<li>But it should work for other files</li>
+</ul>
+</li>
+<li>Make and run a bundle for the simple case (<code>main</code> and <code>other</code>)</li>
+</ul>
+<pre title="bundle-simple.js"><code class="language-js">const translate = {
+  "/Users/gvwilson/stjs/module-bundler/simple/main.js": {
+    "./other": "/Users/gvwilson/stjs/module-bundler/simple/other.js"
+  },
+  "/Users/gvwilson/stjs/module-bundler/simple/other.js": {}
+}
+const creators = new Map()
+const cache = new Map()
+
+const makeRequire = (absPath) =&gt; {
+  return (localPath) =&gt; {
+    const actualKey = translate[absPath][localPath]
+    if (!cache.has(actualKey)) {
+      const m = {}
+      creators.get(actualKey)(m)
+      cache.set(actualKey, m.exports)
+    }
+    return cache.get(actualKey)
+  }
+}
+
+const initialize = (creators) =&gt; {
+
+// /Users/gvwilson/stjs/module-bundler/simple/main.js
+creators.set('/Users/gvwilson/stjs/module-bundler/simple/main.js',
+(module, require = makeRequire('/Users/gvwilson/stjs/module-bundler/simple/main.js')) =&gt;
+{const other = require('./other')
+
+const main = () =&gt; {
+  console.log(other('main'))
+}
+
+module.exports = main
+})
+
+// /Users/gvwilson/stjs/module-bundler/simple/other.js
+creators.set('/Users/gvwilson/stjs/module-bundler/simple/other.js',
+(module, require = makeRequire('/Users/gvwilson/stjs/module-bundler/simple/other.js')) =&gt;
+{const other = (caller) =&gt; {
+  return `other called from ${caller}`
+}
+
+module.exports = other
+})
+
+
+}
+
+initialize(creators)
+
+
+const start = creators.get('/Users/gvwilson/stjs/module-bundler/simple/main.js')
+const m = {}
+start(m)
+m.exports()
+
+</code></pre>
+<pre title="test-bundle-simple.txt"><code class="language-txt">other called from main
+</code></pre>
+<ul>
+<li>And for the full case (<code>main</code> plus four other files)</li>
+</ul>
+<pre title="test-bundle-full.txt"><code class="language-txt">topLeft from main
+topRight from main with topLeft from topRight and bottomRight from topRight
+bottomLeft from main with topLeft from bottomLeft and bottomRight from bottomLeft
+bottomRight from main
 </code></pre>
 </main>
 <footer>

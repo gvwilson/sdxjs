@@ -1,25 +1,19 @@
-TARGETS =\
-  does-the-loading.txt \
-  eval-global-structure.txt \
-  eval-global-vars.txt \
-  eval-local-vars.txt \
-  eval-loop.txt \
-  eval-two-plus-two.txt \
-  test-import-interpolate.txt \
-  test-import-left.txt \
-  test-import-right.txt \
-  test-simple.txt \
-  to-be-loaded.txt
+TARGETS=\
+  automatic-namespacing.txt \
+  js-command-line.txt \
+  js-interactive.txt \
+  py-command-line.txt \
+  py-interactive.txt \
+  manual-namespacing.txt \
+  test-load-module-only.txt \
+  test-need-large-module.txt \
+  test-need-large-needless.txt \
+  test-need-small-module.txt
 
 include ../rules.mk
 
-test-import-interpolate.txt: caching.js import-interpolate.js import-interpolate-topmethod.js import-interpolate-bottommethod.js
-
-test-import-left.txt: need-path.js modules/imported-left.js
-
-test-import-right.txt: need-path.js modules/imported-right.js modules/imported-left.js
-
-test-simple.txt: need-simple.js import-simple.js
-
-to-be-loaded.txt: to-be-loaded.js
-	(bash to-be-loaded.sh >& to-be-loaded.txt) || true
+js-command-line.txt: $(wildcard checking/*.js)
+js-interactive.txt: $(wildcard checking/*.js)
+py-command-line.txt: $(wildcard checking/*.py)
+py-interactive.txt: $(wildcard checking/*.py)
+test-need-large-module.txt: large-module.js small-module.js

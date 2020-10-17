@@ -92,7 +92,7 @@ it easily accounts for 95 percent of all instances."
     -   "Most" because if we expect a match to fail, it does, so the test runner reports `true`
     -   Tells us how much work we have to do
 
-<%- include('/inc/code.html', {file: 'regex-initial/regex-complete.txt'}) %>
+<%- include('/inc/code.html', {file: 'regex-initial.txt'}) %>
 
 -   Start by implementing literal character string matcher
 
@@ -100,7 +100,7 @@ it easily accounts for 95 percent of all instances."
 
 -   Some tests now pass, others still fail (as expected)
 
-<%- include('/inc/code.html', {file: 'regex-beginning/regex-complete.txt'}) %>
+<%- include('/inc/code.html', {file: 'regex-beginning.txt'}) %>
 
 -   Do `RegexSeq` next so that we can combine other tests
     -   This is why we have tests for `Seq(Lit('a'), Lit('b'))` and `Lit('ab')`

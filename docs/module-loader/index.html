@@ -33,6 +33,7 @@
 <br/><a href="../code-generator/"><span class="nowrap">Code Generator</span></a>
 <br/><a href="../page-templates/"><span class="nowrap">Page Templates</span></a>
 <br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
+<br/><a href="../file-interpolator/"><span class="nowrap">File Interpolator</span></a>
 <br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
 <br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
 <br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
@@ -62,136 +63,261 @@
 </nav>
   <main>
   <h1>Module Loader</h1>
-  <p class="lede">Loading libraries on demand</p>
+  <p class="lede">Load source files as modules</p>
 <ul>
-<li>Our files are getting too long to show in one block</li>
-<li>Write a tool that a text file with inclusion markers and turns it into loaded code</li>
-<li>Source file has specially-formatted comments containing two fields:
+<li><xref key="file-interpolator"></xref> showed how to use <code>eval</code> to load code dynamically</li>
+<li>We can use this to build our own version of <code>require</code>
 <ul>
-<li>The text to put in the displayed version</li>
-<li>The file to include when loading</li>
+<li>Take the name of a source file as an argument</li>
+<li>Return whatever that file exports</li>
 </ul>
 </li>
-</ul>
-<pre title="interpolation-example.js"><code class="language-js">class Something {
-  /*+ constructor + something_constructor.js +*/
-
-  /*+ a long method + a_long_method.js +*/
-
-  /*+ another long method + another_long_method.js +*/
-}
-</code></pre>
-<h2 id="how-can-we-evaluate-javascript-dynamically">How can we evaluate JavaScript dynamically?</h2>
+<li>Key requirement is to avoid accidentally overwriting things
 <ul>
-<li>We want to load this dynamically just like <code>require</code> for running</li>
-<li>But display the comments in our web/print versions rather than the interpolated code</li>
-<li>Lifecycle of a JavaScript program
-<ul>
-<li>Read text</li>
-<li>Translate it into runnable instructions</li>
-<li>Run those instructions</li>
+<li>If we just <code>eval</code> the loaded code and it happens to define a variable called <code>x</code>,
+anything called <code>x</code> already in our program might be overwritten</li>
 </ul>
 </li>
-<li>We can do this whenever we want
+<li>Our approach is based on <cite>Casciaro2020</cite></li>
+</ul>
+<h2 id="how-can-we-implement-namespaces">How can we implement namespaces?</h2>
 <ul>
-<li>Reading text is straightforward</li>
-<li>Use the <code>eval</code> function to translate and run it</li>
+<li>A <g key="namespace">namespace</a> is a collection of names in a program that are isolated from other namespaces
+<ul>
+<li>Most modern languages provide namespaces as a feature so that programmers don't accidentally step on each other's toes</li>
+<li>JavaScript doesn't have this, so we have to implement it ourselves</li>
 </ul>
 </li>
-<li>A security risk
+<li>We can create a namespace by:
 <ul>
-<li>Arbitrary code can do arbitrary things</li>
-<li>At the very least, we ought to run it in a <g key="sandbox">sandbox</g></li>
+<li>Defining the things we care about inside a function (which gives us a temporary namespace when it runs)</li>
+<li>Having the function return the things we want</li>
 </ul>
 </li>
-<li>Evaluate an expression</li>
+<li>Gives us code like this:</li>
 </ul>
-<pre title="eval-two-plus-two.js"><code class="language-js">
-console.log(eval('2 + 2'))
-</code></pre>
-<pre title="eval-two-plus-two.txt"><code class="language-txt">4
-</code></pre>
-<ul>
-<li>A more interesting example
-<ul>
-<li>The string is different each time</li>
-<li>Uses the variables that are in scope when <code>eval</code> is called</li>
-</ul>
-</li>
-</ul>
-<pre title="eval-loop.js"><code class="language-js">
-const x = 1
-const y = 3
-const z = 5
-for (const name of ['x', 'y', 'z']) {
-  const expr = `${name} + 1`
-  console.log(name, '+ 1 =', eval(expr))
-}
-</code></pre>
-<pre title="eval-loop.txt"><code class="language-txt">x + 1 = 2
-y + 1 = 4
-z + 1 = 6
-</code></pre>
-<ul>
-<li>Variables created inside <code>eval</code> are local to it</li>
-</ul>
-<pre title="eval-local-vars.js"><code class="language-js">
-const code = `
-  const x = 'hello'
-  console.log('x in eval is', x)
-`
-
-eval(code)
-console.log('typeof x after eval', typeof x)
-</code></pre>
-<pre title="eval-local-vars.txt"><code class="language-txt">x in eval is hello
-typeof x after eval undefined
-</code></pre>
-<ul>
-<li>But <code>eval</code> can modify variables outside the text
-<ul>
-<li>Just like a function can modify global variables</li>
-</ul>
-</li>
-</ul>
-<pre title="eval-global-vars.js"><code class="language-js">
-let x = 'original'
-eval('x = "modified"')
-console.log('x after eval is', x)
-</code></pre>
-<pre title="eval-global-vars.txt"><code class="language-txt">x after eval is modified
-</code></pre>
-<ul>
-<li>So if we create a structure with a known name, <code>eval</code> can modify that</li>
-</ul>
-<pre title="eval-global-structure.js"><code class="language-js">
-const seen = {}
-
-for (const name of ['x', 'y', 'z']) {
-  const expr = `seen["${name}"] = "${name.toUpperCase()}"`
-  eval(expr)
+<pre title="manual-namespacing.js"><code class="language-js">const createModule = () =&gt; {
+  const privateValue = 'private value'
+  const publicValue = 'public value'
+  return { publicValue }
 }
 
-console.log(seen)
+const contents = createModule()
+console.log(`contents.publicValue is ${contents.publicValue}`)
+console.log(`contents.privateValue is ${contents.privateValue}`)
 </code></pre>
-<pre title="eval-global-structure.txt"><code class="language-txt">{ x: 'X', y: 'Y', z: 'Z' }
-</code></pre>
-<ul>
-<li>It doesn't matter where the text comes from</li>
-<li>So we can move the code that does the modifying into <code>to-be-loaded.js</code></li>
-</ul>
-<pre title="to-be-loaded.js"><code class="language-js">// Modify a global structure defined by whoever loads us.
-Seen.from_loaded_file = 'from loaded file'
+<pre title="manual-namespacing.txt"><code class="language-txt">contents.publicValue is public value
+contents.privateValue is undefined
 </code></pre>
 <ul>
-<li>This doesn't work on its own because <code>Seen</code> isn't defined</li>
+<li>We could require every module to define a setup function like this for users to call</li>
+<li>Or we can wrap this up and call it automatically
+<ul>
+<li><code>() =&gt; {...}</code> defines a function</li>
+<li><code>(() =&gt; {...})()</code> defines a function and immediately calls it</li>
+<li>The extra parentheses around the original definition force the parser to evaluate things in the right order</li>
+<li>This is called an <g key="iife">immediately-invoked function expression</g> (IIFE)</li>
 </ul>
-<pre title="to-be-loaded.txt"><code class="language-txt">/Users/gvwilson/stjs/module-loader/to-be-loaded.js:2
-Seen.from_loaded_file = 'from loaded file'
-^
+</li>
+</ul>
+<pre title="automatic-namespacing.js"><code class="language-js">const contents = (() =&gt; {
+  const privateValue = 'private value'
+  const publicValue = 'public value'
+  return { publicValue }
+})()
 
-ReferenceError: Seen is not defined
-    at Object.&lt;anonymous&gt; (/Users/gvwilson/stjs/module-loader/to-be-loaded.js:2:1)
+console.log(`contents.publicValue is ${contents.publicValue}`)
+console.log(`contents.privateValue is ${contents.privateValue}`)
+</code></pre>
+<pre title="automatic-namespacing.txt"><code class="language-txt">contents.publicValue is public value
+contents.privateValue is undefined
+</code></pre>
+<h2 id="how-can-we-load-a-module">How can we load a module?</h2>
+<ul>
+<li>We want the module we are loading to export names by assigning to <code>module.exports</code></li>
+<li>So we need to provide an object called <code>module</code> <em>and</em> create a IIFE
+<ul>
+<li>Handle the problem of the module loading other modules later</li>
+</ul>
+</li>
+<li>Our <code>loadModule</code> function takes a filename and returns a newly-created module object
+<ul>
+<li>The parameter to the function we build and <code>eval</code> must be called <code>module</code> so that we can assign to <code>module.exports</code></li>
+<li>For clarity, we call the object we pass in <code>result</code> in <code>loadModule</code></li>
+</ul>
+</li>
+</ul>
+<pre title="load-module-only.js"><code class="language-js">const fs = require('fs')
+
+const loadModule = (filename) =&gt; {
+  const source = fs.readFileSync(filename, 'utf-8')
+  const result = {}
+  const fullText = `((module) =&gt; {${source}})(result)`
+  console.log(`full text for eval:\n${fullText}`)
+  eval(fullText)
+  return result.exports
+}
+
+module.exports = loadModule
+</code></pre>
+<ul>
+<li>Use this as a test</li>
+</ul>
+<pre title="small-module.js"><code class="language-js">const publicValue = 'public value'
+
+const privateValue = 'private value'
+
+const publicFunction = (caller) =&gt; {
+  return `publicFunction called from ${caller}`
+}
+
+module.exports = { publicValue, publicFunction }
+</code></pre>
+<pre title="test-load-module-only.js"><code class="language-js">const loadModule = require('./load-module-only')
+
+const result = loadModule(process.argv[2])
+console.log(`result.publicValue is ${result.publicValue}`)
+console.log(`result.privateValue is ${result.privateValue}`)
+console.log(result.publicFunction('main'))
+</code></pre>
+<pre title="test-load-module-only.sh"><code class="language-sh">node test-load-module-only.js small-module.js
+</code></pre>
+<pre title="test-load-module-only.txt"><code class="language-txt">full text for eval:
+((module) =&gt; {const publicValue = 'public value'
+
+const privateValue = 'private value'
+
+const publicFunction = (caller) =&gt; {
+  return `publicFunction called from ${caller}`
+}
+
+module.exports = { publicValue, publicFunction }
+})(result)
+result.publicValue is public value
+result.privateValue is undefined
+publicFunction called from main
+</code></pre>
+<h2 id="do-we-need-to-handle-circular-dependencies">Do we need to handle circular dependencies?</h2>
+<ul>
+<li>We can visualize the network of who requires whom as a <g key="directed_graph">directed graph</g>
+<ul>
+<li>If X requires Y, draw an arrow from X to Y</li>
+</ul>
+</li>
+<li>A <g key="circular_dependency">circular dependency</g> exists if X depends on Y and Y depends on X
+<ul>
+<li>Either directly or indirectly</li>
+</ul>
+</li>
+<li>May seem nonsensical, but can easily arise with <g key="plugin_architecture">plugin architectures</g>
+<ul>
+<li>Main program loads an extension</li>
+<li>The extension calls utility functions defined alongside the main program</li>
+</ul>
+</li>
+<li>Most <g key="compiled_language">compiled languages</g> can handle this
+<ul>
+<li>Compile each module into low-level instructions</li>
+<li><g key="link">Link</g> those to resolve dependencies</li>
+<li>Then run</li>
+</ul>
+</li>
+<li>But <g key="interpreted_language">interpreted languages</g> execute code as it loads
+<ul>
+<li>So if X is in the process of loading Y and Y tries to call X,
+X may not (fully) exist yet</li>
+</ul>
+</li>
+<li>It sort-of works in Python</li>
+<li>Create two files</li>
+</ul>
+<pre title="checking/major.py"><code class="language-py"># major.py
+
+import minor
+
+def top():
+    print("top")
+    minor.middle()
+
+def bottom():
+    print("bottom")
+
+top()
+</code></pre>
+<pre title="checking/minor.py"><code class="language-py"># minor.py
+
+import major
+
+def middle():
+    print("middle")
+    major.bottom()
+</code></pre>
+<ul>
+<li>Fails when run from the command line</li>
+</ul>
+<pre title="py-command-line.txt"><code class="language-txt">top
+Traceback (most recent call last):
+  File "major.py", line 3, in &lt;module&gt;
+    import minor
+  File "/Users/gvwilson/stjs/module-loader/checking/minor.py", line 3, in &lt;module&gt;
+    import major
+  File "/Users/gvwilson/stjs/module-loader/checking/major.py", line 12, in &lt;module&gt;
+    top()
+  File "/Users/gvwilson/stjs/module-loader/checking/major.py", line 7, in top
+    minor.middle()
+AttributeError: module 'minor' has no attribute 'middle'
+</code></pre>
+<ul>
+<li>But works in the interactive interpreter</li>
+</ul>
+<pre title="py-interactive.txt"><code class="language-txt">$ python
+&gt;&gt;&gt; import major
+top
+middle
+bottom
+</code></pre>
+<ul>
+<li>Equivalent in JavaScript</li>
+</ul>
+<pre title="checking/major.js"><code class="language-js">// major.js
+const { middle } = require('./minor')
+
+const top = () =&gt; {
+  console.log('top')
+  middle()
+}
+
+const bottom = () =&gt; {
+  console.log('bottom')
+}
+
+top()
+
+module.exports = { top, bottom }
+</code></pre>
+<pre title="checking/minor.js"><code class="language-js">// minor.js
+const { bottom } = require('./major')
+
+const middle = () =&gt; {
+  console.log('middle')
+  bottom()
+}
+
+module.exports = { middle }
+</code></pre>
+<ul>
+<li>Fails on the command line</li>
+</ul>
+<pre title="js-command-line.txt"><code class="language-txt">top
+middle
+/Users/gvwilson/stjs/module-loader/checking/minor.js:6
+  bottom()
+  ^
+
+TypeError: bottom is not a function
+    at middle (/Users/gvwilson/stjs/module-loader/checking/minor.js:6:3)
+    at top (/Users/gvwilson/stjs/module-loader/checking/major.js:6:3)
+    at Object.&lt;anonymous&gt; (/Users/gvwilson/stjs/module-loader/checking/major.js:13:1)
     at Module._compile (internal/modules/cjs/loader.js:1151:30)
     at Object.Module._extensions..js (internal/modules/cjs/loader.js:1171:10)
     at Module.load (internal/modules/cjs/loader.js:1000:32)
@@ -200,319 +326,177 @@ ReferenceError: Seen is not defined
     at internal/main/run_main_module.js:17:47
 </code></pre>
 <ul>
-<li>But if we read the file and <code>eval</code> the text after defining <code>Seen</code>, it does what we want</li>
+<li>Also fails in the interactive interpreter</li>
 </ul>
-<pre title="does-the-loading.js"><code class="language-js">
-const fs = require('fs')
+<pre title="js-interactive.txt"><code class="language-txt">$ node
+&gt; require('./major')
+top
+middle
+/Users/gvwilson/stjs/module-loader/checking/minor.js:6
+  bottom()
+  ^
 
-const Seen = {}
-
-const filename = process.argv[2]
-const content = fs.readFileSync(filename, 'utf-8')
-console.log('before eval, Seen is', Seen)
-eval(content)
-console.log('after eval, Seen is', Seen)
-</code></pre>
-<pre title="does-the-loading.sh"><code class="language-sh">node does-the-loading.js to-be-loaded.js
-</code></pre>
-<pre title="does-the-loading.txt"><code class="language-txt">before eval, Seen is {}
-after eval, Seen is { from_loaded_file: 'from loaded file' }
-</code></pre>
-<h2 id="how-can-we-avoid-reloading-files">How can we avoid reloading files?</h2>
-<ul>
-<li>Only want to load any single file once</li>
-<li>So create a <g key="cache">cache</g> using the <g key="singleton_pattern">Singleton</g> pattern</li>
-<li>Loader</li>
-</ul>
-<pre title="need-simple.js"><code class="language-js">
-const fs = require('fs')
-
-class Cache {
-  constructor () {
-    this.loaded = new Map()
-  }
-
-  need (name) {
-    if (this.loaded.has(name)) {
-      console.log(`returning cached value for ${name}`)
-      return this.loaded.get(name)
-    }
-    console.log(`loading ${name}`)
-    const content = fs.readFileSync(name, 'utf-8')
-    const result = eval(content)
-    this.loaded.set(name, result)
-    return result
-  }
-}
-
-const cache = new Cache()
-
-module.exports = (name) =&gt; {
-  return cache.need(name)
-}
+TypeError: bottom is not a function
+    at middle (/Users/gvwilson/stjs/module-loader/checking/minor.js:6:3)
+    at top (/Users/gvwilson/stjs/module-loader/checking/major.js:6:3)
+    at Object.&lt;anonymous&gt; (/Users/gvwilson/stjs/module-loader/checking/major.js:13:1)
+    at Module._compile (internal/modules/cjs/loader.js:1151:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:1171:10)
+    at Module.load (internal/modules/cjs/loader.js:1000:32)
+    at Function.Module._load (internal/modules/cjs/loader.js:899:14)
+    at Module.require (internal/modules/cjs/loader.js:1040:19)
+    at require (internal/modules/cjs/helpers.js:72:18)
+    at [stdin]:1:1
 </code></pre>
 <ul>
-<li>File to import
+<li>So we will <em>not</em> handle circular dependencies
 <ul>
-<li>Final expression is the result of <code>eval</code>ing it</li>
+<li>But we <em>will</em> detect them and generate a sensible error message</li>
 </ul>
 </li>
 </ul>
-<pre title="import-simple.js"><code class="language-js">// Define.
-const report = (message) =&gt; {
-  console.log(`report in import-01.js with message "${message}"`)
-}
-
-// Export.
-report
-</code></pre>
+<h2 id="how-can-a-module-load-another-module">How can a module load another module?</h2>
 <ul>
-<li>File doing the importing</li>
-</ul>
-<pre title="test-simple.js"><code class="language-js">const need = require('./need-simple')
-const imported = need('./import-simple.js')
-imported('called from test-simple.js')
-</code></pre>
-<pre title="test-simple.sh"><code class="language-sh">node test-simple.js
-</code></pre>
-<h2 id="how-can-we-control-where-our-files-are-loaded-from">How can we control where our files are loaded from?</h2>
+<li>We need to provide the module with a function called <code>require</code>
 <ul>
-<li>Want to control where files are loaded from</li>
-<li>Give our program a <g key="search_path">search path</g>
-<ul>
-<li>Colon-separated list of directories on Unix</li>
-<li>Windows uses semi-colons</li>
-<li>If module path starts with <code>./</code>, load locally</li>
+<li>Check a cache to see if the file has already been loaded</li>
+<li>Load it if it isn't there</li>
+<li>Either way, return the result</li>
 </ul>
 </li>
-<li>These are all conventions
+<li>Use absolute paths as cache keys
 <ul>
-<li>Someone did it this way years ago</li>
-<li>(Almost) everyone has imitated it since</li>
-<li>But no requirement and no guarantee</li>
+<li>Suppose <code>major.js</code> imports <code>subdir/minor.js</code></li>
+<li>When <code>minor.js</code> imports <code>../major.js</code>, we need to know it's already loaded</li>
 </ul>
 </li>
-<li>A more sophisticated cache</li>
+<li>How to make the cache available?
+<ul>
+<li>Make it a property of the <code>require</code> function</li>
 </ul>
-<pre title="need-path.js"><code class="language-js">
-const fs = require('fs')
+</li>
+<li>To reduce confusion, we will call our function <code>need</code> instead of <code>require</code></li>
+</ul>
+<pre title="need.js"><code class="language-js">const fs = require('fs')
 const path = require('path')
 
-class Cache {
-  constructor () {
-    this.loaded = new Map()
-    this.constructSearchPath()
-  }
+const loadModule = require('./load-module')
 
-  need (fileSpec) {
-    if (this.loaded.has(fileSpec)) {
-      console.log(`returning cached value for ${fileSpec}`)
-      return this.loaded.get(fileSpec)
-    }
-    console.log(`loading value for ${fileSpec}`)
-    const filePath = this.find(fileSpec)
-    const content = fs.readFileSync(filePath, 'utf-8')
-    const result = eval(content)
-    this.loaded.set(fileSpec, result)
-    return result
+const need = (name) =&gt; {
+  const absPath = path.resolve(name)
+  if (!need.cache.has(absPath)) {
+    const contents = loadModule(absPath, need)
+    need.cache.set(absPath, contents)
   }
-
-  constructSearchPath () {
-    this.searchPath = []
-    if ('NEED_PATH' in process.env) {
-      this.searchPath = process.env.NEED_PATH.split(':').filter(x =&gt; x.length &gt; 0)
-    }
-  }
-
-  find (fileSpec) {
-    let result
-    if (fileSpec.startsWith('.')) {
-      console.log(`..trying local file for ${fileSpec}`)
-      if (fs.existsSync(fileSpec)) {
-        result = fileSpec
-      }
-    } else {
-      for (const dir of this.searchPath) {
-        const filePath = path.join(dir, fileSpec)
-        console.log(`trying ${filePath} for ${fileSpec}`)
-        if (fs.existsSync(filePath)) {
-          result = filePath
-          break
-        }
-      }
-    }
-    if (result === undefined) {
-      throw new Error(`unable to import ${fileSpec}: no match found`)
-    }
-    return result
-  }
+  return need.cache.get(absPath)
 }
+need.cache = new Map()
 
-const cache = new Cache()
-
-module.exports = (fileSpec) =&gt; {
-  return cache.need(fileSpec)
-}
+module.exports = need
 </code></pre>
 <ul>
-<li>To test, put the files to import in the <code>modules</code> subdirectory
+<li>Need to modify <code>loadModule</code> to take our function <code>need</code> as a parameter
 <ul>
-<li>We could call the directory anything we want</li>
+<li>Again, we'll have &quot;modules&quot; call <code>need('something.js')</code> instead of <code>require('something')</code> for clarity</li>
+</ul>
+</li>
+<li>Test with the same small module that doesn't need anything else to make sure we haven't broken anything</li>
+</ul>
+<pre title="test-need-small-module.js"><code class="language-js">const need = require('./need')
+
+const small = need('small-module.js')
+console.log(`small.publicValue is ${small.publicValue}`)
+console.log(`small.privateValue is ${small.privateValue}`)
+console.log(small.publicFunction('main'))
+</code></pre>
+<pre title="test-need-small-module.txt"><code class="language-txt">full text for eval:
+((module, need) =&gt; {const publicValue = 'public value'
+
+const privateValue = 'private value'
+
+const publicFunction = (caller) =&gt; {
+  return `publicFunction called from ${caller}`
+}
+
+module.exports = { publicValue, publicFunction }
+})(result, need)
+small.publicValue is public value
+small.privateValue is undefined
+publicFunction called from main
+</code></pre>
+<ul>
+<li>Test again with a module that loads something else</li>
+</ul>
+<pre title="large-module.js"><code class="language-js">const need = require('./need')
+
+const small = need('small-module.js')
+
+const large = (caller) =&gt; {
+  console.log(`large from ${caller}`)
+  small.publicFunction(`${caller} to large`)
+}
+
+module.exports = large
+</code></pre>
+<pre title="test-need-large-module.js"><code class="language-js">const need = require('./need')
+
+const large = need('large-module.js')
+console.log(large.large('main'))
+</code></pre>
+<pre title="test-need-large-module.js"><code class="language-js">const need = require('./need')
+
+const large = need('large-module.js')
+console.log(large.large('main'))
+</code></pre>
+<ul>
+<li>Doesn't work because our made-up function has <code>need</code> as a parameter and also as a constant</li>
+<li>Not a problem with Node because <code>require</code> is predefined</li>
+<li>So we will rely on our loader to provide it
+<ul>
+<li>Which means we can only run loaded modules by <code>need</code>ing them</li>
 </ul>
 </li>
 </ul>
-<pre title="modules/imported-left.js"><code class="language-js">// Define.
-const report = (message) =&gt; {
-  console.log(`in LEFT with message "${message}"`)
+<pre title="large-needless.js"><code class="language-js">const small = need('small-module.js')
+
+const large = (caller) =&gt; {
+  return small.publicFunction(`large called from ${caller}`)
 }
 
-// Export.
-report
+module.exports = large
 </code></pre>
-<ul>
-<li>Put the file doing the importing in current directory</li>
-</ul>
-<pre title="test-import-left.js"><code class="language-js">const need = require('./need-path')
-const imported = need('imported-left.js')
-imported('called from test-import-left.js')
+<pre title="test-need-large-needless.js"><code class="language-js">const need = require('./need')
+
+const large = need('large-needless.js')
+console.log(large('main'))
 </code></pre>
-<ul>
-<li>Set path when running Node
-<ul>
-<li><code>NAME=value command</code> defines the variable <code>NAME</code> just long enough for <code>command</code> to run</li>
-<li>Shell variables being in UPPER CASE is another convention</li>
-</ul>
-</li>
-</ul>
-<pre title="test-import-left.sh"><code class="language-sh">NEED_PATH=$PWD/modules/ node test-import-left.js
-</code></pre>
-<pre title="test-import-left.txt"><code class="language-txt">loading value for imported-left.js
-trying /Users/gvwilson/stjs/module-loader/modules/imported-left.js for imported-left.js
-in LEFT with message "called from test-import-left.js"
-</code></pre>
-<ul>
-<li>Now create a second importable file</li>
-</ul>
-<pre title="modules/imported-right.js"><code class="language-js">// Define.
-const report = (message) =&gt; {
-  console.log(`in RIGHT with message "${message}"`)
+<pre title="test-need-large-needless.txt"><code class="language-txt">full text for eval:
+((module, need) =&gt; {const small = need('small-module.js')
+
+const large = (caller) =&gt; {
+  return small.publicFunction(`large called from ${caller}`)
 }
 
-// Export.
-report
-</code></pre>
-<ul>
-<li>Load that twice to check that caching works</li>
-</ul>
-<pre title="test-import-right.js"><code class="language-js">const need = require('./need-path')
+module.exports = large
+})(result, need)
+full text for eval:
+((module, need) =&gt; {const publicValue = 'public value'
 
-const imported = need('imported-right.js')
-imported('called from test-import-right.js')
+const privateValue = 'private value'
 
-const alsoImported = need('imported-right.js')
-alsoImported('called from test-import-right.js')
-</code></pre>
-<pre title="test-import-right.sh"><code class="language-sh">NEED_PATH=$PWD/modules/ node test-import-right.js
-</code></pre>
-<pre title="test-import-right.txt"><code class="language-txt">loading value for imported-right.js
-trying /Users/gvwilson/stjs/module-loader/modules/imported-right.js for imported-right.js
-in RIGHT with message "called from test-import-right.js"
-returning cached value for imported-right.js
-in RIGHT with message "called from test-import-right.js"
-</code></pre>
-<h2 id="how-can-we-interpolate-pieces-of-code">How can we interpolate pieces of code?</h2>
-<ul>
-<li>Now add interpolation
-<ul>
-<li>To keep things simple, we will only interpolate snippets in the same directory as the main file</li>
-</ul>
-</li>
-<li>Modify <code>Cache.find</code> to return a directory and a file path
-<ul>
-<li>Add <code>interpolate</code> to replace special comments</li>
-</ul>
-</li>
-</ul>
-<pre title="caching.js"><code class="language-js">class Cache {
-  // ...
-  interpolate (fileDir, outer) {
-    return outer.replace(Cache.INTERPOLATE_PAT, (match, comment, filename) =&gt; {
-      filename = filename.trim()
-      const filePath = path.join(fileDir, filename)
-      if (!fs.existsSync(filePath)) {
-        throw new Error(`Cannot find ${filePath}`)
-      }
-      const inner = fs.readFileSync(filePath, 'utf-8')
-      return inner
-    })
-  }
-  // ...
-}
-Cache.INTERPOLATE_PAT = /\/\*\+(.+?)\+(.+?)\+\*\//g
-</code></pre>
-<ul>
-<li>Can then have a file like:</li>
-</ul>
-<pre title="import-interpolate.js"><code class="language-js">class Example {
-  constructor (msg) {
-    this.constructorMessage = msg
-  }
-  /*+ top method + import-interpolate-topmethod.js +*/
-  /*+ bottom method + import-interpolate-bottommethod.js +*/
+const publicFunction = (caller) =&gt; {
+  return `publicFunction called from ${caller}`
 }
 
-Example
+module.exports = { publicValue, publicFunction }
+})(result, need)
+publicFunction called from large called from main
 </code></pre>
-<ul>
-<li>And subfiles like this:</li>
-</ul>
-<pre title="import-interpolate-topmethod.js"><code class="language-js">topMethod (msg) {
-  this.bottomMethod(`(topMethod ${msg})`)
-}
-</code></pre>
-<ul>
-<li>And this:</li>
-</ul>
-<pre title="import-interpolate-bottommethod.js"><code class="language-js">bottomMethod (msg) {
-  console.log(`(bottomMethod ${msg})`)
-}
-</code></pre>
-<ul>
-<li>Test it</li>
-</ul>
-<pre title="test-import-interpolate.sh"><code class="language-sh">node test-import-interpolate.js
-</code></pre>
-<pre title="test-import-interpolate.txt"><code class="language-txt">(bottomMethod (topMethod called from test-import-interpolate.js))
-</code></pre>
-<ul>
-<li>Lifecycle
-<ul>
-<li>Node starts to run <code>test-import-interpolate.js</code></li>
-<li>Sees <code>require('./need-interpolate')</code> so it reads and evaluates that code</li>
-<li>Which creates a singleton cache object</li>
-<li>Calls <code>need('./import-interpolate.js')</code> (our replacement for <code>require</code>)</li>
-<li>Checks the cache: nope, nothing there</li>
-<li>Loads <code>import-interpolate.js</code></li>
-<li>Finds two specially-formatted comments</li>
-<li>Loads the file described by each and inserts the text in place of the comment</li>
-<li>Uses <code>eval</code> on the resulting text</li>
-<li>Stores the result of <code>eval</code> (which is a class) in the cache</li>
-<li>Returns that class</li>
-<li>We create an instance and call its method</li>
-</ul>
-</li>
-<li>Next step is to modify our page templating system to detect specially-formatted comments
-and do the string replacement
-<ul>
-<li>No <code>eval</code> or loading involved</li>
-</ul>
-</li>
-</ul>
 </main>
 <footer>
 <div class="row">
 <div class="left3">
-<a href="../doc-generator/"><em>&laquo; Documentation Generator</em></a>
+<a href="../file-interpolator/"><em>&laquo; File Interpolator</em></a>
 </div>
 <div class="middle3">
 <a href="../license/"><img class="footer" src="../static/cc-by.svg" alt="License" /></a>

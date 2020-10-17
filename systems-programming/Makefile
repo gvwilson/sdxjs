@@ -6,6 +6,3 @@ TARGETS=\
   list-dir-wrong.txt
 
 include ../rules.mk
-
-list-dir-wrong.txt: list-dir-wrong.js list-dir-wrong.sh
-	(bash list-dir-wrong.sh >& list-dir-wrong.txt) || true
