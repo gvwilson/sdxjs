@@ -26,6 +26,11 @@ const DEFAULTS = {
 }
 
 /**
+ * Standard directory to show instead of user's directory.
+ */
+const STANDARD_DIR = '/stjs'
+
+/**
  * Header inclusion.
  */
 const HEADER = "<%- include('/inc/head.html') %>"
@@ -54,12 +59,14 @@ const main = () => {
  */
 const getOptions = () => {
   const parser = new argparse.ArgumentParser()
-  parser.add_argument('-c', '--configFile', { default: DEFAULTS.configFile })
-  parser.add_argument('-l', '--linksFile', { default: DEFAULTS.linksFile })
-  parser.add_argument('-o', '--outputDir', { default: DEFAULTS.outputDir })
-  parser.add_argument('-r', '--rootDir', { default: DEFAULTS.rootDir })
-  const fromArgs = parser.parse_args()
+  parser.add_argument('--configFile', { default: DEFAULTS.configFile })
+  parser.add_argument('--linksFile', { default: DEFAULTS.linksFile })
+  parser.add_argument('--outputDir', { default: DEFAULTS.outputDir })
+  parser.add_argument('--rootDir', { default: DEFAULTS.rootDir })
+  parser.add_argument('--replaceDir', { action: 'store_true' })
 
+  const fromArgs = parser.parse_args()
+  fromArgs.currentWorkingDir = process.cwd()
   const fromFile = yaml.safeLoad(fs.readFileSync(fromArgs.configFile))
   const options = { ...fromArgs, ...fromFile }
 
@@ -160,7 +167,10 @@ const translateFile = (options, fileInfo, linksText) => {
   const translated = settings._render(`${fileInfo.content}\n\n${linksText}`)
   const mdi = new MarkdownIt({ html: true })
     .use(MarkdownAnchor, { level: 1, slugify: slugify })
-  const html = mdi.render(translated)
+  let html = mdi.render(translated)
+  if (options.replaceDir) {
+    html = html.replace(new RegExp(options.currentWorkingDir, 'g'), STANDARD_DIR)
+  }
 
   // Save result.
   const outputPath = path.join(options.outputDir, fileInfo.output)

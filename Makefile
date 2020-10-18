@@ -101,7 +101,8 @@ docs/index.html docs/numbering.js docs/static/site.css docs/static/site.js: bin/
 	--rootDir . \
 	--outputDir docs \
 	--configFile config.yml \
-	--linksFile links.yml
+	--linksFile links.yml \
+	--replaceDir
 
 ## latex: rebuild LaTeX file (use 'make pdf' for book)
 latex: book.tex
