@@ -1,3 +1,4 @@
+/* eslint-disable */
 const initialize = (creators) => {
 
 // /Users/gvwilson/stjs/module-bundler/single/main.js

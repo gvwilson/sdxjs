@@ -1,3 +1,4 @@
+/* eslint-disable */
 const need = require('./need-interpolate')
 const imported = need('./import-interpolate.js')
 const instance = new imported()
