@@ -1,3 +1,4 @@
+/* eslint-disable */
 class Something {
   /*+ constructor + something_constructor.js +*/
 
