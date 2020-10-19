@@ -1,5 +1,5 @@
 const contents = (() => {
-  const privateValue = 'private value'
+  const privateValue = 'private value' // eslint-disable-line
   const publicValue = 'public value'
   return { publicValue }
 })()

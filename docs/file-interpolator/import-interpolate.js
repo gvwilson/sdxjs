@@ -1,3 +1,4 @@
+/* eslint-disable */
 class Example {
   constructor (msg) {
     this.constructorMessage = msg
