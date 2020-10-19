@@ -1,1 +1,1 @@
-cat test-combine-files-simple.txt console-everything.js | node
+cat test-combine-files-simple.js console-everything.js | node

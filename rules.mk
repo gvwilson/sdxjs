@@ -20,3 +20,6 @@ targets:
 
 %.txt: %.js
 	node $< &> $@
+
+erase:
+	rm -f ${TARGETS}

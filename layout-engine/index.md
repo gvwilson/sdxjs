@@ -12,6 +12,26 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
     -   Walk this tree to figure out where each visible element belongs
     -   Render this (as plain text)
 
+## How can we lay out rows and columns?
+
+-   Let's start on <g key="easy_mode">easy mode</g>
+    -   No margins or padding or stretching or wrapping or…
+-   A cell is a row, a column, or a block
+-   A block has a fixed width and height
+-   A row arranges one or more cells horizontally
+    -   Its width is the sum of the widths of its children
+    -   Its height is the maximum height of any of its children
+-   A column arranges one or more cells vertically
+    -   Its width is the maximum width of its children
+    -   Its height is the sum of the heights of its children
+-   Represent the tree as nested objects
+-   Calculate width and height each time they're needed
+    -   Inefficient: could calculate both at the same time
+    -   And cache values and have a "changed" marker and all the other things browsers do to go faster
+
+<%- include('/inc/code.html', {file: 'easy-mode.js'}) %>
+<%- include('/inc/multi.html', {pat: 'test-easy-mode.*', fill: 'sh txt'}) %>
+
 ## How can we handle a small subset of HTML?
 
 -   Our subset of HTML includes:
