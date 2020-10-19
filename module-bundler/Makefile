@@ -9,8 +9,8 @@ TARGETS=\
   test-bundle-full.txt \
   test-bundle-simple.txt \
   test-bundle-single.txt \
-  test-combine-files-single.txt \
-  test-combine-files-simple.txt \
+  test-combine-files-single.js \
+  test-combine-files-simple.js \
   test-get-requires.txt \
   test-transitive-closure.txt \
   test-transitive-closure-only.txt
@@ -18,8 +18,6 @@ TARGETS=\
 include ../rules.mk
 
 show-combine-files-simple.txt: test-combine-files-simple.txt show-combine-files-simple.sh
-test-combine-files-simple.txt: combine-files.js test-combine-files.js
-test-combine-files-single.txt: combine-files.js test-combine-files.js
 test-transitive-closure-only.txt: transitive-closure-only.txt
 test-transitive-closure.txt: transitive-closure.txt
 
@@ -31,3 +29,9 @@ bundle-simple.js: test-create-bundle.js create-bundle.js transitive-closure.js $
 
 bundle-single.js: test-create-bundle.js create-bundle.js transitive-closure.js $(wildcard single/*.js)
 	bash test-create-bundle-single.sh
+
+test-combine-files-simple.js: combine-files.js test-combine-files.js
+	bash test-combine-files-simple.sh
+
+test-combine-files-single.js: combine-files.js test-combine-files.js
+	bash test-combine-files-single.sh
