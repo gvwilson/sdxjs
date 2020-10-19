@@ -233,6 +233,8 @@ const title = (entry, quote) => {
   }
   if (quote) {
     title = `"${title}"`
+  } else {
+    title = `<em>${title}</em>`
   }
   return `${title}.`
 }
