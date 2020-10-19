@@ -366,19 +366,25 @@
 
 \if@twoside
 \def\ps@headings{%
-  \let\@mkboth\@gobbletwo
-  \if@pdf
-    \let\@evenhead\@empty
-    \let\@oddhead\@empty
-    \def\@oddfoot{\@cip\hfil}%
-    \def\@evenfoot{\@cip\hfil}%
-  \else
-\let\@oddfoot\@empty
-\let\@evenfoot\@empty
-    \let\@evenhead\even@head
-    \let\@oddhead\odd@head
-  \fi
-  }
+      \let\@oddfoot\@empty\let\@evenfoot\@empty
+      \def\@evenhead{{\PageNumFont\thepage}\hfil\slshape{\RunningHeadFont\leftmark}}%
+      \def\@oddhead{{\RunningHeadFont\rightmark}\hfil{\PageNumFont\thepage}}%
+      \let\@mkboth\markboth
+    \def\chaptermark##1{%
+      \markboth {{%
+        \ifnum \c@secnumdepth >\m@ne
+          \if@mainmatter
+%            \@chapapp\ 
+            \thechapter\enspace %
+          \fi
+        \fi
+        ##1}}{}}%
+    \def\sectionmark##1{%
+      \markright {{%
+        \ifnum \c@secnumdepth >\z@
+          \thesection\enspace %
+        \fi
+        ##1}}}}
 \else
   \def\ps@headings{\let\@mkboth\@gobbletwo%
 \if@pdf

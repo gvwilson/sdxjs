@@ -221,7 +221,12 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     accum.push(fullEscape(getAttr(node, 'key')))
     accum.push('}')
   } else if (node.nodeName === 'h1') {
-    if (fileInfo.slug === '/') {
+    if ('latexBefore' in fileInfo) {
+      accum.push(`${fileInfo.latexBefore}\n`)
+    }
+    if ('latexSkipChapter' in fileInfo) {
+      // do nothing
+    } else if (fileInfo.slug === '/') {
       accum.push('\\chapter{Introduction}\\label{introduction}')
     } else {
       accum.push('\\chapter{')
