@@ -81,6 +81,104 @@ based on <a href="https://limpet.net/mbrubeck/2014/08/08/toy-layout-engine-1.htm
 </ul>
 </li>
 </ul>
+<h2 id="how-can-we-lay-out-rows-and-columns">How can we lay out rows and columns?</h2>
+<ul>
+<li>Let's start on <g key="easy_mode">easy mode</g>
+<ul>
+<li>No margins or padding or stretching or wrapping or…</li>
+</ul>
+</li>
+<li>A cell is a row, a column, or a block</li>
+<li>A block has a fixed width and height</li>
+<li>A row arranges one or more cells horizontally
+<ul>
+<li>Its width is the sum of the widths of its children</li>
+<li>Its height is the maximum height of any of its children</li>
+</ul>
+</li>
+<li>A column arranges one or more cells vertically
+<ul>
+<li>Its width is the maximum width of its children</li>
+<li>Its height is the sum of the heights of its children</li>
+</ul>
+</li>
+<li>Represent the tree as nested objects</li>
+<li>Calculate width and height each time they're needed
+<ul>
+<li>Inefficient: could calculate both at the same time</li>
+<li>And cache values and have a &quot;changed&quot; marker and all the other things browsers do to go faster</li>
+</ul>
+</li>
+</ul>
+<pre title="easy-mode.js"><code class="language-js">class Block {
+  constructor (width, height) {
+    this._width = width
+    this._height = height
+  }
+
+  width () {
+    return this._width
+  }
+
+  height () {
+    return this._height
+  }
+}
+
+class Row {
+  constructor (...children) {
+    this._children = children
+  }
+
+  width () {
+    return this._children
+      .map(child =&gt; child.width())
+      .reduce((total, next) =&gt; total + next, 0)
+  }
+
+  height () {
+    return Math.max(...this._children.map(child =&gt; child.height()))
+  }
+}
+
+class Column {
+  constructor (...children) {
+    this._children = children
+  }
+
+  width () {
+    return Math.max(...this._children.map(child =&gt; child.width()))
+  }
+
+  height () {
+    return this._children
+      .map(child =&gt; child.height())
+      .reduce((total, next) =&gt; total + next, 0)
+  }
+}
+
+module.exports = { Block, Row, Column }
+</code></pre>
+<pre title="test-easy-mode.sh"><code class="language-sh">npm run test -- -g 'easy mode'
+
+</code></pre>
+<pre title="test-easy-mode.txt"><code class="language-txt">
+&gt; e@1.0.0 test /stjs
+&gt; mocha */test/test-*.js "-g" "easy mode"
+
+
+
+  lays out in easy mode
+    ✓ lays out a single unit block
+    ✓ lays out a large block
+    ✓ lays out a row of two blocks
+    ✓ lays out a column of two blocks
+    ✓ lays out a grid of rows of columns
+
+
+  5 passing (5ms)
+
+</code></pre>
 <h2 id="how-can-we-handle-a-small-subset-of-html">How can we handle a small subset of HTML?</h2>
 <ul>
 <li>Our subset of HTML includes:

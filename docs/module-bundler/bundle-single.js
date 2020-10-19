@@ -1,3 +1,4 @@
+/* eslint-disable */
 const translate = {
   "/Users/gvwilson/stjs/module-bundler/single/main.js": {}
 }

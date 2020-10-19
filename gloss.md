@@ -130,6 +130,8 @@
 <dd class="glossary">To find a function or a property of an <g key="object">object</g> by name while a program is running. For example, instead of getting a specific property of an object using <code>obj.name</code>, a program might use <code>obj[someVariable]</code>, where <code>someVariable</code> could hold <code>&quot;name&quot;</code> or some other property name.</dd>
 <dt id="dynamic_scoping" class="glossary">dynamic scoping</dt>
 <dd class="glossary">To find the value of a <g key="variable_program">variable</g> by looking at what is on the <g key="call_stack">call stack</g> at the moment the lookup is done. Almost all programming languages use <g key="lexical_scoping">lexical_scoping</g> instead, since it is more predictable.</dd>
+<dt id="easy_mode" class="glossary">easy mode</dt>
+<dd class="glossary">A term borrowed from gaming meaning to do something with obstacles or difficulties simplified or removed, often for practice purposes.</dd>
 <dt id="edge" class="glossary">edge</dt>
 <dd class="glossary">A connection between two <g key="node">nodes</g> in a <g key="graph">graph</g>.  An edge may have data associated with it, such as a name or distance.</dd>
 <dt id="element" class="glossary">element</dt>

@@ -1,3 +1,4 @@
+/* eslint-disable */
 const translate = {
   "/Users/gvwilson/stjs/module-bundler/full/main.js": {
     "./top-left": "/Users/gvwilson/stjs/module-bundler/full/top-left.js",
