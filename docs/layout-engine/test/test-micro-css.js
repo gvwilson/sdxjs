@@ -7,7 +7,7 @@ const CssRuleSet = require('../micro-css-ruleset')
 describe('manages style rules', () => {
   it('converts empty JSON to empty rules', async () => {
     const allRules = new CssRuleSet({})
-    assert.strictEqual(allRules._rules.length, 0)
+    assert.strictEqual(allRules.rules.length, 0)
   })
 
   it('converts a mixture of rules', async () => {
@@ -21,7 +21,7 @@ describe('manages style rules', () => {
       new IdRule('#top', { color: '#0000ff' }),
       new TagRule('body', { 'font-weight': 'bold' })
     ])
-    assert.deepStrictEqual(new Set(allRules._rules), expected)
+    assert.deepStrictEqual(new Set(allRules.rules), expected)
   })
 
   it('finds the right tag rule', async () => {

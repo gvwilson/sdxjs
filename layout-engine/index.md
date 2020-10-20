@@ -92,6 +92,6 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
     -   Would reduce the <g key="coupling">coupling</g> between the classes
     -   Of course, then we'd have to stop accessing objects' attributes directly…
 -   Provide a method for finding the rules for a given DOM node
-    -   Requires custom sorting that depends on CSS classes have a precedence order
+    -   Requires custom sorting that depends on CSS classes having a precedence order
 
 <%- include('/inc/code.html', {file: 'micro-css-ruleset.js'}) %>

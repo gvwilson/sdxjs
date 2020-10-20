@@ -1,46 +1,46 @@
 class Block {
   constructor (width, height) {
-    this._width = width
-    this._height = height
+    this.width = width
+    this.height = height
   }
 
-  width () {
-    return this._width
+  getWidth () {
+    return this.width
   }
 
-  height () {
-    return this._height
+  getHeight () {
+    return this.height
   }
 }
 
 class Row {
   constructor (...children) {
-    this._children = children
+    this.children = children
   }
 
-  width () {
-    return this._children
-      .map(child => child.width())
+  getWidth () {
+    return this.children
+      .map(child => child.getWidth())
       .reduce((total, next) => total + next, 0)
   }
 
-  height () {
-    return Math.max(...this._children.map(child => child.height()))
+  getHeight () {
+    return Math.max(...this.children.map(child => child.getHeight()))
   }
 }
 
 class Column {
   constructor (...children) {
-    this._children = children
+    this.children = children
   }
 
-  width () {
-    return Math.max(...this._children.map(child => child.width()))
+  getWidth () {
+    return Math.max(...this.children.map(child => child.getWidth()))
   }
 
-  height () {
-    return this._children
-      .map(child => child.height())
+  getHeight () {
+    return this.children
+      .map(child => child.getHeight())
       .reduce((total, next) => total + next, 0)
   }
 }

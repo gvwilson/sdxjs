@@ -2,9 +2,9 @@ const assert = require('assert')
 
 class CssRule {
   constructor (order, selector, styles) {
-    this._order = order
-    this._selector = selector
-    this._styles = styles
+    this.order = order
+    this.selector = selector
+    this.styles = styles
   }
 }
 
@@ -16,8 +16,8 @@ class IdRule extends CssRule {
   }
 
   match (node) {
-    return ('id' in node._attributes) &&
-      (node._attributes.id === this._selector)
+    return ('id' in node.attributes) &&
+      (node.attributes.id === this.selector)
   }
 }
 IdRule.ORDER = 0
@@ -30,8 +30,8 @@ class ClassRule extends CssRule {
   }
 
   match (node) {
-    return ('class' in node._attributes) &&
-      (node._attributes.class === this._selector)
+    return ('class' in node.attributes) &&
+      (node.attributes.class === this.selector)
   }
 }
 ClassRule.ORDER = 1
@@ -42,7 +42,7 @@ class TagRule extends CssRule {
   }
 
   match (node) {
-    return this._selector === node._tag
+    return this.selector === node.tag
   }
 }
 TagRule.ORDER = 2

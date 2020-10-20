@@ -4,7 +4,7 @@ const { IdRule, ClassRule, TagRule } = require('./micro-css')
 
 class CssRuleSet {
   constructor (json, mergeDefaults = true) {
-    this._rules = this.jsonToRules(json)
+    this.rules = this.jsonToRules(json)
   }
 
   jsonToRules (json) {
@@ -22,8 +22,8 @@ class CssRuleSet {
   }
 
   findRules (node) {
-    const matches = this._rules.filter(rule => rule.match(node))
-    const sorted = matches.sort((left, right) => left._order - right._order)
+    const matches = this.rules.filter(rule => rule.match(node))
+    const sorted = matches.sort((left, right) => left.order - right.order)
     return sorted
   }
 }

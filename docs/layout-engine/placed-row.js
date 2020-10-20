@@ -3,25 +3,25 @@ const { Row } = require('./easy-mode')
 class PlacedRow extends Row {
   constructor (...children) {
     super(...children)
-    this._x0 = null
-    this._y0 = null
+    this.x0 = null
+    this.y0 = null
   }
 
   place (x0, y1) {
-    this._x0 = x0
-    this._y1 = y1
-    const y0 = y1 - this.height()
+    this.x0 = x0
+    this.y1 = y1
+    const y0 = y1 - this.getHeight()
     let xCurrent = x0
-    this._children.forEach(child => {
-      child.place(xCurrent, y0 + child.height())
-      xCurrent += child.width()
+    this.children.forEach(child => {
+      child.place(xCurrent, y0 + child.getHeight())
+      xCurrent += child.getWidth()
     })
   }
 
   report () {
     return [
-      'row', this._x0, this._y1,
-      ...this._children.map(child => child.report())
+      'row', this.x0, this.y1,
+      ...this.children.map(child => child.report())
     ]
   }
 }

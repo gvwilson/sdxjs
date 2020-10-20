@@ -8,11 +8,11 @@ class TextNode extends Node {
     assert(typeof text === 'string',
       'TextNode requires string as constructor argument')
     super()
-    this._text = text
+    this.text = text
   }
 
   toString () {
-    return this._text
+    return this.text
   }
 }
 
@@ -21,29 +21,29 @@ class TagNode extends Node {
     assert(typeof tag === 'string',
       'TagNode requires string as tag')
     super()
-    this._tag = tag
+    this.tag = tag
 
-    this._attributes = {}
+    this.attributes = {}
     if (attributes !== null) {
       assert(typeof attributes === 'object',
         'Require object for attributes')
-      this._attributes = Object.assign({}, attributes)
+      this.attributes = Object.assign({}, attributes)
     }
 
-    this._children = children
-    assert(this._children.every(child => child instanceof Node),
+    this.children = children
+    assert(this.children.every(child => child instanceof Node),
       'Children must be nodes')
   }
 
   toString () {
-    const attr = Object.keys(this._attributes)
+    const attr = Object.keys(this.attributes)
       .sort()
-      .map(key => ` ${key}="${this._attributes[key]}"`)
+      .map(key => ` ${key}="${this.attributes[key]}"`)
       .join('')
-    const children = this._children
+    const children = this.children
       .map(child => child.toString())
       .join('')
-    return `<${this._tag}${attr}>${children}</${this._tag}>`
+    return `<${this.tag}${attr}>${children}</${this.tag}>`
   }
 }
 

@@ -5,14 +5,14 @@ const { Block, Row, Column } = require('../easy-mode')
 describe('lays out in easy mode', () => {
   it('lays out a single unit block', async () => {
     const fixture = new Block(1, 1)
-    assert.strictEqual(fixture.width(), 1)
-    assert.strictEqual(fixture.height(), 1)
+    assert.strictEqual(fixture.getWidth(), 1)
+    assert.strictEqual(fixture.getHeight(), 1)
   })
 
   it('lays out a large block', async () => {
     const fixture = new Block(3, 4)
-    assert.strictEqual(fixture.width(), 3)
-    assert.strictEqual(fixture.height(), 4)
+    assert.strictEqual(fixture.getWidth(), 3)
+    assert.strictEqual(fixture.getHeight(), 4)
   })
 
   it('lays out a row of two blocks', async () => {
@@ -20,8 +20,8 @@ describe('lays out in easy mode', () => {
       new Block(1, 1),
       new Block(2, 4)
     )
-    assert.strictEqual(fixture.width(), 3)
-    assert.strictEqual(fixture.height(), 4)
+    assert.strictEqual(fixture.getWidth(), 3)
+    assert.strictEqual(fixture.getHeight(), 4)
   })
 
   it('lays out a column of two blocks', async () => {
@@ -29,8 +29,8 @@ describe('lays out in easy mode', () => {
       new Block(1, 1),
       new Block(2, 4)
     )
-    assert.strictEqual(fixture.width(), 2)
-    assert.strictEqual(fixture.height(), 5)
+    assert.strictEqual(fixture.getWidth(), 2)
+    assert.strictEqual(fixture.getHeight(), 5)
   })
 
   it('lays out a grid of rows of columns', async () => {
@@ -47,7 +47,7 @@ describe('lays out in easy mode', () => {
         )
       )
     )
-    assert.strictEqual(fixture.width(), 14)
-    assert.strictEqual(fixture.height(), 22)
+    assert.strictEqual(fixture.getWidth(), 14)
+    assert.strictEqual(fixture.getHeight(), 22)
   })
 })

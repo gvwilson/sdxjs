@@ -112,47 +112,47 @@ based on <a href="https://limpet.net/mbrubeck/2014/08/08/toy-layout-engine-1.htm
 </ul>
 <pre title="easy-mode.js"><code class="language-js">class Block {
   constructor (width, height) {
-    this._width = width
-    this._height = height
+    this.width = width
+    this.height = height
   }
 
-  width () {
-    return this._width
+  getWidth () {
+    return this.width
   }
 
-  height () {
-    return this._height
+  getHeight () {
+    return this.height
   }
 }
 
 class Row {
   constructor (...children) {
-    this._children = children
+    this.children = children
   }
 
-  width () {
-    return this._children
-      .map(child =&gt; child.width())
+  getWidth () {
+    return this.children
+      .map(child =&gt; child.getWidth())
       .reduce((total, next) =&gt; total + next, 0)
   }
 
-  height () {
-    return Math.max(...this._children.map(child =&gt; child.height()))
+  getHeight () {
+    return Math.max(...this.children.map(child =&gt; child.getHeight()))
   }
 }
 
 class Column {
   constructor (...children) {
-    this._children = children
+    this.children = children
   }
 
-  width () {
-    return Math.max(...this._children.map(child =&gt; child.width()))
+  getWidth () {
+    return Math.max(...this.children.map(child =&gt; child.getWidth()))
   }
 
-  height () {
-    return this._children
-      .map(child =&gt; child.height())
+  getHeight () {
+    return this.children
+      .map(child =&gt; child.getHeight())
       .reduce((total, next) =&gt; total + next, 0)
   }
 }
@@ -166,14 +166,14 @@ const { Block, Row, Column } = require('../easy-mode')
 describe('lays out in easy mode', () =&gt; {
   it('lays out a single unit block', async () =&gt; {
     const fixture = new Block(1, 1)
-    assert.strictEqual(fixture.width(), 1)
-    assert.strictEqual(fixture.height(), 1)
+    assert.strictEqual(fixture.getWidth(), 1)
+    assert.strictEqual(fixture.getHeight(), 1)
   })
 
   it('lays out a large block', async () =&gt; {
     const fixture = new Block(3, 4)
-    assert.strictEqual(fixture.width(), 3)
-    assert.strictEqual(fixture.height(), 4)
+    assert.strictEqual(fixture.getWidth(), 3)
+    assert.strictEqual(fixture.getHeight(), 4)
   })
 
   it('lays out a row of two blocks', async () =&gt; {
@@ -181,8 +181,8 @@ describe('lays out in easy mode', () =&gt; {
       new Block(1, 1),
       new Block(2, 4)
     )
-    assert.strictEqual(fixture.width(), 3)
-    assert.strictEqual(fixture.height(), 4)
+    assert.strictEqual(fixture.getWidth(), 3)
+    assert.strictEqual(fixture.getHeight(), 4)
   })
 
   it('lays out a column of two blocks', async () =&gt; {
@@ -190,8 +190,8 @@ describe('lays out in easy mode', () =&gt; {
       new Block(1, 1),
       new Block(2, 4)
     )
-    assert.strictEqual(fixture.width(), 2)
-    assert.strictEqual(fixture.height(), 5)
+    assert.strictEqual(fixture.getWidth(), 2)
+    assert.strictEqual(fixture.getHeight(), 5)
   })
 
   it('lays out a grid of rows of columns', async () =&gt; {
@@ -208,8 +208,8 @@ describe('lays out in easy mode', () =&gt; {
         )
       )
     )
-    assert.strictEqual(fixture.width(), 14)
-    assert.strictEqual(fixture.height(), 22)
+    assert.strictEqual(fixture.getWidth(), 14)
+    assert.strictEqual(fixture.getHeight(), 22)
   })
 })
 </code></pre>
@@ -230,7 +230,7 @@ describe('lays out in easy mode', () =&gt; {
     ✓ lays out a grid of rows of columns
 
 
-  5 passing (5ms)
+  5 passing (4ms)
 
 </code></pre>
 <h2 id="how-can-we-position-rows-and-columns">How can we position rows and columns?</h2>
@@ -266,17 +266,17 @@ describe('lays out in easy mode', () =&gt; {
 class PlacedBlock extends Block {
   constructor (width, height) {
     super(width, height)
-    this._x0 = null
-    this._y0 = null
+    this.x0 = null
+    this.y0 = null
   }
 
   place (x0, y1) {
-    this._x0 = x0
-    this._y1 = y1
+    this.x0 = x0
+    this.y1 = y1
   }
 
   report () {
-    return ['block', this._x0, this._y1]
+    return ['block', this.x0, this.y1]
   }
 }
 
@@ -289,25 +289,25 @@ module.exports = {
 class PlacedRow extends Row {
   constructor (...children) {
     super(...children)
-    this._x0 = null
-    this._y0 = null
+    this.x0 = null
+    this.y0 = null
   }
 
   place (x0, y1) {
-    this._x0 = x0
-    this._y1 = y1
-    const y0 = y1 - this.height()
+    this.x0 = x0
+    this.y1 = y1
+    const y0 = y1 - this.getHeight()
     let xCurrent = x0
-    this._children.forEach(child =&gt; {
-      child.place(xCurrent, y0 + child.height())
-      xCurrent += child.width()
+    this.children.forEach(child =&gt; {
+      child.place(xCurrent, y0 + child.getHeight())
+      xCurrent += child.getWidth()
     })
   }
 
   report () {
     return [
-      'row', this._x0, this._y1,
-      ...this._children.map(child =&gt; child.report())
+      'row', this.x0, this.y1,
+      ...this.children.map(child =&gt; child.report())
     ]
   }
 }
@@ -321,24 +321,24 @@ module.exports = {
 class PlacedColumn extends Column {
   constructor (...children) {
     super(...children)
-    this._x0 = null
-    this._y1 = null
+    this.x0 = null
+    this.y1 = null
   }
 
   place (x0, y1) {
-    this._x0 = x0
-    this._y1 = y1
-    let yCurrent = this._y1
-    this._children.forEach(child =&gt; {
+    this.x0 = x0
+    this.y1 = y1
+    let yCurrent = this.y1
+    this.children.forEach(child =&gt; {
       child.place(x0, yCurrent)
-      yCurrent -= child.height()
+      yCurrent -= child.getHeight()
     })
   }
 
   report () {
     return [
-      'column', this._x0, this._y1,
-      ...this._children.map(child =&gt; child.report())
+      'column', this.x0, this.y1,
+      ...this.children.map(child =&gt; child.report())
     ]
   }
 }
@@ -466,11 +466,11 @@ class TextNode extends Node {
     assert(typeof text === 'string',
       'TextNode requires string as constructor argument')
     super()
-    this._text = text
+    this.text = text
   }
 
   toString () {
-    return this._text
+    return this.text
   }
 }
 
@@ -479,29 +479,29 @@ class TagNode extends Node {
     assert(typeof tag === 'string',
       'TagNode requires string as tag')
     super()
-    this._tag = tag
+    this.tag = tag
 
-    this._attributes = {}
+    this.attributes = {}
     if (attributes !== null) {
       assert(typeof attributes === 'object',
         'Require object for attributes')
-      this._attributes = Object.assign({}, attributes)
+      this.attributes = Object.assign({}, attributes)
     }
 
-    this._children = children
-    assert(this._children.every(child =&gt; child instanceof Node),
+    this.children = children
+    assert(this.children.every(child =&gt; child instanceof Node),
       'Children must be nodes')
   }
 
   toString () {
-    const attr = Object.keys(this._attributes)
+    const attr = Object.keys(this.attributes)
       .sort()
-      .map(key =&gt; ` ${key}="${this._attributes[key]}"`)
+      .map(key =&gt; ` ${key}="${this.attributes[key]}"`)
       .join('')
-    const children = this._children
+    const children = this.children
       .map(child =&gt; child.toString())
       .join('')
-    return `&lt;${this._tag}${attr}&gt;${children}&lt;/${this._tag}&gt;`
+    return `&lt;${this.tag}${attr}&gt;${children}&lt;/${this.tag}&gt;`
   }
 }
 
@@ -560,17 +560,17 @@ const makeNode = (chunks) =&gt; {
   }
 
   const node = makeOpening(chunks[0])
-  const closing = `&lt;/${node._tag}&gt;`
+  const closing = `&lt;/${node.tag}&gt;`
 
   let remainder = chunks.slice(1)
   let child = null
   while (remainder &amp;&amp; (remainder[0] !== closing)) {
     [child, remainder] = makeNode(remainder)
-    node._children.push(child)
+    node.children.push(child)
   }
 
   assert(remainder &amp;&amp; (remainder[0] === closing),
-         `Node with tag ${node._tag} not closed`)
+         `Node with tag ${node.tag} not closed`)
   return [node, remainder.slice(1)]
 }
 
@@ -616,9 +616,9 @@ module.exports = { parse }
 
 class CssRule {
   constructor (order, selector, styles) {
-    this._order = order
-    this._selector = selector
-    this._styles = styles
+    this.order = order
+    this.selector = selector
+    this.styles = styles
   }
 }
 
@@ -630,8 +630,8 @@ class IdRule extends CssRule {
   }
 
   match (node) {
-    return ('id' in node._attributes) &amp;&amp;
-      (node._attributes.id === this._selector)
+    return ('id' in node.attributes) &amp;&amp;
+      (node.attributes.id === this.selector)
   }
 }
 IdRule.ORDER = 0
@@ -644,8 +644,8 @@ class ClassRule extends CssRule {
   }
 
   match (node) {
-    return ('class' in node._attributes) &amp;&amp;
-      (node._attributes.class === this._selector)
+    return ('class' in node.attributes) &amp;&amp;
+      (node.attributes.class === this.selector)
   }
 }
 ClassRule.ORDER = 1
@@ -656,7 +656,7 @@ class TagRule extends CssRule {
   }
 
   match (node) {
-    return this._selector === node._tag
+    return this.selector === node.tag
   }
 }
 TagRule.ORDER = 2
@@ -674,7 +674,7 @@ module.exports = { IdRule, ClassRule, TagRule }
 </li>
 <li>Provide a method for finding the rules for a given DOM node
 <ul>
-<li>Requires custom sorting that depends on CSS classes have a precedence order</li>
+<li>Requires custom sorting that depends on CSS classes having a precedence order</li>
 </ul>
 </li>
 </ul>
@@ -684,7 +684,7 @@ const { IdRule, ClassRule, TagRule } = require('./micro-css')
 
 class CssRuleSet {
   constructor (json, mergeDefaults = true) {
-    this._rules = this.jsonToRules(json)
+    this.rules = this.jsonToRules(json)
   }
 
   jsonToRules (json) {
@@ -702,8 +702,8 @@ class CssRuleSet {
   }
 
   findRules (node) {
-    const matches = this._rules.filter(rule =&gt; rule.match(node))
-    const sorted = matches.sort((left, right) =&gt; left._order - right._order)
+    const matches = this.rules.filter(rule =&gt; rule.match(node))
+    const sorted = matches.sort((left, right) =&gt; left.order - right.order)
     return sorted
   }
 }
