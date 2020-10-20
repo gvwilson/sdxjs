@@ -1,8 +1,8 @@
 const assert = require('assert')
 
-const { TextNode, TagNode } = require('./dom')
+const { TextNode, TagNode } = require('./micro-dom')
 
-const parseHTML = (text) => {
+const parse = (text) => {
   const chunks = chunkify(text.trim())
   assert(isElement(chunks[0]),
     'Must have enclosing outer node')
@@ -44,16 +44,17 @@ const makeNode = (chunks) => {
   }
 
   const node = makeOpening(chunks[0])
-  const closing = `</${node.tag}>`
+  const closing = `</${node._tag}>`
 
-  let remainder = chunks.slice(1); let child = null
+  let remainder = chunks.slice(1)
+  let child = null
   while (remainder && (remainder[0] !== closing)) {
     [child, remainder] = makeNode(remainder)
-    node.children.push(child)
+    node._children.push(child)
   }
 
   assert(remainder && (remainder[0] === closing),
-         `Node with tag ${node.tag} not closed`)
+         `Node with tag ${node._tag} not closed`)
   return [node, remainder.slice(1)]
 }
 
@@ -67,7 +68,7 @@ const makeOpening = (chunk) => {
       obj[key] = value
       return obj
     }, {})
-  return new TagNode(tag, attributes, null)
+  return new TagNode(tag, attributes)
 }
 
-module.exports = { parseHTML }
+module.exports = { parse }

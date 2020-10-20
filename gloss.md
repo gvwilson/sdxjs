@@ -13,23 +13,23 @@
 <dt id="affordance" class="glossary">affordance</dt>
 <dd class="glossary">A property of something that suggests how it can be used, such as a handle or button.</dd>
 <dt id="anonymous_function" class="glossary">anonymous function</dt>
-<dd class="glossary">A function that has not been assigned a name.  Anonymous functions are usually quite short, and are usually defined where they are used, e.g., as callbacks.</dd>
+<dd class="glossary">A function that has not been assigned a name. Anonymous functions are usually quite short, and are usually defined where they are used, e.g., as callbacks.</dd>
 <dt id="ascii" class="glossary">ASCII</dt>
 <dd class="glossary">A standard way to represent the characters commonly used in the Western European languages as 7- or 8-bit integers, now superceded by <g key="unicode">Unicode</g>.</dd>
 <dt id="assertion" class="glossary">assertion</dt>
-<dd class="glossary">A <g key="boolean">Boolean</g> expression that must be true at a certain point in a program.  Assertions may be built into the language (e.g., <g key="python">Python</g>'s <code>assert</code> statement) or provided as functions (e.g., R's <code>stopifnot</code>). They are often used in testing, but are also put in <g key="production_code">production code</g> to check that it is behaving correctly.</dd>
+<dd class="glossary">A <g key="boolean">Boolean</g> expression that must be true at a certain point in a program. Assertions may be built into the language (e.g., <g key="python">Python</g>'s <code>assert</code> statement) or provided as functions (e.g., R's <code>stopifnot</code>). They are often used in testing, but are also put in <g key="production_code">production code</g> to check that it is behaving correctly.</dd>
 <dt id="asynchronous" class="glossary">asynchronous</dt>
 <dd class="glossary">Not happening at the same time. In programming, an asynchronous operation is one that runs independently of another, or that starts at one time and ends at another.</dd>
 <dt id="attribute" class="glossary">attribute</dt>
 <dd class="glossary">A name-value pair associated with an object, used to store metadata about the object such as an array's dimensions.</dd>
 <dt id="automatic_variable" class="glossary">automatic variable</dt>
-<dd class="glossary">A variable that is automatically given a value in a <g key="build_rule">build rule</g>.  For example, Make automatically assigns the name of a rule's <g key="build_target">target</g> to the automatic variable <code>$@</code>.  Automatic variables are frequently used when writing <g key="pattern_rule">pattern rules</g>.</dd>
+<dd class="glossary">A variable that is automatically given a value in a <g key="build_rule">build rule</g>. For example, Make automatically assigns the name of a rule's <g key="build_target">target</g> to the automatic variable <code>$@</code>. Automatic variables are frequently used when writing <g key="pattern_rule">pattern rules</g>.</dd>
 <dt id="backward_compatible" class="glossary">backward-compatible</dt>
 <dd class="glossary">Software which is able to be used the same way as earlier versions of itself without problems.</dd>
 <dt id="base_class" class="glossary">base class</dt>
 <dd class="glossary">FIXME</dd>
 <dt id="binary" class="glossary">binary</dt>
-<dd class="glossary">A system which can have one of two possible states. In computing often represented as being in the state 0 or 1.  Represented in <g key="boolean">Boolean</g> logic as <g key="false">false</g> (0) or <g key="true">true</g> (1). Computers are built upon systems which store 0s and 1s as <g key="bit">bits</g>.</dd>
+<dd class="glossary">A system which can have one of two possible states. In computing often represented as being in the state 0 or 1. Represented in <g key="boolean">Boolean</g> logic as <g key="false">false</g> (0) or <g key="true">true</g> (1). Computers are built upon systems which store 0s and 1s as <g key="bit">bits</g>.</dd>
 <dt id="bit" class="glossary">bit</dt>
 <dd class="glossary">A unit of information representing representing alternatives, yes/no, <g key="true">true</g>/<g key="false">false</g>. In computing a state of either 0 or 1.</dd>
 <dt id="block_comment" class="glossary">block comment</dt>
@@ -41,7 +41,7 @@
 <dt id="bug_report" class="glossary">bug report</dt>
 <dd class="glossary">A collection of files, logs, or related information that describes either an unexpected output of some code or program or an unexpected error or warning. This information is used to help find and fix a bug in the program or code.</dd>
 <dt id="build_manager" class="glossary">build manager</dt>
-<dd class="glossary">A program that keeps track of how files depend on one another and runs commands to update any files that are out of date.  Build managers were invented to <g key="compile">compile</g> only those parts of programs that had changed, but are now often used to implement workflows in which plots depend on result files, which in turn depend on raw data files or configuration files.</dd>
+<dd class="glossary">A program that keeps track of how files depend on one another and runs commands to update any files that are out of date. Build managers were invented to <g key="compile">compile</g> only those parts of programs that had changed, but are now often used to implement workflows in which plots depend on result files, which in turn depend on raw data files or configuration files.</dd>
 <dt id="build_recipe" class="glossary">build recipe</dt>
 <dd class="glossary">The part of a <g key="build_rule">build rule</g> that describes how to update something that has fallen out of date.</dd>
 <dt id="build_rule" class="glossary">build rule</dt>
@@ -71,7 +71,7 @@
 <dt id="circular_dependency" class="glossary">circular dependency</dt>
 <dd class="glossary">A situation in which X depends on Y and Y depends on X, either directly or indirectly. If there is a circular dependency, then the <g key="dependency_graph">dependency graph</g> is not <g key="dag">acyclic</g>.</dd>
 <dt id="class" class="glossary">class</dt>
-<dd class="glossary">In <g key="oop">object-oriented programming</g>, a structure that combines data and operations (called <g key="method">methods</g>).  The program then uses a <g key="constructor">constructor</g> to create an <g key="object">object</g> with those properties and methods.  Programmers generally put generic or reusable behavior in <g key="parent_class">parent classes</g> and more detailed or specific behavior in <g key="child_class">child classes</g>.</dd>
+<dd class="glossary">In <g key="oop">object-oriented programming</g>, a structure that combines data and operations (called <g key="method">methods</g>). The program then uses a <g key="constructor">constructor</g> to create an <g key="object">object</g> with those properties and methods. Programmers generally put generic or reusable behavior in <g key="parent_class">parent classes</g> and more detailed or specific behavior in <g key="child_class">child classes</g>.</dd>
 <dt id="client" class="glossary">client</dt>
 <dd class="glossary">Typically, a program such as a web browser that gets data from a <g key="server">server</g> and displays it to, or interacts with, users. The term is used more generally to refer to any program A that makes requests of another program B. A single program can be both a client and a server.</dd>
 <dt id="closure" class="glossary">closure</dt>
@@ -89,11 +89,13 @@
 <dt id="compiled_language" class="glossary">compiled language</dt>
 <dd class="glossary">Originally, a language such as C or Fortran that is translated into machine instructions for execution. Languages such as Java are also compiled before execution, but into <g key="byte_code">byte code</g> instead of machine instructions, while languages like <g key="python">Python</g> are compiled to byte code on the fly.</dd>
 <dt id="console" class="glossary">console</dt>
-<dd class="glossary">FIXME</dd>
+<dd class="glossary"></dd>
 <dt id="constructor" class="glossary">constructor</dt>
-<dd class="glossary">A function that creates an <g key="object">object</g> of a particular <g key="class">class</g>.  In the <g key="s3">S3</g> object system, constructors are a convention rather than a requirement.</dd>
+<dd class="glossary">A function that creates an <g key="object">object</g> of a particular <g key="class">class</g>. In the <g key="s3">S3</g> object system, constructors are a convention rather than a requirement.</dd>
 <dt id="utc" class="glossary">Coordinated Universal Time (UTC)</dt>
 <dd class="glossary">The standard time against which all others are defined. UTC is the time at longitude 0°, and is not adjusted for daylight savings. <g key="timestamp">Timestamps</g> are often reported in UTC so that they will be the same no matter what timezone the computer is in.</dd>
+<dt id="coupling" class="glossary">coupling</dt>
+<dd class="glossary">The degree of interaction between two <g key="class">classes</g>, <g key="module">modules</g>, or other software components. If a system's components are <g key="loosely_coupled">loosely coupled</g>, changes to one are unlikely to affect others.  If they are <g key="tightly_coupled">tightly coupled</g>, then any change requires other changes elsewhere, which complicates maintenance and evolution.</dd>
 <dt id="cryptographic_hash_function" class="glossary">cryptographic hash function</dt>
 <dd class="glossary">A <g key="hash_function">hash function</g> that produces an apparently-random value for any input.</dd>
 <dt id="data_frame" class="glossary">data frame</dt>
@@ -133,7 +135,7 @@
 <dt id="easy_mode" class="glossary">easy mode</dt>
 <dd class="glossary">A term borrowed from gaming meaning to do something with obstacles or difficulties simplified or removed, often for practice purposes.</dd>
 <dt id="edge" class="glossary">edge</dt>
-<dd class="glossary">A connection between two <g key="node">nodes</g> in a <g key="graph">graph</g>.  An edge may have data associated with it, such as a name or distance.</dd>
+<dd class="glossary">A connection between two <g key="node">nodes</g> in a <g key="graph">graph</g>. An edge may have data associated with it, such as a name or distance.</dd>
 <dt id="element" class="glossary">element</dt>
 <dd class="glossary">A named component in an <g key="html">HTML</g> or <g key="xml">XML</g> document. Elements are usually written <code>&lt;name&gt;</code>...<code>&lt;/name&gt;</code>, where &quot;...&quot; represents the content of the element. Elements often have <g key="attribute">attributes</g>.</dd>
 <dt id="empty_element" class="glossary">empty element</dt>
@@ -159,7 +161,7 @@
 <dt id="filename_extension" class="glossary">filename extension</dt>
 <dd class="glossary">The last part of a filename, usually following the '.' symbol. Filename extensions are commonly used to indicate the type of content in the file, though there is usually no guarantee that this is correct.</dd>
 <dt id="filesystem" class="glossary">filesystem</dt>
-<dd class="glossary">The part of the operating system that manages how files are stored and retrieved.  Also used to refer to all of those files and directories or the specific way they are stored (as in &quot;the Unix filesystem&quot;).</dd>
+<dd class="glossary">The part of the operating system that manages how files are stored and retrieved. Also used to refer to all of those files and directories or the specific way they are stored (as in &quot;the Unix filesystem&quot;).</dd>
 <dt id="filter" class="glossary">filter</dt>
 <dd class="glossary">As a verb, to choose a set of <g key="record">records</g> (i.e., rows of a table) based on the values they contain. As a noun, a command-line program that reads lines of text from files or <g key="stdin">standard input</g>, performs some operation on them (such as filtering), and writes to a file or <g key="stdout">stdout</g>.</dd>
 <dt id="fixture" class="glossary">fixture</dt>
@@ -193,13 +195,13 @@
 <dt id="html" class="glossary">HyperText Markup Language (HTML)</dt>
 <dd class="glossary">The standard <g key="markup_language">markup language</g> used for web pages. HTML is represented in memory using <g key="dom">DOM</g>.</dd>
 <dt id="http" class="glossary">HyperText Transfer Protocol (HTTP)</dt>
-<dd class="glossary">The standard <g key="protocol">protocol</g> for data transfer on the World-Wide Web.  HTTP defines the format of <g key="http_request">requests</g> and <g key="http_response">responses</g>, the meanings of standard error codes, and other features.</dd>
+<dd class="glossary">The standard <g key="protocol">protocol</g> for data transfer on the World-Wide Web. HTTP defines the format of <g key="http_request">requests</g> and <g key="http_response">responses</g>, the meanings of standard error codes, and other features.</dd>
 <dt id="iife" class="glossary">immediately-invoked function expression (IIFE)</dt>
 <dd class="glossary">FIXME</dd>
 <dt id="import" class="glossary">import</dt>
 <dd class="glossary">To bring things from a <g key="module">module</g> into a program for use. In most languages a program can only import things that the module explicitly <g key="export">exports</g>.</dd>
 <dt id="instance" class="glossary">instance</dt>
-<dd class="glossary">FIXME</dd>
+<dd class="glossary"></dd>
 <dt id="interpreted_language" class="glossary">interpreted language</dt>
 <dd class="glossary">A high-level language that is not executed directly by the computer, but instead is run by an <g key="interpreter">interpreter</g> that translates program instructions into machine commands on the fly.</dd>
 <dt id="interpreter" class="glossary">interpreter</dt>
@@ -234,6 +236,8 @@
 <dd class="glossary">A software library that managing internal reporting for programs.</dd>
 <dt id="loop_body" class="glossary">loop body</dt>
 <dd class="glossary">The statement or statements executed by a loop.</dd>
+<dt id="loosely_coupled" class="glossary">loosely coupled</dt>
+<dd class="glossary">Components in a software system are said to be loosely coupled if they are relatively independent of one another, i.e., if any one of them can be changed or replaced without others having to be altered as well.</dd>
 <dt id="markdown" class="glossary">Markdown</dt>
 <dd class="glossary">A markup language with a simple syntax intended as a replacement for HTML. Markdown is often used for README files, and is the basis for <a href="r_markdown">R markdown</a>.</dd>
 <dt id="markup_language" class="glossary">markup language</dt>
@@ -265,7 +269,7 @@
 <dt id="oop" class="glossary">object-oriented programming (OOP)</dt>
 <dd class="glossary">A style of programming in which functions and data are bound together in objects that only interact with each other through well-defined interfaces.</dd>
 <dt id="observation" class="glossary">observation</dt>
-<dd class="glossary">FIXME</dd>
+<dd class="glossary"></dd>
 <dt id="off_by_one_error" class="glossary">off-by-one error</dt>
 <dd class="glossary">A common error in programming in which the program refers to element <code>i</code> of a structure when it should refer to element <code>i-1</code> or <code>i+1</code>, or processes <code>N</code> elements when it should process <code>N-1</code> or <code>N+1</code>.</dd>
 <dt id="operating_system" class="glossary">operating system</dt>
@@ -333,11 +337,11 @@
 <dt id="singleton" class="glossary">singleton</dt>
 <dd class="glossary">A set with only one element, or a <g key="class">class</g> with only one <g key="instance">instance</g>.</dd>
 <dt id="singleton_pattern" class="glossary">Singleton pattern</dt>
-<dd class="glossary">A <g key="design_pattern">design pattern</g> that creates a <g key="singleton">singleton</g> object to manage some resource or service, such as a database or <g key="cache">cache</g>.  In <g key="oop">object-oriented programming</g>, the pattern is usually implemented by hiding the <g key="constructor">constructor</g> of the class in some way so that it can only be called once.</dd>
+<dd class="glossary">A <g key="design_pattern">design pattern</g> that creates a <g key="singleton">singleton</g> object to manage some resource or service, such as a database or <g key="cache">cache</g>. In <g key="oop">object-oriented programming</g>, the pattern is usually implemented by hiding the <g key="constructor">constructor</g> of the class in some way so that it can only be called once.</dd>
 <dt id="stack_frame" class="glossary">stack frame</dt>
 <dd class="glossary">A section of the <g key="call_stack">call stack</g> that records details of a single call to a specific function.</dd>
 <dt id="build_stale" class="glossary">stale (in build)</dt>
-<dd class="glossary">To be out of date compared to a <g key="prerequisite">prerequisite</g>.  A <g key="build_manager">build manager</g>'s job is to find and update things that are stale.</dd>
+<dd class="glossary">To be out of date compared to a <g key="prerequisite">prerequisite</g>. A <g key="build_manager">build manager</g>'s job is to find and update things that are stale.</dd>
 <dt id="stdin" class="glossary">standard input</dt>
 <dd class="glossary">A predefined communication channel for a <g key="process">process</g>, typically used to read input from the keyboard or from the previous process in a <g key="pipe_shell">pipe</g>.</dd>
 <dt id="stdout" class="glossary">standard output</dt>
@@ -349,7 +353,7 @@
 <dt id="synchronous" class="glossary">synchronous</dt>
 <dd class="glossary">To happen at the same time. In programming, synchronous operations are ones that have to run simultaneously or complete at the same time.</dd>
 <dt id="table" class="glossary">table</dt>
-<dd class="glossary">A set of records in a <g key="relational_database">relational database</g> or observations in a <g key="data_frame">data frame</g>.  Tables are usually displayed as rows (each of which represents one <g key="record">record</g> or <g key="observation">observation</g>) and columns (each of which represents a <g key="field">field</g> or <g key="variable_data">variable</g>).</dd>
+<dd class="glossary">A set of records in a <g key="relational_database">relational database</g> or observations in a <g key="data_frame">data frame</g>. Tables are usually displayed as rows (each of which represents one <g key="record">record</g> or <g key="observation">observation</g>) and columns (each of which represents a <g key="field">field</g> or <g key="variable_data">variable</g>).</dd>
 <dt id="template_method_pattern" class="glossary">Template Method pattern</dt>
 <dd class="glossary">A <g key="design_pattern">design pattern</g> in which a <g key="parent_class">parent class</g> defines an overall sequence of operations by calling <g key="abstract_method">abstract methods</g> that <g key="child_class">child classes</g> must then implement. Each child class then behaves in the same general way, but implements the steps in different ways.</dd>
 <dt id="tdd" class="glossary">test-driven development (TDD)</dt>
@@ -362,6 +366,8 @@
 <dd class="glossary">See <g key="issue">issue</g>.</dd>
 <dt id="tidyverse" class="glossary">Tidyverse</dt>
 <dd class="glossary">A collection of R packages for operating on tabular data in consistent ways.</dd>
+<dt id="tightly_coupled" class="glossary">tightly coupled</dt>
+<dd class="glossary">Components in a software system are said to be tightly coupled if they depend on each other's internals, so that if one is altered then others have to be altered as well.</dd>
 <dt id="timestamp" class="glossary">timestamp</dt>
 <dd class="glossary">A digital identifier showing the time at which something was created or accessed. Timestamps should use <g key="iso_date_format">ISO date format</g> for portability.</dd>
 <dt id="token" class="glossary">token</dt>
@@ -387,11 +393,11 @@
 <dt id="utf_8" class="glossary">UTF-8</dt>
 <dd class="glossary">A way to store the numeric codes representing Unicode characters in memory that is <g key="backward_compatible">backward-compatible</g> with the older <g key="ascii">ASCII</g> standard.</dd>
 <dt id="variable_data" class="glossary">variable (data)</dt>
-<dd class="glossary">FIXME</dd>
+<dd class="glossary"></dd>
 <dt id="variable_program" class="glossary">variable (program)</dt>
 <dd class="glossary">A name in a program that has some data associated with it. A variable's value can be changed after definition.</dd>
 <dt id="visitor_pattern" class="glossary">Visitor pattern</dt>
-<dd class="glossary">A <g key="design_pattern">design pattern</g> in which the operation to be done is taken to each element of a data structure in turn.  It is usually implemented by having a generator &quot;visitor&quot; that knows how to reach the structure's elements, and which is given a function or method to call for each in turn that carries out the specific operation.</dd>
+<dd class="glossary">A <g key="design_pattern">design pattern</g> in which the operation to be done is taken to each element of a data structure in turn. It is usually implemented by having a generator &quot;visitor&quot; that knows how to reach the structure's elements, and which is given a function or method to call for each in turn that carries out the specific operation.</dd>
 <dt id="walk_tree" class="glossary">walk (a tree)</dt>
 <dd class="glossary">To visit each <g key="node">node</g> in a <g key="tree">tree</g> in some order, typically <g key="depth_first">depth-first</g> or <g key="breadth_first">breadth-first</g>.</dd>
 <dt id="while_loop" class="glossary">while loop</dt>

@@ -81,7 +81,7 @@ based on <a href="https://limpet.net/mbrubeck/2014/08/08/toy-layout-engine-1.htm
 </ul>
 </li>
 </ul>
-<h2 id="how-can-we-lay-out-rows-and-columns">How can we lay out rows and columns?</h2>
+<h2 id="how-can-we-size-rows-and-columns">How can we size rows and columns?</h2>
 <ul>
 <li>Let's start on <g key="easy_mode">easy mode</g>
 <ul>
@@ -159,6 +159,60 @@ class Column {
 
 module.exports = { Block, Row, Column }
 </code></pre>
+<pre title="test/test-easy-mode.js"><code class="language-js">const assert = require('assert')
+
+const { Block, Row, Column } = require('../easy-mode')
+
+describe('lays out in easy mode', () =&gt; {
+  it('lays out a single unit block', async () =&gt; {
+    const fixture = new Block(1, 1)
+    assert.strictEqual(fixture.width(), 1)
+    assert.strictEqual(fixture.height(), 1)
+  })
+
+  it('lays out a large block', async () =&gt; {
+    const fixture = new Block(3, 4)
+    assert.strictEqual(fixture.width(), 3)
+    assert.strictEqual(fixture.height(), 4)
+  })
+
+  it('lays out a row of two blocks', async () =&gt; {
+    const fixture = new Row(
+      new Block(1, 1),
+      new Block(2, 4)
+    )
+    assert.strictEqual(fixture.width(), 3)
+    assert.strictEqual(fixture.height(), 4)
+  })
+
+  it('lays out a column of two blocks', async () =&gt; {
+    const fixture = new Column(
+      new Block(1, 1),
+      new Block(2, 4)
+    )
+    assert.strictEqual(fixture.width(), 2)
+    assert.strictEqual(fixture.height(), 5)
+  })
+
+  it('lays out a grid of rows of columns', async () =&gt; {
+    const fixture = new Column(
+      new Row(
+        new Block(1, 2),
+        new Block(3, 4)
+      ),
+      new Row(
+        new Block(5, 6),
+        new Column(
+          new Block(7, 8),
+          new Block(9, 10)
+        )
+      )
+    )
+    assert.strictEqual(fixture.width(), 14)
+    assert.strictEqual(fixture.height(), 22)
+  })
+})
+</code></pre>
 <pre title="test-easy-mode.sh"><code class="language-sh">npm run test -- -g 'easy mode'
 
 </code></pre>
@@ -179,7 +233,218 @@ module.exports = { Block, Row, Column }
   5 passing (5ms)
 
 </code></pre>
-<h2 id="how-can-we-handle-a-small-subset-of-html">How can we handle a small subset of HTML?</h2>
+<h2 id="how-can-we-position-rows-and-columns">How can we position rows and columns?</h2>
+<ul>
+<li>Suppose we start with the upper left corner of the browser (X0, Y1)
+<ul>
+<li>Upper because we lay out the page top-to-bottom</li>
+<li>Left because we are doing left-to-right layout</li>
+</ul>
+</li>
+<li>If the cell is a block, just place it</li>
+<li>If the cell is a row:
+<ul>
+<li>Place the first child at (x0, y1)</li>
+<li>Place the next child at (x0 + width, y1)</li>
+</ul>
+</li>
+<li>If the cell is a column:
+<ul>
+<li>Place the first child at (x0, y1)</li>
+<li>Place the next at (x0, y1 - height), etc.</li>
+</ul>
+</li>
+<li>Derive three classes from previous classes to save testing (and printing space)
+<ul>
+<li>Renaming during export can be confusing during normal development</li>
+<li>But saves us from having lots of classes with slightly different names in a tutorial</li>
+</ul>
+</li>
+</ul>
+<pre title="placed-block.js"><code class="language-js">const { Block } = require('./easy-mode')
+
+class PlacedBlock extends Block {
+  constructor (width, height) {
+    super(width, height)
+    this._x0 = null
+    this._y0 = null
+  }
+
+  place (x0, y1) {
+    this._x0 = x0
+    this._y1 = y1
+  }
+
+  report () {
+    return ['block', this._x0, this._y1]
+  }
+}
+
+module.exports = {
+  Block: PlacedBlock
+}
+</code></pre>
+<pre title="placed-row.js"><code class="language-js">const { Row } = require('./easy-mode')
+
+class PlacedRow extends Row {
+  constructor (...children) {
+    super(...children)
+    this._x0 = null
+    this._y0 = null
+  }
+
+  place (x0, y1) {
+    this._x0 = x0
+    this._y1 = y1
+    const y0 = y1 - this.height()
+    let xCurrent = x0
+    this._children.forEach(child =&gt; {
+      child.place(xCurrent, y0 + child.height())
+      xCurrent += child.width()
+    })
+  }
+
+  report () {
+    return [
+      'row', this._x0, this._y1,
+      ...this._children.map(child =&gt; child.report())
+    ]
+  }
+}
+
+module.exports = {
+  Row: PlacedRow
+}
+</code></pre>
+<pre title="placed-column.js"><code class="language-js">const { Column } = require('./easy-mode.js')
+
+class PlacedColumn extends Column {
+  constructor (...children) {
+    super(...children)
+    this._x0 = null
+    this._y1 = null
+  }
+
+  place (x0, y1) {
+    this._x0 = x0
+    this._y1 = y1
+    let yCurrent = this._y1
+    this._children.forEach(child =&gt; {
+      child.place(x0, yCurrent)
+      yCurrent -= child.height()
+    })
+  }
+
+  report () {
+    return [
+      'column', this._x0, this._y1,
+      ...this._children.map(child =&gt; child.report())
+    ]
+  }
+}
+
+module.exports = {
+  Column: PlacedColumn
+}
+</code></pre>
+<pre title="test/test-placed.js"><code class="language-js">const assert = require('assert')
+
+const { Block } = require('../placed-block')
+const { Row } = require('../placed-row')
+const { Column } = require('../placed-column')
+
+describe('places blocks', () =&gt; {
+  it('places a single unit block', async () =&gt; {
+    const fixture = new Block(1, 1)
+    fixture.place(0, 0)
+    assert.deepStrictEqual(
+      fixture.report(),
+      ['block', 0, 0]
+    )
+  })
+
+  it('places a large block', async () =&gt; {
+    const fixture = new Block(3, 4)
+    fixture.place(0, 0)
+    assert.deepStrictEqual(
+      fixture.report(),
+      ['block', 0, 0]
+    )
+  })
+
+  it('lays out a row of two blocks', async () =&gt; {
+    const fixture = new Row(
+      new Block(1, 1),
+      new Block(2, 4)
+    )
+    fixture.place(0, 0)
+    assert.deepStrictEqual(
+      fixture.report(),
+      ['row', 0, 0, ['block', 0, -3], ['block', 1, 0]]
+    )
+  })
+
+  it('lays out a column of two blocks', async () =&gt; {
+    const fixture = new Column(
+      new Block(1, 1),
+      new Block(2, 4)
+    )
+    fixture.place(0, 0)
+    assert.deepStrictEqual(
+      fixture.report(),
+      ['column', 0, 0, ['block', 0, 0], ['block', 0, -1]]
+    )
+  })
+
+  it('lays out a grid of rows of columns', async () =&gt; {
+    const fixture = new Column(
+      new Row(
+        new Block(1, 2),
+        new Block(3, 4)
+      ),
+      new Row(
+        new Block(5, 6),
+        new Column(
+          new Block(7, 8),
+          new Block(9, 10)
+        )
+      )
+    )
+    fixture.place(0, 0)
+    assert.deepStrictEqual(
+      fixture.report(),
+      ['column', 0, 0,
+        ['row', 0, 0, ['block', 0, -2], ['block', 1, 0]],
+        ['row', 0, -4,
+          ['block', 0, -16],
+          ['column', 5, -4, ['block', 5, -4], ['block', 5, -12]]
+        ]
+      ]
+    )
+  })
+})
+</code></pre>
+<pre title="test-placed.sh"><code class="language-sh">npm run test -- -g 'places blocks'
+
+</code></pre>
+<pre title="test-placed.txt"><code class="language-txt">
+&gt; e@1.0.0 test /stjs
+&gt; mocha */test/test-*.js "-g" "places blocks"
+
+
+
+  places blocks
+    ✓ places a single unit block
+    ✓ places a large block
+    ✓ lays out a row of two blocks
+    ✓ lays out a column of two blocks
+    ✓ lays out a grid of rows of columns
+
+
+  5 passing (6ms)
+
+</code></pre>
+<h2 id="what-subset-of-html-and-css-will-we-support">What subset of HTML and CSS will we support?</h2>
 <ul>
 <li>Our subset of HTML includes:
 <ul>
@@ -189,13 +454,71 @@ module.exports = { Block, Row, Column }
 <li>Each attribute must have a single quoted value</li>
 </ul>
 </li>
-<li>Use regular expressions to parse, though <a href="https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454">this is a sin</a></li>
+<li>Won't bother to show the tests, but yes, we wrote them, and yes, they caught errors</li>
+</ul>
+<pre title="micro-dom.js"><code class="language-js">const assert = require('assert')
+
+class Node {
+}
+
+class TextNode extends Node {
+  constructor (text) {
+    assert(typeof text === 'string',
+      'TextNode requires string as constructor argument')
+    super()
+    this._text = text
+  }
+
+  toString () {
+    return this._text
+  }
+}
+
+class TagNode extends Node {
+  constructor (tag, attributes, ...children) {
+    assert(typeof tag === 'string',
+      'TagNode requires string as tag')
+    super()
+    this._tag = tag
+
+    this._attributes = {}
+    if (attributes !== null) {
+      assert(typeof attributes === 'object',
+        'Require object for attributes')
+      this._attributes = Object.assign({}, attributes)
+    }
+
+    this._children = children
+    assert(this._children.every(child =&gt; child instanceof Node),
+      'Children must be nodes')
+  }
+
+  toString () {
+    const attr = Object.keys(this._attributes)
+      .sort()
+      .map(key =&gt; ` ${key}="${this._attributes[key]}"`)
+      .join('')
+    const children = this._children
+      .map(child =&gt; child.toString())
+      .join('')
+    return `&lt;${this._tag}${attr}&gt;${children}&lt;/${this._tag}&gt;`
+  }
+}
+
+module.exports = { Node, TextNode, TagNode }
+</code></pre>
+<ul>
+<li>Use regular expressions to parse documents, though <a href="https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454">this is a sin</a>
+<ul>
+<li>And yes, the tests caught errors</li>
+</ul>
+</li>
 </ul>
 <pre title="parse.js"><code class="language-js">const assert = require('assert')
 
-const { TextNode, TagNode } = require('./dom')
+const { TextNode, TagNode } = require('./micro-dom')
 
-const parseHTML = (text) =&gt; {
+const parse = (text) =&gt; {
   const chunks = chunkify(text.trim())
   assert(isElement(chunks[0]),
     'Must have enclosing outer node')
@@ -237,16 +560,17 @@ const makeNode = (chunks) =&gt; {
   }
 
   const node = makeOpening(chunks[0])
-  const closing = `&lt;/${node.tag}&gt;`
+  const closing = `&lt;/${node._tag}&gt;`
 
-  let remainder = chunks.slice(1); let child = null
+  let remainder = chunks.slice(1)
+  let child = null
   while (remainder &amp;&amp; (remainder[0] !== closing)) {
     [child, remainder] = makeNode(remainder)
-    node.children.push(child)
+    node._children.push(child)
   }
 
   assert(remainder &amp;&amp; (remainder[0] === closing),
-         `Node with tag ${node.tag} not closed`)
+         `Node with tag ${node._tag} not closed`)
   return [node, remainder.slice(1)]
 }
 
@@ -260,74 +584,13 @@ const makeOpening = (chunk) =&gt; {
       obj[key] = value
       return obj
     }, {})
-  return new TagNode(tag, attributes, null)
+  return new TagNode(tag, attributes)
 }
 
-module.exports = { parseHTML }
+module.exports = { parse }
 </code></pre>
 <ul>
-<li>The nodes are straightforward</li>
-</ul>
-<pre title="dom.js"><code class="language-js">const assert = require('assert')
-
-class Node {
-}
-
-class TextNode extends Node {
-  constructor (text) {
-    assert(typeof text === 'string',
-      'TextNode requires string as constructor argument')
-    super()
-    this.text = text
-  }
-
-  toString () {
-    return this.text
-  }
-}
-
-class TagNode extends Node {
-  constructor (tag, attributes, children) {
-    assert(typeof tag === 'string',
-      'TagNode requires string as tag')
-    super()
-    this.tag = tag
-    this.attributes = {}
-    if (attributes !== null) {
-      assert(typeof attributes === 'object',
-        'Require object for attributes')
-      this.attributes = Object.assign({}, attributes)
-    }
-    this.children = []
-    if (children !== null) {
-      assert(Array.isArray(children) &amp;&amp; children.every(child =&gt; child instanceof Node),
-        'Require array of nodes for children')
-      this.children = children.slice()
-    }
-  }
-
-  toString () {
-    const attr = Object.keys(this.attributes)
-      .sort()
-      .map(key =&gt; ` ${key}="${this.attributes[key]}"`)
-      .join('')
-    const children = this.children
-      .map(child =&gt; child.toString())
-      .join('')
-    return `&lt;${this.tag}${attr}&gt;${children}&lt;/${this.tag}&gt;`
-  }
-}
-
-module.exports = {
-  Node,
-  TextNode,
-  TagNode
-}
-</code></pre>
-<h2 id="how-can-we-handle-a-small-subset-of-css">How can we handle a small subset of CSS?</h2>
-<ul>
-<li>Our subset of CSS supports:
-<ul>
+<li>Now define a generic class for rules and a subclass for each type of rule</li>
 <li>ID rules
 <ul>
 <li><g key="dom_selector">DOM selector</g> of the form <code>#name</code></li>
@@ -349,32 +612,17 @@ module.exports = {
 </li>
 <li>ID rules take precedence over class rules, which take precedence over tag rules</li>
 </ul>
-</li>
-<li>Define a generic class for rules and a subclass for each type of rule</li>
-<li>Convert JSON to rule objects</li>
-<li>Provide a method for finding the rules for a given DOM node
-<ul>
-<li>Requires custom sorting</li>
-</ul>
-</li>
-<li>Also provide default settings for various kinds of nodes
-<ul>
-<li>These were added after building the next stage of the pipeline</li>
-</ul>
-</li>
-</ul>
-<pre title="css.js"><code class="language-js">const assert = require('assert')
-const deepmerge = require('deepmerge')
+<pre title="micro-css.js"><code class="language-js">const assert = require('assert')
 
-class Rule {
+class CssRule {
   constructor (order, selector, styles) {
-    this.order = order
-    this.selector = selector
-    this.styles = styles
+    this._order = order
+    this._selector = selector
+    this._styles = styles
   }
 }
 
-class IdRule extends Rule {
+class IdRule extends CssRule {
   constructor (selector, styles) {
     assert(selector.startsWith('#') &amp;&amp; (selector.length &gt; 1),
       'ID rule must start with # and have a selector')
@@ -382,13 +630,13 @@ class IdRule extends Rule {
   }
 
   match (node) {
-    return ('id' in node.attributes) &amp;&amp;
-      (node.attributes.id === this.selector)
+    return ('id' in node._attributes) &amp;&amp;
+      (node._attributes.id === this._selector)
   }
 }
 IdRule.ORDER = 0
 
-class ClassRule extends Rule {
+class ClassRule extends CssRule {
   constructor (selector, styles) {
     assert(selector.startsWith('.') &amp;&amp; (selector.length &gt; 1),
       'Class rule must start with . and have a selector')
@@ -396,29 +644,47 @@ class ClassRule extends Rule {
   }
 
   match (node) {
-    return ('class' in node.attributes) &amp;&amp;
-      (node.attributes.class === this.selector)
+    return ('class' in node._attributes) &amp;&amp;
+      (node._attributes.class === this._selector)
   }
 }
 ClassRule.ORDER = 1
 
-class TagRule extends Rule {
+class TagRule extends CssRule {
   constructor (selector, styles) {
     super(TagRule.ORDER, selector, styles)
   }
 
   match (node) {
-    return this.selector === node.tag
+    return this._selector === node._tag
   }
 }
 TagRule.ORDER = 2
 
-class CssRules {
+module.exports = { IdRule, ClassRule, TagRule }
+</code></pre>
+<ul>
+<li>Convert JSON to rule objects
+<ul>
+<li>Saves us writing yet another parser</li>
+<li>Really should have the CSS rule classes look at the rule and decide if it's theirs using a <code>static</code> method</li>
+<li>Would reduce the <g key="coupling">coupling</g> between the classes</li>
+<li>Of course, then we'd have to stop accessing objects' attributes directly…</li>
+</ul>
+</li>
+<li>Provide a method for finding the rules for a given DOM node
+<ul>
+<li>Requires custom sorting that depends on CSS classes have a precedence order</li>
+</ul>
+</li>
+</ul>
+<pre title="micro-css-ruleset.js"><code class="language-js">const assert = require('assert')
+
+const { IdRule, ClassRule, TagRule } = require('./micro-css')
+
+class CssRuleSet {
   constructor (json, mergeDefaults = true) {
-    const combined = mergeDefaults
-      ? deepmerge(CssRules.DEFAULT_RULES, json)
-      : json
-    this.rules = this.jsonToRules(combined)
+    this._rules = this.jsonToRules(json)
   }
 
   jsonToRules (json) {
@@ -436,386 +702,13 @@ class CssRules {
   }
 
   findRules (node) {
-    const matches = this.rules.filter(rule =&gt; rule.match(node))
-    const sorted = matches.sort((left, right) =&gt; left.order - right.order)
+    const matches = this._rules.filter(rule =&gt; rule.match(node))
+    const sorted = matches.sort((left, right) =&gt; left._order - right._order)
     return sorted
   }
 }
 
-CssRules.DEFAULT_RULES = {
-  body: {
-    visible: true,
-    layout: 'vertical'
-  },
-  row: {
-    visible: true,
-    layout: 'horizontal'
-  },
-  col: {
-    visible: true,
-    layout: 'vertical'
-  },
-  p: {
-    visible: true,
-    layout: 'wrap'
-  }
-}
-
-CssRules.TEXT_RULES = {
-  visible: true
-}
-
-module.exports = {
-  IdRule,
-  ClassRule,
-  TagRule,
-  CssRules
-}
-</code></pre>
-<h2 id="how-can-we-construct-a-styled-tree">How can we construct a styled tree?</h2>
-<ul>
-<li>
-<p>This is a good time to decide exactly what HTML and CSS we will support</p>
-<ul>
-<li><code>body</code> may contain <code>row</code> or <code>p</code> (paragraph), which are stacked vertically</li>
-<li><code>row</code> may contain <code>col</code> (column), which are laid out horizontally</li>
-<li><code>col</code> may contain <code>row</code> or <code>p</code>, which again are stacked vertically</li>
-<li>Could get rid of <code>body</code> and require an outermost <code>col</code>, but we're traditionalists</li>
-</ul>
-</li>
-<li>
-<p>Any element can specify <code>visible=false</code> to be taken out of the layout</p>
-<ul>
-<li>This is like HTML's <code>display</code> property (HTML's <code>visible</code> means &quot;take up space but don't render&quot;)</li>
-</ul>
-</li>
-<li>
-<p>Any element can specify <code>width</code> to fix its width</p>
-<ul>
-<li>Any text that overflows is lost</li>
-</ul>
-</li>
-<li>
-<p>A <code>p</code> must contain exactly one <code>TextNode</code>, and its text content is wrapped</p>
-</li>
-<li>
-<p>Construct a styled tree with:</p>
-<ul>
-<li>Nodes that are actually going to be rendered</li>
-<li>Rules collapsed to concrete attribute lists for each node</li>
-</ul>
-</li>
-</ul>
-<pre title="styled.js"><code class="language-js">const assert = require('assert')
-
-const { Node, TagNode } = require('./dom')
-const { CssRules } = require('./css')
-
-class StyledNode {
-  constructor (dom, cssRules) {
-    assert(dom instanceof Node,
-      'Require a node')
-    assert(cssRules instanceof CssRules,
-      'Require some rules')
-
-    this.dom = dom
-    this.cssRules = cssRules
-
-    this.children = (this.dom instanceof TagNode)
-      ? this.dom.children.map(child =&gt; new StyledNode(child, this.cssRules))
-      : []
-
-    this.rules = (this.dom instanceof TagNode)
-      ? this.flattenRules(this.dom, this.cssRules)
-      : CssRules.TEXT_RULES
-  }
-
-  flattenRules (dom) {
-    const rules = this.cssRules.findRules(dom)
-    const result = rules.reverse().reduce((obj, rule) =&gt; {
-      obj = Object.assign(obj, rule.styles)
-      return obj
-    }, {})
-    return result
-  }
-
-  get (key, defaultValue = null) {
-    if (key in this.rules) {
-      return this.rules[key]
-    }
-    assert(defaultValue !== null,
-           `Cannot find ${key} and no default provided`)
-    return defaultValue
-  }
-}
-
-module.exports = { StyledNode }
-</code></pre>
-<h2 id="how-can-we-lay-out-a-styled-tree">How can we lay out a styled tree?</h2>
-<ul>
-<li>Finally get to lay things out
-<ul>
-<li>If a node's layout is vertical:
-<ul>
-<li>Width of this node is width of parent</li>
-<li>Set widths of children to be width of this node</li>
-<li>Find heights of children</li>
-<li>Position children</li>
-<li>Height of this element is sum of heights of children</li>
-</ul>
-</li>
-<li>If a node's layout is horizontal:
-<ul>
-<li>Find widths of children</li>
-<li>Find heights of children</li>
-<li>Position children</li>
-<li>Max of heights becomes height of row</li>
-</ul>
-</li>
-<li>If a node's content wraps
-<ul>
-<li>Replace single text node with one node for each line</li>
-<li>Lay those out in a vertical stack</li>
-<li>Sum of heights becomes height of node</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<pre title="layout.js"><code class="language-js">const assert = require('assert')
-
-const { CssRules } = require('./css')
-const { TextNode, TagNode } = require('./dom')
-const { StyledNode } = require('./styled')
-
-// - let DebugDepth = 0
-// - let DebugIndent = '....................'
-
-const layout = (styled, box) =&gt; {
-// -  console.log(DebugIndent.slice(0, DebugDepth), 'layout &gt;&gt;', box, 'for', (styled instanceof TextNode) ? 'TextNode' : 'TagNode')
-// -  DebugDepth += 2
-  assert(styled instanceof StyledNode,
-    'Require styled node for layout')
-  assert(styled.dom instanceof TagNode,
-    'Can only lay out tag nodes')
-  assert(styled.get('visible'),
-    'Should not construct layout node for undisplayed styled node')
-
-  styled.children = styled.children.filter(child =&gt; {
-    return child.get('visible')
-  })
-
-  switch (styled.get('layout')) {
-    case 'wrap' :
-      layoutWrap(styled, box)
-      break
-    case 'vertical' :
-      layoutVertical(styled, box)
-      break
-    case 'horizontal' :
-      layoutHorizontal(styled, box)
-      break
-    default :
-      assert(false,
-        `Unknown layout ${styled.get('layout')}`)
-  }
-
-  assert(styled.box,
-    'Failed to create box when placing styled node')
-}
-
-const layoutWrap = (styled, box) =&gt; {
-  assert((styled.children.length === 1) &amp;&amp; (styled.children[0].dom instanceof TextNode),
-    'Node must have a single block of text')
-  assert(box.width &gt; 0,
-    'Cannot wrap in a zero-width box')
-  styled.box = {
-    x: box.x,
-    y: box.y,
-    width: box.width,
-    height: 0
-  }
-  const lines = splitText(box.width, styled.children[0].dom.text)
-  let y = box.y
-  styled.children = lines.map(line =&gt; {
-    const dom = new TextNode(line)
-    const child = new StyledNode(dom, new CssRules(CssRules.TEXT_RULES, false))
-    child.box = {
-      x: box.x,
-      y: y,
-      width: box.width &lt; line.length ? box.width : line.length,
-      height: 1
-    }
-    y += 1
-    return child
-  })
-  styled.box.width = Math.min(...styled.children.map(child =&gt; child.box.width))
-  styled.box.height = lines.length
-// -  console.log(DebugIndent.slice(0, DebugDepth), 'layoutWrap &lt;&lt;', styled.box)
-}
-
-const layoutVertical = (styled, box) =&gt; {
-// -  console.log(DebugIndent.slice(0, DebugDepth), 'layoutVertical &gt;&gt;', box)
-  assert(styled.children.every(child =&gt; {
-    const layout = child.get('layout')
-    return (layout === 'horizontal') || (layout === 'wrap')
-  }), 'Children of vertical element must be horizontal elements')
-  styled.box = {
-    x: box.x,
-    y: box.y,
-    width: box.width,
-    height: 0
-  }
-  styled.children.forEach(child =&gt; {
-    layout(child, styled.box)
-    styled.box.y += child.box.height
-  })
-  styled.box.height = styled.box.y
-  styled.box.y = box.y
-// -  console.log(DebugIndent.slice(0, DebugDepth), 'layoutVertical &lt;&lt;', styled.box)
-}
-
-const layoutHorizontal = (styled, box) =&gt; {
-// -  console.log(DebugIndent.slice(0, DebugDepth), 'layoutHorizontal &gt;&gt;', box)
-  assert(styled.children.every(child =&gt; child.get('layout') === 'vertical'),
-    'All children of horizontal element must be vertical elements')
-  styled.box = {
-    x: box.x,
-    y: box.y,
-    width: box.width,
-    height: 0
-  }
-  const minimum = styled.children.reduce((result, child) =&gt; {
-    const width = child.get('width', 0)
-    return width &lt; result ? width : result
-  }, 0)
-  if (minimum &lt; box.width) {
-    layoutHorizontalUnderflow(styled, box, minimum)
-  } else {
-    layoutHorizontalOverflow(styled, box, minimum)
-  }
-  styled.box.height = Math.max(...styled.children.map(child =&gt; child.box.height))
-// -  console.log(DebugIndent.slice(0, DebugDepth), 'layoutHorizontal &lt;&lt;', styled.box)
-}
-
-const layoutHorizontalUnderflow = (styled, box, minimum) =&gt; {
-  const slack = box.width - minimum
-  const numElastic = styled.children.filter(child =&gt; child.get('width', 0) === 0).length
-  const elasticWidth = Math.floor(slack / numElastic)
-  let currentWidth = elasticWidth + (slack - (numElastic * elasticWidth))
-  let x = box.x
-  const result = []
-  styled.children.forEach(child =&gt; {
-    if (currentWidth &gt; 0) {
-      const width = child.get('width', currentWidth)
-      currentWidth = elasticWidth
-      layout(child, {
-        x: x,
-        y: box.y,
-        width: width,
-        height: 0
-      })
-      x += width
-      result.push(child)
-    }
-  })
-  styled.children = result
-}
-
-const layoutHorizontalOverflow = (styled, box, minimum) =&gt; {
-  let x = box.x
-  const result = []
-  styled.children.forEach(child =&gt; {
-    const width = child.get('width', 0)
-    if ((width &gt; 0) &amp;&amp; (x &lt; box.width)) {
-      layout(child, {
-        x: x,
-        y: box.y,
-        width: width,
-        height: 0
-      })
-      x += width
-      result.append(child)
-    }
-  })
-  styled.children = result
-}
-
-const splitText = (width, text) =&gt; {
-  const result = []
-  let current = null
-  text.trim().split(/\s+/).forEach(chunk =&gt; {
-    if (current === null) {
-      current = chunk
-    } else {
-      const candidate = current + ' ' + chunk
-      if (candidate.length &gt; width) {
-        result.push(current)
-        current = chunk
-      } else {
-        current = candidate
-      }
-    }
-  })
-  result.push(current)
-  return result
-}
-
-module.exports = { layout }
-</code></pre>
-<ul>
-<li>And then render
-<ul>
-<li>Create a &quot;screen&quot; filled with background markers</li>
-<li>Walk the tree, asking each node to draw itself</li>
-<li>Only <code>TextNode</code>s actually</li>
-</ul>
-</li>
-</ul>
-<pre title="render.js"><code class="language-js">const assert = require('assert')
-
-const { TextNode, TagNode } = require('./dom')
-
-const render = (layout, width, height, fillChar = '.') =&gt; {
-  const screen = new Array(width).fill(null)
-  screen.forEach((val, i) =&gt; {
-    screen[i] = new Array(height).fill(fillChar)
-  })
-  fill(screen, layout, fillChar)
-  const temp = []
-  for (let y = 0; y &lt; height; y += 1) {
-    const chars = []
-    for (let x = 0; x &lt; width; x += 1) {
-      chars.push(screen[x][y])
-    }
-    temp.push(chars.join(''))
-  }
-  return temp.join('\n')
-}
-
-const fill = (screen, layout, fillChar) =&gt; {
-  if (layout.dom instanceof TagNode) {
-    layout.children.forEach(child =&gt; fill(screen, child, fillChar))
-    return
-  }
-
-  assert(layout.dom instanceof TextNode,
-    'Can only handle tag nodes and text nodes')
-
-  const text = layout.dom.text
-  let i = 0
-  while ((i &lt; layout.box.width) &amp;&amp; (i &lt; text.length)) {
-    screen[layout.box.x + i][layout.box.y] = text[i]
-    i += 1
-  }
-
-  while (i &lt; layout.box.width) {
-    screen[layout.box.x + i][layout.box.y] = fillChar
-    i += 1
-  }
-}
-
-module.exports = { render }
+module.exports = CssRuleSet
 </code></pre>
 </main>
 <footer>
