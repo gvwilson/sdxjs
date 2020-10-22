@@ -2,11 +2,10 @@ const graphlib = require('@dagrejs/graphlib')
 
 const AddTimestamps = require('./add-timestamps')
 
-class UpdateOnTimestamp extends AddTimestamps {
+class UpdateOnTimestamps extends AddTimestamps {
   run () {
-    this.decorate(process.argv[4])
     const sorted = graphlib.alg.topsort(this.graph)
-    const startTime = Math.max(...sorted.map(n => this.graph.node(n).timestamp))
+    const startTime = 1 + Math.max(...sorted.map(n => this.graph.node(n).timestamp))
     console.log(`${startTime}: START`)
     const endTime = sorted.reduce((currTime, node) => {
       if (this.isStale(node)) {
@@ -16,7 +15,7 @@ class UpdateOnTimestamp extends AddTimestamps {
         currTime += 1
       }
       return currTime
-    }, startTime + 1)
+    }, startTime)
     console.log(`${endTime}: END`)
   }
 
@@ -27,4 +26,4 @@ class UpdateOnTimestamp extends AddTimestamps {
   }
 }
 
-module.exports = UpdateOnTimestamp
+module.exports = UpdateOnTimestamps

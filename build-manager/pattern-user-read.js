@@ -9,10 +9,6 @@ class PatternUserRead extends VariableExpander {
     this.expandVariables()
   }
 
-  run () {
-    console.log(JSON.stringify(this.toJSON(), null, 2))
-  }
-
   buildGraphAndRules () {
     this.graph = new graphlib.Graph()
     this.rules = new Map()
@@ -33,20 +29,11 @@ class PatternUserRead extends VariableExpander {
         })
         rule.depends.forEach(dep => {
           assert(!dep.includes('%'),
-            'Cannot have \'%\' in a non-pattern rule')
+            'Cannot have "%" in a non-pattern rule')
           this.graph.setEdge(dep, rule.target)
         })
       }
     })
-  }
-
-  toJSON () {
-    return {
-      graph: graphlib.json.write(this.graph),
-      rules: Array.from(this.rules.keys()).map(key => {
-        return { k: key, v: this.rules.get(key) }
-      })
-    }
   }
 }
 

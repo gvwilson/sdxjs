@@ -2,26 +2,37 @@ const assert = require('assert')
 const fs = require('fs')
 const yaml = require('js-yaml')
 
-const SimpleBuilder = require('./simple-builder')
+const GraphCreator = require('./graph-creator')
 
-class AddTimestamps extends SimpleBuilder {
-  run () {
-    this.decorate(process.argv[4])
-    console.log(this.graph.nodes().map(
-      n => `${n}: ${JSON.stringify(this.graph.node(n))}`
-    ))
+class AddTimestamps extends GraphCreator {
+  constructor (configFile, timestampFile) {
+    super(configFile)
+    this.timestampFile = timestampFile
   }
 
-  decorate (filename) {
-    const decorations = yaml.safeLoad(fs.readFileSync(filename, 'utf-8'))
-    for (const node of Object.keys(decorations)) {
-      this.graph.node(node).timestamp = decorations[node]
+  buildGraph () {
+    super.buildGraph()
+    this.addTimestamps()
+  }
+
+  addTimestamps () {
+    const times = yaml.safeLoad(fs.readFileSync(this.timestampFile, 'utf-8'))
+    for (const node of Object.keys(times)) {
+      assert(this.graph.hasNode(node),
+             `Graph does not have node ${node}`)
+      this.graph.node(node).timestamp = times[node]
     }
     const missing = this.graph.nodes().filter(
       n => !('timestamp' in this.graph.node(n))
     )
     assert.strictEqual(missing.length, 0,
       `Timestamp missing for node(s) ${missing}`)
+  }
+
+  run () {
+    console.log(this.graph.nodes().map(
+      n => `${n}: ${JSON.stringify(this.graph.node(n))}`
+    ))
   }
 }
 

@@ -1,6 +1,6 @@
-const UpdateOnTimestamp = require('./update-on-timestamp')
+const UpdateOnTimestamps = require('./update-on-timestamps')
 
-class VariableExpander extends UpdateOnTimestamp {
+class VariableExpander extends UpdateOnTimestamps {
   buildGraph () {
     super.buildGraph()
     this.expandVariables()

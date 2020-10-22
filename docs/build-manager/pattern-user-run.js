@@ -45,22 +45,6 @@ class PatternUserRun extends PatternUserRead {
       timestamp: timestamp
     })
   }
-
-  run () {
-    const sorted = graphlib.alg.topsort(this.graph)
-    const startTime = Math.max(...sorted.map(n => this.graph.node(n).timestamp))
-    console.log(`${startTime}: START`)
-    const endTime = sorted.reduce((currTime, node) => {
-      if (this.isStale(node)) {
-        console.log(`${currTime}: ${node}`)
-        this.graph.node(node).recipes.forEach(a => console.log(`    ${a}`))
-        this.graph.node(node).timestamp = currTime
-        currTime += 1
-      }
-      return currTime
-    }, startTime + 1)
-    console.log(`${endTime}: END`)
-  }
 }
 
 module.exports = PatternUserRun

@@ -36,10 +36,10 @@
 <br/><a href="../file-interpolator/"><span class="nowrap">File Interpolator</span></a>
 <br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
 <br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
+<br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
 <br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
 <br/><a href="../text-editor/"><span class="nowrap">Text Editor</span></a>
 <br/><a href="../http-server/"><span class="nowrap">HTTP Server</span></a>
-<br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
 <br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
 <br/><a href="../issue-tracker/"><span class="nowrap">Issue Tracker</span></a>
 <br/><a href="../conclusion/"><span class="nowrap">Conclusion</span></a>
@@ -63,14 +63,34 @@
 </nav>
   <main>
   <h1>Build Manager</h1>
-  <p class="lede">Re-running tasks that depends on other tasks</p>
+  <p class="lede">Updating files that depend on other files</p>
 <ul>
-<li>Rebuild files that depend on other files
+<li>Programs in <g key="compiled_language">compiled languages</g> like C and Java have to be built before they can be run
 <ul>
-<li>Based on <a href="https://www.gnu.org/software/make/">Make</a>, <a href="https://www.npmjs.com/package/bajel">Bajel</a>, and <a href="https://jakejs.com/">Jake</a></li>
-<li>Draws on <cite>Smith2011</cite></li>
+<li>Translate each module into machine instructions</li>
+<li><g key="link">Link</g> those modules to each other and to libraries</li>
 </ul>
 </li>
+<li>If a source file hasn't changed, no need to recompile it before linking
+<ul>
+<li>Unless the interface of something it depends on has changed</li>
+</ul>
+</li>
+<li>A <g key="build_manager">build manager</g>:
+<ul>
+<li>Takes a description of what depends on what</li>
+<li>Figures out what is out of date</li>
+<li>Figures out an order in which to rebuild things</li>
+<li>Does what's necessary</li>
+</ul>
+</li>
+<li>Not needed for programs in <g key="interpreted_language">interpreted languages</g>
+<ul>
+<li>But still very useful for managing complex workflows</li>
+<li>Like building this book's website and PDF</li>
+</ul>
+</li>
+<li>Based on <a href="https://www.gnu.org/software/make/">Make</a>, <a href="https://www.npmjs.com/package/bajel">Bajel</a>, <a href="https://jakejs.com/">Jake</a>, and <cite>Smith2011</cite></li>
 </ul>
 <h2 id="whats-in-a-build-manager">What's in a build manager?</h2>
 <ul>
@@ -96,104 +116,26 @@
 <li>Read configuration</li>
 <li>Construct dependency graph</li>
 <li>Find out what nodes are stale</li>
-<li>Build everything that depends on them</li>
-<li>In <g key="topological_order">topological order</g></li>
+<li>Build everything that depends on them in <g key="topological_order">topological order</g></li>
 </ul>
 </li>
 </ul>
 <h2 id="where-should-we-start">Where should we start?</h2>
 <ul>
-<li>Going to experiment with a lot of these so write a general-purpose driver
+<li>Going to experiment with several of these so write a simple <g key="driver">driver</g>
 <ul>
-<li>A simple example of the <g key="template_method_pattern">Template Method</g> pattern</li>
-<li>The <code>build</code> method defined in the base class does some things and then calls <code>run</code></li>
-<li>The child class <em>must</em> define <code>run</code> to do its part</li>
+<li>Load a file</li>
+<li>Create an instance of whatever class that file exports</li>
+<li>Run that instance with the rest of the command-line parameters</li>
 </ul>
 </li>
-<li>Driver loads a class, creates an instance, and asks it to build</li>
 </ul>
 <pre title="driver.js"><code class="language-js">const BuilderClass = require(process.argv[2])
-const builder = new BuilderClass(process.argv[3])
+const builder = new BuilderClass(...process.argv.slice(3))
 builder.build()
 </code></pre>
 <ul>
-<li>Class that simple builders must be derived from</li>
-</ul>
-<pre title="simple-builder.js"><code class="language-js">const assert = require('assert')
-const fs = require('fs')
-const yaml = require('js-yaml')
-const graphlib = require('@dagrejs/graphlib')
-
-class SimpleBuilder {
-  constructor (configName = null) {
-    this.config = yaml.safeLoad(fs.readFileSync(configName, 'utf-8'))
-    this.checkConfig()
-  }
-
-  build () {
-    this.buildGraph()
-    this.checkCycles()
-    this.run()
-  }
-
-  checkConfig () {
-    assert(Array.isArray(this.config),
-      'Configuration must be array')
-    this.config.forEach(rule =&gt; {
-      assert(('target' in rule) &amp;&amp; (typeof rule.target === 'string'),
-             `Rule ${JSON.stringify(rule)} does not string as 'target'`)
-      assert(('depends' in rule) &amp;&amp;
-             Array.isArray(rule.depends) &amp;&amp;
-             rule.depends.every(dep =&gt; (typeof dep === 'string')),
-             `Rule ${JSON.stringify(rule)} does not have list of strings as 'depends'`)
-      assert(('recipes' in rule) &amp;&amp;
-             Array.isArray(rule.recipes) &amp;&amp;
-             rule.recipes.every(recipe =&gt; (typeof recipe === 'string')),
-             `Rule ${JSON.stringify(rule)} does not have list of strings as 'recipes'`)
-    })
-  }
-
-  buildGraph () {
-    this.graph = new graphlib.Graph()
-    this.config.forEach(rule =&gt; {
-      this.graph.setNode(rule.target, {
-        recipes: rule.recipes
-      })
-      rule.depends.forEach(dep =&gt; this.graph.setEdge(dep, rule.target))
-    })
-  }
-
-  checkCycles () {
-    const cycles = graphlib.alg.findCycles(this.graph)
-    assert.strictEqual(cycles.length, 0,
-      `Dependency graph contains cycles ${cycles}`)
-  }
-
-  run () {
-    assert.fail('run method not implemented')
-  }
-}
-
-module.exports = SimpleBuilder
-</code></pre>
-<ul>
-<li>Example of derived (runnable) class</li>
-</ul>
-<pre title="display-only.js"><code class="language-js">const graphlib = require('@dagrejs/graphlib')
-
-const SimpleBuilder = require('./simple-builder')
-
-class DisplayOnly extends SimpleBuilder {
-  run () {
-    console.log(graphlib.json.write(this.graph))
-    console.log(graphlib.alg.topsort(this.graph))
-  }
-}
-
-module.exports = DisplayOnly
-</code></pre>
-<ul>
-<li>Configuration file</li>
+<li>Build files will look like this</li>
 </ul>
 <pre title="three-simple-rules.yml"><code class="language-yml">- target: A
   depends:
@@ -211,11 +153,164 @@ module.exports = DisplayOnly
   recipes: []
 </code></pre>
 <ul>
-<li>Execution and output</li>
+<li>Our classes must have:
+<ul>
+<li>A constructor that takes a configuration file as an argument</li>
+<li>A <code>build</code> method</li>
+</ul>
+</li>
+<li>The <code>build</code> method
+<ul>
+<li>Creates a graph from the configuration file</li>
+<li>Checks that there are no cycles</li>
+<li>Runs whatever commands are needed to update everything</li>
+</ul>
+</li>
+<li>A very simple example of the <g key="template_method_pattern">Template Method</g> pattern
+<ul>
+<li>Parent class defines the order of the steps</li>
+<li>Child class fills them in</li>
+</ul>
+</li>
+</ul>
+<pre title="skeleton-builder.js"><code class="language-js">const assert = require('assert')
+
+class SkeletonBuilder {
+  constructor (configFile) {
+    this.configFile = configFile
+  }
+
+  build () {
+    this.loadConfig()
+    this.buildGraph()
+    this.checkCycles()
+    this.run()
+  }
+
+  loadConfig () {
+    assert(false, 'not implemented')
+  }
+
+  buildGraph () {
+    assert(false, 'not implemented')
+  }
+
+  checkCycles () {
+    assert(false, 'not implemented')
+  }
+
+  run () {
+    assert.fail('run method not implemented')
+  }
+}
+
+module.exports = SkeletonBuilder
+</code></pre>
+<ul>
+<li>Would normally implement all required methods at once
+<ul>
+<li>For tutorial purposes, do them one at a time to make code evolution more readable</li>
+</ul>
+</li>
+<li>Load the configuration file during construction</li>
+</ul>
+<pre title="config-loader.js"><code class="language-js">const assert = require('assert')
+const fs = require('fs')
+const yaml = require('js-yaml')
+
+const SkeletonBuilder = require('./skeleton-builder')
+
+class ConfigLoader extends SkeletonBuilder {
+  loadConfig () {
+    this.config = yaml.safeLoad(fs.readFileSync(this.configFile, 'utf-8'))
+    assert(Array.isArray(this.config),
+      'Configuration must be array')
+    this.config.forEach(rule =&gt; {
+      assert(('target' in rule) &amp;&amp; (typeof rule.target === 'string'),
+        `Rule ${JSON.stringify(rule)} does not string as 'target'`)
+      assert(('depends' in rule) &amp;&amp;
+        Array.isArray(rule.depends) &amp;&amp;
+        rule.depends.every(dep =&gt; (typeof dep === 'string')),
+        `Rule ${JSON.stringify(rule)} does not have list of strings as 'depends'`)
+      assert(('recipes' in rule) &amp;&amp;
+        Array.isArray(rule.recipes) &amp;&amp;
+        rule.recipes.every(recipe =&gt; (typeof recipe === 'string')),
+        `Rule ${JSON.stringify(rule)} does not have list of strings as 'recipes'`)
+    })
+  }
+}
+
+module.exports = ConfigLoader
+</code></pre>
+<ul>
+<li>Turn the configuration into a graph
+<ul>
+<li>Use <a href="https://www.npmjs.com/package/graphlib">graphlib</a> to manage nodes and links rather than writing our own</li>
+<li>Each node stores the recipe to rebuild it</li>
+<li>Links go <em>from</em> the dependency <em>to</em> the target</li>
+<li><code>setEdge</code> automatically adds a node if it isn't already present</li>
+</ul>
+</li>
+<li>Might as well add the cycle checking here as well</li>
+</ul>
+<pre title="graph-creator.js"><code class="language-js">const assert = require('assert')
+const graphlib = require('@dagrejs/graphlib')
+
+const ConfigLoader = require('./config-loader')
+
+class GraphCreator extends ConfigLoader {
+  buildGraph () {
+    this.graph = new graphlib.Graph()
+    this.config.forEach(rule =&gt; {
+      this.graph.setNode(rule.target, {
+        recipes: rule.recipes
+      })
+      rule.depends.forEach(dep =&gt; this.graph.setEdge(dep, rule.target))
+    })
+  }
+
+  checkCycles () {
+    const cycles = graphlib.alg.findCycles(this.graph)
+    assert.strictEqual(cycles.length, 0,
+      `Dependency graph contains cycles ${cycles}`)
+  }
+}
+
+module.exports = GraphCreator
+</code></pre>
+<ul>
+<li>Again, would have implemented all of these required methods in one step in a real program</li>
+<li>Can now create something that displays our configuration when it runs but does nothing else</li>
+</ul>
+<pre title="display-only.js"><code class="language-js">const graphlib = require('@dagrejs/graphlib')
+
+const GraphCreator = require('./graph-creator')
+
+class DisplayOnly extends GraphCreator {
+  run () {
+    console.log('Graph')
+    console.log(graphlib.json.write(this.graph))
+    console.log('Sorted')
+    console.log(graphlib.alg.topsort(this.graph))
+  }
+}
+
+module.exports = DisplayOnly
+</code></pre>
+<ul>
+<li>Try running it
+<ul>
+<li>Takes a moment to read the output with its v's and w's</li>
+</ul>
+</li>
 </ul>
 <pre title="display-only.sh"><code class="language-sh">node driver.js ./display-only three-simple-rules.yml
 </code></pre>
-<pre title="display-only.txt"><code class="language-txt">{
+<pre title="display-only.txt"><code class="language-txt">LOAD CONFIG
+BUILD GRAPH
+CHECK CYCLES
+Graph
+{
   options: { directed: true, multigraph: false, compound: false },
   nodes: [
     { v: 'A', value: [Object] },
@@ -224,43 +319,49 @@ module.exports = DisplayOnly
   ],
   edges: [ { v: 'B', w: 'A' }, { v: 'C', w: 'A' }, { v: 'C', w: 'B' } ]
 }
+Sorted
 [ 'C', 'B', 'A' ]
 </code></pre>
-<h2 id="how-can-we-tell-if-a-file-is-stale">How can we tell if a file is stale?</h2>
+<h2 id="how-can-we-specify-that-a-file-is-out-of-date">How can we specify that a file is out of date?</h2>
 <ul>
 <li>Classic approach is to compare timestamps</li>
-<li>For testing, take another configuration file and add fake timestamps to nodes</li>
-<li>Extra file
-<ul>
-<li>Clumsy to have the derived class magically know which argument to use</li>
-</ul>
-</li>
+<li>For testing, use another configuration file to specify fake timestamps to nodes</li>
 </ul>
 <pre title="add-timestamps.yml"><code class="language-yml">A: 2
 B: 5
 C: 8
 </code></pre>
 <ul>
-<li>Execution</li>
+<li>Where to add the timestamps?
+<ul>
+<li>Need the graph so that we can decorate it</li>
+<li>So add a step to <code>buildGraph</code></li>
+</ul>
+</li>
 </ul>
 <pre title="add-timestamps.js"><code class="language-js">const assert = require('assert')
 const fs = require('fs')
 const yaml = require('js-yaml')
 
-const SimpleBuilder = require('./simple-builder')
+const GraphCreator = require('./graph-creator')
 
-class AddTimestamps extends SimpleBuilder {
-  run () {
-    this.decorate(process.argv[4])
-    console.log(this.graph.nodes().map(
-      n =&gt; `${n}: ${JSON.stringify(this.graph.node(n))}`
-    ))
+class AddTimestamps extends GraphCreator {
+  constructor (configFile, timestampFile) {
+    super(configFile)
+    this.timestampFile = timestampFile
   }
 
-  decorate (filename) {
-    const decorations = yaml.safeLoad(fs.readFileSync(filename, 'utf-8'))
-    for (const node of Object.keys(decorations)) {
-      this.graph.node(node).timestamp = decorations[node]
+  buildGraph () {
+    super.buildGraph()
+    this.addTimestamps()
+  }
+
+  addTimestamps () {
+    const times = yaml.safeLoad(fs.readFileSync(this.timestampFile, 'utf-8'))
+    for (const node of Object.keys(times)) {
+      assert(this.graph.hasNode(node),
+             `Graph does not have node ${node}`)
+      this.graph.node(node).timestamp = times[node]
     }
     const missing = this.graph.nodes().filter(
       n =&gt; !('timestamp' in this.graph.node(n))
@@ -268,10 +369,27 @@ class AddTimestamps extends SimpleBuilder {
     assert.strictEqual(missing.length, 0,
       `Timestamp missing for node(s) ${missing}`)
   }
+
+  run () {
+    console.log(this.graph.nodes().map(
+      n =&gt; `${n}: ${JSON.stringify(this.graph.node(n))}`
+    ))
+  }
 }
 
 module.exports = AddTimestamps
 </code></pre>
+<ul>
+<li>The steps defined in <code>SkeletonBuilder.build</code> don't change
+<ul>
+<li>So people reading the code don't have to change their mental model of what it does overall</li>
+<li>If someone ever wants to inject a new step between building the graph and adding timestamps,
+they can override <code>addTimestamps</code> and put their step at the top before calling <code>super.addTimestamps</code></li>
+<li>This <em>would</em> make the code a lot harder to read</li>
+</ul>
+</li>
+<li>Execution</li>
+</ul>
 <pre title="add-timestamps.sh"><code class="language-sh">node driver.js ./add-timestamps three-simple-rules.yml add-timestamps.yml
 </code></pre>
 <pre title="add-timestamps.txt"><code class="language-txt">[
@@ -288,15 +406,28 @@ module.exports = AddTimestamps
 </ul>
 </li>
 </ul>
-<pre title="update-on-timestamp.js"><code class="language-js">const graphlib = require('@dagrejs/graphlib')
+<h2 id="how-can-we-update-outofdate-files">How can we update out-of-date files?</h2>
+<ul>
+<li>&quot;Current time&quot; must be later than any of the file update times
+<ul>
+<li>Not guaranteed to be true in a networked world where computers' clocks can fall out of sync, but we'll pretend</li>
+</ul>
+</li>
+<li>Look at files in topological order from oldest to youngest
+<ul>
+<li>If any file is older than the things it depends on, update it</li>
+</ul>
+</li>
+<li>Pretend for now that updating takes one unit of time, so we advance our fictional clock once for each build</li>
+</ul>
+<pre title="update-on-timestamps.js"><code class="language-js">const graphlib = require('@dagrejs/graphlib')
 
 const AddTimestamps = require('./add-timestamps')
 
-class UpdateOnTimestamp extends AddTimestamps {
+class UpdateOnTimestamps extends AddTimestamps {
   run () {
-    this.decorate(process.argv[4])
     const sorted = graphlib.alg.topsort(this.graph)
-    const startTime = Math.max(...sorted.map(n =&gt; this.graph.node(n).timestamp))
+    const startTime = 1 + Math.max(...sorted.map(n =&gt; this.graph.node(n).timestamp))
     console.log(`${startTime}: START`)
     const endTime = sorted.reduce((currTime, node) =&gt; {
       if (this.isStale(node)) {
@@ -306,7 +437,7 @@ class UpdateOnTimestamp extends AddTimestamps {
         currTime += 1
       }
       return currTime
-    }, startTime + 1)
+    }, startTime)
     console.log(`${endTime}: END`)
   }
 
@@ -317,11 +448,11 @@ class UpdateOnTimestamp extends AddTimestamps {
   }
 }
 
-module.exports = UpdateOnTimestamp
+module.exports = UpdateOnTimestamps
 </code></pre>
-<pre title="update-on-timestamp.sh"><code class="language-sh">node driver.js ./update-on-timestamp three-simple-rules.yml add-timestamps.yml
+<pre title="update-on-timestamps.sh"><code class="language-sh">node driver.js ./update-on-timestamps three-simple-rules.yml add-timestamps.yml
 </code></pre>
-<pre title="update-on-timestamp.txt"><code class="language-txt">8: START
+<pre title="update-on-timestamps.txt"><code class="language-txt">9: START
 9: B
     update B from C
 10: A
@@ -342,7 +473,7 @@ module.exports = UpdateOnTimestamp
 <li>A way to fill in parts of that rule</li>
 </ul>
 </li>
-<li>Override <code>SimpleBuilder.buildGraph</code> to replace variables in recipes with values
+<li>Override <code>buildGraph</code> to replace variables in recipes with values
 <ul>
 <li>Object-oriented programming helps us change only what we need to change</li>
 <li>Depends on a good initial division into overridable chunks</li>
@@ -360,15 +491,11 @@ module.exports = UpdateOnTimestamp
 </li>
 </ul>
 </li>
-<li>Build the recipe through brute force string substitution
-<ul>
-<li>Look at more efficient strategies in the exercises</li>
+<li>Test that it still handle rules <em>without</em> variables correctly</li>
 </ul>
-</li>
-</ul>
-<pre title="variable-expander.js"><code class="language-js">const UpdateOnTimestamp = require('./update-on-timestamp')
+<pre title="variable-expander.js"><code class="language-js">const UpdateOnTimestamps = require('./update-on-timestamps')
 
-class VariableExpander extends UpdateOnTimestamp {
+class VariableExpander extends UpdateOnTimestamps {
   buildGraph () {
     super.buildGraph()
     this.expandVariables()
@@ -398,7 +525,7 @@ class VariableExpander extends UpdateOnTimestamp {
 
 module.exports = VariableExpander
 </code></pre>
-<pre title="variable-expander.txt"><code class="language-txt">8: START
+<pre title="variable-expander.txt"><code class="language-txt">9: START
 9: B
     update B from C
 10: A
@@ -432,7 +559,13 @@ module.exports = VariableExpander
   - "update @TARGET from @DEPENDENCIES"
 </code></pre>
 <ul>
-<li>First attempt at reading it doesn't work</li>
+<li>First attempt at reading it extracts rules before expanding variables
+<ul>
+<li>But it doesn't work</li>
+<li>Didn't actually have the assertion in <code>add-timestamps.js</code> when we first wrote it</li>
+<li>Added it once we had and traced this error because every failure should turn into an <code>assert</code></li>
+</ul>
+</li>
 </ul>
 <pre title="pattern-user-attempt.js"><code class="language-js">const VariableExpander = require('./variable-expander')
 
@@ -454,7 +587,6 @@ class PatternUserAttempt extends VariableExpander {
       }
     })
     this.rules.forEach((value, key) =&gt; {
-      console.log('removing', key)
       this.graph.removeNode(key)
     })
   }
@@ -465,14 +597,33 @@ module.exports = PatternUserAttempt
 <pre title="pattern-user-attempt.sh"><code class="language-sh">node driver.js ./pattern-user-attempt pattern-rules.yml add-timestamps.yml &gt;&amp; pattern-user-attempt.txt
 exit 0
 </code></pre>
-<pre title="pattern-user-attempt.txt"><code class="language-txt">Cannot find %.in in graph
+<pre title="pattern-user-attempt.txt"><code class="language-txt">assert.js:386
+    throw err;
+    ^
+
+AssertionError [ERR_ASSERTION]: Graph does not have node A
+    at PatternUserAttempt.addTimestamps (/stjs/build-manager/add-timestamps.js:21:7)
+    at PatternUserAttempt.buildGraph (/stjs/build-manager/add-timestamps.js:15:10)
+    at PatternUserAttempt.buildGraph (/stjs/build-manager/variable-expander.js:5:11)
+    at PatternUserAttempt.buildGraph (/stjs/build-manager/pattern-user-attempt.js:5:11)
+    at PatternUserAttempt.build (/stjs/build-manager/skeleton-builder.js:10:10)
+    at Object.&lt;anonymous&gt; (/stjs/build-manager/driver.js:3:9)
+    at Module._compile (internal/modules/cjs/loader.js:1151:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:1171:10)
+    at Module.load (internal/modules/cjs/loader.js:1000:32)
+    at Function.Module._load (internal/modules/cjs/loader.js:899:14) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '=='
+}
 </code></pre>
 <ul>
 <li>Our simple graph loader creates nodes for dependencies even if they aren't targets</li>
 <li>So we wind up tripping over the lack of a node for <code>%.in</code> before we get to extracting rules</li>
-<li>Wind rewrite the rule loader to separate pattern rules from simple rules
+<li>Rewrite the rule loader to separate pattern rules from simple rules
 <ul>
-<li>Add a method to convert the build graph to JSON for display, since we now have an extra data structure</li>
 <li>Check that simple rules' dependencies don't include <code>%</code></li>
 <li>And add timestamps as an optional field to rules for testing purposes rather than having them in a separate file</li>
 </ul>
@@ -487,10 +638,6 @@ class PatternUserRead extends VariableExpander {
   buildGraph () {
     this.buildGraphAndRules()
     this.expandVariables()
-  }
-
-  run () {
-    console.log(JSON.stringify(this.toJSON(), null, 2))
   }
 
   buildGraphAndRules () {
@@ -513,11 +660,30 @@ class PatternUserRead extends VariableExpander {
         })
         rule.depends.forEach(dep =&gt; {
           assert(!dep.includes('%'),
-            'Cannot have \'%\' in a non-pattern rule')
+            'Cannot have "%" in a non-pattern rule')
           this.graph.setEdge(dep, rule.target)
         })
       }
     })
+  }
+}
+
+module.exports = PatternUserRead
+</code></pre>
+<ul>
+<li>Before we trying running this, let's add methods to show the state of the internal data structures
+<ul>
+<li>Since we now have two of them</li>
+</ul>
+</li>
+</ul>
+<pre title="pattern-user-show.js"><code class="language-js">const graphlib = require('@dagrejs/graphlib')
+
+const PatternUserRead = require('./pattern-user-read')
+
+class PatternUserShow extends PatternUserRead {
+  run () {
+    console.log(JSON.stringify(this.toJSON(), null, 2))
   }
 
   toJSON () {
@@ -530,11 +696,11 @@ class PatternUserRead extends VariableExpander {
   }
 }
 
-module.exports = PatternUserRead
+module.exports = PatternUserShow
 </code></pre>
-<pre title="pattern-user-read.sh"><code class="language-sh">node driver.js ./pattern-user-read pattern-rules.yml
+<pre title="pattern-user-show.sh"><code class="language-sh">node driver.js ./pattern-user-show pattern-rules.yml
 </code></pre>
-<pre title="pattern-user-read.txt"><code class="language-txt">{
+<pre title="pattern-user-show.txt"><code class="language-txt">{
   "graph": {
     "options": {
       "directed": true,
@@ -589,21 +755,12 @@ module.exports = PatternUserRead
 }
 </code></pre>
 <ul>
-<li>Order of operations is important
+<li>That seems to be right</li>
+<li>So let's try expanding rules
 <ul>
-<li>Load file, separating simple rules from pattern rules</li>
-<li>Expand uses of the pattern rules to add more nodes to the graph</li>
-<li>Expand variables</li>
-<li>Run the completed graph</li>
+<li>Do it after building the graph and rules, but before expanding variables</li>
 </ul>
 </li>
-<li>Because we used <code>run</code> to print the graph in <code>simple-user-read.js</code>, we have to:
-<ul>
-<li>Reimplement it here</li>
-<li>Call up to a grandparent</li>
-</ul>
-</li>
-<li>This tells us that we should refactor our base class(es) to create more <g key="affordance">affordances</g></li>
 </ul>
 <pre title="pattern-user-run.js"><code class="language-js">const graphlib = require('@dagrejs/graphlib')
 
@@ -652,38 +809,36 @@ class PatternUserRun extends PatternUserRead {
       timestamp: timestamp
     })
   }
-
-  run () {
-    const sorted = graphlib.alg.topsort(this.graph)
-    const startTime = Math.max(...sorted.map(n =&gt; this.graph.node(n).timestamp))
-    console.log(`${startTime}: START`)
-    const endTime = sorted.reduce((currTime, node) =&gt; {
-      if (this.isStale(node)) {
-        console.log(`${currTime}: ${node}`)
-        this.graph.node(node).recipes.forEach(a =&gt; console.log(`    ${a}`))
-        this.graph.node(node).timestamp = currTime
-        currTime += 1
-      }
-      return currTime
-    }, startTime + 1)
-    console.log(`${endTime}: END`)
-  }
 }
 
 module.exports = PatternUserRun
 </code></pre>
-<pre title="pattern-user-run.txt"><code class="language-txt">3: START
+<pre title="pattern-user-run.txt"><code class="language-txt">4: START
 4: left.out
     update left.out from left.in
 5: right.out
     update right.out from right.in
 6: END
 </code></pre>
+<ul>
+<li>We have added a lot of steps to our original template method
+<ul>
+<li>Which makes it a bit of a stretch to claim that the overall operation hasn't changed</li>
+</ul>
+</li>
+<li>Knowing what we know now, we could go back and modify the original <code>SkeletonBuilder.build</code> method
+to include those extra steps and provide do-nothing implementations
+<ul>
+<li>After enough examples, the template settles down</li>
+<li>We learn from our code as we write it</li>
+</ul>
+</li>
+</ul>
 </main>
 <footer>
 <div class="row">
 <div class="left3">
-<a href="../http-server/"><em>&laquo; HTTP Server</em></a>
+<a href="../module-bundler/"><em>&laquo; Module Bundler</em></a>
 </div>
 <div class="middle3">
 <a href="../license/"><img class="footer" src="../static/cc-by.svg" alt="License" /></a>
@@ -691,7 +846,7 @@ module.exports = PatternUserRun
 © 2020 <a href="../authors/">The Authors</a>
 </div>
 <div class="right3">
-<a href="../package-manager/"><em>Package Manager &raquo;</em></a>
+<a href="../layout-engine/"><em>Layout Engine &raquo;</em></a>
 </div>
 </div>
 </footer>

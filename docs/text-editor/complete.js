@@ -12,7 +12,7 @@ const Settings = {
 }
 
 class Editor {
-  constructor (options = {}) {
+  constructor () {
     this.term = terminalKit.terminal
     this.statusBarTimer = undefined
     this.fileIsModified = false

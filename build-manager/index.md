@@ -1,9 +1,20 @@
 ---
 ---
 
--   Rebuild files that depend on other files
-    -   Based on [Make][gnu-make], [Bajel][bajel], and [Jake][jake]
-    -   Draws on <cite>Smith2011</cite>
+-   Programs in <g key="compiled_language">compiled languages</g> like C and Java have to be built before they can be run
+    -   Translate each module into machine instructions
+    -   <g key="link">Link</g> those modules to each other and to libraries
+-   If a source file hasn't changed, no need to recompile it before linking
+    -   Unless the interface of something it depends on has changed
+-   A <g key="build_manager">build manager</g>:
+    -   Takes a description of what depends on what
+    -   Figures out what is out of date
+    -   Figures out an order in which to rebuild things
+    -   Does what's necessary
+-   Not needed for programs in <g key="interpreted_language">interpreted languages</g>
+    -   But still very useful for managing complex workflows
+    -   Like building this book's website and PDF
+-   Based on [Make][gnu-make], [Bajel][bajel], [Jake][jake], and <cite>Smith2011</cite>
 
 ## What's in a build manager?
 
@@ -19,53 +30,94 @@
     -   Read configuration
     -   Construct dependency graph
     -   Find out what nodes are stale
-    -   Build everything that depends on them
-    -   In <g key="topological_order">topological order</g>
+    -   Build everything that depends on them in <g key="topological_order">topological order</g>
 
 ## Where should we start?
 
--   Going to experiment with a lot of these so write a general-purpose driver
-    -   A simple example of the <g key="template_method_pattern">Template Method</g> pattern
-    -   The `build` method defined in the base class does some things and then calls `run`
-    -   The child class *must* define `run` to do its part
--   Driver loads a class, creates an instance, and asks it to build
+-   Going to experiment with several of these so write a simple <g key="driver">driver</g>
+    -   Load a file
+    -   Create an instance of whatever class that file exports
+    -   Run that instance with the rest of the command-line parameters
 
 <%- include('/inc/code.html', {file: 'driver.js'}) %>
 
--   Class that simple builders must be derived from
-
-<%- include('/inc/code.html', {file: 'simple-builder.js'}) %>
-
--   Example of derived (runnable) class
-
-<%- include('/inc/code.html', {file: 'display-only.js'}) %>
-
--   Configuration file
+-   Build files will look like this
 
 <%- include('/inc/code.html', {file: 'three-simple-rules.yml'}) %>
 
--   Execution and output
+-   Our classes must have:
+    -   A constructor that takes a configuration file as an argument
+    -   A `build` method
+-   The `build` method
+    -   Creates a graph from the configuration file
+    -   Checks that there are no cycles
+    -   Runs whatever commands are needed to update everything
+-   A very simple example of the <g key="template_method_pattern">Template Method</g> pattern
+    -   Parent class defines the order of the steps
+    -   Child class fills them in
+
+<%- include('/inc/code.html', {file: 'skeleton-builder.js'}) %>
+
+-   Would normally implement all required methods at once
+    -   For tutorial purposes, do them one at a time to make code evolution more readable
+-   Load the configuration file during construction
+
+<%- include('/inc/code.html', {file: 'config-loader.js'}) %>
+
+-   Turn the configuration into a graph
+    -   Use [graphlib][graphlib] to manage nodes and links rather than writing our own
+    -   Each node stores the recipe to rebuild it
+    -   Links go *from* the dependency *to* the target
+    -   `setEdge` automatically adds a node if it isn't already present
+-   Might as well add the cycle checking here as well
+
+<%- include('/inc/code.html', {file: 'graph-creator.js'}) %>
+
+-   Again, would have implemented all of these required methods in one step in a real program
+-   Can now create something that displays our configuration when it runs but does nothing else
+
+<%- include('/inc/code.html', {file: 'display-only.js'}) %>
+
+-   Try running it
+    -   Takes a moment to read the output with its v's and w's
 
 <%- include('/inc/multi.html', {pat: 'display-only.*', fill: 'sh txt'}) %>
 
-## How can we tell if a file is stale?
+## How can we specify that a file is out of date?
 
 -   Classic approach is to compare timestamps
--   For testing, take another configuration file and add fake timestamps to nodes
--   Extra file
-    -   Clumsy to have the derived class magically know which argument to use
+-   For testing, use another configuration file to specify fake timestamps to nodes
 
 <%- include('/inc/code.html', {file: 'add-timestamps.yml'}) %>
 
+-   Where to add the timestamps?
+    -   Need the graph so that we can decorate it
+    -   So add a step to `buildGraph`
+
+<%- include('/inc/code.html', {file: 'add-timestamps.js'}) %>
+
+-   The steps defined in `SkeletonBuilder.build` don't change
+    -   So people reading the code don't have to change their mental model of what it does overall
+    -   If someone ever wants to inject a new step between building the graph and adding timestamps,
+        they can override `addTimestamps` and put their step at the top before calling `super.addTimestamps`
+    -   This *would* make the code a lot harder to read
 -   Execution
 
-<%- include('/inc/multi.html', {pat: 'add-timestamps.*', fill: 'js sh txt'}) %>
+<%- include('/inc/multi.html', {pat: 'add-timestamps.*', fill: 'sh txt'}) %>
 
 -   Set current time to maximum file time
 -   For each file from the "bottom" to the top:
     -   If file is older than any of its dependencies, update it
 
-<%- include('/inc/multi.html', {pat: 'update-on-timestamp.*', fill: 'js sh txt'}) %>
+## How can we update out-of-date files?
+
+-   "Current time" must be later than any of the file update times
+    -   Not guaranteed to be true in a networked world where computers' clocks can fall out of sync, but we'll pretend
+-   Look at files in topological order from oldest to youngest
+    -   If any file is older than the things it depends on, update it
+-   Pretend for now that updating takes one unit of time, so we advance our fictional clock once for each build
+
+<%- include('/inc/multi.html', {pat: 'update-on-timestamps.*', fill: 'js sh txt'}) %>
 
 ## How can we add generic build rules?
 
@@ -75,7 +127,7 @@
     -   A way to define a set of files
     -   A way to specify a generic rule
     -   A way to fill in parts of that rule
--   Override `SimpleBuilder.buildGraph` to replace variables in recipes with values
+-   Override `buildGraph` to replace variables in recipes with values
     -   Object-oriented programming helps us change only what we need to change
     -   Depends on a good initial division into overridable chunks
 -   Make provides <g key="automatic_variable">automatic variables</g> with names like `$<` and `$@`
@@ -84,8 +136,7 @@
     -   `@DEPENDENCIES` for all dependencies (in order)
     -   `@DEP[1]`, `@DEP[2]`, etc., for specific dependencies
         -   Count from 1 like humans do
--   Build the recipe through brute force string substitution
-    -   Look at more efficient strategies in the exercises
+-   Test that it still handle rules *without* variables correctly
 
 <%- include('/inc/multi.html', {pat: 'variable-expander.*', fill: 'js txt'}) %>
 
@@ -94,27 +145,35 @@
 
 <%- include('/inc/code.html', {file: 'pattern-rules.yml'}) %>
 
--   First attempt at reading it doesn't work
+-   First attempt at reading it extracts rules before expanding variables
+    -   But it doesn't work
+    -   Didn't actually have the assertion in `add-timestamps.js` when we first wrote it
+    -   Added it once we had and traced this error because every failure should turn into an `assert`
 
 <%- include('/inc/multi.html', {pat: 'pattern-user-attempt.*', fill: 'js sh txt'}) %>
 
 -   Our simple graph loader creates nodes for dependencies even if they aren't targets
 -   So we wind up tripping over the lack of a node for `%.in` before we get to extracting rules
--   Wind rewrite the rule loader to separate pattern rules from simple rules
-    -   Add a method to convert the build graph to JSON for display, since we now have an extra data structure
+-   Rewrite the rule loader to separate pattern rules from simple rules
     -   Check that simple rules' dependencies don't include `%`
     -   And add timestamps as an optional field to rules for testing purposes rather than having them in a separate file
 
-<%- include('/inc/multi.html', {pat: 'pattern-user-read.*', fill: 'js sh txt'}) %>
+<%- include('/inc/code.html', {file: 'pattern-user-read.js'}) %>
 
--   Order of operations is important
-    -   Load file, separating simple rules from pattern rules
-    -   Expand uses of the pattern rules to add more nodes to the graph
-    -   Expand variables
-    -   Run the completed graph
--   Because we used `run` to print the graph in `simple-user-read.js`, we have to:
-    -   Reimplement it here
-    -   Call up to a grandparent
--   This tells us that we should refactor our base class(es) to create more <g key="affordance">affordances</g>
+-   Before we trying running this, let's add methods to show the state of the internal data structures
+    -   Since we now have two of them
+
+<%- include('/inc/multi.html', {pat: 'pattern-user-show.*', fill: 'js sh txt'}) %>
+
+-   That seems to be right
+-   So let's try expanding rules
+    -   Do it after building the graph and rules, but before expanding variables
 
 <%- include('/inc/multi.html', {pat: 'pattern-user-run.*', fill: 'js txt'}) %>
+
+-   We have added a lot of steps to our original template method
+    -   Which makes it a bit of a stretch to claim that the overall operation hasn't changed
+-   Knowing what we know now, we could go back and modify the original `SkeletonBuilder.build` method
+    to include those extra steps and provide do-nothing implementations
+    -   After enough examples, the template settles down
+    -   We learn from our code as we write it

@@ -18,7 +18,6 @@ class PatternUserAttempt extends VariableExpander {
       }
     })
     this.rules.forEach((value, key) => {
-      console.log('removing', key)
       this.graph.removeNode(key)
     })
   }
