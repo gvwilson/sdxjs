@@ -1,4 +1,3 @@
-
 ## How can we handle a small subset of HTML?
 
 -   Our subset of HTML includes:
@@ -8,11 +7,11 @@
     -   Each attribute must have a single quoted value
 -   Use regular expressions to parse, though [this is a sin][stack-overflow-html-regex]
 
-<%- include('/inc/code.html', {file: 'parse.js'}) %>
+<%- include('/inc/file.html', {file: 'parse.js'}) %>
 
 -   The nodes are straightforward
 
-<%- include('/inc/code.html', {file: 'dom.js'}) %>
+<%- include('/inc/file.html', {file: 'dom.js'}) %>
 
 ## How can we handle a small subset of CSS?
 
@@ -35,7 +34,7 @@
 -   Also provide default settings for various kinds of nodes
     -   These were added after building the next stage of the pipeline
 
-<%- include('/inc/code.html', {file: 'css.js'}) %>
+<%- include('/inc/file.html', {file: 'css.js'}) %>
 
 ## How can we construct a styled tree?
 
@@ -54,7 +53,7 @@
    -   Nodes that are actually going to be rendered
    -   Rules collapsed to concrete attribute lists for each node
 
-<%- include('/inc/code.html', {file: 'styled.js'}) %>
+<%- include('/inc/file.html', {file: 'styled.js'}) %>
 
 ## How can we lay out a styled tree?
 
@@ -75,11 +74,11 @@
         -   Lay those out in a vertical stack
         -   Sum of heights becomes height of node
 
-<%- include('/inc/code.html', {file: 'layout.js'}) %>
+<%- include('/inc/file.html', {file: 'layout.js'}) %>
 
 -   And then render
     -   Create a "screen" filled with background markers
     -   Walk the tree, asking each node to draw itself
     -   Only `TextNode`s actually 
 
-<%- include('/inc/code.html', {file: 'render.js'}) %>
+<%- include('/inc/file.html', {file: 'render.js'}) %>

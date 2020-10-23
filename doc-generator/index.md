@@ -14,13 +14,13 @@
 -   Provide an `onComment` option with an array value for it to fill in
     -   Don't bother assigning the AST produced by parsing to a variable because we're collecting side effects in `onComment`
 
-<%- include('/inc/code.html', {file: 'extract-comments.js'}) %>
+<%- include('/inc/file.html', {file: 'extract-comments.js'}) %>
 
 <%- include('/inc/multi.html', {pat: 'two-kinds-of-comment.*', fill: 'js txt'}) %>
 
 -   Extract a subset of the JSON with key features
 
-<%- include('/inc/code.html', {file: 'extract-comments-subset.js'}) %>
+<%- include('/inc/file.html', {file: 'extract-comments-subset.js'}) %>
 
 <%- include('/inc/multi.html', {pat: 'two-kinds-of-comment-subset.*', fill: 'sh txt'}) %>
 
@@ -46,11 +46,11 @@
 -   Parse it with [markdown-it][markdown-it]
 -   Function definitions look like this:
 
-<%- include('/inc/code.html', {file: 'example-plain.js'}) %>
+<%- include('/inc/file.html', {file: 'example-plain.js'}) %>
 
 -   Class definitions look like this:
 
-<%- include('/inc/code.html', {file: 'util-plain.js'}) %>
+<%- include('/inc/file.html', {file: 'util-plain.js'}) %>
 
 -   Lots of unpleasantry here
     -   Repeating function and method names
@@ -62,7 +62,7 @@
 
 -   Processing looks like this
 
-<%- include('/inc/code.html', {file: 'process-plain.js'}) %>
+<%- include('/inc/file.html', {file: 'process-plain.js'}) %>
 
 -   Extract all special comments from all files and concatenate
     with source file's name as level-1 heading
@@ -70,9 +70,9 @@
     -   Use our own function `slugify` to give elements IDs
 -   Run and inspect output
 
-<%- include('/inc/code.html', {file: 'process-plain.sh'}) %>
+<%- include('/inc/file.html', {file: 'process-plain.sh'}) %>
 <%- include('/inc/html.html', {file: 'process-plain.html'}) %>
-<%- include('/inc/subpage.html', {file: 'process-plain.html'}) %>
+<%- include('/inc/page.html', {file: 'process-plain.html'}) %>
 
 -   Lots of ugliness here
     -   Double `h1` for each file (filename and title comment)
@@ -92,7 +92,7 @@
     -   Delete the line number we're seeking so that we only find the first matching node
 -   Allows us to write tidier comments
 
-<%- include('/inc/code.html', {file: 'find-following-input.js'}) %>
+<%- include('/inc/file.html', {file: 'find-following-input.js'}) %>
 
 -   Extract and display information from nodes immediately following doc comments
     -   Find all block comments
@@ -103,6 +103,6 @@
 
 -   Use this to create better output
 
-<%- include('/inc/code.html', {file: 'fill-in-headers.js'}) %>
+<%- include('/inc/file.html', {file: 'fill-in-headers.js'}) %>
 <%- include('/inc/html.html', {file: 'fill-in-headers.html'}) %>
-<%- include('/inc/subpage.html', {file: 'fill-in-headers.html'}) %>
+<%- include('/inc/page.html', {file: 'fill-in-headers.html'}) %>

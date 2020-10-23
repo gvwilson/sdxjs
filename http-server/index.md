@@ -8,11 +8,11 @@ modeled on [this one in Python][500lines-server].
 
 -   A simple socket client
 
-<%- include('/inc/code.html', {file: 'simple-socket-client.js'}) %>
+<%- include('/inc/file.html', {file: 'simple-socket-client.js'}) %>
 
 -   A very simple socket server
 
-<%- include('/inc/code.html', {file: 'simple-socket-server.js'}) %>
+<%- include('/inc/file.html', {file: 'simple-socket-server.js'}) %>
 
 -   Displaying what happens when they run is tricky, since events are interleaved
 -   When developing, run in separate windows
@@ -29,7 +29,7 @@ modeled on [this one in Python][500lines-server].
     -   So allow user to specify the name of a data handler from the command line
 -   What stays the same:
 
-<%- include('/inc/code.html', {file: 'socket-server.js'}) %>
+<%- include('/inc/file.html', {file: 'socket-server.js'}) %>
 
 ## How can we decompose the server?
 
@@ -37,7 +37,7 @@ modeled on [this one in Python][500lines-server].
     -   So the handler takes a socket as an argument and returns a function that takes data
     -   Call it `handlerFactory` to make clear that it creates a function
 
-<%- include('/inc/code.html', {file: 'always-send-success.js'}) %>
+<%- include('/inc/file.html', {file: 'always-send-success.js'}) %>
 
 -   Try running
 
@@ -48,13 +48,13 @@ modeled on [this one in Python][500lines-server].
 -   Now try constructing an HTTP response
     -   Ignore the incoming path
 
-<%- include('/inc/code.html', {file: 'http-response-success.js'}) %>
+<%- include('/inc/file.html', {file: 'http-response-success.js'}) %>
 
 -   Go to `http://localhost:8080` with a browser
     -   Browser sends two requests: one for `/` and one for `/favicon.ico`
     -   Includes `User-Agent`, `Accept`, `Accept-Language`, and other headers
 
-<%- include('/inc/code.html', {file: 'http-response-browser.txt'}) %>
+<%- include('/inc/file.html', {file: 'http-response-browser.txt'}) %>
 
 -   Now construct an HTTP request
     -   Line separators in header must be `\r\n`, not just `\n`
@@ -62,12 +62,12 @@ modeled on [this one in Python][500lines-server].
     -   Must convert result data from byte butter to string
     -   Allow user to specify 
 
-<%- include('/inc/code.html', {file: 'http-request-client.js'}) %>
+<%- include('/inc/file.html', {file: 'http-request-client.js'}) %>
 
 -   Run the server and the client
     -   Server only sees what we send
 
-<%- include('/inc/code.html', {file: 'http-response-success.txt'}) %>
+<%- include('/inc/file.html', {file: 'http-response-success.txt'}) %>
 
 ## How can we test this?
 
@@ -77,11 +77,11 @@ modeled on [this one in Python][500lines-server].
     -   We can provide a <g key="mock_object">mock object</g> to free our tests from concurrency
 -   Replacement for the socket
 
-<%- include('/inc/code.html', {file: 'test/socket.js'}) %>
+<%- include('/inc/file.html', {file: 'test/socket.js'}) %>
 
 -   Unit test
 
-<%- include('/inc/code.html', {file: 'test/test-http-response-success.js'}) %>
+<%- include('/inc/file.html', {file: 'test/test-http-response-success.js'}) %>
 
 -   Parse the HTTP request and return text files
 
@@ -107,12 +107,12 @@ modeled on [this one in Python][500lines-server].
     -   A simple example of the <g key="template_method_pattern">Template Method</g> pattern
 -   Use the [url][node-url] package to parse the request target
 
-<%- include('/inc/code.html', {file: 'base-http-server.js'}) %>
+<%- include('/inc/file.html', {file: 'base-http-server.js'}) %>
 <%- include('/inc/multi.html', {pat: 'test-base-http-server.*', fill: 'js sh txt'}) %>
 
 -   Serve files
 
-<%- include('/inc/code.html', {file: 'http-file-server.js'}) %>
+<%- include('/inc/file.html', {file: 'http-file-server.js'}) %>
 <%- include('/inc/multi.html', {pat: 'test-http-file-server.*', fill: 'sh txt'}) %>
 
 ## How can we parameterize requests?
@@ -124,12 +124,12 @@ modeled on [this one in Python][500lines-server].
 -   Server extracts parameters and uses them
     -   Should do more checking than this…
 
-<%- include('/inc/code.html', {file: 'http-params-server.js'}) %>
+<%- include('/inc/file.html', {file: 'http-params-server.js'}) %>
 
 -   Client builds a query string
     -   Should use a library (there are many)
 
-<%- include('/inc/code.html', {file: 'http-params-client.js'}) %>
+<%- include('/inc/file.html', {file: 'http-params-client.js'}) %>
 
 -   Testing
 
@@ -140,12 +140,12 @@ modeled on [this one in Python][500lines-server].
     -   Structured data
 -   Use [got][got] to construct request including URL and JSON
 
-<%- include('/inc/code.html', {file: 'got-json-client.js'}) %>
+<%- include('/inc/file.html', {file: 'got-json-client.js'}) %>
 
 -   Finally need to get the <g key="http_header">HTTP headers</g> to check <g key="mime_type">MIME type</g>
     -   Convert body of request from text to JSON if the type is `application/json`
 
-<%- include('/inc/code.html', {file: 'http-json-server.js'}) %>
+<%- include('/inc/file.html', {file: 'http-json-server.js'}) %>
 
 -   After all that, echoing a value back seems like small potatoes
     -   We will do more sophisticated things in chapters to come

@@ -155,8 +155,10 @@ const translateFile = (options, fileInfo, linksText) => {
     toRoot: toRoot(fileInfo.output),
     _codeClass,
     _exercise,
+    _readErase,
     _readFile,
-    _readPage
+    _readPage,
+    _readSlice
   }
 
   // Since inclusions may contain inclusions, we need to provide the rendering
@@ -206,19 +208,56 @@ const _exercise = (render, root, chapter, exercise, which) => {
  * Read file for code inclusion.
  * @param {string} mainFile Name of file doing the inclusion.
  * @param {string} subFile Name of file being included.
+ * @param {function} extract What to extract (if null, keep everything).
  * @returns {string} File contents (possibly with minimal HTML escaping).
  */
-const _readFile = (mainFile, subFile) => {
+const _readFile = (mainFile, subFile, extract = null) => {
   let raw = fs.readFileSync(`${path.dirname(mainFile)}/${subFile}`, 'utf-8')
   if (path.extname(subFile) === '.js') {
     raw = raw
       .replace(/\s*\/\/\s*eslint-disable-line.*$/gm, '')
       .replace(/\s*\/\*\s*eslint-disable\s+.*\*\/\s*$/gm, '')
   }
+  if (extract) {
+    raw = extract(mainFile, subFile, raw)
+  }
   return raw
     .replace(/&/g, '&amp;')
     .replace(/>/g, '&gt;')
     .replace(/</g, '&lt;')
+}
+
+/**
+ * Read file for code inclusion and keep a slice.
+ * @param {string} mainFile Name of file doing the inclusion.
+ * @param {string} subFile Name of file being included.
+ * @param {string} tag Identifier for slice to keep.
+ * @returns {string} File contents (possibly with minimal HTML escaping).
+ */
+const _readSlice = (mainFile, subFile, tag) => {
+  const extract = (mainFile, subFile, raw) => {
+    const pattern = new RegExp(`//\\s*<${tag}>\\s*\n(.+?)\\s*//\\s*</${tag}>`, 's')
+    const match = raw.match(pattern)
+    assert(match,
+      `Failed to find tag ${tag} in ${mainFile}/${subFile}`)
+    return match[1]
+  }
+  return _readFile(mainFile, subFile, extract)
+}
+
+/**
+ * Read file for code inclusion and delete a slice.
+ * @param {string} mainFile Name of file doing the inclusion.
+ * @param {string} subFile Name of file being included.
+ * @param {string} tag Identifier for slice to erase.
+ * @returns {string} File contents (possibly with minimal HTML escaping).
+ */
+const _readErase = (mainFile, subFile, tag) => {
+  const extract = (mainFile, subFile, raw) => {
+    const pattern = new RegExp(`^\\s*//\\s*<${tag}>.+//\\s*</${tag}>\\s*$`, 'ms')
+    return raw.replace(pattern, '...')
+  }
+  return _readFile(mainFile, subFile, extract)
 }
 
 /**

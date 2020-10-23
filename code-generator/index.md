@@ -61,7 +61,7 @@
     -   Records the difference between the start time and the end time
 -   Then replace a placeholder definition of `originalFunc` in the wrapper with the actual function definition
 
-<%- include('/inc/code.html', {file: 'time-func.js'}) %>
+<%- include('/inc/file.html', {file: 'time-func.js'}) %>
 
 -   A quick test
 

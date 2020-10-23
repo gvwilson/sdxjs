@@ -65,14 +65,12 @@
   <h1>Text Editor</h1>
   <p class="lede">A terminal text editor</p>
 <p>A terminal editor based on <a href="https://github.com/hakash/termit">Termit</a> using <a href="https://github.com/cronvel/terminal-kit">terminal-kit</a>.</p>
-<h2 id="what-does-an-editor-need-to-be-able-to-do">What does an editor need to be able to do?</h2>
 <ul>
-<li>Overall structure</li>
+<li>Outline</li>
 </ul>
-<pre title="editor.js"><code class="language-js">const terminalKit = require('terminal-kit')
-const fs = require('fs')
+<pre title="minimal.js:body"><code class="language-js">const terminalKit = require('terminal-kit')
 
-const Settings = {
+const SETTINGS = {
   statusBar: 'Ctrl+  X:save &amp; eXit / C:exit / O:Open / S:Save / A:save As / K:cut line / U:paste line',
   titleBar: 'Zepto',
   shortDelay: 100,
@@ -80,31 +78,19 @@ const Settings = {
   longDelay: 3500
 }
 
-class Editor {
-  /*+ constructor + constructor.js +*/
-  /*+ initialize + init.js +*/
-  /*+ titles + titles.js +*/
-  /*+ file handling + file.js +*/
-  /*+ get a filename from the user + getfilename.js +*/
-  /*+ handle resizing + resize.js +*/
-  /*+ handling keystrokes + keystroke.js +*/
-  /*+ drawing + drawing.js +*/
-  /*+ cursor movement + movement.js +*/
-  /*+ larger movement + jump.js +*/
-  /*+ special characters + specialchar.js +*/
-  /*+ cut and paste + cutpaste.js +*/
+class MinimalEditor {
+...
 }
 
-Editor
+module.exports = MinimalEditor
 </code></pre>
-<h2 id="how-can-we-set-up">How can we set up?</h2>
 <ul>
 <li>Constructor</li>
 </ul>
-<pre title="constructor.js"><code class="language-js">  constructor (options = {}) {
+<pre title="minimal.js:constructor"><code class="language-js">  constructor (args) {
+    this.settings = { ...SETTINGS }
     this.term = terminalKit.terminal
     this.statusBarTimer = undefined
-    this.fileIsModified = false
 
     this.screenBuffer = new terminalKit.ScreenBuffer({
       dst: this.term,
@@ -112,16 +98,9 @@ Editor
       y: 2
     })
 
-    this.textBuffer = new terminalKit.TextBuffer({
-      dst: this.screenBuffer
-    })
+    this.textBuffer = new terminalKit.TextBuffer({ dst: this.screenBuffer })
     this.textBuffer.setText('')
-  }
-</code></pre>
-<ul>
-<li>Initialize</li>
-</ul>
-<pre title="init.js"><code class="language-js">  init (file) {
+
     this.term.on('resize', this.onResize.bind(this))
     this.term.on('key', this.onKey.bind(this))
 
@@ -130,459 +109,12 @@ Editor
     this.textBuffer.moveTo(0, 0)
     this.screenBuffer.moveTo(0, 0)
 
-    this.term.grabInput({
-      mouse: false
-    })
+    this.term.grabInput({ mouse: false })
     this.drawStatusBar()
     this.drawTitleBar()
 
     this.draw()
-
-    if (file) {
-      this.load(file)
-    }
-  }
-</code></pre>
-<ul>
-<li>Titles</li>
-</ul>
-<pre title="titles.js"><code class="language-js">  drawBar (pos, message, invert = false) {
-    if (invert) {
-      this.term.moveTo(pos.x, pos.y).styleReset.white.bold.eraseLine(' ' + message)
-    } else {
-      this.term.moveTo(pos.x, pos.y).styleReset.bgWhite.black.bold.eraseLine(' ' + message)
-    }
-  }
-
-  drawPrompt (prompt) {
-    this.drawBar({x: 0, y: this.term.height}, prompt, true)
-    if (this.statusBarTimer) {
-      clearTimeout(this.statusBarTimer)
-    }
-  }
-
-  drawStatusBar (message = Settings.statusBar, timeout = -1) {
-    this.drawBar({x: 0, y: this.term.height}, message)
-
-    this.textBuffer.draw()
-    this.screenBuffer.draw({delta: true})
-    this.textBuffer.drawCursor()
-    this.screenBuffer.drawCursor()
-
-    if (this.statusBarTimer) {
-      clearTimeout(this.statusBarTimer)
-    }
-
-    if (timeout &gt;= 0) {
-      this.statusBarTimer = setTimeout(() =&gt; {
-        this.drawStatusBar()
-      }, timeout)
-    }
-  }
-
-  drawTitleBar () {
-    this.drawBar({x: 1, y: 1}, Settings.titleBar)
-  }
-</code></pre>
-<h2 id="how-should-the-editor-handle-files">How should the editor handle files?</h2>
-<ul>
-<li>File handling</li>
-</ul>
-<pre title="file.js"><code class="language-js">  open () {
-    this.getFileNameFromUser('Open file: ', file =&gt; this.load(file))
-  }
-
-  saveAs (callback) {
-    this.getFileNameFromUser('Save as: ',
-                             file =&gt; this.save(file, callback),
-                             this.currentFile)
-  }
-
-  saveFile () {
-    if (!this.fileIsModified){
-      return
-    }
-
-    if (this.getText() === ''){
-      return
-    }
-
-    if (this.currentFile) {
-      this.save(this.currentFile)
-    } else {
-      this.saveAs()
-    }
-  }
-
-  saveAndExit () {
-    this.saveAs(err =&gt; {
-      if (err) {
-        this.drawStatusBar('ERR: Could not save file. Hit Ctrl + C to force exit.',
-                           Settings.longDelay)
-        return
-      }
-      this.exit()
-    })
-  }
-
-  exit () {
-    setTimeout(() =&gt; {
-      this.term.grabInput(false)
-      this.term.fullscreen(false)
-      setTimeout(() =&gt; process.exit(0), Settings.shortDelay)
-    }, Settings.shortDelay)
-  }
-
-  unload () {
-    this.term.grabInput(false)
-    this.term.fullscreen(false)
-  }
-
-  getText () {
-    return this.textBuffer.getText()
-  }
-</code></pre>
-<ul>
-<li>Loading and saving</li>
-</ul>
-<pre title="loadsave.js"><code class="language-js">  load (file) {
-    let content = ''
-    this.disableUserInteraction = true
-    try {
-      if (fs.existsSync(file)) {
-        content = fs.readFileSync(file, 'utf8')
-      }
-      this.currentFile = file
-    } catch (e) {
-      this.drawStatusBar('ERROR: Failed to load file: ' + file, Settings.longDelay)
-    }
-
-    this.textBuffer.moveTo(0, 0)
-    this.textBuffer.setText('')
-    this.textBuffer.insert(content)
-    this.textBuffer.moveTo(0, 0)
-    this.fileIsModified = false
-    this.disableUserInteraction = false
-    this.draw()
-  }
-
-  save (file, callback = () =&gt; {}) {
-    this.disableUserInteraction = true
-    try {
-      fs.writeFileSync(file, this.getText())
-      this.fileIsModified = false
-      this.currentFile = file
-      this.drawStatusBar('Saved!', Settings.mediumDelay)
-      this.disableUserInteraction = false
-      callback()
-    } catch (e) {
-      this.disableUserInteraction = false
-      callback(e)
-    }
-  }
-</code></pre>
-<ul>
-<li>Get a filename from the user</li>
-</ul>
-<pre title="getfilename.js"><code class="language-js">  getFileNameFromUser (prompt, callback, prefill = '') {
-    this.disableUserInteraction = true
-
-    this.drawPrompt(prompt)
-    const fileOptions = {
-      cancelable: true,
-      default: prefill
-    }
-    this.term.fileInput(fileOptions, (err, file) =&gt; {
-      this.disableUserInteraction = false
-      this.drawStatusBar()
-      if (err) {
-        this.drawStatusBar('An error occurred.', Settings.longDelay)
-        callback(err)
-        return
-      }
-      if (!file) {
-        return
-      }
-      callback(file)
-    })
-  }
-</code></pre>
-<h2 id="how-should-the-editor-handle-interactions">How should the editor handle interactions?</h2>
-<ul>
-<li>Handle resizing</li>
-</ul>
-<pre title="resize.js"><code class="language-js">  onResize (width, height) {
-    if (this.resizeTimer) {
-      clearTimeout(this.resizeTimer)
-    }
-    this.resizeTimer = setTimeout(() =&gt; {
-      this.screenBuffer.resize({
-        x: 0,
-        y: 2,
-        width: width,
-        height: height - 2
-      })
-      this.drawStatusBar()
-      this.drawTitleBar()
-      this.draw()
-    }, Settings.shortDelay)
-  }
-</code></pre>
-<ul>
-<li>Handling keystrokes</li>
-</ul>
-<pre title="keystroke.js"><code class="language-js">  onKey (key, matches, data) {
-    if (this.disableUserInteraction &amp;&amp; key !== 'CTRL_C') {
-      return
-    }
-
-    switch (key) {
-    case 'CTRL_C':
-      this.exit()
-      break
-    case 'CTRL_X':
-      this.saveAndExit()
-      break
-    case 'CTRL_S':
-      this.saveFile()
-      break
-    case 'CTRL_A':
-      this.saveAs()
-      break
-    case 'CTRL_O':
-      this.open()
-      break
-    case 'CTRL_K':
-      this.cutLine()
-      break
-    case 'CTRL_U':
-      this.pasteLine()
-      break
-    case 'PAGE_UP':
-      this.pgUp()
-      break
-    case 'PAGE_DOWN':
-      this.pgDown()
-      break
-    case 'UP':
-      this.up()
-      break
-    case 'DOWN':
-      this.down()
-      break
-    case 'LEFT':
-      this.left()
-      break
-    case 'RIGHT':
-      this.right()
-      break
-    case 'HOME':
-      this.startOfLine()
-      break
-    case 'END':
-      this.endOfLine()
-      break
-    case 'TAB':
-      this.tab()
-      break
-    case 'CTRL_HOME':
-      this.startOfText()
-      break
-    case 'CTRL_END':
-      this.endOfText()
-      break
-    case 'DELETE':
-      this.deleteChar()
-      break
-    case 'BACKSPACE':
-      this.backspace()
-      break
-    case 'ENTER':
-      this.newLine()
-      break
-    default:
-      if (data.isCharacter) {
-        this.fileIsModified = true
-        this.textBuffer.insert(key)
-        this.draw()
-      }
-      break
-    }
-  }
-</code></pre>
-<ul>
-<li>Drawing</li>
-</ul>
-<pre title="drawing.js"><code class="language-js">  draw (delta = true) {
-    this.textBuffer.draw()
-    this.screenBuffer.draw({delta: delta})
-    this.drawCursor()
-  }
-
-  drawCursor () {
-    let new_buffer_x = this.textBuffer.x
-    let new_buffer_y = this.textBuffer.y
-
-    if (this.textBuffer.x &lt; -this.textBuffer.cx) {
-      new_buffer_x = Math.min(0, -this.textBuffer.cx + Math.floor(this.screenBuffer.width / 2))
-    } else if (this.textBuffer.x &gt; -this.textBuffer.cx + this.screenBuffer.width - 1) {
-      new_buffer_x = (this.screenBuffer.width / 2) - this.textBuffer.cx
-    }
-
-    if (this.textBuffer.y &lt; -this.textBuffer.cy) {
-      new_buffer_y = Math.min(0, -this.textBuffer.cy + Math.floor(this.screenBuffer.height / 2))
-    } else if (this.textBuffer.y &gt; -this.textBuffer.cy + this.screenBuffer.height - 1) {
-      new_buffer_y = (this.screenBuffer.height / 2) - this.textBuffer.cy
-    }
-
-    if (new_buffer_y != this.textBuffer.y || new_buffer_x != this.textBuffer.x) {
-      this.textBuffer.x = new_buffer_x
-      this.textBuffer.y = new_buffer_y
-      this.textBuffer.draw()
-      this.screenBuffer.draw({delta: true})
-    }
-
-    this.textBuffer.drawCursor()
-    this.screenBuffer.drawCursor()
-  }
-</code></pre>
-<ul>
-<li>Cursor movement</li>
-</ul>
-<pre title="movement.js"><code class="language-js">  up () {
-    this.textBuffer.moveUp()
-    if (this.textBuffer.cx &gt; this.textBuffer.buffer[this.textBuffer.cy].length - 1) {
-      this.textBuffer.moveToEndOfLine()
-    }
-    this.drawCursor()
-  }
-
-  down () {
-    if (this.textBuffer.getContentSize().height - 1 &gt; this.textBuffer.cy) {
-      this.textBuffer.moveDown()
-      if (this.textBuffer.cx &gt; this.textBuffer.buffer[this.textBuffer.cy].length - 1) {
-        this.textBuffer.moveToEndOfLine()
-      }
-      this.drawCursor()
-    }
-  }
-
-  left () {
-    this.textBuffer.moveBackward()
-    this.drawCursor()
-  }
-
-  right () {
-    if (this.textBuffer.cx &lt; this.getLine().length) {
-      this.textBuffer.moveRight()
-    } else if (this.textBuffer.getContentSize().height - 1 &gt; this.textBuffer.cy) {
-      this.textBuffer.moveTo(0, this.textBuffer.cy + 1)
-    }
-    this.drawCursor()
-  }
-
-  getLine () {
-    return this.textBuffer.buffer[this.textBuffer.cy].reduce((acc, curr) =&gt; {
-      acc += curr.char.trim()
-      return acc
-    }, '')
-  }
-</code></pre>
-<ul>
-<li>Larger movement</li>
-</ul>
-<h2 id="how-should-the-editor-handle-keystrokes">How should the editor handle keystrokes?</h2>
-<pre title="jump.js"><code class="language-js">  startOfLine () {
-    this.textBuffer.moveToColumn(0)
-    this.drawCursor()
-  }
-
-  endOfLine () {
-    this.textBuffer.moveToEndOfLine()
-    this.drawCursor()
-  }
-
-  startOfText () {
-    this.textBuffer.moveTo(0, 0)
-    this.draw()
-  }
-
-  endOfText () {
-    const num_lines = this.textBuffer.getContentSize().height - 1
-    const last_line = this.textBuffer.buffer[num_lines]
-    this.textBuffer.moveTo(last_line.length, num_lines)
-    this.draw()
-  }
-
-  pgUp () {
-    this.textBuffer.cy = Math.max(0, this.textBuffer.cy - Math.floor(this.screenBuffer.height / 2))
-    this.draw()
-  }
-
-  pgDown () {
-    this.textBuffer.cy = Math.min(this.textBuffer.getContentSize().height - 1,
-                                  this.textBuffer.cy + Math.floor(this.screenBuffer.height / 2))
-    this.draw()
-  }
-</code></pre>
-<ul>
-<li>Special characters</li>
-</ul>
-<pre title="specialchar.js"><code class="language-js">  deleteChar () {
-    this.fileIsModified = true
-    this.textBuffer.delete(1)
-    this.draw()
-  }
-
-  backspace () {
-    this.fileIsModified = true
-    this.textBuffer.backDelete(1)
-    this.draw()
-  }
-
-  newLine () {
-    this.fileIsModified = true
-    this.textBuffer.newLine()
-    this.draw()
-  }
-
-  tab () {
-    this.fileIsModified = true
-    this.textBuffer.insert('\t')
-    this.draw()
-  }
-</code></pre>
-<ul>
-<li>Cut and paste</li>
-</ul>
-<pre title="cutpaste.js"><code class="language-js">  cutLine () {
-    this.lineCutBuffer = this.textBuffer.buffer[this.textBuffer.cy]
-    if (this.textBuffer.cy === 0 &amp;&amp; this.textBuffer.buffer.length === 1) {
-      this.textBuffer.buffer[0] = []
-      this.textBuffer.moveToEndOfLine()
-    } else {
-      if (this.textBuffer.cy === this.textBuffer.buffer.length - 1) {
-        this.textBuffer.buffer.splice(this.textBuffer.cy, 1, [])
-      } else {
-        this.textBuffer.buffer.splice(this.textBuffer.cy, 1)
-      }
-      if (this.textBuffer.cx &gt;= this.textBuffer.buffer[this.textBuffer.cy].length) {
-        this.textBuffer.moveToEndOfLine()
-      }
-    }
-    this.fileIsModified = true
-    this.draw()
-  }
-
-  pasteLine () {
-    if (this.lineCutBuffer) {
-      this.fileIsModified = true
-      this.textBuffer.buffer.splice(this.textBuffer.cy, 0, this.lineCutBuffer)
-      this.textBuffer.moveDown()
-      this.draw()
-    }
-  }
-</code></pre>
+  }</code></pre>
 </main>
 <footer>
 <div class="row">

@@ -70,7 +70,7 @@ FIXME: diagram
 -   We pass this value to the first `then`, pass the result of that `then` to the second one, etc.
 -   If any of them fail, we pass the <g key="exception">exception</g> to the error handler
 
-<%- include('/inc/code.html', {file: 'pledge.js'}) %>
+<%- include('/inc/file.html', {file: 'pledge.js'}) %>
 
 -   There is one unfortunate trick: `bind`.
     -   When we create an object `obj` and call a method `meth`, JavaScript sets `this` inside `meth`
@@ -137,7 +137,7 @@ FIXME: diagram
     -   Use object with named fields instead of array with positional values
     -   It allows us to add or move fields without breaking code quite as often
 
-<%- include('/inc/code.html', {file: 'count-lines-print-filenames.js'}) %>
+<%- include('/inc/file.html', {file: 'count-lines-print-filenames.js'}) %>
 
 -   Works until we run into a directory whose name name matches `*.*`
     -   Which we do in `node_modules`

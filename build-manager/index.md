@@ -39,11 +39,11 @@
     -   Create an instance of whatever class that file exports
     -   Run that instance with the rest of the command-line parameters
 
-<%- include('/inc/code.html', {file: 'driver.js'}) %>
+<%- include('/inc/file.html', {file: 'driver.js'}) %>
 
 -   Build files will look like this
 
-<%- include('/inc/code.html', {file: 'three-simple-rules.yml'}) %>
+<%- include('/inc/file.html', {file: 'three-simple-rules.yml'}) %>
 
 -   Our classes must have:
     -   A constructor that takes a configuration file as an argument
@@ -56,13 +56,13 @@
     -   Parent class defines the order of the steps
     -   Child class fills them in
 
-<%- include('/inc/code.html', {file: 'skeleton-builder.js'}) %>
+<%- include('/inc/file.html', {file: 'skeleton-builder.js'}) %>
 
 -   Would normally implement all required methods at once
     -   For tutorial purposes, do them one at a time to make code evolution more readable
 -   Load the configuration file during construction
 
-<%- include('/inc/code.html', {file: 'config-loader.js'}) %>
+<%- include('/inc/file.html', {file: 'config-loader.js'}) %>
 
 -   Turn the configuration into a graph
     -   Use [graphlib][graphlib] to manage nodes and links rather than writing our own
@@ -71,12 +71,12 @@
     -   `setEdge` automatically adds a node if it isn't already present
 -   Might as well add the cycle checking here as well
 
-<%- include('/inc/code.html', {file: 'graph-creator.js'}) %>
+<%- include('/inc/file.html', {file: 'graph-creator.js'}) %>
 
 -   Again, would have implemented all of these required methods in one step in a real program
 -   Can now create something that displays our configuration when it runs but does nothing else
 
-<%- include('/inc/code.html', {file: 'display-only.js'}) %>
+<%- include('/inc/file.html', {file: 'display-only.js'}) %>
 
 -   Try running it
     -   Takes a moment to read the output with its v's and w's
@@ -88,13 +88,13 @@
 -   Classic approach is to compare timestamps
 -   For testing, use another configuration file to specify fake timestamps to nodes
 
-<%- include('/inc/code.html', {file: 'add-timestamps.yml'}) %>
+<%- include('/inc/file.html', {file: 'add-timestamps.yml'}) %>
 
 -   Where to add the timestamps?
     -   Need the graph so that we can decorate it
     -   So add a step to `buildGraph`
 
-<%- include('/inc/code.html', {file: 'add-timestamps.js'}) %>
+<%- include('/inc/file.html', {file: 'add-timestamps.js'}) %>
 
 -   The steps defined in `SkeletonBuilder.build` don't change
     -   So people reading the code don't have to change their mental model of what it does overall
@@ -143,7 +143,7 @@
 -   Now we need <g key="pattern_rule">pattern rules</g>
 -   First attempt at rules file looks like this
 
-<%- include('/inc/code.html', {file: 'pattern-rules.yml'}) %>
+<%- include('/inc/file.html', {file: 'pattern-rules.yml'}) %>
 
 -   First attempt at reading it extracts rules before expanding variables
     -   But it doesn't work
@@ -158,7 +158,7 @@
     -   Check that simple rules' dependencies don't include `%`
     -   And add timestamps as an optional field to rules for testing purposes rather than having them in a separate file
 
-<%- include('/inc/code.html', {file: 'pattern-user-read.js'}) %>
+<%- include('/inc/file.html', {file: 'pattern-user-read.js'}) %>
 
 -   Before we trying running this, let's add methods to show the state of the internal data structures
     -   Since we now have two of them

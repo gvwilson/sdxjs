@@ -27,7 +27,7 @@
     -   Recurse down the tree until the query string is exhausted or no matches found
     -   A <g key="depth_first_search">depth-first search</g>
 
-<%- include('/inc/code.html', {file: 'simple-selectors.js'}) %>
+<%- include('/inc/file.html', {file: 'simple-selectors.js'}) %>
 
 -   `firstMatch` tries to match the first remaining selector
     -   Either this node or one of its children
@@ -71,7 +71,7 @@ it easily accounts for 95 percent of all instances."
 -   First step is to define test cases
     -   Which also forces us to define our syntax
 
-<%- include('/inc/code.html', {file: 'regex-initial/regex-complete.js'}) %>
+<%- include('/inc/file.html', {file: 'regex-initial/regex-complete.js'}) %>
 
 -   Each matcher is a function that returns a matching object
     -   Saves us having to type `new` all over the place
@@ -82,25 +82,25 @@ it easily accounts for 95 percent of all instances."
     -   So that if we forget to provide `_match` in a <g key="derived_class">derived class</g>
         our code will fail with a meaningful reminder
 
-<%- include('/inc/code.html', {file: 'regex-initial/regex-base.js'}) %>
+<%- include('/inc/file.html', {file: 'regex-initial/regex-base.js'}) %>
 
 -   Define empty versions of each class like this to get started
 
-<%- include('/inc/code.html', {file: 'regex-initial/regex-lit.js'}) %>
+<%- include('/inc/file.html', {file: 'regex-initial/regex-lit.js'}) %>
 
 -   Our tests now run, but most of them fail
     -   "Most" because if we expect a match to fail, it does, so the test runner reports `true`
     -   Tells us how much work we have to do
 
-<%- include('/inc/code.html', {file: 'regex-initial.txt'}) %>
+<%- include('/inc/file.html', {file: 'regex-initial.txt'}) %>
 
 -   Start by implementing literal character string matcher
 
-<%- include('/inc/code.html', {file: 'regex-beginning/regex-lit.js'}) %>
+<%- include('/inc/file.html', {file: 'regex-beginning/regex-lit.js'}) %>
 
 -   Some tests now pass, others still fail (as expected)
 
-<%- include('/inc/code.html', {file: 'regex-beginning.txt'}) %>
+<%- include('/inc/file.html', {file: 'regex-beginning.txt'}) %>
 
 -   Do `RegexSeq` next so that we can combine other tests
     -   This is why we have tests for `Seq(Lit('a'), Lit('b'))` and `Lit('ab')`
@@ -118,24 +118,24 @@ it easily accounts for 95 percent of all instances."
     -   Means we can get rid of `RegexSeq`
 -   Tests are a little harder to read
 
-<%- include('/inc/code.html', {file: 'regex-recursive/regex-complete.js'}) %>
+<%- include('/inc/file.html', {file: 'regex-recursive/regex-complete.js'}) %>
 
 -   Match a literal expression
     -   Does all of the pattern match in the given text starting at this point?
     -   If so, does the rest of the overall pattern match?
 
-<%- include('/inc/code.html', {file: 'regex-recursive/regex-lit.js'}) %>
+<%- include('/inc/file.html', {file: 'regex-recursive/regex-lit.js'}) %>
 
 -   Matching the start `/^/` and end `/$/` anchors is just as straightforward
 
-<%- include('/inc/code.html', {file: 'regex-recursive/regex-start.js'}) %>
+<%- include('/inc/file.html', {file: 'regex-recursive/regex-start.js'}) %>
 
-<%- include('/inc/code.html', {file: 'regex-recursive/regex-end.js'}) %>
+<%- include('/inc/file.html', {file: 'regex-recursive/regex-end.js'}) %>
 
 -   Matching either/or is a matter of trying a pattern and the rest until one matches,
     and failing if neither does
 
-<%- include('/inc/code.html', {file: 'regex-recursive/regex-alt.js'}) %>
+<%- include('/inc/file.html', {file: 'regex-recursive/regex-alt.js'}) %>
 
 -   Matching repetition is easy *if* we're willing to be inefficient
     -   Try zero matches, then one, then two, and so on until something succeeds
@@ -147,7 +147,7 @@ FIXME: diagram
     -   Each non-empty repetition matches at least one character
     -   So the number of remaining characters is the maximum number of matches we have to try
 
-<%- include('/inc/code.html', {file: 'regex-recursive/regex-any.js'}) %>
+<%- include('/inc/file.html', {file: 'regex-recursive/regex-any.js'}) %>
 
 -   The main point here is how extensible this approach is
 -   That extensibility comes from the lack of centralized decision-making

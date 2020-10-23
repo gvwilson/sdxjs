@@ -40,11 +40,11 @@
     -   The parameter to the function we build and `eval` must be called `module` so that we can assign to `module.exports`
     -   For clarity, we call the object we pass in `result` in `loadModule`
 
-<%- include('/inc/code.html', {file: 'load-module-only.js'}) %>
+<%- include('/inc/file.html', {file: 'load-module-only.js'}) %>
 
 -   Use this as a test
 
-<%- include('/inc/code.html', {file: 'small-module.js'}) %>
+<%- include('/inc/file.html', {file: 'small-module.js'}) %>
 <%- include('/inc/multi.html', {pat: 'test-load-module-only.*', fill: 'js sh txt'}) %>
 
 ## Do we need to handle circular dependencies?
@@ -66,29 +66,29 @@
 -   It sort-of works in Python
 -   Create two files
 
-<%- include('/inc/code.html', {file: 'checking/major.py'}) %>
-<%- include('/inc/code.html', {file: 'checking/minor.py'}) %>
+<%- include('/inc/file.html', {file: 'checking/major.py'}) %>
+<%- include('/inc/file.html', {file: 'checking/minor.py'}) %>
 
 -   Fails when run from the command line
 
-<%- include('/inc/code.html', {file: 'py-command-line.txt'}) %>
+<%- include('/inc/file.html', {file: 'py-command-line.txt'}) %>
 
 -   But works in the interactive interpreter
 
-<%- include('/inc/code.html', {file: 'py-interactive.txt'}) %>
+<%- include('/inc/file.html', {file: 'py-interactive.txt'}) %>
 
 -   Equivalent in JavaScript
 
-<%- include('/inc/code.html', {file: 'checking/major.js'}) %>
-<%- include('/inc/code.html', {file: 'checking/minor.js'}) %>
+<%- include('/inc/file.html', {file: 'checking/major.js'}) %>
+<%- include('/inc/file.html', {file: 'checking/minor.js'}) %>
 
 -   Fails on the command line
 
-<%- include('/inc/code.html', {file: 'js-command-line.txt'}) %>
+<%- include('/inc/file.html', {file: 'js-command-line.txt'}) %>
 
 -   Also fails in the interactive interpreter
 
-<%- include('/inc/code.html', {file: 'js-interactive.txt'}) %>
+<%- include('/inc/file.html', {file: 'js-interactive.txt'}) %>
 
 -   So we will *not* handle circular dependencies
     -   But we *will* detect them and generate a sensible error message
@@ -106,7 +106,7 @@
     -   Make it a property of the `require` function
 -   To reduce confusion, we will call our function `need` instead of `require`
 
-<%- include('/inc/code.html', {file: 'need.js'}) %>
+<%- include('/inc/file.html', {file: 'need.js'}) %>
 
 -   Need to modify `loadModule` to take our function `need` as a parameter
     -   Again, we'll have "modules" call `need('something.js')` instead of `require('something')` for clarity
@@ -116,7 +116,7 @@
 
 -   Test again with a module that loads something else
 
-<%- include('/inc/code.html', {file: 'large-module.js'}) %>
+<%- include('/inc/file.html', {file: 'large-module.js'}) %>
 
 <%- include('/inc/multi.html', {pat: 'test-need-large-module.js', fill: 'js txt'}) %>
 
@@ -125,6 +125,6 @@
 -   So we will rely on our loader to provide it
     -   Which means we can only run loaded modules by `need`ing them
 
-<%- include('/inc/code.html', {file: 'large-needless.js'}) %>
+<%- include('/inc/file.html', {file: 'large-needless.js'}) %>
 
 <%- include('/inc/multi.html', {pat: 'test-need-large-needless.*', fill: 'js txt'}) %>

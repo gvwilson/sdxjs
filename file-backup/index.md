@@ -56,7 +56,7 @@
 
 -   Step 1: find all files and calculate their hashes
 
-<%- include('/inc/code.html', {file: 'hash-existing-promise.js'}) %>
+<%- include('/inc/file.html', {file: 'hash-existing-promise.js'}) %>
 
 <%- include('/inc/multi.html', {pat: 'run-hash-existing-promise.*', fill: 'js sh txt'}) %>
 
@@ -68,7 +68,7 @@
 -   Doing all the same things as the explicit promise-based version, but easier to read
     -   In particular, allows us to mix asynchronous and synchronous code (`hashPath` doesn't delay computation)
 
-<%- include('/inc/code.html', {file: 'hash-existing-async.js'}) %>
+<%- include('/inc/file.html', {file: 'hash-existing-async.js'}) %>
 
 <%- include('/inc/multi.html', {pat: 'run-hash-existing-async.*', fill: 'js sh txt'}) %>
 
@@ -79,7 +79,7 @@
         where `ssssssssss` is the <g key="utc">UTC</g> <g key="timestamp">timestamp</g> of the backup's creation
     -   We assume no more than one backup per second (which is unsafe in practice)
 
-<%- include('/inc/code.html', {file: 'check-existing-files.js'}) %>
+<%- include('/inc/file.html', {file: 'check-existing-files.js'}) %>
 
 -   Manually create testing directories with manufactured (shortened) hashes
 
@@ -91,7 +91,7 @@
     -   Add `"test": "mocha */test/test-*.js"` to the `scripts` key of `package.json`,
         since we may add tests for other things later
 
-<%- include('/inc/code.html', {file: 'test/test-find.js'}) %>
+<%- include('/inc/file.html', {file: 'test/test-find.js'}) %>
 <%- include('/inc/multi.html', {pat: 'test-check-filesystem.*', fill: 'sh txt'}) %>
 
 ## How can we test code that modifies files?
@@ -107,14 +107,14 @@
 -   Repeat previous tests using mock
     -   Results stay the same
 
-<%- include('/inc/code.html', {file: 'test/test-find-mock.js'}) %>
+<%- include('/inc/file.html', {file: 'test/test-find-mock.js'}) %>
 
 -   Now write the code that does the file copying
 
-<%- include('/inc/code.html', {file: 'backup.js'}) %>
+<%- include('/inc/file.html', {file: 'backup.js'}) %>
 
 -   And some tests
     -   Which are quite involved, since we want to check with actual file hashes
 
-<%- include('/inc/code.html', {file: 'test/test-backup.js'}) %>
+<%- include('/inc/file.html', {file: 'test/test-backup.js'}) %>
 <%- include('/inc/multi.html', {pat: 'test-backup.*', fill: 'sh txt'}) %>

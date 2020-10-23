@@ -84,7 +84,7 @@
     -   A string
     -   Another generator (using `yield*` to mean "uses its values until they run out")
 
-<%- include('/inc/code.html', {file: 'generator-tree.js'}) %>
+<%- include('/inc/file.html', {file: 'generator-tree.js'}) %>
 
 -   Manage iteration explicitly
 

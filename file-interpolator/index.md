@@ -7,7 +7,7 @@
     -   The text to put in the displayed version
     -   The file to include when loading
 
-<%- include('/inc/code.html', {file: 'interpolation-example.js'}) %>
+<%- include('/inc/file.html', {file: 'interpolation-example.js'}) %>
 
 ## How can we evaluate JavaScript dynamically?
 
@@ -49,11 +49,11 @@
 -   It doesn't matter where the text comes from
 -   So we can move the code that does the modifying into `to-be-loaded.js`
 
-<%- include('/inc/code.html', {file: 'to-be-loaded.js'}) %>
+<%- include('/inc/file.html', {file: 'to-be-loaded.js'}) %>
 
 -   This doesn't work on its own because `Seen` isn't defined
 
-<%- include('/inc/code.html', {file: 'to-be-loaded.txt'}) %>
+<%- include('/inc/file.html', {file: 'to-be-loaded.txt'}) %>
 
 -   But if we read the file and `eval` the text after defining `Seen`, it does what we want
 
@@ -65,12 +65,12 @@
 -   So create a <g key="cache">cache</g> using the <g key="singleton_pattern">Singleton</g> pattern
 -   Loader
 
-<%- include('/inc/code.html', {file: 'need-simple.js'}) %>
+<%- include('/inc/file.html', {file: 'need-simple.js'}) %>
 
 -   File to import
     -   Final expression is the result of `eval`ing it
 
-<%- include('/inc/code.html', {file: 'import-simple.js'}) %>
+<%- include('/inc/file.html', {file: 'import-simple.js'}) %>
 
 -   File doing the importing
 
@@ -89,16 +89,16 @@
     -   But no requirement and no guarantee
 -   A more sophisticated cache
 
-<%- include('/inc/code.html', {file: 'need-path.js'}) %>
+<%- include('/inc/file.html', {file: 'need-path.js'}) %>
 
 -   To test, put the files to import in the `modules` subdirectory
     -   We could call the directory anything we want
 
-<%- include('/inc/code.html', {file: 'modules/imported-left.js'}) %>
+<%- include('/inc/file.html', {file: 'modules/imported-left.js'}) %>
 
 -   Put the file doing the importing in current directory
 
-<%- include('/inc/code.html', {file: 'test-import-left.js'}) %>
+<%- include('/inc/file.html', {file: 'test-import-left.js'}) %>
 
 -   Set path when running Node
     -   `NAME=value command` defines the variable `NAME` just long enough for `command` to run
@@ -108,7 +108,7 @@
 
 -   Now create a second importable file
 
-<%- include('/inc/code.html', {file: 'modules/imported-right.js'}) %>
+<%- include('/inc/file.html', {file: 'modules/imported-right.js'}) %>
 
 -   Load that twice to check that caching works
 
@@ -121,19 +121,19 @@
 -   Modify `Cache.find` to return a directory and a file path
     -   Add `interpolate` to replace special comments
 
-<%- include('/inc/code.html', {file: 'caching.js'}) %>
+<%- include('/inc/file.html', {file: 'caching.js'}) %>
 
 -   Can then have a file like:
 
-<%- include('/inc/code.html', {file: 'import-interpolate.js'}) %>
+<%- include('/inc/file.html', {file: 'import-interpolate.js'}) %>
 
 -   And subfiles like this:
 
-<%- include('/inc/code.html', {file: 'import-interpolate-topmethod.js'}) %>
+<%- include('/inc/file.html', {file: 'import-interpolate-topmethod.js'}) %>
 
 -   And this:
 
-<%- include('/inc/code.html', {file: 'import-interpolate-bottommethod.js'}) %>
+<%- include('/inc/file.html', {file: 'import-interpolate-bottommethod.js'}) %>
 
 -   Test it
 

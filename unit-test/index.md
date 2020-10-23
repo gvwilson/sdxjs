@@ -64,7 +64,7 @@
 -   Provide two flavors of output (terse one-liner and full details)
 -   Also provide raw material (title and results) for inspection and formatting (e.g., as HTML)
 
-<%- include('/inc/code.html', {file: 'hope.js'}) %>
+<%- include('/inc/file.html', {file: 'hope.js'}) %>
 
 -   Use the `caller` module to find the name of who's calling the current function
     -   Gives the user more information
@@ -75,7 +75,7 @@
 -   Keeping the files containing tests simple is the most important part of our design
 -   Example in `test-add.js`
 
-<%- include('/inc/code.html', {file: 'test-add.js'}) %>
+<%- include('/inc/file.html', {file: 'test-add.js'}) %>
 
 -   Load those <g key="dynamic_loading">dynamically</g>
     -   `require` is just a function

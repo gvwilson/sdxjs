@@ -17,7 +17,7 @@
 
 -   Let's try listing the contents of a directory the way we would in Python or Java
 
-<%- include('/inc/code.html', {file: 'list-dir-wrong.js'}) %>
+<%- include('/inc/file.html', {file: 'list-dir-wrong.js'}) %>
 
 -   Use `require(library-name)` to load a library
     -   Returns an object
@@ -66,7 +66,7 @@
 
 FIXME: diagram
 
-<%- include('/inc/code.html', {file: 'list-dir-function-defined.js'}) %>
+<%- include('/inc/file.html', {file: 'list-dir-function-defined.js'}) %>
 
 -   Node callbacks always get an error (if any) as their first argument
     -   Use `console.error` to report it for now
@@ -98,7 +98,7 @@ FIXME: diagram
     -   Makes it easier to see what's going to happen when the operation completes
     -   But takes some getting used to, since the order of execution is now very different from the order of reading.
 
-<%- include('/inc/code.html', {file: 'list-dir-function-anonymous.js'}) %>
+<%- include('/inc/file.html', {file: 'list-dir-function-anonymous.js'}) %>
 
 ## How can we select a set of files?
 
@@ -130,14 +130,14 @@ FIXME: diagram
     -   Removing the parentheses around the single parameter
     -   Writing just the expression we want the function to return
 
-<%- include('/inc/code.html', {file: 'glob-get-then-filter-idiomatic.js'}) %>
+<%- include('/inc/file.html', {file: 'glob-get-then-filter-idiomatic.js'}) %>
 
 -   It turns out that `glob` can filter for us
     -   Its documentation says it has an `options` argument
     -   We can pass an object full of key-value settings to control its behavior
     -   This is another common pattern in Node libraries and in our own code
 
-<%- include('/inc/code.html', {file: 'glob-filter-with-options.js'}) %>
+<%- include('/inc/file.html', {file: 'glob-filter-with-options.js'}) %>
 
 -   Notice that we don't quote the key in this object
     -   The keys in objects are almost always strings
@@ -163,7 +163,7 @@ FIXME: diagram
 
 -   Now specify a source directory and fold that into the glob
 
-<%- include('/inc/code.html', {file: 'glob-with-source-directory.js'}) %>
+<%- include('/inc/file.html', {file: 'glob-with-source-directory.js'}) %>
 
 -   This uses <g key="string_interpolation">string interpolation</g>
     -   Back-quote the string
@@ -176,7 +176,7 @@ FIXME: diagram
 -   So we can take a second argument that specifies an output directory
     -   Construct the output path by replacing the name of the source directory with the name of the output directory
 
-<%- include('/inc/code.html', {file: 'glob-with-dest-directory.js'}) %>
+<%- include('/inc/file.html', {file: 'glob-with-dest-directory.js'}) %>
 
 -   This uses <g key="destructuring_assignment">destructuring assignment</g> to create two variables at once
     -   Only works if both source and destination are given on the command line, so we should check that
@@ -187,7 +187,7 @@ FIXME: diagram
     -   `fs` and equivalent libraries in other languages (mostly) won't create the directories we need automatically
 -   This comes up so often that there is a function `ensureDir` to do what we need
 
-<%- include('/inc/code.html', {file: 'glob-ensure-output-directory.js'}) %>
+<%- include('/inc/file.html', {file: 'glob-ensure-output-directory.js'}) %>
 
 -   [`fs-extra`][node-fs-extra] provides some useful utilities on top of `fs`
 -   And use [`path`][node-path] to manipulate pathnames because someone else has figured out the string operations needed to handle various cases
@@ -197,7 +197,7 @@ FIXME: diagram
     -   Yes, this was a bug…
 -   We can now copy the files
 
-<%- include('/inc/code.html', {file: 'copy-file-unfiltered.js'}) %>
+<%- include('/inc/file.html', {file: 'copy-file-unfiltered.js'}) %>
 
 -   Three levels of callback
     -   When `glob` has data, do things and then call `ensureDir`
@@ -215,7 +215,7 @@ FIXME: diagram
     -   Use `fs.stat` to get the properties of something in the filesystem and then check if it's a file
     -   Name is short for "status"
 
-<%- include('/inc/code.html', {file: 'copy-file-filtered.js'}) %>
+<%- include('/inc/file.html', {file: 'copy-file-filtered.js'}) %>
 
 -   This works…
 -   …but four levels of asynchronous callbacks is hard to understand

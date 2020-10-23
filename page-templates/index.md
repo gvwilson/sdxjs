@@ -21,7 +21,7 @@
     -   E.g., from a <g key="yaml">YAML</g> header in the file
 -   Pass the values into the expansion as an object
 
-<%- include('/inc/code.html', {file: 'example-call.js'}) %>
+<%- include('/inc/file.html', {file: 'example-call.js'}) %>
 
 -   Output will look like HTML without any traces of how it was created
 
@@ -37,13 +37,13 @@
 -   Why a stack and not just a single object?
     -   So that variables inside loops don't affect one another
 
-<%- include('/inc/code.html', {file: 'env.js'}) %>
+<%- include('/inc/file.html', {file: 'env.js'}) %>
 
 -   Handle nodes using the <g key="visitor_pattern">Visitor pattern</g>
     -   `Visitor.walk()` gives `node` a default value of `undefined`, which signals that we want to restart
     -   Alternative designs would be build-and-run or pass in the root with every call
 
-<%- include('/inc/code.html', {file: 'visitor.js'}) %>
+<%- include('/inc/file.html', {file: 'visitor.js'}) %>
 
 ## How do we handle each type of node?
 
@@ -59,7 +59,7 @@
     -   The <g key="delegate_pattern">Delegate</g> design pattern
     -   Easier to expand in future
 
-<%- include('/inc/code.html', {file: 'expander.js'}) %>
+<%- include('/inc/file.html', {file: 'expander.js'}) %>
 
 ## What does this look like when we put it all together?
 
@@ -67,48 +67,48 @@
     -   Concatenates strings repeatedly
     -   Look at more efficient approaches in the exercises
 
-<%- include('/inc/code.html', {file: 'template.js'}) %>
+<%- include('/inc/file.html', {file: 'template.js'}) %>
 
 ## How can we test this?
 
 -   Create a few tests
 -   Variable definitions shared by all tests
 
-<%- include('/inc/code.html', {file: 'vars.json'}) %>
+<%- include('/inc/file.html', {file: 'vars.json'}) %>
 
 -   Static text should be copied over
 
 <%- include('/inc/html.html', {file: 'input-static-text.html'}) %>
-<%- include('/inc/code.html', {file: 'static-text.sh'}) %>
+<%- include('/inc/file.html', {file: 'static-text.sh'}) %>
 <%- include('/inc/html.html', {file: 'output-static-text.html'}) %>
-<%- include('/inc/subpage.html', {file: 'output-static-text.html'}) %>
+<%- include('/inc/page.html', {file: 'output-static-text.html'}) %>
 
 -   Single constant should be substituted
 
 <%- include('/inc/html.html', {file: 'input-single-constant.html'}) %>
 <%- include('/inc/html.html', {file: 'output-single-constant.html'}) %>
-<%- include('/inc/subpage.html', {file: 'output-single-constant.html'}) %>
+<%- include('/inc/page.html', {file: 'output-single-constant.html'}) %>
 
 -   Single variable should be substituted
 
 <%- include('/inc/html.html', {file: 'input-single-variable.html'}) %>
 <%- include('/inc/html.html', {file: 'output-single-variable.html'}) %>
-<%- include('/inc/subpage.html', {file: 'output-single-variable.html'}) %>
+<%- include('/inc/page.html', {file: 'output-single-variable.html'}) %>
 
 -   Expand multiple variables
 
 <%- include('/inc/html.html', {file: 'input-multiple-variables.html'}) %>
 <%- include('/inc/html.html', {file: 'output-multiple-variables.html'}) %>
-<%- include('/inc/subpage.html', {file: 'output-multiple-variables.html'}) %>
+<%- include('/inc/page.html', {file: 'output-multiple-variables.html'}) %>
 
 -   Conditional expression
 
 <%- include('/inc/html.html', {file: 'input-conditional.html'}) %>
 <%- include('/inc/html.html', {file: 'output-conditional.html'}) %>
-<%- include('/inc/subpage.html', {file: 'output-conditional.html'}) %>
+<%- include('/inc/page.html', {file: 'output-conditional.html'}) %>
 
 -   Loop
 
 <%- include('/inc/html.html', {file: 'input-loop.html'}) %>
 <%- include('/inc/html.html', {file: 'output-loop.html'}) %>
-<%- include('/inc/subpage.html', {file: 'output-loop.html'}) %>
+<%- include('/inc/page.html', {file: 'output-loop.html'}) %>
