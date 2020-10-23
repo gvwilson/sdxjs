@@ -115,6 +115,129 @@ module.exports = MinimalEditor
 
     this.draw()
   }</code></pre>
+<ul>
+<li>When the time comes to exit</li>
+</ul>
+<pre title="minimal.js:exit"><code class="language-js">  exit () {
+    setTimeout(() =&gt; {
+      this.term.grabInput(false)
+      this.term.fullscreen(false)
+      setTimeout(() =&gt; process.exit(0), this.settings.shortDelay)
+    }, this.settings.shortDelay)
+  }</code></pre>
+<ul>
+<li>And when we have to resize</li>
+</ul>
+<pre title="minimal.js:resize"><code class="language-js">  onResize (width, height) {
+    if (this.resizeTimer) {
+      clearTimeout(this.resizeTimer)
+    }
+    this.resizeTimer = setTimeout(() =&gt; {
+      this.screenBuffer.resize({
+        x: 0,
+        y: 2,
+        width: width,
+        height: height - 2
+      })
+      this.drawStatusBar()
+      this.drawTitleBar()
+      this.draw()
+    }, this.settings.shortDelay)
+  }</code></pre>
+<ul>
+<li>Drawing the title and status bar</li>
+</ul>
+<pre title="minimal.js:drawbar"><code class="language-js">  drawBar (pos, message, invert = false) {
+    if (invert) {
+      this.term.moveTo(pos.x, pos.y)
+        .styleReset.white.bold.eraseLine(' ' + message)
+    } else {
+      this.term.moveTo(pos.x, pos.y)
+        .styleReset.bgWhite.black.bold.eraseLine(' ' + message)
+    }
+  }
+
+  drawStatusBar (message = this.settings.statusBar, timeout = -1) {
+    this.drawBar({ x: 0, y: this.term.height }, message)
+
+    this.textBuffer.draw()
+    this.screenBuffer.draw({ delta: true })
+    this.textBuffer.drawCursor()
+    this.screenBuffer.drawCursor()
+
+    if (this.statusBarTimer) {
+      clearTimeout(this.statusBarTimer)
+    }
+
+    if (timeout &gt;= 0) {
+      this.statusBarTimer = setTimeout(() =&gt; this.drawStatusBar(), timeout)
+    }
+  }
+
+  drawTitleBar () {
+    this.drawBar({ x: 1, y: 1 }, this.settings.titleBar)
+  }</code></pre>
+<ul>
+<li>Drawing in general</li>
+</ul>
+<pre title="minimal.js:draw"><code class="language-js">  draw () {
+    this.textBuffer.draw()
+    this.screenBuffer.draw({ delta: true })
+    this.drawCursor()
+  }
+
+  drawCursor () {
+    let newBufferX = this.textBuffer.x
+    let newBufferY = this.textBuffer.y
+
+    if (this.textBuffer.x &lt; -this.textBuffer.cx) {
+      newBufferX = Math.min(0, -this.textBuffer.cx + Math.floor(this.screenBuffer.width / 2))
+    } else if (this.textBuffer.x &gt; -this.textBuffer.cx + this.screenBuffer.width - 1) {
+      newBufferX = (this.screenBuffer.width / 2) - this.textBuffer.cx
+    }
+
+    if (this.textBuffer.y &lt; -this.textBuffer.cy) {
+      newBufferY = Math.min(0, -this.textBuffer.cy + Math.floor(this.screenBuffer.height / 2))
+    } else if (this.textBuffer.y &gt; -this.textBuffer.cy + this.screenBuffer.height - 1) {
+      newBufferY = (this.screenBuffer.height / 2) - this.textBuffer.cy
+    }
+
+    if (newBufferY !== this.textBuffer.y || newBufferX !== this.textBuffer.x) {
+      this.textBuffer.x = newBufferX
+      this.textBuffer.y = newBufferY
+      this.textBuffer.draw()
+      this.screenBuffer.draw({ delta: true })
+    }
+
+    this.textBuffer.drawCursor()
+    this.screenBuffer.drawCursor()
+  }</code></pre>
+<ul>
+<li>Handling keys</li>
+</ul>
+<pre title="minimal.js:onkey"><code class="language-js">  onKey (key, matches, data) {
+    switch (key) {
+      case 'CTRL_C':
+        this.exit()
+        break
+      case 'ENTER':
+        this.newLine()
+        break
+      default:
+        if (data.isCharacter) {
+          this.textBuffer.insert(key)
+          this.draw()
+        }
+        break
+    }
+  }</code></pre>
+<ul>
+<li>Handling newlines is special</li>
+</ul>
+<pre title="minimal.js:newline"><code class="language-js">  newLine () {
+    this.textBuffer.newLine()
+    this.draw()
+  }</code></pre>
 </main>
 <footer>
 <div class="row">

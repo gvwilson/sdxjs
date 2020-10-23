@@ -41,6 +41,7 @@ class MinimalEditor {
   }
   // </constructor>
 
+  // <drawbar>
   drawBar (pos, message, invert = false) {
     if (invert) {
       this.term.moveTo(pos.x, pos.y)
@@ -71,7 +72,9 @@ class MinimalEditor {
   drawTitleBar () {
     this.drawBar({ x: 1, y: 1 }, this.settings.titleBar)
   }
+  // </drawbar>
 
+  // <exit>
   exit () {
     setTimeout(() => {
       this.term.grabInput(false)
@@ -79,7 +82,9 @@ class MinimalEditor {
       setTimeout(() => process.exit(0), this.settings.shortDelay)
     }, this.settings.shortDelay)
   }
+  // </exit>
 
+  // <resize>
   onResize (width, height) {
     if (this.resizeTimer) {
       clearTimeout(this.resizeTimer)
@@ -96,7 +101,9 @@ class MinimalEditor {
       this.draw()
     }, this.settings.shortDelay)
   }
+  // </resize>
 
+  // <onkey>
   onKey (key, matches, data) {
     switch (key) {
       case 'CTRL_C':
@@ -113,7 +120,9 @@ class MinimalEditor {
         break
     }
   }
+  // </onkey>
 
+  // <draw>
   draw () {
     this.textBuffer.draw()
     this.screenBuffer.draw({ delta: true })
@@ -146,11 +155,14 @@ class MinimalEditor {
     this.textBuffer.drawCursor()
     this.screenBuffer.drawCursor()
   }
+  // </draw>
 
+  // <newline>
   newLine () {
     this.textBuffer.newLine()
     this.draw()
   }
+  // </newline>
   // </body>
 }
 
