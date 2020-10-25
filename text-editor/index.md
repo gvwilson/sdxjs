@@ -72,3 +72,19 @@
     -   
 
 <%- include('/inc/slice.html', {file: 'bindings-editor.js', tag: 'exit-binding'}) %>
+
+-   But if we have to edit the source file to change the bindings, that's hardly extensible
+-   Use a configuration file to specify what bindings to load
+    -   For simplicity's sake, assume they're all in the same directory
+    -   Can easily extend to load a system-wide default configuration from some other directory first and then overlay
+-   Modified editor is looking pretty small
+
+<%- include('/inc/file.html', {file: 'config-editor.js'}) %>
+
+-   Configuration file is just a list of things to `require`
+
+<%- include('/inc/file.html', {file: 'simple-config.yml'}) %>
+
+-   And each binding is an immediately-instantiated class with the object assigned directly to `module.exports`
+
+<%- include('/inc/file.html', {file: 'simple-enter.js'}) %>

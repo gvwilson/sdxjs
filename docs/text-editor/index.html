@@ -346,6 +346,69 @@ const ENTER_BINDING = new EnterBinding()</code></pre>
     editor.exit()
   }
 }()</code></pre>
+<ul>
+<li>But if we have to edit the source file to change the bindings, that's hardly extensible</li>
+<li>Use a configuration file to specify what bindings to load
+<ul>
+<li>For simplicity's sake, assume they're all in the same directory</li>
+<li>Can easily extend to load a system-wide default configuration from some other directory first and then overlay</li>
+</ul>
+</li>
+<li>Modified editor is looking pretty small</li>
+</ul>
+<pre title="config-editor.js"><code class="language-js">const fs = require('fs')
+const yaml = require('js-yaml')
+
+const MinimalEditor = require('./minimal-editor')
+
+class ConfigEditor extends MinimalEditor {
+  constructor (args) {
+    super(args.slice(1))
+    this.bindings = new Map()
+    this.loadBindings(args[0])
+  }
+
+  loadBindings (filename) {
+    const allNames = yaml.safeLoad(fs.readFileSync(filename, 'utf-8'))
+    allNames.forEach(name =&gt; {
+      const binding = require(`./${name}`)
+      this.bindings.set(binding.key, binding)
+    })
+  }
+
+  onKey (key, matches, data) {
+    if (this.bindings.has(key)) {
+      this.bindings.get(key).run(this, key)
+    } else if (data.isCharacter) {
+      this.textBuffer.insert(key)
+      this.draw()
+    }
+  }
+}
+
+module.exports = ConfigEditor
+</code></pre>
+<ul>
+<li>Configuration file is just a list of things to <code>require</code></li>
+</ul>
+<pre title="simple-config.yml"><code class="language-yml">- simple-enter
+- simple-exit
+</code></pre>
+<ul>
+<li>And each binding is an immediately-instantiated class with the object assigned directly to <code>module.exports</code></li>
+</ul>
+<pre title="simple-enter.js"><code class="language-js">const KeyBinding = require('./key-binding')
+
+module.exports = new class extends KeyBinding {
+  constructor () {
+    super('ENTER')
+  }
+
+  run (editor, key) {
+    editor.newLine()
+  }
+}()
+</code></pre>
 </main>
 <footer>
 <div class="row">
