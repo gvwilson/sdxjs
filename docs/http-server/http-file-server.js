@@ -27,7 +27,7 @@ class HttpFileServer extends BaseHttpServer {
       response.status_message = 'Not Found'
       response.body = 'Requested file does not exist'
     } else {
-      response.body = fs.readFileSync(filePath)
+      response.body = fs.readFileSync(filePath, 'utf-8')
     }
   }
 }

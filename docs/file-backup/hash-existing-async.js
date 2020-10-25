@@ -8,7 +8,7 @@ const statPath = async (path) => {
 }
 
 const readPath = async (path) => {
-  const content = await fs.readFileAsync(path)
+  const content = await fs.readFileAsync(path, 'utf-8')
   return [path, content]
 }
 

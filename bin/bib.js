@@ -29,7 +29,7 @@ const FOOTER = `
  */
 const main = () => {
   const options = getOptions()
-  const data = yaml.safeLoad(fs.readFileSync(options.input))
+  const data = yaml.safeLoad(fs.readFileSync(options.input, 'utf-8'))
   const text = makeBib(data)
   fs.writeFileSync(options.output, text, 'utf-8')
 }

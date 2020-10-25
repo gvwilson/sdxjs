@@ -13,7 +13,7 @@ const handlerFactory = (socket) => (data) => {
   if (path.startsWith('/')) {
     path = `.${path}`
   }
-  const content = fs.readFileSync(path).toString()
+  const content = fs.readFileSync(path, 'utf-8').toString()
   const header = Header.replace('@LENGTH', content.length)
   socket.write(header)
   socket.write(content)

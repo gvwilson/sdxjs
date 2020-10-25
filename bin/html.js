@@ -67,7 +67,7 @@ const getOptions = () => {
 
   const fromArgs = parser.parse_args()
   fromArgs.currentWorkingDir = process.cwd()
-  const fromFile = yaml.safeLoad(fs.readFileSync(fromArgs.configFile))
+  const fromFile = yaml.safeLoad(fs.readFileSync(fromArgs.configFile, 'utf-8'))
   const options = { ...fromArgs, ...fromFile }
 
   assert(options.linksFile,
@@ -86,7 +86,7 @@ const getOptions = () => {
  * @returns {string} Table of links to append to all Markdown files.
  */
 const buildLinks = (options) => {
-  options.links = yaml.safeLoad(fs.readFileSync(options.linksFile))
+  options.links = yaml.safeLoad(fs.readFileSync(options.linksFile, 'utf-8'))
   return options.links
     .map(entry => `[${entry.slug}]: ${entry.url}`)
     .join('\n')
@@ -128,7 +128,7 @@ const buildFileInfo = (options) => {
  */
 const loadFiles = (allFiles) => {
   allFiles.forEach((fileInfo, i) => {
-    const { data, content } = matter(fs.readFileSync(fileInfo.source))
+    const { data, content } = matter(fs.readFileSync(fileInfo.source, 'utf-8'))
     Object.assign(fileInfo, data)
     fileInfo.content = `${HEADER}\n${content}\n${FOOTER}`
   })

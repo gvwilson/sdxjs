@@ -1,7 +1,7 @@
 const fs = require('fs')
 const acorn = require('acorn')
 
-const text = fs.readFileSync(process.argv[2])
+const text = fs.readFileSync(process.argv[2], 'utf-8')
 const options = { locations: true, onComment: [] }
 acorn.parse(text, options)
 const subset = options.onComment.map(entry => {

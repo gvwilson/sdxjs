@@ -12,7 +12,7 @@ const assignment = (range) => {
 
 const readFile = (range, filename) => {
   for (let i=0; i<range; i+=1) {
-    fs.readFileSync(filename)
+    fs.readFileSync(filename, 'utf-8')
   }
 }
 

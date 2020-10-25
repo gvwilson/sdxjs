@@ -4,7 +4,7 @@ const acorn = require('acorn')
 
 const main = () => {
   const options = { locations: true, onComment: [] }
-  const text = fs.readFileSync(process.argv[2])
+  const text = fs.readFileSync(process.argv[2], 'utf-8')
   const ast = acorn.parse(text, options)
   const comments = options.onComment
     .filter(entry => entry.type === 'Block')

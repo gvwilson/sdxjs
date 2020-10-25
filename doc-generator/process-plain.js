@@ -29,7 +29,7 @@ const main = () => {
 }
 
 const extractComments = (filename) => {
-  const text = fs.readFileSync(filename)
+  const text = fs.readFileSync(filename, 'utf-8')
   const options = { locations: true, onComment: [] }
   acorn.parse(text, options)
   const subset = options.onComment

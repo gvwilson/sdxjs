@@ -50,7 +50,7 @@ const getOptions = () => {
   parser.add_argument('--outputFile')
   parser.add_argument('--numbering')
   const fromArgs = parser.parse_args()
-  return { ...fromArgs, ...yaml.safeLoad(fs.readFileSync(fromArgs.config)) }
+  return { ...fromArgs, ...yaml.safeLoad(fs.readFileSync(fromArgs.config, 'utf-8')) }
 }
 
 /**

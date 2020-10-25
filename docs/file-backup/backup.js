@@ -29,7 +29,7 @@ const saveManifest = async (dst, timestamp, pathHash) => {
   const content = pathHash.map(
     ([path, hash]) => `${path},${hash}`).join('\n')
   const manifest = `${dst}/${timestamp}.csv`
-  fs.writeFileAsync(manifest, content)
+  fs.writeFileAsync(manifest, content, 'utf-8')
 }
 
 module.exports = backup

@@ -12,7 +12,7 @@ const getDefinitions = (filenames) => {
 
 const getDefs = (filename) => {
   const options = { locations: true, onComment: [] }
-  const text = fs.readFileSync(filename)
+  const text = fs.readFileSync(filename, 'utf-8')
   const ast = acorn.parse(text, options)
   const comments = options.onComment
     .filter(entry => entry.type === 'Block')

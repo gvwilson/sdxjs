@@ -12,7 +12,7 @@ const statPath = (path) => {
 
 const readPath = (path) => {
   return new Promise((resolve, reject) => {
-    fs.readFileAsync(path)
+    fs.readFileAsync(path, 'utf-8')
       .then(content => resolve([path, content]))
       .catch(err => reject(err))
   })

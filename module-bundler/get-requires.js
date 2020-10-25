@@ -4,7 +4,7 @@ const walk = require('acorn-walk')
 
 const getRequires = (filename) => {
   const entryPointFile = filename
-  const text = fs.readFileSync(entryPointFile)
+  const text = fs.readFileSync(entryPointFile, 'utf-8')
   const ast = acorn.parse(text)
   const requires = []
   walk.simple(ast, {
