@@ -64,11 +64,26 @@
   <main>
   <h1>Text Editor</h1>
   <p class="lede">A terminal text editor</p>
-<p>A terminal editor based on <a href="https://github.com/hakash/termit">Termit</a> using <a href="https://github.com/cronvel/terminal-kit">terminal-kit</a>.</p>
+<ul>
+<li>A terminal editor based on <a href="https://github.com/hakash/termit">Termit</a> using <a href="https://github.com/cronvel/terminal-kit">terminal-kit</a></li>
+<li>We are going to refactor an existing editor rather than writing something from scratch
+<ul>
+<li>Means that we'll see the entire status bar right from the start</li>
+<li>And will gloss over some technical details, since this isn't a lesson on terminal management</li>
+</ul>
+</li>
+<li>But will see:
+<ul>
+<li>How to build a <g key="plugin_architecture">plugin architecture</g></li>
+<li>How to implement undo and redo</li>
+</ul>
+</li>
+</ul>
+<h2 id="what-does-a-minimal-text-editor-contain">What does a minimal text editor contain?</h2>
 <ul>
 <li>Outline</li>
 </ul>
-<pre title="minimal.js:body"><code class="language-js">const terminalKit = require('terminal-kit')
+<pre title="minimal-editor.js:body"><code class="language-js">const terminalKit = require('terminal-kit')
 
 const SETTINGS = {
   statusBar: 'Ctrl+  X:save &amp; eXit / C:exit / O:Open / S:Save / A:save As / K:cut line / U:paste line',
@@ -87,7 +102,7 @@ module.exports = MinimalEditor
 <ul>
 <li>Constructor</li>
 </ul>
-<pre title="minimal.js:constructor"><code class="language-js">  constructor (args) {
+<pre title="minimal-editor.js:constructor"><code class="language-js">  constructor (args) {
     this.settings = { ...SETTINGS }
     this.term = terminalKit.terminal
     this.statusBarTimer = undefined
@@ -118,7 +133,7 @@ module.exports = MinimalEditor
 <ul>
 <li>And when we have to resize</li>
 </ul>
-<pre title="minimal.js:resize"><code class="language-js">  onResize (width, height) {
+<pre title="minimal-editor.js:resize"><code class="language-js">  onResize (width, height) {
     if (this.resizeTimer) {
       clearTimeout(this.resizeTimer)
     }
@@ -137,7 +152,7 @@ module.exports = MinimalEditor
 <ul>
 <li>Drawing the title and status bar</li>
 </ul>
-<pre title="minimal.js:drawbar"><code class="language-js">  drawBar (pos, message, invert = false) {
+<pre title="minimal-editor.js:drawbar"><code class="language-js">  drawBar (pos, message, invert = false) {
     if (invert) {
       this.term.moveTo(pos.x, pos.y)
         .styleReset.white.bold.eraseLine(' ' + message)
@@ -170,7 +185,7 @@ module.exports = MinimalEditor
 <ul>
 <li>Drawing in general</li>
 </ul>
-<pre title="minimal.js:draw"><code class="language-js">  draw () {
+<pre title="minimal-editor.js:draw"><code class="language-js">  draw () {
     this.textBuffer.draw()
     this.screenBuffer.draw({ delta: true })
     this.drawCursor()
@@ -205,7 +220,7 @@ module.exports = MinimalEditor
 <ul>
 <li>Handling keys</li>
 </ul>
-<pre title="minimal.js:onkey"><code class="language-js">  onKey (key, matches, data) {
+<pre title="minimal-editor.js:onkey"><code class="language-js">  onKey (key, matches, data) {
     switch (key) {
       case 'CTRL_C':
         this.exit()
@@ -224,20 +239,113 @@ module.exports = MinimalEditor
 <ul>
 <li>Handling newlines is special</li>
 </ul>
-<pre title="minimal.js:newline"><code class="language-js">  newLine () {
+<pre title="minimal-editor.js:newline"><code class="language-js">  newLine () {
     this.textBuffer.newLine()
     this.draw()
   }</code></pre>
 <ul>
 <li>And when the time comes to exit</li>
 </ul>
-<pre title="minimal.js:exit"><code class="language-js">  exit () {
+<pre title="minimal-editor.js:exit"><code class="language-js">  exit () {
     setTimeout(() =&gt; {
       this.term.grabInput(false)
       this.term.fullscreen(false)
       setTimeout(() =&gt; process.exit(0), this.settings.shortDelay)
     }, this.settings.shortDelay)
   }</code></pre>
+<h2 id="how-can-we-make-the-editor-extensible">How can we make the editor extensible?</h2>
+<ul>
+<li>Even a minimalist editor like <a href="https://www.nano-editor.org/">Nano</a> has many special keys</li>
+<li>Programmers often want to add more or change the <g key="key_binding">bindings</g> of existing keys</li>
+<li>Best solution is a <g key="plugin_architecture">plugin architecture</g>
+<ul>
+<li>The editor provides a few core operations</li>
+<li>Loads tiny libraries that connect keys to those operations</li>
+</ul>
+</li>
+<li>Refactor the editor
+<ul>
+<li><code>onKey</code> looks up the action associated with a key and runs it</li>
+<li>Gives that action the key and the editor itself to work with</li>
+<li>Constructor adds two bindings to the lookup table</li>
+</ul>
+</li>
+</ul>
+<pre title="bindings-editor.js:bindings"><code class="language-js">const MinimalEditor = require('./minimal-editor')
+...
+class BindingsEditor extends MinimalEditor {
+  constructor (args) {
+    super(args)
+    this.bindings = new Map()
+    this.bindings.set(ENTER_BINDING.key, ENTER_BINDING)
+    this.bindings.set(EXIT_BINDING.key, EXIT_BINDING)
+  }
+
+  onKey (key, matches, data) {
+    if (this.bindings.has(key)) {
+      this.bindings.get(key).run(this, key)
+    } else if (data.isCharacter) {
+      this.textBuffer.insert(key)
+      this.draw()
+    }
+  }
+}
+
+module.exports = BindingsEditor
+</code></pre>
+<ul>
+<li>Each binding is derived from a very simple base class</li>
+</ul>
+<pre title="key-binding.js"><code class="language-js">class KeyBinding {
+  constructor (key) {
+    this.key = key
+  }
+
+  run (editor, key) {
+    throw new Error('key binding classes must implement run method')
+  }
+}
+
+module.exports = KeyBinding
+</code></pre>
+<ul>
+<li>Define a class and create a single instance for handling the <code>enter</code> key
+<ul>
+<li>Tell the editor what key this handles</li>
+<li>Act on the editor</li>
+</ul>
+</li>
+</ul>
+<pre title="bindings-editor.js:enter-binding"><code class="language-js">const KeyBinding = require('./key-binding')
+
+class EnterBinding extends KeyBinding {
+  constructor () {
+    super('ENTER')
+  }
+
+  run (editor, key) {
+    editor.newLine()
+  }
+}
+
+const ENTER_BINDING = new EnterBinding()</code></pre>
+<ul>
+<li>JavaScript allows us to define a class without a name and create an instance
+<ul>
+<li>A way to implement the <g key="singleton_pattern">Singleton</g> pattern</li>
+<li></li>
+</ul>
+</li>
+</ul>
+<pre title="bindings-editor.js:exit-binding"><code class="language-js">const EXIT_BINDING = new class extends KeyBinding {
+  constructor () {
+    super('CTRL_C')
+  }
+
+  run (editor, key) {
+    editor.exit()
+  }
+}()</code></pre>
 </main>
 <footer>
 <div class="row">
