@@ -10,9 +10,13 @@ and most of all from
 the trilogy that introduced the Unix philosophy to an entire generation of programmers
 <cite>Kernighan1979,Kernighan1988,Kernighan1983</cite>.
 
-All contributors must abide by our <xref key="conduct">Code of Conduct</xref>.
-Please see the our <xref key="contributing">contributors' guidelines</xref>
-for a description of our development process and formatting rules.
+All of the written material in this project is free to use
+under the terms of the [Creative Commons - Attribution license][cc-by],
+while all of the software is made available under the terms of
+the [Hippocratic License][hippocratic-license];
+see <xref key="license"></xref> for details.
+
+*All proceeds from this project will be donated to the [Red Door Family Shelter][red-door].*
 
 ## Audience
 

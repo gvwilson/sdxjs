@@ -2,6 +2,52 @@
 title: License
 ---
 
+The written material is made available under
+the [Creative Commons - Attribution 4.0 International license](https://creativecommons.org/licenses/by/4.0/) (CC-BY-4.0),
+while the software is made available under
+the [Hippocratic License](https://firstdonoharm.dev/).
+
+## Writing
+
+*This is a human-readable summary of (and not a substitute for) the license.
+Please see <https://creativecommons.org/licenses/by/4.0/legalcode> for the full
+legal text.*
+
+This work is licensed under the Creative Commons Attribution 4.0 International
+license (CC-BY-4.0).
+
+**You are free to:**
+
+- **Share**---copy and redistribute the material in any medium or format
+
+- **Remix**---remix, transform, and build upon the material for any purpose,
+  even commercially.
+
+The licensor cannot revoke these freedoms as long as you follow the license terms.
+
+**Under the following terms:**
+
+- **Attribution**---You must give appropriate credit, provide a link to the
+  license, and indicate if changes were made.  You may do so in any reasonable
+  manner, but not in any way that suggests the licensor endorses you or your
+  use.
+
+- **No additional restrictions**---You may not apply legal terms or
+  technological measures that legally restrict others from doing anything the
+  license permits.
+
+**Notices:**
+
+You do not have to comply with the license for elements of the material in the
+public domain or where your use is permitted by an applicable exception or
+limitation.
+
+No warranties are given.  The license may not give you all of the permissions
+necessary for your intended use.  For example, other rights such as publicity,
+privacy, or moral rights may limit how you use the material.
+
+## Software
+
 Licensor hereby grants permission by this license ("License"), free of charge,
 to any person or entity (the "Licensee") obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without
@@ -20,36 +66,36 @@ following conditions:
 * Compliance with Human Rights Laws and Human Rights Principles:
 
   1. Human Rights Laws. The Software shall not be used by any person or entity
-  for any systems, activities, or other uses that violate any applicable laws,
-  regulations, or rules that protect human, civil, labor, privacy, political,
-  environmental, security, economic, due process, or similar rights (the "Human
-  Rights Laws"). Where the Human Rights Laws of more than one jurisdiction are
-  applicable to the use of the Software, the Human Rights Laws that are most
-  protective of the individuals or groups harmed shall apply.
+     for any systems, activities, or other uses that violate any applicable
+     laws, regulations, or rules that protect human, civil, labor, privacy,
+     political, environmental, security, economic, due process, or similar
+     rights (the "Human Rights Laws"). Where the Human Rights Laws of more than
+     one jurisdiction are applicable to the use of the Software, the Human
+     Rights Laws that are most protective of the individuals or groups harmed
+     shall apply.
 
   2. Human Rights Principles. Licensee is advised to consult the articles of the
-  [United Nations Universal Declaration of Human
-  Rights](https://www.un.org/en/universal-declaration-human-rights/) and the
-  [United Nations Global
-  Compact](https://www.unglobalcompact.org/what-is-gc/mission/principles) that
-  define recognized principles of international human rights (the "Human Rights
-  Principles"). It is Licensor's express intent that all use of the Software be
-  consistent with Human Rights Principles. If Licensor receives notification or
-  otherwise learns of an alleged violation of any Human Rights Principles
-  relating to Licensee's use of the Software, Licensor may in its discretion and
-  without obligation (i) (a) notify Licensee of such allegation and (b) allow
-  Licensee 90 days from notification under (i)(a) to investigate and respond to
-  Licensor regarding the allegation and (ii) (a) after the earlier of 90 days
-  from notification under (i)(a), or Licensee's response under (i)(b), notify
-  Licensee of License termination and (b) allow Licensee an additional 90 days
-  from notification under (ii)(a) to cease use of the Software.
+     [United Nations Universal Declaration of Human Rights](https://www.un.org/en/universal-declaration-human-rights/)
+     and the [United Nations Global Compact](https://www.unglobalcompact.org/what-is-gc/mission/principles)
+     that define recognized principles of international human rights (the "Human
+     Rights Principles"). It is Licensor's express intent that all use of the
+     Software be consistent with Human Rights Principles. If Licensor receives
+     notification or otherwise learns of an alleged violation of any Human
+     Rights Principles relating to Licensee's use of the Software, Licensor may
+     in its discretion and without obligation (i) (a) notify Licensee of such
+     allegation and (b) allow Licensee 90 days from notification under (i)(a) to
+     investigate and respond to Licensor regarding the allegation and (ii) (a)
+     after the earlier of 90 days from notification under (i)(a), or Licensee's
+     response under (i)(b), notify Licensee of License termination and (b) allow
+     Licensee an additional 90 days from notification under (ii)(a) to cease use
+     of the Software.
 
   3. Indemnity. Licensee shall hold harmless and indemnify Licensor against all
-  losses, damages, liabilities, deficiencies, claims, actions, judgments,
-  settlements, interest, awards, penalties, fines, costs, or expenses of
-  whatever kind, including Licensor's reasonable attorneys' fees, arising out of
-  or relating to Licensee's non-compliance with this License or use of the
-  Software in violation of Human Rights Laws or Human Rights Principles.
+     losses, damages, liabilities, deficiencies, claims, actions, judgments,
+     settlements, interest, awards, penalties, fines, costs, or expenses of
+     whatever kind, including Licensor's reasonable attorneys' fees, arising out
+     of or relating to Licensee's non-compliance with this License or use of the
+     Software in violation of Human Rights Laws or Human Rights Principles.
 
 * Enforceability: If any portion or provision of this License is determined to
   be invalid, illegal, or unenforceable by a court of competent jurisdiction,

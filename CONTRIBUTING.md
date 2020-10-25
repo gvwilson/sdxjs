@@ -2,6 +2,8 @@
 title: "Contributing"
 ---
 
+All contributors must abide by our <xref key="conduct">Code of Conduct</xref>.
+
 ## Making Decisions
 
 This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/088610998600100206) for consensus decision making:
