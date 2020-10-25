@@ -9,4 +9,4 @@ module.exports = new class extends KeyBinding {
     editor.textBuffer.moveBackward()
     editor.drawCursor()
   }
-}
+}()

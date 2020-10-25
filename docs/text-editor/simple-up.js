@@ -12,4 +12,4 @@ module.exports = new class extends KeyBinding {
     }
     editor.drawCursor()
   }
-}
+}()

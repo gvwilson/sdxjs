@@ -445,7 +445,170 @@ module.exports = new class extends KeyBinding {
     editor.textBuffer.moveBackward()
     editor.drawCursor()
   }
+}()
+</code></pre>
+<ul>
+<li>But what if a plugin needs some extra state?
+<ul>
+<li>Or if multiple plugins need to share some extra state?</li>
+</ul>
+</li>
+<li>Could have a multi-plugin that registers handlers for several keys
+<ul>
+<li>But that just delays the problem</li>
+</ul>
+</li>
+<li>Instead, a plugin can add some state to the editor
+<ul>
+<li>Add an <code>init</code> method to <code>KeyBinding</code> that does nothing by default but can be overridden</li>
+<li>Adds a new member variable by name if the name is not already in use</li>
+<li>So it doesn't matter what order plugins load in</li>
+<li>But there <em>is</em> the possibility of name collision between two or more plugins</li>
+</ul>
+</li>
+<li>While we're there, add an <code>isDefault</code> property
+<ul>
+<li>Might as well make handling generic characters a binding as well</li>
+<li>Complain if someone has already registered as the default handler</li>
+</ul>
+</li>
+</ul>
+<pre title="init-key-binding.js"><code class="language-js">class KeyBinding {
+  constructor (key) {
+    this.key = key
+    this.isDefault = false
+  }
+
+  init (editor) {
+    // does nothing but can be overridden
+  }
+
+  run (editor, key) {
+    throw new Error('key binding classes must implement run method')
+  }
 }
+
+module.exports = KeyBinding
+</code></pre>
+<ul>
+<li>Modify all existing key bindings to derive from this class
+<ul>
+<li>But do not override <code>init</code>, since they don't need to</li>
+</ul>
+</li>
+<li>And create a handler for all &quot;other&quot; keys
+<ul>
+<li>Which is why we've been passing <code>key</code> around all this time</li>
+</ul>
+</li>
+<li>First, derive a new editor class from the one that handles configuration files</li>
+</ul>
+<pre title="init-editor.js"><code class="language-js">const fs = require('fs')
+const yaml = require('js-yaml')
+
+const MinimalEditor = require('./minimal-editor')
+
+class InitEditor extends MinimalEditor {
+  constructor (args) {
+    super(args.slice(1))
+    this.defaultBinding = null
+    this.bindings = new Map()
+    this.loadBindings(args[0])
+  }
+
+  loadBindings (filename) {
+    const allNames = yaml.safeLoad(fs.readFileSync(filename, 'utf-8'))
+    allNames.forEach(name =&gt; {
+      const binding = require(`./${name}`)
+      binding.init(this)
+      if (binding.isDefault) {
+        if (this.defaultBinding !== null) {
+          throw new Error('can only have one handler for default binding')
+        }
+        this.defaultBinding = binding
+      } else {
+        this.bindings.set(binding.key, binding)
+      }
+    })
+  }
+
+  onKey (key, matches, data) {
+    if (this.bindings.has(key)) {
+      this.bindings.get(key).run(this, key)
+    } else if (data.isCharacter) {
+      this.defaultBinding.run(this, key)
+    }
+  }
+}
+
+module.exports = InitEditor
+</code></pre>
+<ul>
+<li>And write the plugin that handles generic characters
+<ul>
+<li>Identifies itself as the default handler</li>
+<li>A little dangerous to specify <code>null</code> as the character it handles</li>
+<li>But that's probably better than saying, &quot;If the character is <code>null</code>, this must be the default&quot;</li>
+</ul>
+</li>
+</ul>
+<pre title="init-character.js"><code class="language-js">const KeyBinding = require('./init-key-binding')
+
+module.exports = new class extends KeyBinding {
+  constructor () {
+    super(null)
+    this.isDefault = true
+  }
+
+  run (editor, key) {
+    editor.textBuffer.insert(key)
+    editor.draw()
+  }
+}()
+</code></pre>
+<ul>
+<li>We can finally add some state: a &quot;dirty&quot; flag to show if there are unsaved changes
+<ul>
+<li>Will add extensions in the next section to make use of this</li>
+</ul>
+</li>
+</ul>
+<pre title="dirty-character.js"><code class="language-js">const KeyBinding = require('./init-key-binding')
+
+module.exports = new class extends KeyBinding {
+  constructor () {
+    super(null)
+    this.isDefault = true
+  }
+
+  init (editor) {
+    editor.addState('dirty', false)
+  }
+
+  run (editor, key) {
+    editor.dirty = true
+    editor.textBuffer.insert(key)
+    editor.draw()
+  }
+}()
+</code></pre>
+<ul>
+<li>And since we're allowing plugins to add state, we should provide a method for that</li>
+</ul>
+<pre title="dirty-editor.js"><code class="language-js">const fs = require('fs')
+const yaml = require('js-yaml')
+
+const InitEditor = require('./init-editor')
+
+class DirtyEditor extends InitEditor {
+  addState (name, initialValue) {
+    if (!(name in this)) {
+      this[name] = initialValue
+    }
+  }
+}
+
+module.exports = DirtyEditor
 </code></pre>
 </main>
 <footer>

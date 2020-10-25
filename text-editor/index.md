@@ -103,3 +103,42 @@
     -   All similar in principle to this one
 
 <%- include('/inc/file.html', {file: 'simple-left.js'}) %>
+
+-   But what if a plugin needs some extra state?
+    -   Or if multiple plugins need to share some extra state?
+-   Could have a multi-plugin that registers handlers for several keys
+    -   But that just delays the problem
+-   Instead, a plugin can add some state to the editor
+    -   Add an `init` method to `KeyBinding` that does nothing by default but can be overridden
+    -   Adds a new member variable by name if the name is not already in use
+    -   So it doesn't matter what order plugins load in
+    -   But there *is* the possibility of name collision between two or more plugins
+-   While we're there, add an `isDefault` property
+    -   Might as well make handling generic characters a binding as well
+    -   Complain if someone has already registered as the default handler
+
+<%- include('/inc/file.html', {file: 'init-key-binding.js'}) %>
+
+-   Modify all existing key bindings to derive from this class
+    -   But do not override `init`, since they don't need to
+-   And create a handler for all "other" keys
+    -   Which is why we've been passing `key` around all this time
+-   First, derive a new editor class from the one that handles configuration files
+
+<%- include('/inc/file.html', {file: 'init-editor.js'}) %>
+
+-   And write the plugin that handles generic characters
+    -   Identifies itself as the default handler
+    -   A little dangerous to specify `null` as the character it handles
+    -   But that's probably better than saying, "If the character is `null`, this must be the default"
+
+<%- include('/inc/file.html', {file: 'init-character.js'}) %>
+
+-   We can finally add some state: a "dirty" flag to show if there are unsaved changes
+    -   Will add extensions in the next section to make use of this
+
+<%- include('/inc/file.html', {file: 'dirty-character.js'}) %>
+
+-   And since we're allowing plugins to add state, we should provide a method for that
+
+<%- include('/inc/file.html', {file: 'dirty-editor.js'}) %>
