@@ -88,3 +88,18 @@
 -   And each binding is an immediately-instantiated class with the object assigned directly to `module.exports`
 
 <%- include('/inc/file.html', {file: 'simple-enter.js'}) %>
+
+## What goes in the application and what goes in plugins?
+
+-   At one extreme, the application has a rich interface with lots of operations
+    -   Plugins are almost empty (i.e., not much use)
+-   At the other extreme, the application is a container for shared state
+    -   Plugins manipulate that state directly
+    -   Usually a bad idea, but classes can have friends
+-   Since we are refactoring an existing implementation:
+    -   Anything that is needed by two or more plugins becomes a method
+    -   Otherwise, manipulate state directly
+-   Add plugins for up/down/left/right and update configuration file
+    -   All similar in principle to this one
+
+<%- include('/inc/file.html', {file: 'simple-left.js'}) %>

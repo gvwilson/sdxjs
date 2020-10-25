@@ -409,6 +409,44 @@ module.exports = new class extends KeyBinding {
   }
 }()
 </code></pre>
+<h2 id="what-goes-in-the-application-and-what-goes-in-plugins">What goes in the application and what goes in plugins?</h2>
+<ul>
+<li>At one extreme, the application has a rich interface with lots of operations
+<ul>
+<li>Plugins are almost empty (i.e., not much use)</li>
+</ul>
+</li>
+<li>At the other extreme, the application is a container for shared state
+<ul>
+<li>Plugins manipulate that state directly</li>
+<li>Usually a bad idea, but classes can have friends</li>
+</ul>
+</li>
+<li>Since we are refactoring an existing implementation:
+<ul>
+<li>Anything that is needed by two or more plugins becomes a method</li>
+<li>Otherwise, manipulate state directly</li>
+</ul>
+</li>
+<li>Add plugins for up/down/left/right and update configuration file
+<ul>
+<li>All similar in principle to this one</li>
+</ul>
+</li>
+</ul>
+<pre title="simple-left.js"><code class="language-js">const KeyBinding = require('./key-binding')
+
+module.exports = new class extends KeyBinding {
+  constructor () {
+    super('LEFT')
+  }
+
+  run (editor, key) {
+    editor.textBuffer.moveBackward()
+    editor.drawCursor()
+  }
+}
+</code></pre>
 </main>
 <footer>
 <div class="row">
