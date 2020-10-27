@@ -4,6 +4,8 @@
 <dl class="glossary">
 <dt id="absolute_path" class="glossary">absolute path</dt>
 <dd class="glossary">A path that points to the same location in the <g key="filesystem">filesystem</g> regardless of where it is evaluated. An absolute path is the equivalent of latitude and longitude in geography.</dd>
+<dt id="abstract_base_class" class="glossary">abstract base class</dt>
+<dd class="glossary">FIXME</dd>
 <dt id="abstract_method" class="glossary">abstract method</dt>
 <dd class="glossary">In <g key="oop">object-oriented programming</g>, a <g key="method">method</g> that is defined but not implemented. Programmers will define an abstract method in a <g key="parent_class">parent class</g> to specify operations that <g key="child_class">child classes</g> must provide.</dd>
 <dt id="abstract_syntax_tree" class="glossary">abstract syntax tree (AST)</dt>
@@ -65,7 +67,7 @@
 <dt id="child_tree" class="glossary">child (in a tree)</dt>
 <dd class="glossary">A <g key="node">node</g> in a <g key="node">tree</g> that is below another node (call the <g key="parent_tree">parent</g>).</dd>
 <dt id="child_class" class="glossary">child class</dt>
-<dd class="glossary">In <g key="oop">object-oriented programming</g>, a class derived from another class (called the <g key="child_class">parent class</g>).</dd>
+<dd class="glossary">In <g key="oop">object-oriented programming</g>, a class derived from another class (called the <g key="parent_class">parent class</g>).</dd>
 <dt id="circular_dependency" class="glossary">circular dependency</dt>
 <dd class="glossary">A situation in which X depends on Y and Y depends on X, either directly or indirectly. If there is a circular dependency, then the <g key="dependency_graph">dependency graph</g> is not <g key="dag">acyclic</g>.</dd>
 <dt id="class" class="glossary">class</dt>
@@ -87,7 +89,7 @@
 <dt id="compiled_language" class="glossary">compiled language</dt>
 <dd class="glossary">Originally, a language such as C or Fortran that is translated into machine instructions for execution. Languages such as Java are also compiled before execution, but into <g key="byte_code">byte code</g> instead of machine instructions, while languages like <g key="python">Python</g> are compiled to byte code on the fly.</dd>
 <dt id="console" class="glossary">console</dt>
-<dd class="glossary"></dd>
+<dd class="glossary">A computer terminal where a user may enter commands, or a program that simulates such a device.</dd>
 <dt id="constructor" class="glossary">constructor</dt>
 <dd class="glossary">A function that creates an <g key="object">object</g> of a particular <g key="class">class</g>. In the <g key="s3">S3</g> object system, constructors are a convention rather than a requirement.</dd>
 <dt id="utc" class="glossary">Coordinated Universal Time (UTC)</dt>
@@ -97,7 +99,7 @@
 <dt id="cryptographic_hash_function" class="glossary">cryptographic hash function</dt>
 <dd class="glossary">A <g key="hash_function">hash function</g> that produces an apparently-random value for any input.</dd>
 <dt id="data_frame" class="glossary">data frame</dt>
-<dd class="glossary">A two-dimensional data structure for storing tabular data in memory. Rows represent <g key="record">records</g> and columns represent <a href="variable_data">variables</a>.</dd>
+<dd class="glossary">A two-dimensional data structure for storing tabular data in memory. Rows represent <g key="record">records</g> and columns represent <g key="variable_data">variables</g>.</dd>
 <dt id="decorator_pattern" class="glossary">Decorator pattern</dt>
 <dd class="glossary">A <g key="design_pattern">design pattern</g> in which a function adds additional features to another function or a <g key="class">class</g> after its initial definition. Decorators are a feature of <g key="python">Python</g> and can be implemented in most other languages as well.</dd>
 <dt id="delegate_pattern" class="glossary">Delegate pattern</dt>
@@ -201,7 +203,7 @@
 <dt id="import" class="glossary">import</dt>
 <dd class="glossary">To bring things from a <g key="module">module</g> into a program for use. In most languages a program can only import things that the module explicitly <g key="export">exports</g>.</dd>
 <dt id="instance" class="glossary">instance</dt>
-<dd class="glossary"></dd>
+<dd class="glossary">An <g key="object">object</g> of a particular <g key="class">class</g>.</dd>
 <dt id="interpreted_language" class="glossary">interpreted language</dt>
 <dd class="glossary">A high-level language that is not executed directly by the computer, but instead is run by an <g key="interpreter">interpreter</g> that translates program instructions into machine commands on the fly.</dd>
 <dt id="interpreter" class="glossary">interpreter</dt>
@@ -228,6 +230,8 @@
 <dd class="glossary">To combine separately <g key="compile">compiled</g> modules into a single runnable program.</dd>
 <dt id="linter" class="glossary">linter</dt>
 <dd class="glossary">A program that checks for common problems in software, such as violations of indentation rules or variable naming conventions. The name comes from the first tool of its kind, called <code>lint</code>.</dd>
+<dt id="literate_programming" class="glossary">literate programming</dt>
+<dd class="glossary">A programming paradigm that mixes prose and code.</dd>
 <dt id="local_variable" class="glossary">local variable</dt>
 <dd class="glossary">A variable defined inside a function which is only visible within that function.</dd>
 <dt id="log" class="glossary">log</dt>
@@ -241,7 +245,7 @@
 <dt id="loosely_coupled" class="glossary">loosely coupled</dt>
 <dd class="glossary">Components in a software system are said to be loosely coupled if they are relatively independent of one another, i.e., if any one of them can be changed or replaced without others having to be altered as well.</dd>
 <dt id="markdown" class="glossary">Markdown</dt>
-<dd class="glossary">A markup language with a simple syntax intended as a replacement for HTML. Markdown is often used for README files, and is the basis for <a href="r_markdown">R markdown</a>.</dd>
+<dd class="glossary">A markup language with a simple syntax intended as a replacement for HTML. Markdown is often used for README files, and is the basis for <g key="r_markdown">R markdown</g>.</dd>
 <dt id="markup_language" class="glossary">markup language</dt>
 <dd class="glossary">A set of rules for annotating text to define its meaning or how it should be displayed. The markup is usually not displayed, but instead controls how the underlying text is interpreted or shown. <g key="markdown">Markdown</g> and <g key="html">HTML</g> are widely-used markup languages for web pages.</dd>
 <dt id="method" class="glossary">method</dt>
@@ -271,7 +275,7 @@
 <dt id="oop" class="glossary">object-oriented programming (OOP)</dt>
 <dd class="glossary">A style of programming in which functions and data are bound together in objects that only interact with each other through well-defined interfaces.</dd>
 <dt id="observation" class="glossary">observation</dt>
-<dd class="glossary"></dd>
+<dd class="glossary">A value or property of a specific member of a population.</dd>
 <dt id="off_by_one_error" class="glossary">off-by-one error</dt>
 <dd class="glossary">A common error in programming in which the program refers to element <code>i</code> of a structure when it should refer to element <code>i-1</code> or <code>i+1</code>, or processes <code>N</code> elements when it should process <code>N-1</code> or <code>N+1</code>.</dd>
 <dt id="operating_system" class="glossary">operating system</dt>
@@ -308,6 +312,8 @@
 <dd class="glossary">FIXME</dd>
 <dt id="query_string" class="glossary">query string</dt>
 <dd class="glossary">The portion of a <g key="url">URL</g> after the quesiton mark <code>?</code> that specifies extra parameters for the <g key="http_request">HTTP request</g> as name-value pairs.</dd>
+<dt id="r_markdown" class="glossary">R Markdown</dt>
+<dd class="glossary">A dialect of <g key="markdown">Markdown</g> that allows authors to mix prose and code (usually written in R) in a single document. Cf. <g key="literate_programming">literate programming</g>.</dd>
 <dt id="raise_exception" class="glossary">raise (an exception)</dt>
 <dd class="glossary">To signal that something unexpected or unusual has happened in a program by creating an <g key="exception">exception</g> and handing it to the error-handling system, which then tries to find a point in the program that will <g key="catch_exception">catch</g> it.</dd>
 <dt id="record" class="glossary">record</dt>
@@ -319,7 +325,7 @@
 <dt id="root_tree" class="glossary">root (in a tree)</dt>
 <dd class="glossary">The node in a tree of which all other nodes are direct or indirect <g key="child_tree">children</g>, or equivalently the only node in the tree that has no <g key="parent_tree">parent</g>.</dd>
 <dt id="s3" class="glossary">S3</dt>
-<dd class="glossary">A framework for object-oriented programming in R.</dd>
+<dd class="glossary">A framework for <g key="oop">object-oriented programming</g> in R.</dd>
 <dt id="sandbox" class="glossary">sandbox</dt>
 <dd class="glossary">A testing environment that is separate from the production system, or an environment that is only allowed to perform a restricted set of operations for security reasons.</dd>
 <dt id="schema" class="glossary">schema</dt>
@@ -395,7 +401,7 @@
 <dt id="utf_8" class="glossary">UTF-8</dt>
 <dd class="glossary">A way to store the numeric codes representing Unicode characters in memory that is <g key="backward_compatible">backward-compatible</g> with the older <g key="ascii">ASCII</g> standard.</dd>
 <dt id="variable_data" class="glossary">variable (data)</dt>
-<dd class="glossary"></dd>
+<dd class="glossary">Some attribute of a population that can be measured or observed.</dd>
 <dt id="variable_program" class="glossary">variable (program)</dt>
 <dd class="glossary">A name in a program that has some data associated with it. A variable's value can be changed after definition.</dd>
 <dt id="visitor_pattern" class="glossary">Visitor pattern</dt>

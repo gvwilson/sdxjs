@@ -115,14 +115,18 @@ const getRequired = (options, gloss) => {
     if (!(key in gloss)) {
       console.error('MISSING', key)
     } else {
-      const matches = [...gloss[key].en.def.matchAll(/\(#(.+?)\)/g)]
-      matches.forEach(match => {
-        const newKey = match[1]
-        if (!result.has(newKey) && !pending.has(newKey)) {
-          pending.add(newKey)
-          queue.push(newKey)
-        }
-      })
+      try {
+        const matches = [...gloss[key].en.def.matchAll(/\(#(.+?)\)/g)]
+        matches.forEach(match => {
+          const newKey = match[1]
+          if (!result.has(newKey) && !pending.has(newKey)) {
+            pending.add(newKey)
+            queue.push(newKey)
+          }
+        })
+      } catch (e) {
+        console.error(`error processing key ${key}: ${e}`)
+      }
     }
   }
   return result

@@ -142,3 +142,9 @@
 -   And since we're allowing plugins to add state, we should provide a method for that
 
 <%- include('/inc/file.html', {file: 'dirty-editor.js'}) %>
+
+-   Avoids the problem of <g key="circular_dependency">circular dependency</g> discussed in <xref key="module-bundler"></xref>
+    by having plugins manipulate the editor without loading it
+    -   Works because JavaScript looks methods up dynamically
+    -   In a stricter language, we would define an <g key="abstract_base_class">abstract base class</a> for the editor
+        that both the actual editor and the plugins could depend on
