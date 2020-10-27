@@ -148,3 +148,30 @@
     -   Works because JavaScript looks methods up dynamically
     -   In a stricter language, we would define an <g key="abstract_base_class">abstract base class</a> for the editor
         that both the actual editor and the plugins could depend on
+
+## How can we replay operations?
+
+-   Many editors allow us to record keystrokes and play them back
+    -   And to save recorded operations for re-use, but we won't go that far
+-   Can't quite be done with a plugin
+    -   Have to intercept keystrokes and recorded them for all handlers
+-   Add two pieces of state to the editor
+    -   `isRecording` tells the editor whether or not to save keystrokes
+    -   `recordedOperations` is the most recently saved operations
+-   Modified editor
+    -   Parent class does the work of handling the keystroke
+
+<%- include('/inc/file.html', {file: 'replay-editor.js'}) %>
+
+-   Turning recording on and off
+    -   A toggle: <key>Ctrl-R</key> will turn recording on if it's off and off if it's on
+    -   When we turn it on, we need to clear any accumulated history (restarting)
+
+<%- include('/inc/file.html', {file: 'replay-record.js'}) %>
+
+-   Playback is a little more complicated
+-   If we are recording then stop
+    -   And remove the last entry added to the replay list, because it will be this command
+-   Then re-send every saved keystroke in order
+
+<%- include('/inc/file.html', {file: 'replay-playback.js'}) %>

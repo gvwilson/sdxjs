@@ -595,10 +595,7 @@ module.exports = new class extends KeyBinding {
 <ul>
 <li>And since we're allowing plugins to add state, we should provide a method for that</li>
 </ul>
-<pre title="dirty-editor.js"><code class="language-js">const fs = require('fs')
-const yaml = require('js-yaml')
-
-const InitEditor = require('./init-editor')
+<pre title="dirty-editor.js"><code class="language-js">const InitEditor = require('./init-editor')
 
 class DirtyEditor extends InitEditor {
   addState (name, initialValue) {
@@ -620,6 +617,101 @@ that both the actual editor and the plugins could depend on</li>
 </ul>
 </li>
 </ul>
+<h2 id="how-can-we-replay-operations">How can we replay operations?</h2>
+<ul>
+<li>Many editors allow us to record keystrokes and play them back
+<ul>
+<li>And to save recorded operations for re-use, but we won't go that far</li>
+</ul>
+</li>
+<li>Can't quite be done with a plugin
+<ul>
+<li>Have to intercept keystrokes and recorded them for all handlers</li>
+</ul>
+</li>
+<li>Add two pieces of state to the editor
+<ul>
+<li><code>isRecording</code> tells the editor whether or not to save keystrokes</li>
+<li><code>recordedOperations</code> is the most recently saved operations</li>
+</ul>
+</li>
+<li>Modified editor
+<ul>
+<li>Parent class does the work of handling the keystroke</li>
+</ul>
+</li>
+</ul>
+<pre title="replay-editor.js"><code class="language-js">const DirtyEditor = require('./dirty-editor')
+
+class ReplayEditor extends DirtyEditor {
+  constructor (args) {
+    super(args)
+    this.isRecording = false
+    this.recordedOperations = null
+  }
+
+  onKey (key, matches, data) {
+    if (this.isRecording) {
+      this.recordedOperations.push([key, matches, data])
+    }
+    super.onKey(key, matches, data)
+  }
+}
+
+module.exports = ReplayEditor
+</code></pre>
+<ul>
+<li>Turning recording on and off
+<ul>
+<li>A toggle: <key>Ctrl-R</key> will turn recording on if it's off and off if it's on</li>
+<li>When we turn it on, we need to clear any accumulated history (restarting)</li>
+</ul>
+</li>
+</ul>
+<pre title="replay-record.js"><code class="language-js">const KeyBinding = require('./init-key-binding')
+
+module.exports = new class extends KeyBinding {
+  constructor () {
+    super('CTRL_R')
+  }
+
+  run (editor, key) {
+    if (editor.isRecording) {
+      editor.isRecording = false
+    } else {
+      editor.isRecording = true
+      editor.recordedOperations = []
+    }
+  }
+}()
+</code></pre>
+<ul>
+<li>Playback is a little more complicated</li>
+<li>If we are recording then stop
+<ul>
+<li>And remove the last entry added to the replay list, because it will be this command</li>
+</ul>
+</li>
+<li>Then re-send every saved keystroke in order</li>
+</ul>
+<pre title="replay-playback.js"><code class="language-js">const KeyBinding = require('./init-key-binding')
+
+module.exports = new class extends KeyBinding {
+  constructor () {
+    super('CTRL_P')
+  }
+
+  run (editor, key) {
+    if (editor.isRecording) {
+      editor.isRecording = false
+      editor.recordedOperations.pop() // to get rid of this command
+    }
+    if (editor.recordedOperations) {
+      editor.recordedOperations.forEach(op =&gt; editor.onKey(...op))
+    }
+  }
+}()
+</code></pre>
 </main>
 <footer>
 <div class="row">

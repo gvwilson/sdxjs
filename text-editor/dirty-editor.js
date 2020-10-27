@@ -1,6 +1,3 @@
-const fs = require('fs')
-const yaml = require('js-yaml')
-
 const InitEditor = require('./init-editor')
 
 class DirtyEditor extends InitEditor {
