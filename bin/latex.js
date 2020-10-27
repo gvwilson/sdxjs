@@ -246,6 +246,10 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
   } else if (node.nodeName === 'img') {
     const src = getAttr(node, 'src')
     accum.push(`\\image{${src}}`)
+  } else if (node.nodeName === 'key') {
+    accum.push('\\keystroke{')
+    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    accum.push('}')
   } else if (node.nodeName === 'li') {
     accum.push('\\item ')
     node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
