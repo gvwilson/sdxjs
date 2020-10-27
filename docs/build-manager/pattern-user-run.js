@@ -1,5 +1,3 @@
-const graphlib = require('@dagrejs/graphlib')
-
 const PatternUserRead = require('./pattern-user-read')
 
 class PatternUserRun extends PatternUserRead {
