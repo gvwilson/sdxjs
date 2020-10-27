@@ -15,6 +15,7 @@ const IGNORES = {
   dt: new Set(['id']),
   g: new Set(['key']),
   h2: new Set(['id']),
+  img: new Set(['src']),
   li: new Set(['id']),
   pre: new Set(['title']),
   xref: new Set(['key'])

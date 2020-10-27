@@ -79,6 +79,10 @@ bib.md: bin/bib.js bib.yml
 	--input bib.yml \
 	--output bib.md
 
+## catalog: list all nodes and attributes
+catalog:
+	bin/catalog.js --ignore --input ${HTML}
+
 ## examples: rebuild all examples in sub-directories
 examples:
 	@for d in ${SUBMAKEDIR}; do echo ""; echo $$d; make -C $$d; done
