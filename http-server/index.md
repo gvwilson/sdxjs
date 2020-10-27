@@ -97,12 +97,11 @@ modeled on [this one in Python][500lines-server].
 ## How can we make servers easier to create?
 
 -   Define a base class to wrap up the socket handling and request parsing
-    -   Sequence is:
-        -   Parse request to create request object
-        -   Initialize response object using values from request
-        -   Call a user-defined method to do something useful
-        -   Finalize the response object
-        -   Send the header and body
+    -   Parse request to create request object
+    -   Initialize response object using values from request
+    -   Call a user-defined method to do something useful
+    -   Finalize the response object
+    -   Send the header and body
     -   A <g key="protocol">protocol</g> for handling requests
     -   A simple example of the <g key="template_method_pattern">Template Method</g> pattern
 -   Use the [url][node-url] package to parse the request target
