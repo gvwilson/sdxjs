@@ -4,7 +4,7 @@
 
 const argparse = require('argparse')
 const fs = require('fs')
-const parse5 = require('parse5')
+const htmlparser2 = require('htmlparser2')
 
 /**
  * Nodes to ignore.
@@ -19,10 +19,22 @@ const main = () => {
   const known = new Set()
   options.input.forEach(filename => {
     const text = fs.readFileSync(filename, 'utf-8')
-    const doc = parse5.parse(text, { sourceCodeLocationInfo: true })
+    const doc = htmlparser2.parseDOM(text)[0]
     getWords(doc, known)
   })
-  for (const word of known) {
+  const sorted = [...known]
+  sorted.sort((left, right) => {
+    left = left.toLowerCase()
+    right = right.toLowerCase()
+    if (left < right) {
+      return -1
+    }
+    if (left > right) {
+      return 1
+    }
+    return 0
+  })
+  for (const word of sorted) {
     console.log(word)
   }
 }
@@ -43,17 +55,15 @@ const getOptions = () => {
  * @param {Set} accum Accumulator.
  */
 const getWords = (node, accum) => {
-  if (IGNORE.has(node.nodeName)) {
-    // do nothing
-  } else if ('childNodes' in node) {
-    node.childNodes.forEach(child => getWords(child, accum))
-  } else if (node.nodeName === '#text') {
-    node.value.split(/\s+/g).forEach(word => {
+  if (node.type === 'text') {
+    node.data.split(/\s+/g).forEach(word => {
       const tidied = tidy(word)
       if (tidied) {
         accum.add(tidied)
       }
     })
+  } else if (!IGNORE.has(node.name)) {
+    node.children.forEach(child => getWords(child, accum))
   }
 }
 

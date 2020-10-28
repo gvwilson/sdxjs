@@ -10,7 +10,7 @@ class Visitor {
       node = this.root
     }
     if (this.open(node)) {
-      node.childNodes.forEach(child => {
+      node.children.forEach(child => {
         this.walk(child)
       })
     }

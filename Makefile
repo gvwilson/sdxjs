@@ -41,12 +41,26 @@ SUBMAKEDIR=$(patsubst %/Makefile,%,$(wildcard */Makefile))
 .DEFAULT: commands
 
 ## commands: show available commands
-commands :
+commands:
 	@grep -h -E '^##' ${MAKEFILE_LIST} | sed -e 's/## //g' | column -t -s ':'
+
+## html: rebuild html
+html: docs/index.html docs/numbering.js docs/static/site.css docs/static/site.js
 
 ## serve: run a server on port 4000
 serve: docs/index.html
 	@npm run serve
+
+## pdf: rebuild PDF
+pdf: book.pdf
+
+## bib: rebuild bibliography
+bib: bib.md
+
+## gloss: rebuild glossary
+gloss: gloss.md
+
+## ----: ----
 
 ## hygiene: run all checks
 hygiene:
@@ -69,15 +83,8 @@ ejslint:
 standard:
 	@standard ${JAVASCRIPT}
 
-## ----: ----
-
-## bib: rebuild bibliography
-bib: bib.md
-
-bib.md: bin/bib.js bib.yml
-	bin/bib.js \
-	--input bib.yml \
-	--output bib.md
+## latex: rebuild LaTeX file (use 'make pdf' for book)
+latex: book.tex
 
 ## catalog: list all nodes and attributes
 catalog:
@@ -91,46 +98,9 @@ examples:
 erase:
 	@for d in ${SUBMAKEDIR}; do echo ""; echo $$d; make -C $$d erase; done
 
-## gloss: rebuild glossary
-gloss: gloss.md
-
-gloss.md: gloss.yml bin/gloss.js $(filter-out gloss.md,${MARKDOWN})
-	bin/gloss.js \
-	--glosario \
-	--input gloss.yml \
-	--output gloss.md \
-	--sources index.md $(patsubst %,%/index.md,${SLUGS})
-
-## html: rebuild html
-html: docs/index.html docs/numbering.js docs/static/site.css docs/static/site.js
-
-docs/index.html docs/numbering.js docs/static/site.css docs/static/site.js: bin/html.js config.yml links.yml ${MARKDOWN} static/site.css static/site.js
-	bin/html.js \
-	--rootDir . \
-	--outputDir docs \
-	--configFile config.yml \
-	--linksFile links.yml \
-	--replaceDir
-
-## latex: rebuild LaTeX file (use 'make pdf' for book)
-latex: book.tex
-
-book.tex: bin/latex.js docs/index.html ${TEX}
-	bin/latex.js \
-	--config config.yml \
-	--htmlDir docs \
-	--outputFile book.tex \
-	--head tex/head.tex \
-	--foot tex/foot.tex \
-	--numbering docs/numbering.js
-
-## pdf: rebuild PDF
-pdf: book.pdf
-
-book.pdf: book.tex
-	@pdflatex book && pdflatex book
-
-## ----: ----
+## wordlist: what words are used in prose?
+wordlist:
+	bin/wordlist.js --input ${HTML}
 
 ## clean: clean up
 clean:
@@ -143,6 +113,40 @@ settings:
 	@echo MARKDOWN = "${MARKDOWN}"
 	@echo HTML = "${HTML}"
 	@echo JAVASCRIPT = "${JAVASCRIPT}"
+
+# --------------------
+
+bib.md: bin/bib.js bib.yml
+	bin/bib.js \
+	--input bib.yml \
+	--output bib.md
+
+gloss.md: gloss.yml bin/gloss.js $(filter-out gloss.md,${MARKDOWN})
+	bin/gloss.js \
+	--glosario \
+	--input gloss.yml \
+	--output gloss.md \
+	--sources index.md $(patsubst %,%/index.md,${SLUGS})
+
+docs/index.html docs/numbering.js docs/static/site.css docs/static/site.js: bin/html.js config.yml links.yml ${MARKDOWN} static/site.css static/site.js
+	bin/html.js \
+	--rootDir . \
+	--outputDir docs \
+	--configFile config.yml \
+	--linksFile links.yml \
+	--replaceDir
+
+book.tex: bin/latex.js docs/index.html ${TEX}
+	bin/latex.js \
+	--config config.yml \
+	--htmlDir docs \
+	--outputFile book.tex \
+	--head tex/head.tex \
+	--foot tex/foot.tex \
+	--numbering docs/numbering.js
+
+book.pdf: book.tex
+	@pdflatex book && pdflatex book
 
 docs/index.html: index.md
 docs/conduct/index.html: CONDUCT.md

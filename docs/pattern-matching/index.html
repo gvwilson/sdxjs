@@ -128,6 +128,11 @@ const firstMatch = (node, selectors) =&gt; {
   assert(selectors.length &gt; 0,
     'Require selector(s)')
 
+  // Not a tag.
+  if (node.type !== 'tag') {
+    return null
+  }
+
   // This node matches.
   if (matchHere(node, selectors[0])) {
     // This is the last selector, so matching worked.
@@ -144,13 +149,11 @@ const firstMatch = (node, selectors) =&gt; {
 }
 
 const firstChildMatch = (node, selectors) =&gt; {
-  // No children.
-  if ((!('childNodes' in node)) || (node.childNodes.length === 0)) {
-    return null
-  }
+  assert(node.type === 'tag',
+    `Should only try to match first child of tags, not ${node.type}`)
 
   // First working match.
-  for (const child of node.childNodes) {
+  for (const child of node.children) {
     const match = firstMatch(child, selectors)
     if (match) {
       return match
@@ -162,24 +165,19 @@ const firstChildMatch = (node, selectors) =&gt; {
 }
 
 const matchHere = (node, selector) =&gt; {
-  let tag = null; let id = null; let cls = null
+  let name = null
+  let id = null
+  let cls = null
   if (selector.includes('#')) {
-    [tag, id] = selector.split('#')
+    [name, id] = selector.split('#')
   } else if (selector.includes('.')) {
-    [tag, cls] = selector.split('.')
+    [name, cls] = selector.split('.')
   } else {
-    tag = selector
+    name = selector
   }
-  return (node.nodeName === tag) &amp;&amp;
-    ((id === null) || (getAttr(node, 'id') === id)) &amp;&amp;
-    ((cls === null) || (getAttr(node, 'class') === cls))
-}
-
-const getAttr = (node, name) =&gt; {
-  const found = node.attrs.filter(attr =&gt; (attr.name === name))
-  assert(found.length &lt; 2,
-         `Node has multiple attributes ${name}`)
-  return (found.length === 0) ? null : found[0].value
+  return (node.name === name) &amp;&amp;
+    ((id === null) || (node.attribs.id === id)) &amp;&amp;
+    ((cls === null) || (node.attribs.class === cls))
 }
 
 module.exports = select
@@ -193,7 +191,7 @@ module.exports = select
 <li><code>firstChildMatch</code> looks through children (if any) for remaining selectors</li>
 <li><code>matchHere</code> handles a single node and selector</li>
 </ul>
-<pre title="simple-selectors-test.js"><code class="language-js">const parse5 = require('parse5')
+<pre title="simple-selectors-test.js"><code class="language-js">const htmlparser2 = require('htmlparser2')
 
 const select = require('./simple-selectors')
 
@@ -218,20 +216,20 @@ const getText = (node) =&gt; {
   if (!node) {
     return 'MISSING NODE'
   }
-  if (!('childNodes' in node)) {
+  if (!('children' in node)) {
     return 'MISSING CHILDREN'
   }
-  if (node.childNodes.length !== 1) {
+  if (node.children.length !== 1) {
     return 'WRONG NUMBER OF CHILDREN'
   }
-  if (node.childNodes[0].nodeName !== '#text') {
+  if (node.children[0].type !== 'text') {
     return 'NOT TEXT'
   }
-  return node.childNodes[0].value
+  return node.children[0].data
 }
 
 const main = () =&gt; {
-  const doc = parse5.parse(HTML)
+  const doc = htmlparser2.parseDOM(HTML)[0]
   const tests = [
     ['p', 'text of first p'],
     ['p#id-01', 'text of p#id-01'],

@@ -1,9 +1,7 @@
-const getAttr = require('./get-attr')
-
 module.exports = {
   open: (expander, node) => {
     expander.showTag(node, true)
-    expander.output(expander.env.find(getAttr(node, 'q-var')))
+    expander.output(expander.env.find(node.attribs['q-var']))
   },
 
   close: (expander, node) => {

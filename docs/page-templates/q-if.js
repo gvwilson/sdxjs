@@ -1,8 +1,6 @@
-const getAttr = require('./get-attr')
-
 module.exports = {
   open: (expander, node) => {
-    const doRest = expander.env.find(getAttr(node, 'q-if'))
+    const doRest = expander.env.find(node.attribs['q-if'])
     if (doRest) {
       expander.showTag(node, true)
     }
@@ -10,7 +8,7 @@ module.exports = {
   },
 
   close: (expander, node) => {
-    if (expander.env.find(getAttr(node, 'q-if'))) {
+    if (expander.env.find(node.attribs['q-if'])) {
       expander.showTag(node, false)
     }
   }

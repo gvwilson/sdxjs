@@ -5,7 +5,7 @@
 const argparse = require('argparse')
 const assert = require('assert')
 const fs = require('fs')
-const parse5 = require('parse5')
+const htmlparser2 = require('htmlparser2')
 const path = require('path')
 const yaml = require('js-yaml')
 
@@ -85,7 +85,7 @@ const buildFilenames = (options) => {
 const readFile = (fileInfo) => {
   const text = fs.readFileSync(fileInfo.filename, 'utf-8').trim()
   const patched = patchHtml(text)
-  fileInfo.doc = parse5.parse(patched, { sourceCodeLocationInfo: true })
+  fileInfo.doc = htmlparser2.parseDOM(patched)[0]
 }
 
 /**
@@ -128,99 +128,105 @@ const patchHtml = (html) => {
  * @returns {Array<string>} All strings.
  */
 const htmlToLatex = (options, fileInfo, node, accum) => {
-  if (SKIP_ENTIRELY.has(node.nodeName)) {
+  if (node.type === 'text') {
+    accum.push(fullEscape(node.data))
+  } else if (node.type !== 'tag') {
+    assert(false, `unknown node type ${node.type}`)
+  } else if (SKIP_ENTIRELY.has(node.name)) {
     // do nothing
-  } else if (RECURSE_ONLY.has(node.nodeName)) {
-    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
-  } else if (node.nodeName === 'a') {
+  } else if (RECURSE_ONLY.has(node.name)) {
+    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+  } else if (node.name === 'a') {
+    assert('href' in node.attribs,
+           `link without href at ${fileInfo.filename} ${node.startIndex}`)
     accum.push('\\hreffoot{')
-    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}{')
-    accum.push(fullEscape(getAttr(node, 'href')))
+    accum.push(fullEscape(node.attribs['href']))
     accum.push('}')
-  } else if (node.nodeName === 'blockquote') {
-    const cls = getAttr(node, 'class')
+  } else if (node.name === 'blockquote') {
+    const cls = node.attribs['class']
     if (cls === 'aside') {
       accum.push('\\begin{aside}')
-      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push('\\end{aside}')
     } else {
       accum.push('\\begin{quotation}')
-      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push('\\end{quotation}')
     }
-  } else if (node.nodeName === 'cite') {
+  } else if (node.name === 'cite') {
     accum.push('\\cite{')
-    node.childNodes.forEach(child => htmlToText(child, accum, fullEscape))
+    node.children.forEach(child => htmlToText(child, accum, fullEscape))
     accum.push('}')
-  } else if (node.nodeName === 'code') {
+  } else if (node.name === 'code') {
     accum.push('\\texttt{')
-    node.childNodes.forEach(child => htmlToText(child, accum, fullEscape))
+    node.children.forEach(child => htmlToText(child, accum, fullEscape))
     accum.push('}')
-  } else if (node.nodeName === 'div') {
-    const cls = getAttr(node, 'class')
+  } else if (node.name === 'div') {
+    const cls = node.attribs['class']
     if (cls === 'html-only') {
       // skip
     } else if (cls === 'latex-only') {
-      node.childNodes.forEach(child => {
-        assert(child.nodeName === '#text',
+      node.children.forEach(child => {
+        assert(child.type === 'text',
           'latex-only divs may only contain text')
-        accum.push(child.value)
+        accum.push(child.data)
       })
     } else if (cls === 'subpage') {
       accum.push('\\begin{lstlisting}[caption=FIXME]\n')
       accum.push('FIXME display sub-page')
       accum.push('\\end{lstlisting}')
     } else {
-      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     }
-  } else if (node.nodeName === 'dd') {
-    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
-  } else if (node.nodeName === 'dl') {
-    const cls = getAttr(node, 'class')
+  } else if (node.name === 'dd') {
+    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+  } else if (node.name === 'dl') {
+    const cls = node.attribs['class']
     if (cls === 'bibliography') {
       accum.push('\\begin{thebibliography}{ABCD}')
-      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push('\\end{thebibliography}')
     } else {
       accum.push('\\begin{description}')
-      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push('\\end{description}')
     }
-  } else if (node.nodeName === 'dt') {
-    const cls = getAttr(node, 'class')
+  } else if (node.name === 'dt') {
+    const cls = node.attribs['class']
     if (cls === 'bibliography') {
-      const key = getAttr(node, 'id')
+      const key = node.attribs['id']
       assert(key,
         'Every bibliography item must have an id')
       accum.push('\\bibitem{')
       accum.push(fullEscape(key))
       accum.push('}')
     } else if (cls === 'glossary') {
-      const key = getAttr(node, 'id')
+      const key = node.attribs['id']
       assert(key,
         'Every glossary definition must have an id')
       accum.push('\\glossitem{')
-      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push('}{')
       accum.push(fullEscape(key))
       accum.push('}')
     } else {
       accum.push('\\item[')
-      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push(']')
     }
-  } else if (node.nodeName === 'em') {
+  } else if (node.name === 'em') {
     accum.push('\\emph{')
-    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}')
-  } else if (node.nodeName === 'g') {
+  } else if (node.name === 'g') {
     accum.push('\\glossref{')
-    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}{')
-    accum.push(fullEscape(getAttr(node, 'key')))
+    accum.push(fullEscape(node.attribs['key']))
     accum.push('}')
-  } else if (node.nodeName === 'h1') {
+  } else if (node.name === 'h1') {
     if ('latexBefore' in fileInfo) {
       accum.push(`${fileInfo.latexBefore}\n`)
     }
@@ -230,92 +236,90 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
       accum.push('\\chapter{Introduction}\\label{introduction}')
     } else {
       accum.push('\\chapter{')
-      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push('}\\label{')
       accum.push(fileInfo.slug)
       accum.push('}')
     }
-  } else if (node.nodeName === 'h2') {
+  } else if (node.name === 'h2') {
     accum.push('\\section{')
-    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}')
-  } else if (node.nodeName === 'h3') {
+  } else if (node.name === 'h3') {
     accum.push('\\subsection*{')
-    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}')
-  } else if (node.nodeName === 'img') {
-    const src = getAttr(node, 'src')
+  } else if (node.name === 'img') {
+    const src = node.attribs['src']
     accum.push(`\\image{${src}}`)
-  } else if (node.nodeName === 'key') {
+  } else if (node.name === 'key') {
     accum.push('\\keystroke{')
-    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}')
-  } else if (node.nodeName === 'li') {
+  } else if (node.name === 'li') {
     accum.push('\\item ')
-    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
-  } else if (node.nodeName === 'ol') {
+    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+  } else if (node.name === 'ol') {
     accum.push('\\begin{enumerate}')
-    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('\\end{enumerate}')
-  } else if (node.nodeName === 'p') {
-    const cls = getAttr(node, 'class')
+  } else if (node.name === 'p') {
+    const cls = node.attribs['class']
     accum.push('\n')
     if (cls === 'lede') {
       accum.push('\\lede{')
-      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push('}')
     } else if (cls === 'aside') {
       accum.push('\\asidetitle{')
-      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push('}')
     } else {
-      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     }
-  } else if (node.nodeName === 'pre') {
-    assert((node.childNodes.length === 1) && (node.childNodes[0].nodeName === 'code'),
+  } else if (node.name === 'pre') {
+    assert((node.children.length === 1) && (node.children[0].name === 'code'),
       'Expect pre to have one code child')
-    const title = getAttr(node, 'title')
+    const title = node.attribs['title']
     const caption = title ? `[caption={${title}}]` : ''
     accum.push(`\\begin{lstlisting}${caption}\n`)
-    node.childNodes[0].childNodes.forEach(child => htmlToText(child, accum, nonAsciiEscape))
+    node.children[0].children.forEach(child => htmlToText(child, accum, nonAsciiEscape))
     accum.push('\\end{lstlisting}')
-  } else if (node.nodeName === 'strong') {
+  } else if (node.name === 'strong') {
     accum.push('\\textbf{')
-    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}')
-  } else if (node.nodeName === 'sub') {
+  } else if (node.name === 'sub') {
     accum.push('\\textsubscript{')
-    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}')
-  } else if (node.nodeName === 'sup') {
+  } else if (node.name === 'sup') {
     accum.push('\\textsuperscript{')
-    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}')
-  } else if (node.nodeName === 'table') {
+  } else if (node.name === 'table') {
     accum.push(tableToLatex(options, fileInfo, node))
-  } else if (node.nodeName === 'td') {
-    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
-  } else if (node.nodeName === 'th') {
-    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
-  } else if (node.nodeName === 'ul') {
+  } else if (node.name === 'td') {
+    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+  } else if (node.name === 'th') {
+    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+  } else if (node.name === 'ul') {
     accum.push('\\begin{itemize}')
-    node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('\\end{itemize}')
-  } else if (node.nodeName === 'xref') {
-    const key = getAttr(node, 'key')
+  } else if (node.name === 'xref') {
+    const key = node.attribs['key']
     assert(key in options.numbering,
            `Unknown cross-reference "${key}"`)
     const text = (options.numbering[key] < 'A') ? `\\chapref{${key}}` : `\\appref{${key}}`
-    if (node.childNodes.length === 0) {
+    if (node.children.length === 0) {
       accum.push(text)
     } else {
-      node.childNodes.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push(` (${text})`)
     }
-  } else if (node.nodeName === '#text') {
-    accum.push(fullEscape(node.value))
   } else {
-    console.error('unknown', node.nodeName, fileInfo.filename, node.sourceCodeLocation.startLine)
+    console.error('unknown', node.name, fileInfo.filename, node.startIndex, '\n', node)
     process.exit(1)
   }
   return accum
@@ -329,14 +333,14 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
  * @returns {string} Table as LaTeX.
  */
 const tableToLatex = (options, fileInfo, node) => {
-  assert(node.nodeName === 'table',
-         `Calling tableToLatex with wrong node type "${node.nodeName}"`)
-  const immediate = node.childNodes.filter(child => child.nodeName === 'tbody')
+  assert(node.name === 'table',
+         `Calling tableToLatex with wrong node type "${node.name}"`)
+  const immediate = node.children.filter(child => child.name === 'tbody')
   assert(immediate.length === 1,
     'Table must contain one tbody')
-  const rows = immediate[0].childNodes
-    .filter(child => child.nodeName === 'tr')
-    .map(row => row.childNodes.filter(cell => (cell.nodeName === 'td') || (cell.nodeName === 'th')))
+  const rows = immediate[0].children
+    .filter(child => child.name === 'tr')
+    .map(row => row.children.filter(cell => (cell.name === 'td') || (cell.name === 'th')))
   const lengths = rows.map(row => row.length)
   assert(lengths.every(len => len === lengths[0]),
     'Require all table rows to have the same number of cells')
@@ -356,10 +360,10 @@ const tableToLatex = (options, fileInfo, node) => {
  * @returns {string} LaTeX.
  */
 const htmlToText = (node, accum, escape) => {
-  if (node.nodeName === '#text') {
-    accum.push(escape(node.value))
-  } else if ('childNodes' in node) {
-    node.childNodes.forEach(child => htmlToText(child, accum, escape))
+  if (node.type === 'text') {
+    accum.push(escape(node.data))
+  } else {
+    node.children.forEach(child => htmlToText(child, accum, escape))
   }
   return accum
 }
@@ -396,19 +400,6 @@ const nonAsciiEscape = (text) => {
     .replace(/«/g, '{\\guillemotleft}')
     .replace(/»/g, '{\\guillemotright}')
     .replace(/©/g, '{\\textcopyright}')
-}
-
-/**
- * Get attribute from node.
- * @param {Object} node Node to search.
- * @param {string} name Attribute name.
- * @returns {string} Attribute value or null.
- */
-const getAttr = (node, name) => {
-  const found = node.attrs.filter(attr => (attr.name === name))
-  assert(found.length < 2,
-         `Node has multiple attributes ${name}`)
-  return (found.length === 0) ? null : found[0].value
 }
 
 // Run program.

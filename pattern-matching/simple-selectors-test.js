@@ -1,4 +1,4 @@
-const parse5 = require('parse5')
+const htmlparser2 = require('htmlparser2')
 
 const select = require('./simple-selectors')
 
@@ -23,20 +23,20 @@ const getText = (node) => {
   if (!node) {
     return 'MISSING NODE'
   }
-  if (!('childNodes' in node)) {
+  if (!('children' in node)) {
     return 'MISSING CHILDREN'
   }
-  if (node.childNodes.length !== 1) {
+  if (node.children.length !== 1) {
     return 'WRONG NUMBER OF CHILDREN'
   }
-  if (node.childNodes[0].nodeName !== '#text') {
+  if (node.children[0].type !== 'text') {
     return 'NOT TEXT'
   }
-  return node.childNodes[0].value
+  return node.children[0].data
 }
 
 const main = () => {
-  const doc = parse5.parse(HTML)
+  const doc = htmlparser2.parseDOM(HTML)[0]
   const tests = [
     ['p', 'text of first p'],
     ['p#id-01', 'text of p#id-01'],

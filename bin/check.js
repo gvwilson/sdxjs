@@ -5,7 +5,7 @@
 const argparse = require('argparse')
 const fs = require('fs')
 const glob = require('glob')
-const parse5 = require('parse5')
+const htmlparser2 = require('htmlparser2')
 const path = require('path')
 const yaml = require('js-yaml')
 
@@ -69,8 +69,8 @@ const loadMarkdown = (options) => {
 const loadHtml = (options) => {
   return options.html.map(filename => {
     const text = fs.readFileSync(filename, 'utf-8').trim()
-    const doc = parse5.parse(text, { sourceCodeLocationInfo: true })
-    return { filename, text, doc }
+    const doc = htmlparser2.parseDOM(text)
+    return { filename, text, doc: doc[0] }
   })
 }
 

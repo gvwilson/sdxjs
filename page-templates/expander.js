@@ -23,21 +23,19 @@ class Expander extends Visitor {
   }
 
   open (node) {
-    if (node.nodeName === '#text') {
-      this.output(node.value)
+    if (node.type === 'text') {
+      this.output(node.data)
       return false
-    }
-
-    if (this.hasHandler(node)) {
+    } else if (this.hasHandler(node)) {
       return this.getHandler(node).open(this, node)
+    } else {
+      this.showTag(node, false)
+      return true
     }
-
-    this.showTag(node, false)
-    return true
   }
 
   close (node) {
-    if (node.nodeName === '#text') {
+    if (node.type === 'text') {
       return
     }
     if (this.hasHandler(node)) {
@@ -48,31 +46,33 @@ class Expander extends Visitor {
   }
 
   hasHandler (node) {
-    return ('attrs' in node) &&
-      node.attrs.some(({ name, value }) => name in this.handlers)
+    for (const name in node.attribs) {
+      if (name in this.handlers) {
+        return true
+      }
+    }
+    return false
   }
 
   getHandler (node) {
-    assert('attrs' in node,
-      'Node does not have attributes')
-    const possible = node.attrs.filter(({ name, value }) => name in this.handlers)
+    const possible = Object.keys(node.attribs).filter(name => name in this.handlers)
     assert(possible.length === 1,
       'Should be exactly one handler')
-    return this.handlers[possible[0].name]
+    return this.handlers[possible[0]]
   }
 
   showTag (node, closing) {
     if (closing) {
-      this.output(`</${node.nodeName}>`)
+      this.output(`</${node.name}>`)
       return
     }
 
-    this.output(`<${node.nodeName}`)
-    node.attrs.forEach(({ name, value }) => {
+    this.output(`<${node.name}`)
+    for (const name in node.attribs) {
       if (!name.startsWith('q-')) {
-        this.output(` ${name}="${value}"`)
+        this.output(` ${name}="${node.attribs[name]}"`)
       }
-    })
+    }
     this.output('>')
   }
 

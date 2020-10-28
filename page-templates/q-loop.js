@@ -1,9 +1,7 @@
-const getAttr = require('./get-attr')
-
 module.exports = {
   open: (expander, node) => {
-    const [indexName, targetName] = getAttr(node, 'q-loop').split(':')
-    node.attrs = node.attrs.filter(attr => attr.name !== 'q-loop')
+    const [indexName, targetName] = node.attribs['q-loop'].split(':')
+    delete node.attribs['q-loop']
     const target = expander.env.find(targetName)
     for (const index of target) {
       expander.env.push({ [indexName]: index })

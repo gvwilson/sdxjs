@@ -85,10 +85,14 @@
 <ul>
 <li>What will a templated page look like?</li>
 </ul>
-<pre title="input-loop.html"><code class="language-html">&lt;p&gt;Expect three items&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li q-loop="item:names"&gt;&lt;span q-var="item"/&gt;&lt;/li&gt;
-&lt;/ul&gt;
+<pre title="input-loop.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;Expect three items&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li q-loop="item:names"&gt;&lt;span q-var="item"/&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
 <ul>
 <li>Take a template, an output stream, and some variables
@@ -109,11 +113,14 @@ console.log(expander.result)
 <ul>
 <li>Output will look like HTML without any traces of how it was created</li>
 </ul>
-<pre title="output-loop.html"><code class="language-html">&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;&lt;p&gt;Expect three items&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;&lt;/span&gt;Johnson&lt;span&gt;&lt;/li&gt;&lt;li&gt;&lt;/span&gt;Vaughan&lt;span&gt;&lt;/li&gt;&lt;li&gt;&lt;/span&gt;Jackson&lt;span&gt;&lt;/li&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/body&gt;&lt;/html&gt;
+<pre title="output-loop.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;Expect three items&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;/span&gt;Johnson&lt;span&gt;&lt;/li&gt;&lt;li&gt;&lt;/span&gt;Vaughan&lt;span&gt;&lt;/li&gt;&lt;li&gt;&lt;/span&gt;Jackson&lt;span&gt;&lt;/li&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
 <h2 id="how-can-we-keep-track-of-values">How can we keep track of values?</h2>
 <ul>
@@ -181,7 +188,7 @@ class Visitor {
       node = this.root
     }
     if (this.open(node)) {
-      node.childNodes.forEach(child =&gt; {
+      node.children.forEach(child =&gt; {
         this.walk(child)
       })
     }
@@ -246,21 +253,19 @@ class Expander extends Visitor {
   }
 
   open (node) {
-    if (node.nodeName === '#text') {
-      this.output(node.value)
+    if (node.type === 'text') {
+      this.output(node.data)
       return false
-    }
-
-    if (this.hasHandler(node)) {
+    } else if (this.hasHandler(node)) {
       return this.getHandler(node).open(this, node)
+    } else {
+      this.showTag(node, false)
+      return true
     }
-
-    this.showTag(node, false)
-    return true
   }
 
   close (node) {
-    if (node.nodeName === '#text') {
+    if (node.type === 'text') {
       return
     }
     if (this.hasHandler(node)) {
@@ -271,31 +276,33 @@ class Expander extends Visitor {
   }
 
   hasHandler (node) {
-    return ('attrs' in node) &amp;&amp;
-      node.attrs.some(({ name, value }) =&gt; name in this.handlers)
+    for (const name in node.attribs) {
+      if (name in this.handlers) {
+        return true
+      }
+    }
+    return false
   }
 
   getHandler (node) {
-    assert('attrs' in node,
-      'Node does not have attributes')
-    const possible = node.attrs.filter(({ name, value }) =&gt; name in this.handlers)
+    const possible = Object.keys(node.attribs).filter(name =&gt; name in this.handlers)
     assert(possible.length === 1,
       'Should be exactly one handler')
-    return this.handlers[possible[0].name]
+    return this.handlers[possible[0]]
   }
 
   showTag (node, closing) {
     if (closing) {
-      this.output(`&lt;/${node.nodeName}&gt;`)
+      this.output(`&lt;/${node.name}&gt;`)
       return
     }
 
-    this.output(`&lt;${node.nodeName}`)
-    node.attrs.forEach(({ name, value }) =&gt; {
+    this.output(`&lt;${node.name}`)
+    for (const name in node.attribs) {
       if (!name.startsWith('q-')) {
-        this.output(` ${name}="${value}"`)
+        this.output(` ${name}="${node.attribs[name]}"`)
       }
-    })
+    }
     this.output('&gt;')
   }
 
@@ -316,12 +323,13 @@ module.exports = Expander
 </li>
 </ul>
 <pre title="template.js"><code class="language-js">const fs = require('fs')
-const parse5 = require('parse5')
+const htmlparser2 = require('htmlparser2')
+
 const Expander = require('./expander')
 
 const main = () =&gt; {
   const vars = readJSON(process.argv[2])
-  const doc = readHtml(process.argv[3]).childNodes[0]
+  const doc = readHtml(process.argv[3])
   const expander = new Expander(doc, vars)
   expander.walk()
   console.log(expander.getResult())
@@ -334,7 +342,7 @@ const readJSON = (filename) =&gt; {
 
 const readHtml = (filename) =&gt; {
   const text = fs.readFileSync(filename, 'utf-8')
-  return parse5.parse(text)
+  return htmlparser2.parseDOM(text)[0]
 }
 
 main()
@@ -369,94 +377,146 @@ main()
 </code></pre>
 <pre title="static-text.sh"><code class="language-sh">node template.js vars.json input-static-text.html
 </code></pre>
-<pre title="output-static-text.html"><code class="language-html">&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;
+<pre title="output-static-text.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
     &lt;h1&gt;Only Static Text&lt;/h1&gt;
     &lt;p&gt;This document only contains:&lt;/p&gt;
     &lt;ul&gt;
       &lt;li&gt;static&lt;/li&gt;
       &lt;li&gt;text&lt;/li&gt;
     &lt;/ul&gt;
-  
-
-&lt;/body&gt;&lt;/html&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
-<div class="subpage" title="output-static-text.html"><html><head></head><body>
+<div class="subpage" title="output-static-text.html"><html>
+  <body>
     <h1>Only Static Text</h1>
     <p>This document only contains:</p>
     <ul>
       <li>static</li>
       <li>text</li>
     </ul>
-</body></html>
+  </body>
+</html>
 </div>
 <ul>
 <li>Single constant should be substituted</li>
 </ul>
-<pre title="input-single-constant.html"><code class="language-html">&lt;p&gt;&lt;span q-num="123"/&gt;&lt;/p&gt;
+<pre title="input-single-constant.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;&lt;span q-num="123"/&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
-<pre title="output-single-constant.html"><code class="language-html">&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;&lt;p&gt;&lt;/span&gt;123&lt;span&gt;&lt;/p&gt;
-&lt;/body&gt;&lt;/html&gt;
+<pre title="output-single-constant.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;&lt;/span&gt;123&lt;span&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
-<div class="subpage" title="output-single-constant.html"><html><head></head><body><p></span>123<span></p>
-</body></html>
+<div class="subpage" title="output-single-constant.html"><html>
+  <body>
+    <p></span>123<span></p>
+  </body>
+</html>
 </div>
 <ul>
 <li>Single variable should be substituted</li>
 </ul>
-<pre title="input-single-variable.html"><code class="language-html">&lt;p&gt;&lt;span q-var="variableName"/&gt;&lt;/p&gt;
+<pre title="input-single-variable.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;&lt;span q-var="variableName"/&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
-<pre title="output-single-variable.html"><code class="language-html">&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;&lt;p&gt;&lt;/span&gt;variableValue&lt;span&gt;&lt;/p&gt;
-&lt;/body&gt;&lt;/html&gt;
+<pre title="output-single-variable.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;&lt;/span&gt;variableValue&lt;span&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
-<div class="subpage" title="output-single-variable.html"><html><head></head><body><p></span>variableValue<span></p>
-</body></html>
+<div class="subpage" title="output-single-variable.html"><html>
+  <body>
+    <p></span>variableValue<span></p>
+  </body>
+</html>
 </div>
 <ul>
 <li>Expand multiple variables</li>
 </ul>
-<pre title="input-multiple-variables.html"><code class="language-html">&lt;p&gt;&lt;span q-var="firstVariable" /&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span q-var="secondVariable" /&gt;&lt;/p&gt;
+<pre title="input-multiple-variables.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;&lt;span q-var="firstVariable" /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;span q-var="secondVariable" /&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
-<pre title="output-multiple-variables.html"><code class="language-html">&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;&lt;p&gt;&lt;/span&gt;firstvalue&lt;span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;/span&gt;secondValue&lt;span&gt;&lt;/p&gt;
-&lt;/body&gt;&lt;/html&gt;
+<pre title="output-multiple-variables.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;&lt;/span&gt;firstvalue&lt;span&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;/span&gt;secondValue&lt;span&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
-<div class="subpage" title="output-multiple-variables.html"><html><head></head><body><p></span>firstvalue<span></p>
-<p></span>secondValue<span></p>
-</body></html>
+<div class="subpage" title="output-multiple-variables.html"><html>
+  <body>
+    <p></span>firstvalue<span></p>
+    <p></span>secondValue<span></p>
+  </body>
+</html>
 </div>
 <ul>
 <li>Conditional expression</li>
 </ul>
-<pre title="input-conditional.html"><code class="language-html">&lt;p q-if="showThis"&gt;This should be shown.&lt;/p&gt;
-&lt;p q-if="doNotShowThis"&gt;This should &lt;em&gt;not&lt;/em&gt; be shown.&lt;/p&gt;
+<pre title="input-conditional.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p q-if="showThis"&gt;This should be shown.&lt;/p&gt;
+    &lt;p q-if="doNotShowThis"&gt;This should &lt;em&gt;not&lt;/em&gt; be shown.&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
-<pre title="output-conditional.html"><code class="language-html">&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;&lt;/p&gt;This should be shown.&lt;p&gt;
-
-&lt;/body&gt;&lt;/html&gt;
+<pre title="output-conditional.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;/p&gt;This should be shown.&lt;p&gt;
+    
+  &lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
-<div class="subpage" title="output-conditional.html"><html><head></head><body></p>This should be shown.<p>
-</body></html>
+<div class="subpage" title="output-conditional.html"><html>
+  <body>
+    </p>This should be shown.<p>
+  </body>
+</html>
 </div>
 <ul>
 <li>Loop</li>
 </ul>
-<pre title="input-loop.html"><code class="language-html">&lt;p&gt;Expect three items&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li q-loop="item:names"&gt;&lt;span q-var="item"/&gt;&lt;/li&gt;
-&lt;/ul&gt;
+<pre title="input-loop.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;Expect three items&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li q-loop="item:names"&gt;&lt;span q-var="item"/&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
-<pre title="output-loop.html"><code class="language-html">&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;&lt;p&gt;Expect three items&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;&lt;/span&gt;Johnson&lt;span&gt;&lt;/li&gt;&lt;li&gt;&lt;/span&gt;Vaughan&lt;span&gt;&lt;/li&gt;&lt;li&gt;&lt;/span&gt;Jackson&lt;span&gt;&lt;/li&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/body&gt;&lt;/html&gt;
+<pre title="output-loop.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;Expect three items&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;/span&gt;Johnson&lt;span&gt;&lt;/li&gt;&lt;li&gt;&lt;/span&gt;Vaughan&lt;span&gt;&lt;/li&gt;&lt;li&gt;&lt;/span&gt;Jackson&lt;span&gt;&lt;/li&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
-<div class="subpage" title="output-loop.html"><html><head></head><body><p>Expect three items</p>
-<ul>
-  <li></span>Johnson<span></li><li></span>Vaughan<span></li><li></span>Jackson<span></li></li>
-</ul>
-</body></html>
+<div class="subpage" title="output-loop.html"><html>
+  <body>
+    <p>Expect three items</p>
+    <ul>
+      <li></span>Johnson<span></li><li></span>Vaughan<span></li><li></span>Jackson<span></li></li>
+    </ul>
+  </body>
+</html>
 </div>
 </main>
 <footer>

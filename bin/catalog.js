@@ -4,7 +4,7 @@
 
 const argparse = require('argparse')
 const fs = require('fs')
-const parse5 = require('parse5')
+const htmlparser2 = require('htmlparser2')
 const yaml = require('js-yaml')
 
 /**
@@ -53,8 +53,7 @@ const getOptions = () => {
  */
 const process = (filename, result, ignores) => {
   const text = fs.readFileSync(filename, 'utf-8').trim()
-  const doc = parse5.parse(text, { sourceCodeLocationInfo: true })
-  recurse(doc, result, ignores)
+  htmlparser2.parseDOM(text).forEach(doc => recurse(doc, result, ignores))
   return result
 }
 
@@ -65,27 +64,27 @@ const process = (filename, result, ignores) => {
  * @param {Boolean} ignores What to ignore.
  */
 const recurse = (node, result, ignores) => {
+  // Not a tag.
+  if (node.type !== 'tag') {
+    return
+  }
   // Entry with this node name.
-  const tag = node.nodeName
+  const tag = node.name
   if (!(tag in result)) {
     result[tag] = {}
   }
   // Attributes.
-  if ('attrs' in node) {
-    node.attrs.forEach(({ name, value }) => {
-      if ((tag in ignores) && ignores[tag].has(name)) {
-        return // ignore
-      }
-      if (!(name in result[tag])) {
-        result[tag][name] = new Set()
-      }
-      result[tag][name].add(value)
-    })
+  for (const name in node.attribs) {
+    if ((tag in ignores) && ignores[tag].has(name)) {
+      return // ignore
+    }
+    if (!(name in result[tag])) {
+      result[tag][name] = new Set()
+    }
+    result[tag][name].add(node.attribs[name])
   }
   // Look further down.
-  if ('childNodes' in node) {
-    node.childNodes.forEach(child => recurse(child, result, ignores))
-  }
+  node.children.forEach(child => recurse(child, result, ignores))
 }
 
 /**
