@@ -323,7 +323,7 @@
 <dt id="regular_expression" class="glossary">regular expression</dt>
 <dd class="glossary">A pattern for matching text, written as text itself. Regular expressions are sometimes called &quot;regexp&quot;, &quot;regex&quot;, or &quot;RE&quot;, and are as powerful as they are cryptic.</dd>
 <dt id="relational_database" class="glossary">relational database</dt>
-<dd class="glossary">A database that organizes information into tables, each of which has a fixed set of named fields (shown as columns) and a variable number of records (shown as rows).</dd>
+<dd class="glossary">A database that organizes information into <g key="table">tables</g>, each of which has a fixed set of named <g key="field">fields</g> (shown as columns) and a variable number of <g key="record">records</g> (shown as rows).</dd>
 <dt id="root_tree" class="glossary">root (in a tree)</dt>
 <dd class="glossary">The node in a tree of which all other nodes are direct or indirect <g key="child_tree">children</g>, or equivalently the only node in the tree that has no <g key="parent_tree">parent</g>.</dd>
 <dt id="s3" class="glossary">S3</dt>
