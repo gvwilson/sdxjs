@@ -25,14 +25,16 @@
         -   Allows us to give short nicknames to meaningfully-named libraries
     -   Use `library.component` to refer to things in the library
 
-> **`require` versus `import`**
->
-> In 2015, a new version of JavaScript called ES6 introduced the keyword `import` for importing modules.
-> It improves on `require` in several ways, but Node still uses `require` by default.
-> We can change our settings to use `import` instead,
-> but even if we do,
-> Node prints a warning message each time we run a program.
-> We have therefore decided to stick to `require` in this book.
+::: callout
+`require` versus `import`
+
+In 2015, a new version of JavaScript called ES6 introduced the keyword `import` for importing modules.
+It improves on `require` in several ways, but Node still uses `require` by default.
+We can change our settings to use `import` instead,
+but even if we do,
+Node prints a warning message each time we run a program.
+We have therefore decided to stick to `require` in this book.
+:::
 
 -   Use the [`fs`][node-fs] library ("fs" is short for "<g key="filesystem">filesystem</g>")
     -   Contains functions to create directories, read or delete files, etc.
@@ -145,21 +147,23 @@ FIXME: diagram
     -   "Simple enough" means "only contains letters, digits, and the underscore"
     -   Or equivalently "looks like it could be a variable name"
 
-> **No one knows everything**
->
-> We combined `glob.glob` and `Array.filter` in our functions for more than a year
-> before someone pointed out the `ignore` option for `glob.glob`.
-> This shows:
->
-> 1.  Life is short,
->     so most of us find a way to solve the problem in front of us
->     and re-use it rather than looking for something better.
->
-> 2.  Code reviews aren't just about finding bugs:
->     they are also the most effective way to transfer knowledge between programmers.
->     Even if someone is much more experienced than you,
->     there's a good chance you might have stumbled over a better way to do something
->     than the one they're using (see point #1 above).
+::: callout
+No one knows everything
+
+We combined `glob.glob` and `Array.filter` in our functions for more than a year
+before someone pointed out the `ignore` option for `glob.glob`.
+This shows:
+
+1.  Life is short,
+    so most of us find a way to solve the problem in front of us
+    and re-use it rather than looking for something better.
+
+2.  Code reviews aren't just about finding bugs:
+    they are also the most effective way to transfer knowledge between programmers.
+    Even if someone is much more experienced than you,
+    there's a good chance you might have stumbled over a better way to do something
+     than the one they're using (see point #1 above).
+:::
 
 -   Now specify a source directory and fold that into the glob
 

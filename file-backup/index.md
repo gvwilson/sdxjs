@@ -23,19 +23,21 @@
 
 <%- include('/_inc/multi.html', {pat: 'hash-file.*', fill: 'js sh txt'}) %>
 
-> **The Birthday Problem**
->
-> The odds that two people share a birthday are 1/365 (ignoring February 29).
-> The odds that they *don't* are therefore 364/365.
-> When we add a third person,
-> the odds that they don't share a birthday with either of the preceding two people are 363/365,
-> so the overall odds that nobody shares a birthday are (365/365)×(364/365)×(363/365).
-> If we keep calculating, there's a 50% chance of two people sharing a birthday in a group of just 23 people,
-> and a 99.9% chance with 70 people.
->
-> We can use the same math to calculate how many files we need to hash before there's a 50% chance of a collision.
-> Instead of 365, we use 2<sup>160</sup> (the number of values that are 160 bits long),
-> and quickly get into "if every atom in the universe was a file there still wouldn't be collisions" territory.
+::: callout
+The Birthday Problem
+
+The odds that two people share a birthday are 1/365 (ignoring February 29).
+The odds that they *don't* are therefore 364/365.
+When we add a third person,
+the odds that they don't share a birthday with either of the preceding two people are 363/365,
+so the overall odds that nobody shares a birthday are (365/365)×(364/365)×(363/365).
+If we keep calculating, there's a 50% chance of two people sharing a birthday in a group of just 23 people,
+and a 99.9% chance with 70 people.
+
+We can use the same math to calculate how many files we need to hash before there's a 50% chance of a collision.
+Instead of 365, we use 2<sup>160</sup> (the number of values that are 160 bits long),
+and quickly get into "if every atom in the universe was a file there still wouldn't be collisions" territory.
+:::
 
 -   More efficient to process the file as a <g key="stream">stream</g>
     -   Read the file in chunks

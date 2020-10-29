@@ -117,14 +117,16 @@ FIXME: diagram
 
 <%- include('/_inc/multi.html', {pat: 'count-lines-single-file.*', fill: 'js sh txt'}) %>
 
-> **Character encoding**
->
-> A <g key="character_encoding">character encoding</g> specifies how characters are stored as bytes.
-> The most widely used is <g key="utf_8">UTF-8</g>,
-> which stores characters common in Western European languages in a single byte
-> and uses multi-byte sequences for other symbols.
-> If we don't specify a character encoding,
-> `fs.readFileAsync` gives us an array of bytes rather than an array of characters.
+::: callout
+Character encoding
+
+A <g key="character_encoding">character encoding</g> specifies how characters are stored as bytes.
+The most widely used is <g key="utf_8">UTF-8</g>,
+which stores characters common in Western European languages in a single byte
+and uses multi-byte sequences for other symbols.
+If we don't specify a character encoding,
+`fs.readFileAsync` gives us an array of bytes rather than an array of characters.
+:::
 
 -   We can use `glob-promise` to delay handling the output of `glob`
     -   Use `Promise.all` to handle all the promises in an array

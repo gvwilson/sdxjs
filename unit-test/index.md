@@ -91,14 +91,16 @@
 
 <%- include('/_inc/multi.html', {pat: 'pray.*', fill: 'js sh txt'}) %>
 
-> **Filenames in `minimist`**
->
-> If we use a command line like `pray.js -v something.js`,
-> then `something.js` becomes the value of `-v`.
-> To indicate that we want `something.js` added to the list of trailing filenames
-> associated with the special key `_` (a single underscore),
-> we have to write `pray.js -v -- something.js`.
-> The double dash is a common Unix convention for signalling the end of parameters.
+::: callout
+Filenames in `minimist`
+
+If we use a command line like `pray.js -v something.js`,
+then `something.js` becomes the value of `-v`.
+To indicate that we want `something.js` added to the list of trailing filenames
+associated with the special key `_` (a single underscore),
+we have to write `pray.js -v -- something.js`.
+The double dash is a common Unix convention for signalling the end of parameters.
+:::
 
 -   Trace the <g key="lifecycle">lifecycle</g> of a pair of files `test-add.js` and `test-sub.js`
     -   `pray` uses `glob` to find files with tests
