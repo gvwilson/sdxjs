@@ -160,8 +160,6 @@
 <dd class="glossary">The logical (<g key="boolean">Boolean</g>) state opposite of &quot;<g key="true">true</g>&quot;. Used in logic and programming to represent <g key="binary">binary</g> state of something.</dd>
 <dt id="field" class="glossary">field</dt>
 <dd class="glossary">A component of a <g key="record">record</g> containing a single value. Every record in a <g key="tibble">tibble</g> or database <g key="table">table</g> has the same fields.</dd>
-<dt id="filename_extension" class="glossary">filename extension</dt>
-<dd class="glossary">The last part of a filename, usually following the '.' symbol. Filename extensions are commonly used to indicate the type of content in the file, though there is usually no guarantee that this is correct.</dd>
 <dt id="filesystem" class="glossary">filesystem</dt>
 <dd class="glossary">The part of the operating system that manages how files are stored and retrieved. Also used to refer to all of those files and directories or the specific way they are stored (as in &quot;the Unix filesystem&quot;).</dd>
 <dt id="filter" class="glossary">filter</dt>
@@ -188,8 +186,6 @@
 <dd class="glossary">A function that turns arbitrary data into a bit array of a fixed size. Hash functions are used to determine where data should be stored in a <g key="hash_table">hash table</g>.</dd>
 <dt id="hash_table" class="glossary">hash table</dt>
 <dd class="glossary">A data structure that calculates a pseudo-random key for each value and stores the value in that location. Hash tables enable fast lookup for arbitrary data at the cost of extra memory.</dd>
-<dt id="http_header" class="glossary">HTTP header</dt>
-<dd class="glossary">A key-value pair at the top of an <g key="http">HTTP</g> <g key="http_request">request</g> or <g key="http_response">response</g> that carries additional information such as the user's preferred language or the length of the data being transferred.</dd>
 <dt id="http_request" class="glossary">HTTP request</dt>
 <dd class="glossary">A message sent from a <g key="client">client</g> to a <g key="server">server</g> using the <g key="http">HTTP</g> <g key="protocol">protocol</g> asking for data. A request usually asks for a web page, image, or other data.</dd>
 <dt id="http_response" class="glossary">HTTP response</dt>
@@ -250,8 +246,6 @@
 <dd class="glossary">A set of rules for annotating text to define its meaning or how it should be displayed. The markup is usually not displayed, but instead controls how the underlying text is interpreted or shown. <g key="markdown">Markdown</g> and <g key="html">HTML</g> are widely-used markup languages for web pages.</dd>
 <dt id="method" class="glossary">method</dt>
 <dd class="glossary">An implementation of a <g key="generic_function">generic function</g> that handles objects of a specific class.</dd>
-<dt id="mime_type" class="glossary">MIME type</dt>
-<dd class="glossary">A standard way to identify the contents of files on the internet. The term is an acronym of &quot;multi-purpose Internet mail extension&quot;, and MIME types are often identified by <g key="filename_extension">filename extensions</g>, such as <code>.png</code> for PNG-formatted images.</dd>
 <dt id="mock_object" class="glossary">mock object</dt>
 <dd class="glossary">A simplified replacement for part of a program whose behavior is easy to control and predict. Mock objects are used in <g key="unit_test">unit tests</g> to simulate databases, web services, and other complex systems.</dd>
 <dt id="module" class="glossary">module</dt>
@@ -310,8 +304,6 @@
 <dd class="glossary">A popular interpreted open-source programming language that relies on indentation to define control structure.</dd>
 <dt id="query_selector" class="glossary">query selector</dt>
 <dd class="glossary">FIXME</dd>
-<dt id="query_string" class="glossary">query string</dt>
-<dd class="glossary">The portion of a <g key="url">URL</g> after the quesiton mark <code>?</code> that specifies extra parameters for the <g key="http_request">HTTP request</g> as name-value pairs.</dd>
 <dt id="r_language" class="glossary">R (programming language)</dt>
 <dd class="glossary">A popular open source programming language used primarily for data science.</dd>
 <dt id="r_markdown" class="glossary">R Markdown</dt>
@@ -396,8 +388,6 @@
 <dd class="glossary">Refers to a quote by Phil Karlton: &quot;There are only two hard problems in computer science: cache invalidation and naming things.&quot; Many variations add a third problem (most often &quot;<g key="off_by_one_error">off-by-one errors</g>&quot;).</dd>
 <dt id="unicode" class="glossary">Unicode</dt>
 <dd class="glossary">A standard that defines numeric codes for many thousands of characters and symbols. Unicode does not define how those numbers are stored; that is done by standards like <g key="utf_8">UTF-8</g>.</dd>
-<dt id="url" class="glossary">Uniform Resource Locator (URL)</dt>
-<dd class="glossary">A unique address on the World-Wide Web. URLs originally identified web pages, but may also represent datasets or database queries, particularly if they include a <g key="query_string">query string</g>.</dd>
 <dt id="unit_test" class="glossary">unit test</dt>
 <dd class="glossary">A test that exercises one function or feature of a piece of software and produces <g key="pass_test">pass</g>, <g key="fail_test">fail</g>, or <g key="error_test">error</g>.</dd>
 <dt id="utf_8" class="glossary">UTF-8</dt>

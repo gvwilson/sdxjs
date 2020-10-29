@@ -108,12 +108,12 @@ const patchHtml = (html) => {
   }
 
   // Convert blockquotes that are styled like asides.
-  // <blockquote><p><strong>...</strong></p> ... </blockquote>
+  // <div class="callout"><p>...</p> ... </div>
   // =>
-  // <blockquote class="aside"><p class="aside"><strong>...</strong></p> ... </blockquote>
-  html = html.replace(/<blockquote>\s*<p><strong>(.+?)<\/strong><\/p>([^]+?)<\/blockquote>/g,
+  // <div class="callout"><p class="callout">...</p> ... </div>
+  html = html.replace(/<div\s+class="callout">\s*<p>(.+?)<\/p>([^]+?)<\/div>/g,
     (match, first, second) => {
-      return `<blockquote class="aside"><p class="aside">${first}</p>${second}</blockquote>`
+      return `<div class="callout"><p class="callout">${first}</p>${second}</div>`
     })
 
   return html
@@ -142,19 +142,12 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     accum.push('\\hreffoot{')
     node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}{')
-    accum.push(fullEscape(node.attribs['href']))
+    accum.push(fullEscape(node.attribs.href))
     accum.push('}')
   } else if (node.name === 'blockquote') {
-    const cls = node.attribs['class']
-    if (cls === 'aside') {
-      accum.push('\\begin{aside}')
-      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
-      accum.push('\\end{aside}')
-    } else {
-      accum.push('\\begin{quotation}')
-      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
-      accum.push('\\end{quotation}')
-    }
+    accum.push('\\begin{quotation}')
+    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    accum.push('\\end{quotation}')
   } else if (node.name === 'cite') {
     accum.push('\\cite{')
     node.children.forEach(child => htmlToText(child, accum, fullEscape))
@@ -164,7 +157,7 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     node.children.forEach(child => htmlToText(child, accum, fullEscape))
     accum.push('}')
   } else if (node.name === 'div') {
-    const cls = node.attribs['class']
+    const cls = node.attribs.class
     if (cls === 'html-only') {
       // skip
     } else if (cls === 'latex-only') {
@@ -173,6 +166,10 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
           'latex-only divs may only contain text')
         accum.push(child.data)
       })
+    } else if (cls === 'callout') {
+      accum.push('\\begin{callout}')
+      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      accum.push('\\end{callout}')
     } else if (cls === 'subpage') {
       accum.push('\\begin{lstlisting}[caption=FIXME]\n')
       accum.push('FIXME display sub-page')
@@ -183,7 +180,7 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
   } else if (node.name === 'dd') {
     node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
   } else if (node.name === 'dl') {
-    const cls = node.attribs['class']
+    const cls = node.attribs.class
     if (cls === 'bibliography') {
       accum.push('\\begin{thebibliography}{ABCD}')
       node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
@@ -194,16 +191,16 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
       accum.push('\\end{description}')
     }
   } else if (node.name === 'dt') {
-    const cls = node.attribs['class']
+    const cls = node.attribs.class
     if (cls === 'bibliography') {
-      const key = node.attribs['id']
+      const key = node.attribs.id
       assert(key,
         'Every bibliography item must have an id')
       accum.push('\\bibitem{')
       accum.push(fullEscape(key))
       accum.push('}')
     } else if (cls === 'glossary') {
-      const key = node.attribs['id']
+      const key = node.attribs.id
       assert(key,
         'Every glossary definition must have an id')
       accum.push('\\glossitem{')
@@ -224,7 +221,7 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     accum.push('\\glossref{')
     node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}{')
-    accum.push(fullEscape(node.attribs['key']))
+    accum.push(fullEscape(node.attribs.key))
     accum.push('}')
   } else if (node.name === 'h1') {
     if ('latexBefore' in fileInfo) {
@@ -250,7 +247,7 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}')
   } else if (node.name === 'img') {
-    const src = node.attribs['src']
+    const src = node.attribs.src
     accum.push(`\\image{${src}}`)
   } else if (node.name === 'key') {
     accum.push('\\keystroke{')
@@ -264,14 +261,14 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('\\end{enumerate}')
   } else if (node.name === 'p') {
-    const cls = node.attribs['class']
+    const cls = node.attribs.class
     accum.push('\n')
     if (cls === 'lede') {
       accum.push('\\lede{')
       node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push('}')
-    } else if (cls === 'aside') {
-      accum.push('\\asidetitle{')
+    } else if (cls === 'callout') {
+      accum.push('\\callouttitle{')
       node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push('}')
     } else {
@@ -280,7 +277,7 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
   } else if (node.name === 'pre') {
     assert((node.children.length === 1) && (node.children[0].name === 'code'),
       'Expect pre to have one code child')
-    const title = node.attribs['title']
+    const title = node.attribs.title
     const caption = title ? `[caption={${title}}]` : ''
     accum.push(`\\begin{lstlisting}${caption}\n`)
     node.children[0].children.forEach(child => htmlToText(child, accum, nonAsciiEscape))
@@ -308,7 +305,7 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('\\end{itemize}')
   } else if (node.name === 'xref') {
-    const key = node.attribs['key']
+    const key = node.attribs.key
     assert(key in options.numbering,
            `Unknown cross-reference "${key}"`)
     const text = (options.numbering[key] < 'A') ? `\\chapref{${key}}` : `\\appref{${key}}`

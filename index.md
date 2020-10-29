@@ -43,16 +43,41 @@ see <xref key="license"></xref> for details.
     This material will fill those gaps
     and give them starting points for a wide variety of course assignments.
 
-<div class="html-only">
-<h2 id="content">Content</h2>
+## Content
 
 Programmers have invented [a lot of different tools][programming-tools]
 to make their lives easier.
-We don't have space to cover all of them,
-and others, such as interactive debuggers and code-formatting tools,
-are beyond the scope of this book,
-but we hope these will illustrate key ideas in software design.
+Since we don't have space to cover them all,
+we have focused on tools that individual developers would use while writing software.
+We have therefore left out:
 
+-   front-end frameworks
+-   web servers
+-   relational databases
+-   document-oriented databases
+-   object-relational mappers
+-   issue trackers
+-   continuous integration servers
+-   search engines
+-   chat and other real-time collaboration tools
+
+They are all interesting,
+and we hope readers will enjoy this book enough
+to contribute chapters on these topics and others
+to a second volume.
+
+::: callout
+Debuggers
+
+We think interactive debuggers are as important as version control.
+We really wanted to explain how to build one,
+but there are so few descriptions of working debuggers to draw on
+that we weren't able to make progress.
+Again,
+we would be very grateful for contributions.
+:::
+
+<div class="html-only">
 <%- include('/_inc/contents.html') %>
 </div>
 
