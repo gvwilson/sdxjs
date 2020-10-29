@@ -13,7 +13,7 @@
 -   Most functions execute in order
     -   `Array.forEach` does something once for each element of an array but doesn't build a new array like `Array.filter`
 
-<%- include('/inc/multi.html', {pat: 'not-callbacks-alone.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'not-callbacks-alone.*', fill: 'js txt'}) %>
 
 -   A handful of built-in functions delay execution
     -   `setTimeout` runs a callback after a certain number of milliseconds
@@ -22,29 +22,29 @@
 
 FIXME: diagram
 
-<%- include('/inc/multi.html', {pat: 'callbacks-with-timeouts.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'callbacks-with-timeouts.*', fill: 'js txt'}) %>
 
 -   Setting a timeout of zero defers execution without delay
     -   Which gives something else a chance to run
 
-<%- include('/inc/multi.html', {pat: 'callbacks-with-zero-timeouts.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'callbacks-with-zero-timeouts.*', fill: 'js txt'}) %>
 
 -   We can use this to build a generic <g key="non_blocking_execution">non-blocking function</g>
 
-<%- include('/inc/multi.html', {pat: 'non-blocking.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'non-blocking.*', fill: 'js txt'}) %>
 
 -   Why bother?
     -   Because we may want to give something else a chance to run
 -   Node provides `setImmediate` to do this for us
     -   And also `process.nextTick`, which doesn't do quite the same thing
 
-<%- include('/inc/multi.html', {pat: 'set-immediate.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'set-immediate.*', fill: 'js txt'}) %>
 
 ## How do promises work?
 
 -   Start by showing how we want to use it
 
-<%- include('/inc/multi.html', {pat: 'use-pledge-motivation.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'use-pledge-motivation.*', fill: 'js txt'}) %>
 
 -   Create a new `Pledge` with a callback that takes `resolve` (everything worked) and `reject` (something failed)
     -   That top-level callback does the first part of what we want to do (the part before we expect a delay)
@@ -70,7 +70,7 @@ FIXME: diagram
 -   We pass this value to the first `then`, pass the result of that `then` to the second one, etc.
 -   If any of them fail, we pass the <g key="exception">exception</g> to the error handler
 
-<%- include('/inc/file.html', {file: 'pledge.js'}) %>
+<%- include('/_inc/file.html', {file: 'pledge.js'}) %>
 
 -   There is one unfortunate trick: `bind`.
     -   When we create an object `obj` and call a method `meth`, JavaScript sets `this` inside `meth`
@@ -79,7 +79,7 @@ FIXME: diagram
     -   See [the documentation][bind-docs] for details
 -   Let's create a pledge and return a value
 
-<%- include('/inc/multi.html', {pat: 'use-pledge-return.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'use-pledge-return.*', fill: 'js txt'}) %>
 
 -   Why didn't this work?
     1.  We don't use `return` with pledges, we call `resolve` or `reject`
@@ -87,23 +87,23 @@ FIXME: diagram
 -   Our original motivating example got this right…
 -   A more complex example showing how to chain things
 
-<%- include('/inc/multi.html', {pat: 'use-pledge-chained.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'use-pledge-chained.*', fill: 'js txt'}) %>
 
 -   And finally an example where we explicitly signal a problem by calling `reject`
 
-<%- include('/inc/multi.html', {pat: 'use-pledge-reject.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'use-pledge-reject.*', fill: 'js txt'}) %>
 
 ## How are real promises different?
 
 -   Let's rewrite our chained pledge with built-in promises
 
-<%- include('/inc/multi.html', {pat: 'use-promise-chained.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'use-promise-chained.*', fill: 'js txt'}) %>
 
 -   It's almost the same, but the callbacks run after the main script finishes
 -   Common pattern is to return another promise from inside `then`
     -   So the next `then` is called on the returned promise, not on the original promise
 
-<%- include('/inc/multi.html', {pat: 'promise-example.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'promise-example.*', fill: 'js txt'}) %>
 
 1.  If we use a promisified function from the library, we get a promise for free
 2.  If we want to plug in our own asynchronous functions, we need to create promises
@@ -115,7 +115,7 @@ FIXME: diagram
 -   Use the <g key="promisification">promisified</g> version of `fs-extra`
     -   Turns all of the callbacks into promises for us
 
-<%- include('/inc/multi.html', {pat: 'count-lines-single-file.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'count-lines-single-file.*', fill: 'js sh txt'}) %>
 
 > **Character encoding**
 >
@@ -130,14 +130,14 @@ FIXME: diagram
     -   Use `Promise.all` to handle all the promises in an array
     -   For readability, put the creation of the promise in a separate function
 
-<%- include('/inc/multi.html', {pat: 'count-lines-globbed-files.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'count-lines-globbed-files.*', fill: 'js sh txt'}) %>
 
 -   But we want to display filenames as well as counts
 -   So we construct temporary objects that have the information we need downstream
     -   Use object with named fields instead of array with positional values
     -   It allows us to add or move fields without breaking code quite as often
 
-<%- include('/inc/file.html', {file: 'count-lines-print-filenames.js'}) %>
+<%- include('/_inc/file.html', {file: 'count-lines-print-filenames.js'}) %>
 
 -   Works until we run into a directory whose name name matches `*.*`
     -   Which we do in `node_modules`
@@ -146,11 +146,11 @@ FIXME: diagram
     -   So we create a pair to pass down the chain
     -   Use `{filename, stats}` to give the objects keys and values that match up
 
-<%- include('/inc/multi.html', {pat: 'count-lines-with-stat.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'count-lines-with-stat.*', fill: 'js sh txt'}) %>
 
 -   Now make a histogram of how many files are of each length
     -   Only look at `.js` files with the `glob`
 
-<%- include('/inc/multi.html', {pat: 'count-lines-histogram.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'count-lines-histogram.*', fill: 'js sh txt'}) %>
 
 -   This is complex, but a lot simpler than it would be if we were using callbacks

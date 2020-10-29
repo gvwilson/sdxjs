@@ -7,7 +7,7 @@
     -   The text to put in the displayed version
     -   The file to include when loading
 
-<%- include('/inc/file.html', {file: 'interpolation-example.js'}) %>
+<%- include('/_inc/file.html', {file: 'interpolation-example.js'}) %>
 
 ## How can we evaluate JavaScript dynamically?
 
@@ -25,39 +25,39 @@
     -   At the very least, we ought to run it in a <g key="sandbox">sandbox</g>
 -   Evaluate an expression
 
-<%- include('/inc/multi.html', {pat: 'eval-two-plus-two.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'eval-two-plus-two.*', fill: 'js txt'}) %>
 
 -   A more interesting example
     -   The string is different each time
     -   Uses the variables that are in scope when `eval` is called
 
-<%- include('/inc/multi.html', {pat: 'eval-loop.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'eval-loop.*', fill: 'js txt'}) %>
 
 -   Variables created inside `eval` are local to it
 
-<%- include('/inc/multi.html', {pat: 'eval-local-vars.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'eval-local-vars.*', fill: 'js txt'}) %>
 
 -   But `eval` can modify variables outside the text
     -   Just like a function can modify global variables
 
-<%- include('/inc/multi.html', {pat: 'eval-global-vars.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'eval-global-vars.*', fill: 'js txt'}) %>
 
 -   So if we create a structure with a known name, `eval` can modify that
 
-<%- include('/inc/multi.html', {pat: 'eval-global-structure.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'eval-global-structure.*', fill: 'js txt'}) %>
 
 -   It doesn't matter where the text comes from
 -   So we can move the code that does the modifying into `to-be-loaded.js`
 
-<%- include('/inc/file.html', {file: 'to-be-loaded.js'}) %>
+<%- include('/_inc/file.html', {file: 'to-be-loaded.js'}) %>
 
 -   This doesn't work on its own because `Seen` isn't defined
 
-<%- include('/inc/file.html', {file: 'to-be-loaded.txt'}) %>
+<%- include('/_inc/file.html', {file: 'to-be-loaded.txt'}) %>
 
 -   But if we read the file and `eval` the text after defining `Seen`, it does what we want
 
-<%- include('/inc/multi.html', {pat: 'does-the-loading.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'does-the-loading.*', fill: 'js sh txt'}) %>
 
 ## How can we avoid reloading files?
 
@@ -65,16 +65,16 @@
 -   So create a <g key="cache">cache</g> using the <g key="singleton_pattern">Singleton</g> pattern
 -   Loader
 
-<%- include('/inc/file.html', {file: 'need-simple.js'}) %>
+<%- include('/_inc/file.html', {file: 'need-simple.js'}) %>
 
 -   File to import
     -   Final expression is the result of `eval`ing it
 
-<%- include('/inc/file.html', {file: 'import-simple.js'}) %>
+<%- include('/_inc/file.html', {file: 'import-simple.js'}) %>
 
 -   File doing the importing
 
-<%- include('/inc/multi.html', {pat: 'test-simple.*', fill: 'js sh'}) %>
+<%- include('/_inc/multi.html', {pat: 'test-simple.*', fill: 'js sh'}) %>
 
 ## How can we control where our files are loaded from?
 
@@ -89,30 +89,30 @@
     -   But no requirement and no guarantee
 -   A more sophisticated cache
 
-<%- include('/inc/file.html', {file: 'need-path.js'}) %>
+<%- include('/_inc/file.html', {file: 'need-path.js'}) %>
 
 -   To test, put the files to import in the `modules` subdirectory
     -   We could call the directory anything we want
 
-<%- include('/inc/file.html', {file: 'modules/imported-left.js'}) %>
+<%- include('/_inc/file.html', {file: 'modules/imported-left.js'}) %>
 
 -   Put the file doing the importing in current directory
 
-<%- include('/inc/file.html', {file: 'test-import-left.js'}) %>
+<%- include('/_inc/file.html', {file: 'test-import-left.js'}) %>
 
 -   Set path when running Node
     -   `NAME=value command` defines the variable `NAME` just long enough for `command` to run
     -   Shell variables being in UPPER CASE is another convention
 
-<%- include('/inc/multi.html', {pat: 'test-import-left.*', fill: 'sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'test-import-left.*', fill: 'sh txt'}) %>
 
 -   Now create a second importable file
 
-<%- include('/inc/file.html', {file: 'modules/imported-right.js'}) %>
+<%- include('/_inc/file.html', {file: 'modules/imported-right.js'}) %>
 
 -   Load that twice to check that caching works
 
-<%- include('/inc/multi.html', {pat: 'test-import-right.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'test-import-right.*', fill: 'js sh txt'}) %>
 
 ## How can we interpolate pieces of code?
 
@@ -121,23 +121,23 @@
 -   Modify `Cache.find` to return a directory and a file path
     -   Add `interpolate` to replace special comments
 
-<%- include('/inc/file.html', {file: 'caching.js'}) %>
+<%- include('/_inc/file.html', {file: 'caching.js'}) %>
 
 -   Can then have a file like:
 
-<%- include('/inc/file.html', {file: 'import-interpolate.js'}) %>
+<%- include('/_inc/file.html', {file: 'import-interpolate.js'}) %>
 
 -   And subfiles like this:
 
-<%- include('/inc/file.html', {file: 'import-interpolate-topmethod.js'}) %>
+<%- include('/_inc/file.html', {file: 'import-interpolate-topmethod.js'}) %>
 
 -   And this:
 
-<%- include('/inc/file.html', {file: 'import-interpolate-bottommethod.js'}) %>
+<%- include('/_inc/file.html', {file: 'import-interpolate-bottommethod.js'}) %>
 
 -   Test it
 
-<%- include('/inc/multi.html', {pat: 'test-import-interpolate.*', fill: 'sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'test-import-interpolate.*', fill: 'sh txt'}) %>
 
 -   Lifecycle
     -   Node starts to run `test-import-interpolate.js`

@@ -1,4 +1,4 @@
 ---
 ---
 
-<%- include('/inc/solutions.html') %>
+<%- include('/_inc/solutions.html') %>

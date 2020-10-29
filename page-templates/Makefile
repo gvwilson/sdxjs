@@ -11,4 +11,4 @@ TARGETS=\
 output-%.html: %.sh input-%.html vars.json ${TOOLS}
 	bash $< > $@
 
-include ../rules.mk
+include ../_rules.mk

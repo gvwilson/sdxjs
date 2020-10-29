@@ -17,7 +17,7 @@
 
 -   Let's try listing the contents of a directory the way we would in Python or Java
 
-<%- include('/inc/file.html', {file: 'list-dir-wrong.js'}) %>
+<%- include('/_inc/file.html', {file: 'list-dir-wrong.js'}) %>
 
 -   Use `require(library-name)` to load a library
     -   Returns an object
@@ -46,7 +46,7 @@
 -   And `console.log` is the equivalent of other languages' `print`
     -   Strange name because its original purpose was to create <g key="log_message">log messages</g> in the browser <g key="console">console</g>
 
-<%- include('/inc/multi.html', {pat: 'list-dir-wrong.*', fill: 'sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'list-dir-wrong.*', fill: 'sh txt'}) %>
 
 -   Error message comes from something we didn't write whose source we would struggle to read
     -   Our code is the third `at` line (look for the name of our file `list-dir-wrong.js`)
@@ -66,14 +66,14 @@
 
 FIXME: diagram
 
-<%- include('/inc/file.html', {file: 'list-dir-function-defined.js'}) %>
+<%- include('/_inc/file.html', {file: 'list-dir-function-defined.js'}) %>
 
 -   Node callbacks always get an error (if any) as their first argument
     -   Use `console.error` to report it for now
     -   Do something more sensible once we understand exceptions
 -   The results from successful execution are passed as the other argument (in this case, `files`)
 
-<%- include('/inc/multi.html', {pat: 'list-dir-function-defined.*', fill: 'sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'list-dir-function-defined.*', fill: 'sh txt'}) %>
 
 -   Nothing else in this book will make sense if we don't understand the order of execution
     1.  Read the program file
@@ -98,7 +98,7 @@ FIXME: diagram
     -   Makes it easier to see what's going to happen when the operation completes
     -   But takes some getting used to, since the order of execution is now very different from the order of reading.
 
-<%- include('/inc/file.html', {file: 'list-dir-function-anonymous.js'}) %>
+<%- include('/_inc/file.html', {file: 'list-dir-function-anonymous.js'}) %>
 
 ## How can we select a set of files?
 
@@ -109,7 +109,7 @@ FIXME: diagram
     -   <g key="globbing">Globbing</g> (short for "global") is an old Unix term for matching a set of files by name
     -   Like most of programming it works by filename, not by actual content type
 
-<%- include('/inc/multi.html', {pat: 'glob-all-files.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'glob-all-files.*', fill: 'js txt'}) %>
 
 -   Get filenames matching a pattern and then do something with the list
     -   The leading `**` means "recurse into subdirectories"
@@ -119,7 +119,7 @@ FIXME: diagram
 -   Works, but we probably don't want to copy editor backup files ending with `~`
 -   We can get the list and then <g key="filter">filter</g> those out
 
-<%- include('/inc/multi.html', {pat: 'glob-get-then-filter-pedantic.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'glob-get-then-filter-pedantic.*', fill: 'js txt'}) %>
 
 -   `Array.filter` creates a new array containing all the items of the original that pass the test
     -   The test is specified as a callback function called once for each item that returns a <g key="boolean">Boolean</g>
@@ -130,14 +130,14 @@ FIXME: diagram
     -   Removing the parentheses around the single parameter
     -   Writing just the expression we want the function to return
 
-<%- include('/inc/file.html', {file: 'glob-get-then-filter-idiomatic.js'}) %>
+<%- include('/_inc/file.html', {file: 'glob-get-then-filter-idiomatic.js'}) %>
 
 -   It turns out that `glob` can filter for us
     -   Its documentation says it has an `options` argument
     -   We can pass an object full of key-value settings to control its behavior
     -   This is another common pattern in Node libraries and in our own code
 
-<%- include('/inc/file.html', {file: 'glob-filter-with-options.js'}) %>
+<%- include('/_inc/file.html', {file: 'glob-filter-with-options.js'}) %>
 
 -   Notice that we don't quote the key in this object
     -   The keys in objects are almost always strings
@@ -163,7 +163,7 @@ FIXME: diagram
 
 -   Now specify a source directory and fold that into the glob
 
-<%- include('/inc/file.html', {file: 'glob-with-source-directory.js'}) %>
+<%- include('/_inc/file.html', {file: 'glob-with-source-directory.js'}) %>
 
 -   This uses <g key="string_interpolation">string interpolation</g>
     -   Back-quote the string
@@ -176,7 +176,7 @@ FIXME: diagram
 -   So we can take a second argument that specifies an output directory
     -   Construct the output path by replacing the name of the source directory with the name of the output directory
 
-<%- include('/inc/file.html', {file: 'glob-with-dest-directory.js'}) %>
+<%- include('/_inc/file.html', {file: 'glob-with-dest-directory.js'}) %>
 
 -   This uses <g key="destructuring_assignment">destructuring assignment</g> to create two variables at once
     -   Only works if both source and destination are given on the command line, so we should check that
@@ -187,7 +187,7 @@ FIXME: diagram
     -   `fs` and equivalent libraries in other languages (mostly) won't create the directories we need automatically
 -   This comes up so often that there is a function `ensureDir` to do what we need
 
-<%- include('/inc/file.html', {file: 'glob-ensure-output-directory.js'}) %>
+<%- include('/_inc/file.html', {file: 'glob-ensure-output-directory.js'}) %>
 
 -   [`fs-extra`][node-fs-extra] provides some useful utilities on top of `fs`
 -   And use [`path`][node-path] to manipulate pathnames because someone else has figured out the string operations needed to handle various cases
@@ -197,7 +197,7 @@ FIXME: diagram
     -   Yes, this was a bug…
 -   We can now copy the files
 
-<%- include('/inc/file.html', {file: 'copy-file-unfiltered.js'}) %>
+<%- include('/_inc/file.html', {file: 'copy-file-unfiltered.js'}) %>
 
 -   Three levels of callback
     -   When `glob` has data, do things and then call `ensureDir`
@@ -209,16 +209,16 @@ FIXME: diagram
 
 -   It *almost* works
 
-<%- include('/inc/multi.html', {pat: 'copy-file-unfiltered.*', fill: 'sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'copy-file-unfiltered.*', fill: 'sh txt'}) %>
 
 -   `node_modules/fs.realpath` is a directory, not a file, but matches our `glob`
     -   Use `fs.stat` to get the properties of something in the filesystem and then check if it's a file
     -   Name is short for "status"
 
-<%- include('/inc/file.html', {file: 'copy-file-filtered.js'}) %>
+<%- include('/_inc/file.html', {file: 'copy-file-filtered.js'}) %>
 
 -   This works…
 -   …but four levels of asynchronous callbacks is hard to understand
 -   We need a better mechanism
 
-<%- include('/inc/problems.html') %>
+<%- include('/_inc/problems.html') %>

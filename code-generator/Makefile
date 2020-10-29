@@ -5,4 +5,4 @@ TARGETS=\
   replace-func.txt \
   test-time-func.txt
 
-include ../rules.mk
+include ../_rules.mk

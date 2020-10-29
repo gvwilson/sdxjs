@@ -14,31 +14,31 @@
 -   Provide an `onComment` option with an array value for it to fill in
     -   Don't bother assigning the AST produced by parsing to a variable because we're collecting side effects in `onComment`
 
-<%- include('/inc/file.html', {file: 'extract-comments.js'}) %>
+<%- include('/_inc/file.html', {file: 'extract-comments.js'}) %>
 
-<%- include('/inc/multi.html', {pat: 'two-kinds-of-comment.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'two-kinds-of-comment.*', fill: 'js txt'}) %>
 
 -   Extract a subset of the JSON with key features
 
-<%- include('/inc/file.html', {file: 'extract-comments-subset.js'}) %>
+<%- include('/_inc/file.html', {file: 'extract-comments-subset.js'}) %>
 
-<%- include('/inc/multi.html', {pat: 'two-kinds-of-comment-subset.*', fill: 'sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'two-kinds-of-comment-subset.*', fill: 'sh txt'}) %>
 
 -   Acorn distinguishes two kinds of comments
 -   <g key="line_comment">Line comments</g> can't span multiple lines
     -   Consecutive line comments aren't combined
 
-<%- include('/inc/multi.html', {pat: 'multi-line-double-slash-comment.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'multi-line-double-slash-comment.*', fill: 'js sh txt'}) %>
 
 -   A <g key="block_comment">block comment</g> can span any number of lines
     -   Don't need to prefix each line with `*` but most people do for readability
 
-<%- include('/inc/multi.html', {pat: 'multi-line-slash-star-comment.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'multi-line-slash-star-comment.*', fill: 'js sh txt'}) %>
 
 -   By convention, use block comments that start with `/**` for documentation
     -   Which means the first character in the extracted text is `*`
 
-<%- include('/inc/multi.html', {pat: 'doc-comment.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'doc-comment.*', fill: 'js txt'}) %>
 
 ## What input will we try to handle?
 
@@ -46,11 +46,11 @@
 -   Parse it with [markdown-it][markdown-it]
 -   Function definitions look like this:
 
-<%- include('/inc/file.html', {file: 'example-plain.js'}) %>
+<%- include('/_inc/file.html', {file: 'example-plain.js'}) %>
 
 -   Class definitions look like this:
 
-<%- include('/inc/file.html', {file: 'util-plain.js'}) %>
+<%- include('/_inc/file.html', {file: 'util-plain.js'}) %>
 
 -   Lots of unpleasantry here
     -   Repeating function and method names
@@ -62,7 +62,7 @@
 
 -   Processing looks like this
 
-<%- include('/inc/file.html', {file: 'process-plain.js'}) %>
+<%- include('/_inc/file.html', {file: 'process-plain.js'}) %>
 
 -   Extract all special comments from all files and concatenate
     with source file's name as level-1 heading
@@ -70,9 +70,9 @@
     -   Use our own function `slugify` to give elements IDs
 -   Run and inspect output
 
-<%- include('/inc/file.html', {file: 'process-plain.sh'}) %>
-<%- include('/inc/html.html', {file: 'process-plain.html'}) %>
-<%- include('/inc/page.html', {file: 'process-plain.html'}) %>
+<%- include('/_inc/file.html', {file: 'process-plain.sh'}) %>
+<%- include('/_inc/html.html', {file: 'process-plain.html'}) %>
+<%- include('/_inc/page.html', {file: 'process-plain.html'}) %>
 
 -   Lots of ugliness here
     -   Double `h1` for each file (filename and title comment)
@@ -92,17 +92,17 @@
     -   Delete the line number we're seeking so that we only find the first matching node
 -   Allows us to write tidier comments
 
-<%- include('/inc/file.html', {file: 'find-following-input.js'}) %>
+<%- include('/_inc/file.html', {file: 'find-following-input.js'}) %>
 
 -   Extract and display information from nodes immediately following doc comments
     -   Find all block comments
     -   Record last line of each
     -   Recurse through AST to find code on line immediately following
 
-<%- include('/inc/multi.html', {pat: 'find-following.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'find-following.*', fill: 'js sh txt'}) %>
 
 -   Use this to create better output
 
-<%- include('/inc/file.html', {file: 'fill-in-headers.js'}) %>
-<%- include('/inc/html.html', {file: 'fill-in-headers.html'}) %>
-<%- include('/inc/page.html', {file: 'fill-in-headers.html'}) %>
+<%- include('/_inc/file.html', {file: 'fill-in-headers.js'}) %>
+<%- include('/_inc/html.html', {file: 'fill-in-headers.html'}) %>
+<%- include('/_inc/page.html', {file: 'fill-in-headers.html'}) %>

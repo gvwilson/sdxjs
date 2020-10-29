@@ -9,4 +9,4 @@ TARGETS=\
   walk-ast.txt \
   walker-class.txt
 
-include ../rules.mk
+include ../_rules.mk

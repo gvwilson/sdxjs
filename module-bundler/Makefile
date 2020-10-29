@@ -15,7 +15,7 @@ TARGETS=\
   test-transitive-closure.txt \
   test-transitive-closure-only.txt
 
-include ../rules.mk
+include ../_rules.mk
 
 show-combine-files-simple.txt: test-combine-files-simple.js show-combine-files-simple.sh
 test-transitive-closure-only.txt: transitive-closure-only.txt

@@ -5,4 +5,4 @@ TARGETS=\
   list-dir-function-defined.txt \
   list-dir-wrong.txt
 
-include ../rules.mk
+include ../_rules.mk

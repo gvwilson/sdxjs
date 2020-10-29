@@ -5,7 +5,7 @@ TARGETS=\
   simple-regex.txt \
   simple-selectors-test.txt
 
-include ../rules.mk
+include ../_rules.mk
 
 regex-beginning.txt: $(wildcard regex-beginning/*.js)
 regex-initial.txt: $(wildcard regex-initial/*.js)

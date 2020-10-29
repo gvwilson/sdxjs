@@ -33,12 +33,12 @@ const STANDARD_DIR = '/stjs'
 /**
  * Header inclusion.
  */
-const HEADER = "<%- include('/inc/head.html') %>"
+const HEADER = "<%- include('/_inc/head.html') %>"
 
 /**
  * Footer inclusion.
  */
-const FOOTER = "<%- include('/inc/foot.html') %>"
+const FOOTER = "<%- include('/_inc/foot.html') %>"
 
 /**
  * Main driver.

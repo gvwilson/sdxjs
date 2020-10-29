@@ -27,14 +27,14 @@
     -   Recurse down the tree until the query string is exhausted or no matches found
     -   A <g key="depth_first_search">depth-first search</g>
 
-<%- include('/inc/file.html', {file: 'simple-selectors.js'}) %>
+<%- include('/_inc/file.html', {file: 'simple-selectors.js'}) %>
 
 -   `firstMatch` tries to match the first remaining selector
     -   Either this node or one of its children
 -   `firstChildMatch` looks through children (if any) for remaining selectors
 -   `matchHere` handles a single node and selector
 
-<%- include('/inc/multi.html', {pat: 'simple-selectors-test.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'simple-selectors-test.*', fill: 'js txt'}) %>
 
 ## How can we implement a simple regular expression matcher?
 
@@ -54,7 +54,7 @@ but as Kernighan said,
 in my own experience of using regular expressions on a day-to-day basis,
 it easily accounts for 95 percent of all instances."
 
-<%- include('/inc/multi.html', {pat: 'simple-regex.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'simple-regex.*', fill: 'js txt'}) %>
 
 -   This works, but it's hard to extend
     -   Handling parentheses in patterns like `/a(bc)*d/` requires big changes
@@ -71,7 +71,7 @@ it easily accounts for 95 percent of all instances."
 -   First step is to define test cases
     -   Which also forces us to define our syntax
 
-<%- include('/inc/file.html', {file: 'regex-initial/regex-complete.js'}) %>
+<%- include('/_inc/file.html', {file: 'regex-initial/regex-complete.js'}) %>
 
 -   Each matcher is a function that returns a matching object
     -   Saves us having to type `new` all over the place
@@ -82,25 +82,25 @@ it easily accounts for 95 percent of all instances."
     -   So that if we forget to provide `_match` in a <g key="derived_class">derived class</g>
         our code will fail with a meaningful reminder
 
-<%- include('/inc/file.html', {file: 'regex-initial/regex-base.js'}) %>
+<%- include('/_inc/file.html', {file: 'regex-initial/regex-base.js'}) %>
 
 -   Define empty versions of each class like this to get started
 
-<%- include('/inc/file.html', {file: 'regex-initial/regex-lit.js'}) %>
+<%- include('/_inc/file.html', {file: 'regex-initial/regex-lit.js'}) %>
 
 -   Our tests now run, but most of them fail
     -   "Most" because if we expect a match to fail, it does, so the test runner reports `true`
     -   Tells us how much work we have to do
 
-<%- include('/inc/file.html', {file: 'regex-initial.txt'}) %>
+<%- include('/_inc/file.html', {file: 'regex-initial.txt'}) %>
 
 -   Start by implementing literal character string matcher
 
-<%- include('/inc/file.html', {file: 'regex-beginning/regex-lit.js'}) %>
+<%- include('/_inc/file.html', {file: 'regex-beginning/regex-lit.js'}) %>
 
 -   Some tests now pass, others still fail (as expected)
 
-<%- include('/inc/file.html', {file: 'regex-beginning.txt'}) %>
+<%- include('/_inc/file.html', {file: 'regex-beginning.txt'}) %>
 
 -   Do `RegexSeq` next so that we can combine other tests
     -   This is why we have tests for `Seq(Lit('a'), Lit('b'))` and `Lit('ab')`
@@ -118,24 +118,24 @@ it easily accounts for 95 percent of all instances."
     -   Means we can get rid of `RegexSeq`
 -   Tests are a little harder to read
 
-<%- include('/inc/file.html', {file: 'regex-recursive/regex-complete.js'}) %>
+<%- include('/_inc/file.html', {file: 'regex-recursive/regex-complete.js'}) %>
 
 -   Match a literal expression
     -   Does all of the pattern match in the given text starting at this point?
     -   If so, does the rest of the overall pattern match?
 
-<%- include('/inc/file.html', {file: 'regex-recursive/regex-lit.js'}) %>
+<%- include('/_inc/file.html', {file: 'regex-recursive/regex-lit.js'}) %>
 
 -   Matching the start `/^/` and end `/$/` anchors is just as straightforward
 
-<%- include('/inc/file.html', {file: 'regex-recursive/regex-start.js'}) %>
+<%- include('/_inc/file.html', {file: 'regex-recursive/regex-start.js'}) %>
 
-<%- include('/inc/file.html', {file: 'regex-recursive/regex-end.js'}) %>
+<%- include('/_inc/file.html', {file: 'regex-recursive/regex-end.js'}) %>
 
 -   Matching either/or is a matter of trying a pattern and the rest until one matches,
     and failing if neither does
 
-<%- include('/inc/file.html', {file: 'regex-recursive/regex-alt.js'}) %>
+<%- include('/_inc/file.html', {file: 'regex-recursive/regex-alt.js'}) %>
 
 -   Matching repetition is easy *if* we're willing to be inefficient
     -   Try zero matches, then one, then two, and so on until something succeeds
@@ -147,11 +147,11 @@ FIXME: diagram
     -   Each non-empty repetition matches at least one character
     -   So the number of remaining characters is the maximum number of matches we have to try
 
-<%- include('/inc/file.html', {file: 'regex-recursive/regex-any.js'}) %>
+<%- include('/_inc/file.html', {file: 'regex-recursive/regex-any.js'}) %>
 
 -   The main point here is how extensible this approach is
 -   That extensibility comes from the lack of centralized decision-making
     -   The <g key="chain_of_responsibility_pattern">Chain of Responsibility</g> design pattern
     -   "Do my part and ask something else to handle the rest"
 
-<%- include('/inc/problems.html') %>
+<%- include('/_inc/problems.html') %>

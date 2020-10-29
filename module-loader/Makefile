@@ -10,7 +10,7 @@ TARGETS=\
   test-need-large-needless.txt \
   test-need-small-module.txt
 
-include ../rules.mk
+include ../_rules.mk
 
 js-command-line.txt: $(wildcard checking/*.js)
 js-interactive.txt: $(wildcard checking/*.js)

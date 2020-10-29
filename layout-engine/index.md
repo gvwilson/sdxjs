@@ -29,9 +29,9 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
     -   Inefficient: could calculate both at the same time
     -   And cache values and have a "changed" marker and all the other things browsers do to go faster
 
-<%- include('/inc/file.html', {file: 'easy-mode.js'}) %>
-<%- include('/inc/file.html', {file: 'test/test-easy-mode.js'}) %>
-<%- include('/inc/multi.html', {pat: 'test-easy-mode.*', fill: 'sh txt'}) %>
+<%- include('/_inc/file.html', {file: 'easy-mode.js'}) %>
+<%- include('/_inc/file.html', {file: 'test/test-easy-mode.js'}) %>
+<%- include('/_inc/multi.html', {pat: 'test-easy-mode.*', fill: 'sh txt'}) %>
 
 ## How can we position rows and columns?
 
@@ -49,11 +49,11 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
     -   Renaming during export can be confusing during normal development
     -   But saves us from having lots of classes with slightly different names in a tutorial
 
-<%- include('/inc/file.html', {file: 'placed-block.js'}) %>
-<%- include('/inc/file.html', {file: 'placed-row.js'}) %>
-<%- include('/inc/file.html', {file: 'placed-column.js'}) %>
-<%- include('/inc/file.html', {file: 'test/test-placed.js'}) %>
-<%- include('/inc/multi.html', {pat: 'test-placed.*', fill: 'sh txt'}) %>
+<%- include('/_inc/file.html', {file: 'placed-block.js'}) %>
+<%- include('/_inc/file.html', {file: 'placed-row.js'}) %>
+<%- include('/_inc/file.html', {file: 'placed-column.js'}) %>
+<%- include('/_inc/file.html', {file: 'test/test-placed.js'}) %>
+<%- include('/_inc/multi.html', {pat: 'test-placed.*', fill: 'sh txt'}) %>
 
 ## What subset of HTML and CSS will we support?
 
@@ -64,12 +64,12 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
     -   Each attribute must have a single quoted value
 -   Won't bother to show the tests, but yes, we wrote them, and yes, they caught errors
 
-<%- include('/inc/file.html', {file: 'micro-dom.js'}) %>
+<%- include('/_inc/file.html', {file: 'micro-dom.js'}) %>
 
 -   Use regular expressions to parse documents, though [this is a sin][stack-overflow-html-regex]
     -   And yes, the tests caught errors
 
-<%- include('/inc/file.html', {file: 'parse.js'}) %>
+<%- include('/_inc/file.html', {file: 'parse.js'}) %>
 
 -   Now define a generic class for rules and a subclass for each type of rule
 -   ID rules
@@ -84,7 +84,7 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
     -   HTML of the form `<tag>…</tag>`
 -   ID rules take precedence over class rules, which take precedence over tag rules
 
-<%- include('/inc/file.html', {file: 'micro-css.js'}) %>
+<%- include('/_inc/file.html', {file: 'micro-css.js'}) %>
 
 -   Convert JSON to rule objects
     -   Saves us writing yet another parser
@@ -94,4 +94,4 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
 -   Provide a method for finding the rules for a given DOM node
     -   Requires custom sorting that depends on CSS classes having a precedence order
 
-<%- include('/inc/file.html', {file: 'micro-css-ruleset.js'}) %>
+<%- include('/_inc/file.html', {file: 'micro-css-ruleset.js'}) %>

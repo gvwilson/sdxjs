@@ -20,7 +20,7 @@
     -   Having the function return the things we want
 -   Gives us code like this:
 
-<%- include('/inc/multi.html', {pat: 'manual-namespacing.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'manual-namespacing.*', fill: 'js txt'}) %>
 
 -   We could require every module to define a setup function like this for users to call
 -   Or we can wrap this up and call it automatically
@@ -29,7 +29,7 @@
     -   The extra parentheses around the original definition force the parser to evaluate things in the right order
     -   This is called an <g key="iife">immediately-invoked function expression</g> (IIFE)
 
-<%- include('/inc/multi.html', {pat: 'automatic-namespacing.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'automatic-namespacing.*', fill: 'js txt'}) %>
 
 ## How can we load a module?
 
@@ -40,12 +40,12 @@
     -   The parameter to the function we build and `eval` must be called `module` so that we can assign to `module.exports`
     -   For clarity, we call the object we pass in `result` in `loadModule`
 
-<%- include('/inc/file.html', {file: 'load-module-only.js'}) %>
+<%- include('/_inc/file.html', {file: 'load-module-only.js'}) %>
 
 -   Use this as a test
 
-<%- include('/inc/file.html', {file: 'small-module.js'}) %>
-<%- include('/inc/multi.html', {pat: 'test-load-module-only.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/file.html', {file: 'small-module.js'}) %>
+<%- include('/_inc/multi.html', {pat: 'test-load-module-only.*', fill: 'js sh txt'}) %>
 
 ## Do we need to handle circular dependencies?
 
@@ -66,29 +66,29 @@
 -   It sort-of works in Python
 -   Create two files
 
-<%- include('/inc/file.html', {file: 'checking/major.py'}) %>
-<%- include('/inc/file.html', {file: 'checking/minor.py'}) %>
+<%- include('/_inc/file.html', {file: 'checking/major.py'}) %>
+<%- include('/_inc/file.html', {file: 'checking/minor.py'}) %>
 
 -   Fails when run from the command line
 
-<%- include('/inc/file.html', {file: 'py-command-line.txt'}) %>
+<%- include('/_inc/file.html', {file: 'py-command-line.txt'}) %>
 
 -   But works in the interactive interpreter
 
-<%- include('/inc/file.html', {file: 'py-interactive.txt'}) %>
+<%- include('/_inc/file.html', {file: 'py-interactive.txt'}) %>
 
 -   Equivalent in JavaScript
 
-<%- include('/inc/file.html', {file: 'checking/major.js'}) %>
-<%- include('/inc/file.html', {file: 'checking/minor.js'}) %>
+<%- include('/_inc/file.html', {file: 'checking/major.js'}) %>
+<%- include('/_inc/file.html', {file: 'checking/minor.js'}) %>
 
 -   Fails on the command line
 
-<%- include('/inc/file.html', {file: 'js-command-line.txt'}) %>
+<%- include('/_inc/file.html', {file: 'js-command-line.txt'}) %>
 
 -   Also fails in the interactive interpreter
 
-<%- include('/inc/file.html', {file: 'js-interactive.txt'}) %>
+<%- include('/_inc/file.html', {file: 'js-interactive.txt'}) %>
 
 -   So we will *not* handle circular dependencies
     -   But we *will* detect them and generate a sensible error message
@@ -106,25 +106,25 @@
     -   Make it a property of the `require` function
 -   To reduce confusion, we will call our function `need` instead of `require`
 
-<%- include('/inc/file.html', {file: 'need.js'}) %>
+<%- include('/_inc/file.html', {file: 'need.js'}) %>
 
 -   Need to modify `loadModule` to take our function `need` as a parameter
     -   Again, we'll have "modules" call `need('something.js')` instead of `require('something')` for clarity
 -   Test with the same small module that doesn't need anything else to make sure we haven't broken anything
 
-<%- include('/inc/multi.html', {pat: 'test-need-small-module.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'test-need-small-module.*', fill: 'js txt'}) %>
 
 -   Test again with a module that loads something else
 
-<%- include('/inc/file.html', {file: 'large-module.js'}) %>
+<%- include('/_inc/file.html', {file: 'large-module.js'}) %>
 
-<%- include('/inc/multi.html', {pat: 'test-need-large-module.js', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'test-need-large-module.js', fill: 'js txt'}) %>
 
 -   Doesn't work because our made-up function has `need` as a parameter and also as a constant
 -   Not a problem with Node because `require` is predefined
 -   So we will rely on our loader to provide it
     -   Which means we can only run loaded modules by `need`ing them
 
-<%- include('/inc/file.html', {file: 'large-needless.js'}) %>
+<%- include('/_inc/file.html', {file: 'large-needless.js'}) %>
 
-<%- include('/inc/multi.html', {pat: 'test-need-large-needless.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'test-need-large-needless.*', fill: 'js txt'}) %>

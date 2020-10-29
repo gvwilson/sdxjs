@@ -7,7 +7,7 @@ TARGETS=\
   update-on-timestamps.txt \
   variable-expander.txt
 
-include ../rules.mk
+include ../_rules.mk
 
 display-only.txt: driver.js
 update-on-timestamps.txt: driver.js

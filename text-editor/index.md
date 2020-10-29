@@ -13,35 +13,35 @@
 
 -   Outline
 
-<%- include('/inc/erase.html', {file: 'minimal-editor.js', tag: 'body'}) %>
+<%- include('/_inc/erase.html', {file: 'minimal-editor.js', tag: 'body'}) %>
 
 -   Constructor
 
-<%- include('/inc/slice.html', {file: 'minimal-editor.js', tag: 'constructor'}) %>
+<%- include('/_inc/slice.html', {file: 'minimal-editor.js', tag: 'constructor'}) %>
 
 - And when we have to resize
 
-<%- include('/inc/slice.html', {file: 'minimal-editor.js', tag: 'resize'}) %>
+<%- include('/_inc/slice.html', {file: 'minimal-editor.js', tag: 'resize'}) %>
 
 - Drawing the title and status bar
 
-<%- include('/inc/slice.html', {file: 'minimal-editor.js', tag: 'drawbar'}) %>
+<%- include('/_inc/slice.html', {file: 'minimal-editor.js', tag: 'drawbar'}) %>
 
 - Drawing in general
 
-<%- include('/inc/slice.html', {file: 'minimal-editor.js', tag: 'draw'}) %>
+<%- include('/_inc/slice.html', {file: 'minimal-editor.js', tag: 'draw'}) %>
 
 - Handling keys
 
-<%- include('/inc/slice.html', {file: 'minimal-editor.js', tag: 'onkey'}) %>
+<%- include('/_inc/slice.html', {file: 'minimal-editor.js', tag: 'onkey'}) %>
 
 - Handling newlines is special
 
-<%- include('/inc/slice.html', {file: 'minimal-editor.js', tag: 'newline'}) %>
+<%- include('/_inc/slice.html', {file: 'minimal-editor.js', tag: 'newline'}) %>
 
 -   And when the time comes to exit
 
-<%- include('/inc/slice.html', {file: 'minimal-editor.js', tag: 'exit'}) %>
+<%- include('/_inc/slice.html', {file: 'minimal-editor.js', tag: 'exit'}) %>
 
 ## How can we make the editor extensible?
 
@@ -55,23 +55,23 @@
     -   Gives that action the key and the editor itself to work with
     -   Constructor adds two bindings to the lookup table
 
-<%- include('/inc/erase.html', {file: 'bindings-editor.js', tag: 'bindings'}) %>
+<%- include('/_inc/erase.html', {file: 'bindings-editor.js', tag: 'bindings'}) %>
 
 -   Each binding is derived from a very simple base class
 
-<%- include('/inc/file.html', {file: 'key-binding.js'}) %>
+<%- include('/_inc/file.html', {file: 'key-binding.js'}) %>
 
 -   Define a class and create a single instance for handling the `enter` key
     -   Tell the editor what key this handles
     -   Act on the editor
 
-<%- include('/inc/slice.html', {file: 'bindings-editor.js', tag: 'enter-binding'}) %>
+<%- include('/_inc/slice.html', {file: 'bindings-editor.js', tag: 'enter-binding'}) %>
 
 -   JavaScript allows us to define a class without a name and create an instance
     -   A way to implement the <g key="singleton_pattern">Singleton</g> pattern
     -   
 
-<%- include('/inc/slice.html', {file: 'bindings-editor.js', tag: 'exit-binding'}) %>
+<%- include('/_inc/slice.html', {file: 'bindings-editor.js', tag: 'exit-binding'}) %>
 
 -   But if we have to edit the source file to change the bindings, that's hardly extensible
 -   Use a configuration file to specify what bindings to load
@@ -79,15 +79,15 @@
     -   Can easily extend to load a system-wide default configuration from some other directory first and then overlay
 -   Modified editor is looking pretty small
 
-<%- include('/inc/file.html', {file: 'config-editor.js'}) %>
+<%- include('/_inc/file.html', {file: 'config-editor.js'}) %>
 
 -   Configuration file is just a list of things to `require`
 
-<%- include('/inc/file.html', {file: 'simple-config.yml'}) %>
+<%- include('/_inc/file.html', {file: 'simple-config.yml'}) %>
 
 -   And each binding is an immediately-instantiated class with the object assigned directly to `module.exports`
 
-<%- include('/inc/file.html', {file: 'simple-enter.js'}) %>
+<%- include('/_inc/file.html', {file: 'simple-enter.js'}) %>
 
 ## What goes in the application and what goes in plugins?
 
@@ -102,7 +102,7 @@
 -   Add plugins for up/down/left/right and update configuration file
     -   All similar in principle to this one
 
-<%- include('/inc/file.html', {file: 'simple-left.js'}) %>
+<%- include('/_inc/file.html', {file: 'simple-left.js'}) %>
 
 -   But what if a plugin needs some extra state?
     -   Or if multiple plugins need to share some extra state?
@@ -117,7 +117,7 @@
     -   Might as well make handling generic characters a binding as well
     -   Complain if someone has already registered as the default handler
 
-<%- include('/inc/file.html', {file: 'init-key-binding.js'}) %>
+<%- include('/_inc/file.html', {file: 'init-key-binding.js'}) %>
 
 -   Modify all existing key bindings to derive from this class
     -   But do not override `init`, since they don't need to
@@ -125,23 +125,23 @@
     -   Which is why we've been passing `key` around all this time
 -   First, derive a new editor class from the one that handles configuration files
 
-<%- include('/inc/file.html', {file: 'init-editor.js'}) %>
+<%- include('/_inc/file.html', {file: 'init-editor.js'}) %>
 
 -   And write the plugin that handles generic characters
     -   Identifies itself as the default handler
     -   A little dangerous to specify `null` as the character it handles
     -   But that's probably better than saying, "If the character is `null`, this must be the default"
 
-<%- include('/inc/file.html', {file: 'init-character.js'}) %>
+<%- include('/_inc/file.html', {file: 'init-character.js'}) %>
 
 -   We can finally add some state: a "dirty" flag to show if there are unsaved changes
     -   Will add extensions in the next section to make use of this
 
-<%- include('/inc/file.html', {file: 'dirty-character.js'}) %>
+<%- include('/_inc/file.html', {file: 'dirty-character.js'}) %>
 
 -   And since we're allowing plugins to add state, we should provide a method for that
 
-<%- include('/inc/file.html', {file: 'dirty-editor.js'}) %>
+<%- include('/_inc/file.html', {file: 'dirty-editor.js'}) %>
 
 -   Avoids the problem of <g key="circular_dependency">circular dependency</g> discussed in <xref key="module-bundler"></xref>
     by having plugins manipulate the editor without loading it
@@ -161,17 +161,17 @@
 -   Modified editor
     -   Parent class does the work of handling the keystroke
 
-<%- include('/inc/file.html', {file: 'replay-editor.js'}) %>
+<%- include('/_inc/file.html', {file: 'replay-editor.js'}) %>
 
 -   Turning recording on and off
     -   A toggle: <key>Ctrl-R</key> will turn recording on if it's off and off if it's on
     -   When we turn it on, we need to clear any accumulated history (restarting)
 
-<%- include('/inc/file.html', {file: 'replay-record.js'}) %>
+<%- include('/_inc/file.html', {file: 'replay-record.js'}) %>
 
 -   Playback is a little more complicated
 -   If we are recording then stop
     -   And remove the last entry added to the replay list, because it will be this command
 -   Then re-send every saved keystroke in order
 
-<%- include('/inc/file.html', {file: 'replay-playback.js'}) %>
+<%- include('/_inc/file.html', {file: 'replay-playback.js'}) %>

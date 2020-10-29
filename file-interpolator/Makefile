@@ -11,7 +11,7 @@ TARGETS =\
   test-simple.txt \
   to-be-loaded.txt
 
-include ../rules.mk
+include ../_rules.mk
 
 test-import-interpolate.txt: caching.js import-interpolate.js import-interpolate-topmethod.js import-interpolate-bottommethod.js
 

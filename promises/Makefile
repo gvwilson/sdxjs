@@ -15,4 +15,4 @@ TARGETS=\
   use-pledge-return.txt \
   use-promise-chained.txt
 
-include ../rules.mk
+include ../_rules.mk

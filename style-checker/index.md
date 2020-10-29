@@ -19,7 +19,7 @@
 -   A parser for a language as complex as JavaScript is much more work
 -   We will use [Acorn][acorn] instead
 
-<%- include('/inc/multi.html', {pat: 'parse-single-const.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'parse-single-const.*', fill: 'js txt'}) %>
 
 -   Produces an <g key="abstract_syntax_tree">abstract syntax tree</g> (AST)
     whose nodes store information about what's in the program
@@ -28,7 +28,7 @@
 -   Look at the result of parsing a slightly more complex program
     -   A 9-line program produces over 500 lines of structure
 
-<%- include('/inc/multi.html', {pat: 'parse-const-func-and-call.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'parse-const-func-and-call.*', fill: 'js txt'}) %>
 
 ## How can we walk the AST?
 
@@ -39,7 +39,7 @@
     -   We create an object called `state` to record declaration nodes as they're found
     -   Then report them all at the end
 
-<%- include('/inc/multi.html', {pat: 'walk-ast.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'walk-ast.*', fill: 'js txt'}) %>
 
 ## How can we apply checks?
 
@@ -48,7 +48,7 @@
     -   Only create arrays of results when nodes of that type are encountered
     -   Only insert nodes that fail checks
 
-<%- include('/inc/multi.html', {pat: 'check-name-lengths.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'check-name-lengths.*', fill: 'js txt'}) %>
 
 -   Why doesn't the parameter `x` show up as a violation?
 
@@ -66,7 +66,7 @@
 -   Not the same architecture as `acorn-walk`
     -   But easier to understand and extend
 
-<%- include('/inc/multi.html', {pat: 'walker-class.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'walker-class.*', fill: 'js txt'}) %>
 
 ## How else could the AST walker work?
 
@@ -78,27 +78,27 @@
     -   Result is a two-part structure with `value` and `done`
 -   Note that a generator function returns an object that then returns values
 
-<%- include('/inc/multi.html', {pat: 'generator-example.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'generator-example.*', fill: 'js txt'}) %>
 
 -   This generator takes an irregular nested array of strings and yields:
     -   A string
     -   Another generator (using `yield*` to mean "uses its values until they run out")
 
-<%- include('/inc/file.html', {file: 'generator-tree.js'}) %>
+<%- include('/_inc/file.html', {file: 'generator-tree.js'}) %>
 
 -   Manage iteration explicitly
 
-<%- include('/inc/multi.html', {pat: 'generator-tree-while.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'generator-tree-while.*', fill: 'js txt'}) %>
 
 -   But `for…of` knows how to work with generators
 
-<%- include('/inc/multi.html', {pat: 'generator-tree-for.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'generator-tree-for.*', fill: 'js txt'}) %>
 
 -   Use this to count the number of expressions of various types in code
 
-<%- include('/inc/multi.html', {pat: 'generator-count.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'generator-count.*', fill: 'js txt'}) %>
 
 -   More difficult to do variable identifiers than previous Visitor approach
     -   Generator doesn't keep state, so we have to maintain that outside for ourselves
 
-<%- include('/inc/problems.html') %>
+<%- include('/_inc/problems.html') %>

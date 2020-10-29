@@ -53,7 +53,7 @@ and others, such as interactive debuggers and code-formatting tools,
 are beyond the scope of this book,
 but we hope these will illustrate key ideas in software design.
 
-<%- include('/inc/contents.html') %>
+<%- include('/_inc/contents.html') %>
 </div>
 
 ## Layout

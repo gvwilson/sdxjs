@@ -37,7 +37,7 @@
         -   Or start a new literal
     -   Note that `^` and `$` are either special or regular depending on position
 
-<%- include('/inc/file.html', {file: 'tokenizer-collapse.js'}) %>
+<%- include('/_inc/file.html', {file: 'tokenizer-collapse.js'}) %>
 
 -   This is readable, efficient, and wrong
     -   The expression `ab*` means "a single `a` followed by zero or more `b`"
@@ -48,12 +48,12 @@
     and combine things later
     -   And we can get rid of the nested `if` for handling `^` and `$` as well
 
-<%- include('/inc/file.html', {file: 'tokenizer.js'}) %>
+<%- include('/_inc/file.html', {file: 'tokenizer.js'}) %>
 
 -   It's not done until it's tested
 
-<%- include('/inc/file.html', {file: 'test/test-tokenizer.js'}) %>
-<%- include('/inc/file.html', {file: 'tokenizer-test.txt'}) %>
+<%- include('/_inc/file.html', {file: 'test/test-tokenizer.js'}) %>
+<%- include('/_inc/file.html', {file: 'tokenizer-test.txt'}) %>
 
 ## How can we turn a stream of tokens into a tree?
 
@@ -87,12 +87,12 @@
         look for partially-completed `Alt` tokens and make whatever comes after the right child
     -   Again, this will automatically work for things like `/(ab)|c*|(de)/`
 
-<%- include('/inc/file.html', {file: 'parser.js'}) %>
+<%- include('/_inc/file.html', {file: 'parser.js'}) %>
 
 -   And some tests
 
-<%- include('/inc/file.html', {file: 'test/test-parser.js'}) %>
-<%- include('/inc/file.html', {file: 'parser-test.txt'}) %>
+<%- include('/_inc/file.html', {file: 'test/test-parser.js'}) %>
+<%- include('/_inc/file.html', {file: 'parser-test.txt'}) %>
 
 -   If we have more operators with different <g key="precedence">precedences</g>
     we should switch to the [shunting-yard algorithm][shunting-yard-algorithm]

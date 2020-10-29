@@ -9,4 +9,4 @@ TARGETS=\
 
 #  test-check-filesystem.txt FIXME
 
-include ../rules.mk
+include ../_rules.mk

@@ -32,8 +32,8 @@ JAVASCRIPT=\
 
 # Supporting LaTeX files for PDF version.
 TEX=\
-  $(wildcard tex/*.tex) \
-  $(wildcard tex/*.cls)
+  $(wildcard _tex/*.tex) \
+  $(wildcard _tex/*.cls)
 
 # Directories containing sub-Makefiles for reproducing examples.
 SUBMAKEDIR=$(patsubst %/Makefile,%,$(wildcard */Makefile))
@@ -70,8 +70,8 @@ hygiene:
 
 ## check: check that files match style rules
 check: docs/index.html
-	-@bin/check.js \
-	--config config.yml \
+	-@_tools/check.js \
+	--config _config.yml \
 	--html ${HTML} \
 	--markdown ${MARKDOWN}
 
@@ -88,7 +88,7 @@ latex: book.tex
 
 ## catalog: list all nodes and attributes
 catalog:
-	bin/catalog.js --ignore --input ${HTML}
+	_tools/catalog.js --ignore --input ${HTML}
 
 ## examples: rebuild all examples in sub-directories
 examples:
@@ -100,7 +100,7 @@ erase:
 
 ## wordlist: what words are used in prose?
 wordlist:
-	bin/wordlist.js --input ${HTML}
+	_tools/wordlist.js --input ${HTML}
 
 ## clean: clean up
 clean:
@@ -116,33 +116,33 @@ settings:
 
 # --------------------
 
-bib.md: bin/bib.js bib.yml
-	bin/bib.js \
-	--input bib.yml \
+bib.md: _tools/bib.js _bib.yml
+	_tools/bib.js \
+	--input _bib.yml \
 	--output bib.md
 
-gloss.md: gloss.yml bin/gloss.js $(filter-out gloss.md,${MARKDOWN})
-	bin/gloss.js \
+gloss.md: _gloss.yml _tools/gloss.js $(filter-out gloss.md,${MARKDOWN})
+	_tools/gloss.js \
 	--glosario \
-	--input gloss.yml \
+	--input _gloss.yml \
 	--output gloss.md \
 	--sources index.md $(patsubst %,%/index.md,${SLUGS})
 
-docs/index.html docs/numbering.js docs/static/site.css docs/static/site.js: bin/html.js config.yml links.yml ${MARKDOWN} static/site.css static/site.js
-	bin/html.js \
+docs/index.html docs/numbering.js docs/static/site.css docs/static/site.js: _tools/html.js _config.yml _links.yml ${MARKDOWN} static/site.css static/site.js
+	_tools/html.js \
 	--rootDir . \
 	--outputDir docs \
-	--configFile config.yml \
-	--linksFile links.yml \
+	--configFile _config.yml \
+	--linksFile _links.yml \
 	--replaceDir
 
-book.tex: bin/latex.js docs/index.html ${TEX}
-	bin/latex.js \
-	--config config.yml \
+book.tex: _tools/latex.js docs/index.html ${TEX}
+	_tools/latex.js \
+	--config _config.yml \
 	--htmlDir docs \
 	--outputFile book.tex \
-	--head tex/head.tex \
-	--foot tex/foot.tex \
+	--head _tex/head.tex \
+	--foot _tex/foot.tex \
 	--numbering docs/numbering.js
 
 book.pdf: book.tex

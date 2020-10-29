@@ -8,7 +8,7 @@ TARGETS=\
   two-kinds-of-comment.txt \
   two-kinds-of-comment-subset.txt
 
-include ../rules.mk
+include ../_rules.mk
 
 fill-in-headers.html: fill-in-headers-input.js
 find-following.txt: find-following-input.js

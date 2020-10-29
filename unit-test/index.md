@@ -44,7 +44,7 @@
 -   Tests are run in the order in which they're registered, but we shouldn't rely on that
 -   After all tests are run, report counts
 
-<%- include('/inc/multi.html', {pat: 'dry-run.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'dry-run.*', fill: 'js txt'}) %>
 
 -   Critique
     -   Doesn't tell us *which* tests failed
@@ -64,7 +64,7 @@
 -   Provide two flavors of output (terse one-liner and full details)
 -   Also provide raw material (title and results) for inspection and formatting (e.g., as HTML)
 
-<%- include('/inc/file.html', {file: 'hope.js'}) %>
+<%- include('/_inc/file.html', {file: 'hope.js'}) %>
 
 -   Use the `caller` module to find the name of who's calling the current function
     -   Gives the user more information
@@ -75,7 +75,7 @@
 -   Keeping the files containing tests simple is the most important part of our design
 -   Example in `test-add.js`
 
-<%- include('/inc/file.html', {file: 'test-add.js'}) %>
+<%- include('/_inc/file.html', {file: 'test-add.js'}) %>
 
 -   Load those <g key="dynamic_loading">dynamically</g>
     -   `require` is just a function
@@ -89,7 +89,7 @@
     -   Report results
 -   Doesn't export anything, just runs
 
-<%- include('/inc/multi.html', {pat: 'pray.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'pray.*', fill: 'js sh txt'}) %>
 
 > **Filenames in `minimist`**
 >
