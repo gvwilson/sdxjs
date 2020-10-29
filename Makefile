@@ -35,6 +35,9 @@ TEX=\
   $(wildcard _tex/*.tex) \
   $(wildcard _tex/*.cls)
 
+# Static files.
+STATIC=$(wildcard static/site.*)
+
 # Directories containing sub-Makefiles for reproducing examples.
 SUBMAKEDIR=$(patsubst %/Makefile,%,$(wildcard */Makefile))
 
@@ -45,7 +48,7 @@ commands:
 	@grep -h -E '^##' ${MAKEFILE_LIST} | sed -e 's/## //g' | column -t -s ':'
 
 ## html: rebuild html
-html: docs/index.html docs/numbering.js docs/static/site.css docs/static/site.js
+html: docs/index.html
 
 ## serve: run a server on port 4000
 serve: docs/index.html
@@ -128,7 +131,7 @@ gloss.md: _gloss.yml _tools/gloss.js $(filter-out gloss.md,${MARKDOWN})
 	--output gloss.md \
 	--sources index.md $(patsubst %,%/index.md,${SLUGS})
 
-docs/index.html docs/numbering.js docs/static/site.css docs/static/site.js: _tools/html.js _config.yml _links.yml ${MARKDOWN} static/site.css static/site.js
+docs/index.html: _tools/html.js _config.yml _links.yml ${STATIC} ${MARKDOWN}
 	_tools/html.js \
 	--rootDir . \
 	--outputDir docs \
