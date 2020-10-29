@@ -1,4 +1,4 @@
-const KeyBinding = require('./simple-key-binding')
+const KeyBinding = require('./undo-key-binding')
 
 module.exports = new class extends KeyBinding {
   constructor () {
@@ -7,5 +7,10 @@ module.exports = new class extends KeyBinding {
 
   run (editor, key) {
     editor.newLine()
+    return key
+  }
+
+  undo (editor, key) {
+    editor.del()
   }
 }()

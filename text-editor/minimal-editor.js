@@ -1,7 +1,7 @@
 const terminalKit = require('terminal-kit')
 
 const SETTINGS = {
-  statusBar: 'Ctrl+  X:save & eXit / C:exit / O:Open / S:Save / A:save As / K:cut line / U:paste line',
+  statusBar: 'Ctrl+  C:exit',
   titleBar: 'Zepto',
   shortDelay: 100,
   mediumDelay: 2000,

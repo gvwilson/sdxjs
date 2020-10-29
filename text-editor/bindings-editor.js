@@ -2,7 +2,7 @@ const MinimalEditor = require('./minimal-editor')
 
 // <bindings>
 // <enter-binding>
-const KeyBinding = require('./key-binding')
+const KeyBinding = require('./simple-key-binding')
 
 class EnterBinding extends KeyBinding {
   constructor () {

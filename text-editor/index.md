@@ -59,7 +59,7 @@
 
 -   Each binding is derived from a very simple base class
 
-<%- include('/_inc/file.html', {file: 'key-binding.js'}) %>
+<%- include('/_inc/file.html', {file: 'simple-key-binding.js'}) %>
 
 -   Define a class and create a single instance for handling the `enter` key
     -   Tell the editor what key this handles
@@ -175,3 +175,27 @@
 -   Then re-send every saved keystroke in order
 
 <%- include('/_inc/file.html', {file: 'replay-playback.js'}) %>
+
+## How can we undo operations?
+
+-   Add plugin to backspace
+    -   <key>Ctrl-H</key> on some keyboards
+
+<%- include('/_inc/file.html', {file: 'dirty-backspace.js'}) %>
+
+-   As soon as we can delete things, we are going to want to undelete them
+    -   But we want to undelete in the right place if we have moved elsewhere
+-   We need to keep a list of recent operations
+    -   <key>Ctrl-U</key> pops the most recent operation and undoes it
+    -   Have to undo every operation in order to make sure we get back to the right place
+-   But where do operations actually live?
+    -   Copying code from "move left" into the `backward` method of "move right" is a bad idea (duplication)
+    -   Have each operation `require` its opposite and call its opposite's `forward` method is bad too (circular dependencies)
+    -   Move basic operations back into editor
+    -   This kind of refactoring is common in the early stages of a design
+-   How to undo a delete?
+    -   The handler for character deletion must return the character deleted
+    -   We need to save that
+    -   If an operation (like "undo") returns `null`, don't save it on the undo stack
+
+<%- include('/_inc/erase.html', {file: 'undo-editor.js', tag: 'operations'}) %>

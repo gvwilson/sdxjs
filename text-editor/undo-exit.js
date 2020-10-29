@@ -1,11 +1,12 @@
-const KeyBinding = require('./simple-key-binding')
+const KeyBinding = require('./undo-key-binding')
 
 module.exports = new class extends KeyBinding {
   constructor () {
-    super('ENTER')
+    super('CTRL_C')
   }
 
   run (editor, key) {
-    editor.newLine()
+    editor.exit()
+    return null
   }
 }()

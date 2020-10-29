@@ -86,7 +86,7 @@
 <pre title="minimal-editor.js:body"><code class="language-js">const terminalKit = require('terminal-kit')
 
 const SETTINGS = {
-  statusBar: 'Ctrl+  X:save &amp; eXit / C:exit / O:Open / S:Save / A:save As / K:cut line / U:paste line',
+  statusBar: 'Ctrl+  C:exit',
   titleBar: 'Zepto',
   shortDelay: 100,
   mediumDelay: 2000,
@@ -296,7 +296,7 @@ module.exports = BindingsEditor
 <ul>
 <li>Each binding is derived from a very simple base class</li>
 </ul>
-<pre title="key-binding.js"><code class="language-js">class KeyBinding {
+<pre title="simple-key-binding.js"><code class="language-js">class KeyBinding {
   constructor (key) {
     this.key = key
   }
@@ -316,7 +316,7 @@ module.exports = KeyBinding
 </ul>
 </li>
 </ul>
-<pre title="bindings-editor.js:enter-binding"><code class="language-js">const KeyBinding = require('./key-binding')
+<pre title="bindings-editor.js:enter-binding"><code class="language-js">const KeyBinding = require('./simple-key-binding')
 
 class EnterBinding extends KeyBinding {
   constructor () {
@@ -397,7 +397,7 @@ module.exports = ConfigEditor
 <ul>
 <li>And each binding is an immediately-instantiated class with the object assigned directly to <code>module.exports</code></li>
 </ul>
-<pre title="simple-enter.js"><code class="language-js">const KeyBinding = require('./key-binding')
+<pre title="simple-enter.js"><code class="language-js">const KeyBinding = require('./simple-key-binding')
 
 module.exports = new class extends KeyBinding {
   constructor () {
@@ -434,7 +434,7 @@ module.exports = new class extends KeyBinding {
 </ul>
 </li>
 </ul>
-<pre title="simple-left.js"><code class="language-js">const KeyBinding = require('./key-binding')
+<pre title="simple-left.js"><code class="language-js">const KeyBinding = require('./simple-key-binding')
 
 module.exports = new class extends KeyBinding {
   constructor () {
@@ -711,6 +711,90 @@ module.exports = new class extends KeyBinding {
     }
   }
 }()
+</code></pre>
+<h2 id="how-can-we-undo-operations">How can we undo operations?</h2>
+<ul>
+<li>Add plugin to backspace
+<ul>
+<li><key>Ctrl-H</key> on some keyboards</li>
+</ul>
+</li>
+</ul>
+<pre title="dirty-backspace.js"><code class="language-js">const KeyBinding = require('./init-key-binding')
+
+module.exports = new class extends KeyBinding {
+  constructor () {
+    super('BACKSPACE')
+  }
+
+  init (editor) {
+    editor.addState('dirty', false)
+  }
+
+  run (editor, key) {
+    editor.dirty = true
+    editor.textBuffer.backDelete(1)
+    editor.draw()
+  }
+}()
+</code></pre>
+<ul>
+<li>As soon as we can delete things, we are going to want to undelete them
+<ul>
+<li>But we want to undelete in the right place if we have moved elsewhere</li>
+</ul>
+</li>
+<li>We need to keep a list of recent operations
+<ul>
+<li><key>Ctrl-U</key> pops the most recent operation and undoes it</li>
+<li>Have to undo every operation in order to make sure we get back to the right place</li>
+</ul>
+</li>
+<li>But where do operations actually live?
+<ul>
+<li>Copying code from &quot;move left&quot; into the <code>backward</code> method of &quot;move right&quot; is a bad idea (duplication)</li>
+<li>Have each operation <code>require</code> its opposite and call its opposite's <code>forward</code> method is bad too (circular dependencies)</li>
+<li>Move basic operations back into editor</li>
+<li>This kind of refactoring is common in the early stages of a design</li>
+</ul>
+</li>
+<li>How to undo a delete?
+<ul>
+<li>The handler for character deletion must return the character deleted</li>
+<li>We need to save that</li>
+<li>If an operation (like &quot;undo&quot;) returns <code>null</code>, don't save it on the undo stack</li>
+</ul>
+</li>
+</ul>
+<pre title="undo-editor.js:operations"><code class="language-js">const InitEditor = require('./init-editor')
+
+class UndoEditor extends InitEditor {
+  constructor (args) {
+    super(args)
+    this.stack = []
+  }
+
+  onKey (key, matches, data) {
+    const op = this.bindings.has(key)
+      ? this.bindings.get(key)
+      : this.defaultBinding
+    const save = op.run(this, key)
+    if (save !== null) {
+      this.stack.push([op, save])
+    }
+  }
+
+  undo () {
+    if (this.stack.length === 0) {
+      return
+    }
+    const [op, key] = this.stack.pop()
+    op.undo(this, key)
+  }
+...
+}
+
+module.exports = UndoEditor
 </code></pre>
 </main>
 <footer>

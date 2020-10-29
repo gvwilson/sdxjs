@@ -1,4 +1,4 @@
-const KeyBinding = require('./key-binding')
+const KeyBinding = require('./simple-key-binding')
 
 module.exports = new class extends KeyBinding {
   constructor () {
@@ -6,15 +6,19 @@ module.exports = new class extends KeyBinding {
   }
 
   run (editor, key) {
-    const line = editor.textBuffer.buffer[editor.textBuffer.cy].reduce((acc, curr) => {
-      acc += curr.char.trim()
-      return acc
-    }, '')
+    const line = this.getLine()
     if (editor.textBuffer.cx < line.length) {
       editor.textBuffer.moveRight()
     } else if (editor.textBuffer.getContentSize().height - 1 > editor.textBuffer.cy) {
       editor.textBuffer.moveTo(0, editor.textBuffer.cy + 1)
     }
     editor.drawCursor()
+  }
+
+  getLine () {
+    return this.textBuffer.buffer[this.textBuffer.cy].reduce((acc, curr) => {
+      acc += curr.char.trim()
+      return acc
+    }, '')
   }
 }()
