@@ -54,26 +54,26 @@
     -   Of the two remaining possibilities, X/2 + Y/3 + Z/3 is strictly greater than X/2 + Y/2 + Z/2
     -   If we wound up with A/1 + B/2 vs. A/2 + B/1, we'd have to add another rule
 
-|   X |   Y |   Z | Excluded |
-| --- | --- | --- | -------- |
-|   1 |   1 |   1 |   Y vs Z |
-|   1 |   1 |   2 |   X vs Z |
-|   1 |   1 |   3 |   Y vs Z |
-|   1 |   2 |   1 |   Y vs Z |
-|   1 |   2 |   2 |   X vs Z |
-|   1 |   2 |   3 |   X vs Z |
-|   1 |   3 |   1 |   X vs Y |
-|   1 |   3 |   2 |   X vs Y |
-|   1 |   3 |   3 |   Y vs Z |
-|   2 |   1 |   1 |   Y vs Z |
-|   2 |   1 |   2 |   X vs Y |
-|   2 |   1 |   3 |   Y vs Z |
-|   2 |   2 |   1 |   Y vs Z |
-|   2 |   2 |   2 |          |
-|   2 |   2 |   3 |   X vs Z |
-|   2 |   3 |   1 |   Y vs Z |
-|   2 |   3 |   2 |          |
-|   2 |   3 |   3 |   Y vs Z |
+|   X |   Y |   Z | Excluded  |
+| --- | --- | --- | --------- |
+|   1 |   1 |   1 | Y/1 - Z/1 |
+|   1 |   1 |   2 | X/1 - Z/2 |
+|   1 |   1 |   3 | X/1 - Z/3 |
+|   1 |   2 |   1 | Y/2 - Z/1 |
+|   1 |   2 |   2 | X/1 - Z/2 |
+|   1 |   2 |   3 | X/1 - Z/3 |
+|   1 |   3 |   1 | X/1 - Y/3 |
+|   1 |   3 |   2 | X/1 - Y/3 |
+|   1 |   3 |   3 | X/1 - Y/3 |
+|   2 |   1 |   1 | X/2 - Y/1 |
+|   2 |   1 |   2 | X/2 - Y/1 |
+|   2 |   1 |   3 | X/2 - Y/1 |
+|   2 |   2 |   1 | Y/2 - Z/1 |
+|   2 |   2 |   2 |           |
+|   2 |   2 |   3 | X/2 - Z/3 |
+|   2 |   3 |   1 | Y/3 - Z/1 |
+|   2 |   3 |   2 | Y/3 - Z/2 |
+|   2 |   3 |   3 | X/2 - Z/3 |
 
 -   How did we do this?
     -   Find all versions of all packages plus their constraints (<g key="transitive_closure">transitive closure</g>)
@@ -93,3 +93,46 @@
 -   Stick to single-digit version numbers for readability
 
 <%- include('/_inc/file.html', {file: 'double-chained.json'}) %>
+
+-   Check if a configuration (specific versions of all packages) is compatible with a manifest
+
+<%- include('/_inc/file.html', {file: 'allows.js'}) %>
+
+-   Simplest way to find configuration is to sweep over all possibilities
+
+<%- include('/_inc/file.html', {file: 'sweep.js'}) %>
+
+-   Run this on the short example
+
+<%- include('/_inc/multi.html', {pat: 'sweep-double-chained.*', fill: 'sh txt'}) %>
+
+-   And on the longer example
+
+<%- include('/_inc/multi.html', {pat: 'sweep-double-chained.*', fill: 'sh txt'}) %>
+
+-   But look at unnecessary work in output
+    -   Sort by the case that caught the exclusion
+    -   9 of the 17 exclusions are redundant rediscovery of a known problem
+
+| Excluded  |   X |   Y |   Z |
+| --------  | --- | --- | --- |
+| X/1 - Y/3 |   1 |   3 |   1 |
+| …         |   1 |   3 |   2 |
+| …         |   1 |   3 |   3 |
+| X/1 - Z/2 |   1 |   1 |   2 |
+| …         |   1 |   2 |   2 |
+| X/1 - Z/3 |   1 |   1 |   3 |
+| …         |   1 |   2 |   3 |
+| X/2 - Y/1 |   2 |   1 |   1 |
+| …         |   2 |   1 |   2 |
+| …         |   2 |   1 |   3 |
+| X/2 - Z/3 |   2 |   2 |   3 |
+| …         |   2 |   3 |   3 |
+| Y/1 - Z/1 |   1 |   1 |   1 |
+| Y/2 - Z/1 |   1 |   2 |   1 |
+| …         |   2 |   2 |   1 |
+| Y/3 - Z/1 |   2 |   3 |   1 |
+| …         |   2 |   3 |   2 |
+|           |   2 |   2 |   2 |
+
+-   How can we avoid doing a full check of things that can't possibly work?

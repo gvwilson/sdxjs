@@ -152,6 +152,8 @@
 <dd class="glossary">A piece of code that deals with an <g key="exception">exception</g> after it is <g key="catch_exception">caught</g>, e.g., by writing a <g key="log_message">log message</g> or retrying the operation that failed.</dd>
 <dt id="expected_result" class="glossary">expected result (of test)</dt>
 <dd class="glossary">The value that a piece of software is suposed to produced when tested in a certain way, or the state in which it is supposed to leave the system.</dd>
+<dt id="exponential_explosion" class="glossary">exponential explosion</dt>
+<dd class="glossary">FIXME</dd>
 <dt id="export" class="glossary">export</dt>
 <dd class="glossary">To make something visible outside a <g key="module">module</g> so that other parts of a program can <g key="import">import</g> it. In most languages a module must export things explicitly in order to manage <g key="name_collision">name collision</g>.</dd>
 <dt id="fail_test" class="glossary">fail (a test)</dt>
@@ -240,6 +242,8 @@
 <dd class="glossary">The statement or statements executed by a loop.</dd>
 <dt id="loosely_coupled" class="glossary">loosely coupled</dt>
 <dd class="glossary">Components in a software system are said to be loosely coupled if they are relatively independent of one another, i.e., if any one of them can be changed or replaced without others having to be altered as well.</dd>
+<dt id="manifest" class="glossary">manifest</dt>
+<dd class="glossary">FIXME</dd>
 <dt id="markdown" class="glossary">Markdown</dt>
 <dd class="glossary">A <g key="markup_language">markup language</g> with a simple syntax intended as a replacement for <g key="html">HTML</g>. Markdown is often used for README files, and is the basis for <g key="r_markdown">R markdown</g>.</dd>
 <dt id="markup_language" class="glossary">markup language</dt>
@@ -280,6 +284,8 @@
 <dd class="glossary">In <g key="oop">object-oriented programming</g>, the class from which another class (called the <g key="child_class">child class</g>) is derived.</dd>
 <dt id="pass_test" class="glossary">pass (a test)</dt>
 <dd class="glossary">A test passes if the <g key="actual_result">actual result</g> matches the <g key="expected_result">expected result</g>.</dd>
+<dt id="patch" class="glossary">patch</dt>
+<dd class="glossary">FIXME</dd>
 <dt id="path" class="glossary">path (in filesystem)</dt>
 <dd class="glossary">A string that specifies a location in a <g key="filesystem">filesystem</g>. In Unix, the directories in a path are joined using <code>/</code>.</dd>
 <dt id="pattern_rule" class="glossary">pattern rule</dt>
@@ -328,6 +334,8 @@
 <dd class="glossary">The portion of a program within which a definition can be seen and used. Cf. <g key="closure">closure</g>, <g key="global_variable">global variable</g>, and <g key="local_variable">local variable</g>.</dd>
 <dt id="search_path" class="glossary">search path</dt>
 <dd class="glossary">The list of directories that a program searches to find something. For example, the Unix <g key="shell">shell</g> uses the search path stored in the <code>PATH</code> variable when trying to find a program given its name.</dd>
+<dt id="semantic_versioning" class="glossary">semantic versioning</dt>
+<dd class="glossary">A standard for identifying software releases. In the version identifier <code>major.minor.patch</code>, <code>major</code> changes when a new version of software is incompatible with old versions, <code>minor</code> changes when new features are added to an existing version, and <code>patch</code> changes when small bugs are fixed.</dd>
 <dt id="server" class="glossary">server</dt>
 <dd class="glossary">Typically, a program such as a database manager or web server that provides data to a <g key="client">client</g> upon request.</dd>
 <dt id="shell" class="glossary">shell</dt>
