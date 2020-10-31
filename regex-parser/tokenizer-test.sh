@@ -1,1 +1,1 @@
-npm run test -- -g 'tokenizes correctly'
+npm run test -- -g 'tokenizes correctly' | ../_tools/wrap.js

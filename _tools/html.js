@@ -29,7 +29,7 @@ const DEFAULTS = {
 /**
  * Standard directory to show instead of user's directory.
  */
-const STANDARD_DIR = '/stjs'
+const STANDARD_DIR = '/u/stjs'
 
 /**
  * Header inclusion.
@@ -67,7 +67,7 @@ const getOptions = () => {
   parser.add_argument('--replaceDir', { action: 'store_true' })
 
   const fromArgs = parser.parse_args()
-  fromArgs.currentWorkingDir = process.cwd()
+  fromArgs.homeDir = __dirname.replace('/_tools', '')
   const fromFile = yaml.safeLoad(fs.readFileSync(fromArgs.configFile, 'utf-8'))
   const options = { ...fromArgs, ...fromFile }
 
@@ -173,7 +173,7 @@ const translateFile = (options, fileInfo, linksText) => {
     .use(MarkdownContainer, 'callout')
   let html = mdi.render(translated)
   if (options.replaceDir) {
-    html = html.replace(new RegExp(options.currentWorkingDir, 'g'), STANDARD_DIR)
+    html = html.replace(new RegExp(options.homeDir, 'g'), STANDARD_DIR)
   }
 
   // Save result.

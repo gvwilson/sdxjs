@@ -5,8 +5,7 @@ TARGETS=\
   run-hash-existing-async.txt \
   run-hash-existing-promise.txt \
   test-backup.txt \
+  test-check-filesystem.txt \
   tree-test.txt
-
-#  test-check-filesystem.txt FIXME
 
 include ../_rules.mk

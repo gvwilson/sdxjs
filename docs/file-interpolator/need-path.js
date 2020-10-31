@@ -24,7 +24,9 @@ class Cache {
   constructSearchPath () {
     this.searchPath = []
     if ('NEED_PATH' in process.env) {
-      this.searchPath = process.env.NEED_PATH.split(':').filter(x => x.length > 0)
+      this.searchPath = process.env.NEED_PATH
+        .split(':')
+        .filter(x => x.length > 0)
     }
   }
 

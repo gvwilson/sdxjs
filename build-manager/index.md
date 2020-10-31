@@ -150,7 +150,7 @@
     -   Didn't actually have the assertion in `add-timestamps.js` when we first wrote it
     -   Added it once we had and traced this error because every failure should turn into an `assert`
 
-<%- include('/_inc/multi.html', {pat: 'pattern-user-attempt.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'pattern-user-attempt.*', fill: 'js txt'}) %>
 
 -   Our simple graph loader creates nodes for dependencies even if they aren't targets
 -   So we wind up tripping over the lack of a node for `%.in` before we get to extracting rules

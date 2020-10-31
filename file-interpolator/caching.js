@@ -2,7 +2,8 @@
 class Cache {
   // ...
   interpolate (fileDir, outer) {
-    return outer.replace(Cache.INTERPOLATE_PAT, (match, comment, filename) => {
+    return outer.replace(Cache.INTERPOLATE_PAT,
+                         (match, comment, filename) => {
       filename = filename.trim()
       const filePath = path.join(fileDir, filename)
       if (!fs.existsSync(filePath)) {

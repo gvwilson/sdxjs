@@ -23,7 +23,9 @@ class Cache {
   constructSearchPath () {
     this.searchPath = []
     if ('NEED_PATH' in process.env) {
-      this.searchPath = process.env.NEED_PATH.split(':').filter(x => x.length > 0)
+      this.searchPath = process.env.NEED_PATH
+        .split(':')
+        .filter(x => x.length > 0)
     }
   }
 
@@ -52,7 +54,8 @@ class Cache {
   }
 
   interpolate (fileDir, outer) {
-    return outer.replace(Cache.INTERPOLATE_PAT, (match, comment, filename) => {
+    return outer.replace(Cache.INTERPOLATE_PAT,
+                         (match, comment, filename) => {
       filename = filename.trim()
       const filePath = path.join(fileDir, filename)
       if (!fs.existsSync(filePath)) {

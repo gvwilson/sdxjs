@@ -1,2 +1,2 @@
-node list-dir-wrong.js . 2>&1 | ../_tools/wrap.js
+node list-dir-wrong.js .
 exit 0

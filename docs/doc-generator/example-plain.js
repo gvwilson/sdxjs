@@ -13,7 +13,7 @@ const main = () => { // eslint-disable-line
 }
 
 /**
- * ## `parseArgs`: Parse command-line arguments.
+ * ## `parseArgs`: Parse command line.
  * - `args` (`string[]`): arguments to parse.
  * - `defaults` (`Object`): default values.
  *
@@ -24,12 +24,12 @@ const parseArgs = (args, defaults) => { // eslint-disable-line
 }
 
 /**
- * ## `processData`: Process data from input stream, sending results to output stream.
+ * ## `process`: Transform data.
  * - `input` (`stream`): where to read.
  * - `output` (`stream`): where to write.
  * - `op` (`class`): what to do.
- *    Use @DefaultProcessor unless told to do otherwise.
+ *    Use @BaseProcessor unless told otherwise.
  */
-const processData = (input, output, op = util.DefaultProcessor) => { // eslint-disable-line
+const process = (input, output, op = util.BaseProcessor) => { // eslint-disable-line
   // body would go here
 }

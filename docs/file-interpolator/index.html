@@ -187,17 +187,19 @@ Seen.from_loaded_file = 'from loaded file'
 <ul>
 <li>This doesn't work on its own because <code>Seen</code> isn't defined</li>
 </ul>
-<pre title="to-be-loaded.txt"><code class="language-txt">/stjs/file-interpolator/to-be-loaded.js:3
+<pre title="to-be-loaded.txt"><code class="language-txt">/u/stjs/file-interpolator/to-be-loaded.js:3
 Seen.from_loaded_file = 'from loaded file'
 ^
-
 ReferenceError: Seen is not defined
-    at Object.&lt;anonymous&gt; (/stjs/file-interpolator/to-be-loaded.js:3:1)
+    at Object.&lt;anonymous&gt; \
+ (/u/stjs/file-interpolator/to-be-loaded.js:3:1)
     at Module._compile (internal/modules/cjs/loader.js:1151:30)
-    at Object.Module._extensions..js (internal/modules/cjs/loader.js:1171:10)
+    at Object.Module._extensions..js \
+ (internal/modules/cjs/loader.js:1171:10)
     at Module.load (internal/modules/cjs/loader.js:1000:32)
     at Function.Module._load (internal/modules/cjs/loader.js:899:14)
-    at Function.executeUserEntryPoint [as runMain] (internal/modules/run_main.js:71:12)
+    at Function.executeUserEntryPoint [as runMain] \
+ (internal/modules/run_main.js:71:12)
     at internal/main/run_main_module.js:17:47
 </code></pre>
 <ul>
@@ -322,7 +324,9 @@ class Cache {
   constructSearchPath () {
     this.searchPath = []
     if ('NEED_PATH' in process.env) {
-      this.searchPath = process.env.NEED_PATH.split(':').filter(x =&gt; x.length &gt; 0)
+      this.searchPath = process.env.NEED_PATH
+        .split(':')
+        .filter(x =&gt; x.length &gt; 0)
     }
   }
 
@@ -390,7 +394,8 @@ imported('called from test-import-left.js')
 <pre title="test-import-left.sh"><code class="language-sh">NEED_PATH=$PWD/modules/ node test-import-left.js
 </code></pre>
 <pre title="test-import-left.txt"><code class="language-txt">loading value for imported-left.js
-trying /stjs/file-interpolator/modules/imported-left.js for imported-left.js
+trying /u/stjs/file-interpolator/modules/imported-left.js for \
+ imported-left.js
 in LEFT with message "called from test-import-left.js"
 </code></pre>
 <ul>
@@ -416,10 +421,9 @@ imported('called from test-import-right.js')
 const alsoImported = need('imported-right.js')
 alsoImported('called from test-import-right.js')
 </code></pre>
-<pre title="test-import-right.sh"><code class="language-sh">NEED_PATH=$PWD/modules/ node test-import-right.js
-</code></pre>
 <pre title="test-import-right.txt"><code class="language-txt">loading value for imported-right.js
-trying /stjs/file-interpolator/modules/imported-right.js for imported-right.js
+trying /u/stjs/file-interpolator/modules/imported-right.js for \
+ imported-right.js
 in RIGHT with message "called from test-import-right.js"
 returning cached value for imported-right.js
 in RIGHT with message "called from test-import-right.js"
@@ -441,7 +445,8 @@ in RIGHT with message "called from test-import-right.js"
 class Cache {
   // ...
   interpolate (fileDir, outer) {
-    return outer.replace(Cache.INTERPOLATE_PAT, (match, comment, filename) =&gt; {
+    return outer.replace(Cache.INTERPOLATE_PAT,
+                         (match, comment, filename) =&gt; {
       filename = filename.trim()
       const filePath = path.join(fileDir, filename)
       if (!fs.existsSync(filePath)) {

@@ -55,7 +55,8 @@ class Expander extends Visitor {
   }
 
   getHandler (node) {
-    const possible = Object.keys(node.attribs).filter(name => name in this.handlers)
+    const possible = Object.keys(node.attribs)
+      .filter(name => name in this.handlers)
     assert(possible.length === 1,
       'Should be exactly one handler')
     return this.handlers[possible[0]]

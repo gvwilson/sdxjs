@@ -3,6 +3,8 @@
 const readline = require('readline')
 
 const WIDTH = 72
+const HOME = __dirname.replace('/_tools', '')
+const FAKE = '/u/stjs'
 
 const reader = readline.createInterface({
   input: process.stdin,
@@ -11,6 +13,7 @@ const reader = readline.createInterface({
 })
 
 reader.on('line', (line) => {
+  line = line.replace(HOME, FAKE)
   let front = null
   let terminator = null
   while (line.length > 0) {

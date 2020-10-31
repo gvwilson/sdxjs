@@ -229,11 +229,11 @@ class ConfigLoader extends SkeletonBuilder {
       assert(('depends' in rule) &amp;&amp;
         Array.isArray(rule.depends) &amp;&amp;
         rule.depends.every(dep =&gt; (typeof dep === 'string')),
-        `Rule ${JSON.stringify(rule)} does not have list of strings as 'depends'`)
+        `Bad 'depends' for rule ${JSON.stringify(rule)}`)
       assert(('recipes' in rule) &amp;&amp;
         Array.isArray(rule.recipes) &amp;&amp;
         rule.recipes.every(recipe =&gt; (typeof recipe === 'string')),
-        `Rule ${JSON.stringify(rule)} does not have list of strings as 'recipes'`)
+        `Bad 'recipes' for rule ${JSON.stringify(rule)}`)
     })
   }
 }
@@ -422,12 +422,14 @@ const AddTimestamps = require('./add-timestamps')
 class UpdateOnTimestamps extends AddTimestamps {
   run () {
     const sorted = graphlib.alg.topsort(this.graph)
-    const startTime = 1 + Math.max(...sorted.map(n =&gt; this.graph.node(n).timestamp))
+    const startTime = 1 + Math.max(...sorted.map(
+      n =&gt; this.graph.node(n).timestamp))
     console.log(`${startTime}: START`)
     const endTime = sorted.reduce((currTime, node) =&gt; {
       if (this.isStale(node)) {
         console.log(`${currTime}: ${node}`)
-        this.graph.node(node).recipes.forEach(a =&gt; console.log(`    ${a}`))
+        this.graph.node(node).recipes.forEach(
+          a =&gt; console.log(`    ${a}`))
         this.graph.node(node).timestamp = currTime
         currTime += 1
       }
@@ -438,7 +440,8 @@ class UpdateOnTimestamps extends AddTimestamps {
 
   isStale (node) {
     return this.graph.predecessors(node).some(
-      other =&gt; this.graph.node(other).timestamp &gt;= this.graph.node(node).timestamp
+      other =&gt; this.graph.node(other).timestamp &gt;=
+        this.graph.node(node).timestamp
     )
   }
 }
@@ -589,22 +592,24 @@ class PatternUserAttempt extends VariableExpander {
 
 module.exports = PatternUserAttempt
 </code></pre>
-<pre title="pattern-user-attempt.sh"><code class="language-sh">node driver.js ./pattern-user-attempt pattern-rules.yml add-timestamps.yml &gt;&amp; pattern-user-attempt.txt
-exit 0
-</code></pre>
 <pre title="pattern-user-attempt.txt"><code class="language-txt">assert.js:386
     throw err;
     ^
-
 AssertionError [ERR_ASSERTION]: Graph does not have node A
-    at PatternUserAttempt.addTimestamps (/stjs/build-manager/add-timestamps.js:21:7)
-    at PatternUserAttempt.buildGraph (/stjs/build-manager/add-timestamps.js:15:10)
-    at PatternUserAttempt.buildGraph (/stjs/build-manager/variable-expander.js:5:11)
-    at PatternUserAttempt.buildGraph (/stjs/build-manager/pattern-user-attempt.js:5:11)
-    at PatternUserAttempt.build (/stjs/build-manager/skeleton-builder.js:10:10)
-    at Object.&lt;anonymous&gt; (/stjs/build-manager/driver.js:3:9)
+    at PatternUserAttempt.addTimestamps \
+ (/u/stjs/build-manager/add-timestamps.js:21:7)
+    at PatternUserAttempt.buildGraph \
+ (/u/stjs/build-manager/add-timestamps.js:15:10)
+    at PatternUserAttempt.buildGraph \
+ (/u/stjs/build-manager/variable-expander.js:5:11)
+    at PatternUserAttempt.buildGraph \
+ (/u/stjs/build-manager/pattern-user-attempt.js:5:11)
+    at PatternUserAttempt.build \
+ (/u/stjs/build-manager/skeleton-builder.js:10:10)
+    at Object.&lt;anonymous&gt; (/u/stjs/build-manager/driver.js:3:9)
     at Module._compile (internal/modules/cjs/loader.js:1151:30)
-    at Object.Module._extensions..js (internal/modules/cjs/loader.js:1171:10)
+    at Object.Module._extensions..js \
+ (internal/modules/cjs/loader.js:1171:10)
     at Module.load (internal/modules/cjs/loader.js:1000:32)
     at Function.Module._load (internal/modules/cjs/loader.js:899:14) {
   generatedMessage: false,

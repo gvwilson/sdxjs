@@ -1,1 +1,1 @@
-npm run test -- -g 'check entire backup process'
+npm run test -- -g 'check entire backup process' | ../_tools/wrap.js

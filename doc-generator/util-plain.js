@@ -1,13 +1,13 @@
 /**
- * # Utilities for demonstrating documentation generator.
+ * # Utilities to demonstrate doc generator.
  */
 
 /**
- * ## `DefaultProcessor`: Default processing class.
+ * ## `BaseProcessor`: General outline.
  */
-class DefaultProcessor {
+class BaseProcessor {
   /**
-   * ### `constructor`: Build default processor.
+   * ### `constructor`: Build processor.
    */
   constructor () { // eslint-disable-line
     // body would go here
@@ -23,4 +23,4 @@ class DefaultProcessor {
   }
 }
 
-module.exports = DefaultProcessor
+module.exports = BaseProcessor

@@ -15,11 +15,11 @@ class ConfigLoader extends SkeletonBuilder {
       assert(('depends' in rule) &&
         Array.isArray(rule.depends) &&
         rule.depends.every(dep => (typeof dep === 'string')),
-        `Rule ${JSON.stringify(rule)} does not have list of strings as 'depends'`)
+        `Bad 'depends' for rule ${JSON.stringify(rule)}`)
       assert(('recipes' in rule) &&
         Array.isArray(rule.recipes) &&
         rule.recipes.every(recipe => (typeof recipe === 'string')),
-        `Rule ${JSON.stringify(rule)} does not have list of strings as 'recipes'`)
+        `Bad 'recipes' for rule ${JSON.stringify(rule)}`)
     })
   }
 }

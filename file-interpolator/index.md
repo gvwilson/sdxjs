@@ -112,7 +112,7 @@
 
 -   Load that twice to check that caching works
 
-<%- include('/_inc/multi.html', {pat: 'test-import-right.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'test-import-right.*', fill: 'js txt'}) %>
 
 ## How can we interpolate pieces of code?
 

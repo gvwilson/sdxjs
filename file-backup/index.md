@@ -94,7 +94,7 @@ and quickly get into "if every atom in the universe was a file there still would
         since we may add tests for other things later
 
 <%- include('/_inc/file.html', {file: 'test/test-find.js'}) %>
-<%- include('/_inc/multi.html', {pat: 'test-check-filesystem.*', fill: 'sh txt'}) %>
+<%- include('/_inc/file.html', {file: 'test-check-filesystem.txt'}) %>
 
 ## How can we test code that modifies files?
 
@@ -119,4 +119,4 @@ and quickly get into "if every atom in the universe was a file there still would
     -   Which are quite involved, since we want to check with actual file hashes
 
 <%- include('/_inc/file.html', {file: 'test/test-backup.js'}) %>
-<%- include('/_inc/multi.html', {pat: 'test-backup.*', fill: 'sh txt'}) %>
+<%- include('/_inc/file.html', {file: 'test-backup.txt'}) %>

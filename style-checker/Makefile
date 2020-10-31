@@ -5,7 +5,7 @@ TARGETS=\
   generator-tree-for.txt \
   generator-tree-while.txt \
   parse-single-const.txt \
-  parse-const-func-and-call.txt \
+  parse-const-func.txt \
   walk-ast.txt \
   walker-class.txt
 

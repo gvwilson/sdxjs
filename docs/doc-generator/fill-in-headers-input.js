@@ -22,9 +22,9 @@ const parseArgs = (args, defaults) => { // eslint-disable-line
 /**
  * Default processing class.
  */
-class DefaultProcessor { // eslint-disable-line
+class BaseProcessor { // eslint-disable-line
   /**
-   * Build default processor.
+   * Build base processor.
    */
   constructor () { // eslint-disable-line
     // body would go here

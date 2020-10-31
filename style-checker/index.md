@@ -28,7 +28,7 @@
 -   Look at the result of parsing a slightly more complex program
     -   A 9-line program produces over 500 lines of structure
 
-<%- include('/_inc/multi.html', {pat: 'parse-const-func-and-call.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'parse-const-func.*', fill: 'js txt'}) %>
 
 ## How can we walk the AST?
 
