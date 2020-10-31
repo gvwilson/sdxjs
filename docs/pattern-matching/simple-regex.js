@@ -47,6 +47,7 @@ const matchHere = (pattern, iPattern, text, iText) => {
   return false
 }
 
+// <tests>
 const main = () => {
   const tests = [
     ['a', 'a', true],
@@ -73,3 +74,4 @@ const main = () => {
 }
 
 main()
+// </tests>

@@ -52,7 +52,7 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
 <%- include('/_inc/file.html', {file: 'placed-block.js'}) %>
 <%- include('/_inc/file.html', {file: 'placed-row.js'}) %>
 <%- include('/_inc/file.html', {file: 'placed-column.js'}) %>
-<%- include('/_inc/file.html', {file: 'test/test-placed.js'}) %>
+<%- include('/_inc/erase.html', {file: 'test/test-placed.js', tag: 'large'}) %>
 <%- include('/_inc/file.html', {file: 'test-placed.txt'}) %>
 
 ## What subset of HTML and CSS will we support?
@@ -68,8 +68,13 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
 
 -   Use regular expressions to parse documents, though [this is a sin][stack-overflow-html-regex]
     -   And yes, the tests caught errors
+-   Main body
 
-<%- include('/_inc/file.html', {file: 'parse.js'}) %>
+<%- include('/_inc/erase.html', {file: 'parse.js', tag: 'makenode'}) %>
+
+-   Two functions that do most of the work
+
+<%- include('/_inc/slice.html', {file: 'parse.js', tag: 'makenode'}) %>
 
 -   Now define a generic class for rules and a subclass for each type of rule
 -   ID rules

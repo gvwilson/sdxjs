@@ -52,7 +52,7 @@
 
 -   It's not done until it's tested
 
-<%- include('/_inc/file.html', {file: 'test/test-tokenizer.js'}) %>
+<%- include('/_inc/erase.html', {file: 'test/test-tokenizer.js', tag: 'omit'}) %>
 <%- include('/_inc/file.html', {file: 'tokenizer-test.txt'}) %>
 
 ## How can we turn a stream of tokens into a tree?
@@ -86,12 +86,25 @@
     -   After all tokens have been handled,
         look for partially-completed `Alt` tokens and make whatever comes after the right child
     -   Again, this will automatically work for things like `/(ab)|c*|(de)/`
+-   Main structure
 
-<%- include('/_inc/file.html', {file: 'parser.js'}) %>
+<%- include('/_inc/erase.html', {file: 'parser.js', tag: 'skip'}) %>
+
+-   Handle a symbol
+
+<%- include('/_inc/slice.html', {file: 'parser.js', tag: 'handle'}) %>
+
+-   Handle the end of a group
+
+<%- include('/_inc/slice.html', {file: 'parser.js', tag: 'groupend'}) %>
+
+-   Compress results
+
+<%- include('/_inc/slice.html', {file: 'parser.js', tag: 'compress'}) %>
 
 -   And some tests
 
-<%- include('/_inc/file.html', {file: 'test/test-parser.js'}) %>
+<%- include('/_inc/erase.html', {file: 'test/test-parser.js', tag: 'omit'}) %>
 <%- include('/_inc/file.html', {file: 'parser-test.txt'}) %>
 
 -   If we have more operators with different <g key="precedence">precedences</g>

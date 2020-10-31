@@ -22,6 +22,7 @@ class Expander extends Visitor {
     return this.result.join('')
   }
 
+  // <body>
   open (node) {
     if (node.type === 'text') {
       this.output(node.data)
@@ -76,6 +77,7 @@ class Expander extends Visitor {
     }
     this.output('>')
   }
+  // </body>
 
   output (text) {
     this.result.push((text === undefined) ? 'UNDEF' : text)

@@ -54,7 +54,14 @@ but as Kernighan said,
 in my own experience of using regular expressions on a day-to-day basis,
 it easily accounts for 95 percent of all instances."
 
-<%- include('/_inc/multi.html', {pat: 'simple-regex.*', fill: 'js txt'}) %>
+-   Regular expression matching
+
+<%- include('/_inc/erase.html', {file: 'simple-regex.js', tag: 'tests'}) %>
+
+-   Some tests and output
+
+<%- include('/_inc/slice.html', {file: 'simple-regex.js', tag: 'tests'}) %>
+<%- include('/_inc/file.html', {file: 'simple-regex.txt'}) %>
 
 -   This works, but it's hard to extend
     -   Handling parentheses in patterns like `/a(bc)*d/` requires big changes

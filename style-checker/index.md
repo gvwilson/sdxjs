@@ -65,8 +65,17 @@
     -   I.e., use the walker object as a lookup table
 -   Not the same architecture as `acorn-walk`
     -   But easier to understand and extend
+-   The class itself
 
-<%- include('/_inc/multi.html', {pat: 'walker-class.*', fill: 'js txt'}) %>
+<%- include('/_inc/slice.html', {file: 'walker-class.js', tag: 'walker'}) %>
+
+-   What we need to run a test
+
+<%- include('/_inc/erase.html', {file: 'walker-class.js', tag: 'walker'}) %>
+
+-   Output
+
+<%- include('/_inc/file.html', {file: 'walker-class.txt'}) %>
 
 ## How else could the AST walker work?
 

@@ -4,6 +4,7 @@ const glob = require('glob-promise')
 const mock = require('mock-fs')
 const crypto = require('crypto')
 
+// <fixtures>
 const backup = require('../backup')
 
 const hashString = (data) => {
@@ -39,7 +40,9 @@ const InitialBackups = Object.keys(Hashes).reduce((set, filename) => {
   set.add(`backup/${Hashes[filename]}.bck`)
   return set
 }, new Set())
+// </fixtures>
 
+// <tests>
 describe('check entire backup process', () => {
   beforeEach(() => {
     mock(Fixture)
@@ -78,10 +81,7 @@ describe('check entire backup process', () => {
 
     const actualManifests = (await glob('backup/*.csv')).sort()
     assert.deepStrictEqual(actualManifests,
-      [
-        'backup/0000000000.csv',
-        'backup/0000000001.csv'
-      ],
+      ['backup/0000000000.csv', 'backup/0000000001.csv'],
       'Expected two manifests')
   })
 
@@ -103,10 +103,8 @@ describe('check entire backup process', () => {
 
     const actualManifests = (await glob('backup/*.csv')).sort()
     assert.deepStrictEqual(actualManifests,
-      [
-        'backup/0000000000.csv',
-        'backup/0000000001.csv'
-      ],
+      ['backup/0000000000.csv', 'backup/0000000001.csv'],
       'Expected two manifests')
   })
 })
+// </tests>

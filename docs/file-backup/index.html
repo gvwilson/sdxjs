@@ -485,7 +485,7 @@ describe('checks for pre-existing hashes using actual filesystem', () =&gt; {
 </code></pre>
 <h2 id="how-can-we-test-code-that-modifies-files">How can we test code that modifies files?</h2>
 <ul>
-<li>Step 3: copy the files that need copying and create a new timestamped <a href="#csv">CSV</a> file
+<li>Step 3: copy the files that need copying and create a new timestamped <g key="csv">CSV</g> file
 <ul>
 <li>Could use JSON, but CSV is easier for humans to read</li>
 </ul>
@@ -622,14 +622,9 @@ module.exports = backup
 <li>Which are quite involved, since we want to check with actual file hashes</li>
 </ul>
 </li>
+<li>Set up some fixtures</li>
 </ul>
-<pre title="test/test-backup.js"><code class="language-js">const assert = require('assert')
-const fs = require('fs-extra-promise')
-const glob = require('glob-promise')
-const mock = require('mock-fs')
-const crypto = require('crypto')
-
-const backup = require('../backup')
+<pre title="test/test-backup.js:fixtures"><code class="language-js">const backup = require('../backup')
 
 const hashString = (data) =&gt; {
   const hasher = crypto.createHash('sha1').setEncoding('hex')
@@ -663,9 +658,11 @@ const Fixture = {
 const InitialBackups = Object.keys(Hashes).reduce((set, filename) =&gt; {
   set.add(`backup/${Hashes[filename]}.bck`)
   return set
-}, new Set())
-
-describe('check entire backup process', () =&gt; {
+}, new Set())</code></pre>
+<ul>
+<li>And then run some tests</li>
+</ul>
+<pre title="test/test-backup.js:tests"><code class="language-js">describe('check entire backup process', () =&gt; {
   beforeEach(() =&gt; {
     mock(Fixture)
   })
@@ -703,10 +700,7 @@ describe('check entire backup process', () =&gt; {
 
     const actualManifests = (await glob('backup/*.csv')).sort()
     assert.deepStrictEqual(actualManifests,
-      [
-        'backup/0000000000.csv',
-        'backup/0000000001.csv'
-      ],
+      ['backup/0000000000.csv', 'backup/0000000001.csv'],
       'Expected two manifests')
   })
 
@@ -728,14 +722,10 @@ describe('check entire backup process', () =&gt; {
 
     const actualManifests = (await glob('backup/*.csv')).sort()
     assert.deepStrictEqual(actualManifests,
-      [
-        'backup/0000000000.csv',
-        'backup/0000000001.csv'
-      ],
+      ['backup/0000000000.csv', 'backup/0000000001.csv'],
       'Expected two manifests')
   })
-})
-</code></pre>
+})</code></pre>
 <pre title="test-backup.txt"><code class="language-txt">&gt; e@1.0.0 test /u/stjs
 &gt; mocha */test/test-*.js "-g" "check entire backup process"
   check entire backup process

@@ -10,7 +10,6 @@ const path = require('path')
  * Main driver.
  */
 const main = () => {
-  console.error('ARGV', search.argv)
   const filenames = process.argv.slice(2)
   filenames.forEach(filename => {
     search(filename)

@@ -98,7 +98,7 @@ and quickly get into "if every atom in the universe was a file there still would
 
 ## How can we test code that modifies files?
 
--   Step 3: copy the files that need copying and create a new timestamped [CSV](#csv) file
+-   Step 3: copy the files that need copying and create a new timestamped <g key="csv">CSV</g> file
     -   Could use JSON, but CSV is easier for humans to read
 -   The code itself will be relatively simple, but setup and cleanup will be annoying
 -   Better solution: use a <g key="mock_object">mock object</g> instead of the real filesystem
@@ -117,6 +117,12 @@ and quickly get into "if every atom in the universe was a file there still would
 
 -   And some tests
     -   Which are quite involved, since we want to check with actual file hashes
+-   Set up some fixtures
 
-<%- include('/_inc/file.html', {file: 'test/test-backup.js'}) %>
+<%- include('/_inc/slice.html', {file: 'test/test-backup.js', tag: 'fixtures'}) %>
+
+-   And then run some tests
+
+<%- include('/_inc/slice.html', {file: 'test/test-backup.js', tag: 'tests'}) %>
+
 <%- include('/_inc/file.html', {file: 'test-backup.txt'}) %>

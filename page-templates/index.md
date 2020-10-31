@@ -58,8 +58,13 @@
 -   Or create a small class to handle each case
     -   The <g key="delegate_pattern">Delegate</g> design pattern
     -   Easier to expand in future
+-   Overall structure is straightforward
 
-<%- include('/_inc/file.html', {file: 'expander.js'}) %>
+<%- include('/_inc/erase.html', {file: 'expander.js', tag: 'body'}) %>
+
+-   Methods that do the work
+
+<%- include('/_inc/slice.html', {file: 'expander.js', tag: 'body'}) %>
 
 ## What does this look like when we put it all together?
 

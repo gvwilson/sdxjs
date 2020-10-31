@@ -1,6 +1,6 @@
 const acorn = require('acorn')
 
-// Generic tree walking class.
+// <walker>
 class Walker {
   // Construct a new AST tree walker.
   constructor (ast) {
@@ -50,6 +50,7 @@ class Walker {
       nodeTypes.includes(this.stack.slice(-1)[0].type)
   }
 }
+// </walker>
 
 // Walk to accumulate variable and parameter definitions.
 class VariableWalker extends Walker {
