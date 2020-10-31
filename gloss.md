@@ -5,7 +5,7 @@
 <dt id="absolute_path" class="glossary">absolute path</dt>
 <dd class="glossary">A path that points to the same location in the <g key="filesystem">filesystem</g> regardless of where it is evaluated. An absolute path is the equivalent of latitude and longitude in geography.</dd>
 <dt id="abstract_base_class" class="glossary">abstract base class</dt>
-<dd class="glossary">FIXME</dd>
+<dd class="glossary">A <g key="base_class">base class</g> whose <g key="method">methods</g> are not fully implemented.  An abstract base class defines behaviors, or requirements on behaviors, that <g key="derived_class">derived classes</g> must satisfy.</dd>
 <dt id="abstract_method" class="glossary">abstract method</dt>
 <dd class="glossary">In <g key="oop">object-oriented programming</g>, a <g key="method">method</g> that is defined but not implemented. Programmers will define an abstract method in a <g key="parent_class">parent class</g> to specify operations that <g key="child_class">child classes</g> must provide.</dd>
 <dt id="abstract_syntax_tree" class="glossary">abstract syntax tree (AST)</dt>
@@ -27,7 +27,7 @@
 <dt id="backward_compatible" class="glossary">backward-compatible</dt>
 <dd class="glossary">Software which is able to be used the same way as earlier versions of itself without problems.</dd>
 <dt id="base_class" class="glossary">base class</dt>
-<dd class="glossary">FIXME</dd>
+<dd class="glossary">In <g key="oop">object-oriented programming</g>, a <g key="class">class</g> from which other classes are derived.</dd>
 <dt id="binary" class="glossary">binary</dt>
 <dd class="glossary">A system which can have one of two possible states. In computing often represented as being in the state 0 or 1. Represented in <g key="boolean">Boolean</g> logic as <g key="false">false</g> (0) or <g key="true">true</g> (1). Computers are built upon systems which store 0s and 1s as <g key="bit">bits</g>.</dd>
 <dt id="bit" class="glossary">bit</dt>
@@ -58,10 +58,12 @@
 <dd class="glossary">A data structure that stores information about the active subroutines executed.</dd>
 <dt id="callback" class="glossary">callback function</dt>
 <dd class="glossary">A function A that is passed to another function B so that B can call it at some later point. Callbacks can be used <g key="synchronous">synchronously</g>, as in generic functions like <code>map</code> that invoke a callback function once for each element in a collection, or <g key="asynchronous">ascynrhonously</g>, as in a <g key="client">client</g> that runs a callback when a <g key="http_response">response</g> is received in answer to a <g key="http_request">request</g>.</dd>
+<dt id="css" class="glossary">Cascading Style Sheets (CSS)</dt>
+<dd class="glossary">A way to control the appearance of HTML. CSS is typically used to specify fonts, colors, and layout.</dd>
 <dt id="catch_exception" class="glossary">catch (an exception)</dt>
 <dd class="glossary">To accept responsibility for handling an error or other unexpected event. R prefers &quot;handling a condition&quot; to &quot;catching an exception&quot;.</dd>
 <dt id="chain_of_responsibility_pattern" class="glossary">Chain of Responsibility pattern</dt>
-<dd class="glossary">FIXME</dd>
+<dd class="glossary">A <g key="design_pattern">design pattern</g> in which each <g key="object">object</g> either handles a request or passes it on to another object.</dd>
 <dt id="character_encoding" class="glossary">character encoding</dt>
 <dd class="glossary">A specification of how characters are stored as bytes. The most commonly-used encoding today is <g key="utf_8">UTF-8</g>.</dd>
 <dt id="child_tree" class="glossary">child (in a tree)</dt>
@@ -78,6 +80,8 @@
 <dd class="glossary">A set of variables defined in the same <g key="scope">scope</g> whose existence has been preserved after that scope has ended.</dd>
 <dt id="code_coverage" class="glossary">code coverage (in testing)</dt>
 <dd class="glossary">How much of a library or program is executed when tests run. This is normally reported as a percentage of lines of code: for example, if 40 out of 50 lines in a file are run during testing, those tests have 80% code coverage.</dd>
+<dt id="combinatorial_explosion" class="glossary">combinatorial explosion</dt>
+<dd class="glossary">The exponential growth in the size of a problem or the time required to solve it that arises when all possible combinations of a set of items must be searched.</dd>
 <dt id="csv" class="glossary">comma-separated values (CSV)</dt>
 <dd class="glossary">A text format for tabular data in which each record is one row and fields are separated by commas. There are many minor variations, particularly around quoting of strings.</dd>
 <dt id="command_line_argument" class="glossary">command-line argument</dt>
@@ -113,9 +117,9 @@
 <dt id="depth_first" class="glossary">depth first</dt>
 <dd class="glossary">To go through a nested data structure such as a <g key="tree">tree</g> by going as far as possible down one path, then as far as possible down the next and so on, or to explore a problem by following one solution to its conclusion and then trying the next.</dd>
 <dt id="depth_first_search" class="glossary">depth-first search</dt>
-<dd class="glossary">FIXME</dd>
+<dd class="glossary">A search algorithm that explores one possibility all the way to its conclusion before moving on to the next.</dd>
 <dt id="derived_class" class="glossary">derived class</dt>
-<dd class="glossary">FIXME</dd>
+<dd class="glossary">In <g key="oop">object-oriented programming</g>, a class that is a direct or indirect extension of a <g key="base_class">base class</g>.</dd>
 <dt id="design_pattern" class="glossary">design pattern</dt>
 <dd class="glossary">A recurring pattern in software design that is specific enough to be worth naming, but not so specific that a single best implementation can be provided by a <g key="library">library</g>. For example, <g key="data_frame">data frames</g> and database <g key="table">tables</g> are instances of the same pattern.</dd>
 <dt id="destructuring_assignment" class="glossary">destructuring assignment</dt>
@@ -154,8 +158,6 @@
 <dd class="glossary">A piece of code that deals with an <g key="exception">exception</g> after it is <g key="catch_exception">caught</g>, e.g., by writing a <g key="log_message">log message</g> or retrying the operation that failed.</dd>
 <dt id="expected_result" class="glossary">expected result (of test)</dt>
 <dd class="glossary">The value that a piece of software is suposed to produced when tested in a certain way, or the state in which it is supposed to leave the system.</dd>
-<dt id="exponential_explosion" class="glossary">exponential explosion</dt>
-<dd class="glossary">FIXME</dd>
 <dt id="export" class="glossary">export</dt>
 <dd class="glossary">To make something visible outside a <g key="module">module</g> so that other parts of a program can <g key="import">import</g> it. In most languages a module must export things explicitly in order to manage <g key="name_collision">name collision</g>.</dd>
 <dt id="fail_test" class="glossary">fail (a test)</dt>
@@ -184,8 +186,8 @@
 <dd class="glossary"><ol>
 <li>A plot or a chart that displays data, or 2. a data structure in which <g key="node">nodes</g> are connected to one another by <g key="edge">edges</g>.</li>
 </ol></dd>
-<dt id="greedy" class="glossary">greedy</dt>
-<dd class="glossary">FIXME</dd>
+<dt id="greedy_algorithm" class="glossary">greedy algorithm</dt>
+<dd class="glossary">An algorithm that consumes as much input as possible, as early as possible.</dd>
 <dt id="hash_function" class="glossary">hash function</dt>
 <dd class="glossary">A function that turns arbitrary data into a bit array of a fixed size. Hash functions are used to determine where data should be stored in a <g key="hash_table">hash table</g>.</dd>
 <dt id="hash_table" class="glossary">hash table</dt>
@@ -199,7 +201,7 @@
 <dt id="http" class="glossary">HyperText Transfer Protocol (HTTP)</dt>
 <dd class="glossary">The standard <g key="protocol">protocol</g> for data transfer on the World-Wide Web. HTTP defines the format of <g key="http_request">requests</g> and <g key="http_response">responses</g>, the meanings of standard error codes, and other features.</dd>
 <dt id="iife" class="glossary">immediately-invoked function expression (IIFE)</dt>
-<dd class="glossary">FIXME</dd>
+<dd class="glossary">A function that is invoked once at the point where it is defined.  IIFEs are typically used to create a <g key="scope">scope</g> to hide some function or variable definitions.</dd>
 <dt id="import" class="glossary">import</dt>
 <dd class="glossary">To bring things from a <g key="module">module</g> into a program for use. In most languages a program can only import things that the module explicitly <g key="export">exports</g>.</dd>
 <dt id="instance" class="glossary">instance</dt>
@@ -217,7 +219,7 @@
 <dt id="json" class="glossary">JavaScript Object Notation (JSON)</dt>
 <dd class="glossary">A way to represent data by combining basic values like numbers and character strings in lists and name/value structures. The acronym stands for &quot;JavaScript Object Notation&quot;; unlike better-defined standards like <g key="xml">XML</g>, it is unencumbered by a syntax for comments or ways to define a <g key="schema">schema</g>.</dd>
 <dt id="key_binding" class="glossary">key binding</dt>
-<dd class="glossary">FIXME</dd>
+<dd class="glossary">A specification that a particular key on a computer keyboard is to invoke a particular function or operation.</dd>
 <dt id="lexical_scoping" class="glossary">lexical scoping</dt>
 <dd class="glossary">To look up the value associated with a name according to the textual structure of a program. Most programming languages use lexical scoping instead of <g key="dynamic_scoping">dynamic scoping</g> because the latter is less predictable.</dd>
 <dt id="library" class="glossary">library</dt>
@@ -245,7 +247,7 @@
 <dt id="loosely_coupled" class="glossary">loosely coupled</dt>
 <dd class="glossary">Components in a software system are said to be loosely coupled if they are relatively independent of one another, i.e., if any one of them can be changed or replaced without others having to be altered as well.</dd>
 <dt id="manifest" class="glossary">manifest</dt>
-<dd class="glossary">FIXME</dd>
+<dd class="glossary">A list that specifies the precise versions of a complete set of libraries or other software components.</dd>
 <dt id="markdown" class="glossary">Markdown</dt>
 <dd class="glossary">A <g key="markup_language">markup language</g> with a simple syntax intended as a replacement for <g key="html">HTML</g>. Markdown is often used for README files, and is the basis for <g key="r_markdown">R markdown</g>.</dd>
 <dt id="markup_language" class="glossary">markup language</dt>
@@ -287,7 +289,7 @@
 <dt id="pass_test" class="glossary">pass (a test)</dt>
 <dd class="glossary">A test passes if the <g key="actual_result">actual result</g> matches the <g key="expected_result">expected result</g>.</dd>
 <dt id="patch" class="glossary">patch</dt>
-<dd class="glossary">FIXME</dd>
+<dd class="glossary">A single file containin a set of changes to a set of files, separated by markers that indicate where each individual change should be applied.</dd>
 <dt id="path" class="glossary">path (in filesystem)</dt>
 <dd class="glossary">A string that specifies a location in a <g key="filesystem">filesystem</g>. In Unix, the directories in a path are joined using <code>/</code>.</dd>
 <dt id="pattern_rule" class="glossary">pattern rule</dt>
@@ -305,13 +307,13 @@
 <dt id="production_code" class="glossary">production code</dt>
 <dd class="glossary">Software that is delivered to an end user. The term is used to distinguish such code from test code, deployment infrastructure, and everything else that programmers write along the way.</dd>
 <dt id="promisification" class="glossary">promisification</dt>
-<dd class="glossary">FIXME</dd>
+<dd class="glossary">In JavaScript, the act of wrapping a callback function in a <code>Promise</code> for uniform asynchronous execution.</dd>
 <dt id="protocol" class="glossary">protocol</dt>
 <dd class="glossary">Any standard specifying how two pieces of software interact. A network protocol such as <g key="http">HTTP</g> defines the messages that <g key="client">clients</g> and <g key="server">servers</g> exchange on the World-Wide Web; <g key="oop">object-oriented</g> programs often define protocols for interactions between <g key="object">objects</g> of different <g key="class">classes</g>.</dd>
 <dt id="python" class="glossary">Python</dt>
 <dd class="glossary">A popular interpreted open-source programming language that relies on indentation to define control structure.</dd>
 <dt id="query_selector" class="glossary">query selector</dt>
-<dd class="glossary">FIXME</dd>
+<dd class="glossary">A pattern that specifies a set of <g key="dom">DOM</g> nodes.  Query selectors are used in <g key="css">CSS</g> to specify the elements that rules apply to, or by JavaScript programs to manipulate web pages.</dd>
 <dt id="r_language" class="glossary">R (programming language)</dt>
 <dd class="glossary">A popular open source programming language used primarily for data science.</dd>
 <dt id="r_markdown" class="glossary">R Markdown</dt>
@@ -387,7 +389,7 @@
 <dt id="topological_order" class="glossary">topological order</dt>
 <dd class="glossary">Any ordering of the <g key="node">nodes</g> in a <g key="graph">graph</g> that respects the direction of its <g key="edge">edges</g>, i.e., if there is an edge from node A to node B, A comes before B in the ordering. There may be many topological orderings of a particular graph.</dd>
 <dt id="transitive_closure" class="glossary">transitive closure</dt>
-<dd class="glossary">FIXME</dd>
+<dd class="glossary">The set of all <g key="node">nodes</g> in a <g key="graph">graph</g> that are reachable from a starting node, either directly or indirectly.</dd>
 <dt id="tree" class="glossary">tree</dt>
 <dd class="glossary">A <g key="graph">graph</g> in which every node except the <g key="root_tree">root</g> has exactly one <g key="parent_tree">parent</g>.</dd>
 <dt id="true" class="glossary">true</dt>

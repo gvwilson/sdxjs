@@ -80,7 +80,7 @@
     -   Pick any two and create a list of valid pairs
     -   Add a third: cross off pairs that can't be satisfied, generate triples of possibilities
     -   Repeat until all packages included
--   Worst case, wind up with <g key="exponential_explosion">exponential explosion</g> of possibilities
+-   Worst case, wind up with <g key="combinatorial_explosion">combinatorial explosion</g> of possibilities
     -   Smart algorithms will try to pick additions that minimize the number of new possibilities added
     -   Or create pairs, then combine pairs of pairs, etc.
     -   Our algorithm will be simple (and therefore slow)

@@ -115,7 +115,7 @@ it easily accounts for 95 percent of all instances."
 -   But wait a moment
     -   Suppose we have the pattern `/a*ab/`
     -   This ought to match the text `"ab"`, but will it?
-    -   The `*` is <g key="greedy">greedy</g>: it matches as much as it can
+    -   The `*` is <g key="greedy_algorithm">greedy</g>: it matches as much as it can
     -   So `/a*/` will match the leading `"a"`, leaving nothing for the literal `/a/` to match
     -   Our current implementation doesn't give us a way to try alternatives
 -   Re-think
