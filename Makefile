@@ -86,6 +86,10 @@ ejslint:
 standard:
 	@standard ${JAVASCRIPT}
 
+## chunklength: report lengths of included chunks
+chunklength: html
+	@_tools/chunklength.js ${HTML}
+
 ## latex: rebuild LaTeX file (use 'make pdf' for book)
 latex: book.tex
 

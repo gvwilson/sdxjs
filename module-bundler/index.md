@@ -106,7 +106,7 @@
 -   Test it with our intermediate two-file case
 
 <%- include('/_inc/file.html', {file: 'test-combine-files.js'}) %>
-<%- include('/_inc/multi.html', {pat: 'test-combine-files-simple.*', fill: 'js txt'}) %>
+<%- include('/_inc/file.html', {file: 'test-combine-files-simple.js'}) %>
 
 -   We can check that this works by loading the file and calling `initialize`
 
