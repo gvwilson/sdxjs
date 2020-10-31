@@ -26,13 +26,11 @@ see <xref key="license"></xref> for details.
     This material will teach her some common design patterns
     and how to think about tradeoffs when architecting complex systems.
 
--   Rupinder did a bachelor's degree in computer science,
-    during which he was taught a lot more about algorithmic complexity than about building software.
-    He uses Git and React on a daily basis,
-    but is often frustrated by their apparent unpredictability.
-    This material will give him a better understanding of tools like version control systems,
-    unit testing tools,
-    and web frameworks
+-   Rupinder is doing a bachelor's degree in computer science,
+    and feels he has learned more about algorithmic complexity than about building software.
+    He uses Git and style-checking tools on a daily basis,
+    but is often frustrated by their complexity.
+    This material will give him a better understanding of tools like this work
     so that he can use them more effectively.
 
 -   Yim teaches software engineering at a four-year college.
