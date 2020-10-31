@@ -170,6 +170,10 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
       accum.push('\\begin{callout}')
       node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push('\\end{callout}')
+    } else if (cls === 'centered') {
+      accum.push('\n{\\centering\n')
+      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      accum.push('\n}\n')
     } else if (cls === 'subpage') {
       accum.push('\\begin{lstlisting}[caption=FIXME]\n')
       accum.push('FIXME display sub-page')

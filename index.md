@@ -16,7 +16,9 @@ while all of the software is made available under the terms of
 the [Hippocratic License][hippocratic-license];
 see <xref key="license"></xref> for details.
 
-*All proceeds from this project will be donated to the [Red Door Family Shelter][red-door].*
+::: centered
+*All proceeds from this project will go to the [Red Door Family Shelter][red-door].*
+:::
 
 ## Audience
 
@@ -116,4 +118,6 @@ we end all but the last line with a single backslash `\`.
 
 ## Dedication
 
+::: centered
 *For Brian Kernighan, who taught us all how to write about software.*
+:::
