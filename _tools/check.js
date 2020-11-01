@@ -12,7 +12,7 @@ const yaml = require('js-yaml')
 /**
  * Suffices of interesting included files.
  */
-const SUFFIX = new Set(['.html', '.js', '.sh', '.text'])
+const SUFFIX = new Set(['.html', '.js', '.txt'])
 
 /**
  * Maximum width of lines in code inclusions.
@@ -201,9 +201,13 @@ const checkWidths = (files) => {
 const getIncluded = (filename, text) => {
   const result = new Set()
   const base = path.dirname(filename)
-  const matches = [...text.matchAll(/<%-\s+include\('\/inc\/(.+?).html',\s*{(.+?)}\s*\)\s*%>/g)]
+  const matches = [...text.matchAll(/<%-\s+include\('\/_inc\/(.+?).html',\s*{(.+?)}\s*\)\s*%>/g)]
   matches.forEach(match => {
-    if ((match[1] === 'code') || (match[1] === 'html')) {
+    if ((match[1] === 'file') || (match[1] === 'html')) {
+      const f = match[2].match(/file:\s*'(.+?)'/)[1]
+      const full = path.join(base, f)
+      result.add(full)
+    } else if ((match[1] === 'erase') || (match[1] === 'slice')) {
       const f = match[2].match(/file:\s*'(.+?)'/)[1]
       const full = path.join(base, f)
       result.add(full)
