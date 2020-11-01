@@ -1,25 +1,42 @@
-const allows = require('./allows')
+const configStr = require('./config-str')
 
 const sweep = (manifest) => {
   const names = Object.keys(manifest)
   const result = []
   recurse(manifest, names, {}, result)
-  return result
 }
 
-const recurse = (manifest, names, configuration, result) => {
+const recurse = (manifest, names, config, result) => {
   if (names.length === 0) {
-    if (allows(manifest, configuration)) {
-      result.push({ ...configuration })
+    if (allows(manifest, config)) {
+      result.push({ ...config })
     }
   } else {
     const next = names[0]
     const rest = names.slice(1)
     for (const version in manifest[next]) {
-      configuration[next] = version
-      recurse(manifest, rest, configuration, result)
+      config[next] = version
+      recurse(manifest, rest, config, result)
     }
   }
 }
+
+// <allows>
+const allows = (manifest, config) => {
+  for (const [leftN, leftV] of Object.entries(config)) {
+    const requirements = manifest[leftN][leftV]
+    for (const [rightN, rightVAll] of Object.entries(requirements)) {
+      if (!rightVAll.includes(config[rightN])) {
+        const title = configStr(config)
+        const missing = config[rightN]
+        console.log(`${title} @ ${leftN}/${leftV} ${rightN}/${missing}`)
+        return false
+      }
+    }
+  }
+  console.log(configStr(config))
+  return true
+}
+// </allows>
 
 module.exports = sweep

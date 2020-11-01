@@ -36,10 +36,10 @@
 <br/><a href="../file-interpolator/"><span class="nowrap">File Interpolator</span></a>
 <br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
 <br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
+<br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
 <br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
 <br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
 <br/><a href="../text-editor/"><span class="nowrap">Text Editor</span></a>
-<br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
 <br/><a href="../conclusion/"><span class="nowrap">Conclusion</span></a>
 </div>
 </div>
@@ -317,13 +317,39 @@
 <ul>
 <li>Check if a configuration (specific versions of all packages) is compatible with a manifest</li>
 </ul>
-<pre title="allows.js"><code class="language-js">const configStr = require('./config-str')
+<pre title="sweep.js:allows"><code class="language-js">const configStr = require('./config-str')
 
-const allows = (manifest, config) =&gt; {
+const sweep = (manifest) =&gt; {
+  const names = Object.keys(manifest)
+  const result = []
+  recurse(manifest, names, {}, result)
+}
+
+const recurse = (manifest, names, config, result) =&gt; {
+  if (names.length === 0) {
+    if (allows(manifest, config)) {
+      result.push({ ...config })
+    }
+  } else {
+    const next = names[0]
+    const rest = names.slice(1)
+    for (const version in manifest[next]) {
+      config[next] = version
+      recurse(manifest, rest, config, result)
+    }
+  }
+}
+...
+module.exports = sweep
+</code></pre>
+<ul>
+<li>Simplest way to find configuration is to sweep over all possibilities</li>
+</ul>
+<pre title="sweep.js:allows"><code class="language-js">const allows = (manifest, config) =&gt; {
   for (const [leftN, leftV] of Object.entries(config)) {
     const requirements = manifest[leftN][leftV]
-    for (const [rightN, bVAll] of Object.entries(requirements)) {
-      if (!bVAll.includes(config[rightN])) {
+    for (const [rightN, rightVAll] of Object.entries(requirements)) {
+      if (!rightVAll.includes(config[rightN])) {
         const title = configStr(config)
         const missing = config[rightN]
         console.log(`${title} @ ${leftN}/${leftV} ${rightN}/${missing}`)
@@ -333,39 +359,7 @@ const allows = (manifest, config) =&gt; {
   }
   console.log(configStr(config))
   return true
-}
-
-module.exports = allows
-</code></pre>
-<ul>
-<li>Simplest way to find configuration is to sweep over all possibilities</li>
-</ul>
-<pre title="sweep.js"><code class="language-js">const allows = require('./allows')
-
-const sweep = (manifest) =&gt; {
-  const names = Object.keys(manifest)
-  const result = []
-  recurse(manifest, names, {}, result)
-  return result
-}
-
-const recurse = (manifest, names, configuration, result) =&gt; {
-  if (names.length === 0) {
-    if (allows(manifest, configuration)) {
-      result.push({ ...configuration })
-    }
-  } else {
-    const next = names[0]
-    const rest = names.slice(1)
-    for (const version in manifest[next]) {
-      configuration[next] = version
-      recurse(manifest, rest, configuration, result)
-    }
-  }
-}
-
-module.exports = sweep
-</code></pre>
+}</code></pre>
 <ul>
 <li>Run this on the short example</li>
 </ul>
@@ -387,10 +381,11 @@ module.exports = sweep
 {X:2 Y:2}
 </code></pre>
 <ul>
-<li>But look at unnecessary work in output
+<li>It works</li>
+<li>But does lots of unnecessary work
 <ul>
 <li>Sort by the case that caught the exclusion</li>
-<li>9 of the 17 exclusions are redundant rediscovery of a known problem</li>
+<li>9 of the 17 exclusions are redundant rediscovery of a previous-known problem</li>
 </ul>
 </li>
 </ul>
@@ -514,14 +509,192 @@ module.exports = sweep
 </tr>
 </tbody>
 </table>
+<h2 id="how-can-we-do-less-work">How can we do less work?</h2>
 <ul>
-<li>How can we avoid doing a full check of things that can't possibly work?</li>
+<li>We can <g key="prune">prune</g> the tree
+<ul>
+<li>If X and Y are incompatible, no need to check Z</li>
+</ul>
+</li>
+<li>Collect possible solutions and display them at the end</li>
+<li>Only recurse if everything looks good so far</li>
+</ul>
+<pre title="prune.js:compatible"><code class="language-js">const configStr = require('./config-str')
+
+const prune = (manifest) =&gt; {
+  const names = Object.keys(manifest)
+  const result = []
+  recurse(manifest, names, {}, result)
+  for (const config of result) {
+    console.log(configStr(config))
+  }
+}
+
+const recurse = (manifest, names, config, result) =&gt; {
+  if (names.length === 0) {
+    result.push({ ...config })
+  } else {
+    const next = names[0]
+    const rest = names.slice(1)
+    for (const version in manifest[next]) {
+      config[next] = version
+      if (compatible(manifest, config)) {
+        recurse(manifest, rest, config, result)
+      }
+      delete config[next]
+    }
+  }
+}
+...
+const report = (config, leftN, leftV, rightN, rightV) =&gt; {
+  const title = configStr(config)
+  console.log(`${title} @ ${leftN}/${leftV} ${rightN}/${rightV}`)
+}
+
+module.exports = prune
+</code></pre>
+<ul>
+<li>Check to see if adding something will still be consistent</li>
+</ul>
+<pre title="prune.js:compatible"><code class="language-js">const compatible = (manifest, config) =&gt; {
+  for (const [leftN, leftV] of Object.entries(config)) {
+    const leftR = manifest[leftN][leftV]
+    for (const [rightN, rightV] of Object.entries(config)) {
+      if ((rightN in leftR) &amp;&amp; (!leftR[rightN].includes(rightV))) {
+        report(config, leftN, leftV, rightN, rightV)
+        return false
+      }
+      const rightR = manifest[rightN][rightV]
+      if ((leftN in rightR) &amp;&amp; (!rightR[leftN].includes(leftV))) {
+        report(config, leftN, leftV, rightN, rightV)
+        return false
+      }
+    }
+  }
+  return true
+}</code></pre>
+<ul>
+<li>Gets us from 18 complete solutions to:
+<ul>
+<li>11 complete</li>
+<li>1 workable</li>
+<li>2 incomplete (representing 6 that we didn't need to finish)</li>
+</ul>
+</li>
+</ul>
+<pre title="prune-triple.txt"><code class="language-txt">{X:1 Y:1 Z:1} @ Y/1 Z/1
+{X:1 Y:1 Z:2} @ X/1 Z/2
+{X:1 Y:1 Z:3} @ X/1 Z/3
+{X:1 Y:2 Z:1} @ Y/2 Z/1
+{X:1 Y:2 Z:2} @ X/1 Z/2
+{X:1 Y:2 Z:3} @ X/1 Z/3
+{X:1 Y:3} @ X/1 Y/3
+{X:2 Y:1} @ X/2 Y/1
+{X:2 Y:2 Z:1} @ Y/2 Z/1
+{X:2 Y:2 Z:3} @ X/2 Z/3
+{X:2 Y:3 Z:1} @ Y/3 Z/1
+{X:2 Y:3 Z:2} @ Y/3 Z/2
+{X:2 Y:3 Z:3} @ X/2 Z/3
+{X:2 Y:2 Z:2}
+</code></pre>
+<ul>
+<li>Another way to look at the work is th number of steps in the search
+<ul>
+<li>Full search had 18×3 = 54</li>
+<li>Pruning leaves us with (12×3) + (2×2) = 40</li>
+<li>So we have eliminated roughly 1/4 of the work</li>
+</ul>
+</li>
+<li>What if we searched in a different order?</li>
+</ul>
+<pre title="reverse.js"><code class="language-js">const configStr = require('./config-str')
+
+// &lt;reverse&gt;
+const reverse = (manifest) =&gt; {
+  const names = Object.keys(manifest)
+  names.reverse()
+  const result = []
+  recurse(manifest, names, {}, result)
+  for (const config of result) {
+    console.log(configStr(config))
+  }
+}
+// &lt;/reverse&gt;
+
+const recurse = (manifest, names, config, result) =&gt; {
+  if (names.length === 0) {
+    result.push({ ...config })
+  } else {
+    const next = names[0]
+    const rest = names.slice(1)
+    for (const version in manifest[next]) {
+      config[next] = version
+      if (compatible(manifest, config)) {
+        recurse(manifest, rest, config, result)
+      }
+      delete config[next]
+    }
+  }
+}
+
+const compatible = (manifest, config) =&gt; {
+  for (const [leftN, leftV] of Object.entries(config)) {
+    const leftR = manifest[leftN][leftV]
+    for (const [rightN, rightV] of Object.entries(config)) {
+      if ((rightN in leftR) &amp;&amp; (!leftR[rightN].includes(rightV))) {
+        report(config, leftN, leftV, rightN, rightV)
+        return false
+      }
+      const rightR = manifest[rightN][rightV]
+      if ((leftN in rightR) &amp;&amp; (!rightR[leftN].includes(leftV))) {
+        report(config, leftN, leftV, rightN, rightV)
+        return false
+      }
+    }
+  }
+  return true
+}
+
+const report = (config, leftN, leftV, rightN, rightV) =&gt; {
+  const title = configStr(config)
+  console.log(`${title} @ ${leftN}/${leftV} ${rightN}/${rightV}`)
+}
+
+module.exports = reverse
+</code></pre>
+<pre title="reverse-triple.txt"><code class="language-txt">{Z:1 Y:1} @ Z/1 Y/1
+{Z:1 Y:2} @ Z/1 Y/2
+{Z:1 Y:3} @ Z/1 Y/3
+{Z:2 Y:1 X:1} @ Z/2 X/1
+{Z:2 Y:1 X:2} @ Y/1 X/2
+{Z:2 Y:2 X:1} @ Z/2 X/1
+{Z:2 Y:3} @ Z/2 Y/3
+{Z:3 Y:1} @ Z/3 Y/1
+{Z:3 Y:2 X:1} @ Z/3 X/1
+{Z:3 Y:2 X:2} @ Z/3 X/2
+{Z:3 Y:3 X:1} @ Z/3 X/1
+{Z:3 Y:3 X:2} @ Z/3 X/2
+{Z:2 Y:2 X:2}
+</code></pre>
+<ul>
+<li>Now have (8×3) + (5×2) = 34
+<ul>
+<li>Have eliminated roughly 1/3 of the work</li>
+</ul>
+</li>
+<li>Lots of <g key="heuristic">heuristics</g> for searching trees
+<ul>
+<li>None are guaranteed to give better performance in every case</li>
+<li>But most will give better performance in most cases</li>
+<li>And gains multiply: 2/3 of the work in each of two layers is less than half the total original work</li>
+</ul>
+</li>
 </ul>
 </main>
 <footer>
 <div class="row">
 <div class="left3">
-<a href="../text-editor/"><em>&laquo; Text Editor</em></a>
+<a href="../module-bundler/"><em>&laquo; Module Bundler</em></a>
 </div>
 <div class="middle3">
 <a href="../license/"><img class="footer" src="../static/cc-by.svg" alt="License" /></a>
@@ -529,7 +702,7 @@ module.exports = sweep
 © 2020 <a href="../authors/">The Authors</a>
 </div>
 <div class="right3">
-<a href="../conclusion/"><em>Conclusion &raquo;</em></a>
+<a href="../build-manager/"><em>Build Manager &raquo;</em></a>
 </div>
 </div>
 </footer>

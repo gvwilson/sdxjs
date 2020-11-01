@@ -192,6 +192,8 @@
 <dd class="glossary">A function that turns arbitrary data into a bit array of a fixed size. Hash functions are used to determine where data should be stored in a <g key="hash_table">hash table</g>.</dd>
 <dt id="hash_table" class="glossary">hash table</dt>
 <dd class="glossary">A data structure that calculates a pseudo-random key for each value and stores the value in that location. Hash tables enable fast lookup for arbitrary data at the cost of extra memory.</dd>
+<dt id="heuristic" class="glossary">heuristic</dt>
+<dd class="glossary">A rule or guideline that isn't guaranteed to produce the desired result, but usually does.</dd>
 <dt id="http_request" class="glossary">HTTP request</dt>
 <dd class="glossary">A message sent from a <g key="client">client</g> to a <g key="server">server</g> using the <g key="http">HTTP</g> <g key="protocol">protocol</g> asking for data. A request usually asks for a web page, image, or other data.</dd>
 <dt id="http_response" class="glossary">HTTP response</dt>
@@ -310,6 +312,8 @@
 <dd class="glossary">In JavaScript, the act of wrapping a callback function in a <code>Promise</code> for uniform asynchronous execution.</dd>
 <dt id="protocol" class="glossary">protocol</dt>
 <dd class="glossary">Any standard specifying how two pieces of software interact. A network protocol such as <g key="http">HTTP</g> defines the messages that <g key="client">clients</g> and <g key="server">servers</g> exchange on the World-Wide Web; <g key="oop">object-oriented</g> programs often define protocols for interactions between <g key="object">objects</g> of different <g key="class">classes</g>.</dd>
+<dt id="prune" class="glossary">prune</dt>
+<dd class="glossary">To remove branches and nodes from a tree, or to rule out partially-complete solutions when searching for an overall solution in order to reduce work.</dd>
 <dt id="python" class="glossary">Python</dt>
 <dd class="glossary">A popular interpreted open-source programming language that relies on indentation to define control structure.</dd>
 <dt id="query_selector" class="glossary">query selector</dt>

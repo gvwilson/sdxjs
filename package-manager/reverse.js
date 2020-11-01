@@ -1,13 +1,16 @@
 const configStr = require('./config-str')
 
-const prune = (manifest) => {
+// <reverse>
+const reverse = (manifest) => {
   const names = Object.keys(manifest)
+  names.reverse()
   const result = []
   recurse(manifest, names, {}, result)
   for (const config of result) {
     console.log(configStr(config))
   }
 }
+// </reverse>
 
 const recurse = (manifest, names, config, result) => {
   if (names.length === 0) {
@@ -25,7 +28,6 @@ const recurse = (manifest, names, config, result) => {
   }
 }
 
-// <compatible>
 const compatible = (manifest, config) => {
   for (const [leftN, leftV] of Object.entries(config)) {
     const leftR = manifest[leftN][leftV]
@@ -43,11 +45,10 @@ const compatible = (manifest, config) => {
   }
   return true
 }
-// </compatible>
 
 const report = (config, leftN, leftV, rightN, rightV) => {
   const title = configStr(config)
   console.log(`${title} @ ${leftN}/${leftV} ${rightN}/${rightV}`)
 }
 
-module.exports = prune
+module.exports = reverse

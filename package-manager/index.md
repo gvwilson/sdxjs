@@ -136,4 +136,39 @@
 | …         |   2 |   3 |   2 |
 |           |   2 |   2 |   2 |
 
--   How can we avoid doing a full check of things that can't possibly work?
+## How can we do less work?
+
+-   We can <g key="prune">prune</g> the tree
+    -   If X and Y are incompatible, no need to check Z
+-   Collect possible solutions and display them at the end
+-   Only recurse if everything looks good so far
+
+<%- include('/_inc/erase.html', {file: 'prune.js', tag: 'compatible'}) %>
+
+-   Check to see if adding something will still be consistent
+
+<%- include('/_inc/slice.html', {file: 'prune.js', tag: 'compatible'}) %>
+
+-   Gets us from 18 complete solutions to:
+    -   11 complete
+    -   1 workable
+    -   2 incomplete (representing 6 that we didn't need to finish)
+
+<%- include('/_inc/file.html', {file: 'prune-triple.txt'}) %>
+
+-   Another way to look at the work is th number of steps in the search
+    -   Full search had 18×3 = 54
+    -   Pruning leaves us with (12×3) + (2×2) = 40
+    -   So we have eliminated roughly 1/4 of the work
+-   What if we searched in a different order?
+
+<%- include('/_inc/file.html', {file: 'reverse.js'}) %>
+
+<%- include('/_inc/file.html', {file: 'reverse-triple.txt'}) %>
+
+-   Now have (8×3) + (5×2) = 34
+    -   Have eliminated roughly 1/3 of the work
+-   Lots of <g key="heuristic">heuristics</g> for searching trees
+    -   None are guaranteed to give better performance in every case
+    -   But most will give better performance in most cases
+    -   And gains multiply: 2/3 of the work in each of two layers is less than half the total original work
