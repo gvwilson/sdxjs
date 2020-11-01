@@ -96,11 +96,11 @@
 
 -   Check if a configuration (specific versions of all packages) is compatible with a manifest
 
-<%- include('/_inc/file.html', {file: 'allows.js'}) %>
+<%- include('/_inc/erase.html', {file: 'sweep.js', tag: 'allows'}) %>
 
 -   Simplest way to find configuration is to sweep over all possibilities
 
-<%- include('/_inc/file.html', {file: 'sweep.js'}) %>
+<%- include('/_inc/slice.html', {file: 'sweep.js', tag: 'allows'}) %>
 
 -   Run this on the short example
 
@@ -110,9 +110,10 @@
 
 <%- include('/_inc/multi.html', {pat: 'sweep-double-chained.*', fill: 'sh txt'}) %>
 
--   But look at unnecessary work in output
+-   It works
+-   But does lots of unnecessary work
     -   Sort by the case that caught the exclusion
-    -   9 of the 17 exclusions are redundant rediscovery of a known problem
+    -   9 of the 17 exclusions are redundant rediscovery of a previous-known problem
 
 | Excluded  |   X |   Y |   Z |
 | --------  | --- | --- | --- |
