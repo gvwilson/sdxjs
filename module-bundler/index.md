@@ -10,7 +10,7 @@
     and combines them into a single loadable file
     -   Much more efficient to load
     -   Ensures that dependencies actually resolve
--   Requires an <g key="entry_point">entry points</g>
+-   Requires an <g key="entry_point">entry point</g>
     -   Where processing starts
     -   Equivalently, the top level
 -   Need to:
@@ -58,7 +58,7 @@
     -   Otherwise get its dependencies and add them to either `seen` or `pending`
 -   Complicated by the fact that we can load something under different names
     -   `./subdir/bottom-left` from `main`, but `./bottom-left` from `./subdir/bottom-right`
-    -   We will use <g key="absolute_path">absolute paths</a> as unique identifiers
+    -   We will use <g key="absolute_path">absolute paths</g> as unique identifiers
 -   Also complicated by the fact that JavaScript's `Set` doesn't have an equivalent of `Array.pop`
     -   So we will maintain the "set" of pending items as a list
 
