@@ -92,7 +92,7 @@
 <%- include('/_inc/multi.html', {pat: 'pray.*', fill: 'js sh txt'}) %>
 
 ::: callout
-Filenames in `minimist`
+### Filenames in `minimist`
 
 If we use a command line like `pray.js -v something.js`,
 then `something.js` becomes the value of `-v`.

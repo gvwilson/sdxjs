@@ -26,7 +26,7 @@
     -   Use `library.component` to refer to things in the library
 
 ::: callout
-`require` versus `import`
+### `require` versus `import`
 
 In 2015, a new version of JavaScript called ES6 introduced the keyword `import` for importing modules.
 It improves on `require` in several ways, but Node still uses `require` by default.
@@ -148,7 +148,7 @@ FIXME: diagram
     -   Or equivalently "looks like it could be a variable name"
 
 ::: callout
-No one knows everything
+### No one knows everything
 
 We combined `glob.glob` and `Array.filter` in our functions for more than a year
 before someone pointed out the `ignore` option for `glob.glob`.

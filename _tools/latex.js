@@ -108,12 +108,12 @@ const patchHtml = (html) => {
   }
 
   // Convert blockquotes that are styled like asides.
-  // <div class="callout"><p>...</p> ... </div>
+  // <div class="callout"><h3>...</h3> ... </div>
   // =>
-  // <div class="callout"><p class="callout">...</p> ... </div>
-  html = html.replace(/<div\s+class="callout">\s*<p>(.+?)<\/p>([^]+?)<\/div>/g,
+  // <div class="callout"><h3 class="callout">...</h3> ... </div>
+  html = html.replace(/<div\s+class="callout">\s*<h3>(.+?)<\/h3>([^]+?)<\/div>/g,
     (match, first, second) => {
-      return `<div class="callout"><p class="callout">${first}</p>${second}</div>`
+      return `<div class="callout"><h3 class="callout">${first}</h3>${second}</div>`
     })
 
   return html
@@ -247,9 +247,16 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
     accum.push('}')
   } else if (node.name === 'h3') {
-    accum.push('\\subsection*{')
-    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
-    accum.push('}')
+    const cls = node.attribs.class
+    if (cls === 'callout') {
+      accum.push('\\callouttitle{')
+      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      accum.push('}')
+    } else {
+      accum.push('\\subsection*{')
+      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      accum.push('}')
+    }
   } else if (node.name === 'img') {
     const src = node.attribs.src
     accum.push(`\\image{${src}}`)
@@ -269,10 +276,6 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     accum.push('\n')
     if (cls === 'lede') {
       accum.push('\\lede{')
-      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
-      accum.push('}')
-    } else if (cls === 'callout') {
-      accum.push('\\callouttitle{')
       node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
       accum.push('}')
     } else {

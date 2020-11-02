@@ -67,7 +67,7 @@ to contribute chapters on these topics and others
 to a second volume.
 
 ::: callout
-Debuggers
+### Debuggers
 
 We think interactive debuggers are as important as version control.
 We really wanted to explain how to build one,

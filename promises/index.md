@@ -118,7 +118,7 @@ FIXME: diagram
 <%- include('/_inc/multi.html', {pat: 'count-lines-single-file.*', fill: 'js sh txt'}) %>
 
 ::: callout
-Character encoding
+### Character encoding
 
 A <g key="character_encoding">character encoding</g> specifies how characters are stored as bytes.
 The most widely used is <g key="utf_8">UTF-8</g>,

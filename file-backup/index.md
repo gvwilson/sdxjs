@@ -24,7 +24,7 @@
 <%- include('/_inc/multi.html', {pat: 'hash-file.*', fill: 'js sh txt'}) %>
 
 ::: callout
-The Birthday Problem
+### The Birthday Problem
 
 The odds that two people share a birthday are 1/365 (ignoring February 29).
 The odds that they *don't* are therefore 364/365.
