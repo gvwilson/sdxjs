@@ -1126,30 +1126,47 @@
     \penalty\@highpenalty\endgroup}
 
 
+\newcommand*\l@chapter[2]{%
+  \ifnum \c@tocdepth >\m@ne
+    \addpenalty{-\@highpenalty}%
+    \vskip 1.0em \@plus\p@
+    \setlength\@tempdima{1.5em}%
+    \begingroup
+      \parindent \z@ \rightskip \@pnumwidth
+      \parfillskip -\@pnumwidth
+      \leavevmode \bfseries
+      \advance\leftskip\@tempdima
+      \hskip -\leftskip
+      #1\nobreak\hfil \nobreak\hb@xt@\@pnumwidth{\hss #2}\par
+      \penalty\@highpenalty
+    \endgroup
+  \fi}
+\newcommand*\l@section{\@dottedtocline{1}{1.5em}{2.8em}}
 
-  \def\l@chapter#1#2{%
-  \toc@draw
-  \gdef\toc@draw{\draw@chapter{#1}{#2}}}
-\def\@pnumwidth{1.8em}
-\def\draw@chapter#1#2{%
-  \addpenalty{-\@highpenalty}%
-  \vskip1em plus\p@
-  \@tempdima1.5em
-  \begingroup
-    \parindent\z@\rightskip\@pnumwidth
-    \parfillskip-\rightskip
-    \bfseries
-    \leavevmode
-    \advance\leftskip\@tempdima
-    \hskip-\leftskip
-    {#1\hfil}\nobreak
-      \if@pdf
-      \else
-        \hfil\nobreak\hb@xt@\@pnumwidth{\hss #2}%
-\fi
-    \par
-    {\it\draw@authors}%
-    \penalty\@highpenalty\endgroup}
+
+%  \def\l@chapter#1#2{%
+%  \toc@draw
+%  \gdef\toc@draw{\draw@chapter{#1}{#2}}}
+%\def\@pnumwidth{1.8em}
+%\def\draw@chapter#1#2{%
+%  \addpenalty{-\@highpenalty}%
+%  \vskip1em plus\p@
+%  \@tempdima1.5em
+%  \begingroup
+%    \parindent\z@\rightskip\@pnumwidth
+%    \parfillskip-\rightskip
+%    \bfseries
+%    \leavevmode
+%    \advance\leftskip\@tempdima
+%    \hskip-\leftskip
+%    {#1\hfil}\nobreak
+%      \if@pdf
+%      \else
+%        \hfil\nobreak\hb@xt@\@pnumwidth{\hss #2}%
+%\fi
+%    \par
+%    {\it\draw@authors}%
+%    \penalty\@highpenalty\endgroup}
 \def\toc@author#1#2{%
   \if@firstauthor
     \@firstauthorfalse
@@ -1186,12 +1203,12 @@
 \section@toc@skip1.5em
 \newlength\SectionTOCWidth
 \SectionTOCWidth2.8em
-\def\l@section#1#2{%
-  \toc@draw
-  \gdef\toc@draw{\draw@section{#1}{#2}}}
-\def\draw@section#1#2{%
-  \@dottedtocline{1}{\section@toc@skip}{\SectionTOCWidth}{#1 }{{
-\tocfont #2}}}
+%\def\l@section#1#2{%
+%  \toc@draw
+%  \gdef\toc@draw{\draw@section{#1}{#2}}}
+%\def\draw@section#1#2{%
+%  \@dottedtocline{1}{\section@toc@skip}{\SectionTOCWidth}{#1 }{{
+%\tocfont #2}}}
 \newlength\subsection@toc@skip
 \subsection@toc@skip\section@toc@skip
 \advance\subsection@toc@skip\SectionTOCWidth
