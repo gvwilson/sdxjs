@@ -379,9 +379,9 @@ const htmlToText = (node, accum, escape) => {
  */
 const fullEscape = (text) => {
   const result = text
+    .replace(/\\/g, '\v')
     .replace(/{/g, '\\{')
     .replace(/}/g, '\\}')
-    .replace(/\\/g, '\\textbackslash{}')
     .replace(/~/g, '\\textasciitilde{}')
     .replace(/\^/g, '\\textasciicircum{}')
     .replace(/\$/g, '\\$')
@@ -389,6 +389,7 @@ const fullEscape = (text) => {
     .replace(/%/g, '\\%')
     .replace(/_/g, '\\_')
     .replace(/#/g, '\\#')
+    .replace(/\v/g, '\\textbackslash{}')
   return nonAsciiEscape(result)
 }
 
