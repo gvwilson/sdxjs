@@ -1,7 +1,7 @@
 # Infer chapter slugs from presence of 'index.md' files.
 SLUGS=$(patsubst %/index.md,%,$(wildcard */index.md))
 
-# Complete list of Markdown source files.
+# Complete list of Markdown chapter files.
 MARKDOWN=\
   index.md \
   CONDUCT.md \
@@ -24,6 +24,11 @@ HTML=\
   docs/gloss/index.html \
   docs/links/index.html \
   $(patsubst %,docs/%/index.html,${SLUGS})
+
+# Complete list of exercise source files.
+EXERCISES=\
+  $(wildcard $(patsubst %,%/*/problem.md,${SLUGS})) \
+  $(wildcard $(patsubst %,%/*/solution.md,${SLUGS}))
 
 # Complete list of JavaScript source files.
 JAVASCRIPT=\
@@ -133,7 +138,7 @@ gloss.md: _gloss.yml _tools/gloss.js $(filter-out gloss.md,${MARKDOWN})
 	--glosario \
 	--input _gloss.yml \
 	--output gloss.md \
-	--sources index.md $(patsubst %,%/index.md,${SLUGS})
+	--sources ${MARKDOWN} ${EXERCISES}
 
 docs/index.html: _tools/html.js _config.yml _links.yml ${STATIC} ${MARKDOWN}
 	_tools/html.js \

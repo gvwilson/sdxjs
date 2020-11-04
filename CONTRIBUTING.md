@@ -90,11 +90,11 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
     if no text is provided inside the tag,
     we fill it in with `Chapter N` or `Appendix X`.
 
-1.  When defining a term, use `<g key="some_key">some text</g>`.
+1.  When defining a term, use something like `<g key="absolute_path">absolute path</g>`.
     The key must exist in either `_gloss.yml` (our local glossary),
     and again, `static/site.js` and `_tools/latex.js` convert this to a glossary reference.
 
-1.  Use `<cite>Key123,Key456</cite>` for bibliographic citations.
+1.  Use something like `<cite>Osmani2017,Casciaro2020</cite>` for bibliographic citations.
     The keys must exist in `_bib.yml`, and yes, `static/site.js` and `_tools/latex.js` do the conversions.
 
 1.  We use [JavaScript Standard Style][standard-js] almost everywhere
