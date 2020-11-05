@@ -15,5 +15,5 @@ The command:
 rename .txt .bck a.txt b.txt
 ```
 
-will rename `a.txt` to `a.bck`,
-but will *not* rename `b.txt` because `b.bck` already exists.
+<p class="noindent">will rename `a.txt` to `a.bck`,
+but will *not* rename `b.txt` because `b.bck` already exists.</p>

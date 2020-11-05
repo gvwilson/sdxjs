@@ -133,14 +133,14 @@ bib.md: _tools/bib.js _bib.yml
 	--input _bib.yml \
 	--output bib.md
 
-gloss.md: _gloss.yml _tools/gloss.js $(filter-out gloss.md,${MARKDOWN})
+gloss.md: _gloss.yml _tools/gloss.js $(filter-out gloss.md,${MARKDOWN}) ${EXERCISES}
 	_tools/gloss.js \
 	--glosario \
 	--input _gloss.yml \
 	--output gloss.md \
 	--sources ${MARKDOWN} ${EXERCISES}
 
-docs/index.html: _tools/html.js _config.yml _links.yml ${STATIC} ${MARKDOWN}
+docs/index.html: _tools/html.js _config.yml _links.yml ${STATIC} ${MARKDOWN} ${EXERCISES}
 	_tools/html.js \
 	--rootDir . \
 	--outputDir docs \

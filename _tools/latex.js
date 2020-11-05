@@ -243,9 +243,16 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
       accum.push('}')
     }
   } else if (node.name === 'h2') {
-    accum.push('\\section{')
-    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
-    accum.push('}')
+    const cls = node.attribs.class
+    if (cls === 'lede') {
+      accum.push('\n\\lede{')
+      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      accum.push('}')
+    } else {
+      accum.push('\\section{')
+      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      accum.push('}')
+    }
   } else if (node.name === 'h3') {
     const cls = node.attribs.class
     if (cls === 'callout') {
@@ -274,13 +281,10 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
   } else if (node.name === 'p') {
     const cls = node.attribs.class
     accum.push('\n')
-    if (cls === 'lede') {
-      accum.push('\\lede{')
-      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
-      accum.push('}')
-    } else {
-      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    if (cls === 'noindent') {
+      accum.push('\\noindent\n')
     }
+    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
   } else if (node.name === 'pre') {
     assert((node.children.length === 1) && (node.children[0].name === 'code'),
       'Expect pre to have one code child')
