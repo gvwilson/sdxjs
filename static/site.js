@@ -65,11 +65,12 @@ const buildToc = () => {
     parent.classList.add('disabled')
   }
   else {
-    div.innerHTML = headings.map((node, i) => {
-      const br = (i > 0) ? '<br/>' : ''
-      const link = `<a href="#${node.getAttribute('id')}">${node.innerHTML}</a>`
-      return `${br}<span class="nowrap">${link}</span>`
-    }).join('\n')
+    div.innerHTML = headings.filter(node => node.getAttribute('class') !== 'lede')
+      .map((node, i) => {
+        const br = (i > 0) ? '<br/>' : ''
+        const link = `<a href="#${node.getAttribute('id')}">${node.innerHTML}</a>`
+        return `${br}<span class="nowrap">${link}</span>`
+      }).join('\n')
   }
 }
 
