@@ -10,7 +10,7 @@
     -   We then execute the registered tests and capture results
     -   When all tests are done, we report
 -   Lots of other designs are possible
-    -   Load files and then inspect them to find and run tests
+    -   E.g., run tests as soon as files load rather than collecting and running later
 
 ## How should we handle unit testing?
 
@@ -66,7 +66,7 @@
 
 <%- include('/_inc/file.html', {file: 'hope.js'}) %>
 
--   Use the `caller` module to find the name of who's calling the current function
+-   Use the [`caller`][caller] module to find the name of who's calling the current function
     -   Gives the user more information
     -   Automatically correct (unlike handwritten strings that can fall out of step)
 
@@ -83,7 +83,7 @@
 -   Loading files executes the code they contain
     -   Which registers tests as a <g key="side_effect">side effect</g> of calls to `hope.test`
 -   Final part is the command-line tool that finds and loads tests
-    -   Parse command-line arguments using `minimist` module
+    -   Parse command-line arguments using the [`minimist`][minimist] module
     -   Use the filenames provided or find and load all files that match `test-*.js`
     -   Call `hope.run()` to run all the tests they have registered
     -   Report results
