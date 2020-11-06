@@ -120,3 +120,5 @@ The double dash is a common Unix convention for signalling the end of parameters
 ## How do we handle promises in tests?
 
 FIXME: explain how to manage tests that create promises (may require rewriting existing framework)
+
+<%- include('/_inc/problems.html') %>
