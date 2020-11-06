@@ -135,18 +135,18 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
   } else if (SKIP_ENTIRELY.has(node.name)) {
     // do nothing
   } else if (RECURSE_ONLY.has(node.name)) {
-    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    childrenToLatex(options, fileInfo, node, accum)
   } else if (node.name === 'a') {
     assert('href' in node.attribs,
            `link without href at ${fileInfo.filename} ${node.startIndex}`)
     accum.push('\\hreffoot{')
-    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    childrenToLatex(options, fileInfo, node, accum)
     accum.push('}{')
     accum.push(fullEscape(node.attribs.href))
     accum.push('}')
   } else if (node.name === 'blockquote') {
     accum.push('\\begin{quotation}')
-    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    childrenToLatex(options, fileInfo, node, accum)
     accum.push('\\end{quotation}')
   } else if (node.name === 'cite') {
     accum.push('\\cite{')
@@ -168,30 +168,30 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
       })
     } else if (cls === 'callout') {
       accum.push('\\begin{callout}')
-      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      childrenToLatex(options, fileInfo, node, accum)
       accum.push('\\end{callout}')
     } else if (cls === 'centered') {
       accum.push('\n{\\centering\n')
-      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      childrenToLatex(options, fileInfo, node, accum)
       accum.push('\n}\n')
     } else if (cls === 'subpage') {
       accum.push('\\begin{lstlisting}[caption=FIXME]\n')
       accum.push('FIXME display sub-page')
       accum.push('\\end{lstlisting}')
     } else {
-      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      childrenToLatex(options, fileInfo, node, accum)
     }
   } else if (node.name === 'dd') {
-    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    childrenToLatex(options, fileInfo, node, accum)
   } else if (node.name === 'dl') {
     const cls = node.attribs.class
     if (cls === 'bibliography') {
       accum.push('\\begin{thebibliography}{ABCD}')
-      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      childrenToLatex(options, fileInfo, node, accum)
       accum.push('\\end{thebibliography}')
     } else {
       accum.push('\\begin{description}')
-      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      childrenToLatex(options, fileInfo, node, accum)
       accum.push('\\end{description}')
     }
   } else if (node.name === 'dt') {
@@ -208,22 +208,22 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
       assert(key,
         'Every glossary definition must have an id')
       accum.push('\\glossitem{')
-      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      childrenToLatex(options, fileInfo, node, accum)
       accum.push('}{')
       accum.push(fullEscape(key))
       accum.push('}')
     } else {
       accum.push('\\item[')
-      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      childrenToLatex(options, fileInfo, node, accum)
       accum.push(']')
     }
   } else if (node.name === 'em') {
     accum.push('\\emph{')
-    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    childrenToLatex(options, fileInfo, node, accum)
     accum.push('}')
   } else if (node.name === 'g') {
     accum.push('\\glossref{')
-    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    childrenToLatex(options, fileInfo, node, accum)
     accum.push('}{')
     accum.push(fullEscape(node.attribs.key))
     accum.push('}')
@@ -237,7 +237,7 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
       accum.push('\\chapter{Introduction}\\label{introduction}')
     } else {
       accum.push('\\chapter{')
-      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      childrenToLatex(options, fileInfo, node, accum)
       accum.push('}\\label{')
       accum.push(fileInfo.slug)
       accum.push('}')
@@ -246,22 +246,22 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     const cls = node.attribs.class
     if (cls === 'lede') {
       accum.push('\n\\lede{')
-      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      childrenToLatex(options, fileInfo, node, accum)
       accum.push('}')
     } else {
       accum.push('\\section{')
-      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      childrenToLatex(options, fileInfo, node, accum)
       accum.push('}')
     }
   } else if (node.name === 'h3') {
     const cls = node.attribs.class
     if (cls === 'callout') {
       accum.push('\\callouttitle{')
-      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      childrenToLatex(options, fileInfo, node, accum)
       accum.push('}')
     } else {
       accum.push('\\subsection*{')
-      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      childrenToLatex(options, fileInfo, node, accum)
       accum.push('}')
     }
   } else if (node.name === 'img') {
@@ -269,14 +269,14 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     accum.push(`\\image{${src}}`)
   } else if (node.name === 'key') {
     accum.push('\\keystroke{')
-    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    childrenToLatex(options, fileInfo, node, accum)
     accum.push('}')
   } else if (node.name === 'li') {
     accum.push('\\item ')
-    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    childrenToLatex(options, fileInfo, node, accum)
   } else if (node.name === 'ol') {
     accum.push('\\begin{enumerate}')
-    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    childrenToLatex(options, fileInfo, node, accum)
     accum.push('\\end{enumerate}')
   } else if (node.name === 'p') {
     const cls = node.attribs.class
@@ -284,7 +284,7 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     if (cls === 'noindent') {
       accum.push('\\noindent\n')
     }
-    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    childrenToLatex(options, fileInfo, node, accum)
   } else if (node.name === 'pre') {
     assert((node.children.length === 1) && (node.children[0].name === 'code'),
       'Expect pre to have one code child')
@@ -295,25 +295,25 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     accum.push('\\end{lstlisting}')
   } else if (node.name === 'strong') {
     accum.push('\\textbf{')
-    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    childrenToLatex(options, fileInfo, node, accum)
     accum.push('}')
   } else if (node.name === 'sub') {
     accum.push('\\textsubscript{')
-    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    childrenToLatex(options, fileInfo, node, accum)
     accum.push('}')
   } else if (node.name === 'sup') {
     accum.push('\\textsuperscript{')
-    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    childrenToLatex(options, fileInfo, node, accum)
     accum.push('}')
   } else if (node.name === 'table') {
     accum.push(tableToLatex(options, fileInfo, node))
   } else if (node.name === 'td') {
-    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    childrenToLatex(options, fileInfo, node, accum)
   } else if (node.name === 'th') {
-    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    childrenToLatex(options, fileInfo, node, accum)
   } else if (node.name === 'ul') {
     accum.push('\\begin{itemize}')
-    node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+    childrenToLatex(options, fileInfo, node, accum)
     accum.push('\\end{itemize}')
   } else if (node.name === 'xref') {
     const key = node.attribs.key
@@ -323,7 +323,7 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     if (node.children.length === 0) {
       accum.push(text)
     } else {
-      node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+      childrenToLatex(options, fileInfo, node, accum)
       accum.push(` (${text})`)
     }
   } else {
@@ -331,6 +331,17 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     process.exit(1)
   }
   return accum
+}
+
+/**
+ * Convert all children of a node to LaTeX.
+ * @param {Object} options Program options.
+ * @param {Object} fileInfo Information about this file.
+ * @param {Object} node Root node whose children are to be converted.
+ * @param {Array} accum Strings generated so far.
+ */
+const childrenToLatex = (options, fileInfo, node, accum) => {
+  node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
 }
 
 /**
