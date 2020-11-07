@@ -112,7 +112,11 @@ erase:
 
 ## wordlist: what words are used in prose?
 wordlist:
-	_tools/wordlist.js --input ${HTML}
+	@_tools/wordlist.js --input ${HTML}
+
+## spelling: what words are incorrect?
+spelling:
+	@-_tools/wordlist.js --input ${HTML} | aspell list | sort | uniq | diff - _words.txt
 
 ## clean: clean up
 clean:
