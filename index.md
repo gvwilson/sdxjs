@@ -116,6 +116,10 @@ We occasionally wrap lines in source code just to make listings fit on the page.
 Where we need to break lines of output for the same reason,
 we end all but the last line with a single backslash `\`.
 
+## Acknowledgments
+
+We are very grateful for for feedback from [Darren McElligott][mcelligott-darren].
+
 ## Dedication
 
 ::: centered

@@ -21,7 +21,7 @@
 <dt id="ascii" class="glossary">ASCII</dt>
 <dd class="glossary">A standard way to represent the characters commonly used in the Western European languages as 7- or 8-bit integers, now superceded by <g key="unicode">Unicode</g>.</dd>
 <dt id="assertion" class="glossary">assertion</dt>
-<dd class="glossary">A <g key="boolean">Boolean</g> expression that must be <g key="true">true</g> at a certain point in a program. Assertions may be built into the language (e.g., <g key="python">Python</g>'s <code>assert</code> statement) or provided as functions (e.g., <g key="r_language">R</g>'s <code>stopifnot</code>). They are often used in testing, but are also put in <g key="production_code">production code</g> to check that it is behaving correctly. In many languages, assertions should not be used to perform data-validation as they may be silently dropped by compilers and interpreters under optimisation conditions. Using assertions for data validation can therefore introduce security risks. Unlike many languages, R does not have an <code>assert</code> statement which can be disabled, and so use of <g key="package">package</g> such as <code>assertr</code> for data validation does not create security holes.</dd>
+<dd class="glossary">A <g key="boolean">Boolean</g> expression that must be <g key="true">true</g> at a certain point in a program. Assertions may be built into the language (e.g., <g key="python">Python</g>'s <code>assert</code> statement) or provided as functions (e.g., <g key="r_language">R</g>'s <code>stopifnot</code>). They are often used in testing, but are also put in <g key="production_code">production code</g> to check that it is behaving correctly. In many languages, assertions should not be used to perform data-validation as they may be silently dropped by compilers and interpreters under optimization conditions. Using assertions for data validation can therefore introduce security risks. Unlike many languages, R does not have an <code>assert</code> statement which can be disabled, and so use of <g key="package">package</g> such as <code>assertr</code> for data validation does not create security holes.</dd>
 <dt id="associative_array" class="glossary">associative array</dt>
 <dd class="glossary">See <g key="dictionary">dictionary</g>.</dd>
 <dt id="asynchronous" class="glossary">asynchronous</dt>
@@ -41,7 +41,7 @@
 <dt id="block_comment" class="glossary">block comment</dt>
 <dd class="glossary">A <g key="comment">comment</g> that spans multiple lines. Block comments may be marked with special start and end symbols, like <code>/*</code> and <code>*/</code> in C and its descendents, or each line may be prefixed with a marker like <code>#</code>.</dd>
 <dt id="boolean" class="glossary">Boolean</dt>
-<dd class="glossary">Relating to a variable or data type that can have either a logical value of <g key="true">true</g> or <g key="false">false</g>. Named for George Boole, a 19th century mathemetician. Binary systems, like all computers, are built on this foundation of systems of logical evaluations between states of true and false, 1 or 0.</dd>
+<dd class="glossary">Relating to a variable or data type that can have either a logical value of <g key="true">true</g> or <g key="false">false</g>. Named for George Boole, a 19th century mathematician. Binary systems, like all computers, are built on this foundation of systems of logical evaluations between states of true and false, 1 or 0.</dd>
 <dt id="breadth_first" class="glossary">breadth first</dt>
 <dd class="glossary">To go through a nested data structure such as a <g key="tree">tree</g> by exploring all of one level, then going on to the next level and so on, or to explore a problem by examining the first step of each possible solution, and then trying the next step for each.</dd>
 <dt id="bug" class="glossary">bug</dt>
@@ -65,7 +65,7 @@
 <dt id="call_stack" class="glossary">call stack</dt>
 <dd class="glossary">A data structure that stores information about the active subroutines executed.</dd>
 <dt id="callback" class="glossary">callback function</dt>
-<dd class="glossary">A function A that is passed to another function B so that B can call it at some later point. Callbacks can be used <g key="synchronous">synchronously</g>, as in generic functions like <code>map</code> that invoke a callback function once for each element in a collection, or <g key="asynchronous">ascynrhonously</g>, as in a <g key="client">client</g> that runs a callback when a <g key="http_response">response</g> is received in answer to a <g key="http_request">request</g>.</dd>
+<dd class="glossary">A function A that is passed to another function B so that B can call it at some later point. Callbacks can be used <g key="synchronous">synchronously</g>, as in generic functions like <code>map</code> that invoke a callback function once for each element in a collection, or <g key="asynchronous">asynchronously</g>, as in a <g key="client">client</g> that runs a callback when a <g key="http_response">response</g> is received in answer to a <g key="http_request">request</g>.</dd>
 <dt id="css" class="glossary">Cascading Style Sheets (CSS)</dt>
 <dd class="glossary">A way to control the appearance of HTML. CSS is typically used to specify fonts, colors, and layout.</dd>
 <dt id="catch_exception" class="glossary">catch (an exception)</dt>
@@ -171,7 +171,7 @@
 <dt id="exception_handler" class="glossary">exception handler</dt>
 <dd class="glossary">A piece of code that deals with an <g key="exception">exception</g> after it is <g key="catch_exception">caught</g>, e.g., by writing a <g key="log_message">log message</g>, retrying the operation that failed, or performing an alternate operation.</dd>
 <dt id="expected_result" class="glossary">expected result (of test)</dt>
-<dd class="glossary">The value that a piece of software is suposed to produce when tested in a certain way, or the state in which it is supposed to leave the system.</dd>
+<dd class="glossary">The value that a piece of software is supposed to produce when tested in a certain way, or the state in which it is supposed to leave the system.</dd>
 <dt id="export" class="glossary">export</dt>
 <dd class="glossary">To make something visible outside a <g key="module">module</g> so that other parts of a program can <g key="import">import</g> it. In most languages a module must export things explicitly in an attempt to avoid <g key="name_collision">name collision</g>.</dd>
 <dt id="fail_test" class="glossary">fail (a test)</dt>

@@ -2,7 +2,7 @@
 ---
 
 <ul class="links">
-<% site.links.forEach(function(entry){ %>
+<% site.links.filter(function(entry){return (entry.list === undefined) || entry.list}).forEach(function(entry){ %>
 <li id="<%- entry.slug %>">
 <a href="<%- entry.url %>"><%- entry.name %></a>:
 <%- entry.lede %>
