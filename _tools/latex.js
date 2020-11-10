@@ -174,6 +174,10 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
       accum.push('\n{\\centering\n')
       childrenToLatex(options, fileInfo, node, accum)
       accum.push('\n}\n')
+    } else if (cls === 'hint') {
+      accum.push('\\begin{hint}')
+      childrenToLatex(options, fileInfo, node, accum)
+      accum.push('\\end{hint}')
     } else if (cls === 'subpage') {
       accum.push('\\begin{lstlisting}[caption=FIXME]\n')
       accum.push('FIXME display sub-page')
@@ -369,7 +373,7 @@ const tableToLatex = (options, fileInfo, node) => {
     const joined = fields.join(' & ')
     return `${joined} \\\\\n`
   }).join('')
-  return `\\begin{tabular}{${spec}}\n${body}\\end{tabular}\n`
+  return `\n\\begin{tabular}{${spec}}\n${body}\\end{tabular}\n`
 }
 
 /**

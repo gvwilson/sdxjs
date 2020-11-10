@@ -169,3 +169,5 @@ If we don't specify a character encoding,
     -   Must still use `Promise.all` for collections of things
 
 <%- include('/_inc/slice.html', {file: 'count-lines-with-stat-async.js', tag: 'main'}) %>
+
+<%- include('/_inc/problems.html') %>

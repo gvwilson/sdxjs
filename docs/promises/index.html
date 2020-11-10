@@ -487,24 +487,36 @@ main(srcDir)
 20
 1
 0
-47
-1
 24
 12
 1
+1
+38
+1
+38
 35
 1
-158
+28
+171
 8
+6
 1
+3
 35
 17
+6
 4
+6
 17
+6
 12
+3
 13
+3
 8
+1
 15
+6
 </code></pre>
 <ul>
 <li>But we want to display filenames as well as counts</li>
@@ -598,101 +610,237 @@ main(srcDir)
 6: ./callbacks-with-zero-timeouts.txt
 20: ./count-lines-globbed-files.js
 1: ./count-lines-globbed-files.sh
-25: ./count-lines-globbed-files.txt
-47: ./count-lines-histogram.js
-1: ./count-lines-histogram.sh
-11: ./count-lines-histogram.txt
+37: ./count-lines-globbed-files.txt
 24: ./count-lines-print-filenames.js
 12: ./count-lines-single-file.js
 1: ./count-lines-single-file.sh
 1: ./count-lines-single-file.txt
+38: ./count-lines-with-stat-async.js
+1: ./count-lines-with-stat-async.sh
+38: ./count-lines-with-stat-async.txt
 35: ./count-lines-with-stat.js
 1: ./count-lines-with-stat.sh
 0: ./count-lines-with-stat.txt
-158: ./index.md
+171: ./index.md
 8: ./non-blocking.js
+6: ./non-blocking.txt
 1: ./not-callbacks-alone.js
+3: ./not-callbacks-alone.txt
 35: ./pledge.js
 17: ./promise-example.js
+6: ./promise-example.txt
 4: ./set-immediate.js
+6: ./set-immediate.txt
 17: ./use-pledge-chained.js
+6: ./use-pledge-chained.txt
 12: ./use-pledge-motivation.js
+3: ./use-pledge-motivation.txt
 13: ./use-pledge-reject.js
+3: ./use-pledge-reject.txt
 8: ./use-pledge-return.js
+1: ./use-pledge-return.txt
 15: ./use-promise-chained.js
-</code></pre>
-<ul>
-<li>Now make a histogram of how many files are of each length
-<ul>
-<li>Only look at <code>.js</code> files with the <code>glob</code></li>
-</ul>
-</li>
-</ul>
-<pre title="count-lines-histogram.js"><code class="language-js">const glob = require('glob-promise')
-const fs = require('fs-extra-promise')
-
-const main = (srcDir) =&gt; {
-  glob(`${srcDir}/**/*.js`)
-    .then(files =&gt; Promise.all(files.map(f =&gt; statPair(f))))
-    .then(files =&gt; files.filter(pair =&gt; pair.stats.isFile()))
-    .then(files =&gt; files.map(pair =&gt; pair.filename))
-    .then(files =&gt; Promise.all(files.map(f =&gt; lineCount(f))))
-    .then(counts =&gt; makeHistogram(counts))
-    .then(histogram =&gt; display(histogram))
-    .catch(err =&gt; console.log(err.message))
-}
-
-const statPair = (filename) =&gt; {
-  return new Promise((resolve, reject) =&gt; {
-    fs.statAsync(filename)
-      .then(stats =&gt; resolve({ filename, stats }))
-      .catch(err =&gt; reject(err))
-  })
-}
-
-const lineCount = (filename) =&gt; {
-  return new Promise((resolve, reject) =&gt; {
-    fs.readFileAsync(filename, { encoding: 'utf-8' })
-      .then(data =&gt; resolve(data.split('\n').length - 1))
-      .catch(err =&gt; reject(err))
-  })
-}
-
-const makeHistogram = (lengths) =&gt; {
-  const largest = Math.max(...lengths)
-  const bins = new Array(largest + 1).fill(0)
-  lengths.forEach(n =&gt; { bins[n] += 1 })
-  return bins
-}
-
-const display = (bins) =&gt; {
-  bins.forEach((val, i) =&gt; {
-    if (val &gt; 0) {
-      console.log(`${i} ${val}`)
-    }
-  })
-}
-
-const srcDir = process.argv[2]
-main(srcDir)
-</code></pre>
-<pre title="count-lines-histogram.sh"><code class="language-sh">node count-lines-histogram.js .
-</code></pre>
-<pre title="count-lines-histogram.txt"><code class="language-txt">1 1
-4 3
-8 2
-12 2
-13 1
-15 1
-17 2
-20 1
-24 1
-35 2
-47 1
+6: ./use-promise-chained.txt
 </code></pre>
 <ul>
 <li>This is complex, but a lot simpler than it would be if we were using callbacks</li>
 </ul>
+<h2 id="how-can-we-make-this-more-readable">How can we make this more readable?</h2>
+<ul>
+<li>Modern JavaScript provides <code>async</code> and <code>await</code> keywords
+<ul>
+<li><code>async</code> means &quot;this function implicitly returns a promise&quot;</li>
+<li><code>await</code> means &quot;wait for a promise to resolve&quot;</li>
+</ul>
+</li>
+<li>We can only use <code>await</code> inside a function that is declared to be <code>async</code></li>
+<li>Do all the same things as the explicit promise-based version, but easier to read
+<ul>
+<li>In particular, allows us to mix asynchronous and synchronous code (<code>hashPath</code> doesn't delay computation)</li>
+</ul>
+</li>
+<li>Modify the two helper functions to look like they're waiting for results and returning them
+<ul>
+<li>Except the actually wrap their results in promises and return those</li>
+</ul>
+</li>
+</ul>
+<pre title="count-lines-with-stat-async.js:recycle"><code class="language-js">const statPair = async (filename) =&gt; {
+  const stats = await fs.statAsync(filename)
+  return { filename, stats }
+}
+
+const lineCount = async (filename) =&gt; {
+  const data = await fs.readFileAsync(filename, 'utf-8')
+  return {
+    filename,
+    lines: data.split('\n').length - 1
+  }
+}</code></pre>
+<ul>
+<li>Modify <code>main</code> to wait for things to complete
+<ul>
+<li>Must still use <code>Promise.all</code> for collections of things</li>
+</ul>
+</li>
+</ul>
+<pre title="count-lines-with-stat-async.js:main"><code class="language-js">const main = async (srcDir) =&gt; {
+  const files = await glob(`${srcDir}/**/*.*`)
+  const pairs = await Promise.all(
+    files.map(async filename =&gt; await statPair(filename))
+  )
+  const filtered = pairs
+    .filter(pair =&gt; pair.stats.isFile())
+    .map(pair =&gt; pair.filename)
+  const counts = await Promise.all(
+    filtered.map(async name =&gt; await lineCount(name))
+  )
+  counts.forEach(
+    ({ filename, lines }) =&gt; console.log(`${lines}: ${filename}`)
+  )
+}
+
+const srcDir = process.argv[2]
+main(srcDir)</code></pre>
+<h2 id="exercises">Exercises</h2>
+<h3 class="exercise">Head and tail</h3>
+<p>The Unix <code>head</code> command shows the first few lines of one or more files,
+while the <code>tail</code> command shows the last few.
+Write programs <code>head.js</code> and <code>tail.js</code> that do the same things using promises and <code>async</code>/<code>await</code>,
+so that:</p>
+<pre><code class="language-sh">node head.js 5 first.txt second.txt third.txt
+</code></pre>
+<p class="noindent">prints the first 5 lines of each of the three files and:</p>
+<pre><code class="language-sh">node tail.js 5 first.txt second.txt third.txt
+</code></pre>
+<p class="noindent">prints the last five lines of each file.</p>
+<h3 class="exercise">Histogram of line counts</h3>
+<p>Extend <code>count-lines-with-stat-async.js</code> to create a program <code>lh.js</code>
+that prints two columns of output:
+the number of lines in one or more files
+and the number of files that are that long.
+For example,
+if we run:</p>
+<pre><code class="language-sh">node lh.js promises/*.*
+</code></pre>
+<p class="noindent">the output might be:</p>
+<table>
+<thead>
+<tr>
+<th>Length</th>
+<th>Number of Files</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>7</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3</td>
+</tr>
+<tr>
+<td>6</td>
+<td>7</td>
+</tr>
+<tr>
+<td>8</td>
+<td>2</td>
+</tr>
+<tr>
+<td>12</td>
+<td>2</td>
+</tr>
+<tr>
+<td>13</td>
+<td>1</td>
+</tr>
+<tr>
+<td>15</td>
+<td>1</td>
+</tr>
+<tr>
+<td>17</td>
+<td>2</td>
+</tr>
+<tr>
+<td>20</td>
+<td>1</td>
+</tr>
+<tr>
+<td>24</td>
+<td>1</td>
+</tr>
+<tr>
+<td>35</td>
+<td>2</td>
+</tr>
+<tr>
+<td>37</td>
+<td>3</td>
+</tr>
+<tr>
+<td>38</td>
+<td>1</td>
+</tr>
+<tr>
+<td>171</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<h3 class="exercise">Select matching lines</h3>
+<p>Using <code>async</code> and <code>await, write a program called </code>match.js` that finds and prints lines containing a given string.
+For example:</p>
+<pre><code class="language-sh">node match.js Toronto first.txt second.txt third.txt
+</code></pre>
+<p class="noindent">would print all of the lines from the three files
+that contain the word "Toronto".</p>
+<h3 class="exercise">Find lines in all files</h3>
+<p>Using <code>async</code> and <code>await</code>,
+write a program called <code>in-all.js</code> that finds and prints lines found in all of its input files.
+For example:</p>
+<pre><code class="language-sh">node in-all.js first.txt second.txt third.txt
+</code></pre>
+<p class="noindent">will print those lines that occur in all three files.</p>
+<h3 class="exercise">Find differences between two files</h3>
+<p>Using <code>async</code> and <code>await</code>,
+write a program called <code>file-diff.js</code>
+that compares the lines in two files
+and shows which ones are only in the first file,
+which are only in the second,
+and which are in both.
+For example,
+if <code>left.txt</code> contains:</p>
+<pre><code class="language-txt">some
+people
+</code></pre>
+<p class="noindent">and `right.txt` contains:</p>
+<pre><code class="language-txt">write
+some
+code
+</code></pre>
+<p class="noindent">then:</p>
+<pre><code class="language-sh">node file-diff.js left.txt right.txt
+</code></pre>
+<p class="noindent">would print:</p>
+<pre><code class="language-txt">2 code
+1 people
+* some
+2 write
+</code></pre>
+<p class="noindent">where `1`, `2`, and `*` show whether lines are in only the first or second file
+or are in both.
+Note that the order of the lines in the file doesn't matter.
+</p>
+<div class="hint">
+<p>You may want to use the <code>Set</code> class to store lines.</p>
+</div>
 </main>
 <footer>
 <div class="row">

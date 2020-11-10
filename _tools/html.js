@@ -172,6 +172,7 @@ const translateFile = (options, fileInfo, linksText) => {
     .use(MarkdownAnchor, { level: 1, slugify: slugify })
     .use(MarkdownContainer, 'callout')
     .use(MarkdownContainer, 'centered')
+    .use(MarkdownContainer, 'hint')
   let html = mdi.render(translated)
   if (options.replaceDir) {
     html = html.replace(new RegExp(options.homeDir, 'g'), STANDARD_DIR)
