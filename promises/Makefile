@@ -1,4 +1,5 @@
 TARGETS=\
+  assign-immediately.txt \
   callbacks-with-timeouts.txt \
   callbacks-with-zero-timeouts.txt \
   count-lines-globbed-files.txt \
@@ -8,6 +9,8 @@ TARGETS=\
   non-blocking.txt \
   not-callbacks-alone.txt \
   promise-example.txt \
+  return-await.txt \
+  return-immediately.txt \
   set-immediate.txt \
   use-pledge-chained.txt \
   use-pledge-motivation.txt \

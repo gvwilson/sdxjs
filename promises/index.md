@@ -170,4 +170,26 @@ If we don't specify a character encoding,
 
 <%- include('/_inc/slice.html', {file: 'count-lines-with-stat-async.js', tag: 'main'}) %>
 
+## How can we handle errors with asynchronous code?
+
+-   We created several intermediate variables in the line-counting example to make the steps clearer
+-   Doing this also helps with error handling
+-   If we return a promise that fails without using `await`, the error happens outside our function
+    -   The failed promise is turned into an error
+    -   Our `try`/`catch` doesn't help us
+
+<%- include('/_inc/multi.html', {pat: 'return-immediately.*', fill: 'js txt'}) %>
+
+-   If we `return await`, the function waits until the promise runs
+    -   The promise is then turned into an exception because it failed
+    -   And we're inside the scope of our error handler, which catches it
+
+<%- include('/_inc/multi.html', {pat: 'return-await.*', fill: 'js txt'}) %>
+
+-   Better practice is to be consistent and always return something
+    -   Because the function is declared `async`,
+        the `Error` is automatically wrapped in a promise so we can use `.then` and `.catch`
+
+<%- include('/_inc/multi.html', {pat: 'assign-immediately.*', fill: 'js txt'}) %>
+
 <%- include('/_inc/problems.html') %>

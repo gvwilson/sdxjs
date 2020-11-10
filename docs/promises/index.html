@@ -702,7 +702,110 @@ const lineCount = async (filename) =&gt; {
 
 const srcDir = process.argv[2]
 main(srcDir)</code></pre>
+<h2 id="how-can-we-handle-errors-with-asynchronous-code">How can we handle errors with asynchronous code?</h2>
+<ul>
+<li>We created several intermediate variables in the line-counting example to make the steps clearer</li>
+<li>Doing this also helps with error handling</li>
+<li>If we return a promise that fails without using <code>await</code>, the error happens outside our function
+<ul>
+<li>The failed promise is turned into an error</li>
+<li>Our <code>try</code>/<code>catch</code> doesn't help us</li>
+</ul>
+</li>
+</ul>
+<pre title="return-immediately.js"><code class="language-js">async function returnImmediately () {
+  try {
+    return Promise.reject(new Error('deliberate'))
+  } catch (err) {
+    console.log('caught exception')
+  }
+}
+
+returnImmediately()
+</code></pre>
+<pre title="return-immediately.txt"><code class="language-txt">(node:9333) UnhandledPromiseRejectionWarning: Error: deliberate
+</code></pre>
+<ul>
+<li>If we <code>return await</code>, the function waits until the promise runs
+<ul>
+<li>The promise is then turned into an exception because it failed</li>
+<li>And we're inside the scope of our error handler, which catches it</li>
+</ul>
+</li>
+</ul>
+<pre title="return-await.js"><code class="language-js">async function returnAwait () {
+  try {
+    return await Promise.reject(new Error('deliberate'))
+  } catch (err) {
+    console.log('caught exception')
+  }
+}
+
+returnAwait()
+</code></pre>
+<pre title="return-await.txt"><code class="language-txt">caught exception
+</code></pre>
+<ul>
+<li>Better practice is to be consistent and always return something
+<ul>
+<li>Because the function is declared <code>async</code>,
+the <code>Error</code> is automatically wrapped in a promise so we can use <code>.then</code> and <code>.catch</code></li>
+</ul>
+</li>
+</ul>
+<pre title="assign-immediately.js"><code class="language-js">async function returnImmediately () {
+  try {
+    return Promise.reject(new Error('deliberate'))
+  } catch (err) {
+    return new Error('caught exception')
+  }
+}
+
+const result = returnImmediately()
+result.catch(err =&gt; console.log(`caller caught ${err}`))
+</code></pre>
+<pre title="assign-immediately.txt"><code class="language-txt">caller caught Error: deliberate
+</code></pre>
 <h2 id="exercises">Exercises</h2>
+<h3 class="exercise">Multiple catches</h3>
+<p>Suppose we create a promise that deliberately fails and then add two error handlers:</p>
+<pre title="multiple-catch/example.js"><code class="language-js">const oops = new Promise((resolve, reject) =&gt; reject(new Error('failure')))
+oops.catch(err =&gt; console.log(err.message))
+oops.catch(err =&gt; console.log(err.message))
+</code></pre>
+<p class="noindent">When the code is run it produces:</p>
+<pre title="multiple-catch/example.txt"><code class="language-txt">failure
+failure
+</code></pre>
+<ol>
+<li>Trace the order of operations: what is created and executed when?</li>
+<li>What happens if we run these same lines interactively?
+Why do we see something different than what we see when we run this file from the command line?</li>
+</ol>
+<h3 class="exercise">Then after catch</h3>
+<p>Suppose we create a promise that deliberately fails
+and attach both <code>then</code> and <code>catch</code> to it:</p>
+<pre title="catch-then/example.js"><code class="language-js">new Promise((resolve, reject) =&gt; reject(new Error('failure')))
+  .catch(err =&gt; console.log(err))
+  .then(err =&gt; console.log(err))
+</code></pre>
+<p class="noindent">When the code is run it produces:</p>
+<pre title="catch-then/example.txt"><code class="language-txt">Error: failure
+    at /u/stjs/promises/catch-then/example.js:1:41
+    at new Promise (&lt;anonymous&gt;)
+    at Object.&lt;anonymous&gt; (/u/stjs/promises/catch-then/example.js:1:1)
+    at Module._compile (internal/modules/cjs/loader.js:1151:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:1171:10)
+    at Module.load (internal/modules/cjs/loader.js:1000:32)
+    at Function.Module._load (internal/modules/cjs/loader.js:899:14)
+    at Function.executeUserEntryPoint [as runMain] (internal/modules/run_main.js:71:12)
+    at internal/main/run_main_module.js:17:47
+undefined
+</code></pre>
+<ol>
+<li>Trace the order of execution.</li>
+<li>Why is <code>undefined</code> printed at the end?</li>
+</ol>
 <h3 class="exercise">Head and tail</h3>
 <p>The Unix <code>head</code> command shows the first few lines of one or more files,
 while the <code>tail</code> command shows the last few.
