@@ -150,9 +150,22 @@ If we don't specify a character encoding,
 
 <%- include('/_inc/multi.html', {pat: 'count-lines-with-stat.*', fill: 'js sh txt'}) %>
 
--   Now make a histogram of how many files are of each length
-    -   Only look at `.js` files with the `glob`
-
-<%- include('/_inc/multi.html', {pat: 'count-lines-histogram.*', fill: 'js sh txt'}) %>
-
 -   This is complex, but a lot simpler than it would be if we were using callbacks
+
+## How can we make this more readable?
+
+-   Modern JavaScript provides `async` and `await` keywords
+    -   `async` means "this function implicitly returns a promise"
+    -   `await` means "wait for a promise to resolve"
+-   We can only use `await` inside a function that is declared to be `async`
+-   Do all the same things as the explicit promise-based version, but easier to read
+    -   In particular, allows us to mix asynchronous and synchronous code (`hashPath` doesn't delay computation)
+-   Modify the two helper functions to look like they're waiting for results and returning them
+    -   Except the actually wrap their results in promises and return those
+
+<%- include('/_inc/slice.html', {file: 'count-lines-with-stat-async.js', tag: 'recycle'}) %>
+
+-   Modify `main` to wait for things to complete
+    -   Must still use `Promise.all` for collections of things
+
+<%- include('/_inc/slice.html', {file: 'count-lines-with-stat-async.js', tag: 'main'}) %>

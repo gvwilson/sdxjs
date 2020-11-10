@@ -2,9 +2,9 @@ TARGETS=\
   callbacks-with-timeouts.txt \
   callbacks-with-zero-timeouts.txt \
   count-lines-globbed-files.txt \
-  count-lines-histogram.txt \
   count-lines-single-file.txt \
   count-lines-with-stat.txt \
+  count-lines-with-stat-async.txt \
   non-blocking.txt \
   not-callbacks-alone.txt \
   promise-example.txt \

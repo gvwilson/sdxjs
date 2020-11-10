@@ -62,13 +62,8 @@ and quickly get into "if every atom in the universe was a file there still would
 
 <%- include('/_inc/multi.html', {pat: 'run-hash-existing-promise.*', fill: 'js sh txt'}) %>
 
--   This code is clearer than it would be with callbacks…
--   …but the layer of promises around everything still obscures meaning
--   Modern JavaScript provides `async` and `await` keywords
-    -   `async` means "this function implicitly returns a promise"
-    -   `await` means "wait for a promise to resolve"
--   Doing all the same things as the explicit promise-based version, but easier to read
-    -   In particular, allows us to mix asynchronous and synchronous code (`hashPath` doesn't delay computation)
+-   This code is clearer than it would be with callbacks, but the layer of promises around everything still obscures meaning
+-   Let's rewrite it using `async` and `await`
 
 <%- include('/_inc/file.html', {file: 'hash-existing-async.js'}) %>
 
