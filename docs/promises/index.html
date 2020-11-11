@@ -410,14 +410,14 @@ constructing promise: inner delay
 second then: resolving: inner delay
 </code></pre>
 <ol>
-<li>If we use a promisified function from the library, we get a promise for free</li>
+<li>If we use a <g key="promisification">promisified</g> function from the library, we get a promise for free</li>
 <li>If we want to plug in our own asynchronous functions, we need to create promises</li>
 <li>If our code can run synchronously, just put it in <code>then</code></li>
 </ol>
 <h2 id="how-can-we-build-tools-with-promises">How can we build tools with promises?</h2>
 <ul>
 <li>Use this to build a line-counting program</li>
-<li>Use the <g key="promisification">promisified</g> version of <code>fs-extra</code>
+<li>Use the promisified version of <code>fs-extra</code>
 <ul>
 <li>Turns all of the callbacks into promises for us</li>
 </ul>
@@ -659,6 +659,32 @@ main(srcDir)
 <li>In particular, allows us to mix asynchronous and synchronous code (<code>hashPath</code> doesn't delay computation)</li>
 </ul>
 </li>
+<li>Use these with the promisified version of the <code>fs</code> library
+<ul>
+<li>Don't have to wrap the sliced text in a promise: that happens automatically because the function is <code>async</code></li>
+<li>Can't <code>await</code> in the main body at the bottom because <code>await</code> only works <em>inside</em> <code>async</code> functions</li>
+</ul>
+</li>
+</ul>
+<pre title="await-fs.js"><code class="language-js">const fs = require('fs-extra-promise')
+
+const firstTenCharacters = async (filename) =&gt; {
+  const text = await fs.readFileAsync(filename, 'utf-8')
+  console.log(`inside, raw text is ${text.length} characters long`)
+  return text.slice(0, 10)
+}
+
+console.log('about to call')
+const result = firstTenCharacters(process.argv[2])
+console.log(`function result has type ${result.constructor.name}`)
+result.then(value =&gt; console.log(`outside, final result is "${value}"`))
+</code></pre>
+<pre title="await-fs.txt"><code class="language-txt">about to call
+function result has type Promise
+inside, raw text is 24 characters long
+outside, final result is "Begin at t"
+</code></pre>
+<ul>
 <li>Modify the two helper functions to look like they're waiting for results and returning them
 <ul>
 <li>Except the actually wrap their results in promises and return those</li>
@@ -944,6 +970,25 @@ Note that the order of the lines in the file doesn't matter.
 <div class="hint">
 <p>You may want to use the <code>Set</code> class to store lines.</p>
 </div>
+<h3 class="exercise">Trace file loading</h3>
+<p>Suppose we want are loading a <g key="yaml">YAML</g> configuration file
+using the promisified version of the <code>fs</code> library.
+In what order do the print statements in this test program appear and why?</p>
+<pre title="trace-load/example.js"><code class="language-js">const fs = require('fs-extra-promise')
+const yaml = require('js-yaml')
+
+const test = async () =&gt; {
+  const raw = await fs.readFileAsync('config.yml', 'utf-8')
+  console.log('inside test, raw text', raw)
+  const cooked = yaml.safeLoad(raw)
+  console.log('inside test, cooked configuration', cooked)
+  return cooked
+}
+
+const result = test()
+console.log('outside test, result is', result.constructor.name)
+result.then(something =&gt; console.log('outside test we have', something))
+</code></pre>
 </main>
 <footer>
 <div class="row">

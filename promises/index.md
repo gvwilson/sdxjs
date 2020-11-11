@@ -105,14 +105,14 @@ FIXME: diagram
 
 <%- include('/_inc/multi.html', {pat: 'promise-example.*', fill: 'js txt'}) %>
 
-1.  If we use a promisified function from the library, we get a promise for free
+1.  If we use a <g key="promisification">promisified</g> function from the library, we get a promise for free
 2.  If we want to plug in our own asynchronous functions, we need to create promises
 3.  If our code can run synchronously, just put it in `then`
 
 ## How can we build tools with promises?
 
 -   Use this to build a line-counting program
--   Use the <g key="promisification">promisified</g> version of `fs-extra`
+-   Use the promisified version of `fs-extra`
     -   Turns all of the callbacks into promises for us
 
 <%- include('/_inc/multi.html', {pat: 'count-lines-single-file.*', fill: 'js sh txt'}) %>
@@ -160,6 +160,12 @@ If we don't specify a character encoding,
 -   We can only use `await` inside a function that is declared to be `async`
 -   Do all the same things as the explicit promise-based version, but easier to read
     -   In particular, allows us to mix asynchronous and synchronous code (`hashPath` doesn't delay computation)
+-   Use these with the promisified version of the `fs` library
+    -   Don't have to wrap the sliced text in a promise: that happens automatically because the function is `async`
+    -   Can't `await` in the main body at the bottom because `await` only works *inside* `async` functions
+
+<%- include('/_inc/multi.html', {pat: 'await-fs.*', fill: 'js txt'}) %>
+
 -   Modify the two helper functions to look like they're waiting for results and returning them
     -   Except the actually wrap their results in promises and return those
 

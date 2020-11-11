@@ -1,5 +1,6 @@
 TARGETS=\
   assign-immediately.txt \
+  await-fs.txt \
   callbacks-with-timeouts.txt \
   callbacks-with-zero-timeouts.txt \
   count-lines-globbed-files.txt \
