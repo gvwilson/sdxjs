@@ -1,4 +1,4 @@
 TARGETS=\
-  compare-rows-cols.txt
+  measure-memory.txt
 
 include ../_rules.mk
