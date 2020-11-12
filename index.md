@@ -115,6 +115,11 @@ Package,Releases
 We occasionally wrap lines in source code just to make listings fit on the page.
 Where we need to break lines of output for the same reason,
 we end all but the last line with a single backslash `\`.
+Note that we typeset functions as `functionName` rather than `functionName()`;
+the latter is more common,
+but (a) people don't use `objectName{}` or `arrayName[]`
+and (b) it could mean "the function object" or "a call to the function with no parameters",
+and that ambiguity is confusing when we're passing functions to one another.
 
 ## Acknowledgments
 
