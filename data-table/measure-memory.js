@@ -3,9 +3,9 @@ const main = () => {
   const numRows = parseInt(process.argv[3])
   const numCols = parseInt(process.argv[4])
   if (which === 'rows') {
-    console.log(`by rows ${numRows} x ${numCols} = ${rowWise(numRows, numCols)}`)
+    console.log(`rows,${numRows},${numCols},${rowWise(numRows, numCols)}`)
   } else if (which === 'cols') {
-    console.log(`by cols ${numRows} x ${numCols} = ${colWise(numRows, numCols)}`)
+    console.log(`cols,${numRows},${numCols},${colWise(numRows, numCols)}`)
   } else {
     console.error(`unknown arrangement ${which}`)
   }
