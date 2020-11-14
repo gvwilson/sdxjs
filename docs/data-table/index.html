@@ -1,0 +1,351 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <title>Data Tables</title>
+  <meta name="toRoot" content="..">
+  <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
+  <link href="../static/site.css" rel="stylesheet" type="text/css">
+  <script src="../static/site.js"></script>
+  <script>window.onload = () => fixPage()</script>
+</head>
+<body id="_top">
+<nav>
+<div class="row">
+<div class="left2">
+<a href="http://third-bit.com"><img src="../static/logo.svg" alt="site logo" class="site-logo"/></a>
+<a href="../"><em>Software Tools in JavaScript</em></a>
+</div>
+<div class="right2">
+<div class="dropdown">
+<span class="navtitle">▿ Sections</span>
+<div class="dropdown-content" id="Sections">
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Chapters</span>
+<div class="dropdown-content" id="Chapters">
+<a href="../systems-programming/"><span class="nowrap">Systems Programming</span></a>
+<br/><a href="../promises/"><span class="nowrap">Promises</span></a>
+<br/><a href="../unit-test/"><span class="nowrap">Unit Testing</span></a>
+<br/><a href="../file-backup/"><span class="nowrap">File Backup</span></a>
+<br/><a href="../data-table/"><span class="nowrap">Data Tables</span></a>
+<br/><a href="../pattern-matching/"><span class="nowrap">Pattern Matching</span></a>
+<br/><a href="../regex-parser/"><span class="nowrap">Parsing Expressions</span></a>
+<br/><a href="../page-templates/"><span class="nowrap">Page Templates</span></a>
+<br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
+<br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
+<br/><a href="../text-editor/"><span class="nowrap">Text Editor</span></a>
+<br/><a href="../file-interpolator/"><span class="nowrap">File Interpolator</span></a>
+<br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
+<br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
+<br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
+<br/><a href="../style-checker/"><span class="nowrap">Style Checker</span></a>
+<br/><a href="../code-generator/"><span class="nowrap">Code Generator</span></a>
+<br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
+<br/><a href="../conclusion/"><span class="nowrap">Conclusion</span></a>
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Appendices</span>
+<div class="dropdown-content" id="Appendices">
+<a href="../bib/"><span class="nowrap">Bibliography</span></a>
+<br/><a href="../license/"><span class="nowrap">License</span></a>
+<br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
+<br/><a href="../contributing/"><span class="nowrap">Contributing</span></a>
+<br/><a href="../gloss/"><span class="nowrap">Glossary</span></a>
+<br/><a href="../links/"><span class="nowrap">Links</span></a>
+<br/><a href="../solutions/"><span class="nowrap">Solutions</span></a>
+<br/><a href="../authors/"><span class="nowrap">Authors</span></a>
+</div>
+</div>
+</div>
+</div>
+</nav>
+  <main>
+  <h1>Data Tables</h1>
+  <h2 class="lede">Loading, saving, and manipulating tables efficiently</h2>
+<ul>
+<li>Many applications work with data tables (sometimes called <g key="data_frame">data frames</g>)
+<ul>
+<li>Examples include R's <a href="https://www.tidyverse.org/">tidyverse</a> and <a href="http://www.data-forge-js.com/">DataForge</a></li>
+<li>Fixed set of named columns, each holding a specific type of data</li>
+<li>Any number of rows</li>
+</ul>
+</li>
+<li>Key operations are the same as those in SQL: filter, select, summarize, join</li>
+<li>Do some experiments to choose an implementation before writing lots of code</li>
+</ul>
+<h2 id="what-is-the-most-efficient-way-to-store-a-data-table">What is the most efficient way to store a data table?</h2>
+<ul>
+<li>One approach is <g key="row_wise">row-wise</g>
+<ul>
+<li>Array of <g key="heterogeneous">heterogeneous</g> rows</li>
+<li>In JavaScript, an array of objects</li>
+</ul>
+</li>
+<li>Another is <g key="column_wise">column-wise</g>
+<ul>
+<li>Each named column stored as a <g key="homogeneous">homogeneous</g> array</li>
+<li>In JavaScript, an object whose members are all arrays of the same length</li>
+</ul>
+</li>
+<li>Construct one of each, try some operations, record times and memory use, see which is better
+<ul>
+<li>Answer will probably depend on...things</li>
+</ul>
+</li>
+<li>Data never modified after it is created
+<ul>
+<li>Allows us to recycle memory</li>
+</ul>
+</li>
+<li>Build a row-wise table with some number of columns
+<ul>
+<li>Values are 0, 1, 2, 0, 1, 2, etc.</li>
+</ul>
+</li>
+</ul>
+<pre title="measurement.js:build-rows"><code class="language-js">const RANGE = 3
+
+const buildRows = (nRows, labels) =&gt; {
+  const result = []
+  for (let iR = 0; iR &lt; nRows; iR += 1) {
+    const row = {}
+    labels.forEach(label =&gt; {
+      row[label] = iR % RANGE
+    })
+    result.push(row)
+  }
+  return result
+}</code></pre>
+<ul>
+<li>Add filter with a callback function to select rows
+<ul>
+<li>Should be fast, since we are recycling the rows</li>
+</ul>
+</li>
+<li>And select with a list of column labels
+<ul>
+<li>Should be slow, since we are constructing one new object per row</li>
+</ul>
+</li>
+</ul>
+<pre title="measurement.js:operate-rows"><code class="language-js">const rowFilter = (table, func) =&gt; {
+  return table.filter(row =&gt; func(row))
+}
+
+const rowSelect = (table, toKeep) =&gt; {
+  return table.map(row =&gt; {
+    const newRow = {}
+    toKeep.forEach(label =&gt; {
+      newRow[label] = row[label]
+    })
+    return newRow
+  })
+}</code></pre>
+<ul>
+<li>Now do the same for column-wise storage
+<ul>
+<li>Select should be fast, since we are just aliasing some columns</li>
+<li>Filter should be slow, since we are constructing multiple new arrays</li>
+<li>The parameters to the two functions are different from those to the row-wise functions</li>
+</ul>
+</li>
+</ul>
+<pre title="measurement.js:cols"><code class="language-js">const buildCols = (nRows, labels) =&gt; {
+  const result = {}
+  labels.forEach(label =&gt; {
+    result[label] = []
+    for (let iR = 0; iR &lt; nRows; iR += 1) {
+      result[label].push(iR % RANGE)
+    }
+  })
+  return result
+}
+
+const colFilter = (table, func) =&gt; {
+  const result = {}
+  const labels = Object.keys(result)
+  labels.forEach(label =&gt; {
+    result[label] = []
+  })
+  for (let iR = 0; iR &lt; table.c1.length; iR += 1) {
+    if (func(table, iR)) {
+      labels.forEach(label =&gt; {
+        result[label].push(table[label][iR])
+      })
+    }
+  }
+  return result
+}
+
+const colSelect = (table, toKeep) =&gt; {
+  const result = {}
+  toKeep.forEach(label =&gt; {
+    result[label] = table[label]
+  })
+  return result
+}</code></pre>
+<ul>
+<li>Build a <g key="test_harness">test harness</g> to run both variants for data tables of some size
+<ul>
+<li>Arbitrarily decide to keep half of the columns and one-third of the rows</li>
+<li>This choice will affect our decision about which is better</li>
+</ul>
+</li>
+<li>Also calculate relative performance based on ratio of filters to selects
+<ul>
+<li>Should also be based on data from whatever application we're trying to support</li>
+</ul>
+</li>
+</ul>
+<pre title="measurement.js:main"><code class="language-js">const main = () =&gt; {
+  const nRows = parseInt(process.argv[2])
+  const nCols = parseInt(process.argv[3])
+  const filterPerSelect = parseFloat(process.argv[4])
+
+  const labels = [...Array(nCols).keys()].map(i =&gt; `c${i+1}`)
+  const someLabels = labels.slice(0, Math.floor(labels.length / 2))
+  assert(someLabels.length &gt; 0,
+    'Must have some labels for select (array too short)')
+
+  const [rowTable, rowSize, rowHeap] = memory(buildRows, nRows, labels)
+  const [colTable, colSize, colHeap] = memory(buildCols, nRows, labels)
+
+  const rowFilterTime = time(rowFilter, rowTable, row =&gt; (row.c1 === 0))
+  const rowSelectTime = time(rowSelect, rowTable, someLabels)
+  const colFilterTime = time(colFilter, colTable, (table, iR) =&gt; (table.c1[iR] === 0))
+  const colSelectTime = time(colSelect, colTable, someLabels)
+
+  const ratio = calculateRatio(filterPerSelect,
+    rowFilterTime, rowSelectTime,
+    colFilterTime, colSelectTime)
+
+  const result = {
+    nRows,
+    nCols,
+    filterPerSelect,
+    rowSize,
+    rowHeap,
+    colSize,
+    colHeap,
+    rowFilterTime,
+    rowSelectTime,
+    colFilterTime,
+    colSelectTime,
+    ratio
+  }
+  console.log(yaml.safeDump(result))
+}</code></pre>
+<ul>
+<li>Actual measurement functions
+<ul>
+<li>Use <a href="https://www.npmjs.com/package/microtime">microtime</a> to get micro-second level timing (since JavaScript's <code>Date</code> is only millisecond-level)</li>
+<li>Use <a href="https://www.npmjs.com/package/object-sizeof">object-sizeof</a> to estimate memory</li>
+<li>Also call <code>process.memoryUsage()</code> and look at <code>heapUsed</code>, but that value may be affected by garbage collection</li>
+</ul>
+</li>
+</ul>
+<pre title="measurement.js:measure"><code class="language-js">const memory = (func, ...params) =&gt; {
+  const before = process.memoryUsage()
+  const result = func(...params)
+  const after = process.memoryUsage()
+  const heap = after.heapUsed - before.heapUsed
+  const size = sizeof(result)
+  return [result, size, heap]
+}
+
+const time = (func, ...params) =&gt; {
+  const before = microtime.now()
+  func(...params)
+  const after = microtime.now()
+  return after - before
+}
+
+const calculateRatio = (f2S, rFilterT, rSelectT, cFilterT, cSelectT) =&gt; {
+  return ((f2S * rFilterT) + rSelectT) / ((f2S * cFilterT) + cSelectT)
+}</code></pre>
+<ul>
+<li>Run for a table 100 rows by 3 columns with a 3-1 ratio of filter to select</li>
+</ul>
+<pre title="measurement-100-03-03.sh"><code class="language-sh">node measurement.js 100 3 3
+</code></pre>
+<pre title="measurement-100-03-03.txt"><code class="language-txt">nRows: 100
+nCols: 3
+filterPerSelect: 3
+rowSize: 3600
+rowHeap: 30320
+colSize: 2412
+colHeap: 12936
+rowFilterTime: 70
+rowSelectTime: 83
+colFilterTime: 95
+colSelectTime: 30
+ratio: 0.9301587301587302
+
+</code></pre>
+<ul>
+<li>10,000 rows by 30 columns with the same 3-1 filter/select ratio</li>
+</ul>
+<pre title="measurement-10000-30-03.txt"><code class="language-txt">nRows: 10000
+nCols: 30
+filterPerSelect: 3
+rowSize: 4020000
+rowHeap: 17415544
+colSize: 2400162
+colHeap: 7898256
+rowFilterTime: 1615
+rowSelectTime: 16468
+colFilterTime: 3402
+colSelectTime: 56
+ratio: 2.0768855973494444
+
+</code></pre>
+<ul>
+<li>Same large table with a 10-1 filter/select ratio</li>
+</ul>
+<pre title="measurement-10000-30-10.txt"><code class="language-txt">nRows: 10000
+nCols: 30
+filterPerSelect: 10
+rowSize: 4020000
+rowHeap: 17435656
+colSize: 2400162
+colHeap: 7782120
+rowFilterTime: 2024
+rowSelectTime: 14353
+colFilterTime: 3536
+colSelectTime: 65
+ratio: 0.9765137614678899
+
+</code></pre>
+<ul>
+<li>Conclusion: column-wise is better
+<ul>
+<li>Uses less memory (presumably because labels aren't duplicated)</li>
+<li>Cost of constructing new objects when doing select with row-wise storage
+outweighs cost of appending to arrays when doing filter with column-wise storage</li>
+</ul>
+</li>
+<li>Unfortunately makes the code itself a little more complicated to write
+<ul>
+<li>A cost that doesn't show up in experiments</li>
+</ul>
+</li>
+</ul>
+</main>
+<footer>
+<div class="row">
+<div class="left3">
+<a href="../file-backup/"><em>&laquo; File Backup</em></a>
+</div>
+<div class="middle3">
+<a href="../license/"><img class="footer" src="../static/cc-by.svg" alt="License" /></a>
+<a href="https://github.com/software-tools-in-javascript/stjs/"><img class="footer" src="../static/github.svg" alt="Repository" /></a>
+© 2020 <a href="../authors/">The Authors</a>
+</div>
+<div class="right3">
+<a href="../pattern-matching/"><em>Pattern Matching &raquo;</em></a>
+</div>
+</div>
+</footer>
+</body>
+</html>
