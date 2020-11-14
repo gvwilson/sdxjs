@@ -206,7 +206,7 @@ const colSelect = (table, toKeep) =&gt; {
   const nCols = parseInt(process.argv[3])
   const filterPerSelect = parseFloat(process.argv[4])
 
-  const labels = [...Array(nCols).keys()].map(i =&gt; `c${i+1}`)
+  const labels = [...Array(nCols).keys()].map(i =&gt; `c${i + 1}`)
   const someLabels = labels.slice(0, Math.floor(labels.length / 2))
   assert(someLabels.length &gt; 0,
     'Must have some labels for select (array too short)')
@@ -279,11 +279,11 @@ rowSize: 3600
 rowHeap: 30320
 colSize: 2412
 colHeap: 8512
-rowFilterTime: 89
-rowSelectTime: 94
+rowFilterTime: 53
+rowSelectTime: 75
 colFilterTime: 89
-colSelectTime: 30
-ratio: 1.2154882154882154
+colSelectTime: 39
+ratio: 0.7647058823529411
 
 </code></pre>
 <ul>
@@ -293,14 +293,14 @@ ratio: 1.2154882154882154
 nCols: 30
 filterPerSelect: 3
 rowSize: 4020000
-rowHeap: 17443264
+rowHeap: 17468272
 colSize: 2400162
-colHeap: 7874448
-rowFilterTime: 1798
-rowSelectTime: 13589
-colFilterTime: 3365
-colSelectTime: 57
-ratio: 1.8698778565799843
+colHeap: 7898512
+rowFilterTime: 1851
+rowSelectTime: 14081
+colFilterTime: 3331
+colSelectTime: 58
+ratio: 1.9534374689085663
 
 </code></pre>
 <ul>
@@ -310,14 +310,14 @@ ratio: 1.8698778565799843
 nCols: 30
 filterPerSelect: 10
 rowSize: 4020000
-rowHeap: 17420208
+rowHeap: 17447032
 colSize: 2400162
-colHeap: 7879032
-rowFilterTime: 1893
-rowSelectTime: 12493
-colFilterTime: 3373
-colSelectTime: 61
-ratio: 0.9299221686247817
+colHeap: 7878888
+rowFilterTime: 1841
+rowSelectTime: 15494
+colFilterTime: 3401
+colSelectTime: 64
+ratio: 0.9950108587192581
 
 </code></pre>
 <ul>
@@ -333,6 +333,52 @@ outweighs cost of appending to arrays when doing filter with column-wise storage
 <li>A cost that doesn't show up in experiments</li>
 </ul>
 </li>
+</ul>
+<h2 id="what-is-the-most-efficient-way-to-save-a-table">What is the most efficient way to save a table?</h2>
+<ul>
+<li>Our data tables are going to be stored in files of some kind</li>
+<li>If one storage scheme is much more efficient than another and we are reading/writing frequently,
+that could change our mind about how to implement them</li>
+<li>Two text-based schemes are obvious
+<ul>
+<li>Row-oriented as JSON</li>
+<li>Column-oriented as JSON</li>
+</ul>
+</li>
+<li>Also try a packed version of row-oriented
+<ul>
+<li>Save the column headers once</li>
+<li>Copy the data values into an array of arrays and save that</li>
+</ul>
+</li>
+</ul>
+<pre title="storage-performance.js:packed"><code class="language-js">const asPackedJson = (table) =&gt; {
+  const temp = {}
+  temp.keys = Object.keys(table[0])
+  temp.values = table.map(row =&gt; temp.keys.map(k =&gt; row[k]))
+  return JSON.stringify(temp)
+}</code></pre>
+<ul>
+<li>Run the 10,000x30 test</li>
+</ul>
+<pre title="storage-performance-10000-30.txt"><code class="language-txt">nRows: 10000
+nCols: 30
+rowStringTime: 38453
+rowStringSize: 4660002
+colStringTime: 3922
+colStringSize: 1200464
+packedRowStringTime: 22495
+packedRowStringSize: 1240384
+
+</code></pre>
+<ul>
+<li>Time needed for the row-oriented version is almost ten times greater than that needed for the column-oriented version</li>
+<li>Surprising that packing the rows takes <em>less</em> time
+<ul>
+<li>The cost of copying data is less than the cost of turning labels into strings over and over</li>
+</ul>
+</li>
+<li>Once again seems clear that column-oriented storage is the best approach</li>
 </ul>
 </main>
 <footer>

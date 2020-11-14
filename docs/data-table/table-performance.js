@@ -11,7 +11,7 @@ const main = () => {
   const nCols = parseInt(process.argv[3])
   const filterPerSelect = parseFloat(process.argv[4])
 
-  const labels = [...Array(nCols).keys()].map(i => `c${i+1}`)
+  const labels = [...Array(nCols).keys()].map(i => `c${i + 1}`)
   const someLabels = labels.slice(0, Math.floor(labels.length / 2))
   assert(someLabels.length > 0,
     'Must have some labels for select (array too short)')
