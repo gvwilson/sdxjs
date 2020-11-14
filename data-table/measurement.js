@@ -3,6 +3,8 @@ const microtime = require('microtime')
 const sizeof = require('object-sizeof')
 const yaml = require('js-yaml')
 
+const { buildRows, buildCols } = require('./build')
+
 // <main>
 const main = () => {
   const nRows = parseInt(process.argv[2])
@@ -66,22 +68,6 @@ const calculateRatio = (f2S, rFilterT, rSelectT, cFilterT, cSelectT) => {
 }
 // </measure>
 
-// <build-rows>
-const RANGE = 3
-
-const buildRows = (nRows, labels) => {
-  const result = []
-  for (let iR = 0; iR < nRows; iR += 1) {
-    const row = {}
-    labels.forEach(label => {
-      row[label] = iR % RANGE
-    })
-    result.push(row)
-  }
-  return result
-}
-// </build-rows>
-
 // <operate-rows>
 const rowFilter = (table, func) => {
   return table.filter(row => func(row))
@@ -98,18 +84,7 @@ const rowSelect = (table, toKeep) => {
 }
 // </operate-rows>
 
-// <cols>
-const buildCols = (nRows, labels) => {
-  const result = {}
-  labels.forEach(label => {
-    result[label] = []
-    for (let iR = 0; iR < nRows; iR += 1) {
-      result[label].push(iR % RANGE)
-    }
-  })
-  return result
-}
-
+// <operate-cols>
 const colFilter = (table, func) => {
   const result = {}
   const labels = Object.keys(result)
@@ -133,6 +108,6 @@ const colSelect = (table, toKeep) => {
   })
   return result
 }
-// </cols>
+// </operate-cols>
 
 main()

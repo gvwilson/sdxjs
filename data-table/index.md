@@ -23,7 +23,7 @@
 -   Build a row-wise table with some number of columns
     -   Values are 0, 1, 2, 0, 1, 2, etc.
 
-<%- include('/_inc/slice.html', {file: 'measurement.js', tag: 'build-rows'}) %>
+<%- include('/_inc/slice.html', {file: 'build.js', tag: 'build-rows'}) %>
 
 -   Add filter with a callback function to select rows
     -   Should be fast, since we are recycling the rows
@@ -33,11 +33,16 @@
 <%- include('/_inc/slice.html', {file: 'measurement.js', tag: 'operate-rows'}) %>
 
 -   Now do the same for column-wise storage
+-   Build
+
+<%- include('/_inc/slice.html', {file: 'build.js', tag: 'build-cols'}) %>
+
+-   Operate
     -   Select should be fast, since we are just aliasing some columns
     -   Filter should be slow, since we are constructing multiple new arrays
     -   The parameters to the two functions are different from those to the row-wise functions
 
-<%- include('/_inc/slice.html', {file: 'measurement.js', tag: 'cols'}) %>
+<%- include('/_inc/slice.html', {file: 'measurement.js', tag: 'operate-cols'}) %>
 
 -   Build a <g key="test_harness">test harness</g> to run both variants for data tables of some size
     -   Arbitrarily decide to keep half of the columns and one-third of the rows
