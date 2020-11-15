@@ -1,7 +1,7 @@
 const assert = require('assert')
 const yaml = require('js-yaml')
 
-const { buildRows, buildCols, timeAndSize } = require('./build')
+const { buildRows, timeAndSize } = require('./build')
 
 const main = () => {
   const nRows = parseInt(process.argv[2])
@@ -13,24 +13,23 @@ const main = () => {
     'Must have some labels for select (array too short)')
 
   const rowTable = buildRows(nRows, labels)
-  const colTable = buildCols(nRows, labels)
-
-  const [rowStringTime, rowStringSize] = timeAndSize(asJson, rowTable)
-  const [colStringTime, colStringSize] = timeAndSize(asJson, colTable)
-
+  const [packedRowStringTime, packedRowStringSize] = timeAndSize(asPackedJson, rowTable)
   const result = {
     nRows,
     nCols,
-    rowStringTime,
-    rowStringSize,
-    colStringTime,
-    colStringSize
+    packedRowStringTime,
+    packedRowStringSize
   }
   console.log(yaml.safeDump(result))
 }
 
-const asJson = (table) => {
-  return JSON.stringify(table)
+// <packed>
+const asPackedJson = (table) => {
+  const temp = {}
+  temp.keys = Object.keys(table[0])
+  temp.values = table.map(row => temp.keys.map(k => row[k]))
+  return JSON.stringify(temp)
 }
+// </packed>
 
 main()

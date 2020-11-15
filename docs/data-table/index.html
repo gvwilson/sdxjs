@@ -278,12 +278,12 @@ filterPerSelect: 3
 rowSize: 3600
 rowHeap: 30320
 colSize: 2412
-colHeap: 8512
+colHeap: 12936
 rowFilterTime: 53
-rowSelectTime: 75
-colFilterTime: 89
-colSelectTime: 39
-ratio: 0.7647058823529411
+rowSelectTime: 74
+colFilterTime: 95
+colSelectTime: 31
+ratio: 0.7373417721518988
 
 </code></pre>
 <ul>
@@ -293,14 +293,14 @@ ratio: 0.7647058823529411
 nCols: 30
 filterPerSelect: 3
 rowSize: 4020000
-rowHeap: 17468272
+rowHeap: 17492408
 colSize: 2400162
-colHeap: 7898512
-rowFilterTime: 1851
-rowSelectTime: 14081
-colFilterTime: 3331
-colSelectTime: 58
-ratio: 1.9534374689085663
+colHeap: 7771592
+rowFilterTime: 1926
+rowSelectTime: 15114
+colFilterTime: 3699
+colSelectTime: 79
+ratio: 1.869362920544023
 
 </code></pre>
 <ul>
@@ -310,14 +310,14 @@ ratio: 1.9534374689085663
 nCols: 30
 filterPerSelect: 10
 rowSize: 4020000
-rowHeap: 17447032
+rowHeap: 17489320
 colSize: 2400162
-colHeap: 7878888
-rowFilterTime: 1841
-rowSelectTime: 15494
-colFilterTime: 3401
-colSelectTime: 64
-ratio: 0.9950108587192581
+colHeap: 7849192
+rowFilterTime: 1853
+rowSelectTime: 17300
+colFilterTime: 3391
+colSelectTime: 58
+ratio: 1.0548162976919453
 
 </code></pre>
 <ul>
@@ -345,6 +345,18 @@ that could change our mind about how to implement them</li>
 <li>Column-oriented as JSON</li>
 </ul>
 </li>
+<li>Run the 10,000x30 test</li>
+</ul>
+<pre title="storage-performance-10000-30.txt"><code class="language-txt">nRows: 10000
+nCols: 30
+rowStringTime: 41469
+rowStringSize: 4660002
+colStringTime: 4223
+colStringSize: 1200464
+
+</code></pre>
+<ul>
+<li>Time needed for the row-oriented version is almost ten times greater than that needed for the column-oriented version</li>
 <li>Also try a packed version of row-oriented
 <ul>
 <li>Save the column headers once</li>
@@ -352,27 +364,19 @@ that could change our mind about how to implement them</li>
 </ul>
 </li>
 </ul>
-<pre title="storage-performance.js:packed"><code class="language-js">const asPackedJson = (table) =&gt; {
+<pre title="packed-performance.js:packed"><code class="language-js">const asPackedJson = (table) =&gt; {
   const temp = {}
   temp.keys = Object.keys(table[0])
   temp.values = table.map(row =&gt; temp.keys.map(k =&gt; row[k]))
   return JSON.stringify(temp)
 }</code></pre>
-<ul>
-<li>Run the 10,000x30 test</li>
-</ul>
-<pre title="storage-performance-10000-30.txt"><code class="language-txt">nRows: 10000
+<pre title="packed-performance-10000-30.txt"><code class="language-txt">nRows: 10000
 nCols: 30
-rowStringTime: 38453
-rowStringSize: 4660002
-colStringTime: 3922
-colStringSize: 1200464
-packedRowStringTime: 22495
+packedRowStringTime: 24899
 packedRowStringSize: 1240384
 
 </code></pre>
 <ul>
-<li>Time needed for the row-oriented version is almost ten times greater than that needed for the column-oriented version</li>
 <li>Surprising that packing the rows takes <em>less</em> time
 <ul>
 <li>The cost of copying data is less than the cost of turning labels into strings over and over</li>

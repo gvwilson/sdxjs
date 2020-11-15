@@ -1,3 +1,6 @@
+const microtime = require('microtime')
+const sizeof = require('object-sizeof')
+
 // <build-rows>
 const RANGE = 3
 
@@ -27,7 +30,15 @@ const buildCols = (nRows, labels) => {
 }
 // </build-cols>
 
+const timeAndSize = (func, ...params) => {
+  const before = microtime.now()
+  const result = func(...params)
+  const after = microtime.now()
+  return [after - before, sizeof(result)]
+}
+
 module.exports = {
   buildRows,
-  buildCols
+  buildCols,
+  timeAndSize
 }

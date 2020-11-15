@@ -86,17 +86,18 @@
 -   Two text-based schemes are obvious
     -   Row-oriented as JSON
     -   Column-oriented as JSON
--   Also try a packed version of row-oriented
-    -   Save the column headers once
-    -   Copy the data values into an array of arrays and save that
-
-<%- include('/_inc/slice.html', {file: 'storage-performance.js', tag: 'packed'}) %>
-
 -   Run the 10,000x30 test
 
 <%- include('/_inc/file.html', {file: 'storage-performance-10000-30.txt'}) %>
 
 -   Time needed for the row-oriented version is almost ten times greater than that needed for the column-oriented version
+-   Also try a packed version of row-oriented
+    -   Save the column headers once
+    -   Copy the data values into an array of arrays and save that
+
+<%- include('/_inc/slice.html', {file: 'packed-performance.js', tag: 'packed'}) %>
+<%- include('/_inc/file.html', {file: 'packed-performance-10000-30.txt'}) %>
+
 -   Surprising that packing the rows takes *less* time
     -   The cost of copying data is less than the cost of turning labels into strings over and over
 -   Once again seems clear that column-oriented storage is the best approach
