@@ -104,14 +104,12 @@
 </ul>
 </li>
 </ul>
-<pre title="build.js:build-rows"><code class="language-js">const RANGE = 3
-
-const buildRows = (nRows, labels) =&gt; {
+<pre title="build.js:build-rows"><code class="language-js">const buildRows = (nRows, labels) =&gt; {
   const result = []
   for (let iR = 0; iR &lt; nRows; iR += 1) {
     const row = {}
     labels.forEach(label =&gt; {
-      row[label] = iR % RANGE
+      row[label] = iR
     })
     result.push(row)
   }
@@ -151,7 +149,7 @@ const rowSelect = (table, toKeep) =&gt; {
   labels.forEach(label =&gt; {
     result[label] = []
     for (let iR = 0; iR &lt; nRows; iR += 1) {
-      result[label].push(iR % RANGE)
+      result[label].push(iR)
     }
   })
   return result
@@ -171,7 +169,7 @@ const rowSelect = (table, toKeep) =&gt; {
   labels.forEach(label =&gt; {
     result[label] = []
   })
-  for (let iR = 0; iR &lt; table.c1.length; iR += 1) {
+  for (let iR = 0; iR &lt; table.label_1.length; iR += 1) {
     if (func(table, iR)) {
       labels.forEach(label =&gt; {
         result[label].push(table[label][iR])
@@ -201,12 +199,14 @@ const colSelect = (table, toKeep) =&gt; {
 </ul>
 </li>
 </ul>
-<pre title="table-performance.js:main"><code class="language-js">const main = () =&gt; {
+<pre title="table-performance.js:main"><code class="language-js">const RANGE = 3
+
+const main = () =&gt; {
   const nRows = parseInt(process.argv[2])
   const nCols = parseInt(process.argv[3])
   const filterPerSelect = parseFloat(process.argv[4])
 
-  const labels = [...Array(nCols).keys()].map(i =&gt; `c${i + 1}`)
+  const labels = [...Array(nCols).keys()].map(i =&gt; `label_${i + 1}`)
   const someLabels = labels.slice(0, Math.floor(labels.length / 2))
   assert(someLabels.length &gt; 0,
     'Must have some labels for select (array too short)')
@@ -214,9 +214,9 @@ const colSelect = (table, toKeep) =&gt; {
   const [rowTable, rowSize, rowHeap] = memory(buildRows, nRows, labels)
   const [colTable, colSize, colHeap] = memory(buildCols, nRows, labels)
 
-  const rowFilterTime = time(rowFilter, rowTable, row =&gt; (row.c1 === 0))
+  const rowFilterTime = time(rowFilter, rowTable, row =&gt; ((row.label_1 % RANGE) === 0))
   const rowSelectTime = time(rowSelect, rowTable, someLabels)
-  const colFilterTime = time(colFilter, colTable, (table, iR) =&gt; (table.c1[iR] === 0))
+  const colFilterTime = time(colFilter, colTable, (table, iR) =&gt; ((table.label_1[iR] % RANGE) === 0))
   const colSelectTime = time(colSelect, colTable, someLabels)
 
   const ratio = calculateRatio(filterPerSelect,
@@ -275,15 +275,15 @@ const calculateRatio = (f2S, rFilterT, rSelectT, cFilterT, cSelectT) =&gt; {
 <pre title="table-performance-100-03-03.txt"><code class="language-txt">nRows: 100
 nCols: 3
 filterPerSelect: 3
-rowSize: 3600
-rowHeap: 30320
-colSize: 2412
-colHeap: 12936
-rowFilterTime: 53
-rowSelectTime: 74
-colFilterTime: 95
+rowSize: 6600
+rowHeap: 30296
+colSize: 2442
+colHeap: 12904
+rowFilterTime: 62
+rowSelectTime: 91
+colFilterTime: 99
 colSelectTime: 31
-ratio: 0.7373417721518988
+ratio: 0.8445121951219512
 
 </code></pre>
 <ul>
@@ -292,15 +292,15 @@ ratio: 0.7373417721518988
 <pre title="table-performance-10000-30-03.txt"><code class="language-txt">nRows: 10000
 nCols: 30
 filterPerSelect: 3
-rowSize: 4020000
-rowHeap: 17492408
-colSize: 2400162
-colHeap: 7771592
-rowFilterTime: 1926
-rowSelectTime: 15114
-colFilterTime: 3699
-colSelectTime: 79
-ratio: 1.869362920544023
+rowSize: 7020000
+rowHeap: 17401928
+colSize: 2400462
+colHeap: 7860168
+rowFilterTime: 1922
+rowSelectTime: 17849
+colFilterTime: 3765
+colSelectTime: 105
+ratio: 2.0714912280701756
 
 </code></pre>
 <ul>
@@ -309,15 +309,15 @@ ratio: 1.869362920544023
 <pre title="table-performance-10000-30-10.txt"><code class="language-txt">nRows: 10000
 nCols: 30
 filterPerSelect: 10
-rowSize: 4020000
-rowHeap: 17489320
-colSize: 2400162
-colHeap: 7849192
-rowFilterTime: 1853
-rowSelectTime: 17300
-colFilterTime: 3391
-colSelectTime: 58
-ratio: 1.0548162976919453
+rowSize: 7020000
+rowHeap: 17476984
+colSize: 2400462
+colHeap: 7764416
+rowFilterTime: 1812
+rowSelectTime: 18278
+colFilterTime: 4195
+colSelectTime: 97
+ratio: 0.8656503436630437
 
 </code></pre>
 <ul>
@@ -349,10 +349,10 @@ that could change our mind about how to implement them</li>
 </ul>
 <pre title="storage-performance-10000-30.txt"><code class="language-txt">nRows: 10000
 nCols: 30
-rowStringTime: 41469
-rowStringSize: 4660002
-colStringTime: 4223
-colStringSize: 1200464
+rowStringTime: 47480
+rowStringSize: 9393402
+colStringTime: 7879
+colStringSize: 2934164
 
 </code></pre>
 <ul>
@@ -364,16 +364,16 @@ colStringSize: 1200464
 </ul>
 </li>
 </ul>
-<pre title="packed-performance.js:packed"><code class="language-js">const asPackedJson = (table) =&gt; {
+<pre title="packed-rows.js:packed"><code class="language-js">const asPackedJson = (table) =&gt; {
   const temp = {}
   temp.keys = Object.keys(table[0])
   temp.values = table.map(row =&gt; temp.keys.map(k =&gt; row[k]))
   return JSON.stringify(temp)
 }</code></pre>
-<pre title="packed-performance-10000-30.txt"><code class="language-txt">nRows: 10000
+<pre title="packed-rows-10000-30.txt"><code class="language-txt">nRows: 10000
 nCols: 30
-packedRowStringTime: 24899
-packedRowStringSize: 1240384
+packedRowStringTime: 31355
+packedRowStringSize: 2974084
 
 </code></pre>
 <ul>
@@ -383,6 +383,70 @@ packedRowStringSize: 1240384
 </ul>
 </li>
 <li>Once again seems clear that column-oriented storage is the best approach</li>
+</ul>
+<h2 id="does-binary-storage-improve-performance">Does binary storage improve performance?</h2>
+<ul>
+<li>JavaScript stores values in <g key="tagged_data">tagged</g> data structures
+<ul>
+<li>Some bits to define its type</li>
+<li>Other bits with the actual data</li>
+</ul>
+</li>
+<li>And despite what <code>sizeof</code> tells us, objects and arrays have structural overhead</li>
+<li>We can save space by just storing the bits, but then we have to keep track of types ourselves</li>
+<li>JavaScript has an <code>ArrayBuffer</code> object that stores bits</li>
+<li>We access it through a view that presents the data as a particular type, such as unsigned 8-bit integer or 64-bit float</li>
+<li>To store a column-oriented table:
+<ul>
+<li>Two integers with size</li>
+<li>A string with the labels joined by newlines (we assume that labels can't contain newlines)</li>
+<li>The numbers</li>
+</ul>
+</li>
+</ul>
+<pre title="packed-cols.js:binary"><code class="language-js">const asBinary = (table) =&gt; {
+  const labels = Object.keys(table)
+
+  const nCols = labels.length
+  const nRows = table[labels[0]].length
+  const dimensions = new Uint32Array([nCols, nRows])
+
+  const allLabels = labels.join('\n')
+  const encoder = new TextEncoder()
+  const encodedLabels = encoder.encode(allLabels)
+
+  const dataSize = sizeof(0) * nCols * nRows
+  const totalSize =
+    dimensions.byteLength + encodedLabels.byteLength + dataSize
+
+  const buffer = new ArrayBuffer(totalSize)
+  const result = new Uint8Array(buffer)
+  result.set(dimensions, 0)
+  result.set(encodedLabels, dimensions.byteLength)
+
+  let current = dimensions.byteLength + encodedLabels.byteLength
+  labels.forEach(label =&gt; {
+    const temp = new Float64Array(table[label])
+    result.set(temp, current)
+    current += temp.byteLength
+  })
+
+  return result
+}</code></pre>
+<pre title="packed-cols-10000-30.txt"><code class="language-txt">nRows: 10000
+nCols: 30
+packedColBinaryTime: 5555
+packedColBinarySize: 2400268
+
+</code></pre>
+<ul>
+<li>Saves time because copying bits is faster than turning numbers into characters</li>
+<li>But doesn't save as much space as expected
+<ul>
+<li>Our numbers are 8 bytes long</li>
+<li>Longest string representation is 5 characters (10 bytes)</li>
+</ul>
+</li>
 </ul>
 </main>
 <footer>

@@ -95,9 +95,31 @@
     -   Save the column headers once
     -   Copy the data values into an array of arrays and save that
 
-<%- include('/_inc/slice.html', {file: 'packed-performance.js', tag: 'packed'}) %>
-<%- include('/_inc/file.html', {file: 'packed-performance-10000-30.txt'}) %>
+<%- include('/_inc/slice.html', {file: 'packed-rows.js', tag: 'packed'}) %>
+<%- include('/_inc/file.html', {file: 'packed-rows-10000-30.txt'}) %>
 
 -   Surprising that packing the rows takes *less* time
     -   The cost of copying data is less than the cost of turning labels into strings over and over
 -   Once again seems clear that column-oriented storage is the best approach
+
+## Does binary storage improve performance?
+
+-   JavaScript stores values in <g key="tagged_data">tagged</g> data structures
+    -   Some bits to define its type
+    -   Other bits with the actual data
+-   And despite what `sizeof` tells us, objects and arrays have structural overhead
+-   We can save space by just storing the bits, but then we have to keep track of types ourselves
+-   JavaScript has an `ArrayBuffer` object that stores bits
+-   We access it through a view that presents the data as a particular type, such as unsigned 8-bit integer or 64-bit float
+-   To store a column-oriented table:
+    -   Two integers with size
+    -   A string with the labels joined by newlines (we assume that labels can't contain newlines)
+    -   The numbers
+
+<%- include('/_inc/slice.html', {file: 'packed-cols.js', tag: 'binary'}) %>
+<%- include('/_inc/file.html', {file: 'packed-cols-10000-30.txt'}) %>
+
+-   Saves time because copying bits is faster than turning numbers into characters
+-   But doesn't save as much space as expected
+    -   Our numbers are 8 bytes long
+    -   Longest string representation is 5 characters (10 bytes)

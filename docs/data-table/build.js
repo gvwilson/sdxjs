@@ -2,14 +2,12 @@ const microtime = require('microtime')
 const sizeof = require('object-sizeof')
 
 // <build-rows>
-const RANGE = 3
-
 const buildRows = (nRows, labels) => {
   const result = []
   for (let iR = 0; iR < nRows; iR += 1) {
     const row = {}
     labels.forEach(label => {
-      row[label] = iR % RANGE
+      row[label] = iR
     })
     result.push(row)
   }
@@ -23,7 +21,7 @@ const buildCols = (nRows, labels) => {
   labels.forEach(label => {
     result[label] = []
     for (let iR = 0; iR < nRows; iR += 1) {
-      result[label].push(iR % RANGE)
+      result[label].push(iR)
     }
   })
   return result
