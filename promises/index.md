@@ -20,7 +20,9 @@
     -   First argument is a function of no arguments
     -   Second is the delay
 
-FIXME: diagram
+::: fixme
+diagram showing setTimeout
+:::
 
 <%- include('/_inc/multi.html', {pat: 'callbacks-with-timeouts.*', fill: 'js txt'}) %>
 
@@ -55,7 +57,9 @@ FIXME: diagram
     -   Its argument is a callback that gets the value passed to `resolve`
     -   This is where and how we handle the delayed execution.
 
-FIXME: diagram
+::: fixme
+diagram showing how promises resolve
+:::
 
 -   `Pledge`'s <g key="constructor">constructor</g> requires a single function called `action`
 -   This function must take take two callbacks as arguments

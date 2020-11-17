@@ -148,7 +148,9 @@ it easily accounts for 95 percent of all instances."
     -   Try zero matches, then one, then two, and so on until something succeeds
     -   Which means we are repeatedly re-matching things we already know work
 
-FIXME: diagram
+::: fixme
+diagram showing repetition in regex
+:::
 
 -   We also need to figure out how long to keep trying
     -   Each non-empty repetition matches at least one character

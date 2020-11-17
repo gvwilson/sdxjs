@@ -83,6 +83,11 @@
 
 <%- include('/_inc/multi.html', {pat: 'display-only.*', fill: 'sh txt'}) %>
 
+-   Check that we are detecting cycles
+
+<%- include('/_inc/file.html', {file: 'circular-rules.yml'}) %>
+<%- include('/_inc/multi.html', {pat: 'check-cycles.*', fill: 'sh txt'}) %>
+
 ## How can we specify that a file is out of date?
 
 -   Classic approach is to compare timestamps

@@ -1,5 +1,6 @@
 TARGETS=\
   add-timestamps.txt \
+  check-cycles.txt \
   display-only.txt \
   pattern-user-attempt.txt \
   pattern-user-run.txt \

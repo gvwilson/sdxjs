@@ -66,7 +66,9 @@ We have therefore decided to stick to `require` in this book.
     -   The function must take a specific set of parameters
     -   A standard <g key="protocol">protocol</g> like the various kind of USB ports and connectors that allows us to plug things together
 
-FIXME: diagram
+::: fixme
+diagram showing callbacks
+:::
 
 <%- include('/_inc/file.html', {file: 'list-dir-function-defined.js'}) %>
 
@@ -126,7 +128,9 @@ FIXME: diagram
 -   `Array.filter` creates a new array containing all the items of the original that pass the test
     -   The test is specified as a callback function called once for each item that returns a <g key="boolean">Boolean</g>
 
-FIXME: diagram
+::: fixme
+diagram showing Array.filter
+:::
 
 -   We can make this more idiomatic by:
     -   Removing the parentheses around the single parameter
@@ -185,7 +189,9 @@ This shows:
 -   This uses <g key="destructuring_assignment">destructuring assignment</g> to create two variables at once
     -   Only works if both source and destination are given on the command line, so we should check that
 
-FIXME: diagram
+::: fixme
+diagram showing destructuring assignment
+:::
 
 -   But this only works if the destination directory already exists
     -   `fs` and equivalent libraries in other languages (mostly) won't create the directories we need automatically
@@ -209,7 +215,9 @@ FIXME: diagram
     -   When `copy` finishes, check the error status
 -   Trace this for two directories each containing one file
 
-FIXME: diagram
+::: fixme
+diagram showing three levels of callback
+:::
 
 -   It *almost* works
 

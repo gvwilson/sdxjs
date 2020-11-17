@@ -38,7 +38,7 @@
 <%- include('/_inc/file.html', {file: 'expected-full.txt'}) %>
 
 -   We do not handle <g key="circular_dependency">circular dependencies</g>
-    -   Because Node itself doesn't (<xref key="module-loader"></xref>)
+    -   Because `require` itself doesn't (<xref key="module-loader"></xref>)
 
 ## How can we find all the dependencies?
 

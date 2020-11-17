@@ -318,6 +318,28 @@ module.exports = DisplayOnly
 Sorted
 [ 'C', 'B', 'A' ]
 </code></pre>
+<ul>
+<li>Check that we are detecting cycles</li>
+</ul>
+<pre title="circular-rules.yml"><code class="language-yml">- target: A
+  depends:
+  - B
+  recipes:
+  - "update A from B"
+- target: B
+  depends:
+  - A
+  recipes:
+  - "update B from A"
+</code></pre>
+<pre title="check-cycles.sh"><code class="language-sh">node driver.js ./display-only circular-rules.yml 2&gt;&amp;1 | head -n 5
+</code></pre>
+<pre title="check-cycles.txt"><code class="language-txt">assert.js:101
+  throw new AssertionError(obj);
+  ^
+
+AssertionError [ERR_ASSERTION]: Dependency graph contains cycles B,A
+</code></pre>
 <h2 id="how-can-we-specify-that-a-file-is-out-of-date">How can we specify that a file is out of date?</h2>
 <ul>
 <li>Classic approach is to compare timestamps</li>

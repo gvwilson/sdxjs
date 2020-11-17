@@ -93,6 +93,19 @@
 -   So we will *not* handle circular dependencies
     -   But we *will* detect them and generate a sensible error message
 
+::: callout
+### `import` vs. `require`
+
+Circular dependencies actually *do* work JavaScript's newer `import` syntax.
+The difference is that we can reliably analyze files to determine what needs what,
+get everything into memory,
+and then resolve dependencies.
+(We can't do this with `require`-based code
+because someone might call `require` inside a function
+or create an alias and call `require` through that.)
+Please see <cite>Casciaro2020</cite> for a more detailed discussion.
+:::
+
 ## How can a module load another module?
 
 -   We need to provide the module with a function called `require`

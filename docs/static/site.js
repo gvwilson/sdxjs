@@ -117,6 +117,18 @@ const fixPreTitles = () => {
 }
 
 /**
+ * Add the word 'FIXME" to fixmes.
+ */
+const fixFixmes = () => {
+  Array.from(document.querySelectorAll('div.fixme'))
+    .forEach(node => {
+      const paragraph = node.querySelector('p')
+      const word = document.createTextNode('FIXME: ')
+      paragraph.insertBefore(word, paragraph.firstChild)
+    })
+}
+
+/**
  * Perform all in-page fixes.
  */
 const fixPage = () => {
@@ -131,6 +143,7 @@ const fixPage = () => {
       fixPreBlocks()
       fixCrossRefs(toRoot, numbering)
       fixPreTitles()
+      fixFixmes()
       buildToc()
     }
     else {

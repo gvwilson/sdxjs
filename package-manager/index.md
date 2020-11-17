@@ -13,6 +13,19 @@
 -   Explore how to find a workable installation or prove that there isn't one
     -   Based in part on [this tutorial][package-manager-tutorial] by Maël Nison
 
+::: callout
+### Satisfiability
+
+In essence what we are trying to do is find a version for each package
+that makes the assertion "P is compatible with all its dependencies" true
+for every package P.
+The general-purpose tools for doing this are called <g key="sat_solver">SAT solvers</g>
+because they determine whether there is some assignment of values
+that satisfies the claim (i.e., makes it true).
+Finding a solution can be extremely hard in the general case,
+so most SAT solvers use heuristics to try to reduce the work.
+:::
+
 ## What is semantic versioning?
 
 -   Most software projects use <g key="semantic_versioning">semantic versioning</g> for software releases

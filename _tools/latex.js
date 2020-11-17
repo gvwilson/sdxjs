@@ -174,6 +174,10 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
       accum.push('\n{\\centering\n')
       childrenToLatex(options, fileInfo, node, accum)
       accum.push('\n}\n')
+    } else if (cls === 'fixme') {
+      accum.push('\\fixme{')
+      childrenToLatex(options, fileInfo, node, accum)
+      accum.push('}')
     } else if (cls === 'hint') {
       accum.push('\\begin{hint}')
       childrenToLatex(options, fileInfo, node, accum)

@@ -100,3 +100,15 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
     -   Requires custom sorting that depends on CSS classes having a precedence order
 
 <%- include('/_inc/file.html', {file: 'micro-css-ruleset.js'}) %>
+
+## What about wrapping?
+
+::: fixme
+handle wrap-around in fixed width boxes
+:::
+
+## What about clipping?
+
+::: fixme
+handle clipping if something can't be made to fit
+:::

@@ -374,6 +374,8 @@
 <dd class="glossary">A framework for <g key="oop">object-oriented programming</g> in <g key="r_language">R</g>.</dd>
 <dt id="sandbox" class="glossary">sandbox</dt>
 <dd class="glossary">A testing environment that is separate from the production system, or an environment that is only allowed to perform a restricted set of operations for security reasons.</dd>
+<dt id="sat_solver" class="glossary">SAT solver</dt>
+<dd class="glossary">A library or application that determines whether there is an assignment of true and false to a set of <g key="boolean">Boolean</g> variables that makes an expression true (i.e., that satisfies the expression).</dd>
 <dt id="scalar" class="glossary">scalar</dt>
 <dd class="glossary">A single value of a particular type, such as 1 or &quot;a&quot;. Scalars exist in most languages, but do not really exist in <g key="r_language">R</g>; in R, values that appear to be scalars are actually <g key="vector">vectors</g> of unit length.</dd>
 <dt id="schema" class="glossary">schema</dt>
