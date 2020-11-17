@@ -102,6 +102,10 @@ latex: book.tex
 catalog:
 	_tools/catalog.js --ignore --input ${HTML}
 
+## exercises: count exercises per chapter
+exercises:
+	@_tools/exercises.js _config.yml
+
 ## examples: rebuild all examples in sub-directories
 examples:
 	@for d in ${SUBMAKEDIR}; do echo ""; echo $$d; make -C $$d; done
