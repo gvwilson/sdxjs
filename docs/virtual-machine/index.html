@@ -268,6 +268,9 @@ const {
   RAM_LEN
 } = require('./architecture')
 
+const COLUMNS = 4
+const DIGITS = 8
+
 class VirtualMachineBase {
   constructor () {
     this.ip = 0
@@ -422,8 +425,9 @@ hlt
 <ul>
 <li>This is its numeric representation</li>
 </ul>
-<pre title="print-r1.mx"><code class="language-mx">00010b
-000001</code></pre>
+<pre title="print-r1.mx"><code class="language-mx">00010a
+000001
+</code></pre>
 <ul>
 <li>This program prints the numbers from 0 to 2</li>
 </ul>
@@ -449,7 +453,8 @@ hlt
 010204
 000207
 020209
-000001</code></pre>
+000001
+</code></pre>
 <ul>
 <li>The <g key="label_address">label</g> <code>loop</code> doesn't take up any space
 <ul>
@@ -531,6 +536,8 @@ hlt
 </ul>
 <pre title="assembler.js"><code class="language-js">  compile (instruction, labels) {
     const [op, ...args] = instruction.split(/\s+/)
+    assert(op in OPS,
+      `Unknown operation "${op}"`)
     let result = 0
     switch (OPS[op].fmt) {
       case '--':
@@ -602,6 +609,119 @@ hlt
       `Unknown label "${token}"`)
     return labels[labelName]
   }</code></pre>
+<ul>
+<li>Let's try running a few programs and display:
+<ul>
+<li>Their output</li>
+<li>The registers</li>
+<li>The interesting contents of memory</li>
+</ul>
+</li>
+<li>Counting up to three</li>
+</ul>
+<pre title="count-up.as"><code class="language-as"># Count up to 3.
+# - R0: loop index.
+# - R1: loop limit.
+ldc R0 0
+ldc R1 3
+loop:
+prr R0
+ldc R2 1
+add R0 R2
+cpy R2 R1
+sub R2 R0
+bne R2 @loop
+hlt
+</code></pre>
+<pre title="count-up-out.txt"><code class="language-txt">&gt;&gt; 0
+&gt;&gt; 1
+&gt;&gt; 2
+R0 = 3
+R1 = 3
+R2 = 0
+R3 = 0
+0:   00000002  00030102  0000000a  00010202
+4:   00020006  00010204  00000207  00020209
+8:   00000001  00000000  00000000  00000000
+</code></pre>
+<h2 id="how-can-we-store-data">How can we store data?</h2>
+<ul>
+<li>Allocate storage after the program for arrays</li>
+<li>Use <code>.data</code> on a line of its own to mark the start of the data section</li>
+<li>Then <code>label: number</code> to give a region a name and allocate some storage space</li>
+<li>A few changes to the assembler</li>
+<li>Split the lines into instructions and data allocations</li>
+</ul>
+<pre title="allocate-data.js"><code class="language-js">  assemble (lines) {
+    lines = this.cleanLines(lines)
+    const [toCompile, toAllocate] = this.splitAllocations(lines)
+    const labels = this.findLabels(lines)
+    const instructions = toCompile.filter(line =&gt; !this.isLabel(line))
+    const baseOfData = instructions.length
+    this.addAllocations(baseOfData, labels, toAllocate)
+    const compiled = instructions.map(instr =&gt; this.compile(instr, labels))
+    const program = this.instructionsToText(compiled)
+    return program
+  }</code></pre>
+<pre title="allocate-data.js"><code class="language-js">  splitAllocations (lines) {
+    const split = lines.indexOf(DIVIDER)
+    if (split === -1) {
+      return [lines, []]
+    } else {
+      return [lines.slice(0, split), lines.slice(split+1)]
+    }
+  }</code></pre>
+<ul>
+<li>Figure out where each allocation will lie and create a label accordingly</li>
+</ul>
+<pre title="allocate-data.js"><code class="language-js">  addAllocations (baseOfData, labels, toAllocate) {
+    toAllocate.forEach(alloc =&gt; {
+      const fields = alloc.split(':').map(a =&gt; a.trim())
+      assert(fields.length === 2,
+        `Invalid allocation directive "${alloc}"`)
+      const [label, numWordsText] = fields
+      assert(!(label in labels),
+        `Duplicate label "${label}" in data allocation`)
+      const numWords = parseInt(numWordsText)
+      assert((baseOfData + numWords) &lt; RAM_LEN,
+        `Allocation "${label}" requires too much memory`)
+      labels[label] = baseOfData
+      baseOfData += numWords
+    })
+  }</code></pre>
+<ul>
+<li>And that's it: no changes needed to compilation or execution</li>
+<li>Fill an array with the numbers from 0 to 3</li>
+</ul>
+<pre title="fill-array.as"><code class="language-as"># Count up to 3.
+# - R0: loop index.
+# - R1: loop limit.
+# - R2: array index.
+# - R3: temporary.
+ldc R0 0
+ldc R1 3
+ldc R2 @array
+loop:
+str R0 R2
+ldc R3 1
+add R0 R3
+add R2 R3
+cpy R3 R1
+sub R3 R0
+bne R3 @loop
+hlt
+.data
+array: 10
+</code></pre>
+<pre title="fill-array-out.txt"><code class="language-txt">R0 = 3
+R1 = 3
+R2 = 14
+R3 = 0
+0:   00000002  00030102  000b0202  00020005
+4:   00010302  00030006  00030206  00010304
+8:   00000307  00030309  00000001  00000000
+c:   00000001  00000002  00000000  00000000
+</code></pre>
 </main>
 <footer>
 <div class="row">

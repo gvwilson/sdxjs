@@ -143,3 +143,34 @@ Diagram of virtual machine architecture
 -   A few utility functions
 
 <%- include('/_inc/slice.html', {file: 'assembler.js', tag: 'utilities'}) %>
+
+-   Let's try running a few programs and display:
+    -   Their output
+    -   The registers
+    -   The interesting contents of memory
+-   Counting up to three
+
+<%- include('/_inc/file.html', {file: 'count-up.as'}) %>
+<%- include('/_inc/file.html', {file: 'count-up-out.txt'}) %>
+
+## How can we store data?
+
+-   Allocate storage after the program for arrays
+-   Use `.data` on a line of its own to mark the start of the data section
+-   Then `label: number` to give a region a name and allocate some storage space
+-   A few changes to the assembler
+-   Split the lines into instructions and data allocations
+
+<%- include('/_inc/slice.html', {file: 'allocate-data.js', tag: 'assemble'}) %>
+
+<%- include('/_inc/slice.html', {file: 'allocate-data.js', tag: 'split-allocations'}) %>
+
+-   Figure out where each allocation will lie and create a label accordingly
+
+<%- include('/_inc/slice.html', {file: 'allocate-data.js', tag: 'add-allocations'}) %>
+
+-   And that's it: no changes needed to compilation or execution
+-   Fill an array with the numbers from 0 to 3
+
+<%- include('/_inc/file.html', {file: 'fill-array.as'}) %>
+<%- include('/_inc/file.html', {file: 'fill-array-out.txt'}) %>

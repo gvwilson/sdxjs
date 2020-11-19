@@ -8,7 +8,6 @@ const {
 } = require('./architecture')
 
 class Assembler {
-
   // <assemble>
   assemble (lines) {
     lines = this.cleanLines(lines)
@@ -56,6 +55,8 @@ class Assembler {
   // <compile>
   compile (instruction, labels) {
     const [op, ...args] = instruction.split(/\s+/)
+    assert(op in OPS,
+      `Unknown operation "${op}"`)
     let result = 0
     switch (OPS[op].fmt) {
       case '--':
