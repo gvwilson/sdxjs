@@ -1,12 +1,16 @@
+const assert = require('assert')
 const fs = require('fs')
 
-const assemble = require('./assembler')
+const Assembler = require('./assembler')
 
 const main = () => {
+  assert(process.argv.length === 4,
+    'Usage: as.js input|- output|-')
   const inFile = process.argv[2]
   const outFile = process.argv[3]
   const lines = readSource(inFile)
-  const program = assemble(lines)
+  const as = new Assembler()
+  const program = as.assemble(lines)
   writeProgram(outFile, program)
 }
 
