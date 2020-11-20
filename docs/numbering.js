@@ -26,6 +26,5 @@
   "contributing": "D",
   "gloss": "E",
   "links": "F",
-  "solutions": "G",
-  "authors": "H"
+  "authors": "G"
 }
