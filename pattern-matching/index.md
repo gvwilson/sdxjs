@@ -4,7 +4,7 @@
 -   <g key="regular_expression">Regular expressions</g> are patterns for matching text
     -   Used in everything from shell commands and text editors to web scrapers
 -   Inspired pattern matching for many other kinds of data,
-    like <g key="query_selector">query selectors</a> for HTML
+    like <g key="query_selector">query selectors</g> for HTML
 -   Start by showing how query selectors work
 -   Then show how simple regular expressions work by re-implementing a matcher
     described by [Brian Kernighan][kernighan-brian] in <cite>Oram2007</cite>

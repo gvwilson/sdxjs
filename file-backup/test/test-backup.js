@@ -96,7 +96,8 @@ describe('check entire backup process', () => {
     await backup('source', 'backup', 1)
     assert.strictEqual((await glob('backup/*')).length, 6,
       'Expected 6 files after second backup')
-    const expected = new Set(InitialBackups).add(`backup/${hashOfNewFile}.bck`)
+    const expected = new Set(InitialBackups)
+      .add(`backup/${hashOfNewFile}.bck`)
     const actualBackups = new Set(await glob('backup/*.bck'))
     assert.deepStrictEqual(actualBackups, expected,
       'Expected 4 backup files after second backup')

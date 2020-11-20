@@ -42,7 +42,7 @@
 
 ## What input will we try to handle?
 
--   Use <g key="markdown">Markdown</a> for formatting
+-   Use <g key="markdown">Markdown</g> for formatting
 -   Parse it with [markdown-it][markdown-it]
 -   Function definitions look like this:
 

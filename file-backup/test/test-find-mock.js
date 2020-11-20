@@ -28,7 +28,7 @@ describe('checks for pre-existing hashes using mock filesystem', () => {
     mock.restore()
   })
 
-  it('finds no pre-existing files when none given and none exist', async () => {
+  it('finds no pre-existing files when none given or exist', async () => {
     const expected = {}
     const actual = await findNewFiles('bck-0-csv-0', [])
     assert.deepStrictEqual(expected, actual,

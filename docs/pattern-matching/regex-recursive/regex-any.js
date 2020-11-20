@@ -7,9 +7,9 @@ class RegexAny extends RegexBase {
   }
 
   _match (text, start) {
-    const maxPossibleMatches = text.length - start
-    for (let numMatches = 0; numMatches <= maxPossibleMatches; numMatches += 1) {
-      const afterMany = this._matchMany(text, start, numMatches)
+    const maxPossible = text.length - start
+    for (let num = 0; num <= maxPossible; num += 1) {
+      const afterMany = this._matchMany(text, start, num)
       if (afterMany !== undefined) {
         return afterMany
       }
@@ -17,8 +17,8 @@ class RegexAny extends RegexBase {
     return undefined
   }
 
-  _matchMany (text, start, numMatches) {
-    for (let i = 0; i < numMatches; i += 1) {
+  _matchMany (text, start, num) {
+    for (let i = 0; i < num; i += 1) {
       start = this.child._match(text, start)
       if (start === undefined) {
         return undefined
@@ -31,4 +31,8 @@ class RegexAny extends RegexBase {
   }
 }
 
-module.exports = (child, rest = null) => new RegexAny(child, rest)
+const create = (child, rest = null) => {
+  return new RegexAny(child, rest)
+}
+
+module.exports = create

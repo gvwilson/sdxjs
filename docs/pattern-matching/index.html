@@ -71,7 +71,7 @@
 </ul>
 </li>
 <li>Inspired pattern matching for many other kinds of data,
-like <g key="query_selector">query selectors</a> for HTML</li>
+like <g key="query_selector">query selectors</g> for HTML</li>
 <li>Start by showing how query selectors work</li>
 <li>Then show how simple regular expressions work by re-implementing a matcher
 described by <a href="https://en.wikipedia.org/wiki/Brian_Kernighan">Brian Kernighan</a> in <cite>Oram2007</cite></li>
@@ -336,7 +336,8 @@ const matchHere = (pattern, iPattern, text, iText) =&gt; {
   }
 
   // '*' following current character means match many.
-  if (((pattern.length - iPattern) &gt; 1) &amp;&amp; (pattern[iPattern + 1] === '*')) {
+  if (((pattern.length - iPattern) &gt; 1) &amp;&amp;
+      (pattern[iPattern + 1] === '*')) {
     while ((iText &lt; text.length) &amp;&amp; (text[iText] === pattern[iPattern])) {
       iText += 1
     }
@@ -344,7 +345,8 @@ const matchHere = (pattern, iPattern, text, iText) =&gt; {
   }
 
   // Match a single character.
-  if ((pattern[iPattern] === '.') || (pattern[iPattern] === text[iText])) {
+  if ((pattern[iPattern] === '.') ||
+      (pattern[iPattern] === text[iText])) {
     return matchHere(pattern, iPattern + 1, text, iText + 1)
   }
 
@@ -453,8 +455,10 @@ const main = () =&gt; {
     ['ab*c', 'abxc', false, Seq(Lit('a'), Any('b'), Lit('c'))],
     ['ab|cd', 'xaby', true, Alt(Lit('ab'), Lit('cd'))],
     ['ab|cd', 'acdc', true, Alt(Lit('ab'), Lit('cd'))],
-    ['a(b|c)d', 'xabdy', true, Seq(Lit('a'), Alt(Lit('b'), Lit('c')), Lit('d'))],
-    ['a(b|c)d', 'xabady', false, Seq(Lit('a'), Alt(Lit('b'), Lit('c')), Lit('d'))]
+    ['a(b|c)d', 'xabdy', true,
+      Seq(Lit('a'), Alt(Lit('b'), Lit('c')), Lit('d'))],
+    ['a(b|c)d', 'xabady', false,
+      Seq(Lit('a'), Alt(Lit('b'), Lit('c')), Lit('d'))]
   ]
   tests.forEach(([pattern, text, expected, matcher]) =&gt; {
     const actual = matcher.match(text)
@@ -762,7 +766,11 @@ class RegexAlt extends RegexBase {
   }
 }
 
-module.exports = (left, right, rest = null) =&gt; new RegexAlt(left, right, rest)
+const create = (left, right, rest = null) =&gt; {
+  return new RegexAlt(left, right, rest)
+}
+
+module.exports = create
 </code></pre>
 <ul>
 <li>Matching repetition is easy <em>if</em> we're willing to be inefficient
@@ -792,9 +800,9 @@ class RegexAny extends RegexBase {
   }
 
   _match (text, start) {
-    const maxPossibleMatches = text.length - start
-    for (let numMatches = 0; numMatches &lt;= maxPossibleMatches; numMatches += 1) {
-      const afterMany = this._matchMany(text, start, numMatches)
+    const maxPossible = text.length - start
+    for (let num = 0; num &lt;= maxPossible; num += 1) {
+      const afterMany = this._matchMany(text, start, num)
       if (afterMany !== undefined) {
         return afterMany
       }
@@ -802,8 +810,8 @@ class RegexAny extends RegexBase {
     return undefined
   }
 
-  _matchMany (text, start, numMatches) {
-    for (let i = 0; i &lt; numMatches; i += 1) {
+  _matchMany (text, start, num) {
+    for (let i = 0; i &lt; num; i += 1) {
       start = this.child._match(text, start)
       if (start === undefined) {
         return undefined
@@ -816,7 +824,11 @@ class RegexAny extends RegexBase {
   }
 }
 
-module.exports = (child, rest = null) =&gt; new RegexAny(child, rest)
+const create = (child, rest = null) =&gt; {
+  return new RegexAny(child, rest)
+}
+
+module.exports = create
 </code></pre>
 <ul>
 <li>The main point here is how extensible this approach is</li>

@@ -12,7 +12,7 @@
 
 ## How can we implement namespaces?
 
--   A <g key="namespace">namespace</a> is a collection of names in a program that are isolated from other namespaces
+-   A <g key="namespace">namespace</g> is a collection of names in a program that are isolated from other namespaces
     -   Most modern languages provide namespaces as a feature so that programmers don't accidentally step on each other's toes
     -   JavaScript doesn't have this, so we have to implement it ourselves
 -   We can create a namespace by:

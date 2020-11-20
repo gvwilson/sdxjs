@@ -134,18 +134,23 @@ class MinimalEditor {
     let newBufferY = this.textBuffer.y
 
     if (this.textBuffer.x < -this.textBuffer.cx) {
-      newBufferX = Math.min(0, -this.textBuffer.cx + Math.floor(this.screenBuffer.width / 2))
-    } else if (this.textBuffer.x > -this.textBuffer.cx + this.screenBuffer.width - 1) {
+      newBufferX = Math.min(0, -this.textBuffer.cx +
+                                Math.floor(this.screenBuffer.width / 2))
+    } else if (this.textBuffer.x >
+               -this.textBuffer.cx + this.screenBuffer.width - 1) {
       newBufferX = (this.screenBuffer.width / 2) - this.textBuffer.cx
     }
 
     if (this.textBuffer.y < -this.textBuffer.cy) {
-      newBufferY = Math.min(0, -this.textBuffer.cy + Math.floor(this.screenBuffer.height / 2))
-    } else if (this.textBuffer.y > -this.textBuffer.cy + this.screenBuffer.height - 1) {
+      newBufferY = Math.min(0, -this.textBuffer.cy +
+                               Math.floor(this.screenBuffer.height / 2))
+    } else if (this.textBuffer.y >
+               -this.textBuffer.cy + this.screenBuffer.height - 1) {
       newBufferY = (this.screenBuffer.height / 2) - this.textBuffer.cy
     }
 
-    if (newBufferY !== this.textBuffer.y || newBufferX !== this.textBuffer.x) {
+    if (newBufferY !== this.textBuffer.y ||
+        newBufferX !== this.textBuffer.x) {
       this.textBuffer.x = newBufferX
       this.textBuffer.y = newBufferY
       this.textBuffer.draw()

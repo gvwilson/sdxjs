@@ -36,9 +36,9 @@ m.exports()
 
 const createBundle = (entryPoint) => {
   entryPoint = path.resolve(entryPoint)
-  const translationTable = transitiveClosure(entryPoint)
-  const translate = `const translate = ${JSON.stringify(translationTable, null, 2)}`
-  const creators = Object.keys(translationTable).map(filename => makeCreator(filename))
+  const table = transitiveClosure(entryPoint)
+  const translate = `const translate = ${JSON.stringify(table, null, 2)}`
+  const creators = Object.keys(table).map(filename => makeCreator(filename))
   const proof = makeProof(entryPoint)
   return [
     translate,

@@ -361,16 +361,12 @@ const childrenToLatex = (options, fileInfo, node, accum) => {
  */
 const tableToLatex = (options, fileInfo, node) => {
   assert(node.name === 'table',
-         `Calling tableToLatex with wrong node type "${node.name}"`)
-  const immediate = node.children.filter(child => child.name === 'tbody')
-  assert(immediate.length === 1,
-    'Table must contain one tbody')
-  const rows = immediate[0].children
-    .filter(child => child.name === 'tr')
-    .map(row => row.children.filter(cell => (cell.name === 'td') || (cell.name === 'th')))
-  const lengths = rows.map(row => row.length)
-  assert(lengths.every(len => len === lengths[0]),
-    'Require all table rows to have the same number of cells')
+    `Calling tableToLatex with wrong node type "${node.name}"`)
+  const { headWidth, headRows } = tableHeadToRows(node)
+  const { bodyWidth, bodyRows } = tableBodyToRows(node)
+  assert((headWidth === 0) || (headWidth === bodyWidth),
+    'Table head and body have inconsistent widths')
+  const rows = headRows.concat(bodyRows)
   const spec = rows[0].map(x => 'l').join('')
   const body = rows.map(row => {
     const fields = row.map(cell => htmlToLatex(options, fileInfo, cell, []).flat().join(''))
@@ -378,6 +374,47 @@ const tableToLatex = (options, fileInfo, node) => {
     return `${joined} \\\\\n`
   }).join('')
   return `\n\\begin{tabular}{${spec}}\n${body}\\end{tabular}\n`
+}
+
+/**
+ * Extract rows from head of table if present.
+ * @param {Object} node The table.
+ * @returns {Array<Array} Rows.
+ */
+const tableHeadToRows = (node) => {
+  const thead = node.children.filter(child => child.name === 'thead')
+  if (thead.length === 0) {
+    return { headWidth: 0, headRows: [] }
+  }
+  assert(thead.length === 1,
+    'Table may contain at most one head')
+  const headRows = thead[0].children
+    .filter(child => child.name === 'tr')
+    .map(row => row.children.filter(cell => (cell.name === 'th')))
+  const lengths = headRows.map(row => row.length)
+  const headWidth = lengths[0]
+  assert(lengths.every(len => len === headWidth),
+    'Require all table rows to have the same number of cells')
+  return { headWidth, headRows }
+}
+
+/**
+ * Extract rows from body of table.
+ * @param {Object} node The table.
+ * @returns {Array<Array} Rows.
+ */
+const tableBodyToRows = (node) => {
+  const tbody = node.children.filter(child => child.name === 'tbody')
+  assert(tbody.length === 1,
+    'Table must contain one tbody')
+  const bodyRows = tbody[0].children
+    .filter(child => child.name === 'tr')
+    .map(row => row.children.filter(cell => (cell.name === 'td')))
+  const lengths = bodyRows.map(row => row.length)
+  const bodyWidth = lengths[0]
+  assert(lengths.every(len => len === bodyWidth),
+    'Require all table rows to have the same number of cells')
+  return { bodyWidth, bodyRows }
 }
 
 /**

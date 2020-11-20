@@ -24,4 +24,8 @@ class RegexAlt extends RegexBase {
   }
 }
 
-module.exports = (left, right, rest = null) => new RegexAlt(left, right, rest)
+const create = (left, right, rest = null) => {
+  return new RegexAlt(left, right, rest)
+}
+
+module.exports = create

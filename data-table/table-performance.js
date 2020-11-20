@@ -21,10 +21,16 @@ const main = () => {
   const [rowTable, rowSize, rowHeap] = memory(buildRows, nRows, labels)
   const [colTable, colSize, colHeap] = memory(buildCols, nRows, labels)
 
-  const rowFilterTime = time(rowFilter, rowTable, row => ((row.label_1 % RANGE) === 0))
-  const rowSelectTime = time(rowSelect, rowTable, someLabels)
-  const colFilterTime = time(colFilter, colTable, (table, iR) => ((table.label_1[iR] % RANGE) === 0))
-  const colSelectTime = time(colSelect, colTable, someLabels)
+  const rowFilterTime =
+    time(rowFilter, rowTable,
+      row => ((row.label_1 % RANGE) === 0))
+  const rowSelectTime =
+    time(rowSelect, rowTable, someLabels)
+  const colFilterTime =
+    time(colFilter, colTable,
+      (table, iR) => ((table.label_1[iR] % RANGE) === 0))
+  const colSelectTime =
+    time(colSelect, colTable, someLabels)
 
   const ratio = calculateRatio(filterPerSelect,
     rowFilterTime, rowSelectTime,

@@ -26,8 +26,10 @@ const main = () => {
     ['ab*c', 'abxc', false, Seq(Lit('a'), Any('b'), Lit('c'))],
     ['ab|cd', 'xaby', true, Alt(Lit('ab'), Lit('cd'))],
     ['ab|cd', 'acdc', true, Alt(Lit('ab'), Lit('cd'))],
-    ['a(b|c)d', 'xabdy', true, Seq(Lit('a'), Alt(Lit('b'), Lit('c')), Lit('d'))],
-    ['a(b|c)d', 'xabady', false, Seq(Lit('a'), Alt(Lit('b'), Lit('c')), Lit('d'))]
+    ['a(b|c)d', 'xabdy', true,
+      Seq(Lit('a'), Alt(Lit('b'), Lit('c')), Lit('d'))],
+    ['a(b|c)d', 'xabady', false,
+      Seq(Lit('a'), Alt(Lit('b'), Lit('c')), Lit('d'))]
   ]
   tests.forEach(([pattern, text, expected, matcher]) => {
     const actual = matcher.match(text)

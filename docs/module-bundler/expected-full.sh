@@ -1,2 +1,2 @@
 cd full
-node run.js
+node run.js | ../../_tools/wrap.js

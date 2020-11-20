@@ -146,7 +146,7 @@
 -   Avoids the problem of <g key="circular_dependency">circular dependency</g> discussed in <xref key="module-bundler"></xref>
     by having plugins manipulate the editor without loading it
     -   Works because JavaScript looks methods up dynamically
-    -   In a stricter language, we would define an <g key="abstract_base_class">abstract base class</a> for the editor
+    -   In a stricter language, we would define an <g key="abstract_base_class">abstract base class</g> for the editor
         that both the actual editor and the plugins could depend on
 
 ## How can we replay operations?

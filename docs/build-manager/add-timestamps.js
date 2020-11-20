@@ -5,9 +5,9 @@ const yaml = require('js-yaml')
 const GraphCreator = require('./graph-creator')
 
 class AddTimestamps extends GraphCreator {
-  constructor (configFile, timestampFile) {
+  constructor (configFile, timesFile) {
     super(configFile)
-    this.timestampFile = timestampFile
+    this.timesFile = timesFile
   }
 
   buildGraph () {
@@ -16,7 +16,7 @@ class AddTimestamps extends GraphCreator {
   }
 
   addTimestamps () {
-    const times = yaml.safeLoad(fs.readFileSync(this.timestampFile, 'utf-8'))
+    const times = yaml.safeLoad(fs.readFileSync(this.timesFile, 'utf-8'))
     for (const node of Object.keys(times)) {
       assert(this.graph.hasNode(node),
              `Graph does not have node ${node}`)

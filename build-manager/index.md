@@ -122,7 +122,7 @@
     -   If any file is older than the things it depends on, update it
 -   Pretend for now that updating takes one unit of time, so we advance our fictional clock once for each build
 
-<%- include('/_inc/multi.html', {pat: 'update-on-timestamps.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'update-timestamps.*', fill: 'js sh txt'}) %>
 
 ## How can we add generic build rules?
 
