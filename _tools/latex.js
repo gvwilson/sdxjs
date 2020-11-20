@@ -318,7 +318,9 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
   } else if (node.name === 'td') {
     childrenToLatex(options, fileInfo, node, accum)
   } else if (node.name === 'th') {
+    accum.push('\\tablehead{')
     childrenToLatex(options, fileInfo, node, accum)
+    accum.push('}')
   } else if (node.name === 'ul') {
     accum.push('\\begin{itemize}')
     childrenToLatex(options, fileInfo, node, accum)
