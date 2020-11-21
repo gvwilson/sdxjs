@@ -416,6 +416,8 @@
 <dd class="glossary">A set with only one element, or a <g key="class">class</g> with only one <g key="instance">instance</g>.</dd>
 <dt id="singleton_pattern" class="glossary">Singleton pattern</dt>
 <dd class="glossary">A <g key="design_pattern">design pattern</g> that creates a <g key="singleton">singleton</g> <g key="object">object</g> to manage some resource or service, such as a database or <g key="cache">cache</g>. In <g key="oop">object-oriented programming</g>, the pattern is usually implemented by hiding the <g key="constructor">constructor</g> of the <g key="class">class</g> in some way so that it can only be called once.</dd>
+<dt id="source_map" class="glossary">source map</dt>
+<dd class="glossary">A table used to translate a piece of code back to the lines in the original source.</dd>
 <dt id="stack_frame" class="glossary">stack frame</dt>
 <dd class="glossary">A section of the <g key="call_stack">call stack</g> that records details of a single call to a specific function.</dd>
 <dt id="build_stale" class="glossary">stale (in build)</dt>

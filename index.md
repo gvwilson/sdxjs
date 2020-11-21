@@ -66,17 +66,6 @@ and we hope readers will enjoy this book enough
 to contribute chapters on these topics and others
 to a second volume.
 
-::: callout
-### Debuggers
-
-We think interactive debuggers are as important as version control.
-We really wanted to explain how to build one,
-but there are so few descriptions of working debuggers to draw on
-that we weren't able to make progress.
-Again,
-we would be very grateful for contributions.
-:::
-
 <div class="html-only">
 <%- include('/_inc/contents.html') %>
 </div>
