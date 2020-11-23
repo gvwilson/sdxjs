@@ -67,7 +67,7 @@ class VirtualMachineBase {
     while (base <= top) {
       let output = base.toString(16) + ': '
       for (let i = 0; i < COLUMNS; i += 1) {
-	output += '  ' + this.ram[base + i].toString(16).padStart(DIGITS, '0')
+        output += '  ' + this.ram[base + i].toString(16).padStart(DIGITS, '0')
       }
       console.log(output)
       base += COLUMNS

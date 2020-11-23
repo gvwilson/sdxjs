@@ -67,7 +67,7 @@ class Assembler {
       case 'r-':
         result = this.combine(
           this.register(args[0]),
-	  OPS[op].code
+          OPS[op].code
         )
         break
       case 'rr':
