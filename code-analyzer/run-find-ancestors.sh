@@ -1,1 +1,1 @@
-node run-find-ancestors.js lower.js Lower
+node run-find-ancestors.js . lower.js Lower

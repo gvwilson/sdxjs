@@ -1,15 +1,17 @@
 const assert = require('assert')
 const acorn = require('acorn')
 const fs = require('fs')
+const path = require('path')
 const walk = require('acorn-walk')
 
 class FindAncestors {
-  find (filename, className) {
-    return this.traceAncestry(filename, className, [])
+  find (dirname, filename, className) {
+    return this.traceAncestry(dirname, filename, className, [])
   }
 
-  traceAncestry (filename, className, accum) {
-    const program = fs.readFileSync(filename, 'utf-8')
+  traceAncestry (dirname, filename, className, accum) {
+    const fullPath = path.join(dirname, filename)
+    const program = fs.readFileSync(fullPath, 'utf-8')
     const ast = acorn.parse(program, { locations: true })
     const classDef = this.findClassDef(filename, ast, className)
     accum.push({ filename, className, classDef })
@@ -18,7 +20,7 @@ class FindAncestors {
       return accum
     }
     const ancestorFile = this.findRequire(filename, ast, ancestorName)
-    return this.traceAncestry(ancestorFile, ancestorName, accum)
+    return this.traceAncestry(dirname, ancestorFile, ancestorName, accum)
   }
 
   findClassDef (filename, ast, className) {

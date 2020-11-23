@@ -1,10 +1,11 @@
 const FindMethods = require('./find-methods')
 
 const main = () => {
-  const filename = process.argv[2]
-  const className = process.argv[3]
+  const dirname = process.argv[2]
+  const filename = process.argv[3]
+  const className = process.argv[4]
   const finder = new FindMethods()
-  const details = finder.find(filename, className).reverse()
+  const details = finder.find(dirname, filename, className).reverse()
   const methods = getAllMethodNames(details)
   const table = tabulate(details, methods)
   console.log(tableToMarkdown(table))

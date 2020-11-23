@@ -1,1 +1,1 @@
-node run-find-methods.js lower.js Lower
+node run-find-methods.js . lower.js Lower

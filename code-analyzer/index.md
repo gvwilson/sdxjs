@@ -1,4 +1,6 @@
 ---
 ---
 
-FIXME: figure out which methods are defined where
+<%- include('/_inc/raw.html', {file: 'run-find-methods.txt'}) %>
+
+<%- include('/_inc/raw.html', {file: 'find-debugger-methods.txt'}) %>

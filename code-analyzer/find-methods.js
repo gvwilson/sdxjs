@@ -1,8 +1,8 @@
 const FindAncestors = require('./find-ancestors')
 
 class FindMethods extends FindAncestors {
-  find (filename, className) {
-    const classes = super.find(filename, className)
+  find (dirname, filename, className) {
+    const classes = super.find(dirname, filename, className)
     classes.forEach(record => {
       record.methods = this.findMethods(record.classDef)
     })

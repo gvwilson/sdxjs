@@ -156,6 +156,7 @@ const translateFile = (options, fileInfo, linksText) => {
     toRoot: toRoot(fileInfo.output),
     _codeClass,
     _exercise,
+    _rawFile,
     _readErase,
     _readFile,
     _readPage,
@@ -210,6 +211,16 @@ const _exercise = (render, root, chapter, exercise, which) => {
 }
 
 /**
+ * Include a file as-is.
+ * @param {string} mainFile Name of file doing the inclusion.
+ * @param {string} subFile Name of file being included.
+ * @returns {string} File contents as-is.
+ */
+const _rawFile = (mainFile, subFile) => {
+  return fs.readFileSync(`${path.dirname(mainFile)}/${subFile}`, 'utf-8')
+}
+
+/**
  * Read file for code inclusion.
  * @param {string} mainFile Name of file doing the inclusion.
  * @param {string} subFile Name of file being included.
@@ -217,7 +228,7 @@ const _exercise = (render, root, chapter, exercise, which) => {
  * @returns {string} File contents (possibly with minimal HTML escaping).
  */
 const _readFile = (mainFile, subFile, extract = null) => {
-  let raw = fs.readFileSync(`${path.dirname(mainFile)}/${subFile}`, 'utf-8')
+  let raw = _rawFile(mainFile, subFile)
   if (path.extname(subFile) === '.js') {
     raw = raw
       .replace(/\s*\/\/\s*eslint-disable-line.*$/gm, '')
@@ -272,8 +283,7 @@ const _readErase = (mainFile, subFile, tag) => {
  * @returns {string} Contents of body.
  */
 const _readPage = (mainFile, subFile) => {
-  const content = fs.readFileSync(`${path.dirname(mainFile)}/${subFile}`, 'utf-8')
-  // FIXME: extract body
+  const content = _rawFile(mainFile, subFile)
   return content
 }
 
