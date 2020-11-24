@@ -94,7 +94,7 @@
 <ul>
 <li>Let's try listing the contents of a directory the way we would in Python or Java</li>
 </ul>
-<pre title="list-dir-wrong.js"><code class="language-js">const fs = require('fs')
+<pre title="list-dir-wrong.js"><code class="language-js">import fs from 'fs'
 
 const srcDir = process.argv[2]
 const results = fs.readdir(srcDir)
@@ -152,23 +152,17 @@ We have therefore decided to stick to <code>require</code> in this book.</p>
 <pre title="list-dir-wrong.sh"><code class="language-sh">node list-dir-wrong.js .
 exit 0
 </code></pre>
-<pre title="list-dir-wrong.txt"><code class="language-txt">fs.js:155
-    throw new ERR_INVALID_CALLBACK(cb);
-    ^
+<pre title="list-dir-wrong.txt"><code class="language-txt">internal/process/esm_loader.js:74
+    internalBinding('errors').triggerUncaughtException(
+                              ^
 TypeError [ERR_INVALID_CALLBACK]: Callback must be a function. Received \
  undefined
-    at makeCallback (fs.js:155:11)
-    at Object.readdir (fs.js:864:14)
-    at Object.&lt;anonymous&gt; \
- (/u/stjs/systems-programming/list-dir-wrong.js:4:20)
-    at Module._compile (internal/modules/cjs/loader.js:1151:30)
-    at Object.Module._extensions..js \
- (internal/modules/cjs/loader.js:1171:10)
-    at Module.load (internal/modules/cjs/loader.js:1000:32)
-    at Function.Module._load (internal/modules/cjs/loader.js:899:14)
-    at Function.executeUserEntryPoint [as runMain] \
- (internal/modules/run_main.js:71:12)
-    at internal/main/run_main_module.js:17:47 {
+    at makeCallback (fs.js:168:11)
+    at Object.readdir (fs.js:994:14)
+    at /u/stjs/systems-programming/list-dir-wrong.js:4:20
+    at ModuleJob.run (internal/modules/esm/module_job.js:146:23)
+    at async Loader.import (internal/modules/esm/loader.js:165:24)
+    at async Object.loadESM (internal/process/esm_loader.js:68:5) {
   code: 'ERR_INVALID_CALLBACK'
 }
 </code></pre>
@@ -201,7 +195,7 @@ TypeError [ERR_INVALID_CALLBACK]: Callback must be a function. Received \
 <div class="fixme">
 <p>diagram showing callbacks</p>
 </div>
-<pre title="list-dir-function-defined.js"><code class="language-js">const fs = require('fs')
+<pre title="list-dir-function-defined.js"><code class="language-js">import fs from 'fs'
 
 const listContents = (err, files) =&gt; {
   console.log('running callback')
@@ -302,7 +296,7 @@ where-is-node
 </ul>
 </li>
 </ul>
-<pre title="list-dir-function-anonymous.js"><code class="language-js">const fs = require('fs')
+<pre title="list-dir-function-anonymous.js"><code class="language-js">import fs from 'fs'
 
 const srcDir = process.argv[2]
 fs.readdir(srcDir, (err, files) =&gt; {
@@ -330,7 +324,7 @@ fs.readdir(srcDir, (err, files) =&gt; {
 </ul>
 </li>
 </ul>
-<pre title="glob-all-files.js"><code class="language-js">const glob = require('glob')
+<pre title="glob-all-files.js"><code class="language-js">import glob from 'glob'
 
 glob('**/*.*', (err, files) =&gt; {
   if (err) {
@@ -404,7 +398,7 @@ where-is-node/solution.md
 <li>Works, but we probably don't want to copy editor backup files ending with <code>~</code></li>
 <li>We can get the list and then <g key="filter">filter</g> those out</li>
 </ul>
-<pre title="glob-get-then-filter-pedantic.js"><code class="language-js">const glob = require('glob')
+<pre title="glob-get-then-filter-pedantic.js"><code class="language-js">import glob from 'glob'
 
 glob('**/*.*', (err, files) =&gt; {
   if (err) {
@@ -485,7 +479,7 @@ where-is-node/solution.md
 </ul>
 </li>
 </ul>
-<pre title="glob-get-then-filter-idiomatic.js"><code class="language-js">const glob = require('glob')
+<pre title="glob-get-then-filter-idiomatic.js"><code class="language-js">import glob from 'glob'
 
 glob('**/*.*', (err, files) =&gt; {
   if (err) {
@@ -507,7 +501,7 @@ glob('**/*.*', (err, files) =&gt; {
 </ul>
 </li>
 </ul>
-<pre title="glob-filter-with-options.js"><code class="language-js">const glob = require('glob')
+<pre title="glob-filter-with-options.js"><code class="language-js">import glob from 'glob'
 
 glob('**/*.*', { ignore: '*~' }, (err, files) =&gt; {
   if (err) {
@@ -552,7 +546,7 @@ than the one they're using (see point #1 above).</p>
 <ul>
 <li>Now specify a source directory and fold that into the glob</li>
 </ul>
-<pre title="glob-with-source-directory.js"><code class="language-js">const glob = require('glob')
+<pre title="glob-with-source-directory.js"><code class="language-js">import glob from 'glob'
 
 const srcDir = process.argv[2]
 
@@ -584,7 +578,7 @@ glob(`${srcDir}/**/*.*`, { ignore: '*~' }, (err, files) =&gt; {
 </ul>
 </li>
 </ul>
-<pre title="glob-with-dest-directory.js"><code class="language-js">const glob = require('glob')
+<pre title="glob-with-dest-directory.js"><code class="language-js">import glob from 'glob'
 
 const [srcDir, dstDir] = process.argv.slice(2)
 
@@ -617,9 +611,9 @@ glob(`${srcDir}/**/*.*`, { ignore: '*~' }, (err, files) =&gt; {
 </li>
 <li>This comes up so often that there is a function <code>ensureDir</code> to do what we need</li>
 </ul>
-<pre title="glob-ensure-output-directory.js"><code class="language-js">const glob = require('glob')
-const fs = require('fs-extra')
-const path = require('path')
+<pre title="glob-ensure-output-directory.js"><code class="language-js">import glob from 'glob'
+import fs from 'fs-extra'
+import path from 'path'
 
 const [srcRoot, dstRoot] = process.argv.slice(2)
 
@@ -651,9 +645,9 @@ glob(`${srcRoot}/**/*.*`, { ignore: '*~' }, (err, files) =&gt; {
 </li>
 <li>We can now copy the files</li>
 </ul>
-<pre title="copy-file-unfiltered.js"><code class="language-js">const glob = require('glob')
-const fs = require('fs-extra')
-const path = require('path')
+<pre title="copy-file-unfiltered.js"><code class="language-js">import glob from 'glob'
+import fs from 'fs-extra'
+import path from 'path'
 
 const [srcRoot, dstRoot] = process.argv.slice(2)
 
@@ -715,9 +709,9 @@ node copy-file-unfiltered.js ../node_modules /tmp/out 2&gt;&amp;1 | head -n 6
 </ul>
 </li>
 </ul>
-<pre title="copy-file-filtered.js"><code class="language-js">const glob = require('glob')
-const fs = require('fs-extra')
-const path = require('path')
+<pre title="copy-file-filtered.js"><code class="language-js">import glob from 'glob'
+import fs from 'fs-extra'
+import path from 'path'
 
 const [srcRoot, dstRoot] = process.argv.slice(2)
 

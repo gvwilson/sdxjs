@@ -1,4 +1,4 @@
-const configStr = require('./config-str')
+import configStr from './config-str.js'
 
 // <reverse>
 const reverse = (manifest) => {
@@ -51,4 +51,4 @@ const report = (config, leftN, leftV, rightN, rightV) => {
   console.log(`${title} @ ${leftN}/${leftV} ${rightN}/${rightV}`)
 }
 
-module.exports = reverse
+export default reverse

@@ -1,7 +1,7 @@
-const assert = require('assert')
-const fs = require('fs')
+import assert from 'assert'
+import fs from 'fs'
 
-const VirtualMachine = require('./vm')
+import VirtualMachine from './vm.js'
 
 const main = () => {
   assert(process.argv.length >= 3,

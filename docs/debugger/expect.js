@@ -1,4 +1,4 @@
-const assert = require('assert')
+import assert from 'assert'
 
 class Expect {
   constructor (subject, start) {
@@ -44,4 +44,4 @@ class Expect {
   }
 }
 
-module.exports = Expect
+export default Expect

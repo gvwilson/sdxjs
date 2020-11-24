@@ -1,4 +1,4 @@
-const hashExisting = require('./hash-existing-async')
+import hashExisting from './hash-existing-async.js'
 
 const root = process.argv[2]
 hashExisting(root).then(

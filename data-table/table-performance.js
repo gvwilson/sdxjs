@@ -1,9 +1,9 @@
-const assert = require('assert')
-const microtime = require('microtime')
-const sizeof = require('object-sizeof')
-const yaml = require('js-yaml')
+import assert from 'assert'
+import microtime from 'microtime'
+import sizeof from 'object-sizeof'
+import yaml from 'js-yaml'
 
-const { buildRows, buildCols } = require('./build')
+import { buildRows, buildCols } from './build.js'
 
 // <main>
 const RANGE = 3

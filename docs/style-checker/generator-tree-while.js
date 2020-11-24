@@ -1,4 +1,4 @@
-const getNodes = require('./generator-tree')
+import getNodes from './generator-tree.js'
 
 const nested = ['first', ['second', 'third']]
 const gen = getNodes(nested)

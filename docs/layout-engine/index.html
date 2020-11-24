@@ -111,7 +111,7 @@ based on <a href="https://limpet.net/mbrubeck/2014/08/08/toy-layout-engine-1.htm
 </ul>
 </li>
 </ul>
-<pre title="easy-mode.js"><code class="language-js">class Block {
+<pre title="easy-mode.js"><code class="language-js">export class Block {
   constructor (width, height) {
     this.width = width
     this.height = height
@@ -126,7 +126,7 @@ based on <a href="https://limpet.net/mbrubeck/2014/08/08/toy-layout-engine-1.htm
   }
 }
 
-class Row {
+export class Row {
   constructor (...children) {
     this.children = children
   }
@@ -142,7 +142,7 @@ class Row {
   }
 }
 
-class Column {
+export class Column {
   constructor (...children) {
     this.children = children
   }
@@ -157,12 +157,10 @@ class Column {
       .reduce((total, next) =&gt; total + next, 0)
   }
 }
-
-module.exports = { Block, Row, Column }
 </code></pre>
-<pre title="test/test-easy-mode.js"><code class="language-js">const assert = require('assert')
+<pre title="test/test-easy-mode.js"><code class="language-js">import assert from 'assert'
 
-const { Block, Row, Column } = require('../easy-mode')
+import { Block, Row, Column } from '../easy-mode.js'
 
 describe('lays out in easy mode', () =&gt; {
   it('lays out a single unit block', async () =&gt; {
@@ -214,15 +212,29 @@ describe('lays out in easy mode', () =&gt; {
   })
 })
 </code></pre>
-<pre title="test-easy-mode.txt"><code class="language-txt">&gt; e@1.0.0 test /u/stjs
+<pre title="test-easy-mode.txt"><code class="language-txt">&gt; stjs@1.0.0 test /u/stjs
 &gt; mocha */test/test-*.js "-g" "easy mode"
-  lays out in easy mode
-    ✓ lays out a single unit block
-    ✓ lays out a large block
-    ✓ lays out a row of two blocks
-    ✓ lays out a column of two blocks
-    ✓ lays out a grid of rows of columns
-  5 passing (5ms)
+
+file:///u/stjs/layout-engine/micro-css-ruleset.js:3
+import { IdRule, ClassRule, TagRule } from './micro-css.js'
+         ^^^^^^
+SyntaxError: The requested module './micro-css.js' does not provide an export named 'IdRule'
+    at ModuleJob._instantiate (internal/modules/esm/module_job.js:98:21)
+    at async ModuleJob.run (internal/modules/esm/module_job.js:143:5)
+    at async Loader.import (internal/modules/esm/loader.js:165:24)
+    at async Object.exports.loadFilesAsync (/u/stjs/node_modules/mocha/lib/esm-utils.js:33:20)
+    at async singleRun (/u/stjs/node_modules/mocha/lib/cli/run-helpers.js:156:3)
+    at async Object.exports.handler (/u/stjs/node_modules/mocha/lib/cli/run.js:366:5)
+npm ERR! code ELIFECYCLE
+npm ERR! errno 1
+npm ERR! stjs@1.0.0 test: `mocha */test/test-*.js "-g" "easy mode"`
+npm ERR! Exit status 1
+npm ERR! 
+npm ERR! Failed at the stjs@1.0.0 test script.
+npm ERR! This is probably not a problem with npm. There is likely additional logging output above.
+
+npm ERR! A complete log of this run can be found in:
+npm ERR!     /Users/gvwilson/.npm/_logs/2020-11-24T13_03_58_171Z-debug.log
 </code></pre>
 <h2 id="how-can-we-position-rows-and-columns">How can we position rows and columns?</h2>
 <ul>
@@ -252,7 +264,7 @@ describe('lays out in easy mode', () =&gt; {
 </ul>
 </li>
 </ul>
-<pre title="placed-block.js"><code class="language-js">const { Block } = require('./easy-mode')
+<pre title="placed-block.js"><code class="language-js">import { Block } from './easy-mode.js'
 
 class PlacedBlock extends Block {
   constructor (width, height) {
@@ -271,11 +283,9 @@ class PlacedBlock extends Block {
   }
 }
 
-module.exports = {
-  Block: PlacedBlock
-}
+export { PlacedBlock as Block }
 </code></pre>
-<pre title="placed-row.js"><code class="language-js">const { Row } = require('./easy-mode')
+<pre title="placed-row.js"><code class="language-js">import { Row } from './easy-mode.js'
 
 class PlacedRow extends Row {
   constructor (...children) {
@@ -303,11 +313,9 @@ class PlacedRow extends Row {
   }
 }
 
-module.exports = {
-  Row: PlacedRow
-}
+export { PlacedRow as Row }
 </code></pre>
-<pre title="placed-column.js"><code class="language-js">const { Column } = require('./easy-mode.js')
+<pre title="placed-column.js"><code class="language-js">import { Column } from './easy-mode.js'
 
 class PlacedColumn extends Column {
   constructor (...children) {
@@ -334,15 +342,13 @@ class PlacedColumn extends Column {
   }
 }
 
-module.exports = {
-  Column: PlacedColumn
-}
+export { PlacedColumn as Column }
 </code></pre>
-<pre title="test/test-placed.js"><code class="language-js">const assert = require('assert')
+<pre title="test/test-placed.js"><code class="language-js">import assert from 'assert'
 
-const { Block } = require('../placed-block')
-const { Row } = require('../placed-row')
-const { Column } = require('../placed-column')
+import { Block } from '../placed-block.js'
+import { Row } from '../placed-row.js'
+import { Column } from '../placed-column.js'
 
 describe('places blocks', () =&gt; {
   it('places a single unit block', async () =&gt; {
@@ -389,7 +395,7 @@ describe('places blocks', () =&gt; {
 ...
 })
 </code></pre>
-<pre title="test-placed.txt"><code class="language-txt">&gt; e@1.0.0 test /u/stjs
+<pre title="test-placed.txt"><code class="language-txt">&gt; stjs@1.0.0 test /u/stjs
 &gt; mocha */test/test-*.js "-g" "places blocks"
   places blocks
     ✓ places a single unit block
@@ -397,7 +403,7 @@ describe('places blocks', () =&gt; {
     ✓ lays out a row of two blocks
     ✓ lays out a column of two blocks
     ✓ lays out a grid of rows of columns
-  5 passing (6ms)
+  5 passing (7ms)
 </code></pre>
 <h2 id="what-subset-of-html-and-css-will-we-support">What subset of HTML and CSS will we support?</h2>
 <ul>
@@ -411,12 +417,12 @@ describe('places blocks', () =&gt; {
 </li>
 <li>Won't bother to show the tests, but yes, we wrote them, and yes, they caught errors</li>
 </ul>
-<pre title="micro-dom.js"><code class="language-js">const assert = require('assert')
+<pre title="micro-dom.js"><code class="language-js">import assert from 'assert'
 
-class Node {
+export class Node {
 }
 
-class TextNode extends Node {
+export class TextNode extends Node {
   constructor (text) {
     assert(typeof text === 'string',
       'TextNode requires string as constructor argument')
@@ -429,7 +435,7 @@ class TextNode extends Node {
   }
 }
 
-class TagNode extends Node {
+export class TagNode extends Node {
   constructor (tag, attributes, ...children) {
     assert(typeof tag === 'string',
       'TagNode requires string as tag')
@@ -459,8 +465,6 @@ class TagNode extends Node {
     return `&lt;${this.tag}${attr}&gt;${children}&lt;/${this.tag}&gt;`
   }
 }
-
-module.exports = { Node, TextNode, TagNode }
 </code></pre>
 <ul>
 <li>Use regular expressions to parse documents, though <a href="https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454">this is a sin</a>
@@ -470,9 +474,9 @@ module.exports = { Node, TextNode, TagNode }
 </li>
 <li>Main body</li>
 </ul>
-<pre title="parse.js"><code class="language-js">const assert = require('assert')
+<pre title="parse.js"><code class="language-js">import assert from 'assert'
 
-const { TextNode, TagNode } = require('./micro-dom')
+import { TextNode, TagNode } from './micro-dom.js'
 
 const parse = (text) =&gt; {
   const chunks = chunkify(text.trim())
@@ -507,7 +511,7 @@ const isElement = (chunk) =&gt; {
   return chunk &amp;&amp; (chunk[0] === '&lt;')
 }
 ...
-module.exports = { parse }
+export default parse
 </code></pre>
 <ul>
 <li>Two functions that do most of the work</li>
@@ -570,9 +574,9 @@ const makeOpening = (chunk) =&gt; {
 </li>
 <li>ID rules take precedence over class rules, which take precedence over tag rules</li>
 </ul>
-<pre title="micro-css.js"><code class="language-js">const assert = require('assert')
+<pre title="micro-css.js"><code class="language-js">import assert from 'assert'
 
-class CssRule {
+export class CssRule {
   constructor (order, selector, styles) {
     this.order = order
     this.selector = selector
@@ -580,7 +584,7 @@ class CssRule {
   }
 }
 
-class IdRule extends CssRule {
+export class IdRule extends CssRule {
   constructor (selector, styles) {
     assert(selector.startsWith('#') &amp;&amp; (selector.length &gt; 1),
       'ID rule must start with # and have a selector')
@@ -594,7 +598,7 @@ class IdRule extends CssRule {
 }
 IdRule.ORDER = 0
 
-class ClassRule extends CssRule {
+export class ClassRule extends CssRule {
   constructor (selector, styles) {
     assert(selector.startsWith('.') &amp;&amp; (selector.length &gt; 1),
       'Class rule must start with . and have a selector')
@@ -608,7 +612,7 @@ class ClassRule extends CssRule {
 }
 ClassRule.ORDER = 1
 
-class TagRule extends CssRule {
+export class TagRule extends CssRule {
   constructor (selector, styles) {
     super(TagRule.ORDER, selector, styles)
   }
@@ -618,8 +622,6 @@ class TagRule extends CssRule {
   }
 }
 TagRule.ORDER = 2
-
-module.exports = { IdRule, ClassRule, TagRule }
 </code></pre>
 <ul>
 <li>Convert JSON to rule objects
@@ -636,9 +638,9 @@ module.exports = { IdRule, ClassRule, TagRule }
 </ul>
 </li>
 </ul>
-<pre title="micro-css-ruleset.js"><code class="language-js">const assert = require('assert')
+<pre title="micro-css-ruleset.js"><code class="language-js">import assert from 'assert'
 
-const { IdRule, ClassRule, TagRule } = require('./micro-css')
+import { IdRule, ClassRule, TagRule } from './micro-css.js'
 
 class CssRuleSet {
   constructor (json, mergeDefaults = true) {
@@ -666,7 +668,7 @@ class CssRuleSet {
   }
 }
 
-module.exports = CssRuleSet
+export default CssRuleSet
 </code></pre>
 <h2 id="what-about-wrapping">What about wrapping?</h2>
 <div class="fixme">

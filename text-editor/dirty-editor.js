@@ -1,4 +1,4 @@
-const InitEditor = require('./init-editor')
+import InitEditor from './init-editor.js'
 
 class DirtyEditor extends InitEditor {
   addState (name, initialValue) {
@@ -8,4 +8,4 @@ class DirtyEditor extends InitEditor {
   }
 }
 
-module.exports = DirtyEditor
+export default DirtyEditor

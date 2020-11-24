@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const terminalKit = require('terminal-kit')
-const fs = require('fs')
+import terminalKit from 'terminal-kit'
+import fs from 'fs'
 
 const Settings = {
   statusBar: 'Ctrl+  X:save & eXit / C:exit / O:Open / S:Save / A:save As / K:cut line / U:paste line',

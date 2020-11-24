@@ -1,4 +1,4 @@
-const { Block } = require('./easy-mode')
+import { Block } from './easy-mode.js'
 
 class PlacedBlock extends Block {
   constructor (width, height) {
@@ -17,6 +17,4 @@ class PlacedBlock extends Block {
   }
 }
 
-module.exports = {
-  Block: PlacedBlock
-}
+export { PlacedBlock as Block }

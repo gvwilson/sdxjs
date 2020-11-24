@@ -1,7 +1,7 @@
-const fs = require('fs-extra-promise')
+import fs from 'fs-extra-promise'
 
-const hashExisting = require('./hash-existing-async')
-const findNewFiles = require('./check-existing-files')
+import hashExisting from './hash-existing-async.js'
+import findNewFiles from './check-existing-files.js'
 
 const backup = async (src, dst, timestamp = null) => {
   if (timestamp === null) {
@@ -32,4 +32,4 @@ const saveManifest = async (dst, timestamp, pathHash) => {
   fs.writeFileAsync(manifest, content, 'utf-8')
 }
 
-module.exports = backup
+export default backup

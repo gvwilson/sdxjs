@@ -2,12 +2,12 @@
 
 'use strict'
 
-const argparse = require('argparse')
-const assert = require('assert')
-const fs = require('fs')
-const MarkdownIt = require('markdown-it')
-const request = require('request')
-const yaml = require('js-yaml')
+import argparse from 'argparse'
+import assert from 'assert'
+import fs from 'fs'
+import MarkdownIt from 'markdown-it'
+import request from 'request'
+import yaml from 'js-yaml'
 
 /**
  * Glosario version of glossary.

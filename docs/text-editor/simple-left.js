@@ -1,4 +1,4 @@
-const KeyBinding = require('./simple-key-binding')
+import KeyBinding from './simple-key-binding.js'
 
 module.exports = new class extends KeyBinding {
   constructor () {

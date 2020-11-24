@@ -1,5 +1,5 @@
-const assert = require('assert')
-const caller = require('caller')
+import assert from 'assert'
+import caller from 'caller'
 
 class Hope {
   constructor () {
@@ -55,4 +55,4 @@ class Hope {
   }
 }
 
-module.exports = new Hope()
+export default new Hope()

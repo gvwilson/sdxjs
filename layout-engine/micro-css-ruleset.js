@@ -1,6 +1,6 @@
-const assert = require('assert')
+import assert from 'assert'
 
-const { IdRule, ClassRule, TagRule } = require('./micro-css')
+import { IdRule, ClassRule, TagRule } from './micro-css.js'
 
 class CssRuleSet {
   constructor (json, mergeDefaults = true) {
@@ -28,4 +28,4 @@ class CssRuleSet {
   }
 }
 
-module.exports = CssRuleSet
+export default CssRuleSet

@@ -1,4 +1,4 @@
-const RegexBase = require('./regex-base')
+import RegexBase from './regex-base.js'
 
 class RegexAlt extends RegexBase {
   constructor (left, right, rest) {
@@ -28,4 +28,4 @@ const create = (left, right, rest = null) => {
   return new RegexAlt(left, right, rest)
 }
 
-module.exports = create
+export default create

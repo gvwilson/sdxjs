@@ -2,12 +2,12 @@
 
 'use strict'
 
-const argparse = require('argparse')
-const assert = require('assert')
-const fs = require('fs')
-const htmlparser2 = require('htmlparser2')
-const path = require('path')
-const yaml = require('js-yaml')
+import argparse from 'argparse'
+import assert from 'assert'
+import fs from 'fs'
+import htmlparser2 from 'htmlparser2'
+import path from 'path'
+import yaml from 'js-yaml'
 
 /**
  * Nodes to skip entirely.

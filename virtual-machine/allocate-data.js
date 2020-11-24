@@ -1,7 +1,7 @@
-const assert = require('assert')
+import assert from 'assert'
 
-const { RAM_LEN } = require('./architecture')
-const Assembler = require('./assembler')
+import { RAM_LEN } from './architecture.js'
+import Assembler from './assembler'
 
 const DIVIDER = '.data'
 
@@ -50,4 +50,4 @@ class DataAllocator extends Assembler {
   // </add-allocations>
 }
 
-module.exports = DataAllocator
+export default DataAllocator

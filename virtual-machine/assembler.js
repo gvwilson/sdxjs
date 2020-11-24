@@ -1,11 +1,11 @@
-const assert = require('assert')
+import assert from 'assert'
 
-const {
+import {
   OPS,
   OP_SHIFT,
   OP_WIDTH,
   NUM_REG
-} = require('./architecture')
+} from './architecture.js'
 
 class Assembler {
   // <assemble>
@@ -131,4 +131,4 @@ class Assembler {
   // </utilities>
 }
 
-module.exports = Assembler
+export default Assembler

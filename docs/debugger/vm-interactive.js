@@ -1,4 +1,4 @@
-const VirtualMachineCallback = require('./vm-callback')
+import VirtualMachineCallback from './vm-callback.js'
 
 class VirtualMachineInteractive extends VirtualMachineCallback {
   loop (args, lineNum) {
@@ -11,4 +11,4 @@ class VirtualMachineInteractive extends VirtualMachineCallback {
   }
 }
 
-module.exports = VirtualMachineInteractive
+export default VirtualMachineInteractive

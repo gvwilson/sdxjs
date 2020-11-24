@@ -1,5 +1,5 @@
 /* eslint-disable no-eval */
-const fs = require('fs')
+import fs from 'fs'
 
 class Cache {
   constructor () {
@@ -21,6 +21,6 @@ class Cache {
 
 const cache = new Cache()
 
-module.exports = (name) => {
+export default (name) => {
   return cache.need(name)
 }

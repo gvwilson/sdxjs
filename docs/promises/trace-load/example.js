@@ -1,5 +1,5 @@
-const fs = require('fs-extra-promise')
-const yaml = require('js-yaml')
+import fs from 'fs-extra-promise'
+import yaml from 'js-yaml'
 
 const test = async () => {
   const raw = await fs.readFileAsync('config.yml', 'utf-8')

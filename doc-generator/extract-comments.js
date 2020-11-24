@@ -1,5 +1,5 @@
-const fs = require('fs')
-const acorn = require('acorn')
+import fs from 'fs'
+import acorn from 'acorn'
 
 const text = fs.readFileSync(process.argv[2], 'utf-8')
 const options = { locations: true, onComment: [] }

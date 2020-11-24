@@ -1,5 +1,5 @@
-const acorn = require('acorn')
-const walk = require('acorn-walk')
+import acorn from 'acorn'
+import walk from 'acorn-walk'
 
 const program = `// Constant
 const value = 2

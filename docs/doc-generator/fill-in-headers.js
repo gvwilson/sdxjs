@@ -1,10 +1,10 @@
-const MarkdownIt = require('markdown-it')
-const MarkdownAnchor = require('markdown-it-anchor')
+import MarkdownIt from 'markdown-it'
+import MarkdownAnchor from 'markdown-it-anchor'
 
-const getComments = require('./get-comments.js')
-const getDefinitions = require('./get-definitions.js')
-const fillIn = require('./fill-in.js')
-const slugify = require('./slugify')
+import getComments from './get-comments.js'
+import getDefinitions from './get-definitions.js'
+import fillIn from './fill-in.js'
+import slugify from './slugify.js'
 
 const main = () => {
   const filenames = process.argv.slice(2)

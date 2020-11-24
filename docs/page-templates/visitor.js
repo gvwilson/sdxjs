@@ -1,4 +1,4 @@
-const assert = require('assert')
+import assert from 'assert'
 
 class Visitor {
   constructor (root) {
@@ -28,4 +28,4 @@ class Visitor {
   }
 }
 
-module.exports = Visitor
+export default Visitor

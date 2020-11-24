@@ -1,4 +1,4 @@
-const { Column } = require('./easy-mode.js')
+import { Column } from './easy-mode.js'
 
 class PlacedColumn extends Column {
   constructor (...children) {
@@ -25,6 +25,4 @@ class PlacedColumn extends Column {
   }
 }
 
-module.exports = {
-  Column: PlacedColumn
-}
+export { PlacedColumn as Column }

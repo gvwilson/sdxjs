@@ -1,4 +1,4 @@
-const RegexBase = require('./regex-base')
+import RegexBase from './regex-base.js'
 
 class RegexStart extends RegexBase {
   _match (text, start) {
@@ -12,4 +12,4 @@ class RegexStart extends RegexBase {
   }
 }
 
-module.exports = (rest = null) => new RegexStart(rest)
+export default (rest = null) => new RegexStart(rest)

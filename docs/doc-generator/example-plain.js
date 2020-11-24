@@ -2,7 +2,7 @@
  * # Demonstrate documentation generator.
  */
 
-const util = require('./util-plain')
+import util from './util-plain'
 
 /**
  * ## `main`: Main driver.

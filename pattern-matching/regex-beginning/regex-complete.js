@@ -1,9 +1,9 @@
-const Alt = require('./regex-alt')
-const Any = require('./regex-any')
-const End = require('./regex-end')
-const Lit = require('./regex-lit')
-const Seq = require('./regex-seq')
-const Start = require('./regex-start')
+import Alt from './regex-alt.js'
+import Any from './regex-any.js'
+import End from './regex-end.js'
+import Lit from './regex-lit.js'
+import Seq from './regex-seq.js'
+import Start from './regex-start.js'
 
 const main = () => {
   const tests = [

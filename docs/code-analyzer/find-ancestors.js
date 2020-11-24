@@ -1,8 +1,8 @@
-const assert = require('assert')
-const acorn = require('acorn')
-const fs = require('fs')
-const path = require('path')
-const walk = require('acorn-walk')
+import assert from 'assert'
+import acorn from 'acorn'
+import fs from 'fs'
+import path from 'path'
+import walk from 'acorn-walk'
 
 class FindAncestors {
   find (dirname, filename, className) {
@@ -72,4 +72,4 @@ class FindAncestors {
   }
 }
 
-module.exports = FindAncestors
+export default FindAncestors

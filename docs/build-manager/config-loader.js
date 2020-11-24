@@ -1,8 +1,8 @@
-const assert = require('assert')
-const fs = require('fs')
-const yaml = require('js-yaml')
+import assert from 'assert'
+import fs from 'fs'
+import yaml from 'js-yaml'
 
-const SkeletonBuilder = require('./skeleton-builder')
+import SkeletonBuilder from './skeleton-builder.js'
 
 class ConfigLoader extends SkeletonBuilder {
   loadConfig () {
@@ -24,4 +24,4 @@ class ConfigLoader extends SkeletonBuilder {
   }
 }
 
-module.exports = ConfigLoader
+export default ConfigLoader

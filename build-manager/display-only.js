@@ -1,6 +1,6 @@
-const graphlib = require('@dagrejs/graphlib')
+import graphlib from '@dagrejs/graphlib'
 
-const GraphCreator = require('./graph-creator')
+import GraphCreator from './graph-creator.js'
 
 class DisplayOnly extends GraphCreator {
   run () {
@@ -11,4 +11,4 @@ class DisplayOnly extends GraphCreator {
   }
 }
 
-module.exports = DisplayOnly
+export default DisplayOnly

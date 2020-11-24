@@ -1,6 +1,6 @@
-const assert = require('assert')
+import assert from 'assert'
 
-const { TextNode, TagNode } = require('../micro-dom')
+import { TextNode, TagNode } from '../micro-dom.js'
 
 describe('MicroDOM nodes behave properly', () => {
   it('creates text nodes with text', async () => {

@@ -1,6 +1,6 @@
-const acorn = require('acorn')
-const walk = require('acorn-walk')
-const escodegen = require('escodegen')
+import acorn from 'acorn'
+import walk from 'acorn-walk'
+import escodegen from 'escodegen'
 
 const text = `
 const funcOuter = (param) => {

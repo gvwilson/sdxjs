@@ -148,7 +148,7 @@ contents.privateValue is undefined
 </ul>
 </li>
 </ul>
-<pre title="load-module-only.js"><code class="language-js">const fs = require('fs')
+<pre title="load-module-only.js"><code class="language-js">import fs from 'fs'
 
 const loadModule = (filename) =&gt; {
   const source = fs.readFileSync(filename, 'utf-8')
@@ -159,7 +159,7 @@ const loadModule = (filename) =&gt; {
   return result.exports
 }
 
-module.exports = loadModule
+export default loadModule
 </code></pre>
 <ul>
 <li>Use this as a test</li>
@@ -174,7 +174,7 @@ const publicFunction = (caller) =&gt; {
 
 module.exports = { publicValue, publicFunction }
 </code></pre>
-<pre title="test-load-module-only.js"><code class="language-js">const loadModule = require('./load-module-only')
+<pre title="test-load-module-only.js"><code class="language-js">import loadModule from './load-module-only.js'
 
 const result = loadModule(process.argv[2])
 console.log(`result.publicValue is ${result.publicValue}`)
@@ -390,10 +390,9 @@ Please see <cite>Casciaro2020</cite> for a more detailed discussion.</p>
 </li>
 <li>To reduce confusion, we will call our function <code>need</code> instead of <code>require</code></li>
 </ul>
-<pre title="need.js"><code class="language-js">const fs = require('fs')
-const path = require('path')
+<pre title="need.js"><code class="language-js">import path from 'path'
 
-const loadModule = require('./load-module')
+import loadModule from './load-module.js'
 
 const need = (name) =&gt; {
   const absPath = path.resolve(name)
@@ -415,7 +414,7 @@ module.exports = need
 </li>
 <li>Test with the same small module that doesn't need anything else to make sure we haven't broken anything</li>
 </ul>
-<pre title="test-need-small-module.js"><code class="language-js">const need = require('./need')
+<pre title="test-need-small-module.js"><code class="language-js">import need from './need.js'
 
 const small = need('small-module.js')
 console.log(`small.publicValue is ${small.publicValue}`)
@@ -440,7 +439,7 @@ publicFunction called from main
 <ul>
 <li>Test again with a module that loads something else</li>
 </ul>
-<pre title="large-module.js"><code class="language-js">const need = require('./need')
+<pre title="large-module.js"><code class="language-js">import need from './need'
 
 const small = need('small-module.js')
 
@@ -449,14 +448,14 @@ const large = (caller) =&gt; {
   small.publicFunction(`${caller} to large`)
 }
 
-module.exports = large
+export default large
 </code></pre>
-<pre title="test-need-large-module.js"><code class="language-js">const need = require('./need')
+<pre title="test-need-large-module.js"><code class="language-js">import need from './need.js'
 
 const large = need('large-module.js')
 console.log(large.large('main'))
 </code></pre>
-<pre title="test-need-large-module.js"><code class="language-js">const need = require('./need')
+<pre title="test-need-large-module.js"><code class="language-js">import need from './need.js'
 
 const large = need('large-module.js')
 console.log(large.large('main'))
@@ -478,7 +477,7 @@ const large = (caller) =&gt; {
 
 module.exports = large
 </code></pre>
-<pre title="test-need-large-needless.js"><code class="language-js">const need = require('./need')
+<pre title="test-need-large-needless.js"><code class="language-js">import need from './need.js'
 
 const large = need('large-needless.js')
 console.log(large('main'))

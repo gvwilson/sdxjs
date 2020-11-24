@@ -1,6 +1,6 @@
-const assert = require('assert')
-const fs = require('fs')
-const acorn = require('acorn')
+import assert from 'assert'
+import fs from 'fs'
+import acorn from 'acorn'
 
 const getDefinitions = (filenames) => {
   return filenames.reduce((map, filename) => {
@@ -73,4 +73,4 @@ const condense = (node) => {
   return result
 }
 
-module.exports = getDefinitions
+export default getDefinitions

@@ -1,6 +1,6 @@
-const assert = require('assert')
+import assert from 'assert'
 
-const readSource = require('./read-source')
+import readSource from './read-source.js'
 
 const main = () => {
   assert(process.argv.length === 5,

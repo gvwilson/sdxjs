@@ -1,6 +1,6 @@
-const assert = require('assert')
+import assert from 'assert'
 
-const parse = require('../parser')
+import parse from '../parser.js'
 
 describe('parses correctly', async () => {
   it('parses the empty string', () => {

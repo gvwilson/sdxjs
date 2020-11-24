@@ -1,4 +1,4 @@
-const acorn = require('acorn')
+import acorn from 'acorn.js'
 
 const text = `const func = (param) => {
   return param + 1

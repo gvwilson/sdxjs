@@ -1,4 +1,4 @@
-const VariableExpander = require('./variable-expander')
+import VariableExpander from './variable-expander.js'
 
 class PatternUserAttempt extends VariableExpander {
   buildGraph () {
@@ -23,4 +23,4 @@ class PatternUserAttempt extends VariableExpander {
   }
 }
 
-module.exports = PatternUserAttempt
+export default PatternUserAttempt

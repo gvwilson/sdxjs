@@ -1,4 +1,4 @@
-const need = require('./need')
+import need from './need.js'
 
 const small = need('small-module.js')
 console.log(`small.publicValue is ${small.publicValue}`)

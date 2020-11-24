@@ -1,4 +1,4 @@
-const PatternUserRead = require('./pattern-user-read')
+import PatternUserRead from './pattern-user-read.js'
 
 class PatternUserRun extends PatternUserRead {
   buildGraph () {
@@ -45,4 +45,4 @@ class PatternUserRun extends PatternUserRead {
   }
 }
 
-module.exports = PatternUserRun
+export default PatternUserRun

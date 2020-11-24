@@ -1,4 +1,4 @@
-const fs = require('fs')
+import fs from 'fs'
 
 const loadModule = (filename) => {
   const source = fs.readFileSync(filename, 'utf-8')
@@ -9,4 +9,4 @@ const loadModule = (filename) => {
   return result.exports
 }
 
-module.exports = loadModule
+export default loadModule

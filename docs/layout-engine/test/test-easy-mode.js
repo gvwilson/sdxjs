@@ -1,6 +1,6 @@
-const assert = require('assert')
+import assert from 'assert'
 
-const { Block, Row, Column } = require('../easy-mode')
+import { Block, Row, Column } from '../easy-mode.js'
 
 describe('lays out in easy mode', () => {
   it('lays out a single unit block', async () => {

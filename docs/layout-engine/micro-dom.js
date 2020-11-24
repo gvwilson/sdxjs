@@ -1,9 +1,9 @@
-const assert = require('assert')
+import assert from 'assert'
 
-class Node {
+export class Node {
 }
 
-class TextNode extends Node {
+export class TextNode extends Node {
   constructor (text) {
     assert(typeof text === 'string',
       'TextNode requires string as constructor argument')
@@ -16,7 +16,7 @@ class TextNode extends Node {
   }
 }
 
-class TagNode extends Node {
+export class TagNode extends Node {
   constructor (tag, attributes, ...children) {
     assert(typeof tag === 'string',
       'TagNode requires string as tag')
@@ -46,5 +46,3 @@ class TagNode extends Node {
     return `<${this.tag}${attr}>${children}</${this.tag}>`
   }
 }
-
-module.exports = { Node, TextNode, TagNode }

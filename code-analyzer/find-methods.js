@@ -1,4 +1,4 @@
-const FindAncestors = require('./find-ancestors')
+import FindAncestors from './find-ancestors.js'
 
 class FindMethods extends FindAncestors {
   find (dirname, filename, className) {
@@ -25,4 +25,4 @@ class FindMethods extends FindAncestors {
   }
 }
 
-module.exports = FindMethods
+export default FindMethods

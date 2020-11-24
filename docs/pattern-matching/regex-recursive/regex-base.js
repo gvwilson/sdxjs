@@ -17,4 +17,4 @@ class RegexBase {
   }
 }
 
-module.exports = RegexBase
+export default RegexBase

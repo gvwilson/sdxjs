@@ -1,8 +1,8 @@
-const microtime = require('microtime')
-const sizeof = require('object-sizeof')
+import microtime from 'microtime'
+import sizeof from 'object-sizeof'
 
 // <build-rows>
-const buildRows = (nRows, labels) => {
+export const buildRows = (nRows, labels) => {
   const result = []
   for (let iR = 0; iR < nRows; iR += 1) {
     const row = {}
@@ -16,7 +16,7 @@ const buildRows = (nRows, labels) => {
 // </build-rows>
 
 // <build-cols>
-const buildCols = (nRows, labels) => {
+export const buildCols = (nRows, labels) => {
   const result = {}
   labels.forEach(label => {
     result[label] = []
@@ -28,15 +28,9 @@ const buildCols = (nRows, labels) => {
 }
 // </build-cols>
 
-const timeAndSize = (func, ...params) => {
+export const timeAndSize = (func, ...params) => {
   const before = microtime.now()
   const result = func(...params)
   const after = microtime.now()
   return [after - before, sizeof(result)]
-}
-
-module.exports = {
-  buildRows,
-  buildCols,
-  timeAndSize
 }

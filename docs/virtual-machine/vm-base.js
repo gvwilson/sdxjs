@@ -1,11 +1,11 @@
-const assert = require('assert')
+import assert from 'assert'
 
-const {
+import {
   OP_MASK,
   OP_SHIFT,
   NUM_REG,
   RAM_LEN
-} = require('./architecture')
+} from './architecture.js'
 
 const COLUMNS = 4
 const DIGITS = 8
@@ -76,4 +76,4 @@ class VirtualMachineBase {
   // </skip>
 }
 
-module.exports = VirtualMachineBase
+export default VirtualMachineBase

@@ -1,7 +1,7 @@
-const assert = require('assert')
-const graphlib = require('@dagrejs/graphlib')
+import assert from 'assert'
+import graphlib from '@dagrejs/graphlib'
 
-const ConfigLoader = require('./config-loader')
+import ConfigLoader from './config-loader.js'
 
 class GraphCreator extends ConfigLoader {
   buildGraph () {
@@ -21,4 +21,4 @@ class GraphCreator extends ConfigLoader {
   }
 }
 
-module.exports = GraphCreator
+export default GraphCreator

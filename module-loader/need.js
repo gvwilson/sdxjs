@@ -1,7 +1,6 @@
-const fs = require('fs')
-const path = require('path')
+import path from 'path'
 
-const loadModule = require('./load-module')
+import loadModule from './load-module.js'
 
 const need = (name) => {
   const absPath = path.resolve(name)

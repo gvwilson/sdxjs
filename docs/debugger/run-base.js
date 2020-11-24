@@ -1,14 +1,14 @@
-const assert = require('assert')
+import assert from 'assert'
 
-const readSource = require('./read-source')
+import readSource from './read-source.js'
+import VirtualMachineBase from './vm-base.js'
 
 const main = () => {
-  assert(process.argv.length === 4,
-    'Usage: run-base.js ./vm input|-')
-  const VM = require(process.argv[2])
-  const inFile = process.argv[3]
+  assert(process.argv.length === 3,
+    'Usage: run-base.js input|-')
+  const inFile = process.argv[2]
   const lines = readSource(inFile)
-  const vm = new VM(lines)
+  const vm = new VirtualMachineBase(lines)
   vm.run()
 }
 

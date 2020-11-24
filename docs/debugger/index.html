@@ -123,7 +123,7 @@
 </ul>
 </li>
 </ul>
-<pre title="vm-base.js"><code class="language-js">const assert = require('assert')
+<pre title="vm-base.js"><code class="language-js">import assert from 'assert'
 
 class VirtualMachineBase {
   constructor (program) {
@@ -157,7 +157,7 @@ class VirtualMachineBase {
 ...
 }
 
-module.exports = VirtualMachineBase
+export default VirtualMachineBase
 </code></pre>
 <ul>
 <li>Define a new variable with an initial value</li>
@@ -235,8 +235,9 @@ module.exports = VirtualMachineBase
 </ul>
 </li>
 </ul>
-<pre title="vm-source-map.js"><code class="language-js">const assert = require('assert')
-const VirtualMachineBase = require('./vm-base')
+<pre title="vm-source-map.js"><code class="language-js">import assert from 'assert'
+
+import VirtualMachineBase from './vm-base.js'
 
 class VirtualMachineSourceMap extends VirtualMachineBase {
   compile (lines) {
@@ -271,7 +272,7 @@ class VirtualMachineSourceMap extends VirtualMachineBase {
   }
 }
 
-module.exports = VirtualMachineSourceMap
+export default VirtualMachineSourceMap
 </code></pre>
 <ul>
 <li>Next step is to modify the <code>exec</code> method to call a callback function for each significant operation
@@ -288,9 +289,9 @@ module.exports = VirtualMachineSourceMap
 </ul>
 </li>
 </ul>
-<pre title="vm-callback.js"><code class="language-js">const assert = require('assert')
+<pre title="vm-callback.js"><code class="language-js">import assert from 'assert'
 
-const VirtualMachineSourceMap = require('./vm-source-map')
+import VirtualMachineSourceMap from './vm-source-map.js'
 
 class VirtualMachineCallback extends VirtualMachineSourceMap {
   constructor (program, dbg) {
@@ -312,14 +313,14 @@ class VirtualMachineCallback extends VirtualMachineSourceMap {
   }
 }
 
-module.exports = VirtualMachineCallback
+export default VirtualMachineCallback
 </code></pre>
 <ul>
 <li>To run the program, create a debugger object and pass it in</li>
 </ul>
-<pre title="run-debugger.js"><code class="language-js">const assert = require('assert')
+<pre title="run-debugger.js"><code class="language-js">import assert from 'assert'
 
-const readSource = require('./read-source')
+import readSource from './read-source.js'
 
 const main = () =&gt; {
   assert(process.argv.length === 5,
@@ -338,7 +339,7 @@ main()
 <ul>
 <li>A simple debugger traces statements</li>
 </ul>
-<pre title="debugger-trace.js"><code class="language-js">const DebuggerBase = require('./debugger-base')
+<pre title="debugger-trace.js"><code class="language-js">import DebuggerBase from './debugger-base.js'
 
 class DebuggerTrace extends DebuggerBase {
   handle (env, lineNum, op) {
@@ -348,7 +349,7 @@ class DebuggerTrace extends DebuggerBase {
   }
 }
 
-module.exports = DebuggerTrace
+export default DebuggerTrace
 </code></pre>
 <ul>
 <li>Try it on a smaller program than our filtering example</li>
@@ -400,9 +401,9 @@ module.exports = DebuggerTrace
 </ul>
 </li>
 </ul>
-<pre title="debugger-interactive.js"><code class="language-js">const prompt = require('prompt-sync')
+<pre title="debugger-interactive.js"><code class="language-js">import prompt from 'prompt-sync'
 
-const DebuggerBase = require('./debugger-base')
+import DebuggerBase from './debugger-base.js'
 
 const PROMPT_OPTIONS = { sigint: true }
 
@@ -438,7 +439,7 @@ class DebuggerInteractive extends DebuggerBase {
 ...
 }
 
-module.exports = DebuggerInteractive
+export default DebuggerInteractive
 </code></pre>
 <ul>
 <li>Interact by lookup up command and invoking method
@@ -510,7 +511,7 @@ module.exports = DebuggerInteractive
 </ul>
 </li>
 </ul>
-<pre title="vm-interactive.js"><code class="language-js">const VirtualMachineCallback = require('./vm-callback')
+<pre title="vm-interactive.js"><code class="language-js">import VirtualMachineCallback from './vm-callback.js'
 
 class VirtualMachineInteractive extends VirtualMachineCallback {
   loop (args, lineNum) {
@@ -523,7 +524,7 @@ class VirtualMachineInteractive extends VirtualMachineCallback {
   }
 }
 
-module.exports = VirtualMachineInteractive
+export default VirtualMachineInteractive
 </code></pre>
 <h2 id="how-can-we-test-an-interactive-application">How can we test an interactive application?</h2>
 <ul>
@@ -568,7 +569,7 @@ module.exports = VirtualMachineInteractive
 </ul>
 </li>
 </ul>
-<pre title="expect.js"><code class="language-js">const assert = require('assert')
+<pre title="expect.js"><code class="language-js">import assert from 'assert'
 
 class Expect {
   constructor (subject, start) {
@@ -614,7 +615,7 @@ class Expect {
   }
 }
 
-module.exports = Expect
+export default Expect
 </code></pre>
 <ul>
 <li><code>subject</code> is the thing being tested</li>
@@ -632,7 +633,7 @@ module.exports = Expect
 </ul>
 </li>
 </ul>
-<pre title="debugger-test.js"><code class="language-js">const DebuggerInteractive = require('./debugger-interactive')
+<pre title="debugger-test.js"><code class="language-js">import DebuggerInteractive from './debugger-interactive.js'
 
 class DebuggerTest extends DebuggerInteractive {
   constructor () {
@@ -654,16 +655,16 @@ class DebuggerTest extends DebuggerInteractive {
   }
 }
 
-module.exports = DebuggerTest
+export default DebuggerTest
 </code></pre>
 <ul>
 <li>Can't pass the tester as a constructor parameter because of initialization order</li>
 <li>Go back to the test file and look at <code>setup</code></li>
 </ul>
-<pre title="test/test-expect.js"><code class="language-js">const Expect = require('../expect')
-const VM = require('../vm-interactive')
-const Debugger = require('../debugger-test')
-const readSource = require('../read-source')
+<pre title="test/test-expect.js"><code class="language-js">import Expect from '../expect.js'
+import VM from '../vm-interactive.js'
+import Debugger from '../debugger-test.js'
+import readSource from '../read-source.js'
 
 const setup = (filename) =&gt; {
   const lines = readSource(path.join(__dirname, filename))
@@ -677,13 +678,45 @@ const setup = (filename) =&gt; {
 <pre title="test-expect.sh"><code class="language-sh">npm run test -- -g 'interactive debugger'
 </code></pre>
 <pre title="test-expect.txt"><code class="language-txt">
-&gt; e@1.0.0 test /u/stjs
+&gt; stjs@1.0.0 test /u/stjs
 &gt; mocha */test/test-*.js "-g" "interactive debugger"
 
 
 
   interactive debugger
-    ✓ runs and prints
+    1) runs and prints
+    2) breaks and resumes
+
+
+  0 passing (5ms)
+  2 failing
+
+  1) interactive debugger
+       runs and prints:
+     ReferenceError: __dirname is not defined
+      at setup (file:///u/stjs/debugger/test/test-expect.js:10:38)
+      at Context.&lt;anonymous&gt; (file:///u/stjs/debugger/test/test-expect.js:20:5)
+      at processImmediate (internal/timers.js:461:21)
+
+  2) interactive debugger
+       breaks and resumes:
+     ReferenceError: __dirname is not defined
+      at setup (file:///u/stjs/debugger/test/test-expect.js:10:38)
+      at Context.&lt;anonymous&gt; (file:///u/stjs/debugger/test/test-expect.js:29:5)
+      at processImmediate (internal/timers.js:461:21)
+
+
+
+npm ERR! code ELIFECYCLE
+npm ERR! errno 2
+npm ERR! stjs@1.0.0 test: `mocha */test/test-*.js "-g" "interactive debugger"`
+npm ERR! Exit status 2
+npm ERR! 
+npm ERR! Failed at the stjs@1.0.0 test script.
+npm ERR! This is probably not a problem with npm. There is likely additional logging output above.
+
+npm ERR! A complete log of this run can be found in:
+npm ERR!     /Users/gvwilson/.npm/_logs/2020-11-24T13_09_03_065Z-debug.log
 </code></pre>
 <ul>
 <li>And it works---or does it?
@@ -709,13 +742,13 @@ const setup = (filename) =&gt; {
 <pre title="halt-exception.js"><code class="language-js">class HaltException {
 }
 
-module.exports = HaltException
+export default HaltException
 </code></pre>
 <ul>
 <li>Modify the debugger to throw this exception when asked to exit</li>
 </ul>
-<pre title="debugger-exit.js"><code class="language-js">const HaltException = require('./halt-exception')
-const DebuggerTest = require('./debugger-test')
+<pre title="debugger-exit.js"><code class="language-js">import HaltException from './halt-exception.js'
+import DebuggerTest from './debugger-test.js'
 
 class DebuggerExit extends DebuggerTest {
   exit (env, lineNum, op, args) {
@@ -723,13 +756,13 @@ class DebuggerExit extends DebuggerTest {
   }
 }
 
-module.exports = DebuggerExit
+export default DebuggerExit
 </code></pre>
 <ul>
 <li>Modify the VM to finish cleanly if this exception is thrown, but re-throw any other kind of exception</li>
 </ul>
-<pre title="vm-exit.js"><code class="language-js">const HaltException = require('./halt-exception')
-const VirtualMachineInteractive = require('./vm-interactive')
+<pre title="vm-exit.js"><code class="language-js">import HaltException from './halt-exception.js'
+import VirtualMachineInteractive from './vm-interactive.js'
 
 class VirtualMachineExit extends VirtualMachineInteractive {
   run () {
@@ -745,7 +778,7 @@ class VirtualMachineExit extends VirtualMachineInteractive {
   }
 }
 
-module.exports = VirtualMachineExit
+export default VirtualMachineExit
 </code></pre>
 <ul>
 <li>Run it</li>
@@ -753,18 +786,27 @@ module.exports = VirtualMachineExit
 <pre title="test-exit.sh"><code class="language-sh">npm run test -- -g 'exitable debugger'
 </code></pre>
 <pre title="test-exit.txt"><code class="language-txt">
-&gt; e@1.0.0 test /u/stjs
+&gt; stjs@1.0.0 test /u/stjs
 &gt; mocha */test/test-*.js "-g" "exitable debugger"
 
 
+ReferenceError: require is not defined
+    at file:///u/stjs/file-backup/test/test-backup.js:8:16
+    at ModuleJob.run (internal/modules/esm/module_job.js:146:23)
+    at async Loader.import (internal/modules/esm/loader.js:165:24)
+    at async Object.exports.loadFilesAsync (/u/stjs/node_modules/mocha/lib/esm-utils.js:33:20)
+    at async singleRun (/u/stjs/node_modules/mocha/lib/cli/run-helpers.js:156:3)
+    at async Object.exports.handler (/u/stjs/node_modules/mocha/lib/cli/run.js:366:5)
+npm ERR! code ELIFECYCLE
+npm ERR! errno 1
+npm ERR! stjs@1.0.0 test: `mocha */test/test-*.js "-g" "exitable debugger"`
+npm ERR! Exit status 1
+npm ERR! 
+npm ERR! Failed at the stjs@1.0.0 test script.
+npm ERR! This is probably not a problem with npm. There is likely additional logging output above.
 
-  exitable debugger
-    ✓ runs and prints
-    ✓ breaks and resumes
-
-
-  2 passing (5ms)
-
+npm ERR! A complete log of this run can be found in:
+npm ERR!     /Users/gvwilson/.npm/_logs/2020-11-24T12_57_11_246Z-debug.log
 </code></pre>
 </main>
 <footer>

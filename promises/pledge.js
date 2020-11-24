@@ -32,4 +32,4 @@ class Pledge {
   }
 }
 
-module.exports = Pledge
+export default Pledge

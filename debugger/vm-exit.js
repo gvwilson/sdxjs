@@ -1,5 +1,5 @@
-const HaltException = require('./halt-exception')
-const VirtualMachineInteractive = require('./vm-interactive')
+import HaltException from './halt-exception.js'
+import VirtualMachineInteractive from './vm-interactive.js'
 
 class VirtualMachineExit extends VirtualMachineInteractive {
   run () {
@@ -15,4 +15,4 @@ class VirtualMachineExit extends VirtualMachineInteractive {
   }
 }
 
-module.exports = VirtualMachineExit
+export default VirtualMachineExit

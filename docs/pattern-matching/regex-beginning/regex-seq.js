@@ -1,4 +1,4 @@
-const RegexBase = require('./regex-base')
+import RegexBase from './regex-base.js'
 
 class RegexSeq extends RegexBase {
   constructor (...children) {
@@ -11,4 +11,4 @@ class RegexSeq extends RegexBase {
   }
 }
 
-module.exports = (...children) => new RegexSeq(...children)
+export default (...children) => new RegexSeq(...children)

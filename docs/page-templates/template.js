@@ -1,7 +1,7 @@
-const fs = require('fs')
-const htmlparser2 = require('htmlparser2')
+import fs from 'fs'
+import htmlparser2 from 'htmlparser2'
 
-const Expander = require('./expander')
+import Expander from './expander.js'
 
 const main = () => {
   const vars = readJSON(process.argv[2])

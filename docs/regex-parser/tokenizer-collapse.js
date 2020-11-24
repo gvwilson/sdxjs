@@ -40,4 +40,4 @@ const combineOrPush = (soFar, character, location) => {
   }
 }
 
-module.exports = tokenize
+export default tokenize

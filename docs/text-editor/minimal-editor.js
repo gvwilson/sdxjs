@@ -1,4 +1,4 @@
-const terminalKit = require('terminal-kit')
+import terminalKit from 'terminal-kit.js'
 
 const SETTINGS = {
   statusBar: 'Ctrl+  C:exit',
@@ -171,4 +171,4 @@ class MinimalEditor {
   // </body>
 }
 
-module.exports = MinimalEditor
+export default MinimalEditor

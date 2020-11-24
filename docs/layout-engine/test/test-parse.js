@@ -1,7 +1,7 @@
-const assert = require('assert')
+import assert from 'assert'
 
-const { TextNode, TagNode } = require('../micro-dom')
-const { parse } = require('../parse')
+import { TextNode, TagNode } from '../micro-dom.js'
+import parse from '../parse.js'
 
 describe('parses HTML', () => {
   it('parses a single tag', async () => {

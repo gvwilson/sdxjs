@@ -1,7 +1,7 @@
-const assert = require('assert')
-const graphlib = require('@dagrejs/graphlib')
+import assert from 'assert'
+import graphlib from '@dagrejs/graphlib'
 
-const VariableExpander = require('./variable-expander')
+import VariableExpander from './variable-expander.js'
 
 class PatternUserRead extends VariableExpander {
   buildGraph () {
@@ -37,4 +37,4 @@ class PatternUserRead extends VariableExpander {
   }
 }
 
-module.exports = PatternUserRead
+export default PatternUserRead

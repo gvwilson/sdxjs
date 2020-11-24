@@ -1,6 +1,6 @@
-const graphlib = require('@dagrejs/graphlib')
+import graphlib from '@dagrejs/graphlib'
 
-const AddTimestamps = require('./add-timestamps')
+import AddTimestamps from './add-timestamps.js'
 
 class UpdateOnTimestamps extends AddTimestamps {
   run () {
@@ -29,4 +29,4 @@ class UpdateOnTimestamps extends AddTimestamps {
   }
 }
 
-module.exports = UpdateOnTimestamps
+export default UpdateOnTimestamps

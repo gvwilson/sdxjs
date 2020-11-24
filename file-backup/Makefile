@@ -9,3 +9,9 @@ TARGETS=\
   tree-test.txt
 
 include ../_rules.mk
+
+test-backup.sh: test/test-backup.js
+	@touch $@
+
+test-check-filesystem.sh: test/test-find.js test/test-find-mock.js
+	@touch $@

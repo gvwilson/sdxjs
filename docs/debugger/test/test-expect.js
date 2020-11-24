@@ -1,10 +1,10 @@
-const path = require('path')
+import path from 'path'
 
 // <setup>
-const Expect = require('../expect')
-const VM = require('../vm-interactive')
-const Debugger = require('../debugger-test')
-const readSource = require('../read-source')
+import Expect from '../expect.js'
+import VM from '../vm-interactive.js'
+import Debugger from '../debugger-test.js'
+import readSource from '../read-source.js'
 
 const setup = (filename) => {
   const lines = readSource(path.join(__dirname, filename))

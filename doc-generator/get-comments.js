@@ -1,5 +1,5 @@
-const fs = require('fs')
-const acorn = require('acorn')
+import fs from 'fs'
+import acorn from 'acorn'
 
 const getComments = (filenames) => {
   return filenames.reduce((map, filename) => {
@@ -38,4 +38,4 @@ const removePrefix = (comment) => {
   return comment
 }
 
-module.exports = getComments
+export default getComments

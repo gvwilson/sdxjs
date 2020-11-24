@@ -1,4 +1,4 @@
-const acorn = require('acorn')
+import acorn from 'acorn'
 
 const program = `const value = 2
 

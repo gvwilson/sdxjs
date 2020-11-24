@@ -1,5 +1,5 @@
-const fs = require('fs')
-const crypto = require('crypto')
+import fs from 'fs'
+import crypto from 'crypto'
 
 const filename = process.argv[2]
 const data = fs.readFileSync(filename, 'utf-8')

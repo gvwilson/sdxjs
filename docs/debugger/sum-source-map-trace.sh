@@ -1,1 +1,1 @@
-node run-debugger.js ./vm-callback ./debugger-trace sum-source-map.json
+node run-callback.js sum-source-map.json

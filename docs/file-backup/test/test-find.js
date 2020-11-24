@@ -1,6 +1,6 @@
-const assert = require('assert')
+import assert from 'assert'
 
-const findNewFiles = require('../check-existing-files')
+import findNewFiles from '../check-existing-files.js'
 
 describe('pre-existing hashes and actual filesystem', () => {
   it('finds no pre-existing files when none given or exist', async () => {

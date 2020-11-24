@@ -1,7 +1,7 @@
-const fs = require('fs')
-const yaml = require('js-yaml')
+import fs from 'fs'
+import yaml from 'js-yaml'
 
-const MinimalEditor = require('./minimal-editor')
+import MinimalEditor from './minimal-editor.js'
 
 class ConfigEditor extends MinimalEditor {
   constructor (args) {
@@ -28,4 +28,4 @@ class ConfigEditor extends MinimalEditor {
   }
 }
 
-module.exports = ConfigEditor
+export default ConfigEditor

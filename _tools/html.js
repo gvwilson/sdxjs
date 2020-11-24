@@ -2,19 +2,21 @@
 
 'use strict'
 
-const argparse = require('argparse')
-const assert = require('assert')
-const ejs = require('ejs')
-const glob = require('glob')
-const fs = require('fs')
-const MarkdownIt = require('markdown-it')
-const MarkdownAnchor = require('markdown-it-anchor')
-const MarkdownContainer = require('markdown-it-container')
-const matter = require('gray-matter')
-const minimatch = require('minimatch')
-const path = require('path')
-const rimraf = require('rimraf')
-const yaml = require('js-yaml')
+import argparse from 'argparse'
+import assert from 'assert'
+import ejs from 'ejs'
+import glob from 'glob'
+import fs from 'fs'
+import MarkdownIt from 'markdown-it'
+import MarkdownAnchor from 'markdown-it-anchor'
+import MarkdownContainer from 'markdown-it-container'
+import matter from 'gray-matter'
+import minimatch from 'minimatch'
+import path from 'path'
+import rimraf from 'rimraf'
+import yaml from 'js-yaml'
+
+import dirname from './dirname.js'
 
 /**
  * Default settings.
@@ -67,7 +69,8 @@ const getOptions = () => {
   parser.add_argument('--replaceDir', { action: 'store_true' })
 
   const fromArgs = parser.parse_args()
-  fromArgs.homeDir = __dirname.replace('/_tools', '')
+  const directory = dirname(import.meta.url)
+  fromArgs.homeDir = directory.replace('/_tools', '')
   const fromFile = yaml.safeLoad(fs.readFileSync(fromArgs.configFile, 'utf-8'))
   const options = { ...fromArgs, ...fromFile }
 

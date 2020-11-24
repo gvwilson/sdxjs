@@ -1,4 +1,4 @@
-const FindAncestors = require('./find-ancestors')
+import FindAncestors from './find-ancestors.js'
 
 const main = () => {
   const dirname = process.argv[2]

@@ -1,11 +1,11 @@
-const assert = require('assert')
-const fs = require('fs-extra-promise')
-const glob = require('glob-promise')
-const mock = require('mock-fs')
-const crypto = require('crypto')
+import assert from 'assert'
+import fs from 'fs-extra-promise'
+import glob from 'glob-promise'
+import mock from 'mock-fs'
+import crypto from 'crypto'
 
 // <fixtures>
-const backup = require('../backup')
+import backup from '../backup.js'
 
 const hashString = (data) => {
   const hasher = crypto.createHash('sha1').setEncoding('hex')

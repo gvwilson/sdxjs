@@ -2,12 +2,12 @@
 
 'use strict'
 
-const argparse = require('argparse')
-const fs = require('fs')
-const glob = require('glob')
-const htmlparser2 = require('htmlparser2')
-const path = require('path')
-const yaml = require('js-yaml')
+import argparse from 'argparse'
+import fs from 'fs'
+import glob from 'glob'
+import htmlparser2 from 'htmlparser2'
+import path from 'path'
+import yaml from 'js-yaml'
 
 /**
  * Suffices of interesting included files.

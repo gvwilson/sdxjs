@@ -1,6 +1,6 @@
-const assert = require('assert')
+import assert from 'assert'
 
-const tokenize = require('../tokenizer')
+import tokenize from '../tokenizer.js'
 
 describe('tokenizes correctly', async () => {
   it('tokenizes a single character', () => {

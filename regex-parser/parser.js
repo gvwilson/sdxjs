@@ -1,6 +1,6 @@
-const assert = require('assert')
+import assert from 'assert'
 
-const tokenize = require('./tokenizer')
+import tokenize from './tokenizer.js'
 
 const parse = (text) => {
   const result = []
@@ -86,4 +86,4 @@ const compress = (raw) => {
 // </compress>
 // </skip>
 
-module.exports = parse
+export default parse

@@ -1,8 +1,8 @@
-const assert = require('assert')
+import assert from 'assert'
 
-const { TagNode } = require('../micro-dom')
-const { IdRule, ClassRule, TagRule } = require('../micro-css')
-const CssRuleSet = require('../micro-css-ruleset')
+import { TagNode } from '../micro-dom.js'
+import { IdRule, ClassRule, TagRule } from '../micro-css.js'
+import CssRuleSet from '../micro-css-ruleset.js'
 
 describe('manages style rules', () => {
   it('converts empty JSON to empty rules', async () => {

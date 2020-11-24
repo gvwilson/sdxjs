@@ -1,4 +1,4 @@
-const glob = require('glob')
+import glob from 'glob'
 
 glob('**/*.*', { ignore: '*~' }, (err, files) => {
   if (err) {

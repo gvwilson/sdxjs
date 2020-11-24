@@ -2,7 +2,7 @@
 
 'use strict'
 
-const fs = require('fs')
+import fs from 'fs'
 
 /**
  * Maximum width of lines in code inclusions.

@@ -1,4 +1,4 @@
-const acorn = require('acorn')
+import acorn from 'acorn'
 
 // <walker>
 class Walker {

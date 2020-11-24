@@ -1,4 +1,4 @@
-const need = require('./need')
+import need from './need'
 
 const small = need('small-module.js')
 
@@ -7,4 +7,4 @@ const large = (caller) => {
   small.publicFunction(`${caller} to large`)
 }
 
-module.exports = large
+export default large

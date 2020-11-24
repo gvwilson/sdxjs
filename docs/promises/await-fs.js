@@ -1,4 +1,4 @@
-const fs = require('fs-extra-promise')
+import fs from 'fs-extra-promise'
 
 const firstTenCharacters = async (filename) => {
   const text = await fs.readFileAsync(filename, 'utf-8')

@@ -1,6 +1,6 @@
-const assert = require('assert')
-const fs = require('fs')
-const acorn = require('acorn')
+import assert from 'assert'
+import fs from 'fs'
+import acorn from 'acorn'
 
 const main = () => {
   const options = { locations: true, onComment: [] }

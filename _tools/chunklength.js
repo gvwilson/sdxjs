@@ -2,9 +2,8 @@
 
 'use strict'
 
-const fs = require('fs')
-const htmlparser2 = require('htmlparser2')
-const path = require('path')
+import fs from 'fs'
+import htmlparser2 from 'htmlparser2'
 
 /**
  * Main driver.

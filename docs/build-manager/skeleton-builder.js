@@ -1,4 +1,4 @@
-const assert = require('assert')
+import assert from 'assert'
 
 class SkeletonBuilder {
   constructor (configFile) {
@@ -29,4 +29,4 @@ class SkeletonBuilder {
   }
 }
 
-module.exports = SkeletonBuilder
+export default SkeletonBuilder

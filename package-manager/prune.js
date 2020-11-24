@@ -1,4 +1,4 @@
-const configStr = require('./config-str')
+import configStr from './config-str.js'
 
 const prune = (manifest) => {
   const names = Object.keys(manifest)
@@ -50,4 +50,4 @@ const report = (config, leftN, leftV, rightN, rightV) => {
   console.log(`${title} @ ${leftN}/${leftV} ${rightN}/${rightV}`)
 }
 
-module.exports = prune
+export default prune

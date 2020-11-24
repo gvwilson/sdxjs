@@ -1,4 +1,4 @@
-const RegexBase = require('./regex-base')
+import RegexBase from './regex-base.js'
 
 class RegexAlt extends RegexBase {
   constructor (left, right) {
@@ -12,4 +12,4 @@ class RegexAlt extends RegexBase {
   }
 }
 
-module.exports = (left, right) => new RegexAlt(left, right)
+export default (left, right) => new RegexAlt(left, right)

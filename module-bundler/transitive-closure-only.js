@@ -1,6 +1,6 @@
-const path = require('path')
+import path from 'path'
 
-const getRequires = require('./get-requires')
+import getRequires from './get-requires.js'
 
 const transitiveClosure = (entryPointPath) => {
   const pending = [path.resolve(entryPointPath)]
@@ -20,4 +20,4 @@ const transitiveClosure = (entryPointPath) => {
   return [...filenames]
 }
 
-module.exports = transitiveClosure
+export default transitiveClosure

@@ -1,6 +1,6 @@
-const graphlib = require('@dagrejs/graphlib')
+import graphlib from '@dagrejs/graphlib'
 
-const PatternUserRead = require('./pattern-user-read')
+import PatternUserRead from './pattern-user-read'
 
 class PatternUserShow extends PatternUserRead {
   run () {
@@ -17,4 +17,4 @@ class PatternUserShow extends PatternUserRead {
   }
 }
 
-module.exports = PatternUserShow
+export default PatternUserShow

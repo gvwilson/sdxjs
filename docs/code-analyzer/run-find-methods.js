@@ -1,4 +1,4 @@
-const FindMethods = require('./find-methods')
+import FindMethods from './find-methods.js'
 
 const main = () => {
   const dirname = process.argv[2]

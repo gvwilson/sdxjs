@@ -1,10 +1,10 @@
-const assert = require('assert')
+import assert from 'assert'
 
-const {
+import {
   OPS
-} = require('./architecture')
+} from './architecture.js'
 
-const VirtualMachineBase = require('./vm-base')
+import VirtualMachineBase from './vm-base.js'
 
 class VirtualMachine extends VirtualMachineBase {
   run () {
@@ -105,4 +105,4 @@ class VirtualMachine extends VirtualMachineBase {
   }
 }
 
-module.exports = VirtualMachine
+export default VirtualMachine

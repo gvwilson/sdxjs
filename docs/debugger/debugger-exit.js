@@ -1,5 +1,5 @@
-const HaltException = require('./halt-exception')
-const DebuggerTest = require('./debugger-test')
+import HaltException from './halt-exception.js'
+import DebuggerTest from './debugger-test.js'
 
 class DebuggerExit extends DebuggerTest {
   exit (env, lineNum, op, args) {
@@ -7,4 +7,4 @@ class DebuggerExit extends DebuggerTest {
   }
 }
 
-module.exports = DebuggerExit
+export default DebuggerExit

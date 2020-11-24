@@ -1,4 +1,4 @@
-const fs = require('fs')
+import fs from 'fs'
 
 const readSource = (filename) => {
   if (filename === '-') {
@@ -8,4 +8,4 @@ const readSource = (filename) => {
     .split('\n')
 }
 
-module.exports = readSource
+export default readSource

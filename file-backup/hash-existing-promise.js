@@ -1,6 +1,6 @@
-const fs = require('fs-extra-promise')
-const glob = require('glob-promise')
-const crypto = require('crypto')
+import fs from 'fs-extra-promise'
+import glob from 'glob-promise'
+import crypto from 'crypto'
 
 const statPath = (path) => {
   return new Promise((resolve, reject) => {
@@ -43,4 +43,4 @@ const hashExisting = (rootDir) => {
   })
 }
 
-module.exports = hashExisting
+export default hashExisting

@@ -1,4 +1,4 @@
-const configStr = require('./config-str')
+import configStr from './config-str.js'
 
 const sweep = (manifest) => {
   const names = Object.keys(manifest)
@@ -39,4 +39,4 @@ const allows = (manifest, config) => {
 }
 // </allows>
 
-module.exports = sweep
+export default sweep

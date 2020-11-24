@@ -1,4 +1,4 @@
-const fs = require('fs-extra-promise')
+import fs from 'fs-extra-promise'
 
 const filename = process.argv[2]
 

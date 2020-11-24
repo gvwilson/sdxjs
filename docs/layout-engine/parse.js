@@ -1,6 +1,6 @@
-const assert = require('assert')
+import assert from 'assert'
 
-const { TextNode, TagNode } = require('./micro-dom')
+import { TextNode, TagNode } from './micro-dom.js'
 
 const parse = (text) => {
   const chunks = chunkify(text.trim())
@@ -73,4 +73,4 @@ const makeOpening = (chunk) => {
 }
 // </makenode>
 
-module.exports = { parse }
+export default parse

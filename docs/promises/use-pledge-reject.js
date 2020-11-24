@@ -1,4 +1,4 @@
-const Pledge = require('./pledge')
+import Pledge from './pledge.js'
 
 new Pledge((resolve, reject) => {
   console.log('top of action callback with deliberate error')

@@ -133,7 +133,7 @@ which (probably) means it's coming out of one of our checks</li>
 <li>Tests are run in the order in which they're registered, but we shouldn't rely on that</li>
 <li>After all tests are run, report counts</li>
 </ul>
-<pre title="dry-run.js"><code class="language-js">const assert = require('assert')
+<pre title="dry-run.js"><code class="language-js">import assert from 'assert'
 
 // State of tests.
 const HopeTests = []
@@ -220,8 +220,8 @@ error 1
 <li>Provide two flavors of output (terse one-liner and full details)</li>
 <li>Also provide raw material (title and results) for inspection and formatting (e.g., as HTML)</li>
 </ul>
-<pre title="hope.js"><code class="language-js">const assert = require('assert')
-const caller = require('caller')
+<pre title="hope.js"><code class="language-js">import assert from 'assert'
+import caller from 'caller'
 
 class Hope {
   constructor () {
@@ -277,7 +277,7 @@ class Hope {
   }
 }
 
-module.exports = new Hope()
+export default new Hope()
 </code></pre>
 <ul>
 <li>Use the <a href="https://www.npmjs.com/package/caller"><code>caller</code></a> module to find the name of who's calling the current function
@@ -292,8 +292,8 @@ module.exports = new Hope()
 <li>Keeping the files containing tests simple is the most important part of our design</li>
 <li>Example in <code>test-add.js</code></li>
 </ul>
-<pre title="test-add.js"><code class="language-js">const assert = require('assert')
-const hope = require('./hope')
+<pre title="test-add.js"><code class="language-js">import assert from 'assert'
+import hope from './hope.js'
 
 hope.test('Sum of 1 and 2', () =&gt; assert((1 + 2) === 3))
 </code></pre>
@@ -319,9 +319,9 @@ hope.test('Sum of 1 and 2', () =&gt; assert((1 + 2) === 3))
 </li>
 <li>Doesn't export anything, just runs</li>
 </ul>
-<pre title="pray.js"><code class="language-js">const minimist = require('minimist')
-const glob = require('glob')
-const hope = require('./hope')
+<pre title="pray.js"><code class="language-js">import minimist from 'minimist'
+import glob from 'glob'
+import hope from './hope.js'
 
 const DEFAULTS = {
   filenames: [],
@@ -329,14 +329,14 @@ const DEFAULTS = {
   output: 'terse'
 }
 
-const main = (args) =&gt; {
+const main = async (args) =&gt; {
   const options = parse(args)
   if (options.filenames.length === 0) {
     options.filenames = glob.sync(`${options.root}/**/test-*.js`)
   }
-  options.filenames.forEach(f =&gt; {
-    require(f)
-  })
+  for (const f of options.filenames) {
+    await import(f)
+  }
   hope.run()
   const result = (options.output === 'terse')
     ? hope.terse()

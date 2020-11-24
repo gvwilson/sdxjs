@@ -1,6 +1,6 @@
 /* eslint-disable no-eval */
-const fs = require('fs')
-const path = require('path')
+import fs from 'fs'
+import path from 'path'
 
 class Cache {
   constructor () {
@@ -70,6 +70,6 @@ Cache.INTERPOLATE_PAT = /\/\*\+(.+?)\+(.+?)\+\*\//g
 
 const cache = new Cache()
 
-module.exports = (fileSpec) => {
+export default (fileSpec) => {
   return cache.need(fileSpec)
 }

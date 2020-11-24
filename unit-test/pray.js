@@ -1,6 +1,6 @@
-const minimist = require('minimist')
-const glob = require('glob')
-const hope = require('./hope')
+import minimist from 'minimist'
+import glob from 'glob'
+import hope from './hope.js'
 
 const DEFAULTS = {
   filenames: [],
@@ -8,14 +8,14 @@ const DEFAULTS = {
   output: 'terse'
 }
 
-const main = (args) => {
+const main = async (args) => {
   const options = parse(args)
   if (options.filenames.length === 0) {
     options.filenames = glob.sync(`${options.root}/**/test-*.js`)
   }
-  options.filenames.forEach(f => {
-    require(f)
-  })
+  for (const f of options.filenames) {
+    await import(f)
+  }
   hope.run()
   const result = (options.output === 'terse')
     ? hope.terse()

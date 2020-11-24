@@ -1,4 +1,4 @@
-const DebuggerInteractive = require('./debugger-interactive')
+import DebuggerInteractive from './debugger-interactive.js'
 
 class DebuggerTest extends DebuggerInteractive {
   constructor () {
@@ -20,4 +20,4 @@ class DebuggerTest extends DebuggerInteractive {
   }
 }
 
-module.exports = DebuggerTest
+export default DebuggerTest

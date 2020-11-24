@@ -1,4 +1,4 @@
-const assert = require('assert')
+import assert from 'assert'
 
 class DebuggerBase {
   constructor () {
@@ -16,4 +16,4 @@ class DebuggerBase {
   }
 }
 
-module.exports = DebuggerBase
+export default DebuggerBase

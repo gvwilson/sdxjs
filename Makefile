@@ -176,3 +176,9 @@ docs/authors/index.html: authors.md
 docs/gloss/index.html: gloss.md
 docs/links/index.html: links.md
 docs/%/index.html: %/index.md
+
+_tools/html.js: _tools/dirname.js
+	@touch $@
+
+_tools/wrap.js: _tools/dirname.js
+	@touch $@

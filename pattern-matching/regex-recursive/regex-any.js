@@ -1,4 +1,4 @@
-const RegexBase = require('./regex-base')
+import RegexBase from './regex-base.js'
 
 class RegexAny extends RegexBase {
   constructor (child, rest) {
@@ -35,4 +35,4 @@ const create = (child, rest = null) => {
   return new RegexAny(child, rest)
 }
 
-module.exports = create
+export default create

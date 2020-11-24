@@ -1,5 +1,5 @@
 /* eslint-disable no-eval */
-const fs = require('fs')
+import fs from 'fs'
 
 const Seen = {}
 

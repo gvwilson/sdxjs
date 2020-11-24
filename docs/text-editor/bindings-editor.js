@@ -1,8 +1,8 @@
-const MinimalEditor = require('./minimal-editor')
+import MinimalEditor from './minimal-editor.js'
 
 // <bindings>
 // <enter-binding>
-const KeyBinding = require('./simple-key-binding')
+import KeyBinding from './simple-key-binding.js'
 
 class EnterBinding extends KeyBinding {
   constructor () {
@@ -48,4 +48,4 @@ class BindingsEditor extends MinimalEditor {
   }
 }
 
-module.exports = BindingsEditor
+export default BindingsEditor

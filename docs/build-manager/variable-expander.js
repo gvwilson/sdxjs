@@ -1,4 +1,4 @@
-const UpdateOnTimestamps = require('./update-timestamps')
+import UpdateOnTimestamps from './update-timestamps.js'
 
 class VariableExpander extends UpdateOnTimestamps {
   buildGraph () {
@@ -28,4 +28,4 @@ class VariableExpander extends UpdateOnTimestamps {
   }
 }
 
-module.exports = VariableExpander
+export default VariableExpander

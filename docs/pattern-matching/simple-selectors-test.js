@@ -1,6 +1,6 @@
-const htmlparser2 = require('htmlparser2')
+import htmlparser2 from 'htmlparser2'
 
-const select = require('./simple-selectors')
+import select from './simple-selectors.js'
 
 const HTML = `<main>
   <p>text of first p</p>

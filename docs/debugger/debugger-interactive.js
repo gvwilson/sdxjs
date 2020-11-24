@@ -1,6 +1,6 @@
-const prompt = require('prompt-sync')
+import prompt from 'prompt-sync'
 
-const DebuggerBase = require('./debugger-base')
+import DebuggerBase from './debugger-base.js'
 
 const PROMPT_OPTIONS = { sigint: true }
 
@@ -143,4 +143,4 @@ class DebuggerInteractive extends DebuggerBase {
   // </skip>
 }
 
-module.exports = DebuggerInteractive
+export default DebuggerInteractive

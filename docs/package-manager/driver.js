@@ -1,6 +1,4 @@
-const fs = require('fs')
-
-const configStr = require('./config-str')
+import fs from 'fs'
 
 const main = () => {
   const algorithm = require(process.argv[2])

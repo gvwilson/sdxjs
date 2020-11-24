@@ -1,7 +1,7 @@
-const assert = require('assert')
-const mock = require('mock-fs')
+import assert from 'assert'
+import mock from 'mock-fs'
 
-const findNewFiles = require('../check-existing-files')
+import findNewFiles from '../check-existing-files.js'
 
 describe('checks for pre-existing hashes using mock filesystem', () => {
   beforeEach(() => {

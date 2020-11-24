@@ -1,4 +1,4 @@
-const acorn = require('acorn')
+import acorn from 'acorn'
 
 function * getNodes (node) {
   if (node && (typeof node === 'object') && ('type' in node)) {

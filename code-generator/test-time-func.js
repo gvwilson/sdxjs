@@ -1,7 +1,7 @@
-const timeFunc = require('./time-func')
+import timeFunc from './time-func'
 
 const text = `
-const fs = require('fs')
+import fs from 'fs'
 
 const assignment = (range) => {
   let j = 0

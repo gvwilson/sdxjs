@@ -1,8 +1,8 @@
-const assert = require('assert')
-const fs = require('fs')
-const yaml = require('js-yaml')
+import assert from 'assert'
+import fs from 'fs'
+import yaml from 'js-yaml'
 
-const GraphCreator = require('./graph-creator')
+import GraphCreator from './graph-creator.js'
 
 class AddTimestamps extends GraphCreator {
   constructor (configFile, timesFile) {
@@ -36,4 +36,4 @@ class AddTimestamps extends GraphCreator {
   }
 }
 
-module.exports = AddTimestamps
+export default AddTimestamps

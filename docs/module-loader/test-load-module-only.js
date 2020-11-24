@@ -1,4 +1,4 @@
-const loadModule = require('./load-module-only')
+import loadModule from './load-module-only.js'
 
 const result = loadModule(process.argv[2])
 console.log(`result.publicValue is ${result.publicValue}`)

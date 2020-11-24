@@ -1,7 +1,7 @@
-const assert = require('assert')
-const yaml = require('js-yaml')
+import assert from 'assert'
+import yaml from 'js-yaml'
 
-const { buildRows, timeAndSize } = require('./build')
+import { buildRows, timeAndSize } from './build.js'
 
 const main = () => {
   const nRows = parseInt(process.argv[2])

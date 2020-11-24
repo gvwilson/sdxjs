@@ -2,9 +2,9 @@
 
 'use strict'
 
-const argparse = require('argparse')
-const fs = require('fs')
-const htmlparser2 = require('htmlparser2')
+import argparse from 'argparse'
+import fs from 'fs'
+import htmlparser2 from 'htmlparser2'
 
 /**
  * Nodes to ignore.

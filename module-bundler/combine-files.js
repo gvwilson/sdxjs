@@ -1,5 +1,5 @@
-const fs = require('fs')
-const path = require('path')
+import fs from 'fs'
+import path from 'path'
 
 const HEAD = `const initialize = (creators) => {
 `
@@ -22,4 +22,4 @@ const combineFiles = (allFilenames) => {
   return func
 }
 
-module.exports = combineFiles
+export default combineFiles

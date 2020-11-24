@@ -1,4 +1,4 @@
-const hashExisting = require('./hash-existing-promise')
+import hashExisting from './hash-existing-promise.js'
 
 const root = process.argv[2]
 hashExisting(root).then(pairs => pairs.forEach(

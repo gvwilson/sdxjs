@@ -1,6 +1,6 @@
-const glob = require('glob')
-const fs = require('fs-extra')
-const path = require('path')
+import glob from 'glob'
+import fs from 'fs-extra'
+import path from 'path'
 
 const [srcRoot, dstRoot] = process.argv.slice(2)
 

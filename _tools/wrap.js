@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 
-const readline = require('readline')
+import readline from 'readline'
+
+import dirname from './dirname.js'
 
 const WIDTH = 72
-const HOME = __dirname.replace('/_tools', '')
+const PROTOCOL = 'file://'
+const HOME = dirname(import.meta.url).replace('/_tools', '')
 const FAKE = '/u/stjs'
 
 const reader = readline.createInterface({
@@ -13,7 +16,7 @@ const reader = readline.createInterface({
 })
 
 reader.on('line', (line) => {
-  line = line.replace(HOME, FAKE)
+  line = line.replace(PROTOCOL, '').replace(HOME, FAKE)
   let front = null
   let terminator = null
   while (line.length > 0) {

@@ -1,4 +1,4 @@
-const DirtyEditor = require('./dirty-editor')
+import DirtyEditor from './dirty-editor.js'
 
 class ReplayEditor extends DirtyEditor {
   constructor (args) {
@@ -15,4 +15,4 @@ class ReplayEditor extends DirtyEditor {
   }
 }
 
-module.exports = ReplayEditor
+export default ReplayEditor

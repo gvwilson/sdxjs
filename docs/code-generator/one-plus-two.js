@@ -1,4 +1,4 @@
-const escodegen = require('escodegen')
+import escodegen from 'escodegen'
 
 const result = escodegen.generate({
   type: 'BinaryExpression',

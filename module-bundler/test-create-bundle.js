@@ -1,3 +1,3 @@
-const createBundle = require('./create-bundle')
+import createBundle from './create-bundle.js'
 
 console.log(createBundle(process.argv[2]))

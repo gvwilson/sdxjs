@@ -1,5 +1,5 @@
-const glob = require('glob-promise')
-const fs = require('fs-extra-promise')
+import glob from 'glob-promise'
+import fs from 'fs-extra-promise'
 
 const main = (srcDir) => {
   glob(`${srcDir}/**/*.*`)

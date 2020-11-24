@@ -174,7 +174,7 @@ builder.build()
 </ul>
 </li>
 </ul>
-<pre title="skeleton-builder.js"><code class="language-js">const assert = require('assert')
+<pre title="skeleton-builder.js"><code class="language-js">import assert from 'assert'
 
 class SkeletonBuilder {
   constructor (configFile) {
@@ -205,7 +205,7 @@ class SkeletonBuilder {
   }
 }
 
-module.exports = SkeletonBuilder
+export default SkeletonBuilder
 </code></pre>
 <ul>
 <li>Would normally implement all required methods at once
@@ -215,11 +215,11 @@ module.exports = SkeletonBuilder
 </li>
 <li>Load the configuration file during construction</li>
 </ul>
-<pre title="config-loader.js"><code class="language-js">const assert = require('assert')
-const fs = require('fs')
-const yaml = require('js-yaml')
+<pre title="config-loader.js"><code class="language-js">import assert from 'assert'
+import fs from 'fs'
+import yaml from 'js-yaml'
 
-const SkeletonBuilder = require('./skeleton-builder')
+import SkeletonBuilder from './skeleton-builder.js'
 
 class ConfigLoader extends SkeletonBuilder {
   loadConfig () {
@@ -241,7 +241,7 @@ class ConfigLoader extends SkeletonBuilder {
   }
 }
 
-module.exports = ConfigLoader
+export default ConfigLoader
 </code></pre>
 <ul>
 <li>Turn the configuration into a graph
@@ -254,10 +254,10 @@ module.exports = ConfigLoader
 </li>
 <li>Might as well add the cycle checking here as well</li>
 </ul>
-<pre title="graph-creator.js"><code class="language-js">const assert = require('assert')
-const graphlib = require('@dagrejs/graphlib')
+<pre title="graph-creator.js"><code class="language-js">import assert from 'assert'
+import graphlib from '@dagrejs/graphlib'
 
-const ConfigLoader = require('./config-loader')
+import ConfigLoader from './config-loader.js'
 
 class GraphCreator extends ConfigLoader {
   buildGraph () {
@@ -277,15 +277,15 @@ class GraphCreator extends ConfigLoader {
   }
 }
 
-module.exports = GraphCreator
+export default GraphCreator
 </code></pre>
 <ul>
 <li>Again, would have implemented all of these required methods in one step in a real program</li>
 <li>Can now create something that displays our configuration when it runs but does nothing else</li>
 </ul>
-<pre title="display-only.js"><code class="language-js">const graphlib = require('@dagrejs/graphlib')
+<pre title="display-only.js"><code class="language-js">import graphlib from '@dagrejs/graphlib'
 
-const GraphCreator = require('./graph-creator')
+import GraphCreator from './graph-creator.js'
 
 class DisplayOnly extends GraphCreator {
   run () {
@@ -296,7 +296,7 @@ class DisplayOnly extends GraphCreator {
   }
 }
 
-module.exports = DisplayOnly
+export default DisplayOnly
 </code></pre>
 <ul>
 <li>Try running it
@@ -359,11 +359,11 @@ C: 8
 </ul>
 </li>
 </ul>
-<pre title="add-timestamps.js"><code class="language-js">const assert = require('assert')
-const fs = require('fs')
-const yaml = require('js-yaml')
+<pre title="add-timestamps.js"><code class="language-js">import assert from 'assert'
+import fs from 'fs'
+import yaml from 'js-yaml'
 
-const GraphCreator = require('./graph-creator')
+import GraphCreator from './graph-creator.js'
 
 class AddTimestamps extends GraphCreator {
   constructor (configFile, timesFile) {
@@ -397,7 +397,7 @@ class AddTimestamps extends GraphCreator {
   }
 }
 
-module.exports = AddTimestamps
+export default AddTimestamps
 </code></pre>
 <ul>
 <li>The steps defined in <code>SkeletonBuilder.build</code> don't change
@@ -440,9 +440,9 @@ they can override <code>addTimestamps</code> and put their step at the top befor
 </li>
 <li>Pretend for now that updating takes one unit of time, so we advance our fictional clock once for each build</li>
 </ul>
-<pre title="update-timestamps.js"><code class="language-js">const graphlib = require('@dagrejs/graphlib')
+<pre title="update-timestamps.js"><code class="language-js">import graphlib from '@dagrejs/graphlib'
 
-const AddTimestamps = require('./add-timestamps')
+import AddTimestamps from './add-timestamps.js'
 
 class UpdateOnTimestamps extends AddTimestamps {
   run () {
@@ -471,7 +471,7 @@ class UpdateOnTimestamps extends AddTimestamps {
   }
 }
 
-module.exports = UpdateOnTimestamps
+export default UpdateOnTimestamps
 </code></pre>
 <pre title="update-timestamps.sh"><code class="language-sh">node driver.js ./update-timestamps three-simple-rules.yml add-timestamps.yml
 </code></pre>
@@ -516,7 +516,7 @@ module.exports = UpdateOnTimestamps
 </li>
 <li>Test that it still handle rules <em>without</em> variables correctly</li>
 </ul>
-<pre title="variable-expander.js"><code class="language-js">const UpdateOnTimestamps = require('./update-timestamps')
+<pre title="variable-expander.js"><code class="language-js">import UpdateOnTimestamps from './update-timestamps.js'
 
 class VariableExpander extends UpdateOnTimestamps {
   buildGraph () {
@@ -546,7 +546,7 @@ class VariableExpander extends UpdateOnTimestamps {
   }
 }
 
-module.exports = VariableExpander
+export default VariableExpander
 </code></pre>
 <pre title="variable-expander.txt"><code class="language-txt">9: START
 9: B
@@ -590,7 +590,7 @@ module.exports = VariableExpander
 </ul>
 </li>
 </ul>
-<pre title="pattern-user-attempt.js"><code class="language-js">const VariableExpander = require('./variable-expander')
+<pre title="pattern-user-attempt.js"><code class="language-js">import VariableExpander from './variable-expander.js'
 
 class PatternUserAttempt extends VariableExpander {
   buildGraph () {
@@ -615,7 +615,7 @@ class PatternUserAttempt extends VariableExpander {
   }
 }
 
-module.exports = PatternUserAttempt
+export default PatternUserAttempt
 </code></pre>
 <pre title="pattern-user-attempt.txt"><code class="language-txt">assert.js:386
     throw err;
@@ -654,10 +654,10 @@ AssertionError [ERR_ASSERTION]: Graph does not have node A
 </ul>
 </li>
 </ul>
-<pre title="pattern-user-read.js"><code class="language-js">const assert = require('assert')
-const graphlib = require('@dagrejs/graphlib')
+<pre title="pattern-user-read.js"><code class="language-js">import assert from 'assert'
+import graphlib from '@dagrejs/graphlib'
 
-const VariableExpander = require('./variable-expander')
+import VariableExpander from './variable-expander.js'
 
 class PatternUserRead extends VariableExpander {
   buildGraph () {
@@ -693,7 +693,7 @@ class PatternUserRead extends VariableExpander {
   }
 }
 
-module.exports = PatternUserRead
+export default PatternUserRead
 </code></pre>
 <ul>
 <li>Before we trying running this, let's add methods to show the state of the internal data structures
@@ -702,9 +702,9 @@ module.exports = PatternUserRead
 </ul>
 </li>
 </ul>
-<pre title="pattern-user-show.js"><code class="language-js">const graphlib = require('@dagrejs/graphlib')
+<pre title="pattern-user-show.js"><code class="language-js">import graphlib from '@dagrejs/graphlib'
 
-const PatternUserRead = require('./pattern-user-read')
+import PatternUserRead from './pattern-user-read'
 
 class PatternUserShow extends PatternUserRead {
   run () {
@@ -721,7 +721,7 @@ class PatternUserShow extends PatternUserRead {
   }
 }
 
-module.exports = PatternUserShow
+export default PatternUserShow
 </code></pre>
 <pre title="pattern-user-show.sh"><code class="language-sh">node driver.js ./pattern-user-show pattern-rules.yml
 </code></pre>
@@ -787,7 +787,7 @@ module.exports = PatternUserShow
 </ul>
 </li>
 </ul>
-<pre title="pattern-user-run.js"><code class="language-js">const PatternUserRead = require('./pattern-user-read')
+<pre title="pattern-user-run.js"><code class="language-js">import PatternUserRead from './pattern-user-read.js'
 
 class PatternUserRun extends PatternUserRead {
   buildGraph () {
@@ -834,7 +834,7 @@ class PatternUserRun extends PatternUserRead {
   }
 }
 
-module.exports = PatternUserRun
+export default PatternUserRun
 </code></pre>
 <pre title="pattern-user-run.txt"><code class="language-txt">4: START
 4: left.out

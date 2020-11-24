@@ -1,1 +1,1 @@
-node run-base.js ./vm-base filter-base.json
+node run-base.js filter-base.json

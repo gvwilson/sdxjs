@@ -1,4 +1,4 @@
-const DebuggerBase = require('./debugger-base')
+import DebuggerBase from './debugger-base.js'
 
 class DebuggerTrace extends DebuggerBase {
   handle (env, lineNum, op) {
@@ -8,4 +8,4 @@ class DebuggerTrace extends DebuggerBase {
   }
 }
 
-module.exports = DebuggerTrace
+export default DebuggerTrace

@@ -1,5 +1,5 @@
-const Net = require('net')
-const url = require('url')
+import Net from 'net'
+import url from 'url'
 
 class BaseHttpServer {
   constructor (port = BaseHttpServer.DEFAULT_PORT) {

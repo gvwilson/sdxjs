@@ -1,9 +1,9 @@
-const fs = require('fs')
-const acorn = require('acorn')
-const MarkdownIt = require('markdown-it')
-const MarkdownAnchor = require('markdown-it-anchor')
+import fs from 'fs'
+import acorn from 'acorn'
+import MarkdownIt from 'markdown-it'
+import MarkdownAnchor from 'markdown-it-anchor'
 
-const slugify = require('./slugify')
+import slugify from './slugify.js'
 
 const main = () => {
   const allComments = process.argv.slice(2)

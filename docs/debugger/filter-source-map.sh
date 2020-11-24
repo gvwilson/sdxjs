@@ -1,1 +1,1 @@
-node run-base.js ./vm-source-map filter-source-map.json
+node run-source-map.js filter-source-map.json

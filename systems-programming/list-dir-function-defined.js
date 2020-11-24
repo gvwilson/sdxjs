@@ -1,4 +1,4 @@
-const fs = require('fs')
+import fs from 'fs'
 
 const listContents = (err, files) => {
   console.log('running callback')

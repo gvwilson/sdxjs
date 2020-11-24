@@ -1,6 +1,6 @@
-const acorn = require('acorn')
-const fs = require('fs')
-const walk = require('acorn-walk')
+import acorn from 'acorn'
+import fs from 'fs'
+import walk from 'acorn-walk'
 
 const getRequires = (filename) => {
   const entryPointFile = filename
@@ -18,4 +18,4 @@ const getRequires = (filename) => {
   return requires
 }
 
-module.exports = getRequires
+export default getRequires

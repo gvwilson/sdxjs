@@ -1,7 +1,7 @@
-const fs = require('fs')
-const path = require('path')
+import fs from 'fs'
+import path from 'path'
 
-const transitiveClosure = require('./transitive-closure')
+import transitiveClosure from './transitive-closure.js'
 
 const HEAD = `const creators = new Map()
 const cache = new Map()
@@ -57,4 +57,4 @@ const makeCreator = (filename) => {
   return `// ${key}\n${entry}\n`
 }
 
-module.exports = createBundle
+export default createBundle

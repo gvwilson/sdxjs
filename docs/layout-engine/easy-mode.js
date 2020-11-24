@@ -1,4 +1,4 @@
-class Block {
+export class Block {
   constructor (width, height) {
     this.width = width
     this.height = height
@@ -13,7 +13,7 @@ class Block {
   }
 }
 
-class Row {
+export class Row {
   constructor (...children) {
     this.children = children
   }
@@ -29,7 +29,7 @@ class Row {
   }
 }
 
-class Column {
+export class Column {
   constructor (...children) {
     this.children = children
   }
@@ -44,5 +44,3 @@ class Column {
       .reduce((total, next) => total + next, 0)
   }
 }
-
-module.exports = { Block, Row, Column }

@@ -1,5 +1,6 @@
-const assert = require('assert')
-const VirtualMachineBase = require('./vm-base')
+import assert from 'assert'
+
+import VirtualMachineBase from './vm-base.js'
 
 class VirtualMachineSourceMap extends VirtualMachineBase {
   compile (lines) {
@@ -34,4 +35,4 @@ class VirtualMachineSourceMap extends VirtualMachineBase {
   }
 }
 
-module.exports = VirtualMachineSourceMap
+export default VirtualMachineSourceMap

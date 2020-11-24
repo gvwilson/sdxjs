@@ -1,4 +1,4 @@
-const assert = require('assert')
+import assert from 'assert'
 
 const select = (root, selector) => {
   const selectors = selector.split(' ').filter(s => s.length > 0)
@@ -61,4 +61,4 @@ const matchHere = (node, selector) => {
     ((cls === null) || (node.attribs.class === cls))
 }
 
-module.exports = select
+export default select

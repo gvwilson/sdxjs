@@ -1,4 +1,4 @@
 class HaltException {
 }
 
-module.exports = HaltException
+export default HaltException

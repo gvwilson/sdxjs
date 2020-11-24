@@ -1,13 +1,13 @@
-const assert = require('assert')
+import assert from 'assert'
 
-const Visitor = require('./visitor')
-const Env = require('./env')
+import Visitor from './visitor.js'
+import Env from './env.js'
 
 const HANDLERS = {
-  'q-if': require('./q-if'),
-  'q-loop': require('./q-loop'),
-  'q-num': require('./q-num'),
-  'q-var': require('./q-var')
+  'q-if': import('./q-if.js'),
+  'q-loop': import('./q-loop.js'),
+  'q-num': import('./q-num.js'),
+  'q-var': import('./q-var.js')
 }
 
 class Expander extends Visitor {
@@ -84,4 +84,4 @@ class Expander extends Visitor {
   }
 }
 
-module.exports = Expander
+export default Expander

@@ -1,6 +1,6 @@
-const acorn = require('acorn')
-const walk = require('acorn-walk')
-const escodegen = require('escodegen')
+import acorn from 'acorn'
+import walk from 'acorn-walk'
+import escodegen from 'escodegen'
 
 const timeFunc = (text) => {
   const ast = acorn.parse(text)
@@ -59,4 +59,4 @@ const reportCounters = () => {
   return 'console.log(__counters)'
 }
 
-module.exports = timeFunc
+export default timeFunc

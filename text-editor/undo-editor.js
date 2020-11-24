@@ -1,4 +1,4 @@
-const InitEditor = require('./init-editor')
+import InitEditor from './init-editor.js'
 
 class UndoEditor extends InitEditor {
   constructor (args) {
@@ -89,4 +89,4 @@ class UndoEditor extends InitEditor {
   // </operations>
 }
 
-module.exports = UndoEditor
+export default UndoEditor

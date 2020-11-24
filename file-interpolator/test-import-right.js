@@ -1,4 +1,4 @@
-const need = require('./need-path')
+import need from './need-path.js'
 
 const imported = need('imported-right.js')
 imported('called from test-import-right.js')

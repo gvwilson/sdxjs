@@ -1,4 +1,4 @@
-const { Row } = require('./easy-mode')
+import { Row } from './easy-mode.js'
 
 class PlacedRow extends Row {
   constructor (...children) {
@@ -26,6 +26,4 @@ class PlacedRow extends Row {
   }
 }
 
-module.exports = {
-  Row: PlacedRow
-}
+export { PlacedRow as Row }

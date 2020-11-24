@@ -1,6 +1,6 @@
-const assert = require('assert')
+import assert from 'assert'
 
-class CssRule {
+export class CssRule {
   constructor (order, selector, styles) {
     this.order = order
     this.selector = selector
@@ -8,7 +8,7 @@ class CssRule {
   }
 }
 
-class IdRule extends CssRule {
+export class IdRule extends CssRule {
   constructor (selector, styles) {
     assert(selector.startsWith('#') && (selector.length > 1),
       'ID rule must start with # and have a selector')
@@ -22,7 +22,7 @@ class IdRule extends CssRule {
 }
 IdRule.ORDER = 0
 
-class ClassRule extends CssRule {
+export class ClassRule extends CssRule {
   constructor (selector, styles) {
     assert(selector.startsWith('.') && (selector.length > 1),
       'Class rule must start with . and have a selector')
@@ -36,7 +36,7 @@ class ClassRule extends CssRule {
 }
 ClassRule.ORDER = 1
 
-class TagRule extends CssRule {
+export class TagRule extends CssRule {
   constructor (selector, styles) {
     super(TagRule.ORDER, selector, styles)
   }
@@ -46,5 +46,3 @@ class TagRule extends CssRule {
   }
 }
 TagRule.ORDER = 2
-
-module.exports = { IdRule, ClassRule, TagRule }

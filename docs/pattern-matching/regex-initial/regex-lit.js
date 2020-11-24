@@ -1,4 +1,4 @@
-const RegexBase = require('./regex-base')
+import RegexBase from './regex-base.js'
 
 class RegexLit extends RegexBase {
   constructor (chars) {
@@ -11,4 +11,4 @@ class RegexLit extends RegexBase {
   }
 }
 
-module.exports = (chars) => new RegexLit(chars)
+export default (chars) => new RegexLit(chars)

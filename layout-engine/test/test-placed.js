@@ -1,8 +1,8 @@
-const assert = require('assert')
+import assert from 'assert'
 
-const { Block } = require('../placed-block')
-const { Row } = require('../placed-row')
-const { Column } = require('../placed-column')
+import { Block } from '../placed-block.js'
+import { Row } from '../placed-row.js'
+import { Column } from '../placed-column.js'
 
 describe('places blocks', () => {
   it('places a single unit block', async () => {

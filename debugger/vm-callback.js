@@ -1,6 +1,6 @@
-const assert = require('assert')
+import assert from 'assert'
 
-const VirtualMachineSourceMap = require('./vm-source-map')
+import VirtualMachineSourceMap from './vm-source-map.js'
 
 class VirtualMachineCallback extends VirtualMachineSourceMap {
   constructor (program, dbg) {
@@ -22,4 +22,4 @@ class VirtualMachineCallback extends VirtualMachineSourceMap {
   }
 }
 
-module.exports = VirtualMachineCallback
+export default VirtualMachineCallback

@@ -23,4 +23,4 @@ const tokenize = (text) => {
   return result
 }
 
-module.exports = tokenize
+export default tokenize

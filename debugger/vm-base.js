@@ -1,4 +1,4 @@
-const assert = require('assert')
+import assert from 'assert'
 
 class VirtualMachineBase {
   constructor (program) {
@@ -182,4 +182,4 @@ class VirtualMachineBase {
   // </skip>
 }
 
-module.exports = VirtualMachineBase
+export default VirtualMachineBase

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const fs = require('fs')
-const yaml = require('js-yaml')
+import fs from 'fs'
+import yaml from 'js-yaml'
 
 const main = () => {
   const config = yaml.safeLoad(fs.readFileSync(process.argv[2], 'utf-8'))
