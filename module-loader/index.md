@@ -133,10 +133,8 @@ Please see <cite>Casciaro2020</cite> for a more detailed discussion.
 
 <%- include('/_inc/multi.html', {pat: 'test-need-large-module.js', fill: 'js out'}) %>
 
--   Doesn't work because our made-up function has `need` as a parameter and also as a constant
--   Not a problem with Node because `require` is predefined
--   So we will rely on our loader to provide it
-    -   Which means we can only run loaded modules by `need`ing them
+-   Doesn't work because `import` only works at the top level, not inside a function
+-   So our system can only run loaded modules by `need`ing them
 
 <%- include('/_inc/file.html', {file: 'large-needless.js'}) %>
 
