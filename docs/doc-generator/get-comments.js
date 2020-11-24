@@ -12,7 +12,11 @@ const getComments = (filenames) => {
 
 const extractComments = (filename) => {
   const text = fs.readFileSync(filename, 'utf-8')
-  const options = { locations: true, onComment: [] }
+  const options = {
+    sourceType: 'module',
+    locations: true,
+    onComment: []
+  }
   acorn.parse(text, options)
   const subset = options.onComment
     .filter(entry => entry.type === 'Block')

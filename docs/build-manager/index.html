@@ -131,9 +131,17 @@
 </ul>
 </li>
 </ul>
-<pre title="driver.js"><code class="language-js">const BuilderClass = require(process.argv[2])
-const builder = new BuilderClass(...process.argv.slice(3))
-builder.build()
+<pre title="driver.js"><code class="language-js">const main = async () =&gt; {
+  const BuilderClass = (await import(process.argv[2])).default
+  const builder = new BuilderClass(...process.argv.slice(3))
+  try {
+    builder.build()
+  } catch (err) {
+    console.error('Build failed:', err)
+  }
+}
+
+main()
 </code></pre>
 <ul>
 <li>Build files will look like this</li>
@@ -305,9 +313,9 @@ export default DisplayOnly
 </ul>
 </li>
 </ul>
-<pre title="display-only.sh"><code class="language-sh">node driver.js ./display-only three-simple-rules.yml
+<pre title="display-only.sh"><code class="language-sh">node driver.js ./display-only.js three-simple-rules.yml
 </code></pre>
-<pre title="display-only.txt"><code class="language-txt">Graph
+<pre title="display-only.out"><code class="language-out">Graph
 {
   options: { directed: true, multigraph: false, compound: false },
   nodes: [
@@ -334,13 +342,13 @@ Sorted
   recipes:
   - "update B from A"
 </code></pre>
-<pre title="check-cycles.sh"><code class="language-sh">node driver.js ./display-only circular-rules.yml 2&gt;&amp;1 | head -n 5
+<pre title="check-cycles.sh"><code class="language-sh">node driver.js ./display-only.js circular-rules.yml 2&gt;&amp;1 | head -n 5
 </code></pre>
-<pre title="check-cycles.txt"><code class="language-txt">assert.js:101
-  throw new AssertionError(obj);
-  ^
-
-AssertionError [ERR_ASSERTION]: Dependency graph contains cycles B,A
+<pre title="check-cycles.out"><code class="language-out">Build failed: AssertionError [ERR_ASSERTION]: Dependency graph contains cycles B,A
+    at DisplayOnly.checkCycles (file:///u/stjs/build-manager/graph-creator.js:19:12)
+    at DisplayOnly.build (file:///u/stjs/build-manager/skeleton-builder.js:11:10)
+    at main (file:///u/stjs/build-manager/driver.js:5:13) {
+  generatedMessage: false,
 </code></pre>
 <h2 id="how-can-we-specify-that-a-file-is-out-of-date">How can we specify that a file is out of date?</h2>
 <ul>
@@ -410,9 +418,9 @@ they can override <code>addTimestamps</code> and put their step at the top befor
 </li>
 <li>Execution</li>
 </ul>
-<pre title="add-timestamps.sh"><code class="language-sh">node driver.js ./add-timestamps three-simple-rules.yml add-timestamps.yml
+<pre title="add-timestamps.sh"><code class="language-sh">node driver.js ./add-timestamps.js three-simple-rules.yml add-timestamps.yml
 </code></pre>
-<pre title="add-timestamps.txt"><code class="language-txt">[
+<pre title="add-timestamps.out"><code class="language-out">[
   'A: {"recipes":["update A from B and C"],"timestamp":2}',
   'B: {"recipes":["update B from C"],"timestamp":5}',
   'C: {"recipes":[],"timestamp":8}'
@@ -473,9 +481,9 @@ class UpdateOnTimestamps extends AddTimestamps {
 
 export default UpdateOnTimestamps
 </code></pre>
-<pre title="update-timestamps.sh"><code class="language-sh">node driver.js ./update-timestamps three-simple-rules.yml add-timestamps.yml
+<pre title="update-timestamps.sh"><code class="language-sh">node driver.js ./update-timestamps.js three-simple-rules.yml add-timestamps.yml
 </code></pre>
-<pre title="update-timestamps.txt"><code class="language-txt">9: START
+<pre title="update-timestamps.out"><code class="language-out">9: START
 9: B
     update B from C
 10: A
@@ -548,7 +556,7 @@ class VariableExpander extends UpdateOnTimestamps {
 
 export default VariableExpander
 </code></pre>
-<pre title="variable-expander.txt"><code class="language-txt">9: START
+<pre title="variable-expander.out"><code class="language-out">9: START
 9: B
     update B from C
 10: A
@@ -617,10 +625,7 @@ class PatternUserAttempt extends VariableExpander {
 
 export default PatternUserAttempt
 </code></pre>
-<pre title="pattern-user-attempt.txt"><code class="language-txt">assert.js:386
-    throw err;
-    ^
-AssertionError [ERR_ASSERTION]: Graph does not have node A
+<pre title="pattern-user-attempt.out"><code class="language-out">Build failed: AssertionError [ERR_ASSERTION]: Graph does not have node A
     at PatternUserAttempt.addTimestamps \
  (/u/stjs/build-manager/add-timestamps.js:21:7)
     at PatternUserAttempt.buildGraph \
@@ -631,12 +636,7 @@ AssertionError [ERR_ASSERTION]: Graph does not have node A
  (/u/stjs/build-manager/pattern-user-attempt.js:5:11)
     at PatternUserAttempt.build \
  (/u/stjs/build-manager/skeleton-builder.js:10:10)
-    at Object.&lt;anonymous&gt; (/u/stjs/build-manager/driver.js:3:9)
-    at Module._compile (internal/modules/cjs/loader.js:1151:30)
-    at Object.Module._extensions..js \
- (internal/modules/cjs/loader.js:1171:10)
-    at Module.load (internal/modules/cjs/loader.js:1000:32)
-    at Function.Module._load (internal/modules/cjs/loader.js:899:14) {
+    at main (/u/stjs/build-manager/driver.js:5:13) {
   generatedMessage: false,
   code: 'ERR_ASSERTION',
   actual: false,
@@ -704,7 +704,7 @@ export default PatternUserRead
 </ul>
 <pre title="pattern-user-show.js"><code class="language-js">import graphlib from '@dagrejs/graphlib'
 
-import PatternUserRead from './pattern-user-read'
+import PatternUserRead from './pattern-user-read.js'
 
 class PatternUserShow extends PatternUserRead {
   run () {
@@ -723,9 +723,9 @@ class PatternUserShow extends PatternUserRead {
 
 export default PatternUserShow
 </code></pre>
-<pre title="pattern-user-show.sh"><code class="language-sh">node driver.js ./pattern-user-show pattern-rules.yml
+<pre title="pattern-user-show.sh"><code class="language-sh">node driver.js ./pattern-user-show.js pattern-rules.yml
 </code></pre>
-<pre title="pattern-user-show.txt"><code class="language-txt">{
+<pre title="pattern-user-show.out"><code class="language-out">{
   "graph": {
     "options": {
       "directed": true,
@@ -836,7 +836,7 @@ class PatternUserRun extends PatternUserRead {
 
 export default PatternUserRun
 </code></pre>
-<pre title="pattern-user-run.txt"><code class="language-txt">4: START
+<pre title="pattern-user-run.out"><code class="language-out">4: START
 4: left.out
     update left.out from left.in
 5: right.out

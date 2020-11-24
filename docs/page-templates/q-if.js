@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   open: (expander, node) => {
     const doRest = expander.env.find(node.attribs['q-if'])
     if (doRest) {

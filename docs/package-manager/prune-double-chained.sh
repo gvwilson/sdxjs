@@ -1,1 +1,1 @@
-node driver.js ./prune double-chained.json
+node driver.js ./prune.js double-chained.json

@@ -1,1 +1,1 @@
-node as.js ./assembler halt.as halt.mx
+node as.js ./assembler.js halt.as halt.mx

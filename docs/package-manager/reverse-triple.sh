@@ -1,1 +1,1 @@
-node driver.js ./reverse triple.json
+node driver.js ./reverse.js triple.json

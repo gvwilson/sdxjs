@@ -20,7 +20,7 @@ class FindAncestors {
     if (ancestorName === null) {
       return accum
     }
-    const ancestorFile = this.findRequire(filename, ast, ancestorName)
+    const ancestorFile = this.findImport(filename, ast, ancestorName)
     return this.traceAncestry(dirname, ancestorFile, ancestorName, accum)
   }
 
@@ -45,31 +45,28 @@ class FindAncestors {
       : classDef.superClass.name
   }
 
-  findRequire (filename, ast, className) {
+  findImport (filename, ast, className) {
     const state = []
     walk.simple(ast, {
-      VariableDeclaration: (node, state) => {
-        if (node.declarations.length !== 1) {
+      ImportDeclaration: (node, state) => {
+        if (node.specifiers.length !== 1) {
           return
         }
-        const decl = node.declarations[0]
-        if ((decl.type !== 'VariableDeclarator') ||
-            (decl.id.name !== className)) {
+        const spec = node.specifiers[0]
+        if ((spec.type !== 'ImportDefaultSpecifier') ||
+            (!('local' in spec)) ||
+            (spec.local.type !== 'Identifier')) {
           return
         }
-        const init = decl.init
-        if ((init.type !== 'CallExpression') ||
-            (init.callee.type !== 'Identifier') ||
-            (init.callee.name !== 'require') ||
-            (init.arguments.length !== 1)) {
+        if (spec.local.name !== className) {
           return
         }
-        state.push(init.arguments[0].value)
+        state.push(node.source.value)
       }
     }, null, state)
     assert(state.length === 1,
-      `No require call found for ${className} in ${filename}`)
-    return state[0] + '.js'
+      `No import found for ${className} in ${filename}`)
+    return state[0]
   }
 }
 

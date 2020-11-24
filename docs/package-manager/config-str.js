@@ -1,3 +1,3 @@
-module.exports = (config) => JSON.stringify(config)
+export default (config) => JSON.stringify(config)
   .replace(/"/g, '')
   .replace(/,/g, ' ')

@@ -11,7 +11,11 @@ const getDefinitions = (filenames) => {
 }
 
 const getDefs = (filename) => {
-  const options = { locations: true, onComment: [] }
+  const options = {
+    sourceType: 'module',
+    locations: true,
+    onComment: []
+  }
   const text = fs.readFileSync(filename, 'utf-8')
   const ast = acorn.parse(text, options)
   const comments = options.onComment

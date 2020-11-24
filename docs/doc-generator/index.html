@@ -86,14 +86,18 @@ have been around since the 1980s</li>
 import acorn from 'acorn'
 
 const text = fs.readFileSync(process.argv[2], 'utf-8')
-const options = { locations: true, onComment: [] }
+const options = {
+  sourceType: 'module',
+  locations: true,
+  onComment: []
+}
 acorn.parse(text, options)
 console.log(JSON.stringify(options.onComment, null, 2))
 </code></pre>
 <pre title="two-kinds-of-comment.js"><code class="language-js">// double-slash comment
 /* slash-star comment */
 </code></pre>
-<pre title="two-kinds-of-comment.txt"><code class="language-txt">[
+<pre title="two-kinds-of-comment.out"><code class="language-out">[
   {
     "type": "Line",
     "value": " double-slash comment",
@@ -135,7 +139,11 @@ console.log(JSON.stringify(options.onComment, null, 2))
 import acorn from 'acorn'
 
 const text = fs.readFileSync(process.argv[2], 'utf-8')
-const options = { locations: true, onComment: [] }
+const options = {
+  sourceType: 'module',
+  locations: true,
+  onComment: []
+}
 acorn.parse(text, options)
 const subset = options.onComment.map(entry =&gt; {
   return {
@@ -149,7 +157,7 @@ console.log(JSON.stringify(subset, null, 2))
 </code></pre>
 <pre title="two-kinds-of-comment-subset.sh"><code class="language-sh">node extract-comments-subset.js two-kinds-of-comment.js
 </code></pre>
-<pre title="two-kinds-of-comment-subset.txt"><code class="language-txt">[
+<pre title="two-kinds-of-comment-subset.out"><code class="language-out">[
   {
     "type": "Line",
     "value": " double-slash comment",
@@ -178,7 +186,7 @@ console.log(JSON.stringify(subset, null, 2))
 </code></pre>
 <pre title="multi-line-double-slash-comment.sh"><code class="language-sh">node extract-comments-subset.js multi-line-double-slash-comment.js
 </code></pre>
-<pre title="multi-line-double-slash-comment.txt"><code class="language-txt">[
+<pre title="multi-line-double-slash-comment.out"><code class="language-out">[
   {
     "type": "Line",
     "value": "",
@@ -212,7 +220,7 @@ console.log(JSON.stringify(subset, null, 2))
 </code></pre>
 <pre title="multi-line-slash-star-comment.sh"><code class="language-sh">node extract-comments-subset.js multi-line-slash-star-comment.js
 </code></pre>
-<pre title="multi-line-slash-star-comment.txt"><code class="language-txt">[
+<pre title="multi-line-slash-star-comment.out"><code class="language-out">[
   {
     "type": "Block",
     "value": "\n * multi-line slash-star comment\n ",
@@ -232,7 +240,7 @@ console.log(JSON.stringify(subset, null, 2))
  * doc comment
  */
 </code></pre>
-<pre title="doc-comment.txt"><code class="language-txt">[
+<pre title="doc-comment.out"><code class="language-out">[
   {
     "type": "Block",
     "value": "*\n * doc comment\n ",
@@ -311,7 +319,7 @@ class BaseProcessor {
   }
 }
 
-module.exports = BaseProcessor
+export default BaseProcessor
 </code></pre>
 <ul>
 <li>Lots of unpleasantry here
@@ -359,7 +367,11 @@ const main = () =&gt; {
 
 const extractComments = (filename) =&gt; {
   const text = fs.readFileSync(filename, 'utf-8')
-  const options = { locations: true, onComment: [] }
+  const options = {
+    sourceType: 'module',
+    locations: true,
+    onComment: []
+  }
   acorn.parse(text, options)
   const subset = options.onComment
     .filter(entry =&gt; entry.type === 'Block')
@@ -524,7 +536,11 @@ import fs from 'fs'
 import acorn from 'acorn'
 
 const main = () =&gt; {
-  const options = { locations: true, onComment: [] }
+  const options = {
+    sourceType: 'module',
+    locations: true,
+    onComment: []
+  }
   const text = fs.readFileSync(process.argv[2], 'utf-8')
   const ast = acorn.parse(text, options)
   const comments = options.onComment
@@ -590,7 +606,7 @@ main()
 </code></pre>
 <pre title="find-following.sh"><code class="language-sh">node find-following.js find-following-input.js
 </code></pre>
-<pre title="find-following.txt"><code class="language-txt">[
+<pre title="find-following.out"><code class="language-out">[
   { type: 'VariableDeclaration', start: 8, name: 'double' },
   { type: 'FunctionDeclaration', start: 13, name: 'triple' },
   { type: 'ClassDeclaration', start: 20, name: 'Example' },

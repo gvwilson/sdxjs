@@ -1,1 +1,1 @@
-node driver.js ./sweep triple.json
+node driver.js ./sweep.js triple.json

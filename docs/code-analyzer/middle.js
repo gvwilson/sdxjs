@@ -1,4 +1,4 @@
-const Upper = require('./upper')
+import Upper from './upper.js'
 
 class Middle extends Upper {
   constructor () {
@@ -11,4 +11,4 @@ class Middle extends Upper {
   }
 }
 
-module.exports = Middle
+export default Middle

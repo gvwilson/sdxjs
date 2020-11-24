@@ -21,4 +21,4 @@ const fillIn = (filename, comments, definitions) => {
   return `# ${filename}\n\n` + filled.join('\n\n')
 }
 
-module.exports = fillIn
+export default fillIn

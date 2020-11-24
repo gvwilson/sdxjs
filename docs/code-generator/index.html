@@ -128,7 +128,7 @@ funcError = replace(funcError)
 
 runAll('second time')
 </code></pre>
-<pre title="replace-func.txt"><code class="language-txt">first time
+<pre title="replace-func.out"><code class="language-out">first time
 funcZero
 funcOne(1)
 funcTwo(1, 2)
@@ -182,16 +182,16 @@ but it's astonishing how irregular real-world code can be</li>
 </li>
 <li>Look at the Acorn parse tree for a simple function definition</li>
 </ul>
-<pre title="func-def.js"><code class="language-js">import acorn from 'acorn.js'
+<pre title="func-def.js"><code class="language-js">import acorn from 'acorn'
 
 const text = `const func = (param) =&gt; {
   return param + 1
 }`
 
-const ast = acorn.parse(text)
+const ast = acorn.parse(text, { sourceType: 'module' })
 console.log(JSON.stringify(ast, null, 2))
 </code></pre>
-<pre title="func-def.txt"><code class="language-txt">{
+<pre title="func-def.out"><code class="language-out">{
   "type": "Program",
   "start": 0,
   "end": 46,
@@ -264,7 +264,7 @@ console.log(JSON.stringify(ast, null, 2))
       "kind": "const"
     }
   ],
-  "sourceType": "script"
+  "sourceType": "module"
 }
 </code></pre>
 <ul>
@@ -280,7 +280,7 @@ const result = escodegen.generate({
 })
 console.log(result)
 </code></pre>
-<pre title="one-plus-two.txt"><code class="language-txt">40 + 2
+<pre title="one-plus-two.out"><code class="language-out">40 + 2
 </code></pre>
 <h2 id="how-can-we-count-how-often-functions-are-executed">How can we count how often functions are executed?</h2>
 <ul>
@@ -305,7 +305,7 @@ for (const i of [1, 3, 5]) {
 `
 
 const main = () =&gt; {
-  const ast = acorn.parse(text)
+  const ast = acorn.parse(text, { sourceType: 'module' })
 
   const allNodes = []
   walk.simple(ast, {
@@ -328,7 +328,8 @@ const insertCounter = (names, node) =&gt; {
   names[name] = 0
 
   const body = node.init.body.body
-  const increment = acorn.parse(`__counters['${name}'] += 1`)
+  const increment =
+    acorn.parse(`__counters['${name}'] += 1`, { sourceType: 'module' })
   body.unshift(increment)
 }
 
@@ -343,7 +344,7 @@ const reportCounters = () =&gt; {
 
 main()
 </code></pre>
-<pre title="multi-func-counter.txt"><code class="language-txt">const __counters = {
+<pre title="multi-func-counter.out"><code class="language-out">const __counters = {
 'funcOuter': 0,
 'funcInner': 0
 }
@@ -388,7 +389,7 @@ import walk from 'acorn-walk'
 import escodegen from 'escodegen'
 
 const timeFunc = (text) =&gt; {
-  const ast = acorn.parse(text)
+  const ast = acorn.parse(text, { sourceType: 'module' })
   const allNodes = gatherNodes(ast)
   allNodes.forEach(node =&gt; wrapFuncDef(node))
   return [
@@ -432,7 +433,9 @@ const makeWrapperAst = (name) =&gt; {
       throw error
     }
   }`
-  return acorn.parse(template).body[0].declarations[0]
+  return acorn.parse(template, { sourceType: 'module' })
+    .body[0]
+    .declarations[0]
 }
 
 const initializeCounters = (nodes) =&gt; {
@@ -449,11 +452,11 @@ export default timeFunc
 <ul>
 <li>A quick test</li>
 </ul>
-<pre title="test-time-func.js"><code class="language-js">import timeFunc from './time-func'
+<pre title="test-time-func.js"><code class="language-js">import fs from 'fs'
+
+import timeFunc from './time-func.js'
 
 const text = `
-import fs from 'fs'
-
 const assignment = (range) =&gt; {
   let j = 0
   for (let i=0; i&lt;range; i+=1) {
@@ -477,11 +480,10 @@ console.log(program)
 console.log('OUTPUT')
 eval(program)
 </code></pre>
-<pre title="test-time-func.txt"><code class="language-txt">const __counters = {
+<pre title="test-time-func.out"><code class="language-out">const __counters = {
 'assignment': 0,
 'readFile': 0
 }
-const fs = require('fs');
 const assignment = (...originalArgs) =&gt; {
     const originalFunc = range =&gt; {
         let j = 0;
@@ -524,7 +526,7 @@ assignment(numLoops);
 readFile(numLoops, 'index.md');
 console.log(__counters)
 OUTPUT
-{ assignment: 2, readFile: 1635 }
+{ assignment: 1, readFile: 2310 }
 </code></pre>
 </main>
 <footer>

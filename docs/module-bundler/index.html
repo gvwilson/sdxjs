@@ -112,7 +112,15 @@ but it helps give direction to this chapter</li>
 </ul>
 </li>
 </ul>
-<pre title="expected-simple.txt"><code class="language-txt">other called from main
+<pre title="expected-simple.out"><code class="language-out">file:///u/stjs/module-bundler/simple/run.js:1
+const main = require('./main')
+             ^
+
+ReferenceError: require is not defined
+    at file:///u/stjs/module-bundler/simple/run.js:1:14
+    at ModuleJob.run (internal/modules/esm/module_job.js:146:23)
+    at async Loader.import (internal/modules/esm/loader.js:165:24)
+    at async Object.loadESM (internal/process/esm_loader.js:68:5)
 </code></pre>
 <ul>
 <li>Case 3: best described with a diagram
@@ -125,12 +133,15 @@ but it helps give direction to this chapter</li>
 </ul>
 </li>
 </ul>
-<pre title="expected-full.txt"><code class="language-txt">topLeft from main
-topRight from main with topLeft from topRight and bottomRight from \
- topRight
-bottomLeft from main with topLeft from bottomLeft and bottomRight from \
- bottomLeft
-bottomRight from main
+<pre title="expected-full.out"><code class="language-out">file:///u/stjs/module-bundler/full/run.js:1
+const main = require('./main')
+             ^
+
+ReferenceError: require is not defined
+    at file:///u/stjs/module-bundler/full/run.js:1:14
+    at ModuleJob.run (internal/modules/esm/module_job.js:146:23)
+    at async Loader.import (internal/modules/esm/loader.js:165:24)
+    at async Object.loadESM (internal/process/esm_loader.js:68:5)
 </code></pre>
 <ul>
 <li>We do not handle <g key="circular_dependency">circular dependencies</g>
@@ -176,7 +187,25 @@ console.log(result)
 </code></pre>
 <pre title="test-get-requires.sh"><code class="language-sh">node test-get-requires.js get-requires.js
 </code></pre>
-<pre title="test-get-requires.txt"><code class="language-txt">[ 'acorn', 'fs', 'acorn-walk' ]
+<pre title="test-get-requires.out"><code class="language-out">/u/stjs/node_modules/acorn/dist/acorn.js:2927
+    var err = new SyntaxError(message);
+              ^
+
+SyntaxError: 'import' and 'export' may appear only with 'sourceType: module' (1:0)
+    at Parser.pp$4.raise (/u/stjs/node_modules/acorn/dist/acorn.js:2927:15)
+    at Parser.pp$1.parseStatement (/u/stjs/node_modules/acorn/dist/acorn.js:870:18)
+    at Parser.pp$1.parseTopLevel (/u/stjs/node_modules/acorn/dist/acorn.js:755:23)
+    at Parser.parse (/u/stjs/node_modules/acorn/dist/acorn.js:555:17)
+    at Function.parse (/u/stjs/node_modules/acorn/dist/acorn.js:578:37)
+    at Object.parse (/u/stjs/node_modules/acorn/dist/acorn.js:5143:19)
+    at getRequires (file:///u/stjs/module-bundler/get-requires.js:8:21)
+    at file:///u/stjs/module-bundler/test-get-requires.js:3:16
+    at ModuleJob.run (internal/modules/esm/module_job.js:146:23)
+    at async Loader.import (internal/modules/esm/loader.js:165:24) {
+  pos: 0,
+  loc: Position { line: 1, column: 0 },
+  raisedAt: 6
+}
 </code></pre>
 <ul>
 <li>To get all dependencies, need to find <g key="transitive_closure">transitive closure</g>
@@ -239,7 +268,7 @@ console.log(JSON.stringify(result, null, 2))
 </code></pre>
 <pre title="test-transitive-closure-only.sh"><code class="language-sh">node test-transitive-closure-only.js full/main.js
 </code></pre>
-<pre title="test-transitive-closure-only.txt"><code class="language-txt">[
+<pre title="test-transitive-closure-only.out"><code class="language-out">[
   "/u/stjs/module-bundler/full/main.js",
   "/u/stjs/module-bundler/full/subdir/bottom-right.js",
   "/u/stjs/module-bundler/full/subdir/bottom-left.js",
@@ -295,7 +324,7 @@ console.log(JSON.stringify(result, null, 2))
 </code></pre>
 <pre title="test-transitive-closure.sh"><code class="language-sh">node test-transitive-closure.js full/main.js | ../_tools/wrap.js
 </code></pre>
-<pre title="test-transitive-closure.txt"><code class="language-txt">{
+<pre title="test-transitive-closure.out"><code class="language-out">{
   "/u/stjs/module-bundler/full/main.js": {
     "./top-left": "/u/stjs/module-bundler/full/top-left.js",
     "./top-right": "/u/stjs/module-bundler/full/top-right.js",
@@ -362,7 +391,7 @@ const temp = {}
 wrapper(temp, need)
 temp.exports()
 </code></pre>
-<pre title="sanity-check-test.txt"><code class="language-txt">in main
+<pre title="sanity-check-test.out"><code class="language-out">in main
 </code></pre>
 <ul>
 <li>But we want to do this for multiple files</li>
@@ -439,7 +468,7 @@ module.exports = other
 <ul>
 <li>We can check that this works by loading the file and calling <code>initialize</code></li>
 </ul>
-<pre title="show-combine-files-simple.txt"><code class="language-txt">Map(2) {
+<pre title="show-combine-files-simple.out"><code class="language-out">Map(2) {
   '/u/stjs/module-bundler/simple/main.js' =&gt; [Function (anonymous)],
   '/u/stjs/module-bundler/simple/other.js' =&gt; [Function (anonymous)]
 }
@@ -608,7 +637,7 @@ m.exports()
 <ul>
 <li>And when we run it</li>
 </ul>
-<pre title="test-bundle-single.txt"><code class="language-txt">in main
+<pre title="test-bundle-single.out"><code class="language-out">in main
 </code></pre>
 <ul>
 <li>That was a lot of work to print one line
@@ -676,12 +705,12 @@ start(m)
 m.exports()
 
 </code></pre>
-<pre title="test-bundle-simple.txt"><code class="language-txt">other called from main
+<pre title="test-bundle-simple.out"><code class="language-out">other called from main
 </code></pre>
 <ul>
 <li>And for the full case (<code>main</code> plus four other files)</li>
 </ul>
-<pre title="test-bundle-full.txt"><code class="language-txt">topLeft from main
+<pre title="test-bundle-full.out"><code class="language-out">topLeft from main
 topRight from main with topLeft from topRight and bottomRight from \
  topRight
 bottomLeft from main with topLeft from bottomLeft and bottomRight from \

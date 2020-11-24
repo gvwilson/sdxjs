@@ -3,7 +3,11 @@ import fs from 'fs'
 import acorn from 'acorn'
 
 const main = () => {
-  const options = { locations: true, onComment: [] }
+  const options = {
+    sourceType: 'module',
+    locations: true,
+    onComment: []
+  }
   const text = fs.readFileSync(process.argv[2], 'utf-8')
   const ast = acorn.parse(text, options)
   const comments = options.onComment

@@ -1,1 +1,1 @@
-node as.js ./assembler count-up.as count-up.mx
+node as.js ./assembler.js count-up.as count-up.mx

@@ -1,1 +1,1 @@
-node await-fs.js short-quote.txt
+node await-fs.js short-quote.out

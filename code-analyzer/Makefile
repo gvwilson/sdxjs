@@ -14,3 +14,6 @@ run-find-ancestors.js: find-ancestors.js
 
 run-find-methods.js: find-methods.js
 	@touch $@
+
+find-methods.js: find-ancestors.js
+	@touch $@

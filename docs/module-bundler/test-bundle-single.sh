@@ -1,1 +1,1 @@
-node bundle-single.js > test-bundle-single.txt
+node bundle-single.js > test-bundle-single.out

@@ -12,4 +12,4 @@ const need = (name) => {
 }
 need.cache = new Map()
 
-module.exports = need
+export default need

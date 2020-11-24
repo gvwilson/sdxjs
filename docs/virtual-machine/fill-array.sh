@@ -1,1 +1,1 @@
-node as.js ./allocate-data fill-array.as fill-array.mx
+node as.js ./allocate-data.js fill-array.as fill-array.mx

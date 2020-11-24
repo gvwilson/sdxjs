@@ -107,7 +107,7 @@ const contents = createModule()
 console.log(`contents.publicValue is ${contents.publicValue}`)
 console.log(`contents.privateValue is ${contents.privateValue}`)
 </code></pre>
-<pre title="manual-namespacing.txt"><code class="language-txt">contents.publicValue is public value
+<pre title="manual-namespacing.out"><code class="language-out">contents.publicValue is public value
 contents.privateValue is undefined
 </code></pre>
 <ul>
@@ -130,7 +130,7 @@ contents.privateValue is undefined
 console.log(`contents.publicValue is ${contents.publicValue}`)
 console.log(`contents.privateValue is ${contents.privateValue}`)
 </code></pre>
-<pre title="automatic-namespacing.txt"><code class="language-txt">contents.publicValue is public value
+<pre title="automatic-namespacing.out"><code class="language-out">contents.publicValue is public value
 contents.privateValue is undefined
 </code></pre>
 <h2 id="how-can-we-load-a-module">How can we load a module?</h2>
@@ -183,7 +183,7 @@ console.log(result.publicFunction('main'))
 </code></pre>
 <pre title="test-load-module-only.sh"><code class="language-sh">node test-load-module-only.js small-module.js
 </code></pre>
-<pre title="test-load-module-only.txt"><code class="language-txt">full text for eval:
+<pre title="test-load-module-only.out"><code class="language-out">full text for eval:
 ((module) =&gt; {const publicValue = 'public value'
 
 const privateValue = 'private value'
@@ -256,7 +256,7 @@ def middle():
 <ul>
 <li>Fails when run from the command line</li>
 </ul>
-<pre title="py-command-line.txt"><code class="language-txt">top
+<pre title="py-command-line.out"><code class="language-out">top
 Traceback (most recent call last):
   File "major.py", line 3, in &lt;module&gt;
     import minor
@@ -271,7 +271,7 @@ AttributeError: module 'minor' has no attribute 'middle'
 <ul>
 <li>But works in the interactive interpreter</li>
 </ul>
-<pre title="py-interactive.txt"><code class="language-txt">$ python
+<pre title="py-interactive.out"><code class="language-out">$ python
 &gt;&gt;&gt; import major
 top
 middle
@@ -309,46 +309,46 @@ module.exports = { middle }
 <ul>
 <li>Fails on the command line</li>
 </ul>
-<pre title="js-command-line.txt"><code class="language-txt">top
-middle
-/u/stjs/module-loader/checking/minor.js:6
-  bottom()
-  ^
-TypeError: bottom is not a function
-    at middle (/u/stjs/module-loader/checking/minor.js:6:3)
-    at top (/u/stjs/module-loader/checking/major.js:6:3)
-    at Object.&lt;anonymous&gt; (/u/stjs/module-loader/checking/major.js:13:1)
-    at Module._compile (internal/modules/cjs/loader.js:1151:30)
-    at Object.Module._extensions..js \
- (internal/modules/cjs/loader.js:1171:10)
-    at Module.load (internal/modules/cjs/loader.js:1000:32)
-    at Function.Module._load (internal/modules/cjs/loader.js:899:14)
-    at Function.executeUserEntryPoint [as runMain] \
- (internal/modules/run_main.js:71:12)
-    at internal/main/run_main_module.js:17:47
+<pre title="js-command-line.out"><code class="language-out">/u/stjs/module-loader/checking/major.js:2
+const { middle } = require('./minor')
+                   ^
+ReferenceError: require is not defined
+    at /u/stjs/module-loader/checking/major.js:2:20
+    at ModuleJob.run (internal/modules/esm/module_job.js:146:23)
+    at async Loader.import (internal/modules/esm/loader.js:165:24)
+    at async Object.loadESM (internal/process/esm_loader.js:68:5)
 </code></pre>
 <ul>
 <li>Also fails in the interactive interpreter</li>
 </ul>
-<pre title="js-interactive.txt"><code class="language-txt">$ node
+<pre title="js-interactive.out"><code class="language-out">$ node
 &gt; require('./major')
-top
-middle
-/u/stjs/module-loader/checking/minor.js:6
-  bottom()
-  ^
-TypeError: bottom is not a function
-    at middle (/u/stjs/module-loader/checking/minor.js:6:3)
-    at top (/u/stjs/module-loader/checking/major.js:6:3)
-    at Object.&lt;anonymous&gt; (/u/stjs/module-loader/checking/major.js:13:1)
-    at Module._compile (internal/modules/cjs/loader.js:1151:30)
+internal/modules/cjs/loader.js:1080
+      throw new ERR_REQUIRE_ESM(filename, parentPath, packageJsonPath);
+      ^
+Error [ERR_REQUIRE_ESM]: Must use import to load ES Module: \
+ /u/stjs/module-loader/checking/major.js
+require() of ES modules is not supported.
+require() of /u/stjs/module-loader/checking/major.js from \
+ /u/stjs/module-loader/checking/[stdin] is an ES module \
+ file as it is a .js file whose nearest parent package.json contains \
+ "type": "module" which defines all .js files in that package scope as \
+ ES modules.
+Instead rename major.js to end in .cjs, change the requiring code to use \
+ import(), or remove "type": "module" from /u/stjs/package.json.
     at Object.Module._extensions..js \
- (internal/modules/cjs/loader.js:1171:10)
-    at Module.load (internal/modules/cjs/loader.js:1000:32)
-    at Function.Module._load (internal/modules/cjs/loader.js:899:14)
-    at Module.require (internal/modules/cjs/loader.js:1040:19)
-    at require (internal/modules/cjs/helpers.js:72:18)
+ (internal/modules/cjs/loader.js:1080:13)
+    at Module.load (internal/modules/cjs/loader.js:928:32)
+    at Function.Module._load (internal/modules/cjs/loader.js:769:14)
+    at Module.require (internal/modules/cjs/loader.js:952:19)
+    at require (internal/modules/cjs/helpers.js:88:18)
     at [stdin]:1:1
+    at Script.runInThisContext (vm.js:132:18)
+    at Object.runInThisContext (vm.js:309:38)
+    at internal/process/execution.js:77:19
+    at [stdin]-wrapper:6:22 {
+  code: 'ERR_REQUIRE_ESM'
+}
 </code></pre>
 <ul>
 <li>So we will <em>not</em> handle circular dependencies
@@ -404,7 +404,7 @@ const need = (name) =&gt; {
 }
 need.cache = new Map()
 
-module.exports = need
+export default need
 </code></pre>
 <ul>
 <li>Need to modify <code>loadModule</code> to take our function <code>need</code> as a parameter
@@ -421,7 +421,7 @@ console.log(`small.publicValue is ${small.publicValue}`)
 console.log(`small.privateValue is ${small.privateValue}`)
 console.log(small.publicFunction('main'))
 </code></pre>
-<pre title="test-need-small-module.txt"><code class="language-txt">full text for eval:
+<pre title="test-need-small-module.out"><code class="language-out">full text for eval:
 ((module, need) =&gt; {const publicValue = 'public value'
 
 const privateValue = 'private value'
@@ -482,7 +482,7 @@ module.exports = large
 const large = need('large-needless.js')
 console.log(large('main'))
 </code></pre>
-<pre title="test-need-large-needless.txt"><code class="language-txt">full text for eval:
+<pre title="test-need-large-needless.out"><code class="language-out">full text for eval:
 ((module, need) =&gt; {const small = need('small-module.js')
 
 const large = (caller) =&gt; {

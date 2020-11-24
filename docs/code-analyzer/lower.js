@@ -1,4 +1,4 @@
-const Middle = require('./middle')
+import Middle from './middle.js'
 
 class Lower extends Middle {
   report () {
@@ -10,4 +10,4 @@ class Lower extends Middle {
   }
 }
 
-module.exports = Lower
+export default Lower
