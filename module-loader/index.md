@@ -71,11 +71,11 @@
 
 -   Fails when run from the command line
 
-<%- include('/_inc/file.html', {file: 'py-command-line.out'}) %>
+<%- include('/_inc/file.html', {file: 'checking/py-command-line.out'}) %>
 
 -   But works in the interactive interpreter
 
-<%- include('/_inc/file.html', {file: 'py-interactive.out'}) %>
+<%- include('/_inc/file.html', {file: 'checking/py-interactive.out'}) %>
 
 -   Equivalent in JavaScript
 
@@ -84,11 +84,11 @@
 
 -   Fails on the command line
 
-<%- include('/_inc/file.html', {file: 'js-command-line.out'}) %>
+<%- include('/_inc/file.html', {file: 'checking/js-command-line.out'}) %>
 
 -   Also fails in the interactive interpreter
 
-<%- include('/_inc/file.html', {file: 'js-interactive.out'}) %>
+<%- include('/_inc/file.html', {file: 'checking/js-interactive.out'}) %>
 
 -   So we will *not* handle circular dependencies
     -   But we *will* detect them and generate a sensible error message
@@ -96,13 +96,13 @@
 ::: callout
 ### `import` vs. `require`
 
-Circular dependencies actually *do* work JavaScript's newer `import` syntax.
+Circular dependencies work JavaScript's `import` syntax.
 The difference is that we can reliably analyze files to determine what needs what,
 get everything into memory,
 and then resolve dependencies.
-(We can't do this with `require`-based code
+We can't do this with `require`-based code
 because someone might call `require` inside a function
-or create an alias and call `require` through that.)
+or create an alias and call `require` through that.
 Please see <cite>Casciaro2020</cite> for a more detailed discussion.
 :::
 
