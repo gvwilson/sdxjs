@@ -175,6 +175,7 @@ const translateFile = (options, fileInfo, linksText) => {
     .use(MarkdownContainer, 'centered')
     .use(MarkdownContainer, 'fixme')
     .use(MarkdownContainer, 'hint')
+    .use(MarkdownContainer, 'unindented')
   let html = mdi.render(translated)
   if (options.replaceDir) {
     html = html.replace(new RegExp(options.homeDir, 'g'), STANDARD_DIR)

@@ -186,6 +186,10 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
       accum.push('\\begin{lstlisting}[caption=FIXME]\n')
       accum.push('FIXME display sub-page')
       accum.push('\\end{lstlisting}')
+    } else if (cls === 'unindented') {
+      accum.push('\\begin{unindented}')
+      childrenToLatex(options, fileInfo, node, accum)
+      accum.push('\\end{unindented}')
     } else {
       childrenToLatex(options, fileInfo, node, accum)
     }
@@ -287,11 +291,7 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     childrenToLatex(options, fileInfo, node, accum)
     accum.push('\\end{enumerate}')
   } else if (node.name === 'p') {
-    const cls = node.attribs.class
     accum.push('\n')
-    if (cls === 'noindent') {
-      accum.push('\\noindent\n')
-    }
     childrenToLatex(options, fileInfo, node, accum)
   } else if (node.name === 'pre') {
     assert((node.children.length === 1) && (node.children[0].name === 'code'),

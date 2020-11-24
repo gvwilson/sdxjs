@@ -80,7 +80,9 @@ for (const thing in collection) {
 }
 ```
 
-<p class="noindent">and Unix shell commands like this:</p>
+::: unindented
+and Unix shell commands like this:
+:::
 
 ```sh
 for filename in *.dat
@@ -89,7 +91,9 @@ do
 done
 ```
 
-<p class="noindent">Data and output are shown in italics:</p>
+::: unindented
+Data and output are shown in italics:
+:::
 
 ```txt
 Package,Releases
