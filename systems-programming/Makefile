@@ -1,14 +1,14 @@
 TARGETS=\
-  copy-file-unfiltered.txt \
-  glob-all-files.txt \
-  glob-get-then-filter-pedantic.txt \
-  list-dir-function-defined.txt \
-  list-dir-wrong.txt
+  copy-file-unfiltered.out \
+  glob-all-files.out \
+  glob-get-then-filter-pedantic.out \
+  list-dir-function-defined.out \
+  list-dir-wrong.out
 
 include ../_rules.mk
 
-copy-file-unfiltered.txt: copy-file-unfiltered-wrap.sh copy-file-unfiltered.sh copy-file-unfiltered.js
+copy-file-unfiltered.out: copy-file-unfiltered-wrap.sh copy-file-unfiltered.sh copy-file-unfiltered.js
 	bash $< >& $@
 
-list-dir-wrong.txt: list-dir-wrong-wrapped.sh list-dir-wrong.sh list-dir-wrong.js
+list-dir-wrong.out: list-dir-wrong-wrapped.sh list-dir-wrong.sh list-dir-wrong.js
 	bash $< >& $@

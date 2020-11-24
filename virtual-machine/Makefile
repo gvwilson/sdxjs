@@ -1,12 +1,12 @@
 TARGETS=\
-  count-up-out.txt \
-  fill-array-out.txt \
-  halt-out.txt \
-  print-r1-out.txt
+  count-up-out.out \
+  fill-array-out.out \
+  halt-out.out \
+  print-r1-out.out
 
 include ../_rules.mk
 
-%-out.txt: %.mx run.js vm.js
+%-out.out: %.mx run.js vm.js
 	node run.js $< show > $@
 
 %.mx: %.sh %.as as.js

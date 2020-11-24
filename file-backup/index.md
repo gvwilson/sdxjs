@@ -15,13 +15,13 @@
     -   Use a library to calculate a 160-bit [SHA-1] hash
     -   Not strong enough to deter a well-funded attacker, but that's not what we're using it for
 
-<%- include('/_inc/multi.html', {pat: 'hash-text.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'hash-text.*', fill: 'js sh out'}) %>
 
 -   The hash code for a file:
     -   Will always be the same for the same content
     -   Is almost certain to be different if even a single byte differs
 
-<%- include('/_inc/multi.html', {pat: 'hash-file.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'hash-file.*', fill: 'js sh out'}) %>
 
 ::: callout
 ### The Birthday Problem
@@ -45,7 +45,7 @@ and quickly get into "if every atom in the universe was a file there still would
     -   Tell the hashing object what to do when the stream finishes
     -   Another example of <g key="asynchronous">asynchronous</g> execution
 
-<%- include('/_inc/multi.html', {pat: 'hash-stream.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'hash-stream.*', fill: 'js sh out'}) %>
 
 -   Many files don't change after they're created, or only change very slowly
 -   Wasteful to copy them every time a backup is done
@@ -60,14 +60,14 @@ and quickly get into "if every atom in the universe was a file there still would
 
 <%- include('/_inc/file.html', {file: 'hash-existing-promise.js'}) %>
 
-<%- include('/_inc/multi.html', {pat: 'run-hash-existing-promise.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'run-hash-existing-promise.*', fill: 'js sh out'}) %>
 
 -   This code is clearer than it would be with callbacks, but the layer of promises around everything still obscures meaning
 -   Let's rewrite it using `async` and `await`
 
 <%- include('/_inc/file.html', {file: 'hash-existing-async.js'}) %>
 
-<%- include('/_inc/multi.html', {pat: 'run-hash-existing-async.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'run-hash-existing-async.*', fill: 'js sh out'}) %>
 
 ## How can we test JavaScript?
 
@@ -80,7 +80,7 @@ and quickly get into "if every atom in the universe was a file there still would
 
 -   Manually create testing directories with manufactured (shortened) hashes
 
-<%- include('/_inc/multi.html', {pat: 'tree-test.*', fill: 'sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'tree-test.*', fill: 'sh out'}) %>
 
 -   Use [Mocha][mocha] for testing
     -   All tests are written using `async`
@@ -89,7 +89,7 @@ and quickly get into "if every atom in the universe was a file there still would
         since we may add tests for other things later
 
 <%- include('/_inc/file.html', {file: 'test/test-find.js'}) %>
-<%- include('/_inc/file.html', {file: 'test-check-filesystem.txt'}) %>
+<%- include('/_inc/file.html', {file: 'test-check-filesystem.out'}) %>
 
 ## How can we test code that modifies files?
 
@@ -120,4 +120,4 @@ and quickly get into "if every atom in the universe was a file there still would
 
 <%- include('/_inc/slice.html', {file: 'test/test-backup.js', tag: 'tests'}) %>
 
-<%- include('/_inc/file.html', {file: 'test-backup.txt'}) %>
+<%- include('/_inc/file.html', {file: 'test-backup.out'}) %>

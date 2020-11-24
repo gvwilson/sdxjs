@@ -1,8 +1,8 @@
-import timeFunc from './time-func'
+import fs from 'fs' // eslint-disable-line
+
+import timeFunc from './time-func.js'
 
 const text = `
-import fs from 'fs'
-
 const assignment = (range) => {
   let j = 0
   for (let i=0; i<range; i+=1) {

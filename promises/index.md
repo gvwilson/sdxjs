@@ -13,7 +13,7 @@
 -   Most functions execute in order
     -   `Array.forEach` does something once for each element of an array but doesn't build a new array like `Array.filter`
 
-<%- include('/_inc/multi.html', {pat: 'not-callbacks-alone.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'not-callbacks-alone.*', fill: 'js out'}) %>
 
 -   A handful of built-in functions delay execution
     -   `setTimeout` runs a callback after a certain number of milliseconds
@@ -24,29 +24,29 @@
 diagram showing setTimeout
 :::
 
-<%- include('/_inc/multi.html', {pat: 'callbacks-with-timeouts.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'callbacks-with-timeouts.*', fill: 'js out'}) %>
 
 -   Setting a timeout of zero defers execution without delay
     -   Which gives something else a chance to run
 
-<%- include('/_inc/multi.html', {pat: 'callbacks-with-zero-timeouts.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'callbacks-with-zero-timeouts.*', fill: 'js out'}) %>
 
 -   We can use this to build a generic <g key="non_blocking_execution">non-blocking function</g>
 
-<%- include('/_inc/multi.html', {pat: 'non-blocking.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'non-blocking.*', fill: 'js out'}) %>
 
 -   Why bother?
     -   Because we may want to give something else a chance to run
 -   Node provides `setImmediate` to do this for us
     -   And also `process.nextTick`, which doesn't do quite the same thing
 
-<%- include('/_inc/multi.html', {pat: 'set-immediate.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'set-immediate.*', fill: 'js out'}) %>
 
 ## How do promises work?
 
 -   Start by showing how we want to use it
 
-<%- include('/_inc/multi.html', {pat: 'use-pledge-motivation.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'use-pledge-motivation.*', fill: 'js out'}) %>
 
 -   Create a new `Pledge` with a callback that takes `resolve` (everything worked) and `reject` (something failed)
     -   That top-level callback does the first part of what we want to do (the part before we expect a delay)
@@ -83,7 +83,7 @@ diagram showing how promises resolve
     -   See [the documentation][bind-docs] for details
 -   Let's create a pledge and return a value
 
-<%- include('/_inc/multi.html', {pat: 'use-pledge-return.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'use-pledge-return.*', fill: 'js out'}) %>
 
 -   Why didn't this work?
     1.  We don't use `return` with pledges, we call `resolve` or `reject`
@@ -91,23 +91,23 @@ diagram showing how promises resolve
 -   Our original motivating example got this right…
 -   A more complex example showing how to chain things
 
-<%- include('/_inc/multi.html', {pat: 'use-pledge-chained.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'use-pledge-chained.*', fill: 'js out'}) %>
 
 -   And finally an example where we explicitly signal a problem by calling `reject`
 
-<%- include('/_inc/multi.html', {pat: 'use-pledge-reject.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'use-pledge-reject.*', fill: 'js out'}) %>
 
 ## How are real promises different?
 
 -   Let's rewrite our chained pledge with built-in promises
 
-<%- include('/_inc/multi.html', {pat: 'use-promise-chained.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'use-promise-chained.*', fill: 'js out'}) %>
 
 -   It's almost the same, but the callbacks run after the main script finishes
 -   Common pattern is to return another promise from inside `then`
     -   So the next `then` is called on the returned promise, not on the original promise
 
-<%- include('/_inc/multi.html', {pat: 'promise-example.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'promise-example.*', fill: 'js out'}) %>
 
 1.  If we use a <g key="promisification">promisified</g> function from the library, we get a promise for free
 2.  If we want to plug in our own asynchronous functions, we need to create promises
@@ -119,7 +119,7 @@ diagram showing how promises resolve
 -   Use the promisified version of `fs-extra`
     -   Turns all of the callbacks into promises for us
 
-<%- include('/_inc/multi.html', {pat: 'count-lines-single-file.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'count-lines-single-file.*', fill: 'js sh out'}) %>
 
 ::: callout
 ### Character encoding
@@ -136,7 +136,7 @@ If we don't specify a character encoding,
     -   Use `Promise.all` to handle all the promises in an array
     -   For readability, put the creation of the promise in a separate function
 
-<%- include('/_inc/multi.html', {pat: 'count-lines-globbed-files.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'count-lines-globbed-files.*', fill: 'js sh out'}) %>
 
 -   But we want to display filenames as well as counts
 -   So we construct temporary objects that have the information we need downstream
@@ -152,7 +152,7 @@ If we don't specify a character encoding,
     -   So we create a pair to pass down the chain
     -   Use `{filename, stats}` to give the objects keys and values that match up
 
-<%- include('/_inc/multi.html', {pat: 'count-lines-with-stat.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'count-lines-with-stat.*', fill: 'js sh out'}) %>
 
 -   This is complex, but a lot simpler than it would be if we were using callbacks
 
@@ -168,7 +168,7 @@ If we don't specify a character encoding,
     -   Don't have to wrap the sliced text in a promise: that happens automatically because the function is `async`
     -   Can't `await` in the main body at the bottom because `await` only works *inside* `async` functions
 
-<%- include('/_inc/multi.html', {pat: 'await-fs.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'await-fs.*', fill: 'js out'}) %>
 
 -   Modify the two helper functions to look like they're waiting for results and returning them
     -   Except the actually wrap their results in promises and return those
@@ -188,18 +188,18 @@ If we don't specify a character encoding,
     -   The failed promise is turned into an error
     -   Our `try`/`catch` doesn't help us
 
-<%- include('/_inc/multi.html', {pat: 'return-immediately.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'return-immediately.*', fill: 'js out'}) %>
 
 -   If we `return await`, the function waits until the promise runs
     -   The promise is then turned into an exception because it failed
     -   And we're inside the scope of our error handler, which catches it
 
-<%- include('/_inc/multi.html', {pat: 'return-await.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'return-await.*', fill: 'js out'}) %>
 
 -   Better practice is to be consistent and always return something
     -   Because the function is declared `async`,
         the `Error` is automatically wrapped in a promise so we can use `.then` and `.catch`
 
-<%- include('/_inc/multi.html', {pat: 'assign-immediately.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'assign-immediately.*', fill: 'js out'}) %>
 
 <%- include('/_inc/problems.html') %>

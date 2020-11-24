@@ -31,7 +31,7 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
 
 <%- include('/_inc/file.html', {file: 'easy-mode.js'}) %>
 <%- include('/_inc/file.html', {file: 'test/test-easy-mode.js'}) %>
-<%- include('/_inc/file.html', {file: 'test-easy-mode.txt'}) %>
+<%- include('/_inc/file.html', {file: 'test-easy-mode.out'}) %>
 
 ## How can we position rows and columns?
 
@@ -53,7 +53,7 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
 <%- include('/_inc/file.html', {file: 'placed-row.js'}) %>
 <%- include('/_inc/file.html', {file: 'placed-column.js'}) %>
 <%- include('/_inc/erase.html', {file: 'test/test-placed.js', tag: 'large'}) %>
-<%- include('/_inc/file.html', {file: 'test-placed.txt'}) %>
+<%- include('/_inc/file.html', {file: 'test-placed.out'}) %>
 
 ## What subset of HTML and CSS will we support?
 

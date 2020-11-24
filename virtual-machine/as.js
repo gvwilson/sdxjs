@@ -1,10 +1,10 @@
 import assert from 'assert'
 import fs from 'fs'
 
-const main = () => {
+const main = async () => {
   assert(process.argv.length === 5,
     'Usage: as.js assembler input|- output|-')
-  const Assembler = require(process.argv[2])
+  const Assembler = (await import(process.argv[2])).default
   const inFile = process.argv[3]
   const outFile = process.argv[4]
   const lines = readSource(inFile)

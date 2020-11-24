@@ -9,4 +9,4 @@ const slugify = (text) => {
   )
 }
 
-module.exports = slugify
+export default slugify

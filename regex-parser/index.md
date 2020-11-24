@@ -53,7 +53,7 @@
 -   It's not done until it's tested
 
 <%- include('/_inc/erase.html', {file: 'test/test-tokenizer.js', tag: 'omit'}) %>
-<%- include('/_inc/file.html', {file: 'tokenizer-test.txt'}) %>
+<%- include('/_inc/file.html', {file: 'tokenizer-test.out'}) %>
 
 ## How can we turn a stream of tokens into a tree?
 
@@ -105,7 +105,7 @@
 -   And some tests
 
 <%- include('/_inc/erase.html', {file: 'test/test-parser.js', tag: 'omit'}) %>
-<%- include('/_inc/file.html', {file: 'parser-test.txt'}) %>
+<%- include('/_inc/file.html', {file: 'parser-test.out'}) %>
 
 -   If we have more operators with different <g key="precedence">precedences</g>
     we should switch to the [shunting-yard algorithm][shunting-yard-algorithm]

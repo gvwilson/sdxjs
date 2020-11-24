@@ -1,13 +1,13 @@
 TARGETS=\
-  regex-beginning.txt \
-  regex-initial.txt \
-  regex-recursive.txt \
-  simple-regex.txt \
-  simple-selectors-test.txt
+  regex-beginning.out \
+  regex-initial.out \
+  regex-recursive.out \
+  simple-regex.out \
+  simple-selectors-test.out
 
 include ../_rules.mk
 
-regex-beginning.txt: $(wildcard regex-beginning/*.js)
-regex-initial.txt: $(wildcard regex-initial/*.js)
-regex-recursive.txt: $(wildcard regex-recursive/*.js)
-simple-selectors-test.txt: simple-selectors.js
+regex-beginning.out: $(wildcard regex-beginning/*.js)
+regex-initial.out: $(wildcard regex-initial/*.js)
+regex-recursive.out: $(wildcard regex-recursive/*.js)
+simple-selectors-test.out: simple-selectors.js

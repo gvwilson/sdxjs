@@ -1,8 +1,8 @@
 TARGETS=\
-  dry-run.txt \
-  pray.txt
+  dry-run.out \
+  pray.out
 
 include ../_rules.mk
 
-pray.txt: pray-wrap.sh pray.sh pray.js
+pray.out: pray-wrap.sh pray.sh pray.js
 	bash $< > $@

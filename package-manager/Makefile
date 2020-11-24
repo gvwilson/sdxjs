@@ -1,20 +1,20 @@
 TARGETS=\
-  prune-double-chained.txt \
-  prune-triple.txt \
-  reverse-triple.txt \
-  sweep-double-chained.txt \
-  sweep-triple.txt
+  prune-double-chained.out \
+  prune-triple.out \
+  reverse-triple.out \
+  sweep-double-chained.out \
+  sweep-triple.out
 
 include ../_rules.mk
 
 ${TARGETS}: driver.js
 
-prune-double-chained.txt: prune.js config-str.js double-chained.json
+prune-double-chained.out: prune.js config-str.js double-chained.json
 
-prune-triple.txt: prune.js config-str.js triple.json
+prune-triple.out: prune.js config-str.js triple.json
 
-reverse-triple.txt: reverse.js config-str.js triple.json
+reverse-triple.out: reverse.js config-str.js triple.json
 
-sweep-double-chained.txt: sweep.js config-str.js double-chained.json
+sweep-double-chained.out: sweep.js config-str.js double-chained.json
 
-sweep-triple.txt: sweep.js config-str.js triple.json
+sweep-triple.out: sweep.js config-str.js triple.json

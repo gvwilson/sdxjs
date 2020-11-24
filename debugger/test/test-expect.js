@@ -7,7 +7,7 @@ import Debugger from '../debugger-test.js'
 import readSource from '../read-source.js'
 
 const setup = (filename) => {
-  const lines = readSource(path.join(__dirname, filename))
+  const lines = readSource(path.join('debugger/test', filename))
   const dbg = new Debugger()
   const vm = new VM(lines, dbg)
   return new Expect(dbg, () => vm.run())

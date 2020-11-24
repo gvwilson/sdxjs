@@ -19,7 +19,7 @@ const OP_WIDTH = 6   // op width in characters when printing
 const NUM_REG = 4    // number of registers
 const RAM_LEN = 256  // number of words in RAM
 
-module.exports = {
+export {
   OPS,
   OP_MASK,
   OP_SHIFT,

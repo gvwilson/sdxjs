@@ -1,1 +1,1 @@
-node driver.js ./pattern-user-show pattern-rules.yml
+node driver.js ./pattern-user-show.js pattern-rules.yml

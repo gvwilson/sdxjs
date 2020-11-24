@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   open: (expander, node) => {
     const [indexName, targetName] = node.attribs['q-loop'].split(':')
     delete node.attribs['q-loop']

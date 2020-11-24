@@ -10,4 +10,4 @@ function * getNodes (here) {
   }
 }
 
-module.exports = getNodes
+export default getNodes

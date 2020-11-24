@@ -1,12 +1,12 @@
 TARGETS=\
-  check-name-lengths.txt \
-  generator-count.txt \
-  generator-example.txt \
-  generator-tree-for.txt \
-  generator-tree-while.txt \
-  parse-single-const.txt \
-  parse-const-func.txt \
-  walk-ast.txt \
-  walker-class.txt
+  check-name-lengths.out \
+  generator-count.out \
+  generator-example.out \
+  generator-tree-for.out \
+  generator-tree-while.out \
+  parse-single-const.out \
+  parse-const-func.out \
+  walk-ast.out \
+  walker-class.out
 
 include ../_rules.mk

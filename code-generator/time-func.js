@@ -3,7 +3,7 @@ import walk from 'acorn-walk'
 import escodegen from 'escodegen'
 
 const timeFunc = (text) => {
-  const ast = acorn.parse(text)
+  const ast = acorn.parse(text, { sourceType: 'module' })
   const allNodes = gatherNodes(ast)
   allNodes.forEach(node => wrapFuncDef(node))
   return [
@@ -47,7 +47,9 @@ const makeWrapperAst = (name) => {
       throw error
     }
   }`
-  return acorn.parse(template).body[0].declarations[0]
+  return acorn.parse(template, { sourceType: 'module' })
+    .body[0]
+    .declarations[0]
 }
 
 const initializeCounters = (nodes) => {

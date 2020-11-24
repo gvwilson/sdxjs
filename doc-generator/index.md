@@ -16,29 +16,29 @@
 
 <%- include('/_inc/file.html', {file: 'extract-comments.js'}) %>
 
-<%- include('/_inc/multi.html', {pat: 'two-kinds-of-comment.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'two-kinds-of-comment.*', fill: 'js out'}) %>
 
 -   Extract a subset of the JSON with key features
 
 <%- include('/_inc/file.html', {file: 'extract-comments-subset.js'}) %>
 
-<%- include('/_inc/multi.html', {pat: 'two-kinds-of-comment-subset.*', fill: 'sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'two-kinds-of-comment-subset.*', fill: 'sh out'}) %>
 
 -   Acorn distinguishes two kinds of comments
 -   <g key="line_comment">Line comments</g> can't span multiple lines
     -   Consecutive line comments aren't combined
 
-<%- include('/_inc/multi.html', {pat: 'multi-line-double-slash-comment.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'multi-line-double-slash-comment.*', fill: 'js sh out'}) %>
 
 -   A <g key="block_comment">block comment</g> can span any number of lines
     -   Don't need to prefix each line with `*` but most people do for readability
 
-<%- include('/_inc/multi.html', {pat: 'multi-line-slash-star-comment.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'multi-line-slash-star-comment.*', fill: 'js sh out'}) %>
 
 -   By convention, use block comments that start with `/**` for documentation
     -   Which means the first character in the extracted text is `*`
 
-<%- include('/_inc/multi.html', {pat: 'doc-comment.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'doc-comment.*', fill: 'js out'}) %>
 
 ## What input will we try to handle?
 
@@ -99,7 +99,7 @@
     -   Record last line of each
     -   Recurse through AST to find code on line immediately following
 
-<%- include('/_inc/multi.html', {pat: 'find-following.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'find-following.*', fill: 'js sh out'}) %>
 
 -   Use this to create better output
 

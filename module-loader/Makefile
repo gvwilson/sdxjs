@@ -1,19 +1,19 @@
 TARGETS=\
-  automatic-namespacing.txt \
-  js-command-line.txt \
-  js-interactive.txt \
-  py-command-line.txt \
-  py-interactive.txt \
-  manual-namespacing.txt \
-  test-load-module-only.txt \
-  test-need-large-module.txt \
-  test-need-large-needless.txt \
-  test-need-small-module.txt
+  automatic-namespacing.out \
+  js-command-line.out \
+  js-interactive.out \
+  py-command-line.out \
+  py-interactive.out \
+  manual-namespacing.out \
+  test-load-module-only.out \
+  test-need-large-module.out \
+  test-need-large-needless.out \
+  test-need-small-module.out
 
 include ../_rules.mk
 
-js-command-line.txt: $(wildcard checking/*.js)
-js-interactive.txt: $(wildcard checking/*.js)
-py-command-line.txt: $(wildcard checking/*.py)
-py-interactive.txt: $(wildcard checking/*.py)
-test-need-large-module.txt: large-module.js small-module.js
+js-command-line.out: $(wildcard checking/*.js)
+js-interactive.out: $(wildcard checking/*.js)
+py-command-line.out: $(wildcard checking/*.py)
+py-interactive.out: $(wildcard checking/*.py)
+test-need-large-module.out: large-module.js small-module.js

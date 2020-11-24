@@ -151,7 +151,7 @@ Diagram of virtual machine architecture
 -   Counting up to three
 
 <%- include('/_inc/file.html', {file: 'count-up.as'}) %>
-<%- include('/_inc/file.html', {file: 'count-up-out.txt'}) %>
+<%- include('/_inc/file.html', {file: 'count-up-out.out'}) %>
 
 ## How can we store data?
 
@@ -173,4 +173,4 @@ Diagram of virtual machine architecture
 -   Fill an array with the numbers from 0 to 3
 
 <%- include('/_inc/file.html', {file: 'fill-array.as'}) %>
-<%- include('/_inc/file.html', {file: 'fill-array-out.txt'}) %>
+<%- include('/_inc/file.html', {file: 'fill-array-out.out'}) %>

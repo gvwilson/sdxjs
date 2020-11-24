@@ -12,7 +12,8 @@ class FindAncestors {
   traceAncestry (dirname, filename, className, accum) {
     const fullPath = path.join(dirname, filename)
     const program = fs.readFileSync(fullPath, 'utf-8')
-    const ast = acorn.parse(program, { locations: true })
+    const options = { locations: true, sourceType: 'module' }
+    const ast = acorn.parse(program, options)
     const classDef = this.findClassDef(filename, ast, className)
     accum.push({ filename, className, classDef })
     const ancestorName = this.getAncestor(classDef)

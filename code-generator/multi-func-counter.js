@@ -15,7 +15,7 @@ for (const i of [1, 3, 5]) {
 `
 
 const main = () => {
-  const ast = acorn.parse(text)
+  const ast = acorn.parse(text, { sourceType: 'module' })
 
   const allNodes = []
   walk.simple(ast, {
@@ -38,7 +38,8 @@ const insertCounter = (names, node) => {
   names[name] = 0
 
   const body = node.init.body.body
-  const increment = acorn.parse(`__counters['${name}'] += 1`)
+  const increment =
+    acorn.parse(`__counters['${name}'] += 1`, { sourceType: 'module' })
   body.unshift(increment)
 }
 

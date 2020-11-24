@@ -61,15 +61,15 @@
 
 -   Run for a table 100 rows by 3 columns with a 3-1 ratio of filter to select
 
-<%- include('/_inc/multi.html', {pat: 'table-performance-100-03-03.*', fill: 'sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'table-performance-100-03-03.*', fill: 'sh out'}) %>
 
 -   10,000 rows by 30 columns with the same 3-1 filter/select ratio
 
-<%- include('/_inc/file.html', {file: 'table-performance-10000-30-03.txt'}) %>
+<%- include('/_inc/file.html', {file: 'table-performance-10000-30-03.out'}) %>
 
 -   Same large table with a 10-1 filter/select ratio
 
-<%- include('/_inc/file.html', {file: 'table-performance-10000-30-10.txt'}) %>
+<%- include('/_inc/file.html', {file: 'table-performance-10000-30-10.out'}) %>
 
 -   Conclusion: column-wise is better
     -   Uses less memory (presumably because labels aren't duplicated)
@@ -88,7 +88,7 @@
     -   Column-oriented as JSON
 -   Run the 10,000x30 test
 
-<%- include('/_inc/file.html', {file: 'storage-performance-10000-30.txt'}) %>
+<%- include('/_inc/file.html', {file: 'storage-performance-10000-30.out'}) %>
 
 -   Time needed for the row-oriented version is almost ten times greater than that needed for the column-oriented version
 -   Also try a packed version of row-oriented
@@ -96,7 +96,7 @@
     -   Copy the data values into an array of arrays and save that
 
 <%- include('/_inc/slice.html', {file: 'packed-rows.js', tag: 'packed'}) %>
-<%- include('/_inc/file.html', {file: 'packed-rows-10000-30.txt'}) %>
+<%- include('/_inc/file.html', {file: 'packed-rows-10000-30.out'}) %>
 
 -   Surprising that packing the rows takes *less* time
     -   The cost of copying data is less than the cost of turning labels into strings over and over
@@ -117,7 +117,7 @@
     -   The numbers
 
 <%- include('/_inc/slice.html', {file: 'packed-cols.js', tag: 'binary'}) %>
-<%- include('/_inc/file.html', {file: 'packed-cols-10000-30.txt'}) %>
+<%- include('/_inc/file.html', {file: 'packed-cols-10000-30.out'}) %>
 
 -   Saves time because copying bits is faster than turning numbers into characters
 -   But doesn't save as much space as expected

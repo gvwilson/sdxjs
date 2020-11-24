@@ -149,7 +149,7 @@
 
 -   Run it
 
-<%- include('/_inc/multi.html', {pat: 'test-expect.*', fill: 'sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'test-expect.*', fill: 'sh out'}) %>
 
 -   And it works---or does it?
     -   Why is only one test shown?
@@ -174,4 +174,4 @@
 
 -   Run it
 
-<%- include('/_inc/multi.html', {pat: 'test-exit.*', fill: 'sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'test-exit.*', fill: 'sh out'}) %>

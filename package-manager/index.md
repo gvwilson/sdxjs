@@ -117,11 +117,11 @@ so most SAT solvers use heuristics to try to reduce the work.
 
 -   Run this on the short example
 
-<%- include('/_inc/multi.html', {pat: 'sweep-double-chained.*', fill: 'sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'sweep-double-chained.*', fill: 'sh out'}) %>
 
 -   And on the longer example
 
-<%- include('/_inc/multi.html', {pat: 'sweep-double-chained.*', fill: 'sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'sweep-double-chained.*', fill: 'sh out'}) %>
 
 -   It works
 -   But does lots of unnecessary work
@@ -167,7 +167,7 @@ so most SAT solvers use heuristics to try to reduce the work.
     -   1 workable
     -   2 incomplete (representing 6 that we didn't need to finish)
 
-<%- include('/_inc/file.html', {file: 'prune-triple.txt'}) %>
+<%- include('/_inc/file.html', {file: 'prune-triple.out'}) %>
 
 -   Another way to look at the work is th number of steps in the search
     -   Full search had 18×3 = 54
@@ -177,7 +177,7 @@ so most SAT solvers use heuristics to try to reduce the work.
 
 <%- include('/_inc/file.html', {file: 'reverse.js'}) %>
 
-<%- include('/_inc/file.html', {file: 'reverse-triple.txt'}) %>
+<%- include('/_inc/file.html', {file: 'reverse-triple.out'}) %>
 
 -   Now have (8×3) + (5×2) = 34
     -   Have eliminated roughly 1/3 of the work

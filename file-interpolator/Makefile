@@ -1,25 +1,25 @@
 TARGETS =\
-  does-the-loading.txt \
-  eval-global-structure.txt \
-  eval-global-vars.txt \
-  eval-local-vars.txt \
-  eval-loop.txt \
-  eval-two-plus-two.txt \
-  test-import-interpolate.txt \
-  test-import-left.txt \
-  test-import-right.txt \
-  test-simple.txt \
-  to-be-loaded.txt
+  does-the-loading.out \
+  eval-global-structure.out \
+  eval-global-vars.out \
+  eval-local-vars.out \
+  eval-loop.out \
+  eval-two-plus-two.out \
+  test-import-interpolate.out \
+  test-import-left.out \
+  test-import-right.out \
+  test-simple.out \
+  to-be-loaded.out
 
 include ../_rules.mk
 
-test-import-interpolate.txt: caching.js import-interpolate.js import-interpolate-topmethod.js import-interpolate-bottommethod.js
+test-import-interpolate.out: caching.js import-interpolate.js import-interpolate-topmethod.js import-interpolate-bottommethod.js
 
-test-import-left.txt: test-import-left-wrapped.sh test-import-left.sh need-path.js modules/imported-left.js
+test-import-left.out: test-import-left-wrapped.sh test-import-left.sh need-path.js modules/imported-left.js
 	bash $< >& $@
 
-test-import-right.txt: need-path.js modules/imported-right.js modules/imported-left.js
+test-import-right.out: need-path.js modules/imported-right.js modules/imported-left.js
 
-test-simple.txt: need-simple.js import-simple.js
+test-simple.out: need-simple.js import-simple.js
 
-to-be-loaded.txt: to-be-loaded.js
+to-be-loaded.out: to-be-loaded.js

@@ -1,1 +1,1 @@
-node driver.js ./prune triple.json
+node driver.js ./prune.js triple.json

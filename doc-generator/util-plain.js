@@ -23,4 +23,4 @@ class BaseProcessor {
   }
 }
 
-module.exports = BaseProcessor
+export default BaseProcessor

@@ -34,7 +34,7 @@
 -   `firstChildMatch` looks through children (if any) for remaining selectors
 -   `matchHere` handles a single node and selector
 
-<%- include('/_inc/multi.html', {pat: 'simple-selectors-test.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'simple-selectors-test.*', fill: 'js out'}) %>
 
 ## How can we implement a simple regular expression matcher?
 
@@ -61,7 +61,7 @@ it easily accounts for 95 percent of all instances."
 -   Some tests and output
 
 <%- include('/_inc/slice.html', {file: 'simple-regex.js', tag: 'tests'}) %>
-<%- include('/_inc/file.html', {file: 'simple-regex.txt'}) %>
+<%- include('/_inc/file.html', {file: 'simple-regex.out'}) %>
 
 -   This works, but it's hard to extend
     -   Handling parentheses in patterns like `/a(bc)*d/` requires big changes
@@ -99,7 +99,7 @@ it easily accounts for 95 percent of all instances."
     -   "Most" because if we expect a match to fail, it does, so the test runner reports `true`
     -   Tells us how much work we have to do
 
-<%- include('/_inc/file.html', {file: 'regex-initial.txt'}) %>
+<%- include('/_inc/file.html', {file: 'regex-initial.out'}) %>
 
 -   Start by implementing literal character string matcher
 
@@ -107,7 +107,7 @@ it easily accounts for 95 percent of all instances."
 
 -   Some tests now pass, others still fail (as expected)
 
-<%- include('/_inc/file.html', {file: 'regex-beginning.txt'}) %>
+<%- include('/_inc/file.html', {file: 'regex-beginning.out'}) %>
 
 -   Do `RegexSeq` next so that we can combine other tests
     -   This is why we have tests for `Seq(Lit('a'), Lit('b'))` and `Lit('ab')`

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   open: (expander, node) => {
     expander.showTag(node, true)
     expander.output(expander.env.find(node.attribs['q-var']))

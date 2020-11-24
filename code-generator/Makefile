@@ -1,8 +1,8 @@
 TARGETS=\
-  func-def.txt \
-  multi-func-counter.txt \
-  one-plus-two.txt \
-  replace-func.txt \
-  test-time-func.txt
+  func-def.out \
+  multi-func-counter.out \
+  one-plus-two.out \
+  replace-func.out \
+  test-time-func.out
 
 include ../_rules.mk

@@ -26,4 +26,4 @@ class Env {
   }
 }
 
-module.exports = Env
+export default Env

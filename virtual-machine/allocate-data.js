@@ -1,7 +1,7 @@
 import assert from 'assert'
 
 import { RAM_LEN } from './architecture.js'
-import Assembler from './assembler'
+import Assembler from './assembler.js'
 
 const DIVIDER = '.data'
 

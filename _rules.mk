@@ -11,7 +11,7 @@ targets:
 # dependencies.
 %.html: %.sh %.js
 	bash $< &> $@
-%.txt: %.sh %.js
+%.out: %.sh %.js
 	bash $< &> $@
 
 # Create HTML or text when there is only a shell script.
@@ -19,13 +19,13 @@ targets:
 # including file must define dependencies.
 %.html: %.sh
 	bash $< &> $@
-%.txt: %.sh
+%.out: %.sh
 	bash $< &> $@
 
 # Create HTML or text by running JavaScript without parameters.
 %.html: %.js
 	node $< &> $@
-%.txt: %.js
+%.out: %.js
 	node $< &> $@
 
 # Get rid of all generated files.

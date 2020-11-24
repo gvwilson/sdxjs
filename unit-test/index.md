@@ -44,7 +44,7 @@
 -   Tests are run in the order in which they're registered, but we shouldn't rely on that
 -   After all tests are run, report counts
 
-<%- include('/_inc/multi.html', {pat: 'dry-run.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'dry-run.*', fill: 'js out'}) %>
 
 -   Critique
     -   Doesn't tell us *which* tests failed
@@ -89,7 +89,7 @@
     -   Report results
 -   Doesn't export anything, just runs
 
-<%- include('/_inc/multi.html', {pat: 'pray.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'pray.*', fill: 'js sh out'}) %>
 
 ::: callout
 ### Filenames in `minimist`

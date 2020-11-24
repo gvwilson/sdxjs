@@ -81,12 +81,12 @@
 -   Try running it
     -   Takes a moment to read the output with its v's and w's
 
-<%- include('/_inc/multi.html', {pat: 'display-only.*', fill: 'sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'display-only.*', fill: 'sh out'}) %>
 
 -   Check that we are detecting cycles
 
 <%- include('/_inc/file.html', {file: 'circular-rules.yml'}) %>
-<%- include('/_inc/multi.html', {pat: 'check-cycles.*', fill: 'sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'check-cycles.*', fill: 'sh out'}) %>
 
 ## How can we specify that a file is out of date?
 
@@ -108,7 +108,7 @@
     -   This *would* make the code a lot harder to read
 -   Execution
 
-<%- include('/_inc/multi.html', {pat: 'add-timestamps.*', fill: 'sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'add-timestamps.*', fill: 'sh out'}) %>
 
 -   Set current time to maximum file time
 -   For each file from the "bottom" to the top:
@@ -122,7 +122,7 @@
     -   If any file is older than the things it depends on, update it
 -   Pretend for now that updating takes one unit of time, so we advance our fictional clock once for each build
 
-<%- include('/_inc/multi.html', {pat: 'update-timestamps.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'update-timestamps.*', fill: 'js sh out'}) %>
 
 ## How can we add generic build rules?
 
@@ -143,7 +143,7 @@
         -   Count from 1 like humans do
 -   Test that it still handle rules *without* variables correctly
 
-<%- include('/_inc/multi.html', {pat: 'variable-expander.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'variable-expander.*', fill: 'js out'}) %>
 
 -   Now we need <g key="pattern_rule">pattern rules</g>
 -   First attempt at rules file looks like this
@@ -155,7 +155,7 @@
     -   Didn't actually have the assertion in `add-timestamps.js` when we first wrote it
     -   Added it once we had and traced this error because every failure should turn into an `assert`
 
-<%- include('/_inc/multi.html', {pat: 'pattern-user-attempt.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'pattern-user-attempt.*', fill: 'js out'}) %>
 
 -   Our simple graph loader creates nodes for dependencies even if they aren't targets
 -   So we wind up tripping over the lack of a node for `%.in` before we get to extracting rules
@@ -168,13 +168,13 @@
 -   Before we trying running this, let's add methods to show the state of the internal data structures
     -   Since we now have two of them
 
-<%- include('/_inc/multi.html', {pat: 'pattern-user-show.*', fill: 'js sh txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'pattern-user-show.*', fill: 'js sh out'}) %>
 
 -   That seems to be right
 -   So let's try expanding rules
     -   Do it after building the graph and rules, but before expanding variables
 
-<%- include('/_inc/multi.html', {pat: 'pattern-user-run.*', fill: 'js txt'}) %>
+<%- include('/_inc/multi.html', {pat: 'pattern-user-run.*', fill: 'js out'}) %>
 
 -   We have added a lot of steps to our original template method
     -   Which makes it a bit of a stretch to claim that the overall operation hasn't changed

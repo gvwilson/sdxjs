@@ -1,6 +1,6 @@
 import graphlib from '@dagrejs/graphlib'
 
-import PatternUserRead from './pattern-user-read'
+import PatternUserRead from './pattern-user-read.js'
 
 class PatternUserShow extends PatternUserRead {
   run () {

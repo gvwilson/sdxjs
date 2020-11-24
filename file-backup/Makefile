@@ -1,12 +1,12 @@
 TARGETS=\
-  hash-file.txt \
-  hash-stream.txt \
-  hash-text.txt \
-  run-hash-existing-async.txt \
-  run-hash-existing-promise.txt \
-  test-backup.txt \
-  test-check-filesystem.txt \
-  tree-test.txt
+  hash-file.out \
+  hash-stream.out \
+  hash-text.out \
+  run-hash-existing-async.out \
+  run-hash-existing-promise.out \
+  test-backup.out \
+  test-check-filesystem.out \
+  tree-test.out
 
 include ../_rules.mk
 

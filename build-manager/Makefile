@@ -1,17 +1,17 @@
 TARGETS=\
-  add-timestamps.txt \
-  check-cycles.txt \
-  display-only.txt \
-  pattern-user-attempt.txt \
-  pattern-user-run.txt \
-  pattern-user-show.txt \
-  update-timestamps.txt \
-  variable-expander.txt
+  add-timestamps.out \
+  check-cycles.out \
+  display-only.out \
+  pattern-user-attempt.out \
+  pattern-user-run.out \
+  pattern-user-show.out \
+  update-timestamps.out \
+  variable-expander.out
 
 include ../_rules.mk
 
-display-only.txt: driver.js
-update-timestamps.txt: driver.js
+display-only.out: driver.js
+update-timestamps.out: driver.js
 
 pattern-user-run.js: pattern-user-show.js
 pattern-user-show.js: pattern-user-read.js
