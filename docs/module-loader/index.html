@@ -154,7 +154,7 @@ const loadModule = (filename) =&gt; {
   const source = fs.readFileSync(filename, 'utf-8')
   const result = {}
   const fullText = `((module) =&gt; {${source}})(result)`
-  console.log(`full text for eval:\n${fullText}`)
+  console.log(`full text for eval:\n${fullText}\n`)
   eval(fullText)
   return result.exports
 }
@@ -194,6 +194,7 @@ const publicFunction = (caller) =&gt; {
 
 module.exports = { publicValue, publicFunction }
 })(result)
+
 result.publicValue is public value
 result.privateValue is undefined
 publicFunction called from main
@@ -256,7 +257,7 @@ def middle():
 <ul>
 <li>Fails when run from the command line</li>
 </ul>
-<pre title="py-command-line.out"><code class="language-out">top
+<pre title="checking/py-command-line.out"><code class="language-out">top
 Traceback (most recent call last):
   File "major.py", line 3, in &lt;module&gt;
     import minor
@@ -271,7 +272,7 @@ AttributeError: module 'minor' has no attribute 'middle'
 <ul>
 <li>But works in the interactive interpreter</li>
 </ul>
-<pre title="py-interactive.out"><code class="language-out">$ python
+<pre title="checking/py-interactive.out"><code class="language-out">$ python
 &gt;&gt;&gt; import major
 top
 middle
@@ -309,46 +310,46 @@ module.exports = { middle }
 <ul>
 <li>Fails on the command line</li>
 </ul>
-<pre title="js-command-line.out"><code class="language-out">/u/stjs/module-loader/checking/major.js:2
-const { middle } = require('./minor')
-                   ^
-ReferenceError: require is not defined
-    at /u/stjs/module-loader/checking/major.js:2:20
-    at ModuleJob.run (internal/modules/esm/module_job.js:146:23)
-    at async Loader.import (internal/modules/esm/loader.js:165:24)
-    at async Object.loadESM (internal/process/esm_loader.js:68:5)
+<pre title="checking/js-command-line.out"><code class="language-out">top
+middle
+/u/stjs/module-loader/checking/minor.js:6
+  bottom()
+  ^
+TypeError: bottom is not a function
+    at middle (/u/stjs/module-loader/checking/minor.js:6:3)
+    at top (/u/stjs/module-loader/checking/major.js:6:3)
+    at Object.&lt;anonymous&gt; (/u/stjs/module-loader/checking/major.js:13:1)
+    at Module._compile (internal/modules/cjs/loader.js:1063:30)
+    at Object.Module._extensions..js \
+ (internal/modules/cjs/loader.js:1092:10)
+    at Module.load (internal/modules/cjs/loader.js:928:32)
+    at Function.Module._load (internal/modules/cjs/loader.js:769:14)
+    at Function.executeUserEntryPoint [as runMain] \
+ (internal/modules/run_main.js:72:12)
+    at internal/main/run_main_module.js:17:47
 </code></pre>
 <ul>
 <li>Also fails in the interactive interpreter</li>
 </ul>
-<pre title="js-interactive.out"><code class="language-out">$ node
+<pre title="checking/js-interactive.out"><code class="language-out">$ node
 &gt; require('./major')
-internal/modules/cjs/loader.js:1080
-      throw new ERR_REQUIRE_ESM(filename, parentPath, packageJsonPath);
-      ^
-Error [ERR_REQUIRE_ESM]: Must use import to load ES Module: \
- /u/stjs/module-loader/checking/major.js
-require() of ES modules is not supported.
-require() of /u/stjs/module-loader/checking/major.js from \
- /u/stjs/module-loader/checking/[stdin] is an ES module \
- file as it is a .js file whose nearest parent package.json contains \
- "type": "module" which defines all .js files in that package scope as \
- ES modules.
-Instead rename major.js to end in .cjs, change the requiring code to use \
- import(), or remove "type": "module" from /u/stjs/package.json.
+top
+middle
+/u/stjs/module-loader/checking/minor.js:6
+  bottom()
+  ^
+TypeError: bottom is not a function
+    at middle (/u/stjs/module-loader/checking/minor.js:6:3)
+    at top (/u/stjs/module-loader/checking/major.js:6:3)
+    at Object.&lt;anonymous&gt; (/u/stjs/module-loader/checking/major.js:13:1)
+    at Module._compile (internal/modules/cjs/loader.js:1063:30)
     at Object.Module._extensions..js \
- (internal/modules/cjs/loader.js:1080:13)
+ (internal/modules/cjs/loader.js:1092:10)
     at Module.load (internal/modules/cjs/loader.js:928:32)
     at Function.Module._load (internal/modules/cjs/loader.js:769:14)
     at Module.require (internal/modules/cjs/loader.js:952:19)
     at require (internal/modules/cjs/helpers.js:88:18)
     at [stdin]:1:1
-    at Script.runInThisContext (vm.js:132:18)
-    at Object.runInThisContext (vm.js:309:38)
-    at internal/process/execution.js:77:19
-    at [stdin]-wrapper:6:22 {
-  code: 'ERR_REQUIRE_ESM'
-}
 </code></pre>
 <ul>
 <li>So we will <em>not</em> handle circular dependencies
@@ -359,13 +360,13 @@ Instead rename major.js to end in .cjs, change the requiring code to use \
 </ul>
 <div class="callout">
 <h3 id="import-vs-require"><code>import</code> vs. <code>require</code></h3>
-<p>Circular dependencies actually <em>do</em> work JavaScript's newer <code>import</code> syntax.
+<p>Circular dependencies work JavaScript's <code>import</code> syntax.
 The difference is that we can reliably analyze files to determine what needs what,
 get everything into memory,
 and then resolve dependencies.
-(We can't do this with <code>require</code>-based code
+We can't do this with <code>require</code>-based code
 because someone might call <code>require</code> inside a function
-or create an alias and call <code>require</code> through that.)
+or create an alias and call <code>require</code> through that.
 Please see <cite>Casciaro2020</cite> for a more detailed discussion.</p>
 </div>
 <h2 id="how-can-a-module-load-another-module">How can a module load another module?</h2>
@@ -422,7 +423,8 @@ console.log(`small.privateValue is ${small.privateValue}`)
 console.log(small.publicFunction('main'))
 </code></pre>
 <pre title="test-need-small-module.out"><code class="language-out">full text for eval:
-((module, need) =&gt; {const publicValue = 'public value'
+((module, need) =&gt; {
+const publicValue = 'public value'
 
 const privateValue = 'private value'
 
@@ -431,7 +433,9 @@ const publicFunction = (caller) =&gt; {
 }
 
 module.exports = { publicValue, publicFunction }
+
 })(result, need)
+
 small.publicValue is public value
 small.privateValue is undefined
 publicFunction called from main
@@ -455,19 +459,30 @@ export default large
 const large = need('large-module.js')
 console.log(large.large('main'))
 </code></pre>
-<pre title="test-need-large-module.js"><code class="language-js">import need from './need.js'
-
-const large = need('large-module.js')
-console.log(large.large('main'))
+<pre title="test-need-large-module.out"><code class="language-out">full text for eval:
+((module, need) =&gt; {
+import need from './need'
+const small = need('small-module.js')
+const large = (caller) =&gt; {
+  console.log(`large from ${caller}`)
+  small.publicFunction(`${caller} to large`)
+}
+export default large
+})(result, need)
+undefined:2
+import need from './need'
+^^^^^^
+SyntaxError: Cannot use import statement outside a module
+    at loadModule (/u/stjs/module-loader/load-module.js:8:8)
+    at need (/u/stjs/module-loader/need.js:8:22)
+    at /u/stjs/module-loader/test-need-large-module.js:3:15
+    at ModuleJob.run (internal/modules/esm/module_job.js:146:23)
+    at async Loader.import (internal/modules/esm/loader.js:165:24)
+    at async Object.loadESM (internal/process/esm_loader.js:68:5)
 </code></pre>
 <ul>
-<li>Doesn't work because our made-up function has <code>need</code> as a parameter and also as a constant</li>
-<li>Not a problem with Node because <code>require</code> is predefined</li>
-<li>So we will rely on our loader to provide it
-<ul>
-<li>Which means we can only run loaded modules by <code>need</code>ing them</li>
-</ul>
-</li>
+<li>Doesn't work because <code>import</code> only works at the top level, not inside a function</li>
+<li>So our system can only run loaded modules by <code>need</code>ing them</li>
 </ul>
 <pre title="large-needless.js"><code class="language-js">const small = need('small-module.js')
 
@@ -483,16 +498,20 @@ const large = need('large-needless.js')
 console.log(large('main'))
 </code></pre>
 <pre title="test-need-large-needless.out"><code class="language-out">full text for eval:
-((module, need) =&gt; {const small = need('small-module.js')
+((module, need) =&gt; {
+const small = need('small-module.js')
 
 const large = (caller) =&gt; {
   return small.publicFunction(`large called from ${caller}`)
 }
 
 module.exports = large
+
 })(result, need)
+
 full text for eval:
-((module, need) =&gt; {const publicValue = 'public value'
+((module, need) =&gt; {
+const publicValue = 'public value'
 
 const privateValue = 'private value'
 
@@ -501,7 +520,9 @@ const publicFunction = (caller) =&gt; {
 }
 
 module.exports = { publicValue, publicFunction }
+
 })(result, need)
+
 publicFunction called from large called from main
 </code></pre>
 </main>

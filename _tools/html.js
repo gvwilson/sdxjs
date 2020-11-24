@@ -163,7 +163,8 @@ const translateFile = (options, fileInfo, linksText) => {
     _readErase,
     _readFile,
     _readPage,
-    _readSlice
+    _readSlice,
+    _replace
   }
 
   // Since inclusions may contain inclusions, we need to provide the rendering
@@ -289,6 +290,19 @@ const _readErase = (mainFile, subFile, tag) => {
 const _readPage = (mainFile, subFile) => {
   const content = _rawFile(mainFile, subFile)
   return content
+}
+
+/**
+ * Replace text in a pattern (checking that the marker is present).
+ * @param {string} original Source string.
+ * @param {string} marker What to replace (must be present).
+ * @param {string} replacement What to replace with.
+ * @returns Substituted string.
+ */
+const _replace = (original, marker, replacement) => {
+  assert(original.includes(marker),
+    `String "${original}" does not include marker "${marker}" for replacement`)
+  return original.replace(marker, replacement)
 }
 
 /**

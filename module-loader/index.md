@@ -131,7 +131,7 @@ Please see <cite>Casciaro2020</cite> for a more detailed discussion.
 
 <%- include('/_inc/file.html', {file: 'large-module.js'}) %>
 
-<%- include('/_inc/multi.html', {pat: 'test-need-large-module.js', fill: 'js out'}) %>
+<%- include('/_inc/multi.html', {pat: 'test-need-large-module.*', fill: 'js out'}) %>
 
 -   Doesn't work because `import` only works at the top level, not inside a function
 -   So our system can only run loaded modules by `need`ing them
