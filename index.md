@@ -116,7 +116,8 @@ and that ambiguity is confusing when we're passing functions to one another.
 
 ## Acknowledgments
 
-We are very grateful for for feedback from [Darren McElligott][mcelligott-darren].
+We are very grateful for for feedback from [Darren McElligott][mcelligott-darren]
+and [Evan Schultz][schultz-evan].
 
 ## Dedication
 
