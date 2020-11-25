@@ -1,1 +1,1 @@
-node test-get-requires.js get-requires.js
+node test-get-requires.js simple/main.js

@@ -23,6 +23,11 @@
         but it helps give direction to this chapter
 -   Case 1: a single file that doesn't require anything else
     -   Because if this doesn't work, nothing else will
+    -   We will run everything via `export` to keep the examples simple
+
+<%- include('/_inc/file.html', {file: 'single/main.js'}) %>
+<%- include('/_inc/file.html', {file: 'expected-single.out'}) %>
+
 -   Case 2: `main.js` requires `other.js`, which doesn't require anything
     -   First test of dependencies
 

@@ -6,7 +6,7 @@ const wrapper = (module, require) => {
   module.exports = main
 }
 
-const need = (name) => null
+const _require = (name) => null
 const temp = {}
-wrapper(temp, need)
+wrapper(temp, _require)
 temp.exports()

@@ -104,23 +104,26 @@ but it helps give direction to this chapter</li>
 <li>Case 1: a single file that doesn't require anything else
 <ul>
 <li>Because if this doesn't work, nothing else will</li>
+<li>We will run everything via <code>export</code> to keep the examples simple</li>
 </ul>
 </li>
+</ul>
+<pre title="single/main.js"><code class="language-js">const main = () =&gt; {
+  console.log('in main')
+}
+
+module.exports = main
+</code></pre>
+<pre title="expected-single.out"><code class="language-out">in main
+</code></pre>
+<ul>
 <li>Case 2: <code>main.js</code> requires <code>other.js</code>, which doesn't require anything
 <ul>
 <li>First test of dependencies</li>
 </ul>
 </li>
 </ul>
-<pre title="expected-simple.out"><code class="language-out">file:///u/stjs/module-bundler/simple/run.js:1
-const main = require('./main')
-             ^
-
-ReferenceError: require is not defined
-    at file:///u/stjs/module-bundler/simple/run.js:1:14
-    at ModuleJob.run (internal/modules/esm/module_job.js:146:23)
-    at async Loader.import (internal/modules/esm/loader.js:165:24)
-    at async Object.loadESM (internal/process/esm_loader.js:68:5)
+<pre title="expected-simple.out"><code class="language-out">other called from main
 </code></pre>
 <ul>
 <li>Case 3: best described with a diagram
@@ -133,15 +136,12 @@ ReferenceError: require is not defined
 </ul>
 </li>
 </ul>
-<pre title="expected-full.out"><code class="language-out">file:///u/stjs/module-bundler/full/run.js:1
-const main = require('./main')
-             ^
-
-ReferenceError: require is not defined
-    at file:///u/stjs/module-bundler/full/run.js:1:14
-    at ModuleJob.run (internal/modules/esm/module_job.js:146:23)
-    at async Loader.import (internal/modules/esm/loader.js:165:24)
-    at async Object.loadESM (internal/process/esm_loader.js:68:5)
+<pre title="expected-full.out"><code class="language-out">topLeft from main
+topRight from main with topLeft from topRight and bottomRight from \
+ topRight
+bottomLeft from main with topLeft from bottomLeft and bottomRight from \
+ bottomLeft
+bottomRight from main
 </code></pre>
 <ul>
 <li>We do not handle <g key="circular_dependency">circular dependencies</g>
@@ -185,27 +185,9 @@ export default getRequires
 const result = getRequires(process.argv[2])
 console.log(result)
 </code></pre>
-<pre title="test-get-requires.sh"><code class="language-sh">node test-get-requires.js get-requires.js
+<pre title="test-get-requires.sh"><code class="language-sh">node test-get-requires.js simple/main.js
 </code></pre>
-<pre title="test-get-requires.out"><code class="language-out">/u/stjs/node_modules/acorn/dist/acorn.js:2927
-    var err = new SyntaxError(message);
-              ^
-
-SyntaxError: 'import' and 'export' may appear only with 'sourceType: module' (1:0)
-    at Parser.pp$4.raise (/u/stjs/node_modules/acorn/dist/acorn.js:2927:15)
-    at Parser.pp$1.parseStatement (/u/stjs/node_modules/acorn/dist/acorn.js:870:18)
-    at Parser.pp$1.parseTopLevel (/u/stjs/node_modules/acorn/dist/acorn.js:755:23)
-    at Parser.parse (/u/stjs/node_modules/acorn/dist/acorn.js:555:17)
-    at Function.parse (/u/stjs/node_modules/acorn/dist/acorn.js:578:37)
-    at Object.parse (/u/stjs/node_modules/acorn/dist/acorn.js:5143:19)
-    at getRequires (file:///u/stjs/module-bundler/get-requires.js:8:21)
-    at file:///u/stjs/module-bundler/test-get-requires.js:3:16
-    at ModuleJob.run (internal/modules/esm/module_job.js:146:23)
-    at async Loader.import (internal/modules/esm/loader.js:165:24) {
-  pos: 0,
-  loc: Position { line: 1, column: 0 },
-  raisedAt: 6
-}
+<pre title="test-get-requires.out"><code class="language-out">[ './other' ]
 </code></pre>
 <ul>
 <li>To get all dependencies, need to find <g key="transitive_closure">transitive closure</g>
@@ -386,9 +368,9 @@ module.exports = main
   module.exports = main
 }
 
-const need = (name) =&gt; null
+const _require = (name) =&gt; null
 const temp = {}
-wrapper(temp, need)
+wrapper(temp, _require)
 temp.exports()
 </code></pre>
 <pre title="sanity-check-test.out"><code class="language-out">in main
