@@ -46,6 +46,9 @@ STATIC=$(wildcard static/site.*)
 # Directories containing sub-Makefiles for reproducing examples.
 SUBMAKEDIR=$(patsubst %/Makefile,%,$(wildcard */Makefile))
 
+# All source files.
+ALL_FILES=${MARKDOWN} $(wildcard $(patsubst %,%/*.*,${SLUGS})) $(wildcard $(patsubst %,%/*/*.*,${SLUGS}))
+
 .DEFAULT: commands
 
 ## commands: show available commands
@@ -69,6 +72,10 @@ bib: bib.md
 gloss: gloss.md
 
 ## ----: ----
+
+## fixme: show all FIXME markers
+fixme:
+	@fgrep -i fixme ${ALL_FILES}
 
 ## hygiene: run all checks
 hygiene:
