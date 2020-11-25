@@ -109,6 +109,10 @@ latex: book.tex
 catalog:
 	_tools/catalog.js --ignore --input ${HTML}
 
+## terms: list glossary terms per chapter
+terms:
+	@_tools/terms.js $(filter-out CONTRIBUTING.md gloss.md,${MARKDOWN})
+
 ## exercises: count exercises per chapter
 exercises:
 	@_tools/exercises.js _config.yml
