@@ -413,10 +413,6 @@ The double dash is a common Unix convention for signalling the end of parameters
 </ul>
 </li>
 </ul>
-<h2 id="what-about-promises">What about promises?</h2>
-<div class="fixme">
-<p>modify test harness to use promises</p>
-</div>
 <h2 id="exercises">Exercises</h2>
 <h3 class="exercise">Timing tests</h3>
 <p>Install the <a href="https://www.npmjs.com/package/microtime"><code>microtime</code></a> package and then modify the <code>dry-run.js</code> example
@@ -485,19 +481,91 @@ only tests with that tag are run.</p>
 <p>A <g key="mock_object">mock object</g> is a simplified replacement for part of a program
 whose behavior is easier to control and predict than the thing it is replacing.
 For example,
-if the function <code>getNumUsers(clusterName)</code> returns the number of people using a cluster at the present time,
-we can replace it with a pair of functions for testing purposes:</p>
-<ul>
+we may want to test that our program does the right thing if an error occurs while reading a file.
+To do this,
+we write a function that wraps <code>fs.readFileSync</code>:</p>
+<pre><code class="language-js">const mockReadFileSync = (filename, encoding = 'utf-8') =&gt; {
+  return fs.readFileSync(filename, encoding)
+}
+</code></pre>
+<div class="unindented">
+<p>and then modify it so that it throws an exception under our control.
+For example,
+if we define <code>MOCK_READ_FILE_CONTROL</code> like this:</p>
+</div>
+<pre><code class="language-js">const MOCK_READ_FILE_CONTROL = [false, false, true, false, true]
+</code></pre>
+<div class="unindented">
+<p>then the third and fifth calls to <code>mockReadFileSync</code> throw an exception instead of reading data,
+as do any calls after the fifth.
+Write this function.</p>
+</div>
+<h3 class="exercise">Setup and teardown</h3>
+<p>Testing frameworks often allow programmers to specify a <code>setup</code> function
+that is to be run before each test
+and a corresponding <code>teardown</code> function
+that is to be run after each test.
+(<code>setup</code> usually re-creates complicated test fixtures,
+while <code>teardown</code> functions are sometimes needed to clean up after tests,
+e.g., to close database connections or delete temporary files.)</p>
+<p>Modify the testing framework in this chapter so that
+if a file of tests contains something like this:</p>
+<pre><code class="language-js">const createFixtures = () =&gt; {
+  ...do something...
+}
+
+hope.setup(createFixtures)
+</code></pre>
+<div class="unindented">
+<p>then the function <code>createFixtures</code> will be called
+exactly once before each test in that file.
+Add a similar way to register a teardown function with <code>hope.teardown</code>.</p>
+</div>
+<h3 class="exercise">Multiple tests</h3>
+<p>Add a method <code>hope.multiTest</code> that allows users to specify
+multiple test cases for a function at once.
+For example, this:</p>
+<pre><code class="language-js">hope.multiTest('check all of these`, functionToTest, [
+  [['arg1a', 'arg1b'], 'result1'],
+  [['arg2a', 'arg2b'], 'result2'],
+  [['arg3a', 'arg3b'], 'result3']
+])
+</code></pre>
+<div class="unindented">
+<p>should be equivalent to this:</p>
+</div>
+<pre><code class="language-js">hope.test('check all of these 0',
+  () =&gt; assert(functionToTest('arg1a', 'arg1b') === 'result1')
+)
+hope.test('check all of these 1',
+  () =&gt; assert(functionToTest('arg2a', 'arg2b') === 'result2')
+)
+hope.test('check all of these 2',
+  () =&gt; assert(functionToTest('arg3a', 'arg3b') === 'result3')
+)
+</code></pre>
+<h3 class="exercise">Assertions for sets and maps</h3>
+<ol>
 <li>
-<p><code>setupNumUsers(sampleData)</code> takes an object whose keys are cluster names
-and whose values are the number of users to return for those clusters.</p>
+<p>Write functions <code>assertSetEqual</code> and <code>assertMapEqual</code>
+that check whether two instances of <code>Set</code> or two instances of <code>Map</code> are equal.</p>
 </li>
 <li>
-<p><code>getNumUsers(clusterName)</code> looks in the data most recently set with <code>setupNumUsers</code>
-and returns the appropriate value.</p>
+<p>Write a function <code>assertArraySame</code>
+that checks whether two arrays have the same elements,
+even if those elements are in different orders.</p>
 </li>
-</ul>
-<p>Create a file called <code>mock-num-users.js</code> that contains these two functions.</p>
+</ol>
+<h3 class="exercise">Testing promises</h3>
+<p>Modify the unit testing framework to handle <code>async</code> functions,
+so that:</p>
+<pre><code class="language-js">hope.test('delayed test', async () =&gt; {...})
+</code></pre>
+<div class="unindented">
+<p>does the right thing.
+(Note that you can use <code>typeof</code> to determine whether the object given to <code>hope.test</code>
+is a function or a promise.)</p>
+</div>
 </main>
 <footer>
 <div class="row">

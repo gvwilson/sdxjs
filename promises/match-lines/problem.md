@@ -6,5 +6,6 @@ For example:
 node match.js Toronto first.txt second.txt third.txt
 ```
 
-<p class="noindent">would print all of the lines from the three files
-that contain the word "Toronto".</p>
+::: unindented
+would print all of the lines from the three files that contain the word "Toronto".
+:::

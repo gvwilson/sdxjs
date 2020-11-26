@@ -117,10 +117,4 @@ The double dash is a common Unix convention for signalling the end of parameters
 -   Note that `1/0` is a failure rather than an error
     -   JavaScript thinks the result is `Infinity` rather than an exception
 
-## What about promises?
-
-::: fixme
-modify test harness to use promises
-:::
-
 <%- include('/_inc/problems.html') %>

@@ -41,7 +41,7 @@ TEX=\
   $(wildcard _tex/*.cls)
 
 # Static files.
-STATIC=$(wildcard static/site.*)
+STATIC=$(wildcard static/site.*) $(wildcard static/fonts/*/*.*)
 
 # Directories containing sub-Makefiles for reproducing examples.
 SUBMAKEDIR=$(patsubst %/Makefile,%,$(wildcard */Makefile))
@@ -88,7 +88,7 @@ check: docs/index.html
 	-@_tools/check.js \
 	--config _config.yml \
 	--html ${HTML} \
-	--markdown ${MARKDOWN}
+	--markdown ${MARKDOWN} ${EXERCISES}
 
 ## ejslint: run checks on template expansions
 ejslint:
@@ -144,6 +144,8 @@ settings:
 	@echo MARKDOWN = "${MARKDOWN}"
 	@echo HTML = "${HTML}"
 	@echo JAVASCRIPT = "${JAVASCRIPT}"
+	@echo STATIC = "${STATIC}"
+	@echo EXERCISES = "${EXERCISES}"
 
 # --------------------
 

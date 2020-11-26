@@ -351,7 +351,8 @@ hashExisting(root).then(
 <ul>
 <li>Backup directory contains <code>abcd1234.bck</code> (backup files) and <code>ssssssssss.csv</code> (manifest files),
 where <code>ssssssssss</code> is the <g key="utc">UTC</g> <g key="timestamp">timestamp</g> of the backup's creation</li>
-<li>We assume no more than one backup per second (which is unsafe in practice)</li>
+<li>We assume no more than one backup per second</li>
+<li>This is unsafe in practice: leads to a <g key="toctou">Time of check/time of use</g> <g key="race_condition">race condition</g></li>
 </ul>
 </li>
 </ul>
@@ -723,6 +724,126 @@ const InitialBackups = Object.keys(Hashes).reduce((set, filename) =&gt; {
 &gt; mocha */test/test-*.js "-g" "check entire backup process"
   check entire backup process
 </code></pre>
+<h2 id="exercises">Exercises</h2>
+<h3 class="exercise">Odds of collision</h3>
+<p>If hashes were only 2 bits long,
+then the chances of collision with each successive file
+assuming no previous collision are:</p>
+<table>
+<thead>
+<tr>
+<th>Number of Files</th>
+<th>Odds of Collision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>0%</td>
+</tr>
+<tr>
+<td>2</td>
+<td>25%</td>
+</tr>
+<tr>
+<td>3</td>
+<td>50%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>75%</td>
+</tr>
+<tr>
+<td>5</td>
+<td>100%</td>
+</tr>
+</tbody>
+</table>
+<p>A colleague of yours says this means that if we hash four files,
+there's only a 75% chance of any collision occurring.
+What are the actual odds?</p>
+<h3 class="exercise">Streaming I/O</h3>
+<p>Write a small program using <code>fs.createReadStream</code> and <code>fs.createWriteStream</code>
+that copies a file piece by piece
+instead of reading it into memory and then writing it out again.</p>
+<h3 class="exercise">Sequencing backups</h3>
+<p>Modify the backup program so that manifests are numbered sequentially
+as <code>00000001.csv</code>, <code>00000002.csv</code>, and so on
+rather than being timestamped.
+Why doesn't this solve the time of check/time of use race condition mentioned earlier.</p>
+<h3 class="exercise">JSON manifests</h3>
+<ol>
+<li>
+<p>Modify <code>backup.js</code> so that it can save JSON manifests as well as CSV manifests
+based on a command-line flag.</p>
+</li>
+<li>
+<p>Write another program called <code>migrate.js</code> that converts a set of manifests
+from CSV to JSON.
+(The program's name comes from the term <g key="data_migration">data migration</g>.)</p>
+</li>
+<li>
+<p>Modify <code>backup.js</code> programs so that each manifest stores the user name of the person who created it
+along with file hashes,
+and then modify <code>migrate.js</code> to transform old files into the new format.</p>
+</li>
+</ol>
+<h3 class="exercise">Testing line counting</h3>
+<p>Write tests for the line-counting functions of <xref key="promises"></xref> using Mocha and <code>mock-fs</code>.
+Did you find (at least) two bugs?</p>
+<h3 class="exercise">Mock hashes</h3>
+<ol>
+<li>Modify the file backup program so that it uses a function called <code>ourHash</code> to hash files.</li>
+<li>Create a replacement that returns some predictable value, such as the first few characters of the data.</li>
+<li>Rewrite the tests to use this function.</li>
+</ol>
+<p>How did you modify the main program so that the tests could control which hashing function is used?</p>
+<h3 class="exercise">Comparing manifests</h3>
+<p>Write a program <code>compare-manifests.js</code> that reads two manifest files and reports:</p>
+<ul>
+<li>Which files have the same names but different hashes
+(i.e., their contents have changed).</li>
+<li>Which files have the same hashes but different names
+(i.e., they have been renamed).</li>
+<li>Which files are in the first hash but neither their names nor their hashes are in the second
+(i.e., they have been deleted).</li>
+<li>Which files are in the second hash but neither their names nor their hashes are in the first
+(i.e., they have been added).</li>
+</ul>
+<h3 class="exercise">From one state to another</h3>
+<ol>
+<li>
+<p>Write a program called <code>from-to.js</code> that takes the name of a directory
+and the name of a manifest file
+as its command-line arguments,
+then adds, removes, and/or renames files in the directory
+to restore the state described in the manifest.
+The program should only perform file operations when it needs to,
+e.g.,
+it should not delete a file and re-add it if the contents have not changed.</p>
+</li>
+<li>
+<p>Write some tests for <code>from-to.js</code> using Mocha and <code>mock-fs</code>.</p>
+</li>
+</ol>
+<h3 class="exercise">File history</h3>
+<ol>
+<li>
+<p>Write a program called <code>file-history.js</code>
+that takes the name of a file as a command-line argument
+and displays the history of that file
+by tracing it back in time through the available manifests.</p>
+</li>
+<li>
+<p>Write tests for your program using Mocha and <code>mock-fs</code>.</p>
+</li>
+</ol>
+<h3 class="exercise">Pre-commit hooks</h3>
+<p>Modify <code>backup.js</code> to load and run a function called <code>preCommit</code> from a file called <code>pre-commit.js</code>
+stored in the root directory of the files being backed up.
+If <code>preCommit</code> returns <code>true</code>, the backup proceeds;
+if it returns <code>false</code> or throws an exception,
+no backup is created.</p>
 </main>
 <footer>
 <div class="row">

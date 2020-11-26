@@ -3,7 +3,9 @@ and attach both `then` and `catch` to it:
 
 <%- include('/_inc/file.html', {file: 'catch-then/example.js'}) %>
 
-<p class="noindent">When the code is run it produces:</p>
+::: unindented
+When the code is run it produces:
+:::
 
 <%- include('/_inc/file.html', {file: 'catch-then/example.txt'}) %>
 

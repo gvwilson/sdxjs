@@ -12,7 +12,9 @@ some
 people
 ```
 
-<p class="noindent">and `right.txt` contains:</p>
+::: unindented
+and `right.txt` contains:
+:::
 
 ```txt
 write
@@ -20,13 +22,17 @@ some
 code
 ```
 
-<p class="noindent">then:</p>
+::: unindented
+then:
+:::
 
 ```sh
 node file-diff.js left.txt right.txt
 ```
 
-<p class="noindent">would print:</p>
+::: unindented
+would print:
+:::
 
 ```txt
 2 code
@@ -35,10 +41,11 @@ node file-diff.js left.txt right.txt
 2 write
 ```
 
-<p class="noindent">where `1`, `2`, and `*` show whether lines are in only the first or second file
+::: unindented
+where `1`, `2`, and `*` show whether lines are in only the first or second file
 or are in both.
 Note that the order of the lines in the file doesn't matter.
-</p>
+:::
 
 ::: hint
 You may want to use the `Set` class to store lines.

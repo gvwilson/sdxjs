@@ -9,7 +9,9 @@ if we run:
 node lh.js promises/*.*
 ```
 
-<p class="noindent">the output might be:</p>
+::: unindented
+the output might be:
+:::
 
 | Length | Number of Files |
 | ------ | --------------- |

@@ -2,7 +2,9 @@ Suppose we create a promise that deliberately fails and then add two error handl
 
 <%- include('/_inc/file.html', {file: 'multiple-catch/example.js'}) %>
 
-<p class="noindent">When the code is run it produces:</p>
+::: unindented
+When the code is run it produces:
+:::
 
 <%- include('/_inc/file.html', {file: 'multiple-catch/example.txt'}) %>
 

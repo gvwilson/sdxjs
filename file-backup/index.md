@@ -74,7 +74,8 @@ and quickly get into "if every atom in the universe was a file there still would
 -   Step 2: see which files have and haven't been backed up already
     -   Backup directory contains `abcd1234.bck` (backup files) and `ssssssssss.csv` (manifest files),
         where `ssssssssss` is the <g key="utc">UTC</g> <g key="timestamp">timestamp</g> of the backup's creation
-    -   We assume no more than one backup per second (which is unsafe in practice)
+    -   We assume no more than one backup per second
+    -   This is unsafe in practice: leads to a <g key="toctou">Time of check/time of use</g> <g key="race_condition">race condition</g>
 
 <%- include('/_inc/file.html', {file: 'check-existing-files.js'}) %>
 
@@ -121,3 +122,5 @@ and quickly get into "if every atom in the universe was a file there still would
 <%- include('/_inc/slice.html', {file: 'test/test-backup.js', tag: 'tests'}) %>
 
 <%- include('/_inc/file.html', {file: 'test-backup.out'}) %>
+
+<%- include('/_inc/problems.html') %>

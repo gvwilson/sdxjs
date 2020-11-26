@@ -88,7 +88,11 @@ const mergeGlossaries = (...glossaries) => {
   return glossaries.reduce((accum, current) => {
     current.forEach(item => {
       if (accum.hasOwnProperty(item.slug)) {
-        console.error(`slug ${item.slug} is defined redundantly`)
+        if (('override' in item) && item.override) {
+          // do nothing
+        } else {
+          console.error(`slug ${item.slug} is defined redundantly`)
+        }
       }
       accum[item.slug] = item
     })
