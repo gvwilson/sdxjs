@@ -1,3 +1,3 @@
 ::: fixme
-Write solution to exercise.
+Write solution.
 :::
