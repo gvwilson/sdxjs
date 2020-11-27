@@ -17,7 +17,7 @@
 | \|        | Either/or |
 | (...)     | Grouping |
 
--   So we should be able to parse `^(a|b|$)*z$` as
+-   So we should be able to parse `/^(a|b|$)*z$/` as
     "start of text",
     "any number of 'a', 'b', or '$'",
     "a single 'z',
@@ -40,7 +40,7 @@
 <%- include('/_inc/file.html', {file: 'tokenizer-collapse.js'}) %>
 
 -   This is readable, efficient, and wrong
-    -   The expression `ab*` means "a single `a` followed by zero or more `b`"
+    -   The expression `/ab*/` means "a single `a` followed by zero or more `b`"
     -   But if we combine the `a` and `b` as we read them,
         we wind up with "zero or more repetitions of `ab`"
     -   We didn't figure this out until we were implementing the next step
@@ -74,7 +74,7 @@
     -   This automatically handles `/(a*)/`
 -   What about `/a|b/`?
     -   Append a `Lit` token for `a`
-    -   Get the `|` and... hm.
+    -   Get the `|` and... hm
     -   We don't have the next token yet
 -   Option 1: every time we push a token, check to see if the thing on the top of the stack is waiting to combine
     -   But what about `/a|b*/`, which is supposed to mean "one `a` or any number of `b`"?
@@ -111,3 +111,5 @@
     we should switch to the [shunting-yard algorithm][shunting-yard-algorithm]
 -   But as we implied at the start,
     if our design requires us to write a parser we should try to come up with a better design
+
+<%- include('/_inc/problems.html') %>

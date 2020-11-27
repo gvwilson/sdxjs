@@ -114,7 +114,7 @@
 </tbody>
 </table>
 <ul>
-<li>So we should be able to parse <code>^(a|b|$)*z$</code> as
+<li>So we should be able to parse <code>/^(a|b|$)*z$/</code> as
 &quot;start of text&quot;,
 &quot;any number of 'a', 'b', or '$'&quot;,
 &quot;a single 'z',
@@ -187,7 +187,7 @@ export default tokenize
 <ul>
 <li>This is readable, efficient, and wrong
 <ul>
-<li>The expression <code>ab*</code> means &quot;a single <code>a</code> followed by zero or more <code>b</code>&quot;</li>
+<li>The expression <code>/ab*/</code> means &quot;a single <code>a</code> followed by zero or more <code>b</code>&quot;</li>
 <li>But if we combine the <code>a</code> and <code>b</code> as we read them,
 we wind up with &quot;zero or more repetitions of <code>ab</code>&quot;</li>
 <li>We didn't figure this out until we were implementing the next step</li>
@@ -337,7 +337,7 @@ and replace it with an <code>Any</code> token that has the <code>Lit</code> toke
 <li>What about <code>/a|b/</code>?
 <ul>
 <li>Append a <code>Lit</code> token for <code>a</code></li>
-<li>Get the <code>|</code> and... hm.</li>
+<li>Get the <code>|</code> and... hm</li>
 <li>We don't have the next token yet</li>
 </ul>
 </li>
@@ -518,6 +518,100 @@ we should switch to the <a href="https://en.wikipedia.org/wiki/Shunting-yard_alg
 <li>But as we implied at the start,
 if our design requires us to write a parser we should try to come up with a better design</li>
 </ul>
+<h2 id="exercises">Exercises</h2>
+<h3 class="exercise">Create objects</h3>
+<p>Modify the parser to return instances of classes derived from <code>RegexBase</code>.</p>
+<h3 class="exercise">Escape characters</h3>
+<p>Modify the parser to handle escape characters,
+so that (for example) <code>\*</code> is interpreted as &quot;a literal '*' character&quot;
+and <code>\\</code> is interpreted as &quot;a literal backslash&quot;.</p>
+<h3 class="exercise">Lazy matching</h3>
+<p>Modify the parser so that <code>*?</code> is interpreted as a single token
+meaning &quot;lazy match zero or more&quot;.</p>
+<h3 class="exercise">Character sets</h3>
+<p>Modify the parser so that expressions like <code>[xyz]</code> are interpreted to mean
+&quot;match any one of the characters 'x', 'y', or 'z'&quot;.</p>
+<h3 class="exercise">Back reference</h3>
+<p>Modify the tokenizer so that it recognizes <code>\1</code>, <code>\2</code>, and so on to mean &quot;back reference&quot;.
+The number may contain any number of digits.</p>
+<h3 class="exercise">Named groups</h3>
+<ol>
+<li>
+<p>Modfy the tokenizer to recognize named groups.
+For example, the named group <code>/(?&lt;triple&gt;aaa)/</code>
+would create a named group called <code>triple</code> that matches exactly three consecutive occurrences of 'a'.</p>
+</li>
+<li>
+<p>Write Mocha tests for your modified tokenizer.
+Does it handle nested named groups?</p>
+</li>
+</ol>
+<h3 class="exercise">Object streams</h3>
+<p>Write a parser that turns files of key-value pairs separated by blank lines into objects.
+For example, if the input is:</p>
+<pre><code class="language-txt">left: &quot;left value&quot;
+first: 1
+
+middle: &quot;middle value&quot;
+second: 2
+
+right: &quot;right value&quot;
+third: 3
+</code></pre>
+<div class="unindented">
+<p>then the output will be:</p>
+</div>
+<pre><code class="language-js">[
+  {left: &quot;left value&quot;, first: 1},
+  {middle: &quot;middle value&quot;, second: 2},
+  {right: &quot;right value&quot;, third: 3}
+]
+</code></pre>
+<p>Keys are always upper- and lower-case characters;
+values may be strings in double quotes or unquoted numbers.</p>
+<h3 class="exercise">Tokenize HTML</h3>
+<ol>
+<li>
+<p>Write a tokenizer for a subset of HTML that consists of:</p>
+<ul>
+<li>Opening tags without attributes, such as <code>&lt;div&gt;</code> and <code>&lt;p&gt;</code></li>
+<li>Closing tags, such as <code>&lt;/p&gt;</code> and <code>&lt;/div&gt;</code></li>
+<li>Plain text between tags that does <em>not</em> contain '&lt;' or '&gt;' characters</li>
+</ul>
+</li>
+<li>
+<p>Modify the tokenizer to handle <code>key=&quot;value&quot;</code> attributes in opening tags.</p>
+</li>
+<li>
+<p>Write Mocha tests for your tokenizer.</p>
+</li>
+</ol>
+<h3 class="exercise">The Shunting Yard Algorithm</h3>
+<ol>
+<li>
+<p>Use the <a href="https://en.wikipedia.org/wiki/Shunting-yard_algorithm">shunting-yard algorithm</a>
+to implement a tokenizer for a simple subset of arithmetic that includes:</p>
+<ul>
+<li>single-letter variable names</li>
+<li>single-digit numbers</li>
+<li>the <code>+</code>, <code>*</code>, and <code>^</code> operators, where <code>+</code> has the lowest precedence and <code>^</code> has the highest</li>
+</ul>
+</li>
+<li>
+<p>Write Mocha tests for your tokenizer.</p>
+</li>
+</ol>
+<h3 class="exercise">Handling errors</h3>
+<ol>
+<li>
+<p>What does the regular expression tokenizer do
+with expressions that contain unmatched opening parentheses like <code>/a(b/</code>?
+What about expressions that contain unmatched closing parentheses like <code>/ab)/</code>?</p>
+</li>
+<li>
+<p>Modify it so it produces a more useful error message.</p>
+</li>
+</ol>
 </main>
 <footer>
 <div class="row">
