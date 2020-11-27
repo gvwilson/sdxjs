@@ -16,9 +16,14 @@
 -   Another is <g key="column_wise">column-wise</g>
     -   Each named column stored as a <g key="homogeneous">homogeneous</g> array
     -   In JavaScript, an object whose members are all arrays of the same length
+
+::: fixme
+diagram of row-wise vs. column-wise
+:::
+
 -   Construct one of each, try some operations, record times and memory use, see which is better
     -   Answer will probably depend on...things
--   Data never modified after it is created
+-   Never modify data after creating it
     -   Allows us to recycle memory
 -   Build a row-wise table with some number of columns
     -   Values are 0, 1, 2, 0, 1, 2, etc.
