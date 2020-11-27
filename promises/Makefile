@@ -3,10 +3,10 @@ TARGETS=\
   await-fs.out \
   callbacks-with-timeouts.out \
   callbacks-with-zero-timeouts.out \
-  count-lines-globbed-files.out \
+  count-lines-globbed-files.slice.out \
   count-lines-single-file.out \
-  count-lines-with-stat.out \
-  count-lines-with-stat-async.out \
+  count-lines-with-stat.slice.out \
+  count-lines-with-stat-async.slice.out \
   non-blocking.out \
   not-callbacks-alone.out \
   promise-example.out \

@@ -77,7 +77,7 @@ diagram showing callbacks
     -   Do something more sensible once we understand exceptions
 -   The results from successful execution are passed as the other argument (in this case, `files`)
 
-<%- include('/_inc/multi.html', {pat: 'list-dir-function-defined.*', fill: 'sh out'}) %>
+<%- include('/_inc/multi.html', {pat: 'list-dir-function-defined.*', fill: 'sh slice.out'}) %>
 
 -   Nothing else in this book will make sense if we don't understand the order of execution
     1.  Read the program file
@@ -113,7 +113,7 @@ diagram showing callbacks
     -   <g key="globbing">Globbing</g> (short for "global") is an old Unix term for matching a set of files by name
     -   Like most of programming it works by filename, not by actual content type
 
-<%- include('/_inc/multi.html', {pat: 'glob-all-files.*', fill: 'js out'}) %>
+<%- include('/_inc/multi.html', {pat: 'glob-all-files.*', fill: 'js slice.out'}) %>
 
 -   Get filenames matching a pattern and then do something with the list
     -   The leading `**` means "recurse into subdirectories"
@@ -123,7 +123,7 @@ diagram showing callbacks
 -   Works, but we probably don't want to copy editor backup files ending with `~`
 -   We can get the list and then <g key="filter">filter</g> those out
 
-<%- include('/_inc/multi.html', {pat: 'glob-get-then-filter-pedantic.*', fill: 'js out'}) %>
+<%- include('/_inc/multi.html', {pat: 'glob-get-then-filter-pedantic.*', fill: 'js slice.out'}) %>
 
 -   `Array.filter` creates a new array containing all the items of the original that pass the test
     -   The test is specified as a callback function called once for each item that returns a <g key="boolean">Boolean</g>
@@ -223,8 +223,8 @@ diagram showing three levels of callback
 
 <%- include('/_inc/multi.html', {pat: 'copy-file-unfiltered.*', fill: 'sh out'}) %>
 
--   `node_modules/fs.stat` is a directory, not a file, but matches our `glob`
-    -   Use `fs.stat` to get the properties of something in the filesystem and then check if it's a file
+-   `node_modules/fs.stat` and `node_modules/fs.walk` are directories, not files, but match our `glob`
+-   Use `fs.stat` to get the properties of something in the filesystem and then check if it's a file
     -   Name is short for "status"
 
 <%- include('/_inc/file.html', {file: 'copy-file-filtered.js'}) %>

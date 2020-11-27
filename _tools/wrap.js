@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-import readline from 'readline'
+import argparse from 'argparse'
+import fs from 'fs'
 
 import dirname from './dirname.js'
 
@@ -8,22 +9,64 @@ const WIDTH = 72
 const PROTOCOL = 'file://'
 const HOME = dirname(import.meta.url).replace('/_tools', '')
 const FAKE = '/u/stjs'
+const REMOVED = '...'
+const SLICE = 5
 
-const reader = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-  terminal: false
-})
+const main = () => {
+  const options = getOptions()
+  const lines = fs.readFileSync(0, 'utf-8')
+    .trimEnd()
+    .split('\n')
+  const wrapped = wrap(lines)
+  const selected = select(options, wrapped)
+  selected.forEach(line => console.log(line))
+}
 
-reader.on('line', (line) => {
-  line = line.replace(PROTOCOL, '').replace(HOME, FAKE)
-  let front = null
-  let terminator = null
-  while (line.length > 0) {
-    [front, line, terminator] = split(line)
-    console.log(`${front}${terminator}`)
+const getOptions = () => {
+  const parser = new argparse.ArgumentParser()
+  parser.add_argument('--head', { type: 'int', default: null })
+  parser.add_argument('--tail', { type: 'int', default: null })
+  parser.add_argument('--slice', { action: 'store_true' })
+  const options = parser.parse_args()
+  if (options.slice) {
+    if ((options.head !== null) || (options.tail !== null)) {
+      console.error('wrap: cannot specify --slice with --head and/or --tail')
+      process.exit(1)
+    }
+    options.head = SLICE
+    options.tail = SLICE
   }
-})
+  return options
+}
+
+const select = (options, lines) => {
+  if ((options.head === null) && (options.tail === null)) {
+    return lines
+  }
+  let result = []
+  if (options.head !== null) {
+    result = result.concat(lines.slice(0, options.head))
+  }
+  result.push(REMOVED)
+  if (options.tail !== null) {
+    result = result.concat(lines.slice(-options.tail))
+  }
+  return result
+}
+
+const wrap = (lines) => {
+  const result = []
+  lines.forEach(line => {
+    line = line.replace(PROTOCOL, '').replace(HOME, FAKE)
+    let front = null
+    let terminator = null
+    while (line.length > 0) {
+      [front, line, terminator] = split(line)
+      result.push(`${front}${terminator}`)
+    }
+  })
+  return result
+}
 
 const split = (line) => {
   if (line.length <= WIDTH) {
@@ -38,3 +81,5 @@ const split = (line) => {
   }
   return [line.slice(0, WIDTH), line.slice(WIDTH), ' \\']
 }
+
+main()

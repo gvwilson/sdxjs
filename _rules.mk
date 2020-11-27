@@ -10,23 +10,29 @@ targets:
 # Normally used when there are parameters to the JavaScript file but no extra
 # dependencies.
 %.html: %.sh %.js
-	bash $< &> $@
+	bash $< 2>&1 | ../_tools/wrap.js > $@
 %.out: %.sh %.js
-	bash $< &> $@
+	bash $< 2>&1 | ../_tools/wrap.js > $@
+%.slice.out: %.sh %.js
+	bash $< 2>&1 | ../_tools/wrap.js --slice > $@
 
 # Create HTML or text when there is only a shell script.
 # Normally used when the output depends on multiple .js files, in which case the
 # including file must define dependencies.
 %.html: %.sh
-	bash $< &> $@
+	bash $< 2>&1 | ../_tools/wrap.js > $@
 %.out: %.sh
-	bash $< &> $@
+	bash $< 2>&1 | ../_tools/wrap.js > $@
+%.slice.out: %.sh
+	bash $< 2>&1 | ../_tools/wrap.js --slice > $@
 
 # Create HTML or text by running JavaScript without parameters.
 %.html: %.js
-	node $< &> $@
+	node $< 2>&1 | ../_tools/wrap.js > $@
 %.out: %.js
-	node $< &> $@
+	node $< 2>&1 | ../_tools/wrap.js > $@
+%.slice.out: %.js
+	node $< 2>&1 | ../_tools/wrap.js --slice > $@
 
 # Get rid of all generated files.
 erase:

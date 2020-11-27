@@ -136,7 +136,7 @@ If we don't specify a character encoding,
     -   Use `Promise.all` to handle all the promises in an array
     -   For readability, put the creation of the promise in a separate function
 
-<%- include('/_inc/multi.html', {pat: 'count-lines-globbed-files.*', fill: 'js sh out'}) %>
+<%- include('/_inc/multi.html', {pat: 'count-lines-globbed-files.*', fill: 'js sh slice.out'}) %>
 
 -   But we want to display filenames as well as counts
 -   So we construct temporary objects that have the information we need downstream
@@ -152,7 +152,7 @@ If we don't specify a character encoding,
     -   So we create a pair to pass down the chain
     -   Use `{filename, stats}` to give the objects keys and values that match up
 
-<%- include('/_inc/multi.html', {pat: 'count-lines-with-stat.*', fill: 'js sh out'}) %>
+<%- include('/_inc/multi.html', {pat: 'count-lines-with-stat.*', fill: 'js sh slice.out'}) %>
 
 -   This is complex, but a lot simpler than it would be if we were using callbacks
 

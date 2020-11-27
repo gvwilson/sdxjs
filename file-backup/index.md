@@ -60,14 +60,14 @@ and quickly get into "if every atom in the universe was a file there still would
 
 <%- include('/_inc/file.html', {file: 'hash-existing-promise.js'}) %>
 
-<%- include('/_inc/multi.html', {pat: 'run-hash-existing-promise.*', fill: 'js sh out'}) %>
+<%- include('/_inc/multi.html', {pat: 'run-hash-existing-promise.*', fill: 'js sh slice.out'}) %>
 
 -   This code is clearer than it would be with callbacks, but the layer of promises around everything still obscures meaning
 -   Let's rewrite it using `async` and `await`
 
 <%- include('/_inc/file.html', {file: 'hash-existing-async.js'}) %>
 
-<%- include('/_inc/multi.html', {pat: 'run-hash-existing-async.*', fill: 'js sh out'}) %>
+<%- include('/_inc/multi.html', {pat: 'run-hash-existing-async.*', fill: 'js sh slice.out'}) %>
 
 ## How can we test JavaScript?
 
