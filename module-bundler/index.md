@@ -54,7 +54,7 @@
 <%- include('/_inc/multi.html', {pat: 'test-get-requires.*', fill: 'js sh out'}) %>
 
 -   To get all dependencies, need to find <g key="transitive_closure">transitive closure</g>
-    -   Requirements of requirements of requirements of...
+    -   Requirements of requirements of requirements of…
 -   Algorithm uses two sets
     -   Things we have seen (initially empty)
     -   Things we haven't looked at yet (initially the first file)
@@ -70,8 +70,8 @@
 <%- include('/_inc/file.html', {file: 'transitive-closure-only.js'}) %>
 <%- include('/_inc/multi.html', {pat: 'test-transitive-closure-only.*', fill: 'js sh out'}) %>
 
--   This works...
--   ...but we're not keeping track of the mapping from required names within files to absolute paths
+-   This works…
+-   …but we're not keeping track of the mapping from required names within files to absolute paths
 -   So modify transitive closure to construct and return a two-level structure
     -   Primary keys are the absolute paths to the files being required
     -   Sub-keys are the paths they refer to when loading things
@@ -137,9 +137,9 @@
     -   The two lookup tables
 -   The lookup tables can't be global variables because of possible name collisions
 -   So we will use <g key="closure">closures</g>
-    -   A function that takes the two tables as arguments...
-    -   ...and returns a function that takes an absolute path identifying this module...
-    -   ...and returns a function that takes a local path inside a module and returns the exports
+    -   A function that takes the two tables as arguments…
+    -   …and returns a function that takes an absolute path identifying this module…
+    -   …and returns a function that takes a local path inside a module and returns the exports
     -   Each layer of wrappers remembers more information
 -   We're also going to need a third structure: a cache for the modules we've already loaded
 -   To prove it works, we will look up the function `main` in the first file and call it

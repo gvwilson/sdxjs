@@ -3,7 +3,7 @@
 
 ## What is our starting point?
 
--   Assume a parser...
+-   Assume a parser…
 -   Represent program as JSON
     -   Every element is `[command ...args]`
 
@@ -36,8 +36,8 @@
 ## How can we make a tracing debugger?
 
 -   First step is to build a <g key="source_map">source map</g>
-    -   If we are parsing with [Acorn][acorn] we get line numbers...
-    -   ...but then have to scrape out the information we want for this example
+    -   If we are parsing with [Acorn][acorn] we get line numbers…
+    -   …but then have to scrape out the information we want for this example
 -   So we will cheat
     -   Add a line number to each interesting statement
 
@@ -151,7 +151,7 @@
 
 <%- include('/_inc/multi.html', {pat: 'test-expect.*', fill: 'sh out'}) %>
 
--   And it works---or does it?
+-   And it works—or does it?
     -   Why is only one test shown?
     -   Why doesn't the summary appear?
 -   The debugger's `exit` command calls `process.exit`, so the whole program stops immediately
@@ -160,7 +160,7 @@
     -   Even when it appears in a deeply-nested call to `exec` (which will happen with loops and conditionals)
 -   Alternative is to use an exception for control flow
 -   Define our own exception class
-    -   Doesn't need any data---just using it to get a typed object
+    -   Doesn't need any data—just using it to get a typed object
 
 <%- include('/_inc/file.html', {file: 'halt-exception.js'}) %>
 

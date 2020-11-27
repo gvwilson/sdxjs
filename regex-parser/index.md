@@ -15,7 +15,7 @@
 | $         | End of input |
 | *         | Zero or more of the previous thing |
 | \|        | Either/or |
-| (...)     | Grouping |
+| (…)       | Grouping |
 
 -   So we should be able to parse `/^(a|b|$)*z$/` as
     "start of text",
@@ -74,7 +74,7 @@
     -   This automatically handles `/(a*)/`
 -   What about `/a|b/`?
     -   Append a `Lit` token for `a`
-    -   Get the `|` and... hm
+    -   Get the `|` and… hm
     -   We don't have the next token yet
 -   Option 1: every time we push a token, check to see if the thing on the top of the stack is waiting to combine
     -   But what about `/a|b*/`, which is supposed to mean "one `a` or any number of `b`"?

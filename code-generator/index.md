@@ -32,7 +32,7 @@
     -   Parse the JavaScript with [Acorn][acorn] to create an <g key="abstract_syntax_tree">AST</g>
     -   Modify the AST
     -   Use [Escodegen][escodegen] to turn the AST back into JavaScript
-    -   Code is just another kind of data...
+    -   Code is just another kind of data…
 -   Look at the Acorn parse tree for a simple function definition
 
 <%- include('/_inc/multi.html', {pat: 'func-def.*', fill: 'js out'}) %>

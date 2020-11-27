@@ -463,7 +463,6 @@ const fullEscape = (text) => {
 const nonAsciiEscape = (text) => {
   return text
     .replace(/…/g, '{\\ldots}')
-    .replace(/✓/g, '{\\checkmark}')
     .replace(/«/g, '{\\guillemotleft}')
     .replace(/»/g, '{\\guillemotright}')
     .replace(/©/g, '{\\textcopyright}')

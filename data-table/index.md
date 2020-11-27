@@ -22,7 +22,7 @@ diagram of row-wise vs. column-wise
 :::
 
 -   Construct one of each, try some operations, record times and memory use, see which is better
-    -   Answer will probably depend on...things
+    -   Answer will probably depend on…things
 -   Never modify data after creating it
     -   Allows us to recycle memory
 -   Build a row-wise table with some number of columns
@@ -91,7 +91,7 @@ diagram of row-wise vs. column-wise
 -   Two text-based schemes are obvious
     -   Row-oriented as JSON
     -   Column-oriented as JSON
--   Run the 10,000x30 test
+-   Run the 10,000×30 test
 
 <%- include('/_inc/file.html', {file: 'storage-performance-10000-30.out'}) %>
 

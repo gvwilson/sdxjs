@@ -24,8 +24,8 @@
 
 -   We could require every module to define a setup function like this for users to call
 -   Or we can wrap this up and call it automatically
-    -   `() => {...}` defines a function
-    -   `(() => {...})()` defines a function and immediately calls it
+    -   `() => {…}` defines a function
+    -   `(() => {…})()` defines a function and immediately calls it
     -   The extra parentheses around the original definition force the parser to evaluate things in the right order
     -   This is called an <g key="iife">immediately-invoked function expression</g> (IIFE)
 

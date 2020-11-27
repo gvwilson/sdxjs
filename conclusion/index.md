@@ -4,7 +4,7 @@
 We have come a long way since we listed the contents of a directory in <xref key="systems-programming"></xref>.
 Saving files in version control,
 making sure code meets style rules,
-running tests and managing packages...
+running tests and managing packages…
 Programmers do these things every day,
 and we hope that understand how they work will help you do them better.
 
