@@ -18,6 +18,8 @@ targets:
 	bash $< 2>&1 | ${WRAP} > $@
 %.out: %.sh %.js
 	bash $< 2>&1 | ${WRAP} > $@
+%.raw.out: %.sh %.js
+	bash $< 2>&1 > $@
 %.slice.out: %.sh %.js
 	bash $< 2>&1 | ${WRAP} --slice > $@
 
@@ -28,6 +30,8 @@ targets:
 	bash $< 2>&1 | ${WRAP} > $@
 %.out: %.sh
 	bash $< 2>&1 | ${WRAP} > $@
+%.raw.out: %.sh
+	bash $< 2>&1 > $@
 %.slice.out: %.sh
 	bash $< 2>&1 | ${WRAP} --slice > $@
 
@@ -36,6 +40,8 @@ targets:
 	node $< 2>&1 | ${WRAP} > $@
 %.out: %.js
 	node $< 2>&1 | ${WRAP} > $@
+%.raw.out: %.js
+	node $< 2>&1 > $@
 %.slice.out: %.js
 	node $< 2>&1 | ${WRAP} --slice > $@
 
