@@ -18,15 +18,15 @@ TARGETS=\
 
 include ../_rules.mk
 
-show-combine-files-simple.out: test-combine-files-simple.js show-combine-files-simple.sh
+show-combine-files-simple.out: test-combine-files-simple.js
 
-test-transitive-closure.sh: test-transitive-closure.js full/main.js
+test-transitive-closure.sh: full/main.js
 	@touch $@
 
 test-transitive-closure.js: transitive-closure.js
 	@touch $@
 
-test-transitive-closure-only.sh: test-transitive-closure-only.js full/main.js
+test-transitive-closure-only.sh: full/main.js
 	@touch $@
 
 test-transitive-closure-only.js: transitive-closure-only.js
@@ -60,4 +60,4 @@ test-bundle-single.out: test-bundle-single.sh bundle-single.js
 
 test-bundle-simple.out: test-bundle-simple.sh bundle-simple.js
 
-test-bundle-full.out: test-bundle-full.sh bundle-full.js
+test-bundle-full.out: bundle-full.js
