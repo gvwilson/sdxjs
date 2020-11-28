@@ -57,12 +57,16 @@ const select = (options, lines) => {
 const wrap = (lines) => {
   const result = []
   lines.forEach(line => {
-    line = line.replace(PROTOCOL, '').replace(HOME, FAKE)
-    let front = null
-    let terminator = null
-    while (line.length > 0) {
-      [front, line, terminator] = split(line)
-      result.push(`${front}${terminator}`)
+    if (line.length === 0) {
+      result.push(line)
+    } else {
+      line = line.replace(PROTOCOL, '').replace(HOME, FAKE)
+      let front = null
+      let terminator = null
+      while (line.length > 0) {
+        [front, line, terminator] = split(line)
+        result.push(`${front}${terminator}`)
+      }
     }
   })
   return result

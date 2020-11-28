@@ -16,7 +16,6 @@ include ../_rules.mk
 test-import-interpolate.out: caching.js import-interpolate.js import-interpolate-topmethod.js import-interpolate-bottommethod.js
 
 test-import-left.out: need-path.js modules/imported-left.js
-	bash $< >& $@
 
 test-import-right.out: need-path.js modules/imported-right.js modules/imported-left.js
 

@@ -248,17 +248,17 @@ hashExisting(root).then(pairs =&gt; pairs.forEach(
 </code></pre>
 <pre title="run-hash-existing-promise.sh"><code class="language-sh">node run-hash-existing-promise.js . | fgrep -v test/ | fgrep -v '~'
 </code></pre>
-<pre title="run-hash-existing-promise.slice.out"><code class="language-out">./backup-sequence/problem.md dfb905eb24a5ba2b45e2d4a5b3dbe298fbabb532
-./backup-sequence/solution.md 412b87759362bb14d417e02efe7c3607274e10ca
-./backup.js 11422489e11be3d8ff76278503457665f6152ebe
+<pre title="run-hash-existing-promise.slice.out"><code class="language-out">./backup.js 11422489e11be3d8ff76278503457665f6152ebe
 ./check-existing-files.js 66b933cf9e792e9a9204171d04e0f8b530ec3f4f
-./collision-odds/problem.md 9d842c8b2ad03cc4608a8fd2569bc59efd23eabb
+./hash-existing-async.js 38518660463a80367f9719a870916eeab2933a8d
+./hash-existing-promise.js 2b022a50294697eef84689b63ab46f0b899d14db
+./hash-file.js c54c8ee3e576770d29ae2d0d73568e5a5c49eac0
 ...
-./test-backup.sh 7ab530fdf93cf27e199eac259925502bad55e08b
-./test-check-filesystem.out 34b43a55d380704f2f39e35c54999220775cea2d
-./test-check-filesystem.sh d3621575780a3bd2ed97fb8d703555c8ea667b80
-./tree-test.out 12540e510055a7f826591c5d045f63e80836c7e2
-./tree-test.sh 0947bbdf779e1ebb8919e94b556da6b62114c114
+./x-json-manifests/solution.md 412b87759362bb14d417e02efe7c3607274e10ca
+./x-mock-hashes/problem.md c1e815e888846fddd0e3d28640c0e20a8c665b25
+./x-mock-hashes/solution.md 412b87759362bb14d417e02efe7c3607274e10ca
+./x-pre-commit/problem.md b7d945af4554fc0f64b708fe735417bee8b33eef
+./x-pre-commit/solution.md 412b87759362bb14d417e02efe7c3607274e10ca
 </code></pre>
 <ul>
 <li>This code is clearer than it would be with callbacks, but the layer of promises around everything still obscures meaning</li>
@@ -308,17 +308,17 @@ hashExisting(root).then(
 </code></pre>
 <pre title="run-hash-existing-async.sh"><code class="language-sh">node run-hash-existing-async.js . | fgrep -v test/ | fgrep -v '~'
 </code></pre>
-<pre title="run-hash-existing-async.slice.out"><code class="language-out">./backup-sequence/problem.md dfb905eb24a5ba2b45e2d4a5b3dbe298fbabb532
-./backup-sequence/solution.md 412b87759362bb14d417e02efe7c3607274e10ca
-./backup.js 11422489e11be3d8ff76278503457665f6152ebe
+<pre title="run-hash-existing-async.slice.out"><code class="language-out">./backup.js 11422489e11be3d8ff76278503457665f6152ebe
 ./check-existing-files.js 66b933cf9e792e9a9204171d04e0f8b530ec3f4f
-./collision-odds/problem.md 9d842c8b2ad03cc4608a8fd2569bc59efd23eabb
+./hash-existing-async.js 38518660463a80367f9719a870916eeab2933a8d
+./hash-existing-promise.js 2b022a50294697eef84689b63ab46f0b899d14db
+./hash-file.js c54c8ee3e576770d29ae2d0d73568e5a5c49eac0
 ...
-./test-backup.sh 7ab530fdf93cf27e199eac259925502bad55e08b
-./test-check-filesystem.out 34b43a55d380704f2f39e35c54999220775cea2d
-./test-check-filesystem.sh d3621575780a3bd2ed97fb8d703555c8ea667b80
-./tree-test.out 12540e510055a7f826591c5d045f63e80836c7e2
-./tree-test.sh 0947bbdf779e1ebb8919e94b556da6b62114c114
+./x-json-manifests/solution.md 412b87759362bb14d417e02efe7c3607274e10ca
+./x-mock-hashes/problem.md c1e815e888846fddd0e3d28640c0e20a8c665b25
+./x-mock-hashes/solution.md 412b87759362bb14d417e02efe7c3607274e10ca
+./x-pre-commit/problem.md b7d945af4554fc0f64b708fe735417bee8b33eef
+./x-pre-commit/solution.md 412b87759362bb14d417e02efe7c3607274e10ca
 </code></pre>
 <h2 id="how-can-we-test-javascript">How can we test JavaScript?</h2>
 <ul>
@@ -435,21 +435,28 @@ describe('pre-existing hashes and actual filesystem', () =&gt; {
   })
 })
 </code></pre>
-<pre title="test-check-filesystem.out"><code class="language-out">&gt; stjs@1.0.0 test /u/stjs
+<pre title="test-check-filesystem.out"><code class="language-out">
+&gt; stjs@1.0.0 test /u/stjs
 &gt; mocha */test/test-*.js "-g" "pre-existing hashes"
+
+
+
   checks for pre-existing hashes using mock filesystem
     ✓ finds no pre-existing files when none given or exist
     ✓ finds some files when one file is given and none exist
     ✓ finds nothing needs backup when there is a match
     ✓ finds something needs backup when there is a mismatch
     ✓ finds mixed matches
+
   pre-existing hashes and actual filesystem
     ✓ finds no pre-existing files when none given or exist
     ✓ finds some files when one file is given and none exist
     ✓ finds nothing needs backup when there is a match
     ✓ finds something needs backup when there is a mismatch
     ✓ finds mixed matches
-  10 passing (27ms)
+
+
+  10 passing (30ms)
 </code></pre>
 <h2 id="how-can-we-test-code-that-modifies-files">How can we test code that modifies files?</h2>
 <ul>
@@ -695,8 +702,12 @@ const InitialBackups = Object.keys(Hashes).reduce((set, filename) =&gt; {
       'Expected two manifests')
   })
 })</code></pre>
-<pre title="test-backup.out"><code class="language-out">&gt; stjs@1.0.0 test /u/stjs
+<pre title="test-backup.out"><code class="language-out">
+&gt; stjs@1.0.0 test /u/stjs
 &gt; mocha */test/test-*.js "-g" "check entire backup process"
+
+
+
   check entire backup process
 </code></pre>
 <h2 id="exercises">Exercises</h2>
