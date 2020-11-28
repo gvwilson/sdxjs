@@ -70,10 +70,10 @@
     -   Links go *from* the dependency *to* the target
     -   `setEdge` automatically adds a node if it isn't already present
 -   Might as well add the cycle checking here as well
+    -   Again, would have implemented all of these required methods in one step in a real program
 
 <%- include('/_inc/file.html', {file: 'graph-creator.js'}) %>
 
--   Again, would have implemented all of these required methods in one step in a real program
 -   Can now create something that displays our configuration when it runs but does nothing else
 
 <%- include('/_inc/file.html', {file: 'display-only.js'}) %>
@@ -152,11 +152,11 @@
 
 -   First attempt at reading it extracts rules before expanding variables
     -   But it doesn't work
-    -   Didn't actually have the assertion in `add-timestamps.js` when we first wrote it
-    -   Added it once we had and traced this error because every failure should turn into an `assert`
 
 <%- include('/_inc/multi.html', {pat: 'pattern-user-attempt.*', fill: 'js out'}) %>
 
+-   Didn't actually have the assertion in `add-timestamps.js` when we first wrote it
+    -   Added it once we had and traced this error because every failure should turn into an `assert`
 -   Our simple graph loader creates nodes for dependencies even if they aren't targets
 -   So we wind up tripping over the lack of a node for `%.in` before we get to extracting rules
 -   Rewrite the rule loader to separate pattern rules from simple rules
@@ -182,3 +182,5 @@
     to include those extra steps and provide do-nothing implementations
     -   After enough examples, the template settles down
     -   We learn from our code as we write it
+
+<%- include('/_inc/problems.html') %>

@@ -260,7 +260,11 @@ export default ConfigLoader
 <li><code>setEdge</code> automatically adds a node if it isn't already present</li>
 </ul>
 </li>
-<li>Might as well add the cycle checking here as well</li>
+<li>Might as well add the cycle checking here as well
+<ul>
+<li>Again, would have implemented all of these required methods in one step in a real program</li>
+</ul>
+</li>
 </ul>
 <pre title="graph-creator.js"><code class="language-js">import assert from 'assert'
 import graphlib from '@dagrejs/graphlib'
@@ -288,7 +292,6 @@ class GraphCreator extends ConfigLoader {
 export default GraphCreator
 </code></pre>
 <ul>
-<li>Again, would have implemented all of these required methods in one step in a real program</li>
 <li>Can now create something that displays our configuration when it runs but does nothing else</li>
 </ul>
 <pre title="display-only.js"><code class="language-js">import graphlib from '@dagrejs/graphlib'
@@ -596,8 +599,6 @@ export default VariableExpander
 <li>First attempt at reading it extracts rules before expanding variables
 <ul>
 <li>But it doesn't work</li>
-<li>Didn't actually have the assertion in <code>add-timestamps.js</code> when we first wrote it</li>
-<li>Added it once we had and traced this error because every failure should turn into an <code>assert</code></li>
 </ul>
 </li>
 </ul>
@@ -648,6 +649,11 @@ export default PatternUserAttempt
 }
 </code></pre>
 <ul>
+<li>Didn't actually have the assertion in <code>add-timestamps.js</code> when we first wrote it
+<ul>
+<li>Added it once we had and traced this error because every failure should turn into an <code>assert</code></li>
+</ul>
+</li>
 <li>Our simple graph loader creates nodes for dependencies even if they aren't targets</li>
 <li>So we wind up tripping over the lack of a node for <code>%.in</code> before we get to extracting rules</li>
 <li>Rewrite the rule loader to separate pattern rules from simple rules
@@ -860,6 +866,114 @@ to include those extra steps and provide do-nothing implementations
 </ul>
 </li>
 </ul>
+<h2 id="exercises">Exercises</h2>
+<h3 class="exercise">Handle failure</h3>
+<ol>
+<li>
+<p>Modify the build manager to accommodate build steps that fail.</p>
+</li>
+<li>
+<p>Write Mocha tests to check that this change works correctly.</p>
+</li>
+</ol>
+<h3 class="exercise">Dry run</h3>
+<p>Add an option to the build manager to show what commands would be executed and why
+if a build were actually run.
+For example,
+the output should display things like, &quot;'update A' because A older than B&quot;.</p>
+<h3 class="exercise">Change directories</h3>
+<p>Modify the build manager so that:</p>
+<pre><code class="language-sh">node build.js -C some/sub/directory rules.yml timestamps.yml
+</code></pre>
+<div class="unindented">
+<p>runs the build in the specified directory rather than the current directory.</p>
+</div>
+<h3 class="exercise">Merge files</h3>
+<p>Modify the build manager so that it can read multiple configuration files
+and execute their combines rules.</p>
+<h3 class="exercise">Show recipes</h3>
+<p>Add a method to build manager to display all unique recipes,
+i.e.,
+all of the commands it might execute if asked to rebuild everything.</p>
+<h3 class="exercise">Conditional execution</h3>
+<p>Modify the build manager so that:</p>
+<ol>
+<li>
+<p>The user can pass <code>variable=true</code> and <code>variable=false</code> arguments on the command-line
+to define variables.</p>
+</li>
+<li>
+<p>Rules can contain an <code>if: variable</code> field.</p>
+</li>
+<li>
+<p>Those rules are only executed if the variable is defined and true.</p>
+</li>
+<li>
+<p>Write Mocha tests to check that this works correctly.</p>
+</li>
+</ol>
+<h3 class="exercise">Define filesets</h3>
+<p>Modify the build manager so that users can define sets of files:</p>
+<pre><code class="language-yml">fileset:
+  name: everything
+  contains:
+    - X
+    - Y
+    - Z
+</code></pre>
+<div class="unindented">
+<p>and then refer to them later:</p>
+</div>
+<pre><code>- target: P
+  depends:
+  - @everything
+</code></pre>
+<h3 class="exercise">Globbing</h3>
+<p>Modify the build manager so that it can dynamically construct a set of files:</p>
+<pre><code class="language-yml">glob:
+  name: allAvailableInputs
+  pattern: &quot;./*.in&quot;
+</code></pre>
+<div class="unindented">
+<p>and then refer to them later:</p>
+</div>
+<pre><code>- target: P
+  depends:
+  - @allAvailableInputs
+</code></pre>
+<h3 class="exercise">Use hashes</h3>
+<ol>
+<li>
+<p>Write a program called <code>build-init.js</code> that calculates a hash
+for every file mentioned in the build configuration
+and stores the hash along with the file's name in <code>build-hash.json</code>.</p>
+</li>
+<li>
+<p>Modify the build manager to compare the current hashes of files
+with those stored in <code>build-hash.json</code>
+in order to determine what is out of date,
+and to update <code>build-hash.json</code> each time it runs.</p>
+</li>
+</ol>
+<h3 class="exercise">Auxiliary functions</h3>
+<ol>
+<li>
+<p>Modify the builder manager so that it takes an extra argument <code>auxiliaries</code>
+containing zero or more named functions:</p>
+<pre><code class="language-js">const builder = new ExtensibleBuilder(configFile, timesFile, {
+  slice: (node, graph) =&gt; simplify(node, graph, 1)
+})
+</code></pre>
+</li>
+<li>
+<p>Modify the <code>run</code> method to call these functions
+before executing the rules for a node,
+and to only execute the rules if all of them return <code>true</code>.</p>
+</li>
+<li>
+<p>Write Mocha tests to check that this works correctly.</p>
+</li>
+</ol>
 </main>
 <footer>
 <div class="row">

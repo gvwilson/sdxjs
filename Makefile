@@ -84,7 +84,8 @@ hygiene:
 	-@make check
 
 ## check: check that files match style rules
-check: docs/index.html
+check:
+	@make html
 	-@_tools/check.js \
 	--config _config.yml \
 	--html ${HTML} \
@@ -133,6 +134,10 @@ wordlist:
 spelling:
 	@-_tools/wordlist.js --input ${HTML} | aspell list | sort | uniq | diff - _words.txt
 
+## pages: count pages per chapter.
+pages: book.aux
+	@_tools/pages.js book.aux | column -t -s ':'
+
 ## clean: clean up
 clean:
 	@rm -f book.*
@@ -178,7 +183,7 @@ book.tex: _tools/latex.js docs/index.html ${TEX}
 	--foot _tex/foot.tex \
 	--numbering docs/numbering.js
 
-book.pdf: book.tex
+book.pdf book.aux: book.tex
 	@pdflatex book && pdflatex book
 
 docs/index.html: index.md

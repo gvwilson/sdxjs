@@ -117,3 +117,5 @@
 <%- include('/_inc/html.html', {file: 'input-loop.html'}) %>
 <%- include('/_inc/html.html', {file: 'output-loop.html'}) %>
 <%- include('/_inc/page.html', {file: 'output-loop.html'}) %>
+
+<%- include('/_inc/problems.html') %>
