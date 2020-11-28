@@ -24,4 +24,14 @@ checking/py-command-line.out: $(wildcard checking/*.py)
 checking/py-interactive.out: $(wildcard checking/*.py)
 	cd checking && make $(notdir $@)
 
-test-need-large-module.out: large-module.js small-module.js
+test-need-large-module.js: large-module.js
+	@touch $@
+
+large-module.js: small-module.js need.js
+	@touch $@
+
+test-need-large-needless.js: large-needless.js
+	@touch $@
+
+large-needless.js: small-module.js need.js
+	@touch $@
