@@ -69,8 +69,8 @@
 ## What does this look like when we put it all together?
 
 -   Full program loads variable definitions from a JSON file
-    -   Concatenates strings repeatedly
-    -   Look at more efficient approaches in the exercises
+    -   Put strings in an array and concatenate at the end
+    -   More efficient than repeated concatenation
 
 <%- include('/_inc/file.html', {file: 'template.js'}) %>
 

@@ -1,2 +1,2 @@
-npm run test -- -g 'places blocks' | ../_tools/wrap.js
+npm run test -- -g 'places blocks'
 
