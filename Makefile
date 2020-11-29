@@ -116,7 +116,7 @@ terms:
 
 ## exercises: count exercises per chapter
 exercises:
-	@_tools/exercises.js _config.yml
+	@_tools/exercises.js _config.yml | column -t -s ':'
 
 ## examples: rebuild all examples in sub-directories
 examples:

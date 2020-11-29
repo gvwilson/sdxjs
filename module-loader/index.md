@@ -15,9 +15,16 @@
 -   A <g key="namespace">namespace</g> is a collection of names in a program that are isolated from other namespaces
     -   Most modern languages provide namespaces as a feature so that programmers don't accidentally step on each other's toes
     -   JavaScript doesn't have this, so we have to implement it ourselves
--   We can create a namespace by:
+-   We can implement namespaces using <g key="closure">closures</g>
     -   Defining the things we care about inside a function (which gives us a temporary namespace when it runs)
-    -   Having the function return the things we want
+    -   Return a data structure that refers to the things we just created
+    -   Only way to access those things is via that data structure
+-   For example, create a function that always appends the same string to its argument
+
+::: fixme
+Diagram of closures
+:::
+
 -   Gives us code like this:
 
 <%- include('/_inc/multi.html', {pat: 'manual-namespacing.*', fill: 'js out'}) %>
@@ -54,8 +61,8 @@
 -   A <g key="circular_dependency">circular dependency</g> exists if X depends on Y and Y depends on X
     -   Either directly or indirectly
 -   May seem nonsensical, but can easily arise with <g key="plugin_architecture">plugin architectures</g>
-    -   Main program loads an extension
-    -   The extension calls utility functions defined alongside the main program
+    -   File containing main program loads an extension
+    -   The extension calls utility functions defined in the file containing the main program
 -   Most <g key="compiled_language">compiled languages</g> can handle this
     -   Compile each module into low-level instructions
     -   <g key="link">Link</g> those to resolve dependencies
@@ -73,7 +80,7 @@
 
 <%- include('/_inc/file.html', {file: 'checking/py-command-line.out'}) %>
 
--   But works in the interactive interpreter
+-   But works in the interactive interpreter (!)
 
 <%- include('/_inc/file.html', {file: 'checking/py-interactive.out'}) %>
 
@@ -103,13 +110,12 @@ and then resolve dependencies.
 We can't do this with `require`-based code
 because someone might call `require` inside a function
 or create an alias and call `require` through that.
-Please see <cite>Casciaro2020</cite> for a more detailed discussion.
 :::
 
 ## How can a module load another module?
 
 -   We need to provide the module with a function called `require`
-    -   Check a cache to see if the file has already been loaded
+    -   Check a <g key="cache">cache</g> to see if the file has already been loaded
     -   Load it if it isn't there
     -   Either way, return the result
 -   Use absolute paths as cache keys
@@ -130,12 +136,12 @@ Please see <cite>Casciaro2020</cite> for a more detailed discussion.
 -   Test again with a module that loads something else
 
 <%- include('/_inc/file.html', {file: 'large-module.js'}) %>
-
 <%- include('/_inc/multi.html', {pat: 'test-need-large-module.*', fill: 'js out'}) %>
 
 -   Doesn't work because `import` only works at the top level, not inside a function
 -   So our system can only run loaded modules by `need`ing them
 
 <%- include('/_inc/file.html', {file: 'large-needless.js'}) %>
-
 <%- include('/_inc/multi.html', {pat: 'test-need-large-needless.*', fill: 'js out'}) %>
+
+<%- include('/_inc/problems.html') %>

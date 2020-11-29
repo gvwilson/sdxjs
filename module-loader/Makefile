@@ -4,6 +4,7 @@ TARGETS=\
   checking/py-command-line.out \
   checking/py-interactive.out \
   automatic-namespacing.out \
+  closure-example.out \
   manual-namespacing.out \
   test-load-module-only.out \
   test-need-large-module.out \

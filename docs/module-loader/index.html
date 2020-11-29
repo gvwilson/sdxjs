@@ -89,12 +89,19 @@ anything called <code>x</code> already in our program might be overwritten</li>
 <li>JavaScript doesn't have this, so we have to implement it ourselves</li>
 </ul>
 </li>
-<li>We can create a namespace by:
+<li>We can implement namespaces using <g key="closure">closures</g>
 <ul>
 <li>Defining the things we care about inside a function (which gives us a temporary namespace when it runs)</li>
-<li>Having the function return the things we want</li>
+<li>Return a data structure that refers to the things we just created</li>
+<li>Only way to access those things is via that data structure</li>
 </ul>
 </li>
+<li>For example, create a function that always appends the same string to its argument</li>
+</ul>
+<div class="fixme">
+<p>Diagram of closures</p>
+</div>
+<ul>
 <li>Gives us code like this:</li>
 </ul>
 <pre title="manual-namespacing.js"><code class="language-js">const createModule = () =&gt; {
@@ -213,8 +220,8 @@ publicFunction called from main
 </li>
 <li>May seem nonsensical, but can easily arise with <g key="plugin_architecture">plugin architectures</g>
 <ul>
-<li>Main program loads an extension</li>
-<li>The extension calls utility functions defined alongside the main program</li>
+<li>File containing main program loads an extension</li>
+<li>The extension calls utility functions defined in the file containing the main program</li>
 </ul>
 </li>
 <li>Most <g key="compiled_language">compiled languages</g> can handle this
@@ -270,7 +277,7 @@ Traceback (most recent call last):
 AttributeError: module 'minor' has no attribute 'middle'
 </code></pre>
 <ul>
-<li>But works in the interactive interpreter</li>
+<li>But works in the interactive interpreter (!)</li>
 </ul>
 <pre title="checking/py-interactive.out"><code class="language-out">$ python
 &gt;&gt;&gt; import major
@@ -368,14 +375,13 @@ get everything into memory,
 and then resolve dependencies.
 We can't do this with <code>require</code>-based code
 because someone might call <code>require</code> inside a function
-or create an alias and call <code>require</code> through that.
-Please see <cite>Casciaro2020</cite> for a more detailed discussion.</p>
+or create an alias and call <code>require</code> through that.</p>
 </div>
 <h2 id="how-can-a-module-load-another-module">How can a module load another module?</h2>
 <ul>
 <li>We need to provide the module with a function called <code>require</code>
 <ul>
-<li>Check a cache to see if the file has already been loaded</li>
+<li>Check a <g key="cache">cache</g> to see if the file has already been loaded</li>
 <li>Load it if it isn't there</li>
 <li>Either way, return the result</li>
 </ul>
@@ -533,6 +539,170 @@ module.exports = { publicValue, publicFunction }
 
 publicFunction called from large called from main
 </code></pre>
+<h2 id="exercises">Exercises</h2>
+<h3 class="exercise">Counting with closures</h3>
+<p>Write a function <code>makeCounter</code> that returns a function
+that produces the next integer in sequence starting from zero each time it is called.
+Each function returned by <code>makeCounter</code> must count independently, so:</p>
+<pre><code class="language-js">left = makeCounter()
+right = makeCounter()
+console.log(`left ${left()`)
+console.log(`right ${right()`)
+console.log(`left ${left()`)
+console.log(`right ${right()`)
+</code></pre>
+<div class="unindented">
+<p>must produce:</p>
+</div>
+<pre><code class="language-txt">left 0
+right 0
+left 1
+right `
+</code></pre>
+<h3 class="exercise">Objects and namespaces</h3>
+<p>A JavaScript object stores key-value pairs,
+and the keys in one object are separate from the keys in another.
+Why doesn't this provide the same level of safety as a closure?</p>
+<h3 class="exercise">Testing module loading</h3>
+<p>Write tests for <code>need.js</code> using Mocha and <code>mock-fs</code>.</p>
+<h3 class="exercise">Using `module` as a name</h3>
+<p>What happens if we define the variable <code>module</code> in <code>loadModule</code>
+so that it is in scope when <code>eval</code> is called
+rather than creating a variable called <code>result</code> and passing that in:</p>
+<pre><code class="language-js">const loadModule = (filename) =&gt; {
+  const source = fs.readFileSync(filename, 'utf-8')
+  const module = {}
+  const fullText = `(() =&gt; {${source}})()`
+  eval(fullText)
+  return module.exports
+}
+</code></pre>
+<h3 class="exercise">Implementing a search path</h3>
+<p>Add a search path to <code>need.js</code> so that if a module isn't found locally,
+it will be looked for in each directory in the search path in order.</p>
+<h3 class="exercise">Using a setup function</h3>
+<p>Rewrite the module loader so that every module has a function called <code>setup</code>
+that must be called after loading it to create its exports
+rather than using <code>module.exports</code>.</p>
+<h3 class="exercise">Handling errors while loading</h3>
+<ol>
+<li>
+<p>Modify <code>need.js</code> so that it does something graceful
+if an exception is thrown while a module is being loaded.</p>
+</li>
+<li>
+<p>Write unit tests for this using Mocha.</p>
+</li>
+</ol>
+<h3 class="exercise">Refactoring circularity</h3>
+<p>Suppose that <code>main.js</code> contains this:</p>
+<pre title="x-refactoring-circularity/main.js"><code class="language-js">const PLUGINS = []
+
+const plugin = require('./plugin')
+
+const main = () =&gt; {
+  PLUGINS.forEach(p =&gt; p())
+}
+
+const loadPlugin = (plugin) =&gt; {
+  PLUGINS.push(plugin)
+}
+
+module.exports = {
+  main,
+  loadPlugin
+}
+</code></pre>
+<div class="unindented">
+<p>and <code>plugin.js</code> contains this:</p>
+</div>
+<pre title="x-refactoring-circularity/plugin.js"><code class="language-js">const { loadPlugin } = require('./main')
+
+const printMessage = () =&gt; {
+  console.log('running plugin')
+}
+
+loadPlugin(printMessage)
+</code></pre>
+<div class="unindented">
+<p>Refactor this code so that it works correctly while still using <code>require</code> rather than <code>import</code>.</p>
+</div>
+<h3 class="exercise">An LRU cache</h3>
+<p>A <g key="lru_cache">Least Recently Used (LRU) cache</g>
+reduces access time while limiting the amount of memory used
+by keeping track of the N items that have been used most recently.
+For example,
+if the cache size is 3 and objects are accessed in the order shown in the first column,
+the cache's contents will be as shown in the second column:</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Action</th>
+<th>Cache After Access</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>read A</td>
+<td>[A]</td>
+</tr>
+<tr>
+<td>A</td>
+<td>get A from cache</td>
+<td>[A]</td>
+</tr>
+<tr>
+<td>B</td>
+<td>read B</td>
+<td>[B, A]</td>
+</tr>
+<tr>
+<td>A</td>
+<td>get A from cache</td>
+<td>[A, B]</td>
+</tr>
+<tr>
+<td>C</td>
+<td>read C</td>
+<td>[C, A, B]</td>
+</tr>
+<tr>
+<td>D</td>
+<td>read D</td>
+<td>[D, C, A]</td>
+</tr>
+<tr>
+<td>B</td>
+<td>read B</td>
+<td>[B, D, C]</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>
+<p>Implement a function <code>cachedRead</code> that takes the number of entries in the cache as an argument
+and returns a function that uses an LRU cache
+to either read files or return cached copies.</p>
+</li>
+<li>
+<p>Modify <code>cachedRead</code> so that the number of items in the cache
+is determined by their combined size
+rather than by the number of files.</p>
+</li>
+</ol>
+<h3 class="exercise">Make functions safe for renaming</h3>
+<p>Our implementation of <code>need</code> implemented the cache as a property of the function itself.</p>
+<ol>
+<li>
+<p>How can this go wrong?
+(Hint: thing about aliases.)</p>
+</li>
+<li>
+<p>Modify the implementation to solve this problem using a closure.</p>
+</li>
+</ol>
 </main>
 <footer>
 <div class="row">
