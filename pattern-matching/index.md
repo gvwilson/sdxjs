@@ -14,12 +14,12 @@
 
 -   First step is to define the grammar we want to support
 
-| Selector | Meaning |
-| -------- | ------- |
-| `elt`    | Element with tag `"elt"` |
-| `.cls`   | Element with `class="cls"` |
-| `#ident`   | Element with `id="ident"` |
-| `parent child` | `child` element inside a `parent` element |
+| Meaning | Selector |
+| ------- | -------- |
+| Element with tag `"elt"` | `elt`    |
+| Element with `class="cls"` | `.cls`   |
+| Element with `id="ident"` | `#ident`   |
+| `child` element inside a `parent` element | `parent child` |
 
 -   So `blockquote#important p.highlight` is a highlighted paragraph inside the blockquote whose ID is `"important"`
 -   To find the first match:
@@ -40,13 +40,13 @@
 
 -   Our matcher will initially handle just five cases:
 
-| Character | Meaning |
-| --------- | ------- |
-| *c*       | Any literal character *c* |
-| .         | Any single character |
-| ^         | Beginning of input |
-| $         | End of input |
-| *         | Zero or more of the previous character |
+| Meaning | Character |
+| ------- | --------- |
+| Any literal character *c* | *c* |
+| Any single character | . |
+| Beginning of input | ^ |
+| End of input | $ |
+| Zero or more of the previous character | * |
 
 It's small,
 but as Kernighan said,

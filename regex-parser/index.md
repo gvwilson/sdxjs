@@ -8,14 +8,14 @@
     -   And understanding how they work can help make error messages comprehensible
 -   So let's parse some simple regular expressions
 
-| Character | Meaning |
-| --------- | ------- |
-| *c*       | Any literal character *c* |
-| ^         | Beginning of input |
-| $         | End of input |
-| *         | Zero or more of the previous thing |
-| \|        | Either/or |
-| (…)       | Grouping |
+| Meaning | Character |
+| ------- | --------- |
+| Any literal character *c* | *c* |
+| Beginning of input | ^ |
+| End of input | $ |
+| Zero or more of the previous thing | \* |
+| Either/or | \| |
+| Grouping | (…) |
 
 -   So we should be able to parse `/^(a|b|$)*z$/` as
     "start of text",
