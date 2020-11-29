@@ -21,14 +21,14 @@ const options = {
 }
 const ast = acorn.parse(program, options)
 
-const state = { decl: [] }
+const state = []
 walk.simple(ast, {
   Identifier: (node, state) => {
-    state.decl.push(node)
+    state.push(node)
   }
 }, null, state)
 
-state.decl.forEach(node => console.log(
+state.forEach(node => console.log(
   `identifier ${node.name} on line ${node.loc.start.line}`
 ))
 const comments = options.onComment.map(

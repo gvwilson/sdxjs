@@ -10,22 +10,22 @@
 
 ## What is the most efficient way to store a data table?
 
--   One approach is <g key="row_wise">row-wise</g>
+-   One approach is <g key="row_major">row-major</g>
     -   Array of <g key="heterogeneous">heterogeneous</g> rows
     -   In JavaScript, an array of objects
--   Another is <g key="column_wise">column-wise</g>
+-   Another is <g key="column_major">column-major</g>
     -   Each named column stored as a <g key="homogeneous">homogeneous</g> array
     -   In JavaScript, an object whose members are all arrays of the same length
 
 ::: fixme
-diagram of row-wise vs. column-wise
+diagram of row-major vs. column-major
 :::
 
 -   Construct one of each, try some operations, record times and memory use, see which is better
     -   Answer will probably depend on…things
 -   Never modify data after creating it
     -   Allows us to recycle memory
--   Build a row-wise table with some number of columns
+-   Build a row-major table with some number of columns
     -   Values are 0, 1, 2, 0, 1, 2, etc.
 
 <%- include('/_inc/slice.html', {file: 'build.js', tag: 'build-rows'}) %>
@@ -37,7 +37,7 @@ diagram of row-wise vs. column-wise
 
 <%- include('/_inc/slice.html', {file: 'table-performance.js', tag: 'operate-rows'}) %>
 
--   Now do the same for column-wise storage
+-   Now do the same for column-major storage
 -   Build
 
 <%- include('/_inc/slice.html', {file: 'build.js', tag: 'build-cols'}) %>
@@ -45,7 +45,7 @@ diagram of row-wise vs. column-wise
 -   Operate
     -   Select should be fast, since we are just aliasing some columns
     -   Filter should be slow, since we are constructing multiple new arrays
-    -   The parameters to the two functions are different from those to the row-wise functions
+    -   The parameters to the two functions are different from those to the row-major functions
 
 <%- include('/_inc/slice.html', {file: 'table-performance.js', tag: 'operate-cols'}) %>
 
@@ -76,10 +76,10 @@ diagram of row-wise vs. column-wise
 
 <%- include('/_inc/file.html', {file: 'table-performance-10000-30-10.out'}) %>
 
--   Conclusion: column-wise is better
+-   Conclusion: column-major is better
     -   Uses less memory (presumably because labels aren't duplicated)
-    -   Cost of constructing new objects when doing select with row-wise storage
-        outweighs cost of appending to arrays when doing filter with column-wise storage
+    -   Cost of constructing new objects when doing select with row-major storage
+        outweighs cost of appending to arrays when doing filter with column-major storage
 -   Unfortunately makes the code itself a little more complicated to write
     -   A cost that doesn't show up in experiments
 

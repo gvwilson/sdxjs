@@ -15,28 +15,29 @@
 ## How can we parse JavaScript to create an AST?
 
 -   A parser for a simple language like arithmetic or JSON is relatively easy to write
-    -   We could do it in a chapter
+    -   We will do it in <xref key="regex-parser"></xref>
 -   A parser for a language as complex as JavaScript is much more work
 -   We will use [Acorn][acorn] instead
+-   Produces an <g key="abstract_syntax_tree">abstract syntax tree</g> (AST)
+    whose nodes store information about what's in the program
 
 <%- include('/_inc/multi.html', {pat: 'parse-single-const.*', fill: 'js out'}) %>
 
--   Produces an <g key="abstract_syntax_tree">abstract syntax tree</g> (AST)
-    whose nodes store information about what's in the program
 -   [Esprima][esprima] format
+    -   A lot of detail
     -   But we can figure most of it out by inspection rather than by reading the standard
 -   Look at the result of parsing a slightly more complex program
     -   A 9-line program produces over 500 lines of structure
 
 <%- include('/_inc/multi.html', {pat: 'parse-const-func.*', fill: 'js out'}) %>
 
-## How can we walk the AST?
+## How can we find things in an AST?
 
 -   To <g key="walk_tree">walk a tree</g> means to visit each node in turn
 -   Use a helper library `acorn-walk` to do this
     -   Provide a function to act on nodes of type `Identifier`
     -   Use options to say that we want to record locations and to collect comments (in the array `onComment`)
-    -   We create an object called `state` to record declaration nodes as they're found
+    -   We create an array called `state` to record declaration nodes as they're found
     -   Then report them all at the end
 
 <%- include('/_inc/multi.html', {pat: 'walk-ast.*', fill: 'js out'}) %>
@@ -50,7 +51,7 @@
 
 <%- include('/_inc/multi.html', {pat: 'check-name-lengths.*', fill: 'js out'}) %>
 
--   Why doesn't the parameter `x` show up as a violation?
+-   Ask in the exercises why the parameter `x` doesn't show up as a violation
 
 ## How does the AST walker work?
 

@@ -90,11 +90,13 @@ because it looked for fluff in source code</li>
 <ul>
 <li>A parser for a simple language like arithmetic or JSON is relatively easy to write
 <ul>
-<li>We could do it in a chapter</li>
+<li>We will do it in <xref key="regex-parser"></xref></li>
 </ul>
 </li>
 <li>A parser for a language as complex as JavaScript is much more work</li>
 <li>We will use <a href="https://github.com/acornjs/acorn">Acorn</a> instead</li>
+<li>Produces an <g key="abstract_syntax_tree">abstract syntax tree</g> (AST)
+whose nodes store information about what's in the program</li>
 </ul>
 <pre title="parse-single-const.js"><code class="language-js">import acorn from 'acorn'
 
@@ -123,10 +125,9 @@ console.log(ast)
 }
 </code></pre>
 <ul>
-<li>Produces an <g key="abstract_syntax_tree">abstract syntax tree</g> (AST)
-whose nodes store information about what's in the program</li>
 <li><a href="https://esprima.org/">Esprima</a> format
 <ul>
+<li>A lot of detail</li>
 <li>But we can figure most of it out by inspection rather than by reading the standard</li>
 </ul>
 </li>
@@ -184,14 +185,14 @@ console.log(JSON.stringify(ast, null, 2))
       "declarations": [
 ...480 more lines...
 </code></pre>
-<h2 id="how-can-we-walk-the-ast">How can we walk the AST?</h2>
+<h2 id="how-can-we-find-things-in-an-ast">How can we find things in an AST?</h2>
 <ul>
 <li>To <g key="walk_tree">walk a tree</g> means to visit each node in turn</li>
 <li>Use a helper library <code>acorn-walk</code> to do this
 <ul>
 <li>Provide a function to act on nodes of type <code>Identifier</code></li>
 <li>Use options to say that we want to record locations and to collect comments (in the array <code>onComment</code>)</li>
-<li>We create an object called <code>state</code> to record declaration nodes as they're found</li>
+<li>We create an array called <code>state</code> to record declaration nodes as they're found</li>
 <li>Then report them all at the end</li>
 </ul>
 </li>
@@ -219,14 +220,14 @@ const options = {
 }
 const ast = acorn.parse(program, options)
 
-const state = { decl: [] }
+const state = []
 walk.simple(ast, {
   Identifier: (node, state) =&gt; {
-    state.decl.push(node)
+    state.push(node)
   }
 }, null, state)
 
-state.decl.forEach(node =&gt; console.log(
+state.forEach(node =&gt; console.log(
   `identifier ${node.name} on line ${node.loc.start.line}`
 ))
 const comments = options.onComment.map(
@@ -294,7 +295,7 @@ state.name_length.forEach(
 y at line 7
 </code></pre>
 <ul>
-<li>Why doesn't the parameter <code>x</code> show up as a violation?</li>
+<li>Ask in the exercises why the parameter <code>x</code> doesn't show up as a violation</li>
 </ul>
 <h2 id="how-does-the-ast-walker-work">How does the AST walker work?</h2>
 <ul>
@@ -572,6 +573,51 @@ that implements the checks the user wants.
 The other command-line arguments must be the names of JavaScript source files to be checked:</p>
 <pre title="x-across-files/sniff.sh"><code class="language-sh">node sniff.js my-check.js source-1.js source-2.js
 </code></pre>
+<h3 class="exercise">Finding assertions</h3>
+<p>Write a program <code>find-assertions.js</code> that finds all calls to <code>assert</code> or <code>assert.something</code>
+and prints the assertion message (if any).</p>
+<h3 class="exercise">Finding a missing parameter</h3>
+<ol>
+<li>
+<p>Why doesn't the parameter <code>x</code> show up as a rule violation
+in the example where we check name lengths?</p>
+</li>
+<li>
+<p>Modify the example so that it does.</p>
+</li>
+</ol>
+<h3 class="exercise">Finding nested indexes</h3>
+<p>Write a tool that finds places where nested indexing is used,
+i.e.,
+where the program contains expression like <code>arr[table[i]]</code>.</p>
+<h3 class="exercise">Dynamic lookup</h3>
+<ol>
+<li>
+<p>Write a function <code>dynamicExecution</code> that takes an object,
+the name of a method,
+and zero or more parameters as arguments
+and calls that method on that object:</p>
+<pre><code class="language-js">dynamicExecution(obj, 'meth', 1, 'a')
+// same as obj.meth(1, 'a')
+</code></pre>
+</li>
+<li>
+<p>What <em>doesn't</em> this work for?</p>
+</li>
+</ol>
+<h3 class="exercise">Generators and arrays</h3>
+<ol>
+<li>
+<p>Write a generator that takes a two-dimensional table represented as an array of arrays
+and returns the values in <g key="column_major">column-major</g> order.</p>
+</li>
+<li>
+<p>Write another generator that takes a similar table
+and returns the values in <g key="row_major">row-major</g> order.</p>
+</li>
+</ol>
+<h3 class="exercise">Generators and identifiers</h3>
+<p>Rewrite the tool to check identifier lengths using a generator.</p>
 </main>
 <footer>
 <div class="row">

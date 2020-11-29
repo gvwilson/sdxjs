@@ -6,10 +6,14 @@ import yaml from 'js-yaml'
 const main = () => {
   const config = yaml.safeLoad(fs.readFileSync(process.argv[2], 'utf-8'))
   let total = 0
+  let chaptersWith = 0
+  let chaptersWithout = 0
   const info = config.chapters.map(chapter => {
     const title = chapter.title
     const count = ('exercises' in chapter) ? `${chapter.exercises.length}` : '-'
     total += (count === '-') ? 0 : parseInt(count)
+    chaptersWith += (count === '-') ? 0 : 1
+    chaptersWithout += (count === '-') ? 1 : 0
     return { title, count }
   })
   console.log('Chapter : Exercises')
@@ -19,6 +23,8 @@ const main = () => {
   })
   console.log('------- : ---------')
   console.log(`Total : ${total}`)
+  console.log(`With : ${chaptersWith}`)
+  console.log(`Without : ${chaptersWithout}`)
 }
 
 main()
