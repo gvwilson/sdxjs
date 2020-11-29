@@ -55,17 +55,23 @@ const select = (options, lines) => {
 }
 
 const wrap = (lines) => {
+  const findIndent = /^( *)/
   const result = []
   lines.forEach(line => {
     if (line.length === 0) {
       result.push(line)
     } else {
       line = line.replace(PROTOCOL, '').replace(HOME, FAKE)
+      const match = findIndent.exec(line)
+      const indent = match ? match[1] : ''
       let front = null
       let terminator = null
       while (line.length > 0) {
         [front, line, terminator] = split(line)
         result.push(`${front}${terminator}`)
+        if (line.length > 0) {
+          line = indent + line
+        }
       }
     }
   })
