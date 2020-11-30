@@ -6,9 +6,9 @@
     -   Which means it didn't include support for things that large programs need
     -   Like creating multi-module bundles so that browsers could load a single file
         rather than making dozens or hundreds of requests
--   A <g key="module_bundler">module bundler</g> finds all the files that a set of source files depend on
+-   A <g key="module_bundler">module bundler</g> finds all the files that an application depend on
     and combines them into a single loadable file
-    -   Much more efficient to load
+    -   Much more efficient to load (same number of bytes but just one request)
     -   Ensures that dependencies actually resolve
 -   Requires an <g key="entry_point">entry point</g>
     -   Where processing starts
@@ -19,7 +19,7 @@
     -   Ensure they can find each other correctly once loaded
 -   Think of test cases before starting to write code
     -   <g key="tdd">Test-driven development</g> (TDD)
-    -   Research doesn't support claims that it makes programmers significantly more productive,
+    -   Research doesn't support claims that it makes programmers more productive <cite>Fucci2016,Fucci2017</cite>,
         but it helps give direction to this chapter
 -   Case 1: a single file that doesn't require anything else
     -   Because if this doesn't work, nothing else will
@@ -39,6 +39,10 @@
     -   `./top-right` requires `top-left` and `bottom-right`
     -   `./subdir/bottom-left` also requires `top-left` and `bottom-right`
     -   `./subdir/bottom-right` doesn't require anything
+
+::: fixme
+Diagram of dependencies for module bundler.
+:::
 
 <%- include('/_inc/file.html', {file: 'expected-full.out'}) %>
 
@@ -141,6 +145,11 @@
     -   …and returns a function that takes an absolute path identifying this module…
     -   …and returns a function that takes a local path inside a module and returns the exports
     -   Each layer of wrappers remembers more information
+
+::: fixme
+Diagram of functions returning functions returning functions
+:::
+
 -   We're also going to need a third structure: a cache for the modules we've already loaded
 -   To prove it works, we will look up the function `main` in the first file and call it
     -   If we were loading in the browser, we'd capture the exports in a variable for later use
@@ -170,3 +179,5 @@
 -   And for the full case (`main` plus four other files)
 
 <%- include('/_inc/file.html', {file: 'test-bundle-full.out'}) %>
+
+<%- include('/_inc/problems.html') %>

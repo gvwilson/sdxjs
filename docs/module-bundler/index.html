@@ -74,10 +74,10 @@
 rather than making dozens or hundreds of requests</li>
 </ul>
 </li>
-<li>A <g key="module_bundler">module bundler</g> finds all the files that a set of source files depend on
+<li>A <g key="module_bundler">module bundler</g> finds all the files that an application depend on
 and combines them into a single loadable file
 <ul>
-<li>Much more efficient to load</li>
+<li>Much more efficient to load (same number of bytes but just one request)</li>
 <li>Ensures that dependencies actually resolve</li>
 </ul>
 </li>
@@ -97,7 +97,7 @@ and combines them into a single loadable file
 <li>Think of test cases before starting to write code
 <ul>
 <li><g key="tdd">Test-driven development</g> (TDD)</li>
-<li>Research doesn't support claims that it makes programmers significantly more productive,
+<li>Research doesn't support claims that it makes programmers more productive <cite>Fucci2016,Fucci2017</cite>,
 but it helps give direction to this chapter</li>
 </ul>
 </li>
@@ -136,6 +136,9 @@ module.exports = main
 </ul>
 </li>
 </ul>
+<div class="fixme">
+<p>Diagram of dependencies for module bundler.</p>
+</div>
 <pre title="expected-full.out"><code class="language-out">topLeft from main
 topRight from main with topLeft from topRight and bottomRight from \
  topRight
@@ -492,6 +495,11 @@ module.exports = other
 <li>Each layer of wrappers remembers more information</li>
 </ul>
 </li>
+</ul>
+<div class="fixme">
+<p>Diagram of functions returning functions returning functions</p>
+</div>
+<ul>
 <li>We're also going to need a third structure: a cache for the modules we've already loaded</li>
 <li>To prove it works, we will look up the function <code>main</code> in the first file and call it
 <ul>
@@ -701,6 +709,52 @@ bottomLeft from main with topLeft from bottomLeft and bottomRight from \
  bottomLeft
 bottomRight from main
 </code></pre>
+<h2 id="exercises">Exercises</h2>
+<h3 class="exercise">Using test-driven development</h3>
+<p>Suppose we wanted to compress the files being stored by the file backup system in <xref key="file-backup"></xref>
+instead of copying them as-is.
+What tests would you write before adding this feature in order to ensure that it worked correctly
+once it was implemented?</p>
+<h3 class="exercise">Finding `import` dependencies</h3>
+<p>Modify the dependency finder to work with <code>import</code> statements instead of <code>require</code> calls.</p>
+<h3 class="exercise">Track files using hashes</h3>
+<p>Modify the dependency finder to track files by hashing them instead of relying on paths,
+so that if exactly the same file is being required from two locations,
+only one copy is loaded.</p>
+<h3 class="exercise">Using asynchronous file operations</h3>
+<p>Modify the dependency finder to use <code>async</code> and <code>await</code> instead of synchronous file operations.</p>
+<h3 class="exercise">Unit testing transitive closure</h3>
+<p>Write unit tests for the tool that finds the transitive closure of files' requirements
+using Mocha and <code>mock-fs</code>.
+(Rather than parsing JavaScript files in the mock filesystem,
+have each file contain only a list of the names of the files it depends on.)</p>
+<h3 class="exercise">Exporting multiple functions</h3>
+<p>Create test cases for the module bundler in which files export more than one function
+and fix any bugs in the module bundler that they uncover.</p>
+<h3 class="exercise">Checking integrity</h3>
+<p>Write a function that checks the integrity of the data structure returned by the transitive closure routine,
+i.e.,
+that makes sure every cross-reference resolves correctly.</p>
+<h3 class="exercise">Logging module loading</h3>
+<ol>
+<li>
+<p>Write a function called <code>logLoad</code> that takes a module name as an argument
+and prints a message using <code>console.error</code> saying that the module has been loaded.</p>
+</li>
+<li>
+<p>Modify the bundle generator to insert calls to this function
+to report when modules are actually loaded.</p>
+</li>
+</ol>
+<h3 class="exercise">Tracing execution</h3>
+<p>Trace the execution of every function called
+when the <code>main</code> function in the full bundle is called.</p>
+<h3 class="exercise">Making bundles more readable</h3>
+<p>Modify the bundle creator to make its output more readable,
+e.g.,
+by adding comments and indentation.
+(This does not matter to the computer,
+but can help debugging.)</p>
 </main>
 <footer>
 <div class="row">
