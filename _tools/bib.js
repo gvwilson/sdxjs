@@ -102,6 +102,23 @@ const book = (entry) => {
 }
 
 /**
+ * Convert proceedings entry.
+ * @param {Object} entry YAML information.
+ * @returns {string} HTML text.
+ */
+const inproceedings = (entry) => {
+  return [
+    key(entry),
+    descriptionBegin(),
+    credit(entry),
+    title(entry, true),
+    proceedingsInfo(entry),
+    note(entry),
+    descriptionEnd()
+  ].join('\n')
+}
+
+/**
  * Convert link.
  * @param {Object} entry YAML information.
  * @returns {string} HTML text.
@@ -123,6 +140,7 @@ const link = (entry) => {
 const ReferenceHandlers = {
   article,
   book,
+  inproceedings,
   link
 }
 
@@ -145,7 +163,7 @@ const articleInfo = (entry) => {
     details = `, ${details}`
   }
   const doi = `<a href="https://doi.org/${entry.doi}">${entry.doi}</a>`
-  return `${entry.journal}${details}, ${entry.year}, ${doi}.`
+  return `<em>${entry.journal}</em>${details}, ${entry.year}, ${doi}.`
 }
 
 /**
@@ -157,6 +175,19 @@ const bookInfo = (entry) => {
   assert(('publisher' in entry) && ('year' in entry) && ('isbn' in entry),
     'Entry requires publisher, year, and ISBN')
   return `${entry.publisher}, ${entry.year}, ${entry.isbn}.`
+}
+
+/**
+ * Generate proceedings entry information.
+ * @param {Object} entry YAML information.
+ * @returns {string} HTML text.
+ */
+const proceedingsInfo = (entry) => {
+  assert(('booktitle' in entry) && ('doi' in entry),
+    'Entry requires booktitle and doi')
+  const booktitle = entry.booktitle
+  const doi = `<a href="https://doi.org/${entry.doi}">${entry.doi}</a>`
+  return `<em>${booktitle}</em>, ${doi}.`
 }
 
 /**
@@ -216,7 +247,7 @@ const note = (entry) => {
   assert('note' in entry,
     'Every entry must have note')
   // FIXME: Markdown to HTML
-  return `<em>${entry.note.trim()}</em>`
+  return `<em class="bibnote">${entry.note.trim()}</em>`
 }
 
 /**
