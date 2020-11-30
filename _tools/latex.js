@@ -233,6 +233,8 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     accum.push('\\emph{')
     childrenToLatex(options, fileInfo, node, accum)
     accum.push('}')
+  } else if (node.name === 'figure') {
+    accum.push(figureToLatex(options, fileInfo, node))
   } else if (node.name === 'g') {
     accum.push('\\glossref{')
     childrenToLatex(options, fileInfo, node, accum)
@@ -352,6 +354,43 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
  */
 const childrenToLatex = (options, fileInfo, node, accum) => {
   node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+}
+
+/**
+ * Translate an HTML figure to LaTeX.
+ * @param {Object} options Program options.
+ * @param {Object} fileInfo Information about this file.
+ * @param {Object} node Root node of this conversion.
+ * @returns {string} Figure as LaTeX.
+ */
+const figureToLatex = (options, fileInfo, node) => {
+  assert(node.children.length === 2,
+    `Expected 2 children for figure element, not ${node.children.length}`)
+  const img = node.children[0]
+  assert(img.name === 'img',
+    `Expected first child of figure to be img, not ${img.name}`)
+
+  const src = img.attribs.src
+  assert(src && src.length > 0,
+    'Invalid src attribute for img in figure')
+
+  const alt = img.attribs.src
+  assert(alt && alt.length > 0,
+    'Invalid alt attribute for img in figure')
+
+  const caption = node.children[1]
+  assert(caption.name === 'figcaption',
+    `Expected first child of figure to be figcaption, not ${img.name}`)
+
+  const ident = caption.attribs.id
+  assert(ident && ident.length > 0,
+    'Invalid ident attribute for figcaption in figure')
+  const accum = []
+  childrenToLatex(options, fileInfo, caption, accum)
+  const text = accum.join('')
+
+  const result = `\\figpdf{${ident}}{${src}}{${text}}`
+  return result
 }
 
 /**

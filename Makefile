@@ -35,6 +35,9 @@ JAVASCRIPT=\
   $(wildcard $(patsubst %,%/*.js,${SLUGS})) \
   $(wildcard $(patsubst %,%/*/*.js,${SLUGS}))
 
+# Include files for HTML.
+INC=$(wildcard _inc/*.html)
+
 # Supporting LaTeX files for PDF version.
 TEX=\
   $(wildcard _tex/*.tex) \
@@ -47,7 +50,11 @@ STATIC=$(wildcard static/site.*) $(wildcard static/fonts/*/*.*)
 SUBMAKEDIR=$(patsubst %/Makefile,%,$(wildcard */Makefile))
 
 # All source files.
-ALL_FILES=${MARKDOWN} $(wildcard $(patsubst %,%/*.*,${SLUGS})) $(wildcard $(patsubst %,%/*/*.*,${SLUGS}))
+ALL_FILES=\
+  ${MARKDOWN} \
+  ${INC} \
+  $(wildcard $(patsubst %,%/*.*,${SLUGS})) \
+  $(wildcard $(patsubst %,%/*/*.*,${SLUGS}))
 
 .DEFAULT: commands
 
