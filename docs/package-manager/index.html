@@ -71,10 +71,11 @@
 <ul>
 <li>Package name</li>
 <li>Version(s)</li>
-<li>List of dependencies, which may also have versions</li>
+<li>List of dependencies, which may also specify versions or version ranges</li>
 </ul>
 </li>
-<li>Download and installing files uses the systems programming skills of <xref key="systems-programming"></xref></li>
+<li>Downloading files requires some web programming skills that are out of scope for this book</li>
+<li>Installing files uses the systems programming skills of <xref key="systems-programming"></xref></li>
 <li>But figuring out which packages to download can be very difficult
 <ul>
 <li>What if A and B require different versions of C?</li>
@@ -158,6 +159,11 @@ so most SAT solvers use heuristics to try to reduce the work.</p>
 </li>
 </ul>
 </li>
+</ul>
+<div class="fixme">
+<p>Diagram of 3-dimensional space of allowable versions.</p>
+</div>
+<ul>
 <li>18 possibilities (2 for X times 3 for Y times 3 for Z)
 <ul>
 <li>But 16 are excluded by various incompatibilities</li>
@@ -612,7 +618,7 @@ export default prune
 {X:2 Y:2 Z:2}
 </code></pre>
 <ul>
-<li>Another way to look at the work is th number of steps in the search
+<li>Another way to look at the work is the number of steps in the search
 <ul>
 <li>Full search had 18×3 = 54</li>
 <li>Pruning leaves us with (12×3) + (2×2) = 40</li>
@@ -704,6 +710,104 @@ export default reverse
 </ul>
 </li>
 </ul>
+<h2 id="exercises">Exercises</h2>
+<h3 class="exercise">Comparing semantic versions</h3>
+<p>Write a function that takes an array of semantic version specifiers
+and sorts them in ascending order.
+Remember that <code>2.1</code> is greater than <code>1.99</code>.</p>
+<h3 class="exercise">Parsing semantic versions</h3>
+<p>Using the techniques of <xref key="regex-parser"></xref>,
+write a parser for a subset of the <a href="https://semver.org/">semantic versioning specification</a>.</p>
+<h3 class="exercise">Using scoring functions</h3>
+<p>Many different combinations of package versions can be mutually compatible.
+One way to decide which actual combination to install
+is to create a <g key="scoring_function">scoring function</g>
+that measures how good or bad a particular combination is.
+For example,
+a function could measure the &quot;distance&quot; between two versions as:</p>
+<pre><code class="language-js">const score (X, Y) =&gt; {
+  if (X.major !== Y.major) {
+    return 100 * abs(X.major - Y.major)
+  } else if (X.minor !== Y.minor) {
+    return 10 * abs(X.minor - Y.minor)
+  } else {
+    return abs(X.patch - Y.patch)
+  }
+}
+</code></pre>
+<ol>
+<li>
+<p>Implement a working version of this function
+and use it to measure the total distance between
+the set of packages found by the solver
+and the set containing the most recent version of each package.</p>
+</li>
+<li>
+<p>Explain why this doesn't actually solve the original problem.</p>
+</li>
+</ol>
+<h3 class="exercise">Using full semantic versions</h3>
+<p>Modify the constraint solver to use full semantic versions instead of single digits.</p>
+<h3 class="exercise">Regular releases</h3>
+<p>Some packages release new versions on a regular cycle,
+e.g.,
+Version 2021.1 is released on March 1 of 2021,
+Version 2021.2 is released on September 1 of that year,
+version 2022.1 is released on March 1 of the following year,
+and so on.</p>
+<ol>
+<li>
+<p>How does this make package management easier?</p>
+</li>
+<li>
+<p>How does it make it more difficult?</p>
+</li>
+</ol>
+<h3 class="exercise">Writing unit tests</h3>
+<p>Write unit tests for the constraint solver using Mocha.</p>
+<h3 class="exercise">Generating test fixtures</h3>
+<p>Write a function that creates fixtures for testing the constraint solver:</p>
+<ol>
+<li>
+<p>Its first argument is an object whose keys are (fake) package names
+and whose values are integers indicating the number of versions of that package
+to include in the test set,
+such as <code>{'left': 3, 'middle': 2, 'right': 15}</code>.
+Its second argument is a <g key="seed">seed</g> for random number generation.</p>
+</li>
+<li>
+<p>It generates one valid configuration,
+such as <code>{'left': 2, 'middle': 2, 'right': 9}</code>.
+(This is to ensure that there is at least one installable set of packages.)</p>
+</li>
+<li>
+<p>It then generates random constraints between the packages.
+(These may or may not result in other installable combinations.)
+When this is done,
+it adds constraints so that the valid configuration from the previous step is included.</p>
+</li>
+</ol>
+<h3 class="exercise">Searching least first</h3>
+<p>Rewrite the constraint solver so that it searches packages
+by looking at those with the fewest available versions first.
+Does this reduce the amount of work done for the small examples in this chapter?
+Does it reduce the amount of work done for larger examples?</p>
+<h3 class="exercise">Using generators</h3>
+<p>Rewrite the constraint solver to use generators.</p>
+<h3 class="exercise">Using exclusions</h3>
+<ol>
+<li>
+<p>Modify the constraint solver so that
+it uses a list of package exclusions instead of a list of package requirements,
+i.e.,
+its input tells it that version 1.2 of package Red
+can <em>not</em> work with versions 3.1 and 3.2 of package Green
+(which impiles that Red 1.2 can work with any other versions of Green).</p>
+</li>
+<li>
+<p>Explain why package managers aren't built this way.</p>
+</li>
+</ol>
 </main>
 <footer>
 <div class="row">

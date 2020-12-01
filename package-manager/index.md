@@ -5,8 +5,9 @@
 -   Inspired by [CTAN][ctan], most languages now have an online archive from which developers can download packages
     -   Package name
     -   Version(s)
-    -   List of dependencies, which may also have versions
--   Download and installing files uses the systems programming skills of <xref key="systems-programming"></xref>
+    -   List of dependencies, which may also specify versions or version ranges
+-   Downloading files requires some web programming skills that are out of scope for this book
+-   Installing files uses the systems programming skills of <xref key="systems-programming"></xref>
 -   But figuring out which packages to download can be very difficult
     -   What if A and B require different versions of C?
     -   Or requires different ranges of versions of C, but there is overlap?
@@ -62,6 +63,11 @@ so most SAT solvers use heuristics to try to reduce the work.
         -   Y/3 requires Z/3
     -   Package Z
         -   Z/1, Z/2, and Z/3 don't require anything
+
+::: fixme
+Diagram of 3-dimensional space of allowable versions.
+:::
+
 -   18 possibilities (2 for X times 3 for Y times 3 for Z)
     -   But 16 are excluded by various incompatibilities
     -   Of the two remaining possibilities, X/2 + Y/3 + Z/3 is strictly greater than X/2 + Y/2 + Z/2
@@ -169,7 +175,7 @@ so most SAT solvers use heuristics to try to reduce the work.
 
 <%- include('/_inc/file.html', {file: 'prune-triple.out'}) %>
 
--   Another way to look at the work is th number of steps in the search
+-   Another way to look at the work is the number of steps in the search
     -   Full search had 18×3 = 54
     -   Pruning leaves us with (12×3) + (2×2) = 40
     -   So we have eliminated roughly 1/4 of the work
@@ -185,3 +191,5 @@ so most SAT solvers use heuristics to try to reduce the work.
     -   None are guaranteed to give better performance in every case
     -   But most will give better performance in most cases
     -   And gains multiply: 2/3 of the work in each of two layers is less than half the total original work
+
+<%- include('/_inc/problems.html') %>
