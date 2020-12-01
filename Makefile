@@ -53,6 +53,7 @@ SUBMAKEDIR=$(patsubst %/Makefile,%,$(wildcard */Makefile))
 ALL_FILES=\
   ${MARKDOWN} \
   ${INC} \
+  ${STATIC} \
   $(wildcard $(patsubst %,%/*.*,${SLUGS})) \
   $(wildcard $(patsubst %,%/*/*.*,${SLUGS}))
 
