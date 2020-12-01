@@ -174,7 +174,7 @@ gloss.md: _gloss.yml _tools/gloss.js $(filter-out gloss.md,${MARKDOWN}) ${EXERCI
 	--output gloss.md \
 	--sources ${MARKDOWN} ${EXERCISES}
 
-docs/index.html: _tools/html.js _config.yml _links.yml ${ALL_FILES}
+docs/index.html: _tools/html.js _config.yml _links.yml ${MARKDOWN}
 	_tools/html.js \
 	--rootDir . \
 	--outputDir docs \
@@ -202,6 +202,9 @@ docs/authors/index.html: authors.md
 docs/gloss/index.html: gloss.md
 docs/links/index.html: links.md
 docs/%/index.html: %/index.md
+
+%/index.md: %/*/problem.md %/*/solution.md
+	@touch $@
 
 _tools/html.js: _tools/dirname.js
 	@touch $@
