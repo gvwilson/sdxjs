@@ -30,7 +30,7 @@
 
 <%- include('/_inc/multi.html', {pat: 'multi-line-double-slash-comment.*', fill: 'js sh out'}) %>
 
--   A <g key="block_comment">block comment</g> can span any number of lines
+-   <g key="block_comment">Block comments</g> can span any number of lines
     -   Don't need to prefix each line with `*` but most people do for readability
 
 <%- include('/_inc/multi.html', {pat: 'multi-line-slash-star-comment.*', fill: 'js sh out'}) %>
