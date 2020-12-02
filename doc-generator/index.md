@@ -106,3 +106,5 @@
 <%- include('/_inc/file.html', {file: 'fill-in-headers.js'}) %>
 <%- include('/_inc/html.html', {file: 'fill-in-headers.html'}) %>
 <%- include('/_inc/page.html', {file: 'fill-in-headers.html'}) %>
+
+<%- include('/_inc/problems.html') %>
