@@ -44,7 +44,7 @@ TEX=\
   $(wildcard _tex/*.cls)
 
 # Static files.
-STATIC=$(wildcard static/site.*) $(wildcard static/fonts/*/*.*)
+STATIC=$(wildcard static/site.*) static/fonts.css $(wildcard static/fonts/*/*.*)
 
 # Directories containing sub-Makefiles for reproducing examples.
 SUBMAKEDIR=$(patsubst %/Makefile,%,$(wildcard */Makefile))
@@ -174,7 +174,7 @@ gloss.md: _gloss.yml _tools/gloss.js $(filter-out gloss.md,${MARKDOWN}) ${EXERCI
 	--output gloss.md \
 	--sources ${MARKDOWN} ${EXERCISES}
 
-docs/index.html: _tools/html.js _config.yml _links.yml ${MARKDOWN}
+docs/index.html: _tools/html.js _config.yml _links.yml ${MARKDOWN} ${STATIC}
 	_tools/html.js \
 	--rootDir . \
 	--outputDir docs \
