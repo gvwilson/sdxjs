@@ -2,7 +2,7 @@
 ---
 
 <div class="html-only">
-  <img src="../static/gvwilson.png" class="bio" />
+  <img src="../static/gvwilson.png" width="25%" />
 </div>
 <div class="latex-only">
   \includegraphics[width=0.2\linewidth]{static/gvwilson.png}
