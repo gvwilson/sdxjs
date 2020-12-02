@@ -66,3 +66,5 @@
 -   A quick test
 
 <%- include('/_inc/multi.html', {pat: 'test-time-func.*', fill: 'js out'}) %>
+
+<%- include('/_inc/problems.html') %>
