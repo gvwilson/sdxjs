@@ -8,14 +8,18 @@ const main = () => {
   let total = 0
   let chaptersWith = 0
   let chaptersWithout = 0
-  const info = config.chapters.map(chapter => {
-    const title = chapter.title
-    const count = ('exercises' in chapter) ? `${chapter.exercises.length}` : '-'
-    total += (count === '-') ? 0 : parseInt(count)
-    chaptersWith += (count === '-') ? 0 : 1
-    chaptersWithout += (count === '-') ? 1 : 0
-    return { title, count }
-  })
+  const info = config.chapters
+    .filter(chapter => {
+      return (!('exercises' in chapter)) || Array.isArray(chapter.exercises)
+    })
+    .map(chapter => {
+      const title = chapter.title
+      const count = ('exercises' in chapter) ? `${chapter.exercises.length}` : '-'
+      total += (count === '-') ? 0 : parseInt(count)
+      chaptersWith += (count === '-') ? 0 : 1
+      chaptersWithout += (count === '-') ? 1 : 0
+      return { title, count }
+    })
   console.log('Chapter : Exercises')
   console.log('------- : ---------')
   info.forEach(({ title, count }) => {
