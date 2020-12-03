@@ -1,4 +1,4 @@
-1.  Modfy the tokenizer to recognize named groups.
+1.  Modify the tokenizer to recognize named groups.
     For example, the named group `/(?<triple>aaa)/`
     would create a named group called `triple` that matches exactly three consecutive occurrences of 'a'.
 

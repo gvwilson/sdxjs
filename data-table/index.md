@@ -22,7 +22,7 @@ diagram of row-major vs. column-major
 :::
 
 -   Construct one of each, try some operations, record times and memory use, see which is better
-    -   Answer will probably depend on…things
+    -   Answer will depend on what parameters we use
 -   Never modify data after creating it
     -   Allows us to recycle memory
 -   Build a row-major table with some number of columns

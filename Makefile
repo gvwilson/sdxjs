@@ -139,7 +139,7 @@ wordlist:
 	@_tools/wordlist.js --input ${HTML}
 
 ## spelling: what words are incorrect?
-spelling:
+spelling: docs/index.html
 	@-_tools/wordlist.js --input ${HTML} | aspell list | sort | uniq | diff - _words.txt
 
 ## pages: count pages per chapter.
