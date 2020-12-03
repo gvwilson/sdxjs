@@ -11,7 +11,7 @@
 
 -   Virtual machine structured like that from <xref key="virtual-machine"></xref>
     -   Real system would parse program to create JSON, then translate JSON into assembly code, then assemble to machine instructions
--   Virtual machine
+-   To execute program:
     -   Remove comments and blank lines
     -   Run all commands by looking up command name and calling that method
 
@@ -69,13 +69,14 @@
 -   Try it on a smaller program than our filtering example
 
 <%- include('/_inc/file.html', {file: 'sum-source-map.json'}) %>
+<%- include('/_inc/file.html', {file: 'sum-source-map-trace.out'}) %>
 
 ## How can we make the debugger interactive?
 
 -   Use [`prompt-sync`][node-prompt-sync] for user input
 -   Parse a simple set of commands
     -   `?` or `help` to list commands
-    -   `clear #` to clear a breakpoint at a numbered line
+    -   `clear #` to clear a <g key="breakpoint">breakpoint</g> at a numbered line
     -   `list` to list lines and breakpoints
     -   `next` to go forward one line
     -   `print name` to show a variable while at a breakpoint
@@ -175,3 +176,5 @@
 -   Run it
 
 <%- include('/_inc/multi.html', {pat: 'test-exit.*', fill: 'sh out'}) %>
+
+<%- include('/_inc/problems.html') %>

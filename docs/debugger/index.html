@@ -116,7 +116,7 @@
 <li>Real system would parse program to create JSON, then translate JSON into assembly code, then assemble to machine instructions</li>
 </ul>
 </li>
-<li>Virtual machine
+<li>To execute program:
 <ul>
 <li>Remove comments and blank lines</li>
 <li>Run all commands by looking up command name and calling that method</li>
@@ -376,13 +376,26 @@ export default DebuggerTrace
   [10, "print", ["getV", "total"]]
 ]
 </code></pre>
+<pre title="sum-source-map-trace.out"><code class="language-out">1 / defA: {}
+2 / defV: {"a":[-5,1,3]}
+3 / defV: {"a":[-5,1,3],"total":0}
+4 / loop: {"a":[-5,1,3],"total":0,"i":0}
+5 / setV: {"a":[-5,1,3],"total":0,"i":0}
+8 / setV: {"a":[-5,1,3],"total":-5,"i":0}
+5 / setV: {"a":[-5,1,3],"total":-5,"i":1}
+8 / setV: {"a":[-5,1,3],"total":-4,"i":1}
+5 / setV: {"a":[-5,1,3],"total":-4,"i":2}
+8 / setV: {"a":[-5,1,3],"total":-1,"i":2}
+10 / print: {"a":[-5,1,3],"total":-1,"i":3}
+&gt;&gt; -1
+</code></pre>
 <h2 id="how-can-we-make-the-debugger-interactive">How can we make the debugger interactive?</h2>
 <ul>
 <li>Use <a href="https://www.npmjs.com/package/prompt-sync"><code>prompt-sync</code></a> for user input</li>
 <li>Parse a simple set of commands
 <ul>
 <li><code>?</code> or <code>help</code> to list commands</li>
-<li><code>clear #</code> to clear a breakpoint at a numbered line</li>
+<li><code>clear #</code> to clear a <g key="breakpoint">breakpoint</g> at a numbered line</li>
 <li><code>list</code> to list lines and breakpoints</li>
 <li><code>next</code> to go forward one line</li>
 <li><code>print name</code> to show a variable while at a breakpoint</li>
@@ -766,6 +779,55 @@ export default VirtualMachineExit
 
   2 passing (7ms)
 </code></pre>
+<h2 id="exercises">Exercises</h2>
+<h3 class="exercise"></h3>
+<p>Read the documentation for <a href="https://www.npmjs.com/package/prompt-sync"><code>prompt-sync</code></a>
+and then implement <g key="tab_completion">tab completion</g>
+for the debugger.</p>
+<h3 class="exercise"></h3>
+<p>Add a <code>set</code> command that sets the value of a variable to a new value in a running program.
+How do you handle setting array elements?</p>
+<h3 class="exercise"></h3>
+<p>Modify the tracing debugger so that
+the statements inside loops and conditionals are indented for easier reading.</p>
+<h3 class="exercise"></h3>
+<p>Our solution for handling loops is sloppy; fix it.</p>
+<h3 class="exercise"></h3>
+<p>Modify the debugger and virtual machine to use a &quot;continue executing&quot; flag
+rather than throwing an exception when execution should end.
+Which approach is easier to understand?
+Which will be easier to extend in future?</p>
+<h3 class="exercise"></h3>
+<p>Write a tool that takes a JSON program representation <em>without</em> statement numbers
+and produces one that numbers all of the interesting statements for debugging purposes.
+Use whatever definition of &quot;interesting&quot; you think would be most useful.</p>
+<h3 class="exercise"></h3>
+<p>Implement a &quot;next loop iteration&quot; command that runs the program
+until it reaches the current point in the next iteration of the current loop.</p>
+<h3 class="exercise"></h3>
+<p>Rather than having some objects call <code>setXYZ</code> methods in other objects,
+it is common practice to use a lookup table for mutual dependencies:</p>
+<ol>
+<li>
+<p>Every object initializes calls <code>table.set(name, this)</code> in its constructor.</p>
+</li>
+<li>
+<p>Whenever object A needs the instance of object B,
+it calls <code>table.lookup('B')</code>.
+It does <em>not</em> store the result in a member variable.</p>
+</li>
+</ol>
+<p>Modify the virtual machine and debugger to use this pattern.</p>
+<h3 class="exercise"></h3>
+<p>Modify the debugger and virtual machine to implement <g key="watchpoint">watchpoints</g>
+that halt the program whenever the value of a variable changes.</p>
+<h3 class="exercise"></h3>
+<p>Write a tool that translates the JSON program representation
+into the assembly code of <xref key="virtual-machine"></xref>.
+To simplify things,
+increase the number of registers so that
+there is always storage for intermediate results
+when doing arithmetic.</p>
 </main>
 <footer>
 <div class="row">
