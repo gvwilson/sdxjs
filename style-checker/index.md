@@ -111,4 +111,34 @@
 -   More difficult to do variable identifiers than previous Visitor approach
     -   Generator doesn't keep state, so we have to maintain that outside for ourselves
 
+## What other kinds of analysis can we do?
+
+-   Can be hard to keep track of which methods are defined where in a complex class hierarchy
+-   So build a tool to find that out
+-   Find the ancestors of a class
+
+<%- include('/_inc/erase.html', {file: 'find-ancestors.js', tag: 'skip'}) %>
+
+-   Finding class definitions is a straightforward extension of what we have already done
+
+<%- include('/_inc/slice.html', {file: 'find-ancestors.js', tag: 'findClassDef'}) %>
+
+-   Start with the lowest of these three files
+
+<%- include('/_inc/multi.html', {pat: '*.js', fill: 'upper middle lower'}) %>
+<%- include('/_inc/file.html', {file: 'run-find-ancestors.out'}) %>
+
+-   Finding methods is another method
+
+<%- include('/_inc/file.html', {file: 'find-methods.js'}) %>
+
+-   And draw a table showing which methods are defined in which class so that we can see what's overridden where
+
+<%- include('/_inc/raw.html', {file: 'run-find-methods.raw.out'}) %>
+
+-   Most useful when we apply it to a larger example
+    like the virtual machine we will build in <xref key="virtual-machine"></xref>
+
+<%- include('/_inc/raw.html', {file: 'find-debugger-methods.raw.out'}) %>
+
 <%- include('/_inc/problems.html') %>

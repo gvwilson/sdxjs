@@ -24,6 +24,8 @@ class FindAncestors {
     return this.traceAncestry(dirname, ancestorFile, ancestorName, accum)
   }
 
+  // <skip>
+  // <findClassDef>
   findClassDef (filename, ast, className) {
     const state = []
     walk.simple(ast, {
@@ -38,6 +40,7 @@ class FindAncestors {
       `No definition for ${className} in ${filename}`)
     return state[0]
   }
+  // </findClassDef>
 
   getAncestor (classDef) {
     return (classDef.superClass === null)
@@ -68,6 +71,7 @@ class FindAncestors {
       `No import found for ${className} in ${filename}`)
     return state[0]
   }
+  // </skip>
 }
 
 export default FindAncestors

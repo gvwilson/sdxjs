@@ -44,7 +44,6 @@
 <br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
 <br/><a href="../virtual-machine/"><span class="nowrap">Virtual Machine</span></a>
 <br/><a href="../debugger/"><span class="nowrap">Debugger</span></a>
-<br/><a href="../code-analyzer/"><span class="nowrap">Code Analyzer</span></a>
 <br/><a href="../conclusion/"><span class="nowrap">Conclusion</span></a>
 </div>
 </div>
@@ -550,6 +549,314 @@ console.log('counts are', result)
 </ul>
 </li>
 </ul>
+<h2 id="what-other-kinds-of-analysis-can-we-do">What other kinds of analysis can we do?</h2>
+<ul>
+<li>Can be hard to keep track of which methods are defined where in a complex class hierarchy</li>
+<li>So build a tool to find that out</li>
+<li>Find the ancestors of a class</li>
+</ul>
+<pre title="find-ancestors.js"><code class="language-js">import assert from 'assert'
+import acorn from 'acorn'
+import fs from 'fs'
+import path from 'path'
+import walk from 'acorn-walk'
+
+class FindAncestors {
+  find (dirname, filename, className) {
+    return this.traceAncestry(dirname, filename, className, [])
+  }
+
+  traceAncestry (dirname, filename, className, accum) {
+    const fullPath = path.join(dirname, filename)
+    const program = fs.readFileSync(fullPath, 'utf-8')
+    const options = { locations: true, sourceType: 'module' }
+    const ast = acorn.parse(program, options)
+    const classDef = this.findClassDef(filename, ast, className)
+    accum.push({ filename, className, classDef })
+    const ancestorName = this.getAncestor(classDef)
+    if (ancestorName === null) {
+      return accum
+    }
+    const ancestorFile = this.findImport(filename, ast, ancestorName)
+    return this.traceAncestry(dirname, ancestorFile, ancestorName, accum)
+  }
+...
+}
+
+export default FindAncestors
+</code></pre>
+<ul>
+<li>Finding class definitions is a straightforward extension of what we have already done</li>
+</ul>
+<pre title="find-ancestors.js"><code class="language-js">  findClassDef (filename, ast, className) {
+    const state = []
+    walk.simple(ast, {
+      ClassDeclaration: (node, state) =&gt; {
+        if ((node.id.type === 'Identifier') &amp;&amp;
+            (node.id.name === className)) {
+          state.push(node)
+        }
+      }
+    }, null, state)
+    assert(state.length === 1,
+      `No definition for ${className} in ${filename}`)
+    return state[0]
+  }</code></pre>
+<ul>
+<li>Start with the lowest of these three files</li>
+</ul>
+<pre title="upper.js"><code class="language-js">class Upper {
+  constructor () {
+    this.name = 'upper'
+  }
+
+  report () {
+    console.log(this.modify(this.name))
+  }
+
+  modify (text) {
+    return text.toUpperCase()
+  }
+}
+
+module.exports = Upper
+</code></pre>
+<pre title="middle.js"><code class="language-js">import Upper from './upper.js'
+
+class Middle extends Upper {
+  constructor () {
+    super()
+    this.range = 'middle'
+  }
+
+  modify (text) {
+    return `** ${super.modify(text)} **`
+  }
+}
+
+export default Middle
+</code></pre>
+<pre title="lower.js"><code class="language-js">import Middle from './middle.js'
+
+class Lower extends Middle {
+  report () {
+    console.log(this.additional())
+  }
+
+  additional () {
+    return 'lower'
+  }
+}
+
+export default Lower
+</code></pre>
+<pre title="run-find-ancestors.out"><code class="language-out">Lower in lower.js
+Middle in ./middle.js
+Upper in ./upper.js
+</code></pre>
+<ul>
+<li>Finding methods is another method</li>
+</ul>
+<pre title="find-methods.js"><code class="language-js">import FindAncestors from './find-ancestors.js'
+
+class FindMethods extends FindAncestors {
+  find (dirname, filename, className) {
+    const classes = super.find(dirname, filename, className)
+    classes.forEach(record =&gt; {
+      record.methods = this.findMethods(record.classDef)
+    })
+    return classes
+  }
+
+  findMethods (classDef) {
+    return classDef.body.body
+      .filter(item =&gt; item.type === 'MethodDefinition')
+      .map(item =&gt; {
+        if (item.kind === 'constructor') {
+          return 'constructor'
+        } else if (item.kind === 'method') {
+          return item.key.name
+        } else {
+          return null
+        }
+      })
+      .filter(item =&gt; item !== null)
+  }
+}
+
+export default FindMethods
+</code></pre>
+<ul>
+<li>And draw a table showing which methods are defined in which class so that we can see what's overridden where</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>method</th>
+<th>Upper</th>
+<th>Middle</th>
+<th>Lower</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>additional</td>
+<td>.</td>
+<td>.</td>
+<td>X</td>
+</tr>
+<tr>
+<td>constructor</td>
+<td>X</td>
+<td>X</td>
+<td>.</td>
+</tr>
+<tr>
+<td>modify</td>
+<td>X</td>
+<td>X</td>
+<td>.</td>
+</tr>
+<tr>
+<td>report</td>
+<td>X</td>
+<td>.</td>
+<td>X</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>method</th>
+<th>DebuggerBase</th>
+<th>DebuggerInteractive</th>
+<th>DebuggerTest</th>
+<th>DebuggerExit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>clear</td>
+<td>.</td>
+<td>X</td>
+<td>.</td>
+<td>.</td>
+</tr>
+<tr>
+<td>constructor</td>
+<td>X</td>
+<td>X</td>
+<td>X</td>
+<td>.</td>
+</tr>
+<tr>
+<td>exit</td>
+<td>.</td>
+<td>X</td>
+<td>.</td>
+<td>X</td>
+</tr>
+<tr>
+<td>getCommand</td>
+<td>.</td>
+<td>X</td>
+<td>.</td>
+<td>.</td>
+</tr>
+<tr>
+<td>handle</td>
+<td>.</td>
+<td>X</td>
+<td>.</td>
+<td>.</td>
+</tr>
+<tr>
+<td>help</td>
+<td>.</td>
+<td>X</td>
+<td>.</td>
+<td>.</td>
+</tr>
+<tr>
+<td>input</td>
+<td>.</td>
+<td>X</td>
+<td>X</td>
+<td>.</td>
+</tr>
+<tr>
+<td>interact</td>
+<td>.</td>
+<td>X</td>
+<td>.</td>
+<td>.</td>
+</tr>
+<tr>
+<td>list</td>
+<td>.</td>
+<td>X</td>
+<td>.</td>
+<td>.</td>
+</tr>
+<tr>
+<td>message</td>
+<td>X</td>
+<td>.</td>
+<td>X</td>
+<td>.</td>
+</tr>
+<tr>
+<td>next</td>
+<td>.</td>
+<td>X</td>
+<td>.</td>
+<td>.</td>
+</tr>
+<tr>
+<td>print</td>
+<td>.</td>
+<td>X</td>
+<td>.</td>
+<td>.</td>
+</tr>
+<tr>
+<td>run</td>
+<td>.</td>
+<td>X</td>
+<td>.</td>
+<td>.</td>
+</tr>
+<tr>
+<td>setTester</td>
+<td>.</td>
+<td>.</td>
+<td>X</td>
+<td>.</td>
+</tr>
+<tr>
+<td>setVM</td>
+<td>X</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+</tr>
+<tr>
+<td>stop</td>
+<td>.</td>
+<td>X</td>
+<td>.</td>
+<td>.</td>
+</tr>
+<tr>
+<td>variables</td>
+<td>.</td>
+<td>X</td>
+<td>.</td>
+<td>.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="exercises">Exercises</h2>
 <h3 class="exercise">Function length</h3>
 <p>Derive a class from <code>Walker</code> that reports the length in lines of each function defined in the code being checked.</p>

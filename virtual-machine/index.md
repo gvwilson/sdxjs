@@ -2,11 +2,11 @@
 ---
 
 -   Computers don't execute JavaScript directly
-    -   Each has its own <g key="instruction_set">instruction set</g>
+    -   Each processor has its own <g key="instruction_set">instruction set</g>
     -   A <g key="compiler">compiler</g> translates high-level language into those instructions
 -   Often use an intermediate representation called <g key="assembly_code">assembly code</g>
     -   Human-readable names instead of numbers
--   We will simulate a very (very) simple processor with a little bit of memory
+-   We will simulate a very simple processor with a little bit of memory
     -   Also check out [Human Resource Machine][human-resource-machine]
 
 ## What is the architecture of our virtual machine?
@@ -25,7 +25,7 @@
     -   Zero, one, or two operands, each a byte long
     -   Each operand is a register or a value (constant or address)
     -   So the largest constant we can represent directly is 256
-    -   Use `r` and `v` to indicate format
+-   Use `r` and `v` to indicate format
 
 ::: fixme
 Diagram of virtual machine architecture
@@ -174,3 +174,5 @@ Diagram of virtual machine architecture
 
 <%- include('/_inc/file.html', {file: 'fill-array.as'}) %>
 <%- include('/_inc/file.html', {file: 'fill-array-out.out'}) %>
+
+<%- include('/_inc/problems.html') %>

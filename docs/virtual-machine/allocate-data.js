@@ -26,7 +26,7 @@ class DataAllocator extends Assembler {
     if (split === -1) {
       return [lines, []]
     } else {
-      return [lines.slice(0, split), lines.slice(split+1)]
+      return [lines.slice(0, split), lines.slice(split + 1)]
     }
   }
   // </split-allocations>

@@ -44,7 +44,6 @@
 <br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
 <br/><a href="../virtual-machine/"><span class="nowrap">Virtual Machine</span></a>
 <br/><a href="../debugger/"><span class="nowrap">Debugger</span></a>
-<br/><a href="../code-analyzer/"><span class="nowrap">Code Analyzer</span></a>
 <br/><a href="../conclusion/"><span class="nowrap">Conclusion</span></a>
 </div>
 </div>
@@ -69,7 +68,7 @@
 <ul>
 <li>Computers don't execute JavaScript directly
 <ul>
-<li>Each has its own <g key="instruction_set">instruction set</g></li>
+<li>Each processor has its own <g key="instruction_set">instruction set</g></li>
 <li>A <g key="compiler">compiler</g> translates high-level language into those instructions</li>
 </ul>
 </li>
@@ -78,7 +77,7 @@
 <li>Human-readable names instead of numbers</li>
 </ul>
 </li>
-<li>We will simulate a very (very) simple processor with a little bit of memory
+<li>We will simulate a very simple processor with a little bit of memory
 <ul>
 <li>Also check out <a href="https://tomorrowcorporation.com/humanresourcemachine">Human Resource Machine</a></li>
 </ul>
@@ -110,9 +109,9 @@
 <li>Zero, one, or two operands, each a byte long</li>
 <li>Each operand is a register or a value (constant or address)</li>
 <li>So the largest constant we can represent directly is 256</li>
-<li>Use <code>r</code> and <code>v</code> to indicate format</li>
 </ul>
 </li>
+<li>Use <code>r</code> and <code>v</code> to indicate format</li>
 </ul>
 <div class="fixme">
 <p>Diagram of virtual machine architecture</p>
@@ -670,7 +669,7 @@ R3 = 0
     if (split === -1) {
       return [lines, []]
     } else {
-      return [lines.slice(0, split), lines.slice(split+1)]
+      return [lines.slice(0, split), lines.slice(split + 1)]
     }
   }</code></pre>
 <ul>
@@ -724,6 +723,123 @@ R3 = 0
 8:   00000307  00030309  00000001  00000000
 c:   00000001  00000002  00000000  00000000
 </code></pre>
+<h2 id="exercises">Exercises</h2>
+<h3 class="exercise">Swapping values</h3>
+<p>Write an assembly language program that swaps the values in R1 and R2
+without affecting the values in other registers.</p>
+<h3 class="exercise">Reversing an array</h3>
+<p>Write an assembly language program that starts with:</p>
+<ul>
+<li>the base address of an array in one word</li>
+<li>the length of the array N in the next word</li>
+<li>N values immediately thereafter</li>
+</ul>
+<div class="unindented">
+<p>and reverses the array in place.</p>
+</div>
+<div class="fixme">
+<p>diagram of array layout</p>
+</div>
+<h3 class="exercise">Increment and decrement</h3>
+<ol>
+<li>
+<p>Add instructions <code>inc</code> and <code>dec</code> that add one to the value of a register
+and subtract one from the value of a register respectively.</p>
+</li>
+<li>
+<p>Rewrite the examples to use these instructions.
+How much shorter do they make the programs?
+How much easier to read?</p>
+</li>
+</ol>
+<h3 class="exercise">Using long addresses</h3>
+<ol>
+<li>
+<p>Modify the virtual machine so that the <code>ldr</code> and <code>str</code> instructions
+contain 16-bit addresses rather than 8-bit addresses
+and increase the virtual machine's memory to 64K words to match.</p>
+</li>
+<li>
+<p>How does this complicate instruction interpretation?</p>
+</li>
+</ol>
+<h3 class="exercise">Operating on strings</h3>
+<p>The C programming language stored character strings as non-zero bytes terminated by a byte containing zero.</p>
+<div class="fixme">
+<p>Diagram of C string storage.</p>
+</div>
+<ol>
+<li>
+<p>Write a program that starts with the base address of a string in R1
+and finishes with the length of the string (not including the terminator) in the same register.</p>
+</li>
+<li>
+<p>Write a program that starts with the base address of a string in R1
+and the base address of some other block of memory in R2
+and copies the string to that new location (inclding the terminator).</p>
+</li>
+<li>
+<p>What happens in each case if the terminator is missing?</p>
+</li>
+</ol>
+<h3 class="exercise">Call and return</h3>
+<ol>
+<li>
+<p>Add another register to the virtual machine called SP (for &quot;stack pointer&quot;)
+that is automatically initialized to the <em>last</em> address in memory.</p>
+</li>
+<li>
+<p>Add an instruction <code>psh</code> (short for &quot;push&quot;) that copies a value from a register
+to the address stored in SP and then subtracts one from SP.</p>
+</li>
+<li>
+<p>Add an instruction <code>pop</code> (short for &quot;pop&quot;) that adds one to SP
+and then copies a value from that address into a register.</p>
+</li>
+<li>
+<p>Using these instructions,
+write a subroutine that evaluates <code>2x+1</code> for every value in an array.</p>
+</li>
+</ol>
+<h3 class="exercise">Disassembling instructions</h3>
+<p>A <g key="disassembler">disassembler</g> turns machine instructions into assembly code.
+Write a disassembler for the instruction set used by our virtual machine.
+(Since the labels for addresses are not stored in machine instructions,
+disassemblers typically generate labels like <code>@L001</code> and <code>@L002</code>.)</p>
+<h3 class="exercise">Linking multiple files</h3>
+<ol>
+<li>
+<p>Modify the assembler to handle <code>.include filename</code> directives.</p>
+</li>
+<li>
+<p>What does your modified assembler do about duplicate label names?
+How does it prevent infinite includes
+(i.e., A.as includes B.as which includes A.as again)?</p>
+</li>
+</ol>
+<h3 class="exercise">Providing system calls</h3>
+<p>Modify the virtual machine so that developers can add &quot;system calls&quot; to it.</p>
+<ol>
+<li>
+<p>On startup,
+the virtual machine loads an array of functions defined in a file called <code>syscalls.js</code>.</p>
+</li>
+<li>
+<p>The <code>sys</code> instruction takes a one-byte constant argument.
+It looks up the corresponding function and calls it with the values of R0-R3 as parameters
+and places the result in R0.</p>
+</li>
+</ol>
+<h3 class="exercise">Unit testing</h3>
+<ol>
+<li>
+<p>Write unit tests for the assembler.</p>
+</li>
+<li>
+<p>Once they are working,
+write unit tests for the virtual machine.</p>
+</li>
+</ol>
 </main>
 <footer>
 <div class="row">

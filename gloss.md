@@ -154,6 +154,8 @@
 <dd class="glossary">A <g key="graph">graph</g> whose <g key="edge">edges</g> have directions.</dd>
 <dt id="directory" class="glossary">directory</dt>
 <dd class="glossary">A structure in a <g key="filesystem">filesystem</g> that contains references to other structures, such as files and other directories.</dd>
+<dt id="disassembler" class="glossary">disassembler</dt>
+<dd class="glossary">A program that translates machine instructions into <g key="assembly_code">assembly code</g> or some other higher-level language.</dd>
 <dt id="dom" class="glossary">Document Object Model (DOM)</dt>
 <dd class="glossary">A standard, in-memory representation of <g key="html">HTML</g> and <g key="xml">XML</g>. Each <g key="element">element</g> is stored as a <g key="node">node</g> in a <g key="tree">tree</g> with a set of named <g key="attribute">attributes</g>; contained elements are <g key="child_tree">child nodes</g>. Modern programming languages provide many <g key="library">libraries</g> for searching and modifying the DOM.</dd>
 <dt id="dom_selector" class="glossary">DOM selector</dt>
