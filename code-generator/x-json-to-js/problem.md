@@ -10,6 +10,6 @@ For example, the tool should translate:
 into:
 :::
 
-```
+```js
 3 + (5 * a)
 ```

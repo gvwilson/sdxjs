@@ -10,7 +10,7 @@ glob:
 and then refer to them later:
 :::
 
-```
+```yml
 - target: P
   depends:
   - @allAvailableInputs
