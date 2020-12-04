@@ -84,7 +84,7 @@ const checkExercises = (options) => {
   const actual = new Set()
   config.chapters
     .forEach(chapter => {
-      if ('exercises' in chapter) {
+      if (('exercises' in chapter) && Array.isArray(chapter.exercises)) {
         chapter.exercises.map(exercise => `${chapter.slug}/${exercise.slug}`)
           .forEach(full => expected.add(full))
       }

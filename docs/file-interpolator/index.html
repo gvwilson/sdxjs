@@ -64,10 +64,10 @@
 </nav>
   <main>
   <h1>File Interpolator</h1>
-  <h2 class="lede">Manage source files that have been broken into pieces</h2>
+  <h2 class="lede">Managing source files that have been broken into pieces</h2>
 <ul>
-<li>Our files are getting too long to show in one block</li>
-<li>Write a tool that a text file with inclusion markers and turns it into loaded code</li>
+<li>Many of our examples are too long to show in one block of code</li>
+<li>Experiment: write a tool that loads a source file with inclusion markers and then loads and interpolates the inclusions</li>
 <li>Source file has specially-formatted comments containing two fields:
 <ul>
 <li>The text to put in the displayed version</li>
@@ -84,9 +84,17 @@ class Something {
   /*+ another long method + another_long_method.js +*/
 }
 </code></pre>
+<ul>
+<li>Spoiler: we got this to work, then used a different approach that extracted marked sections from a regular JS file
+<ul>
+<li>The stumbling block was that code-checking tools like <a href="https://eslint.org/">ESLint</a> didn't understand our inclusions</li>
+<li>But there are still lessons in how we built it</li>
+</ul>
+</li>
+</ul>
 <h2 id="how-can-we-evaluate-javascript-dynamically">How can we evaluate JavaScript dynamically?</h2>
 <ul>
-<li>We want to load this dynamically just like <code>require</code> for running</li>
+<li>We want to load a file dynamically just like <code>require</code> does</li>
 <li>But display the comments in our web/print versions rather than the interpolated code</li>
 <li>Lifecycle of a JavaScript program
 <ul>
@@ -201,7 +209,7 @@ ReferenceError: Seen is not defined
     at async Object.loadESM (internal/process/esm_loader.js:68:5)
 </code></pre>
 <ul>
-<li>But if we read the file and <code>eval</code> the text after defining <code>Seen</code>, it does what we want</li>
+<li>But if we read the file and <code>eval</code> the text <em>after</em> defining <code>Seen</code>, it does what we want</li>
 </ul>
 <pre title="does-the-loading.js"><code class="language-js">
 import fs from 'fs'
@@ -521,6 +529,118 @@ bottomMethod (msg) {
 </ul>
 </li>
 </ul>
+<h2 id="exercises">Exercises</h2>
+<h3 class="exercise">Security concerns</h3>
+<ol>
+<li>
+<p>Write a function <code>loadAndRun</code> that reads a file, evaluates it, and returns the result.</p>
+</li>
+<li>
+<p>Create a file <code>trust-me.js</code> that prints &quot;nothing happening here&quot; when it is evaluated,
+but also deletes everything in the directory called <code>target</code>.</p>
+</li>
+<li>
+<p>Write tests for this using <a href="https://www.npmjs.com/package/mock-fs"><code>mock-fs</code></a>.</p>
+</li>
+</ol>
+<div class="unindented">
+<p>Please be careful doing this exercise.</p>
+</div>
+<h3 class="exercise">Loading functions</h3>
+<p>Write a function that reads a file containing single-argument functions like this:</p>
+<pre><code class="language-js">addOne: (x) =&gt; x + 1
+halve: (x) =&gt; x / 2
+array: (x) =&gt; Array(x).fill(0)
+</code></pre>
+<div class="unindented">
+<p>and returns an object containing callable functions.</p>
+</div>
+<h3 class="exercise">Registering functions</h3>
+<p>Write a function that loads one or more files containing function definitions like this:</p>
+<pre><code class="language-js">const double = (x) =&gt; {
+  return 2 * x
+}
+
+EXPORTS.append(double)
+</code></pre>
+<div class="unindented">
+<p>and returns a list containing all the loaded functions.</p>
+</div>
+<h3 class="exercise">Indenting inclusions</h3>
+<p>Modify the file inclusion system
+so that inclusions are indented by the same amount as the including comment.
+For example,
+if the including file is:</p>
+<pre><code class="language-js">const withLogging = (args) =&gt; {
+  /*+ logging call + logging.js +*/
+}
+
+withLogging
+</code></pre>
+<div class="unindented">
+<p>and the included file is:</p>
+</div>
+<pre><code class="language-js">console.log('first message')
+console.log('second message')
+</code></pre>
+<div class="unindented">
+<p>then the result will be:</p>
+</div>
+<pre><code class="language-js">const withLogging = (args) =&gt; {
+  console.log('first message')
+  console.log('second message')
+}
+
+withLogging
+</code></pre>
+<p>:::
+i.e., all lines of the inclusion will be indented to match the first.
+:::</p>
+<h3 class="exercise">Interpolating from subdirectories</h3>
+<p>Modify the file interpolator so that snippets can be included from sub-directories using relative paths.</p>
+<h3 class="exercise">Recursive search for inclusions</h3>
+<ol>
+<li>
+<p>Modify the file interpolator so that it searches recursively
+through all subdirectories of the directories on the search path
+to find inclusions.</p>
+</li>
+<li>
+<p>Explain why this is a bad idea.</p>
+</li>
+</ol>
+<h3 class="exercise">Defining variables</h3>
+<p>Modify the file inclusion system so that users can pass in a <code>Map</code> containing name-value pairs
+and have these interpolated into the text of the files being loaded.
+To interpolate a value,
+the included file must use <code>$$name$$</code>.</p>
+<h3 class="exercise">Specifying markers</h3>
+<p>Modify the file inclusion system so that the user can override the inclusion comment markers.
+For example, the user should be able to specify that <code>/*!</code> and <code>!*/</code> be used to mark inclusions.
+(This is often used in tutorials that need to show the inclusion markers without them being interpreted.)</p>
+<h3 class="exercise">Recursive inclusions</h3>
+<p>Modify the file interpolator to support recursive includes,
+i.e.,
+to handle inclusion markers in files that are being included.
+Be sure to check for the case of infinite includes.</p>
+<h3 class="exercise">Slicing files</h3>
+<p>Write a function that reads a JavaScript source file
+containing specially-formatted comments like the ones shown below
+and extracts the indicated section.</p>
+<pre><code class="language-js">const toBeLeftOut = (args) =&gt; {
+  console.log('this should not appear')
+}
+
+// &lt;keepThis&gt;
+const toBeKept = (args) =&gt; {
+  console.log('only this function should appear')
+}
+// &lt;/keepThis&gt;
+</code></pre>
+<p>Users should be able to specify any tag they want,
+and if that tag occurs multiple times,
+all of the sections marked with that tag should be kept.
+(This is the approach we took for this book instead of file interpolation.)</p>
 </main>
 <footer>
 <div class="row">

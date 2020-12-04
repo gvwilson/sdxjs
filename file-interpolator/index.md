@@ -1,17 +1,21 @@
 ---
 ---
 
--   Our files are getting too long to show in one block
--   Write a tool that a text file with inclusion markers and turns it into loaded code
+-   Many of our examples are too long to show in one block of code
+-   Experiment: write a tool that loads a source file with inclusion markers and then loads and interpolates the inclusions
 -   Source file has specially-formatted comments containing two fields:
     -   The text to put in the displayed version
     -   The file to include when loading
 
 <%- include('/_inc/file.html', {file: 'interpolation-example.js'}) %>
 
+-   Spoiler: we got this to work, then used a different approach that extracted marked sections from a regular JS file
+    -   The stumbling block was that code-checking tools like [ESLint][eslint] didn't understand our inclusions
+    -   But there are still lessons in how we built it
+
 ## How can we evaluate JavaScript dynamically?
 
--   We want to load this dynamically just like `require` for running
+-   We want to load a file dynamically just like `require` does
 -   But display the comments in our web/print versions rather than the interpolated code
 -   Lifecycle of a JavaScript program
     -   Read text
@@ -55,7 +59,7 @@
 
 <%- include('/_inc/file.html', {file: 'to-be-loaded.out'}) %>
 
--   But if we read the file and `eval` the text after defining `Seen`, it does what we want
+-   But if we read the file and `eval` the text *after* defining `Seen`, it does what we want
 
 <%- include('/_inc/multi.html', {pat: 'does-the-loading.*', fill: 'js sh out'}) %>
 
@@ -156,3 +160,5 @@
     -   Not really: standard style-checking tools complain about fragments
     -   And we'd have to modify our page template system to show things correctly
     -   No tool exists in isolation
+
+<%- include('/_inc/problems.html') %>
