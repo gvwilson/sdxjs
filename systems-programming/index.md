@@ -30,10 +30,17 @@
 
 In 2015, a new version of JavaScript called ES6 introduced the keyword `import` for importing modules.
 It improves on `require` in several ways, but Node still uses `require` by default.
-We can change our settings to use `import` instead,
-but even if we do,
-Node prints a warning message each time we run a program.
-We have therefore decided to stick to `require` in this book.
+To tell it to use `import`,
+we have added the line:
+
+```
+  "type": "module"
+```
+
+::: unindented
+at the top level of `package.json`.
+:::
+
 :::
 
 -   Use the [`fs`][node-fs] library ("fs" is short for "<g key="filesystem">filesystem</g>")
@@ -42,6 +49,11 @@ We have therefore decided to stick to `require` in this book.
     -   `process.argv[0]` is the name of the program used to run our code (in this case `node`)
     -   `process.argv[1]` is the name of our program (in this case `list-dir-wrong.js`)
     -   `process.argv[2]` is the first argument after the name of our program
+
+::: fixme
+Diagram showing process.argv
+:::
+
 -   `fs.readdir` is supposed to return an array of strings (the names of the things in the directory)
 -   Use `for (const name of results)` to loop over the *contents* of that array
     -   `const name` means "`name` is unchangeable inside the loop"
@@ -95,14 +107,22 @@ diagram showing callbacks
     8.  Filesystem operation finishes
     9.  Our callback function runs and prints its output
 
+::: fixme
+Diagram of execution order
+:::
+
 ## What are anonymous functions?
 
 -   More idiomatic to define the callback as an <g key="anonymous_function">anonymous function</g> where it's used
     -   Most callbacks are only used in one place, so there's no need to give them names
     -   Makes it easier to see what's going to happen when the operation completes
-    -   But takes some getting used to, since the order of execution is now very different from the order of reading.
+    -   But the order of execution is now very different from the order of reading
 
 <%- include('/_inc/file.html', {file: 'list-dir-function-anonymous.js'}) %>
+
+::: fixme
+Diagram of execution order
+:::
 
 ## How can we select a set of files?
 
@@ -120,6 +140,11 @@ diagram showing callbacks
     -   The `*.*` means "any characters followed by '.' followed by any characters"
     -   Names that *don't* match `*.*` won't be included
     -   And by default, names that start with `.` (like `.gitignore`) aren't included
+
+::: fixme
+Diagram of globbing
+:::
+
 -   Works, but we probably don't want to copy editor backup files ending with `~`
 -   We can get the list and then <g key="filter">filter</g> those out
 
@@ -129,7 +154,7 @@ diagram showing callbacks
     -   The test is specified as a callback function called once for each item that returns a <g key="boolean">Boolean</g>
 
 ::: fixme
-diagram showing Array.filter
+Diagram showing Array.filter
 :::
 
 -   We can make this more idiomatic by:
@@ -148,8 +173,8 @@ diagram showing Array.filter
 -   Notice that we don't quote the key in this object
     -   The keys in objects are almost always strings
     -   So if that string is simple enough that it won't confuse the parser, we don't need to put quotes around it
-    -   "Simple enough" means "only contains letters, digits, and the underscore"
-    -   Or equivalently "looks like it could be a variable name"
+    -   "Simple enough" means "looks like it could be a variable name"
+    -   Or equivalently "only contains letters, digits, and the underscore"
 
 ::: callout
 ### No one knows everything
@@ -190,7 +215,7 @@ This shows:
     -   Only works if both source and destination are given on the command line, so we should check that
 
 ::: fixme
-diagram showing destructuring assignment
+Diagram showing destructuring assignment
 :::
 
 -   But this only works if the destination directory already exists
@@ -216,7 +241,7 @@ diagram showing destructuring assignment
 -   Trace this for two directories each containing one file
 
 ::: fixme
-diagram showing three levels of callback
+Diagram showing three levels of callback
 :::
 
 -   It *almost* works
