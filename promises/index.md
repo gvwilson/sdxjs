@@ -23,7 +23,7 @@
     -   Second is the delay
 
 ::: fixme
-diagram showing setTimeout
+Diagram showing setTimeout
 :::
 
 <%- include('/_inc/multi.html', {pat: 'callbacks-with-timeouts.*', fill: 'js out'}) %>
@@ -36,6 +36,10 @@ diagram showing setTimeout
 -   We can use this to build a generic <g key="non_blocking_execution">non-blocking function</g>
 
 <%- include('/_inc/multi.html', {pat: 'non-blocking.*', fill: 'js out'}) %>
+
+::: fixme
+Diagram showing three delays function calls
+:::
 
 -   Why bother?
     -   Because we may want to give something else a chance to run
@@ -60,7 +64,7 @@ diagram showing setTimeout
     -   This is where and how we handle the delayed execution.
 
 ::: fixme
-diagram showing how promises resolve
+Diagram showing how promises resolve
 :::
 
 -   `Pledge`'s <g key="constructor">constructor</g> requires a single function called `action`
@@ -90,7 +94,7 @@ diagram showing how promises resolve
 -   Why didn't this work?
     1.  We don't use `return` with pledges, we call `resolve` or `reject`
     2.  We haven't done anything that defers execution
--   Our original motivating example got this right…
+    -   Our original motivating example got this right
 -   A more complex example showing how to chain things
 
 <%- include('/_inc/multi.html', {pat: 'use-pledge-chained.*', fill: 'js out'}) %>
@@ -105,15 +109,19 @@ diagram showing how promises resolve
 
 <%- include('/_inc/multi.html', {pat: 'use-promise-chained.*', fill: 'js out'}) %>
 
--   It's almost the same, but the callbacks run after the main script finishes
+-   It's almost the same, but the callbacks run *after* the main script finishes
 -   Common pattern is to return another promise from inside `then`
     -   So the next `then` is called on the returned promise, not on the original promise
 
 <%- include('/_inc/multi.html', {pat: 'promise-example.*', fill: 'js out'}) %>
 
-1.  If we use a <g key="promisification">promisified</g> function from the library, we get a promise for free
-2.  If we want to plug in our own asynchronous functions, we need to create promises
-3.  If our code can run synchronously, just put it in `then`
+::: fixme
+Diagram showing chained promises
+:::
+
+-   If we use a <g key="promisification">promisified</g> function from the library, we get a promise for free
+-   If we want to plug in our own asynchronous functions, we need to create promises
+-   If our code can run synchronously, just put it in `then`
 
 ## How can we build tools with promises?
 
@@ -147,6 +155,10 @@ If we don't specify a character encoding,
 
 <%- include('/_inc/file.html', {file: 'count-lines-print-filenames.js'}) %>
 
+::: fixme
+Diagram showing temporary objects with named fields
+:::
+
 -   Works until we run into a directory whose name name matches `*.*`
     -   Which we do in `node_modules`
 -   Need to use a `stat` call to check if something is a file or not
@@ -179,6 +191,7 @@ If we don't specify a character encoding,
 
 -   Modify `main` to wait for things to complete
     -   Must still use `Promise.all` for collections of things
+    -   `async` and `await` hide promises until they don't
 
 <%- include('/_inc/slice.html', {file: 'count-lines-with-stat-async.js', tag: 'main'}) %>
 
