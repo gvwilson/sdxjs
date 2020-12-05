@@ -133,25 +133,11 @@ const fixFixmes = () => {
  */
 const fixPage = () => {
   const toRoot = getPathToRoot()
-  const xhr = new XMLHttpRequest()
-  xhr.open('GET', `${toRoot}/numbering.js`, true)
-  xhr.onload = function (e) {
-    if (xhr.readyState === 4) {
-      const numbering = JSON.parse(xhr.responseText)
-      fixBibCites(toRoot)
-      fixGlossaryRefs(toRoot)
-      fixPreBlocks()
-      fixCrossRefs(toRoot, numbering)
-      fixPreTitles()
-      fixFixmes()
-      buildToc()
-    }
-    else {
-      console.error(xhr.statusText)
-    }
-  }
-  xhr.onerror = function (e) {
-    console.error(xhr.statusText)
-  }
-  xhr.send(null)
+  fixBibCites(toRoot)
+  fixGlossaryRefs(toRoot)
+  fixPreBlocks()
+  fixCrossRefs(toRoot, NUMBERING)
+  fixPreTitles()
+  fixFixmes()
+  buildToc()
 }

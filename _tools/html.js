@@ -52,9 +52,12 @@ const main = () => {
   const glossary = buildGlossary(options)
   const linksText = buildLinks(options)
   const allFiles = buildFileInfo(options)
+  const numbering = buildNumbering(options)
   loadFiles(allFiles)
   rimraf.sync(options.outputDir)
-  allFiles.forEach(fileInfo => translateFile(options, fileInfo, glossary, linksText))
+  allFiles.forEach(
+    fileInfo => translate(options, fileInfo, glossary, linksText, numbering)
+  )
   finalize(options)
 }
 
@@ -165,8 +168,9 @@ const loadFiles = (allFiles) => {
  * @param {Object} fileInfo Information about file.
  * @param {Object} glossary Keys and terms.
  * @param {string} linksText Markdown-formatted links table.
+ * @param {Object} numbering Map slugs to numbers/letters.
  */
-const translateFile = (options, fileInfo, glossary, linksText) => {
+const translate = (options, fileInfo, glossary, linksText, numbering) => {
   // Context contains variables required by EJS.
   const context = {
     root: options.rootDir,
@@ -183,10 +187,11 @@ const translateFile = (options, fileInfo, glossary, linksText) => {
     page: fileInfo,
     glossary: glossary,
     glossRefs: glossRefs,
+    numbering: numbering,
     toRoot: toRoot(fileInfo.output),
     _codeClass,
     _exercise,
-    _glossary,
+    _numbering,
     _rawFile,
     _readErase,
     _readFile,
@@ -255,10 +260,11 @@ const _exercise = (render, root, chapter, exercise, which) => {
 }
 
 /**
- * Handle a request to include glossary terms.
+ * Include numbering.
+ * @param {Object} numbering Map slugs to numbers/letters.
  */
-const _glossary = (key) => {
-  return 'GLOSSARY' // FIXME
+const _numbering = (numbering) => {
+  return `const NUMBERING = ${JSON.stringify(numbering)}`
 }
 
 /**
@@ -364,7 +370,7 @@ const slugify = (text) => {
 }
 
 /**
- * Copy static files and save numbering data.
+ * Copy static files.
  * @param {Object} options Options.
  */
 const finalize = (options) => {
@@ -386,12 +392,6 @@ const finalize = (options) => {
     .map(pattern => glob.sync(pattern))
     .flat()
   copyFiles(options, sourceFiles)
-
-  // Numbering.
-  const numbering = buildNumbering(options)
-  fs.writeFileSync(path.join(options.outputDir, 'numbering.js'),
-    JSON.stringify(numbering, null, 2),
-    'utf-8')
 }
 
 /**
