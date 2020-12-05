@@ -1,6 +1,8 @@
 ---
 ---
 
+<%- include('/_inc/glossrefs.html') %>
+
 -   Goal: figure out which parts of our code have and haven't been tested
 -   Build a <g key="code_coverage">code coverage</g> tool modeled on [Istanbul][istanbul]
     -   Ours will keep track of which functions have(n't) been called

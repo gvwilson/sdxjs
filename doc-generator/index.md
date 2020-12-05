@@ -1,6 +1,8 @@
 ---
 ---
 
+<%- include('/_inc/glossrefs.html') %>
+
 -   Many programmers believe they're more likely to write documentation and keep it up to date
     if it's close to the code
 -   Tools that extract specially-formatted comments from code and turn them into documentation

@@ -1,6 +1,8 @@
 ---
 ---
 
+<%- include('/_inc/glossrefs.html') %>
+
 -   JavaScript was designed in a hurry 25 years ago to make pages interactive
     -   Nobody realized it would become one of the most popular programming languages in the world
     -   Which means it didn't include support for things that large programs need

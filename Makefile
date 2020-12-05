@@ -174,11 +174,12 @@ gloss.md: _gloss.yml _tools/gloss.js $(filter-out gloss.md,${MARKDOWN}) ${EXERCI
 	--output gloss.md \
 	--sources ${MARKDOWN} ${EXERCISES}
 
-docs/index.html: _tools/html.js _config.yml _links.yml ${MARKDOWN} ${STATIC}
+docs/index.html: _tools/html.js _config.yml _links.yml ${MARKDOWN} ${STATIC} ${INC}
 	_tools/html.js \
 	--rootDir . \
 	--outputDir docs \
 	--configFile _config.yml \
+	--glossFile gloss.md \
 	--linksFile _links.yml \
 	--replaceDir
 

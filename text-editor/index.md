@@ -1,6 +1,8 @@
 ---
 ---
 
+<%- include('/_inc/glossrefs.html') %>
+
 -   A terminal editor based on [Termit][termit] using [terminal-kit][terminal-kit]
 -   We are going to refactor an existing editor rather than writing something from scratch
     -   Means that we'll see the entire status bar right from the start

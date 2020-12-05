@@ -1,6 +1,8 @@
 ---
 ---
 
+<%- include('/_inc/glossrefs.html') %>
+
 -   JavaScript is an <g key="asynchronous">asynchronous</g> language
     -   Its designers didn't want browsers to freeze while waiting for data
     -   So any operation that might be slow is implemented as "describe what to do *later* when data is available"
@@ -31,16 +33,7 @@
 In 2015, a new version of JavaScript called ES6 introduced the keyword `import` for importing modules.
 It improves on `require` in several ways, but Node still uses `require` by default.
 To tell it to use `import`,
-we have added the line:
-
-```
-  "type": "module"
-```
-
-::: unindented
-at the top level of `package.json`.
-:::
-
+we have added `"type": "module"` at the top level of `package.json`.
 :::
 
 -   Use the [`fs`][node-fs] library ("fs" is short for "<g key="filesystem">filesystem</g>")

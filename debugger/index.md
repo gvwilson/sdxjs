@@ -1,6 +1,8 @@
 ---
 ---
 
+<%- include('/_inc/glossrefs.html') %>
+
 ## What is our starting point?
 
 -   Assume a parser…

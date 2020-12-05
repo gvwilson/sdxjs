@@ -1,6 +1,8 @@
 ---
 ---
 
+<%- include('/_inc/glossrefs.html') %>
+
 -   Goal: find and run unit tests and report their results
     -   Inspired by [Mocha][mocha] and [Jest][jest]
 -   Design:

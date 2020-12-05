@@ -1,6 +1,8 @@
 ---
 ---
 
+<%- include('/_inc/glossrefs.html') %>
+
 -   There's no point building software if you can't install it
 -   Inspired by [CTAN][ctan], most languages now have an online archive from which developers can download packages
     -   Package name

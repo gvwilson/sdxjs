@@ -1,6 +1,8 @@
 ---
 ---
 
+<%- include('/_inc/glossrefs.html') %>
+
 -   Please don't write parsers
     -   Languages that are comfortable for people to read are often very difficult for computers
     -   And the world really (really) doesn't need more data formats

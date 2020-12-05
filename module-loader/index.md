@@ -1,6 +1,8 @@
 ---
 ---
 
+<%- include('/_inc/glossrefs.html') %>
+
 -   <xref key="file-interpolator"></xref> showed how to use `eval` to load code dynamically
 -   We can use this to build our own version of `require`
     -   Take the name of a source file as an argument

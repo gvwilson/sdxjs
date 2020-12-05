@@ -1,6 +1,8 @@
 ---
 ---
 
+<%- include('/_inc/glossrefs.html') %>
+
 -   Goal: archiving files with an index that identifies each version so that we don't store redundant data
 -   The basis of [Git][git]
 

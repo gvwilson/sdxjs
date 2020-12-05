@@ -23,6 +23,7 @@ import dirname from './dirname.js'
  */
 const DEFAULTS = {
   configFile: 'config.yml',
+  glossFile: 'gloss.md',
   linksFile: 'links.yml',
   outputDir: 'docs',
   rootDir: '.'
@@ -48,11 +49,12 @@ const FOOTER = "<%- include('/_inc/foot.html') %>"
  */
 const main = () => {
   const options = getOptions()
+  const glossary = buildGlossary(options)
   const linksText = buildLinks(options)
   const allFiles = buildFileInfo(options)
   loadFiles(allFiles)
   rimraf.sync(options.outputDir)
-  allFiles.forEach(fileInfo => translateFile(options, fileInfo, linksText))
+  allFiles.forEach(fileInfo => translateFile(options, fileInfo, glossary, linksText))
   finalize(options)
 }
 
@@ -63,6 +65,7 @@ const main = () => {
 const getOptions = () => {
   const parser = new argparse.ArgumentParser()
   parser.add_argument('--configFile', { default: DEFAULTS.configFile })
+  parser.add_argument('--glossFile', { default: DEFAULTS.glossFile })
   parser.add_argument('--linksFile', { default: DEFAULTS.linksFile })
   parser.add_argument('--outputDir', { default: DEFAULTS.outputDir })
   parser.add_argument('--rootDir', { default: DEFAULTS.rootDir })
@@ -74,6 +77,8 @@ const getOptions = () => {
   const fromFile = yaml.safeLoad(fs.readFileSync(fromArgs.configFile, 'utf-8'))
   const options = { ...fromArgs, ...fromFile }
 
+  assert(options.glossFile,
+    'Need a glossary file')
   assert(options.linksFile,
     'Need a links file')
   assert(options.outputDir,
@@ -82,6 +87,22 @@ const getOptions = () => {
     'Need a root directory')
 
   return options
+}
+
+/**
+ * Build a glossary for filling in words used.
+ * @param {Object} options Options.
+ * @returns {Object} Glossary keys mapped to strings.
+ */
+const buildGlossary = (options) => {
+  const text = fs.readFileSync(options.glossFile, 'utf-8')
+  const pat = /<dt\s+id="(.+?)"\s+class="glossary">(.+?)<\/dt>/g
+  const matches = [...text.matchAll(pat)]
+  const result = {}
+  matches.forEach(m => {
+    result[m[1]] = m[2]
+  })
+  return result
 }
 
 /**
@@ -142,23 +163,30 @@ const loadFiles = (allFiles) => {
  * Translate and save each file.
  * @param {Object} options Program options.
  * @param {Object} fileInfo Information about file.
+ * @param {Object} glossary Keys and terms.
  * @param {string} linksText Markdown-formatted links table.
  */
-const translateFile = (options, fileInfo, linksText) => {
+const translateFile = (options, fileInfo, glossary, linksText) => {
   // Context contains variables required by EJS.
   const context = {
     root: options.rootDir,
     filename: fileInfo.source
   }
 
+  // Get the glossary entries that are referenced in this page.
+  const glossRefs = getGlossaryReferences(fileInfo.content)
+
   // Settings contains "local" variables for rendering.
   const settings = {
     ...context,
     site: options,
     page: fileInfo,
+    glossary: glossary,
+    glossRefs: glossRefs,
     toRoot: toRoot(fileInfo.output),
     _codeClass,
     _exercise,
+    _glossary,
     _rawFile,
     _readErase,
     _readFile,
@@ -192,6 +220,17 @@ const translateFile = (options, fileInfo, linksText) => {
 }
 
 /**
+ * Get all references to glossary terms.
+ * @param {string} text Text to search in.
+ * @returns {Array<string>} Terms referenced (by key).
+ */
+const getGlossaryReferences = (text) => {
+  const pat = /<g\s+key="(.+?)">/g
+  const matches = [...text.matchAll(pat)]
+  return matches.map(m => m[1])
+}
+
+/**
  * Create class attribute of code inclusion.
  * @param {string} filename Name of file.
  * @returns {string} Class attribute.
@@ -213,6 +252,13 @@ const _exercise = (render, root, chapter, exercise, which) => {
   const path = `${root}/${chapter.slug}/${exercise.slug}/${which}.md`
   const contents = render(fs.readFileSync(path, 'utf-8'))
   return `${title}\n\n${contents}\n`
+}
+
+/**
+ * Handle a request to include glossary terms.
+ */
+const _glossary = (key) => {
+  return 'GLOSSARY' // FIXME
 }
 
 /**

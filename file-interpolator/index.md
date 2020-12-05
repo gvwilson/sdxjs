@@ -1,6 +1,8 @@
 ---
 ---
 
+<%- include('/_inc/glossrefs.html') %>
+
 -   Many of our examples are too long to show in one block of code
 -   Experiment: write a tool that loads a source file with inclusion markers and then loads and interpolates the inclusions
 -   Source file has specially-formatted comments containing two fields:

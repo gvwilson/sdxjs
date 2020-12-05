@@ -1,6 +1,8 @@
 ---
 ---
 
+<%- include('/_inc/glossrefs.html') %>
+
 -   Callbacks work but are hard to read and debug
     -   Which means they only "work" in a limited sense
 -   Promises were added to JavaScript in 2015
