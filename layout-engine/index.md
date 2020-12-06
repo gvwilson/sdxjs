@@ -1,8 +1,6 @@
 ---
 ---
 
-<%- include('/_inc/glossrefs.html') %>
-
 A pure-text layout engine showing how browsers decide what to put where,
 based on [Matt Brubeck's tutorial][browser-tutorial].
 

@@ -1,8 +1,6 @@
 ---
 ---
 
-<%- include('/_inc/glossrefs.html') %>
-
 -   Callbacks work but are hard to read and debug
     -   Which means they only "work" in a limited sense
 -   Promises were added to JavaScript in 2015
@@ -216,5 +214,3 @@ Diagram showing temporary objects with named fields
         the `Error` is automatically wrapped in a promise so we can use `.then` and `.catch`
 
 <%- include('/_inc/multi.html', {pat: 'assign-immediately.*', fill: 'js out'}) %>
-
-<%- include('/_inc/problems.html') %>

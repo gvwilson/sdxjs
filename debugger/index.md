@@ -1,8 +1,6 @@
 ---
 ---
 
-<%- include('/_inc/glossrefs.html') %>
-
 ## What is our starting point?
 
 -   Assume a parser…
@@ -178,5 +176,3 @@
 -   Run it
 
 <%- include('/_inc/multi.html', {pat: 'test-exit.*', fill: 'sh out'}) %>
-
-<%- include('/_inc/problems.html') %>

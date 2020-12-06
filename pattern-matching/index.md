@@ -1,8 +1,6 @@
 ---
 ---
 
-<%- include('/_inc/glossrefs.html') %>
-
 -   <g key="regular_expression">Regular expressions</g> are patterns for matching text
     -   Used in everything from shell commands and text editors to web scrapers
 -   Inspired pattern matching for many other kinds of data,
@@ -164,5 +162,3 @@ diagram showing repetition in regex
 -   That extensibility comes from the lack of centralized decision-making
     -   The <g key="chain_of_responsibility_pattern">Chain of Responsibility</g> design pattern
     -   "Do my part and ask something else to handle the rest"
-
-<%- include('/_inc/problems.html') %>

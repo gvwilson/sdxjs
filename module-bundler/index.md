@@ -1,8 +1,6 @@
 ---
 ---
 
-<%- include('/_inc/glossrefs.html') %>
-
 -   JavaScript was designed in a hurry 25 years ago to make pages interactive
     -   Nobody realized it would become one of the most popular programming languages in the world
     -   Which means it didn't include support for things that large programs need
@@ -181,5 +179,3 @@ Diagram of functions returning functions returning functions
 -   And for the full case (`main` plus four other files)
 
 <%- include('/_inc/file.html', {file: 'test-bundle-full.out'}) %>
-
-<%- include('/_inc/problems.html') %>

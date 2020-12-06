@@ -1,8 +1,6 @@
 ---
 ---
 
-<%- include('/_inc/glossrefs.html') %>
-
 -   Goal: check that source code conforms to style guidelines.
     -   Tools like this are called <g key="linter">linters</g> in honor of an early one for C named `lint`
         because it looked for fluff in source code
@@ -142,5 +140,3 @@
     like the virtual machine we will build in <xref key="virtual-machine"></xref>
 
 <%- include('/_inc/raw.html', {file: 'find-debugger-methods.raw.out'}) %>
-
-<%- include('/_inc/problems.html') %>

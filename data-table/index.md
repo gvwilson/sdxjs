@@ -1,8 +1,6 @@
 ---
 ---
 
-<%- include('/_inc/glossrefs.html') %>
-
 -   Many applications work with data tables (sometimes called <g key="data_frame">data frames</g>)
     -   Examples include R's [tidyverse][tidyverse] and [DataForge][data-forge]
     -   Fixed set of named columns, each holding a specific type of data
@@ -130,5 +128,3 @@ diagram of row-major vs. column-major
 -   But doesn't save as much space as expected
     -   Our numbers are 8 bytes long
     -   Longest string representation is 5 characters (10 bytes)
-
-<%- include('/_inc/problems.html') %>

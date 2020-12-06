@@ -1,8 +1,6 @@
 ---
 ---
 
-<%- include('/_inc/glossrefs.html') %>
-
 -   JavaScript is an <g key="asynchronous">asynchronous</g> language
     -   Its designers didn't want browsers to freeze while waiting for data
     -   So any operation that might be slow is implemented as "describe what to do *later* when data is available"
@@ -250,5 +248,3 @@ Diagram showing three levels of callback
 -   This works…
 -   …but four levels of asynchronous callbacks is hard to understand
 -   We need a better mechanism
-
-<%- include('/_inc/problems.html') %>

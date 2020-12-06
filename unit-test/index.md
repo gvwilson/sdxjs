@@ -1,8 +1,6 @@
 ---
 ---
 
-<%- include('/_inc/glossrefs.html') %>
-
 -   Goal: find and run unit tests and report their results
     -   Inspired by [Mocha][mocha] and [Jest][jest]
 -   Design:
@@ -118,5 +116,3 @@ The double dash is a common Unix convention for signalling the end of parameters
     -   And then gets a report from it
 -   Note that `1/0` is a failure rather than an error
     -   JavaScript thinks the result is `Infinity` rather than an exception
-
-<%- include('/_inc/problems.html') %>

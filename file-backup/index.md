@@ -1,8 +1,6 @@
 ---
 ---
 
-<%- include('/_inc/glossrefs.html') %>
-
 -   Goal: archiving files with an index that identifies each version so that we don't store redundant data
 -   The basis of [Git][git]
 
@@ -124,5 +122,3 @@ and quickly get into "if every atom in the universe was a file there still would
 <%- include('/_inc/slice.html', {file: 'test/test-backup.js', tag: 'tests'}) %>
 
 <%- include('/_inc/file.html', {file: 'test-backup.out'}) %>
-
-<%- include('/_inc/problems.html') %>

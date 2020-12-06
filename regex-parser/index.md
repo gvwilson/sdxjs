@@ -1,8 +1,6 @@
 ---
 ---
 
-<%- include('/_inc/glossrefs.html') %>
-
 -   Please don't write parsers
     -   Languages that are comfortable for people to read are often very difficult for computers
     -   And the world really (really) doesn't need more data formats
@@ -113,5 +111,3 @@
     we should switch to the [shunting-yard algorithm][shunting-yard-algorithm]
 -   But as we implied at the start,
     if our design requires us to write a parser we should try to come up with a better design
-
-<%- include('/_inc/problems.html') %>

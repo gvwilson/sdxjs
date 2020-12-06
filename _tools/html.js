@@ -147,6 +147,14 @@ const buildFileInfo = (options) => {
     fileInfo.next = (i < numbered.length - 1) ? numbered[i + 1] : null
   })
 
+  // Mark chapters.
+  allFiles.forEach(fileInfo => {
+    fileInfo.isChapter = false
+  })
+  options.chapters.forEach(fileInfo => {
+    fileInfo.isChapter = true
+  })
+
   return allFiles
 }
 

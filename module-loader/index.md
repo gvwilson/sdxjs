@@ -1,8 +1,6 @@
 ---
 ---
 
-<%- include('/_inc/glossrefs.html') %>
-
 -   <xref key="file-interpolator"></xref> showed how to use `eval` to load code dynamically
 -   We can use this to build our own version of `require`
     -   Take the name of a source file as an argument
@@ -145,5 +143,3 @@ or create an alias and call `require` through that.
 
 <%- include('/_inc/file.html', {file: 'large-needless.js'}) %>
 <%- include('/_inc/multi.html', {pat: 'test-need-large-needless.*', fill: 'js out'}) %>
-
-<%- include('/_inc/problems.html') %>

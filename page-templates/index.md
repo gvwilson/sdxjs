@@ -1,8 +1,6 @@
 ---
 ---
 
-<%- include('/_inc/glossrefs.html') %>
-
 -   Goal: expand HTML templates to create web pages.
     -   Option 1: put JavaScript directly in the page like [EJS][ejs]
     -   Option 2: use a mini-language like [Jekyll][jekyll]
@@ -119,5 +117,3 @@
 <%- include('/_inc/html.html', {file: 'input-loop.html'}) %>
 <%- include('/_inc/html.html', {file: 'output-loop.html'}) %>
 <%- include('/_inc/page.html', {file: 'output-loop.html'}) %>
-
-<%- include('/_inc/problems.html') %>

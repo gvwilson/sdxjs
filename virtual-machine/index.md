@@ -1,8 +1,6 @@
 ---
 ---
 
-<%- include('/_inc/glossrefs.html') %>
-
 -   Computers don't execute JavaScript directly
     -   Each processor has its own <g key="instruction_set">instruction set</g>
     -   A <g key="compiler">compiler</g> translates high-level language into those instructions
@@ -176,5 +174,3 @@ Diagram of virtual machine architecture
 
 <%- include('/_inc/file.html', {file: 'fill-array.as'}) %>
 <%- include('/_inc/file.html', {file: 'fill-array-out.out'}) %>
-
-<%- include('/_inc/problems.html') %>

@@ -1,8 +1,6 @@
 ---
 ---
 
-<%- include('/_inc/glossrefs.html') %>
-
 -   Programs in <g key="compiled_language">compiled languages</g> like C and Java have to be built before they can be run
     -   Translate each module into machine instructions
     -   <g key="link">Link</g> those modules to each other and to libraries
@@ -184,5 +182,3 @@
     to include those extra steps and provide do-nothing implementations
     -   After enough examples, the template settles down
     -   We learn from our code as we write it
-
-<%- include('/_inc/problems.html') %>

@@ -1,8 +1,6 @@
 ---
 ---
 
-<%- include('/_inc/glossrefs.html') %>
-
 -   There's no point building software if you can't install it
 -   Inspired by [CTAN][ctan], most languages now have an online archive from which developers can download packages
     -   Package name
@@ -193,5 +191,3 @@ Diagram of 3-dimensional space of allowable versions.
     -   None are guaranteed to give better performance in every case
     -   But most will give better performance in most cases
     -   And gains multiply: 2/3 of the work in each of two layers is less than half the total original work
-
-<%- include('/_inc/problems.html') %>
