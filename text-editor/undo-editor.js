@@ -1,92 +1,302 @@
-import InitEditor from './init-editor.js'
+import CoreEditor from './core-operations.js'
 
-class UndoEditor extends InitEditor {
-  constructor (args) {
-    super(args)
+export default class UndoEditor extends CoreEditor {
+  // <constructor>
+  constructor () {
+    super()
+    this.bindings = this.createDefaultBindings()
     this.stack = []
   }
+  // </constructor>
 
+  // <onKey>
   onKey (key, matches, data) {
-    const op = this.bindings.has(key)
-      ? this.bindings.get(key)
-      : this.defaultBinding
-    const save = op.run(this, key)
-    if (save !== null) {
-      this.stack.push([op, save])
+    if (this.disableUserInteraction && key !== 'CTRL_C') {
+      return
     }
+
+    let op = null
+    if (key in this.bindings) {
+      op = new this.bindings[key](this, key, matches, data)
+    } else if (data.isCharacter) {
+      op = new KeyCharacter(this, key, matches, data)
+    }
+
+    if (op !== null) {
+      op.run()
+      if (op.save) {
+        this.stack.push(op)
+      } else if (op.clear) {
+        this.stack = []
+      }
+    }
+  }
+  // </onKey>
+
+  createDefaultBindings () {
+    return {
+      BACKSPACE: KeyBackspace,
+      CTRL_A: KeySaveAs,
+      CTRL_C: KeyExit,
+      CTRL_K: KeyCutLine,
+      CTRL_O: KeyOpen,
+      CTRL_S: KeySaveFile,
+      CTRL_U: KeyPasteLine,
+      CTRL_X: KeySaveAndExit,
+      CTRL_Y: KeyUndo,
+      DELETE: KeyDeleteChar,
+      DOWN: KeyDown,
+      END: KeyEndOfLine,
+      ENTER: KeyNewLine,
+      HOME: KeyStartOfLine,
+      LEFT: KeyLeft,
+      PAGE_DOWN: KeyPgDown,
+      PAGE_UP: KeyPgUp,
+      RIGHT: KeyRight,
+      TAB: KeyTab,
+      UP: KeyUp
+    }
+  }
+}
+
+// <KeyBase>
+class KeyBase {
+  constructor (editor, key, matches, data) {
+    this.editor = editor
+    this.key = key
+    this.matches = matches
+    this.data = data
+    this.configure()
+  }
+
+  configure () {
+    this.save = false
+    this.clear = true
+  }
+
+  run () {
+    throw new Error('run not implemented')
   }
 
   undo () {
-    if (this.stack.length === 0) {
-      return
-    }
-    const [op, key] = this.stack.pop()
-    op.undo(this, key)
+    throw new Error('undo not implemented')
+  }
+}
+// </KeyBase>
+
+// <KeyCharacter>
+class KeyCharacter extends KeyBase {
+  configure () {
+    this.save = true
   }
 
-  // <operations>
-  insert (key) {
-    this.textBuffer.insert(key)
-    this.draw()
+  run () {
+    this.editor.onCharacter(this.key)
   }
 
-  del () {
-    const cx = this.textBuffer.cx
-    const cy = this.textBuffer.cy
-    let char = null
-    if (cx === 0) {
-      if (cy > 0) {
-        const last = this.textBuffer.buffer[cy - 1].length - 1
-        char = this.textBuffer.buffer[cy - 1][last].char
-      }
-    } else {
-      char = this.textBuffer.buffer[cy][cx - 1].char
-    }
-
-    this.textBuffer.backDelete(1)
-    this.draw()
-    return char
+  undo () {
+    this.editor.backspace()
   }
+}
+// </KeyCharacter>
 
-  up () {
-    this.textBuffer.moveUp()
-    if (this.textBuffer.cx > this.textBuffer.buffer[this.textBuffer.cy].length - 1) {
-      this.textBuffer.moveToEndOfLine()
-    }
-    this.drawCursor()
+class KeyBackspace extends KeyBase {
+  run () {
+    this.editor.backspace()
   }
-
-  down () {
-    if (this.textBuffer.getContentSize().height - 1 > this.textBuffer.cy) {
-      this.textBuffer.moveDown()
-      if (this.textBuffer.cx > this.textBuffer.buffer[this.textBuffer.cy].length - 1) {
-        this.textBuffer.moveToEndOfLine()
-      }
-      this.drawCursor()
-    }
-  }
-
-  left () {
-    this.textBuffer.moveBackward()
-    this.drawCursor()
-  }
-
-  right () {
-    if (this.textBuffer.cx < this.getLine().length) {
-      this.textBuffer.moveRight()
-    } else if (this.textBuffer.getContentSize().height - 1 > this.textBuffer.cy) {
-      this.textBuffer.moveTo(0, this.textBuffer.cy + 1)
-    }
-    this.drawCursor()
-  }
-
-  getLine () {
-    return this.textBuffer.buffer[this.textBuffer.cy].reduce((acc, curr) => {
-      acc += curr.char.trim()
-      return acc
-    }, '')
-  }
-  // </operations>
 }
 
-export default UndoEditor
+class KeySaveAs extends KeyBase {
+  configure () {
+    this.clear = true
+  }
+
+  run () {
+    this.editor.saveAs()
+  }
+}
+
+// <KeyExit>
+class KeyExit extends KeyBase {
+  configure () {
+    this.clear = true
+  }
+
+  run () {
+    this.editor.exit()
+  }
+}
+// </KeyExit>
+
+class KeyCutLine extends KeyBase {
+  run () {
+    this.editor.cutLine()
+  }
+}
+
+class KeyOpen extends KeyBase {
+  configure () {
+    this.clear = true
+  }
+
+  run () {
+    this.editor.open()
+  }
+}
+
+class KeySaveFile extends KeyBase {
+  run () {
+    this.editor.saveFile()
+  }
+}
+
+class KeyPasteLine extends KeyBase {
+  run () {
+    this.editor.pasteLine()
+  }
+}
+
+class KeyUndo extends KeyBase {
+  run () {
+    if (this.editor.stack.length > 0) {
+      const op = this.editor.stack.pop()
+      op.undo()
+    }
+  }
+}
+
+class KeySaveAndExit extends KeyBase {
+  run () {
+    this.editor.saveAndExit()
+  }
+}
+
+class KeyDeleteChar extends KeyBase {
+  run () {
+    this.editor.deleteChar()
+  }
+}
+
+class KeyDown extends KeyBase {
+  configure () {
+    this.save = true
+  }
+
+  run () {
+    this.editor.down()
+  }
+
+  undo () {
+    this.editor.up()
+  }
+}
+
+class KeyEndOfLine extends KeyBase {
+  run () {
+    this.editor.endOfLine()
+  }
+}
+
+class KeyNewLine extends KeyBase {
+  configure () {
+    this.save = true
+  }
+
+  run () {
+    this.editor.newLine()
+  }
+
+  undo () {
+    this.editor.backspace()
+  }
+}
+
+class KeyStartOfLine extends KeyBase {
+  run () {
+    this.editor.startOfLine()
+  }
+}
+
+class KeyLeft extends KeyBase {
+  configure () {
+    this.save = true
+  }
+
+  run () {
+    this.editor.left()
+  }
+
+  undo () {
+    this.editor.right()
+  }
+}
+
+class KeyPgDown extends KeyBase {
+  configure () {
+    this.save = true
+  }
+
+  run () {
+    this.editor.pgDown()
+  }
+
+  undo () {
+    this.editor.pgUp()
+  }
+}
+
+class KeyPgUp extends KeyBase {
+  configure () {
+    this.save = true
+  }
+
+  run () {
+    this.editor.pgUp()
+  }
+
+  undo () {
+    this.editor.pgDown()
+  }
+}
+
+class KeyRight extends KeyBase {
+  configure () {
+    this.save = true
+  }
+
+  run () {
+    this.editor.right()
+  }
+
+  undo () {
+    this.editor.left()
+  }
+}
+
+class KeyTab extends KeyBase {
+  configure () {
+    this.save = true
+  }
+
+  run () {
+    this.editor.tab()
+  }
+
+  undo () {
+    this.editor.deleteChar()
+  }
+}
+
+class KeyUp extends KeyBase {
+  configure () {
+    this.save = true
+  }
+
+  run () {
+    this.editor.up()
+  }
+
+  undo () {
+    this.editor.down()
+  }
+}

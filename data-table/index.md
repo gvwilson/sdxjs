@@ -28,26 +28,26 @@ diagram of row-major vs. column-major
 -   Build a row-major table with some number of columns
     -   Values are 0, 1, 2, 0, 1, 2, etc.
 
-<%- include('/_inc/slice.html', {file: 'build.js', tag: 'build-rows'}) %>
+<%- include('/_inc/keep.html', {file: 'build.js', key: 'build-rows'}) %>
 
 -   Add filter with a callback function to select rows
     -   Should be fast, since we are recycling the rows
 -   And select with a list of column labels
     -   Should be slow, since we are constructing one new object per row
 
-<%- include('/_inc/slice.html', {file: 'table-performance.js', tag: 'operate-rows'}) %>
+<%- include('/_inc/keep.html', {file: 'table-performance.js', key: 'operate-rows'}) %>
 
 -   Now do the same for column-major storage
 -   Build
 
-<%- include('/_inc/slice.html', {file: 'build.js', tag: 'build-cols'}) %>
+<%- include('/_inc/keep.html', {file: 'build.js', key: 'build-cols'}) %>
 
 -   Operate
     -   Select should be fast, since we are just aliasing some columns
     -   Filter should be slow, since we are constructing multiple new arrays
     -   The parameters to the two functions are different from those to the row-major functions
 
-<%- include('/_inc/slice.html', {file: 'table-performance.js', tag: 'operate-cols'}) %>
+<%- include('/_inc/keep.html', {file: 'table-performance.js', key: 'operate-cols'}) %>
 
 -   Build a <g key="test_harness">test harness</g> to run both variants for data tables of some size
     -   Arbitrarily decide to keep half of the columns and one-third of the rows
@@ -55,14 +55,14 @@ diagram of row-major vs. column-major
 -   Also calculate relative performance based on ratio of filters to selects
     -   Should also be based on data from whatever application we're trying to support
 
-<%- include('/_inc/slice.html', {file: 'table-performance.js', tag: 'main'}) %>
+<%- include('/_inc/keep.html', {file: 'table-performance.js', key: 'main'}) %>
 
 -   Actual measurement functions
     -   Use [microtime][microtime] to get micro-second level timing (since JavaScript's `Date` is only millisecond-level)
     -   Use [object-sizeof][object-sizeof] to estimate memory
     -   Also call `process.memoryUsage()` and look at `heapUsed`, but that value may be affected by garbage collection
 
-<%- include('/_inc/slice.html', {file: 'table-performance.js', tag: 'measure'}) %>
+<%- include('/_inc/keep.html', {file: 'table-performance.js', key: 'measure'}) %>
 
 -   Run for a table 100 rows by 3 columns with a 3-1 ratio of filter to select
 
@@ -100,7 +100,7 @@ diagram of row-major vs. column-major
     -   Save the column headers once
     -   Copy the data values into an array of arrays and save that
 
-<%- include('/_inc/slice.html', {file: 'packed-rows.js', tag: 'packed'}) %>
+<%- include('/_inc/keep.html', {file: 'packed-rows.js', key: 'packed'}) %>
 <%- include('/_inc/file.html', {file: 'packed-rows-10000-30.out'}) %>
 
 -   Surprising that packing the rows takes *less* time
@@ -121,7 +121,7 @@ diagram of row-major vs. column-major
     -   A string with the labels joined by newlines (we assume that labels can't contain newlines)
     -   The numbers
 
-<%- include('/_inc/slice.html', {file: 'packed-cols.js', tag: 'binary'}) %>
+<%- include('/_inc/keep.html', {file: 'packed-cols.js', key: 'binary'}) %>
 <%- include('/_inc/file.html', {file: 'packed-cols-10000-30.out'}) %>
 
 -   Saves time because copying bits is faster than turning numbers into characters

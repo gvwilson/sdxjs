@@ -115,11 +115,11 @@ Diagram of 3-dimensional space of allowable versions.
 
 -   Check if a configuration (specific versions of all packages) is compatible with a manifest
 
-<%- include('/_inc/erase.html', {file: 'sweep.js', tag: 'allows'}) %>
+<%- include('/_inc/erase.html', {file: 'sweep.js', key: 'allows'}) %>
 
 -   Simplest way to find configuration is to sweep over all possibilities
 
-<%- include('/_inc/slice.html', {file: 'sweep.js', tag: 'allows'}) %>
+<%- include('/_inc/keep.html', {file: 'sweep.js', key: 'allows'}) %>
 
 -   Run this on the short example
 
@@ -162,11 +162,11 @@ Diagram of 3-dimensional space of allowable versions.
 -   Collect possible solutions and display them at the end
 -   Only recurse if everything looks good so far
 
-<%- include('/_inc/erase.html', {file: 'prune.js', tag: 'compatible'}) %>
+<%- include('/_inc/erase.html', {file: 'prune.js', key: 'compatible'}) %>
 
 -   Check to see if adding something will still be consistent
 
-<%- include('/_inc/slice.html', {file: 'prune.js', tag: 'compatible'}) %>
+<%- include('/_inc/keep.html', {file: 'prune.js', key: 'compatible'}) %>
 
 -   Gets us from 18 complete solutions to:
     -   11 complete

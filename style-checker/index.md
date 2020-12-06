@@ -68,11 +68,11 @@
     -   But easier to understand and extend
 -   The class itself
 
-<%- include('/_inc/slice.html', {file: 'walker-class.js', tag: 'walker'}) %>
+<%- include('/_inc/keep.html', {file: 'walker-class.js', key: 'walker'}) %>
 
 -   What we need to run a test
 
-<%- include('/_inc/erase.html', {file: 'walker-class.js', tag: 'walker'}) %>
+<%- include('/_inc/erase.html', {file: 'walker-class.js', key: 'walker'}) %>
 
 -   Output
 
@@ -117,11 +117,11 @@
 -   So build a tool to find that out
 -   Find the ancestors of a class
 
-<%- include('/_inc/erase.html', {file: 'find-ancestors.js', tag: 'skip'}) %>
+<%- include('/_inc/erase.html', {file: 'find-ancestors.js', key: 'skip'}) %>
 
 -   Finding class definitions is a straightforward extension of what we have already done
 
-<%- include('/_inc/slice.html', {file: 'find-ancestors.js', tag: 'findClassDef'}) %>
+<%- include('/_inc/keep.html', {file: 'find-ancestors.js', key: 'findClassDef'}) %>
 
 -   Start with the lowest of these three files
 

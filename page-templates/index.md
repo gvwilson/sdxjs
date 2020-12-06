@@ -60,11 +60,11 @@
     -   Easier to expand in future
 -   Overall structure is straightforward
 
-<%- include('/_inc/erase.html', {file: 'expander.js', tag: 'body'}) %>
+<%- include('/_inc/erase.html', {file: 'expander.js', key: 'body'}) %>
 
 -   Methods that do the work
 
-<%- include('/_inc/slice.html', {file: 'expander.js', tag: 'body'}) %>
+<%- include('/_inc/keep.html', {file: 'expander.js', key: 'body'}) %>
 
 ## What does this look like when we put it all together?
 

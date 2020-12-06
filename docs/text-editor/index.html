@@ -67,16 +67,16 @@
   <h1>Text Editor</h1>
   <h2 class="lede">Editing text in the terminal</h2>
 <div class="callout">
-  <p>Terms defined: <g key="abstract_base_class">abstract base class</g>, <g key="circular_dependency">circular dependency</g>, <g key="key_binding">key binding</g>, <g key="plugin_architecture">plugin architecture</g>, <g key="plugin_architecture">plugin architecture</g>, <g key="singleton_pattern">Singleton pattern</g></p>
+  <p>Terms defined: <g key="driver">driver</g>, <g key="key_binding">key binding</g>, <g key="plugin_architecture">plugin architecture</g>, <g key="refactoring">refactoring</g>, <g key="screen_buffer">screen buffer</g>, <g key="text_buffer">text buffer</g></p>
 </div>
 <ul>
-<li>A terminal editor based on <a href="https://github.com/hakash/termit">Termit</a> using <a href="https://github.com/cronvel/terminal-kit">terminal-kit</a></li>
-<li>We are going to refactor an existing editor rather than writing something from scratch
+<li>We have been writing a lot of files---how does the editor itself work?</li>
+<li>Explore by <g key="refactoring">refactoring</g> a terminal editor based on <a href="https://jotr.me/">Morten Olsrud</a>'s <a href="https://github.com/hakash/termit">Termit</a>
 <ul>
-<li>Means that we'll see the entire status bar right from the start</li>
-<li>And will gloss over some technical details, since this isn't a lesson on terminal management</li>
+<li>Uses the <a href="https://github.com/cronvel/terminal-kit">terminal-kit</a> package to manage screen interactions</li>
 </ul>
 </li>
+<li>We will not dive into technical details, since this isn't a lesson on terminal management</li>
 <li>But will see:
 <ul>
 <li>How to build a <g key="plugin_architecture">plugin architecture</g></li>
@@ -84,32 +84,70 @@
 </ul>
 </li>
 </ul>
-<h2 id="what-does-a-minimal-text-editor-contain">What does a minimal text editor contain?</h2>
+<h2 id="what-is-our-starting-point">What is our starting point?</h2>
 <ul>
-<li>Outline</li>
+<li>As in <xref key="build-manager"></xref> and elsewhere, write a <g key="driver">driver</g> to load and run our experiments</li>
 </ul>
-<pre title="minimal-editor.js"><code class="language-js">import terminalKit from 'terminal-kit.js'
-
-const SETTINGS = {
-  statusBar: 'Ctrl+  C:exit',
-  titleBar: 'Zepto',
-  shortDelay: 100,
-  mediumDelay: 2000,
-  longDelay: 3500
+<pre title="edit.js"><code class="language-js">const main = async () =&gt; {
+  const editorSource = process.argv[2]
+  const args = process.argv.slice(3)
+  const EditorClass = (await import(editorSource)).default
+  const editor = new EditorClass(args[0])
+  editor.init()
 }
 
-class MinimalEditor {
-...
-}
-
-export default MinimalEditor
+main()
 </code></pre>
 <ul>
-<li>Constructor</li>
+<li>Original editor is
+466 lines long
+<ul>
+<li>Don't need to understand all of the screen operations in order to start changing it</li>
+<li>But do need an overview of core concepts</li>
 </ul>
-<pre title="minimal-editor.js"><code class="language-js">  constructor (args) {
-    this.settings = { ...SETTINGS }
+</li>
+<li>A <g key="screen_buffer">screen buffer</g> holds contents of a rectangular area of the screen
+<ul>
+<li>Each cell contains a character, foreground and background colors, etc.</li>
+<li>Buffer as a whole writes directly to the terminal, or to another screen buffer</li>
+</ul>
+</li>
+<li>A <g key="text_buffer">text buffer</g> is always backed by a screen buffer
+<ul>
+<li>Holds lines of text (an array of strings)</li>
+<li>Provides methods for user-level text interaction</li>
+</ul>
+</li>
+<li>Start with a basic editor that draws on the screen and exits immediately when any key is pressed
+<ul>
+<li>Just
+166 lines long</li>
+</ul>
+</li>
+</ul>
+<pre title="base-editor.js"><code class="language-js">import terminalKit from 'terminal-kit'
+
+const CONTROLS = [
+  'X:save &amp; eXit',
+  'C:exit',
+  'O:Open',
+  'S:Save',
+  'A:save As',
+  'K:cut line',
+  'U:paste line'
+]
+
+const STATUS_BAR = 'Ctrl+  ' + CONTROLS.join(' / ')
+const TITLE_BAR = 'Zepto'
+const SHORT_DELAY = 100
+
+export default class BaseEditor {
+  constructor () {
     this.term = terminalKit.terminal
+    this.statusBar = STATUS_BAR
+    this.titleBar = TITLE_BAR
+    this.shortDelay = SHORT_DELAY
+    this.fileIsModified = false
     this.statusBarTimer = undefined
 
     this.screenBuffer = new terminalKit.ScreenBuffer({
@@ -118,516 +156,236 @@ export default MinimalEditor
       y: 2
     })
 
-    this.textBuffer = new terminalKit.TextBuffer({ dst: this.screenBuffer })
+    this.textBuffer = new terminalKit.TextBuffer({
+      dst: this.screenBuffer
+    })
     this.textBuffer.setText('')
+  }
+...
+}
+</code></pre>
+<ul>
+<li>Constructor creates <code>this.term</code>, which connects the editor to the text terminal</li>
+<li>Sets a few constants
+<ul>
+<li>Mostly self-explanatory</li>
+<li><code>this.statusBarTime</code> used to control how long the status bar is displayed</li>
+</ul>
+</li>
+<li>Creates the screen buffer and text buffer
+<ul>
+<li>Screen buffer is the height of the terminal minus two lines (for title bar at the top and status bar at the bottom)</li>
+</ul>
+</li>
+<li>Set the text being edited to an empty string</li>
+<li>Provide an <code>onKey</code> method to handle keystrokes
+<ul>
+<li>For now, exit on any key</li>
+</ul>
+</li>
+</ul>
+<pre title="base-editor.js"><code class="language-js">  onKey (key, matches, data) {
+    this.exit() // FIXME
+  }
 
-    this.term.on('resize', this.onResize.bind(this))
-    this.term.on('key', this.onKey.bind(this))
-
-    this.term.fullscreen(true)
-
-    this.textBuffer.moveTo(0, 0)
-    this.screenBuffer.moveTo(0, 0)
-
-    this.term.grabInput({ mouse: false })
-    this.drawStatusBar()
-    this.drawTitleBar()
-
-    this.draw()
+  exit () {
+    setTimeout(() =&gt; {
+      this.term.grabInput(false)
+      this.term.fullscreen(false)
+      setTimeout(() =&gt; process.exit(0), this.shortDelay)
+    }, this.shortDelay)
   }</code></pre>
 <ul>
-<li>And when we have to resize</li>
+<li>Now add the basic operations
+<ul>
+<li>For example, saving files</li>
 </ul>
-<pre title="minimal-editor.js"><code class="language-js">  onResize (width, height) {
-    if (this.resizeTimer) {
-      clearTimeout(this.resizeTimer)
+</li>
+</ul>
+<pre title="core-operations.js"><code class="language-js">  saveFile () {
+    if (!this.fileIsModified) {
+      return
     }
-    this.resizeTimer = setTimeout(() =&gt; {
-      this.screenBuffer.resize({
-        x: 0,
-        y: 2,
-        width: width,
-        height: height - 2
-      })
-      this.drawStatusBar()
-      this.drawTitleBar()
-      this.draw()
-    }, this.settings.shortDelay)
-  }</code></pre>
-<ul>
-<li>Drawing the title and status bar</li>
-</ul>
-<pre title="minimal-editor.js"><code class="language-js">  drawBar (pos, message, invert = false) {
-    if (invert) {
-      this.term.moveTo(pos.x, pos.y)
-        .styleReset.white.bold.eraseLine(' ' + message)
+
+    if (this.getText() === '') {
+      return
+    }
+
+    if (this.currentFile) {
+      this.save(this.currentFile)
     } else {
-      this.term.moveTo(pos.x, pos.y)
-        .styleReset.bgWhite.black.bold.eraseLine(' ' + message)
+      this.saveAs()
     }
   }
 
-  drawStatusBar (message = this.settings.statusBar, timeout = -1) {
-    this.drawBar({ x: 0, y: this.term.height }, message)
-
-    this.textBuffer.draw()
-    this.screenBuffer.draw({ delta: true })
-    this.textBuffer.drawCursor()
-    this.screenBuffer.drawCursor()
-
-    if (this.statusBarTimer) {
-      clearTimeout(this.statusBarTimer)
-    }
-
-    if (timeout &gt;= 0) {
-      this.statusBarTimer = setTimeout(() =&gt; this.drawStatusBar(), timeout)
+  save (file, callback = () =&gt; {}) {
+    this.disableUserInteraction = true
+    try {
+      fs.writeFileSync(file, this.getText())
+      this.fileIsModified = false
+      this.currentFile = file
+      this.drawStatusBar('Saved!', this.mediumDelay)
+      this.disableUserInteraction = false
+      callback()
+    } catch (e) {
+      this.disableUserInteraction = false
+      callback(e)
     }
   }
 
-  drawTitleBar () {
-    this.drawBar({ x: 1, y: 1 }, this.settings.titleBar)
+  saveAs (callback) {
+    this.getFileNameFromUser('Save as: ',
+      file =&gt; this.save(file, callback),
+      this.currentFile)
   }</code></pre>
 <ul>
-<li>Drawing in general</li>
+<li>Other commands to move cursor, cut and paste lines, etc.</li>
+<li>But <code>onKey</code> is one big switch statement</li>
 </ul>
-<pre title="minimal-editor.js"><code class="language-js">  draw () {
-    this.textBuffer.draw()
-    this.screenBuffer.draw({ delta: true })
-    this.drawCursor()
-  }
-
-  drawCursor () {
-    let newBufferX = this.textBuffer.x
-    let newBufferY = this.textBuffer.y
-
-    if (this.textBuffer.x &lt; -this.textBuffer.cx) {
-      newBufferX = Math.min(0, -this.textBuffer.cx +
-                                Math.floor(this.screenBuffer.width / 2))
-    } else if (this.textBuffer.x &gt;
-               -this.textBuffer.cx + this.screenBuffer.width - 1) {
-      newBufferX = (this.screenBuffer.width / 2) - this.textBuffer.cx
+<pre title="core-operations.js"><code class="language-js">  onKey (key, matches, data) {
+    if (this.disableUserInteraction &amp;&amp; key !== 'CTRL_C') {
+      return
     }
 
-    if (this.textBuffer.y &lt; -this.textBuffer.cy) {
-      newBufferY = Math.min(0, -this.textBuffer.cy +
-                               Math.floor(this.screenBuffer.height / 2))
-    } else if (this.textBuffer.y &gt;
-               -this.textBuffer.cy + this.screenBuffer.height - 1) {
-      newBufferY = (this.screenBuffer.height / 2) - this.textBuffer.cy
-    }
-
-    if (newBufferY !== this.textBuffer.y ||
-        newBufferX !== this.textBuffer.x) {
-      this.textBuffer.x = newBufferX
-      this.textBuffer.y = newBufferY
-      this.textBuffer.draw()
-      this.screenBuffer.draw({ delta: true })
-    }
-
-    this.textBuffer.drawCursor()
-    this.screenBuffer.drawCursor()
-  }</code></pre>
-<ul>
-<li>Handling keys</li>
-</ul>
-<pre title="minimal-editor.js"><code class="language-js">  onKey (key, matches, data) {
     switch (key) {
       case 'CTRL_C':
         this.exit()
+        break
+      case 'CTRL_X':
+        this.saveAndExit()
+        break
+      case 'CTRL_S':
+        this.saveFile()
+        break
+...
+      case 'BACKSPACE':
+        this.backspace()
         break
       case 'ENTER':
         this.newLine()
         break
       default:
         if (data.isCharacter) {
-          this.textBuffer.insert(key)
-          this.draw()
+          this.onCharacter(key)
         }
         break
     }
   }</code></pre>
 <ul>
-<li>Handling newlines is special</li>
-</ul>
-<pre title="minimal-editor.js"><code class="language-js">  newLine () {
-    this.textBuffer.newLine()
-    this.draw()
-  }</code></pre>
+<li>Adding methods isn't enough to give the editor new functionality
 <ul>
-<li>And when the time comes to exit</li>
+<li>Must also insert text into the switch statement</li>
+<li>Which will be fragile</li>
 </ul>
-<pre title="minimal-editor.js"><code class="language-js">  exit () {
-    setTimeout(() =&gt; {
-      this.term.grabInput(false)
-      this.term.fullscreen(false)
-      setTimeout(() =&gt; process.exit(0), this.settings.shortDelay)
-    }, this.settings.shortDelay)
-  }</code></pre>
+</li>
+<li>And there's no obvious way to record features for playback or for undo/redo</li>
+</ul>
 <h2 id="how-can-we-make-the-editor-extensible">How can we make the editor extensible?</h2>
 <ul>
-<li>Even a minimalist editor like <a href="https://www.nano-editor.org/">Nano</a> has many special keys</li>
-<li>Programmers often want to add more or change the <g key="key_binding">bindings</g> of existing keys</li>
-<li>Best solution is a <g key="plugin_architecture">plugin architecture</g>
+<li>Lookup tables should be tables, not if/else or switch statements</li>
+<li>Modify the editor to:
 <ul>
-<li>The editor provides a few core operations</li>
-<li>Loads tiny libraries that connect keys to those operations</li>
-</ul>
-</li>
-<li>Refactor the editor
-<ul>
-<li><code>onKey</code> looks up the action associated with a key and runs it</li>
-<li>Gives that action the key and the editor itself to work with</li>
-<li>Constructor adds two bindings to the lookup table</li>
+<li>Create a table of <g key="key_binding">key bindings</g></li>
+<li>Look keys up in that table to find out what to do</li>
 </ul>
 </li>
 </ul>
-<pre title="bindings-editor.js"><code class="language-js">import MinimalEditor from './minimal-editor.js'
+<pre title="lookup-editor.js"><code class="language-js">import CoreEditor from './core-operations.js'
+
+export default class LookupEditor extends CoreEditor {
+  constructor () {
+    super()
+    this.bindings = this.createDefaultBindings()
+  }
+
+  onKey (key, matches, data) {
+    if (this.disableUserInteraction &amp;&amp; key !== 'CTRL_C') {
+      return
+    }
+    if (key in this.bindings) {
+      this.bindings[key]()
+    } else if (data.isCharacter) {
+      this.onCharacter(key)
+    }
+  }
 ...
-class BindingsEditor extends MinimalEditor {
-  constructor (args) {
-    super(args)
-    this.bindings = new Map()
-    this.bindings.set(ENTER_BINDING.key, ENTER_BINDING)
-    this.bindings.set(EXIT_BINDING.key, EXIT_BINDING)
-  }
-
-  onKey (key, matches, data) {
-    if (this.bindings.has(key)) {
-      this.bindings.get(key).run(this, key)
-    } else if (data.isCharacter) {
-      this.textBuffer.insert(key)
-      this.draw()
+}
+</code></pre>
+<ul>
+<li>Creating bindings is just building a table of functions</li>
+</ul>
+<pre title="lookup-editor.js"><code class="language-js">  createDefaultBindings () {
+    return {
+      BACKSPACE: () =&gt; this.backspace(),
+      CTRL_A: () =&gt; this.saveAs(),
+      CTRL_C: () =&gt; this.exit(),
+      CTRL_K: () =&gt; this.cutLine(),
+      CTRL_O: () =&gt; this.open(),
+      CTRL_S: () =&gt; this.saveFile(),
+      CTRL_U: () =&gt; this.pasteLine(),
+      CTRL_X: () =&gt; this.saveAndExit(),
+      DELETE: () =&gt; this.deleteChar(),
+      DOWN: () =&gt; this.down(),
+      END: () =&gt; this.endOfLine(),
+      ENTER: () =&gt; this.newLine(),
+      HOME: () =&gt; this.startOfLine(),
+      LEFT: () =&gt; this.left(),
+      PAGE_DOWN: () =&gt; this.pgDown(),
+      PAGE_UP: () =&gt; this.pgUp(),
+      RIGHT: () =&gt; this.right(),
+      TAB: () =&gt; this.tab(),
+      UP: () =&gt; this.up()
     }
-  }
-}
-
-export default BindingsEditor
-</code></pre>
+  }</code></pre>
 <ul>
-<li>Each binding is derived from a very simple base class</li>
+<li>To add a new operation
+<ul>
+<li>Implement the method</li>
+<li>Add an entry to the key bindings table in the constructor of the derived class</li>
 </ul>
-<pre title="simple-key-binding.js"><code class="language-js">class KeyBinding {
-  constructor (key) {
-    this.key = key
-  }
-
-  run (editor, key) {
-    throw new Error('key binding classes must implement run method')
-  }
-}
-
-module.exports = KeyBinding
-</code></pre>
+</li>
+<li>But we can now also provide plugins</li>
+<li>Load functions that take the editor and the arguments to <code>onKey</code> as input
 <ul>
-<li>Define a class and create a single instance for handling the <code>enter</code> key
-<ul>
-<li>Tell the editor what key this handles</li>
-<li>Act on the editor</li>
+<li>Have to modify the default handlers to take these four arguments as well, just in case</li>
 </ul>
 </li>
 </ul>
-<pre title="bindings-editor.js"><code class="language-js">import KeyBinding from './simple-key-binding.js'
-
-class EnterBinding extends KeyBinding {
-  constructor () {
-    super('ENTER')
-  }
-
-  run (editor, key) {
-    editor.newLine()
-  }
-}
-
-const ENTER_BINDING = new EnterBinding()</code></pre>
-<ul>
-<li>JavaScript allows us to define a class without a name and create an instance
-<ul>
-<li>A way to implement the <g key="singleton_pattern">Singleton</g> pattern</li>
-<li></li>
-</ul>
-</li>
-</ul>
-<pre title="bindings-editor.js"><code class="language-js">const EXIT_BINDING = new class extends KeyBinding {
-  constructor () {
-    super('CTRL_C')
-  }
-
-  run (editor, key) {
-    editor.exit()
-  }
-}()</code></pre>
-<ul>
-<li>But if we have to edit the source file to change the bindings, that's hardly extensible</li>
-<li>Use a configuration file to specify what bindings to load
-<ul>
-<li>For simplicity's sake, assume they're all in the same directory</li>
-<li>Can easily extend to load a system-wide default configuration from some other directory first and then overlay</li>
-</ul>
-</li>
-<li>Modified editor is looking pretty small</li>
-</ul>
-<pre title="config-editor.js"><code class="language-js">import fs from 'fs'
+<pre title="plugin-editor.js"><code class="language-js">import fs from 'fs'
 import yaml from 'js-yaml'
 
-import MinimalEditor from './minimal-editor.js'
+import LookupOperations from './lookup-editor.js'
 
-class ConfigEditor extends MinimalEditor {
-  constructor (args) {
-    super(args.slice(1))
-    this.bindings = new Map()
-    this.loadBindings(args[0])
+const EDITOR_CONFIG = 'editor-config.yml'
+
+export default class PluginEditor extends LookupEditor {
+  constructor () {
+    super()
+    this.loadPlugins()
   }
 
-  loadBindings (filename) {
-    const allNames = yaml.safeLoad(fs.readFileSync(filename, 'utf-8'))
-    allNames.forEach(name =&gt; {
-      const binding = require(`./${name}`)
-      this.bindings.set(binding.key, binding)
-    })
-  }
-
-  onKey (key, matches, data) {
-    if (this.bindings.has(key)) {
-      this.bindings.get(key).run(this, key)
-    } else if (data.isCharacter) {
-      this.textBuffer.insert(key)
-      this.draw()
+  async loadPlugins () {
+    if (fs.existsSync(EDITOR_CONFIG)) {
+      const config = yaml.safeLoad(fs.readFileSync(EDITOR_CONFIG, 'utf-8'))
+      const plugins = await Promise.all(config.map(entry =&gt; import(entry.filename)))
+      config.forEach((entry, i) =&gt; {
+        const key = entry.key
+        const func = plugins[i].default
+        this.bindings[key] = func
+      })
     }
   }
+...
 }
-
-export default ConfigEditor
 </code></pre>
 <ul>
-<li>Configuration file is just a list of things to <code>require</code></li>
-</ul>
-<pre title="simple-config.yml"><code class="language-yml">- simple-enter
-- simple-exit
-</code></pre>
+<li>Notice the two-step <code>import</code> because <code>Promise.all</code> needs promises
 <ul>
-<li>And each binding is an immediately-instantiated class with the object assigned directly to <code>module.exports</code></li>
-</ul>
-<pre title="simple-enter.js"><code class="language-js">import KeyBinding from './simple-key-binding.js'
-
-module.exports = new class extends KeyBinding {
-  constructor () {
-    super('ENTER')
-  }
-
-  run (editor, key) {
-    editor.newLine()
-  }
-}()
-</code></pre>
-<h2 id="what-goes-in-the-application-and-what-goes-in-plugins">What goes in the application and what goes in plugins?</h2>
-<ul>
-<li>At one extreme, the application has a rich interface with lots of operations
-<ul>
-<li>Plugins are almost empty (i.e., not much use)</li>
-</ul>
-</li>
-<li>At the other extreme, the application is a container for shared state
-<ul>
-<li>Plugins manipulate that state directly</li>
-<li>Usually a bad idea, but classes can have friends</li>
-</ul>
-</li>
-<li>Since we are refactoring an existing implementation:
-<ul>
-<li>Anything that is needed by two or more plugins becomes a method</li>
-<li>Otherwise, manipulate state directly</li>
-</ul>
-</li>
-<li>Add plugins for up/down/left/right and update configuration file
-<ul>
-<li>All similar in principle to this one</li>
+<li>Wille write an <code>async</code> function that combines the steps in the exercises</li>
 </ul>
 </li>
 </ul>
-<pre title="simple-left.js"><code class="language-js">import KeyBinding from './simple-key-binding.js'
-
-module.exports = new class extends KeyBinding {
-  constructor () {
-    super('LEFT')
-  }
-
-  run (editor, key) {
-    editor.textBuffer.moveBackward()
-    editor.drawCursor()
-  }
-}()
-</code></pre>
-<ul>
-<li>But what if a plugin needs some extra state?
-<ul>
-<li>Or if multiple plugins need to share some extra state?</li>
-</ul>
-</li>
-<li>Could have a multi-plugin that registers handlers for several keys
-<ul>
-<li>But that just delays the problem</li>
-</ul>
-</li>
-<li>Instead, a plugin can add some state to the editor
-<ul>
-<li>Add an <code>init</code> method to <code>KeyBinding</code> that does nothing by default but can be overridden</li>
-<li>Adds a new member variable by name if the name is not already in use</li>
-<li>So it doesn't matter what order plugins load in</li>
-<li>But there <em>is</em> the possibility of name collision between two or more plugins</li>
-</ul>
-</li>
-<li>While we're there, add an <code>isDefault</code> property
-<ul>
-<li>Might as well make handling generic characters a binding as well</li>
-<li>Complain if someone has already registered as the default handler</li>
-</ul>
-</li>
-</ul>
-<pre title="init-key-binding.js"><code class="language-js">class KeyBinding {
-  constructor (key) {
-    this.key = key
-    this.isDefault = false
-  }
-
-  init (editor) {
-    // does nothing but can be overridden
-  }
-
-  run (editor, key) {
-    throw new Error('key binding classes must implement run method')
-  }
-}
-
-module.exports = KeyBinding
-</code></pre>
-<ul>
-<li>Modify all existing key bindings to derive from this class
-<ul>
-<li>But do not override <code>init</code>, since they don't need to</li>
-</ul>
-</li>
-<li>And create a handler for all &quot;other&quot; keys
-<ul>
-<li>Which is why we've been passing <code>key</code> around all this time</li>
-</ul>
-</li>
-<li>First, derive a new editor class from the one that handles configuration files</li>
-</ul>
-<pre title="init-editor.js"><code class="language-js">import fs from 'fs'
-import yaml from 'js-yaml'
-
-import MinimalEditor from './minimal-editor.js'
-
-class InitEditor extends MinimalEditor {
-  constructor (args) {
-    super(args.slice(1))
-    this.defaultBinding = null
-    this.bindings = new Map()
-    this.loadBindings(args[0])
-  }
-
-  loadBindings (filename) {
-    const allNames = yaml.safeLoad(fs.readFileSync(filename, 'utf-8'))
-    allNames.forEach(name =&gt; {
-      const binding = require(`./${name}`)
-      binding.init(this)
-      if (binding.isDefault) {
-        if (this.defaultBinding !== null) {
-          throw new Error('can only have one handler for default binding')
-        }
-        this.defaultBinding = binding
-      } else {
-        this.bindings.set(binding.key, binding)
-      }
-    })
-  }
-
-  onKey (key, matches, data) {
-    if (this.bindings.has(key)) {
-      this.bindings.get(key).run(this, key)
-    } else if (data.isCharacter) {
-      this.defaultBinding.run(this, key)
-    }
-  }
-}
-
-export default InitEditor
-</code></pre>
-<ul>
-<li>And write the plugin that handles generic characters
-<ul>
-<li>Identifies itself as the default handler</li>
-<li>A little dangerous to specify <code>null</code> as the character it handles</li>
-<li>But that's probably better than saying, &quot;If the character is <code>null</code>, this must be the default&quot;</li>
-</ul>
-</li>
-</ul>
-<pre title="init-character.js"><code class="language-js">import KeyBinding from './init-key-binding.js'
-
-module.exports = new class extends KeyBinding {
-  constructor () {
-    super(null)
-    this.isDefault = true
-  }
-
-  run (editor, key) {
-    editor.textBuffer.insert(key)
-    editor.draw()
-  }
-}()
-</code></pre>
-<ul>
-<li>We can finally add some state: a &quot;dirty&quot; flag to show if there are unsaved changes
-<ul>
-<li>Will add extensions in the next section to make use of this</li>
-</ul>
-</li>
-</ul>
-<pre title="dirty-character.js"><code class="language-js">import KeyBinding from './init-key-binding.js'
-
-module.exports = new class extends KeyBinding {
-  constructor () {
-    super(null)
-    this.isDefault = true
-  }
-
-  init (editor) {
-    editor.addState('dirty', false)
-  }
-
-  run (editor, key) {
-    editor.dirty = true
-    editor.textBuffer.insert(key)
-    editor.draw()
-  }
-}()
-</code></pre>
-<ul>
-<li>And since we're allowing plugins to add state, we should provide a method for that</li>
-</ul>
-<pre title="dirty-editor.js"><code class="language-js">import InitEditor from './init-editor.js'
-
-class DirtyEditor extends InitEditor {
-  addState (name, initialValue) {
-    if (!(name in this)) {
-      this[name] = initialValue
-    }
-  }
-}
-
-export default DirtyEditor
-</code></pre>
-<ul>
-<li>Avoids the problem of <g key="circular_dependency">circular dependency</g> discussed in <xref key="module-bundler"></xref>
-by having plugins manipulate the editor without loading it
-<ul>
-<li>Works because JavaScript looks methods up dynamically</li>
-<li>In a stricter language, we would define an <g key="abstract_base_class">abstract base class</g> for the editor
-that both the actual editor and the plugins could depend on</li>
-</ul>
-</li>
-</ul>
-<h2 id="how-can-we-replay-operations">How can we replay operations?</h2>
+<h2 id="how-can-we-record-and-play-back">How can we record and play back?</h2>
 <ul>
 <li>Many editors allow us to record keystrokes and play them back
 <ul>
@@ -650,162 +408,277 @@ that both the actual editor and the plugins could depend on</li>
 <li>Parent class does the work of handling the keystroke</li>
 </ul>
 </li>
-</ul>
-<pre title="replay-editor.js"><code class="language-js">import DirtyEditor from './dirty-editor.js'
-
-class ReplayEditor extends DirtyEditor {
-  constructor (args) {
-    super(args)
-    this.isRecording = false
-    this.recordedOperations = null
-  }
-
-  onKey (key, matches, data) {
-    if (this.isRecording) {
-      this.recordedOperations.push([key, matches, data])
-    }
-    super.onKey(key, matches, data)
-  }
-}
-
-export default ReplayEditor
-</code></pre>
-<ul>
 <li>Turning recording on and off
 <ul>
 <li>A toggle: <key>Ctrl-R</key> will turn recording on if it's off and off if it's on</li>
 <li>When we turn it on, we need to clear any accumulated history (restarting)</li>
 </ul>
 </li>
+<li>Modify constructor to create the state we need and record the two new key bindings</li>
 </ul>
-<pre title="replay-record.js"><code class="language-js">import KeyBinding from './init-key-binding.js'
-
-module.exports = new class extends KeyBinding {
-  constructor () {
-    super('CTRL_R')
-  }
-
-  run (editor, key) {
-    if (editor.isRecording) {
-      editor.isRecording = false
-    } else {
-      editor.isRecording = true
-      editor.recordedOperations = []
+<pre title="replay-editor.js"><code class="language-js">  constructor () {
+    super()
+    this.isRecording = false
+    this.recorded = []
+    this.bindings.CTRL_P =
+      (editor, key, matches, data) =&gt; this.playback()
+    this.bindings.CTRL_R =
+      (editor, key, matches, data) =&gt; this.record()
+  }</code></pre>
+<ul>
+<li><code>onKey</code> records everything and then does whatever the keystroke would normally do</li>
+</ul>
+<pre title="replay-editor.js"><code class="language-js">  onKey (key, matches, data) {
+    if (this.isRecording) {
+      this.recorded.push([key, matches, data])
     }
-  }
-}()
-</code></pre>
+    super.onKey(key, matches, data)
+  }</code></pre>
 <ul>
-<li>Playback is a little more complicated</li>
-<li>If we are recording then stop
+<li><code>record</code> toggles the <code>isRecording</code> flag and re-starts recording if needed
 <ul>
-<li>And remove the last entry added to the replay list, because it will be this command</li>
+<li>Note the <code>pop</code> so that the command that brought us here isn't recorded</li>
+<li>Yes, this led to infinite recursion</li>
 </ul>
 </li>
-<li>Then re-send every saved keystroke in order</li>
 </ul>
-<pre title="replay-playback.js"><code class="language-js">import KeyBinding from './init-key-binding.js'
-
-module.exports = new class extends KeyBinding {
-  constructor () {
-    super('CTRL_P')
-  }
-
-  run (editor, key) {
-    if (editor.isRecording) {
-      editor.isRecording = false
-      editor.recordedOperations.pop() // to get rid of this command
+<pre title="replay-editor.js"><code class="language-js">  record () {
+    if (this.isRecording) {
+      this.isRecording = false
+      this.recorded.pop() // to get rid of this command
+    } else {
+      this.isRecording = true
+      this.recorded = []
     }
-    if (editor.recordedOperations) {
-      editor.recordedOperations.forEach(op =&gt; editor.onKey(...op))
+  }</code></pre>
+<ul>
+<li><code>playback</code> also turns off recording
+<ul>
+<li>Again, want to avoid infinite loop</li>
+</ul>
+</li>
+<li>If any commands have been recorded, re-issue them</li>
+</ul>
+<pre title="replay-editor.js"><code class="language-js">  playback () {
+    if (this.isRecording) {
+      this.isRecording = false
+      this.recorded.pop() // to get rid of this command
     }
-  }
-}()
-</code></pre>
+    if (this.recorded.length &gt; 0) {
+      this.recorded.forEach(op =&gt; this.onKey(...op))
+    }
+  }</code></pre>
+<ul>
+<li>Can be done with plugins
+<ul>
+<li>The extra state needed in the editor makes a plugin more complicated</li>
+<li>Can have both plugins check for the state they need and add member variables if not present</li>
+</ul>
+</li>
+<li>Or write plugins as classes with <code>onLoad</code> and <code>onKey</code> methods</li>
+</ul>
 <h2 id="how-can-we-undo-operations">How can we undo operations?</h2>
 <ul>
-<li>Add plugin to backspace
+<li>The opposite of &quot;move left&quot; is &quot;move right&quot;, so no extra information required</li>
+<li>But the opposite of &quot;cut line&quot; is &quot;paste line&quot;
 <ul>
-<li><key>Ctrl-H</key> on some keyboards</li>
+<li>Need to record state for some operations but not for others</li>
 </ul>
 </li>
-</ul>
-<pre title="dirty-backspace.js"><code class="language-js">import KeyBinding from './init-key-binding.js'
-
-module.exports = new class extends KeyBinding {
-  constructor () {
-    super('BACKSPACE')
-  }
-
-  init (editor) {
-    editor.addState('dirty', false)
-  }
-
-  run (editor, key) {
-    editor.dirty = true
-    editor.textBuffer.backDelete(1)
-    editor.draw()
-  }
-}()
-</code></pre>
+<li>Solution is one we hinted at earlier: implement each operation as a class
 <ul>
-<li>As soon as we can delete things, we are going to want to undelete them
-<ul>
-<li>But we want to undelete in the right place if we have moved elsewhere</li>
+<li><code>run</code> and <code>undo</code> methods (because <code>do</code> is a keyword in JavaScript)</li>
 </ul>
 </li>
-<li>We need to keep a list of recent operations
+<li>But not all operations are undoable
 <ul>
-<li><key>Ctrl-U</key> pops the most recent operation and undoes it</li>
-<li>Have to undo every operation in order to make sure we get back to the right place</li>
+<li><code>op.save</code> tells us whether the operation should be saved</li>
+<li><code>op.clear</code> tells us whether the undo stack should be cleared</li>
 </ul>
 </li>
-<li>But where do operations actually live?
-<ul>
-<li>Copying code from &quot;move left&quot; into the <code>backward</code> method of &quot;move right&quot; is a bad idea (duplication)</li>
-<li>Have each operation <code>require</code> its opposite and call its opposite's <code>forward</code> method is bad too (circular dependencies)</li>
-<li>Move basic operations back into editor</li>
-<li>This kind of refactoring is common in the early stages of a design</li>
+<li>Go all the way back to the original editor and modify the constructor</li>
 </ul>
-</li>
-<li>How to undo a delete?
-<ul>
-<li>The handler for character deletion must return the character deleted</li>
-<li>We need to save that</li>
-<li>If an operation (like &quot;undo&quot;) returns <code>null</code>, don't save it on the undo stack</li>
-</ul>
-</li>
-</ul>
-<pre title="undo-editor.js"><code class="language-js">import InitEditor from './init-editor.js'
-
-class UndoEditor extends InitEditor {
-  constructor (args) {
-    super(args)
+<pre title="undo-editor.js"><code class="language-js">  constructor () {
+    super()
+    this.bindings = this.createDefaultBindings()
     this.stack = []
+  }</code></pre>
+<ul>
+<li>Handling a key now takes undo into account
+<ul>
+<li>Look up a class in the bindings table, make an instance, and run it</li>
+<li>Look in that instance to see whether to save, clear, or neither</li>
+</ul>
+</li>
+</ul>
+<pre title="undo-editor.js"><code class="language-js">  onKey (key, matches, data) {
+    if (this.disableUserInteraction &amp;&amp; key !== 'CTRL_C') {
+      return
+    }
+
+    let op = null
+    if (key in this.bindings) {
+      op = new this.bindings[key](this, key, matches, data)
+    } else if (data.isCharacter) {
+      op = new KeyCharacter(this, key, matches, data)
+    }
+
+    if (op !== null) {
+      op.run()
+      if (op.save) {
+        this.stack.push(op)
+      } else if (op.clear) {
+        this.stack = []
+      }
+    }
+  }</code></pre>
+<ul>
+<li>Base class for operations
+<ul>
+<li>Record all the information about the keystroke</li>
+<li>Set defaults for saving and clearing</li>
+<li>Fail if the <code>run</code> or <code>undo</code> methods are called (must be overridden)</li>
+</ul>
+</li>
+</ul>
+<pre title="undo-editor.js"><code class="language-js">class KeyBase {
+  constructor (editor, key, matches, data) {
+    this.editor = editor
+    this.key = key
+    this.matches = matches
+    this.data = data
+    this.configure()
   }
 
-  onKey (key, matches, data) {
-    const op = this.bindings.has(key)
-      ? this.bindings.get(key)
-      : this.defaultBinding
-    const save = op.run(this, key)
-    if (save !== null) {
-      this.stack.push([op, save])
-    }
+  configure () {
+    this.save = false
+    this.clear = true
+  }
+
+  run () {
+    throw new Error('run not implemented')
   }
 
   undo () {
-    if (this.stack.length === 0) {
-      return
-    }
-    const [op, key] = this.stack.pop()
-    op.undo(this, key)
+    throw new Error('undo not implemented')
   }
-...
-}
+}</code></pre>
+<ul>
+<li>Handle a printable character
+<ul>
+<li>Insert it going forward</li>
+<li>Backspace to undo</li>
+<li>Assumes we are back in the same place</li>
+</ul>
+</li>
+</ul>
+<pre title="undo-editor.js"><code class="language-js">class KeyCharacter extends KeyBase {
+  configure () {
+    this.save = true
+  }
 
-export default UndoEditor
+  run () {
+    this.editor.onCharacter(this.key)
+  }
+
+  undo () {
+    this.editor.backspace()
+  }
+}</code></pre>
+<ul>
+<li>Exiting is easier
+<ul>
+<li>Indicate that the operation isn't undoable</li>
+</ul>
+</li>
+</ul>
+<pre title="undo-editor.js"><code class="language-js">class KeyExit extends KeyBase {
+  configure () {
+    this.clear = true
+  }
+
+  run () {
+    this.editor.exit()
+  }
+}</code></pre>
+<ul>
+<li>Full of bugs</li>
+<li>Going up and then down doesn't restore location if we were at the end of a long line and went up to a short one
+<ul>
+<li>So the operation should save the XY location to return to and move the cursor there</li>
+</ul>
+</li>
+<li>Cutting a line isn't currently undoable
+<ul>
+<li>Should save location and text for restoring</li>
+</ul>
+</li>
+<li>Requires a deeper dive into the text buffer</li>
+</ul>
+<h2 id="exercises">Exercises</h2>
+<h3 class="exercise">Understanding the editor</h3>
+<ol>
+<li>Where is location (0, 0) on the screen?</li>
+<li>Why are the <code>setTimeout</code> calls in the base editor needed?
+Why are timeouts sometimes reset?</li>
+<li>What are <code>Math.min</code>, <code>Math.floor</code>, and division by 2 needed in <code>drawCursor</code>?</li>
+<li>Why is <code>right</code> more complex than <code>left and </code>down<code>more complex than</code>up`?</li>
+<li>How can <code>getLine</code> be made more efficient?</li>
+</ol>
+<h3 class="exercise">Inserting a file</h3>
+<p>Add a command to insert a file at the cursor's current location.</p>
+<h3 class="exercise">Using promises</h3>
+<p>Replace all of the callbacks and synchronous operations in <code>BaseEditor</code> and <code>CoreEditor</code> with promises.</p>
+<h3 class="exercise">Using bind</h3>
+<p>The lookup table in <code>LookupEditor</code> creates functions of no arguments to call methods of no arguments.
+Use <code>bind</code> instead.</p>
+<h3 class="exercise">Using Promise.all</h3>
+<p>Combine the <code>Promise.all</code> and <code>forEach</code> operations in <code>PluginEditor.loadPlugins</code>
+into a single call to <code>Promise.all</code>.</p>
+<h3 class="exercise">Loading replay and playback as plugins</h3>
+<p>Modify <code>ReplayEditor</code> so that it loads the replay and playback functions as plugins.
+Each of these functions should check the editor for the two pieces of state they need
+and create them if they do not exist.</p>
+<h3 class="exercise">Making plugins responsible for saving and clearing</h3>
+<p>Instead of having plugins tell the editor to save them on the undo stack or clear the stack entirely,
+modify both <code>UndoEditor</code> and the plugins so that commands save themselves or clear the stack directly.</p>
+<h3 class="exercise">Showing replayable commands</h3>
+<p>Add a command to show the commands currently recorded for replay in the status bar.
+Regular characters should be shown as themselves,
+while control characters should be shown as <code>^K</code>, <code>^U</code>, and so on.</p>
+<h3 class="exercise">Undoing deletion</h3>
+<p>This is a more sophisticated version of <code>deleteChar</code> that returns the character being deleted:</p>
+<pre><code class="language-js">deleteChar () {
+  const cx = this.textBuffer.cx
+  const cy = this.textBuffer.cy
+  let char = null
+  if (cx === 0) {
+    if (cy &gt; 0) {
+      const last = this.textBuffer.buffer[cy - 1].length - 1
+      char = this.textBuffer.buffer[cy - 1][last].char
+    }
+  } else {
+    char = this.textBuffer.buffer[cy][cx - 1].char
+  }
+
+  this.textBuffer.backDelete(1)
+  this.draw()
+  return char
+}
 </code></pre>
+<div class="unindented">
+<p>Use it to make character deletion undoable.</p>
+</div>
+<h3 class="exercise">Undoing cursor motion</h3>
+<ol>
+<li>
+<p>Modify all cursor movement commands
+to save the cursor's position before the move in the command object.</p>
+</li>
+<li>
+<p>Make undo work correctly for cursor movement commands.</p>
+</li>
+</ol>
 </main>
 <footer>
 <div class="row">

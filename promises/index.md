@@ -183,15 +183,15 @@ Diagram showing temporary objects with named fields
 <%- include('/_inc/multi.html', {pat: 'await-fs.*', fill: 'js out'}) %>
 
 -   Modify the two helper functions to look like they're waiting for results and returning them
-    -   Except the actually wrap their results in promises and return those
+    -   Except they actually wrap their results in promises and return those
 
-<%- include('/_inc/slice.html', {file: 'count-lines-with-stat-async.js', tag: 'recycle'}) %>
+<%- include('/_inc/keep.html', {file: 'count-lines-with-stat-async.js', key: 'recycle'}) %>
 
 -   Modify `main` to wait for things to complete
     -   Must still use `Promise.all` for collections of things
     -   `async` and `await` hide promises until they don't
 
-<%- include('/_inc/slice.html', {file: 'count-lines-with-stat-async.js', tag: 'main'}) %>
+<%- include('/_inc/keep.html', {file: 'count-lines-with-stat-async.js', key: 'main'}) %>
 
 ## How can we handle errors with asynchronous code?
 

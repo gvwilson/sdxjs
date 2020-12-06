@@ -55,12 +55,12 @@ Diagram of virtual machine architecture
 -   Start by defining a class with an instruction pointer, some registers, and some memory
     -   Also have a prompt for output
 
-<%- include('/_inc/erase.html', {file: 'vm-base.js', tag: 'skip'}) %>
+<%- include('/_inc/erase.html', {file: 'vm-base.js', key: 'skip'}) %>
 
 -   A program is an array of numbers
     -   Copy into RAM and reset the instruction pointer and registers
 
-<%- include('/_inc/slice.html', {file: 'vm-base.js', tag: 'initialize'}) %>
+<%- include('/_inc/keep.html', {file: 'vm-base.js', key: 'initialize'}) %>
 
 -   To get the next instruction:
     -   Get the value in memory that the instruction pointer currently refers to
@@ -68,27 +68,27 @@ Diagram of virtual machine architecture
     -   Use bitwise operations to extract op code and operands from the instruction
     -   Some instructions don't have two operands, but a hardware implementation would unpack the same number every time
 
-<%- include('/_inc/slice.html', {file: 'vm-base.js', tag: 'fetch'}) %>
+<%- include('/_inc/keep.html', {file: 'vm-base.js', key: 'fetch'}) %>
 
 -   We have included assertions
     -   Hardware detects illegal instructions and out-of-bounds memory addresses
 -   Now we implement the run cycle
     -   Fetch instruction and take action until told to stop
 
-<%- include('/_inc/erase.html', {file: 'vm.js', tag: 'skip'}) %>
+<%- include('/_inc/erase.html', {file: 'vm.js', key: 'skip'}) %>
 
 -   Some typical instructions
 -   Store the value of one register in the address held by another register
 
-<%- include('/_inc/slice.html', {file: 'vm.js', tag: 'op_str'}) %>
+<%- include('/_inc/keep.html', {file: 'vm.js', key: 'op_str'}) %>
 
 -   Add the value in one register to the value in another register
 
-<%- include('/_inc/slice.html', {file: 'vm.js', tag: 'op_add'}) %>
+<%- include('/_inc/keep.html', {file: 'vm.js', key: 'op_add'}) %>
 
 -   Jump to a fixed address if the value in a register is zero
 
-<%- include('/_inc/slice.html', {file: 'vm.js', tag: 'op_beq'}) %>
+<%- include('/_inc/keep.html', {file: 'vm.js', key: 'op_beq'}) %>
 
 ## What do assembly programs look like?
 
@@ -122,27 +122,27 @@ Diagram of virtual machine architecture
     -   Find the addresses of labels
     -   Turn each remaining line into an instruction
 
-<%- include('/_inc/slice.html', {file: 'assembler.js', tag: 'assemble'}) %>
+<%- include('/_inc/keep.html', {file: 'assembler.js', key: 'assemble'}) %>
 
 -   To find labels, go through lines one by one
     -   Either save the label *or* increment the current address, because labels don't take up space
 
-<%- include('/_inc/slice.html', {file: 'assembler.js', tag: 'find-labels'}) %>
+<%- include('/_inc/keep.html', {file: 'assembler.js', key: 'find-labels'}) %>
 
 -   To compile a single instruction
     -   Break the line into <g key="token">tokens</g>
     -   Look up the format for the operands
     -   Pack them into a single value
 
-<%- include('/_inc/slice.html', {file: 'assembler.js', tag: 'compile'}) %>
+<%- include('/_inc/keep.html', {file: 'assembler.js', key: 'compile'}) %>
 
 -   Combining op codes and operands into a single value is the reverse of the unpacking done by the virtual machine
 
-<%- include('/_inc/slice.html', {file: 'assembler.js', tag: 'combine'}) %>
+<%- include('/_inc/keep.html', {file: 'assembler.js', key: 'combine'}) %>
 
 -   A few utility functions
 
-<%- include('/_inc/slice.html', {file: 'assembler.js', tag: 'utilities'}) %>
+<%- include('/_inc/keep.html', {file: 'assembler.js', key: 'utilities'}) %>
 
 -   Let's try running a few programs and display:
     -   Their output
@@ -161,13 +161,13 @@ Diagram of virtual machine architecture
 -   A few changes to the assembler
 -   Split the lines into instructions and data allocations
 
-<%- include('/_inc/slice.html', {file: 'allocate-data.js', tag: 'assemble'}) %>
+<%- include('/_inc/keep.html', {file: 'allocate-data.js', key: 'assemble'}) %>
 
-<%- include('/_inc/slice.html', {file: 'allocate-data.js', tag: 'split-allocations'}) %>
+<%- include('/_inc/keep.html', {file: 'allocate-data.js', key: 'split-allocations'}) %>
 
 -   Figure out where each allocation will lie and create a label accordingly
 
-<%- include('/_inc/slice.html', {file: 'allocate-data.js', tag: 'add-allocations'}) %>
+<%- include('/_inc/keep.html', {file: 'allocate-data.js', key: 'add-allocations'}) %>
 
 -   And that's it: no changes needed to compilation or execution
 -   Fill an array with the numbers from 0 to 3

@@ -52,7 +52,7 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
 <%- include('/_inc/file.html', {file: 'placed-block.js'}) %>
 <%- include('/_inc/file.html', {file: 'placed-row.js'}) %>
 <%- include('/_inc/file.html', {file: 'placed-column.js'}) %>
-<%- include('/_inc/erase.html', {file: 'test/test-placed.js', tag: 'large'}) %>
+<%- include('/_inc/erase.html', {file: 'test/test-placed.js', key: 'large'}) %>
 <%- include('/_inc/file.html', {file: 'test-placed.out'}) %>
 
 ## What subset of HTML and CSS will we support?
@@ -70,11 +70,11 @@ based on [Matt Brubeck's tutorial][browser-tutorial].
     -   And yes, the tests caught errors
 -   Main body
 
-<%- include('/_inc/erase.html', {file: 'parse.js', tag: 'makenode'}) %>
+<%- include('/_inc/erase.html', {file: 'parse.js', key: 'makenode'}) %>
 
 -   Two functions that do most of the work
 
-<%- include('/_inc/slice.html', {file: 'parse.js', tag: 'makenode'}) %>
+<%- include('/_inc/keep.html', {file: 'parse.js', key: 'makenode'}) %>
 
 -   Now define a generic class for rules and a subclass for each type of rule
 -   ID rules

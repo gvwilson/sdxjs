@@ -115,10 +115,10 @@ and quickly get into "if every atom in the universe was a file there still would
     -   Which are quite involved, since we want to check with actual file hashes
 -   Set up some fixtures
 
-<%- include('/_inc/slice.html', {file: 'test/test-backup.js', tag: 'fixtures'}) %>
+<%- include('/_inc/keep.html', {file: 'test/test-backup.js', key: 'fixtures'}) %>
 
 -   And then run some tests
 
-<%- include('/_inc/slice.html', {file: 'test/test-backup.js', tag: 'tests'}) %>
+<%- include('/_inc/keep.html', {file: 'test/test-backup.js', key: 'tests'}) %>
 
 <%- include('/_inc/file.html', {file: 'test-backup.out'}) %>

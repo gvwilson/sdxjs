@@ -199,13 +199,13 @@ const translate = (options, fileInfo, glossary, linksText, numbering) => {
     toRoot: toRoot(fileInfo.output),
     _codeClass,
     _exercise,
+    _lineCount,
     _numbering,
     _rawFile,
-    _readErase,
     _readFile,
     _readPage,
-    _readSlice,
-    _replace
+    _replace,
+    _section
   }
 
   // Since inclusions may contain inclusions, we need to provide the rendering
@@ -268,6 +268,19 @@ const _exercise = (render, root, chapter, exercise, which) => {
 }
 
 /**
+ * Count lines.
+ * @param {string} mainFile Name of file doing the inclusion.
+ * @param {string} subFile Name of file being included.
+ * @returns {string} Number of lines as string.
+ */
+const _lineCount = (mainFile, subFile) => {
+  const num = fs.readFileSync(`${path.dirname(mainFile)}/${subFile}`, 'utf-8')
+    .split('\n')
+    .length
+  return `${num}`
+}
+
+/**
  * Include numbering.
  * @param {Object} numbering Map slugs to numbers/letters.
  */
@@ -289,56 +302,23 @@ const _rawFile = (mainFile, subFile) => {
  * Read file for code inclusion.
  * @param {string} mainFile Name of file doing the inclusion.
  * @param {string} subFile Name of file being included.
- * @param {function} extract What to extract (if null, keep everything).
+ * @param {Array<function>} filters Filters to apply to text before escaping.
  * @returns {string} File contents (possibly with minimal HTML escaping).
  */
-const _readFile = (mainFile, subFile, extract = null) => {
+const _readFile = (mainFile, subFile, filters = []) => {
   let raw = _rawFile(mainFile, subFile)
   if (path.extname(subFile) === '.js') {
     raw = raw
       .replace(/\s*\/\/\s*eslint-disable-line.*$/gm, '')
       .replace(/\s*\/\*\s*eslint-disable\s+.*\*\/\s*$/gm, '')
   }
-  if (extract) {
-    raw = extract(mainFile, subFile, raw)
-  }
+  filters.forEach(filter => {
+    raw = filter(mainFile, subFile, raw)
+  })
   return raw
     .replace(/&/g, '&amp;')
     .replace(/>/g, '&gt;')
     .replace(/</g, '&lt;')
-}
-
-/**
- * Read file for code inclusion and keep a slice.
- * @param {string} mainFile Name of file doing the inclusion.
- * @param {string} subFile Name of file being included.
- * @param {string} tag Identifier for slice to keep.
- * @returns {string} File contents (possibly with minimal HTML escaping).
- */
-const _readSlice = (mainFile, subFile, tag) => {
-  const extract = (mainFile, subFile, raw) => {
-    const pattern = new RegExp(`//\\s*<${tag}>\\s*\n(.+?)\\s*//\\s*</${tag}>`, 's')
-    const match = raw.match(pattern)
-    assert(match,
-      `Failed to find tag ${tag} in ${mainFile}/${subFile}`)
-    return match[1]
-  }
-  return _readFile(mainFile, subFile, extract)
-}
-
-/**
- * Read file for code inclusion and delete a slice.
- * @param {string} mainFile Name of file doing the inclusion.
- * @param {string} subFile Name of file being included.
- * @param {string} tag Identifier for slice to erase.
- * @returns {string} File contents (possibly with minimal HTML escaping).
- */
-const _readErase = (mainFile, subFile, tag) => {
-  const extract = (mainFile, subFile, raw) => {
-    const pattern = new RegExp(`^\\s*//\\s*<${tag}>.+//\\s*</${tag}>\\s*$`, 'ms')
-    return raw.replace(pattern, '...')
-  }
-  return _readFile(mainFile, subFile, extract)
 }
 
 /**
@@ -363,6 +343,40 @@ const _replace = (original, marker, replacement) => {
   assert(original.includes(marker),
     `String "${original}" does not include marker "${marker}" for replacement`)
   return original.replace(marker, replacement)
+}
+
+/**
+ * Read a file and keep or discard sections (keep first, then discard from that).
+ * @param {string} mainFile Name of file doing the inclusion.
+ * @param {string} subFile Name of file being included.
+ * @param {string} options Controls for filtering.
+ * @returns {string} File contents (possibly with minimal HTML escaping).
+ */
+const _section = (mainFile, subFile, options) => {
+  const filters = []
+
+  if ('keep' in options) {
+    const extract = (mainFile, subFile, raw) => {
+      const key = options.keep
+      const pattern = new RegExp(`//\\s*<${key}>\\s*\n(.+?)\\s*//\\s*</${key}>`, 's')
+      const match = raw.match(pattern)
+      assert(match,
+        `Failed to find key ${key} in ${mainFile}/${subFile}`)
+      return match[1]
+    }
+    filters.push(extract)
+  }
+
+  if ('erase' in options) {
+    const extract = (mainFile, subFile, raw) => {
+      const key = options.erase
+      const pattern = new RegExp(`^\\s*//\\s*<${key}>.+//\\s*</${key}>\\s*$`, 'ms')
+      return raw.replace(pattern, '...')
+    }
+    filters.push(extract)
+  }
+
+  return _readFile(mainFile, subFile, filters)
 }
 
 /**
@@ -400,6 +414,11 @@ const finalize = (options) => {
     .map(pattern => glob.sync(pattern))
     .flat()
   copyFiles(options, sourceFiles)
+
+  // Save numbering for LaTeX.
+  const numbering = buildNumbering(options)
+  fs.writeFileSync(path.join(options.outputDir, 'numbering.js'),
+    JSON.stringify(numbering, null, 2), 'utf-8')
 }
 
 /**

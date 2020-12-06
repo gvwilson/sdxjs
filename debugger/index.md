@@ -15,23 +15,23 @@
     -   Remove comments and blank lines
     -   Run all commands by looking up command name and calling that method
 
-<%- include('/_inc/erase.html', {file: 'vm-base.js', tag: 'skip'}) %>
+<%- include('/_inc/erase.html', {file: 'vm-base.js', key: 'skip'}) %>
 
 -   Define a new variable with an initial value
 
-<%- include('/_inc/slice.html', {file: 'vm-base.js', tag: 'defV'}) %>
+<%- include('/_inc/keep.html', {file: 'vm-base.js', key: 'defV'}) %>
 
 -   Add two values
 
-<%- include('/_inc/slice.html', {file: 'vm-base.js', tag: 'add'}) %>
+<%- include('/_inc/keep.html', {file: 'vm-base.js', key: 'add'}) %>
 
 -   Run a `while` loop
 
-<%- include('/_inc/slice.html', {file: 'vm-base.js', tag: 'loop'}) %>
+<%- include('/_inc/keep.html', {file: 'vm-base.js', key: 'loop'}) %>
 
 -   Check that a variable name refers to an array
 
-<%- include('/_inc/slice.html', {file: 'vm-base.js', tag: 'checkArray'}) %>
+<%- include('/_inc/keep.html', {file: 'vm-base.js', key: 'checkArray'}) %>
 
 ## How can we make a tracing debugger?
 
@@ -41,7 +41,7 @@
 -   So we will cheat
     -   Add a line number to each interesting statement
 
-<%- include('/_inc/slice.html', {file: 'filter-source-map.json', tag: 'program'}) %>
+<%- include('/_inc/keep.html', {file: 'filter-source-map.json', key: 'program'}) %>
 
 -   Build the source map from that
     -   Modify `exec` to ignore the line number for now
@@ -90,21 +90,21 @@
     -   If this is a breakpoint, interactive
     -   Otherwise, keep going
 
-<%- include('/_inc/erase.html', {file: 'debugger-interactive.js', tag: 'skip'}) %>
+<%- include('/_inc/erase.html', {file: 'debugger-interactive.js', key: 'skip'}) %>
 
 -   Interact by lookup up command and invoking method
     -   Put input and output in methods that can be overridden later for testing purposes
 
-<%- include('/_inc/slice.html', {file: 'debugger-interactive.js', tag: 'interact'}) %>
+<%- include('/_inc/keep.html', {file: 'debugger-interactive.js', key: 'interact'}) %>
 
 -   Command handlers are then pretty straightforward
 -   Go to next line
 
-<%- include('/_inc/slice.html', {file: 'debugger-interactive.js', tag: 'next'}) %>
+<%- include('/_inc/keep.html', {file: 'debugger-interactive.js', key: 'next'}) %>
 
 -   Print the value of a variable
 
-<%- include('/_inc/slice.html', {file: 'debugger-interactive.js', tag: 'print'}) %>
+<%- include('/_inc/keep.html', {file: 'debugger-interactive.js', key: 'print'}) %>
 
 -   After using it, realized that we needed to change the signature of `loop`
     -   Want to stop the loop each time
@@ -125,7 +125,7 @@
     -   Check output when given
 -   Result looks like this:
 
-<%- include('/_inc/slice.html', {file: 'test/test-expect.js', tag: 'tests'}) %>
+<%- include('/_inc/keep.html', {file: 'test/test-expect.js', key: 'tests'}) %>
 
 -   The `Expect` class is simple
     -   But hard to understand because it is so abstract
@@ -146,7 +146,7 @@
 -   Can't pass the tester as a constructor parameter because of initialization order
 -   Go back to the test file and look at `setup`
 
-<%- include('/_inc/slice.html', {file: 'test/test-expect.js', tag: 'setup'}) %>
+<%- include('/_inc/keep.html', {file: 'test/test-expect.js', key: 'setup'}) %>
 
 -   Run it
 

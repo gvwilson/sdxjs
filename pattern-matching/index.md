@@ -56,11 +56,11 @@ it easily accounts for 95 percent of all instances."
 
 -   Regular expression matching
 
-<%- include('/_inc/erase.html', {file: 'simple-regex.js', tag: 'tests'}) %>
+<%- include('/_inc/erase.html', {file: 'simple-regex.js', key: 'tests'}) %>
 
 -   Some tests and output
 
-<%- include('/_inc/slice.html', {file: 'simple-regex.js', tag: 'tests'}) %>
+<%- include('/_inc/keep.html', {file: 'simple-regex.js', key: 'tests'}) %>
 <%- include('/_inc/file.html', {file: 'simple-regex.out'}) %>
 
 -   This works, but it's hard to extend
