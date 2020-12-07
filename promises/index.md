@@ -6,7 +6,7 @@
 -   Promises were added to JavaScript in 2015
     -   As in, "We promise to do this later"
 -   Show how they work by creating a <g key="class">class</g> of our own called `Pledge`
-    -   Based on [Trey Huffine's tutorial][huffine-promises]
+    -   Based on [Trey Huffine][huffine-trey]'s [tutorial][huffine-promises]
 
 ## How can we manage asynchronous execution?
 

@@ -2,7 +2,7 @@
 ---
 
 A pure-text layout engine showing how browsers decide what to put where,
-based on [Matt Brubeck's tutorial][browser-tutorial].
+based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 
 -   Inputs are:
     -   A very small subset of HTML, which is converted to <g key="dom">DOM</g> nodes

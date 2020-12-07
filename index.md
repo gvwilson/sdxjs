@@ -4,8 +4,7 @@
 The best way to learn software design is by example,
 and the best examples are the tools that developers use themselves.
 This project draws inspiration from <cite>Brown2011,Brown2012,Brown2016</cite>,
-[Gitlet][gitlet],
-[various][browser-tutorial] [tutorials][db-tutorial],
+[Mary Rose Cook][cook-mary-rose]'s [Gitlet][gitlet],
 and most of all from
 the trilogy that introduced the Unix philosophy to an entire generation of programmers
 <cite>Kernighan1979,Kernighan1988,Kernighan1983</cite>.

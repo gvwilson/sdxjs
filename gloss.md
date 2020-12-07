@@ -35,7 +35,7 @@
 <dt id="automatic_variable" class="glossary">automatic variable</dt>
 <dd class="glossary">A variable that is automatically given a value in a <g key="build_rule">build rule</g>. For example, Make automatically assigns the name of a rule's <g key="build_target">target</g> to the automatic variable <code>$@</code>. Automatic variables are frequently used when writing <g key="pattern_rule">pattern rules</g>.</dd>
 <dt id="backward_compatible" class="glossary">backward-compatible</dt>
-<dd class="glossary">Software which is able to be used the same way as earlier versions of itself without problems.</dd>
+<dd class="glossary">A property of a system, hardware or software, that allows for interoperability with an older legacy system, or with input designed for such a system.  For example a <g key="function">function</g> written in <g key="python">Python</g> 3 that can be run successfully with Python version 2 is backward-compatible.</dd>
 <dt id="base_class" class="glossary">base class</dt>
 <dd class="glossary">In <g key="oop">object-oriented programming</g>, a <g key="class">class</g> from which other classes are derived.</dd>
 <dt id="binary" class="glossary">binary</dt>
@@ -212,6 +212,8 @@
 <dd class="glossary">The thing on which a test is run, such as the <g key="parameter">parameters</g> to the function being tested or the file being processed.</dd>
 <dt id="for_loop" class="glossary">for loop</dt>
 <dd class="glossary">A construct in a program that repeats one or more other statements (the <g key="loop_body">loop body</g>) once for each item in a sequence, such as each number in a range or each element of a list.</dd>
+<dt id="function" class="glossary">function</dt>
+<dd class="glossary">A code block which gathers a sequence of operations into a whole, preserving it for ongoing use by defining a set of tasks that takes zero or more required and optional arguments as inputs and returns expected outputs (return values), if any. Functions enable repeating these defined tasks with one command, known as a function call.</dd>
 <dt id="generator_function" class="glossary">generator function</dt>
 <dd class="glossary">A function whose state is automatically saved when it returns a value so that execution can be restarted from that point the next time it is called. One example of generator functions use is to produce streams of values that can be processed by <g key="for_loop">for loops</g>.</dd>
 <dt id="generic_function" class="glossary">generic function</dt>

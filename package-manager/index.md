@@ -12,7 +12,7 @@
     -   What if A and B require different versions of C?
     -   Or requires different ranges of versions of C, but there is overlap?
 -   Explore how to find a workable installation or prove that there isn't one
-    -   Based in part on [this tutorial][package-manager-tutorial] by Maël Nison
+    -   Based in part on [this tutorial][package-manager-tutorial] by [Maël Nison][nison-mael]
 
 ::: callout
 ### Satisfiability
