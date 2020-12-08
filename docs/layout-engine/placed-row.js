@@ -1,6 +1,6 @@
 import { Row } from './easy-mode.js'
 
-class PlacedRow extends Row {
+export default class PlacedRow extends Row {
   constructor (...children) {
     super(...children)
     this.x0 = null
@@ -25,5 +25,3 @@ class PlacedRow extends Row {
     ]
   }
 }
-
-export { PlacedRow as Row }

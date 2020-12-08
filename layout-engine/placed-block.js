@@ -1,6 +1,6 @@
 import { Block } from './easy-mode.js'
 
-class PlacedBlock extends Block {
+export default class PlacedBlock extends Block {
   constructor (width, height) {
     super(width, height)
     this.x0 = null
@@ -16,5 +16,3 @@ class PlacedBlock extends Block {
     return ['block', this.x0, this.y1]
   }
 }
-
-export { PlacedBlock as Block }

@@ -10,7 +10,7 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 -   Processing is:
     -   Produce a tree of styled nodes from the DOM
     -   Walk this tree to figure out where each visible element belongs
-    -   Render this (as plain text)
+    -   Render this as plain text
 
 ## How can we size rows and columns?
 
@@ -46,14 +46,43 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
     -   Place the first child at (x0, y1)
     -   Place the next at (x0, y1 - height), etc.
 -   Derive three classes from previous classes to save testing (and printing space)
-    -   Renaming during export can be confusing during normal development
-    -   But saves us from having lots of classes with slightly different names in a tutorial
 
 <%- include('/_inc/file.html', {file: 'placed-block.js'}) %>
 <%- include('/_inc/file.html', {file: 'placed-row.js'}) %>
 <%- include('/_inc/file.html', {file: 'placed-column.js'}) %>
+
+-   Write and run some tests
+
 <%- include('/_inc/erase.html', {file: 'test/test-placed.js', key: 'large'}) %>
 <%- include('/_inc/file.html', {file: 'test-placed.out'}) %>
+
+## How can we wrap blocks to fit?
+
+-   Suppose we fix the width of a row
+    -   For now, assume all its children are less than or equal to this width
+-   Layout may need to wrap around
+    -   Assume columns can always be made as big as they need to be
+-   Solve the problem by transforming the tree
+-   Blocks and columns become themselves
+    -   But we need to wrap columns' children, so that class still needs a new method
+
+<%- include('/_inc/file.html', {file: 'wrapped-column.js'}) %>
+
+-   Each row is replaced with a row containing a single column with one or more rows (wrapping)
+    -   Replacement is unnecessary when everything will fit on a single row, but uniform is easier to code
+-   Constructor takes the width followed by the children
+-   Return the fixed width when asked
+
+<%- include('/_inc/erase.html', {file: 'wrapped-row.js', key: 'wrap'}) %>
+
+-   Wrapping puts children into buckets, then converts the buckets to a row of a column of rows
+
+<%- include('/_inc/keep.html', {file: 'wrapped-row.js', key: 'wrap'}) %>
+
+-   Bring forward all the previous tests (with an extra row and column where needed)
+-   Write some new ones
+
+<%- include('/_inc/keep.html', {file: 'test/test-wrapped.js', key: 'example'}) %>
 
 ## What subset of HTML and CSS will we support?
 
@@ -100,15 +129,3 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
     -   Requires custom sorting that depends on CSS classes having a precedence order
 
 <%- include('/_inc/file.html', {file: 'micro-css-ruleset.js'}) %>
-
-## What about wrapping?
-
-::: fixme
-handle wrap-around in fixed width boxes
-:::
-
-## What about clipping?
-
-::: fixme
-handle clipping if something can't be made to fit
-:::

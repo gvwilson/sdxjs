@@ -1,8 +1,8 @@
 import assert from 'assert'
 
-import { Block } from '../placed-block.js'
-import { Row } from '../placed-row.js'
-import { Column } from '../placed-column.js'
+import Block from '../placed-block.js'
+import Row from '../placed-row.js'
+import Column from '../placed-column.js'
 
 describe('places blocks', () => {
   it('places a single unit block', async () => {
@@ -23,7 +23,7 @@ describe('places blocks', () => {
     )
   })
 
-  it('lays out a row of two blocks', async () => {
+  it('places a row of two blocks', async () => {
     const fixture = new Row(
       new Block(1, 1),
       new Block(2, 4)
@@ -35,7 +35,7 @@ describe('places blocks', () => {
     )
   })
 
-  it('lays out a column of two blocks', async () => {
+  it('places a column of two blocks', async () => {
     const fixture = new Column(
       new Block(1, 1),
       new Block(2, 4)
@@ -48,7 +48,7 @@ describe('places blocks', () => {
   })
 
   // <large>
-  it('lays out a grid of rows of columns', async () => {
+  it('places a grid of rows of columns', async () => {
     const fixture = new Column(
       new Row(
         new Block(1, 2),

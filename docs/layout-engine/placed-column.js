@@ -1,6 +1,6 @@
 import { Column } from './easy-mode.js'
 
-class PlacedColumn extends Column {
+export default class PlacedColumn extends Column {
   constructor (...children) {
     super(...children)
     this.x0 = null
@@ -24,5 +24,3 @@ class PlacedColumn extends Column {
     ]
   }
 }
-
-export { PlacedColumn as Column }
