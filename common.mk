@@ -101,7 +101,7 @@ terms:
 
 ## exercises: count exercises per chapter
 exercises:
-	@bin/exercises.js ${VOLUME}.yml | column -t -s ':'
+	@bin/exercises.js ${VOLUME}.yml | column -t -s '|'
 
 ## examples: rebuild all examples in sub-directories
 examples:
@@ -121,7 +121,7 @@ spelling: docs/${VOLUME}/index.html
 
 ## pages: count pages per chapter.
 pages: ${VOLUME}.aux
-	@bin/pages.js ${VOLUME}.aux | column -t -s ':'
+	@bin/pages.js ${VOLUME}.aux | column -t -s '|'
 
 ## clean: clean up
 clean:

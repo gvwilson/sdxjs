@@ -7,19 +7,19 @@ const main = () => {
     .split('\n')
     .map(line => interesting(line))
     .filter(entry => entry !== null)
-  console.log('Index : Title : Pages')
-  console.log('----- : ----- : -----')
+  console.log('Index | Title | Pages')
+  console.log('----- | ----- | -----')
   entries.forEach((entry, i) => {
     if (i === (entries.length - 1)) {
       return
     }
     const pages = entries[i + 1].page - entry.page
     const index = entry.index === null ? '' : entry.index
-    console.log(`${index} : ${entry.name} : ${pages}`)
+    console.log(`${index} | ${entry.name} | ${pages}`)
   })
-  console.log('----- : ----- : -----')
+  console.log('----- | ----- | -----')
   const total = entries[entries.length - 1].page
-  console.log(` : Total : ${total}`)
+  console.log(` | Total | ${total}`)
 }
 
 const interesting = (line) => {

@@ -19,6 +19,9 @@ see <xref key="license"></xref> for details.
 
 ## Audience
 
+Every lesson should be written with specific learners in mind.
+These [learner personas][t3-personas] define ours:
+
 -   Aïsha started writing VB macros for Excel in an accounting course and never looked back.
     She has spent the last three years doing front-end JavaScript work
     and now wants to learn how to build back-end applications.
@@ -42,26 +45,9 @@ see <xref key="license"></xref> for details.
 
 ## Content
 
-Programmers have invented [a lot of different tools][programming-tools]
-to make their lives easier.
-Since we don't have space to cover them all,
-we have focused on tools that individual developers would use while writing software.
-We have therefore left out:
-
--   front-end frameworks
--   web servers
--   relational databases
--   document-oriented databases
--   object-relational mappers
--   issue trackers
--   continuous integration servers
--   search engines
--   chat and other real-time collaboration tools
-
-They are all interesting,
-and we hope readers will enjoy this book enough
-to contribute chapters on these topics and others
-to a second volume.
+Programmers have invented [a lot of tools][programming-tools] to make their lives easier.
+This volume focuses on the ones that individual developers use while writing software;
+we hope that the second volume will explore those that go into the applications programmers build.
 
 <div class="html-only">
 <%- include('/inc/contents.html') %>

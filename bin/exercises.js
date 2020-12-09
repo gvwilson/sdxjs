@@ -19,15 +19,15 @@ const main = () => {
       chaptersWithout += (count === '-') ? 1 : 0
       return { title, count }
     })
-  console.log('Chapter : Exercises')
-  console.log('------- : ---------')
+  console.log('Chapter | Exercises')
+  console.log('------- | ---------')
   info.forEach(({ title, count }) => {
-    console.log(`${title} : ${count}`)
+    console.log(`${title} | ${count}`)
   })
-  console.log('------- : ---------')
-  console.log(`Total : ${total}`)
-  console.log(`With : ${chaptersWith}`)
-  console.log(`Without : ${chaptersWithout}`)
+  console.log('------- | ---------')
+  console.log(`Total | ${total}`)
+  console.log(`With | ${chaptersWith}`)
+  console.log(`Without | ${chaptersWithout}`)
 }
 
 main()
