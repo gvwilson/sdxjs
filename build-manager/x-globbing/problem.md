@@ -6,7 +6,7 @@ glob:
   pattern: "./*.in"
 ```
 
-::: unindented
+::: continue
 and then refer to them later:
 :::
 

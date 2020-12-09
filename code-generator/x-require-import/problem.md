@@ -7,7 +7,7 @@ for example, if the input is:
 const name = require('module')
 ```
 
-::: unindented
+::: continue
 then the output is:
 :::
 

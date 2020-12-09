@@ -182,7 +182,7 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
       accum.push('\\begin{lstlisting}[caption=FIXME]\n')
       accum.push('FIXME display sub-page')
       accum.push('\\end{lstlisting}')
-    } else if (cls === 'unindented') {
+    } else if (cls === 'continue') {
       accum.push('\\begin{unindented}')
       childrenToLatex(options, fileInfo, node, accum)
       accum.push('\\end{unindented}')

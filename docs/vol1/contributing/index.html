@@ -134,31 +134,62 @@ and <code>ready for review</code> when the pull request is ready for review or b
 We will reorganize these once we have written enough to see overall scope.</p>
 </li>
 </ol>
-<h2 id="format">Format</h2>
+<h2 id="structure">Structure</h2>
 <ol>
 <li>
-<p>We use <a href="https://ejs.co/">EJS</a> to create our website.
-Please write in Markdown where you can, and use HTML tags for special cases.
-(Note that you cannot nest Markdown inside HTML.)</p>
+<p>Each lesson is in a file <code>./slug/index.md</code>,
+where &quot;slug&quot; is a hyphenated short name for the topic (e.g., <code>build-manager</code>).</p>
+</li>
+<li>
+<p>The home page for a Volume 1 is in <code>./vol1/index.md</code>,
+and the home pages for other volumes will be in similarly-named directories.</p>
+</li>
+<li>
+<p>The home page for the site as a whole is in <code>./index.html</code>.
+At present, this immediately redirects to the home page of Volume 1.</p>
+</li>
+</ol>
+<h2 id="writing-style">Writing Style</h2>
+<ol>
+<li>
+<p>Please install <a href="https://wave.webaim.org/">WAVE</a> and check that pages are accessible
+before committing changes.</p>
+</li>
+<li>
+<p>Write in Markdown wherever possible; only use HTML tags for special cases.
+Note that you cannot nest Markdown inside HTML.</p>
 </li>
 <li>
 <p>Use first person plural (&quot;we&quot; rather than &quot;you&quot;),
 Simplified English (i.e., American spelling),
-and the Oxford comma.
-Do not use exclamation marks—few things are actually that surprising the first time around,
+and the Oxford comma.</p>
+</li>
+<li>
+<p>Do not use exclamation marks—few things are actually that surprising the first time around,
 and none the second.</p>
 </li>
 <li>
-<p><code>config.yml</code> contains configuration information and metadata about chapters and appendices.</p>
-</li>
-<li>
-<p>Each lesson is in a file <code>./slug/index.md</code>,
-where &quot;slug&quot; is a hyphenated short name for the topic (e.g., <code>writing-functions</code>).</p>
-</li>
-<li>
-<p>Use level-2 headings for sub-topics, and phrase these as questions
+<p>Use level-2 headings for sub-topics, and phrase their titles as questions
 (e.g., &quot;How do I check if a file exists?&quot;).
-Do not use headings below level 3.</p>
+Do not use headings below level 2 except in callouts.</p>
+</li>
+<li>
+<p>To display a callout box, use:</p>
+<pre><code>::: callout
+### Title of callout (in sentence case).
+
+body of callout
+:::
+</code></pre>
+</li>
+<li>
+<p>Use a similar syntax with:</p>
+<ul>
+<li><code>centered</code> to create centered blocks</li>
+<li><code>continue</code> to continue a paragraph after a code sample</li>
+<li><code>fixme</code> to create FIXME markers for further work</li>
+<li><code>hint</code> for exercise hints</li>
+</ul>
 </li>
 <li>
 <p>Put definitions of external links in <code>links.yml</code>
@@ -168,66 +199,133 @@ Entries should be in alphabetical order by slug.</p>
 <li>
 <p>Write cross-references like <code>&lt;xref key=&quot;slug&quot;&gt;&lt;/xref&gt;</code> or <code>&lt;xref key=&quot;slug&quot;&gt;some text&lt;/xref&gt;</code>
 to refer from one chapter or appendix to another.
-(We cannot use the empty tag <code>&lt;xref key=&quot;slug&quot;/&gt;</code> because the parser doesn't like it.)
-<code>static/site.js</code> converts this to a glossary reference in the online version
-and <code>bin/latex.js</code> converts it for the PDF version;
+(We cannot use the empty tag <code>&lt;xref key=&quot;slug&quot;/&gt;</code> because the Markdown parser doesn't like it.)
 if no text is provided inside the tag,
 we fill it in with <code>Chapter N</code> or <code>Appendix X</code>.</p>
 </li>
 <li>
 <p>When defining a term, use something like <code>&lt;g key=&quot;absolute_path&quot;&gt;absolute path&lt;/g&gt;</code>.
-The key must exist in either <code>gloss.yml</code> (our local glossary),
-and again, <code>static/site.js</code> and <code>bin/latex.js</code> convert this to a glossary reference.</p>
+The key must exist in either <code>gloss.yml</code> (our local glossary)
+or <a href="https://github.com/carpentries/glosario">Glosario</a>;
+definitions in the former override definitions in the latter.</p>
 </li>
 <li>
 <p>Use something like <code>&lt;cite&gt;Osmani2017,Casciaro2020&lt;/cite&gt;</code> for bibliographic citations.
-The keys must exist in <code>bib.yml</code>, and yes, <code>static/site.js</code> and <code>bin/latex.js</code> do the conversions.</p>
+The keys must exist in <code>bib.yml</code>.</p>
 </li>
 <li>
 <p>We use <a href="https://standardjs.com/">JavaScript Standard Style</a> almost everywhere
-(&quot;almost&quot; because some of our examples have to break the rules to illustrate points).
+(&quot;almost&quot; because some of our examples have to break rules to illustrate points
+or to fit on the printed page).
 Please install <code>standard</code> and check your code with it using <code>make standard</code> before committing;
 if you need to break a rule, add an <a href="https://eslint.org/">ESLint</a> directive to the source file:
-<code>bin/html.js</code> removes these during Markdown-to-HTML conversion.</p>
-</li>
-<li>
-<p>There is a Makefile in each topic directory that rebuilds all of the included files for that topic.</p>
-<ol>
-<li>All output is saved in <code>.txt</code> files
-(except for a few cases where the output is runnable JavaScript, which is saved in <code>.js</code> files).</li>
-<li>The rules to re-run simple cases that don't require command-line arguments or error handling
-are in <code>./rules.mk</code>.</li>
-<li>More complicated cases are in shell scripts (<code>.sh</code> files).
-All the mechanics of re-running examples must be in the <code>.sh</code> file rather than the Makefile
-so that the commands used to re-create an example can be included in the chapter file.</li>
-</ol>
+<code>./bin/html.js</code> removes these during Markdown-to-HTML conversion.</p>
 </li>
 </ol>
-<h2 id="exercises">Exercises</h2>
+<h3 id="exercises">Exercises</h3>
 <ol>
 <li>
-<p>Create a sub-directory for each, e.g., <code>style-checker/some-question</code>.</p>
+<p>Create a sub-directory for each exercise, e.g., <code>style-checker/x-some-question</code>.
+(We use the <code>x-</code> prefix to make exercise directories easier to see.)</p>
 </li>
 <li>
 <p>Add a file in that sub-directory called <code>problem.md</code> and another called <code>solution.md</code>.
 Do <em>not</em> put the exercise title in either file.</p>
 </li>
 <li>
-<p>Put any files needed for the exercise in the same sub-directory,
-and include the sub-directory name when including them in the Markdown.</p>
+<p>Put any files needed for the exercise in the same sub-directory.</p>
 </li>
 <li>
 <p>Add a key <code>exercises</code> to the YAML for the chapter with sub-keys <code>slug</code> and <code>title</code>.
-The slug must match the sub-directory name (e.g., <code>some-question</code>);
+The slug must match the sub-directory name (e.g., <code>x-some-question</code>);
 the title will be used as a level-3 heading in the chapter and in the solutions.</p>
 </li>
 </ol>
-<h2 id="tasks-and-tools">Tasks and Tools</h2>
+<h2 id="configuration-and-build">Configuration and Build</h2>
+<p><a href="https://www.npmjs.com/">NPM</a> doesn't allow us to make tasks depend on one another,
+so we use <a href="https://www.gnu.org/software/make/">GNU Make</a> to manage our build.
+To see the available commands, run <code>make</code> without any targets.
+In order to handle multiple volumes in a single repository,
+we have split configuration between several files.</p>
+<ul>
+<li>
+<p><code>./Makefile</code>: defines <code>VOLUME</code> to be <code>vol1</code> and includes <code>./common.mk</code>
+so that all targets in the latter can be rebuilt without specifying a Makefile name.
+As Volume 2 takes shape, we will rework this so that it's easy to rebuild both volumes.</p>
+</li>
+<li>
+<p><code>./common.mk</code>: defines targets to build HTML and PDF versions of a single volume
+along with many supporting commands.</p>
+</li>
+<li>
+<p><code>./common.yml</code>: configuration values shared by all volumes.</p>
+</li>
+<li>
+<p><code>./vol1.yml</code>: configuration values for Volume 1.
+We will create an equivalent file for Volume 2 as it takes shape.</p>
+</li>
+</ul>
+<h3 id="recreating-examples">Re-creating Examples</h3>
+<p><code>./examples.mk</code> contains rules for re-creating examples.
+Each chapter directory contains a Makefile that:</p>
+<ul>
+<li>
+<p>defines the files to be rebuilt as <code>TARGETS</code>,</p>
+</li>
+<li>
+<p>includes <code>./examples.mk</code>, and</p>
+</li>
+<li>
+<p>lists any extra dependencies or rules the chapter needs.</p>
+</li>
+</ul>
+<p>The rules in <code>./examples.mk</code> can re-create these types of files:</p>
+<ul>
+<li>
+<p><code>.html</code>: HTML-formatted text.</p>
+</li>
+<li>
+<p><code>.out</code>: plain text that is to be HTML-escaped when included.
+(We use <code>.out</code> as a suffix rather than <code>.txt</code> to make the files easier to identify.)</p>
+</li>
+<li>
+<p><code>.raw.out</code>: plain text that is <em>not</em> to be HTML-escaped when included.</p>
+</li>
+<li>
+<p><code>.slice.out</code>: a subset of plain-txt output.
+(The two-part suffix tells the Make rules to slice output.)</p>
+</li>
+</ul>
+<p>Shell scripts are used whenever command-line arguments are needed to re-create a file.
+The rules used to re-create a file <code>something.suffix</code> are (in order):</p>
 <ol>
-<li>NPM doesn't allow us to document our tasks or make them depend on one another,
-so we use <a href="https://www.npmjs.com/">NPM</a> to manage packages and GNU Make to run tasks:
-run <code>make</code> to get help with the latter.
-All of our tools are in the <code>bin</code> directory.</li>
+<li>
+<p>If there is a shell script <code>something.sh</code> <em>and</em> a JavaScript file <code>something.js</code>,
+then <code>something.suffix</code> depends on both
+and is re-created by running the shell script.</p>
+</li>
+<li>
+<p>If there is only a shell script <code>something.sh</code>
+then <code>something.suffix</code> depends on it and is re-created by running it.</p>
+</li>
+<li>
+<p>Finally,
+if there is a JavaScript file <code>something.js</code> but not a shell script,
+<code>something.suffix</code> depends on the <code>.js</code> file and is re-created by running it.</p>
+</li>
+</ol>
+<h3 id="miscellaneous">Miscellaneous</h3>
+<ol>
+<li>
+<p>We use <a href="https://ejs.co/">EJS</a> to turn Markdown into HTML.
+Our HTML fragments are all in <code>./inc/*.html</code>;
+please see <code>./inc/README.md</code> for an inventory
+and the comments in individual files for usage.</p>
+</li>
+<li>
+<p>All of our tools are written in JavaScript and placed in the <code>bin</code> directory;
+please see <code>./bin/README.md</code> for an inventory.</p>
+</li>
 </ol>
 </main>
 <footer>

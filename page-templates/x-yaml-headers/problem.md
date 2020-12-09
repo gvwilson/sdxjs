@@ -12,6 +12,6 @@ name: "Dorothy Johnson Vaughan"
 </html>
 ```
 
-::: unindented
+::: continue
 will create a paragraph containing the given name.
 :::

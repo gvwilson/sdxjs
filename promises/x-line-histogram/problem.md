@@ -9,7 +9,7 @@ if we run:
 node lh.js promises/*.*
 ```
 
-::: unindented
+::: continue
 the output might be:
 :::
 

@@ -7,7 +7,7 @@ so that:
 node head.js 5 first.txt second.txt third.txt
 ```
 
-::: unindented
+::: continue
 prints the first 5 lines of each of the three files and:
 :::
 
@@ -15,6 +15,6 @@ prints the first 5 lines of each of the three files and:
 node tail.js 5 first.txt second.txt third.txt
 ```
 
-::: unindented
+::: continue
 prints the last five lines of each file.
 :::

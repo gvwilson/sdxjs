@@ -7,7 +7,7 @@ Write a tool that:
 2.  Extracts the code and output from those blocks comments
     and turns them into assertions.
 
-::: unindented
+::: continue
 For example, given this input:
 :::
 
@@ -26,7 +26,7 @@ const findIncreasing = (values) => {
 }
 ```
 
-::: unindented
+::: continue
 the tool would produce:
 :::
 

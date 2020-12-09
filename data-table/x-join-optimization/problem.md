@@ -10,7 +10,7 @@ For example, suppose the tables are:
 | B   | b1   |
 | C   | c1   |
 
-::: unindented
+::: continue
 and:
 :::
 
@@ -26,7 +26,7 @@ The first step is to create a `Map` showing where each key is found in the first
 {A: [0], B: [1], C: [2]}
 ```
 
-::: unindented
+::: continue
 The second step is to create a similar `Map` for the second table:
 :::
 
@@ -34,7 +34,7 @@ The second step is to create a similar `Map` for the second table:
 {A: [0, 1], B: [2]}
 ```
 
-::: unindented
+::: continue
 We can then loop over the keys in one of the maps,
 look up values in the second map,
 and construct all of the matches.

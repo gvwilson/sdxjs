@@ -3,7 +3,7 @@ and attach both `then` and `catch` to it:
 
 <%- include('/inc/file.html', {file: 'x-catch-then/example.js'}) %>
 
-::: unindented
+::: continue
 When the code is run it produces:
 :::
 

@@ -2,12 +2,12 @@ Suppose that `main.js` contains this:
 
 <%- include('/inc/file.html', {file: 'x-refactoring-circularity/main.js'}) %>
 
-::: unindented
+::: continue
 and `plugin.js` contains this:
 :::
 
 <%- include('/inc/file.html', {file: 'x-refactoring-circularity/plugin.js'}) %>
 
-::: unindented
+::: continue
 Refactor this code so that it works correctly while still using `require` rather than `import`.
 :::

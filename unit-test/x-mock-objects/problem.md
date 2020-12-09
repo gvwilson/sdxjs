@@ -11,7 +11,7 @@ const mockReadFileSync = (filename, encoding = 'utf-8') => {
 }
 ```
 
-::: unindented
+::: continue
 and then modify it so that it throws an exception under our control.
 For example,
 if we define `MOCK_READ_FILE_CONTROL` like this:
@@ -21,7 +21,7 @@ if we define `MOCK_READ_FILE_CONTROL` like this:
 const MOCK_READ_FILE_CONTROL = [false, false, true, false, true]
 ```
 
-::: unindented
+::: continue
 then the third and fifth calls to `mockReadFileSync` throw an exception instead of reading data,
 as do any calls after the fifth.
 Write this function.

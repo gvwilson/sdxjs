@@ -4,6 +4,6 @@ Modify the build manager so that:
 node build.js -C some/sub/directory rules.yml timestamps.yml
 ```
 
-::: unindented
+::: continue
 runs the build in the specified directory rather than the current directory.
 :::

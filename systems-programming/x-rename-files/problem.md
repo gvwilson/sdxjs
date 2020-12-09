@@ -15,7 +15,7 @@ The command:
 rename .txt .bck a.txt b.txt
 ```
 
-::: unindented
+::: continue
 will rename `a.txt` to `a.bck`,
 but will *not* rename `b.txt` because `b.bck` already exists.
 :::

@@ -8,7 +8,7 @@
   \includegraphics[width=0.2\linewidth]{static/gvwilson.png}
 </div>
 
-::: unindented
+::: continue
 [Greg Wilson][wilson-greg] has worked for 35 years in both industry and academia,
 and is the author or editor of several books on computing,
 including <em>Beautiful Code</em>,

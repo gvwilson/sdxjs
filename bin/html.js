@@ -203,9 +203,9 @@ const translate = (options, fileInfo, glossary, linksText, numbering) => {
     .use(MarkdownAnchor, { level: 1, slugify: slugify })
     .use(MarkdownContainer, 'callout')
     .use(MarkdownContainer, 'centered')
+    .use(MarkdownContainer, 'continue')
     .use(MarkdownContainer, 'fixme')
     .use(MarkdownContainer, 'hint')
-    .use(MarkdownContainer, 'unindented')
   let html = mdi.render(translated)
   if (options.replaceDir) {
     html = html.replace(new RegExp(options.homeDir, 'g'), STANDARD_DIR)

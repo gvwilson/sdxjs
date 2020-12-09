@@ -57,26 +57,51 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
 1.  The first draft for each topic should be point-form notes and working code.
     We will reorganize these once we have written enough to see overall scope.
 
-## Format
+## Structure
 
-1.  We use [EJS][ejs] to create our website.
-    Please write in Markdown where you can, and use HTML tags for special cases.
-    (Note that you cannot nest Markdown inside HTML.)
+1.  Each lesson is in a file `./slug/index.md`,
+    where "slug" is a hyphenated short name for the topic (e.g., `build-manager`).
+
+1.  The home page for a Volume 1 is in `./vol1/index.md`,
+    and the home pages for other volumes will be in similarly-named directories.
+
+1.  The home page for the site as a whole is in `./index.html`.
+    At present, this immediately redirects to the home page of Volume 1.
+
+## Writing Style
+
+1.  Please install [WAVE][webaim-wave] and check that pages are accessible
+    before committing changes.
+
+1.  Write in Markdown wherever possible; only use HTML tags for special cases.
+    Note that you cannot nest Markdown inside HTML.
 
 1.  Use first person plural ("we" rather than "you"),
     Simplified English (i.e., American spelling),
     and the Oxford comma.
-    Do not use exclamation marks—few things are actually that surprising the first time around,
+
+1.  Do not use exclamation marks—few things are actually that surprising the first time around,
     and none the second.
 
-1.  `config.yml` contains configuration information and metadata about chapters and appendices.
-
-1.  Each lesson is in a file `./slug/index.md`,
-    where "slug" is a hyphenated short name for the topic (e.g., `writing-functions`).
-
-1.  Use level-2 headings for sub-topics, and phrase these as questions
+1.  Use level-2 headings for sub-topics, and phrase their titles as questions
     (e.g., "How do I check if a file exists?").
-    Do not use headings below level 3.
+    Do not use headings below level 2 except in callouts.
+
+1.  To display a callout box, use:
+
+    ```
+    ::: callout
+    ### Title of callout (in sentence case).
+
+    body of callout
+    :::
+    ```
+
+1.  Use a similar syntax with:
+    -   `centered` to create centered blocks
+    -   `continue` to continue a paragraph after a code sample
+    -   `fixme` to create FIXME markers for further work
+    -   `hint` for exercise hints
 
 1.  Put definitions of external links in `links.yml`
     and refer to them using `[text to display][link-key]`.
@@ -84,51 +109,102 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
 
 1.  Write cross-references like `<xref key="slug"></xref>` or `<xref key="slug">some text</xref>`
     to refer from one chapter or appendix to another.
-    (We cannot use the empty tag `<xref key="slug"/>` because the parser doesn't like it.)
-    `static/site.js` converts this to a glossary reference in the online version
-    and `bin/latex.js` converts it for the PDF version;
+    (We cannot use the empty tag `<xref key="slug"/>` because the Markdown parser doesn't like it.)
     if no text is provided inside the tag,
     we fill it in with `Chapter N` or `Appendix X`.
 
 1.  When defining a term, use something like `<g key="absolute_path">absolute path</g>`.
-    The key must exist in either `gloss.yml` (our local glossary),
-    and again, `static/site.js` and `bin/latex.js` convert this to a glossary reference.
+    The key must exist in either `gloss.yml` (our local glossary)
+    or [Glosario][glosario];
+    definitions in the former override definitions in the latter.
 
 1.  Use something like `<cite>Osmani2017,Casciaro2020</cite>` for bibliographic citations.
-    The keys must exist in `bib.yml`, and yes, `static/site.js` and `bin/latex.js` do the conversions.
+    The keys must exist in `bib.yml`.
 
 1.  We use [JavaScript Standard Style][standard-js] almost everywhere
-    ("almost" because some of our examples have to break the rules to illustrate points).
+    ("almost" because some of our examples have to break rules to illustrate points
+    or to fit on the printed page).
     Please install `standard` and check your code with it using `make standard` before committing;
     if you need to break a rule, add an [ESLint][eslint] directive to the source file:
-    `bin/html.js` removes these during Markdown-to-HTML conversion.
+    `./bin/html.js` removes these during Markdown-to-HTML conversion.
 
-1.  There is a Makefile in each topic directory that rebuilds all of the included files for that topic.
-    1.  All output is saved in `.txt` files
-        (except for a few cases where the output is runnable JavaScript, which is saved in `.js` files).
-    1.  The rules to re-run simple cases that don't require command-line arguments or error handling
-        are in `./rules.mk`.
-    1.  More complicated cases are in shell scripts (`.sh` files).
-        All the mechanics of re-running examples must be in the `.sh` file rather than the Makefile
-        so that the commands used to re-create an example can be included in the chapter file.
+### Exercises
 
-## Exercises
-
-1.  Create a sub-directory for each, e.g., `style-checker/some-question`.
+1.  Create a sub-directory for each exercise, e.g., `style-checker/x-some-question`.
+    (We use the `x-` prefix to make exercise directories easier to see.)
 
 1.  Add a file in that sub-directory called `problem.md` and another called `solution.md`.
     Do *not* put the exercise title in either file.
 
-1.  Put any files needed for the exercise in the same sub-directory,
-    and include the sub-directory name when including them in the Markdown.
+1.  Put any files needed for the exercise in the same sub-directory.
 
 1.  Add a key `exercises` to the YAML for the chapter with sub-keys `slug` and `title`.
-    The slug must match the sub-directory name (e.g., `some-question`);
+    The slug must match the sub-directory name (e.g., `x-some-question`);
     the title will be used as a level-3 heading in the chapter and in the solutions.
 
-## Tasks and Tools
+## Configuration and Build
 
-1.  NPM doesn't allow us to document our tasks or make them depend on one another,
-    so we use [NPM][npm] to manage packages and GNU Make to run tasks:
-    run `make` to get help with the latter.
-    All of our tools are in the `bin` directory.
+[NPM][npm] doesn't allow us to make tasks depend on one another,
+so we use [GNU Make][gnu-make] to manage our build.
+To see the available commands, run `make` without any targets.
+In order to handle multiple volumes in a single repository,
+we have split configuration between several files.
+
+-   `./Makefile`: defines `VOLUME` to be `vol1` and includes `./common.mk`
+    so that all targets in the latter can be rebuilt without specifying a Makefile name.
+    As Volume 2 takes shape, we will rework this so that it's easy to rebuild both volumes.
+
+-   `./common.mk`: defines targets to build HTML and PDF versions of a single volume
+    along with many supporting commands.
+
+-   `./common.yml`: configuration values shared by all volumes.
+
+-   `./vol1.yml`: configuration values for Volume 1.
+    We will create an equivalent file for Volume 2 as it takes shape.
+
+### Re-creating Examples
+
+`./examples.mk` contains rules for re-creating examples.
+Each chapter directory contains a Makefile that:
+
+-   defines the files to be rebuilt as `TARGETS`,
+
+-   includes `./examples.mk`, and
+
+-   lists any extra dependencies or rules the chapter needs.
+
+The rules in `./examples.mk` can re-create these types of files:
+
+-   `.html`: HTML-formatted text.
+
+-   `.out`: plain text that is to be HTML-escaped when included.
+    (We use `.out` as a suffix rather than `.txt` to make the files easier to identify.)
+
+-   `.raw.out`: plain text that is *not* to be HTML-escaped when included.
+
+-   `.slice.out`: a subset of plain-txt output.
+    (The two-part suffix tells the Make rules to slice output.)
+
+Shell scripts are used whenever command-line arguments are needed to re-create a file.
+The rules used to re-create a file `something.suffix` are (in order):
+
+1.  If there is a shell script `something.sh` *and* a JavaScript file `something.js`,
+    then `something.suffix` depends on both
+    and is re-created by running the shell script.
+
+1.  If there is only a shell script `something.sh`
+    then `something.suffix` depends on it and is re-created by running it.
+
+1.  Finally,
+    if there is a JavaScript file `something.js` but not a shell script,
+    `something.suffix` depends on the `.js` file and is re-created by running it.
+
+### Miscellaneous
+
+1.  We use [EJS][ejs] to turn Markdown into HTML.
+    Our HTML fragments are all in `./inc/*.html`;
+    please see `./inc/README.md` for an inventory
+    and the comments in individual files for usage.
+
+1.  All of our tools are written in JavaScript and placed in the `bin` directory;
+    please see `./bin/README.md` for an inventory.

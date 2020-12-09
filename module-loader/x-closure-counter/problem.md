@@ -11,7 +11,7 @@ console.log(`left ${left()`)
 console.log(`right ${right()`)
 ```
 
-::: unindented
+::: continue
 must produce:
 :::
 

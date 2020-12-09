@@ -11,7 +11,7 @@ const withLogging = (args) => {
 withLogging
 ```
 
-::: unindented
+::: continue
 and the included file is:
 :::
 
@@ -20,7 +20,7 @@ console.log('first message')
 console.log('second message')
 ```
 
-::: unindented
+::: continue
 then the result will be:
 :::
 

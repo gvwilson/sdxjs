@@ -8,7 +8,7 @@ if the two tables are:
 | B   | b1   |
 | C   | c1   |
 
-::: unindented
+::: continue
 and:
 :::
 
@@ -18,7 +18,7 @@ and:
 | A   | a3    |
 | B   | b2    |
 
-::: unindented
+::: continue
 then the join is:
 :::
 

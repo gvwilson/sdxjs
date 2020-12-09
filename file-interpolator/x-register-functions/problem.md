@@ -8,6 +8,6 @@ const double = (x) => {
 EXPORTS.append(double)
 ```
 
-::: unindented
+::: continue
 and returns a list containing all the loaded functions.
 :::

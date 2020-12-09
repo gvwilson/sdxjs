@@ -12,7 +12,7 @@ some
 people
 ```
 
-::: unindented
+::: continue
 and `right.txt` contains:
 :::
 
@@ -22,7 +22,7 @@ some
 code
 ```
 
-::: unindented
+::: continue
 then:
 :::
 
@@ -30,7 +30,7 @@ then:
 node file-diff.js left.txt right.txt
 ```
 
-::: unindented
+::: continue
 would print:
 :::
 
@@ -41,7 +41,7 @@ would print:
 2 write
 ```
 
-::: unindented
+::: continue
 where `1`, `2`, and `*` show whether lines are in only the first or second file
 or are in both.
 Note that the order of the lines in the file doesn't matter.

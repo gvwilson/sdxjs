@@ -16,6 +16,6 @@ For example:
 </html>
 ```
 
-::: unindented
+::: continue
 would printed the word "Important:" in bold before each item in the list.
 :::

@@ -6,6 +6,6 @@ halve: (x) => x / 2
 array: (x) => Array(x).fill(0)
 ```
 
-::: unindented
+::: continue
 and returns an object containing callable functions.
 :::

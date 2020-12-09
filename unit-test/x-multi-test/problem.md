@@ -10,7 +10,7 @@ hope.multiTest('check all of these`, functionToTest, [
 ])
 ```
 
-::: unindented
+::: continue
 should be equivalent to this:
 :::
 

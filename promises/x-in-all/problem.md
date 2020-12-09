@@ -6,6 +6,6 @@ For example:
 node in-all.js first.txt second.txt third.txt
 ```
 
-::: unindented
+::: continue
 will print those lines that occur in all three files.
 :::

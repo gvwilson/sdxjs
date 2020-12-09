@@ -12,7 +12,7 @@ right: "right value"
 third: 3
 ```
 
-::: unindented
+::: continue
 then the output will be:
 :::
 

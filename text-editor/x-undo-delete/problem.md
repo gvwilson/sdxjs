@@ -20,6 +20,6 @@ deleteChar () {
 }
 ```
 
-::: unindented
+::: continue
 Use it to make character deletion undoable.
 :::

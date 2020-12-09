@@ -14,6 +14,6 @@ function process(
 }
 ```
 
-::: unindented
+::: continue
 Modify the documentation generator to handle this.
 :::

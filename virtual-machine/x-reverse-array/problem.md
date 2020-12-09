@@ -4,7 +4,7 @@ Write an assembly language program that starts with:
 -   the length of the array N in the next word
 -   N values immediately thereafter
 
-::: unindented
+::: continue
 and reverses the array in place.
 :::
 
