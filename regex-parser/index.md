@@ -37,7 +37,7 @@
         -   Or start a new literal
     -   Note that `^` and `$` are either special or regular depending on position
 
-<%- include('/_inc/file.html', {file: 'tokenizer-collapse.js'}) %>
+<%- include('/inc/file.html', {file: 'tokenizer-collapse.js'}) %>
 
 -   This is readable, efficient, and wrong
     -   The expression `/ab*/` means "a single `a` followed by zero or more `b`"
@@ -48,12 +48,12 @@
     and combine things later
     -   And we can get rid of the nested `if` for handling `^` and `$` as well
 
-<%- include('/_inc/file.html', {file: 'tokenizer.js'}) %>
+<%- include('/inc/file.html', {file: 'tokenizer.js'}) %>
 
 -   It's not done until it's tested
 
-<%- include('/_inc/erase.html', {file: 'test/test-tokenizer.js', key: 'omit'}) %>
-<%- include('/_inc/file.html', {file: 'tokenizer-test.out'}) %>
+<%- include('/inc/erase.html', {file: 'test/test-tokenizer.js', key: 'omit'}) %>
+<%- include('/inc/file.html', {file: 'tokenizer-test.out'}) %>
 
 ## How can we turn a stream of tokens into a tree?
 
@@ -88,24 +88,24 @@
     -   Again, this will automatically work for things like `/(ab)|c*|(de)/`
 -   Main structure
 
-<%- include('/_inc/erase.html', {file: 'parser.js', key: 'skip'}) %>
+<%- include('/inc/erase.html', {file: 'parser.js', key: 'skip'}) %>
 
 -   Handle a symbol
 
-<%- include('/_inc/keep.html', {file: 'parser.js', key: 'handle'}) %>
+<%- include('/inc/keep.html', {file: 'parser.js', key: 'handle'}) %>
 
 -   Handle the end of a group
 
-<%- include('/_inc/keep.html', {file: 'parser.js', key: 'groupend'}) %>
+<%- include('/inc/keep.html', {file: 'parser.js', key: 'groupend'}) %>
 
 -   Compress results
 
-<%- include('/_inc/keep.html', {file: 'parser.js', key: 'compress'}) %>
+<%- include('/inc/keep.html', {file: 'parser.js', key: 'compress'}) %>
 
 -   And some tests
 
-<%- include('/_inc/erase.html', {file: 'test/test-parser.js', key: 'omit'}) %>
-<%- include('/_inc/file.html', {file: 'parser-test.out'}) %>
+<%- include('/inc/erase.html', {file: 'test/test-parser.js', key: 'omit'}) %>
+<%- include('/inc/file.html', {file: 'parser-test.out'}) %>
 
 -   If we have more operators with different <g key="precedence">precedences</g>
     we should switch to the [shunting-yard algorithm][shunting-yard-algorithm]

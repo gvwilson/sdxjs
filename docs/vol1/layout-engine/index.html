@@ -1,0 +1,792 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <title>Layout Engine</title>
+  <meta name="toRoot" content="..">
+  <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico">
+  <link href="../../static/fonts.css" rel="stylesheet" type="text/css">
+  <link href="../../static/site.css" rel="stylesheet" type="text/css">
+  <script>const NUMBERING = {"vol1":"1","systems-programming":"2","promises":"3","unit-test":"4","file-backup":"5","data-table":"6","pattern-matching":"7","regex-parser":"8","page-templates":"9","build-manager":"10","layout-engine":"11","text-editor":"12","file-interpolator":"13","module-loader":"14","module-bundler":"15","package-manager":"16","style-checker":"17","code-generator":"18","doc-generator":"19","virtual-machine":"20","debugger":"21","conclusion":"22","bib":"A","license":"B","conduct":"C","contributing":"D","gloss":"E","links":"F","authors":"G"}</script>
+  <script src="../../static/site.js"></script>
+  <script>window.onload = () => fixPage()</script>
+</head>
+<body id="_top">
+<nav>
+<div class="row">
+<div class="left2">
+<a href="http://third-bit.com"><img src="../../static/logo.svg" alt="site logo" class="site-logo"/></a>
+<a href="../"><em>Software Tools in JavaScript: Volume 1</em></a>
+</div>
+<div class="right2">
+<div class="dropdown">
+<span class="navtitle">▿ Sections</span>
+<div class="dropdown-content" id="Sections">
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Chapters</span>
+<div class="dropdown-content" id="Chapters">
+<a href="../systems-programming/"><span class="nowrap">Systems Programming</span></a>
+<br/><a href="../promises/"><span class="nowrap">Promises</span></a>
+<br/><a href="../unit-test/"><span class="nowrap">Unit Testing</span></a>
+<br/><a href="../file-backup/"><span class="nowrap">File Backup</span></a>
+<br/><a href="../data-table/"><span class="nowrap">Data Tables</span></a>
+<br/><a href="../pattern-matching/"><span class="nowrap">Pattern Matching</span></a>
+<br/><a href="../regex-parser/"><span class="nowrap">Parsing Expressions</span></a>
+<br/><a href="../page-templates/"><span class="nowrap">Page Templates</span></a>
+<br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
+<br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
+<br/><a href="../text-editor/"><span class="nowrap">Text Editor</span></a>
+<br/><a href="../file-interpolator/"><span class="nowrap">File Interpolator</span></a>
+<br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
+<br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
+<br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
+<br/><a href="../style-checker/"><span class="nowrap">Style Checker</span></a>
+<br/><a href="../code-generator/"><span class="nowrap">Code Generator</span></a>
+<br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
+<br/><a href="../virtual-machine/"><span class="nowrap">Virtual Machine</span></a>
+<br/><a href="../debugger/"><span class="nowrap">Debugger</span></a>
+<br/><a href="../conclusion/"><span class="nowrap">Conclusion</span></a>
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Appendices</span>
+<div class="dropdown-content" id="Appendices">
+<a href="../bib/"><span class="nowrap">Bibliography</span></a>
+<br/><a href="../license/"><span class="nowrap">License</span></a>
+<br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
+<br/><a href="../contributing/"><span class="nowrap">Contributing</span></a>
+<br/><a href="../gloss/"><span class="nowrap">Glossary</span></a>
+<br/><a href="../links/"><span class="nowrap">Links</span></a>
+<br/><a href="../authors/"><span class="nowrap">Authors</span></a>
+</div>
+</div>
+</div>
+</div>
+</nav>
+  <main>
+  <h1>Layout Engine</h1>
+  <h2 class="lede">Figuring out what goes where in a web page</h2>
+<div class="callout">
+  <p>Terms defined: <g key="coupling">coupling</g>, <g key="dom">Document Object Model (DOM)</g>, <g key="dom_selector">DOM selector</g>, <g key="easy_mode">easy mode</g>, <g key="empty_element">empty element</g></p>
+</div>
+<p>A pure-text layout engine showing how browsers decide what to put where,
+based on <a href="https://limpet.net/mbrubeck/">Matt Brubeck</a>'s <a href="https://limpet.net/mbrubeck/2014/08/08/toy-layout-engine-1.html">tutorial</a>.</p>
+<ul>
+<li>Inputs are:
+<ul>
+<li>A very small subset of HTML, which is converted to <g key="dom">DOM</g> nodes</li>
+<li>A very small subset of CSS (which we represent as JSON so that we don't have to write another parser)</li>
+</ul>
+</li>
+<li>Processing is:
+<ul>
+<li>Produce a tree of styled nodes from the DOM</li>
+<li>Walk this tree to figure out where each visible element belongs</li>
+<li>Render this as plain text</li>
+</ul>
+</li>
+</ul>
+<h2 id="how-can-we-size-rows-and-columns">How can we size rows and columns?</h2>
+<ul>
+<li>Let's start on <g key="easy_mode">easy mode</g>
+<ul>
+<li>No margins or padding or stretching or wrapping or…</li>
+</ul>
+</li>
+<li>A cell is a row, a column, or a block</li>
+<li>A block has a fixed width and height</li>
+<li>A row arranges one or more cells horizontally
+<ul>
+<li>Its width is the sum of the widths of its children</li>
+<li>Its height is the maximum height of any of its children</li>
+</ul>
+</li>
+<li>A column arranges one or more cells vertically
+<ul>
+<li>Its width is the maximum width of its children</li>
+<li>Its height is the sum of the heights of its children</li>
+</ul>
+</li>
+<li>Represent the tree as nested objects</li>
+<li>Calculate width and height each time they're needed
+<ul>
+<li>Inefficient: could calculate both at the same time</li>
+<li>And cache values and have a &quot;changed&quot; marker and all the other things browsers do to go faster</li>
+</ul>
+</li>
+</ul>
+<pre title="easy-mode.js"><code class="language-js">export class Block {
+  constructor (width, height) {
+    this.width = width
+    this.height = height
+  }
+
+  getWidth () {
+    return this.width
+  }
+
+  getHeight () {
+    return this.height
+  }
+}
+
+export class Row {
+  constructor (...children) {
+    this.children = children
+  }
+
+  getWidth () {
+    return this.children
+      .map(child =&gt; child.getWidth())
+      .reduce((total, next) =&gt; total + next, 0)
+  }
+
+  getHeight () {
+    return Math.max(...this.children.map(child =&gt; child.getHeight()))
+  }
+}
+
+export class Column {
+  constructor (...children) {
+    this.children = children
+  }
+
+  getWidth () {
+    return Math.max(...this.children.map(child =&gt; child.getWidth()))
+  }
+
+  getHeight () {
+    return this.children
+      .map(child =&gt; child.getHeight())
+      .reduce((total, next) =&gt; total + next, 0)
+  }
+}
+</code></pre>
+<pre title="test/test-easy-mode.js"><code class="language-js">import assert from 'assert'
+
+import { Block, Row, Column } from '../easy-mode.js'
+
+describe('lays out in easy mode', () =&gt; {
+  it('lays out a single unit block', async () =&gt; {
+    const fixture = new Block(1, 1)
+    assert.strictEqual(fixture.getWidth(), 1)
+    assert.strictEqual(fixture.getHeight(), 1)
+  })
+
+  it('lays out a large block', async () =&gt; {
+    const fixture = new Block(3, 4)
+    assert.strictEqual(fixture.getWidth(), 3)
+    assert.strictEqual(fixture.getHeight(), 4)
+  })
+
+  it('lays out a row of two blocks', async () =&gt; {
+    const fixture = new Row(
+      new Block(1, 1),
+      new Block(2, 4)
+    )
+    assert.strictEqual(fixture.getWidth(), 3)
+    assert.strictEqual(fixture.getHeight(), 4)
+  })
+
+  it('lays out a column of two blocks', async () =&gt; {
+    const fixture = new Column(
+      new Block(1, 1),
+      new Block(2, 4)
+    )
+    assert.strictEqual(fixture.getWidth(), 2)
+    assert.strictEqual(fixture.getHeight(), 5)
+  })
+
+  it('lays out a grid of rows of columns', async () =&gt; {
+    const fixture = new Column(
+      new Row(
+        new Block(1, 2),
+        new Block(3, 4)
+      ),
+      new Row(
+        new Block(5, 6),
+        new Column(
+          new Block(7, 8),
+          new Block(9, 10)
+        )
+      )
+    )
+    assert.strictEqual(fixture.getWidth(), 14)
+    assert.strictEqual(fixture.getHeight(), 22)
+  })
+})
+</code></pre>
+<pre title="test-easy-mode.out"><code class="language-out">
+&gt; stjs@1.0.0 test /u/stjs
+&gt; mocha */test/test-*.js "-g" "easy mode"
+
+
+
+  lays out in easy mode
+    ✓ lays out a single unit block
+    ✓ lays out a large block
+    ✓ lays out a row of two blocks
+    ✓ lays out a column of two blocks
+    ✓ lays out a grid of rows of columns
+
+
+  5 passing (5ms)
+</code></pre>
+<h2 id="how-can-we-position-rows-and-columns">How can we position rows and columns?</h2>
+<ul>
+<li>Suppose we start with the upper left corner of the browser (X0, Y1)
+<ul>
+<li>Upper because we lay out the page top-to-bottom</li>
+<li>Left because we are doing left-to-right layout</li>
+</ul>
+</li>
+<li>If the cell is a block, just place it</li>
+<li>If the cell is a row:
+<ul>
+<li>Place the first child at (x0, y1)</li>
+<li>Place the next child at (x0 + width, y1)</li>
+</ul>
+</li>
+<li>If the cell is a column:
+<ul>
+<li>Place the first child at (x0, y1)</li>
+<li>Place the next at (x0, y1 - height), etc.</li>
+</ul>
+</li>
+<li>Derive three classes from previous classes to save testing (and printing space)</li>
+</ul>
+<pre title="placed-block.js"><code class="language-js">import { Block } from './easy-mode.js'
+
+export default class PlacedBlock extends Block {
+  constructor (width, height) {
+    super(width, height)
+    this.x0 = null
+    this.y0 = null
+  }
+
+  place (x0, y1) {
+    this.x0 = x0
+    this.y1 = y1
+  }
+
+  report () {
+    return ['block', this.x0, this.y1]
+  }
+}
+</code></pre>
+<pre title="placed-row.js"><code class="language-js">import { Row } from './easy-mode.js'
+
+export default class PlacedRow extends Row {
+  constructor (...children) {
+    super(...children)
+    this.x0 = null
+    this.y0 = null
+  }
+
+  place (x0, y1) {
+    this.x0 = x0
+    this.y1 = y1
+    const y0 = y1 - this.getHeight()
+    let xCurrent = x0
+    this.children.forEach(child =&gt; {
+      child.place(xCurrent, y0 + child.getHeight())
+      xCurrent += child.getWidth()
+    })
+  }
+
+  report () {
+    return [
+      'row', this.x0, this.y1,
+      ...this.children.map(child =&gt; child.report())
+    ]
+  }
+}
+</code></pre>
+<pre title="placed-column.js"><code class="language-js">import { Column } from './easy-mode.js'
+
+export default class PlacedColumn extends Column {
+  constructor (...children) {
+    super(...children)
+    this.x0 = null
+    this.y1 = null
+  }
+
+  place (x0, y1) {
+    this.x0 = x0
+    this.y1 = y1
+    let yCurrent = this.y1
+    this.children.forEach(child =&gt; {
+      child.place(x0, yCurrent)
+      yCurrent -= child.getHeight()
+    })
+  }
+
+  report () {
+    return [
+      'column', this.x0, this.y1,
+      ...this.children.map(child =&gt; child.report())
+    ]
+  }
+}
+</code></pre>
+<ul>
+<li>Write and run some tests</li>
+</ul>
+<pre title="test/test-placed.js"><code class="language-js">import assert from 'assert'
+
+import Block from '../placed-block.js'
+import Row from '../placed-row.js'
+import Column from '../placed-column.js'
+
+describe('places blocks', () =&gt; {
+  it('places a single unit block', async () =&gt; {
+    const fixture = new Block(1, 1)
+    fixture.place(0, 0)
+    assert.deepStrictEqual(
+      fixture.report(),
+      ['block', 0, 0]
+    )
+  })
+
+  it('places a large block', async () =&gt; {
+    const fixture = new Block(3, 4)
+    fixture.place(0, 0)
+    assert.deepStrictEqual(
+      fixture.report(),
+      ['block', 0, 0]
+    )
+  })
+
+  it('places a row of two blocks', async () =&gt; {
+    const fixture = new Row(
+      new Block(1, 1),
+      new Block(2, 4)
+    )
+    fixture.place(0, 0)
+    assert.deepStrictEqual(
+      fixture.report(),
+      ['row', 0, 0, ['block', 0, -3], ['block', 1, 0]]
+    )
+  })
+
+  it('places a column of two blocks', async () =&gt; {
+    const fixture = new Column(
+      new Block(1, 1),
+      new Block(2, 4)
+    )
+    fixture.place(0, 0)
+    assert.deepStrictEqual(
+      fixture.report(),
+      ['column', 0, 0, ['block', 0, 0], ['block', 0, -1]]
+    )
+  })
+...
+})
+</code></pre>
+<pre title="test-placed.out"><code class="language-out">
+&gt; stjs@1.0.0 test /u/stjs
+&gt; mocha */test/test-*.js "-g" "places blocks"
+
+
+
+  places blocks
+    ✓ places a single unit block
+    ✓ places a large block
+    ✓ places a row of two blocks
+    ✓ places a column of two blocks
+    ✓ places a grid of rows of columns
+
+
+  5 passing (6ms)
+</code></pre>
+<h2 id="how-can-we-wrap-blocks-to-fit">How can we wrap blocks to fit?</h2>
+<ul>
+<li>Suppose we fix the width of a row
+<ul>
+<li>For now, assume all its children are less than or equal to this width</li>
+</ul>
+</li>
+<li>Layout may need to wrap around
+<ul>
+<li>Assume columns can always be made as big as they need to be</li>
+</ul>
+</li>
+<li>Solve the problem by transforming the tree</li>
+<li>Blocks and columns become themselves
+<ul>
+<li>But we need to wrap columns' children, so that class still needs a new method</li>
+</ul>
+</li>
+</ul>
+<pre title="wrapped-column.js"><code class="language-js">import PlacedColumn from './placed-column.js'
+
+export default class WrappedColumn extends PlacedColumn {
+  wrap () {
+    const children = this.children.map(child =&gt; child.wrap())
+    return new PlacedColumn(...children)
+  }
+}
+</code></pre>
+<ul>
+<li>Each row is replaced with a row containing a single column with one or more rows (wrapping)
+<ul>
+<li>Replacement is unnecessary when everything will fit on a single row, but uniform is easier to code</li>
+</ul>
+</li>
+<li>Constructor takes the width followed by the children</li>
+<li>Return the fixed width when asked</li>
+</ul>
+<pre title="wrapped-row.js"><code class="language-js">import assert from 'assert'
+
+import PlacedRow from './placed-row.js'
+import PlacedColumn from './placed-column.js'
+
+export default class WrappedRow extends PlacedRow {
+  constructor (width, ...children) {
+    super(...children)
+    assert(width &gt; 0,
+      'Need positive width')
+    this.width = width
+  }
+
+  getWidth () {
+    return this.width
+  }
+...
+}
+</code></pre>
+<ul>
+<li>Wrapping puts children into buckets, then converts the buckets to a row of a column of rows</li>
+</ul>
+<pre title="wrapped-row.js"><code class="language-js">  wrap () {
+    const children = this.children.map(child =&gt; child.wrap())
+    const rows = []
+    let currentRow = []
+    let currentX = 0
+
+    children.forEach(child =&gt; {
+      const childWidth = child.getWidth()
+      if ((currentX + childWidth) &lt;= this.width) {
+        currentRow.push(child)
+        currentX += childWidth
+      } else {
+        rows.push(currentRow)
+        currentRow = [child]
+        currentX = childWidth
+      }
+    })
+    rows.push(currentRow)
+
+    const newRows = rows.map(row =&gt; new PlacedRow(...row))
+    const newColumn = new PlacedColumn(...newRows)
+    return new PlacedRow(newColumn)
+  }</code></pre>
+<ul>
+<li>Bring forward all the previous tests (with an extra row and column where needed)</li>
+<li>Write some new ones</li>
+</ul>
+<pre title="test/test-wrapped.js"><code class="language-js">  it('wrap a row of two blocks that do not fit on one row', async () =&gt; {
+    const fixture = new Row(
+      3,
+      new Block(2, 1),
+      new Block(2, 1)
+    )
+    const wrapped = fixture.wrap()
+    wrapped.place(0, 0)
+    assert.deepStrictEqual(
+      wrapped.report(),
+      ['row', 0, 0,
+        ['column', 0, 0,
+          ['row', 0, 0,
+            ['block', 0, 0]
+          ],
+          ['row', 0, -1,
+            ['block', 0, -1]
+          ]
+        ]
+      ]
+    )
+  })</code></pre>
+<h2 id="what-subset-of-html-and-css-will-we-support">What subset of HTML and CSS will we support?</h2>
+<ul>
+<li>Our subset of HTML includes:
+<ul>
+<li>Plain text, which we store as instances of <code>TextNode</code></li>
+<li>Elements with attributes, which we store as instances of <code>TagNode</code></li>
+<li>Don't support <g key="empty_element">empty elements</g> or comments</li>
+<li>Each attribute must have a single quoted value</li>
+</ul>
+</li>
+<li>Won't bother to show the tests, but yes, we wrote them, and yes, they caught errors</li>
+</ul>
+<pre title="micro-dom.js"><code class="language-js">import assert from 'assert'
+
+export class Node {
+}
+
+export class TextNode extends Node {
+  constructor (text) {
+    assert(typeof text === 'string',
+      'TextNode requires string as constructor argument')
+    super()
+    this.text = text
+  }
+
+  toString () {
+    return this.text
+  }
+}
+
+export class TagNode extends Node {
+  constructor (tag, attributes, ...children) {
+    assert(typeof tag === 'string',
+      'TagNode requires string as tag')
+    super()
+    this.tag = tag
+
+    this.attributes = {}
+    if (attributes !== null) {
+      assert(typeof attributes === 'object',
+        'Require object for attributes')
+      this.attributes = Object.assign({}, attributes)
+    }
+
+    this.children = children
+    assert(this.children.every(child =&gt; child instanceof Node),
+      'Children must be nodes')
+  }
+
+  toString () {
+    const attr = Object.keys(this.attributes)
+      .sort()
+      .map(key =&gt; ` ${key}="${this.attributes[key]}"`)
+      .join('')
+    const children = this.children
+      .map(child =&gt; child.toString())
+      .join('')
+    return `&lt;${this.tag}${attr}&gt;${children}&lt;/${this.tag}&gt;`
+  }
+}
+</code></pre>
+<ul>
+<li>Use regular expressions to parse documents, though <a href="https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454">this is a sin</a>
+<ul>
+<li>And yes, the tests caught errors</li>
+</ul>
+</li>
+<li>Main body</li>
+</ul>
+<pre title="parse.js"><code class="language-js">import assert from 'assert'
+
+import { TextNode, TagNode } from './micro-dom.js'
+
+const parse = (text) =&gt; {
+  const chunks = chunkify(text.trim())
+  assert(isElement(chunks[0]),
+    'Must have enclosing outer node')
+  const [node, remainder] = makeNode(chunks)
+  assert(remainder.length === 0,
+    'Cannot have dangling content')
+  return node
+}
+
+const chunkify = (text) =&gt; {
+  const textAndTag = /^([^&lt;]*)(&lt;.+?&gt;)(.*)$/
+  const raw = []
+  while (text) {
+    const matches = text.match(textAndTag)
+    if (!matches) {
+      break
+    }
+    raw.push(matches[1])
+    raw.push(matches[2])
+    text = matches[3]
+  }
+  if (text) {
+    raw.push(text)
+  }
+  const nonEmpty = raw.filter(chunk =&gt; (chunk.length &gt; 0))
+  return nonEmpty
+}
+
+const isElement = (chunk) =&gt; {
+  return chunk &amp;&amp; (chunk[0] === '&lt;')
+}
+...
+export default parse
+</code></pre>
+<ul>
+<li>Two functions that do most of the work</li>
+</ul>
+<pre title="parse.js"><code class="language-js">const makeNode = (chunks) =&gt; {
+  assert(chunks.length &gt; 0,
+    'Cannot make nodes without chunks')
+
+  if (!isElement(chunks[0])) {
+    return [new TextNode(chunks[0]), chunks.slice(1)]
+  }
+
+  const node = makeOpening(chunks[0])
+  const closing = `&lt;/${node.tag}&gt;`
+
+  let remainder = chunks.slice(1)
+  let child = null
+  while (remainder &amp;&amp; (remainder[0] !== closing)) {
+    [child, remainder] = makeNode(remainder)
+    node.children.push(child)
+  }
+
+  assert(remainder &amp;&amp; (remainder[0] === closing),
+         `Node with tag ${node.tag} not closed`)
+  return [node, remainder.slice(1)]
+}
+
+const makeOpening = (chunk) =&gt; {
+  const tagAndAttr = /&lt;(\w+)([^&gt;]*)&gt;/
+  const keyAndValue = /\s*(\w+)="([^"]*)"\s*/g
+  const outer = chunk.match(tagAndAttr)
+  const tag = outer[1]
+  const attributes = [...outer[2].trim().matchAll(keyAndValue)]
+    .reduce((obj, [all, key, value]) =&gt; {
+      obj[key] = value
+      return obj
+    }, {})
+  return new TagNode(tag, attributes)
+}</code></pre>
+<ul>
+<li>Now define a generic class for rules and a subclass for each type of rule</li>
+<li>ID rules
+<ul>
+<li><g key="dom_selector">DOM selector</g> of the form <code>#name</code></li>
+<li>HTML of the form <code>&lt;tag id=&quot;name&quot;&gt;…&lt;/tag&gt;</code></li>
+</ul>
+</li>
+<li>Class rules
+<ul>
+<li>DOM selector of the form <code>.kind</code></li>
+<li>HTML of the form <code>&lt;tag class=&quot;kind&quot;&gt;…&lt;/tag&gt;</code></li>
+<li>Only one class per node</li>
+</ul>
+</li>
+<li>Tag rules
+<ul>
+<li>DOM selector of the form <code>tag</code></li>
+<li>HTML of the form <code>&lt;tag&gt;…&lt;/tag&gt;</code></li>
+</ul>
+</li>
+<li>ID rules take precedence over class rules, which take precedence over tag rules</li>
+</ul>
+<pre title="micro-css.js"><code class="language-js">import assert from 'assert'
+
+export class CssRule {
+  constructor (order, selector, styles) {
+    this.order = order
+    this.selector = selector
+    this.styles = styles
+  }
+}
+
+export class IdRule extends CssRule {
+  constructor (selector, styles) {
+    assert(selector.startsWith('#') &amp;&amp; (selector.length &gt; 1),
+      'ID rule must start with # and have a selector')
+    super(IdRule.ORDER, selector.slice(1), styles)
+  }
+
+  match (node) {
+    return ('id' in node.attributes) &amp;&amp;
+      (node.attributes.id === this.selector)
+  }
+}
+IdRule.ORDER = 0
+
+export class ClassRule extends CssRule {
+  constructor (selector, styles) {
+    assert(selector.startsWith('.') &amp;&amp; (selector.length &gt; 1),
+      'Class rule must start with . and have a selector')
+    super(ClassRule.ORDER, selector.slice(1), styles)
+  }
+
+  match (node) {
+    return ('class' in node.attributes) &amp;&amp;
+      (node.attributes.class === this.selector)
+  }
+}
+ClassRule.ORDER = 1
+
+export class TagRule extends CssRule {
+  constructor (selector, styles) {
+    super(TagRule.ORDER, selector, styles)
+  }
+
+  match (node) {
+    return this.selector === node.tag
+  }
+}
+TagRule.ORDER = 2
+</code></pre>
+<ul>
+<li>Convert JSON to rule objects
+<ul>
+<li>Saves us writing yet another parser</li>
+<li>Really should have the CSS rule classes look at the rule and decide if it's theirs using a <code>static</code> method</li>
+<li>Would reduce the <g key="coupling">coupling</g> between the classes</li>
+<li>Of course, then we'd have to stop accessing objects' attributes directly…</li>
+</ul>
+</li>
+<li>Provide a method for finding the rules for a given DOM node
+<ul>
+<li>Requires custom sorting that depends on CSS classes having a precedence order</li>
+</ul>
+</li>
+</ul>
+<pre title="micro-css-ruleset.js"><code class="language-js">import assert from 'assert'
+
+import { IdRule, ClassRule, TagRule } from './micro-css.js'
+
+class CssRuleSet {
+  constructor (json, mergeDefaults = true) {
+    this.rules = this.jsonToRules(json)
+  }
+
+  jsonToRules (json) {
+    return Object.keys(json).map(selector =&gt; {
+      assert((typeof selector === 'string') &amp;&amp; (selector.length &gt; 0),
+        'Require non-empty string as selector')
+      if (selector.startsWith('#')) {
+        return new IdRule(selector, json[selector])
+      }
+      if (selector.startsWith('.')) {
+        return new ClassRule(selector, json[selector])
+      }
+      return new TagRule(selector, json[selector])
+    })
+  }
+
+  findRules (node) {
+    const matches = this.rules.filter(rule =&gt; rule.match(node))
+    const sorted = matches.sort((left, right) =&gt; left.order - right.order)
+    return sorted
+  }
+}
+
+export default CssRuleSet
+</code></pre>
+</main>
+<footer>
+<div class="row">
+<div class="left3">
+<a href="../build-manager/"><em>&laquo; Build Manager</em></a>
+</div>
+<div class="middle3">
+<a href="../license/"><img class="footer" src="../../static/cc-by.svg" alt="License" /></a>
+<a href="https://github.com/software-tools-in-javascript/stjs/"><img class="footer" src="../../static/github.svg" alt="Repository" /></a>
+© 2020 <a href="../authors/">The Authors</a>
+</div>
+<div class="right3">
+<a href="../text-editor/"><em>Text Editor &raquo;</em></a>
+</div>
+</div>
+</footer>
+</body>
+</html>

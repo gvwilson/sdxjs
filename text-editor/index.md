@@ -13,9 +13,9 @@
 
 -   As in <xref key="build-manager"></xref> and elsewhere, write a <g key="driver">driver</g> to load and run our experiments
 
-<%- include('/_inc/file.html', {file: 'edit.js'}) %>
+<%- include('/inc/file.html', {file: 'edit.js'}) %>
 
--   Original editor is <%- include('/_inc/linecount.html', {file: 'original.js'}) %> lines long
+-   Original editor is <%- include('/inc/linecount.html', {file: 'original.js'}) %> lines long
     -   Don't need to understand all of the screen operations in order to start changing it
     -   But do need an overview of core concepts
 -   A <g key="screen_buffer">screen buffer</g> holds contents of a rectangular area of the screen
@@ -25,9 +25,9 @@
     -   Holds lines of text (an array of strings)
     -   Provides methods for user-level text interaction
 -   Start with a basic editor that draws on the screen and exits immediately when any key is pressed
-    -   Just <%- include('/_inc/linecount.html', {file: 'base-editor.js'}) %> lines long
+    -   Just <%- include('/inc/linecount.html', {file: 'base-editor.js'}) %> lines long
 
-<%- include('/_inc/erase.html', {file: 'base-editor.js', key: 'skip'}) %>
+<%- include('/inc/erase.html', {file: 'base-editor.js', key: 'skip'}) %>
 
 -   Constructor creates `this.term`, which connects the editor to the text terminal
 -   Sets a few constants
@@ -39,17 +39,17 @@
 -   Provide an `onKey` method to handle keystrokes
     -   For now, exit on any key
 
-<%- include('/_inc/keep.html', {file: 'base-editor.js', key: 'onKey'}) %>
+<%- include('/inc/keep.html', {file: 'base-editor.js', key: 'onKey'}) %>
 
 -   Now add the basic operations
     -   For example, saving files
 
-<%- include('/_inc/keep.html', {file: 'core-operations.js', key: 'save'}) %>
+<%- include('/inc/keep.html', {file: 'core-operations.js', key: 'save'}) %>
 
 -   Other commands to move cursor, cut and paste lines, etc.
 -   But `onKey` is one big switch statement
 
-<%- include('/_inc/keeperase.html', {file: 'core-operations.js', keep: 'onKey', erase: 'skip'}) %>
+<%- include('/inc/keeperase.html', {file: 'core-operations.js', keep: 'onKey', erase: 'skip'}) %>
 
 -   Adding methods isn't enough to give the editor new functionality
     -   Must also insert text into the switch statement
@@ -63,11 +63,11 @@
     -   Create a table of <g key="key_binding">key bindings</g>
     -   Look keys up in that table to find out what to do
 
-<%- include('/_inc/erase.html', {file: 'lookup-editor.js', key: 'bindings'}) %>
+<%- include('/inc/erase.html', {file: 'lookup-editor.js', key: 'bindings'}) %>
 
 -   Creating bindings is just building a table of functions
 
-<%- include('/_inc/keep.html', {file: 'lookup-editor.js', key: 'bindings'}) %>
+<%- include('/inc/keep.html', {file: 'lookup-editor.js', key: 'bindings'}) %>
 
 -   To add a new operation
     -   Implement the method
@@ -76,7 +76,7 @@
 -   Load functions that take the editor and the arguments to `onKey` as input
     -   Have to modify the default handlers to take these four arguments as well, just in case
 
-<%- include('/_inc/erase.html', {file: 'plugin-editor.js', key: 'skip'}) %>
+<%- include('/inc/erase.html', {file: 'plugin-editor.js', key: 'skip'}) %>
 
 -   Notice the two-step `import` because `Promise.all` needs promises
     -   Wille write an `async` function that combines the steps in the exercises
@@ -97,23 +97,23 @@
     -   When we turn it on, we need to clear any accumulated history (restarting)
 -   Modify constructor to create the state we need and record the two new key bindings
 
-<%- include('/_inc/keep.html', {file: 'replay-editor.js', key: 'constructor'}) %>
+<%- include('/inc/keep.html', {file: 'replay-editor.js', key: 'constructor'}) %>
 
 -   `onKey` records everything and then does whatever the keystroke would normally do
 
-<%- include('/_inc/keep.html', {file: 'replay-editor.js', key: 'onKey'}) %>
+<%- include('/inc/keep.html', {file: 'replay-editor.js', key: 'onKey'}) %>
 
 -   `record` toggles the `isRecording` flag and re-starts recording if needed
     -   Note the `pop` so that the command that brought us here isn't recorded
     -   Yes, this led to infinite recursion
 
-<%- include('/_inc/keep.html', {file: 'replay-editor.js', key: 'record'}) %>
+<%- include('/inc/keep.html', {file: 'replay-editor.js', key: 'record'}) %>
 
 -   `playback` also turns off recording
     -   Again, want to avoid infinite loop
 -   If any commands have been recorded, re-issue them
 
-<%- include('/_inc/keep.html', {file: 'replay-editor.js', key: 'playback'}) %>
+<%- include('/inc/keep.html', {file: 'replay-editor.js', key: 'playback'}) %>
 
 -   Can be done with plugins
     -   The extra state needed in the editor makes a plugin more complicated
@@ -132,32 +132,32 @@
     -   `op.clear` tells us whether the undo stack should be cleared
 -   Go all the way back to the original editor and modify the constructor
 
-<%- include('/_inc/keep.html', {file: 'undo-editor.js', key: 'constructor'}) %>
+<%- include('/inc/keep.html', {file: 'undo-editor.js', key: 'constructor'}) %>
 
 -   Handling a key now takes undo into account
     -   Look up a class in the bindings table, make an instance, and run it
     -   Look in that instance to see whether to save, clear, or neither
 
-<%- include('/_inc/keep.html', {file: 'undo-editor.js', key: 'onKey'}) %>
+<%- include('/inc/keep.html', {file: 'undo-editor.js', key: 'onKey'}) %>
 
 -   Base class for operations
     -   Record all the information about the keystroke
     -   Set defaults for saving and clearing
     -   Fail if the `run` or `undo` methods are called (must be overridden)
 
-<%- include('/_inc/keep.html', {file: 'undo-editor.js', key: 'KeyBase'}) %>
+<%- include('/inc/keep.html', {file: 'undo-editor.js', key: 'KeyBase'}) %>
 
 -   Handle a printable character
     -   Insert it going forward
     -   Backspace to undo
     -   Assumes we are back in the same place
 
-<%- include('/_inc/keep.html', {file: 'undo-editor.js', key: 'KeyCharacter'}) %>
+<%- include('/inc/keep.html', {file: 'undo-editor.js', key: 'KeyCharacter'}) %>
 
 -   Exiting is easier
     -   Indicate that the operation isn't undoable
 
-<%- include('/_inc/keep.html', {file: 'undo-editor.js', key: 'KeyExit'}) %>
+<%- include('/inc/keep.html', {file: 'undo-editor.js', key: 'KeyExit'}) %>
 
 -   Full of bugs
 -   Going up and then down doesn't restore location if we were at the end of a long line and went up to a short one

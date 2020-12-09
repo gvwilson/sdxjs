@@ -15,13 +15,13 @@
     -   Use a library to calculate a 160-bit [SHA-1] hash
     -   Not strong enough to deter a well-funded attacker, but that's not what we're using it for
 
-<%- include('/_inc/multi.html', {pat: 'hash-text.*', fill: 'js sh out'}) %>
+<%- include('/inc/multi.html', {pat: 'hash-text.*', fill: 'js sh out'}) %>
 
 -   The hash code for a file:
     -   Will always be the same for the same content
     -   Is almost certain to be different if even a single byte differs
 
-<%- include('/_inc/multi.html', {pat: 'hash-file.*', fill: 'js sh out'}) %>
+<%- include('/inc/multi.html', {pat: 'hash-file.*', fill: 'js sh out'}) %>
 
 ::: callout
 ### The Birthday Problem
@@ -45,7 +45,7 @@ and quickly get into "if every atom in the universe was a file there still would
     -   Tell the hashing object what to do when the stream finishes
     -   Another example of <g key="asynchronous">asynchronous</g> execution
 
-<%- include('/_inc/multi.html', {pat: 'hash-stream.*', fill: 'js sh out'}) %>
+<%- include('/inc/multi.html', {pat: 'hash-stream.*', fill: 'js sh out'}) %>
 
 -   Many files don't change after they're created, or only change very slowly
 -   Wasteful to copy them every time a backup is done
@@ -58,16 +58,16 @@ and quickly get into "if every atom in the universe was a file there still would
 
 -   Step 1: find all files and calculate their hashes
 
-<%- include('/_inc/file.html', {file: 'hash-existing-promise.js'}) %>
+<%- include('/inc/file.html', {file: 'hash-existing-promise.js'}) %>
 
-<%- include('/_inc/multi.html', {pat: 'run-hash-existing-promise.*', fill: 'js sh slice.out'}) %>
+<%- include('/inc/multi.html', {pat: 'run-hash-existing-promise.*', fill: 'js sh slice.out'}) %>
 
 -   This code is clearer than it would be with callbacks, but the layer of promises around everything still obscures meaning
 -   Let's rewrite it using `async` and `await`
 
-<%- include('/_inc/file.html', {file: 'hash-existing-async.js'}) %>
+<%- include('/inc/file.html', {file: 'hash-existing-async.js'}) %>
 
-<%- include('/_inc/multi.html', {pat: 'run-hash-existing-async.*', fill: 'js sh slice.out'}) %>
+<%- include('/inc/multi.html', {pat: 'run-hash-existing-async.*', fill: 'js sh slice.out'}) %>
 
 ## How can we test JavaScript?
 
@@ -77,11 +77,11 @@ and quickly get into "if every atom in the universe was a file there still would
     -   We assume no more than one backup per second
     -   This is unsafe in practice: leads to a <g key="toctou">Time of check/time of use</g> <g key="race_condition">race condition</g>
 
-<%- include('/_inc/file.html', {file: 'check-existing-files.js'}) %>
+<%- include('/inc/file.html', {file: 'check-existing-files.js'}) %>
 
 -   Manually create testing directories with manufactured (shortened) hashes
 
-<%- include('/_inc/multi.html', {pat: 'tree-test.*', fill: 'sh out'}) %>
+<%- include('/inc/multi.html', {pat: 'tree-test.*', fill: 'sh out'}) %>
 
 -   Use [Mocha][mocha] for testing
     -   All tests are written using `async`
@@ -89,8 +89,8 @@ and quickly get into "if every atom in the universe was a file there still would
     -   Add `"test": "mocha */test/test-*.js"` to the `scripts` key of `package.json`,
         since we may add tests for other things later
 
-<%- include('/_inc/file.html', {file: 'test/test-find.js'}) %>
-<%- include('/_inc/file.html', {file: 'test-check-filesystem.out'}) %>
+<%- include('/inc/file.html', {file: 'test/test-find.js'}) %>
+<%- include('/inc/file.html', {file: 'test-check-filesystem.out'}) %>
 
 ## How can we test code that modifies files?
 
@@ -105,20 +105,20 @@ and quickly get into "if every atom in the universe was a file there still would
 -   Repeat previous tests using mock
     -   Results stay the same
 
-<%- include('/_inc/file.html', {file: 'test/test-find-mock.js'}) %>
+<%- include('/inc/file.html', {file: 'test/test-find-mock.js'}) %>
 
 -   Now write the code that does the file copying
 
-<%- include('/_inc/file.html', {file: 'backup.js'}) %>
+<%- include('/inc/file.html', {file: 'backup.js'}) %>
 
 -   And some tests
     -   Which are quite involved, since we want to check with actual file hashes
 -   Set up some fixtures
 
-<%- include('/_inc/keep.html', {file: 'test/test-backup.js', key: 'fixtures'}) %>
+<%- include('/inc/keep.html', {file: 'test/test-backup.js', key: 'fixtures'}) %>
 
 -   And then run some tests
 
-<%- include('/_inc/keep.html', {file: 'test/test-backup.js', key: 'tests'}) %>
+<%- include('/inc/keep.html', {file: 'test/test-backup.js', key: 'tests'}) %>
 
-<%- include('/_inc/file.html', {file: 'test-backup.out'}) %>
+<%- include('/inc/file.html', {file: 'test-backup.out'}) %>

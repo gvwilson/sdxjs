@@ -111,23 +111,23 @@ Diagram of 3-dimensional space of allowable versions.
     -   Really wish JSON had a standard way to represent comments…
 -   Stick to single-digit version numbers for readability
 
-<%- include('/_inc/file.html', {file: 'double-chained.json'}) %>
+<%- include('/inc/file.html', {file: 'double-chained.json'}) %>
 
 -   Check if a configuration (specific versions of all packages) is compatible with a manifest
 
-<%- include('/_inc/erase.html', {file: 'sweep.js', key: 'allows'}) %>
+<%- include('/inc/erase.html', {file: 'sweep.js', key: 'allows'}) %>
 
 -   Simplest way to find configuration is to sweep over all possibilities
 
-<%- include('/_inc/keep.html', {file: 'sweep.js', key: 'allows'}) %>
+<%- include('/inc/keep.html', {file: 'sweep.js', key: 'allows'}) %>
 
 -   Run this on the short example
 
-<%- include('/_inc/multi.html', {pat: 'sweep-double-chained.*', fill: 'sh out'}) %>
+<%- include('/inc/multi.html', {pat: 'sweep-double-chained.*', fill: 'sh out'}) %>
 
 -   And on the longer example
 
-<%- include('/_inc/multi.html', {pat: 'sweep-double-chained.*', fill: 'sh out'}) %>
+<%- include('/inc/multi.html', {pat: 'sweep-double-chained.*', fill: 'sh out'}) %>
 
 -   It works
 -   But does lots of unnecessary work
@@ -162,18 +162,18 @@ Diagram of 3-dimensional space of allowable versions.
 -   Collect possible solutions and display them at the end
 -   Only recurse if everything looks good so far
 
-<%- include('/_inc/erase.html', {file: 'prune.js', key: 'compatible'}) %>
+<%- include('/inc/erase.html', {file: 'prune.js', key: 'compatible'}) %>
 
 -   Check to see if adding something will still be consistent
 
-<%- include('/_inc/keep.html', {file: 'prune.js', key: 'compatible'}) %>
+<%- include('/inc/keep.html', {file: 'prune.js', key: 'compatible'}) %>
 
 -   Gets us from 18 complete solutions to:
     -   11 complete
     -   1 workable
     -   2 incomplete (representing 6 that we didn't need to finish)
 
-<%- include('/_inc/file.html', {file: 'prune-triple.out'}) %>
+<%- include('/inc/file.html', {file: 'prune-triple.out'}) %>
 
 -   Another way to look at the work is the number of steps in the search
     -   Full search had 18×3 = 54
@@ -181,9 +181,9 @@ Diagram of 3-dimensional space of allowable versions.
     -   So we have eliminated roughly 1/4 of the work
 -   What if we searched in a different order?
 
-<%- include('/_inc/file.html', {file: 'reverse.js'}) %>
+<%- include('/inc/file.html', {file: 'reverse.js'}) %>
 
-<%- include('/_inc/file.html', {file: 'reverse-triple.out'}) %>
+<%- include('/inc/file.html', {file: 'reverse-triple.out'}) %>
 
 -   Now have (8×3) + (5×2) = 34
     -   Have eliminated roughly 1/3 of the work

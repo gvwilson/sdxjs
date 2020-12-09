@@ -25,13 +25,13 @@
     -   Because if this doesn't work, nothing else will
     -   We will run everything via `export` to keep the examples simple
 
-<%- include('/_inc/file.html', {file: 'single/main.js'}) %>
-<%- include('/_inc/file.html', {file: 'expected-single.out'}) %>
+<%- include('/inc/file.html', {file: 'single/main.js'}) %>
+<%- include('/inc/file.html', {file: 'expected-single.out'}) %>
 
 -   Case 2: `main.js` requires `other.js`, which doesn't require anything
     -   First test of dependencies
 
-<%- include('/_inc/file.html', {file: 'expected-simple.out'}) %>
+<%- include('/inc/file.html', {file: 'expected-simple.out'}) %>
 
 -   Case 3: best described with a diagram
     -   `./main` requires all four of the files below
@@ -44,7 +44,7 @@
 Diagram of dependencies for module bundler.
 :::
 
-<%- include('/_inc/file.html', {file: 'expected-full.out'}) %>
+<%- include('/inc/file.html', {file: 'expected-full.out'}) %>
 
 -   We do not handle <g key="circular_dependency">circular dependencies</g>
     -   Because `require` itself doesn't (<xref key="module-loader"></xref>)
@@ -54,8 +54,8 @@ Diagram of dependencies for module bundler.
 -   To get dependencies for one file, parse it and extract all the `require` calls
     -   Relatively straightforward given what we know about [Acorn][acorn]
 
-<%- include('/_inc/file.html', {file: 'get-requires.js'}) %>
-<%- include('/_inc/multi.html', {pat: 'test-get-requires.*', fill: 'js sh out'}) %>
+<%- include('/inc/file.html', {file: 'get-requires.js'}) %>
+<%- include('/inc/multi.html', {pat: 'test-get-requires.*', fill: 'js sh out'}) %>
 
 -   To get all dependencies, need to find <g key="transitive_closure">transitive closure</g>
     -   Requirements of requirements of requirements of…
@@ -71,8 +71,8 @@ Diagram of dependencies for module bundler.
 -   Also complicated by the fact that JavaScript's `Set` doesn't have an equivalent of `Array.pop`
     -   So we will maintain the "set" of pending items as a list
 
-<%- include('/_inc/file.html', {file: 'transitive-closure-only.js'}) %>
-<%- include('/_inc/multi.html', {pat: 'test-transitive-closure-only.*', fill: 'js sh out'}) %>
+<%- include('/inc/file.html', {file: 'transitive-closure-only.js'}) %>
+<%- include('/inc/multi.html', {pat: 'test-transitive-closure-only.*', fill: 'js sh out'}) %>
 
 -   This works…
 -   …but we're not keeping track of the mapping from required names within files to absolute paths
@@ -81,8 +81,8 @@ Diagram of dependencies for module bundler.
     -   Sub-keys are the paths they refer to when loading things
     -   Values are top-level keys
 
-<%- include('/_inc/file.html', {file: 'transitive-closure.js'}) %>
-<%- include('/_inc/multi.html', {pat: 'test-transitive-closure.*', fill: 'js sh out'}) %>
+<%- include('/inc/file.html', {file: 'transitive-closure.js'}) %>
+<%- include('/inc/multi.html', {pat: 'test-transitive-closure.*', fill: 'js sh out'}) %>
 
 ## How can we safely combine several files into one?
 
@@ -92,21 +92,21 @@ Diagram of dependencies for module bundler.
     -   And an implementation of `require` to resolve dependencies *within the same file*
 -   For example, suppose we have this file
 
-<%- include('/_inc/file.html', {file: 'sanity-check-unwrapped.js'}) %>
+<%- include('/inc/file.html', {file: 'sanity-check-unwrapped.js'}) %>
 
 -   The wrapped version will look like this:
 
-<%- include('/_inc/file.html', {file: 'sanity-check-wrapped.js'}) %>
+<%- include('/inc/file.html', {file: 'sanity-check-wrapped.js'}) %>
 
 -   And we can test it like this
 
-<%- include('/_inc/multi.html', {pat: 'sanity-check-test.*', fill: 'js out'}) %>
+<%- include('/inc/multi.html', {pat: 'sanity-check-test.*', fill: 'js out'}) %>
 
 -   But we want to do this for multiple files
 -   So we will create a map of these functions with absolute paths as keys
 -   And wrap the loading in a function so that we don't accidentally step on anyone else's toys
 
-<%- include('/_inc/file.html', {file: 'combine-files.js'}) %>
+<%- include('/inc/file.html', {file: 'combine-files.js'}) %>
 
 -   Breaking it down
     -   `HEAD` creates a function of no arguments and a lookup table
@@ -114,12 +114,12 @@ Diagram of dependencies for module bundler.
     -   In between, `combineFiles` adds an entry to the lookup table for each file
 -   Test it with our intermediate two-file case
 
-<%- include('/_inc/file.html', {file: 'test-combine-files.js'}) %>
-<%- include('/_inc/file.html', {file: 'test-combine-files-simple.js'}) %>
+<%- include('/inc/file.html', {file: 'test-combine-files.js'}) %>
+<%- include('/inc/file.html', {file: 'test-combine-files-simple.js'}) %>
 
 -   We can check that this works by loading the file and calling `initialize`
 
-<%- include('/_inc/file.html', {file: 'show-combine-files-simple.out'}) %>
+<%- include('/inc/file.html', {file: 'show-combine-files-simple.out'}) %>
 
 -   This has not created our exports yet
 -   Instead, it has created a lookup table of functions that can create what we asked for
@@ -154,7 +154,7 @@ Diagram of functions returning functions returning functions
 -   To prove it works, we will look up the function `main` in the first file and call it
     -   If we were loading in the browser, we'd capture the exports in a variable for later use
 
-<%- include('/_inc/file.html', {file: 'create-bundle.js'}) %>
+<%- include('/inc/file.html', {file: 'create-bundle.js'}) %>
 
 -   This code is really hard to read
     -   What is being printed in the output vs. what is being executed right now
@@ -162,20 +162,20 @@ Diagram of functions returning functions returning functions
     -   Took much more time per line of finished code than anything except the promises in <xref key="promises"></xref>
 -   Run this to create a bundled version of the single file
 
-<%- include('/_inc/file.html', {file: 'test-create-bundle-single.sh'}) %>
-<%- include('/_inc/file.html', {file: 'bundle-single.js'}) %>
+<%- include('/inc/file.html', {file: 'test-create-bundle-single.sh'}) %>
+<%- include('/inc/file.html', {file: 'bundle-single.js'}) %>
 
 -   And when we run it
 
-<%- include('/_inc/file.html', {file: 'test-bundle-single.out'}) %>
+<%- include('/inc/file.html', {file: 'test-bundle-single.out'}) %>
 
 -   That was a lot of work to print one line
     -   But it should work for other files
 -   Make and run a bundle for the simple case (`main` and `other`)
 
-<%- include('/_inc/file.html', {file: 'bundle-simple.js'}) %>
-<%- include('/_inc/file.html', {file: 'test-bundle-simple.out'}) %>
+<%- include('/inc/file.html', {file: 'bundle-simple.js'}) %>
+<%- include('/inc/file.html', {file: 'test-bundle-simple.out'}) %>
 
 -   And for the full case (`main` plus four other files)
 
-<%- include('/_inc/file.html', {file: 'test-bundle-full.out'}) %>
+<%- include('/inc/file.html', {file: 'test-bundle-full.out'}) %>

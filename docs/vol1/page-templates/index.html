@@ -1,0 +1,650 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <title>Page Templates</title>
+  <meta name="toRoot" content="..">
+  <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico">
+  <link href="../../static/fonts.css" rel="stylesheet" type="text/css">
+  <link href="../../static/site.css" rel="stylesheet" type="text/css">
+  <script>const NUMBERING = {"vol1":"1","systems-programming":"2","promises":"3","unit-test":"4","file-backup":"5","data-table":"6","pattern-matching":"7","regex-parser":"8","page-templates":"9","build-manager":"10","layout-engine":"11","text-editor":"12","file-interpolator":"13","module-loader":"14","module-bundler":"15","package-manager":"16","style-checker":"17","code-generator":"18","doc-generator":"19","virtual-machine":"20","debugger":"21","conclusion":"22","bib":"A","license":"B","conduct":"C","contributing":"D","gloss":"E","links":"F","authors":"G"}</script>
+  <script src="../../static/site.js"></script>
+  <script>window.onload = () => fixPage()</script>
+</head>
+<body id="_top">
+<nav>
+<div class="row">
+<div class="left2">
+<a href="http://third-bit.com"><img src="../../static/logo.svg" alt="site logo" class="site-logo"/></a>
+<a href="../"><em>Software Tools in JavaScript: Volume 1</em></a>
+</div>
+<div class="right2">
+<div class="dropdown">
+<span class="navtitle">▿ Sections</span>
+<div class="dropdown-content" id="Sections">
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Chapters</span>
+<div class="dropdown-content" id="Chapters">
+<a href="../systems-programming/"><span class="nowrap">Systems Programming</span></a>
+<br/><a href="../promises/"><span class="nowrap">Promises</span></a>
+<br/><a href="../unit-test/"><span class="nowrap">Unit Testing</span></a>
+<br/><a href="../file-backup/"><span class="nowrap">File Backup</span></a>
+<br/><a href="../data-table/"><span class="nowrap">Data Tables</span></a>
+<br/><a href="../pattern-matching/"><span class="nowrap">Pattern Matching</span></a>
+<br/><a href="../regex-parser/"><span class="nowrap">Parsing Expressions</span></a>
+<br/><a href="../page-templates/"><span class="nowrap">Page Templates</span></a>
+<br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
+<br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
+<br/><a href="../text-editor/"><span class="nowrap">Text Editor</span></a>
+<br/><a href="../file-interpolator/"><span class="nowrap">File Interpolator</span></a>
+<br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
+<br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
+<br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
+<br/><a href="../style-checker/"><span class="nowrap">Style Checker</span></a>
+<br/><a href="../code-generator/"><span class="nowrap">Code Generator</span></a>
+<br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
+<br/><a href="../virtual-machine/"><span class="nowrap">Virtual Machine</span></a>
+<br/><a href="../debugger/"><span class="nowrap">Debugger</span></a>
+<br/><a href="../conclusion/"><span class="nowrap">Conclusion</span></a>
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Appendices</span>
+<div class="dropdown-content" id="Appendices">
+<a href="../bib/"><span class="nowrap">Bibliography</span></a>
+<br/><a href="../license/"><span class="nowrap">License</span></a>
+<br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
+<br/><a href="../contributing/"><span class="nowrap">Contributing</span></a>
+<br/><a href="../gloss/"><span class="nowrap">Glossary</span></a>
+<br/><a href="../links/"><span class="nowrap">Links</span></a>
+<br/><a href="../authors/"><span class="nowrap">Authors</span></a>
+</div>
+</div>
+</div>
+</div>
+</nav>
+  <main>
+  <h1>Page Templates</h1>
+  <h2 class="lede">Generating HTML pages from templates</h2>
+<div class="callout">
+  <p>Terms defined: <g key="delegate_pattern">Delegate pattern</g>, <g key="dom">Document Object Model (DOM)</g>, <g key="dynamic_scoping">dynamic scoping</g>, <g key="lexical_scoping">lexical scoping</g>, <g key="stack_frame">stack frame</g>, <g key="visitor_pattern">Visitor pattern</g>, <g key="yaml">YAML</g></p>
+</div>
+<ul>
+<li>Goal: expand HTML templates to create web pages.
+<ul>
+<li>Option 1: put JavaScript directly in the page like <a href="https://ejs.co/">EJS</a></li>
+<li>Option 2: use a mini-language like <a href="https://jekyllrb.com/">Jekyll</a></li>
+<li>Option 3: use specially-named attributes in HTML</li>
+</ul>
+</li>
+<li>We'll use Option 3 because it saves us writing a parser, and because it's unusual</li>
+<li>Design:
+<ul>
+<li>Walk the <g key="dom">DOM</g> to find nodes with special attributes</li>
+<li>&quot;Execute&quot; the instructions in those nodes to generate text</li>
+<li>Save other text as-is</li>
+</ul>
+</li>
+</ul>
+<h2 id="what-will-our-system-look-like">What will our system look like?</h2>
+<ul>
+<li>What will a templated page look like?</li>
+</ul>
+<pre title="input-loop.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;Expect three items&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li q-loop="item:names"&gt;
+        &lt;span q-var="item"/&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<ul>
+<li>Take a template, an output stream, and some variables
+<ul>
+<li>E.g., from a <g key="yaml">YAML</g> header in the file</li>
+</ul>
+</li>
+<li>Pass the values into the expansion as an object</li>
+</ul>
+<pre title="example-call.js"><code class="language-js">const variables = {
+  names: ['Johnson', 'Vaughan', 'Jackson']
+}
+const dom = readHtml('template.html')
+const expander = new Expander(dom, variables)
+expander.walk()
+console.log(expander.result)
+</code></pre>
+<ul>
+<li>Output will look like HTML without any traces of how it was created</li>
+</ul>
+<pre title="output-loop.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;Expect three items&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;/span&gt;Johnson&lt;span&gt;&lt;/li&gt;&lt;li&gt;
+        &lt;/span&gt;Vaughan&lt;span&gt;&lt;/li&gt;&lt;li&gt;
+        &lt;/span&gt;Jackson&lt;span&gt;&lt;/li&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<h2 id="how-can-we-keep-track-of-values">How can we keep track of values?</h2>
+<ul>
+<li>Need a way to keep track of variables' values</li>
+<li>Maintain a stack of lookup tables
+<ul>
+<li>Each <g key="stack_frame">stack frame</g> is an object</li>
+<li><code>Env.find</code> looks up the list of stack frames</li>
+<li>This is <g key="dynamic_scoping">dynamic scoping</g> not <g key="lexical_scoping">lexical scoping</g></li>
+</ul>
+</li>
+<li>Why a stack and not just a single object?
+<ul>
+<li>So that variables inside loops don't affect one another</li>
+</ul>
+</li>
+</ul>
+<pre title="env.js"><code class="language-js">class Env {
+  constructor (initial) {
+    this.stack = []
+    this.push(Object.assign({}, initial))
+  }
+
+  push (frame) {
+    this.stack.push(frame)
+  }
+
+  pop () {
+    this.stack.pop()
+  }
+
+  find (name) {
+    for (let i = this.stack.length - 1; i &gt;= 0; i--) {
+      if (name in this.stack[i]) {
+        return this.stack[i][name]
+      }
+    }
+    return undefined
+  }
+
+  toString () {
+    return JSON.stringify(this.stack)
+  }
+}
+
+export default Env
+</code></pre>
+<ul>
+<li>Handle nodes using the <g key="visitor_pattern">Visitor pattern</g>
+<ul>
+<li><code>Visitor.walk()</code> gives <code>node</code> a default value of <code>undefined</code>, which signals that we want to restart</li>
+<li>Alternative designs would be build-and-run or pass in the root with every call</li>
+</ul>
+</li>
+</ul>
+<pre title="visitor.js"><code class="language-js">import assert from 'assert'
+
+class Visitor {
+  constructor (root) {
+    this.root = root
+  }
+
+  walk (node) {
+    if (node === undefined) {
+      node = this.root
+    }
+    if (this.open(node)) {
+      node.children.forEach(child =&gt; {
+        this.walk(child)
+      })
+    }
+    this.close(node)
+  }
+
+  open (node) {
+    assert(false,
+      'Must implemented "open"')
+  }
+
+  close (node) {
+    assert(false,
+      'Must implemented "close"')
+  }
+}
+
+export default Visitor
+</code></pre>
+<h2 id="how-do-we-handle-each-type-of-node">How do we handle each type of node?</h2>
+<ul>
+<li>Text: copy to output</li>
+<li>Nodes without special attributes: copy to output</li>
+<li>Or:
+<ul>
+<li>Node with <code>q-num</code> attribute: constant</li>
+<li>Node with <code>q-var</code> attribute: look up variable and output its value</li>
+<li>Node with <code>q-if</code> attribute: show content if variable is true</li>
+<li>Node with <code>q-loop</code> attribute: loop over the contents of a variable</li>
+</ul>
+</li>
+<li>We could put this all in one class</li>
+<li>Or create a small class to handle each case
+<ul>
+<li>The <g key="delegate_pattern">Delegate</g> design pattern</li>
+<li>Easier to expand in future</li>
+</ul>
+</li>
+<li>Overall structure is straightforward</li>
+</ul>
+<pre title="expander.js"><code class="language-js">import assert from 'assert'
+
+import Visitor from './visitor.js'
+import Env from './env.js'
+
+import q_if from './q-if.js'
+import q_loop from './q-loop.js'
+import q_num from './q-num.js'
+import q_var from './q-var.js'
+
+const HANDLERS = {
+  'q-if': q_if,
+  'q-loop': q_loop,
+  'q-num': q_num,
+  'q-var': q_var
+}
+
+class Expander extends Visitor {
+  constructor (root, vars) {
+    super(root)
+    this.env = new Env(vars)
+    this.handlers = HANDLERS
+    this.result = []
+  }
+
+  getResult () {
+    return this.result.join('')
+  }
+...
+  output (text) {
+    this.result.push((text === undefined) ? 'UNDEF' : text)
+  }
+}
+
+export default Expander
+</code></pre>
+<ul>
+<li>Methods that do the work</li>
+</ul>
+<pre title="expander.js"><code class="language-js">  open (node) {
+    if (node.type === 'text') {
+      this.output(node.data)
+      return false
+    } else if (this.hasHandler(node)) {
+      return this.getHandler(node).open(this, node)
+    } else {
+      this.showTag(node, false)
+      return true
+    }
+  }
+
+  close (node) {
+    if (node.type === 'text') {
+      return
+    }
+    if (this.hasHandler(node)) {
+      this.getHandler(node).close(this, node)
+    } else {
+      this.showTag(node, true)
+    }
+  }
+
+  hasHandler (node) {
+    for (const name in node.attribs) {
+      if (name in this.handlers) {
+        return true
+      }
+    }
+    return false
+  }
+
+  getHandler (node) {
+    const possible = Object.keys(node.attribs)
+      .filter(name =&gt; name in this.handlers)
+    assert(possible.length === 1,
+      'Should be exactly one handler')
+    return this.handlers[possible[0]]
+  }
+
+  showTag (node, closing) {
+    if (closing) {
+      this.output(`&lt;/${node.name}&gt;`)
+      return
+    }
+
+    this.output(`&lt;${node.name}`)
+    for (const name in node.attribs) {
+      if (!name.startsWith('q-')) {
+        this.output(` ${name}="${node.attribs[name]}"`)
+      }
+    }
+    this.output('&gt;')
+  }</code></pre>
+<h2 id="what-does-this-look-like-when-we-put-it-all-together">What does this look like when we put it all together?</h2>
+<ul>
+<li>Full program loads variable definitions from a JSON file
+<ul>
+<li>Put strings in an array and concatenate at the end</li>
+<li>More efficient than repeated concatenation</li>
+</ul>
+</li>
+</ul>
+<pre title="template.js"><code class="language-js">import fs from 'fs'
+import htmlparser2 from 'htmlparser2'
+
+import Expander from './expander.js'
+
+const main = () =&gt; {
+  const vars = readJSON(process.argv[2])
+  const doc = readHtml(process.argv[3])
+  const expander = new Expander(doc, vars)
+  expander.walk()
+  console.log(expander.getResult())
+}
+
+const readJSON = (filename) =&gt; {
+  const text = fs.readFileSync(filename, 'utf-8')
+  return JSON.parse(text)
+}
+
+const readHtml = (filename) =&gt; {
+  const text = fs.readFileSync(filename, 'utf-8')
+  return htmlparser2.parseDOM(text)[0]
+}
+
+main()
+</code></pre>
+<h2 id="how-can-we-test-this">How can we test this?</h2>
+<ul>
+<li>Create a few tests</li>
+<li>Variable definitions shared by all tests</li>
+</ul>
+<pre title="vars.json"><code class="language-json">{
+  "firstVariable": "firstValue",
+  "secondVariable": "secondValue",
+  "variableName": "variableValue",
+  "showThis": true,
+  "doNotShowThis": false,
+  "names": ["Johnson", "Vaughan", "Jackson"]
+}
+</code></pre>
+<ul>
+<li>Static text should be copied over</li>
+</ul>
+<pre title="input-static-text.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Only Static Text&lt;/h1&gt;
+    &lt;p&gt;This document only contains:&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;static&lt;/li&gt;
+      &lt;li&gt;text&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<pre title="static-text.sh"><code class="language-sh">node template.js vars.json input-static-text.html
+</code></pre>
+<pre title="output-static-text.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Only Static Text&lt;/h1&gt;
+    &lt;p&gt;This document only contains:&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;static&lt;/li&gt;
+      &lt;li&gt;text&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<div class="subpage" title="output-static-text.html"><html>
+  <body>
+    <h1>Only Static Text</h1>
+    <p>This document only contains:</p>
+    <ul>
+      <li>static</li>
+      <li>text</li>
+    </ul>
+  </body>
+</html>
+</div>
+<ul>
+<li>Single constant should be substituted</li>
+</ul>
+<pre title="input-single-constant.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;&lt;span q-num="123"/&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<pre title="output-single-constant.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;&lt;/span&gt;123&lt;span&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<div class="subpage" title="output-single-constant.html"><html>
+  <body>
+    <p></span>123<span></p>
+  </body>
+</html>
+</div>
+<ul>
+<li>Single variable should be substituted</li>
+</ul>
+<pre title="input-single-variable.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;&lt;span q-var="variableName"/&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<pre title="output-single-variable.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;&lt;/span&gt;variableValue&lt;span&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<div class="subpage" title="output-single-variable.html"><html>
+  <body>
+    <p></span>variableValue<span></p>
+  </body>
+</html>
+</div>
+<ul>
+<li>Expand multiple variables</li>
+</ul>
+<pre title="input-multiple-variables.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;&lt;span q-var="firstVariable" /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;span q-var="secondVariable" /&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<pre title="output-multiple-variables.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;&lt;/span&gt;firstValue&lt;span&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;/span&gt;secondValue&lt;span&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<div class="subpage" title="output-multiple-variables.html"><html>
+  <body>
+    <p></span>firstValue<span></p>
+    <p></span>secondValue<span></p>
+  </body>
+</html>
+</div>
+<ul>
+<li>Conditional expression</li>
+</ul>
+<pre title="input-conditional.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p q-if="showThis"&gt;This should be shown.&lt;/p&gt;
+    &lt;p q-if="doNotShowThis"&gt;This should &lt;em&gt;not&lt;/em&gt; be shown.&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<pre title="output-conditional.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;/p&gt;This should be shown.&lt;p&gt;
+    
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<div class="subpage" title="output-conditional.html"><html>
+  <body>
+    </p>This should be shown.<p>
+  </body>
+</html>
+</div>
+<ul>
+<li>Loop</li>
+</ul>
+<pre title="input-loop.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;Expect three items&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li q-loop="item:names"&gt;
+        &lt;span q-var="item"/&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<pre title="output-loop.html"><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;Expect three items&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;/span&gt;Johnson&lt;span&gt;&lt;/li&gt;&lt;li&gt;
+        &lt;/span&gt;Vaughan&lt;span&gt;&lt;/li&gt;&lt;li&gt;
+        &lt;/span&gt;Jackson&lt;span&gt;&lt;/li&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<div class="subpage" title="output-loop.html"><html>
+  <body>
+    <p>Expect three items</p>
+    <ul>
+      <li>
+        </span>Johnson<span></li><li>
+        </span>Vaughan<span></li><li>
+        </span>Jackson<span></li></li>
+    </ul>
+  </body>
+</html>
+</div>
+<h2 id="exercises">Exercises</h2>
+<h3 class="exercise">Tracing execution</h3>
+<p>Add a directive <code>&lt;span q-trace=&quot;variable&quot;/&gt;</code>
+that prints the current value of a variable using <code>console.error</code> for debugging.</p>
+<h3 class="exercise">Unit tests</h3>
+<p>Write unit tests for template expansion using Mocha.</p>
+<h3 class="exercise">Trimming text</h3>
+<p>Modify all of the directives to take an extra optional attribute <code>q-trim=&quot;true&quot;</code>
+If this attribute is set,
+leading and trailing whitespace is trimmed from the directive's expansion.</p>
+<h3 class="exercise">Literal text</h3>
+<p>Add a directive <code>&lt;div q-literal=&quot;true&quot;&gt;…&lt;/div&gt;</code> that copies the enclosed text as-is
+without interpreting or expanding any contained directives.
+(A directive like this would be needed when writing documentation for the template expander.)</p>
+<h3 class="exercise">Including other files</h3>
+<ol>
+<li>
+<p>Add a directive <code>&lt;div q-include=&quot;filename.html&quot;/&gt;</code> that includes another file
+in the file being processed.</p>
+</li>
+<li>
+<p>Should included files be processed and the result copied into the including file,
+or should the text be copied in and then processed?
+What difference does it make to the way variables are evaluated?</p>
+</li>
+</ol>
+<h3 class="exercise">HTML snippets</h3>
+<p>Add a directive <code>&lt;div q-snippet=&quot;variable&quot;&gt;…&lt;/div&gt;</code> that saves some text in a variable
+so that it can be displayed later.
+For example:</p>
+<pre><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;div q-snippet=&quot;prefix&quot;&gt;&lt;strong&gt;Important:&lt;/strong&gt;&lt;/div&gt;
+    &lt;p&gt;Expect three items&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li q-loop=&quot;item:names&quot;&gt;
+        &lt;span q-var=&quot;prefix&quot;&gt;&lt;span q-var=&quot;item&quot;/&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<div class="unindented">
+<p>would printed the word &quot;Important:&quot; in bold before each item in the list.</p>
+</div>
+<h3 class="exercise">YAML headers</h3>
+<p>Modify the template expander to handle variables defined in a YAML header in the page being processed.
+For example, if the page is:</p>
+<pre><code class="language-html">---
+name: &quot;Dorothy Johnson Vaughan&quot;
+---
+&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;&lt;span q-var=&quot;name&quot;/&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<div class="unindented">
+<p>will create a paragraph containing the given name.</p>
+</div>
+<h3 class="exercise">Expanding all files</h3>
+<p>Write a program <code>expand-all.js</code> that takes two directory names as command-line arguments
+and builds a website in the second directory by expanding all of the HTML files found in the first
+or in sub-directories of the first.</p>
+<h3 class="exercise">Counting loops</h3>
+<p>Add a directive <code>&lt;div q-index=&quot;indexName&quot; q-limit=&quot;limitName&quot;&gt;…&lt;/div&gt;</code>
+that loops from zero to the value in the variable <code>limitName</code>,
+putting the current iteration index in <code>indexName</code>.</p>
+<h3 class="exercise">Auxiliary functions</h3>
+<ol>
+<li>
+<p>Modify <code>Expander</code> so that it takes an extra argument <code>auxiliaries</code>
+containing zero or more named functions:</p>
+<pre><code class="language-js">const expander = new Expander(root, vars, {
+  max: Math.max,
+  trim: (x) =&gt; x.trim()
+})
+</code></pre>
+</li>
+<li>
+<p>Add a directive <code>&lt;span q-call=&quot;functionName&quot; q-args=&quot;var,var&quot;/&gt;</code>
+that looks up a function in <code>auxiliaries</code> and calls it
+with the given variables as arguments.</p>
+</li>
+</ol>
+</main>
+<footer>
+<div class="row">
+<div class="left3">
+<a href="../regex-parser/"><em>&laquo; Parsing Expressions</em></a>
+</div>
+<div class="middle3">
+<a href="../license/"><img class="footer" src="../../static/cc-by.svg" alt="License" /></a>
+<a href="https://github.com/software-tools-in-javascript/stjs/"><img class="footer" src="../../static/github.svg" alt="Repository" /></a>
+© 2020 <a href="../authors/">The Authors</a>
+</div>
+<div class="right3">
+<a href="../build-manager/"><em>Build Manager &raquo;</em></a>
+</div>
+</div>
+</footer>
+</body>
+</html>

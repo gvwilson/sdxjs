@@ -8,7 +8,7 @@ TARGETS=\
   update-timestamps.out \
   variable-expander.out
 
-include ../_rules.mk
+include ../examples.mk
 
 display-only.out: driver.js
 update-timestamps.out: driver.js

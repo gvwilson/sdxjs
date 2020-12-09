@@ -69,7 +69,7 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
     Do not use exclamation marks—few things are actually that surprising the first time around,
     and none the second.
 
-1.  `_config.yml` contains configuration information and metadata about chapters and appendices.
+1.  `config.yml` contains configuration information and metadata about chapters and appendices.
 
 1.  Each lesson is in a file `./slug/index.md`,
     where "slug" is a hyphenated short name for the topic (e.g., `writing-functions`).
@@ -78,7 +78,7 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
     (e.g., "How do I check if a file exists?").
     Do not use headings below level 3.
 
-1.  Put definitions of external links in `_links.yml`
+1.  Put definitions of external links in `links.yml`
     and refer to them using `[text to display][link-key]`.
     Entries should be in alphabetical order by slug.
 
@@ -86,28 +86,28 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
     to refer from one chapter or appendix to another.
     (We cannot use the empty tag `<xref key="slug"/>` because the parser doesn't like it.)
     `static/site.js` converts this to a glossary reference in the online version
-    and `_tools/latex.js` converts it for the PDF version;
+    and `bin/latex.js` converts it for the PDF version;
     if no text is provided inside the tag,
     we fill it in with `Chapter N` or `Appendix X`.
 
 1.  When defining a term, use something like `<g key="absolute_path">absolute path</g>`.
-    The key must exist in either `_gloss.yml` (our local glossary),
-    and again, `static/site.js` and `_tools/latex.js` convert this to a glossary reference.
+    The key must exist in either `gloss.yml` (our local glossary),
+    and again, `static/site.js` and `bin/latex.js` convert this to a glossary reference.
 
 1.  Use something like `<cite>Osmani2017,Casciaro2020</cite>` for bibliographic citations.
-    The keys must exist in `_bib.yml`, and yes, `static/site.js` and `_tools/latex.js` do the conversions.
+    The keys must exist in `bib.yml`, and yes, `static/site.js` and `bin/latex.js` do the conversions.
 
 1.  We use [JavaScript Standard Style][standard-js] almost everywhere
     ("almost" because some of our examples have to break the rules to illustrate points).
     Please install `standard` and check your code with it using `make standard` before committing;
     if you need to break a rule, add an [ESLint][eslint] directive to the source file:
-    `_tools/html.js` removes these during Markdown-to-HTML conversion.
+    `bin/html.js` removes these during Markdown-to-HTML conversion.
 
 1.  There is a Makefile in each topic directory that rebuilds all of the included files for that topic.
     1.  All output is saved in `.txt` files
         (except for a few cases where the output is runnable JavaScript, which is saved in `.js` files).
     1.  The rules to re-run simple cases that don't require command-line arguments or error handling
-        are in `./_rules.mk`.
+        are in `./rules.mk`.
     1.  More complicated cases are in shell scripts (`.sh` files).
         All the mechanics of re-running examples must be in the `.sh` file rather than the Makefile
         so that the commands used to re-create an example can be included in the chapter file.
@@ -131,4 +131,4 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
 1.  NPM doesn't allow us to document our tasks or make them depend on one another,
     so we use [NPM][npm] to manage packages and GNU Make to run tasks:
     run `make` to get help with the latter.
-    All of our tools are in the `_tools` directory.
+    All of our tools are in the `bin` directory.

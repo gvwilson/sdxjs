@@ -19,4 +19,4 @@ TARGETS=\
   use-pledge-return.out \
   use-promise-chained.out
 
-include ../_rules.mk
+include ../examples.mk

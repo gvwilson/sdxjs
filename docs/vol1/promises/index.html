@@ -1,0 +1,1038 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <title>Promises</title>
+  <meta name="toRoot" content="..">
+  <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico">
+  <link href="../../static/fonts.css" rel="stylesheet" type="text/css">
+  <link href="../../static/site.css" rel="stylesheet" type="text/css">
+  <script>const NUMBERING = {"vol1":"1","systems-programming":"2","promises":"3","unit-test":"4","file-backup":"5","data-table":"6","pattern-matching":"7","regex-parser":"8","page-templates":"9","build-manager":"10","layout-engine":"11","text-editor":"12","file-interpolator":"13","module-loader":"14","module-bundler":"15","package-manager":"16","style-checker":"17","code-generator":"18","doc-generator":"19","virtual-machine":"20","debugger":"21","conclusion":"22","bib":"A","license":"B","conduct":"C","contributing":"D","gloss":"E","links":"F","authors":"G"}</script>
+  <script src="../../static/site.js"></script>
+  <script>window.onload = () => fixPage()</script>
+</head>
+<body id="_top">
+<nav>
+<div class="row">
+<div class="left2">
+<a href="http://third-bit.com"><img src="../../static/logo.svg" alt="site logo" class="site-logo"/></a>
+<a href="../"><em>Software Tools in JavaScript: Volume 1</em></a>
+</div>
+<div class="right2">
+<div class="dropdown">
+<span class="navtitle">▿ Sections</span>
+<div class="dropdown-content" id="Sections">
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Chapters</span>
+<div class="dropdown-content" id="Chapters">
+<a href="../systems-programming/"><span class="nowrap">Systems Programming</span></a>
+<br/><a href="../promises/"><span class="nowrap">Promises</span></a>
+<br/><a href="../unit-test/"><span class="nowrap">Unit Testing</span></a>
+<br/><a href="../file-backup/"><span class="nowrap">File Backup</span></a>
+<br/><a href="../data-table/"><span class="nowrap">Data Tables</span></a>
+<br/><a href="../pattern-matching/"><span class="nowrap">Pattern Matching</span></a>
+<br/><a href="../regex-parser/"><span class="nowrap">Parsing Expressions</span></a>
+<br/><a href="../page-templates/"><span class="nowrap">Page Templates</span></a>
+<br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
+<br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
+<br/><a href="../text-editor/"><span class="nowrap">Text Editor</span></a>
+<br/><a href="../file-interpolator/"><span class="nowrap">File Interpolator</span></a>
+<br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
+<br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
+<br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
+<br/><a href="../style-checker/"><span class="nowrap">Style Checker</span></a>
+<br/><a href="../code-generator/"><span class="nowrap">Code Generator</span></a>
+<br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
+<br/><a href="../virtual-machine/"><span class="nowrap">Virtual Machine</span></a>
+<br/><a href="../debugger/"><span class="nowrap">Debugger</span></a>
+<br/><a href="../conclusion/"><span class="nowrap">Conclusion</span></a>
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Appendices</span>
+<div class="dropdown-content" id="Appendices">
+<a href="../bib/"><span class="nowrap">Bibliography</span></a>
+<br/><a href="../license/"><span class="nowrap">License</span></a>
+<br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
+<br/><a href="../contributing/"><span class="nowrap">Contributing</span></a>
+<br/><a href="../gloss/"><span class="nowrap">Glossary</span></a>
+<br/><a href="../links/"><span class="nowrap">Links</span></a>
+<br/><a href="../authors/"><span class="nowrap">Authors</span></a>
+</div>
+</div>
+</div>
+</div>
+</nav>
+  <main>
+  <h1>Promises</h1>
+  <h2 class="lede">Using promises to make callbacks easier</h2>
+<div class="callout">
+  <p>Terms defined: <g key="character_encoding">character encoding</g>, <g key="class">class</g>, <g key="constructor">constructor</g>, <g key="exception">exception</g>, <g key="method">method</g>, <g key="non_blocking_execution">non-blocking execution</g>, <g key="promisification">promisification</g>, <g key="utf_8">UTF-8</g></p>
+</div>
+<ul>
+<li>Callbacks work but are hard to read and debug
+<ul>
+<li>Which means they only &quot;work&quot; in a limited sense</li>
+</ul>
+</li>
+<li>Promises were added to JavaScript in 2015
+<ul>
+<li>As in, &quot;We promise to do this later&quot;</li>
+</ul>
+</li>
+<li>Show how they work by creating a <g key="class">class</g> of our own called <code>Pledge</code>
+<ul>
+<li>Based on <a href="https://medium.com/@treyhuffine">Trey Huffine</a>'s <a href="https://levelup.gitconnected.com/understand-javascript-promises-by-building-a-promise-from-scratch-84c0fd855720">tutorial</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="how-can-we-manage-asynchronous-execution">How can we manage asynchronous execution?</h2>
+<ul>
+<li>Most functions execute in order
+<ul>
+<li><code>Array.forEach</code> does something once for each element of an array but doesn't build a new array like <code>Array.filter</code></li>
+</ul>
+</li>
+</ul>
+<pre title="not-callbacks-alone.js"><code class="language-js">[1000, 1500, 500].forEach(t =&gt; console.log(t))
+</code></pre>
+<pre title="not-callbacks-alone.out"><code class="language-out">1000
+1500
+500
+</code></pre>
+<ul>
+<li>A handful of built-in functions delay execution
+<ul>
+<li><code>setTimeout</code> runs a callback after a certain number of milliseconds</li>
+<li>First argument is a function of no arguments</li>
+<li>Second is the delay</li>
+</ul>
+</li>
+</ul>
+<div class="fixme">
+<p>Diagram showing setTimeout</p>
+</div>
+<pre title="callbacks-with-timeouts.js"><code class="language-js">[1000, 1500, 500].forEach(t =&gt; {
+  console.log(`about to setTimeout for ${t}`)
+  setTimeout(() =&gt; console.log(`inside timer handler for ${t}`), t)
+})
+</code></pre>
+<pre title="callbacks-with-timeouts.out"><code class="language-out">about to setTimeout for 1000
+about to setTimeout for 1500
+about to setTimeout for 500
+inside timer handler for 500
+inside timer handler for 1000
+inside timer handler for 1500
+</code></pre>
+<ul>
+<li>Setting a timeout of zero defers execution without delay
+<ul>
+<li>Which gives something else a chance to run</li>
+</ul>
+</li>
+</ul>
+<pre title="callbacks-with-zero-timeouts.js"><code class="language-js">[1000, 1500, 500].forEach(t =&gt; {
+  console.log(`about to setTimeout for ${t}`)
+  setTimeout(() =&gt; console.log(`inside timer handler for ${t}`), 0)
+})
+</code></pre>
+<pre title="callbacks-with-zero-timeouts.out"><code class="language-out">about to setTimeout for 1000
+about to setTimeout for 1500
+about to setTimeout for 500
+inside timer handler for 1000
+inside timer handler for 1500
+inside timer handler for 500
+</code></pre>
+<ul>
+<li>We can use this to build a generic <g key="non_blocking_execution">non-blocking function</g></li>
+</ul>
+<pre title="non-blocking.js"><code class="language-js">const nonBlocking = (callback) =&gt; {
+  setTimeout(callback, 0)
+}
+
+[1000, 1500, 500].forEach(t =&gt; {
+  console.log(`about to do nonBlocking for ${t}`)
+  nonBlocking(() =&gt; console.log(`inside timer handler for ${t}`))
+})
+</code></pre>
+<pre title="non-blocking.out"><code class="language-out">about to do nonBlocking for 1000
+about to do nonBlocking for 1500
+about to do nonBlocking for 500
+inside timer handler for 1000
+inside timer handler for 1500
+inside timer handler for 500
+</code></pre>
+<div class="fixme">
+<p>Diagram showing three delays function calls</p>
+</div>
+<ul>
+<li>Why bother?
+<ul>
+<li>Because we may want to give something else a chance to run</li>
+</ul>
+</li>
+<li>Node provides <code>setImmediate</code> to do this for us
+<ul>
+<li>And also <code>process.nextTick</code>, which doesn't do quite the same thing</li>
+</ul>
+</li>
+</ul>
+<pre title="set-immediate.js"><code class="language-js">[1000, 1500, 500].forEach(t =&gt; {
+  console.log(`about to do setImmediate for ${t}`)
+  setImmediate(() =&gt; console.log(`inside immediate handler for ${t}`))
+})
+</code></pre>
+<pre title="set-immediate.out"><code class="language-out">about to do setImmediate for 1000
+about to do setImmediate for 1500
+about to do setImmediate for 500
+inside immediate handler for 1000
+inside immediate handler for 1500
+inside immediate handler for 500
+</code></pre>
+<h2 id="how-do-promises-work">How do promises work?</h2>
+<ul>
+<li>Start by showing how we want to use it</li>
+</ul>
+<pre title="use-pledge-motivation.js"><code class="language-js">import Pledge from './pledge.js'
+
+new Pledge((resolve, reject) =&gt; {
+  console.log('top of a single then clause')
+  setTimeout(() =&gt; {
+    console.log('about to call resolve callback')
+    resolve('this is the result')
+  }, 0)
+}).then(value =&gt; {
+  console.log(`in 'then' with "${value}"`)
+  return 'first then value'
+})
+</code></pre>
+<pre title="use-pledge-motivation.out"><code class="language-out">top of a single then clause
+about to call resolve callback
+in 'then' with "this is the result"
+</code></pre>
+<ul>
+<li>Create a new <code>Pledge</code> with a callback that takes <code>resolve</code> (everything worked) and <code>reject</code> (something failed)
+<ul>
+<li>That top-level callback does the first part of what we want to do (the part before we expect a delay)</li>
+<li>For demonstration purposes, we will use <code>setTimeout</code> to defer execution</li>
+<li>Then call to <code>resolve</code> to trigger whatever comes next</li>
+</ul>
+</li>
+<li>Look at the line with <code>then</code>
+<ul>
+<li>This is a call to a <g key="method">method</g> of the <code>Pledge</code> object</li>
+<li>Its argument is a callback that gets the value passed to <code>resolve</code></li>
+<li>This is where and how we handle the delayed execution.</li>
+</ul>
+</li>
+</ul>
+<div class="fixme">
+<p>Diagram showing how promises resolve</p>
+</div>
+<ul>
+<li><code>Pledge</code>'s <g key="constructor">constructor</g> requires a single function called <code>action</code></li>
+<li>This function must take take two callbacks as arguments
+<ul>
+<li>What to do if the action completes successfully</li>
+<li>What to do if it doesn't (i.e., how to handle errors)</li>
+<li><code>Pledge</code> will provide both of these callbacks to the action at the right time</li>
+</ul>
+</li>
+<li>Give the class two methods:
+<ul>
+<li><code>then</code> to enable more actions</li>
+<li><code>catch</code> to handle errors</li>
+<li>We arbitrarily decide that we can have as many <code>then</code>s as we want, but only one <code>catch</code></li>
+</ul>
+</li>
+<li>If the action completes successfully, it gives us a value</li>
+<li>We pass this value to the first <code>then</code>, pass the result of that <code>then</code> to the second one, etc.</li>
+<li>If any of them fail, we pass the <g key="exception">exception</g> to the error handler</li>
+</ul>
+<pre title="pledge.js"><code class="language-js">class Pledge {
+  constructor (action) {
+    this.actionCallbacks = []
+    this.errorCallback = () =&gt; {}
+    action(this.onResolve.bind(this), this.onReject.bind(this))
+  }
+
+  then (thenHandler) {
+    this.actionCallbacks.push(thenHandler)
+    return this
+  }
+
+  catch (errorHandler) {
+    this.errorCallback = errorHandler
+    return this
+  }
+
+  onResolve (value) {
+    let storedValue = value
+    try {
+      this.actionCallbacks.forEach((action) =&gt; {
+        storedValue = action(storedValue)
+      })
+    } catch (err) {
+      this.actionCallbacks = []
+      this.onReject(err)
+    }
+  }
+
+  onReject (err) {
+    this.errorCallback(err)
+  }
+}
+
+export default Pledge
+</code></pre>
+<ul>
+<li>There is one unfortunate trick: <code>bind</code>.
+<ul>
+<li>When we create an object <code>obj</code> and call a method <code>meth</code>, JavaScript sets <code>this</code> inside <code>meth</code></li>
+<li>If we use a method as a callback, <code>this</code> isn't set</li>
+<li>To convert the method to a plain old function with the right <code>this</code>, we have to use <code>bind</code></li>
+<li>See <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Function/bind">the documentation</a> for details</li>
+</ul>
+</li>
+<li>Let's create a pledge and return a value</li>
+</ul>
+<pre title="use-pledge-return.js"><code class="language-js">import Pledge from './pledge.js'
+
+new Pledge((resolve, reject) =&gt; {
+  console.log('top of a single then clause')
+}).then((value) =&gt; {
+  console.log(`then with "${value}"`)
+  return 'first then value'
+})
+</code></pre>
+<pre title="use-pledge-return.out"><code class="language-out">top of a single then clause
+</code></pre>
+<ul>
+<li>Why didn't this work?
+<ol>
+<li>We don't use <code>return</code> with pledges, we call <code>resolve</code> or <code>reject</code></li>
+<li>We haven't done anything that defers execution</li>
+</ol>
+<ul>
+<li>Our original motivating example got this right</li>
+</ul>
+</li>
+<li>A more complex example showing how to chain things</li>
+</ul>
+<pre title="use-pledge-chained.js"><code class="language-js">import Pledge from './pledge.js'
+
+new Pledge((resolve, reject) =&gt; {
+  console.log('top of action callback with double then and a catch')
+  setTimeout(() =&gt; {
+    console.log('about to call resolve callback')
+    resolve('initial result')
+    console.log('after resolve callback')
+  }, 0)
+  console.log('end of action callback')
+}).then((value) =&gt; {
+  console.log(`first then with "${value}"`)
+  return 'first value'
+}).then((value) =&gt; {
+  console.log(`second then with "${value}"`)
+  return 'second value'
+})
+</code></pre>
+<pre title="use-pledge-chained.out"><code class="language-out">top of action callback with double then and a catch
+end of action callback
+about to call resolve callback
+first then with "initial result"
+second then with "first value"
+after resolve callback
+</code></pre>
+<ul>
+<li>And finally an example where we explicitly signal a problem by calling <code>reject</code></li>
+</ul>
+<pre title="use-pledge-reject.js"><code class="language-js">import Pledge from './pledge.js'
+
+new Pledge((resolve, reject) =&gt; {
+  console.log('top of action callback with deliberate error')
+  setTimeout(() =&gt; {
+    console.log('about to reject on purpose')
+    reject('error on purpose')
+  }, 0)
+}).then((value) =&gt; {
+  console.log(`should not be here with "${value}"`)
+}).catch((err) =&gt; {
+  console.log(`in error handler with "${err}"`)
+})
+</code></pre>
+<pre title="use-pledge-reject.out"><code class="language-out">top of action callback with deliberate error
+about to reject on purpose
+in error handler with "error on purpose"
+</code></pre>
+<h2 id="how-are-real-promises-different">How are real promises different?</h2>
+<ul>
+<li>Let's rewrite our chained pledge with built-in promises</li>
+</ul>
+<pre title="use-promise-chained.js"><code class="language-js">new Promise((resolve, reject) =&gt; {
+  console.log('top of action callback with double then and a catch')
+  setTimeout(() =&gt; {
+    console.log('about to call resolve callback')
+    resolve('initial result')
+    console.log('after resolve callback')
+  }, 0)
+  console.log('end of action callback')
+}).then((value) =&gt; {
+  console.log(`first then with "${value}"`)
+  return 'first value'
+}).then((value) =&gt; {
+  console.log(`second then with "${value}"`)
+  return 'second value'
+})
+</code></pre>
+<pre title="use-promise-chained.out"><code class="language-out">top of action callback with double then and a catch
+end of action callback
+about to call resolve callback
+after resolve callback
+first then with "initial result"
+second then with "first value"
+</code></pre>
+<ul>
+<li>It's almost the same, but the callbacks run <em>after</em> the main script finishes</li>
+<li>Common pattern is to return another promise from inside <code>then</code>
+<ul>
+<li>So the next <code>then</code> is called on the returned promise, not on the original promise</li>
+</ul>
+</li>
+</ul>
+<pre title="promise-example.js"><code class="language-js">const delay = (message) =&gt; {
+  return new Promise((resolve, reject) =&gt; {
+    console.log(`constructing promise: ${message}`)
+    setTimeout(() =&gt; {
+      resolve(`resolving: ${message}`)
+    }, 1)
+  })
+}
+
+console.log('before')
+delay('outer delay').then((value) =&gt; {
+  console.log(`first then: ${value}`)
+  return delay('inner delay')
+}).then((value) =&gt; {
+  console.log(`second then: ${value}`)
+})
+console.log('after')
+</code></pre>
+<pre title="promise-example.out"><code class="language-out">before
+constructing promise: outer delay
+after
+first then: resolving: outer delay
+constructing promise: inner delay
+second then: resolving: inner delay
+</code></pre>
+<div class="fixme">
+<p>Diagram showing chained promises</p>
+</div>
+<ul>
+<li>If we use a <g key="promisification">promisified</g> function from the library, we get a promise for free</li>
+<li>If we want to plug in our own asynchronous functions, we need to create promises</li>
+<li>If our code can run synchronously, just put it in <code>then</code></li>
+</ul>
+<h2 id="how-can-we-build-tools-with-promises">How can we build tools with promises?</h2>
+<ul>
+<li>Use this to build a line-counting program</li>
+<li>Use the promisified version of <code>fs-extra</code>
+<ul>
+<li>Turns all of the callbacks into promises for us</li>
+</ul>
+</li>
+</ul>
+<pre title="count-lines-single-file.js"><code class="language-js">import fs from 'fs-extra-promise'
+
+const filename = process.argv[2]
+
+fs.readFileAsync(filename, { encoding: 'utf-8' })
+  .then(data =&gt; {
+    const length = data.split('\n').length - 1
+    console.log(`${filename}: ${length}`)
+  })
+  .catch(err =&gt; {
+    console.error(err.message)
+  })
+</code></pre>
+<pre title="count-lines-single-file.sh"><code class="language-sh">node count-lines-single-file.js count-lines-single-file.js
+</code></pre>
+<pre title="count-lines-single-file.out"><code class="language-out">count-lines-single-file.js: 12
+</code></pre>
+<div class="callout">
+<h3 id="character-encoding">Character encoding</h3>
+<p>A <g key="character_encoding">character encoding</g> specifies how characters are stored as bytes.
+The most widely used is <g key="utf_8">UTF-8</g>,
+which stores characters common in Western European languages in a single byte
+and uses multi-byte sequences for other symbols.
+If we don't specify a character encoding,
+<code>fs.readFileAsync</code> gives us an array of bytes rather than an array of characters.</p>
+</div>
+<ul>
+<li>We can use <code>glob-promise</code> to delay handling the output of <code>glob</code>
+<ul>
+<li>Use <code>Promise.all</code> to handle all the promises in an array</li>
+<li>For readability, put the creation of the promise in a separate function</li>
+</ul>
+</li>
+</ul>
+<pre title="count-lines-globbed-files.js"><code class="language-js">import glob from 'glob-promise'
+import fs from 'fs-extra-promise'
+
+const main = (srcDir) =&gt; {
+  glob(`${srcDir}/**/*.*`)
+    .then(files =&gt; Promise.all(files.map(f =&gt; lineCount(f))))
+    .then(counts =&gt; counts.forEach(c =&gt; console.log(c)))
+    .catch(err =&gt; console.log(err.message))
+}
+
+const lineCount = (filename) =&gt; {
+  return new Promise((resolve, reject) =&gt; {
+    fs.readFileAsync(filename, { encoding: 'utf-8' })
+      .then(data =&gt; resolve(data.split('\n').length - 1))
+      .catch(err =&gt; reject(err))
+  })
+}
+
+const srcDir = process.argv[2]
+main(srcDir)
+</code></pre>
+<pre title="count-lines-globbed-files.sh"><code class="language-sh">node count-lines-globbed-files.js .
+</code></pre>
+<pre title="count-lines-globbed-files.slice.out"><code class="language-out">10
+1
+12
+4
+1
+...
+3
+2
+14
+5
+3
+</code></pre>
+<ul>
+<li>But we want to display filenames as well as counts</li>
+<li>So we construct temporary objects that have the information we need downstream
+<ul>
+<li>Use object with named fields instead of array with positional values</li>
+<li>It allows us to add or move fields without breaking code quite as often</li>
+</ul>
+</li>
+</ul>
+<pre title="count-lines-print-filenames.js"><code class="language-js">import glob from 'glob-promise'
+import fs from 'fs-extra-promise'
+
+const main = (srcDir) =&gt; {
+  glob(`${srcDir}/**/*.*`)
+    .then(files =&gt; Promise.all(files.map(f =&gt; lineCount(f))))
+    .then(counts =&gt; counts.forEach(
+      c =&gt; console.log(`${c.lines}: ${c.name}`)))
+    .catch(err =&gt; console.log(err.message))
+}
+
+const lineCount = (filename) =&gt; {
+  return new Promise((resolve, reject) =&gt; {
+    fs.readFileAsync(filename, { encoding: 'utf-8' })
+      .then(data =&gt; resolve({
+        name: filename,
+        lines: data.split('\n').length - 1
+      }))
+      .catch(err =&gt; reject(err))
+  })
+}
+
+const srcDir = process.argv[2]
+main(srcDir)
+</code></pre>
+<div class="fixme">
+<p>Diagram showing temporary objects with named fields</p>
+</div>
+<ul>
+<li>Works until we run into a directory whose name name matches <code>*.*</code>
+<ul>
+<li>Which we do in <code>node_modules</code></li>
+</ul>
+</li>
+<li>Need to use a <code>stat</code> call to check if something is a file or not
+<ul>
+<li>But <code>stat</code> returns a stats object that doesn't include the file's name</li>
+<li>So we create a pair to pass down the chain</li>
+<li>Use <code>{filename, stats}</code> to give the objects keys and values that match up</li>
+</ul>
+</li>
+</ul>
+<pre title="count-lines-with-stat.js"><code class="language-js">import glob from 'glob-promise'
+import fs from 'fs-extra-promise'
+
+const main = (srcDir) =&gt; {
+  glob(`${srcDir}/**/*.*`)
+    .then(files =&gt; Promise.all(files.map(f =&gt; statPair(f))))
+    .then(files =&gt; files.filter(pair =&gt; pair.stats.isFile()))
+    .then(files =&gt; files.map(pair =&gt; pair.filename))
+    .then(files =&gt; Promise.all(files.map(f =&gt; lineCount(f))))
+    .then(counts =&gt; counts.forEach(
+      c =&gt; console.log(`${c.lines}: ${c.name}`)))
+    .catch(err =&gt; console.log(err.message))
+}
+
+const statPair = (filename) =&gt; {
+  return new Promise((resolve, reject) =&gt; {
+    fs.statAsync(filename)
+      .then(stats =&gt; resolve({ filename, stats }))
+      .catch(err =&gt; reject(err))
+  })
+}
+
+const lineCount = (filename) =&gt; {
+  return new Promise((resolve, reject) =&gt; {
+    fs.readFileAsync(filename, { encoding: 'utf-8' })
+      .then(data =&gt; resolve({
+        name: filename,
+        lines: data.split('\n').length - 1
+      }))
+      .catch(err =&gt; reject(err))
+  })
+}
+
+const srcDir = process.argv[2]
+main(srcDir)
+</code></pre>
+<pre title="count-lines-with-stat.sh"><code class="language-sh">node count-lines-with-stat.js .
+</code></pre>
+<pre title="count-lines-with-stat.slice.out"><code class="language-out">10: ./assign-immediately.js
+1: ./assign-immediately.out
+12: ./await-fs.js
+4: ./await-fs.out
+1: ./await-fs.sh
+...
+3: ./x-multiple-catch/solution.md
+2: ./x-trace-load/config.yml
+14: ./x-trace-load/example.js
+5: ./x-trace-load/problem.md
+3: ./x-trace-load/solution.md
+</code></pre>
+<ul>
+<li>This is complex, but a lot simpler than it would be if we were using callbacks</li>
+</ul>
+<h2 id="how-can-we-make-this-more-readable">How can we make this more readable?</h2>
+<ul>
+<li>Modern JavaScript provides <code>async</code> and <code>await</code> keywords
+<ul>
+<li><code>async</code> means &quot;this function implicitly returns a promise&quot;</li>
+<li><code>await</code> means &quot;wait for a promise to resolve&quot;</li>
+</ul>
+</li>
+<li>We can only use <code>await</code> inside a function that is declared to be <code>async</code></li>
+<li>Do all the same things as the explicit promise-based version, but easier to read
+<ul>
+<li>In particular, allows us to mix asynchronous and synchronous code (<code>hashPath</code> doesn't delay computation)</li>
+</ul>
+</li>
+<li>Use these with the promisified version of the <code>fs</code> library
+<ul>
+<li>Don't have to wrap the sliced text in a promise: that happens automatically because the function is <code>async</code></li>
+<li>Can't <code>await</code> in the main body at the bottom because <code>await</code> only works <em>inside</em> <code>async</code> functions</li>
+</ul>
+</li>
+</ul>
+<pre title="await-fs.js"><code class="language-js">import fs from 'fs-extra-promise'
+
+const firstTenCharacters = async (filename) =&gt; {
+  const text = await fs.readFileAsync(filename, 'utf-8')
+  console.log(`inside, raw text is ${text.length} characters long`)
+  return text.slice(0, 10)
+}
+
+console.log('about to call')
+const result = firstTenCharacters(process.argv[2])
+console.log(`function result has type ${result.constructor.name}`)
+result.then(value =&gt; console.log(`outside, final result is "${value}"`))
+</code></pre>
+<pre title="await-fs.out"><code class="language-out">about to call
+function result has type Promise
+inside, raw text is 24 characters long
+outside, final result is "Begin at t"
+</code></pre>
+<ul>
+<li>Modify the two helper functions to look like they're waiting for results and returning them
+<ul>
+<li>Except they actually wrap their results in promises and return those</li>
+</ul>
+</li>
+</ul>
+<pre title="count-lines-with-stat-async.js"><code class="language-js">const statPair = async (filename) =&gt; {
+  const stats = await fs.statAsync(filename)
+  return { filename, stats }
+}
+
+const lineCount = async (filename) =&gt; {
+  const data = await fs.readFileAsync(filename, 'utf-8')
+  return {
+    filename,
+    lines: data.split('\n').length - 1
+  }
+}</code></pre>
+<ul>
+<li>Modify <code>main</code> to wait for things to complete
+<ul>
+<li>Must still use <code>Promise.all</code> for collections of things</li>
+<li><code>async</code> and <code>await</code> hide promises until they don't</li>
+</ul>
+</li>
+</ul>
+<pre title="count-lines-with-stat-async.js"><code class="language-js">const main = async (srcDir) =&gt; {
+  const files = await glob(`${srcDir}/**/*.*`)
+  const pairs = await Promise.all(
+    files.map(async filename =&gt; await statPair(filename))
+  )
+  const filtered = pairs
+    .filter(pair =&gt; pair.stats.isFile())
+    .map(pair =&gt; pair.filename)
+  const counts = await Promise.all(
+    filtered.map(async name =&gt; await lineCount(name))
+  )
+  counts.forEach(
+    ({ filename, lines }) =&gt; console.log(`${lines}: ${filename}`)
+  )
+}
+
+const srcDir = process.argv[2]
+main(srcDir)</code></pre>
+<h2 id="how-can-we-handle-errors-with-asynchronous-code">How can we handle errors with asynchronous code?</h2>
+<ul>
+<li>We created several intermediate variables in the line-counting example to make the steps clearer</li>
+<li>Doing this also helps with error handling</li>
+<li>If we return a promise that fails without using <code>await</code>, the error happens outside our function
+<ul>
+<li>The failed promise is turned into an error</li>
+<li>Our <code>try</code>/<code>catch</code> doesn't help us</li>
+</ul>
+</li>
+</ul>
+<pre title="return-immediately.js"><code class="language-js">async function returnImmediately () {
+  try {
+    return Promise.reject(new Error('deliberate'))
+  } catch (err) {
+    console.log('caught exception')
+  }
+}
+
+returnImmediately()
+</code></pre>
+<pre title="return-immediately.out"><code class="language-out">(node:15867) UnhandledPromiseRejectionWarning: Error: deliberate
+</code></pre>
+<ul>
+<li>If we <code>return await</code>, the function waits until the promise runs
+<ul>
+<li>The promise is then turned into an exception because it failed</li>
+<li>And we're inside the scope of our error handler, which catches it</li>
+</ul>
+</li>
+</ul>
+<pre title="return-await.js"><code class="language-js">async function returnAwait () {
+  try {
+    return await Promise.reject(new Error('deliberate'))
+  } catch (err) {
+    console.log('caught exception')
+  }
+}
+
+returnAwait()
+</code></pre>
+<pre title="return-await.out"><code class="language-out">caught exception
+</code></pre>
+<ul>
+<li>Better practice is to be consistent and always return something
+<ul>
+<li>Because the function is declared <code>async</code>,
+the <code>Error</code> is automatically wrapped in a promise so we can use <code>.then</code> and <code>.catch</code></li>
+</ul>
+</li>
+</ul>
+<pre title="assign-immediately.js"><code class="language-js">async function returnImmediately () {
+  try {
+    return Promise.reject(new Error('deliberate'))
+  } catch (err) {
+    return new Error('caught exception')
+  }
+}
+
+const result = returnImmediately()
+result.catch(err =&gt; console.log(`caller caught ${err}`))
+</code></pre>
+<pre title="assign-immediately.out"><code class="language-out">caller caught Error: deliberate
+</code></pre>
+<h2 id="exercises">Exercises</h2>
+<h3 class="exercise">Tracing promise execution</h3>
+<ol>
+<li>
+<p>What does this code print and why?</p>
+<pre><code class="language-js">Promise.resolve('hello')
+</code></pre>
+</li>
+<li>
+<p>What does this code print and why?</p>
+<pre><code class="language-js">Promise.resolve('hello').then(result =&gt; console.log(result))
+</code></pre>
+</li>
+<li>
+<p>What does this code print and why?</p>
+<pre><code class="language-js">const p = new Promise((resolve, reject) =&gt; resolve('hello'))
+  .then(result =&gt; console.log(result))
+</code></pre>
+</li>
+</ol>
+<div class="hint">
+<p>Try each snippet of code interactively in the Node interpreter and as a command-line script.</p>
+</div>
+<h3 class="exercise">Multiple catches</h3>
+<p>Suppose we create a promise that deliberately fails and then add two error handlers:</p>
+<pre title="x-multiple-catch/example.js"><code class="language-js">const oops = new Promise((resolve, reject) =&gt; reject(new Error('failure')))
+oops.catch(err =&gt; console.log(err.message))
+oops.catch(err =&gt; console.log(err.message))
+</code></pre>
+<div class="unindented">
+<p>When the code is run it produces:</p>
+</div>
+<pre title="x-multiple-catch/example.txt"><code class="language-txt">failure
+failure
+</code></pre>
+<ol>
+<li>Trace the order of operations: what is created and executed when?</li>
+<li>What happens if we run these same lines interactively?
+Why do we see something different than what we see when we run this file from the command line?</li>
+</ol>
+<h3 class="exercise">Then after catch</h3>
+<p>Suppose we create a promise that deliberately fails
+and attach both <code>then</code> and <code>catch</code> to it:</p>
+<pre title="x-catch-then/example.js"><code class="language-js">new Promise((resolve, reject) =&gt; reject(new Error('failure')))
+  .catch(err =&gt; console.log(err))
+  .then(err =&gt; console.log(err))
+</code></pre>
+<div class="unindented">
+<p>When the code is run it produces:</p>
+</div>
+<pre title="x-catch-then/example.txt"><code class="language-txt">Error: failure
+    at /u/stjs/promises/catch-then/example.js:1:41
+    at new Promise (&lt;anonymous&gt;)
+    at Object.&lt;anonymous&gt; (/u/stjs/promises/catch-then/example.js:1:1)
+    at Module._compile (internal/modules/cjs/loader.js:1151:30)
+    at Object.Module._extensions..js \
+ (internal/modules/cjs/loader.js:1171:10)
+    at Module.load (internal/modules/cjs/loader.js:1000:32)
+    at Function.Module._load (internal/modules/cjs/loader.js:899:14)
+    at Function.executeUserEntryPoint [as runMain] \
+ (internal/modules/run_main.js:71:12)
+    at internal/main/run_main_module.js:17:47
+undefined
+</code></pre>
+<ol>
+<li>Trace the order of execution.</li>
+<li>Why is <code>undefined</code> printed at the end?</li>
+</ol>
+<h3 class="exercise">Head and tail</h3>
+<p>The Unix <code>head</code> command shows the first few lines of one or more files,
+while the <code>tail</code> command shows the last few.
+Write programs <code>head.js</code> and <code>tail.js</code> that do the same things using promises and <code>async</code>/<code>await</code>,
+so that:</p>
+<pre><code class="language-sh">node head.js 5 first.txt second.txt third.txt
+</code></pre>
+<div class="unindented">
+<p>prints the first 5 lines of each of the three files and:</p>
+</div>
+<pre><code class="language-sh">node tail.js 5 first.txt second.txt third.txt
+</code></pre>
+<div class="unindented">
+<p>prints the last five lines of each file.</p>
+</div>
+<h3 class="exercise">Histogram of line counts</h3>
+<p>Extend <code>count-lines-with-stat-async.js</code> to create a program <code>lh.js</code>
+that prints two columns of output:
+the number of lines in one or more files
+and the number of files that are that long.
+For example,
+if we run:</p>
+<pre><code class="language-sh">node lh.js promises/*.*
+</code></pre>
+<div class="unindented">
+<p>the output might be:</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Length</th>
+<th>Number of Files</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>7</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3</td>
+</tr>
+<tr>
+<td>6</td>
+<td>7</td>
+</tr>
+<tr>
+<td>8</td>
+<td>2</td>
+</tr>
+<tr>
+<td>12</td>
+<td>2</td>
+</tr>
+<tr>
+<td>13</td>
+<td>1</td>
+</tr>
+<tr>
+<td>15</td>
+<td>1</td>
+</tr>
+<tr>
+<td>17</td>
+<td>2</td>
+</tr>
+<tr>
+<td>20</td>
+<td>1</td>
+</tr>
+<tr>
+<td>24</td>
+<td>1</td>
+</tr>
+<tr>
+<td>35</td>
+<td>2</td>
+</tr>
+<tr>
+<td>37</td>
+<td>3</td>
+</tr>
+<tr>
+<td>38</td>
+<td>1</td>
+</tr>
+<tr>
+<td>171</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<h3 class="exercise">Select matching lines</h3>
+<p>Using <code>async</code> and <code>await, write a program called </code>match.js` that finds and prints lines containing a given string.
+For example:</p>
+<pre><code class="language-sh">node match.js Toronto first.txt second.txt third.txt
+</code></pre>
+<div class="unindented">
+<p>would print all of the lines from the three files that contain the word &quot;Toronto&quot;.</p>
+</div>
+<h3 class="exercise">Find lines in all files</h3>
+<p>Using <code>async</code> and <code>await</code>,
+write a program called <code>in-all.js</code> that finds and prints lines found in all of its input files.
+For example:</p>
+<pre><code class="language-sh">node in-all.js first.txt second.txt third.txt
+</code></pre>
+<div class="unindented">
+<p>will print those lines that occur in all three files.</p>
+</div>
+<h3 class="exercise">Find differences between two files</h3>
+<p>Using <code>async</code> and <code>await</code>,
+write a program called <code>file-diff.js</code>
+that compares the lines in two files
+and shows which ones are only in the first file,
+which are only in the second,
+and which are in both.
+For example,
+if <code>left.txt</code> contains:</p>
+<pre><code class="language-txt">some
+people
+</code></pre>
+<div class="unindented">
+<p>and <code>right.txt</code> contains:</p>
+</div>
+<pre><code class="language-txt">write
+some
+code
+</code></pre>
+<div class="unindented">
+<p>then:</p>
+</div>
+<pre><code class="language-sh">node file-diff.js left.txt right.txt
+</code></pre>
+<div class="unindented">
+<p>would print:</p>
+</div>
+<pre><code class="language-txt">2 code
+1 people
+* some
+2 write
+</code></pre>
+<div class="unindented">
+<p>where <code>1</code>, <code>2</code>, and <code>*</code> show whether lines are in only the first or second file
+or are in both.
+Note that the order of the lines in the file doesn't matter.</p>
+</div>
+<div class="hint">
+<p>You may want to use the <code>Set</code> class to store lines.</p>
+</div>
+<h3 class="exercise">Trace file loading</h3>
+<p>Suppose we want are loading a <g key="yaml">YAML</g> configuration file
+using the promisified version of the <code>fs</code> library.
+In what order do the print statements in this test program appear and why?</p>
+<pre title="x-trace-load/example.js"><code class="language-js">import fs from 'fs-extra-promise'
+import yaml from 'js-yaml'
+
+const test = async () =&gt; {
+  const raw = await fs.readFileAsync('config.yml', 'utf-8')
+  console.log('inside test, raw text', raw)
+  const cooked = yaml.safeLoad(raw)
+  console.log('inside test, cooked configuration', cooked)
+  return cooked
+}
+
+const result = test()
+console.log('outside test, result is', result.constructor.name)
+result.then(something =&gt; console.log('outside test we have', something))
+</code></pre>
+<h3 class="exercise">Any and all</h3>
+<ol>
+<li>
+<p>Add a method <code>Pledge.any</code> that takes an array of pledges
+and as soon as one of the pledges in the array resolves,
+returns a single promise that resolves with the value from that pledge.</p>
+</li>
+<li>
+<p>Add another method <code>Pledge.all</code> that takes an array of pledges
+and returns a single promise that resolves to an array
+containing the final values of all of those pledges.</p>
+</li>
+</ol>
+<p><a href="https://2ality.com/2019/08/promise-combinators.html">This article</a> may be helpful.</p>
+</main>
+<footer>
+<div class="row">
+<div class="left3">
+<a href="../systems-programming/"><em>&laquo; Systems Programming</em></a>
+</div>
+<div class="middle3">
+<a href="../license/"><img class="footer" src="../../static/cc-by.svg" alt="License" /></a>
+<a href="https://github.com/software-tools-in-javascript/stjs/"><img class="footer" src="../../static/github.svg" alt="Repository" /></a>
+© 2020 <a href="../authors/">The Authors</a>
+</div>
+<div class="right3">
+<a href="../unit-test/"><em>Unit Testing &raquo;</em></a>
+</div>
+</div>
+</footer>
+</body>
+</html>

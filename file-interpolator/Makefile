@@ -11,7 +11,7 @@ TARGETS =\
   test-simple.out \
   to-be-loaded.out
 
-include ../_rules.mk
+include ../examples.mk
 
 does-the-loading.out: to-be-loaded.js
 

@@ -5,7 +5,7 @@ TARGETS=\
   test-exit.out \
   test-expect.out
 
-include ../_rules.mk
+include ../examples.mk
 
 filter-base.out: filter-base.sh vm-base.js run-base.js filter-base.json
 filter-source-map.out: filter-source-map.sh vm-source-map.js run-base.js filter-source-map.json

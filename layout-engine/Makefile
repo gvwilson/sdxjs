@@ -3,7 +3,7 @@ TARGETS=\
   test-placed.out \
   test-wrapped.out
 
-include ../_rules.mk
+include ../examples.mk
 
 test-easy-mode.out: test/test-easy-mode.js easy-mode.js
 test-placed.out: test/test-placed.js placed-block.js placed-row.js placed-column.js

@@ -5,4 +5,4 @@ TARGETS=\
   list-dir-function-defined.slice.out \
   list-dir-wrong.out
 
-include ../_rules.mk
+include ../examples.mk

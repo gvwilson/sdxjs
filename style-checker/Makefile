@@ -12,7 +12,7 @@ TARGETS=\
   walk-ast.out \
   walker-class.out
 
-include ../_rules.mk
+include ../examples.mk
 
 find-debugger-methods.raw.out: run-find-methods.js
 run-find-ancestors.out: run-find-ancestors.js

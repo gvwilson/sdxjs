@@ -2,4 +2,4 @@ TARGETS=\
   dry-run.out \
   pray.out
 
-include ../_rules.mk
+include ../examples.mk

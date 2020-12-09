@@ -11,7 +11,7 @@ TARGETS=\
   test-need-large-needless.out \
   test-need-small-module.out
 
-include ../_rules.mk
+include ../examples.mk
 
 checking/js-command-line.out: $(wildcard checking/*.js)
 	cd checking && make $(notdir $@)

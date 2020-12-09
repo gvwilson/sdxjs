@@ -5,7 +5,7 @@ TARGETS=\
   sweep-double-chained.out \
   sweep-triple.out
 
-include ../_rules.mk
+include ../examples.mk
 
 ${TARGETS}: driver.js
 

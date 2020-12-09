@@ -6,7 +6,7 @@ TARGETS=\
   table-performance-10000-30-03.out \
   table-performance-10000-30-10.out
 
-include ../_rules.mk
+include ../examples.mk
 
 packed-cols-10000-30.out: packed-cols.js
 packed-rows-10000-30.out: packed-rows.js

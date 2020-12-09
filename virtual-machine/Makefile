@@ -4,7 +4,7 @@ TARGETS=\
   halt-out.out \
   print-r1-out.out
 
-include ../_rules.mk
+include ../examples.mk
 
 %-out.out: %.mx run.js vm.js
 	node run.js $< show > $@

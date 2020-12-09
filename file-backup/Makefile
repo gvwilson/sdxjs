@@ -8,7 +8,7 @@ TARGETS=\
   test-check-filesystem.out \
   tree-test.out
 
-include ../_rules.mk
+include ../examples.mk
 
 test-backup.sh: test/test-backup.js
 	@touch $@

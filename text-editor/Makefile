@@ -1,3 +1,3 @@
 TARGETS=
 
-include ../_rules.mk
+include ../examples.mk

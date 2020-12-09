@@ -5,4 +5,4 @@ TARGETS=\
   replace-func.out \
   test-time-func.out
 
-include ../_rules.mk
+include ../examples.mk

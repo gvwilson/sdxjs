@@ -7,7 +7,7 @@
 -   Represent program as JSON
     -   Every element is `[command ...args]`
 
-<%- include('/_inc/file.html', {file: 'filter-base.json'}) %>
+<%- include('/inc/file.html', {file: 'filter-base.json'}) %>
 
 -   Virtual machine structured like that from <xref key="virtual-machine"></xref>
     -   Real system would parse program to create JSON, then translate JSON into assembly code, then assemble to machine instructions
@@ -15,23 +15,23 @@
     -   Remove comments and blank lines
     -   Run all commands by looking up command name and calling that method
 
-<%- include('/_inc/erase.html', {file: 'vm-base.js', key: 'skip'}) %>
+<%- include('/inc/erase.html', {file: 'vm-base.js', key: 'skip'}) %>
 
 -   Define a new variable with an initial value
 
-<%- include('/_inc/keep.html', {file: 'vm-base.js', key: 'defV'}) %>
+<%- include('/inc/keep.html', {file: 'vm-base.js', key: 'defV'}) %>
 
 -   Add two values
 
-<%- include('/_inc/keep.html', {file: 'vm-base.js', key: 'add'}) %>
+<%- include('/inc/keep.html', {file: 'vm-base.js', key: 'add'}) %>
 
 -   Run a `while` loop
 
-<%- include('/_inc/keep.html', {file: 'vm-base.js', key: 'loop'}) %>
+<%- include('/inc/keep.html', {file: 'vm-base.js', key: 'loop'}) %>
 
 -   Check that a variable name refers to an array
 
-<%- include('/_inc/keep.html', {file: 'vm-base.js', key: 'checkArray'}) %>
+<%- include('/inc/keep.html', {file: 'vm-base.js', key: 'checkArray'}) %>
 
 ## How can we make a tracing debugger?
 
@@ -41,12 +41,12 @@
 -   So we will cheat
     -   Add a line number to each interesting statement
 
-<%- include('/_inc/keep.html', {file: 'filter-source-map.json', key: 'program'}) %>
+<%- include('/inc/keep.html', {file: 'filter-source-map.json', key: 'program'}) %>
 
 -   Build the source map from that
     -   Modify `exec` to ignore the line number for now
 
-<%- include('/_inc/file.html', {file: 'vm-source-map.js'}) %>
+<%- include('/inc/file.html', {file: 'vm-source-map.js'}) %>
 
 -   Next step is to modify the `exec` method to call a callback function for each significant operation
     -   "Significant" meaning "we bothered to record its line number"
@@ -56,20 +56,20 @@
     -   One of them has to be created first
     -   "A gets B then B tells A about itself" is a common pattern
 
-<%- include('/_inc/file.html', {file: 'vm-callback.js'}) %>
+<%- include('/inc/file.html', {file: 'vm-callback.js'}) %>
 
 -   To run the program, create a debugger object and pass it in
 
-<%- include('/_inc/file.html', {file: 'run-debugger.js'}) %>
+<%- include('/inc/file.html', {file: 'run-debugger.js'}) %>
 
 -   A simple debugger traces statements
 
-<%- include('/_inc/file.html', {file: 'debugger-trace.js'}) %>
+<%- include('/inc/file.html', {file: 'debugger-trace.js'}) %>
 
 -   Try it on a smaller program than our filtering example
 
-<%- include('/_inc/file.html', {file: 'sum-source-map.json'}) %>
-<%- include('/_inc/file.html', {file: 'sum-source-map-trace.out'}) %>
+<%- include('/inc/file.html', {file: 'sum-source-map.json'}) %>
+<%- include('/inc/file.html', {file: 'sum-source-map-trace.out'}) %>
 
 ## How can we make the debugger interactive?
 
@@ -90,21 +90,21 @@
     -   If this is a breakpoint, interactive
     -   Otherwise, keep going
 
-<%- include('/_inc/erase.html', {file: 'debugger-interactive.js', key: 'skip'}) %>
+<%- include('/inc/erase.html', {file: 'debugger-interactive.js', key: 'skip'}) %>
 
 -   Interact by lookup up command and invoking method
     -   Put input and output in methods that can be overridden later for testing purposes
 
-<%- include('/_inc/keep.html', {file: 'debugger-interactive.js', key: 'interact'}) %>
+<%- include('/inc/keep.html', {file: 'debugger-interactive.js', key: 'interact'}) %>
 
 -   Command handlers are then pretty straightforward
 -   Go to next line
 
-<%- include('/_inc/keep.html', {file: 'debugger-interactive.js', key: 'next'}) %>
+<%- include('/inc/keep.html', {file: 'debugger-interactive.js', key: 'next'}) %>
 
 -   Print the value of a variable
 
-<%- include('/_inc/keep.html', {file: 'debugger-interactive.js', key: 'print'}) %>
+<%- include('/inc/keep.html', {file: 'debugger-interactive.js', key: 'print'}) %>
 
 -   After using it, realized that we needed to change the signature of `loop`
     -   Want to stop the loop each time
@@ -114,7 +114,7 @@
     -   So take advantage of JavaScript ignoring extra arguments
     -   Sloppy
 
-<%- include('/_inc/file.html', {file: 'vm-interactive.js'}) %>
+<%- include('/inc/file.html', {file: 'vm-interactive.js'}) %>
 
 ## How can we test an interactive application?
 
@@ -125,12 +125,12 @@
     -   Check output when given
 -   Result looks like this:
 
-<%- include('/_inc/keep.html', {file: 'test/test-expect.js', key: 'tests'}) %>
+<%- include('/inc/keep.html', {file: 'test/test-expect.js', key: 'tests'}) %>
 
 -   The `Expect` class is simple
     -   But hard to understand because it is so abstract
 
-<%- include('/_inc/file.html', {file: 'expect.js'}) %>
+<%- include('/inc/file.html', {file: 'expect.js'}) %>
 
 -   `subject` is the thing being tested
 -   `start` is a callback to start the system
@@ -141,16 +141,16 @@
 -   Modify the debugger to use the tester
     -   Have to remember that the prompt counts as an output (yes, we forgot this)
 
-<%- include('/_inc/file.html', {file: 'debugger-test.js'}) %>
+<%- include('/inc/file.html', {file: 'debugger-test.js'}) %>
 
 -   Can't pass the tester as a constructor parameter because of initialization order
 -   Go back to the test file and look at `setup`
 
-<%- include('/_inc/keep.html', {file: 'test/test-expect.js', key: 'setup'}) %>
+<%- include('/inc/keep.html', {file: 'test/test-expect.js', key: 'setup'}) %>
 
 -   Run it
 
-<%- include('/_inc/multi.html', {pat: 'test-expect.*', fill: 'sh out'}) %>
+<%- include('/inc/multi.html', {pat: 'test-expect.*', fill: 'sh out'}) %>
 
 -   And it works—or does it?
     -   Why is only one test shown?
@@ -163,16 +163,16 @@
 -   Define our own exception class
     -   Doesn't need any data—just using it to get a typed object
 
-<%- include('/_inc/file.html', {file: 'halt-exception.js'}) %>
+<%- include('/inc/file.html', {file: 'halt-exception.js'}) %>
 
 -   Modify the debugger to throw this exception when asked to exit
 
-<%- include('/_inc/file.html', {file: 'debugger-exit.js'}) %>
+<%- include('/inc/file.html', {file: 'debugger-exit.js'}) %>
 
 -   Modify the VM to finish cleanly if this exception is thrown, but re-throw any other kind of exception
 
-<%- include('/_inc/file.html', {file: 'vm-exit.js'}) %>
+<%- include('/inc/file.html', {file: 'vm-exit.js'}) %>
 
 -   Run it
 
-<%- include('/_inc/multi.html', {pat: 'test-exit.*', fill: 'sh out'}) %>
+<%- include('/inc/multi.html', {pat: 'test-exit.*', fill: 'sh out'}) %>

@@ -16,7 +16,7 @@ TARGETS=\
   test-transitive-closure.out \
   test-transitive-closure-only.out
 
-include ../_rules.mk
+include ../examples.mk
 
 show-combine-files-simple.out: test-combine-files-simple.js
 
