@@ -2,7 +2,7 @@ import assert from 'assert'
 
 import Block from '../wrapped-block.js'
 import Row from '../wrapped-row.js'
-import Column from '../wrapped-column.js'
+import Col from '../wrapped-col.js'
 
 describe('wraps blocks', () => {
   it('wraps a single unit block', async () => {
@@ -11,7 +11,7 @@ describe('wraps blocks', () => {
     wrapped.place(0, 0)
     assert.deepStrictEqual(
       wrapped.report(),
-      ['block', 0, 0]
+      ['block', 0, 0, 1, 1]
     )
   })
 
@@ -21,7 +21,7 @@ describe('wraps blocks', () => {
     wrapped.place(0, 0)
     assert.deepStrictEqual(
       wrapped.report(),
-      ['block', 0, 0]
+      ['block', 0, 0, 3, 4]
     )
   })
 
@@ -35,12 +35,19 @@ describe('wraps blocks', () => {
     wrapped.place(0, 0)
     assert.deepStrictEqual(
       wrapped.report(),
-      ['row', 0, 0, ['column', 0, 0, ['row', 0, 0, ['block', 0, -3], ['block', 1, 0]]]]
+      ['row', 0, 0, 3, 4,
+        ['col', 0, 0, 3, 4,
+          ['row', 0, 0, 3, 4,
+            ['block', 0, 3, 1, 4],
+            ['block', 1, 0, 3, 4]
+          ]
+        ]
+      ]
     )
   })
 
   it('wraps a column of two blocks', async () => {
-    const fixture = new Column(
+    const fixture = new Col(
       new Block(1, 1),
       new Block(2, 4)
     )
@@ -48,12 +55,15 @@ describe('wraps blocks', () => {
     wrapped.place(0, 0)
     assert.deepStrictEqual(
       wrapped.report(),
-      ['column', 0, 0, ['block', 0, 0], ['block', 0, -1]]
+      ['col', 0, 0, 2, 5,
+        ['block', 0, 0, 1, 1],
+        ['block', 0, 1, 2, 5]
+      ]
     )
   })
 
   it('wraps a grid of rows of columns that all fit on their row', async () => {
-    const fixture = new Column(
+    const fixture = new Col(
       new Row(
         100,
         new Block(1, 2),
@@ -62,7 +72,7 @@ describe('wraps blocks', () => {
       new Row(
         100,
         new Block(5, 6),
-        new Column(
+        new Col(
           new Block(7, 8),
           new Block(9, 10)
         )
@@ -72,15 +82,23 @@ describe('wraps blocks', () => {
     wrapped.place(0, 0)
     assert.deepStrictEqual(
       wrapped.report(),
-      ['column', 0, 0,
-        ['row', 0, 0,
-          ['column', 0, 0,
-            ['row', 0, 0, ['block', 0, -2], ['block', 1, 0]]]],
-        ['row', 0, -4,
-          ['column', 0, -4,
-            ['row', 0, -4,
-              ['block', 0, -16],
-              ['column', 5, -4, ['block', 5, -4], ['block', 5, -12]]
+      ['col', 0, 0, 14, 22,
+        ['row', 0, 0, 4, 4,
+          ['col', 0, 0, 4, 4,
+            ['row', 0, 0, 4, 4,
+              ['block', 0, 2, 1, 4],
+              ['block', 1, 0, 4, 4]
+            ]
+          ]
+        ],
+        ['row', 0, 4, 14, 22,
+          ['col', 0, 4, 14, 22,
+            ['row', 0, 4, 14, 22,
+              ['block', 0, 16, 5, 22],
+              ['col', 5, 4, 14, 22,
+                ['block', 5, 4, 12, 12],
+                ['block', 5, 12, 14, 22]
+              ]
             ]
           ]
         ]
@@ -99,13 +117,13 @@ describe('wraps blocks', () => {
     wrapped.place(0, 0)
     assert.deepStrictEqual(
       wrapped.report(),
-      ['row', 0, 0,
-        ['column', 0, 0,
-          ['row', 0, 0,
-            ['block', 0, 0]
+      ['row', 0, 0, 2, 2,
+        ['col', 0, 0, 2, 2,
+          ['row', 0, 0, 2, 1,
+            ['block', 0, 0, 2, 1]
           ],
-          ['row', 0, -1,
-            ['block', 0, -1]
+          ['row', 0, 1, 2, 2,
+            ['block', 0, 1, 2, 2]
           ]
         ]
       ]
@@ -123,19 +141,20 @@ describe('wraps blocks', () => {
     )
     const wrapped = fixture.wrap()
     wrapped.place(0, 0)
+    console.error(JSON.stringify(wrapped.report(), null, 2))
     assert.deepStrictEqual(
       wrapped.report(),
-      ['row', 0, 0,
-        ['column', 0, 0,
-          ['row', 0, 0,
-            ['block', 0, 0]
+      ['row', 0, 0, 3, 3,
+        ['col', 0, 0, 3, 3,
+          ['row', 0, 0, 2, 1,
+            ['block', 0, 0, 2, 1]
           ],
-          ['row', 0, -1,
-            ['block', 0, -1],
-            ['block', 2, -1]
+          ['row', 0, 1, 3, 2,
+            ['block', 0, 1, 2, 2],
+            ['block', 2, 1, 3, 2]
           ],
-          ['row', 0, -2,
-            ['block', 0, -2]
+          ['row', 0, 2, 2, 3,
+            ['block', 0, 2, 2, 3]
           ]
         ]
       ]

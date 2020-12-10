@@ -1,6 +1,6 @@
 import assert from 'assert'
 
-import { Block, Row, Column } from '../easy-mode.js'
+import { Block, Row, Col } from '../easy-mode.js'
 
 describe('lays out in easy mode', () => {
   it('lays out a single unit block', async () => {
@@ -25,7 +25,7 @@ describe('lays out in easy mode', () => {
   })
 
   it('lays out a column of two blocks', async () => {
-    const fixture = new Column(
+    const fixture = new Col(
       new Block(1, 1),
       new Block(2, 4)
     )
@@ -34,14 +34,14 @@ describe('lays out in easy mode', () => {
   })
 
   it('lays out a grid of rows of columns', async () => {
-    const fixture = new Column(
+    const fixture = new Col(
       new Row(
         new Block(1, 2),
         new Block(3, 4)
       ),
       new Row(
         new Block(5, 6),
-        new Column(
+        new Col(
           new Block(7, 8),
           new Block(9, 10)
         )

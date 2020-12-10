@@ -7,20 +7,23 @@ export default class PlacedRow extends Row {
     this.y0 = null
   }
 
-  place (x0, y1) {
+  place (x0, y0) {
     this.x0 = x0
-    this.y1 = y1
-    const y0 = y1 - this.getHeight()
+    this.y0 = y0
+    const y1 = this.y0 + this.getHeight()
     let xCurrent = x0
     this.children.forEach(child => {
-      child.place(xCurrent, y0 + child.getHeight())
+      const childY = y1 - child.getHeight()
+      child.place(xCurrent, childY)
       xCurrent += child.getWidth()
     })
   }
 
   report () {
     return [
-      'row', this.x0, this.y1,
+      'row', this.x0, this.y0,
+      this.x0 + this.getWidth(),
+      this.y0 + this.getHeight(),
       ...this.children.map(child => child.report())
     ]
   }

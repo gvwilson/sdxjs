@@ -1,60 +1,70 @@
 import assert from 'assert'
 
-import { TextNode, TagNode } from '../micro-dom.js'
+import {
+  DomBlock,
+  DomCol,
+  DomRow
+} from '../micro-dom.js'
 import parse from '../parse.js'
 
 describe('parses HTML', () => {
-  it('parses a single tag', async () => {
-    const text = '<a></a>'
+  it('parses a single row', async () => {
+    const text = '<row></row>'
     const actual = parse(text)
-    const expected = new TagNode('a', {})
+    const expected = new DomRow({})
     assert.deepStrictEqual(actual, expected)
   })
 
-  it('parses a tag with attributes', async () => {
-    const text = '<a k1="v1" k2="v2"></a>'
+  it('parses a single column', async () => {
+    const text = '<col></col>'
     const actual = parse(text)
-    const expected = new TagNode('a', { k1: 'v1', k2: 'v2' })
+    const expected = new DomCol({})
     assert.deepStrictEqual(actual, expected)
   })
 
-  it('parses nodes containing text', async () => {
-    const text = '<a> contents </a>'
+  it('parses an element with attributes', async () => {
+    const text = '<row k1="v1" k2="v2"></row>'
     const actual = parse(text)
-    const expected = new TagNode('a', {}, new TextNode(' contents '))
+    const expected = new DomRow({ k1: 'v1', k2: 'v2' })
+    assert.deepStrictEqual(actual, expected)
+  })
+
+  it('parses an element with text', async () => {
+    const lines = 'first\nsecond\nthird'
+    const expected = new DomCol({}, new DomBlock(lines))
+    const text = `<col>${lines}</col>`
+    const actual = parse(text)
     assert.deepStrictEqual(actual, expected)
   })
 
   it('parses nested nodes', async () => {
-    const text = '<a><b1></b1><b2><c></c></b2></a>'
+    const lines = 'first\nsecond'
+    const text = `<row><col>${lines}</col><col>${lines}</col></row>`
     const actual = parse(text)
-    const expected = new TagNode('a', {},
-      new TagNode('b1', {}),
-      new TagNode('b2', {},
-        new TagNode('c', {})
-      )
-    )
+    const expected = new DomRow(
+      {},
+      new DomCol({}, new DomBlock(lines)),
+      new DomCol({}, new DomBlock(lines)))
     assert.deepStrictEqual(actual, expected)
   })
 
+  it('complains about poorly-formatted tags', async () => {
+    const text = '<row</row>'
+    assert.throws(() => parse(text), Error)
+  })
+
   it('complains about unclosed tags', async () => {
-    const text = '<a</a>'
-    assert.throws(() => parse(text),
-      Error,
-      'Expected error for unclosed tag')
+    const text = '<a><b></a>'
+    assert.throws(() => parse(text), Error)
   })
 
   it('complains about mismatched tags', async () => {
-    const text = '<a><b></a>'
-    assert.throws(() => parse(text),
-      Error,
-      'Expected error for mismatched tag')
+    const text = '<a></b>'
+    assert.throws(() => parse(text), Error)
   })
 
   it('complains about dangling nodes', async () => {
     const text = '<a></a><b></b>'
-    assert.throws(() => parse(text),
-      Error,
-      'Expected error for dangling tags')
+    assert.throws(() => parse(text), Error)
   })
 })

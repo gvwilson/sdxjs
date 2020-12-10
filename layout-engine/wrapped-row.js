@@ -1,13 +1,13 @@
 import assert from 'assert'
 
 import PlacedRow from './placed-row.js'
-import PlacedColumn from './placed-column.js'
+import PlacedCol from './placed-col.js'
 
 export default class WrappedRow extends PlacedRow {
   constructor (width, ...children) {
     super(...children)
-    assert(width > 0,
-      'Need positive width')
+    assert(width >= 0,
+      'Need non-negative width')
     this.width = width
   }
 
@@ -36,8 +36,8 @@ export default class WrappedRow extends PlacedRow {
     rows.push(currentRow)
 
     const newRows = rows.map(row => new PlacedRow(...row))
-    const newColumn = new PlacedColumn(...newRows)
-    return new PlacedRow(newColumn)
+    const newCol = new PlacedCol(...newRows)
+    return new PlacedRow(newCol)
   }
   // </wrap>
 }

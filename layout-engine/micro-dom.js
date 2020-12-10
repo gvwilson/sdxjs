@@ -1,48 +1,30 @@
-import assert from 'assert'
+import WrappedBlock from './wrapped-block.js'
+import WrappedCol from './wrapped-col.js'
+import WrappedRow from './wrapped-row.js'
 
-export class Node {
-}
-
-export class TextNode extends Node {
-  constructor (text) {
-    assert(typeof text === 'string',
-      'TextNode requires string as constructor argument')
-    super()
-    this.text = text
-  }
-
-  toString () {
-    return this.text
+export class DomBlock extends WrappedBlock {
+  constructor (lines) {
+    super(
+      Math.max(...lines.split('\n').map(line => line.length)),
+      lines.length
+    )
+    this.lines = lines
+    this.tag = 'text'
   }
 }
 
-export class TagNode extends Node {
-  constructor (tag, attributes, ...children) {
-    assert(typeof tag === 'string',
-      'TagNode requires string as tag')
-    super()
-    this.tag = tag
-
-    this.attributes = {}
-    if (attributes !== null) {
-      assert(typeof attributes === 'object',
-        'Require object for attributes')
-      this.attributes = Object.assign({}, attributes)
-    }
-
-    this.children = children
-    assert(this.children.every(child => child instanceof Node),
-      'Children must be nodes')
+export class DomCol extends WrappedCol {
+  constructor (attributes, ...children) {
+    super(...children)
+    this.attributes = attributes
+    this.tag = 'col'
   }
+}
 
-  toString () {
-    const attr = Object.keys(this.attributes)
-      .sort()
-      .map(key => ` ${key}="${this.attributes[key]}"`)
-      .join('')
-    const children = this.children
-      .map(child => child.toString())
-      .join('')
-    return `<${this.tag}${attr}>${children}</${this.tag}>`
+export class DomRow extends WrappedRow {
+  constructor (attributes, ...children) {
+    super(0, ...children)
+    this.attributes = attributes
+    this.tag = 'row'
   }
 }

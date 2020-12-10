@@ -11,6 +11,9 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
     -   Produce a tree of styled nodes from the DOM
     -   Walk this tree to figure out where each visible element belongs
     -   Render this as plain text
+-   Coordinate system puts (0, 0) in the upper left corner
+    -   Increasing Y goes down
+    -   Increasing X goes to the right
 
 ## How can we size rows and columns?
 
@@ -35,16 +38,17 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 
 ## How can we position rows and columns?
 
--   Suppose we start with the upper left corner of the browser (X0, Y1)
+-   Suppose we start with the upper left corner of the browser (0, 0)
     -   Upper because we lay out the page top-to-bottom
     -   Left because we are doing left-to-right layout
 -   If the cell is a block, just place it
 -   If the cell is a row:
+    -   Calculate y1 = y0 + height
     -   Place the first child at (x0, y1)
     -   Place the next child at (x0 + width, y1)
 -   If the cell is a column:
-    -   Place the first child at (x0, y1)
-    -   Place the next at (x0, y1 - height), etc.
+    -   Place the first child at (x0, y0 + height0)
+    -   Place the next at (x0, y0 + height0 + height1), etc.
 -   Derive three classes from previous classes to save testing (and printing space)
 
 <%- include('/inc/file.html', {file: 'placed-block.js'}) %>
@@ -86,17 +90,17 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 
 ## What subset of HTML and CSS will we support?
 
--   Our subset of HTML includes:
-    -   Plain text, which we store as instances of `TextNode`
-    -   Elements with attributes, which we store as instances of `TagNode`
-    -   Don't support <g key="empty_element">empty elements</g> or comments
+-   Our subset of HTML includes rows, columns, and text blocks
+-   Each text block has one or more lines of text
+    -   Number of lines determines height
+    -   Length of longest line determines width
+-   Rows columns can have attributes
     -   Each attribute must have a single quoted value
--   Won't bother to show the tests, but yes, we wrote them, and yes, they caught errors
+    -   Rows no longer take a fixed width: our CSS will handle that
 
 <%- include('/inc/file.html', {file: 'micro-dom.js'}) %>
 
 -   Use regular expressions to parse documents, though [this is a sin][stack-overflow-html-regex]
-    -   And yes, the tests caught errors
 -   Main body
 
 <%- include('/inc/erase.html', {file: 'parse.js', key: 'makenode'}) %>
