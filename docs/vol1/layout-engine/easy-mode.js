@@ -19,28 +19,40 @@ export class Row {
   }
 
   getWidth () {
-    return this.children
-      .map(child => child.getWidth())
-      .reduce((total, next) => total + next, 0)
+    let result = 0
+    for (const child of this.children) {
+      result += child.getWidth()
+    }
+    return result
   }
 
   getHeight () {
-    return Math.max(...this.children.map(child => child.getHeight()))
+    let result = 0
+    for (const child of this.children) {
+      result = Math.max(result, child.getHeight())
+    }
+    return result
   }
 }
 
-export class Column {
+export class Col {
   constructor (...children) {
     this.children = children
   }
 
   getWidth () {
-    return Math.max(...this.children.map(child => child.getWidth()))
+    let result = 0
+    for (const child of this.children) {
+      result = Math.max(result, child.getWidth())
+    }
+    return result
   }
 
   getHeight () {
-    return this.children
-      .map(child => child.getHeight())
-      .reduce((total, next) => total + next, 0)
+    let result = 0
+    for (const child of this.children) {
+      result += child.getHeight()
+    }
+    return result
   }
 }

@@ -49,18 +49,40 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 -   If the cell is a column:
     -   Place the first child at (x0, y0 + height0)
     -   Place the next at (x0, y0 + height0 + height1), etc.
--   Derive three classes from previous classes to save testing (and printing space)
+-   Derive classes from previous classes to save testing
+-   Blocks
 
-<%- include('/inc/file.html', {file: 'placed-block.js'}) %>
-<%- include('/inc/file.html', {file: 'placed-row.js'}) %>
-<%- include('/inc/file.html', {file: 'placed-column.js'}) %>
+<%- include('/inc/keep.html', {file: 'placed.js', key: 'block'}) %>
+
+-   Columns
+
+<%- include('/inc/keep.html', {file: 'placed.js', key: 'col'}) %>
+
+-   Rows
+
+<%- include('/inc/keep.html', {file: 'placed.js', key: 'row'}) %>
 
 -   Write and run some tests
 
 <%- include('/inc/erase.html', {file: 'test/test-placed.js', key: 'large'}) %>
 <%- include('/inc/file.html', {file: 'test-placed.out'}) %>
 
-## How can we wrap blocks to fit?
+## How can we render elements?
+
+-   Element coordinates are good for testing but not good for understanding
+-   Create a "screen" of space characters
+
+<%- include('/inc/keep.html', {file: 'render.js', key: 'makeScreen'}) %>
+
+-   Fill in blocks using successive letters
+
+<%- include('/inc/keep.html', {file: 'render.js', key: 'makeScreen'}) %>
+
+-   A little easier to read (sort of)
+
+<%- include('/inc/keep.html', {file: 'test/test-render.js', key: 'large'}) %>
+
+## How can we wrap elements to fit?
 
 -   Suppose we fix the width of a row
     -   For now, assume all its children are less than or equal to this width
@@ -70,18 +92,18 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 -   Blocks and columns become themselves
     -   But we need to wrap columns' children, so that class still needs a new method
 
-<%- include('/inc/file.html', {file: 'wrapped-column.js'}) %>
+<%- include('/inc/keep.html', {file: 'wrapped.js', key: 'blockcol'}) %>
 
 -   Each row is replaced with a row containing a single column with one or more rows (wrapping)
     -   Replacement is unnecessary when everything will fit on a single row, but uniform is easier to code
 -   Constructor takes the width followed by the children
 -   Return the fixed width when asked
 
-<%- include('/inc/erase.html', {file: 'wrapped-row.js', key: 'wrap'}) %>
+<%- include('/inc/keeperase.html', {file: 'wrapped.js', keep: 'row', erase: 'wrap'}) %>
 
 -   Wrapping puts children into buckets, then converts the buckets to a row of a column of rows
 
-<%- include('/inc/keep.html', {file: 'wrapped-row.js', key: 'wrap'}) %>
+<%- include('/inc/keep.html', {file: 'wrapped.js', key: 'wrap'}) %>
 
 -   Bring forward all the previous tests (with an extra row and column where needed)
 -   Write some new ones

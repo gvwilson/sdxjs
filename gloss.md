@@ -176,8 +176,6 @@
 <dd class="glossary">A connection between two <g key="node">nodes</g> in a <g key="graph">graph</g>. An edge may have data associated with it, such as a name or distance.</dd>
 <dt id="element" class="glossary">element</dt>
 <dd class="glossary">A named component in an <g key="html">HTML</g> or <g key="xml">XML</g> document. Elements are usually written <code>&lt;name&gt;</code>...<code>&lt;/name&gt;</code>, where &quot;...&quot; represents the content of the element. Elements often have <g key="attribute">attributes</g>.</dd>
-<dt id="empty_element" class="glossary">empty element</dt>
-<dd class="glossary">An <g key="element">element</g> of an <g key="html">HTML</g> or <g key="xml">XML</g> document that has no <g key="child_tree">children</g>. Empty elements can always be written as <code>&lt;name&gt;&lt;/name&gt;</code>, but may also be written using the shorthand notation <code>&lt;name/&gt;</code> (with a slash after the name inside the angle brackets).</dd>
 <dt id="entry_point" class="glossary">entry point</dt>
 <dd class="glossary">Where a program begins executing.</dd>
 <dt id="error_test" class="glossary">error (in a test)</dt>
@@ -385,7 +383,7 @@
 <dt id="prune" class="glossary">prune</dt>
 <dd class="glossary">To remove branches and nodes from a tree, or to rule out partially-complete solutions when searching for an overall solution in order to reduce work.</dd>
 <dt id="pseudo_random_number" class="glossary">pseudo-random number</dt>
-<dd class="glossary">A value generated in a repeatable way that resembles the <g key="true">true</g> randomness of the universe well enough to fool observers.</dd>
+<dd class="glossary">A value generated in a repeatable way that resembles the <g key="true">true</g> randomness of the  universe well enough to fool observers.</dd>
 <dt id="prng" class="glossary">pseudo-random number generator (PRNG)</dt>
 <dd class="glossary">A function that can generate <g key="pseudo_random_number">pseudo-random numbers</g>.</dd>
 <dt id="python" class="glossary">Python</dt>

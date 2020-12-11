@@ -42,6 +42,7 @@ const isElement = (chunk) => {
   return chunk && (chunk[0] === '<')
 }
 
+// <makenode>
 const makeNode = (chunks) => {
   assert(chunks.length > 0,
     'Cannot make nodes without chunks')
@@ -83,5 +84,6 @@ const makeOpening = (chunk) => {
     `Unrecognized tag name ${tag}`)
   return new Cls(attributes)
 }
+// </makenode>
 
 export default parse

@@ -1,8 +1,10 @@
 import assert from 'assert'
 
-import Block from '../wrapped-block.js'
-import Row from '../wrapped-row.js'
-import Col from '../wrapped-col.js'
+import {
+  WrappedBlock as Block,
+  WrappedCol as Col,
+  WrappedRow as Row
+} from '../wrapped.js'
 
 describe('wraps blocks', () => {
   it('wraps a single unit block', async () => {
@@ -141,7 +143,6 @@ describe('wraps blocks', () => {
     )
     const wrapped = fixture.wrap()
     wrapped.place(0, 0)
-    console.error(JSON.stringify(wrapped.report(), null, 2))
     assert.deepStrictEqual(
       wrapped.report(),
       ['row', 0, 0, 3, 3,

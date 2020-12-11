@@ -1,8 +1,10 @@
 import assert from 'assert'
 
-import Block from '../placed-block.js'
-import Row from '../placed-row.js'
-import Col from '../placed-col.js'
+import {
+  PlacedBlock as Block,
+  PlacedCol as Col,
+  PlacedRow as Row
+} from '../placed.js'
 
 describe('places blocks', () => {
   it('places a single unit block', async () => {

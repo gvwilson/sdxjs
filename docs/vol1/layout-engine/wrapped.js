@@ -1,9 +1,28 @@
 import assert from 'assert'
 
-import PlacedRow from './placed-row.js'
-import PlacedCol from './placed-col.js'
+import {
+  PlacedBlock,
+  PlacedCol,
+  PlacedRow
+} from './placed.js'
 
-export default class WrappedRow extends PlacedRow {
+// <blockcol>
+export class WrappedBlock extends PlacedBlock {
+  wrap () {
+    return this
+  }
+}
+
+export class WrappedCol extends PlacedCol {
+  wrap () {
+    const children = this.children.map(child => child.wrap())
+    return new PlacedCol(...children)
+  }
+}
+// </blockcol>
+
+// <row>
+export class WrappedRow extends PlacedRow {
   constructor (width, ...children) {
     super(...children)
     assert(width >= 0,
@@ -41,3 +60,5 @@ export default class WrappedRow extends PlacedRow {
   }
   // </wrap>
 }
+// </row>
+

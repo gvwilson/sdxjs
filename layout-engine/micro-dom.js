@@ -1,6 +1,8 @@
-import WrappedBlock from './wrapped-block.js'
-import WrappedCol from './wrapped-col.js'
-import WrappedRow from './wrapped-row.js'
+import {
+  WrappedBlock,
+  WrappedCol,
+  WrappedRow
+} from './wrapped.js'
 
 export class DomBlock extends WrappedBlock {
   constructor (lines) {

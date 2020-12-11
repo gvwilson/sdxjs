@@ -1,6 +1,10 @@
 import assert from 'assert'
 
-import { Block, Row, Col } from '../easy-mode.js'
+import {
+  Block,
+  Row,
+  Col
+} from '../easy-mode.js'
 
 describe('lays out in easy mode', () => {
   it('lays out a single unit block', async () => {
