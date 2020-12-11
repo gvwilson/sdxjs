@@ -47,9 +47,9 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
     -   Place the next at (x0, y1 - height), etc.
 -   Derive three classes from previous classes to save testing (and printing space)
 
-<%- include('/inc/file.html', {file: 'placed-block.js'}) %>
-<%- include('/inc/file.html', {file: 'placed-row.js'}) %>
-<%- include('/inc/file.html', {file: 'placed-column.js'}) %>
+<%- include('/inc/keep.html', {file: 'placed.js', key: 'block'}) %>
+<%- include('/inc/keep.html', {file: 'placed.js', key: 'col'}) %>
+<%- include('/inc/keep.html', {file: 'placed.js', key: 'row'}) %>
 
 -   Write and run some tests
 
@@ -66,18 +66,18 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 -   Blocks and columns become themselves
     -   But we need to wrap columns' children, so that class still needs a new method
 
-<%- include('/inc/file.html', {file: 'wrapped-column.js'}) %>
+<%- include('/inc/keep.html', {file: 'wrapped.js', key: 'col'}) %>
 
 -   Each row is replaced with a row containing a single column with one or more rows (wrapping)
     -   Replacement is unnecessary when everything will fit on a single row, but uniform is easier to code
 -   Constructor takes the width followed by the children
 -   Return the fixed width when asked
 
-<%- include('/inc/erase.html', {file: 'wrapped-row.js', key: 'wrap'}) %>
+<%- include('/inc/keeperase.html', {file: 'wrapped.js', keep: 'row', erase: 'wrap'}) %>
 
 -   Wrapping puts children into buckets, then converts the buckets to a row of a column of rows
 
-<%- include('/inc/keep.html', {file: 'wrapped-row.js', key: 'wrap'}) %>
+<%- include('/inc/keep.html', {file: 'wrapped.js', key: 'wrap'}) %>
 
 -   Bring forward all the previous tests (with an extra row and column where needed)
 -   Write some new ones

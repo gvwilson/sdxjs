@@ -146,7 +146,7 @@ export class Row {
   }
 }
 
-export class Column {
+export class Col {
   constructor (...children) {
     this.children = children
   }
@@ -164,7 +164,11 @@ export class Column {
 </code></pre>
 <pre title="test/test-easy-mode.js"><code class="language-js">import assert from 'assert'
 
-import { Block, Row, Column } from '../easy-mode.js'
+import {
+  Block,
+  Row,
+  Col
+} from '../easy-mode.js'
 
 describe('lays out in easy mode', () =&gt; {
   it('lays out a single unit block', async () =&gt; {
@@ -189,7 +193,7 @@ describe('lays out in easy mode', () =&gt; {
   })
 
   it('lays out a column of two blocks', async () =&gt; {
-    const fixture = new Column(
+    const fixture = new Col(
       new Block(1, 1),
       new Block(2, 4)
     )
@@ -198,14 +202,14 @@ describe('lays out in easy mode', () =&gt; {
   })
 
   it('lays out a grid of rows of columns', async () =&gt; {
-    const fixture = new Column(
+    const fixture = new Col(
       new Row(
         new Block(1, 2),
         new Block(3, 4)
       ),
       new Row(
         new Block(5, 6),
-        new Column(
+        new Col(
           new Block(7, 8),
           new Block(9, 10)
         )
@@ -255,9 +259,7 @@ describe('lays out in easy mode', () =&gt; {
 </li>
 <li>Derive three classes from previous classes to save testing (and printing space)</li>
 </ul>
-<pre title="placed-block.js"><code class="language-js">import { Block } from './easy-mode.js'
-
-export default class PlacedBlock extends Block {
+<pre title="placed.js"><code class="language-js">export class PlacedBlock extends Block {
   constructor (width, height) {
     super(width, height)
     this.x0 = null
@@ -272,11 +274,32 @@ export default class PlacedBlock extends Block {
   report () {
     return ['block', this.x0, this.y1]
   }
-}
-</code></pre>
-<pre title="placed-row.js"><code class="language-js">import { Row } from './easy-mode.js'
+}</code></pre>
+<pre title="placed.js"><code class="language-js">export class PlacedCol extends Col {
+  constructor (...children) {
+    super(...children)
+    this.x0 = null
+    this.y1 = null
+  }
 
-export default class PlacedRow extends Row {
+  place (x0, y1) {
+    this.x0 = x0
+    this.y1 = y1
+    let yCurrent = this.y1
+    this.children.forEach(child =&gt; {
+      child.place(x0, yCurrent)
+      yCurrent -= child.getHeight()
+    })
+  }
+
+  report () {
+    return [
+      'col', this.x0, this.y1,
+      ...this.children.map(child =&gt; child.report())
+    ]
+  }
+}</code></pre>
+<pre title="placed.js"><code class="language-js">export class PlacedRow extends Row {
   constructor (...children) {
     super(...children)
     this.x0 = null
@@ -300,43 +323,17 @@ export default class PlacedRow extends Row {
       ...this.children.map(child =&gt; child.report())
     ]
   }
-}
-</code></pre>
-<pre title="placed-column.js"><code class="language-js">import { Column } from './easy-mode.js'
-
-export default class PlacedColumn extends Column {
-  constructor (...children) {
-    super(...children)
-    this.x0 = null
-    this.y1 = null
-  }
-
-  place (x0, y1) {
-    this.x0 = x0
-    this.y1 = y1
-    let yCurrent = this.y1
-    this.children.forEach(child =&gt; {
-      child.place(x0, yCurrent)
-      yCurrent -= child.getHeight()
-    })
-  }
-
-  report () {
-    return [
-      'column', this.x0, this.y1,
-      ...this.children.map(child =&gt; child.report())
-    ]
-  }
-}
-</code></pre>
+}</code></pre>
 <ul>
 <li>Write and run some tests</li>
 </ul>
 <pre title="test/test-placed.js"><code class="language-js">import assert from 'assert'
 
-import Block from '../placed-block.js'
-import Row from '../placed-row.js'
-import Column from '../placed-column.js'
+import {
+  PlacedBlock as Block,
+  PlacedCol as Col,
+  PlacedRow as Row
+} from '../placed.js'
 
 describe('places blocks', () =&gt; {
   it('places a single unit block', async () =&gt; {
@@ -370,14 +367,14 @@ describe('places blocks', () =&gt; {
   })
 
   it('places a column of two blocks', async () =&gt; {
-    const fixture = new Column(
+    const fixture = new Col(
       new Block(1, 1),
       new Block(2, 4)
     )
     fixture.place(0, 0)
     assert.deepStrictEqual(
       fixture.report(),
-      ['column', 0, 0, ['block', 0, 0], ['block', 0, -1]]
+      ['col', 0, 0, ['block', 0, 0], ['block', 0, -1]]
     )
   })
 ...
@@ -418,15 +415,12 @@ describe('places blocks', () =&gt; {
 </ul>
 </li>
 </ul>
-<pre title="wrapped-column.js"><code class="language-js">import PlacedColumn from './placed-column.js'
-
-export default class WrappedColumn extends PlacedColumn {
+<pre title="wrapped.js"><code class="language-js">export class WrappedCol extends PlacedCol {
   wrap () {
     const children = this.children.map(child =&gt; child.wrap())
-    return new PlacedColumn(...children)
+    return new PlacedCol(...children)
   }
-}
-</code></pre>
+}</code></pre>
 <ul>
 <li>Each row is replaced with a row containing a single column with one or more rows (wrapping)
 <ul>
@@ -436,12 +430,7 @@ export default class WrappedColumn extends PlacedColumn {
 <li>Constructor takes the width followed by the children</li>
 <li>Return the fixed width when asked</li>
 </ul>
-<pre title="wrapped-row.js"><code class="language-js">import assert from 'assert'
-
-import PlacedRow from './placed-row.js'
-import PlacedColumn from './placed-column.js'
-
-export default class WrappedRow extends PlacedRow {
+<pre title="wrapped.js"><code class="language-js">export class WrappedRow extends PlacedRow {
   constructor (width, ...children) {
     super(...children)
     assert(width &gt; 0,
@@ -453,12 +442,11 @@ export default class WrappedRow extends PlacedRow {
     return this.width
   }
 ...
-}
-</code></pre>
+}</code></pre>
 <ul>
 <li>Wrapping puts children into buckets, then converts the buckets to a row of a column of rows</li>
 </ul>
-<pre title="wrapped-row.js"><code class="language-js">  wrap () {
+<pre title="wrapped.js"><code class="language-js">  wrap () {
     const children = this.children.map(child =&gt; child.wrap())
     const rows = []
     let currentRow = []
@@ -478,8 +466,8 @@ export default class WrappedRow extends PlacedRow {
     rows.push(currentRow)
 
     const newRows = rows.map(row =&gt; new PlacedRow(...row))
-    const newColumn = new PlacedColumn(...newRows)
-    return new PlacedRow(newColumn)
+    const newCol = new PlacedCol(...newRows)
+    return new PlacedRow(newCol)
   }</code></pre>
 <ul>
 <li>Bring forward all the previous tests (with an extra row and column where needed)</li>
@@ -496,7 +484,7 @@ export default class WrappedRow extends PlacedRow {
     assert.deepStrictEqual(
       wrapped.report(),
       ['row', 0, 0,
-        ['column', 0, 0,
+        ['col', 0, 0,
           ['row', 0, 0,
             ['block', 0, 0]
           ],

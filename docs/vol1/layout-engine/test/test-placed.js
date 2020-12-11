@@ -1,8 +1,10 @@
 import assert from 'assert'
 
-import Block from '../placed-block.js'
-import Row from '../placed-row.js'
-import Column from '../placed-column.js'
+import {
+  PlacedBlock as Block,
+  PlacedCol as Col,
+  PlacedRow as Row
+} from '../placed.js'
 
 describe('places blocks', () => {
   it('places a single unit block', async () => {
@@ -36,27 +38,27 @@ describe('places blocks', () => {
   })
 
   it('places a column of two blocks', async () => {
-    const fixture = new Column(
+    const fixture = new Col(
       new Block(1, 1),
       new Block(2, 4)
     )
     fixture.place(0, 0)
     assert.deepStrictEqual(
       fixture.report(),
-      ['column', 0, 0, ['block', 0, 0], ['block', 0, -1]]
+      ['col', 0, 0, ['block', 0, 0], ['block', 0, -1]]
     )
   })
 
   // <large>
   it('places a grid of rows of columns', async () => {
-    const fixture = new Column(
+    const fixture = new Col(
       new Row(
         new Block(1, 2),
         new Block(3, 4)
       ),
       new Row(
         new Block(5, 6),
-        new Column(
+        new Col(
           new Block(7, 8),
           new Block(9, 10)
         )
@@ -65,11 +67,11 @@ describe('places blocks', () => {
     fixture.place(0, 0)
     assert.deepStrictEqual(
       fixture.report(),
-      ['column', 0, 0,
+      ['col', 0, 0,
         ['row', 0, 0, ['block', 0, -2], ['block', 1, 0]],
         ['row', 0, -4,
           ['block', 0, -16],
-          ['column', 5, -4, ['block', 5, -4], ['block', 5, -12]]
+          ['col', 5, -4, ['block', 5, -4], ['block', 5, -12]]
         ]
       ]
     )

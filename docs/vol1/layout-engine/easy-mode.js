@@ -29,7 +29,7 @@ export class Row {
   }
 }
 
-export class Column {
+export class Col {
   constructor (...children) {
     this.children = children
   }

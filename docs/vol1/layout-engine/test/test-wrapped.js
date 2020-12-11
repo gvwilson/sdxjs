@@ -1,8 +1,10 @@
 import assert from 'assert'
 
-import Block from '../wrapped-block.js'
-import Row from '../wrapped-row.js'
-import Column from '../wrapped-column.js'
+import {
+  WrappedBlock as Block,
+  WrappedCol as Col,
+  WrappedRow as Row
+} from '../wrapped.js'
 
 describe('wraps blocks', () => {
   it('wraps a single unit block', async () => {
@@ -35,12 +37,12 @@ describe('wraps blocks', () => {
     wrapped.place(0, 0)
     assert.deepStrictEqual(
       wrapped.report(),
-      ['row', 0, 0, ['column', 0, 0, ['row', 0, 0, ['block', 0, -3], ['block', 1, 0]]]]
+      ['row', 0, 0, ['col', 0, 0, ['row', 0, 0, ['block', 0, -3], ['block', 1, 0]]]]
     )
   })
 
-  it('wraps a column of two blocks', async () => {
-    const fixture = new Column(
+  it('wraps a col of two blocks', async () => {
+    const fixture = new Col(
       new Block(1, 1),
       new Block(2, 4)
     )
@@ -48,12 +50,12 @@ describe('wraps blocks', () => {
     wrapped.place(0, 0)
     assert.deepStrictEqual(
       wrapped.report(),
-      ['column', 0, 0, ['block', 0, 0], ['block', 0, -1]]
+      ['col', 0, 0, ['block', 0, 0], ['block', 0, -1]]
     )
   })
 
   it('wraps a grid of rows of columns that all fit on their row', async () => {
-    const fixture = new Column(
+    const fixture = new Col(
       new Row(
         100,
         new Block(1, 2),
@@ -62,7 +64,7 @@ describe('wraps blocks', () => {
       new Row(
         100,
         new Block(5, 6),
-        new Column(
+        new Col(
           new Block(7, 8),
           new Block(9, 10)
         )
@@ -72,15 +74,15 @@ describe('wraps blocks', () => {
     wrapped.place(0, 0)
     assert.deepStrictEqual(
       wrapped.report(),
-      ['column', 0, 0,
+      ['col', 0, 0,
         ['row', 0, 0,
-          ['column', 0, 0,
+          ['col', 0, 0,
             ['row', 0, 0, ['block', 0, -2], ['block', 1, 0]]]],
         ['row', 0, -4,
-          ['column', 0, -4,
+          ['col', 0, -4,
             ['row', 0, -4,
               ['block', 0, -16],
-              ['column', 5, -4, ['block', 5, -4], ['block', 5, -12]]
+              ['col', 5, -4, ['block', 5, -4], ['block', 5, -12]]
             ]
           ]
         ]
@@ -100,7 +102,7 @@ describe('wraps blocks', () => {
     assert.deepStrictEqual(
       wrapped.report(),
       ['row', 0, 0,
-        ['column', 0, 0,
+        ['col', 0, 0,
           ['row', 0, 0,
             ['block', 0, 0]
           ],
@@ -126,7 +128,7 @@ describe('wraps blocks', () => {
     assert.deepStrictEqual(
       wrapped.report(),
       ['row', 0, 0,
-        ['column', 0, 0,
+        ['col', 0, 0,
           ['row', 0, 0,
             ['block', 0, 0]
           ],
