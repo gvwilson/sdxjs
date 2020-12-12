@@ -1,16 +1,21 @@
+# ----------------------------------------------------------------------
+# Including file must define VOLUME (for example, as 'vol1').
+# ----------------------------------------------------------------------
+
 # Chapter slugs.
 CHAPTERS := $(shell bin/slugs.js chapters . docs/${VOLUME} common.yml ${VOLUME}.yml)
 
 # Markdown chapter files.
 MARKDOWN := $(shell bin/slugs.js source . docs/${VOLUME} common.yml ${VOLUME}.yml)
 
-# HTML output files.
+# All HTML output files.
 HTML := $(shell bin/slugs.js html . docs/${VOLUME} common.yml ${VOLUME}.yml)
 
+# Home page for this volume.
+HOME_PAGE := docs/${VOLUME}/index.html
+
 # Complete list of exercise source files.
-EXERCISES := \
-  $(wildcard $(patsubst %,%/*/problem.md,${CHAPTERS})) \
-  $(wildcard $(patsubst %,%/*/solution.md,${CHAPTERS}))
+EXERCISES := $(shell bin/slugs.js exercises . docs/${VOLUME} common.yml ${VOLUME}.yml)
 
 # Complete list of JavaScript source files.
 JAVASCRIPT := \
@@ -29,9 +34,17 @@ TEX := \
 STATIC_SRC := $(wildcard static/*.*) $(wildcard static/fonts/*/*.*)
 STATIC_DST := $(patsubst %,docs/%,${STATIC_SRC})
 
-# Files we copy directly.
+# Top-level files copied directly.
 DIRECT_SRC := .nojekyll CNAME favicon.ico index.html
 DIRECT_DST := $(patsubst %,docs/%,${DIRECT_SRC})
+
+# Tools.
+TOOLS := $(filter-out bin/utils.js, $(wildcard bin/*.js))
+
+# Configuration parameters.
+COMMON_PARAMS := --common common.yml --config ${VOLUME}.yml --root . --html docs/${VOLUME}
+
+# ----------------------------------------------------------------------
 
 .DEFAULT: commands
 
@@ -40,10 +53,10 @@ commands:
 	@grep -h -E '^##' ${MAKEFILE_LIST} | sed -e 's/## //g' | column -t -s ':'
 
 ## html: rebuild html
-html: docs/${VOLUME}/index.html ${DIRECT_DST}
+html: ${HOME_PAGE}
 
 ## serve: run a server on port 4000
-serve: docs/${VOLUME}/index.html
+serve: ${HOME_PAGE}
 	@npm run serve
 
 ## pdf: rebuild PDF
@@ -68,13 +81,8 @@ hygiene:
 	-@make check
 
 ## check: check that files match style rules
-check:
-	@make html
-	-@bin/check.js \
-	--common common.yml \
-	--config ${VOLUME}.yml \
-	--html ${HTML} \
-	--markdown ${MARKDOWN} ${EXERCISES}
+check: ${HOME_PAGE}
+	-bin/check.js ${COMMON_PARAMS}
 
 ## ejslint: run checks on template expansions
 ejslint:
@@ -116,7 +124,7 @@ wordlist:
 	@bin/wordlist.js --input ${HTML}
 
 ## spelling: what words are incorrect?
-spelling: docs/${VOLUME}/index.html
+spelling: ${HOME_PAGE}
 	@-bin/wordlist.js --input ${HTML} | aspell list | sort | uniq | diff - words.txt
 
 ## pages: count pages per chapter.
@@ -153,24 +161,18 @@ gloss.md: gloss.yml bin/gloss.js $(filter-out gloss.md,${MARKDOWN}) ${EXERCISES}
 	--glosario \
 	--input gloss.yml \
 	--output gloss.md \
-	--sources ${MARKDOWN} ${EXERCISES}
+	${COMMON_PARAMS}
 
-docs/${VOLUME}/index.html: bin/html.js ${VOLUME}.yml common.yml links.yml ${MARKDOWN} ${INC} ${STATIC_DST}
+${HOME_PAGE}: bin/html.js ${VOLUME}.yml common.yml links.yml ${MARKDOWN} ${INC} ${STATIC_DST} ${DIRECT_DST}
 	bin/html.js \
-	--root . \
-	--html docs/${VOLUME} \
-	--common common.yml \
-	--config ${VOLUME}.yml \
+	${COMMON_PARAMS} \
 	--gloss gloss.md \
 	--links links.yml \
 	--replaceDir
 
-${VOLUME}.tex: bin/latex.js docs/${VOLUME}/index.html ${TEX}
+${VOLUME}.tex: bin/latex.js ${HOME_PAGE} ${TEX}
 	bin/latex.js \
-	--common common.yml \
-	--config ${VOLUME}.yml \
-	--html docs/${VOLUME} \
-	--root . \
+	${COMMON_PARAMS} \
 	--output ${VOLUME}.tex \
 	--head tex/head.tex \
 	--foot tex/foot.tex \
@@ -179,7 +181,10 @@ ${VOLUME}.tex: bin/latex.js docs/${VOLUME}/index.html ${TEX}
 ${VOLUME}.pdf ${VOLUME}.aux: ${VOLUME}.tex
 	@pdflatex ${VOLUME} && pdflatex ${VOLUME}
 
-docs/${VOLUME}/index.html: ${VOLUME}/index.md
+# ----------------------------------------------------------------------
+
+# HTML file dependencies that don't map directly to index.md files in sub-directories.
+${HOME_PAGE}: ${VOLUME}/index.md
 docs/${VOLUME}/conduct/index.html: CONDUCT.md
 docs/${VOLUME}/contributing/index.html: CONTRIBUTING.md
 docs/${VOLUME}/license/index.html: LICENSE.md
@@ -188,31 +193,21 @@ docs/${VOLUME}/gloss/index.html: gloss.md
 docs/${VOLUME}/links/index.html: links.md
 docs/${VOLUME}/%/index.html: %/index.md
 
+# HTML file dependencies that do map to index.md files in sub-directories.
 %/index.md: %/*/problem.md %/*/solution.md
 	@touch $@
 
-bin/html.js: bin/utils.js
-	@touch $@
-
-bin/wrap.js: bin/utils.js
-	@touch $@
-
+# Static files.
 docs/static/%: static/%
 	@mkdir -p $(dir $@)
 	@cp $< $@
 
-docs/index.html: index.html
+# Direct files.
+docs/%: ./%
 	@mkdir -p $(dir $@)
 	@cp $< $@
 
-docs/.nojekyll : .nojekyll
-	@mkdir -p $(dir $@)
-	@cp $< $@
-
-docs/CNAME: CNAME
-	@mkdir -p $(dir $@)
-	@cp $< $@
-
-docs/favicon.ico: favicon.ico
-	@mkdir -p $(dir $@)
-	@cp $< $@
+# Tools all depend on utilities.
+${TOOLS}: bin/utils.js
+bin/%.js:
+	@touch $@

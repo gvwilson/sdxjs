@@ -8,7 +8,11 @@ import glob from 'glob'
 import htmlparser2 from 'htmlparser2'
 import path from 'path'
 
-import { yamlLoad } from './utils.js'
+import {
+  createFilePaths,
+  getAllEntries,
+  yamlLoad
+} from './utils.js'
 
 /**
  * Suffices of interesting included files.
@@ -25,6 +29,7 @@ const WIDTH = 70
  */
 const main = () => {
   const options = getOptions()
+  createFilePaths(options)
 
   checkExercises(options)
 
@@ -46,33 +51,44 @@ const getOptions = () => {
   const parser = new argparse.ArgumentParser()
   parser.add_argument('--common')
   parser.add_argument('--config')
-  parser.add_argument('--html', { nargs: '+' })
-  parser.add_argument('--markdown', { nargs: '+' })
-  return parser.parse_args()
+  parser.add_argument('--root')
+  parser.add_argument('--html')
+  const fromArgs = parser.parse_args()
+
+  const common = yamlLoad(fromArgs.common)
+  const config = yamlLoad(fromArgs.config)
+
+  return { ...common, ...config, ...fromArgs }
 }
 
 /**
- * Load Markdown.
+ * Load Markdown for chapters.
  * @param {Object} options Program options.
  * @returns {Array<Object>} Filenames and text.
  */
 const loadMarkdown = (options) => {
-  return options.markdown.map(filename => {
-    const text = fs.readFileSync(filename, 'utf-8').trim()
-    return { filename, text }
+  return getAllEntries(options).map(entry => {
+    return {
+      filename: entry.source,
+      text: fs.readFileSync(entry.source, 'utf-8').trim()
+    }
   })
 }
 
 /**
- * Load HTML.
+ * Load HTML pages.
  * @param {Object} options Program options.
  * @returns {Array<Object>} Filenames, text, and DOM.
  */
 const loadHtml = (options) => {
-  return options.html.map(filename => {
-    const text = fs.readFileSync(filename, 'utf-8').trim()
+  return getAllEntries(options).map(entry => {
+    const text = fs.readFileSync(entry.html, 'utf-8').trim()
     const doc = htmlparser2.parseDOM(text)
-    return { filename, text, doc: doc[0] }
+    return {
+      filename: entry.html,
+      text,
+      doc: doc[0]
+    }
   })
 }
 
@@ -81,36 +97,20 @@ const loadHtml = (options) => {
  * @param {Object} options Program options.
  */
 const checkExercises = (options) => {
-  const config = { ...yamlLoad(options.common), ...yamlLoad(options.config) }
-  const expected = new Set()
-  const actual = new Set()
-  config.chapters
-    .forEach(chapter => {
-      if (('exercises' in chapter) && Array.isArray(chapter.exercises)) {
-        chapter.exercises.map(exercise => `${chapter.slug}/${exercise.slug}`)
-          .forEach(full => expected.add(full))
+  const kinds = ['problem', 'solution']
+  kinds.forEach(kind => {
+    const expected = new Set()
+    const actual = new Set()
+    options.chapters.forEach(chapter => {
+      if ('exercises' in chapter) {
+        chapter.exercises.map(ex => expected.add(ex[kind]))
       }
-      glob.sync(`${chapter.slug}/*/problem.md`)
-        .map(problem => problem
-          .replace('/problem.md', ''))
-        .forEach(full => actual.add(full))
+      glob.sync(`${chapter.slug}/x-*/${kind}.md`)
+        .forEach(ex => actual.add(ex))
     })
-  showSetDiff('Missing exercises', expected, actual)
-  showSetDiff('Unused exercises', actual, expected)
-
-  const problems = new Set()
-  const solutions = new Set()
-  config.chapters
-    .forEach(chapter => {
-      glob.sync(`${chapter.slug}/*/problem.md`)
-        .map(problem => problem.replace('/problem.md', ''))
-        .forEach(stem => problems.add(stem))
-      glob.sync(`${chapter.slug}/*/solution.md`)
-        .map(solution => solution.replace('/solution.md', ''))
-        .forEach(stem => solutions.add(stem))
-    })
-  showSetDiff('Problems without solutions', problems, solutions)
-  showSetDiff('Solutions without problems', solutions, problems)
+    showSetDiff(`Missing ${kind}`, expected, actual)
+    showSetDiff(`Unused ${kind}`, actual, expected)
+  })
 }
 
 /**

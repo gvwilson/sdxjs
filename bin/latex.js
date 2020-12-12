@@ -28,13 +28,7 @@ const RECURSE_ONLY = new Set('#document html body main'.split(' '))
 const main = () => {
   const options = getOptions()
   options.numbering = getNumbering(options)
-  const allFiles = createFilePaths(
-    options.root,
-    options.html,
-    options.extras,
-    options.chapters,
-    options.appendices
-  )
+  const allFiles = createFilePaths(options)
   const allLatex = allFiles.map(fileInfo => {
     const doc = readFile(fileInfo.html)
     return htmlToLatex(options, fileInfo, doc, [])

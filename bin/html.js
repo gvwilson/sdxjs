@@ -65,21 +65,7 @@ const getOptions = () => {
   parser.add_argument('--links')
   parser.add_argument('--root')
   parser.add_argument('--replaceDir', { action: 'store_true' })
-
   const fromArgs = parser.parse_args()
-
-  assert(fromArgs.common,
-    'Need a common configuration file')
-  assert(fromArgs.config,
-    'Need a configuration file')
-  assert(fromArgs.gloss,
-    'Need a glossary file')
-  assert(fromArgs.links,
-    'Need a links file')
-  assert(fromArgs.html,
-    'Need a site directory')
-  assert(fromArgs.root,
-    'Need a root directory')
 
   const directory = dirname(import.meta.url)
   fromArgs.homeDir = directory.replace('/bin', '')
@@ -124,22 +110,12 @@ const buildLinks = (options) => {
  * @returns {Array<Object>} File information.
  */
 const buildFileInfo = (options) => {
-  // Fill in file information.
-  const allFiles = createFilePaths(
-    options.root,
-    options.html,
-    options.extras,
-    options.chapters,
-    options.appendices
-  )
-
-  // Number sections.
-  const numbered = [...options.chapters, ...options.appendices]
-  numbered.forEach((fileInfo, i) => {
-    fileInfo.previous = (i > 0) ? numbered[i - 1] : null
-    fileInfo.next = (i < numbered.length - 1) ? numbered[i + 1] : null
+  const allFiles = createFilePaths(options)
+  const pages = [...options.chapters, ...options.appendices]
+  pages.forEach((fileInfo, i) => {
+    fileInfo.previous = (i > 0) ? pages[i - 1] : null
+    fileInfo.next = (i < pages.length - 1) ? pages[i + 1] : null
   })
-
   return allFiles
 }
 
@@ -246,8 +222,7 @@ const _codeClass = (filename) => {
  */
 const _exercise = (render, root, chapter, exercise, which) => {
   const title = `<h3 class="exercise">${exercise.title}</h3>`
-  const path = `${root}/${chapter.slug}/${exercise.slug}/${which}.md`
-  const contents = render(fs.readFileSync(path, 'utf-8'))
+  const contents = render(fs.readFileSync(exercise[which], 'utf-8'))
   return `${title}\n\n${contents}\n`
 }
 

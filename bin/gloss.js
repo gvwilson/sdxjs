@@ -3,13 +3,16 @@
 'use strict'
 
 import argparse from 'argparse'
-import assert from 'assert'
 import fs from 'fs'
 import MarkdownIt from 'markdown-it'
 import request from 'request'
 import yaml from 'js-yaml'
 
-import { yamlLoad } from './utils.js'
+import {
+  createFilePaths,
+  getAllSources,
+  yamlLoad
+} from './utils.js'
 
 /**
  * Glosario version of glossary.
@@ -38,6 +41,7 @@ const FOOTER = `
  */
 const main = () => {
   const options = getOptions()
+  createFilePaths(options)
   download(options, GLOSARIO_URL).then(glosario => {
     const local = getGlossary(options)
     const merged = mergeGlossaries(glosario, local)
@@ -59,16 +63,15 @@ const getOptions = () => {
   parser.add_argument('--glosario', { action: 'store_true' })
   parser.add_argument('--input')
   parser.add_argument('--output')
-  parser.add_argument('--sources', { nargs: '+' })
+  parser.add_argument('--config')
+  parser.add_argument('--common')
+  parser.add_argument('--html')
+  parser.add_argument('--root')
+  const fromArgs = parser.parse_args()
 
-  const options = parser.parse_args()
-
-  assert(options.input,
-    'Need input file')
-  assert(options.output,
-    'Need output file')
-  assert(options.sources,
-    'Need source files')
+  const common = yamlLoad(fromArgs.common)
+  const config = yamlLoad(fromArgs.config)
+  const options = { ...common, ...config, ...fromArgs }
   return options
 }
 
@@ -109,7 +112,7 @@ const mergeGlossaries = (...glossaries) => {
  */
 const getRequired = (options, gloss) => {
   const pending = new Set(
-    options.sources.map(filename => {
+    getAllSources(options).map(filename => {
       const text = fs.readFileSync(filename, 'utf-8')
       return [...text.matchAll(/<g\s+key="(.+?)">/g)]
         .map(match => match[1])
