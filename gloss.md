@@ -385,7 +385,7 @@
 <dt id="prune" class="glossary">prune</dt>
 <dd class="glossary">To remove branches and nodes from a tree, or to rule out partially-complete solutions when searching for an overall solution in order to reduce work.</dd>
 <dt id="pseudo_random_number" class="glossary">pseudo-random number</dt>
-<dd class="glossary">A value generated in a repeatable way that resembles the <g key="true">true</g> randomness of the universe well enough to fool observers.</dd>
+<dd class="glossary">A value generated in a repeatable way that resembles the <g key="true">true</g> randomness of the  universe well enough to fool observers.</dd>
 <dt id="prng" class="glossary">pseudo-random number generator (PRNG)</dt>
 <dd class="glossary">A function that can generate <g key="pseudo_random_number">pseudo-random numbers</g>.</dd>
 <dt id="python" class="glossary">Python</dt>

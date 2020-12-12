@@ -63,7 +63,7 @@ for (const thing in collection) {
 }
 ```
 
-::: unindented
+::: continue
 and Unix shell commands like this:
 :::
 
@@ -74,7 +74,7 @@ do
 done
 ```
 
-::: unindented
+::: continue
 Data and output are shown in italics:
 :::
 
