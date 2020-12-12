@@ -67,7 +67,7 @@
   <h1>Layout Engine</h1>
   <h2 class="lede">Figuring out what goes where in a web page</h2>
 <div class="callout">
-  <p>Terms defined: <g key="coupling">coupling</g>, <g key="dom">Document Object Model (DOM)</g>, <g key="dom_selector">DOM selector</g>, <g key="easy_mode">easy mode</g>, <g key="empty_element">empty element</g></p>
+  <p>Terms defined: <g key="coupling">coupling</g>, <g key="dom">Document Object Model (DOM)</g>, <g key="dom_selector">DOM selector</g>, <g key="easy_mode">easy mode</g></p>
 </div>
 <p>A pure-text layout engine showing how browsers decide what to put where,
 based on <a href="https://limpet.net/mbrubeck/">Matt Brubeck</a>'s <a href="https://limpet.net/mbrubeck/2014/08/08/toy-layout-engine-1.html">tutorial</a>.</p>
@@ -83,6 +83,12 @@ based on <a href="https://limpet.net/mbrubeck/">Matt Brubeck</a>'s <a href="http
 <li>Produce a tree of styled nodes from the DOM</li>
 <li>Walk this tree to figure out where each visible element belongs</li>
 <li>Render this as plain text</li>
+</ul>
+</li>
+<li>Coordinate system puts (0, 0) in the upper left corner
+<ul>
+<li>Increasing Y goes down</li>
+<li>Increasing X goes to the right</li>
 </ul>
 </li>
 </ul>
@@ -136,13 +142,19 @@ export class Row {
   }
 
   getWidth () {
-    return this.children
-      .map(child =&gt; child.getWidth())
-      .reduce((total, next) =&gt; total + next, 0)
+    let result = 0
+    for (const child of this.children) {
+      result += child.getWidth()
+    }
+    return result
   }
 
   getHeight () {
-    return Math.max(...this.children.map(child =&gt; child.getHeight()))
+    let result = 0
+    for (const child of this.children) {
+      result = Math.max(result, child.getHeight())
+    }
+    return result
   }
 }
 
@@ -152,13 +164,19 @@ export class Col {
   }
 
   getWidth () {
-    return Math.max(...this.children.map(child =&gt; child.getWidth()))
+    let result = 0
+    for (const child of this.children) {
+      result = Math.max(result, child.getWidth())
+    }
+    return result
   }
 
   getHeight () {
-    return this.children
-      .map(child =&gt; child.getHeight())
-      .reduce((total, next) =&gt; total + next, 0)
+    let result = 0
+    for (const child of this.children) {
+      result += child.getHeight()
+    }
+    return result
   }
 }
 </code></pre>
@@ -238,7 +256,7 @@ describe('lays out in easy mode', () =&gt; {
 </code></pre>
 <h2 id="how-can-we-position-rows-and-columns">How can we position rows and columns?</h2>
 <ul>
-<li>Suppose we start with the upper left corner of the browser (X0, Y1)
+<li>Suppose we start with the upper left corner of the browser (0, 0)
 <ul>
 <li>Upper because we lay out the page top-to-bottom</li>
 <li>Left because we are doing left-to-right layout</li>
@@ -247,17 +265,19 @@ describe('lays out in easy mode', () =&gt; {
 <li>If the cell is a block, just place it</li>
 <li>If the cell is a row:
 <ul>
+<li>Calculate y1 = y0 + height</li>
 <li>Place the first child at (x0, y1)</li>
 <li>Place the next child at (x0 + width, y1)</li>
 </ul>
 </li>
 <li>If the cell is a column:
 <ul>
-<li>Place the first child at (x0, y1)</li>
-<li>Place the next at (x0, y1 - height), etc.</li>
+<li>Place the first child at (x0, y0 + height0)</li>
+<li>Place the next at (x0, y0 + height0 + height1), etc.</li>
 </ul>
 </li>
-<li>Derive three classes from previous classes to save testing (and printing space)</li>
+<li>Derive classes from previous classes to save testing</li>
+<li>Blocks</li>
 </ul>
 <pre title="placed.js"><code class="language-js">export class PlacedBlock extends Block {
   constructor (width, height) {
@@ -266,15 +286,22 @@ describe('lays out in easy mode', () =&gt; {
     this.y0 = null
   }
 
-  place (x0, y1) {
+  place (x0, y0) {
     this.x0 = x0
-    this.y1 = y1
+    this.y0 = y0
   }
 
   report () {
-    return ['block', this.x0, this.y1]
+    return [
+      'block', this.x0, this.y0,
+      this.x0 + this.width,
+      this.y0 + this.height
+    ]
   }
 }</code></pre>
+<ul>
+<li>Columns</li>
+</ul>
 <pre title="placed.js"><code class="language-js">export class PlacedCol extends Col {
   constructor (...children) {
     super(...children)
@@ -282,23 +309,28 @@ describe('lays out in easy mode', () =&gt; {
     this.y1 = null
   }
 
-  place (x0, y1) {
+  place (x0, y0) {
     this.x0 = x0
-    this.y1 = y1
-    let yCurrent = this.y1
+    this.y0 = y0
+    let yCurrent = this.y0
     this.children.forEach(child =&gt; {
       child.place(x0, yCurrent)
-      yCurrent -= child.getHeight()
+      yCurrent += child.getHeight()
     })
   }
 
   report () {
     return [
-      'col', this.x0, this.y1,
+      'col', this.x0, this.y0,
+      this.x0 + this.getWidth(),
+      this.y0 + this.getHeight(),
       ...this.children.map(child =&gt; child.report())
     ]
   }
 }</code></pre>
+<ul>
+<li>Rows</li>
+</ul>
 <pre title="placed.js"><code class="language-js">export class PlacedRow extends Row {
   constructor (...children) {
     super(...children)
@@ -306,20 +338,23 @@ describe('lays out in easy mode', () =&gt; {
     this.y0 = null
   }
 
-  place (x0, y1) {
+  place (x0, y0) {
     this.x0 = x0
-    this.y1 = y1
-    const y0 = y1 - this.getHeight()
+    this.y0 = y0
+    const y1 = this.y0 + this.getHeight()
     let xCurrent = x0
     this.children.forEach(child =&gt; {
-      child.place(xCurrent, y0 + child.getHeight())
+      const childY = y1 - child.getHeight()
+      child.place(xCurrent, childY)
       xCurrent += child.getWidth()
     })
   }
 
   report () {
     return [
-      'row', this.x0, this.y1,
+      'row', this.x0, this.y0,
+      this.x0 + this.getWidth(),
+      this.y0 + this.getHeight(),
       ...this.children.map(child =&gt; child.report())
     ]
   }
@@ -341,7 +376,7 @@ describe('places blocks', () =&gt; {
     fixture.place(0, 0)
     assert.deepStrictEqual(
       fixture.report(),
-      ['block', 0, 0]
+      ['block', 0, 0, 1, 1]
     )
   })
 
@@ -350,7 +385,7 @@ describe('places blocks', () =&gt; {
     fixture.place(0, 0)
     assert.deepStrictEqual(
       fixture.report(),
-      ['block', 0, 0]
+      ['block', 0, 0, 3, 4]
     )
   })
 
@@ -362,7 +397,10 @@ describe('places blocks', () =&gt; {
     fixture.place(0, 0)
     assert.deepStrictEqual(
       fixture.report(),
-      ['row', 0, 0, ['block', 0, -3], ['block', 1, 0]]
+      ['row', 0, 0, 3, 4,
+        ['block', 0, 3, 1, 4],
+        ['block', 1, 0, 3, 4]
+      ]
     )
   })
 
@@ -374,7 +412,10 @@ describe('places blocks', () =&gt; {
     fixture.place(0, 0)
     assert.deepStrictEqual(
       fixture.report(),
-      ['col', 0, 0, ['block', 0, 0], ['block', 0, -1]]
+      ['col', 0, 0, 2, 5,
+        ['block', 0, 0, 1, 1],
+        ['block', 0, 1, 2, 5]
+      ]
     )
   })
 ...
@@ -396,7 +437,105 @@ describe('places blocks', () =&gt; {
 
   5 passing (6ms)
 </code></pre>
-<h2 id="how-can-we-wrap-blocks-to-fit">How can we wrap blocks to fit?</h2>
+<h2 id="how-can-we-render-elements">How can we render elements?</h2>
+<ul>
+<li>Element coordinates are good for testing but not good for understanding</li>
+<li>Create a &quot;screen&quot; of space characters</li>
+</ul>
+<pre title="render.js"><code class="language-js">const makeScreen = (width, height) =&gt; {
+  const screen = []
+  for (let i = 0; i &lt; height; i += 1) {
+    screen.push(new Array(width).fill(' '))
+  }
+  return screen
+}</code></pre>
+<ul>
+<li>Fill in blocks using successive letters</li>
+</ul>
+<pre title="render.js"><code class="language-js">const makeScreen = (width, height) =&gt; {
+  const screen = []
+  for (let i = 0; i &lt; height; i += 1) {
+    screen.push(new Array(width).fill(' '))
+  }
+  return screen
+}</code></pre>
+<ul>
+<li>JavaScript doesn't support [mixin classes][mixin-class]
+<ul>
+<li>Add shared functionality after the fact by giving classes methods with the same [signatures][signature]</li>
+</ul>
+</li>
+</ul>
+<pre title="rendered.js"><code class="language-js">import {
+  PlacedBlock,
+  PlacedCol,
+  PlacedRow
+} from './placed.js'
+
+// &lt;keep&gt;
+export class RenderedBlock extends PlacedBlock {
+  render (screen, fill) {
+    drawBlock(screen, this, fill)
+  }
+}
+
+export class RenderedCol extends PlacedCol {
+  render (screen, fill) {
+    drawBlock(screen, this, fill)
+  }
+}
+
+export class RenderedRow extends PlacedRow {
+  render (screen, fill) {
+    drawBlock(screen, this, fill)
+  }
+}
+
+const drawBlock = (screen, node, fill) =&gt; {
+  for (let ix = 0; ix &lt; node.getWidth(); ix += 1) {
+    for (let iy = 0; iy &lt; node.getHeight(); iy += 1) {
+      screen[node.y0 + iy][node.x0 + ix] = fill
+    }
+  }
+}
+// &lt;/keep&gt;
+</code></pre>
+<ul>
+<li>Tests are a little easier to read (sort of)</li>
+</ul>
+<pre title="test/test-rendered.js"><code class="language-js">  it('renders a grid of rows of columns', async () =&gt; {
+    const fixture = new Col(
+      new Row(
+        new Block(1, 2),
+        new Block(3, 4)
+      ),
+      new Row(
+        new Block(1, 2),
+        new Col(
+          new Block(3, 4),
+          new Block(2, 3)
+        )
+      )
+    )
+    fixture.place(0, 0)
+    assert.deepStrictEqual(
+      render(fixture),
+      [
+        'bddd',
+        'bddd',
+        'cddd',
+        'cddd',
+        'ehhh',
+        'ehhh',
+        'ehhh',
+        'ehhh',
+        'eiig',
+        'fiig',
+        'fiig'
+      ].join('\n')
+    )
+  })</code></pre>
+<h2 id="how-can-we-wrap-elements-to-fit">How can we wrap elements to fit?</h2>
 <ul>
 <li>Suppose we fix the width of a row
 <ul>
@@ -415,7 +554,13 @@ describe('places blocks', () =&gt; {
 </ul>
 </li>
 </ul>
-<pre title="wrapped.js"><code class="language-js">export class WrappedCol extends PlacedCol {
+<pre title="wrapped.js"><code class="language-js">export class WrappedBlock extends PlacedBlock {
+  wrap () {
+    return this
+  }
+}
+
+export class WrappedCol extends PlacedCol {
   wrap () {
     const children = this.children.map(child =&gt; child.wrap())
     return new PlacedCol(...children)
@@ -433,8 +578,8 @@ describe('places blocks', () =&gt; {
 <pre title="wrapped.js"><code class="language-js">export class WrappedRow extends PlacedRow {
   constructor (width, ...children) {
     super(...children)
-    assert(width &gt; 0,
-      'Need positive width')
+    assert(width &gt;= 0,
+      'Need non-negative width')
     this.width = width
   }
 
@@ -470,7 +615,7 @@ describe('places blocks', () =&gt; {
     return new PlacedRow(newCol)
   }</code></pre>
 <ul>
-<li>Bring forward all the previous tests (with an extra row and column where needed)</li>
+<li>Bring forward all the previous tests</li>
 <li>Write some new ones</li>
 </ul>
 <pre title="test/test-wrapped.js"><code class="language-js">  it('wrap a row of two blocks that do not fit on one row', async () =&gt; {
@@ -483,92 +628,101 @@ describe('places blocks', () =&gt; {
     wrapped.place(0, 0)
     assert.deepStrictEqual(
       wrapped.report(),
-      ['row', 0, 0,
-        ['col', 0, 0,
-          ['row', 0, 0,
-            ['block', 0, 0]
+      ['row', 0, 0, 2, 2,
+        ['col', 0, 0, 2, 2,
+          ['row', 0, 0, 2, 1,
+            ['block', 0, 0, 2, 1]
           ],
-          ['row', 0, -1,
-            ['block', 0, -1]
+          ['row', 0, 1, 2, 2,
+            ['block', 0, 1, 2, 2]
           ]
         ]
       ]
     )
   })</code></pre>
-<h2 id="what-subset-of-html-and-css-will-we-support">What subset of HTML and CSS will we support?</h2>
+<h2 id="what-subset-of-css-will-we-support">What subset of CSS will we support?</h2>
 <ul>
-<li>Our subset of HTML includes:
+<li>Our subset of HTML includes rows, columns, and text blocks</li>
+<li>Each text block has one or more lines of text
 <ul>
-<li>Plain text, which we store as instances of <code>TextNode</code></li>
-<li>Elements with attributes, which we store as instances of <code>TagNode</code></li>
-<li>Don't support <g key="empty_element">empty elements</g> or comments</li>
-<li>Each attribute must have a single quoted value</li>
+<li>Number of lines determines height</li>
+<li>Length of longest line determines width</li>
 </ul>
 </li>
-<li>Won't bother to show the tests, but yes, we wrote them, and yes, they caught errors</li>
+<li>Rows and columns can have attributes
+<ul>
+<li>Each attribute must have a single quoted value</li>
+<li>Rows no longer take a fixed width: our CSS will handle that</li>
 </ul>
-<pre title="micro-dom.js"><code class="language-js">import assert from 'assert'
+</li>
+</ul>
+<pre title="micro-dom.js"><code class="language-js">import {
+  WrappedBlock,
+  WrappedCol,
+  WrappedRow
+} from './wrapped.js'
 
-export class Node {
+export class DomBlock extends WrappedBlock {
+  constructor (lines) {
+    super(
+      Math.max(...lines.split('\n').map(line =&gt; line.length)),
+      lines.length
+    )
+    this.lines = lines
+    this.tag = 'text'
+    this.rules = null
+  }
+
+  findRules (css) {
+    this.rules = css.findRules(this)
+  }
 }
 
-export class TextNode extends Node {
-  constructor (text) {
-    assert(typeof text === 'string',
-      'TextNode requires string as constructor argument')
-    super()
-    this.text = text
+export class DomCol extends WrappedCol {
+  constructor (attributes, ...children) {
+    super(...children)
+    this.attributes = attributes
+    this.tag = 'col'
+    this.rules = null
   }
 
-  toString () {
-    return this.text
+  findRules (css) {
+    this.rules = css.findRules(this)
+    this.children.forEach(child =&gt; child.findRules(css))
   }
 }
 
-export class TagNode extends Node {
-  constructor (tag, attributes, ...children) {
-    assert(typeof tag === 'string',
-      'TagNode requires string as tag')
-    super()
-    this.tag = tag
-
-    this.attributes = {}
-    if (attributes !== null) {
-      assert(typeof attributes === 'object',
-        'Require object for attributes')
-      this.attributes = Object.assign({}, attributes)
-    }
-
-    this.children = children
-    assert(this.children.every(child =&gt; child instanceof Node),
-      'Children must be nodes')
+export class DomRow extends WrappedRow {
+  constructor (attributes, ...children) {
+    super(0, ...children)
+    this.attributes = attributes
+    this.tag = 'row'
+    this.rules = null
   }
 
-  toString () {
-    const attr = Object.keys(this.attributes)
-      .sort()
-      .map(key =&gt; ` ${key}="${this.attributes[key]}"`)
-      .join('')
-    const children = this.children
-      .map(child =&gt; child.toString())
-      .join('')
-    return `&lt;${this.tag}${attr}&gt;${children}&lt;/${this.tag}&gt;`
+  findRules (css) {
+    this.rules = css.findRules(this)
+    this.children.forEach(child =&gt; child.findRules(css))
   }
 }
 </code></pre>
 <ul>
-<li>Use regular expressions to parse documents, though <a href="https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454">this is a sin</a>
-<ul>
-<li>And yes, the tests caught errors</li>
-</ul>
-</li>
+<li>Use regular expressions to parse documents, though <a href="https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454">this is a sin</a></li>
 <li>Main body</li>
 </ul>
 <pre title="parse.js"><code class="language-js">import assert from 'assert'
 
-import { TextNode, TagNode } from './micro-dom.js'
+import {
+  DomBlock,
+  DomCol,
+  DomRow
+} from './micro-dom.js'
 
-const parse = (text) =&gt; {
+const TEXT_AND_TAG = /^([^&lt;]*)(&lt;[^]+?&gt;)(.*)$/ms
+const TAG_AND_ATTR = /&lt;(\w+)([^&gt;]*)&gt;/
+const KEY_AND_VALUE = /\s*(\w+)="([^"]*)"\s*/g
+
+const parseHTML = (text) =&gt; {
   const chunks = chunkify(text.trim())
   assert(isElement(chunks[0]),
     'Must have enclosing outer node')
@@ -579,10 +733,9 @@ const parse = (text) =&gt; {
 }
 
 const chunkify = (text) =&gt; {
-  const textAndTag = /^([^&lt;]*)(&lt;.+?&gt;)(.*)$/
   const raw = []
   while (text) {
-    const matches = text.match(textAndTag)
+    const matches = text.match(TEXT_AND_TAG)
     if (!matches) {
       break
     }
@@ -601,7 +754,7 @@ const isElement = (chunk) =&gt; {
   return chunk &amp;&amp; (chunk[0] === '&lt;')
 }
 ...
-export default parse
+export default parseHTML
 </code></pre>
 <ul>
 <li>Two functions that do most of the work</li>
@@ -611,7 +764,7 @@ export default parse
     'Cannot make nodes without chunks')
 
   if (!isElement(chunks[0])) {
-    return [new TextNode(chunks[0]), chunks.slice(1)]
+    return [new DomBlock(chunks[0]), chunks.slice(1)]
   }
 
   const node = makeOpening(chunks[0])
@@ -625,30 +778,66 @@ export default parse
   }
 
   assert(remainder &amp;&amp; (remainder[0] === closing),
-         `Node with tag ${node.tag} not closed`)
+    `Node with tag ${node.tag} not closed`)
   return [node, remainder.slice(1)]
 }
 
 const makeOpening = (chunk) =&gt; {
-  const tagAndAttr = /&lt;(\w+)([^&gt;]*)&gt;/
-  const keyAndValue = /\s*(\w+)="([^"]*)"\s*/g
-  const outer = chunk.match(tagAndAttr)
+  const outer = chunk.match(TAG_AND_ATTR)
   const tag = outer[1]
-  const attributes = [...outer[2].trim().matchAll(keyAndValue)]
+  const attributes = [...outer[2].trim().matchAll(KEY_AND_VALUE)]
     .reduce((obj, [all, key, value]) =&gt; {
       obj[key] = value
       return obj
     }, {})
-  return new TagNode(tag, attributes)
+  let Cls = null
+  if (tag === 'col') {
+    Cls = DomCol
+  } else if (tag === 'row') {
+    Cls = DomRow
+  }
+  assert(Cls !== null,
+    `Unrecognized tag name ${tag}`)
+  return new Cls(attributes)
 }</code></pre>
 <ul>
 <li>Now define a generic class for rules and a subclass for each type of rule</li>
+<li>ID rules take precedence over class rules, which take precedence over tag rules
+<ul>
+<li>Number the derived classes</li>
+</ul>
+</li>
+</ul>
+<pre title="micro-css.js"><code class="language-js">export class CssRule {
+  constructor (order, selector, styles) {
+    this.order = order
+    this.selector = selector
+    this.styles = styles
+  }
+}</code></pre>
+<ul>
 <li>ID rules
 <ul>
 <li><g key="dom_selector">DOM selector</g> of the form <code>#name</code></li>
-<li>HTML of the form <code>&lt;tag id=&quot;name&quot;&gt;…&lt;/tag&gt;</code></li>
+<li>HTML of the form <code>&lt;tag id=&quot;name&quot;&gt;…&lt;/tag&gt;</code> (where <code>tag</code> is <code>row</code> or <code>col</code>)</li>
 </ul>
 </li>
+</ul>
+<pre title="micro-css.js"><code class="language-js">export class IdRule extends CssRule {
+  constructor (selector, styles) {
+    assert(selector.startsWith('#') &amp;&amp; (selector.length &gt; 1),
+      `ID rule ${selector} must start with # and have a selector`)
+    super(IdRule.ORDER, selector.slice(1), styles)
+  }
+
+  match (node) {
+    return ('attributes' in node) &amp;&amp;
+      ('id' in node.attributes) &amp;&amp;
+      (node.attributes.id === this.selector)
+  }
+}
+IdRule.ORDER = 0</code></pre>
+<ul>
 <li>Class rules
 <ul>
 <li>DOM selector of the form <code>.kind</code></li>
@@ -656,53 +845,30 @@ const makeOpening = (chunk) =&gt; {
 <li>Only one class per node</li>
 </ul>
 </li>
+</ul>
+<pre title="micro-css.js"><code class="language-js">export class ClassRule extends CssRule {
+  constructor (selector, styles) {
+    assert(selector.startsWith('.') &amp;&amp; (selector.length &gt; 1),
+      `Class rule ${selector} must start with . and have a selector`)
+    super(ClassRule.ORDER, selector.slice(1), styles)
+  }
+
+  match (node) {
+    return ('attributes' in node) &amp;&amp;
+      ('class' in node.attributes) &amp;&amp;
+      (node.attributes.class === this.selector)
+  }
+}
+ClassRule.ORDER = 1</code></pre>
+<ul>
 <li>Tag rules
 <ul>
 <li>DOM selector of the form <code>tag</code></li>
 <li>HTML of the form <code>&lt;tag&gt;…&lt;/tag&gt;</code></li>
 </ul>
 </li>
-<li>ID rules take precedence over class rules, which take precedence over tag rules</li>
 </ul>
-<pre title="micro-css.js"><code class="language-js">import assert from 'assert'
-
-export class CssRule {
-  constructor (order, selector, styles) {
-    this.order = order
-    this.selector = selector
-    this.styles = styles
-  }
-}
-
-export class IdRule extends CssRule {
-  constructor (selector, styles) {
-    assert(selector.startsWith('#') &amp;&amp; (selector.length &gt; 1),
-      'ID rule must start with # and have a selector')
-    super(IdRule.ORDER, selector.slice(1), styles)
-  }
-
-  match (node) {
-    return ('id' in node.attributes) &amp;&amp;
-      (node.attributes.id === this.selector)
-  }
-}
-IdRule.ORDER = 0
-
-export class ClassRule extends CssRule {
-  constructor (selector, styles) {
-    assert(selector.startsWith('.') &amp;&amp; (selector.length &gt; 1),
-      'Class rule must start with . and have a selector')
-    super(ClassRule.ORDER, selector.slice(1), styles)
-  }
-
-  match (node) {
-    return ('class' in node.attributes) &amp;&amp;
-      (node.attributes.class === this.selector)
-  }
-}
-ClassRule.ORDER = 1
-
-export class TagRule extends CssRule {
+<pre title="micro-css.js"><code class="language-js">export class TagRule extends CssRule {
   constructor (selector, styles) {
     super(TagRule.ORDER, selector, styles)
   }
@@ -711,8 +877,7 @@ export class TagRule extends CssRule {
     return this.selector === node.tag
   }
 }
-TagRule.ORDER = 2
-</code></pre>
+TagRule.ORDER = 2</code></pre>
 <ul>
 <li>Convert JSON to rule objects
 <ul>
@@ -728,11 +893,7 @@ TagRule.ORDER = 2
 </ul>
 </li>
 </ul>
-<pre title="micro-css-ruleset.js"><code class="language-js">import assert from 'assert'
-
-import { IdRule, ClassRule, TagRule } from './micro-css.js'
-
-class CssRuleSet {
+<pre title="micro-css.js"><code class="language-js">export class CssRuleSet {
   constructor (json, mergeDefaults = true) {
     this.rules = this.jsonToRules(json)
   }
@@ -756,10 +917,156 @@ class CssRuleSet {
     const sorted = matches.sort((left, right) =&gt; left.order - right.order)
     return sorted
   }
-}
-
-export default CssRuleSet
+}</code></pre>
+<ul>
+<li>Tests</li>
+</ul>
+<pre title="test/test-styled.js"><code class="language-js">  it('styles a tree of nodes with multiple rules', async () =&gt; {
+    const html = [
+      '&lt;col id="name"&gt;',
+      '&lt;row class="kind"&gt;first\nsecond&lt;/row&gt;',
+      '&lt;row&gt;third/nfourth&lt;/row&gt;',
+      '&lt;/col&gt;'
+    ]
+    const dom = parseHTML(html.join(''))
+    const rules = new CssRuleSet({
+      '.kind': { height: 3 },
+      '#name': { height: 5 },
+      row: { width: 10 }
+    })
+    dom.findRules(rules)
+    assert.deepStrictEqual(dom.rules, [
+      new IdRule('#name', { height: 5 })
+    ])
+    assert.deepStrictEqual(dom.children[0].rules, [
+      new ClassRule('.kind', { height: 3 }),
+      new TagRule('row', { width: 10 })
+    ])
+    assert.deepStrictEqual(dom.children[1].rules, [
+      new TagRule('row', { width: 10 })
+    ])
+  })</code></pre>
+<ul>
+<li>Now override <code>getWidth</code> and <code>getHeight</code> to pay attention to styles</li>
+<li>But what about nodes that don't have a style?
+<ul>
+<li>Use a default</li>
+<li>Base it on child nodes' needs</li>
+<li>Flag as an error</li>
+</ul>
+</li>
+<li>Will explore these possibilities in the exercises</li>
+</ul>
+<h2 id="exercises">Exercises</h2>
+<h3 class="exercise">Refactoring the node classes</h3>
+<p>Refactor the classes used to represent blocks, rows, and columns so that:</p>
+<ol>
+<li>
+<p>They all derive from a common parent.</p>
+</li>
+<li>
+<p>All common behavior is defined in that parent (if only with placeholder methods).</p>
+</li>
+</ol>
+<h3 class="exercise">Handling rule conflicts</h3>
+<p>Modify the rule lookup mechanism so that if two conflicting rules are defined,
+the one that is defined second takes precedence.
+For example,
+if there are two definitions for <code>row.bold</code>,
+whichever comes last in the JSON representation of the CSS wins.</p>
+<h3 class="exercise">Handling arbitrary tags</h3>
+<p>Modify the existing code to handle arbitrary HTML elements.</p>
+<ol>
+<li>
+<p>The parser should recognize <code>&lt;anyTag&gt;...&lt;/anyTag&gt;</code>.</p>
+</li>
+<li>
+<p>Instead of separate classes for rows and columns,
+there should be one class <code>Node</code> whose <code>tag</code> attribute identifies its type.</p>
+</li>
+</ol>
+<h3 class="exercise">Recycling nodes</h3>
+<p>Modify the wrapping code so that new rows and columns are only created if needed.
+For example,
+if a row of width 10 contains a text node with the string &quot;fits&quot;,
+a new row and column are <em>not</em> inserted.</p>
+<h3 class="exercise">Rendering a clear background</h3>
+<p>Modify the rendering code so that only the text in block nodes is shown,
+i.e.,
+so that the empty space in rows and columns is rendered as spaces.</p>
+<h3 class="exercise">Clipping text</h3>
+<ol>
+<li>
+<p>Modify the wrapping and rendering so that
+if a block of text is too wide for the available space
+the extra characters are clipped.
+For example,
+if a column of width 5 contains a line &quot;unfittable&quot;,
+only &quot;unfit&quot; appears.</p>
+</li>
+<li>
+<p>Extend your solution to break lines on spaces as needed
+in order to avoid clipping.</p>
+</li>
+</ol>
+<h3 class="exercise">Bidirectional rendering</h3>
+<p>Modify the existing software to do either left-to-right or right-to-left rendering
+upon request.</p>
+<h3 class="exercise">Equal sizing</h3>
+<p>Modify the existing code to support elastic columns,
+i.e.,
+so that all of the columns in a row are automatically sized to have the same width.
+If the number of columns does not divide evenly into the width of the row,
+allocate the extra space as equally as possible from left to right.</p>
+<h3 class="exercise">Padding elements</h3>
+<p>Modify the existing code so that:</p>
+<ol>
+<li>
+<p>Authors can define a <code>padding</code> attribute for row and column elements.</p>
+</li>
+<li>
+<p>When the node is rendered, that many blank spaces are added on all four sides of the contents.</p>
+</li>
+</ol>
+<div class="continue">
+<p>For example, the HTML <code>&lt;row&gt;text&lt;/row&gt;</code> would render as:</p>
+</div>
+<pre><code class="language-txt">+------+
+|      |
+| text |
+|      |
++------+
 </code></pre>
+<div class="continue">
+<p>where the lines show the outer border of the rendering.</p>
+</div>
+<h3 class="exercise">Drawing borders</h3>
+<ol>
+<li>
+<p>Modify the existing code so that elements may specify <code>border: true</code> or <code>border: false</code>
+(with the latter being the default).
+If an element's <code>border</code> property is <code>true</code>,
+it is drawn with a dashed border.
+For example,
+if the <code>border</code> property of <code>row</code> is <code>true</code>,
+then <code>&lt;row&gt;text&lt;/row&gt;</code> is rendered as:</p>
+<pre><code class="language-txt">+----+
+|text|
++----+
+</code></pre>
+</li>
+<li>
+<p>Extend your solution so that if two adjacent cells both have borders,
+only a single border is drawn.
+For example,
+if the <code>border</code> property of <code>col</code> is <code>true</code>,
+<code>&lt;row&gt;&lt;col&gt;left&lt;/col&gt;&lt;col&gt;right&lt;/col&gt;&lt;/row&gt;</code> is rendered as:</p>
+<pre><code class="language-txt">+----+-----+
+|left|right|
++----+-----+
+</code></pre>
+</li>
+</ol>
 </main>
 <footer>
 <div class="row">

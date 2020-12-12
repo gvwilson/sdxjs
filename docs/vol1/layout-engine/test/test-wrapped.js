@@ -13,7 +13,7 @@ describe('wraps blocks', () => {
     wrapped.place(0, 0)
     assert.deepStrictEqual(
       wrapped.report(),
-      ['block', 0, 0]
+      ['block', 0, 0, 1, 1]
     )
   })
 
@@ -23,7 +23,7 @@ describe('wraps blocks', () => {
     wrapped.place(0, 0)
     assert.deepStrictEqual(
       wrapped.report(),
-      ['block', 0, 0]
+      ['block', 0, 0, 3, 4]
     )
   })
 
@@ -37,11 +37,18 @@ describe('wraps blocks', () => {
     wrapped.place(0, 0)
     assert.deepStrictEqual(
       wrapped.report(),
-      ['row', 0, 0, ['col', 0, 0, ['row', 0, 0, ['block', 0, -3], ['block', 1, 0]]]]
+      ['row', 0, 0, 3, 4,
+        ['col', 0, 0, 3, 4,
+          ['row', 0, 0, 3, 4,
+            ['block', 0, 3, 1, 4],
+            ['block', 1, 0, 3, 4]
+          ]
+        ]
+      ]
     )
   })
 
-  it('wraps a col of two blocks', async () => {
+  it('wraps a column of two blocks', async () => {
     const fixture = new Col(
       new Block(1, 1),
       new Block(2, 4)
@@ -50,7 +57,10 @@ describe('wraps blocks', () => {
     wrapped.place(0, 0)
     assert.deepStrictEqual(
       wrapped.report(),
-      ['col', 0, 0, ['block', 0, 0], ['block', 0, -1]]
+      ['col', 0, 0, 2, 5,
+        ['block', 0, 0, 1, 1],
+        ['block', 0, 1, 2, 5]
+      ]
     )
   })
 
@@ -74,15 +84,23 @@ describe('wraps blocks', () => {
     wrapped.place(0, 0)
     assert.deepStrictEqual(
       wrapped.report(),
-      ['col', 0, 0,
-        ['row', 0, 0,
-          ['col', 0, 0,
-            ['row', 0, 0, ['block', 0, -2], ['block', 1, 0]]]],
-        ['row', 0, -4,
-          ['col', 0, -4,
-            ['row', 0, -4,
-              ['block', 0, -16],
-              ['col', 5, -4, ['block', 5, -4], ['block', 5, -12]]
+      ['col', 0, 0, 14, 22,
+        ['row', 0, 0, 4, 4,
+          ['col', 0, 0, 4, 4,
+            ['row', 0, 0, 4, 4,
+              ['block', 0, 2, 1, 4],
+              ['block', 1, 0, 4, 4]
+            ]
+          ]
+        ],
+        ['row', 0, 4, 14, 22,
+          ['col', 0, 4, 14, 22,
+            ['row', 0, 4, 14, 22,
+              ['block', 0, 16, 5, 22],
+              ['col', 5, 4, 14, 22,
+                ['block', 5, 4, 12, 12],
+                ['block', 5, 12, 14, 22]
+              ]
             ]
           ]
         ]
@@ -101,13 +119,13 @@ describe('wraps blocks', () => {
     wrapped.place(0, 0)
     assert.deepStrictEqual(
       wrapped.report(),
-      ['row', 0, 0,
-        ['col', 0, 0,
-          ['row', 0, 0,
-            ['block', 0, 0]
+      ['row', 0, 0, 2, 2,
+        ['col', 0, 0, 2, 2,
+          ['row', 0, 0, 2, 1,
+            ['block', 0, 0, 2, 1]
           ],
-          ['row', 0, -1,
-            ['block', 0, -1]
+          ['row', 0, 1, 2, 2,
+            ['block', 0, 1, 2, 2]
           ]
         ]
       ]
@@ -127,17 +145,17 @@ describe('wraps blocks', () => {
     wrapped.place(0, 0)
     assert.deepStrictEqual(
       wrapped.report(),
-      ['row', 0, 0,
-        ['col', 0, 0,
-          ['row', 0, 0,
-            ['block', 0, 0]
+      ['row', 0, 0, 3, 3,
+        ['col', 0, 0, 3, 3,
+          ['row', 0, 0, 2, 1,
+            ['block', 0, 0, 2, 1]
           ],
-          ['row', 0, -1,
-            ['block', 0, -1],
-            ['block', 2, -1]
+          ['row', 0, 1, 3, 2,
+            ['block', 0, 1, 2, 2],
+            ['block', 2, 1, 3, 2]
           ],
-          ['row', 0, -2,
-            ['block', 0, -2]
+          ['row', 0, 2, 2, 3,
+            ['block', 0, 2, 2, 3]
           ]
         ]
       ]

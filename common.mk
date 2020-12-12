@@ -155,7 +155,7 @@ gloss.md: gloss.yml bin/gloss.js $(filter-out gloss.md,${MARKDOWN}) ${EXERCISES}
 	--output gloss.md \
 	--sources ${MARKDOWN} ${EXERCISES}
 
-docs/${VOLUME}/index.html: bin/html.js ${VOLUME}.yml common.yml links.yml ${MARKDOWN} ${INC}
+docs/${VOLUME}/index.html: bin/html.js ${VOLUME}.yml common.yml links.yml ${MARKDOWN} ${INC} ${STATIC_DST}
 	bin/html.js \
 	--root . \
 	--html docs/${VOLUME} \

@@ -6,29 +6,27 @@ import {
   PlacedRow
 } from './placed.js'
 
-// <block>
+// <blockcol>
 export class WrappedBlock extends PlacedBlock {
   wrap () {
     return this
   }
 }
-// </block>
 
-// <col>
 export class WrappedCol extends PlacedCol {
   wrap () {
     const children = this.children.map(child => child.wrap())
     return new PlacedCol(...children)
   }
 }
-// </col>
+// </blockcol>
 
 // <row>
 export class WrappedRow extends PlacedRow {
   constructor (width, ...children) {
     super(...children)
-    assert(width > 0,
-      'Need positive width')
+    assert(width >= 0,
+      'Need non-negative width')
     this.width = width
   }
 

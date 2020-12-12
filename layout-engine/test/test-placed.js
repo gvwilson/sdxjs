@@ -12,7 +12,7 @@ describe('places blocks', () => {
     fixture.place(0, 0)
     assert.deepStrictEqual(
       fixture.report(),
-      ['block', 0, 0]
+      ['block', 0, 0, 1, 1]
     )
   })
 
@@ -21,7 +21,7 @@ describe('places blocks', () => {
     fixture.place(0, 0)
     assert.deepStrictEqual(
       fixture.report(),
-      ['block', 0, 0]
+      ['block', 0, 0, 3, 4]
     )
   })
 
@@ -33,7 +33,10 @@ describe('places blocks', () => {
     fixture.place(0, 0)
     assert.deepStrictEqual(
       fixture.report(),
-      ['row', 0, 0, ['block', 0, -3], ['block', 1, 0]]
+      ['row', 0, 0, 3, 4,
+        ['block', 0, 3, 1, 4],
+        ['block', 1, 0, 3, 4]
+      ]
     )
   })
 
@@ -45,7 +48,10 @@ describe('places blocks', () => {
     fixture.place(0, 0)
     assert.deepStrictEqual(
       fixture.report(),
-      ['col', 0, 0, ['block', 0, 0], ['block', 0, -1]]
+      ['col', 0, 0, 2, 5,
+        ['block', 0, 0, 1, 1],
+        ['block', 0, 1, 2, 5]
+      ]
     )
   })
 
@@ -67,11 +73,17 @@ describe('places blocks', () => {
     fixture.place(0, 0)
     assert.deepStrictEqual(
       fixture.report(),
-      ['col', 0, 0,
-        ['row', 0, 0, ['block', 0, -2], ['block', 1, 0]],
-        ['row', 0, -4,
-          ['block', 0, -16],
-          ['col', 5, -4, ['block', 5, -4], ['block', 5, -12]]
+      ['col', 0, 0, 14, 22,
+        ['row', 0, 0, 4, 4,
+          ['block', 0, 2, 1, 4],
+          ['block', 1, 0, 4, 4]
+        ],
+        ['row', 0, 4, 14, 22,
+          ['block', 0, 16, 5, 22],
+          ['col', 5, 4, 14, 22,
+            ['block', 5, 4, 12, 12],
+            ['block', 5, 12, 14, 22]
+          ]
         ]
       ]
     )

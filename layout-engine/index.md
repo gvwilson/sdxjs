@@ -11,6 +11,9 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
     -   Produce a tree of styled nodes from the DOM
     -   Walk this tree to figure out where each visible element belongs
     -   Render this as plain text
+-   Coordinate system puts (0, 0) in the upper left corner
+    -   Increasing Y goes down
+    -   Increasing X goes to the right
 
 ## How can we size rows and columns?
 
@@ -35,20 +38,28 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 
 ## How can we position rows and columns?
 
--   Suppose we start with the upper left corner of the browser (X0, Y1)
+-   Suppose we start with the upper left corner of the browser (0, 0)
     -   Upper because we lay out the page top-to-bottom
     -   Left because we are doing left-to-right layout
 -   If the cell is a block, just place it
 -   If the cell is a row:
+    -   Calculate y1 = y0 + height
     -   Place the first child at (x0, y1)
     -   Place the next child at (x0 + width, y1)
 -   If the cell is a column:
-    -   Place the first child at (x0, y1)
-    -   Place the next at (x0, y1 - height), etc.
--   Derive three classes from previous classes to save testing (and printing space)
+    -   Place the first child at (x0, y0 + height0)
+    -   Place the next at (x0, y0 + height0 + height1), etc.
+-   Derive classes from previous classes to save testing
+-   Blocks
 
 <%- include('/inc/keep.html', {file: 'placed.js', key: 'block'}) %>
+
+-   Columns
+
 <%- include('/inc/keep.html', {file: 'placed.js', key: 'col'}) %>
+
+-   Rows
+
 <%- include('/inc/keep.html', {file: 'placed.js', key: 'row'}) %>
 
 -   Write and run some tests
@@ -56,7 +67,27 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 <%- include('/inc/erase.html', {file: 'test/test-placed.js', key: 'large'}) %>
 <%- include('/inc/file.html', {file: 'test-placed.out'}) %>
 
-## How can we wrap blocks to fit?
+## How can we render elements?
+
+-   Element coordinates are good for testing but not good for understanding
+-   Create a "screen" of space characters
+
+<%- include('/inc/keep.html', {file: 'render.js', key: 'makeScreen'}) %>
+
+-   Fill in blocks using successive letters
+
+<%- include('/inc/keep.html', {file: 'render.js', key: 'makeScreen'}) %>
+
+-   JavaScript doesn't support [mixin classes][mixin-class]
+    -   Add shared functionality after the fact by giving classes methods with the same [signatures][signature]
+
+<%- include('/inc/file.html', {file: 'rendered.js'}) %>
+
+-   Tests are a little easier to read (sort of)
+
+<%- include('/inc/keep.html', {file: 'test/test-rendered.js', key: 'large'}) %>
+
+## How can we wrap elements to fit?
 
 -   Suppose we fix the width of a row
     -   For now, assume all its children are less than or equal to this width
@@ -66,7 +97,7 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 -   Blocks and columns become themselves
     -   But we need to wrap columns' children, so that class still needs a new method
 
-<%- include('/inc/keep.html', {file: 'wrapped.js', key: 'col'}) %>
+<%- include('/inc/keep.html', {file: 'wrapped.js', key: 'blockcol'}) %>
 
 -   Each row is replaced with a row containing a single column with one or more rows (wrapping)
     -   Replacement is unnecessary when everything will fit on a single row, but uniform is easier to code
@@ -79,24 +110,24 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 
 <%- include('/inc/keep.html', {file: 'wrapped.js', key: 'wrap'}) %>
 
--   Bring forward all the previous tests (with an extra row and column where needed)
+-   Bring forward all the previous tests
 -   Write some new ones
 
 <%- include('/inc/keep.html', {file: 'test/test-wrapped.js', key: 'example'}) %>
 
-## What subset of HTML and CSS will we support?
+## What subset of CSS will we support?
 
--   Our subset of HTML includes:
-    -   Plain text, which we store as instances of `TextNode`
-    -   Elements with attributes, which we store as instances of `TagNode`
-    -   Don't support <g key="empty_element">empty elements</g> or comments
+-   Our subset of HTML includes rows, columns, and text blocks
+-   Each text block has one or more lines of text
+    -   Number of lines determines height
+    -   Length of longest line determines width
+-   Rows and columns can have attributes
     -   Each attribute must have a single quoted value
--   Won't bother to show the tests, but yes, we wrote them, and yes, they caught errors
+    -   Rows no longer take a fixed width: our CSS will handle that
 
 <%- include('/inc/file.html', {file: 'micro-dom.js'}) %>
 
 -   Use regular expressions to parse documents, though [this is a sin][stack-overflow-html-regex]
-    -   And yes, the tests caught errors
 -   Main body
 
 <%- include('/inc/erase.html', {file: 'parse.js', key: 'makenode'}) %>
@@ -106,19 +137,29 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 <%- include('/inc/keep.html', {file: 'parse.js', key: 'makenode'}) %>
 
 -   Now define a generic class for rules and a subclass for each type of rule
+-   ID rules take precedence over class rules, which take precedence over tag rules
+    -   Number the derived classes
+
+<%- include('/inc/keep.html', {file: 'micro-css.js', key: 'css'}) %>
+
 -   ID rules
     -   <g key="dom_selector">DOM selector</g> of the form `#name`
-    -   HTML of the form `<tag id="name">…</tag>`
+    -   HTML of the form `<tag id="name">…</tag>` (where `tag` is `row` or `col`)
+
+<%- include('/inc/keep.html', {file: 'micro-css.js', key: 'id'}) %>
+
 -   Class rules
     -   DOM selector of the form `.kind`
     -   HTML of the form `<tag class="kind">…</tag>`
     -   Only one class per node
+
+<%- include('/inc/keep.html', {file: 'micro-css.js', key: 'class'}) %>
+
 -   Tag rules
     -   DOM selector of the form `tag`
     -   HTML of the form `<tag>…</tag>`
--   ID rules take precedence over class rules, which take precedence over tag rules
 
-<%- include('/inc/file.html', {file: 'micro-css.js'}) %>
+<%- include('/inc/keep.html', {file: 'micro-css.js', key: 'tag'}) %>
 
 -   Convert JSON to rule objects
     -   Saves us writing yet another parser
@@ -128,4 +169,15 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 -   Provide a method for finding the rules for a given DOM node
     -   Requires custom sorting that depends on CSS classes having a precedence order
 
-<%- include('/inc/file.html', {file: 'micro-css-ruleset.js'}) %>
+<%- include('/inc/keep.html', {file: 'micro-css.js', key: 'ruleset'}) %>
+
+-   Tests
+
+<%- include('/inc/keep.html', {file: 'test/test-styled.js', key: 'test'}) %>
+
+-   Now override `getWidth` and `getHeight` to pay attention to styles
+-   But what about nodes that don't have a style?
+    -   Use a default
+    -   Base it on child nodes' needs
+    -   Flag as an error
+-   Will explore these possibilities in the exercises

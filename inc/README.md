@@ -2,7 +2,7 @@
 
 -   `contents.html`: create 2-column table showing chapter titles and ledes with links to chapters.
 
--   `erase.html`: include and pre-format a file except for a region marked "// <key> ... // </key>".
+-   `erase.html`: include and pre-format a file except for a region marked "// <key> … // </key>".
 
 -   `fig.html`: create an HTML figure element.
 
@@ -16,7 +16,7 @@
 
 -   `html.html`: include and pre-format an HTML file. Use `file.html` for including non-HTML files.
 
--   `keep.html`: include and pre-format a region of a file marked "// <key> ... // </key>".
+-   `keep.html`: include and pre-format a region of a file marked "// <key> … // </key>".
 
 -   `keeperase.html`: include and pre-format a region of a file marked with one key except for a subregion marked with another.
 

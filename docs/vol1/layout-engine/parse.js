@@ -1,8 +1,16 @@
 import assert from 'assert'
 
-import { TextNode, TagNode } from './micro-dom.js'
+import {
+  DomBlock,
+  DomCol,
+  DomRow
+} from './micro-dom.js'
 
-const parse = (text) => {
+const TEXT_AND_TAG = /^([^<]*)(<[^]+?>)(.*)$/ms
+const TAG_AND_ATTR = /<(\w+)([^>]*)>/
+const KEY_AND_VALUE = /\s*(\w+)="([^"]*)"\s*/g
+
+const parseHTML = (text) => {
   const chunks = chunkify(text.trim())
   assert(isElement(chunks[0]),
     'Must have enclosing outer node')
@@ -13,10 +21,9 @@ const parse = (text) => {
 }
 
 const chunkify = (text) => {
-  const textAndTag = /^([^<]*)(<.+?>)(.*)$/
   const raw = []
   while (text) {
-    const matches = text.match(textAndTag)
+    const matches = text.match(TEXT_AND_TAG)
     if (!matches) {
       break
     }
@@ -41,7 +48,7 @@ const makeNode = (chunks) => {
     'Cannot make nodes without chunks')
 
   if (!isElement(chunks[0])) {
-    return [new TextNode(chunks[0]), chunks.slice(1)]
+    return [new DomBlock(chunks[0]), chunks.slice(1)]
   }
 
   const node = makeOpening(chunks[0])
@@ -55,22 +62,28 @@ const makeNode = (chunks) => {
   }
 
   assert(remainder && (remainder[0] === closing),
-         `Node with tag ${node.tag} not closed`)
+    `Node with tag ${node.tag} not closed`)
   return [node, remainder.slice(1)]
 }
 
 const makeOpening = (chunk) => {
-  const tagAndAttr = /<(\w+)([^>]*)>/
-  const keyAndValue = /\s*(\w+)="([^"]*)"\s*/g
-  const outer = chunk.match(tagAndAttr)
+  const outer = chunk.match(TAG_AND_ATTR)
   const tag = outer[1]
-  const attributes = [...outer[2].trim().matchAll(keyAndValue)]
+  const attributes = [...outer[2].trim().matchAll(KEY_AND_VALUE)]
     .reduce((obj, [all, key, value]) => {
       obj[key] = value
       return obj
     }, {})
-  return new TagNode(tag, attributes)
+  let Cls = null
+  if (tag === 'col') {
+    Cls = DomCol
+  } else if (tag === 'row') {
+    Cls = DomRow
+  }
+  assert(Cls !== null,
+    `Unrecognized tag name ${tag}`)
+  return new Cls(attributes)
 }
 // </makenode>
 
-export default parse
+export default parseHTML
