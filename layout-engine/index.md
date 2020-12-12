@@ -78,7 +78,7 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 
 <%- include('/inc/keep.html', {file: 'render.js', key: 'makeScreen'}) %>
 
--   JavaScript doesn't support [mixin classes][mixin-class]
+-   JavaScript doesn't support <g key="mixin-class">mixin classes</g>
     -   Add shared functionality after the fact by giving classes methods with the same [signatures][signature]
 
 <%- include('/inc/file.html', {file: 'rendered.js'}) %>
