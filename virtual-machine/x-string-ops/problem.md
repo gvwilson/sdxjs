@@ -9,6 +9,6 @@ Diagram of C string storage.
 
 2.  Write a program that starts with the base address of a string in R1
     and the base address of some other block of memory in R2
-    and copies the string to that new location (inclding the terminator).
+    and copies the string to that new location (including the terminator).
 
 3.  What happens in each case if the terminator is missing?
