@@ -10,7 +10,7 @@ const TEXT_AND_TAG = /^([^<]*)(<[^]+?>)(.*)$/ms
 const TAG_AND_ATTR = /<(\w+)([^>]*)>/
 const KEY_AND_VALUE = /\s*(\w+)="([^"]*)"\s*/g
 
-const parse = (text) => {
+const parseHTML = (text) => {
   const chunks = chunkify(text.trim())
   assert(isElement(chunks[0]),
     'Must have enclosing outer node')
@@ -86,4 +86,4 @@ const makeOpening = (chunk) => {
 }
 // </makenode>
 
-export default parse
+export default parseHTML

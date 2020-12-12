@@ -169,4 +169,15 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 -   Provide a method for finding the rules for a given DOM node
     -   Requires custom sorting that depends on CSS classes having a precedence order
 
-<%- include('/inc/file.html', {file: 'micro-css-ruleset.js'}) %>
+<%- include('/inc/keep.html', {file: 'micro-css.js', key: 'ruleset'}) %>
+
+-   Tests
+
+<%- include('/inc/keep.html', {file: 'test/test-styled.js', key: 'test'}) %>
+
+-   Now override `getWidth` and `getHeight` to pay attention to styles
+-   But what about nodes that don't have a style?
+    -   Use a default
+    -   Base it on child nodes' needs
+    -   Flag as an error
+-   Will explore these possibilities in the exercises

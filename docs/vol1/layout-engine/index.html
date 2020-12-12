@@ -670,6 +670,11 @@ export class DomBlock extends WrappedBlock {
     )
     this.lines = lines
     this.tag = 'text'
+    this.rules = null
+  }
+
+  findRules (css) {
+    this.rules = css.findRules(this)
   }
 }
 
@@ -678,6 +683,12 @@ export class DomCol extends WrappedCol {
     super(...children)
     this.attributes = attributes
     this.tag = 'col'
+    this.rules = null
+  }
+
+  findRules (css) {
+    this.rules = css.findRules(this)
+    this.children.forEach(child =&gt; child.findRules(css))
   }
 }
 
@@ -686,6 +697,12 @@ export class DomRow extends WrappedRow {
     super(0, ...children)
     this.attributes = attributes
     this.tag = 'row'
+    this.rules = null
+  }
+
+  findRules (css) {
+    this.rules = css.findRules(this)
+    this.children.forEach(child =&gt; child.findRules(css))
   }
 }
 </code></pre>
@@ -705,7 +722,7 @@ const TEXT_AND_TAG = /^([^&lt;]*)(&lt;[^]+?&gt;)(.*)$/ms
 const TAG_AND_ATTR = /&lt;(\w+)([^&gt;]*)&gt;/
 const KEY_AND_VALUE = /\s*(\w+)="([^"]*)"\s*/g
 
-const parse = (text) =&gt; {
+const parseHTML = (text) =&gt; {
   const chunks = chunkify(text.trim())
   assert(isElement(chunks[0]),
     'Must have enclosing outer node')
@@ -737,7 +754,7 @@ const isElement = (chunk) =&gt; {
   return chunk &amp;&amp; (chunk[0] === '&lt;')
 }
 ...
-export default parse
+export default parseHTML
 </code></pre>
 <ul>
 <li>Two functions that do most of the work</li>
@@ -814,7 +831,8 @@ const makeOpening = (chunk) =&gt; {
   }
 
   match (node) {
-    return ('id' in node.attributes) &amp;&amp;
+    return ('attributes' in node) &amp;&amp;
+      ('id' in node.attributes) &amp;&amp;
       (node.attributes.id === this.selector)
   }
 }
@@ -836,7 +854,8 @@ IdRule.ORDER = 0</code></pre>
   }
 
   match (node) {
-    return ('class' in node.attributes) &amp;&amp;
+    return ('attributes' in node) &amp;&amp;
+      ('class' in node.attributes) &amp;&amp;
       (node.attributes.class === this.selector)
   }
 }
@@ -874,11 +893,7 @@ TagRule.ORDER = 2</code></pre>
 </ul>
 </li>
 </ul>
-<pre title="micro-css-ruleset.js"><code class="language-js">import assert from 'assert'
-
-import { IdRule, ClassRule, TagRule } from './micro-css.js'
-
-class CssRuleSet {
+<pre title="micro-css.js"><code class="language-js">export class CssRuleSet {
   constructor (json, mergeDefaults = true) {
     this.rules = this.jsonToRules(json)
   }
@@ -902,10 +917,156 @@ class CssRuleSet {
     const sorted = matches.sort((left, right) =&gt; left.order - right.order)
     return sorted
   }
-}
-
-export default CssRuleSet
+}</code></pre>
+<ul>
+<li>Tests</li>
+</ul>
+<pre title="test/test-styled.js"><code class="language-js">  it('styles a tree of nodes with multiple rules', async () =&gt; {
+    const html = [
+      '&lt;col id="name"&gt;',
+      '&lt;row class="kind"&gt;first\nsecond&lt;/row&gt;',
+      '&lt;row&gt;third/nfourth&lt;/row&gt;',
+      '&lt;/col&gt;'
+    ]
+    const dom = parseHTML(html.join(''))
+    const rules = new CssRuleSet({
+      '.kind': { height: 3 },
+      '#name': { height: 5 },
+      row: { width: 10 }
+    })
+    dom.findRules(rules)
+    assert.deepStrictEqual(dom.rules, [
+      new IdRule('#name', { height: 5 })
+    ])
+    assert.deepStrictEqual(dom.children[0].rules, [
+      new ClassRule('.kind', { height: 3 }),
+      new TagRule('row', { width: 10 })
+    ])
+    assert.deepStrictEqual(dom.children[1].rules, [
+      new TagRule('row', { width: 10 })
+    ])
+  })</code></pre>
+<ul>
+<li>Now override <code>getWidth</code> and <code>getHeight</code> to pay attention to styles</li>
+<li>But what about nodes that don't have a style?
+<ul>
+<li>Use a default</li>
+<li>Base it on child nodes' needs</li>
+<li>Flag as an error</li>
+</ul>
+</li>
+<li>Will explore these possibilities in the exercises</li>
+</ul>
+<h2 id="exercises">Exercises</h2>
+<h3 class="exercise">Refactoring the node classes</h3>
+<p>Refactor the classes used to represent blocks, rows, and columns so that:</p>
+<ol>
+<li>
+<p>They all derive from a common parent.</p>
+</li>
+<li>
+<p>All common behavior is defined in that parent (if only with placeholder methods).</p>
+</li>
+</ol>
+<h3 class="exercise">Handling rule conflicts</h3>
+<p>Modify the rule lookup mechanism so that if two conflicting rules are defined,
+the one that is defined second takes precedence.
+For example,
+if there are two definitions for <code>row.bold</code>,
+whichever comes last in the JSON representation of the CSS wins.</p>
+<h3 class="exercise">Handling arbitrary tags</h3>
+<p>Modify the existing code to handle arbitrary HTML elements.</p>
+<ol>
+<li>
+<p>The parser should recognize <code>&lt;anyTag&gt;...&lt;/anyTag&gt;</code>.</p>
+</li>
+<li>
+<p>Instead of separate classes for rows and columns,
+there should be one class <code>Node</code> whose <code>tag</code> attribute identifies its type.</p>
+</li>
+</ol>
+<h3 class="exercise">Recycling nodes</h3>
+<p>Modify the wrapping code so that new rows and columns are only created if needed.
+For example,
+if a row of width 10 contains a text node with the string &quot;fits&quot;,
+a new row and column are <em>not</em> inserted.</p>
+<h3 class="exercise">Rendering a clear background</h3>
+<p>Modify the rendering code so that only the text in block nodes is shown,
+i.e.,
+so that the empty space in rows and columns is rendered as spaces.</p>
+<h3 class="exercise">Clipping text</h3>
+<ol>
+<li>
+<p>Modify the wrapping and rendering so that
+if a block of text is too wide for the available space
+the extra characters are clipped.
+For example,
+if a column of width 5 contains a line &quot;unfittable&quot;,
+only &quot;unfit&quot; appears.</p>
+</li>
+<li>
+<p>Extend your solution to break lines on spaces as needed
+in order to avoid clipping.</p>
+</li>
+</ol>
+<h3 class="exercise">Bidirectional rendering</h3>
+<p>Modify the existing software to do either left-to-right or right-to-left rendering
+upon request.</p>
+<h3 class="exercise">Equal sizing</h3>
+<p>Modify the existing code to support elastic columns,
+i.e.,
+so that all of the columns in a row are automatically sized to have the same width.
+If the number of columns does not divide evenly into the width of the row,
+allocate the extra space as equally as possible from left to right.</p>
+<h3 class="exercise">Padding elements</h3>
+<p>Modify the existing code so that:</p>
+<ol>
+<li>
+<p>Authors can define a <code>padding</code> attribute for row and column elements.</p>
+</li>
+<li>
+<p>When the node is rendered, that many blank spaces are added on all four sides of the contents.</p>
+</li>
+</ol>
+<div class="continue">
+<p>For example, the HTML <code>&lt;row&gt;text&lt;/row&gt;</code> would render as:</p>
+</div>
+<pre><code class="language-txt">+------+
+|      |
+| text |
+|      |
++------+
 </code></pre>
+<div class="continue">
+<p>where the lines show the outer border of the rendering.</p>
+</div>
+<h3 class="exercise">Drawing borders</h3>
+<ol>
+<li>
+<p>Modify the existing code so that elements may specify <code>border: true</code> or <code>border: false</code>
+(with the latter being the default).
+If an element's <code>border</code> property is <code>true</code>,
+it is drawn with a dashed border.
+For example,
+if the <code>border</code> property of <code>row</code> is <code>true</code>,
+then <code>&lt;row&gt;text&lt;/row&gt;</code> is rendered as:</p>
+<pre><code class="language-txt">+----+
+|text|
++----+
+</code></pre>
+</li>
+<li>
+<p>Extend your solution so that if two adjacent cells both have borders,
+only a single border is drawn.
+For example,
+if the <code>border</code> property of <code>col</code> is <code>true</code>,
+<code>&lt;row&gt;&lt;col&gt;left&lt;/col&gt;&lt;col&gt;right&lt;/col&gt;&lt;/row&gt;</code> is rendered as:</p>
+<pre><code class="language-txt">+----+-----+
+|left|right|
++----+-----+
+</code></pre>
+</li>
+</ol>
 </main>
 <footer>
 <div class="row">

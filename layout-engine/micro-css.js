@@ -19,7 +19,8 @@ export class IdRule extends CssRule {
   }
 
   match (node) {
-    return ('id' in node.attributes) &&
+    return ('attributes' in node) &&
+      ('id' in node.attributes) &&
       (node.attributes.id === this.selector)
   }
 }
@@ -35,7 +36,8 @@ export class ClassRule extends CssRule {
   }
 
   match (node) {
-    return ('class' in node.attributes) &&
+    return ('attributes' in node) &&
+      ('class' in node.attributes) &&
       (node.attributes.class === this.selector)
   }
 }
@@ -54,3 +56,31 @@ export class TagRule extends CssRule {
 }
 TagRule.ORDER = 2
 // </tag>
+
+// <ruleset>
+export class CssRuleSet {
+  constructor (json, mergeDefaults = true) {
+    this.rules = this.jsonToRules(json)
+  }
+
+  jsonToRules (json) {
+    return Object.keys(json).map(selector => {
+      assert((typeof selector === 'string') && (selector.length > 0),
+        'Require non-empty string as selector')
+      if (selector.startsWith('#')) {
+        return new IdRule(selector, json[selector])
+      }
+      if (selector.startsWith('.')) {
+        return new ClassRule(selector, json[selector])
+      }
+      return new TagRule(selector, json[selector])
+    })
+  }
+
+  findRules (node) {
+    const matches = this.rules.filter(rule => rule.match(node))
+    const sorted = matches.sort((left, right) => left.order - right.order)
+    return sorted
+  }
+}
+// </ruleset>
