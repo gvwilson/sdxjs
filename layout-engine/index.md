@@ -78,9 +78,14 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 
 <%- include('/inc/keep.html', {file: 'render.js', key: 'makeScreen'}) %>
 
--   A little easier to read (sort of)
+-   JavaScript doesn't support [mixin classes][mixin-class]
+    -   Add shared functionality after the fact by giving classes methods with the same [signatures][signature]
 
-<%- include('/inc/keep.html', {file: 'test/test-render.js', key: 'large'}) %>
+<%- include('/inc/file.html', {file: 'rendered.js'}) %>
+
+-   Tests are a little easier to read (sort of)
+
+<%- include('/inc/keep.html', {file: 'test/test-rendered.js', key: 'large'}) %>
 
 ## How can we wrap elements to fit?
 
@@ -105,18 +110,18 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 
 <%- include('/inc/keep.html', {file: 'wrapped.js', key: 'wrap'}) %>
 
--   Bring forward all the previous tests (with an extra row and column where needed)
+-   Bring forward all the previous tests
 -   Write some new ones
 
 <%- include('/inc/keep.html', {file: 'test/test-wrapped.js', key: 'example'}) %>
 
-## What subset of HTML and CSS will we support?
+## What subset of CSS will we support?
 
 -   Our subset of HTML includes rows, columns, and text blocks
 -   Each text block has one or more lines of text
     -   Number of lines determines height
     -   Length of longest line determines width
--   Rows columns can have attributes
+-   Rows and columns can have attributes
     -   Each attribute must have a single quoted value
     -   Rows no longer take a fixed width: our CSS will handle that
 
@@ -132,19 +137,29 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 <%- include('/inc/keep.html', {file: 'parse.js', key: 'makenode'}) %>
 
 -   Now define a generic class for rules and a subclass for each type of rule
+-   ID rules take precedence over class rules, which take precedence over tag rules
+    -   Number the derived classes
+
+<%- include('/inc/keep.html', {file: 'micro-css.js', key: 'css'}) %>
+
 -   ID rules
     -   <g key="dom_selector">DOM selector</g> of the form `#name`
-    -   HTML of the form `<tag id="name">…</tag>`
+    -   HTML of the form `<tag id="name">…</tag>` (where `tag` is `row` or `col`)
+
+<%- include('/inc/keep.html', {file: 'micro-css.js', key: 'id'}) %>
+
 -   Class rules
     -   DOM selector of the form `.kind`
     -   HTML of the form `<tag class="kind">…</tag>`
     -   Only one class per node
+
+<%- include('/inc/keep.html', {file: 'micro-css.js', key: 'class'}) %>
+
 -   Tag rules
     -   DOM selector of the form `tag`
     -   HTML of the form `<tag>…</tag>`
--   ID rules take precedence over class rules, which take precedence over tag rules
 
-<%- include('/inc/file.html', {file: 'micro-css.js'}) %>
+<%- include('/inc/keep.html', {file: 'micro-css.js', key: 'tag'}) %>
 
 -   Convert JSON to rule objects
     -   Saves us writing yet another parser

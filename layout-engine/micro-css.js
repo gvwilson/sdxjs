@@ -1,5 +1,6 @@
 import assert from 'assert'
 
+// <css>
 export class CssRule {
   constructor (order, selector, styles) {
     this.order = order
@@ -7,11 +8,13 @@ export class CssRule {
     this.styles = styles
   }
 }
+// </css>
 
+// <id>
 export class IdRule extends CssRule {
   constructor (selector, styles) {
     assert(selector.startsWith('#') && (selector.length > 1),
-      'ID rule must start with # and have a selector')
+      `ID rule ${selector} must start with # and have a selector`)
     super(IdRule.ORDER, selector.slice(1), styles)
   }
 
@@ -21,11 +24,13 @@ export class IdRule extends CssRule {
   }
 }
 IdRule.ORDER = 0
+// </id>
 
+// <class>
 export class ClassRule extends CssRule {
   constructor (selector, styles) {
     assert(selector.startsWith('.') && (selector.length > 1),
-      'Class rule must start with . and have a selector')
+      `Class rule ${selector} must start with . and have a selector`)
     super(ClassRule.ORDER, selector.slice(1), styles)
   }
 
@@ -35,7 +40,9 @@ export class ClassRule extends CssRule {
   }
 }
 ClassRule.ORDER = 1
+// </class>
 
+// <tag>
 export class TagRule extends CssRule {
   constructor (selector, styles) {
     super(TagRule.ORDER, selector, styles)
@@ -46,3 +53,4 @@ export class TagRule extends CssRule {
   }
 }
 TagRule.ORDER = 2
+// </tag>

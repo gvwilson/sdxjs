@@ -20,7 +20,7 @@ const makeScreen = (width, height) => {
 // <draw>
 const draw = (screen, node, fill = null) => {
   fill = nextFill(fill)
-  drawBlock(screen, node, fill)
+  node.render(screen, fill)
   if ('children' in node) {
     node.children.forEach(child => {
       fill = draw(screen, child, fill)
@@ -35,13 +35,5 @@ const nextFill = (fill) => {
     : String.fromCharCode(fill.charCodeAt() + 1)
 }
 // </draw>
-
-const drawBlock = (screen, node, fill) => {
-  for (let ix = 0; ix < node.getWidth(); ix += 1) {
-    for (let iy = 0; iy < node.getHeight(); iy += 1) {
-      screen[node.y0 + iy][node.x0 + ix] = fill
-    }
-  }
-}
 
 export default render

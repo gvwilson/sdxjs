@@ -435,7 +435,7 @@ describe('places blocks', () =&gt; {
     ✓ places a grid of rows of columns
 
 
-  5 passing (7ms)
+  5 passing (6ms)
 </code></pre>
 <h2 id="how-can-we-render-elements">How can we render elements?</h2>
 <ul>
@@ -460,9 +460,50 @@ describe('places blocks', () =&gt; {
   return screen
 }</code></pre>
 <ul>
-<li>A little easier to read (sort of)</li>
+<li>JavaScript doesn't support [mixin classes][mixin-class]
+<ul>
+<li>Add shared functionality after the fact by giving classes methods with the same [signatures][signature]</li>
 </ul>
-<pre title="test/test-render.js"><code class="language-js">  it('renders a grid of rows of columns', async () =&gt; {
+</li>
+</ul>
+<pre title="rendered.js"><code class="language-js">import {
+  PlacedBlock,
+  PlacedCol,
+  PlacedRow
+} from './placed.js'
+
+// &lt;keep&gt;
+export class RenderedBlock extends PlacedBlock {
+  render (screen, fill) {
+    drawBlock(screen, this, fill)
+  }
+}
+
+export class RenderedCol extends PlacedCol {
+  render (screen, fill) {
+    drawBlock(screen, this, fill)
+  }
+}
+
+export class RenderedRow extends PlacedRow {
+  render (screen, fill) {
+    drawBlock(screen, this, fill)
+  }
+}
+
+const drawBlock = (screen, node, fill) =&gt; {
+  for (let ix = 0; ix &lt; node.getWidth(); ix += 1) {
+    for (let iy = 0; iy &lt; node.getHeight(); iy += 1) {
+      screen[node.y0 + iy][node.x0 + ix] = fill
+    }
+  }
+}
+// &lt;/keep&gt;
+</code></pre>
+<ul>
+<li>Tests are a little easier to read (sort of)</li>
+</ul>
+<pre title="test/test-rendered.js"><code class="language-js">  it('renders a grid of rows of columns', async () =&gt; {
     const fixture = new Col(
       new Row(
         new Block(1, 2),
@@ -574,7 +615,7 @@ export class WrappedCol extends PlacedCol {
     return new PlacedRow(newCol)
   }</code></pre>
 <ul>
-<li>Bring forward all the previous tests (with an extra row and column where needed)</li>
+<li>Bring forward all the previous tests</li>
 <li>Write some new ones</li>
 </ul>
 <pre title="test/test-wrapped.js"><code class="language-js">  it('wrap a row of two blocks that do not fit on one row', async () =&gt; {
@@ -599,7 +640,7 @@ export class WrappedCol extends PlacedCol {
       ]
     )
   })</code></pre>
-<h2 id="what-subset-of-html-and-css-will-we-support">What subset of HTML and CSS will we support?</h2>
+<h2 id="what-subset-of-css-will-we-support">What subset of CSS will we support?</h2>
 <ul>
 <li>Our subset of HTML includes rows, columns, and text blocks</li>
 <li>Each text block has one or more lines of text
@@ -608,7 +649,7 @@ export class WrappedCol extends PlacedCol {
 <li>Length of longest line determines width</li>
 </ul>
 </li>
-<li>Rows columns can have attributes
+<li>Rows and columns can have attributes
 <ul>
 <li>Each attribute must have a single quoted value</li>
 <li>Rows no longer take a fixed width: our CSS will handle that</li>
@@ -744,41 +785,31 @@ const makeOpening = (chunk) =&gt; {
 }</code></pre>
 <ul>
 <li>Now define a generic class for rules and a subclass for each type of rule</li>
-<li>ID rules
+<li>ID rules take precedence over class rules, which take precedence over tag rules
 <ul>
-<li><g key="dom_selector">DOM selector</g> of the form <code>#name</code></li>
-<li>HTML of the form <code>&lt;tag id=&quot;name&quot;&gt;…&lt;/tag&gt;</code></li>
+<li>Number the derived classes</li>
 </ul>
 </li>
-<li>Class rules
-<ul>
-<li>DOM selector of the form <code>.kind</code></li>
-<li>HTML of the form <code>&lt;tag class=&quot;kind&quot;&gt;…&lt;/tag&gt;</code></li>
-<li>Only one class per node</li>
 </ul>
-</li>
-<li>Tag rules
-<ul>
-<li>DOM selector of the form <code>tag</code></li>
-<li>HTML of the form <code>&lt;tag&gt;…&lt;/tag&gt;</code></li>
-</ul>
-</li>
-<li>ID rules take precedence over class rules, which take precedence over tag rules</li>
-</ul>
-<pre title="micro-css.js"><code class="language-js">import assert from 'assert'
-
-export class CssRule {
+<pre title="micro-css.js"><code class="language-js">export class CssRule {
   constructor (order, selector, styles) {
     this.order = order
     this.selector = selector
     this.styles = styles
   }
-}
-
-export class IdRule extends CssRule {
+}</code></pre>
+<ul>
+<li>ID rules
+<ul>
+<li><g key="dom_selector">DOM selector</g> of the form <code>#name</code></li>
+<li>HTML of the form <code>&lt;tag id=&quot;name&quot;&gt;…&lt;/tag&gt;</code> (where <code>tag</code> is <code>row</code> or <code>col</code>)</li>
+</ul>
+</li>
+</ul>
+<pre title="micro-css.js"><code class="language-js">export class IdRule extends CssRule {
   constructor (selector, styles) {
     assert(selector.startsWith('#') &amp;&amp; (selector.length &gt; 1),
-      'ID rule must start with # and have a selector')
+      `ID rule ${selector} must start with # and have a selector`)
     super(IdRule.ORDER, selector.slice(1), styles)
   }
 
@@ -787,12 +818,20 @@ export class IdRule extends CssRule {
       (node.attributes.id === this.selector)
   }
 }
-IdRule.ORDER = 0
-
-export class ClassRule extends CssRule {
+IdRule.ORDER = 0</code></pre>
+<ul>
+<li>Class rules
+<ul>
+<li>DOM selector of the form <code>.kind</code></li>
+<li>HTML of the form <code>&lt;tag class=&quot;kind&quot;&gt;…&lt;/tag&gt;</code></li>
+<li>Only one class per node</li>
+</ul>
+</li>
+</ul>
+<pre title="micro-css.js"><code class="language-js">export class ClassRule extends CssRule {
   constructor (selector, styles) {
     assert(selector.startsWith('.') &amp;&amp; (selector.length &gt; 1),
-      'Class rule must start with . and have a selector')
+      `Class rule ${selector} must start with . and have a selector`)
     super(ClassRule.ORDER, selector.slice(1), styles)
   }
 
@@ -801,9 +840,16 @@ export class ClassRule extends CssRule {
       (node.attributes.class === this.selector)
   }
 }
-ClassRule.ORDER = 1
-
-export class TagRule extends CssRule {
+ClassRule.ORDER = 1</code></pre>
+<ul>
+<li>Tag rules
+<ul>
+<li>DOM selector of the form <code>tag</code></li>
+<li>HTML of the form <code>&lt;tag&gt;…&lt;/tag&gt;</code></li>
+</ul>
+</li>
+</ul>
+<pre title="micro-css.js"><code class="language-js">export class TagRule extends CssRule {
   constructor (selector, styles) {
     super(TagRule.ORDER, selector, styles)
   }
@@ -812,8 +858,7 @@ export class TagRule extends CssRule {
     return this.selector === node.tag
   }
 }
-TagRule.ORDER = 2
-</code></pre>
+TagRule.ORDER = 2</code></pre>
 <ul>
 <li>Convert JSON to rule objects
 <ul>

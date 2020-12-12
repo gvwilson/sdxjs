@@ -1,10 +1,10 @@
 import assert from 'assert'
 
 import {
-  PlacedBlock as Block,
-  PlacedCol as Col,
-  PlacedRow as Row
-} from '../placed.js'
+  RenderedBlock as Block,
+  RenderedCol as Col,
+  RenderedRow as Row
+} from '../rendered.js'
 import render from '../render.js'
 
 describe('renders blocks', () => {
