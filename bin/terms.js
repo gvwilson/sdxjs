@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+'use strict'
+
 import fs from 'fs'
 
 const main = () => {

@@ -22,6 +22,9 @@ HOME_PAGE := docs/${VOLUME}/index.html
 GLOSS_MD := gloss-${VOLUME}.md
 GLOSS_HTML := docs/${VOLUME}/gloss/index.html
 
+# Links for this volume.
+LINKS_YML := links-${VOLUME}.yml
+
 # Complete list of exercise source files.
 EXERCISES := $(shell bin/slugs.js exercises . docs/${VOLUME} common.yml ${VOLUME}.yml)
 
@@ -75,6 +78,9 @@ bib: bib.md
 
 ## gloss: rebuild glossary
 gloss: ${GLOSS_MD}
+
+## links: rebuild links
+links: ${LINKS_YML}
 
 ## ----: ----
 
@@ -142,6 +148,7 @@ pages: ${VOLUME}.aux
 ## clean: clean up
 clean:
 	@rm -f ${VOLUME}.{aux,log,out,pdf,tex,toc}
+	@rm -f links-*.yml
 	@find . -name '*~' -exec rm {} \;
 
 ## settings: show settings
@@ -165,18 +172,24 @@ bib.md: bin/bib.js bib.yml
 	--input bib.yml \
 	--output bib.md
 
-${GLOSS_MD}: gloss.yml bin/gloss.js $(filter-out ${GLOSS_MD},${MARKDOWN}) ${EXERCISES}
+${GLOSS_MD}: gloss.yml bin/gloss.js $(filter-out ${GLOSS_MD} links.md,${MARKDOWN}) ${EXERCISES}
 	bin/gloss.js \
 	--glosario \
 	--input gloss.yml \
 	--output ${GLOSS_MD} \
 	${COMMON_PARAMS}
 
-${HOME_PAGE}: bin/html.js ${VOLUME}.yml common.yml links.yml ${MARKDOWN} ${INC} ${STATIC_DST} ${DIRECT_DST}
+${LINKS_YML}: links.yml bin/links.js $(filter-out ${GLOSS_MD} links.md,${MARKDOWN}) ${EXERCISES}
+	bin/links.js \
+	--input links.yml \
+	--output ${LINKS_YML} \
+	${COMMON_PARAMS}
+
+${HOME_PAGE}: bin/html.js ${VOLUME}.yml common.yml ${LINKS_YML} ${MARKDOWN} ${INC} ${STATIC_DST} ${DIRECT_DST}
 	bin/html.js \
 	${COMMON_PARAMS} \
 	--gloss ${GLOSS_MD} \
-	--links links.yml \
+	--links ${LINKS_YML} \
 	--replaceDir
 
 ${VOLUME}.tex: bin/latex.js ${HOME_PAGE} ${TEX}

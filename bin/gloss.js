@@ -9,6 +9,8 @@ import request from 'request'
 import yaml from 'js-yaml'
 
 import {
+  addCommonArguments,
+  buildOptions,
   createFilePaths,
   getAllSources,
   yamlLoad
@@ -60,19 +62,10 @@ const main = () => {
  */
 const getOptions = () => {
   const parser = new argparse.ArgumentParser()
+  addCommonArguments(parser, '--input', '--output')
   parser.add_argument('--glosario', { action: 'store_true' })
-  parser.add_argument('--input')
-  parser.add_argument('--output')
-  parser.add_argument('--config')
-  parser.add_argument('--common')
-  parser.add_argument('--html')
-  parser.add_argument('--root')
   const fromArgs = parser.parse_args()
-
-  const common = yamlLoad(fromArgs.common)
-  const config = yamlLoad(fromArgs.config)
-  const options = { ...common, ...config, ...fromArgs }
-  return options
+  return buildOptions(fromArgs)
 }
 
 /**

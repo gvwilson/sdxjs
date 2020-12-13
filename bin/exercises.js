@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+'use strict'
+
 import { yamlLoad } from './utils.js'
 
 const main = () => {

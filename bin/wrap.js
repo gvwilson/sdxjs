@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+'use strict'
+
 import argparse from 'argparse'
 import fs from 'fs'
 

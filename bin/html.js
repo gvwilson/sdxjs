@@ -15,6 +15,8 @@ import path from 'path'
 import rimraf from 'rimraf'
 
 import {
+  addCommonArguments,
+  buildOptions,
   createFilePaths,
   dirname,
   yamlLoad
@@ -58,22 +60,11 @@ const main = () => {
  */
 const getOptions = () => {
   const parser = new argparse.ArgumentParser()
-  parser.add_argument('--config')
-  parser.add_argument('--common')
-  parser.add_argument('--gloss')
-  parser.add_argument('--html')
-  parser.add_argument('--links')
-  parser.add_argument('--root')
+  addCommonArguments(parser, '--gloss', '--links')
   parser.add_argument('--replaceDir', { action: 'store_true' })
   const fromArgs = parser.parse_args()
-
-  const directory = dirname(import.meta.url)
-  fromArgs.homeDir = directory.replace('/bin', '')
-  const common = yamlLoad(fromArgs.common)
-  const config = yamlLoad(fromArgs.config)
-  const options = { ...common, ...config, ...fromArgs }
-
-  return options
+  fromArgs.homeDir = dirname(import.meta.url).replace('/bin', '')
+  return buildOptions(fromArgs)
 }
 
 /**

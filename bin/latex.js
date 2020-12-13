@@ -8,6 +8,8 @@ import fs from 'fs'
 import htmlparser2 from 'htmlparser2'
 
 import {
+  addCommonArguments,
+  buildOptions,
   createFilePaths,
   yamlLoad
 } from './utils.js'
@@ -45,16 +47,9 @@ const main = () => {
  */
 const getOptions = () => {
   const parser = new argparse.ArgumentParser()
-  parser.add_argument('--common')
-  parser.add_argument('--config')
-  parser.add_argument('--foot')
-  parser.add_argument('--head')
-  parser.add_argument('--html')
-  parser.add_argument('--numbering')
-  parser.add_argument('--output')
-  parser.add_argument('--root')
+  addCommonArguments(parser, '--foot', '--head', '--numbering', '--output')
   const fromArgs = parser.parse_args()
-  return { ...fromArgs, ...yamlLoad(fromArgs.common), ...yamlLoad(fromArgs.config) }
+  return buildOptions(fromArgs)
 }
 
 /**

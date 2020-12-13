@@ -9,6 +9,8 @@ import htmlparser2 from 'htmlparser2'
 import path from 'path'
 
 import {
+  addCommonArguments,
+  buildOptions,
   createFilePaths,
   getAllEntries,
   yamlLoad
@@ -49,16 +51,9 @@ const main = () => {
  */
 const getOptions = () => {
   const parser = new argparse.ArgumentParser()
-  parser.add_argument('--common')
-  parser.add_argument('--config')
-  parser.add_argument('--root')
-  parser.add_argument('--html')
+  addCommonArguments(parser)
   const fromArgs = parser.parse_args()
-
-  const common = yamlLoad(fromArgs.common)
-  const config = yamlLoad(fromArgs.config)
-
-  return { ...common, ...config, ...fromArgs }
+  return buildOptions(fromArgs)
 }
 
 /**

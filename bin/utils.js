@@ -1,8 +1,31 @@
+'use strict'
+
 import assert from 'assert'
 import fs from 'fs'
 import path from 'path'
 import url from 'url'
 import yaml from 'js-yaml'
+
+/**
+ * Add common options to argument parser.
+ * @param {Object} parser Argument parser.
+ * Other parameters are extra options.
+ */
+export const addCommonArguments = (parser, ...extras) => {
+  const args = ['--config', '--common', '--html', '--root']
+  args.forEach(arg => parser.add_argument(arg))
+  extras.forEach(arg => parser.add_argument(arg))
+}
+
+/**
+ * Build full options from command-line arguments and configuration files.
+ * @param {Object} fromArgs Parsed arguments.
+ */
+export const buildOptions = (fromArgs) => {
+  const common = yamlLoad(fromArgs.common)
+  const config = yamlLoad(fromArgs.config)
+  return { ...common, ...config, ...fromArgs }
+}
 
 /**
  * Fill in file paths for all files in a set.
@@ -99,4 +122,13 @@ export const getAllSources = (options) => {
  */
 export const yamlLoad = (filename) => {
   return yaml.safeLoad(fs.readFileSync(filename, 'utf-8'))
+}
+
+/**
+ * Save a YAML file.
+ * @param {string} filename File to write.
+ * @param {Object} data YAML.
+ */
+export const yamlSave = (filename, data) => {
+  fs.writeFileSync(filename, yaml.safeDump(data), 'utf-8')
 }
