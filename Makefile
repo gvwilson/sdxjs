@@ -6,6 +6,9 @@ endif
 # Full name of volume (volN).
 VOLUME := vol${V}
 
+# Home page for this volume.
+HOME_PAGE := docs/${VOLUME}/index.html
+
 # Chapter slugs.
 CHAPTERS := $(shell bin/slugs.js chapters . docs/${VOLUME} common.yml ${VOLUME}.yml)
 
@@ -15,8 +18,8 @@ MARKDOWN := $(shell bin/slugs.js source . docs/${VOLUME} common.yml ${VOLUME}.ym
 # All HTML output files.
 HTML := $(shell bin/slugs.js html . docs/${VOLUME} common.yml ${VOLUME}.yml)
 
-# Home page for this volume.
-HOME_PAGE := docs/${VOLUME}/index.html
+# Complete list of exercise source files.
+EXERCISES := $(shell bin/slugs.js exercises . docs/${VOLUME} common.yml ${VOLUME}.yml)
 
 # Glossary for this volume.
 GLOSS_MD := gloss-${VOLUME}.md
@@ -24,9 +27,6 @@ GLOSS_HTML := docs/${VOLUME}/gloss/index.html
 
 # Links for this volume.
 LINKS_YML := links-${VOLUME}.yml
-
-# Complete list of exercise source files.
-EXERCISES := $(shell bin/slugs.js exercises . docs/${VOLUME} common.yml ${VOLUME}.yml)
 
 # Complete list of JavaScript source files.
 JAVASCRIPT := \
@@ -42,12 +42,8 @@ TEX := \
   $(wildcard tex/*.cls)
 
 # Static files.
-STATIC_SRC := $(wildcard static/*.*) $(wildcard static/fonts/*/*.*)
+STATIC_SRC := .nojekyll CNAME favicon.ico index.html $(wildcard static/*.*) $(wildcard static/fonts/*/*.*)
 STATIC_DST := $(patsubst %,docs/%,${STATIC_SRC})
-
-# Top-level files copied directly.
-DIRECT_SRC := .nojekyll CNAME favicon.ico index.html
-DIRECT_DST := $(patsubst %,docs/%,${DIRECT_SRC})
 
 # Tools.
 TOOLS := $(filter-out bin/utils.js, $(wildcard bin/*.js))
@@ -155,8 +151,6 @@ clean:
 settings:
 	@echo VOLUME = "${VOLUME}"
 	@echo CHAPTERS = "${CHAPTERS}"
-	@echo DIRECT_DST = "${DIRECT_DST}"
-	@echo DIRECT_SRC = "${DIRECT_SRC}"
 	@echo EXERCISES = "${EXERCISES}"
 	@echo HTML = "${HTML}"
 	@echo INC = "${INC}"
@@ -185,7 +179,7 @@ ${LINKS_YML}: links.yml bin/links.js $(filter-out ${GLOSS_MD} links.md,${MARKDOW
 	--output ${LINKS_YML} \
 	${COMMON_PARAMS}
 
-${HOME_PAGE}: bin/html.js ${VOLUME}.yml common.yml ${LINKS_YML} ${MARKDOWN} ${INC} ${STATIC_DST} ${DIRECT_DST}
+${HOME_PAGE}: bin/html.js ${VOLUME}.yml common.yml ${LINKS_YML} ${MARKDOWN} ${INC} ${STATIC_DST}
 	bin/html.js \
 	${COMMON_PARAMS} \
 	--gloss ${GLOSS_MD} \
@@ -222,12 +216,12 @@ docs/${VOLUME}/%/index.html: %/index.md
 # Static files.
 docs/static/%: static/%
 	@mkdir -p $(dir $@)
-	@cp $< $@
+	cp $< $@
 
-# Direct files.
+# Static files in root directory.
 docs/%: ./%
 	@mkdir -p $(dir $@)
-	@cp $< $@
+	cp $< $@
 
 # Tools all depend on utilities.
 ${TOOLS}: bin/utils.js
