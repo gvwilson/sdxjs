@@ -392,8 +392,6 @@
 <dd class="glossary">A popular interpreted open-source programming language that relies on indentation to define control structure.</dd>
 <dt id="query_selector" class="glossary">query selector</dt>
 <dd class="glossary">A pattern that specifies a set of <g key="dom">DOM</g> nodes.  Query selectors are used in <g key="css">CSS</g> to specify the elements that rules apply to, or by JavaScript programs to manipulate web pages.</dd>
-<dt id="query_string" class="glossary">query string</dt>
-<dd class="glossary">The portion of a <g key="url">URL</g> after the quesiton mark <code>?</code> that specifies extra parameters for the <g key="http_request">HTTP request</g> as name-value pairs.</dd>
 <dt id="r_language" class="glossary">R (programming language)</dt>
 <dd class="glossary">A popular open-source programming language used primarily for data science.</dd>
 <dt id="r_markdown" class="glossary">R Markdown</dt>
@@ -518,8 +516,6 @@
 <dd class="glossary">Refers to a quote by Phil Karlton—&quot;There are only two hard problems in computer science—cache invalidation and naming things.&quot; Many variations add a third problem (most often &quot;<g key="off_by_one_error">off-by-one errors</g>&quot;).</dd>
 <dt id="unicode" class="glossary">Unicode</dt>
 <dd class="glossary">A standard that defines numeric codes for many thousands of characters and symbols. Unicode does not define how those numbers are stored; that is done by standards like <g key="utf_8">UTF-8</g>.</dd>
-<dt id="url" class="glossary">Uniform Resource Locator (URL)</dt>
-<dd class="glossary">A unique address on the World-Wide Web. URLs originally identified web pages, but may also represent datasets or database queries, particularly if they include a <g key="query_string">query string</g>.</dd>
 <dt id="unit_test" class="glossary">unit test</dt>
 <dd class="glossary">A test that exercises one function or feature of a piece of software and produces <g key="pass_test">pass</g>, <g key="fail_test">fail</g>, or <g key="error_test">error</g>.</dd>
 <dt id="utf_8" class="glossary">UTF-8</dt>

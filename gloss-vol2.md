@@ -1,49 +1,6 @@
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
-<head>
-  <title>Glossary</title>
-  <meta name="toRoot" content="..">
-  <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico">
-  <link href="../../static/fonts.css" rel="stylesheet" type="text/css">
-  <link href="../../static/site.css" rel="stylesheet" type="text/css">
-  <script>const NUMBERING = {"vol2":"1","http-server":"2","bib":"A","license":"B","conduct":"C","contributing":"D","gloss":"E","links":"F"}</script>
-  <script src="../../static/site.js"></script>
-  <script>window.onload = () => fixPage()</script>
-</head>
-<body id="_top">
-<nav>
-<div class="row">
-<div class="left2">
-<a href="http://third-bit.com"><img src="../../static/logo.svg" alt="site logo" class="site-logo"/></a>
-<a href="../"><em>Software Tools in JavaScript: Volume 2</em></a>
-</div>
-<div class="right2">
-<div class="dropdown">
-<span class="navtitle">▿ Sections</span>
-<div class="dropdown-content" id="Sections">
-</div>
-</div>
-<div class="dropdown">
-<span class="navtitle">▿ Chapters</span>
-<div class="dropdown-content" id="Chapters">
-<a href="../http-server/"><span class="nowrap">HTTP Server</span></a>
-</div>
-</div>
-<div class="dropdown">
-<span class="navtitle">▿ Appendices</span>
-<div class="dropdown-content" id="Appendices">
-<a href="../bib/"><span class="nowrap">Bibliography</span></a>
-<br/><a href="../license/"><span class="nowrap">License</span></a>
-<br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
-<br/><a href="../contributing/"><span class="nowrap">Contributing</span></a>
-<br/><a href="../gloss/"><span class="nowrap">Glossary</span></a>
-<br/><a href="../links/"><span class="nowrap">Links</span></a>
-</div>
-</div>
-</div>
-</div>
-</nav>
-  <main>
-  <h1>Glossary</h1>
+---
+---
+
 <dl class="glossary">
 <dt id="absolute_path" class="glossary">absolute path</dt>
 <dd class="glossary">A path that points to the same location in the <g key="filesystem">filesystem</g> regardless of where it is evaluated. An absolute path is the equivalent of latitude and longitude in geography.</dd>
@@ -195,22 +152,5 @@
 <dd class="glossary">A sequence of values, usually of <g key="homogeneous">homogeneous</g> type. Vectors are the fundamental data structure in <g key="r_language">R</g>; a <g key="scalar">scalar</g> is just a vector with exactly one <g key="element">element</g>.</dd>
 <dt id="xml" class="glossary">XML</dt>
 <dd class="glossary">A set of rules for defining <g key="html">HTML</g>-like tags and using them to format documents (typically data). XML was popular in the early 2000s, but its complexity led many programmers to adopt <g key="json">JSON</g>, instead.</dd>
+
 </dl>
-</main>
-<footer>
-<div class="row">
-<div class="left3">
-<a href="../contributing/"><em>&laquo; Contributing</em></a>
-</div>
-<div class="middle3">
-<a href="../license/"><img class="footer" src="../../static/cc-by.svg" alt="License" /></a>
-<a href="https://github.com/software-tools-in-javascript/stjs/"><img class="footer" src="../../static/github.svg" alt="Repository" /></a>
-© 2020 <a href="../authors/">The Authors</a>
-</div>
-<div class="right3">
-<a href="../links/"><em>Links &raquo;</em></a>
-</div>
-</div>
-</footer>
-</body>
-</html>

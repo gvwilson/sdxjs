@@ -150,17 +150,14 @@ To see the available commands, run `make` without any targets.
 In order to handle multiple volumes in a single repository,
 we have split configuration between several files.
 
--   `./Makefile`: defines `VOLUME` to be `vol1` and includes `./common.mk`
-    so that all targets in the latter can be rebuilt without specifying a Makefile name.
-    As Volume 2 takes shape, we will rework this so that it's easy to rebuild both volumes.
-
--   `./common.mk`: defines targets to build HTML and PDF versions of a single volume
-    along with many supporting commands.
+-   `./Makefile`: defines `VOLUME` to be `vol1` by default.
+    This can be overridden using `make V=2 target` to build things from Volume 2.
 
 -   `./common.yml`: configuration values shared by all volumes.
 
 -   `./vol1.yml`: configuration values for Volume 1.
-    We will create an equivalent file for Volume 2 as it takes shape.
+
+-   `./vol2.yml`: configuration values for Volume 2.
 
 ### Re-creating Examples
 
