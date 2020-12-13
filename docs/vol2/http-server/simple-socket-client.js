@@ -1,6 +1,6 @@
-const net = require('net')
+import Net from 'net'
 
-const client = new net.Socket()
+const client = new Net.Socket()
 client.connect(8080, '127.0.0.1', () => {
   console.log('client connected')
   client.write('message from client')

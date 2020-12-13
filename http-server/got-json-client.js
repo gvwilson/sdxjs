@@ -1,4 +1,4 @@
-const got = require('got')
+import got from 'got'
 
 const getter = async (url, word) => {
   const { body } = await got.post(url, {

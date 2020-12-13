@@ -1,7 +1,7 @@
-const fs = require('fs')
-const path = require('path')
+import fs from 'fs'
+import path from 'path'
 
-const BaseHttpServer = require('./base-http-server')
+import BaseHttpServer from './base-http-server.js'
 
 class HttpFileServer extends BaseHttpServer {
   constructor (rootDir) {

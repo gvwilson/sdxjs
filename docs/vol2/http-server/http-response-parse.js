@@ -1,10 +1,10 @@
-const fs = require('fs')
+import fs from 'fs'
 
 const Header = `HTTP/1.1 200 OK
 Content-Type: text/plain
 Content-Length: @LENGTH
 
-`
+` // end Header
 
 const PathPattern = /^GET\s+(.+)\s+HTTP\/1.1/
 
@@ -19,4 +19,4 @@ const handlerFactory = (socket) => (data) => {
   socket.write(content)
 }
 
-module.exports = handlerFactory
+export default handlerFactory

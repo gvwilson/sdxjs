@@ -1,4 +1,4 @@
-const Net = require('net')
+import Net from 'net'
 
 const port = 8080
 

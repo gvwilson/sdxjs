@@ -81,6 +81,6 @@ BaseHttpServer.HEADER = `HTTP/1.1 @status_code @status_message
 Content-Type: @content_type
 Content-Length: @length
 
-`
+` // end HEADER
 
-module.exports = BaseHttpServer
+export default BaseHttpServer

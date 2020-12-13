@@ -1,33 +1,37 @@
-const Net = require('net')
+import Net from 'net'
 
-const handlerName = process.argv[2]
-const handlerFactory = require(handlerName)
+const PORT = 8080
 
-const port = 8080
+const main = async () => {
+  const handlerName = process.argv[2]
+  const handlerFactory = (await import(handlerName)).default
 
-const server = new Net.Server()
+  const server = new Net.Server()
 
-let numRequests = 0
+  let numRequests = 0
 
-server.listen(port, () => {
-  console.log(`server listening on localhost:${port}`)
-})
-
-server.on('connection', (socket) => {
-  numRequests += 1
-  console.log(`server new connection ${numRequests}`)
-
-  socket.on('data', handlerFactory(socket))
-
-  socket.on('end', () => {
-    console.log('server ending connection')
+  server.listen(PORT, () => {
+    console.log(`server listening on localhost:${PORT}`)
   })
 
-  socket.on('close', () => {
-    console.log('server closing socket')
-  })
+  server.on('connection', (socket) => {
+    numRequests += 1
+    console.log(`server new connection ${numRequests}`)
 
-  socket.on('error', (err) => {
-    console.log(`server error: ${err}`)
+    socket.on('data', handlerFactory(socket))
+
+    socket.on('end', () => {
+      console.log('server ending connection')
+    })
+
+    socket.on('close', () => {
+      console.log('server closing socket')
+    })
+
+    socket.on('error', (err) => {
+      console.log(`server error: ${err}`)
+    })
   })
-})
+}
+
+main()

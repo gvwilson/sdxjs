@@ -1,6 +1,6 @@
-const url = require('url')
+import url from 'url'
 
-const BaseHttpServer = require('./base-http-server')
+import BaseHttpServer from './base-http-server.js'
 
 class HttpJsonServer extends BaseHttpServer {
   parseRequest (data) {
@@ -15,6 +15,8 @@ class HttpJsonServer extends BaseHttpServer {
     }
   }
 
+  // <skip>
+  // <getHeadAndBody>
   getHeadAndBody (data) {
     const separators = ['\r\n\r\n', '\n\n']
     for (const sep of separators) {
@@ -27,7 +29,9 @@ class HttpJsonServer extends BaseHttpServer {
     }
     return ''
   }
+  // </getHeadAndBody>
 
+  // <parseHead>
   parseHead (head) {
     const lines = head.split('\n')
       .map(line => line.trim())
@@ -47,7 +51,9 @@ class HttpJsonServer extends BaseHttpServer {
     }, new Map())
     return [verb, raw, headers]
   }
+  // </parseHead>
 
+  // <misc>
   convertBody (headers, body) {
     if (headers.get('content-type').includes('application/json')) {
       body = JSON.parse(body)
@@ -59,6 +65,8 @@ class HttpJsonServer extends BaseHttpServer {
     const value = request.body.key
     response.body = JSON.stringify({ result: value })
   }
+  // </misc>
+  // </skip>
 }
 
 HttpJsonServer.TARGET_PATTERN = /^(.+?)\s+(.+)\s+HTTP\/1.1/

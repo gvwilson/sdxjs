@@ -48,15 +48,16 @@
 <div class="callout">
   <p>Terms defined: <g key="http_header">HTTP header</g>, <g key="json">JavaScript Object Notation (JSON)</g>, <g key="mime_type">MIME type</g>, <g key="mock_object">mock object</g>, <g key="protocol">protocol</g>, <g key="query_string">query string</g>, <g key="template_method_pattern">Template Method pattern</g></p>
 </div>
-<p>An HTTP server similar to <a href="https://expressjs.com/">Express</a>
-modeled on <a href="http://aosabook.org/en/500L/a-simple-web-server.html">this one in Python</a>.</p>
+<ul>
+<li>Build an HTTP server like <a href="https://expressjs.com/">Express</a> modeled on the one from <cite>Brown2016</cite></li>
+</ul>
 <h2 id="how-can-we-send-messages-via-sockets">How can we send messages via sockets?</h2>
 <ul>
 <li>A simple socket client</li>
 </ul>
-<pre title="simple-socket-client.js"><code class="language-js">const net = require('net')
+<pre title="simple-socket-client.js"><code class="language-js">import Net from 'net'
 
-const client = new net.Socket()
+const client = new Net.Socket()
 client.connect(8080, '127.0.0.1', () =&gt; {
   console.log('client connected')
   client.write('message from client')
@@ -74,7 +75,7 @@ client.on('close', () =&gt; {
 <ul>
 <li>A very simple socket server</li>
 </ul>
-<pre title="simple-socket-server.js"><code class="language-js">const Net = require('net')
+<pre title="simple-socket-server.js"><code class="language-js">import Net from 'net'
 
 const port = 8080
 
@@ -127,7 +128,7 @@ sleep 1
 node simple-socket-client.js
 kill %1
 </code></pre>
-<pre title="run-simple-socket.txt"><code class="language-txt">server listening on localhost:8080
+<pre title="run-simple-socket.out"><code class="language-out">server listening on localhost:8080
 server new connection
 client connected
 server received from client: message from client
@@ -144,39 +145,43 @@ server closing socket
 </li>
 <li>What stays the same:</li>
 </ul>
-<pre title="socket-server.js"><code class="language-js">const Net = require('net')
+<pre title="socket-server.js"><code class="language-js">import Net from 'net'
 
-const handlerName = process.argv[2]
-const handlerFactory = require(handlerName)
+const PORT = 8080
 
-const port = 8080
+const main = async () =&gt; {
+  const handlerName = process.argv[2]
+  const handlerFactory = (await import(handlerName)).default
 
-const server = new Net.Server()
+  const server = new Net.Server()
 
-let numRequests = 0
+  let numRequests = 0
 
-server.listen(port, () =&gt; {
-  console.log(`server listening on localhost:${port}`)
-})
-
-server.on('connection', (socket) =&gt; {
-  numRequests += 1
-  console.log(`server new connection ${numRequests}`)
-
-  socket.on('data', handlerFactory(socket))
-
-  socket.on('end', () =&gt; {
-    console.log('server ending connection')
+  server.listen(PORT, () =&gt; {
+    console.log(`server listening on localhost:${PORT}`)
   })
 
-  socket.on('close', () =&gt; {
-    console.log('server closing socket')
-  })
+  server.on('connection', (socket) =&gt; {
+    numRequests += 1
+    console.log(`server new connection ${numRequests}`)
 
-  socket.on('error', (err) =&gt; {
-    console.log(`server error: ${err}`)
+    socket.on('data', handlerFactory(socket))
+
+    socket.on('end', () =&gt; {
+      console.log('server ending connection')
+    })
+
+    socket.on('close', () =&gt; {
+      console.log('server closing socket')
+    })
+
+    socket.on('error', (err) =&gt; {
+      console.log(`server error: ${err}`)
+    })
   })
-})
+}
+
+main()
 </code></pre>
 <h2 id="how-can-we-decompose-the-server">How can we decompose the server?</h2>
 <ul>
@@ -192,17 +197,17 @@ server.on('connection', (socket) =&gt; {
   socket.write('SUCCESS')
 }
 
-module.exports = handlerFactory
+export default handlerFactory
 </code></pre>
 <ul>
 <li>Try running</li>
 </ul>
-<pre title="always-send-success.sh"><code class="language-sh">node socket-server.js ./always-send-success &amp;
+<pre title="always-send-success.sh"><code class="language-sh">node socket-server.js ./always-send-success.js &amp;
 sleep 1
 node simple-socket-client.js
 kill %1
 </code></pre>
-<pre title="always-send-success.txt"><code class="language-txt">server listening on localhost:8080
+<pre title="always-send-success.out"><code class="language-out">server listening on localhost:8080
 server new connection 1
 client connected
 server received from client: message from client
@@ -223,14 +228,14 @@ server closing socket
 Content-Type: text/plain
 Content-Length: 7
 
-`
+` // end Header
 
 const handlerFactory = (socket) =&gt; (data) =&gt; {
   console.log(`server received from client: ${data.toString()}`)
   socket.write(Header + 'SUCCESS')
 }
 
-module.exports = handlerFactory
+export default handlerFactory
 </code></pre>
 <ul>
 <li>Go to <code>http://localhost:8080</code> with a browser
@@ -244,33 +249,40 @@ module.exports = handlerFactory
 server new connection 1
 server received from client: GET / HTTP/1.1
 Host: localhost:8080
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:75.0) Gecko/20100101 Firefox/75.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:83.0) Gecko/20100101 Firefox/83.0
 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
 Accept-Language: en-US,en;q=0.5
 Accept-Encoding: gzip, deflate
 Connection: keep-alive
+Cookie: _jsuid=3126724936; _ga=GA1.1.1955580034.1570023272
+Upgrade-Insecure-Requests: 1
 
 
 server received from client: GET /favicon.ico HTTP/1.1
 Host: localhost:8080
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:75.0) Gecko/20100101 Firefox/75.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:83.0) Gecko/20100101 Firefox/83.0
 Accept: image/webp,*/*
 Accept-Language: en-US,en;q=0.5
 Accept-Encoding: gzip, deflate
 Connection: keep-alive
-
+Referer: http://localhost:8080/
+Cookie: _jsuid=3126724936; _ga=GA1.1.1955580034.1570023272
 </code></pre>
 <ul>
 <li>Now construct an HTTP request
 <ul>
-<li>Line separators in header must be <code>\r\n</code>, not just <code>\n</code></li>
-<li>Header must end with double blank line (to separate it from posted info)</li>
-<li>Must convert result data from byte butter to string</li>
-<li>Allow user to specify</li>
+<li>Line separators in header are supposed to be <code>\r\n</code>, not just <code>\n</code></li>
 </ul>
 </li>
+<li>Header must end with double blank line (to separate it from posted info)
+<ul>
+<li>Single back quote on a line by itself is hard to see, so mark with a comment</li>
 </ul>
-<pre title="http-request-client.js"><code class="language-js">const net = require('net')
+</li>
+<li>Must convert result data from byte buffer to string</li>
+<li>Allow user to specify path on the command line</li>
+</ul>
+<pre title="http-request-client.js"><code class="language-js">import Net from 'net'
 
 const path = (process.argv.length &gt; 2)
   ? process.argv[2]
@@ -278,9 +290,9 @@ const path = (process.argv.length &gt; 2)
 
 const request = `GET ${path} HTTP/1.1
 
-`
+` // end request
 
-const client = new net.Socket()
+const client = new Net.Socket()
 client.connect(8080, '127.0.0.1', () =&gt; {
   client.write(request)
   client.end()
@@ -301,19 +313,19 @@ client.on('close', () =&gt; {
 </ul>
 </li>
 </ul>
-<pre title="http-response-success.txt"><code class="language-txt">server listening on localhost:8080
+<pre title="http-response-success.out"><code class="language-out">server listening on localhost:8080
 server new connection 1
 server received from client: GET / HTTP/1.1
 
 
+server ending connection
+server closing socket
 client receives:
 HTTP/1.1 200 OK
 Content-Type: text/plain
 Content-Length: 7
 
 SUCCESS
-server ending connection
-server closing socket
 </code></pre>
 <h2 id="how-can-we-test-this">How can we test this?</h2>
 <ul>
@@ -336,25 +348,24 @@ server closing socket
   }
 }
 
-module.exports = Socket
+export default Socket
 </code></pre>
 <ul>
 <li>Unit test</li>
 </ul>
-<pre title="test/test-http-response-success.js"><code class="language-js">const assert = require('assert')
-
-const Socket = require('./socket')
-const handlerFactory = require('../http-response-success')
+<pre title="test/test-http-response-success.js"><code class="language-js">import assert from 'assert'
+import Socket from './socket.js'
+import handlerFactory from '../http-response-success.js'
 
 const REQUEST_HEADER = `GET @path HTTP/1.1
 
-`.replace('\n', '\r\n')
+` // end REQUEST_HEADER
 
 const RESPONSE_HEADER = `HTTP/1.1 200 OK
 Content-Type: text/plain
 Content-Length: 7
 
-`.replace('\n', '\r\n')
+` // end RESPONSE_HEADER
 
 describe('checks a constant HTTP response', () =&gt; {
   it('constructs a handler and gets a response', async () =&gt; {
@@ -363,21 +374,35 @@ describe('checks a constant HTTP response', () =&gt; {
     const request = REQUEST_HEADER.replace('@path', '/')
     handler(request)
     const result = socket.text
-    assert.strictEqual(result, RESPONSE_HEADER + 'SUCCESS',
-      'Wrong response from server')
+    assert.strictEqual(result, RESPONSE_HEADER + 'SUCCESS')
   })
 })
+</code></pre>
+<pre title="test-http-response-success.out"><code class="language-out">
+&gt; stjs@1.0.0 test /u/stjs
+&gt; mocha */test/test-*.js "-g" "checks a constant HTTP response"
+
+
+
+  checks a constant HTTP response
+server received from client: GET / HTTP/1.1
+
+
+    ✓ constructs a handler and gets a response
+
+
+  1 passing (4ms)
 </code></pre>
 <ul>
 <li>Parse the HTTP request and return text files</li>
 </ul>
-<pre title="http-response-parse.js"><code class="language-js">const fs = require('fs')
+<pre title="http-response-parse.js"><code class="language-js">import fs from 'fs'
 
 const Header = `HTTP/1.1 200 OK
 Content-Type: text/plain
 Content-Length: @LENGTH
 
-`
+` // end Header
 
 const PathPattern = /^GET\s+(.+)\s+HTTP\/1.1/
 
@@ -392,10 +417,11 @@ const handlerFactory = (socket) =&gt; (data) =&gt; {
   socket.write(content)
 }
 
-module.exports = handlerFactory
+export default handlerFactory
 </code></pre>
-<pre title="http-response-parse.txt"><code class="language-txt">server listening on localhost:8080
+<pre title="http-response-parse.out"><code class="language-out">server listening on localhost:8080
 server new connection 1
+server ending connection
 client receives:
 HTTP/1.1 200 OK
 Content-Type: text/plain
@@ -405,35 +431,39 @@ Content-Length: 19
 client receives:
 Contents of File A
 
-server ending connection
 server closing socket
 </code></pre>
 <ul>
 <li>But there are three problems
 <ol>
 <li>Synchronous operation</li>
-<li>Not everything is text</li>
+<li>Not all files are text</li>
 <li>Security: if we use the path provided, we can potentially return any file on the system</li>
 </ol>
 </li>
+<li>To test the last point, get <code>index.html</code> from the directory above this one</li>
 </ul>
-<pre title="breaking-sandbox.sh"><code class="language-sh">node socket-server.js ./http-response-parse &amp;
+<pre title="breaking-sandbox.sh"><code class="language-sh">node socket-server.js ./http-response-parse.js &amp;
 sleep 1
-node http-request-client.js ../files/private.txt
+node http-request-client.js ../index.html
 kill %1
 </code></pre>
-<pre title="breaking-sandbox.txt"><code class="language-txt">server listening on localhost:8080
+<pre title="breaking-sandbox.out"><code class="language-out">server listening on localhost:8080
 server new connection 1
+server ending connection
 client receives:
 HTTP/1.1 200 OK
 Content-Type: text/plain
-Content-Length: 37
+Content-Length: 114
 
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta http-equiv="Refresh" content="0; url='./vol1/'" /&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
 
-client receives:
-This is supposed to be private data.
-
-server ending connection
 server closing socket
 </code></pre>
 <h2 id="how-can-we-make-servers-easier-to-create">How can we make servers easier to create?</h2>
@@ -534,11 +564,11 @@ BaseHttpServer.HEADER = `HTTP/1.1 @status_code @status_message
 Content-Type: @content_type
 Content-Length: @length
 
-`
+` // end HEADER
 
-module.exports = BaseHttpServer
+export default BaseHttpServer
 </code></pre>
-<pre title="test-base-http-server.js"><code class="language-js">const BaseHttpServer = require('./base-http-server')
+<pre title="test-base-http-server.js"><code class="language-js">import BaseHttpServer from './base-http-server.js'
 
 const server = new BaseHttpServer()
 server.run()
@@ -548,23 +578,21 @@ sleep 1
 node http-request-client.js
 kill %1
 </code></pre>
-<pre title="test-base-http-server.txt"><code class="language-txt">server listening on localhost:8080
+<pre title="test-base-http-server.out"><code class="language-out">server listening on localhost:8080
 client receives:
 HTTP/1.1 200 OK
 Content-Type: text/plain
 Content-Length: 10
 
-
-client receives:
 SUCCESS: /
 </code></pre>
 <ul>
 <li>Serve files</li>
 </ul>
-<pre title="http-file-server.js"><code class="language-js">const fs = require('fs')
-const path = require('path')
+<pre title="http-file-server.js"><code class="language-js">import fs from 'fs'
+import path from 'path'
 
-const BaseHttpServer = require('./base-http-server')
+import BaseHttpServer from './base-http-server.js'
 
 class HttpFileServer extends BaseHttpServer {
   constructor (rootDir) {
@@ -603,18 +631,16 @@ sleep 1
 echo '- - - - - - - - - - - - - - - - - - - -'
 node http-request-client.js /files/a.txt
 echo '- - - - - - - - - - - - - - - - - - - -'
-node http-request-client.js ../files/private.txt
+node http-request-client.js ../index.html
 kill %1
 </code></pre>
-<pre title="test-http-file-server.txt"><code class="language-txt">server listening on localhost:8080
+<pre title="test-http-file-server.out"><code class="language-out">server listening on localhost:8080
 - - - - - - - - - - - - - - - - - - - -
 client receives:
 HTTP/1.1 200 OK
 Content-Type: text/plain
 Content-Length: 19
 
-
-client receives:
 Contents of File A
 
 - - - - - - - - - - - - - - - - - - - -
@@ -640,7 +666,7 @@ Requested file does not exist
 </ul>
 </li>
 </ul>
-<pre title="http-params-server.js"><code class="language-js">const BaseHttpServer = require('./base-http-server')
+<pre title="http-params-server.js"><code class="language-js">import BaseHttpServer from './base-http-server.js'
 
 class HttpParamsServer extends BaseHttpServer {
   constructor () {
@@ -669,7 +695,7 @@ server.run()
 </ul>
 </li>
 </ul>
-<pre title="http-params-client.js"><code class="language-js">const net = require('net')
+<pre title="http-params-client.js"><code class="language-js">import Net from 'net'
 
 const query = (process.argv.length &gt; 2)
   ? '?' + process.argv.slice(2)
@@ -677,9 +703,9 @@ const query = (process.argv.length &gt; 2)
 
 const request = `GET /${query} HTTP/1.1
 
-`
+` // end request
 
-const client = new net.Socket()
+const client = new Net.Socket()
 client.connect(8080, '127.0.0.1', () =&gt; {
   client.write(request)
   client.end()
@@ -704,7 +730,7 @@ echo '- - - - - - - - - - - - - - - - - - - -'
 node http-params-client.js unknown=something
 kill %1
 </code></pre>
-<pre title="test-http-params-server.txt"><code class="language-txt">server listening on localhost:8080
+<pre title="test-http-params-server.out"><code class="language-out">server listening on localhost:8080
 - - - - - - - - - - - - - - - - - - - -
 client receives:
 HTTP/1.1 200 OK
@@ -729,9 +755,13 @@ LOW
 <li>Structured data</li>
 </ul>
 </li>
-<li>Use <a href="https://www.npmjs.com/package/got">got</a> to construct request including URL and JSON</li>
+<li>Use <a href="https://www.npmjs.com/package/got">got</a> to construct request including URL and JSON
+<ul>
+<li><code>async</code> function because we have to <code>await</code> the response</li>
 </ul>
-<pre title="got-json-client.js"><code class="language-js">const got = require('got')
+</li>
+</ul>
+<pre title="got-json-client.js"><code class="language-js">import got from 'got'
 
 const getter = async (url, word) =&gt; {
   const { body } = await got.post(url, {
@@ -752,10 +782,11 @@ getter(url, word)
 <li>Convert body of request from text to JSON if the type is <code>application/json</code></li>
 </ul>
 </li>
+<li>Parsing request relies on a few helper methods</li>
 </ul>
-<pre title="http-json-server.js"><code class="language-js">const url = require('url')
+<pre title="http-json-server.js"><code class="language-js">import url from 'url'
 
-const BaseHttpServer = require('./base-http-server')
+import BaseHttpServer from './base-http-server.js'
 
 class HttpJsonServer extends BaseHttpServer {
   parseRequest (data) {
@@ -769,8 +800,18 @@ class HttpJsonServer extends BaseHttpServer {
       body: this.convertBody(headers, body)
     }
   }
+...
+}
 
-  getHeadAndBody (data) {
+HttpJsonServer.TARGET_PATTERN = /^(.+?)\s+(.+)\s+HTTP\/1.1/
+
+const server = new HttpJsonServer()
+server.run()
+</code></pre>
+<ul>
+<li>Getting head and body</li>
+</ul>
+<pre title="http-json-server.js"><code class="language-js">  getHeadAndBody (data) {
     const separators = ['\r\n\r\n', '\n\n']
     for (const sep of separators) {
       const loc = data.indexOf(sep)
@@ -781,9 +822,11 @@ class HttpJsonServer extends BaseHttpServer {
       }
     }
     return ''
-  }
-
-  parseHead (head) {
+  }</code></pre>
+<ul>
+<li>Parsing the head</li>
+</ul>
+<pre title="http-json-server.js"><code class="language-js">  parseHead (head) {
     const lines = head.split('\n')
       .map(line =&gt; line.trim())
       .filter(line =&gt; line.length &gt; 0)
@@ -801,9 +844,11 @@ class HttpJsonServer extends BaseHttpServer {
       return soFar
     }, new Map())
     return [verb, raw, headers]
-  }
-
-  convertBody (headers, body) {
+  }</code></pre>
+<ul>
+<li>Miscellaneous helper methods</li>
+</ul>
+<pre title="http-json-server.js"><code class="language-js">  convertBody (headers, body) {
     if (headers.get('content-type').includes('application/json')) {
       body = JSON.parse(body)
     }
@@ -813,20 +858,9 @@ class HttpJsonServer extends BaseHttpServer {
   handle (request, response) {
     const value = request.body.key
     response.body = JSON.stringify({ result: value })
-  }
-}
-
-HttpJsonServer.TARGET_PATTERN = /^(.+?)\s+(.+)\s+HTTP\/1.1/
-
-const server = new HttpJsonServer()
-server.run()
-</code></pre>
+  }</code></pre>
 <ul>
-<li>After all that, echoing a value back seems like small potatoes
-<ul>
-<li>We will do more sophisticated things in chapters to come</li>
-</ul>
-</li>
+<li>After all that, echoing a value back seems like small potatoes</li>
 </ul>
 <pre title="test-http-json-server.sh"><code class="language-sh">node http-json-server.js &amp;
 sleep 1
@@ -834,7 +868,7 @@ echo '- - - - - - - - - - - - - - - - - - - -'
 node got-json-client.js http://localhost:8080/ testing
 kill %1
 </code></pre>
-<pre title="test-http-json-server.txt"><code class="language-txt">server listening on localhost:8080
+<pre title="test-http-json-server.out"><code class="language-out">server listening on localhost:8080
 - - - - - - - - - - - - - - - - - - - -
 { result: 'testing' }
 </code></pre>

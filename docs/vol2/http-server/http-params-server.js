@@ -1,4 +1,4 @@
-const BaseHttpServer = require('./base-http-server')
+import BaseHttpServer from './base-http-server.js'
 
 class HttpParamsServer extends BaseHttpServer {
   constructor () {

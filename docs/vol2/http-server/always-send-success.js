@@ -3,4 +3,4 @@ const handlerFactory = (socket) => (data) => {
   socket.write('SUCCESS')
 }
 
-module.exports = handlerFactory
+export default handlerFactory
