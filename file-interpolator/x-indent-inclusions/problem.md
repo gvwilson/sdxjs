@@ -33,6 +33,6 @@ const withLogging = (args) => {
 withLogging
 ```
 
-:::
+::: continue
 i.e., all lines of the inclusion will be indented to match the first.
 :::

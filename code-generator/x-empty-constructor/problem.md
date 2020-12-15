@@ -12,7 +12,7 @@ class Example {
 }
 ```
 
-::: noindent
+::: continue
 then the output should be:
 :::
 

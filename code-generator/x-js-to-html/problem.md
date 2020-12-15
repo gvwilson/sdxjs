@@ -4,7 +4,7 @@ Write a function that takes nested JavaScript function calls for generating HTML
 div(h1('title'), p('explanation'))
 ```
 
-::: noindent
+::: continue
 and turns them into HTML like this:
 :::
 
