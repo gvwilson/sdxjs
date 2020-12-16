@@ -9,17 +9,23 @@ VOLUME := vol${V}
 # Home page for this volume.
 HOME_PAGE := docs/${VOLUME}/index.html
 
+# Arguments for extracting information from YAML configuration.
+SLUG_ARGS := . docs/${VOLUME} common.yml ${VOLUME}.yml
+
 # Chapter slugs.
-CHAPTERS := $(shell bin/slugs.js chapters . docs/${VOLUME} common.yml ${VOLUME}.yml)
+CHAPTERS := $(shell bin/slugs.js chapters ${SLUG_ARGS})
 
 # Markdown chapter files.
-MARKDOWN := $(shell bin/slugs.js source . docs/${VOLUME} common.yml ${VOLUME}.yml)
+MARKDOWN := $(shell bin/slugs.js source ${SLUG_ARGS})
 
 # All HTML output files.
-HTML := $(shell bin/slugs.js html . docs/${VOLUME} common.yml ${VOLUME}.yml)
+HTML := $(shell bin/slugs.js html ${SLUG_ARGS})
 
 # Complete list of exercise source files.
-EXERCISES := $(shell bin/slugs.js exercises . docs/${VOLUME} common.yml ${VOLUME}.yml)
+EXERCISES := $(shell bin/slugs.js exercises ${SLUG_ARGS})
+
+# Author files.
+AUTHORS := $(patsubst %,authors/%.md,$(shell bin/slugs.js authors ${SLUG_ARGS}))
 
 # Glossary for this volume.
 GLOSS_MD := gloss-${VOLUME}.md
@@ -149,7 +155,7 @@ clean:
 
 ## settings: show settings
 settings:
-	@echo VOLUME = "${VOLUME}"
+	@echo AUTHORS = "${AUTHORS}"
 	@echo CHAPTERS = "${CHAPTERS}"
 	@echo EXERCISES = "${EXERCISES}"
 	@echo HTML = "${HTML}"
@@ -158,6 +164,7 @@ settings:
 	@echo MARKDOWN = "${MARKDOWN}"
 	@echo STATIC_DST = "${STATIC_DST}"
 	@echo STATIC_SRC = "${STATIC_SRC}"
+	@echo VOLUME = "${VOLUME}"
 
 # ----------------------------------------------------------------------
 
@@ -177,6 +184,7 @@ ${LINKS_YML}: links.yml bin/links.js $(filter-out ${GLOSS_MD} links.md,${MARKDOW
 	bin/links.js \
 	--input links.yml \
 	--output ${LINKS_YML} \
+	--also ${AUTHORS} \
 	${COMMON_PARAMS}
 
 ${HOME_PAGE}: bin/html.js ${VOLUME}.yml common.yml ${LINKS_YML} ${MARKDOWN} ${INC} ${STATIC_DST}

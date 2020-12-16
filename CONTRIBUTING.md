@@ -68,6 +68,17 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
 1.  The home page for the site as a whole is in `./index.html`.
     At present, this immediately redirects to the home page of Volume 1.
 
+### Authors
+
+1.  Add an entry in the YAML configuration file for each volume you are contributing to
+    (alphabetically by surname) with `id`, `name`, and `img` sub-keys.
+    If possible, use your GitHub ID as your `id`.
+
+2.  Create a Markdown file `./authors/id.md` (with your ID instead of `id`)
+    with a few lines about yourself.
+
+3.  Add an image to `./static` to be included in the author display.
+
 ## Writing Style
 
 1.  Please install [WAVE][webaim-wave] and check that pages are accessible

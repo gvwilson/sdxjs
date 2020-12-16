@@ -19,6 +19,10 @@ const main = () => {
   const allFiles = createFilePaths(options)
   let result = null
   switch (which) {
+    case 'authors':
+      result = options.authors.map(author => author.id).join(' ')
+      break
+
     case 'chapters':
       result = allFiles.filter(e => e.isChapter).map(e => e.slug).join(' ')
       break

@@ -6,5 +6,6 @@
   "conduct": "C",
   "contributing": "D",
   "gloss": "E",
-  "links": "F"
+  "links": "F",
+  "authors": "G"
 }
