@@ -28,7 +28,12 @@
 -   Use `r` and `v` to indicate format
 
 ::: fixme
-Diagram of virtual machine architecture
+<%- include('/inc/fig.html', {
+    id: 'virtual-machine-architecture',
+    img: '/static/tools-small.jpg',
+    alt: 'Virtual machine architecture',
+    cap: 'Architecture of the virtual machine.'
+}) %>
 :::
 
 | Instruction | Code | Format | Action              | Example      | Equivalent                |

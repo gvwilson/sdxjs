@@ -22,7 +22,12 @@
 -   For example, create a function that always appends the same string to its argument
 
 ::: fixme
-Diagram of closures
+<%- include('/inc/fig.html', {
+    id: 'module-loader-closures',
+    img: '/static/tools-small.jpg',
+    alt: 'How closures work',
+    cap: 'Using closures to create private variables.'
+}) %>
 :::
 
 -   Gives us code like this:
