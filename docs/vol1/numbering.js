@@ -20,7 +20,7 @@
   "doc-generator": "19",
   "virtual-machine": "20",
   "debugger": "21",
-  "conclusion": "22",
+  "vol1-finale": "22",
   "bib": "A",
   "license": "B",
   "conduct": "C",

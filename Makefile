@@ -208,7 +208,7 @@ ${VOLUME}.pdf ${VOLUME}.aux: ${VOLUME}.tex
 # ----------------------------------------------------------------------
 
 # HTML file dependencies that don't map directly to index.md files in sub-directories.
-${HOME_PAGE}: ${VOLUME}/index.md
+${HOME_PAGE}: ${VOLUME}-intro/index.md
 docs/${VOLUME}/conduct/index.html: CONDUCT.md
 docs/${VOLUME}/contributing/index.html: CONTRIBUTING.md
 docs/${VOLUME}/license/index.html: LICENSE.md
