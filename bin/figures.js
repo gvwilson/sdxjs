@@ -14,21 +14,22 @@ import {
 const main = () => {
   const options = getOptions()
   createFilePaths(options)
-  let total = 0
+  let total = { count: 0, fixme: 0 }
   const info = options.chapters
     .map(chapter => {
       const title = chapter.title
-      const count = countFigures(chapter.source)
-      total += count
-      return { title, count }
+      const { count, fixme } = countFigures(chapter.source)
+      total.count += count
+      total.fixme += fixme
+      return { title, count, fixme }
     })
-  console.log('Chapter | Figures')
-  console.log('------- | -------')
-  info.forEach(({ title, count }) => {
-    console.log(`${title} | ${count}`)
+  console.log('Chapter | Figures | Undone')
+  console.log('------- | ------- | ------')
+  info.forEach(({ title, count, fixme }) => {
+    console.log(`${title} | ${count} | ${fixme}`)
   })
-  console.log('------- | -------')
-  console.log(`Total | ${total}`)
+  console.log('------- | ------- | ------')
+  console.log(`Total | ${total.count} | ${total.fixme}`)
 }
 
 /**
@@ -49,8 +50,13 @@ const getOptions = () => {
  */
 const countFigures = (filename) => {
   const text = fs.readFileSync(filename, 'utf-8')
-  const matches = text.match(/\/inc\/fig.html/g)
-  return matches ? matches.length : 0
+  const matches = text.match(/\/inc\/fig\.html([^]*?)%>/gm)
+  if (matches === null) {
+    return {count: 0, fixme: 0}
+  }
+  const count = matches.length
+  const fixme = matches.filter(m => m.match(/fixme:\s*true/gm) ? true : false).length
+  return {count, fixme}
 }
 
 main()

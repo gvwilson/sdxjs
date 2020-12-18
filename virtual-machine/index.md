@@ -27,14 +27,13 @@
     -   So the largest constant we can represent directly is 256
 -   Use `r` and `v` to indicate format
 
-::: fixme
 <%- include('/inc/fig.html', {
     id: 'virtual-machine-architecture',
     img: '/static/tools-small.jpg',
     alt: 'Virtual machine architecture',
-    cap: 'Architecture of the virtual machine.'
+    cap: 'Architecture of the virtual machine.',
+    fixme: true
 }) %>
-:::
 
 | Instruction | Code | Format | Action              | Example      | Equivalent                |
 | ----------- | ---- | ------ | ------------------- | ------------ | ------------------------- |

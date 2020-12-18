@@ -64,14 +64,13 @@ so most SAT solvers use heuristics to try to reduce the work.
     -   Package Z
         -   Z/1, Z/2, and Z/3 don't require anything
 
-::: fixme
 <%- include('/inc/fig.html', {
     id: 'package-manager-allowable',
     img: '/static/tools-small.jpg',
     alt: 'Allowable versions',
-    cap: 'Finding allowable combinations of package versions.'
+    cap: 'Finding allowable combinations of package versions.',
+    fixme: true
 }) %>
-:::
 
 -   18 possibilities (2 for X times 3 for Y times 3 for Z)
     -   But 16 are excluded by various incompatibilities

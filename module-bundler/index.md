@@ -40,14 +40,13 @@
     -   `./subdir/bottom-left` also requires `top-left` and `bottom-right`
     -   `./subdir/bottom-right` doesn't require anything
 
-::: fixme
 <%- include('/inc/fig.html', {
     id: 'module-bundler-dependencies',
     img: '/static/tools-small.jpg',
     alt: 'Module bundler dependencies',
-    cap: 'Dependencies in large module bundler test case.'
+    cap: 'Dependencies in large module bundler test case.',
+    fixme: true
 }) %>
-:::
 
 <%- include('/inc/file.html', {file: 'expected-full.out'}) %>
 
@@ -151,14 +150,13 @@
     -   …and returns a function that takes a local path inside a module and returns the exports
     -   Each layer of wrappers remembers more information
 
-::: fixme
 <%- include('/inc/fig.html', {
     id: 'module-bundler-returning-functions',
     img: '/static/tools-small.jpg',
     alt: 'Functions returning functions returning functions',
-    cap: 'A function that returns functions that return functions.'
+    cap: 'A function that returns functions that return functions.',
+    fixme: true
 }) %>
-:::
 
 -   We're also going to need a third structure: a cache for the modules we've already loaded
 -   To prove it works, we will look up the function `main` in the first file and call it

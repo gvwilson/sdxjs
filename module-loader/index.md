@@ -21,14 +21,13 @@
     -   Only way to access those things is via that data structure
 -   For example, create a function that always appends the same string to its argument
 
-::: fixme
 <%- include('/inc/fig.html', {
     id: 'module-loader-closures',
     img: '/static/tools-small.jpg',
     alt: 'How closures work',
-    cap: 'Using closures to create private variables.'
+    cap: 'Using closures to create private variables.',
+    fixme: true
 }) %>
-:::
 
 -   Gives us code like this:
 
