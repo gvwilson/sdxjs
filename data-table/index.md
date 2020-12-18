@@ -17,9 +17,13 @@
     -   Each named column stored as a <g key="homogeneous">homogeneous</g> array
     -   In JavaScript, an object whose members are all arrays of the same length
 
-::: fixme
-diagram of row-major vs. column-major
-:::
+<%- include('/inc/fig.html', {
+    id: 'data-table-storage-order',
+    img: '/static/tools-small.jpg',
+    alt: 'Row-major vs. column-major storage order',
+    cap: 'Row-major storage vs. column-major storage for data tables.',
+    fixme: true
+}) %>
 
 -   Construct one of each, try some operations, record times and memory use, see which is better
     -   Answer will depend on what parameters we use
@@ -37,6 +41,14 @@ diagram of row-major vs. column-major
 
 <%- include('/inc/keep.html', {file: 'table-performance.js', key: 'operate-rows'}) %>
 
+<%- include('/inc/fig.html', {
+    id: 'data-table-row-ops',
+    img: '/static/tools-small.jpg',
+    alt: 'Row-major operations',
+    cap: 'Operations on row-major data tables.',
+    fixme: true
+}) %>
+
 -   Now do the same for column-major storage
 -   Build
 
@@ -48,6 +60,14 @@ diagram of row-major vs. column-major
     -   The parameters to the two functions are different from those to the row-major functions
 
 <%- include('/inc/keep.html', {file: 'table-performance.js', key: 'operate-cols'}) %>
+
+<%- include('/inc/fig.html', {
+    id: 'data-table-col-ops',
+    img: '/static/tools-small.jpg',
+    alt: 'Column-major operations',
+    cap: 'Operations on column-major data tables.',
+    fixme: true
+}) %>
 
 -   Build a <g key="test_harness">test harness</g> to run both variants for data tables of some size
     -   Arbitrarily decide to keep half of the columns and one-third of the rows
@@ -75,6 +95,14 @@ diagram of row-major vs. column-major
 -   Same large table with a 10-1 filter/select ratio
 
 <%- include('/inc/file.html', {file: 'table-performance-10000-30-10.out'}) %>
+
+<%- include('/inc/fig.html', {
+    id: 'data-table-performance',
+    img: '/static/tools-small.jpg',
+    alt: 'Performance of data table operations',
+    cap: 'Relative performance of operations on row-major and column-major data tables.',
+    fixme: true
+}) %>
 
 -   Conclusion: column-major is better
     -   Uses less memory (presumably because labels aren't duplicated)
@@ -112,10 +140,28 @@ diagram of row-major vs. column-major
 -   JavaScript stores values in <g key="tagged_data">tagged</g> data structures
     -   Some bits to define its type
     -   Other bits with the actual data
--   And despite what `sizeof` tells us, objects and arrays have structural overhead
+    -   And despite what `sizeof` tells us, objects and arrays have structural overhead
+
+<%- include('/inc/fig.html', {
+    id: 'data-table-object-storage',
+    img: '/static/tools-small.jpg',
+    alt: 'JavaScript object storage',
+    cap: 'How JavaScript uses tagged data structures to store objects.',
+    fixme: true
+}) %>
+
 -   We can save space by just storing the bits, but then we have to keep track of types ourselves
 -   JavaScript has an `ArrayBuffer` object that stores bits
 -   We access it through a view that presents the data as a particular type, such as unsigned 8-bit integer or 64-bit float
+
+<%- include('/inc/fig.html', {
+    id: 'data-table-packed-storage',
+    img: '/static/tools-small.jpg',
+    alt: 'Packing objects for storage',
+    cap: 'Storing object values as bits with lookup information.',
+    fixme: true
+}) %>
+
 -   To store a column-oriented table:
     -   Two integers with size
     -   A string with the labels joined by newlines (we assume that labels can't contain newlines)

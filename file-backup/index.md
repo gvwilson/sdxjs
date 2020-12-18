@@ -9,6 +9,15 @@
 -   A <g key="hash_function">hash function</g> turns arbitrary data into a fixed-length string of bits
     -   That bit string can then be used to place the object in a predictable place in a table
     -   Gives reasonably fast lookup for arbitrary keys
+
+<%- include('/inc/fig.html', {
+    id: 'file-backup-hash-function',
+    img: '/static/tools-small.jpg',
+    alt: 'Hash functions',
+    cap: 'How hash functions speed up lookup.',
+    fixme: true
+}) %>
+
 -   A <g key="cryptographic_hash_function">cryptographic hash function</g> produces keys that appear random
     -   Leads to the fastest possible lookup on average
 -   Easy to write a bad hash function but hard to write a strong one
@@ -47,12 +56,28 @@ and quickly get into "if every atom in the universe was a file there still would
 
 <%- include('/inc/multi.html', {pat: 'hash-stream.*', fill: 'js sh out'}) %>
 
+<%- include('/inc/fig.html', {
+    id: 'file-backup-streaming',
+    img: '/static/tools-small.jpg',
+    alt: 'Streaming file operations',
+    cap: 'Processing files as streams of chunks.',
+    fixme: true
+}) %>
+
 -   Many files don't change after they're created, or only change very slowly
 -   Wasteful to copy them every time a backup is done
 -   Instead:
     -   Copy each file to something like `abcd1234.bck` where `abcd1234` is a hash of the file's contents
     -   Store a data structure that records filenames and hash keys at a particular instant
     -   To restore from a particular date, copy saved files to where they need to be
+
+<%- include('/inc/fig.html', {
+    id: 'file-backup-storage',
+    img: '/static/tools-small.jpg',
+    alt: 'Backup file storage',
+    cap: 'Organization of backup file storage.',
+    fixme: true
+}) %>
 
 ## How can async and await simplify code?
 
@@ -79,6 +104,14 @@ and quickly get into "if every atom in the universe was a file there still would
 
 <%- include('/inc/file.html', {file: 'check-existing-files.js'}) %>
 
+<%- include('/inc/fig.html', {
+    id: 'file-backup-toctou',
+    img: '/static/tools-small.jpg',
+    alt: 'Time of check/time of use race condition',
+    cap: 'Race condition when time of check and time of use are not the same.',
+    fixme: true
+}) %>
+
 -   Manually create testing directories with manufactured (shortened) hashes
 
 <%- include('/inc/multi.html', {pat: 'tree-test.*', fill: 'sh out'}) %>
@@ -100,6 +133,15 @@ and quickly get into "if every atom in the universe was a file there still would
 -   Better solution: use a <g key="mock_object">mock object</g> instead of the real filesystem
     -   Has the same interface as the real function/object/class/library
     -   But works differently for testing purposes
+
+<%- include('/inc/fig.html', {
+    id: 'file-backup-mock-fs',
+    img: '/static/tools-small.jpg',
+    alt: 'Mock filesystem',
+    cap: 'Using a mock filesystem to simplify testing.',
+    fixme: true
+}) %>
+
 -   Install [`mock-fs`][node-mock-fs]
 -   Create a mock filesystem with a JSON description of files and their contents
 -   Repeat previous tests using mock

@@ -21,6 +21,14 @@
 | Element with `id="ident"` | `#ident`   |
 | `child` element inside a `parent` element | `parent child` |
 
+<%- include('/inc/fig.html', {
+    id: 'pattern-matching-query-selectors',
+    img: '/static/tools-small.jpg',
+    alt: 'Query selectors',
+    cap: 'A simple set of query selectors.',
+    fixme: true
+}) %>
+
 -   So `blockquote#important p.highlight` is a highlighted paragraph inside the blockquote whose ID is `"important"`
 -   To find the first match:
     -   Break the query string into pieces
@@ -35,6 +43,14 @@
 -   `matchHere` handles a single node and selector
 
 <%- include('/inc/multi.html', {pat: 'simple-selectors-test.*', fill: 'js out'}) %>
+
+<%- include('/inc/fig.html', {
+    id: 'pattern-matching-query-selectors-travesal',
+    img: '/static/tools-small.jpg',
+    alt: 'Matching query selectors',
+    cap: 'Recuring through a tree to match query selectors.',
+    fixme: true
+}) %>
 
 ## How can we implement a simple regular expression matcher?
 
@@ -75,6 +91,15 @@ it easily accounts for 95 percent of all instances."
 -   Combine these objects to create a matcher
     -   And then write something to translate text expressions into collections of matchers
     -   Or just stick with code
+
+<%- include('/inc/fig.html', {
+    id: 'pattern-matching-regex-objects',
+    img: '/static/tools-small.jpg',
+    alt: 'Implementing regex with objects',
+    cap: 'Using nested objects to match regular expressions.',
+    fixme: true
+}) %>
+
 -   First step is to define test cases
     -   Which also forces us to define our syntax
 
@@ -118,11 +143,29 @@ it easily accounts for 95 percent of all instances."
     -   The `/*/` is <g key="greedy_algorithm">greedy</g>: it matches as much as it can
     -   So `/a*/` will match the leading `"a"`, leaving nothing for the literal `/a/` to match
     -   Our current implementation doesn't give us a way to try alternatives
+
+<%- include('/inc/fig.html', {
+    id: 'pattern-matching-greedy-failure',
+    img: '/static/tools-small.jpg',
+    alt: 'Overly-greedy matching fails',
+    cap: "Why overly-greedy matching doesn't work.",
+    fixme: true
+}) %>
+
 -   Re-think
     -   Each matcher takes its own arguments and a `rest` parameter which is the rest of the matchers
     -   Provide `null` as a default in the creation function so we don't have to type it over and over again
     -   Try each of its possibilities and then see if the rest will also match
     -   Means we can get rid of `RegexSeq`
+
+<%- include('/inc/fig.html', {
+    id: 'pattern-matching-rest',
+    img: '/static/tools-small.jpg',
+    alt: 'Matching the rest of the pattern',
+    cap: 'Using "rest" to match the remainder of a pattern.',
+    fixme: true
+}) %>
+
 -   Tests are a little harder to read
 
 <%- include('/inc/file.html', {file: 'regex-recursive/regex-complete.js'}) %>
@@ -148,9 +191,13 @@ it easily accounts for 95 percent of all instances."
     -   Try zero matches, then one, then two, and so on until something succeeds
     -   Which means we are repeatedly re-matching things we already know work
 
-::: fixme
-diagram showing repetition in regex
-:::
+<%- include('/inc/fig.html', {
+    id: 'pattern-matching-repetition',
+    img: '/static/tools-small.jpg',
+    alt: 'Repetition in regular expressions',
+    cap: 'Matching repeated patterns in regular expressions.',
+    fixme: true
+}) %>
 
 -   We also need to figure out how long to keep trying
     -   Each non-empty repetition matches at least one character
