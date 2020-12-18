@@ -127,6 +127,10 @@ terms:
 exercises:
 	@bin/exercises.js ${VOLUME}.yml | column -t -s '|'
 
+## figures: count figures per chapter
+figures:
+	@bin/figures.js ${COMMON_PARAMS} | column -t -s '|'
+
 ## examples: rebuild all examples in sub-directories
 examples:
 	@for d in ${CHAPTERS}; do echo ""; echo $$d; make -C $$d; done
