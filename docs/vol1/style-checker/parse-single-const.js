@@ -1,4 +1,4 @@
 import acorn from 'acorn'
 
 const ast = acorn.parse('const x = 0', { locations: true })
-console.log(ast)
+console.log(JSON.stringify(ast, null, 2))

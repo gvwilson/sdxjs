@@ -20,14 +20,13 @@
     -   First argument is a function of no arguments
     -   Second is the delay
 
-::: fixme
 <%- include('/inc/fig.html', {
     id: 'promises-set-timeout',
     img: '/static/tools-small.jpg',
     alt: 'Setting a timeout',
-    cap: 'Using `setTimeout` to delay operations.'
+    cap: 'Using <code>setTimeout</code> to delay operations.',
+    fixme: true
 }) %>
-:::
 
 <%- include('/inc/multi.html', {pat: 'callbacks-with-timeouts.*', fill: 'js out'}) %>
 
@@ -40,14 +39,13 @@
 
 <%- include('/inc/multi.html', {pat: 'non-blocking.*', fill: 'js out'}) %>
 
-::: fixme
 <%- include('/inc/fig.html', {
     id: 'promises-set-three-delays',
     img: '/static/tools-small.jpg',
     alt: 'Delaying three function calls',
-    cap: 'Order of operations with three delays function calls.'
+    cap: 'Order of operations with three delays function calls.',
+    fixme: true
 }) %>
-:::
 
 -   Why bother?
     -   Because we may want to give something else a chance to run
@@ -71,14 +69,13 @@
     -   Its argument is a callback that gets the value passed to `resolve`
     -   This is where and how we handle the delayed execution.
 
-::: fixme
 <%- include('/inc/fig.html', {
     id: 'promises-resolve',
     img: '/static/tools-small.jpg',
     alt: 'How promises resolve',
-    cap: 'Order of operations when a promise resolves.'
+    cap: 'Order of operations when a promise resolves.',
+    fixme: true
 }) %>
-:::
 
 -   `Pledge`'s <g key="constructor">constructor</g> requires a single function called `action`
 -   This function must take take two callbacks as arguments
@@ -128,14 +125,13 @@
 
 <%- include('/inc/multi.html', {pat: 'promise-example.*', fill: 'js out'}) %>
 
-::: fixme
 <%- include('/inc/fig.html', {
     id: 'promises-chained',
     img: '/static/tools-small.jpg',
     alt: 'Chained promises',
-    cap: 'Chaining promises to make asynchronous operations depend on each other.'
+    cap: 'Chaining promises to make asynchronous operations depend on each other.',
+    fixme: true
 }) %>
-:::
 
 -   If we use a <g key="promisification">promisified</g> function from the library, we get a promise for free
 -   If we want to plug in our own asynchronous functions, we need to create promises
@@ -173,14 +169,13 @@ If we don't specify a character encoding,
 
 <%- include('/inc/file.html', {file: 'count-lines-print-filenames.js'}) %>
 
-::: fixme
 <%- include('/inc/fig.html', {
     id: 'promises-temporary-named-fields',
     img: '/static/tools-small.jpg',
     alt: 'Temporary objects with named fields',
-    cap: 'Creating temporary objects with named fields to carry values forward.'
+    cap: 'Creating temporary objects with named fields to carry values forward.',
+    fixme: true
 }) %>
-:::
 
 -   Works until we run into a directory whose name name matches `*.*`
     -   Which we do in `node_modules`

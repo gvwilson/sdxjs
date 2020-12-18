@@ -41,14 +41,13 @@ we have added `"type": "module"` at the top level of `package.json`.
     -   `process.argv[1]` is the name of our program (in this case `list-dir-wrong.js`)
     -   `process.argv[2]` is the first argument after the name of our program
 
-::: fixme
 <%- include('/inc/fig.html', {
     id: 'systems-programming-process-argv',
     img: '/static/tools-small.jpg',
     alt: 'Command-line arguments in `process.argv`',
-    cap: 'How Node stores command-line arguments in `process.argv`.'
+    cap: 'How Node stores command-line arguments in <code>process.argv</code>.',
+    fixme: true
 }) %>
-:::
 
 -   `fs.readdir` is supposed to return an array of strings (the names of the things in the directory)
 -   Use `for (const name of results)` to loop over the *contents* of that array
@@ -74,14 +73,13 @@ we have added `"type": "module"` at the top level of `package.json`.
     -   The function must take a specific set of parameters
     -   A standard <g key="protocol">protocol</g> like the various kind of USB ports and connectors that allows us to plug things together
 
-::: fixme
 <%- include('/inc/fig.html', {
     id: 'systems-programming-callbacks',
     img: '/static/tools-small.jpg',
     alt: 'How callbacks work',
-    cap: 'How JavaScript runs callback functions.'
+    cap: 'How JavaScript runs callback functions.',
+    fixme: true
 }) %>
-:::
 
 <%- include('/inc/file.html', {file: 'list-dir-function-defined.js'}) %>
 
@@ -108,14 +106,13 @@ we have added `"type": "module"` at the top level of `package.json`.
     8.  Filesystem operation finishes
     9.  Our callback function runs and prints its output
 
-::: fixme
 <%- include('/inc/fig.html', {
     id: 'systems-programming-execution-order',
     img: '/static/tools-small.jpg',
     alt: 'Callback execution order',
-    cap: 'When JavaScript runs callback functions.'
+    cap: 'When JavaScript runs callback functions.',
+    fixme: true
 }) %>
-:::
 
 ## What are anonymous functions?
 
@@ -126,14 +123,13 @@ we have added `"type": "module"` at the top level of `package.json`.
 
 <%- include('/inc/file.html', {file: 'list-dir-function-anonymous.js'}) %>
 
-::: fixme
 <%- include('/inc/fig.html', {
     id: 'systems-programming-anonymous-functions',
     img: '/static/tools-small.jpg',
     alt: 'Anonymous functions as callbacks',
-    cap: 'How and when JavaScript creates and runs anonymous callback functions.'
+    cap: 'How and when JavaScript creates and runs anonymous callback functions.',
+    fixme: true
 }) %>
-:::
 
 ## How can we select a set of files?
 
@@ -152,14 +148,13 @@ we have added `"type": "module"` at the top level of `package.json`.
     -   Names that *don't* match `*.*` won't be included
     -   And by default, names that start with `.` (like `.gitignore`) aren't included
 
-::: fixme
 <%- include('/inc/fig.html', {
     id: 'systems-programming-globbing',
     img: '/static/tools-small.jpg',
     alt: 'Matching filenames with `glob`',
-    cap: 'Using `glob` patterns to match filenames.'
+    cap: 'Using <code>glob</code> patterns to match filenames.',
+    fixme: true
 }) %>
-:::
 
 -   Works, but we probably don't want to copy editor backup files ending with `~`
 -   We can get the list and then <g key="filter">filter</g> those out
@@ -169,14 +164,13 @@ we have added `"type": "module"` at the top level of `package.json`.
 -   `Array.filter` creates a new array containing all the items of the original that pass the test
     -   The test is specified as a callback function called once for each item that returns a <g key="boolean">Boolean</g>
 
-::: fixme
 <%- include('/inc/fig.html', {
     id: 'systems-programming-array-filter',
     img: '/static/tools-small.jpg',
     alt: 'Using `Array.filter`',
-    cap: 'Selecting array elements using `Array.filter`.'
+    cap: 'Selecting array elements using <code>Array.filter</code>.',
+    fixme: true
 }) %>
-:::
 
 -   We can make this more idiomatic by:
     -   Removing the parentheses around the single parameter
@@ -235,14 +229,13 @@ This shows:
 -   This uses <g key="destructuring_assignment">destructuring assignment</g> to create two variables at once
     -   Only works if both source and destination are given on the command line, so we should check that
 
-::: fixme
 <%- include('/inc/fig.html', {
     id: 'systems-programming-destructuring-assignment',
     img: '/static/tools-small.jpg',
     alt: 'Matching values with destructuring assignment',
-    cap: 'Assigning many values at once by destructuring.'
+    cap: 'Assigning many values at once by destructuring.',
+    fixme: true
 }) %>
-:::
 
 -   But this only works if the destination directory already exists
     -   `fs` and equivalent libraries in other languages (mostly) won't create the directories we need automatically
@@ -266,14 +259,13 @@ This shows:
     -   When `copy` finishes, check the error status
 -   Trace this for two directories each containing one file
 
-::: fixme
 <%- include('/inc/fig.html', {
     id: 'systems-programming-triple-callback',
     img: '/static/tools-small.jpg',
     alt: 'Three levels of callback',
-    cap: 'Three levels of callback in the running example.'
+    cap: 'Three levels of callback in the running example.',
+    fixme: true
 }) %>
-:::
 
 -   It *almost* works
 

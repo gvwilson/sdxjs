@@ -133,6 +133,8 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     accum.push('\\begin{quotation}')
     childrenToLatex(options, fileInfo, node, accum)
     accum.push('\\end{quotation}')
+  } else if (node.name === 'br') {
+    accum.push(' ')
   } else if (node.name === 'cite') {
     accum.push('\\cite{')
     node.children.forEach(child => htmlToText(child, accum, fullEscape))
@@ -374,7 +376,7 @@ const figureToLatex = (options, fileInfo, node) => {
   childrenToLatex(options, fileInfo, caption, accum)
   const text = accum.join('')
 
-  const result = `\\figpdf{${ident}}{${src}}{${text}}`
+  const result = `\\figimg{${ident}}{${src}}{${text}}`
   return result
 }
 

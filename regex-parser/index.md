@@ -25,6 +25,14 @@
 -   We will return a tree of objects rather than instances of the `RegexBase` classes
     from <xref key="pattern-matching"></xref> to keep things simple
 
+<%- include('/inc/fig.html', {
+    id: 'regex-parser-expression-tree',
+    img: '/static/tools-small.jpg',
+    alt: 'Expression tree for regular expression',
+    cap: 'Representing the result of parsing a regular expression as an tree.',
+    fixme: true
+}) %>
+
 ## How can we break text into tokens?
 
 -   A <g key="token">token</g> is an atom of text, such as a number or a variable name
@@ -86,6 +94,15 @@
     -   After all tokens have been handled,
         look for partially-completed `Alt` tokens and make whatever comes after the right child
     -   Again, this will automatically work for things like `/(ab)|c*|(de)/`
+
+<%- include('/inc/fig.html', {
+    id: 'regex-parser-mechanics',
+    img: '/static/tools-small.jpg',
+    alt: 'Mechanics of combining tokens',
+    cap: 'Mechanics of combining tokens while parsing regular expressions.',
+    fixme: true
+}) %>
+
 -   Main structure
 
 <%- include('/inc/erase.html', {file: 'parser.js', key: 'skip'}) %>

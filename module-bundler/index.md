@@ -13,6 +13,15 @@
 -   Requires an <g key="entry_point">entry point</g>
     -   Where processing starts
     -   Equivalently, the top level
+
+<%- include('/inc/fig.html', {
+    id: 'module-bundler-bundling',
+    img: '/static/tools-small.jpg',
+    alt: 'Bundling modules',
+    cap: 'Combining multiple modules into one.',
+    fixme: true
+}) %>
+
 -   Need to:
     -   Find all dependencies
     -   Combine them into one file
@@ -40,14 +49,13 @@
     -   `./subdir/bottom-left` also requires `top-left` and `bottom-right`
     -   `./subdir/bottom-right` doesn't require anything
 
-::: fixme
 <%- include('/inc/fig.html', {
-    id: 'module-bundler-dependencies',
+    id: 'module-bundler-complicated',
     img: '/static/tools-small.jpg',
     alt: 'Module bundler dependencies',
-    cap: 'Dependencies in large module bundler test case.'
+    cap: 'Dependencies in large module bundler test case.',
+    fixme: true
 }) %>
-:::
 
 <%- include('/inc/file.html', {file: 'expected-full.out'}) %>
 
@@ -70,6 +78,15 @@
 -   Keep taking items from `pending` until it is empty
     -   If the current thing is already in `seen`, do nothing
     -   Otherwise get its dependencies and add them to either `seen` or `pending`
+
+<%- include('/inc/fig.html', {
+    id: 'module-bundler-transitive-closure',
+    img: '/static/tools-small.jpg',
+    alt: 'Implementing transitive closure',
+    cap: 'Implementing transitive closure using two sets.',
+    fixme: true
+}) %>
+
 -   Complicated by the fact that we can load something under different names
     -   `./subdir/bottom-left` from `main`, but `./bottom-left` from `./subdir/bottom-right`
     -   We will use <g key="absolute_path">absolute paths</g> as unique identifiers
@@ -85,6 +102,14 @@
     -   Primary keys are the absolute paths to the files being required
     -   Sub-keys are the paths they refer to when loading things
     -   Values are top-level keys
+
+<%- include('/inc/fig.html', {
+    id: 'module-bundler-structure',
+    img: '/static/tools-small.jpg',
+    alt: 'Data structure for modules',
+    cap: 'Data structure used to map names to absolute paths.',
+    fixme: true
+}) %>
 
 <%- include('/inc/file.html', {file: 'transitive-closure.js'}) %>
 <%- include('/inc/multi.html', {pat: 'test-transitive-closure.*', fill: 'js sh out'}) %>
@@ -117,6 +142,15 @@
     -   `HEAD` creates a function of no arguments and a lookup table
     -   `TAIL` returns the lookup table from that function
     -   In between, `combineFiles` adds an entry to the lookup table for each file
+
+<%- include('/inc/fig.html', {
+    id: 'module-bundler-head-tail',
+    img: '/static/tools-small.jpg',
+    alt: 'Assembling runnable code',
+    cap: 'Assembling fragments and modules to create a bundle.',
+    fixme: true
+}) %>
+
 -   Test it with our intermediate two-file case
 
 <%- include('/inc/file.html', {file: 'test-combine-files.js'}) %>
@@ -139,6 +173,15 @@
     -   Look up the function associated with the entry point
     -   Run it, giving it an empty module object and a `require` function (more below)
     -   Get the `exports` from the module object
+
+<%- include('/inc/fig.html', {
+    id: 'module-bundler-extract',
+    img: '/static/tools-small.jpg',
+    alt: 'Extracting exports from modules',
+    cap: 'Extracting exports names from modules after initialization.',
+    fixme: true
+}) %>
+
 -   Our replacement for `require` is only allowed to take one argument
 -   But it actually needs four things
     -   The argument to the user's `require` call
@@ -151,14 +194,13 @@
     -   …and returns a function that takes a local path inside a module and returns the exports
     -   Each layer of wrappers remembers more information
 
-::: fixme
 <%- include('/inc/fig.html', {
     id: 'module-bundler-returning-functions',
     img: '/static/tools-small.jpg',
     alt: 'Functions returning functions returning functions',
-    cap: 'A function that returns functions that return functions.'
+    cap: 'A function that returns functions that return functions.',
+    fixme: true
 }) %>
-:::
 
 -   We're also going to need a third structure: a cache for the modules we've already loaded
 -   To prove it works, we will look up the function `main` in the first file and call it

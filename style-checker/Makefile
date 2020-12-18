@@ -8,7 +8,8 @@ TARGETS=\
   generator-tree-for.out \
   generator-tree-while.out \
   parse-single-const.out \
-  parse-const-func.out \
+  parse-single-const.slice.out \
+  parse-const-func.slice.out \
   walk-ast.out \
   walker-class.out
 

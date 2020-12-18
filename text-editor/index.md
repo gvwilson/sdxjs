@@ -2,12 +2,14 @@
 ---
 
 -   We have been writing a lot of files---how does the editor itself work?
--   Explore by <g key="refactoring">refactoring</g> a terminal editor based on [Morten Olsrud][olsrud-morten]'s [Termit][termit]
+-   Explore by <g key="refactoring">refactoring</g> a terminal editor
+    based on [Morten Olsrud][olsrud-morten]'s [Termit][termit]
     -   Uses the [terminal-kit][terminal-kit] package to manage screen interactions
 -   We will not dive into technical details, since this isn't a lesson on terminal management
 -   But will see:
     -   How to build a <g key="plugin_architecture">plugin architecture</g>
-    -   How to implement undo and redo
+    -   How to implement record-and-playback
+    -   How to implement undo/redo
 
 ## What is our starting point?
 
@@ -24,6 +26,15 @@
 -   A <g key="text_buffer">text buffer</g> is always backed by a screen buffer
     -   Holds lines of text (an array of strings)
     -   Provides methods for user-level text interaction
+
+<%- include('/inc/fig.html', {
+    id: 'text-editor-buffers',
+    img: '/static/tools-small.jpg',
+    alt: 'Screen and text buffers',
+    cap: 'Using screen buffers and text buffers to display text.',
+    fixme: true
+}) %>
+
 -   Start with a basic editor that draws on the screen and exits immediately when any key is pressed
     -   Just <%- include('/inc/linecount.html', {file: 'base-editor.js'}) %> lines long
 
@@ -63,6 +74,14 @@
     -   Create a table of <g key="key_binding">key bindings</g>
     -   Look keys up in that table to find out what to do
 
+<%- include('/inc/fig.html', {
+    id: 'text-editor-lookup-table',
+    img: '/static/tools-small.jpg',
+    alt: 'Looking up key bindings',
+    cap: 'Using a lookup table to manage key bindings.',
+    fixme: true
+}) %>
+
 <%- include('/inc/erase.html', {file: 'lookup-editor.js', key: 'bindings'}) %>
 
 -   Creating bindings is just building a table of functions
@@ -74,7 +93,16 @@
     -   Add an entry to the key bindings table in the constructor of the derived class
 -   But we can now also provide plugins
 -   Load functions that take the editor and the arguments to `onKey` as input
-    -   Have to modify the default handlers to take these four arguments as well, just in case
+
+<%- include('/inc/fig.html', {
+    id: 'text-editor-plugins',
+    img: '/static/tools-small.jpg',
+    alt: 'Loading and running plugins',
+    cap: 'Loading and running plugins to handle keystrokes.',
+    fixme: true
+}) %>
+
+-   Have to modify the default handlers to take these four arguments as well, just in case
 
 <%- include('/inc/erase.html', {file: 'plugin-editor.js', key: 'skip'}) %>
 
@@ -90,6 +118,15 @@
 -   Add two pieces of state to the editor
     -   `isRecording` tells the editor whether or not to save keystrokes
     -   `recordedOperations` is the most recently saved operations
+
+<%- include('/inc/fig.html', {
+    id: 'text-editor-playback',
+    img: '/static/tools-small.jpg',
+    alt: 'Implementing record and playback',
+    cap: 'Storing recent state to implement record and playback.',
+    fixme: true
+}) %>
+
 -   Modified editor
     -   Parent class does the work of handling the keystroke
 -   Turning recording on and off
@@ -125,6 +162,16 @@
 -   The opposite of "move left" is "move right", so no extra information required
 -   But the opposite of "cut line" is "paste line"
     -   Need to record state for some operations but not for others
+    -   Use a stack because we undo in reverse order to doing
+
+<%- include('/inc/fig.html', {
+    id: 'text-editor-undo-stack',
+    img: '/static/tools-small.jpg',
+    alt: 'Managing undo with a stack',
+    cap: 'Using a stack to store undoable operations.',
+    fixme: true
+}) %>
+
 -   Solution is one we hinted at earlier: implement each operation as a class
     -   `run` and `undo` methods (because `do` is a keyword in JavaScript)
 -   But not all operations are undoable

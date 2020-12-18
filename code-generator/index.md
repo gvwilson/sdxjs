@@ -12,6 +12,14 @@
 -   Use `...args` to capture all arguments and forward them to the original function
 -   This example handles and re-throws all errors
 
+<%- include('/inc/fig.html', {
+    id: 'code-generator-wrap-errors',
+    img: '/static/tools-small.jpg',
+    alt: 'Wrapping functions to handle errors',
+    cap: 'Replacing functions with new functions that handle errors.',
+    fixme: true
+}) %>
+
 <%- include('/inc/multi.html', {pat: 'replace-func.*', fill: 'js out'}) %>
 
 -   This is an example of the <g key="decorator_pattern">Decorator</g> pattern
@@ -22,7 +30,7 @@
 ## How can we generate JavaScript?
 
 -   Two basic strategies
-    -   Generate code and modify that
+    -   Let the system turn code into runnable instructions and then modify them
     -   Modify a temporary copy of the source and then generate code
 -   We can't use the first approach
     because JavaScript doesn't save the generated <g key="byte_code">byte code</g> for us to play with
@@ -46,6 +54,14 @@
 -   Find all function declaration nodes
 -   Insert a node to increment an entry in a global variable `__counters`
 -   Add text to create the counters
+
+<%- include('/inc/fig.html', {
+    id: 'code-generator-counting',
+    img: '/static/tools-small.jpg',
+    alt: 'Counting invocations',
+    cap: 'Modifying a function to count the number of times it is called.',
+    fixme: true
+}) %>
 
 <%- include('/inc/multi.html', {pat: 'multi-func-counter.*', fill: 'js out'}) %>
 

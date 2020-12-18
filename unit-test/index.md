@@ -32,6 +32,14 @@
         which (probably) means it's coming out of one of our checks
     -   Any other kind of assertion is unexpected
 
+<%- include('/inc/fig.html', {
+    id: 'unit-test-mental-model',
+    img: '/static/tools-small.jpg',
+    alt: 'Mental model of unit testing',
+    cap: 'Running tests that can pass, fail, or contain errors.',
+    fixme: true
+}) %>
+
 ## How can we separate test registration, execution, and reporting?
 
 -   Use <g key="global_variable">global variables</g> to record tests and results
@@ -61,6 +69,15 @@
     -   Relies on Node <g key="caching">caches</g> modules so that each is only loaded once
 -   `Hope.test` records a test for later execution
 -   `Hope.run` executes all the tests registered so far
+
+<%- include('/inc/fig.html', {
+    id: 'unit-test-hope-structure',
+    img: '/static/tools-small.jpg',
+    alt: 'Finding tests',
+    cap: 'Finding, recording, running, and reporting unit tests.',
+    fixme: true
+}) %>
+
 -   Provide two flavors of output (terse one-liner and full details)
 -   Also provide raw material (title and results) for inspection and formatting (e.g., as HTML)
 
@@ -78,7 +95,7 @@
 <%- include('/inc/file.html', {file: 'test-add.js'}) %>
 
 -   Load those <g key="dynamic_loading">dynamically</g>
-    -   `require` is just a function
+    -   `import` is available as an `async` function
     -   Takes a path as a parameter and reads that file
 -   Loading files executes the code they contain
     -   Which registers tests as a <g key="side_effect">side effect</g> of calls to `hope.test`
@@ -114,5 +131,14 @@ The double dash is a common Unix convention for signalling the end of parameters
         -   So when `test-sub.js` calls `hope.test`, its test is added to that object
     -   `pray` then asks that unique instance of `Hope` to run all of the tests
     -   And then gets a report from it
+
+<%- include('/inc/fig.html', {
+    id: 'unit-test-lifecycle',
+    img: '/static/tools-small.jpg',
+    alt: 'Unit testing lifecycle',
+    cap: 'Lifecycle of dynamically-discovered unit tests.',
+    fixme: true
+}) %>
+
 -   Note that `1/0` is a failure rather than an error
     -   JavaScript thinks the result is `Infinity` rather than an exception

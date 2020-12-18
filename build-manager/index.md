@@ -6,11 +6,21 @@
     -   <g key="link">Link</g> those modules to each other and to libraries
 -   If a source file hasn't changed, no need to recompile it before linking
     -   Unless the interface of something it depends on has changed
+
+<%- include('/inc/fig.html', {
+    id: 'build-manager-compiling',
+    img: '/static/tools-small.jpg',
+    alt: 'Compiling and linking',
+    cap: 'Compiling source files and linking the resulting modules.',
+    fixme: true
+}) %>
+
 -   A <g key="build_manager">build manager</g>:
     -   Takes a description of what depends on what
     -   Figures out what is out of date
     -   Figures out an order in which to rebuild things
     -   Does what's necessary
+
 -   Not needed for programs in <g key="interpreted_language">interpreted languages</g>
     -   But still very useful for managing complex workflows
     -   Like building this book's website and PDF
@@ -24,8 +34,26 @@
     -   <g key="build_recipe">Recipes</g>
 -   Forms a <g key="dag">directed acyclic graph</g> (DAG)
     -   Acyclic because if something depends on itself we can't ever finish updating it
+
+<%- include('/inc/fig.html', {
+    id: 'build-manager-dependencies',
+    img: '/static/tools-small.jpg',
+    alt: 'Respecting dependencies',
+    cap: 'How a build manager finds and respects dependencies.',
+    fixme: true
+}) %>
+
 -   A target is <g key="build_stale">stale</g> if it is older than any of its dependencies
     -   Use the recipes to bring it up to date
+
+<%- include('/inc/fig.html', {
+    id: 'build-manager-stale',
+    img: '/static/tools-small.jpg',
+    alt: 'Updating files',
+    cap: 'A build manager only updates files that are stale.',
+    fixme: true
+}) %>
+
 -   So:
     -   Read configuration
     -   Construct dependency graph
@@ -58,6 +86,14 @@
 
 <%- include('/inc/file.html', {file: 'skeleton-builder.js'}) %>
 
+<%- include('/inc/fig.html', {
+    id: 'build-manager-template-method',
+    img: '/static/tools-small.jpg',
+    alt: 'Template Method pattern',
+    cap: 'The Template Method pattern in action.',
+    fixme: true
+}) %>
+
 -   Would normally implement all required methods at once
     -   For tutorial purposes, do them one at a time to make code evolution more readable
 -   Load the configuration file during construction
@@ -82,6 +118,14 @@
     -   Takes a moment to read the output with its v's and w's
 
 <%- include('/inc/multi.html', {pat: 'display-only.*', fill: 'sh out'}) %>
+
+<%- include('/inc/fig.html', {
+    id: 'build-manager-interpreting-graph',
+    img: '/static/tools-small.jpg',
+    alt: 'Interpreting graph display',
+    cap: 'Interpreting the textual representation of the graph.',
+    fixme: true
+}) %>
 
 -   Check that we are detecting cycles
 
@@ -111,7 +155,7 @@
 <%- include('/inc/multi.html', {pat: 'add-timestamps.*', fill: 'sh out'}) %>
 
 -   Set current time to maximum file time
--   For each file from the "bottom" to the top:
+-   For each file from the "bottom" to the "top":
     -   If file is older than any of its dependencies, update it
 
 ## How can we update out-of-date files?
@@ -141,6 +185,15 @@
     -   `@DEPENDENCIES` for all dependencies (in order)
     -   `@DEP[1]`, `@DEP[2]`, etc., for specific dependencies
         -   Count from 1 like humans do
+
+<%- include('/inc/fig.html', {
+    id: 'build-manager-pattern-rules',
+    img: '/static/tools-small.jpg',
+    alt: 'Pattern rules',
+    cap: 'Turning patterns rules into runnable commands.',
+    fixme: true
+}) %>
+
 -   Test that it still handle rules *without* variables correctly
 
 <%- include('/inc/multi.html', {pat: 'variable-expander.*', fill: 'js out'}) %>

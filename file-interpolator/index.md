@@ -2,7 +2,17 @@
 ---
 
 -   Many of our examples are too long to show in one block of code
--   Experiment: write a tool that loads a source file with inclusion markers and then loads and interpolates the inclusions
+-   Experiment: write a tool that loads a source file with inclusion markers
+    and then loads and interpolates the inclusions
+
+<%- include('/inc/fig.html', {
+    id: 'file-interpolator-conceptual',
+    img: '/static/tools-small.jpg',
+    alt: 'Using file inclusions',
+    cap: 'Including fragments of code to create runnable programs.',
+    fixme: true
+}) %>
+
 -   Source file has specially-formatted comments containing two fields:
     -   The text to put in the displayed version
     -   The file to include when loading
@@ -31,6 +41,14 @@
 
 <%- include('/inc/multi.html', {pat: 'eval-two-plus-two.*', fill: 'js out'}) %>
 
+<%- include('/inc/fig.html', {
+    id: 'file-interpolator-eval',
+    img: '/static/tools-small.jpg',
+    alt: 'How eval works',
+    cap: '<code>eval</code> vs. normal translation and execution.',
+    fixme: true
+}) %>
+
 -   A more interesting example
     -   The string is different each time
     -   Uses the variables that are in scope when `eval` is called
@@ -50,6 +68,14 @@
 
 <%- include('/inc/multi.html', {pat: 'eval-global-structure.*', fill: 'js out'}) %>
 
+<%- include('/inc/fig.html', {
+    id: 'file-interpolator-global',
+    img: '/static/tools-small.jpg',
+    alt: 'Modifying a global structure',
+    cap: 'How <code>eval</code> modifies a structure defined globally.',
+    fixme: true
+}) %>
+
 -   It doesn't matter where the text comes from
 -   So we can move the code that does the modifying into `to-be-loaded.js`
 
@@ -67,6 +93,15 @@
 
 -   Only want to load any single file once
 -   So create a <g key="cache">cache</g> using the <g key="singleton_pattern">Singleton</g> pattern
+
+<%- include('/inc/fig.html', {
+    id: 'file-interpolator-singleton-cache',
+    img: '/static/tools-small.jpg',
+    alt: 'Implementing a cache as a singleton',
+    cap: 'Using the Singleton pattern to implement a cache of loaded files.',
+    fixme: true
+}) %>
+
 -   Loader
 
 <%- include('/inc/file.html', {file: 'need-simple.js'}) %>
@@ -91,6 +126,15 @@
     -   Someone did it this way years ago
     -   (Almost) everyone has imitated it since
     -   But no requirement and no guarantee
+
+<%- include('/inc/fig.html', {
+    id: 'file-interpolator-search-path',
+    img: '/static/tools-small.jpg',
+    alt: 'Implementing a search path',
+    cap: 'Using a colon-separated list of directories as a search path.',
+    fixme: true
+}) %>
+
 -   A more sophisticated cache
 
 <%- include('/inc/file.html', {file: 'need-path.js'}) %>
@@ -156,6 +200,15 @@
     -   Stores the result of `eval` (which is a class) in the cache
     -   Returns that class
     -   We create an instance and call its method
+
+<%- include('/inc/fig.html', {
+    id: 'file-interpolator-lifecycle',
+    img: '/static/tools-small.jpg',
+    alt: 'File interpolation lifecycle',
+    cap: 'The interpolate-translate-run lifecycle.',
+    fixme: true
+}) %>
+
 -   But is this a good idea?
     -   Not really: standard style-checking tools complain about fragments
     -   And we'd have to modify our page template system to show things correctly

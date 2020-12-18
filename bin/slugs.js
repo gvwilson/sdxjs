@@ -24,7 +24,10 @@ const main = () => {
       break
 
     case 'chapters':
-      result = allFiles.filter(e => e.isChapter).map(e => e.slug).join(' ')
+      result = allFiles
+        .filter(e => e.isChapter)
+        .map(e => e.source.replace('/index.md', ''))
+        .join(' ')
       break
 
     case 'exercises':

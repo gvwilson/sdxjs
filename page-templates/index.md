@@ -5,6 +5,15 @@
     -   Option 1: put JavaScript directly in the page like [EJS][ejs]
     -   Option 2: use a mini-language like [Jekyll][jekyll]
     -   Option 3: use specially-named attributes in HTML
+
+<%- include('/inc/fig.html', {
+    id: 'page-templates-options',
+    img: '/static/tools-small.jpg',
+    alt: 'Three options for page templates',
+    cap: 'Three different ways to implement page templating.',
+    fixme: true
+}) %>
+
 -   We'll use Option 3 because it saves us writing a parser, and because it's unusual
 -   Design:
     -   Walk the <g key="dom">DOM</g> to find nodes with special attributes
@@ -39,11 +48,27 @@
 
 <%- include('/inc/file.html', {file: 'env.js'}) %>
 
+<%- include('/inc/fig.html', {
+    id: 'page-templates-stack',
+    img: '/static/tools-small.jpg',
+    alt: 'Variable stack',
+    cap: 'Using a stack to manage variables.',
+    fixme: true
+}) %>
+
 -   Handle nodes using the <g key="visitor_pattern">Visitor pattern</g>
     -   `Visitor.walk()` gives `node` a default value of `undefined`, which signals that we want to restart
     -   Alternative designs would be build-and-run or pass in the root with every call
 
 <%- include('/inc/file.html', {file: 'visitor.js'}) %>
+
+<%- include('/inc/fig.html', {
+    id: 'page-templates-visitor',
+    img: '/static/tools-small.jpg',
+    alt: 'The Visitor pattern',
+    cap: 'Using the Visitor pattern to evaluate a page template.',
+    fixme: true
+}) %>
 
 ## How do we handle each type of node?
 

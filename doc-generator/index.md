@@ -24,6 +24,14 @@
 
 <%- include('/inc/multi.html', {pat: 'two-kinds-of-comment-subset.*', fill: 'sh out'}) %>
 
+<%- include('/inc/fig.html', {
+    id: 'doc-generator-comments',
+    img: '/static/tools-small.jpg',
+    alt: 'Line and block comments',
+    cap: 'How line comments and block comments are distinguished and represented.',
+    fixme: true
+}) %>
+
 -   Acorn distinguishes two kinds of comments
 -   <g key="line_comment">Line comments</g> can't span multiple lines
     -   Consecutive line comments aren't combined
@@ -64,8 +72,7 @@
 
 <%- include('/inc/file.html', {file: 'process-plain.js'}) %>
 
--   Extract all special comments from all files and concatenate
-    with source file's name as level-1 heading
+-   Extract all special comments from all files and concatenate with source file's name as level-1 heading
 -   Convert that document from Markdown to HTML
     -   Use our own function `slugify` to give elements IDs
 -   Run and inspect output
@@ -82,6 +89,14 @@
     -   And we can change our input format to make processing easier
     -   As long as it also makes authoring easier
 -   But anything that's written twice will eventually be wrong in one place or another
+
+<%- include('/inc/fig.html', {
+    id: 'doc-generator-mapping',
+    img: '/static/tools-small.jpg',
+    alt: 'Mapping comments to documentation',
+    cap: 'How comments in code map to documentation in HTML.',
+    fixme: true
+}) %>
 
 ## How can we avoid duplicating function names?
 
