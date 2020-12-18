@@ -65,7 +65,12 @@ so most SAT solvers use heuristics to try to reduce the work.
         -   Z/1, Z/2, and Z/3 don't require anything
 
 ::: fixme
-Diagram of 3-dimensional space of allowable versions.
+<%- include('/inc/fig.html', {
+    id: 'package-manager-allowable',
+    img: '/static/tools-small.jpg',
+    alt: 'Allowable versions',
+    cap: 'Finding allowable combinations of package versions.'
+}) %>
 :::
 
 -   18 possibilities (2 for X times 3 for Y times 3 for Z)

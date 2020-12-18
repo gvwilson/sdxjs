@@ -21,7 +21,12 @@
     -   Second is the delay
 
 ::: fixme
-Diagram showing setTimeout
+<%- include('/inc/fig.html', {
+    id: 'promises-set-timeout',
+    img: '/static/tools-small.jpg',
+    alt: 'Setting a timeout',
+    cap: 'Using `setTimeout` to delay operations.'
+}) %>
 :::
 
 <%- include('/inc/multi.html', {pat: 'callbacks-with-timeouts.*', fill: 'js out'}) %>
@@ -36,7 +41,12 @@ Diagram showing setTimeout
 <%- include('/inc/multi.html', {pat: 'non-blocking.*', fill: 'js out'}) %>
 
 ::: fixme
-Diagram showing three delays function calls
+<%- include('/inc/fig.html', {
+    id: 'promises-set-three-delays',
+    img: '/static/tools-small.jpg',
+    alt: 'Delaying three function calls',
+    cap: 'Order of operations with three delays function calls.'
+}) %>
 :::
 
 -   Why bother?
@@ -62,7 +72,12 @@ Diagram showing three delays function calls
     -   This is where and how we handle the delayed execution.
 
 ::: fixme
-Diagram showing how promises resolve
+<%- include('/inc/fig.html', {
+    id: 'promises-resolve',
+    img: '/static/tools-small.jpg',
+    alt: 'How promises resolve',
+    cap: 'Order of operations when a promise resolves.'
+}) %>
 :::
 
 -   `Pledge`'s <g key="constructor">constructor</g> requires a single function called `action`
@@ -114,7 +129,12 @@ Diagram showing how promises resolve
 <%- include('/inc/multi.html', {pat: 'promise-example.*', fill: 'js out'}) %>
 
 ::: fixme
-Diagram showing chained promises
+<%- include('/inc/fig.html', {
+    id: 'promises-chained',
+    img: '/static/tools-small.jpg',
+    alt: 'Chained promises',
+    cap: 'Chaining promises to make asynchronous operations depend on each other.'
+}) %>
 :::
 
 -   If we use a <g key="promisification">promisified</g> function from the library, we get a promise for free
@@ -154,7 +174,12 @@ If we don't specify a character encoding,
 <%- include('/inc/file.html', {file: 'count-lines-print-filenames.js'}) %>
 
 ::: fixme
-Diagram showing temporary objects with named fields
+<%- include('/inc/fig.html', {
+    id: 'promises-temporary-named-fields',
+    img: '/static/tools-small.jpg',
+    alt: 'Temporary objects with named fields',
+    cap: 'Creating temporary objects with named fields to carry values forward.'
+}) %>
 :::
 
 -   Works until we run into a directory whose name name matches `*.*`

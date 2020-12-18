@@ -41,7 +41,12 @@
     -   `./subdir/bottom-right` doesn't require anything
 
 ::: fixme
-Diagram of dependencies for module bundler.
+<%- include('/inc/fig.html', {
+    id: 'module-bundler-dependencies',
+    img: '/static/tools-small.jpg',
+    alt: 'Module bundler dependencies',
+    cap: 'Dependencies in large module bundler test case.'
+}) %>
 :::
 
 <%- include('/inc/file.html', {file: 'expected-full.out'}) %>
@@ -147,7 +152,12 @@ Diagram of dependencies for module bundler.
     -   Each layer of wrappers remembers more information
 
 ::: fixme
-Diagram of functions returning functions returning functions
+<%- include('/inc/fig.html', {
+    id: 'module-bundler-returning-functions',
+    img: '/static/tools-small.jpg',
+    alt: 'Functions returning functions returning functions',
+    cap: 'A function that returns functions that return functions.'
+}) %>
 :::
 
 -   We're also going to need a third structure: a cache for the modules we've already loaded

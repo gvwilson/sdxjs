@@ -42,7 +42,12 @@ we have added `"type": "module"` at the top level of `package.json`.
     -   `process.argv[2]` is the first argument after the name of our program
 
 ::: fixme
-Diagram showing process.argv
+<%- include('/inc/fig.html', {
+    id: 'systems-programming-process-argv',
+    img: '/static/tools-small.jpg',
+    alt: 'Command-line arguments in `process.argv`',
+    cap: 'How Node stores command-line arguments in `process.argv`.'
+}) %>
 :::
 
 -   `fs.readdir` is supposed to return an array of strings (the names of the things in the directory)
@@ -70,7 +75,12 @@ Diagram showing process.argv
     -   A standard <g key="protocol">protocol</g> like the various kind of USB ports and connectors that allows us to plug things together
 
 ::: fixme
-diagram showing callbacks
+<%- include('/inc/fig.html', {
+    id: 'systems-programming-callbacks',
+    img: '/static/tools-small.jpg',
+    alt: 'How callbacks work',
+    cap: 'How JavaScript runs callback functions.'
+}) %>
 :::
 
 <%- include('/inc/file.html', {file: 'list-dir-function-defined.js'}) %>
@@ -99,7 +109,12 @@ diagram showing callbacks
     9.  Our callback function runs and prints its output
 
 ::: fixme
-Diagram of execution order
+<%- include('/inc/fig.html', {
+    id: 'systems-programming-execution-order',
+    img: '/static/tools-small.jpg',
+    alt: 'Callback execution order',
+    cap: 'When JavaScript runs callback functions.'
+}) %>
 :::
 
 ## What are anonymous functions?
@@ -112,7 +127,12 @@ Diagram of execution order
 <%- include('/inc/file.html', {file: 'list-dir-function-anonymous.js'}) %>
 
 ::: fixme
-Diagram of execution order
+<%- include('/inc/fig.html', {
+    id: 'systems-programming-anonymous-functions',
+    img: '/static/tools-small.jpg',
+    alt: 'Anonymous functions as callbacks',
+    cap: 'How and when JavaScript creates and runs anonymous callback functions.'
+}) %>
 :::
 
 ## How can we select a set of files?
@@ -133,7 +153,12 @@ Diagram of execution order
     -   And by default, names that start with `.` (like `.gitignore`) aren't included
 
 ::: fixme
-Diagram of globbing
+<%- include('/inc/fig.html', {
+    id: 'systems-programming-globbing',
+    img: '/static/tools-small.jpg',
+    alt: 'Matching filenames with `glob`',
+    cap: 'Using `glob` patterns to match filenames.'
+}) %>
 :::
 
 -   Works, but we probably don't want to copy editor backup files ending with `~`
@@ -145,7 +170,12 @@ Diagram of globbing
     -   The test is specified as a callback function called once for each item that returns a <g key="boolean">Boolean</g>
 
 ::: fixme
-Diagram showing Array.filter
+<%- include('/inc/fig.html', {
+    id: 'systems-programming-array-filter',
+    img: '/static/tools-small.jpg',
+    alt: 'Using `Array.filter`',
+    cap: 'Selecting array elements using `Array.filter`.'
+}) %>
 :::
 
 -   We can make this more idiomatic by:
@@ -206,7 +236,12 @@ This shows:
     -   Only works if both source and destination are given on the command line, so we should check that
 
 ::: fixme
-Diagram showing destructuring assignment
+<%- include('/inc/fig.html', {
+    id: 'systems-programming-destructuring-assignment',
+    img: '/static/tools-small.jpg',
+    alt: 'Matching values with destructuring assignment',
+    cap: 'Assigning many values at once by destructuring.'
+}) %>
 :::
 
 -   But this only works if the destination directory already exists
@@ -232,7 +267,12 @@ Diagram showing destructuring assignment
 -   Trace this for two directories each containing one file
 
 ::: fixme
-Diagram showing three levels of callback
+<%- include('/inc/fig.html', {
+    id: 'systems-programming-triple-callback',
+    img: '/static/tools-small.jpg',
+    alt: 'Three levels of callback',
+    cap: 'Three levels of callback in the running example.'
+}) %>
 :::
 
 -   It *almost* works
