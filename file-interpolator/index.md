@@ -19,7 +19,7 @@
 
 <%- include('/inc/file.html', {file: 'interpolation-example.js'}) %>
 
--   Spoiler: we got this to work, then used a different approach that extracted marked sections from a regular JS file
+-   Spoiler: we got this to work, then used a different approach that extracted marked sections from a regular JavaScript file
     -   The stumbling block was that code-checking tools like [ESLint][eslint] didn't understand our inclusions
     -   But there are still lessons in how we built it
 

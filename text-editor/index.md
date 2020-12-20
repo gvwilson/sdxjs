@@ -2,7 +2,7 @@
 ---
 
 -   We have been writing a lot of files---how does the editor itself work?
--   Explore by <g key="refactoring">refactoring</g> a terminal editor
+-   Explore by <g key="refactoring">refactoring</g> a terminal editor that's even simpler than [Nano][nano]
     based on [Morten Olsrud][olsrud-morten]'s [Termit][termit]
     -   Uses the [terminal-kit][terminal-kit] package to manage screen interactions
 -   We will not dive into technical details, since this isn't a lesson on terminal management
@@ -107,7 +107,7 @@
 <%- include('/inc/erase.html', {file: 'plugin-editor.js', key: 'skip'}) %>
 
 -   Notice the two-step `import` because `Promise.all` needs promises
-    -   Wille write an `async` function that combines the steps in the exercises
+    -   Will write an `async` function that combines the steps in the exercises
 
 ## How can we record and play back?
 
