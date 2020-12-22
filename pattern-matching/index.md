@@ -48,11 +48,7 @@
     id: 'pattern-matching-query-selectors-travesal',
     img: '/static/tools-small.jpg',
     alt: 'Matching query selectors',
-<<<<<<< HEAD
-    cap: 'Recuring through a tree to match query selectors.',
-=======
     cap: 'Recursing through a tree to match query selectors.',
->>>>>>> 41b33d20f5ab19cd29410802661dd09c0465bc88
     fixme: true
 }) %>
 
