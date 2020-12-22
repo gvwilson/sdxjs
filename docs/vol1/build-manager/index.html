@@ -1,0 +1,1021 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <title>Build Manager</title>
+  <meta name="slug" content="build-manager">
+  <meta name="toRoot" content="..">
+  <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico">
+  <link href="../../static/fonts.css" rel="stylesheet" type="text/css">
+  <link href="../../static/site.css" rel="stylesheet" type="text/css">
+  <script>const NUMBERING = {"vol1":"1","systems-programming":"2","promises":"3","unit-test":"4","file-backup":"5","data-table":"6","pattern-matching":"7","regex-parser":"8","page-templates":"9","build-manager":"10","layout-engine":"11","text-editor":"12","file-interpolator":"13","module-loader":"14","module-bundler":"15","package-manager":"16","style-checker":"17","code-generator":"18","doc-generator":"19","virtual-machine":"20","debugger":"21","conclusion":"22","bib":"A","license":"B","conduct":"C","contributing":"D","gloss":"E","links":"F","authors":"G"}</script>
+  <script src="../../static/site.js"></script>
+  <script>window.onload = () => fixPage()</script>
+</head>
+<body id="_top">
+<nav>
+<div class="row">
+<div class="left2">
+<a href="../"><img src="../../static/logo.svg" alt="site logo" class="site-logo"/></a>
+</div>
+<div class="right2">
+<div class="dropdown">
+<span class="navtitle">▿ Sections</span>
+<div class="dropdown-content" id="Sections">
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Chapters</span>
+<div class="dropdown-content" id="Chapters">
+<a href="../systems-programming/"><span class="nowrap">Systems Programming</span></a>
+<br/><a href="../promises/"><span class="nowrap">Promises</span></a>
+<br/><a href="../unit-test/"><span class="nowrap">Unit Testing</span></a>
+<br/><a href="../file-backup/"><span class="nowrap">File Backup</span></a>
+<br/><a href="../data-table/"><span class="nowrap">Data Tables</span></a>
+<br/><a href="../pattern-matching/"><span class="nowrap">Pattern Matching</span></a>
+<br/><a href="../regex-parser/"><span class="nowrap">Parsing Expressions</span></a>
+<br/><a href="../page-templates/"><span class="nowrap">Page Templates</span></a>
+<br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
+<br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
+<br/><a href="../text-editor/"><span class="nowrap">Text Editor</span></a>
+<br/><a href="../file-interpolator/"><span class="nowrap">File Interpolator</span></a>
+<br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
+<br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
+<br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
+<br/><a href="../style-checker/"><span class="nowrap">Style Checker</span></a>
+<br/><a href="../code-generator/"><span class="nowrap">Code Generator</span></a>
+<br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
+<br/><a href="../virtual-machine/"><span class="nowrap">Virtual Machine</span></a>
+<br/><a href="../debugger/"><span class="nowrap">Debugger</span></a>
+<br/><a href="../conclusion/"><span class="nowrap">Conclusion</span></a>
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Appendices</span>
+<div class="dropdown-content" id="Appendices">
+<a href="../bib/"><span class="nowrap">Bibliography</span></a>
+<br/><a href="../license/"><span class="nowrap">License</span></a>
+<br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
+<br/><a href="../contributing/"><span class="nowrap">Contributing</span></a>
+<br/><a href="../gloss/"><span class="nowrap">Glossary</span></a>
+<br/><a href="../links/"><span class="nowrap">Links</span></a>
+<br/><a href="../authors/"><span class="nowrap">Authors</span></a>
+</div>
+</div>
+</div>
+</div>
+</nav>
+  <main>
+  <h1>Build Manager</h1>
+  <h2 class="lede">Updating files that depend on other files</h2>
+<div class="callout">
+  <p>Terms defined: <g key="automatic_variable">automatic variable</g>, <g key="build_manager">build manager</g>, <g key="build_recipe">build recipe</g>, <g key="build_rule">build rule</g>, <g key="build_target">build target</g>, <g key="compiled_language">compiled language</g>, <g key="dependency">dependency</g>, <g key="dag">directed acyclic graph (DAG)</g>, <g key="driver">driver</g>, <g key="interpreted_language">interpreted language</g>, <g key="link">link (a program)</g>, <g key="pattern_rule">pattern rule</g>, <g key="build_stale">stale (in build)</g>, <g key="template_method_pattern">Template Method pattern</g>, <g key="topological_order">topological order</g></p>
+</div>
+<ul>
+<li>Programs in <g key="compiled_language">compiled languages</g> like C and Java have to be built before they can be run
+<ul>
+<li>Translate each module into machine instructions</li>
+<li><g key="link">Link</g> those modules to each other and to libraries</li>
+</ul>
+</li>
+<li>If a source file hasn't changed, no need to recompile it before linking
+<ul>
+<li>Unless the interface of something it depends on has changed</li>
+</ul>
+</li>
+</ul>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="Compiling and linking"/><figcaption id="build-manager-compiling">Compiling source files and linking the resulting modules.</figcaption></figure>
+<ul>
+<li>
+<p>A <g key="build_manager">build manager</g>:</p>
+<ul>
+<li>Takes a description of what depends on what</li>
+<li>Figures out what is out of date</li>
+<li>Figures out an order in which to rebuild things</li>
+<li>Does what's necessary</li>
+</ul>
+</li>
+<li>
+<p>Not needed for programs in <g key="interpreted_language">interpreted languages</g></p>
+<ul>
+<li>But still very useful for managing complex workflows</li>
+<li>Like building this book's website and PDF</li>
+</ul>
+</li>
+<li>
+<p>Based on <a href="https://www.gnu.org/software/make/">Make</a>, <a href="https://www.npmjs.com/package/bajel">Bajel</a>, <a href="https://jakejs.com/">Jake</a>, and <cite>Smith2011</cite></p>
+</li>
+</ul>
+<h2 id="whats-in-a-build-manager">What's in a build manager?</h2>
+<ul>
+<li>Every rule has:
+<ul>
+<li>A <g key="build_target">target</g></li>
+<li><g key="dependency">Dependencies</g></li>
+<li><g key="build_recipe">Recipes</g></li>
+</ul>
+</li>
+<li>Forms a <g key="dag">directed acyclic graph</g> (DAG)
+<ul>
+<li>Acyclic because if something depends on itself we can't ever finish updating it</li>
+</ul>
+</li>
+</ul>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="Respecting dependencies"/><figcaption id="build-manager-dependencies">How a build manager finds and respects dependencies.</figcaption></figure>
+<ul>
+<li>A target is <g key="build_stale">stale</g> if it is older than any of its dependencies
+<ul>
+<li>Use the recipes to bring it up to date</li>
+</ul>
+</li>
+</ul>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="Updating files"/><figcaption id="build-manager-stale">A build manager only updates files that are stale.</figcaption></figure>
+<ul>
+<li>So:
+<ul>
+<li>Read configuration</li>
+<li>Construct dependency graph</li>
+<li>Find out what nodes are stale</li>
+<li>Build everything that depends on them in <g key="topological_order">topological order</g></li>
+</ul>
+</li>
+</ul>
+<h2 id="where-should-we-start">Where should we start?</h2>
+<ul>
+<li>Going to experiment with several of these so write a simple <g key="driver">driver</g>
+<ul>
+<li>Load a file</li>
+<li>Create an instance of whatever class that file exports</li>
+<li>Run that instance with the rest of the command-line parameters</li>
+</ul>
+</li>
+</ul>
+<pre title="driver.js"><code class="language-js">const main = async () =&gt; {
+  const BuilderClass = (await import(process.argv[2])).default
+  const builder = new BuilderClass(...process.argv.slice(3))
+  try {
+    builder.build()
+  } catch (err) {
+    console.error('Build failed:', err)
+  }
+}
+
+main()
+</code></pre>
+<ul>
+<li>Build files will look like this</li>
+</ul>
+<pre title="three-simple-rules.yml"><code class="language-yml">- target: A
+  depends:
+  - B
+  - C
+  recipes:
+  - "update A from B and C"
+- target: B
+  depends:
+  - C
+  recipes:
+  - "update B from C"
+- target: C
+  depends: []
+  recipes: []
+</code></pre>
+<ul>
+<li>Our classes must have:
+<ul>
+<li>A constructor that takes a configuration file as an argument</li>
+<li>A <code>build</code> method</li>
+</ul>
+</li>
+<li>The <code>build</code> method
+<ul>
+<li>Creates a graph from the configuration file</li>
+<li>Checks that there are no cycles</li>
+<li>Runs whatever commands are needed to update everything</li>
+</ul>
+</li>
+<li>A very simple example of the <g key="template_method_pattern">Template Method</g> pattern
+<ul>
+<li>Parent class defines the order of the steps</li>
+<li>Child class fills them in</li>
+</ul>
+</li>
+</ul>
+<pre title="skeleton-builder.js"><code class="language-js">import assert from 'assert'
+
+class SkeletonBuilder {
+  constructor (configFile) {
+    this.configFile = configFile
+  }
+
+  build () {
+    this.loadConfig()
+    this.buildGraph()
+    this.checkCycles()
+    this.run()
+  }
+
+  loadConfig () {
+    assert(false, 'not implemented')
+  }
+
+  buildGraph () {
+    assert(false, 'not implemented')
+  }
+
+  checkCycles () {
+    assert(false, 'not implemented')
+  }
+
+  run () {
+    assert.fail('run method not implemented')
+  }
+}
+
+export default SkeletonBuilder
+</code></pre>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="Template Method pattern"/><figcaption id="build-manager-template-method">The Template Method pattern in action.</figcaption></figure>
+<ul>
+<li>Would normally implement all required methods at once
+<ul>
+<li>For tutorial purposes, do them one at a time to make code evolution more readable</li>
+</ul>
+</li>
+<li>Load the configuration file during construction</li>
+</ul>
+<pre title="config-loader.js"><code class="language-js">import assert from 'assert'
+import fs from 'fs'
+import yaml from 'js-yaml'
+
+import SkeletonBuilder from './skeleton-builder.js'
+
+class ConfigLoader extends SkeletonBuilder {
+  loadConfig () {
+    this.config = yaml.safeLoad(fs.readFileSync(this.configFile, 'utf-8'))
+    assert(Array.isArray(this.config),
+      'Configuration must be array')
+    this.config.forEach(rule =&gt; {
+      assert(('target' in rule) &amp;&amp; (typeof rule.target === 'string'),
+        `Rule ${JSON.stringify(rule)} does not string as 'target'`)
+      assert(('depends' in rule) &amp;&amp;
+        Array.isArray(rule.depends) &amp;&amp;
+        rule.depends.every(dep =&gt; (typeof dep === 'string')),
+        `Bad 'depends' for rule ${JSON.stringify(rule)}`)
+      assert(('recipes' in rule) &amp;&amp;
+        Array.isArray(rule.recipes) &amp;&amp;
+        rule.recipes.every(recipe =&gt; (typeof recipe === 'string')),
+        `Bad 'recipes' for rule ${JSON.stringify(rule)}`)
+    })
+  }
+}
+
+export default ConfigLoader
+</code></pre>
+<ul>
+<li>Turn the configuration into a graph
+<ul>
+<li>Use <a href="https://www.npmjs.com/package/graphlib">graphlib</a> to manage nodes and links rather than writing our own</li>
+<li>Each node stores the recipe to rebuild it</li>
+<li>Links go <em>from</em> the dependency <em>to</em> the target</li>
+<li><code>setEdge</code> automatically adds a node if it isn't already present</li>
+</ul>
+</li>
+<li>Might as well add the cycle checking here as well
+<ul>
+<li>Again, would have implemented all of these required methods in one step in a real program</li>
+</ul>
+</li>
+</ul>
+<pre title="graph-creator.js"><code class="language-js">import assert from 'assert'
+import graphlib from '@dagrejs/graphlib'
+
+import ConfigLoader from './config-loader.js'
+
+class GraphCreator extends ConfigLoader {
+  buildGraph () {
+    this.graph = new graphlib.Graph()
+    this.config.forEach(rule =&gt; {
+      this.graph.setNode(rule.target, {
+        recipes: rule.recipes
+      })
+      rule.depends.forEach(dep =&gt; this.graph.setEdge(dep, rule.target))
+    })
+  }
+
+  checkCycles () {
+    const cycles = graphlib.alg.findCycles(this.graph)
+    assert.strictEqual(cycles.length, 0,
+      `Dependency graph contains cycles ${cycles}`)
+  }
+}
+
+export default GraphCreator
+</code></pre>
+<ul>
+<li>Can now create something that displays our configuration when it runs but does nothing else</li>
+</ul>
+<pre title="display-only.js"><code class="language-js">import graphlib from '@dagrejs/graphlib'
+
+import GraphCreator from './graph-creator.js'
+
+class DisplayOnly extends GraphCreator {
+  run () {
+    console.log('Graph')
+    console.log(graphlib.json.write(this.graph))
+    console.log('Sorted')
+    console.log(graphlib.alg.topsort(this.graph))
+  }
+}
+
+export default DisplayOnly
+</code></pre>
+<ul>
+<li>Try running it
+<ul>
+<li>Takes a moment to read the output with its v's and w's</li>
+</ul>
+</li>
+</ul>
+<pre title="display-only.sh"><code class="language-sh">node driver.js ./display-only.js three-simple-rules.yml
+</code></pre>
+<pre title="display-only.out"><code class="language-out">Graph
+{
+  options: { directed: true, multigraph: false, compound: false },
+  nodes: [
+    { v: 'A', value: [Object] },
+    { v: 'B', value: [Object] },
+    { v: 'C', value: [Object] }
+  ],
+  edges: [ { v: 'B', w: 'A' }, { v: 'C', w: 'A' }, { v: 'C', w: 'B' } ]
+}
+Sorted
+[ 'C', 'B', 'A' ]
+</code></pre>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="Interpreting graph display"/><figcaption id="build-manager-interpreting-graph">Interpreting the textual representation of the graph.</figcaption></figure>
+<ul>
+<li>Check that we are detecting cycles</li>
+</ul>
+<pre title="circular-rules.yml"><code class="language-yml">- target: A
+  depends:
+  - B
+  recipes:
+  - "update A from B"
+- target: B
+  depends:
+  - A
+  recipes:
+  - "update B from A"
+</code></pre>
+<pre title="check-cycles.sh"><code class="language-sh">node driver.js ./display-only.js circular-rules.yml
+</code></pre>
+<pre title="check-cycles.out"><code class="language-out">Build failed: AssertionError [ERR_ASSERTION]: Dependency graph contains \
+ cycles B,A
+    at DisplayOnly.checkCycles \
+     (/u/stjs/build-manager/graph-creator.js:19:12)
+    at DisplayOnly.build \
+     (/u/stjs/build-manager/skeleton-builder.js:11:10)
+    at main (/u/stjs/build-manager/driver.js:5:13) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual'
+}
+</code></pre>
+<h2 id="how-can-we-specify-that-a-file-is-out-of-date">How can we specify that a file is out of date?</h2>
+<ul>
+<li>Classic approach is to compare timestamps</li>
+<li>For testing, use another configuration file to specify fake timestamps to nodes</li>
+</ul>
+<pre title="add-timestamps.yml"><code class="language-yml">A: 2
+B: 5
+C: 8
+</code></pre>
+<ul>
+<li>Where to add the timestamps?
+<ul>
+<li>Need the graph so that we can decorate it</li>
+<li>So add a step to <code>buildGraph</code></li>
+</ul>
+</li>
+</ul>
+<pre title="add-timestamps.js"><code class="language-js">import assert from 'assert'
+import fs from 'fs'
+import yaml from 'js-yaml'
+
+import GraphCreator from './graph-creator.js'
+
+class AddTimestamps extends GraphCreator {
+  constructor (configFile, timesFile) {
+    super(configFile)
+    this.timesFile = timesFile
+  }
+
+  buildGraph () {
+    super.buildGraph()
+    this.addTimestamps()
+  }
+
+  addTimestamps () {
+    const times = yaml.safeLoad(fs.readFileSync(this.timesFile, 'utf-8'))
+    for (const node of Object.keys(times)) {
+      assert(this.graph.hasNode(node),
+             `Graph does not have node ${node}`)
+      this.graph.node(node).timestamp = times[node]
+    }
+    const missing = this.graph.nodes().filter(
+      n =&gt; !('timestamp' in this.graph.node(n))
+    )
+    assert.strictEqual(missing.length, 0,
+      `Timestamp missing for node(s) ${missing}`)
+  }
+
+  run () {
+    console.log(this.graph.nodes().map(
+      n =&gt; `${n}: ${JSON.stringify(this.graph.node(n))}`
+    ))
+  }
+}
+
+export default AddTimestamps
+</code></pre>
+<ul>
+<li>The steps defined in <code>SkeletonBuilder.build</code> don't change
+<ul>
+<li>So people reading the code don't have to change their mental model of what it does overall</li>
+<li>If someone ever wants to inject a new step between building the graph and adding timestamps,
+they can override <code>addTimestamps</code> and put their step at the top before calling <code>super.addTimestamps</code></li>
+<li>This <em>would</em> make the code a lot harder to read</li>
+</ul>
+</li>
+<li>Execution</li>
+</ul>
+<pre title="add-timestamps.sh"><code class="language-sh">node driver.js ./add-timestamps.js three-simple-rules.yml add-timestamps.yml
+</code></pre>
+<pre title="add-timestamps.out"><code class="language-out">[
+  'A: {"recipes":["update A from B and C"],"timestamp":2}',
+  'B: {"recipes":["update B from C"],"timestamp":5}',
+  'C: {"recipes":[],"timestamp":8}'
+]
+</code></pre>
+<ul>
+<li>Set current time to maximum file time</li>
+<li>For each file from the &quot;bottom&quot; to the &quot;top&quot;:
+<ul>
+<li>If file is older than any of its dependencies, update it</li>
+</ul>
+</li>
+</ul>
+<h2 id="how-can-we-update-outofdate-files">How can we update out-of-date files?</h2>
+<ul>
+<li>&quot;Current time&quot; must be later than any of the file update times
+<ul>
+<li>Not guaranteed to be true in a networked world where computers' clocks can fall out of sync, but we'll pretend</li>
+</ul>
+</li>
+<li>Look at files in topological order from oldest to youngest
+<ul>
+<li>If any file is older than the things it depends on, update it</li>
+</ul>
+</li>
+<li>Pretend for now that updating takes one unit of time, so we advance our fictional clock once for each build</li>
+</ul>
+<pre title="update-timestamps.js"><code class="language-js">import graphlib from '@dagrejs/graphlib'
+
+import AddTimestamps from './add-timestamps.js'
+
+class UpdateOnTimestamps extends AddTimestamps {
+  run () {
+    const sorted = graphlib.alg.topsort(this.graph)
+    const startTime = 1 + Math.max(...sorted.map(
+      n =&gt; this.graph.node(n).timestamp))
+    console.log(`${startTime}: START`)
+    const endTime = sorted.reduce((currTime, node) =&gt; {
+      if (this.isStale(node)) {
+        console.log(`${currTime}: ${node}`)
+        this.graph.node(node).recipes.forEach(
+          a =&gt; console.log(`    ${a}`))
+        this.graph.node(node).timestamp = currTime
+        currTime += 1
+      }
+      return currTime
+    }, startTime)
+    console.log(`${endTime}: END`)
+  }
+
+  isStale (node) {
+    return this.graph.predecessors(node).some(
+      other =&gt; this.graph.node(other).timestamp &gt;=
+        this.graph.node(node).timestamp
+    )
+  }
+}
+
+export default UpdateOnTimestamps
+</code></pre>
+<pre title="update-timestamps.sh"><code class="language-sh">node driver.js ./update-timestamps.js three-simple-rules.yml add-timestamps.yml
+</code></pre>
+<pre title="update-timestamps.out"><code class="language-out">9: START
+9: B
+    update B from C
+10: A
+    update A from B and C
+11: END
+</code></pre>
+<h2 id="how-can-we-add-generic-build-rules">How can we add generic build rules?</h2>
+<ul>
+<li>We now want to add <g key="build_rule">build rules</g>
+<ul>
+<li>&quot;Build all things in this set the same way&quot;</li>
+</ul>
+</li>
+<li>Need:
+<ul>
+<li>A way to define a set of files</li>
+<li>A way to specify a generic rule</li>
+<li>A way to fill in parts of that rule</li>
+</ul>
+</li>
+<li>Override <code>buildGraph</code> to replace variables in recipes with values
+<ul>
+<li>Object-oriented programming helps us change only what we need to change</li>
+<li>Depends on a good initial division into overridable chunks</li>
+</ul>
+</li>
+<li>Make provides <g key="automatic_variable">automatic variables</g> with names like <code>$&lt;</code> and <code>$@</code></li>
+<li>Ours will be more readable
+<ul>
+<li><code>@TARGET</code> for the target</li>
+<li><code>@DEPENDENCIES</code> for all dependencies (in order)</li>
+<li><code>@DEP[1]</code>, <code>@DEP[2]</code>, etc., for specific dependencies
+<ul>
+<li>Count from 1 like humans do</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="Pattern rules"/><figcaption id="build-manager-pattern-rules">Turning patterns rules into runnable commands.</figcaption></figure>
+<ul>
+<li>Test that it still handle rules <em>without</em> variables correctly</li>
+</ul>
+<pre title="variable-expander.js"><code class="language-js">import UpdateOnTimestamps from './update-timestamps.js'
+
+class VariableExpander extends UpdateOnTimestamps {
+  buildGraph () {
+    super.buildGraph()
+    this.expandVariables()
+  }
+
+  expandVariables () {
+    this.graph.nodes().forEach(target =&gt; {
+      try {
+        const dependencies = this.graph.predecessors(target)
+        const recipes = this.graph.node(target).recipes
+        this.graph.node(target).recipes = recipes.map(act =&gt; {
+          act = act
+            .replace('@TARGET', target)
+            .replace('@DEPENDENCIES', dependencies.join(' '))
+          dependencies.forEach((dep, i) =&gt; {
+            act = act.replace(`@DEP[${i}]`, dependencies[i])
+          })
+          return act
+        })
+      } catch (error) {
+        console.error(`Cannot find ${target} in graph`)
+        process.exit(1)
+      }
+    })
+  }
+}
+
+export default VariableExpander
+</code></pre>
+<pre title="variable-expander.out"><code class="language-out">9: START
+9: B
+    update B from C
+10: A
+    update A from B C
+11: END
+</code></pre>
+<ul>
+<li>Now we need <g key="pattern_rule">pattern rules</g></li>
+<li>First attempt at rules file looks like this</li>
+</ul>
+<pre title="pattern-rules.yml"><code class="language-yml">- target: left.out
+  depends: []
+  recipes: []
+  timestamp: 1
+- target: left.in
+  depends: []
+  recipes: []
+  timestamp: 2
+- target: right.out
+  depends: []
+  recipes: []
+  timestamp: 1
+- target: right.in
+  depends: []
+  recipes: []
+  timestamp: 3
+- target: "%.out"
+  depends:
+  - "%.in"
+  recipes:
+  - "update @TARGET from @DEPENDENCIES"
+</code></pre>
+<ul>
+<li>First attempt at reading it extracts rules before expanding variables
+<ul>
+<li>But it doesn't work</li>
+</ul>
+</li>
+</ul>
+<pre title="pattern-user-attempt.js"><code class="language-js">import VariableExpander from './variable-expander.js'
+
+class PatternUserAttempt extends VariableExpander {
+  buildGraph () {
+    super.buildGraph()
+    this.extractRules()
+    this.expandVariables()
+  }
+
+  extractRules () {
+    this.rules = new Map()
+    this.graph.nodes().forEach(target =&gt; {
+      if (target.includes('%')) {
+        const data = {
+          recipes: this.graph.node(target).recipes
+        }
+        this.rules.set(target, data)
+      }
+    })
+    this.rules.forEach((value, key) =&gt; {
+      this.graph.removeNode(key)
+    })
+  }
+}
+
+export default PatternUserAttempt
+</code></pre>
+<pre title="pattern-user-attempt.out"><code class="language-out">Build failed: AssertionError [ERR_ASSERTION]: Graph does not have node A
+    at PatternUserAttempt.addTimestamps \
+     (/u/stjs/build-manager/add-timestamps.js:21:7)
+    at PatternUserAttempt.buildGraph \
+     (/u/stjs/build-manager/add-timestamps.js:15:10)
+    at PatternUserAttempt.buildGraph \
+     (/u/stjs/build-manager/variable-expander.js:5:11)
+    at PatternUserAttempt.buildGraph \
+     (/u/stjs/build-manager/pattern-user-attempt.js:5:11)
+    at PatternUserAttempt.build \
+     (/u/stjs/build-manager/skeleton-builder.js:10:10)
+    at main (/u/stjs/build-manager/driver.js:5:13) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '=='
+}
+</code></pre>
+<ul>
+<li>Didn't actually have the assertion in <code>add-timestamps.js</code> when we first wrote it
+<ul>
+<li>Added it once we had and traced this error because every failure should turn into an <code>assert</code></li>
+</ul>
+</li>
+<li>Our simple graph loader creates nodes for dependencies even if they aren't targets</li>
+<li>So we wind up tripping over the lack of a node for <code>%.in</code> before we get to extracting rules</li>
+<li>Rewrite the rule loader to separate pattern rules from simple rules
+<ul>
+<li>Check that simple rules' dependencies don't include <code>%</code></li>
+<li>And add timestamps as an optional field to rules for testing purposes rather than having them in a separate file</li>
+</ul>
+</li>
+</ul>
+<pre title="pattern-user-read.js"><code class="language-js">import assert from 'assert'
+import graphlib from '@dagrejs/graphlib'
+
+import VariableExpander from './variable-expander.js'
+
+class PatternUserRead extends VariableExpander {
+  buildGraph () {
+    this.buildGraphAndRules()
+    this.expandVariables()
+  }
+
+  buildGraphAndRules () {
+    this.graph = new graphlib.Graph()
+    this.rules = new Map()
+    this.config.forEach(rule =&gt; {
+      if (rule.target.includes('%')) {
+        const data = {
+          recipes: rule.recipes,
+          depends: rule.depends
+        }
+        this.rules.set(rule.target, data)
+      } else {
+        const timestamp = ('timestamp' in rule)
+          ? rule.timestamp
+          : null
+        this.graph.setNode(rule.target, {
+          recipes: rule.recipes,
+          timestamp: timestamp
+        })
+        rule.depends.forEach(dep =&gt; {
+          assert(!dep.includes('%'),
+            'Cannot have "%" in a non-pattern rule')
+          this.graph.setEdge(dep, rule.target)
+        })
+      }
+    })
+  }
+}
+
+export default PatternUserRead
+</code></pre>
+<ul>
+<li>Before we trying running this, let's add methods to show the state of the internal data structures
+<ul>
+<li>Since we now have two of them</li>
+</ul>
+</li>
+</ul>
+<pre title="pattern-user-show.js"><code class="language-js">import graphlib from '@dagrejs/graphlib'
+
+import PatternUserRead from './pattern-user-read.js'
+
+class PatternUserShow extends PatternUserRead {
+  run () {
+    console.log(JSON.stringify(this.toJSON(), null, 2))
+  }
+
+  toJSON () {
+    return {
+      graph: graphlib.json.write(this.graph),
+      rules: Array.from(this.rules.keys()).map(key =&gt; {
+        return { k: key, v: this.rules.get(key) }
+      })
+    }
+  }
+}
+
+export default PatternUserShow
+</code></pre>
+<pre title="pattern-user-show.sh"><code class="language-sh">node driver.js ./pattern-user-show.js pattern-rules.yml
+</code></pre>
+<pre title="pattern-user-show.out"><code class="language-out">{
+  "graph": {
+    "options": {
+      "directed": true,
+      "multigraph": false,
+      "compound": false
+    },
+    "nodes": [
+      {
+        "v": "left.out",
+        "value": {
+          "recipes": [],
+          "timestamp": 1
+        }
+      },
+      {
+        "v": "left.in",
+        "value": {
+          "recipes": [],
+          "timestamp": 2
+        }
+      },
+      {
+        "v": "right.out",
+        "value": {
+          "recipes": [],
+          "timestamp": 1
+        }
+      },
+      {
+        "v": "right.in",
+        "value": {
+          "recipes": [],
+          "timestamp": 3
+        }
+      }
+    ],
+    "edges": []
+  },
+  "rules": [
+    {
+      "k": "%.out",
+      "v": {
+        "recipes": [
+          "update @TARGET from @DEPENDENCIES"
+        ],
+        "depends": [
+          "%.in"
+        ]
+      }
+    }
+  ]
+}
+</code></pre>
+<ul>
+<li>That seems to be right</li>
+<li>So let's try expanding rules
+<ul>
+<li>Do it after building the graph and rules, but before expanding variables</li>
+</ul>
+</li>
+</ul>
+<pre title="pattern-user-run.js"><code class="language-js">import PatternUserRead from './pattern-user-read.js'
+
+class PatternUserRun extends PatternUserRead {
+  buildGraph () {
+    this.buildGraphAndRules()
+    this.expandAllRules()
+    this.expandVariables()
+  }
+
+  expandAllRules () {
+    this.graph.nodes().forEach(target =&gt; {
+      if (this.graph.predecessors(target).length &gt; 0) {
+        return
+      }
+      const data = this.graph.node(target)
+      if (data.recipes.length &gt; 0) {
+        return
+      }
+      const rule = this.findRule(target)
+      if (!rule) {
+        return
+      }
+      this.expandRule(target, rule)
+    })
+  }
+
+  findRule (target) {
+    const pattern = `%.${target.split('.')[1]}`
+    return this.rules.has(pattern)
+      ? this.rules.get(pattern)
+      : null
+  }
+
+  expandRule (target, rule) {
+    const stem = target.split('.')[0]
+    rule.depends
+      .map(dep =&gt; dep.replace('%', stem))
+      .forEach(dep =&gt; this.graph.setEdge(dep, target))
+    const recipes = rule.recipes.map(act =&gt; act.replace('%', stem))
+    const timestamp = this.graph.node(target).timestamp
+    this.graph.setNode(target, {
+      recipes: recipes,
+      timestamp: timestamp
+    })
+  }
+}
+
+export default PatternUserRun
+</code></pre>
+<pre title="pattern-user-run.out"><code class="language-out">4: START
+4: left.out
+    update left.out from left.in
+5: right.out
+    update right.out from right.in
+6: END
+</code></pre>
+<ul>
+<li>We have added a lot of steps to our original template method
+<ul>
+<li>Which makes it a bit of a stretch to claim that the overall operation hasn't changed</li>
+</ul>
+</li>
+<li>Knowing what we know now, we could go back and modify the original <code>SkeletonBuilder.build</code> method
+to include those extra steps and provide do-nothing implementations
+<ul>
+<li>After enough examples, the template settles down</li>
+<li>We learn from our code as we write it</li>
+</ul>
+</li>
+</ul>
+<h2 id="exercises">Exercises</h2>
+<h3 class="exercise">Handle failure</h3>
+<ol>
+<li>
+<p>Modify the build manager to accommodate build steps that fail.</p>
+</li>
+<li>
+<p>Write Mocha tests to check that this change works correctly.</p>
+</li>
+</ol>
+<h3 class="exercise">Dry run</h3>
+<p>Add an option to the build manager to show what commands would be executed and why
+if a build were actually run.
+For example,
+the output should display things like, &quot;'update A' because A older than B&quot;.</p>
+<h3 class="exercise">Change directories</h3>
+<p>Modify the build manager so that:</p>
+<pre><code class="language-sh">node build.js -C some/sub/directory rules.yml timestamps.yml
+</code></pre>
+<div class="continue">
+<p>runs the build in the specified directory rather than the current directory.</p>
+</div>
+<h3 class="exercise">Merge files</h3>
+<p>Modify the build manager so that it can read multiple configuration files
+and execute their combines rules.</p>
+<h3 class="exercise">Show recipes</h3>
+<p>Add a method to build manager to display all unique recipes,
+i.e.,
+all of the commands it might execute if asked to rebuild everything.</p>
+<h3 class="exercise">Conditional execution</h3>
+<p>Modify the build manager so that:</p>
+<ol>
+<li>
+<p>The user can pass <code>variable=true</code> and <code>variable=false</code> arguments on the command-line
+to define variables.</p>
+</li>
+<li>
+<p>Rules can contain an <code>if: variable</code> field.</p>
+</li>
+<li>
+<p>Those rules are only executed if the variable is defined and true.</p>
+</li>
+<li>
+<p>Write Mocha tests to check that this works correctly.</p>
+</li>
+</ol>
+<h3 class="exercise">Define filesets</h3>
+<p>Modify the build manager so that users can define sets of files:</p>
+<pre><code class="language-yml">fileset:
+  name: everything
+  contains:
+    - X
+    - Y
+    - Z
+</code></pre>
+<div class="continue">
+<p>and then refer to them later:</p>
+</div>
+<pre><code class="language-yml">- target: P
+  depends:
+  - @everything
+</code></pre>
+<h3 class="exercise">Globbing</h3>
+<p>Modify the build manager so that it can dynamically construct a set of files:</p>
+<pre><code class="language-yml">glob:
+  name: allAvailableInputs
+  pattern: &quot;./*.in&quot;
+</code></pre>
+<div class="continue">
+<p>and then refer to them later:</p>
+</div>
+<pre><code class="language-yml">- target: P
+  depends:
+  - @allAvailableInputs
+</code></pre>
+<h3 class="exercise">Use hashes</h3>
+<ol>
+<li>
+<p>Write a program called <code>build-init.js</code> that calculates a hash
+for every file mentioned in the build configuration
+and stores the hash along with the file's name in <code>build-hash.json</code>.</p>
+</li>
+<li>
+<p>Modify the build manager to compare the current hashes of files
+with those stored in <code>build-hash.json</code>
+in order to determine what is out of date,
+and to update <code>build-hash.json</code> each time it runs.</p>
+</li>
+</ol>
+<h3 class="exercise">Auxiliary functions</h3>
+<ol>
+<li>
+<p>Modify the builder manager so that it takes an extra argument <code>auxiliaries</code>
+containing zero or more named functions:</p>
+<pre><code class="language-js">const builder = new ExtensibleBuilder(configFile, timesFile, {
+  slice: (node, graph) =&gt; simplify(node, graph, 1)
+})
+</code></pre>
+</li>
+<li>
+<p>Modify the <code>run</code> method to call these functions
+before executing the rules for a node,
+and to only execute the rules if all of them return <code>true</code>.</p>
+</li>
+<li>
+<p>Write Mocha tests to check that this works correctly.</p>
+</li>
+</ol>
+</main>
+<footer>
+<div class="row">
+<div class="left3">
+<a href="../page-templates/"><em>&laquo; Page Templates</em></a>
+</div>
+<div class="middle3">
+<a href="../license/"><img class="footer" src="../../static/cc-by.svg" alt="License" /></a>
+<a href="https://github.com/software-tools-in-javascript/stjs/"><img class="footer" src="../../static/github.svg" alt="Repository" /></a>
+© 2020 <a href="../authors/">The Authors</a>
+</div>
+<div class="right3">
+<a href="../layout-engine/"><em>Layout Engine &raquo;</em></a>
+</div>
+</div>
+</footer>
+</body>
+</html>

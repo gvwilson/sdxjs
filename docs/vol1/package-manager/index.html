@@ -1,0 +1,833 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <title>Package Manager</title>
+  <meta name="slug" content="package-manager">
+  <meta name="toRoot" content="..">
+  <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico">
+  <link href="../../static/fonts.css" rel="stylesheet" type="text/css">
+  <link href="../../static/site.css" rel="stylesheet" type="text/css">
+  <script>const NUMBERING = {"vol1":"1","systems-programming":"2","promises":"3","unit-test":"4","file-backup":"5","data-table":"6","pattern-matching":"7","regex-parser":"8","page-templates":"9","build-manager":"10","layout-engine":"11","text-editor":"12","file-interpolator":"13","module-loader":"14","module-bundler":"15","package-manager":"16","style-checker":"17","code-generator":"18","doc-generator":"19","virtual-machine":"20","debugger":"21","conclusion":"22","bib":"A","license":"B","conduct":"C","contributing":"D","gloss":"E","links":"F","authors":"G"}</script>
+  <script src="../../static/site.js"></script>
+  <script>window.onload = () => fixPage()</script>
+</head>
+<body id="_top">
+<nav>
+<div class="row">
+<div class="left2">
+<a href="../"><img src="../../static/logo.svg" alt="site logo" class="site-logo"/></a>
+</div>
+<div class="right2">
+<div class="dropdown">
+<span class="navtitle">▿ Sections</span>
+<div class="dropdown-content" id="Sections">
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Chapters</span>
+<div class="dropdown-content" id="Chapters">
+<a href="../systems-programming/"><span class="nowrap">Systems Programming</span></a>
+<br/><a href="../promises/"><span class="nowrap">Promises</span></a>
+<br/><a href="../unit-test/"><span class="nowrap">Unit Testing</span></a>
+<br/><a href="../file-backup/"><span class="nowrap">File Backup</span></a>
+<br/><a href="../data-table/"><span class="nowrap">Data Tables</span></a>
+<br/><a href="../pattern-matching/"><span class="nowrap">Pattern Matching</span></a>
+<br/><a href="../regex-parser/"><span class="nowrap">Parsing Expressions</span></a>
+<br/><a href="../page-templates/"><span class="nowrap">Page Templates</span></a>
+<br/><a href="../build-manager/"><span class="nowrap">Build Manager</span></a>
+<br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
+<br/><a href="../text-editor/"><span class="nowrap">Text Editor</span></a>
+<br/><a href="../file-interpolator/"><span class="nowrap">File Interpolator</span></a>
+<br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
+<br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
+<br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
+<br/><a href="../style-checker/"><span class="nowrap">Style Checker</span></a>
+<br/><a href="../code-generator/"><span class="nowrap">Code Generator</span></a>
+<br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
+<br/><a href="../virtual-machine/"><span class="nowrap">Virtual Machine</span></a>
+<br/><a href="../debugger/"><span class="nowrap">Debugger</span></a>
+<br/><a href="../conclusion/"><span class="nowrap">Conclusion</span></a>
+</div>
+</div>
+<div class="dropdown">
+<span class="navtitle">▿ Appendices</span>
+<div class="dropdown-content" id="Appendices">
+<a href="../bib/"><span class="nowrap">Bibliography</span></a>
+<br/><a href="../license/"><span class="nowrap">License</span></a>
+<br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
+<br/><a href="../contributing/"><span class="nowrap">Contributing</span></a>
+<br/><a href="../gloss/"><span class="nowrap">Glossary</span></a>
+<br/><a href="../links/"><span class="nowrap">Links</span></a>
+<br/><a href="../authors/"><span class="nowrap">Authors</span></a>
+</div>
+</div>
+</div>
+</div>
+</nav>
+  <main>
+  <h1>Package Manager</h1>
+  <h2 class="lede">Getting and installing packages</h2>
+<div class="callout">
+  <p>Terms defined: <g key="backward_compatible">backward-compatible</g>, <g key="combinatorial_explosion">combinatorial explosion</g>, <g key="heuristic">heuristic</g>, <g key="manifest">manifest</g>, <g key="patch">patch</g>, <g key="prune">prune</g>, <g key="sat_solver">SAT solver</g>, <g key="semantic_versioning">semantic versioning</g>, <g key="transitive_closure">transitive closure</g></p>
+</div>
+<ul>
+<li>There's no point building software if you can't install it</li>
+<li>Inspired by <a href="https://www.ctan.org/">CTAN</a>, most languages now have an online archive from which developers can download packages
+<ul>
+<li>Package name</li>
+<li>Version(s)</li>
+<li>List of dependencies, which may also specify versions or version ranges</li>
+</ul>
+</li>
+<li>Downloading files requires some web programming that is out of scope for this book</li>
+<li>Installing files uses the systems programming skills of <xref key="systems-programming"></xref></li>
+<li>But figuring out which packages to download can be very difficult
+<ul>
+<li>What if A and B require different versions of C?</li>
+<li>Or requires different ranges of versions of C, but there is overlap?</li>
+</ul>
+</li>
+<li>Explore how to find a workable installation or prove that there isn't one
+<ul>
+<li>Based in part on <a href="https://classic.yarnpkg.com/blog/2017/07/11/lets-dev-a-package-manager/">this tutorial</a> by <a href="https://arcanis.github.io/">Maël Nison</a></li>
+</ul>
+</li>
+</ul>
+<div class="callout">
+<h3 id="satisfiability">Satisfiability</h3>
+<p>In essence what we are trying to do is find a version for each package
+that makes the assertion &quot;P is compatible with all its dependencies&quot; true
+for every package P.
+The general-purpose tools for doing this are called <g key="sat_solver">SAT solvers</g>
+because they determine whether there is some assignment of values
+that satisfies the claim (i.e., makes it true).
+Finding a solution can be extremely hard in the general case,
+so most SAT solvers use heuristics to try to reduce the work.</p>
+</div>
+<h2 id="what-is-semantic-versioning">What is semantic versioning?</h2>
+<ul>
+<li>Most software projects use <g key="semantic_versioning">semantic versioning</g> for software releases</li>
+<li>Version number consists of three integers X.Y.Z:
+<ul>
+<li>X is the major version</li>
+<li>Y is the minor version</li>
+<li>Z is the <g key="patch">patch</g> number</li>
+<li><a href="https://semver.org/">Full spec</a> allows for more fields, but we will ignore them</li>
+</ul>
+</li>
+<li>Increment major version number every time there's an incompatible externally-visible change</li>
+<li>Increment minor version number when adding new functionality in a <g key="backward_compatible">backward-compatible</g> manner
+(i.e. without breaking any existing code)</li>
+<li>Increment the patch number for backwards-compatible bug fixes that don't add any new features</li>
+<li>When specifying a project's dependencies:
+<ul>
+<li><code>&gt;= 1.2.3</code> means &quot;any version after 1.2.3&quot;</li>
+<li><code>&lt; 4</code> means &quot;any version before 4.anything&quot;</li>
+<li><code>1.0 - 3.1</code> means &quot;any version in the specified range (including patches)&quot;</li>
+<li>Note that 2.1 is greater than 1.99</li>
+</ul>
+</li>
+<li>The <a href="https://www.npmjs.com/package/semver">semver</a> module provides lots of useful functions
+<ul>
+<li><code>semver.valid('1.2.3')</code></li>
+<li><code>semver.satisfies('2.2', '1.0 - 3.1')</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="how-can-we-find-a-consistent-set-of-packages">How can we find a consistent set of packages?</h2>
+<ul>
+<li>Imagine each package is an axis in a multi-dimensional space, with its versions as the tick marks
+<ul>
+<li>Each point in the space is a possible combination of package versions</li>
+<li>Check if a point satisfies all of the constraints</li>
+</ul>
+</li>
+<li>Example
+<ul>
+<li>Package X
+<ul>
+<li>X/1 requires Y/1-2 and Z/1</li>
+<li>X/2 requires Y/2-3 and Z/1-2</li>
+</ul>
+</li>
+<li>Package Y
+<ul>
+<li>Y/1 requires Z/2</li>
+<li>Y/2 requires Z/2-3</li>
+<li>Y/3 requires Z/3</li>
+</ul>
+</li>
+<li>Package Z
+<ul>
+<li>Z/1, Z/2, and Z/3 don't require anything</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="Allowable versions"/><figcaption id="package-manager-allowable">Finding allowable combinations of package versions.</figcaption></figure>
+<ul>
+<li>18 possibilities (2 for X times 3 for Y times 3 for Z)
+<ul>
+<li>But 16 are excluded by various incompatibilities</li>
+<li>Of the two remaining possibilities, X/2 + Y/3 + Z/3 is strictly greater than X/2 + Y/2 + Z/2</li>
+<li>If we wound up with A/1 + B/2 vs. A/2 + B/1, we'd have to add another rule</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>X</th>
+<th>Y</th>
+<th>Z</th>
+<th>Excluded</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>Y/1 - Z/1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>X/1 - Z/2</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>3</td>
+<td>X/1 - Z/3</td>
+</tr>
+<tr>
+<td>1</td>
+<td>2</td>
+<td>1</td>
+<td>Y/2 - Z/1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>X/1 - Z/2</td>
+</tr>
+<tr>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>X/1 - Z/3</td>
+</tr>
+<tr>
+<td>1</td>
+<td>3</td>
+<td>1</td>
+<td>X/1 - Y/3</td>
+</tr>
+<tr>
+<td>1</td>
+<td>3</td>
+<td>2</td>
+<td>X/1 - Y/3</td>
+</tr>
+<tr>
+<td>1</td>
+<td>3</td>
+<td>3</td>
+<td>X/1 - Y/3</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>1</td>
+<td>X/2 - Y/1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>X/2 - Y/1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>3</td>
+<td>X/2 - Y/1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2</td>
+<td>1</td>
+<td>Y/2 - Z/1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+<td>X/2 - Z/3</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3</td>
+<td>1</td>
+<td>Y/3 - Z/1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3</td>
+<td>2</td>
+<td>Y/3 - Z/2</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3</td>
+<td>3</td>
+<td>X/2 - Z/3</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>How did we do this?
+<ul>
+<li>Find all versions of all packages plus their constraints (<g key="transitive_closure">transitive closure</g>)</li>
+<li>Pick any two and create a list of valid pairs</li>
+<li>Add a third: cross off pairs that can't be satisfied, generate triples of possibilities</li>
+<li>Repeat until all packages included</li>
+</ul>
+</li>
+<li>Worst case, wind up with <g key="combinatorial_explosion">combinatorial explosion</g> of possibilities
+<ul>
+<li>Smart algorithms will try to pick additions that minimize the number of new possibilities added</li>
+<li>Or create pairs, then combine pairs of pairs, etc.</li>
+<li>Our algorithm will be simple (and therefore slow)</li>
+</ul>
+</li>
+</ul>
+<h2 id="how-can-we-implement-constraint-satisfaction">How can we implement constraint satisfaction?</h2>
+<ul>
+<li>Read a JSON data structure describing the problem
+<ul>
+<li>A real package manager would read <g key="manifest">manifests</g> of packages and construct this structure</li>
+<li>Really wish JSON had a standard way to represent comments…</li>
+</ul>
+</li>
+<li>Stick to single-digit version numbers for readability</li>
+</ul>
+<pre title="double-chained.json"><code class="language-json">{
+  "X": {
+    "1": {
+      "Y": ["1"]
+    },
+    "2": {
+      "Y": ["2"]
+    }
+  },
+  "Y": {
+    "1": {},
+    "2": {}
+  }
+}
+</code></pre>
+<ul>
+<li>Check if a configuration (specific versions of all packages) is compatible with a manifest</li>
+</ul>
+<pre title="sweep.js"><code class="language-js">import configStr from './config-str.js'
+
+const sweep = (manifest) =&gt; {
+  const names = Object.keys(manifest)
+  const result = []
+  recurse(manifest, names, {}, result)
+}
+
+const recurse = (manifest, names, config, result) =&gt; {
+  if (names.length === 0) {
+    if (allows(manifest, config)) {
+      result.push({ ...config })
+    }
+  } else {
+    const next = names[0]
+    const rest = names.slice(1)
+    for (const version in manifest[next]) {
+      config[next] = version
+      recurse(manifest, rest, config, result)
+    }
+  }
+}
+...
+export default sweep
+</code></pre>
+<ul>
+<li>Simplest way to find configuration is to sweep over all possibilities</li>
+</ul>
+<pre title="sweep.js"><code class="language-js">const allows = (manifest, config) =&gt; {
+  for (const [leftN, leftV] of Object.entries(config)) {
+    const requirements = manifest[leftN][leftV]
+    for (const [rightN, rightVAll] of Object.entries(requirements)) {
+      if (!rightVAll.includes(config[rightN])) {
+        const title = configStr(config)
+        const missing = config[rightN]
+        console.log(`${title} @ ${leftN}/${leftV} ${rightN}/${missing}`)
+        return false
+      }
+    }
+  }
+  console.log(configStr(config))
+  return true
+}</code></pre>
+<ul>
+<li>Run this on the short example</li>
+</ul>
+<pre title="sweep-double-chained.sh"><code class="language-sh">node driver.js ./sweep.js double-chained.json
+</code></pre>
+<pre title="sweep-double-chained.out"><code class="language-out">{X:1 Y:1}
+{X:1 Y:2} @ X/1 Y/2
+{X:2 Y:1} @ X/2 Y/1
+{X:2 Y:2}
+</code></pre>
+<ul>
+<li>And on the longer example</li>
+</ul>
+<pre title="sweep-double-chained.sh"><code class="language-sh">node driver.js ./sweep.js double-chained.json
+</code></pre>
+<pre title="sweep-double-chained.out"><code class="language-out">{X:1 Y:1}
+{X:1 Y:2} @ X/1 Y/2
+{X:2 Y:1} @ X/2 Y/1
+{X:2 Y:2}
+</code></pre>
+<ul>
+<li>It works</li>
+<li>But does lots of unnecessary work
+<ul>
+<li>Sort by the case that caught the exclusion</li>
+<li>9 of the 17 exclusions are redundant rediscovery of a previous-known problem</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Excluded</th>
+<th>X</th>
+<th>Y</th>
+<th>Z</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>X/1 - Y/3</td>
+<td>1</td>
+<td>3</td>
+<td>1</td>
+</tr>
+<tr>
+<td>…</td>
+<td>1</td>
+<td>3</td>
+<td>2</td>
+</tr>
+<tr>
+<td>…</td>
+<td>1</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>X/1 - Z/2</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr>
+<td>…</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>X/1 - Z/3</td>
+<td>1</td>
+<td>1</td>
+<td>3</td>
+</tr>
+<tr>
+<td>…</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr>
+<td>X/2 - Y/1</td>
+<td>2</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>…</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr>
+<td>…</td>
+<td>2</td>
+<td>1</td>
+<td>3</td>
+</tr>
+<tr>
+<td>X/2 - Z/3</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr>
+<td>…</td>
+<td>2</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Y/1 - Z/1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Y/2 - Z/1</td>
+<td>1</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>…</td>
+<td>2</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Y/3 - Z/1</td>
+<td>2</td>
+<td>3</td>
+<td>1</td>
+</tr>
+<tr>
+<td>…</td>
+<td>2</td>
+<td>3</td>
+<td>2</td>
+</tr>
+<tr>
+<td></td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<h2 id="how-can-we-do-less-work">How can we do less work?</h2>
+<ul>
+<li>We can <g key="prune">prune</g> the tree
+<ul>
+<li>If X and Y are incompatible, no need to check Z</li>
+</ul>
+</li>
+</ul>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="Pruning the search tree"/><figcaption id="package-manager-pruning">Pruning options in the search tree to reduce work.</figcaption></figure>
+<ul>
+<li>Collect possible solutions and display them at the end</li>
+<li>Only recurse if everything looks good so far</li>
+</ul>
+<pre title="prune.js"><code class="language-js">import configStr from './config-str.js'
+
+const prune = (manifest) =&gt; {
+  const names = Object.keys(manifest)
+  const result = []
+  recurse(manifest, names, {}, result)
+  for (const config of result) {
+    console.log(configStr(config))
+  }
+}
+
+const recurse = (manifest, names, config, result) =&gt; {
+  if (names.length === 0) {
+    result.push({ ...config })
+  } else {
+    const next = names[0]
+    const rest = names.slice(1)
+    for (const version in manifest[next]) {
+      config[next] = version
+      if (compatible(manifest, config)) {
+        recurse(manifest, rest, config, result)
+      }
+      delete config[next]
+    }
+  }
+}
+...
+const report = (config, leftN, leftV, rightN, rightV) =&gt; {
+  const title = configStr(config)
+  console.log(`${title} @ ${leftN}/${leftV} ${rightN}/${rightV}`)
+}
+
+export default prune
+</code></pre>
+<ul>
+<li>Check to see if adding something will still be consistent</li>
+</ul>
+<pre title="prune.js"><code class="language-js">const compatible = (manifest, config) =&gt; {
+  for (const [leftN, leftV] of Object.entries(config)) {
+    const leftR = manifest[leftN][leftV]
+    for (const [rightN, rightV] of Object.entries(config)) {
+      if ((rightN in leftR) &amp;&amp; (!leftR[rightN].includes(rightV))) {
+        report(config, leftN, leftV, rightN, rightV)
+        return false
+      }
+      const rightR = manifest[rightN][rightV]
+      if ((leftN in rightR) &amp;&amp; (!rightR[leftN].includes(leftV))) {
+        report(config, leftN, leftV, rightN, rightV)
+        return false
+      }
+    }
+  }
+  return true
+}</code></pre>
+<ul>
+<li>Gets us from 18 complete solutions to:
+<ul>
+<li>11 complete</li>
+<li>1 workable</li>
+<li>2 incomplete (representing 6 that we didn't need to finish)</li>
+</ul>
+</li>
+</ul>
+<pre title="prune-triple.out"><code class="language-out">{X:1 Y:1 Z:1} @ Y/1 Z/1
+{X:1 Y:1 Z:2} @ X/1 Z/2
+{X:1 Y:1 Z:3} @ X/1 Z/3
+{X:1 Y:2 Z:1} @ Y/2 Z/1
+{X:1 Y:2 Z:2} @ X/1 Z/2
+{X:1 Y:2 Z:3} @ X/1 Z/3
+{X:1 Y:3} @ X/1 Y/3
+{X:2 Y:1} @ X/2 Y/1
+{X:2 Y:2 Z:1} @ Y/2 Z/1
+{X:2 Y:2 Z:3} @ X/2 Z/3
+{X:2 Y:3 Z:1} @ Y/3 Z/1
+{X:2 Y:3 Z:2} @ Y/3 Z/2
+{X:2 Y:3 Z:3} @ X/2 Z/3
+{X:2 Y:2 Z:2}
+</code></pre>
+<ul>
+<li>Another way to look at the work is the number of steps in the search
+<ul>
+<li>Full search had 18×3 = 54</li>
+<li>Pruning leaves us with (12×3) + (2×2) = 40</li>
+<li>So we have eliminated roughly 1/4 of the work</li>
+</ul>
+</li>
+<li>What if we searched in a different order?</li>
+</ul>
+<pre title="reverse.js"><code class="language-js">import configStr from './config-str.js'
+
+// &lt;reverse&gt;
+const reverse = (manifest) =&gt; {
+  const names = Object.keys(manifest)
+  names.reverse()
+  const result = []
+  recurse(manifest, names, {}, result)
+  for (const config of result) {
+    console.log(configStr(config))
+  }
+}
+// &lt;/reverse&gt;
+
+const recurse = (manifest, names, config, result) =&gt; {
+  if (names.length === 0) {
+    result.push({ ...config })
+  } else {
+    const next = names[0]
+    const rest = names.slice(1)
+    for (const version in manifest[next]) {
+      config[next] = version
+      if (compatible(manifest, config)) {
+        recurse(manifest, rest, config, result)
+      }
+      delete config[next]
+    }
+  }
+}
+
+const compatible = (manifest, config) =&gt; {
+  for (const [leftN, leftV] of Object.entries(config)) {
+    const leftR = manifest[leftN][leftV]
+    for (const [rightN, rightV] of Object.entries(config)) {
+      if ((rightN in leftR) &amp;&amp; (!leftR[rightN].includes(rightV))) {
+        report(config, leftN, leftV, rightN, rightV)
+        return false
+      }
+      const rightR = manifest[rightN][rightV]
+      if ((leftN in rightR) &amp;&amp; (!rightR[leftN].includes(leftV))) {
+        report(config, leftN, leftV, rightN, rightV)
+        return false
+      }
+    }
+  }
+  return true
+}
+
+const report = (config, leftN, leftV, rightN, rightV) =&gt; {
+  const title = configStr(config)
+  console.log(`${title} @ ${leftN}/${leftV} ${rightN}/${rightV}`)
+}
+
+export default reverse
+</code></pre>
+<pre title="reverse-triple.out"><code class="language-out">{Z:1 Y:1} @ Z/1 Y/1
+{Z:1 Y:2} @ Z/1 Y/2
+{Z:1 Y:3} @ Z/1 Y/3
+{Z:2 Y:1 X:1} @ Z/2 X/1
+{Z:2 Y:1 X:2} @ Y/1 X/2
+{Z:2 Y:2 X:1} @ Z/2 X/1
+{Z:2 Y:3} @ Z/2 Y/3
+{Z:3 Y:1} @ Z/3 Y/1
+{Z:3 Y:2 X:1} @ Z/3 X/1
+{Z:3 Y:2 X:2} @ Z/3 X/2
+{Z:3 Y:3 X:1} @ Z/3 X/1
+{Z:3 Y:3 X:2} @ Z/3 X/2
+{Z:2 Y:2 X:2}
+</code></pre>
+<ul>
+<li>Now have (8×3) + (5×2) = 34
+<ul>
+<li>Have eliminated roughly 1/3 of the work</li>
+</ul>
+</li>
+<li>Lots of <g key="heuristic">heuristics</g> for searching trees
+<ul>
+<li>None are guaranteed to give better performance in every case</li>
+<li>But most will give better performance in most cases</li>
+<li>And gains multiply: 2/3 of the work in each of two layers is less than half the total original work</li>
+</ul>
+</li>
+</ul>
+<h2 id="exercises">Exercises</h2>
+<h3 class="exercise">Comparing semantic versions</h3>
+<p>Write a function that takes an array of semantic version specifiers
+and sorts them in ascending order.
+Remember that <code>2.1</code> is greater than <code>1.99</code>.</p>
+<h3 class="exercise">Parsing semantic versions</h3>
+<p>Using the techniques of <xref key="regex-parser"></xref>,
+write a parser for a subset of the <a href="https://semver.org/">semantic versioning specification</a>.</p>
+<h3 class="exercise">Using scoring functions</h3>
+<p>Many different combinations of package versions can be mutually compatible.
+One way to decide which actual combination to install
+is to create a <g key="scoring_function">scoring function</g>
+that measures how good or bad a particular combination is.
+For example,
+a function could measure the &quot;distance&quot; between two versions as:</p>
+<pre><code class="language-js">const score (X, Y) =&gt; {
+  if (X.major !== Y.major) {
+    return 100 * abs(X.major - Y.major)
+  } else if (X.minor !== Y.minor) {
+    return 10 * abs(X.minor - Y.minor)
+  } else {
+    return abs(X.patch - Y.patch)
+  }
+}
+</code></pre>
+<ol>
+<li>
+<p>Implement a working version of this function
+and use it to measure the total distance between
+the set of packages found by the solver
+and the set containing the most recent version of each package.</p>
+</li>
+<li>
+<p>Explain why this doesn't actually solve the original problem.</p>
+</li>
+</ol>
+<h3 class="exercise">Using full semantic versions</h3>
+<p>Modify the constraint solver to use full semantic versions instead of single digits.</p>
+<h3 class="exercise">Regular releases</h3>
+<p>Some packages release new versions on a regular cycle,
+e.g.,
+Version 2021.1 is released on March 1 of 2021,
+Version 2021.2 is released on September 1 of that year,
+version 2022.1 is released on March 1 of the following year,
+and so on.</p>
+<ol>
+<li>
+<p>How does this make package management easier?</p>
+</li>
+<li>
+<p>How does it make it more difficult?</p>
+</li>
+</ol>
+<h3 class="exercise">Writing unit tests</h3>
+<p>Write unit tests for the constraint solver using Mocha.</p>
+<h3 class="exercise">Generating test fixtures</h3>
+<p>Write a function that creates fixtures for testing the constraint solver:</p>
+<ol>
+<li>
+<p>Its first argument is an object whose keys are (fake) package names
+and whose values are integers indicating the number of versions of that package
+to include in the test set,
+such as <code>{'left': 3, 'middle': 2, 'right': 15}</code>.
+Its second argument is a <g key="seed">seed</g> for random number generation.</p>
+</li>
+<li>
+<p>It generates one valid configuration,
+such as <code>{'left': 2, 'middle': 2, 'right': 9}</code>.
+(This is to ensure that there is at least one installable set of packages.)</p>
+</li>
+<li>
+<p>It then generates random constraints between the packages.
+(These may or may not result in other installable combinations.)
+When this is done,
+it adds constraints so that the valid configuration from the previous step is included.</p>
+</li>
+</ol>
+<h3 class="exercise">Searching least first</h3>
+<p>Rewrite the constraint solver so that it searches packages
+by looking at those with the fewest available versions first.
+Does this reduce the amount of work done for the small examples in this chapter?
+Does it reduce the amount of work done for larger examples?</p>
+<h3 class="exercise">Using generators</h3>
+<p>Rewrite the constraint solver to use generators.</p>
+<h3 class="exercise">Using exclusions</h3>
+<ol>
+<li>
+<p>Modify the constraint solver so that
+it uses a list of package exclusions instead of a list of package requirements,
+i.e.,
+its input tells it that version 1.2 of package Red
+can <em>not</em> work with versions 3.1 and 3.2 of package Green
+(which implies that Red 1.2 can work with any other versions of Green).</p>
+</li>
+<li>
+<p>Explain why package managers aren't built this way.</p>
+</li>
+</ol>
+</main>
+<footer>
+<div class="row">
+<div class="left3">
+<a href="../module-bundler/"><em>&laquo; Module Bundler</em></a>
+</div>
+<div class="middle3">
+<a href="../license/"><img class="footer" src="../../static/cc-by.svg" alt="License" /></a>
+<a href="https://github.com/software-tools-in-javascript/stjs/"><img class="footer" src="../../static/github.svg" alt="Repository" /></a>
+© 2020 <a href="../authors/">The Authors</a>
+</div>
+<div class="right3">
+<a href="../style-checker/"><em>Style Checker &raquo;</em></a>
+</div>
+</div>
+</footer>
+</body>
+</html>
