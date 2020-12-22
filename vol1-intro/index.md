@@ -105,5 +105,5 @@ and [Evan Schultz][schultz-evan].
 ## Dedication
 
 ::: centered
-*For Brian Kernighan, who taught us all how to write about software.*
+*For [Brian Kernighan][kernighan-brian], who taught us all how to write about software.*
 :::

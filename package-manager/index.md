@@ -6,7 +6,7 @@
     -   Package name
     -   Version(s)
     -   List of dependencies, which may also specify versions or version ranges
--   Downloading files requires some web programming skills that are out of scope for this book
+-   Downloading files requires some web programming that is out of scope for this book
 -   Installing files uses the systems programming skills of <xref key="systems-programming"></xref>
 -   But figuring out which packages to download can be very difficult
     -   What if A and B require different versions of C?
@@ -163,6 +163,15 @@ so most SAT solvers use heuristics to try to reduce the work.
 
 -   We can <g key="prune">prune</g> the tree
     -   If X and Y are incompatible, no need to check Z
+
+<%- include('/inc/fig.html', {
+    id: 'package-manager-pruning',
+    img: '/static/tools-small.jpg',
+    alt: 'Pruning the search tree',
+    cap: 'Pruning options in the search tree to reduce work.',
+    fixme: true
+}) %>
+
 -   Collect possible solutions and display them at the end
 -   Only recurse if everything looks good so far
 

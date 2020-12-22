@@ -15,6 +15,14 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
     -   Increasing Y goes down
     -   Increasing X goes to the right
 
+<%- include('/inc/fig.html', {
+    id: 'layout-engine-coordinate-system',
+    img: '/static/tools-small.jpg',
+    alt: 'Coordinate system',
+    cap: 'Coordinate system with (0, 0) in the upper left corner.',
+    fixme: true
+}) %>
+
 ## How can we size rows and columns?
 
 -   Let's start on <g key="easy_mode">easy mode</g>
@@ -27,6 +35,15 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 -   A column arranges one or more cells vertically
     -   Its width is the maximum width of its children
     -   Its height is the sum of the heights of its children
+
+<%- include('/inc/fig.html', {
+    id: 'layout-engine-sizing',
+    img: '/static/tools-small.jpg',
+    alt: 'Calculating sizes of fixed blocks',
+    cap: 'Calculating sizes of blocks with fixed width and height.',
+    fixme: true
+}) %>
+
 -   Represent the tree as nested objects
 -   Calculate width and height each time they're needed
     -   Inefficient: could calculate both at the same time
@@ -49,6 +66,15 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 -   If the cell is a column:
     -   Place the first child at (x0, y0 + height0)
     -   Place the next at (x0, y0 + height0 + height1), etc.
+
+<%- include('/inc/fig.html', {
+    id: 'layout-engine-layout',
+    img: '/static/tools-small.jpg',
+    alt: 'Laying out rows and columns',
+    cap: 'Laying out rows and columns of fixed-size blocks.',
+    fixme: true
+}) %>
+
 -   Derive classes from previous classes to save testing
 -   Blocks
 
@@ -75,8 +101,17 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 <%- include('/inc/keep.html', {file: 'render.js', key: 'makeScreen'}) %>
 
 -   Fill in blocks using successive letters
+-   Children draw over their parents
 
 <%- include('/inc/keep.html', {file: 'render.js', key: 'makeScreen'}) %>
+
+<%- include('/inc/fig.html', {
+    id: 'layout-engine-draw-over',
+    img: '/static/tools-small.jpg',
+    alt: 'Children drawing over their parents',
+    cap: 'Render blocks by drawing child nodes on top of parent nodes.',
+    fixme: true
+}) %>
 
 -   JavaScript doesn't support <g key="mixin-class">mixin classes</g>
     -   Add shared functionality after the fact by giving classes methods with the same [signatures][signature]
@@ -101,6 +136,15 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
 
 -   Each row is replaced with a row containing a single column with one or more rows (wrapping)
     -   Replacement is unnecessary when everything will fit on a single row, but uniform is easier to code
+
+<%- include('/inc/fig.html', {
+    id: 'layout-engine-wrap',
+    img: '/static/tools-small.jpg',
+    alt: 'Wrapping rows',
+    cap: 'Wrapping rows by introducing a new row and column.',
+    fixme: true
+}) %>
+
 -   Constructor takes the width followed by the children
 -   Return the fixed width when asked
 
@@ -141,6 +185,14 @@ based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial].
     -   Number the derived classes
 
 <%- include('/inc/keep.html', {file: 'micro-css.js', key: 'css'}) %>
+
+<%- include('/inc/fig.html', {
+    id: 'layout-engine-css-precedence',
+    img: '/static/tools-small.jpg',
+    alt: 'Precedence of CSS rules',
+    cap: 'Numbering CSS rules to define precedence.',
+    fixme: true
+}) %>
 
 -   ID rules
     -   <g key="dom_selector">DOM selector</g> of the form `#name`

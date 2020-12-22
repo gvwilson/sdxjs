@@ -51,6 +51,14 @@
     -   The parameter to the function we build and `eval` must be called `module` so that we can assign to `module.exports`
     -   For clarity, we call the object we pass in `result` in `loadModule`
 
+<%- include('/inc/fig.html', {
+    id: 'module-loader-iife',
+    img: '/static/tools-small.jpg',
+    alt: 'Implementing modules with IIFEs',
+    cap: 'Using IIFEs to encapsulate modules and get their exports.',
+    fixme: true
+}) %>
+
 <%- include('/inc/file.html', {file: 'load-module-only.js'}) %>
 
 -   Use this as a test
@@ -74,6 +82,15 @@
 -   But <g key="interpreted_language">interpreted languages</g> execute code as it loads
     -   So if X is in the process of loading Y and Y tries to call X,
         X may not (fully) exist yet
+
+<%- include('/inc/fig.html', {
+    id: 'module-loader-circularity',
+    img: '/static/tools-small.jpg',
+    alt: 'Circularity test cases',
+    cap: 'Testing circular imports in Python and JavaScript.',
+    fixme: true
+}) %>
+
 -   It sort-of works in Python
 -   Create two files
 
@@ -147,3 +164,11 @@ or create an alias and call `require` through that.
 
 <%- include('/inc/file.html', {file: 'large-needless.js'}) %>
 <%- include('/inc/multi.html', {pat: 'test-need-large-needless.*', fill: 'js out'}) %>
+
+<%- include('/inc/fig.html', {
+    id: 'module-loader-need',
+    img: '/static/tools-small.jpg',
+    alt: 'Module loading lifecycle',
+    cap: 'Steps in loading multiple modules.',
+    fixme: true
+}) %>

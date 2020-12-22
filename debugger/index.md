@@ -56,6 +56,14 @@
     -   One of them has to be created first
     -   "A gets B then B tells A about itself" is a common pattern
 
+<%- include('/inc/fig.html', {
+    id: 'virtual-machine-initialization',
+    img: '/static/tools-small.jpg',
+    alt: 'Initializing mutually-depending objects',
+    cap: 'Two-step initialization of mutually-dependent objects.',
+    fixme: true
+}) %>
+
 <%- include('/inc/file.html', {file: 'vm-callback.js'}) %>
 
 -   To run the program, create a debugger object and pass it in
@@ -123,6 +131,15 @@
     -   Replace the input and output functions with callbacks
     -   Provide input when asked
     -   Check output when given
+
+<%- include('/inc/fig.html', {
+    id: 'virtual-machine-test-interact',
+    img: '/static/tools-small.jpg',
+    alt: 'Testing interactive application',
+    cap: 'Replacing input and output to test interactive applications.',
+    fixme: true
+}) %>
+
 -   Result looks like this:
 
 <%- include('/inc/keep.html', {file: 'test/test-expect.js', key: 'tests'}) %>

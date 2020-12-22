@@ -77,11 +77,7 @@ because it looked for fluff in source code</li>
 <li>&quot;That's legal, but you shouldn't do it&quot;</li>
 </ul>
 </li>
-<li>Inspirations:
-<ul>
-<li><a href="https://eslint.org/">ESLint</a></li>
-</ul>
-</li>
+<li>Inspired by <a href="https://eslint.org/">ESLint</a> (which we use for our own code)</li>
 <li>Design:
 <ul>
 <li>Parse source code to create a data structure</li>
@@ -92,42 +88,42 @@ because it looked for fluff in source code</li>
 </ul>
 <h2 id="how-can-we-parse-javascript-to-create-an-ast">How can we parse JavaScript to create an AST?</h2>
 <ul>
-<li>A parser for a simple language like arithmetic or JSON is relatively easy to write
-<ul>
-<li>We will do it in <xref key="regex-parser"></xref></li>
-</ul>
-</li>
+<li>A parser for a simple language like arithmetic or JSON is relatively easy to write (<xref key="regex-parser"></xref>)</li>
 <li>A parser for a language as complex as JavaScript is much more work</li>
 <li>We will use <a href="https://github.com/acornjs/acorn">Acorn</a> instead</li>
 <li>Produces an <g key="abstract_syntax_tree">abstract syntax tree</g> (AST)
 whose nodes store information about what's in the program</li>
+<li>Whole thing is
+85 lines long</li>
 </ul>
 <pre title="parse-single-const.js"><code class="language-js">import acorn from 'acorn'
 
 const ast = acorn.parse('const x = 0', { locations: true })
-console.log(ast)
+console.log(JSON.stringify(ast, null, 2))
 </code></pre>
-<pre title="parse-single-const.out"><code class="language-out">Node {
-  type: 'Program',
-  start: 0,
-  end: 11,
-  loc: SourceLocation {
-    start: Position { line: 1, column: 0 },
-    end: Position { line: 1, column: 11 }
-  },
-  body: [
-    Node {
-      type: 'VariableDeclaration',
-      start: 0,
-      end: 11,
-      loc: [SourceLocation],
-      declarations: [Array],
-      kind: 'const'
+<pre title="parse-single-const.slice.out"><code class="language-out">{
+  "type": "Program",
+  "start": 0,
+  "end": 11,
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 0
+    },
+    "end": {
+...
+            "value": 0,
+            "raw": "0"
+          }
+        }
+      ],
+      "kind": "const"
     }
   ],
-  sourceType: 'script'
+  "sourceType": "script"
 }
 </code></pre>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="A small parse tree"/><figcaption id="style-checker-parse-tree">The parse tree of a simple program.</figcaption></figure>
 <ul>
 <li><a href="https://esprima.org/">Esprima</a> format
 <ul>
@@ -157,7 +153,7 @@ console.log(result)
 const ast = acorn.parse(program, { locations: true })
 console.log(JSON.stringify(ast, null, 2))
 </code></pre>
-<pre title="parse-const-func.out"><code class="language-out">{
+<pre title="parse-const-func.slice.out"><code class="language-out">{
   "type": "Program",
   "start": 0,
   "end": 122,
@@ -167,17 +163,7 @@ console.log(JSON.stringify(ast, null, 2))
       "column": 0
     },
     "end": {
-      "line": 10,
-      "column": 0
-    }
-  },
-  "body": [
-    {
-      "type": "VariableDeclaration",
-      "start": 0,
-      "end": 15,
-      "loc": {
-        "start": {
+...
           "line": 1,
           "column": 0
         },
@@ -201,6 +187,7 @@ console.log(JSON.stringify(ast, null, 2))
 </ul>
 </li>
 </ul>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="Walking a tree"/><figcaption id="style-checker-walk-tree">Walking a tree to perform an operation at each node.</figcaption></figure>
 <pre title="walk-ast.js"><code class="language-js">import acorn from 'acorn'
 import walk from 'acorn-walk'
 
@@ -303,7 +290,7 @@ y at line 7
 </ul>
 <h2 id="how-does-the-ast-walker-work">How does the AST walker work?</h2>
 <ul>
-<li>Use the <g key="visitor_pattern">Visitor</g> design pattern</li>
+<li>Uses the <g key="visitor_pattern">Visitor</g> design pattern (<xref key="page-templates"></xref>)</li>
 <li>Define a class with methods that
 <ul>
 <li>Walk the tree</li>
@@ -420,6 +407,9 @@ console.log('definitions are', accumulator)
 <li>Visitor takes computation to the nodes, Iterator gets the nodes for processing</li>
 </ul>
 </li>
+</ul>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="The Iterator pattern"/><figcaption id="style-checker-iterator">Finding nodes in the tree using the Iterator pattern.</figcaption></figure>
+<ul>
 <li>Can implement in JavaScript using <g key="generator_function">generator functions</g></li>
 <li>Use <code>yield</code> to return a value and suspend processing to be resumed later
 <ul>

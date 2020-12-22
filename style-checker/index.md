@@ -5,8 +5,7 @@
     -   Tools like this are called <g key="linter">linters</g> in honor of an early one for C named `lint`
         because it looked for fluff in source code
     -   "That's legal, but you shouldn't do it"
--   Inspirations:
-    -   [ESLint][eslint]
+-   Inspired by [ESLint][eslint] (which we use for our own code)
 -   Design:
     -   Parse source code to create a data structure
     -   Go through the data structure and apply rules for each part of the program
@@ -14,14 +13,22 @@
 
 ## How can we parse JavaScript to create an AST?
 
--   A parser for a simple language like arithmetic or JSON is relatively easy to write
-    -   We will do it in <xref key="regex-parser"></xref>
+-   A parser for a simple language like arithmetic or JSON is relatively easy to write (<xref key="regex-parser"></xref>)
 -   A parser for a language as complex as JavaScript is much more work
 -   We will use [Acorn][acorn] instead
 -   Produces an <g key="abstract_syntax_tree">abstract syntax tree</g> (AST)
     whose nodes store information about what's in the program
+-   Whole thing is <%- include('/inc/linecount.html', {file: 'parse-single-const.out'}) %> lines long
 
-<%- include('/inc/multi.html', {pat: 'parse-single-const.*', fill: 'js out'}) %>
+<%- include('/inc/multi.html', {pat: 'parse-single-const.*', fill: 'js slice.out'}) %>
+
+<%- include('/inc/fig.html', {
+    id: 'style-checker-parse-tree',
+    img: '/static/tools-small.jpg',
+    alt: 'A small parse tree',
+    cap: 'The parse tree of a simple program.',
+    fixme: true
+}) %>
 
 -   [Esprima][esprima] format
     -   A lot of detail
@@ -29,7 +36,7 @@
 -   Look at the result of parsing a slightly more complex program
     -   A 9-line program produces over 500 lines of structure
 
-<%- include('/inc/multi.html', {pat: 'parse-const-func.*', fill: 'js out'}) %>
+<%- include('/inc/multi.html', {pat: 'parse-const-func.*', fill: 'js slice.out'}) %>
 
 ## How can we find things in an AST?
 
@@ -39,6 +46,14 @@
     -   Use options to say that we want to record locations and to collect comments (in the array `onComment`)
     -   We create an array called `state` to record declaration nodes as they're found
     -   Then report them all at the end
+
+<%- include('/inc/fig.html', {
+    id: 'style-checker-walk-tree',
+    img: '/static/tools-small.jpg',
+    alt: 'Walking a tree',
+    cap: 'Walking a tree to perform an operation at each node.',
+    fixme: true
+}) %>
 
 <%- include('/inc/multi.html', {pat: 'walk-ast.*', fill: 'js out'}) %>
 
@@ -55,7 +70,7 @@
 
 ## How does the AST walker work?
 
--   Use the <g key="visitor_pattern">Visitor</g> design pattern
+-   Uses the <g key="visitor_pattern">Visitor</g> design pattern (<xref key="page-templates"></xref>)
 -   Define a class with methods that
     -   Walk the tree
     -   Take action depending on the kind of node
@@ -83,6 +98,15 @@
 -   An alternative approach uses the <g key="iterator_pattern">Iterator</g> pattern
     -   Return elements of a complex structure one by one for processing
     -   Visitor takes computation to the nodes, Iterator gets the nodes for processing
+
+<%- include('/inc/fig.html', {
+    id: 'style-checker-iterator',
+    img: '/static/tools-small.jpg',
+    alt: 'The Iterator pattern',
+    cap: 'Finding nodes in the tree using the Iterator pattern.',
+    fixme: true
+}) %>
+
 -   Can implement in JavaScript using <g key="generator_function">generator functions</g>
 -   Use `yield` to return a value and suspend processing to be resumed later
     -   Result is a two-part structure with `value` and `done`

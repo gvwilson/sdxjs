@@ -71,7 +71,8 @@
 </div>
 <ul>
 <li>We have been writing a lot of files---how does the editor itself work?</li>
-<li>Explore by <g key="refactoring">refactoring</g> a terminal editor based on <a href="https://jotr.me/">Morten Olsrud</a>'s <a href="https://github.com/hakash/termit">Termit</a>
+<li>Explore by <g key="refactoring">refactoring</g> a terminal editor that's even simpler than <a href="https://www.nano-editor.org/">Nano</a>
+based on <a href="https://jotr.me/">Morten Olsrud</a>'s <a href="https://github.com/hakash/termit">Termit</a>
 <ul>
 <li>Uses the <a href="https://github.com/cronvel/terminal-kit">terminal-kit</a> package to manage screen interactions</li>
 </ul>
@@ -80,7 +81,8 @@
 <li>But will see:
 <ul>
 <li>How to build a <g key="plugin_architecture">plugin architecture</g></li>
-<li>How to implement undo and redo</li>
+<li>How to implement record-and-playback</li>
+<li>How to implement undo/redo</li>
 </ul>
 </li>
 </ul>
@@ -118,6 +120,9 @@ main()
 <li>Provides methods for user-level text interaction</li>
 </ul>
 </li>
+</ul>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="Screen and text buffers"/><figcaption id="text-editor-buffers">Using screen buffers and text buffers to display text.</figcaption></figure>
+<ul>
 <li>Start with a basic editor that draws on the screen and exits immediately when any key is pressed
 <ul>
 <li>Just
@@ -290,6 +295,7 @@ export default class BaseEditor {
 </ul>
 </li>
 </ul>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="Looking up key bindings"/><figcaption id="text-editor-lookup-table">Using a lookup table to manage key bindings.</figcaption></figure>
 <pre title="lookup-editor.js"><code class="language-js">import CoreEditor from './core-operations.js'
 
 export default class LookupEditor extends CoreEditor {
@@ -345,11 +351,11 @@ export default class LookupEditor extends CoreEditor {
 </ul>
 </li>
 <li>But we can now also provide plugins</li>
-<li>Load functions that take the editor and the arguments to <code>onKey</code> as input
+<li>Load functions that take the editor and the arguments to <code>onKey</code> as input</li>
+</ul>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="Loading and running plugins"/><figcaption id="text-editor-plugins">Loading and running plugins to handle keystrokes.</figcaption></figure>
 <ul>
 <li>Have to modify the default handlers to take these four arguments as well, just in case</li>
-</ul>
-</li>
 </ul>
 <pre title="plugin-editor.js"><code class="language-js">import fs from 'fs'
 import yaml from 'js-yaml'
@@ -381,7 +387,7 @@ export default class PluginEditor extends LookupEditor {
 <ul>
 <li>Notice the two-step <code>import</code> because <code>Promise.all</code> needs promises
 <ul>
-<li>Wille write an <code>async</code> function that combines the steps in the exercises</li>
+<li>Will write an <code>async</code> function that combines the steps in the exercises</li>
 </ul>
 </li>
 </ul>
@@ -403,6 +409,9 @@ export default class PluginEditor extends LookupEditor {
 <li><code>recordedOperations</code> is the most recently saved operations</li>
 </ul>
 </li>
+</ul>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="Implementing record and playback"/><figcaption id="text-editor-playback">Storing recent state to implement record and playback.</figcaption></figure>
+<ul>
 <li>Modified editor
 <ul>
 <li>Parent class does the work of handling the keystroke</li>
@@ -483,8 +492,12 @@ export default class PluginEditor extends LookupEditor {
 <li>But the opposite of &quot;cut line&quot; is &quot;paste line&quot;
 <ul>
 <li>Need to record state for some operations but not for others</li>
+<li>Use a stack because we undo in reverse order to doing</li>
 </ul>
 </li>
+</ul>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="Managing undo with a stack"/><figcaption id="text-editor-undo-stack">Using a stack to store undoable operations.</figcaption></figure>
+<ul>
 <li>Solution is one we hinted at earlier: implement each operation as a class
 <ul>
 <li><code>run</code> and <code>undo</code> methods (because <code>do</code> is a keyword in JavaScript)</li>

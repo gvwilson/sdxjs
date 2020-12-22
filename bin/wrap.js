@@ -12,7 +12,7 @@ const PROTOCOL = 'file://'
 const HOME = dirname(import.meta.url).replace('/bin', '')
 const FAKE = '/u/stjs'
 const REMOVED = '...'
-const SLICE = 5
+const SLICE = 10
 
 const main = () => {
   const options = getOptions()

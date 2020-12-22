@@ -7,7 +7,7 @@
 -   Often use an intermediate representation called <g key="assembly_code">assembly code</g>
     -   Human-readable names instead of numbers
 -   We will simulate a very simple processor with a little bit of memory
-    -   Also check out [Human Resource Machine][human-resource-machine]
+    -   Also check out the game [Human Resource Machine][human-resource-machine]
 
 ## What is the architecture of our virtual machine?
 
@@ -72,6 +72,14 @@
     -   Use bitwise operations to extract op code and operands from the instruction
     -   Some instructions don't have two operands, but a hardware implementation would unpack the same number every time
 
+<%- include('/inc/fig.html', {
+    id: 'virtual-machine-unpacking',
+    img: '/static/tools-small.jpg',
+    alt: 'Unpacking instructions',
+    cap: 'Using bitwise operations to unpack instructions.',
+    fixme: true
+}) %>
+
 <%- include('/inc/keep.html', {file: 'vm-base.js', key: 'fetch'}) %>
 
 -   We have included assertions
@@ -111,6 +119,14 @@
 
 <%- include('/inc/multi.html', {pat: 'count-up.*', fill: 'as mx'}) %>
 
+<%- include('/inc/fig.html', {
+    id: 'virtual-machine-count-up',
+    img: '/static/tools-small.jpg',
+    alt: 'Counting from 0 to 2',
+    cap: 'Flowchart of assembly language program to count up from 0 to 2.',
+    fixme: true
+}) %>
+
 -   The <g key="label_address">label</g> `loop` doesn't take up any space
     -   Tells the assembler to give the address of the next instruction a name
     -   We can then refer to that address as `@loop`
@@ -121,6 +137,15 @@
     -   Adds 1 to R0 (two instructions because we can only add register-to-register)
     -   Checks to see if we should loop again (three instructions)
     -   If we *don't* jump back, halt
+
+<%- include('/inc/fig.html', {
+    id: 'virtual-machine-trace-counter',
+    img: '/static/tools-small.jpg',
+    alt: 'Trace counting program',
+    cap: 'Tracing registers and memory values for a simple counting program.',
+    fixme: true
+}) %>
+
 -   Steps in assembly are pretty simple
     -   Get interesting lines
     -   Find the addresses of labels
@@ -162,6 +187,15 @@
 -   Allocate storage after the program for arrays
 -   Use `.data` on a line of its own to mark the start of the data section
 -   Then `label: number` to give a region a name and allocate some storage space
+
+<%- include('/inc/fig.html', {
+    id: 'virtual-machine-storage-allocation',
+    img: '/static/tools-small.jpg',
+    alt: 'Storage allocation',
+    cap: 'Allocating storage for arrays in the virtual machine.',
+    fixme: true
+}) %>
+
 -   A few changes to the assembler
 -   Split the lines into instructions and data allocations
 

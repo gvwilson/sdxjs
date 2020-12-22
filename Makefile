@@ -145,7 +145,7 @@ wordlist:
 
 ## spelling: what words are incorrect?
 spelling: ${HOME_PAGE}
-	@-bin/wordlist.js --input ${HTML} | aspell list | sort | uniq | diff - words.txt
+	@-bin/wordlist.js --input ${HTML} | aspell list | sort | uniq | diff - tex/words.txt
 
 ## pages: count pages per chapter.
 pages: ${VOLUME}.aux
