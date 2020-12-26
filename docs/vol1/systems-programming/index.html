@@ -6,7 +6,7 @@
   <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico">
   <link href="../../static/fonts.css" rel="stylesheet" type="text/css">
   <link href="../../static/site.css" rel="stylesheet" type="text/css">
-  <script>const NUMBERING = {"vol1":"1","systems-programming":"2","promises":"3","unit-test":"4","file-backup":"5","data-table":"6","pattern-matching":"7","regex-parser":"8","page-templates":"9","build-manager":"10","layout-engine":"11","text-editor":"12","file-interpolator":"13","module-loader":"14","module-bundler":"15","package-manager":"16","style-checker":"17","code-generator":"18","doc-generator":"19","virtual-machine":"20","debugger":"21","conclusion":"22","bib":"A","license":"B","conduct":"C","contributing":"D","gloss":"E","links":"F","authors":"G"}</script>
+  <script>const NUMBERING = {"vol1":"1","systems-programming":"2","promises":"3","unit-test":"4","file-backup":"5","data-table":"6","pattern-matching":"7","regex-parser":"8","page-templates":"9","build-manager":"10","layout-engine":"11","text-editor":"12","file-interpolator":"13","module-loader":"14","module-bundler":"15","package-manager":"16","style-checker":"17","code-generator":"18","doc-generator":"19","virtual-machine":"20","debugger":"21","conclusion":"22","bib":"A","license":"B","conduct":"C","contributing":"D","cognition":"E","gloss":"F","links":"G","authors":"H"}</script>
   <script src="../../static/site.js"></script>
   <script>window.onload = () => fixPage()</script>
 </head>
@@ -55,6 +55,7 @@
 <br/><a href="../license/"><span class="nowrap">License</span></a>
 <br/><a href="../conduct/"><span class="nowrap">Code of Conduct</span></a>
 <br/><a href="../contributing/"><span class="nowrap">Contributing</span></a>
+<br/><a href="../cognition/"><span class="nowrap">Cognition</span></a>
 <br/><a href="../gloss/"><span class="nowrap">Glossary</span></a>
 <br/><a href="../links/"><span class="nowrap">Links</span></a>
 <br/><a href="../authors/"><span class="nowrap">Authors</span></a>
@@ -67,37 +68,28 @@
   <h1>Systems Programming</h1>
   <h2 class="lede">Using callbacks to manipulate files and directories</h2>
 <div class="callout">
-  <p>Terms defined: <g key="anonymous_function">anonymous function</g>, <g key="asynchronous">asynchronous</g>, <g key="boolean">Boolean</g>, <g key="callback">callback function</g>, <g key="command_line_argument">command-line argument</g>, <g key="console">console</g>, <g key="destructuring_assignment">destructuring assignment</g>, <g key="filesystem">filesystem</g>, <g key="filter">filter</g>, <g key="globbing">globbing</g>, <g key="log_message">log message</g>, <g key="path">path (in filesystem)</g>, <g key="protocol">protocol</g>, <g key="single_threaded">single-threaded</g>, <g key="string_interpolation">string interpolation</g></p>
+  <p>Terms defined: <g key="anonymous_function">anonymous function</g>, <g key="asynchronous">asynchronous</g>, <g key="boolean">Boolean</g>, <g key="callback">callback function</g>, <g key="callback">callback function</g>, <g key="cognitive_load">cognitive load</g>, <g key="command_line_argument">command-line argument</g>, <g key="console">console</g>, <g key="current_working_directory">current working directory</g>, <g key="destructuring_assignment">destructuring assignment</g>, <g key="edge_case">edge case</g>, <g key="filesystem">filesystem</g>, <g key="filter">filter</g>, <g key="globbing">globbing</g>, <g key="idiomatic">idiomatic</g>, <g key="log_message">log message</g>, <g key="path">path (in filesystem)</g>, <g key="promise">promise</g>, <g key="protocol">protocol</g>, <g key="scope">scope</g>, <g key="single_threaded">single-threaded</g>, <g key="string_interpolation">string interpolation</g></p>
 </div>
-<ul>
-<li>JavaScript is an <g key="asynchronous">asynchronous</g> language
-<ul>
-<li>Its designers didn't want browsers to freeze while waiting for data</li>
-<li>So any operation that might be slow is implemented as &quot;describe what to do <em>later</em> when data is available&quot;</li>
-<li>And anything that touches files is slow compared from a CPU's point of view</li>
-</ul>
-</li>
-<li>JavaScript's original solution to this problem was hard to understand in programs of even moderate size
-<ul>
-<li>So a second layer was added, and then a third</li>
-<li>We need to understand all three layers in order to debug things when they go wrong</li>
-</ul>
-</li>
-<li>This chapter introduces the first two layers
-<ul>
-<li><xref key="promises"></xref> introduces the third</li>
-</ul>
-</li>
-<li>This chapter also shows how to load libraries and how to work with files and directories
-<ul>
-<li>Because we're going to be doing a lot of both</li>
-</ul>
-</li>
-</ul>
+<p>The biggest difference between JavaScript and most other programming languages
+is that many operations in JavaScript are <g key="asynchronous">asynchronous</g>.
+Its designers didn't want browsers to freeze while waiting for data to arrive or for users to click on things,
+so operations that might be slow are implemented by describing <em>now</em> what to do <em>later</em>.
+And since anything that touches the hard drive is slow from a processor's point of view,
+<a href="https://nodejs.org/en/">Node</a> implements <g key="filesystem">filesystem</g> operations the same way.</p>
+<p>Early JavaScript programs used <g key="callback">callback functions</g> to describe asynchronous operations,
+but callbacks can be hard to understand even in small programs.
+In 2015,
+the language's maintainers standardized a higher-level tool called <g key="promise">promises</g>
+to make callbacks a little easier to manage,
+and more recently they have added some new keywords called <code>async</code> and <code>await</code> to make it easier still.
+We need to understand all three layers in order to debug things when they go wrong,
+so this chapter explores callbacks,
+while <xref key="promises"></xref> shows how promises and <code>async</code>/<code>await</code> work.
+This chapter also shows how to read and write files and directories with <a href="https://nodejs.org/en/">Node</a>'s standard libraries,
+because we're going to be doing that a lot.</p>
 <h2 id="how-can-we-list-a-directory">How can we list a directory?</h2>
-<ul>
-<li>Let's try listing the contents of a directory the way we would in Python or Java</li>
-</ul>
+<p>To start,
+let's try listing the contents of a directory the way we would in Python or Java:</p>
 <pre title="list-dir-wrong.js"><code class="language-js">import fs from 'fs'
 
 const srcDir = process.argv[2]
@@ -106,54 +98,48 @@ for (const name of results) {
   console.log(name)
 }
 </code></pre>
-<ul>
-<li>Use <code>require(library-name)</code> to load a library
-<ul>
-<li>Returns an object</li>
-<li>Assign that to a constant
-<ul>
-<li>Allows us to give short nicknames to meaningfully-named libraries</li>
-</ul>
-</li>
-<li>Use <code>library.component</code> to refer to things in the library</li>
-</ul>
-</li>
-</ul>
+<div class="continue">
+<p>We use <code>import <em>module</em> from 'source'</code> to load the library <code><em>source</em></code>
+and assign its contents to <code><em>module</em></code>.
+After that,
+we can refer to things in the library using <code><em>module.component</em></code>
+just as we refer to things in any other object.
+We can use whatever name we want for the module,
+which allows us to give short nicknames to libraries with long names;
+we will take advantage of this in future chapters.</p>
+</div>
 <div class="callout">
 <h3 id="require-versus-import"><code>require</code> versus <code>import</code></h3>
 <p>In 2015, a new version of JavaScript called ES6 introduced the keyword <code>import</code> for importing modules.
-It improves on <code>require</code> in several ways, but Node still uses <code>require</code> by default.
+It improves on the older <code>require</code> method in several ways,
+but <a href="https://nodejs.org/en/">Node</a> still uses <code>require</code> by default.
 To tell it to use <code>import</code>,
-we have added <code>&quot;type&quot;: &quot;module&quot;</code> at the top level of <code>package.json</code>.</p>
+we have added <code>&quot;type&quot;: &quot;module&quot;</code> at the top level of <a href="https://nodejs.org/en/">Node</a>'s <code>package.json</code> file.</p>
 </div>
-<ul>
-<li>Use the <a href="https://nodejs.org/api/fs.html"><code>fs</code></a> library (&quot;fs&quot; is short for &quot;<g key="filesystem">filesystem</g>&quot;)
-<ul>
-<li>Contains functions to create directories, read or delete files, etc.</li>
-</ul>
-</li>
-<li>The program's <g key="command_line_argument">command-line arguments</g> are stored in <code>process.argv</code>
-<ul>
-<li><code>process.argv[0]</code> is the name of the program used to run our code (in this case <code>node</code>)</li>
-<li><code>process.argv[1]</code> is the name of our program (in this case <code>list-dir-wrong.js</code>)</li>
-<li><code>process.argv[2]</code> is the first argument after the name of our program</li>
-</ul>
-</li>
-</ul>
+<p>Our little program uses the <a href="https://nodejs.org/api/fs.html"><code>fs</code></a> library
+which contains functions to create directories, read or delete files, etc.
+(Its name is short for &quot;filesystem&quot;.)
+<a href="https://nodejs.org/en/">Node</a> automatically stores the program's <g key="command_line_argument">command-line arguments</g>
+in an array called <code>process.argv</code>:
+<code>process.argv[0]</code> is the name of the program used to run our code (in this case <code>node</code>),
+while <code>process.argv[1]</code> is the name of our program (in this case <code>list-dir-wrong.js</code>).
+The rest of <code>process.argv</code> holds whatever arguments we gave at the command line when we ran the program,
+so <code>process.argv[2]</code> is the first argument after the name of our program:</p>
 <figure class="fixme"><img src="/static/tools-small.jpg" alt="Command-line arguments in `process.argv`"/><figcaption id="systems-programming-process-argv">How Node stores command-line arguments in <code>process.argv</code>.</figcaption></figure>
-<ul>
-<li><code>fs.readdir</code> is supposed to return an array of strings (the names of the things in the directory)</li>
-<li>Use <code>for (const name of results)</code> to loop over the <em>contents</em> of that array
-<ul>
-<li><code>const name</code> means &quot;<code>name</code> is unchangeable inside the loop&quot;</li>
-</ul>
-</li>
-<li>And <code>console.log</code> is the equivalent of other languages' <code>print</code>
-<ul>
-<li>Strange name because its original purpose was to create <g key="log_message">log messages</g> in the browser <g key="console">console</g></li>
-</ul>
-</li>
-</ul>
+<p>If we run this program with the name of a directory as its argument,
+<code>fs.readdir</code> returns the names of the things in that directory as an array of strings.
+The program then uses <code>for (const name of results)</code> to loop over the contents of that array.
+We could use <code>let</code> instead of <code>const</code>,
+but it's good practice to declare things as <code>const</code> wherever possible
+so that anyone reading the program knows the variable isn't actually going to vary---doing
+this reduces the <g key="cognitive_load">cognitive load</g> on people reading the program
+(<xref key="cognition"></xref>).
+Finally,
+<code>console.log</code> is JavaScript's equivalent of other languages' <code>print</code> command;
+its strange name comes from the fact that
+its original purpose was to create <g key="log_message">log messages</g> in the browser <g key="console">console</g>.</p>
+<p>Unfortunately,
+our program doesn't work:</p>
 <pre title="list-dir-wrong.sh"><code class="language-sh">node list-dir-wrong.js .
 </code></pre>
 <pre title="list-dir-wrong.out"><code class="language-out">internal/process/esm_loader.js:74
@@ -171,33 +157,30 @@ TypeError [ERR_INVALID_CALLBACK]: Callback must be a function. Received \
   code: 'ERR_INVALID_CALLBACK'
 }
 </code></pre>
-<ul>
-<li>Error message comes from something we didn't write whose source we would struggle to read
-<ul>
-<li>Our code is the third <code>at</code> line (look for the name of our file <code>list-dir-wrong.js</code>)</li>
-<li>Everything below it is what Node does to load and run our program</li>
-</ul>
-</li>
-<li>The problem is that <code>fs.readdir</code> doesn't return anything</li>
-<li>Instead, its <a href="https://nodejs.org/api/fs.html">documentation</a> says that it takes a <g key="callback">callback function</g></li>
-</ul>
+<div class="continue">
+<p>The error message comes from something we didn't write whose source we would struggle to read.
+If we look for the name of our file (<code>list-dir-wrong.js</code>)
+we see the error occurred on line 4;
+everything above that is inside <code>fs.readdir</code>,
+while everything below it is <a href="https://nodejs.org/en/">Node</a> loading and running our program.</p>
+</div>
+<p>The problem is that <code>fs.readdir</code> doesn't return anything.
+Instead,
+<a href="https://nodejs.org/api/fs.html">its documentation</a> says that it takes a <g key="callback">callback function</g>,
+so we need to explore those in order to make our program work.</p>
 <h2 id="what-is-a-callback-function">What is a callback function?</h2>
-<ul>
-<li>JavaScript uses a <g key="single_threaded">single-threaded</g> programming model
-<ul>
-<li>Any operation that might delay, such as file I/O, is split into &quot;start&quot; and &quot;data ready&quot;</li>
-<li>The &quot;start&quot; part is the code we already have</li>
-<li>We need to write a function that specifies what we want to do when our data is ready</li>
-</ul>
-</li>
-<li>JavaScript saves a reference to this function to call when the data is ready
-<ul>
-<li>The function must take a specific set of parameters</li>
-<li>A standard <g key="protocol">protocol</g> like the various kind of USB ports and connectors that allows us to plug things together</li>
-</ul>
-</li>
-</ul>
+<p>JavaScript uses a <g key="single_threaded">single-threaded</g> programming model:
+as the introduction to this lesson said,
+it divides operations like file I/O into &quot;please do this&quot; and &quot;do this when you're done&quot;.
+<code>fs.readdir</code> is the first part,
+but we need to write a function that specifies the second part.
+JavaScript saves a reference to this function
+and calls with a specific set of parameters when our data is ready.
+Those parameters defined a standard <g key="protocol">protocol</g>
+for connecting to libraries,
+just like the USB standard allows us to plug hardware devices together.</p>
 <figure class="fixme"><img src="/static/tools-small.jpg" alt="How callbacks work"/><figcaption id="systems-programming-callbacks">How JavaScript runs callback functions.</figcaption></figure>
+<p>This corrected program gives <code>fs.readdir</code> a callback function called <code>listContents</code>:</p>
 <pre title="list-dir-function-defined.js"><code class="language-js">import fs from 'fs'
 
 const listContents = (err, files) =&gt; {
@@ -215,15 +198,16 @@ const srcDir = process.argv[2]
 fs.readdir(srcDir, listContents)
 console.log('last line of program')
 </code></pre>
-<ul>
-<li>Node callbacks always get an error (if any) as their first argument
-<ul>
-<li>Use <code>console.error</code> to report it for now</li>
-<li>Do something more sensible once we understand exceptions</li>
-</ul>
-</li>
-<li>The results from successful execution are passed as the other argument (in this case, <code>files</code>)</li>
-</ul>
+<div class="continue">
+<p><a href="https://nodejs.org/en/">Node</a> callbacks always get an error (if there is any) as their first argument
+and the result of a successful function call as their second.
+The function can tell the difference by checking to see if the error argument is <code>null</code>.
+If it is, the function lists the directory's contents with <code>console.log</code>,
+otherwise, it uses <code>console.error</code> to display the error message.
+Let's run the program with the <g key="current_working_directory">current working directory</g>
+(written as '.')
+as an argument:</p>
+</div>
 <pre title="list-dir-function-defined.sh"><code class="language-sh">node list-dir-function-defined.js .
 </code></pre>
 <pre title="list-dir-function-defined.slice.out"><code class="language-out">last line of program
@@ -248,43 +232,50 @@ x-trace-anonymous
 x-trace-callback
 x-where-is-node
 </code></pre>
-<ul>
-<li>Nothing else in this book will make sense if we don't understand the order of execution
+<p>Nothing in this book will make sense if we don't understand
+the order in which [Node][node.js] executes the statements in this program:</p>
 <ol>
-<li>Read the program file</li>
-<li>Execute the first line to load the <code>fs</code> library</li>
-<li>Define a function of two parameters and assign it to <code>listContents</code>
-<ul>
-<li>Remember, a function is just another kind of data</li>
-<li>Instead of being made up of numbers, characters, or pixels, it is made up of instructions</li>
-<li>But these are stored in memory like anything else</li>
-</ul>
+<li>
+<p>Read the program file.</p>
 </li>
-<li>Get the name of the directory from the command-line arguments</li>
-<li>Call <code>fs.readdir</code> to start a filesystem operation
-<ul>
-<li>Tell it what directory we want to read</li>
-<li>And what function to call when data is available</li>
-</ul>
+<li>
+<p>Execute the first line to load the <code>fs</code> library.</p>
 </li>
-<li>Print a message to show we're at the end of the file</li>
-<li>Wait (this part is invisible)</li>
-<li>Filesystem operation finishes</li>
-<li>Our callback function runs and prints its output</li>
+<li>
+<p>Define a function of two parameters and assign it to <code>listContents</code>.
+Remember, a function is just another kind of data.
+Instead of being made up of numbers, characters, or pixels, it is made up of instructions,
+but these are stored in memory like anything else.</p>
+</li>
+<li>
+<p>Get the name of the directory from the command-line arguments.</p>
+</li>
+<li>
+<p>Call <code>fs.readdir</code> to start a filesystem operation,
+telling it what directory we want to read and what function to call when data is available.</p>
+</li>
+<li>
+<p>Print a message to show we're at the end of the file.</p>
+</li>
+<li>
+<p>Wait until the filesystem operation finishes (this step is invisible).</p>
+</li>
+<li>
+<p>Run the callback function, which prints the directory listing.</p>
+</li>
 </ol>
-</li>
-</ul>
 <figure class="fixme"><img src="/static/tools-small.jpg" alt="Callback execution order"/><figcaption id="systems-programming-execution-order">When JavaScript runs callback functions.</figcaption></figure>
 <h2 id="what-are-anonymous-functions">What are anonymous functions?</h2>
-<ul>
-<li>More idiomatic to define the callback as an <g key="anonymous_function">anonymous function</g> where it's used
-<ul>
-<li>Most callbacks are only used in one place, so there's no need to give them names</li>
-<li>Makes it easier to see what's going to happen when the operation completes</li>
-<li>But the order of execution is now very different from the order of reading</li>
-</ul>
-</li>
-</ul>
+<p>Most programmers wouldn't define the function <code>listContents</code>
+and then pass it as a callback.
+Instead,
+since the callback is only used in one place,
+it is more <g key="idiomatic">idiomatic</g>
+to define it where it is needed
+as an <g key="anonymous_function">anonymous function</g>.
+This makes it easier to see what's going to happen when the operation completes,
+though it means the order of execution is quite different from the order of reading.
+Using an anonymous function gives us the final version of our program:</p>
 <pre title="list-dir-function-anonymous.js"><code class="language-js">import fs from 'fs'
 
 const srcDir = process.argv[2]
@@ -300,20 +291,18 @@ fs.readdir(srcDir, (err, files) =&gt; {
 </code></pre>
 <figure class="fixme"><img src="/static/tools-small.jpg" alt="Anonymous functions as callbacks"/><figcaption id="systems-programming-anonymous-functions">How and when JavaScript creates and runs anonymous callback functions.</figcaption></figure>
 <h2 id="how-can-we-select-a-set-of-files">How can we select a set of files?</h2>
-<ul>
-<li>Often want to copy just a subset of files
-<ul>
-<li>Include only those listed</li>
-<li>Copy everything except those explicitly excluded (the <code>.gitignore</code> model)</li>
-</ul>
-</li>
-<li>Use the <a href="https://www.npmjs.com/package/glob"><code>glob</code></a> module
-<ul>
-<li><g key="globbing">Globbing</g> (short for &quot;global&quot;) is an old Unix term for matching a set of files by name</li>
-<li>Like most of programming it works by filename, not by actual content type</li>
-</ul>
-</li>
-</ul>
+<p>Suppose we want to copy some files instead of listing a directory's contents.
+Depending on the situation
+we might want to copy only those files given on the command line
+or all files except some explicitly excluded.
+What we <em>don't</em> want to have to do is list the files one by one;
+instead,
+we want to be able to write patterns like <code>*.js</code>.</p>
+<p>To find files that match patterns like that,
+we can use the <a href="https://www.npmjs.com/package/glob"><code>glob</code></a> module.
+(To <g key="globbing">glob</g> (short for &quot;global&quot;) is an old Unix term for matching a set of files by name.)
+The <code>glob</code> module provides a function that takes a pattern and a callback
+and does something with every filename that matched the pattern:</p>
 <pre title="glob-all-files.js"><code class="language-js">import glob from 'glob'
 
 glob('**/*.*', (err, files) =&gt; {
@@ -348,21 +337,19 @@ x-trace-callback/trace.js
 x-where-is-node/problem.md
 x-where-is-node/solution.md
 </code></pre>
-<ul>
-<li>Get filenames matching a pattern and then do something with the list
-<ul>
-<li>The leading <code>**</code> means &quot;recurse into subdirectories&quot;</li>
-<li>The <code>*.*</code> means &quot;any characters followed by '.' followed by any characters&quot;</li>
-<li>Names that <em>don't</em> match <code>*.*</code> won't be included</li>
-<li>And by default, names that start with <code>.</code> (like <code>.gitignore</code>) aren't included</li>
-</ul>
-</li>
-</ul>
+<p>The leading <code>**</code> means &quot;recurse into subdirectories&quot;;
+the <code>*.*</code> means &quot;any characters followed by '.' followed by any characters&quot;.
+Names that don't match <code>*.*</code> won't be included,
+and by default,
+neither are names that start with a '.' character.
+(This is another old Unix convention:
+files and directories whose names have a leading '.'
+usually contain configuration information for various programs,
+so most commands will leave them alone unless told to do otherwise.)</p>
 <figure class="fixme"><img src="/static/tools-small.jpg" alt="Matching filenames with `glob`"/><figcaption id="systems-programming-globbing">Using <code>glob</code> patterns to match filenames.</figcaption></figure>
-<ul>
-<li>Works, but we probably don't want to copy editor backup files ending with <code>~</code></li>
-<li>We can get the list and then <g key="filter">filter</g> those out</li>
-</ul>
+<p>This program works,
+but we probably don't want to copy editor backup files whose names end with <code>~</code>.
+We can get rid of them by <g key="filter">filtering</g> the list that <code>glob</code> returns:</p>
 <pre title="glob-get-then-filter-pedantic.js"><code class="language-js">import glob from 'glob'
 
 glob('**/*.*', (err, files) =&gt; {
@@ -398,22 +385,16 @@ x-trace-callback/trace.js
 x-where-is-node/problem.md
 x-where-is-node/solution.md
 </code></pre>
-<ul>
-<li><code>Array.filter</code> creates a new array containing all the items of the original that pass the test
-<ul>
-<li>The test is specified as a callback function called once for each item that returns a <g key="boolean">Boolean</g></li>
-</ul>
-</li>
-</ul>
+<p><code>Array.filter</code> creates a new array containing all the items of the original array that pass a test.
+The test is specified as a callback function
+that runs once for each item and returns a <g key="boolean">Boolean</g>
+that determines if the item is kept in the new array (<code>true</code>) or left out (<code>false</code>).
+<code>Array.filter</code> does not modify the original array,
+so we can filter our original list of filenames several times if we want to.</p>
 <figure class="fixme"><img src="/static/tools-small.jpg" alt="Using `Array.filter`"/><figcaption id="systems-programming-array-filter">Selecting array elements using <code>Array.filter</code>.</figcaption></figure>
-<ul>
-<li>We can make this more idiomatic by:
-<ul>
-<li>Removing the parentheses around the single parameter</li>
-<li>Writing just the expression we want the function to return</li>
-</ul>
-</li>
-</ul>
+<p>We can make our globbing program more idiomatic by
+removing the parentheses around the single parameter
+and writing just the expression we want the function to return:</p>
 <pre title="glob-get-then-filter-idiomatic.js"><code class="language-js">import glob from 'glob'
 
 glob('**/*.*', (err, files) =&gt; {
@@ -427,15 +408,16 @@ glob('**/*.*', (err, files) =&gt; {
   }
 })
 </code></pre>
-<ul>
-<li>It turns out that <code>glob</code> can filter for us
-<ul>
-<li>Its documentation says it has an <code>options</code> argument</li>
-<li>We can pass an object full of key-value settings to control its behavior</li>
-<li>This is another common pattern in Node libraries and in our own code</li>
-</ul>
-</li>
-</ul>
+<p>However,
+it turns out that <code>glob</code> will filter for us.
+According to its documentation,
+the function takes an <code>options</code> object full of key-value settings
+that can control its behavior.
+This is another common pattern in Node libraries and in our own code:
+rather than accepting a large number of rarely-used parameters,
+a function can take a single object full of settings.
+If we use this,
+our program becomes:</p>
 <pre title="glob-filter-with-options.js"><code class="language-js">import glob from 'glob'
 
 glob('**/*.*', { ignore: '*~' }, (err, files) =&gt; {
@@ -448,16 +430,13 @@ glob('**/*.*', { ignore: '*~' }, (err, files) =&gt; {
   }
 })
 </code></pre>
-<ul>
-<li>Notice that we don't quote the key in this object
-<ul>
-<li>The keys in objects are almost always strings</li>
-<li>So if that string is simple enough that it won't confuse the parser, we don't need to put quotes around it</li>
-<li>&quot;Simple enough&quot; means &quot;looks like it could be a variable name&quot;</li>
-<li>Or equivalently &quot;only contains letters, digits, and the underscore&quot;</li>
-</ul>
-</li>
-</ul>
+<p>Notice that we don't quote the key in the <code>options</code> object.
+The keys in objects are almost always strings,
+and if a string is simple enough that it won't confuse the parser,
+we don't need to put quotes around it.
+Here,
+&quot;simple enough&quot; means &quot;looks like it could be a variable name&quot;,
+or equivalently &quot;contains only letters, digits, and the underscore&quot;.</p>
 <div class="callout">
 <h3 id="no-one-knows-everything">No one knows everything</h3>
 <p>We combined <code>glob.glob</code> and <code>Array.filter</code> in our functions for more than a year
@@ -478,9 +457,8 @@ than the one they're using (see point #1 above).</p>
 </li>
 </ol>
 </div>
-<ul>
-<li>Now specify a source directory and fold that into the glob</li>
-</ul>
+<p>To finish off our globbing program,
+let's specify a source directory on the command line and include that in the pattern:</p>
 <pre title="glob-with-source-directory.js"><code class="language-js">import glob from 'glob'
 
 const srcDir = process.argv[2]
@@ -495,24 +473,19 @@ glob(`${srcDir}/**/*.*`, { ignore: '*~' }, (err, files) =&gt; {
   }
 })
 </code></pre>
-<ul>
-<li>This uses <g key="string_interpolation">string interpolation</g>
-<ul>
-<li>Back-quote the string</li>
-<li>Use <code>${name}</code> to insert the value of an expression</li>
-<li>This is completely separate from the globbing</li>
-</ul>
-</li>
-</ul>
+<div class="continue">
+<p>This program uses <g key="string_interpolation">string interpolation</g>
+to insert the value of <code>srcDir</code> into a string.
+The template string is written in back quotes,
+and we use <code>${expression}</code> to insert the value of an expression.
+We could create the pattern by concatenating strings using
+<code>srcDir + '/**/*.*'</code>,
+but most programmers find the interpolating version easier to read.</p>
+</div>
 <h2 id="how-can-we-copy-a-set-of-files">How can we copy a set of files?</h2>
-<ul>
-<li>We now have the <g key="path">paths</g> to the files we are copying</li>
-<li>So we can take a second argument that specifies an output directory
-<ul>
-<li>Construct the output path by replacing the name of the source directory with the name of the output directory</li>
-</ul>
-</li>
-</ul>
+<p>We now have a way to create the <g key="path">paths</g> of the files we want to copy.
+If our program takes a second argument that specifies the output directory to copy those files to,
+it can construct the full output path by replacing the name of the source directory with the name of the output directory.</p>
 <pre title="glob-with-dest-directory.js"><code class="language-js">import glob from 'glob'
 
 const [srcDir, dstDir] = process.argv.slice(2)
@@ -528,22 +501,19 @@ glob(`${srcDir}/**/*.*`, { ignore: '*~' }, (err, files) =&gt; {
   }
 })
 </code></pre>
-<ul>
-<li>This uses <g key="destructuring_assignment">destructuring assignment</g> to create two variables at once
-<ul>
-<li>Only works if both source and destination are given on the command line, so we should check that</li>
-</ul>
-</li>
-</ul>
+<div class="continue">
+<p>This programs uses <g key="destructuring_assignment">destructuring assignment</g> to create two variables at once
+by unpacking the elements of an array.
+It only works if the array contains enough elements,
+i.e.,
+if both a source and destination are given on the command line;
+we'll add that in the exercises.</p>
+</div>
 <figure class="fixme"><img src="/static/tools-small.jpg" alt="Matching values with destructuring assignment"/><figcaption id="systems-programming-destructuring-assignment">Assigning many values at once by destructuring.</figcaption></figure>
-<ul>
-<li>But this only works if the destination directory already exists
-<ul>
-<li><code>fs</code> and equivalent libraries in other languages (mostly) won't create the directories we need automatically</li>
-</ul>
-</li>
-<li>This comes up so often that there is a function <code>ensureDir</code> to do what we need</li>
-</ul>
+<p>A more serious problem is that
+this program only works if the destination directory already exists:
+<code>fs</code> and equivalent libraries in other languages usually won't create directories for us automatically.
+The need to do this comes up so often that there is a function called <code>ensureDir</code> to do what we need:</p>
 <pre title="glob-ensure-output-directory.js"><code class="language-js">import glob from 'glob'
 import fs from 'fs-extra'
 import path from 'path'
@@ -566,18 +536,29 @@ glob(`${srcRoot}/**/*.*`, { ignore: '*~' }, (err, files) =&gt; {
   }
 })
 </code></pre>
-<ul>
-<li><a href="https://www.npmjs.com/package/fs-extra"><code>fs-extra</code></a> provides some useful utilities on top of <code>fs</code></li>
-<li>And use <a href="https://nodejs.org/api/path.html"><code>path</code></a> to manipulate pathnames because someone else has figured out the string operations needed to handle various cases</li>
-<li>This code gives us an empty tree of directories</li>
-<li>Note the name changes
-<ul>
-<li>Use <code>srcRoot</code> and <code>dstRoot</code> because we're going to need <code>dstDir</code></li>
-<li>Yes, this was a bug…</li>
-</ul>
-</li>
-<li>We can now copy the files</li>
-</ul>
+<p>Notice that we import from <code>fs-extra</code> instead of <code>fs</code>;
+the <a href="https://www.npmjs.com/package/fs-extra"><code>fs-extra</code></a> module provides some useful utilities on top of <code>fs</code>.
+We also use <a href="https://nodejs.org/api/path.html"><code>path</code></a> to manipulate pathnames
+rather than concatenating or interpolating strings
+because there are a lot of tricky <g key="edge_case">edge cases</g> in pathnames
+that the authors of that module have figured out for us.</p>
+<div class="callout">
+<h3 id="using-distinct-names">Using distinct names</h3>
+<p>We are now calling our command-line arguments <code>srcRoot</code> and <code>dstRoot</code>
+rather than <code>srcDir</code> and <code>dstDir</code>.
+As we were writing this example we used <code>dstDir</code> as both
+the name of the top-level destination directory (from the command line)
+and the name of the particular output directory to create.
+JavaScript didn't complain because
+every function creates a new <g key="scope">scope</g> for variable definitions,
+and it's perfectly legal to give a variable inside a function
+the same name as something outside it.
+However, &quot;legal&quot; isn't the same thing as &quot;comprehensible&quot;;
+giving the two variables different names makes the program easier for humans to read.</p>
+</div>
+<p>Our file copying program currently creates an empty tree of destination directories
+but doesn't actually copy any files.
+Let's add a call to <code>fs.copy</code> to do that:</p>
 <pre title="copy-file-unfiltered.js"><code class="language-js">import glob from 'glob'
 import fs from 'fs-extra'
 import path from 'path'
@@ -606,20 +587,22 @@ glob(`${srcRoot}/**/*.*`, { ignore: '*~' }, (err, files) =&gt; {
   }
 })
 </code></pre>
-<ul>
-<li>Three levels of callback
-<ul>
-<li>When <code>glob</code> has data, do things and then call <code>ensureDir</code></li>
-<li>When <code>ensureDir</code> completes, copy a file</li>
-<li>When <code>copy</code> finishes, check the error status</li>
-</ul>
+<p>The program now has three levels of callback:</p>
+<ol>
+<li>
+<p>When <code>glob</code> has data, do things and then call <code>ensureDir</code>.</p>
 </li>
-<li>Trace this for two directories each containing one file</li>
-</ul>
+<li>
+<p>When <code>ensureDir</code> completes, copy a file.</p>
+</li>
+<li>
+<p>When <code>copy</code> finishes, check the error status.</p>
+</li>
+</ol>
 <figure class="fixme"><img src="/static/tools-small.jpg" alt="Three levels of callback"/><figcaption id="systems-programming-triple-callback">Three levels of callback in the running example.</figcaption></figure>
-<ul>
-<li>It <em>almost</em> works</li>
-</ul>
+<p>Our program looks like it should work,
+but if we try to copy everything in the directory containing these lessons
+we get an error message:</p>
 <pre title="copy-file-unfiltered.sh"><code class="language-sh">rm -rf /tmp/out
 mkdir /tmp/out
 node copy-file-unfiltered.js ../node_modules /tmp/out 2&gt;&amp;1 | head -n 6
@@ -632,14 +615,15 @@ node copy-file-unfiltered.js ../node_modules /tmp/out 2&gt;&amp;1 | head -n 6
   path: '/tmp/out/@nodelib/fs.stat/package.json'
 }
 </code></pre>
-<ul>
-<li><code>node_modules/fs.stat</code> and <code>node_modules/fs.walk</code> are directories, not files, but match our <code>glob</code></li>
-<li>Use <code>fs.stat</code> to get the properties of something in the filesystem and then check if it's a file
-<ul>
-<li>Name is short for &quot;status&quot;</li>
-</ul>
-</li>
-</ul>
+<p>The problem is that <code>node_modules/fs.stat</code> and <code>node_modules/fs.walk</code> match our globbing expression,
+but are directories rather than files.
+To prevent our program from trying to use <code>fs.copy</code> on directories,
+we must use <code>fs.stat</code> to get the properties of the thing whose name <code>glob</code> has given us
+and then check if it's a file.
+The name &quot;stat&quot; is short for &quot;status&quot;,
+and since the status of something in the filesystem can be very complex,
+<code>fs.stat</code> returns <a href="https://nodejs.org/api/fs.html#fs_class_fs_stats">an object with methods that can answer common questions</a>.</p>
+<p>Here's the final version of our file copying program:</p>
 <pre title="copy-file-filtered.js"><code class="language-js">import glob from 'glob'
 import fs from 'fs-extra'
 import path from 'path'
@@ -674,11 +658,12 @@ glob(`${srcRoot}/**/*.*`, { ignore: '*~' }, (err, files) =&gt; {
   }
 })
 </code></pre>
-<ul>
-<li>This works…</li>
-<li>…but four levels of asynchronous callbacks is hard to understand</li>
-<li>We need a better mechanism</li>
-</ul>
+<div class="continue">
+<p>It works,
+but four levels of asynchronous callbacks is hard for humans to understand.
+The <xref key="promises">next chapter</xref> will introduce a pair of tools
+that make code like this easier to read.</p>
+</div>
 <h2 id="exercises">Exercises</h2>
 <h3 class="exercise">Where is Node?</h3>
 <p>Write a program called <code>wherenode.js</code> that prints the full path to the version of Node is is run with.</p>
@@ -715,6 +700,9 @@ blue(
   () =&gt; console.log('RED')
 )
 </code></pre>
+<h3 class="exercise">Checking arguments</h3>
+<p>Modify the file copying program to check that it has been given the right number of command-line arguments
+and to print a sensible error message (including a usage statement) if it hasn't.</p>
 <h3 class="exercise">Significant entries</h3>
 <p><code>count-lines-histogram.js</code> displays many zeroes and gives no visual sense of how large entries are.
 Modify it so that:</p>

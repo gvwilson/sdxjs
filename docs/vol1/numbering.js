@@ -25,7 +25,8 @@
   "license": "B",
   "conduct": "C",
   "contributing": "D",
-  "gloss": "E",
-  "links": "F",
-  "authors": "G"
+  "cognition": "E",
+  "gloss": "F",
+  "links": "G",
+  "authors": "H"
 }

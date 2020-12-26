@@ -45,7 +45,7 @@ These three [personas][t3-personas] are ours:
 
 -   Yim builds mobile apps for a living
     but also teaches two courses at Rupinder's college:
-    one on full-stack web development using JavaScript and [Node.js][nodejs] (which they are quite proud of),
+    one on full-stack web development using JavaScript and [Node][nodejs] (which they are quite proud of),
     and another titled "Software Design".
     They are frustrated that so many books about the latter talk about the subject in the abstract
     and use examples that their students can't relate to.
@@ -58,7 +58,7 @@ Like these three personas, readers should:
 
 -   Know how to create static web pages using HTML and CSS.
 
--   Be able to install [Node.js][nodejs] on their computer
+-   Be able to install [Node][nodejs] on their computer
     and run programs with it from the Unix or Windows command line.
 
 -   Use [Git][git] to save and share files.
@@ -165,7 +165,7 @@ and to the creators of [EJS][ejs],
 [Glosario][glosario],
 [GNU Make][gnu-make],
 [LaTeX][latex],
-[Node.js][nodejs],
+[Node][nodejs],
 [NPM][npm],
 [Standard JS][standard-js],
 [WAVE][webaim-wave],
