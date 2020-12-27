@@ -151,6 +151,10 @@ spelling: ${HOME_PAGE}
 pages: ${VOLUME}.aux
 	@bin/pages.js ${VOLUME}.aux | column -t -s '|'
 
+## progress: report progress on prosifying chapters.
+progress:
+	@bin/progress.js admin/vol1-wordcount.csv | column -t -s ':'
+
 ## clean: clean up
 clean:
 	@rm -f ${VOLUME}.{aux,log,out,pdf,tex,toc}
