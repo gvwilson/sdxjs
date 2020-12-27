@@ -1,7 +1,7 @@
 {
   "vol1": "1",
   "systems-programming": "2",
-  "promises": "3",
+  "async-programming": "3",
   "unit-test": "4",
   "file-backup": "5",
   "data-table": "6",

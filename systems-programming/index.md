@@ -16,7 +16,7 @@ to make callbacks a little easier to manage,
 and more recently they have added some new keywords called `async` and `await` to make it easier still.
 We need to understand all three layers in order to debug things when they go wrong,
 so this chapter explores callbacks,
-while <xref key="promises"></xref> shows how promises and `async`/`await` work.
+while <xref key="async-programming"></xref> shows how promises and `async`/`await` work.
 This chapter also shows how to read and write files and directories with [Node][nodejs]'s standard libraries,
 because we're going to be doing that a lot.
 
@@ -405,6 +405,6 @@ Here's the final version of our file copying program:
 ::: continue
 It works,
 but four levels of asynchronous callbacks is hard for humans to understand.
-The <xref key="promises">next chapter</xref> will introduce a pair of tools
+The <xref key="async-programming">next chapter</xref> will introduce a pair of tools
 that make code like this easier to read.
 :::

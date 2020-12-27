@@ -211,7 +211,7 @@
 -   This code is really hard to read
     -   What is being printed in the output vs. what is being executed right now
     -   The levels of nesting needed to capture variables safely
-    -   Took much more time per line of finished code than anything except the promises in <xref key="promises"></xref>
+    -   Took much more time per line of finished code than anything except the promises in <xref key="async-programming"></xref>
 -   Run this to create a bundled version of the single file
 
 <%- include('/inc/file.html', {file: 'test-create-bundle-single.sh'}) %>
