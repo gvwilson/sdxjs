@@ -11,9 +11,9 @@ And since anything that touches the hard drive is slow from a processor's point 
 Early JavaScript programs used <g key="callback">callback functions</g> to describe asynchronous operations,
 but callbacks can be hard to understand even in small programs.
 In 2015,
-the language's maintainers standardized a higher-level tool called <g key="promise">promises</g>
+the language's developers standardized a higher-level tool called <g key="promise">promises</g>
 to make callbacks a little easier to manage,
-and more recently they have added some new keywords called `async` and `await` to make it easier still.
+and more recently they have added new keywords called `async` and `await` to make it easier still.
 We need to understand all three layers in order to debug things when they go wrong,
 so this chapter explores callbacks,
 while <xref key="async-programming"></xref> shows how promises and `async`/`await` work.

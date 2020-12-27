@@ -68,49 +68,54 @@
   <h1>Asynchronous Programming</h1>
   <h2 class="lede">Using promises to manage delayed computation</h2>
 <div class="callout">
-  <p>Terms defined: <g key="character_encoding">character encoding</g>, <g key="class">class</g>, <g key="constructor">constructor</g>, <g key="exception">exception</g>, <g key="method">method</g>, <g key="non_blocking_execution">non-blocking execution</g>, <g key="promisification">promisification</g>, <g key="utf_8">UTF-8</g></p>
+  <p>Terms defined: <g key="call_stack">call stack</g>, <g key="character_encoding">character encoding</g>, <g key="class">class</g>, <g key="constructor">constructor</g>, <g key="event_loop">event loop</g>, <g key="exception">exception</g>, <g key="method">method</g>, <g key="non_blocking_execution">non-blocking execution</g>, <g key="promise">promise</g>, <g key="promisification">promisification</g>, <g key="utf_8">UTF-8</g></p>
 </div>
-<ul>
-<li>Callbacks work but are hard to read and debug
-<ul>
-<li>Which means they only &quot;work&quot; in a limited sense</li>
-</ul>
-</li>
-<li>Promises were added to JavaScript in 2015
-<ul>
-<li>As in, &quot;We promise to do this later&quot;</li>
-</ul>
-</li>
-<li>Show how they work by creating a <g key="class">class</g> of our own called <code>Pledge</code>
-<ul>
-<li>Based on <a href="https://medium.com/@treyhuffine">Trey Huffine</a>'s <a href="https://levelup.gitconnected.com/understand-javascript-promises-by-building-a-promise-from-scratch-84c0fd855720">tutorial</a></li>
-</ul>
-</li>
-</ul>
+<p>Callbacks work,
+but they are hard to read and debug,
+which means they only &quot;work&quot; in a limited sense.
+JavaScript's developers added <g key="promise">promises</g> to the language in 2015
+to make callbacks easier to write and understand,
+and more recently they added the keywords <code>async</code> and <code>await</code> as well
+to make them easier still.
+To show how these work,
+we will create a <g key="class">class</g> of our own called <code>Pledge</code>
+that provides the same core features as promises.
+Our explanation was inspired by <a href="https://medium.com/@treyhuffine">Trey Huffine</a>'s <a href="https://levelup.gitconnected.com/understand-javascript-promises-by-building-a-promise-from-scratch-84c0fd855720">tutorial</a>,
+and we encourage you to read that as well.</p>
 <h2 id="how-can-we-manage-asynchronous-execution">How can we manage asynchronous execution?</h2>
-<ul>
-<li>Most functions execute in order
-<ul>
-<li><code>Array.forEach</code> does something once for each element of an array but doesn't build a new array like <code>Array.filter</code></li>
-</ul>
-</li>
-</ul>
+<p>JavaScript is built around an <g key="event_loop">event loop</g>.
+Every task is represented by an entry in a queue;
+the event loop repeatedly takes a task from the front of the queue and runs it,
+adding any new tasks that it creates to the back of the queue to run later.
+Only one task runs at a time;
+each task has its own <g key="call_stack">call stack</g>,
+but objects can be shared between tasks.</p>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="The event loop"/><figcaption id="async-programming-event-loop">Using an event loop to manage concurrent tasks.</figcaption></figure>
+<p>Most tasks execute all the code available in the order it is written.
+For example,
+this one-line program uses <code>Array.forEach</code>
+to print each element of an array in turn:</p>
 <pre title="not-callbacks-alone.js"><code class="language-js">[1000, 1500, 500].forEach(t =&gt; console.log(t))
 </code></pre>
 <pre title="not-callbacks-alone.out"><code class="language-out">1000
 1500
 500
 </code></pre>
-<ul>
-<li>A handful of built-in functions delay execution
-<ul>
-<li><code>setTimeout</code> runs a callback after a certain number of milliseconds</li>
-<li>First argument is a function of no arguments</li>
-<li>Second is the delay</li>
-</ul>
-</li>
-</ul>
-<figure class="fixme"><img src="/static/tools-small.jpg" alt="Setting a timeout"/><figcaption id="promises-set-timeout">Using <code>setTimeout</code> to delay operations.</figcaption></figure>
+<p>However,
+a handful of special built-in functions make <a href="https://nodejs.org/en/">Node</a> switch tasks
+or add new tasks to the run queue.
+For example,
+<code>setTimeout</code> tells <a href="https://nodejs.org/en/">Node</a> to run a callback function
+after a certain number of milliseconds have passed.
+Its first argument is a function of no arguments,
+and its second is the delay.
+When <code>setTimeout</code> is called,
+<a href="https://nodejs.org/en/">Node</a> sets the callback aside for the requested time,
+then adds it to the run queue
+(which means that the task runs <em>at least</em> that many milliseconds later).
+As the listing below shows,
+this means that the original task can generate many new tasks before it completes,
+and those tasks can then run in an arbitrary order.</p>
 <pre title="callbacks-with-timeouts.js"><code class="language-js">[1000, 1500, 500].forEach(t =&gt; {
   console.log(`about to setTimeout for ${t}`)
   setTimeout(() =&gt; console.log(`inside timer handler for ${t}`), t)
@@ -123,13 +128,10 @@ inside timer handler for 500
 inside timer handler for 1000
 inside timer handler for 1500
 </code></pre>
-<ul>
-<li>Setting a timeout of zero defers execution without delay
-<ul>
-<li>Which gives something else a chance to run</li>
-</ul>
-</li>
-</ul>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="Setting a timeout"/><figcaption id="async-programming-set-timeout">Using <code>setTimeout</code> to delay operations.</figcaption></figure>
+<p>If we give <code>setTimeout</code> a delay of zero milliseconds,
+the new task can be run right away,
+but any other tasks that are waiting have a chance to run as well:</p>
 <pre title="callbacks-with-zero-timeouts.js"><code class="language-js">[1000, 1500, 500].forEach(t =&gt; {
   console.log(`about to setTimeout for ${t}`)
   setTimeout(() =&gt; console.log(`inside timer handler for ${t}`), 0)
@@ -142,9 +144,11 @@ inside timer handler for 1000
 inside timer handler for 1500
 inside timer handler for 500
 </code></pre>
-<ul>
-<li>We can use this to build a generic <g key="non_blocking_execution">non-blocking function</g></li>
-</ul>
+<div class="continue">
+<p>We can use this trick to build a generic
+<g key="non_blocking_execution">non-blocking function</g>
+that takes a callback of zero arguments and switches tasks
+if any other tasks are available:</p>
 <pre title="non-blocking.js"><code class="language-js">const nonBlocking = (callback) =&gt; {
   setTimeout(callback, 0)
 }
@@ -161,19 +165,9 @@ inside timer handler for 1000
 inside timer handler for 1500
 inside timer handler for 500
 </code></pre>
-<figure class="fixme"><img src="/static/tools-small.jpg" alt="Delaying three function calls"/><figcaption id="promises-set-three-delays">Order of operations with three delays function calls.</figcaption></figure>
-<ul>
-<li>Why bother?
-<ul>
-<li>Because we may want to give something else a chance to run</li>
-</ul>
-</li>
-<li>Node provides <code>setImmediate</code> to do this for us
-<ul>
-<li>And also <code>process.nextTick</code>, which doesn't do quite the same thing</li>
-</ul>
-</li>
-</ul>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="Delaying three function calls"/><figcaption id="async-programming-set-three-delays">Order of operations with three delays function calls.</figcaption></figure>
+<p><a href="https://nodejs.org/en/">Node</a> actually has a built-in function called <code>setImmediate</code> that does
+exactly what our <code>nonBlocking</code> function does:</p>
 <pre title="set-immediate.js"><code class="language-js">[1000, 1500, 500].forEach(t =&gt; {
   console.log(`about to do setImmediate for ${t}`)
   setImmediate(() =&gt; console.log(`inside immediate handler for ${t}`))
@@ -186,10 +180,14 @@ inside immediate handler for 1000
 inside immediate handler for 1500
 inside immediate handler for 500
 </code></pre>
+<div class="continue">
+<p><a href="https://nodejs.org/en/">Node</a> also has <code>process.nextTick</code>,
+which doesn't do quite the same thing---we'll explore the differences in the exercises.</p>
+</div>
+</div>
 <h2 id="how-do-promises-work">How do promises work?</h2>
-<ul>
-<li>Start by showing how we want to use it</li>
-</ul>
+<p>Before we start building our own promises,
+let's look at how we want them to work:</p>
 <pre title="use-pledge-motivation.js"><code class="language-js">import Pledge from './pledge.js'
 
 new Pledge((resolve, reject) =&gt; {
@@ -198,7 +196,7 @@ new Pledge((resolve, reject) =&gt; {
     console.log('about to call resolve callback')
     resolve('this is the result')
   }, 0)
-}).then(value =&gt; {
+}).then((value) =&gt; {
   console.log(`in 'then' with "${value}"`)
   return 'first then value'
 })
@@ -207,43 +205,44 @@ new Pledge((resolve, reject) =&gt; {
 about to call resolve callback
 in 'then' with "this is the result"
 </code></pre>
-<ul>
-<li>Create a new <code>Pledge</code> with a callback that takes <code>resolve</code> (everything worked) and <code>reject</code> (something failed)
-<ul>
-<li>That top-level callback does the first part of what we want to do (the part before we expect a delay)</li>
-<li>For demonstration purposes, we will use <code>setTimeout</code> to defer execution</li>
-<li>Then call to <code>resolve</code> to trigger whatever comes next</li>
-</ul>
-</li>
-<li>Look at the line with <code>then</code>
-<ul>
-<li>This is a call to a <g key="method">method</g> of the <code>Pledge</code> object</li>
-<li>Its argument is a callback that gets the value passed to <code>resolve</code></li>
-<li>This is where and how we handle the delayed execution.</li>
-</ul>
-</li>
-</ul>
-<figure class="fixme"><img src="/static/tools-small.jpg" alt="How promises resolve"/><figcaption id="promises-resolve">Order of operations when a promise resolves.</figcaption></figure>
-<ul>
-<li><code>Pledge</code>'s <g key="constructor">constructor</g> requires a single function called <code>action</code></li>
-<li>This function must take take two callbacks as arguments
-<ul>
-<li>What to do if the action completes successfully</li>
-<li>What to do if it doesn't (i.e., how to handle errors)</li>
-<li><code>Pledge</code> will provide both of these callbacks to the action at the right time</li>
-</ul>
-</li>
-<li>Give the class two methods:
-<ul>
-<li><code>then</code> to enable more actions</li>
-<li><code>catch</code> to handle errors</li>
-<li>We arbitrarily decide that we can have as many <code>then</code>s as we want, but only one <code>catch</code></li>
-</ul>
-</li>
-<li>If the action completes successfully, it gives us a value</li>
-<li>We pass this value to the first <code>then</code>, pass the result of that <code>then</code> to the second one, etc.</li>
-<li>If any of them fail, we pass the <g key="exception">exception</g> to the error handler</li>
-</ul>
+<p>This short program creates a new <code>Pledge</code>
+with a callback that takes two other callbacks as arguments:
+<code>resolve</code> (which we run when everything worked)
+and <code>reject</code> (which we run when something went wrong).
+The top-level callback does the first part of what we want to do,
+i.e.,
+whatever we want to run before we expect a delay.
+For demonstration purposes, we will use <code>setTimeout</code> with zero delay to switch tasks;
+once this task resumes,
+we call the <code>resolve</code> callback to trigger whatever is supposed to happen after the delay.</p>
+<p>Now look at the line with <code>then</code>.
+This is a <g key="method">method</g> of the <code>Pledge</code> object we just created,
+and its job is to do whatever we want to do after the delay.
+The argument to <code>then</code> is yet another callback function;
+it will get the value passed to <code>resolve</code>,
+which is how the first part of the action communicates with the second.</p>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="How promises resolve"/><figcaption id="async-programming-resolve">Order of operations when a promise resolves.</figcaption></figure>
+<p>In order to make this work,
+<code>Pledge</code>'s <g key="constructor">constructor</g> must take a single function called <code>action</code>.
+This function must take take two callbacks as arguments:
+what to do if the action completes successfully
+and what to do if it doesn't (i.e., how to handle errors).
+<code>Pledge</code> will provide these callbacks to the action at the right times.</p>
+<p><code>Pledge</code> also needs two methods:
+<code>then</code> to enable more actions
+and <code>catch</code> to handle errors.
+To simplify things just a little bit,
+we will allow users to chain as many <code>then</code>s as they want,
+but only allow one <code>catch</code>.</p>
+<p>If the original action completes successfully,
+it gives us a value by calling the <code>resolve</code> callback.
+We pass this value to the first <code>then</code>,
+pass the result of that <code>then</code> to the second one,
+and so on.
+If any of them fail and throw an <g key="exception">exception</g>,
+we pass that exception to the error handler.
+Putting it all together,
+the whole class looks like this:</p>
 <pre title="pledge.js"><code class="language-js">class Pledge {
   constructor (action) {
     this.actionCallbacks = []
@@ -280,17 +279,19 @@ in 'then' with "this is the result"
 
 export default Pledge
 </code></pre>
-<ul>
-<li>There is one unfortunate trick: <code>bind</code>.
-<ul>
-<li>When we create an object <code>obj</code> and call a method <code>meth</code>, JavaScript sets <code>this</code> inside <code>meth</code></li>
-<li>If we use a method as a callback, <code>this</code> isn't set</li>
-<li>To convert the method to a plain old function with the right <code>this</code>, we have to use <code>bind</code></li>
-<li>See <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Function/bind">the documentation</a> for details</li>
-</ul>
-</li>
-<li>Let's create a pledge and return a value</li>
-</ul>
+<div class="callout">
+<h3 id="binding-this">Binding <code>this</code></h3>
+<p><code>Pledge</code>'s constructor makes two calls to a special function called <code>bind</code>.
+When we create an object <code>obj</code> and call a method <code>meth</code>,
+JavaScript sets the special variable <code>this</code> to <code>obj</code> inside <code>meth</code>.
+If we use a method as a callback,
+though,
+<code>this</code> isn't automatically set to the correct object.
+To convert the method to a plain old function with the right <code>this</code>,
+we have to use <code>bind</code>.
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Function/bind">The documentation</a> has more details and examples.</p>
+</div>
+<p>Let's create a <code>Pledge</code> and return a value:</p>
 <pre title="use-pledge-return.js"><code class="language-js">import Pledge from './pledge.js'
 
 new Pledge((resolve, reject) =&gt; {
@@ -302,18 +303,25 @@ new Pledge((resolve, reject) =&gt; {
 </code></pre>
 <pre title="use-pledge-return.out"><code class="language-out">top of a single then clause
 </code></pre>
-<ul>
-<li>Why didn't this work?
+<div class="continue">
+<p>Why didn't this work?</p>
+</div>
 <ol>
-<li>We don't use <code>return</code> with pledges, we call <code>resolve</code> or <code>reject</code></li>
-<li>We haven't done anything that defers execution</li>
-</ol>
-<ul>
-<li>Our original motivating example got this right</li>
-</ul>
+<li>
+<p>We can't use <code>return</code> with pledges
+because the call stack of the task that created the pledge is gone
+by the time the pledge executes.
+Instead, we must call <code>resolve</code> or <code>reject</code>.</p>
 </li>
-<li>A more complex example showing how to chain things</li>
-</ul>
+<li>
+<p>We haven't done anything that defers execution,
+i.e.,
+there is no call to <code>setTimeout</code>, <code>setImmediate</code>,
+or anything else that would switch tasks.
+Our original motivating example got this right.</p>
+</li>
+</ol>
+<p>This example shows how we can chain actions together:</p>
 <pre title="use-pledge-chained.js"><code class="language-js">import Pledge from './pledge.js'
 
 new Pledge((resolve, reject) =&gt; {
@@ -339,9 +347,16 @@ first then with "initial result"
 second then with "first value"
 after resolve callback
 </code></pre>
-<ul>
-<li>And finally an example where we explicitly signal a problem by calling <code>reject</code></li>
-</ul>
+<div class="continue">
+<p>Notice that inside each <code>then</code> we <em>do</em> use <code>return</code>
+because these clauses all run in a single task.
+As we will see in the next section,
+the full implementation of <code>Promise</code> allows us to run both normal code
+and delayed tasks inside <code>then</code> handlers.</p>
+</div>
+<p>Finally,
+in this example we explicitly signal a problem by calling <code>reject</code>
+to make sure our error handling does what it's supposed to:</p>
 <pre title="use-pledge-reject.js"><code class="language-js">import Pledge from './pledge.js'
 
 new Pledge((resolve, reject) =&gt; {
@@ -361,9 +376,7 @@ about to reject on purpose
 in error handler with "error on purpose"
 </code></pre>
 <h2 id="how-are-real-promises-different">How are real promises different?</h2>
-<ul>
-<li>Let's rewrite our chained pledge with built-in promises</li>
-</ul>
+<p>Let's rewrite our chained pledge with built-in promises:</p>
 <pre title="use-promise-chained.js"><code class="language-js">new Promise((resolve, reject) =&gt; {
   console.log('top of action callback with double then and a catch')
   setTimeout(() =&gt; {
@@ -387,14 +400,13 @@ after resolve callback
 first then with "initial result"
 second then with "first value"
 </code></pre>
-<ul>
-<li>It's almost the same, but the callbacks run <em>after</em> the main script finishes</li>
-<li>Common pattern is to return another promise from inside <code>then</code>
-<ul>
-<li>So the next <code>then</code> is called on the returned promise, not on the original promise</li>
-</ul>
-</li>
-</ul>
+<p>It looks almost the same,
+but if we read the output carefully
+we can see that the callbacks run <em>after</em> the main program finishes.
+This is a signal that <a href="https://nodejs.org/en/">Node</a> is delaying the execution of the code in the <code>then</code> handler.</p>
+<p>A very common pattern is to return another promise from inside <code>then</code>
+so that the next <code>then</code> is called on the returned promise,
+not on the original promise:</p>
 <pre title="promise-example.js"><code class="language-js">const delay = (message) =&gt; {
   return new Promise((resolve, reject) =&gt; {
     console.log(`constructing promise: ${message}`)
@@ -420,21 +432,31 @@ first then: resolving: outer delay
 constructing promise: inner delay
 second then: resolving: inner delay
 </code></pre>
-<figure class="fixme"><img src="/static/tools-small.jpg" alt="Chained promises"/><figcaption id="promises-chained">Chaining promises to make asynchronous operations depend on each other.</figcaption></figure>
-<ul>
-<li>If we use a <g key="promisification">promisified</g> function from the library, we get a promise for free</li>
-<li>If we want to plug in our own asynchronous functions, we need to create promises</li>
-<li>If our code can run synchronously, just put it in <code>then</code></li>
-</ul>
-<h2 id="how-can-we-build-tools-with-promises">How can we build tools with promises?</h2>
-<ul>
-<li>Use this to build a line-counting program</li>
-<li>Use the promisified version of <code>fs-extra</code>
-<ul>
-<li>Turns all of the callbacks into promises for us</li>
-</ul>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="Chained promises"/><figcaption id="async-programming-chained">Chaining promises to make asynchronous operations depend on each other.</figcaption></figure>
+<p>We therefore have three rules for chaining promises:</p>
+<ol>
+<li>
+<p>If our code can run synchronously, just put it in <code>then</code>.</p>
 </li>
-</ul>
+<li>
+<p>If we want to use our own asynchronous function,
+it must create and return a promise.</p>
+</li>
+<li>
+<p>Finally,
+if we want to use a library function that relies on callbacks,
+we have to convert it to use promises.
+Doing this is called <g key="promisification">promisification</g>,
+and most functions in the <a href="https://nodejs.org/en/">Node</a> have already been promisified.</p>
+</li>
+</ol>
+<h2 id="how-can-we-build-tools-with-promises">How can we build tools with promises?</h2>
+<p>Promises may seem more complex than callbacks right now,
+but that's because we're looking at how they work rather than at how to use them.
+To explore the latter,
+let's use promises to build a line-counting program.
+We will rely on the promisified version of <code>fs-extra</code> for file operations.</p>
+<p>Our first step is to count the lines in a single file:</p>
 <pre title="count-lines-single-file.js"><code class="language-js">import fs from 'fs-extra-promise'
 
 const filename = process.argv[2]
@@ -461,14 +483,14 @@ and uses multi-byte sequences for other symbols.
 If we don't specify a character encoding,
 <code>fs.readFileAsync</code> gives us an array of bytes rather than an array of characters.</p>
 </div>
-<ul>
-<li>We can use <code>glob-promise</code> to delay handling the output of <code>glob</code>
-<ul>
-<li>Use <code>Promise.all</code> to handle all the promises in an array</li>
-<li>For readability, put the creation of the promise in a separate function</li>
-</ul>
-</li>
-</ul>
+<p>The next step is to count the lines in multiple files.
+We can use <code>glob-promise</code> to delay handling the output of <code>glob</code>,
+but we need some way to create a separate task to count the lines in each file
+and to wait until those line counts are available before exiting our program.</p>
+<p>The tool we want is <code>Promise.all</code>,
+which waits until all of the promises in an array have completed.
+To make our program a little more readable,
+we will put the creation of the promise for each file in a separate function:</p>
 <pre title="count-lines-globbed-files.js"><code class="language-js">import glob from 'glob-promise'
 import fs from 'fs-extra-promise'
 
@@ -514,15 +536,15 @@ main(srcDir)
 5
 3
 </code></pre>
-<ul>
-<li>But we want to display filenames as well as counts</li>
-<li>So we construct temporary objects that have the information we need downstream
-<ul>
-<li>Use object with named fields instead of array with positional values</li>
-<li>It allows us to add or move fields without breaking code quite as often</li>
-</ul>
-</li>
-</ul>
+<p>However,
+we want to display the names of the files whose lines we're counting along with the counts.
+To do this we have to return two values from our <code>then</code>.
+We could put them in an array,
+but it's better practice to construct a temporary object with named fields.
+This approach allows us to add or rearrange fields without breaking code
+and also serves as a bit of documentation.
+With this change
+our line-counting program becomes:</p>
 <pre title="count-lines-print-filenames.js"><code class="language-js">import glob from 'glob-promise'
 import fs from 'fs-extra-promise'
 
@@ -548,21 +570,14 @@ const lineCount = (filename) =&gt; {
 const srcDir = process.argv[2]
 main(srcDir)
 </code></pre>
-<figure class="fixme"><img src="/static/tools-small.jpg" alt="Temporary objects with named fields"/><figcaption id="promises-temporary-named-fields">Creating temporary objects with named fields to carry values forward.</figcaption></figure>
-<ul>
-<li>Works until we run into a directory whose name name matches <code>*.*</code>
-<ul>
-<li>Which we do in <code>node_modules</code></li>
-</ul>
-</li>
-<li>Need to use a <code>stat</code> call to check if something is a file or not
-<ul>
-<li>But <code>stat</code> returns a stats object that doesn't include the file's name</li>
-<li>So we create a pair to pass down the chain</li>
-<li>Use <code>{filename, stats}</code> to give the objects keys and values that match up</li>
-</ul>
-</li>
-</ul>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="Temporary objects with named fields"/><figcaption id="async-programming-temporary-named-fields">Creating temporary objects with named fields to carry values forward.</figcaption></figure>
+<p>As in <xref key="systems-programming">the previous chapter</xref>,
+this works until we run into a directory whose name name matches <code>*.*</code>,
+which we do in <code>node_modules</code>.
+The solution once again is to use <code>stat</code> to check if something is a file or not
+before trying to read it.
+And since <code>stat</code> returns an object that doesn't include the file's name,
+we create another temporary object to pass information down the chain of <code>then</code>s.</p>
 <pre title="count-lines-with-stat.js"><code class="language-js">import glob from 'glob-promise'
 import fs from 'fs-extra-promise'
 
@@ -623,30 +638,28 @@ main(srcDir)
 5: ./x-trace-load/problem.md
 3: ./x-trace-load/solution.md
 </code></pre>
-<ul>
-<li>This is complex, but a lot simpler than it would be if we were using callbacks</li>
-</ul>
+<div class="continue">
+<p>This code is complex, but a lot simpler than it would be if we were using callbacks.</p>
+</div>
+<div class="callout">
+<h2 id="lining-things-up">Lining things up</h2>
+<p>One trick this code uses that we haven't seen before is
+to create an object using variable names as both keys and values.
+The expression <code>{filename, stats}</code> creates an object whose keys are <code>filename</code> and <code>stats</code>,
+and whose values are the values of the corresponding variables.
+Doing this makes the code easier to read,
+both because it's shorter
+but also because it signals that the value associated with the key <code>filename</code>
+is exactly the value of the variable with the same name.</p>
+</div>
 <h2 id="how-can-we-make-this-more-readable">How can we make this more readable?</h2>
-<ul>
-<li>Modern JavaScript provides <code>async</code> and <code>await</code> keywords
-<ul>
-<li><code>async</code> means &quot;this function implicitly returns a promise&quot;</li>
-<li><code>await</code> means &quot;wait for a promise to resolve&quot;</li>
-</ul>
-</li>
-<li>We can only use <code>await</code> inside a function that is declared to be <code>async</code></li>
-<li>Do all the same things as the explicit promise-based version, but easier to read
-<ul>
-<li>In particular, allows us to mix asynchronous and synchronous code (<code>hashPath</code> doesn't delay computation)</li>
-</ul>
-</li>
-<li>Use these with the promisified version of the <code>fs</code> library
-<ul>
-<li>Don't have to wrap the sliced text in a promise: that happens automatically because the function is <code>async</code></li>
-<li>Can't <code>await</code> in the main body at the bottom because <code>await</code> only works <em>inside</em> <code>async</code> functions</li>
-</ul>
-</li>
-</ul>
+<p>Promises eliminate the deep nesting associated with callbacks of callbacks,
+but they are still hard to follow.
+The latest versions of JavaScript provide two new keywords called <code>async</code> and <code>await</code>
+to flatten code further.
+<code>async</code> means &quot;this function implicitly returns a promise&quot;,
+while <code>await</code> means &quot;wait for a promise to resolve&quot;.
+This short program uses both keywords to print the first ten characters of a file:</p>
 <pre title="await-fs.js"><code class="language-js">import fs from 'fs-extra-promise'
 
 const firstTenCharacters = async (filename) =&gt; {
@@ -665,13 +678,22 @@ function result has type Promise
 inside, raw text is 24 characters long
 outside, final result is "Begin at t"
 </code></pre>
-<ul>
-<li>Modify the two helper functions to look like they're waiting for results and returning them
-<ul>
-<li>Except they actually wrap their results in promises and return those</li>
-</ul>
-</li>
-</ul>
+<div class="callout">
+<h3 id="translating-code">Translating code</h3>
+<p>When <a href="https://nodejs.org/en/">Node</a> sees <code>await</code> and <code>async</code>
+it silently converts the code to use promises with <code>then</code>, <code>resolve</code>, and <code>reject</code>;
+we will see how this is done in <xref key="code-generator"></xref>.
+In order to provide a context for this,
+we can only use <code>await</code> inside a function that is declared to be <code>async</code>:
+we can't put a statement like <code>await fs.statAsync(…)</code> at the top level of our program
+outside a function.</p>
+</div>
+<p>To see how much cleaner our code is with <code>await</code> and <code>async</code>,
+let's rewrite our line counting program to use them.
+First,
+we modify the two helper functions to look like they're waiting for results and returning them.
+They actually wrap their results in promises and return those,
+but <a href="https://nodejs.org/en/">Node</a> now takes care of that for us:</p>
 <pre title="count-lines-with-stat-async.js"><code class="language-js">const statPair = async (filename) =&gt; {
   const stats = await fs.statAsync(filename)
   return { filename, stats }
@@ -684,14 +706,11 @@ const lineCount = async (filename) =&gt; {
     lines: data.split('\n').length - 1
   }
 }</code></pre>
-<ul>
-<li>Modify <code>main</code> to wait for things to complete
-<ul>
-<li>Must still use <code>Promise.all</code> for collections of things</li>
-<li><code>async</code> and <code>await</code> hide promises until they don't</li>
-</ul>
-</li>
-</ul>
+<p>Next,
+we modify <code>main</code> to wait for things to complete.
+We must still use <code>Promise.all</code> to handle the promises
+that are counting lines for individual files,
+but the result is less cluttered than our previous version.</p>
 <pre title="count-lines-with-stat-async.js"><code class="language-js">const main = async (srcDir) =&gt; {
   const files = await glob(`${srcDir}/**/*.*`)
   const pairs = await Promise.all(
@@ -711,16 +730,14 @@ const lineCount = async (filename) =&gt; {
 const srcDir = process.argv[2]
 main(srcDir)</code></pre>
 <h2 id="how-can-we-handle-errors-with-asynchronous-code">How can we handle errors with asynchronous code?</h2>
-<ul>
-<li>We created several intermediate variables in the line-counting example to make the steps clearer</li>
-<li>Doing this also helps with error handling</li>
-<li>If we return a promise that fails without using <code>await</code>, the error happens outside our function
-<ul>
-<li>The failed promise is turned into an error</li>
-<li>Our <code>try</code>/<code>catch</code> doesn't help us</li>
-</ul>
-</li>
-</ul>
+<p>We created several intermediate variables in the line-counting program to make the steps clearer.
+Doing this also helps with error handling:
+to see how,
+we will build up an xample in stages.</p>
+<p>First,
+if we return a promise that fails without using <code>await</code>,
+then our main function will finish running before the error occurs,
+and our <code>try</code>/<code>catch</code> doesn't help us:</p>
 <pre title="return-immediately.js"><code class="language-js">async function returnImmediately () {
   try {
     return Promise.reject(new Error('deliberate'))
@@ -733,34 +750,11 @@ returnImmediately()
 </code></pre>
 <pre title="return-immediately.out"><code class="language-out">(node:15867) UnhandledPromiseRejectionWarning: Error: deliberate
 </code></pre>
-<ul>
-<li>If we <code>return await</code>, the function waits until the promise runs
-<ul>
-<li>The promise is then turned into an exception because it failed</li>
-<li>And we're inside the scope of our error handler, which catches it</li>
-</ul>
-</li>
-</ul>
-<pre title="return-await.js"><code class="language-js">async function returnAwait () {
-  try {
-    return await Promise.reject(new Error('deliberate'))
-  } catch (err) {
-    console.log('caught exception')
-  }
-}
-
-returnAwait()
-</code></pre>
-<pre title="return-await.out"><code class="language-out">caught exception
-</code></pre>
-<ul>
-<li>Better practice is to be consistent and always return something
-<ul>
-<li>Because the function is declared <code>async</code>,
-the <code>Error</code> is automatically wrapped in a promise so we can use <code>.then</code> and <code>.catch</code></li>
-</ul>
-</li>
-</ul>
+<figure class="fixme"><img src="/static/tools-small.jpg" alt="Handling asynchronous errors"/><figcaption id="async-programming-handling-errors">Wrong and right ways to handle errors in asynchronous code.</figcaption></figure>
+<p>One solution to this problem is to be consistent and always return something.
+Because the function is declared <code>async</code>,
+the <code>Error</code> in the code below is automatically wrapped in a promise
+so we can use <code>.then</code> and <code>.catch</code> to handle it as before:</p>
 <pre title="assign-immediately.js"><code class="language-js">async function returnImmediately () {
   try {
     return Promise.reject(new Error('deliberate'))
@@ -774,7 +768,32 @@ result.catch(err =&gt; console.log(`caller caught ${err}`))
 </code></pre>
 <pre title="assign-immediately.out"><code class="language-out">caller caught Error: deliberate
 </code></pre>
+<p>If instead we <code>return await</code>,
+the function waits until the promise runs before returning.
+The promise is turned into an exception because it failed,
+and since we're inside the scope of our <code>try</code>/<code>catch</code> block,
+everything works as we want:</p>
+<pre title="return-await.js"><code class="language-js">async function returnAwait () {
+  try {
+    return await Promise.reject(new Error('deliberate'))
+  } catch (err) {
+    console.log('caught exception')
+  }
+}
+
+returnAwait()
+</code></pre>
+<pre title="return-await.out"><code class="language-out">caught exception
+</code></pre>
+<div class="continue">
+<p>We prefer the second approach,
+but whichever you choose,
+please be consistent.</p>
+</div>
 <h2 id="exercises">Exercises</h2>
+<h3 class="exercise">Immediate versus next tick</h3>
+<p>What is the difference between <code>setImmediate</code> and <code>process.nextTick</code>?
+When would you use each one?</p>
 <h3 class="exercise">Tracing promise execution</h3>
 <ol>
 <li>

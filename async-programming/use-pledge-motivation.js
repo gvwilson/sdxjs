@@ -6,7 +6,7 @@ new Pledge((resolve, reject) => {
     console.log('about to call resolve callback')
     resolve('this is the result')
   }, 0)
-}).then(value => {
+}).then((value) => {
   console.log(`in 'then' with "${value}"`)
   return 'first then value'
 })

@@ -190,6 +190,8 @@
 <dd class="glossary">Signalled when something goes wrong in a <g key="unit_test">unit test</g> itself rather than in the system being tested. In this case, we do not know anything about the correctness of the system.</dd>
 <dt id="error_handling" class="glossary">error handling</dt>
 <dd class="glossary">What a program does to detect and correct for errors. Examples include printing a message and using a default configuration if the user-specified configuration cannot be found.</dd>
+<dt id="event_loop" class="glossary">event loop</dt>
+<dd class="glossary">A mechanism for managing concurrent activities in a program. Tasks are represented as items in a queue; the event loop repeatedly takes an item from the front of the queue and runs it, adding any other tasks it generates to the back of the queue to run later.</dd>
 <dt id="exception" class="glossary">exception</dt>
 <dd class="glossary">An object that stores information about an error or other unusual event in a program. One part of a program will create and <g key="raise_exception">raise an exception</g> to signal that something unexpected has happened; another part will <g key="catch_exception">catch</g> it.</dd>
 <dt id="exception_handler" class="glossary">exception handler</dt>
