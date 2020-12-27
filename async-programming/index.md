@@ -22,7 +22,8 @@ the event loop repeatedly takes a task from the front of the queue and runs it,
 adding any new tasks that it creates to the back of the queue to run later.
 Only one task runs at a time;
 each task has its own <g key="call_stack">call stack</g>,
-but objects can be shared between tasks.
+but objects can be shared between tasks
+(<f key="async-programming-event-loop"></f>).
 
 <%- include('/inc/fig.html', {
     id: 'async-programming-event-loop',
@@ -53,7 +54,8 @@ then adds it to the run queue
 (which means that the task runs *at least* that many milliseconds later).
 As the listing below shows,
 this means that the original task can generate many new tasks before it completes,
-and those tasks can then run in an arbitrary order.
+and those tasks can then run in an arbitrary order
+(<f key="async-programming-set-timeout"></f>).
 
 <%- include('/inc/multi.html', {pat: 'callbacks-with-timeouts.*', fill: 'js out'}) %>
 
@@ -75,7 +77,8 @@ but any other tasks that are waiting have a chance to run as well:
 We can use this trick to build a generic
 <g key="non_blocking_execution">non-blocking function</g>
 that takes a callback of zero arguments and switches tasks
-if any other tasks are available:
+if any other tasks are available
+(<f key="async-programming-set-three-delays"></f>):
 
 <%- include('/inc/multi.html', {pat: 'non-blocking.*', fill: 'js out'}) %>
 
@@ -87,15 +90,12 @@ if any other tasks are available:
     fixme: true
 }) %>
 
-[Node][nodejs] actually has a built-in function called `setImmediate` that does
-exactly what our `nonBlocking` function does:
-
-<%- include('/inc/multi.html', {pat: 'set-immediate.*', fill: 'js out'}) %>
-
-::: continue
+[Node][nodejs]'s built-in function `setImmediate`
+does exactly what our `nonBlocking` function does:
 [Node][nodejs] also has `process.nextTick`,
 which doesn't do quite the same thing---we'll explore the differences in the exercises.
-:::
+
+<%- include('/inc/multi.html', {pat: 'set-immediate.*', fill: 'js out'}) %>
 
 ## How do promises work?
 
@@ -120,7 +120,8 @@ This is a <g key="method">method</g> of the `Pledge` object we just created,
 and its job is to do whatever we want to do after the delay.
 The argument to `then` is yet another callback function;
 it will get the value passed to `resolve`,
-which is how the first part of the action communicates with the second.
+which is how the first part of the action communicates with the second
+(<f key="async-programming-resolve"></f>).
 
 <%- include('/inc/fig.html', {
     id: 'async-programming-resolve',
@@ -220,7 +221,8 @@ This is a signal that [Node][nodejs] is delaying the execution of the code in th
 
 A very common pattern is to return another promise from inside `then`
 so that the next `then` is called on the returned promise,
-not on the original promise:
+not on the original promise
+(<f key="async-programming-chained"></f>):
 
 <%- include('/inc/multi.html', {pat: 'promise-example.*', fill: 'js out'}) %>
 
@@ -284,7 +286,8 @@ However,
 we want to display the names of the files whose lines we're counting along with the counts.
 To do this we have to return two values from our `then`.
 We could put them in an array,
-but it's better practice to construct a temporary object with named fields.
+but it's better practice to construct a temporary object with named fields
+(<f key="async-programming-temporary-named-fields"></f>).
 This approach allows us to add or rearrange fields without breaking code
 and also serves as a bit of documentation.
 With this change
@@ -300,7 +303,7 @@ our line-counting program becomes:
     fixme: true
 }) %>
 
-As in <xref key="systems-programming">the previous chapter</xref>,
+As in <x key="systems-programming">the previous chapter</x>,
 this works until we run into a directory whose name name matches `*.*`,
 which we do in `node_modules`.
 The solution once again is to use `stat` to check if something is a file or not
@@ -344,7 +347,7 @@ This short program uses both keywords to print the first ten characters of a fil
 
 When [Node][nodejs] sees `await` and `async`
 it silently converts the code to use promises with `then`, `resolve`, and `reject`;
-we will see how this is done in <xref key="code-generator"></xref>.
+we will see how this is done in <x key="code-generator"></x>.
 In order to provide a context for this,
 we can only use `await` inside a function that is declared to be `async`:
 we can't put a statement like `await fs.statAsync(…)` at the top level of our program
@@ -378,7 +381,8 @@ we will build up an xample in stages.
 First,
 if we return a promise that fails without using `await`,
 then our main function will finish running before the error occurs,
-and our `try`/`catch` doesn't help us:
+and our `try`/`catch` doesn't help us
+(<f key="async-programming-handling-errors"></f>):
 
 <%- include('/inc/multi.html', {pat: 'return-immediately.*', fill: 'js out'}) %>
 

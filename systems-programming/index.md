@@ -16,7 +16,7 @@ to make callbacks a little easier to manage,
 and more recently they have added new keywords called `async` and `await` to make it easier still.
 We need to understand all three layers in order to debug things when they go wrong,
 so this chapter explores callbacks,
-while <xref key="async-programming"></xref> shows how promises and `async`/`await` work.
+while <x key="async-programming"></x> shows how promises and `async`/`await` work.
 This chapter also shows how to read and write files and directories with [Node][nodejs]'s standard libraries,
 because we're going to be doing that a lot.
 
@@ -56,7 +56,7 @@ in an array called `process.argv`:
 `process.argv[0]` is the name of the program used to run our code (in this case `node`),
 while `process.argv[1]` is the name of our program (in this case `list-dir-wrong.js`).
 The rest of `process.argv` holds whatever arguments we gave at the command line when we ran the program,
-so `process.argv[2]` is the first argument after the name of our program:
+so `process.argv[2]` is the first argument after the name of our program (<f key="systems-programming-process-argv"></f>):
 
 <%- include('/inc/fig.html', {
     id: 'systems-programming-process-argv',
@@ -73,7 +73,7 @@ We could use `let` instead of `const`,
 but it's good practice to declare things as `const` wherever possible
 so that anyone reading the program knows the variable isn't actually going to vary---doing
 this reduces the <g key="cognitive_load">cognitive load</g> on people reading the program
-(<xref key="cognition"></xref>).
+(<x key="cognition"></x>).
 Finally,
 `console.log` is JavaScript's equivalent of other languages' `print` command;
 its strange name comes from the fact that
@@ -105,7 +105,8 @@ it divides operations like file I/O into "please do this" and "do this when you'
 `fs.readdir` is the first part,
 but we need to write a function that specifies the second part.
 JavaScript saves a reference to this function
-and calls with a specific set of parameters when our data is ready.
+and calls with a specific set of parameters when our data is ready
+(<f key="systems-programming-callbacks"></f>).
 Those parameters defined a standard <g key="protocol">protocol</g>
 for connecting to libraries,
 just like the USB standard allows us to plug hardware devices together.
@@ -136,7 +137,8 @@ as an argument:
 <%- include('/inc/multi.html', {pat: 'list-dir-function-defined.*', fill: 'sh slice.out'}) %>
 
 Nothing in this book will make sense if we don't understand
-the order in which [Node][node.js] executes the statements in this program:
+the order in which [Node][node.js] executes the statements in this program
+(<f key="systems-programming-execution-order"></f>):
 
 1.  Read the program file.
 
@@ -176,7 +178,8 @@ it is more <g key="idiomatic">idiomatic</g>
 to define it where it is needed
 as an <g key="anonymous_function">anonymous function</g>.
 This makes it easier to see what's going to happen when the operation completes,
-though it means the order of execution is quite different from the order of reading.
+though it means the order of execution is quite different from the order of reading
+(<f key="systems-programming-anonymous-functions"></f>).
 Using an anonymous function gives us the final version of our program:
 
 <%- include('/inc/file.html', {file: 'list-dir-function-anonymous.js'}) %>
@@ -208,7 +211,8 @@ and does something with every filename that matched the pattern:
 <%- include('/inc/multi.html', {pat: 'glob-all-files.*', fill: 'js slice.out'}) %>
 
 The leading `**` means "recurse into subdirectories";
-the `*.*` means "any characters followed by '.' followed by any characters".
+the `*.*` means "any characters followed by '.' followed by any characters"
+(<f key="systems-programming-globbing"></f>).
 Names that don't match `*.*` won't be included,
 and by default,
 neither are names that start with a '.' character.
@@ -231,7 +235,8 @@ We can get rid of them by <g key="filter">filtering</g> the list that `glob` ret
 
 <%- include('/inc/multi.html', {pat: 'glob-get-then-filter-pedantic.*', fill: 'js slice.out'}) %>
 
-`Array.filter` creates a new array containing all the items of the original array that pass a test.
+`Array.filter` creates a new array containing all the items of the original array that pass a test
+(<f key="systems-programming-array-filter"></f>).
 The test is specified as a callback function
 that runs once for each item and returns a <g key="boolean">Boolean</g>
 that determines if the item is kept in the new array (`true`) or left out (`false`).
@@ -316,7 +321,8 @@ it can construct the full output path by replacing the name of the source direct
 
 ::: continue
 This programs uses <g key="destructuring_assignment">destructuring assignment</g> to create two variables at once
-by unpacking the elements of an array.
+by unpacking the elements of an array
+(<f key="systems-programming-destructuring-assignment"></f>).
 It only works if the array contains enough elements,
 i.e.,
 if both a source and destination are given on the command line;
@@ -367,7 +373,8 @@ Let's add a call to `fs.copy` to do that:
 
 <%- include('/inc/file.html', {file: 'copy-file-unfiltered.js'}) %>
 
-The program now has three levels of callback:
+The program now has three levels of callback
+(<f key="systems-programming-triple-callback"></f>):
 
 1.  When `glob` has data, do things and then call `ensureDir`.
 
@@ -405,6 +412,6 @@ Here's the final version of our file copying program:
 ::: continue
 It works,
 but four levels of asynchronous callbacks is hard for humans to understand.
-The <xref key="async-programming">next chapter</xref> will introduce a pair of tools
+The <x key="async-programming">next chapter</x> will introduce a pair of tools
 that make code like this easier to read.
 :::

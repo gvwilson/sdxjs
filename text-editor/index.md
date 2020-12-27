@@ -13,7 +13,7 @@
 
 ## What is our starting point?
 
--   As in <xref key="build-manager"></xref> and elsewhere, write a <g key="driver">driver</g> to load and run our experiments
+-   As in <x key="build-manager"></x> and elsewhere, write a <g key="driver">driver</g> to load and run our experiments
 
 <%- include('/inc/file.html', {file: 'edit.js'}) %>
 

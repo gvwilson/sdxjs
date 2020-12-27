@@ -10,8 +10,7 @@ import htmlparser2 from 'htmlparser2'
 import {
   addCommonArguments,
   buildOptions,
-  createFilePaths,
-  yamlLoad
+  createFilePaths
 } from './utils.js'
 
 /**
@@ -220,6 +219,9 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     accum.push('\\emph{')
     childrenToLatex(options, fileInfo, node, accum)
     accum.push('}')
+  } else if (node.name === 'f') {
+    const key = node.attribs.key
+    accum.push(`\\figref{${key}}`)
   } else if (node.name === 'figure') {
     accum.push(figureToLatex(options, fileInfo, node))
   } else if (node.name === 'g') {
@@ -314,7 +316,7 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     accum.push('\\begin{itemize}')
     childrenToLatex(options, fileInfo, node, accum)
     accum.push('\\end{itemize}')
-  } else if (node.name === 'xref') {
+  } else if (node.name === 'x') {
     const key = node.attribs.key
     assert(key in options.numbering,
            `Unknown cross-reference "${key}"`)
@@ -353,6 +355,10 @@ const childrenToLatex = (options, fileInfo, node, accum) => {
 const figureToLatex = (options, fileInfo, node) => {
   assert(node.children.length === 2,
     `Expected 2 children for figure element, not ${node.children.length}`)
+  const ident = node.attribs.id
+  assert(ident && ident.length > 0,
+    'Invalid id attribute for figure')
+
   const img = node.children[0]
   assert(img.name === 'img',
     `Expected first child of figure to be img, not ${img.name}`)
@@ -369,9 +375,6 @@ const figureToLatex = (options, fileInfo, node) => {
   assert(caption.name === 'figcaption',
     `Expected first child of figure to be figcaption, not ${img.name}`)
 
-  const ident = caption.attribs.id
-  assert(ident && ident.length > 0,
-    'Invalid ident attribute for figcaption in figure')
   const accum = []
   childrenToLatex(options, fileInfo, caption, accum)
   const text = accum.join('')

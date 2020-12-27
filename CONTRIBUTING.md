@@ -2,7 +2,7 @@
 title: "Contributing"
 ---
 
-All contributors must abide by our <xref key="conduct">Code of Conduct</xref>.
+All contributors must abide by our <x key="conduct">Code of Conduct</x>.
 
 ## Making Decisions
 
@@ -118,9 +118,9 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
     and refer to them using `[text to display][link-key]`.
     Entries should be in alphabetical order by slug.
 
-1.  Write cross-references like `<xref key="slug"></xref>` or `<xref key="slug">some text</xref>`
+1.  Write cross-references like `<x key="slug"></x>` or `<x key="slug">some text</x>`
     to refer from one chapter or appendix to another.
-    (We cannot use the empty tag `<xref key="slug"/>` because the Markdown parser doesn't like it.)
+    (We cannot use the empty tag `<x key="slug"/>` because the Markdown parser doesn't like it.)
     if no text is provided inside the tag,
     we fill it in with `Chapter N` or `Appendix X`.
 

@@ -7,7 +7,7 @@
     -   Version(s)
     -   List of dependencies, which may also specify versions or version ranges
 -   Downloading files requires some web programming that is out of scope for this book
--   Installing files uses the systems programming skills of <xref key="systems-programming"></xref>
+-   Installing files uses the systems programming skills of <x key="systems-programming"></x>
 -   But figuring out which packages to download can be very difficult
     -   What if A and B require different versions of C?
     -   Or requires different ranges of versions of C, but there is overlap?

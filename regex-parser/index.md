@@ -23,7 +23,7 @@
     "a single 'z',
     and "end of text".
 -   We will return a tree of objects rather than instances of the `RegexBase` classes
-    from <xref key="pattern-matching"></xref> to keep things simple
+    from <x key="pattern-matching"></x> to keep things simple
 
 <%- include('/inc/fig.html', {
     id: 'regex-parser-expression-tree',

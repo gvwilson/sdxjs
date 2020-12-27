@@ -13,7 +13,7 @@
 
 ## How can we parse JavaScript to create an AST?
 
--   A parser for a simple language like arithmetic or JSON is relatively easy to write (<xref key="regex-parser"></xref>)
+-   A parser for a simple language like arithmetic or JSON is relatively easy to write (<x key="regex-parser"></x>)
 -   A parser for a language as complex as JavaScript is much more work
 -   We will use [Acorn][acorn] instead
 -   Produces an <g key="abstract_syntax_tree">abstract syntax tree</g> (AST)
@@ -70,7 +70,7 @@
 
 ## How does the AST walker work?
 
--   Uses the <g key="visitor_pattern">Visitor</g> design pattern (<xref key="page-templates"></xref>)
+-   Uses the <g key="visitor_pattern">Visitor</g> design pattern (<x key="page-templates"></x>)
 -   Define a class with methods that
     -   Walk the tree
     -   Take action depending on the kind of node
@@ -161,6 +161,6 @@
 <%- include('/inc/raw.html', {file: 'run-find-methods.raw.out'}) %>
 
 -   Most useful when we apply it to a larger example
-    like the virtual machine we will build in <xref key="virtual-machine"></xref>
+    like the virtual machine we will build in <x key="virtual-machine"></x>
 
 <%- include('/inc/raw.html', {file: 'find-debugger-methods.raw.out'}) %>

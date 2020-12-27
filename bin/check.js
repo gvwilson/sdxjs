@@ -12,8 +12,7 @@ import {
   addCommonArguments,
   buildOptions,
   createFilePaths,
-  getAllEntries,
-  yamlLoad
+  getAllEntries
 } from './utils.js'
 
 /**
@@ -40,6 +39,7 @@ const main = () => {
   checkLineEndings(markdown)
 
   const html = loadHtml(options)
+  checkFigures(html)
   checkGloss(html)
   checkTabs(html)
   checkWidths(html)
@@ -105,6 +105,34 @@ const checkExercises = (options) => {
     })
     showSetDiff(`Missing ${kind}`, expected, actual)
     showSetDiff(`Unused ${kind}`, actual, expected)
+  })
+}
+
+/**
+ * Check figure cross-references.
+ * @param {Array<Object>} files File information.
+ */
+const checkFigures = (files) => {
+  // How to traverse tree.
+  const recurse = (node, defined, used) => {
+    if (node.type !== 'tag') {
+      // do nothing
+    } else if (node.name === 'figure') {
+      defined.add(node.attribs.id)
+    } else if (node.name === 'f') {
+      used.add(node.attribs.key)
+    } else {
+      node.children.forEach(child => recurse(child, defined, used))
+    }
+  }
+
+  // Check each file.
+  files.forEach(fileInfo => {
+    const defined = new Set()
+    const used = new Set()
+    recurse(fileInfo.doc, defined, used)
+    showSetDiff('Unused figure references', defined, used)
+    showSetDiff('Unresolved figure references', used, defined)
   })
 }
 

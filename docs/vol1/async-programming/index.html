@@ -89,8 +89,9 @@ the event loop repeatedly takes a task from the front of the queue and runs it,
 adding any new tasks that it creates to the back of the queue to run later.
 Only one task runs at a time;
 each task has its own <g key="call_stack">call stack</g>,
-but objects can be shared between tasks.</p>
-<figure class="fixme"><img src="/static/tools-small.jpg" alt="The event loop"/><figcaption id="async-programming-event-loop">Using an event loop to manage concurrent tasks.</figcaption></figure>
+but objects can be shared between tasks
+(<f key="async-programming-event-loop"></f>).</p>
+<figure id="async-programming-event-loop" class="fixme"><img src="/static/tools-small.jpg" alt="The event loop"/><figcaption>Using an event loop to manage concurrent tasks.</figcaption></figure>
 <p>Most tasks execute all the code available in the order it is written.
 For example,
 this one-line program uses <code>Array.forEach</code>
@@ -115,7 +116,8 @@ then adds it to the run queue
 (which means that the task runs <em>at least</em> that many milliseconds later).
 As the listing below shows,
 this means that the original task can generate many new tasks before it completes,
-and those tasks can then run in an arbitrary order.</p>
+and those tasks can then run in an arbitrary order
+(<f key="async-programming-set-timeout"></f>).</p>
 <pre title="callbacks-with-timeouts.js"><code class="language-js">[1000, 1500, 500].forEach(t =&gt; {
   console.log(`about to setTimeout for ${t}`)
   setTimeout(() =&gt; console.log(`inside timer handler for ${t}`), t)
@@ -128,7 +130,7 @@ inside timer handler for 500
 inside timer handler for 1000
 inside timer handler for 1500
 </code></pre>
-<figure class="fixme"><img src="/static/tools-small.jpg" alt="Setting a timeout"/><figcaption id="async-programming-set-timeout">Using <code>setTimeout</code> to delay operations.</figcaption></figure>
+<figure id="async-programming-set-timeout" class="fixme"><img src="/static/tools-small.jpg" alt="Setting a timeout"/><figcaption>Using <code>setTimeout</code> to delay operations.</figcaption></figure>
 <p>If we give <code>setTimeout</code> a delay of zero milliseconds,
 the new task can be run right away,
 but any other tasks that are waiting have a chance to run as well:</p>
@@ -148,7 +150,8 @@ inside timer handler for 500
 <p>We can use this trick to build a generic
 <g key="non_blocking_execution">non-blocking function</g>
 that takes a callback of zero arguments and switches tasks
-if any other tasks are available:</p>
+if any other tasks are available
+(<f key="async-programming-set-three-delays"></f>):</p>
 <pre title="non-blocking.js"><code class="language-js">const nonBlocking = (callback) =&gt; {
   setTimeout(callback, 0)
 }
@@ -165,9 +168,11 @@ inside timer handler for 1000
 inside timer handler for 1500
 inside timer handler for 500
 </code></pre>
-<figure class="fixme"><img src="/static/tools-small.jpg" alt="Delaying three function calls"/><figcaption id="async-programming-set-three-delays">Order of operations with three delays function calls.</figcaption></figure>
-<p><a href="https://nodejs.org/en/">Node</a> actually has a built-in function called <code>setImmediate</code> that does
-exactly what our <code>nonBlocking</code> function does:</p>
+<figure id="async-programming-set-three-delays" class="fixme"><img src="/static/tools-small.jpg" alt="Delaying three function calls"/><figcaption>Order of operations with three delays function calls.</figcaption></figure>
+<p><a href="https://nodejs.org/en/">Node</a>'s built-in function <code>setImmediate</code>
+does exactly what our <code>nonBlocking</code> function does:
+<a href="https://nodejs.org/en/">Node</a> also has <code>process.nextTick</code>,
+which doesn't do quite the same thing---we'll explore the differences in the exercises.</p>
 <pre title="set-immediate.js"><code class="language-js">[1000, 1500, 500].forEach(t =&gt; {
   console.log(`about to do setImmediate for ${t}`)
   setImmediate(() =&gt; console.log(`inside immediate handler for ${t}`))
@@ -180,11 +185,6 @@ inside immediate handler for 1000
 inside immediate handler for 1500
 inside immediate handler for 500
 </code></pre>
-<div class="continue">
-<p><a href="https://nodejs.org/en/">Node</a> also has <code>process.nextTick</code>,
-which doesn't do quite the same thing---we'll explore the differences in the exercises.</p>
-</div>
-</div>
 <h2 id="how-do-promises-work">How do promises work?</h2>
 <p>Before we start building our own promises,
 let's look at how we want them to work:</p>
@@ -220,8 +220,9 @@ This is a <g key="method">method</g> of the <code>Pledge</code> object we just c
 and its job is to do whatever we want to do after the delay.
 The argument to <code>then</code> is yet another callback function;
 it will get the value passed to <code>resolve</code>,
-which is how the first part of the action communicates with the second.</p>
-<figure class="fixme"><img src="/static/tools-small.jpg" alt="How promises resolve"/><figcaption id="async-programming-resolve">Order of operations when a promise resolves.</figcaption></figure>
+which is how the first part of the action communicates with the second
+(<f key="async-programming-resolve"></f>).</p>
+<figure id="async-programming-resolve" class="fixme"><img src="/static/tools-small.jpg" alt="How promises resolve"/><figcaption>Order of operations when a promise resolves.</figcaption></figure>
 <p>In order to make this work,
 <code>Pledge</code>'s <g key="constructor">constructor</g> must take a single function called <code>action</code>.
 This function must take take two callbacks as arguments:
@@ -290,6 +291,7 @@ though,
 To convert the method to a plain old function with the right <code>this</code>,
 we have to use <code>bind</code>.
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Function/bind">The documentation</a> has more details and examples.</p>
+</div>
 </div>
 <p>Let's create a <code>Pledge</code> and return a value:</p>
 <pre title="use-pledge-return.js"><code class="language-js">import Pledge from './pledge.js'
@@ -406,7 +408,8 @@ we can see that the callbacks run <em>after</em> the main program finishes.
 This is a signal that <a href="https://nodejs.org/en/">Node</a> is delaying the execution of the code in the <code>then</code> handler.</p>
 <p>A very common pattern is to return another promise from inside <code>then</code>
 so that the next <code>then</code> is called on the returned promise,
-not on the original promise:</p>
+not on the original promise
+(<f key="async-programming-chained"></f>):</p>
 <pre title="promise-example.js"><code class="language-js">const delay = (message) =&gt; {
   return new Promise((resolve, reject) =&gt; {
     console.log(`constructing promise: ${message}`)
@@ -432,7 +435,7 @@ first then: resolving: outer delay
 constructing promise: inner delay
 second then: resolving: inner delay
 </code></pre>
-<figure class="fixme"><img src="/static/tools-small.jpg" alt="Chained promises"/><figcaption id="async-programming-chained">Chaining promises to make asynchronous operations depend on each other.</figcaption></figure>
+<figure id="async-programming-chained" class="fixme"><img src="/static/tools-small.jpg" alt="Chained promises"/><figcaption>Chaining promises to make asynchronous operations depend on each other.</figcaption></figure>
 <p>We therefore have three rules for chaining promises:</p>
 <ol>
 <li>
@@ -540,7 +543,8 @@ main(srcDir)
 we want to display the names of the files whose lines we're counting along with the counts.
 To do this we have to return two values from our <code>then</code>.
 We could put them in an array,
-but it's better practice to construct a temporary object with named fields.
+but it's better practice to construct a temporary object with named fields
+(<f key="async-programming-temporary-named-fields"></f>).
 This approach allows us to add or rearrange fields without breaking code
 and also serves as a bit of documentation.
 With this change
@@ -570,8 +574,8 @@ const lineCount = (filename) =&gt; {
 const srcDir = process.argv[2]
 main(srcDir)
 </code></pre>
-<figure class="fixme"><img src="/static/tools-small.jpg" alt="Temporary objects with named fields"/><figcaption id="async-programming-temporary-named-fields">Creating temporary objects with named fields to carry values forward.</figcaption></figure>
-<p>As in <xref key="systems-programming">the previous chapter</xref>,
+<figure id="async-programming-temporary-named-fields" class="fixme"><img src="/static/tools-small.jpg" alt="Temporary objects with named fields"/><figcaption>Creating temporary objects with named fields to carry values forward.</figcaption></figure>
+<p>As in <x key="systems-programming">the previous chapter</x>,
 this works until we run into a directory whose name name matches <code>*.*</code>,
 which we do in <code>node_modules</code>.
 The solution once again is to use <code>stat</code> to check if something is a file or not
@@ -682,7 +686,7 @@ outside, final result is "Begin at t"
 <h3 id="translating-code">Translating code</h3>
 <p>When <a href="https://nodejs.org/en/">Node</a> sees <code>await</code> and <code>async</code>
 it silently converts the code to use promises with <code>then</code>, <code>resolve</code>, and <code>reject</code>;
-we will see how this is done in <xref key="code-generator"></xref>.
+we will see how this is done in <x key="code-generator"></x>.
 In order to provide a context for this,
 we can only use <code>await</code> inside a function that is declared to be <code>async</code>:
 we can't put a statement like <code>await fs.statAsync(…)</code> at the top level of our program
@@ -737,7 +741,8 @@ we will build up an xample in stages.</p>
 <p>First,
 if we return a promise that fails without using <code>await</code>,
 then our main function will finish running before the error occurs,
-and our <code>try</code>/<code>catch</code> doesn't help us:</p>
+and our <code>try</code>/<code>catch</code> doesn't help us
+(<f key="async-programming-handling-errors"></f>):</p>
 <pre title="return-immediately.js"><code class="language-js">async function returnImmediately () {
   try {
     return Promise.reject(new Error('deliberate'))
@@ -750,7 +755,7 @@ returnImmediately()
 </code></pre>
 <pre title="return-immediately.out"><code class="language-out">(node:15867) UnhandledPromiseRejectionWarning: Error: deliberate
 </code></pre>
-<figure class="fixme"><img src="/static/tools-small.jpg" alt="Handling asynchronous errors"/><figcaption id="async-programming-handling-errors">Wrong and right ways to handle errors in asynchronous code.</figcaption></figure>
+<figure id="async-programming-handling-errors" class="fixme"><img src="/static/tools-small.jpg" alt="Handling asynchronous errors"/><figcaption>Wrong and right ways to handle errors in asynchronous code.</figcaption></figure>
 <p>One solution to this problem is to be consistent and always return something.
 Because the function is declared <code>async</code>,
 the <code>Error</code> in the code below is automatically wrapped in a promise

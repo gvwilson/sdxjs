@@ -84,7 +84,7 @@ to make callbacks a little easier to manage,
 and more recently they have added new keywords called <code>async</code> and <code>await</code> to make it easier still.
 We need to understand all three layers in order to debug things when they go wrong,
 so this chapter explores callbacks,
-while <xref key="async-programming"></xref> shows how promises and <code>async</code>/<code>await</code> work.
+while <x key="async-programming"></x> shows how promises and <code>async</code>/<code>await</code> work.
 This chapter also shows how to read and write files and directories with <a href="https://nodejs.org/en/">Node</a>'s standard libraries,
 because we're going to be doing that a lot.</p>
 <h2 id="how-can-we-list-a-directory">How can we list a directory?</h2>
@@ -124,8 +124,8 @@ in an array called <code>process.argv</code>:
 <code>process.argv[0]</code> is the name of the program used to run our code (in this case <code>node</code>),
 while <code>process.argv[1]</code> is the name of our program (in this case <code>list-dir-wrong.js</code>).
 The rest of <code>process.argv</code> holds whatever arguments we gave at the command line when we ran the program,
-so <code>process.argv[2]</code> is the first argument after the name of our program:</p>
-<figure class="fixme"><img src="/static/tools-small.jpg" alt="Command-line arguments in `process.argv`"/><figcaption id="systems-programming-process-argv">How Node stores command-line arguments in <code>process.argv</code>.</figcaption></figure>
+so <code>process.argv[2]</code> is the first argument after the name of our program (<f key="systems-programming-process-argv"></f>):</p>
+<figure id="systems-programming-process-argv" class="fixme"><img src="/static/tools-small.jpg" alt="Command-line arguments in `process.argv`"/><figcaption>How Node stores command-line arguments in <code>process.argv</code>.</figcaption></figure>
 <p>If we run this program with the name of a directory as its argument,
 <code>fs.readdir</code> returns the names of the things in that directory as an array of strings.
 The program then uses <code>for (const name of results)</code> to loop over the contents of that array.
@@ -133,7 +133,7 @@ We could use <code>let</code> instead of <code>const</code>,
 but it's good practice to declare things as <code>const</code> wherever possible
 so that anyone reading the program knows the variable isn't actually going to vary---doing
 this reduces the <g key="cognitive_load">cognitive load</g> on people reading the program
-(<xref key="cognition"></xref>).
+(<x key="cognition"></x>).
 Finally,
 <code>console.log</code> is JavaScript's equivalent of other languages' <code>print</code> command;
 its strange name comes from the fact that
@@ -175,11 +175,12 @@ it divides operations like file I/O into &quot;please do this&quot; and &quot;do
 <code>fs.readdir</code> is the first part,
 but we need to write a function that specifies the second part.
 JavaScript saves a reference to this function
-and calls with a specific set of parameters when our data is ready.
+and calls with a specific set of parameters when our data is ready
+(<f key="systems-programming-callbacks"></f>).
 Those parameters defined a standard <g key="protocol">protocol</g>
 for connecting to libraries,
 just like the USB standard allows us to plug hardware devices together.</p>
-<figure class="fixme"><img src="/static/tools-small.jpg" alt="How callbacks work"/><figcaption id="systems-programming-callbacks">How JavaScript runs callback functions.</figcaption></figure>
+<figure id="systems-programming-callbacks" class="fixme"><img src="/static/tools-small.jpg" alt="How callbacks work"/><figcaption>How JavaScript runs callback functions.</figcaption></figure>
 <p>This corrected program gives <code>fs.readdir</code> a callback function called <code>listContents</code>:</p>
 <pre title="list-dir-function-defined.js"><code class="language-js">import fs from 'fs'
 
@@ -233,7 +234,8 @@ x-trace-callback
 x-where-is-node
 </code></pre>
 <p>Nothing in this book will make sense if we don't understand
-the order in which [Node][node.js] executes the statements in this program:</p>
+the order in which [Node][node.js] executes the statements in this program
+(<f key="systems-programming-execution-order"></f>):</p>
 <ol>
 <li>
 <p>Read the program file.</p>
@@ -264,7 +266,7 @@ telling it what directory we want to read and what function to call when data is
 <p>Run the callback function, which prints the directory listing.</p>
 </li>
 </ol>
-<figure class="fixme"><img src="/static/tools-small.jpg" alt="Callback execution order"/><figcaption id="systems-programming-execution-order">When JavaScript runs callback functions.</figcaption></figure>
+<figure id="systems-programming-execution-order" class="fixme"><img src="/static/tools-small.jpg" alt="Callback execution order"/><figcaption>When JavaScript runs callback functions.</figcaption></figure>
 <h2 id="what-are-anonymous-functions">What are anonymous functions?</h2>
 <p>Most programmers wouldn't define the function <code>listContents</code>
 and then pass it as a callback.
@@ -274,7 +276,8 @@ it is more <g key="idiomatic">idiomatic</g>
 to define it where it is needed
 as an <g key="anonymous_function">anonymous function</g>.
 This makes it easier to see what's going to happen when the operation completes,
-though it means the order of execution is quite different from the order of reading.
+though it means the order of execution is quite different from the order of reading
+(<f key="systems-programming-anonymous-functions"></f>).
 Using an anonymous function gives us the final version of our program:</p>
 <pre title="list-dir-function-anonymous.js"><code class="language-js">import fs from 'fs'
 
@@ -289,7 +292,7 @@ fs.readdir(srcDir, (err, files) =&gt; {
   }
 })
 </code></pre>
-<figure class="fixme"><img src="/static/tools-small.jpg" alt="Anonymous functions as callbacks"/><figcaption id="systems-programming-anonymous-functions">How and when JavaScript creates and runs anonymous callback functions.</figcaption></figure>
+<figure id="systems-programming-anonymous-functions" class="fixme"><img src="/static/tools-small.jpg" alt="Anonymous functions as callbacks"/><figcaption>How and when JavaScript creates and runs anonymous callback functions.</figcaption></figure>
 <h2 id="how-can-we-select-a-set-of-files">How can we select a set of files?</h2>
 <p>Suppose we want to copy some files instead of listing a directory's contents.
 Depending on the situation
@@ -338,7 +341,8 @@ x-where-is-node/problem.md
 x-where-is-node/solution.md
 </code></pre>
 <p>The leading <code>**</code> means &quot;recurse into subdirectories&quot;;
-the <code>*.*</code> means &quot;any characters followed by '.' followed by any characters&quot;.
+the <code>*.*</code> means &quot;any characters followed by '.' followed by any characters&quot;
+(<f key="systems-programming-globbing"></f>).
 Names that don't match <code>*.*</code> won't be included,
 and by default,
 neither are names that start with a '.' character.
@@ -346,7 +350,7 @@ neither are names that start with a '.' character.
 files and directories whose names have a leading '.'
 usually contain configuration information for various programs,
 so most commands will leave them alone unless told to do otherwise.)</p>
-<figure class="fixme"><img src="/static/tools-small.jpg" alt="Matching filenames with `glob`"/><figcaption id="systems-programming-globbing">Using <code>glob</code> patterns to match filenames.</figcaption></figure>
+<figure id="systems-programming-globbing" class="fixme"><img src="/static/tools-small.jpg" alt="Matching filenames with `glob`"/><figcaption>Using <code>glob</code> patterns to match filenames.</figcaption></figure>
 <p>This program works,
 but we probably don't want to copy editor backup files whose names end with <code>~</code>.
 We can get rid of them by <g key="filter">filtering</g> the list that <code>glob</code> returns:</p>
@@ -385,13 +389,14 @@ x-trace-callback/trace.js
 x-where-is-node/problem.md
 x-where-is-node/solution.md
 </code></pre>
-<p><code>Array.filter</code> creates a new array containing all the items of the original array that pass a test.
+<p><code>Array.filter</code> creates a new array containing all the items of the original array that pass a test
+(<f key="systems-programming-array-filter"></f>).
 The test is specified as a callback function
 that runs once for each item and returns a <g key="boolean">Boolean</g>
 that determines if the item is kept in the new array (<code>true</code>) or left out (<code>false</code>).
 <code>Array.filter</code> does not modify the original array,
 so we can filter our original list of filenames several times if we want to.</p>
-<figure class="fixme"><img src="/static/tools-small.jpg" alt="Using `Array.filter`"/><figcaption id="systems-programming-array-filter">Selecting array elements using <code>Array.filter</code>.</figcaption></figure>
+<figure id="systems-programming-array-filter" class="fixme"><img src="/static/tools-small.jpg" alt="Using `Array.filter`"/><figcaption>Selecting array elements using <code>Array.filter</code>.</figcaption></figure>
 <p>We can make our globbing program more idiomatic by
 removing the parentheses around the single parameter
 and writing just the expression we want the function to return:</p>
@@ -503,13 +508,14 @@ glob(`${srcDir}/**/*.*`, { ignore: '*~' }, (err, files) =&gt; {
 </code></pre>
 <div class="continue">
 <p>This programs uses <g key="destructuring_assignment">destructuring assignment</g> to create two variables at once
-by unpacking the elements of an array.
+by unpacking the elements of an array
+(<f key="systems-programming-destructuring-assignment"></f>).
 It only works if the array contains enough elements,
 i.e.,
 if both a source and destination are given on the command line;
 we'll add that in the exercises.</p>
 </div>
-<figure class="fixme"><img src="/static/tools-small.jpg" alt="Matching values with destructuring assignment"/><figcaption id="systems-programming-destructuring-assignment">Assigning many values at once by destructuring.</figcaption></figure>
+<figure id="systems-programming-destructuring-assignment" class="fixme"><img src="/static/tools-small.jpg" alt="Matching values with destructuring assignment"/><figcaption>Assigning many values at once by destructuring.</figcaption></figure>
 <p>A more serious problem is that
 this program only works if the destination directory already exists:
 <code>fs</code> and equivalent libraries in other languages usually won't create directories for us automatically.
@@ -587,7 +593,8 @@ glob(`${srcRoot}/**/*.*`, { ignore: '*~' }, (err, files) =&gt; {
   }
 })
 </code></pre>
-<p>The program now has three levels of callback:</p>
+<p>The program now has three levels of callback
+(<f key="systems-programming-triple-callback"></f>):</p>
 <ol>
 <li>
 <p>When <code>glob</code> has data, do things and then call <code>ensureDir</code>.</p>
@@ -599,7 +606,7 @@ glob(`${srcRoot}/**/*.*`, { ignore: '*~' }, (err, files) =&gt; {
 <p>When <code>copy</code> finishes, check the error status.</p>
 </li>
 </ol>
-<figure class="fixme"><img src="/static/tools-small.jpg" alt="Three levels of callback"/><figcaption id="systems-programming-triple-callback">Three levels of callback in the running example.</figcaption></figure>
+<figure id="systems-programming-triple-callback" class="fixme"><img src="/static/tools-small.jpg" alt="Three levels of callback"/><figcaption>Three levels of callback in the running example.</figcaption></figure>
 <p>Our program looks like it should work,
 but if we try to copy everything in the directory containing these lessons
 we get an error message:</p>
@@ -661,7 +668,7 @@ glob(`${srcRoot}/**/*.*`, { ignore: '*~' }, (err, files) =&gt; {
 <div class="continue">
 <p>It works,
 but four levels of asynchronous callbacks is hard for humans to understand.
-The <xref key="async-programming">next chapter</xref> will introduce a pair of tools
+The <x key="async-programming">next chapter</x> will introduce a pair of tools
 that make code like this easier to read.</p>
 </div>
 <h2 id="exercises">Exercises</h2>

@@ -28,11 +28,11 @@ EXERCISES := $(shell bin/slugs.js exercises ${SLUG_ARGS})
 AUTHORS := $(patsubst %,authors/%.md,$(shell bin/slugs.js authors ${SLUG_ARGS}))
 
 # Glossary for this volume.
-GLOSS_MD := gloss-${VOLUME}.md
+GLOSS_MD := ${VOLUME}-gloss.md
 GLOSS_HTML := docs/${VOLUME}/gloss/index.html
 
 # Links for this volume.
-LINKS_YML := links-${VOLUME}.yml
+LINKS_YML := ${VOLUME}-links.yml
 
 # Complete list of JavaScript source files.
 JAVASCRIPT := \
@@ -158,7 +158,7 @@ progress:
 ## clean: clean up
 clean:
 	@rm -f ${VOLUME}.{aux,log,out,pdf,tex,toc}
-	@rm -f links-*.yml
+	@rm -f *-links.yml
 	@find . -name '*~' -exec rm {} \;
 
 ## settings: show settings

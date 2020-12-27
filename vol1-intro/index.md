@@ -19,7 +19,7 @@ All of the written material in this project can be freely reused
 under the terms of the [Creative Commons - Attribution license][cc-by],
 while all of the software is made available under the terms of
 the [Hippocratic License][hippocratic-license];
-see <xref key="license"></xref> for details.
+see <x key="license"></x> for details.
 
 ::: centered
 *All proceeds from this project will go to support the [Red Door Family Shelter][red-door].*
@@ -80,7 +80,7 @@ will explore those used in the applications that programmers build.
 
 ## What ideas do we cover?
 
-The glossary in <xref key="gloss"></xref> defines the terms we introduce in these lessons.
+The glossary in <x key="gloss"></x> defines the terms we introduce in these lessons.
 Together, these define the scope of our lessons:
 
 -   How to turn a program into a data structure that can be processed like any other.
@@ -148,8 +148,8 @@ which is confusing when we're passing functions as arguments.
 ## How can people contribute?
 
 If you would like to improve what we have or add new material,
-please see the Code of Conduct in <xref key="conduct"></xref>
-and the contributor guidelines in <xref key="contributing"></xref>.
+please see the Code of Conduct in <x key="conduct"></x>
+and the contributor guidelines in <x key="contributing"></x>.
 If you have questions or would like to use this material in a course,
 please [send us email][email].
 

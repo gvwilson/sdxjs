@@ -60,7 +60,7 @@
 <%- include('/inc/file.html', {file: 'expected-full.out'}) %>
 
 -   We do not handle <g key="circular_dependency">circular dependencies</g>
-    -   Because `require` itself doesn't (<xref key="module-loader"></xref>)
+    -   Because `require` itself doesn't (<x key="module-loader"></x>)
 
 ## How can we find all the dependencies?
 
@@ -116,7 +116,7 @@
 
 ## How can we safely combine several files into one?
 
--   Use the same method as in <xref key="module-loader"></xref>
+-   Use the same method as in <x key="module-loader"></x>
     -   Wrap the source code in an <g key="iife">IIFE</g>
     -   Give it a `module` object to fill in
     -   And an implementation of `require` to resolve dependencies *within the same file*
@@ -211,7 +211,7 @@
 -   This code is really hard to read
     -   What is being printed in the output vs. what is being executed right now
     -   The levels of nesting needed to capture variables safely
-    -   Took much more time per line of finished code than anything except the promises in <xref key="async-programming"></xref>
+    -   Took much more time per line of finished code than anything except the promises in <x key="async-programming"></x>
 -   Run this to create a bundled version of the single file
 
 <%- include('/inc/file.html', {file: 'test-create-bundle-single.sh'}) %>

@@ -9,7 +9,7 @@
 
 <%- include('/inc/file.html', {file: 'filter-base.json'}) %>
 
--   Virtual machine structured like that from <xref key="virtual-machine"></xref>
+-   Virtual machine structured like that from <x key="virtual-machine"></x>
     -   Real system would parse program to create JSON, then translate JSON into assembly code, then assemble to machine instructions
 -   To execute program:
     -   Remove comments and blank lines

@@ -1,2 +1,2 @@
-Write tests for the line-counting functions of <xref key="promises"></xref> using Mocha and `mock-fs`.
+Write tests for the line-counting functions of <x key="async-programming"></x> using Mocha and `mock-fs`.
 Did you find (at least) two bugs?

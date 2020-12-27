@@ -1,7 +1,7 @@
 ---
 ---
 
--   <xref key="file-interpolator"></xref> showed how to use `eval` to load code dynamically
+-   <x key="file-interpolator"></x> showed how to use `eval` to load code dynamically
 -   We can use this to build our own version of `require`
     -   Take the name of a source file as an argument
     -   Return whatever that file exports
