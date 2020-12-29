@@ -28,6 +28,7 @@ class Hope {
     })
   }
 
+  // <report>
   terse () {
     return this.cases()
       .map(([title, results]) => `${title}: ${results.length}`)
@@ -53,6 +54,7 @@ class Hope {
       ['fails', this.fails],
       ['errors', this.errors]]
   }
+  // </report>
 }
 
 export default new Hope()

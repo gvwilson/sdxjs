@@ -82,6 +82,14 @@ Prentice-Hall, 1988, 978-0131103627.
 <em class="bibnote">The book that made C a popular programming language.</em>
 </dd>
 
+<dt id="Meszaros2007" class="bibliography">Meszaros2007</dt>
+<dd>
+Gerard Meszaros:
+<em>xUnit Test Patterns: Refactoring Test Code</em>.
+Addison-Wesley, 2007, 978-0131495050.
+<em class="bibnote">A guide to writing good unit tests within a standard framework.</em>
+</dd>
+
 <dt id="Minahan1986" class="bibliography">Minahan1986</dt>
 <dd>
 Anne Minahan:
@@ -111,6 +119,14 @@ Peter Smith:
 <em>Software Build Systems: Principles and Experience</em>.
 Addison-Wesley Professional, 2011, 978-0134185965.
 <em class="bibnote">A practical overview of the build process and tools to support it.</em>
+</dd>
+
+<dt id="Tudose2020" class="bibliography">Tudose2020</dt>
+<dd>
+Cătălin Tudose:
+<em>JUnit in Action</em>.
+Manning, 2020, 978-1617297045.
+<em class="bibnote">A guide to the most popular unit testing framework for Java.</em>
 </dd>
 
 </dl>

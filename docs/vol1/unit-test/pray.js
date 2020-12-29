@@ -2,12 +2,6 @@ import minimist from 'minimist'
 import glob from 'glob'
 import hope from './hope.js'
 
-const DEFAULTS = {
-  filenames: [],
-  root: '.',
-  output: 'terse'
-}
-
 const main = async (args) => {
   const options = parse(args)
   if (options.filenames.length === 0) {
@@ -21,6 +15,13 @@ const main = async (args) => {
     ? hope.terse()
     : hope.verbose()
   console.log(result)
+}
+
+// <options>
+const DEFAULTS = {
+  filenames: [],
+  root: '.',
+  output: 'terse'
 }
 
 const parse = (args) => {
@@ -44,5 +45,6 @@ const parse = (args) => {
   }
   return options
 }
+// </options>
 
 main(process.argv.slice(2))

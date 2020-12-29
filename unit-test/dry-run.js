@@ -1,16 +1,21 @@
 import assert from 'assert'
 
+// <state>
 // State of tests.
 const HopeTests = []
 let HopePass = 0
 let HopeFail = 0
 let HopeError = 0
+// </state>
 
+// <save>
 // Record a single test for running later.
 const hopeThat = (message, callback) => {
   HopeTests.push([message, callback])
 }
+// </save>
 
+// <main>
 // Run all of the tests that have been asked for and report summary.
 const main = () => {
   HopeTests.forEach(([message, test]) => {
@@ -30,7 +35,9 @@ const main = () => {
   console.log(`fail ${HopeFail}`)
   console.log(`error ${HopeError}`)
 }
+// </main>
 
+// <use>
 // Something to test (doesn't handle zero properly).
 const sign = (value) => {
   if (value < 0) {
@@ -52,3 +59,4 @@ hopeThat('Sign misspelled is error', () => assert(sgn(1) === 1)) // eslint-disab
 
 // Call the main driver.
 main()
+// </use>

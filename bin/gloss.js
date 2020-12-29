@@ -48,9 +48,11 @@ const main = () => {
     const local = getGlossary(options)
     const merged = mergeGlossaries(glosario, local)
     const required = getRequired(options, merged)
-    const filtered = filterGlossary(merged, required)
-    const text = makeGloss(filtered)
-    fs.writeFileSync(options.output, text, 'utf-8')
+    if (required !== null) {
+      const filtered = filterGlossary(merged, required)
+      const text = makeGloss(filtered)
+      fs.writeFileSync(options.output, text, 'utf-8')
+    }
   }).catch(err => {
     console.error('GOT ERROR', err)
   })
@@ -113,12 +115,14 @@ const getRequired = (options, gloss) => {
   )
   const queue = [...pending]
   const result = new Set()
+  let successful = true
   while (queue.length > 0) {
     const key = queue.pop()
     pending.delete(key)
     result.add(key)
     if (!(key in gloss)) {
       console.error('MISSING', key)
+      successful = false
     } else {
       try {
         const matches = [...gloss[key].en.def.matchAll(/\(#(.+?)\)/g)]
@@ -134,7 +138,7 @@ const getRequired = (options, gloss) => {
       }
     }
   }
-  return result
+  return successful ? result : null
 }
 
 /**
