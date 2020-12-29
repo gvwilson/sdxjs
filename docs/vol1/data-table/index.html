@@ -68,52 +68,69 @@
   <h1>Data Tables</h1>
   <h2 class="lede">Loading, saving, and manipulating tables efficiently</h2>
 <div class="callout">
-  <p>Terms defined: <g key="column_major">column-major storage</g>, <g key="data_frame">data frame</g>, <g key="heterogeneous">heterogeneous</g>, <g key="homogeneous">homogeneous</g>, <g key="row_major">row-major storage</g>, <g key="tagged_data">tagged data</g>, <g key="test_harness">test harness</g></p>
+  <p>Terms defined: <g key="column_major">column-major storage</g>, <g key="data_frame">data frame</g>, <g key="heterogeneous">heterogeneous</g>, <g key="homogeneous">homogeneous</g>, <g key="immutable">immutable</g>, <g key="row_major">row-major storage</g>, <g key="sql">SQL</g>, <g key="tagged_data">tagged data</g>, <g key="test_harness">test harness</g></p>
 </div>
-<ul>
-<li>Many applications work with data tables (sometimes called <g key="data_frame">data frames</g>)
-<ul>
-<li>Examples include R's <a href="https://www.tidyverse.org/">tidyverse</a> and <a href="http://www.data-forge-js.com/">DataForge</a></li>
-<li>Fixed set of named columns, each holding a specific type of data</li>
-<li>Any number of rows</li>
-</ul>
-</li>
-<li>Key operations are the same as those in SQL: filter, select, summarize, join</li>
-<li>Do some experiments to choose an implementation before writing lots of code</li>
-</ul>
-<h2 id="what-is-the-most-efficient-way-to-store-a-data-table">What is the most efficient way to store a data table?</h2>
-<ul>
-<li>One approach is <g key="row_major">row-major</g>
-<ul>
-<li>Array of <g key="heterogeneous">heterogeneous</g> rows</li>
-<li>In JavaScript, an array of objects</li>
-</ul>
-</li>
-<li>Another is <g key="column_major">column-major</g>
-<ul>
-<li>Each named column stored as a <g key="homogeneous">homogeneous</g> array</li>
-<li>In JavaScript, an object whose members are all arrays of the same length</li>
-</ul>
-</li>
-</ul>
+<p>In <x key="file-backup">the previous chapter</x> we said that
+operations in memory are thousands of times faster than operations that touch the filesystem,
+but how accurate is that?
+More generally,
+given two ways to implement something,
+how can we tell which is the most efficient?</p>
+<p>The simplest way is usually to conduct some experiments.
+To see how to do this,
+we will take a look several ways to implement data tables
+(sometimes called <g key="data_frame">data frames</g>)
+like those in R's <a href="https://www.tidyverse.org/">tidyverse</a>,
+Python's <a href="https://pandas.pydata.org/">Pandas</a> library,
+or the <a href="http://www.data-forge-js.com/">DataForge</a> library for JavaScript.
+A data table has one or more named columns and zero or more rows;
+each row has one value for each column,
+and all the values in a column have the same type.</p>
+<figure id="data-table-conceptual" class="fixme"><img src="/static/tools-small.jpg" alt="Data table structure"/><figcaption>The structure of a data table.</figcaption></figure>
+<p>The key operations on data tables are the same as those in <g key="sql">SQL</g>:
+filter, select, summarize, and join.
+These can be implemented in about 1000 lines of code,
+but their performance depends on how the data table is stored.</p>
+<h2 id="how-can-we-implement-data-tables">How can we implement data tables?</h2>
+<p>One way to store a table is <g key="row_major">row-major</g> order,
+in which the values in each row are stored together in memory.
+This is sometimes also called <g key="heterogeneous">heterogeneous</g> storage
+because each &quot;unit&quot; of storage can contain values of different types.
+In JavaScript,
+we implement this as an array of objects.</p>
+<p>Another option is <g key="column_major">column-major</g> or <g key="homogeneous">homogeneous</g> order,
+in which all the values in a column are stored together.
+In JavaScript,
+this could be implemented using an object
+whose members are all arrays of the same length.</p>
 <figure id="data-table-storage-order" class="fixme"><img src="/static/tools-small.jpg" alt="Row-major vs. column-major storage order"/><figcaption>Row-major storage vs. column-major storage for data tables.</figcaption></figure>
-<ul>
-<li>Construct one of each, try some operations, record times and memory use, see which is better
-<ul>
-<li>Answer will depend on what parameters we use</li>
-</ul>
-</li>
-<li>Never modify data after creating it
-<ul>
-<li>Allows us to recycle memory</li>
-</ul>
-</li>
-<li>Build a row-major table with some number of columns
-<ul>
-<li>Values are 0, 1, 2, 0, 1, 2, etc.</li>
-</ul>
-</li>
-</ul>
+<p>To find out which is better
+we will construct one of each,
+try some operations,
+record their execution times and memory use,
+and then compare them.
+The answer will depend on both the implementations
+and on what mix of operations we measure:
+for example,
+if one strategy works better for filter and another for select,
+the ratio of filters to selects may determine which is &quot;best&quot;.</p>
+<div class="callout">
+<h3 id="immutability">Immutability</h3>
+<p>All of our implementations will treat each data table as <g key="immutable">immutable</g>:
+once we have created it,
+we will not modify its contents.
+This makes the programming easier
+(and safer, since shared data structures are a rich source of bugs),
+and doesn't actually have much impact on performance.
+For example,
+if we filter a data table stored in column major order,
+we can either move elements in memory to fill the holes created by deleted rows,
+or copy the values we want to keep to a new block of contiguous storage.</p>
+</div>
+<p>For our first experiment,
+let's build a row-major table with some number of columns.
+To keep it simple,
+we will repeat the values 0, 1, and 2 to fill the table.</p>
 <pre title="build.js"><code class="language-js">export const buildRows = (nRows, labels) =&gt; {
   const result = []
   for (let iR = 0; iR &lt; nRows; iR += 1) {
@@ -125,18 +142,16 @@
   }
   return result
 }</code></pre>
-<ul>
-<li>Add filter with a callback function to select rows
-<ul>
-<li>Should be fast, since we are recycling the rows</li>
-</ul>
-</li>
-<li>And select with a list of column labels
-<ul>
-<li>Should be slow, since we are constructing one new object per row</li>
-</ul>
-</li>
-</ul>
+<p>Next,
+we write <code>filter</code> and <code>select</code> for tables laid out this way.
+We need to provide a callback function to <code>filter</code> to determine which rows to keep
+like the callback for <code>Array.filter</code>;
+for selecting columns,
+we provide a list of the keys that identify the columns we want to keep.
+We expect filtering to be relatively fast,
+since it is recycling rows,
+while selecting should be relatively slow,
+since we have to construct a new set of arrays.</p>
 <pre title="table-performance.js"><code class="language-js">const rowFilter = (table, func) =&gt; {
   return table.filter(row =&gt; func(row))
 }
@@ -151,10 +166,8 @@ const rowSelect = (table, toKeep) =&gt; {
   })
 }</code></pre>
 <figure id="data-table-row-ops" class="fixme"><img src="/static/tools-small.jpg" alt="Row-major operations"/><figcaption>Operations on row-major data tables.</figcaption></figure>
-<ul>
-<li>Now do the same for column-major storage</li>
-<li>Build</li>
-</ul>
+<p>Now let's do the same for column-major storage.
+Building the object that holds the columns is straightforward:</p>
 <pre title="build.js"><code class="language-js">export const buildCols = (nRows, labels) =&gt; {
   const result = {}
   labels.forEach(label =&gt; {
@@ -165,15 +178,24 @@ const rowSelect = (table, toKeep) =&gt; {
   })
   return result
 }</code></pre>
-<ul>
-<li>Operate
-<ul>
-<li>Select should be fast, since we are just aliasing some columns</li>
-<li>Filter should be slow, since we are constructing multiple new arrays</li>
-<li>The parameters to the two functions are different from those to the row-major functions</li>
-</ul>
-</li>
-</ul>
+<p>Filtering is more complex,
+since the values in each row are scattered across several arrays,
+but selecting is just a matter of recycling the arrays we want in the new table.
+We expect selecting to be relatively fast,
+since only the references to the columns need to be copied,
+but filtering will be relatively slow since we are constructing multiple new arrays.</p>
+<div class="callout">
+<h3 id="not-quite-polymorphic">Not quite polymorphic</h3>
+<p>Our tests would be simpler to write if the two versions of <code>filter</code> and <code>select</code>
+took exactly the same parameters,
+but the row-testing functions for <code>filter</code> are different
+because of the differences in the ways the tables are stored.
+We could force them to be the same by (for example)
+packing the values for each row in the column-major implementation
+into a temporary object
+and passing that to the same filtering function we used for the row-major implementation,
+but that extra work would bias the performance comparison in row-major's favor.</p>
+</div>
 <pre title="table-performance.js"><code class="language-js">const colFilter = (table, func) =&gt; {
   const result = {}
   const labels = Object.keys(result)
@@ -198,19 +220,18 @@ const colSelect = (table, toKeep) =&gt; {
   return result
 }</code></pre>
 <figure id="data-table-col-ops" class="fixme"><img src="/static/tools-small.jpg" alt="Column-major operations"/><figcaption>Operations on column-major data tables.</figcaption></figure>
-<ul>
-<li>Build a <g key="test_harness">test harness</g> to run both variants for data tables of some size
-<ul>
-<li>Arbitrarily decide to keep half of the columns and one-third of the rows</li>
-<li>This choice will affect our decision about which is better</li>
-</ul>
-</li>
-<li>Also calculate relative performance based on ratio of filters to selects
-<ul>
-<li>Should also be based on data from whatever application we're trying to support</li>
-</ul>
-</li>
-</ul>
+<h2 id="how-can-we-test-the-performance-of-our-implementations">How can we test the performance of our implementations?</h2>
+<p>Now that we have our tables and operations,
+we can build a <g key="test_harness">test harness</g> to run those operations
+on data tables of varying sizes.
+We arbitrarily decide to keep half of the columns and one-third of the rows;
+these ratios will affect our decision about which is better,
+so if we were doing this for a real application we would test what happens
+as these fractions vary.
+And as we said earlier,
+the relative performance will depend on the ratio of filters to selects;
+our balance should be based on data from whatever application we intend to support.</p>
+<p>Our performance measurement program looks like this:</p>
 <pre title="table-performance.js"><code class="language-js">const RANGE = 3
 
 const main = () =&gt; {
@@ -257,15 +278,12 @@ const main = () =&gt; {
   }
   console.log(yaml.safeDump(result))
 }</code></pre>
-<ul>
-<li>Actual measurement functions
-<ul>
-<li>Use <a href="https://www.npmjs.com/package/microtime">microtime</a> to get micro-second level timing (since JavaScript's <code>Date</code> is only millisecond-level)</li>
-<li>Use <a href="https://www.npmjs.com/package/object-sizeof">object-sizeof</a> to estimate memory</li>
-<li>Also call <code>process.memoryUsage()</code> and look at <code>heapUsed</code>, but that value may be affected by garbage collection</li>
-</ul>
-</li>
-</ul>
+<p>The functions that actually do the measurements
+use the <a href="https://www.npmjs.com/package/microtime"><code>microtime</code></a> library to get microsecond level timing
+because JavaScript's <code>Date</code> only gives us millisecond-level resolution.
+We use <a href="https://www.npmjs.com/package/object-sizeof"><code>object-sizeof</code></a> to estimate memory how much memory our structures require;
+We also call <code>process.memoryUsage()</code> and look at the <code>heapUsed</code> value,
+but it may be affected by <a href="#garbage_collection">garbage collection</a> and a host of other factors.</p>
 <pre title="table-performance.js"><code class="language-js">const memory = (func, ...params) =&gt; {
   const before = process.memoryUsage()
   const result = func(...params)
@@ -285,9 +303,7 @@ const time = (func, ...params) =&gt; {
 const calculateRatio = (f2S, rFilterT, rSelectT, cFilterT, cSelectT) =&gt; {
   return ((f2S * rFilterT) + rSelectT) / ((f2S * cFilterT) + cSelectT)
 }</code></pre>
-<ul>
-<li>Run for a table 100 rows by 3 columns with a 3-1 ratio of filter to select</li>
-</ul>
+<p>Let's run our program for a table with 100 rows and 3 columns and a 3:1 ratio of filter to select:</p>
 <pre title="table-performance-100-03-03.sh"><code class="language-sh">node table-performance.js 100 3 3
 </code></pre>
 <pre title="table-performance-100-03-03.out"><code class="language-out">nRows: 100
@@ -303,9 +319,9 @@ colFilterTime: 110
 colSelectTime: 39
 ratio: 0.7425474254742548
 </code></pre>
-<ul>
-<li>10,000 rows by 30 columns with the same 3-1 filter/select ratio</li>
-</ul>
+<div class="continue">
+<p>What if we increase the table size to 10,000 rows by 30 columns with the same 3:1 filter/select ratio?</p>
+</div>
 <pre title="table-performance-10000-30-03.out"><code class="language-out">nRows: 10000
 nCols: 30
 filterPerSelect: 3
@@ -319,9 +335,9 @@ colFilterTime: 4680
 colSelectTime: 88
 ratio: 1.1503397508493771
 </code></pre>
-<ul>
-<li>Same large table with a 10-1 filter/select ratio</li>
-</ul>
+<div class="continue">
+<p>And if we keep the table size the same but use a 10:1 filter/select ratio?</p>
+</div>
 <pre title="table-performance-10000-30-10.out"><code class="language-out">nRows: 10000
 nCols: 30
 filterPerSelect: 10
@@ -336,33 +352,21 @@ colSelectTime: 65
 ratio: 1.0038521900413753
 </code></pre>
 <figure id="data-table-performance" class="fixme"><img src="/static/tools-small.jpg" alt="Performance of data table operations"/><figcaption>Relative performance of operations on row-major and column-major data tables.</figcaption></figure>
-<ul>
-<li>Conclusion: column-major is better
-<ul>
-<li>Uses less memory (presumably because labels aren't duplicated)</li>
-<li>Cost of constructing new objects when doing select with row-major storage
-outweighs cost of appending to arrays when doing filter with column-major storage</li>
-</ul>
-</li>
-<li>Unfortunately makes the code itself a little more complicated to write
-<ul>
-<li>A cost that doesn't show up in experiments</li>
-</ul>
-</li>
-</ul>
+<p>These results show that column-major storage is better.
+It uses less memory (presumably because labels aren't duplicated),
+and the time required to construct new objects when doing select with row-major storage
+outweighs cost of appending to arrays when doing filter with column-major storage.
+Unfortunately,
+the code for column-major storage is a little more complicated to write,
+which is a cost that doesn't show up in experiments.</p>
 <h2 id="what-is-the-most-efficient-way-to-save-a-table">What is the most efficient way to save a table?</h2>
-<ul>
-<li>Our data tables are going to be stored in files of some kind</li>
-<li>If one storage scheme is much more efficient than another and we are reading/writing frequently,
-that could change our mind about how to implement them</li>
-<li>Two text-based schemes are obvious
-<ul>
-<li>Row-oriented as JSON</li>
-<li>Column-oriented as JSON</li>
-</ul>
-</li>
-<li>Run the 10,000×30 test</li>
-</ul>
+<p>Our data tables are going to be stored in files of some kind.
+If one storage scheme is much more efficient than another and we are reading or writing frequently,
+that could change our mind about how to implement them.
+Two simple text-based schemes are row-oriented and column-oriented <a href="#json">JSON</a>,
+i.e.,
+we just print the data structures we have.</p>
+<p>Let's run the 10,000×30 test:</p>
 <pre title="storage-performance-10000-30.out"><code class="language-out">nRows: 10000
 nCols: 30
 rowStringTime: 50909
@@ -370,15 +374,14 @@ rowStringSize: 9393402
 colStringTime: 11607
 colStringSize: 2934164
 </code></pre>
-<ul>
-<li>Time needed for the row-oriented version is almost ten times greater than that needed for the column-oriented version</li>
-<li>Also try a packed version of row-oriented
-<ul>
-<li>Save the column headers once</li>
-<li>Copy the data values into an array of arrays and save that</li>
-</ul>
-</li>
-</ul>
+<p>The time needed for the row-major version is almost ten times greater than
+that needed for the column-major version;
+again,
+we assume that the redundant printing of the labels is at least partly to blame.</p>
+<p>If that diagnosis is correct,
+then a packed version of row-major storage ought to be faster.
+We save the column headers once,
+then copy the data values into an array of arrays and save that:</p>
 <pre title="packed-rows.js"><code class="language-js">const asPackedJson = (table) =&gt; {
   const temp = {}
   temp.keys = Object.keys(table[0])
@@ -390,40 +393,38 @@ nCols: 30
 packedRowStringTime: 26858
 packedRowStringSize: 2974084
 </code></pre>
-<ul>
-<li>Surprising that packing the rows takes <em>less</em> time
-<ul>
-<li>The cost of copying data is less than the cost of turning labels into strings over and over</li>
-</ul>
-</li>
-<li>Once again seems clear that column-oriented storage is the best approach</li>
-</ul>
+<p>These results show that packing the rows takes less time
+than turning the data structure we have into a string.
+Again,
+we assume this is because copying data takes less time than turning labels into strings over and over,
+but column-major storage is still the best approach.</p>
 <h2 id="does-binary-storage-improve-performance">Does binary storage improve performance?</h2>
-<ul>
-<li>JavaScript stores values in <g key="tagged_data">tagged</g> data structures
-<ul>
-<li>Some bits to define its type</li>
-<li>Other bits with the actual data</li>
-<li>And despite what <code>sizeof</code> tells us, objects and arrays have structural overhead</li>
-</ul>
-</li>
-</ul>
+<p>Let's try one more strategy for storing our tables.
+JavaScript stores values in <g key="tagged_data">tagged</g> data structures:
+some bits define the value's type,
+and other bits store the actual data.</p>
 <figure id="data-table-object-storage" class="fixme"><img src="/static/tools-small.jpg" alt="JavaScript object storage"/><figcaption>How JavaScript uses tagged data structures to store objects.</figcaption></figure>
-<ul>
-<li>We can save space by just storing the bits, but then we have to keep track of types ourselves</li>
-<li>JavaScript has an <code>ArrayBuffer</code> object that stores bits</li>
-<li>We access it through a view that presents the data as a particular type, such as unsigned 8-bit integer or 64-bit float</li>
-</ul>
+<p>We can save space by keeping track of the types ourselves
+and just storing the bits that represent the values.
+JavaScript has an <code>ArrayBuffer</code> class for exactly this purpose.
+It stores any value we want as a set of bits;
+we then access those bits through a view that presents the data as a particular type,
+such as unsigned 8-bit integer or 64-bit float.</p>
 <figure id="data-table-packed-storage" class="fixme"><img src="/static/tools-small.jpg" alt="Packing objects for storage"/><figcaption>Storing object values as bits with lookup information.</figcaption></figure>
-<ul>
-<li>To store a column-oriented table:
-<ul>
-<li>Two integers with size</li>
-<li>A string with the labels joined by newlines (we assume that labels can't contain newlines)</li>
-<li>The numbers</li>
-</ul>
+<p>To store a column-major table,
+we will fill an <code>ArrayBuffer</code> with:</p>
+<ol>
+<li>
+<p>Two integers that hold the table's dimensions.</p>
 </li>
-</ul>
+<li>
+<p>A string with the labels joined by newline characters.
+(We use newlines as a separator because we assume column labels can't contain them.)</p>
+</li>
+<li>
+<p>The numbers themselves.</p>
+</li>
+</ol>
 <pre title="packed-cols.js"><code class="language-js">const asBinary = (table) =&gt; {
   const labels = Object.keys(table)
 
@@ -458,15 +459,14 @@ nCols: 30
 packedColBinaryTime: 4740
 packedColBinarySize: 2400268
 </code></pre>
-<ul>
-<li>Saves time because copying bits is faster than turning numbers into characters</li>
-<li>But doesn't save as much space as expected
-<ul>
-<li>Our numbers are 8 bytes long</li>
-<li>Longest string representation is 5 characters (10 bytes)</li>
-</ul>
-</li>
-</ul>
+<p>Packing the data table saves time
+because copying bits is faster than turning numbers into characters,
+but it doesn't save as much space as expected.
+The reason is that double-precision numbers are 8 bytes long,
+but because we have chosen simple integer values for our tests,
+they can be represented by just 5 characters (which is 10 bytes).
+If we had &quot;real&quot; numbers,
+the storage benefit would probably be more pronounced.</p>
 <h2 id="exercises">Exercises</h2>
 <h3 class="exercise">Varying filter behavior</h3>
 <p>How does our decision about which storage format is better change
