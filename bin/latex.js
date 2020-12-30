@@ -318,6 +318,8 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     accum.push('\\end{itemize}')
   } else if (node.name === 'x') {
     const key = node.attribs.key
+    assert(key,
+           'Cross-reference does not contain key attribute')
     assert(key in options.numbering,
            `Unknown cross-reference "${key}"`)
     const text = (options.numbering[key] < 'A') ? `\\chapref{${key}}` : `\\appref{${key}}`

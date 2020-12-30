@@ -27,9 +27,6 @@
     -   Combine them into one file
     -   Ensure they can find each other correctly once loaded
 -   Think of test cases before starting to write code
-    -   <g key="tdd">Test-driven development</g> (TDD)
-    -   Research doesn't support claims that it makes programmers more productive <cite>Fucci2016,Fucci2017</cite>,
-        but it helps give direction to this chapter
 -   Case 1: a single file that doesn't require anything else
     -   Because if this doesn't work, nothing else will
     -   We will run everything via `export` to keep the examples simple
