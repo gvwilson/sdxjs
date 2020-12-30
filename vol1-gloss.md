@@ -324,6 +324,8 @@
 <dd class="glossary">A program that checks for common problems in software, such as violations of indentation rules or variable naming conventions. The name comes from the first tool of its kind, called <code>lint</code>.</dd>
 <dt id="list" class="glossary">list</dt>
 <dd class="glossary">A <g key="vector">vector</g> that can contain values of many different (<g key="heterogeneous">heterogeneous</g>) types.</dd>
+<dt id="literal" class="glossary">literal</dt>
+<dd class="glossary">A representation of a fixed value in a program, such as the digits <code>123</code> for the number 123 or the characters <code>&quot;abc&quot;</code> for the string containing those three letters.</dd>
 <dt id="local_variable" class="glossary">local variable</dt>
 <dd class="glossary">A variable defined inside a function which is only visible within that function.</dd>
 <dt id="log" class="glossary">log</dt>
@@ -570,6 +572,8 @@
 <dd class="glossary">To visit each <g key="node">node</g> in a <g key="tree">tree</g> in some order, typically <g key="depth_first">depth-first</g> or <g key="breadth_first">breadth-first</g>.</dd>
 <dt id="watchpoint" class="glossary">watchpoint</dt>
 <dd class="glossary">An instruction for a debugger telling it to suspect execution whenever the value of a variable (or more generally an expression) changes.</dd>
+<dt id="well_formed" class="glossary">well formed</dt>
+<dd class="glossary">A piece of text that obeys the rules of a formal grammar is said to be well formed.</dd>
 <dt id="while_loop" class="glossary">while loop</dt>
 <dd class="glossary">A statement in a program that repeats one or more other statements (the <g key="loop_body">loop body</g>) as long as a condition is <g key="true">true</g>.</dd>
 <dt id="word_memory" class="glossary">word (of memory)</dt>

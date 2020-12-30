@@ -185,7 +185,7 @@ and files describing the contents of particular snapshots.
 The latter are named `ssssssssss.csv`,
 where `ssssssssss` is the <g key="utc">UTC</g> <g key="timestamp">timestamp</g> of the backup's creation
 and the `.csv` extension indicates that the file is formatted as <g key="csv">comma-separated values</g>.
-(We could store these files as [JSON](#json), but CSV is easier for people to read.)
+(We could store these files as <g key="json">JSON</g>, but CSV is easier for people to read.)
 
 <%- include('/inc/fig.html', {
     id: 'file-backup-directory-structure',

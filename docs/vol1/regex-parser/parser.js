@@ -32,12 +32,12 @@ const handle = (result, token, last) => {
     result.push(groupEnd(result, token))
   } else if (token.kind === 'Any') {
     assert(result.length > 0,
-           `No operand for '*' (location ${token.loc})`)
+      `No operand for '*' (location ${token.loc})`)
     token.child = result.pop()
     result.push(token)
   } else if (token.kind === 'Alt') {
     assert(result.length > 0,
-           `No operand for '*' (location ${token.loc})`)
+      `No operand for '*' (location ${token.loc})`)
     token.left = result.pop()
     token.right = null
     result.push(token)
