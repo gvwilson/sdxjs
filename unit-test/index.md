@@ -46,7 +46,8 @@ to determine the class of an object.
 If a test <g key="throw_exception">throws an exception</g>
 and that exception's class is `assert.AssertionError`,
 then we will assume the exception came from
-one of the assertions we put in the test as a check.
+one of the assertions we put in the test as a check
+(<f key="unit-test-mental-model"></f>).
 Any other kind of assertion indicates that the test itself contains an error.
 
 <%- include('/inc/fig.html', {
@@ -142,7 +143,8 @@ This strategy relies on two things:
 
 Once a program has imported `hope`,
 it can call `Hope.test` to record a test for later execution
-and `Hope.run` to execute all of the tests registered up until that point.
+and `Hope.run` to execute all of the tests registered up until that point
+(<f key="unit-test-hope-structure"></f>).
 
 <%- include('/inc/fig.html', {
     id: 'unit-test-hope-structure',
@@ -165,7 +167,7 @@ so that if someone wants to format them in a different way (e.g., as HTML) they 
 `Hope.test` uses the [`caller`][caller] module
 to get the name of the function that is registering a test.
 Reporting the test's name helps the user figure out where to start debugging,
-and getting it via <g key="introspection">introspection</g>
+and getting it via introspection
 rather than requiring the user to pass it into the call
 reduces typing
 and eliminates the problem of a function called `test_this`
@@ -238,7 +240,8 @@ because thinks the result of dividing by zero is the special value `Infinity`
 rather than an arithmetic error.
 :::
 
-The <g key="lifecycle">lifecycle</g> of a pair of files `test-add.js` and `test-sub.js` is:
+The <g key="lifecycle">lifecycle</g> of a pair of files `test-add.js` and `test-sub.js` is
+shown in <f key="unit-test-lifecycle"></f>:
 
 1.  `pray` uses `glob` to find files with tests.
 1.  It loads `test-add.js` using `import` as a function.

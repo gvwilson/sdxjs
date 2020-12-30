@@ -19,6 +19,7 @@ import {
   buildOptions,
   createFilePaths,
   dirname,
+  getGlossaryReferences,
   yamlLoad
 } from './utils.js'
 
@@ -181,17 +182,6 @@ const translate = (options, fileInfo, glossary, linksText, numbering) => {
   // Save result.
   ensureOutputDir(fileInfo.html)
   fs.writeFileSync(fileInfo.html, html, 'utf-8')
-}
-
-/**
- * Get all references to glossary terms.
- * @param {string} text Text to search in.
- * @returns {Array<string>} Terms referenced (by key).
- */
-const getGlossaryReferences = (text) => {
-  const pat = /<g\s+key="(.+?)">/g
-  const matches = [...text.matchAll(pat)]
-  return matches.map(m => m[1])
 }
 
 /**

@@ -27,7 +27,8 @@ we should be able to parse `/^(a|b|$)*z$/` as
 "a single 'z',
 and "end of text".
 We will create a tree of objects rather than instances of the `RegexBase` classes
-from <x key="pattern-matching"></x> to keep things simple;
+from <x key="pattern-matching"></x> to keep things simple
+(<f key="regex-parser-expression-tree"></f>);
 the exercises will build the latter.
 
 <%- include('/inc/fig.html', {
@@ -148,7 +149,8 @@ The pattern is supposed to mean "one `a` or any number of `b`",
 but the check-and-combine strategy will turn it into the equivalent of `/(a|b)*/`.
 
 A better (i.e., correct) solution is
-to leave some partially-completed tokens in the output and compress them later.
+to leave some partially-completed tokens in the output and compress them later
+(<f key="regex-parser-mechanics"></f>).
 If our input is the pattern `/a|b/`, we can:
 
 1.  Append a `Lit` token for `a`.
@@ -200,7 +202,7 @@ it's not done until we've tested it:
 
 While our final parser is less than 90 lines of code,
 it is doing a lot of complex things.
-Compared to parsers for things like <g key="json">JSON</g> and <g key="yaml">YAML</g>,
+Compared to parsers for things like JSON and YAML,
 though,
 it is still very simple.
 If we have more operators with different <g key="precedence">precedences</g>

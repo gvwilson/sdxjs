@@ -12,7 +12,8 @@ import {
   addCommonArguments,
   buildOptions,
   createFilePaths,
-  getAllEntries
+  getAllEntries,
+  getGlossaryReferences
 } from './utils.js'
 
 /**
@@ -35,12 +36,13 @@ const main = () => {
   checkExercises(options)
 
   const markdown = loadMarkdown(options)
+  checkGlossDups(markdown)
   checkInclusions(markdown)
   checkLineEndings(markdown)
 
   const html = loadHtml(options)
   checkFigures(html)
-  checkGloss(html)
+  checkGlossRefs(html)
   checkTabs(html)
   checkWidths(html)
 }
@@ -140,17 +142,34 @@ const checkFigures = (files) => {
  * Check glossary references and entries.
  * @param {Array<Object>} files File information.
  */
-const checkGloss = (files) => {
-  const used = new Set(files.map(({ text }) => {
-    const matches = [...text.matchAll(/<g\s+key="(.+?)">/g)]
-    return matches.map(match => match[1])
-  }).flat())
+const checkGlossRefs = (files) => {
+  const used = new Set(files.map(({ text }) => getGlossaryReferences(text)).flat())
   const defined = new Set(files.map(({ text }) => {
     const matches = [...text.matchAll(/<dt\s+id="(.+?)"\s+class="glossary">/g)]
     return matches.map(match => match[1])
   }).flat())
   showSetDiff('Glossary used but not defined', used, defined)
   showSetDiff('Glossary defined but not used', defined, used)
+}
+
+/**
+ * Check for duplicate glossary references within individual files.
+ * @param {Array<Object>} files File information.
+ */
+const checkGlossDups = (files) => {
+  files.forEach(({ filename, text }) => {
+    if (!filename.includes('gloss')) {
+      const refs = getGlossaryReferences(text)
+      const seen = new Set()
+      refs.forEach(key => {
+        if (seen.has(key)) {
+          console.log(`${filename} defines ${key} multiple times`)
+        } else {
+          seen.add(key)
+        }
+      })
+    }
+  })
 }
 
 /**

@@ -92,7 +92,8 @@ so that we don't waste disk space.</p>
 we need a way to tell when two files contain the same data.
 We could compare the files byte by byte,
 but a quicker way is to use a <g key="hash_function">hash function</g>
-that turns arbitrary data into a fixed-length string of bits.</p>
+that turns arbitrary data into a fixed-length string of bits
+(<f key="file-backup-hash-function"></f>).</p>
 <figure id="file-backup-hash-function" class="fixme"><img src="/static/tools-small.jpg" alt="Hash functions"/><figcaption>How hash functions speed up lookup.</figcaption></figure>
 <p>A hash function always produces the same <g key="hash_code">hash code</g> for a given input.
 A <g key="cryptographic_hash_function">cryptographic hash function</g> has two extra properties:</p>
@@ -200,7 +201,8 @@ final dc9e6c231e243860dace2dbf52845b121062b60e
 so that programs don't have to read entire (possibly large) files into memory.
 To start,
 this program asks the <code>fs</code> library to create a reading stream for a file
-and to <g key="pipe">pipe</g> the data from that stream to the hashing object.
+and to <g key="pipe">pipe</g> the data from that stream to the hashing object
+(<f key="file-backup-streaming"></f>).
 It then tells the hashing object what to do when there is no more data
 by providing a <g key="handler">handler</g> for the &quot;finish&quot; event.
 This is called asynchronously:
@@ -218,7 +220,8 @@ The hash keys tell it which unique files are part of the snapshot,
 while the filenames tell us what each file's contents were called when the snapshot was made
 (since files can be moved or renamed).
 To restore a particular snapshot,
-all we have to do is copy the saved <code>.bck</code> files back to where they were.</p>
+all we have to do is copy the saved <code>.bck</code> files back to where they were
+(<f key="file-backup-storage"></f>).</p>
 <figure id="file-backup-storage" class="fixme"><img src="/static/tools-small.jpg" alt="Backup file storage"/><figcaption>Organization of backup file storage.</figcaption></figure>
 <p>We can build the tools we need to do this uses promises (<x key="async-programming"></x>).
 The main function creates a promise that uses the asynchronous version of <code>glob</code> to find files
@@ -456,7 +459,8 @@ hashExisting(root).then(
 <h2 id="how-can-we-track-which-files-have-already-been-backed-up">How can we track which files have already been backed up?</h2>
 <p>The second part of our backup tool keeps track of which files have and haven't been backed up already.
 It stores backups in a directory that contains backup files like <code>abcd1234.bck</code>
-and files describing the contents of particular snapshots.
+and files describing the contents of particular snapshots
+(<f key="file-backup-directory-structure"></f>).
 The latter are named <code>ssssssssss.csv</code>,
 where <code>ssssssssss</code> is the <g key="utc">UTC</g> <g key="timestamp">timestamp</g> of the backup's creation
 and the <code>.csv</code> extension indicates that the file is formatted as <g key="csv">comma-separated values</g>.
@@ -470,7 +474,8 @@ but many faults and security holes are the result of programmers assuming things
 <p>We could try to avoid this problem by using a two-part naming scheme <code>ssssssss-a.csv</code>,
 <code>ssssssss-b.csv</code>, and so on,
 but this leads to a <g key="race_condition">race condition</g>
-called <g key="toctou">time of check/time of use</g>.
+called <g key="toctou">time of check/time of use</g>
+(<f key="file-backup-toctou"></f>).
 If two users run the backup tool at the same time,
 they will both see that there isn't a file (yet) with the current timestamp,
 so they will both try to create the first one.</p>
@@ -619,7 +624,8 @@ and then delete them afterward
 <p>A better approach is to use a <g key="mock_object">mock object</g>
 instead of the real filesystem.
 A mock object has the same interface as the function, object, class, or library that it replaces,
-but is designed to be used solely for testing.</p>
+but is designed to be used solely for testing
+(<f key="file-backup-mock-fs"></f>).</p>
 <figure id="file-backup-mock-fs" class="fixme"><img src="/static/tools-small.jpg" alt="Mock filesystem"/><figcaption>Using a mock filesystem to simplify testing.</figcaption></figure>
 <p><a href="https://nodejs.org/en/">Node</a>'s <a href="https://www.npmjs.com/package/mock-fs"><code>mock-fs</code></a> library provides the same functions as the <code>fs</code> library,
 but stores everything in memory.

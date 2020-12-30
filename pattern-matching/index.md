@@ -23,6 +23,14 @@ The first step is to define the patterns we want to support:
 | Element with `id="ident"` | `#ident`   |
 | `child` element inside a `parent` element | `parent child` |
 
+According to this grammar,
+`blockquote#important p.highlight` is a highlighted paragraph inside the blockquote whose ID is `"important"`.
+To find elements in a page that match it,
+our `select` function breaks the query into pieces
+and then calls `firstMatch` to recurse down the document tree
+until the query string is exhausted or no matches have been found
+(<f key="pattern-matching-query-selectors"></f>).
+
 <%- include('/inc/fig.html', {
     id: 'pattern-matching-query-selectors',
     img: '/static/tools-small.jpg',
@@ -30,13 +38,6 @@ The first step is to define the patterns we want to support:
     cap: 'A simple set of query selectors.',
     fixme: true
 }) %>
-
-According to this grammar,
-`blockquote#important p.highlight` is a highlighted paragraph inside the blockquote whose ID is `"important"`.
-To find elements in a page that match it,
-our `select` function breaks the query into pieces
-and then calls `firstMatch` to recurse down the document tree
-until the query string is exhausted or no matches have been found.
 
 <%- include('/inc/erase.html', {file: 'simple-selectors.js', key: 'skip'}) %>
 
@@ -57,8 +58,18 @@ The `firstMatch` function handles three cases:
     then we search the children one by one to see if there is a match further down.
 
 This algorithm is called <g key="depth_first_search">depth-first search</g>:
-it explores one possible match to the end before considering any others.
-It relies on a helper function called `firstChildMatch`,
+it explores one possible match to the end before considering any others
+(<f key="pattern-matching-traversal"></f>).
+
+<%- include('/inc/fig.html', {
+    id: 'pattern-matching-traversal',
+    img: '/static/tools-small.jpg',
+    alt: 'Matching query selectors',
+    cap: 'Recursing through a tree to match query selectors.',
+    fixme: true
+}) %>
+
+`firstMatch` relies on a helper function called `firstChildMatch`,
 which finds the first child of a node to match a set of selectors:
 
 <%- include('/inc/keep.html', {file: 'simple-selectors.js', key: 'firstChild'}) %>
@@ -94,14 +105,6 @@ or return an error message if something has gone wrong:
 When we run it, it produces this result:
 
 <%- include('/inc/file.html', {file: 'simple-selectors-test.out'}) %>
-
-<%- include('/inc/fig.html', {
-    id: 'pattern-matching-query-selectors-travesal',
-    img: '/static/tools-small.jpg',
-    alt: 'Matching query selectors',
-    cap: 'Recursing through a tree to match query selectors.',
-    fixme: true
-}) %>
 
 We will rewrite these tests using [Mocha][mocha] in the exercises.
 
@@ -164,7 +167,8 @@ because some matchers need extra information like the character that they match.
 Each matcher has a method that takes the target string and the index to start matching at as inputs.
 Its output is the index to continue matching at
 *or* `undefined` indicating that matching failed.
-We can then combine these objects to create a matcher;
+We can then combine these objects to create a matcher
+(<f key="pattern-matching-regex-objects"></f>);
 we'll do that manually in this chapter
 and automate the process in <x key="regex-parser"></x>.
 
@@ -238,7 +242,8 @@ suppose we have the pattern `/a*ab/`.
 This ought to match the text `"ab"`, but will it?
 The `/*/` is <g key="greedy_algorithm">greedy</g>: it matches as much as it can.
 As a result,
-`/a*/` will match the leading `"a"`, leaving nothing for the literal `/a/` to match.
+`/a*/` will match the leading `"a"`, leaving nothing for the literal `/a/` to match
+(<f key="pattern-matching-greedy-failure"></f>).
 Our current implementation doesn't give us a way to try other possible matches when this happens.
 
 <%- include('/inc/fig.html', {
@@ -250,7 +255,8 @@ Our current implementation doesn't give us a way to try other possible matches w
 }) %>
 
 Let's re-think our design
-and have each matcher take its own arguments and a `rest` parameter containing the rest of the matchers.
+and have each matcher take its own arguments and a `rest` parameter containing the rest of the matchers
+(<f key="pattern-matching-rest"></f>).
 (We will provide a default of `null` in the creation function
 so we don't have to type `null` over and over again.)
 The matcher will try each of its possibilities and then see if the rest will also match.
@@ -292,7 +298,8 @@ trying the second pattern and the rest:
 
 Matching repetition is easy but inefficient:
 we try zero matches, then one, then two, and so on until something succeeds,
-which means we are repeatedly re-matching things we already know work.
+which means we are repeatedly re-matching things we already know work
+(<f key="pattern-matching-repetition"></f>).
 
 <%- include('/inc/fig.html', {
     id: 'pattern-matching-repetition',

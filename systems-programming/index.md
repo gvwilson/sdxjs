@@ -94,7 +94,7 @@ while everything below it is [Node][nodejs] loading and running our program.
 
 The problem is that `fs.readdir` doesn't return anything.
 Instead,
-[its documentation][node-fs] says that it takes a <g key="callback">callback function</g>,
+[its documentation][node-fs] says that it takes a callback function,
 so we need to explore those in order to make our program work.
 
 ## What is a callback function?

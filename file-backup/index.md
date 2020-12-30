@@ -22,7 +22,8 @@ To avoid storing redundant copies of files,
 we need a way to tell when two files contain the same data.
 We could compare the files byte by byte,
 but a quicker way is to use a <g key="hash_function">hash function</g>
-that turns arbitrary data into a fixed-length string of bits.
+that turns arbitrary data into a fixed-length string of bits
+(<f key="file-backup-hash-function"></f>).
 
 <%- include('/inc/fig.html', {
     id: 'file-backup-hash-function',
@@ -91,7 +92,8 @@ Many libraries rely on streams
 so that programs don't have to read entire (possibly large) files into memory.
 To start,
 this program asks the `fs` library to create a reading stream for a file
-and to <g key="pipe">pipe</g> the data from that stream to the hashing object.
+and to <g key="pipe">pipe</g> the data from that stream to the hashing object
+(<f key="file-backup-streaming"></f>).
 It then tells the hashing object what to do when there is no more data
 by providing a <g key="handler">handler</g> for the "finish" event.
 This is called asynchronously:
@@ -118,7 +120,8 @@ The hash keys tell it which unique files are part of the snapshot,
 while the filenames tell us what each file's contents were called when the snapshot was made
 (since files can be moved or renamed).
 To restore a particular snapshot,
-all we have to do is copy the saved `.bck` files back to where they were.
+all we have to do is copy the saved `.bck` files back to where they were
+(<f key="file-backup-storage"></f>).
 
 <%- include('/inc/fig.html', {
     id: 'file-backup-storage',
@@ -181,7 +184,8 @@ let's run it for the same input files:
 
 The second part of our backup tool keeps track of which files have and haven't been backed up already.
 It stores backups in a directory that contains backup files like `abcd1234.bck`
-and files describing the contents of particular snapshots.
+and files describing the contents of particular snapshots
+(<f key="file-backup-directory-structure"></f>).
 The latter are named `ssssssssss.csv`,
 where `ssssssssss` is the <g key="utc">UTC</g> <g key="timestamp">timestamp</g> of the backup's creation
 and the `.csv` extension indicates that the file is formatted as <g key="csv">comma-separated values</g>.
@@ -205,7 +209,8 @@ but many faults and security holes are the result of programmers assuming things
 We could try to avoid this problem by using a two-part naming scheme `ssssssss-a.csv`,
 `ssssssss-b.csv`, and so on,
 but this leads to a <g key="race_condition">race condition</g>
-called <g key="toctou">time of check/time of use</g>.
+called <g key="toctou">time of check/time of use</g>
+(<f key="file-backup-toctou"></f>).
 If two users run the backup tool at the same time,
 they will both see that there isn't a file (yet) with the current timestamp,
 so they will both try to create the first one.
@@ -265,7 +270,8 @@ and then delete them afterward
 A better approach is to use a <g key="mock_object">mock object</g>
 instead of the real filesystem.
 A mock object has the same interface as the function, object, class, or library that it replaces,
-but is designed to be used solely for testing.
+but is designed to be used solely for testing
+(<f key="file-backup-mock-fs"></f>).
 
 <%- include('/inc/fig.html', {
     id: 'file-backup-mock-fs',

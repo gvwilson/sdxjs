@@ -85,7 +85,8 @@ Python's <a href="https://pandas.pydata.org/">Pandas</a> library,
 or the <a href="http://www.data-forge-js.com/">DataForge</a> library for JavaScript.
 A data table has one or more named columns and zero or more rows;
 each row has one value for each column,
-and all the values in a column have the same type.</p>
+and all the values in a column have the same type
+(<f key="data-table-conceptual"></f>).</p>
 <figure id="data-table-conceptual" class="fixme"><img src="/static/tools-small.jpg" alt="Data table structure"/><figcaption>The structure of a data table.</figcaption></figure>
 <p>The key operations on data tables are the same as those in <g key="sql">SQL</g>:
 filter, select, summarize, and join.
@@ -97,7 +98,8 @@ in which the values in each row are stored together in memory.
 This is sometimes also called <g key="heterogeneous">heterogeneous</g> storage
 because each &quot;unit&quot; of storage can contain values of different types.
 In JavaScript,
-we implement this as an array of objects.</p>
+we implement this as an array of objects
+(<f key="data-table-storage-order"></f>).</p>
 <p>Another option is <g key="column_major">column-major</g> or <g key="homogeneous">homogeneous</g> order,
 in which all the values in a column are stored together.
 In JavaScript,
@@ -151,7 +153,8 @@ we provide a list of the keys that identify the columns we want to keep.
 We expect filtering to be relatively fast,
 since it is recycling rows,
 while selecting should be relatively slow,
-since we have to construct a new set of arrays.</p>
+since we have to construct a new set of arrays
+(<f key="data-table-row-ops"></f>).</p>
 <pre title="table-performance.js"><code class="language-js">const rowFilter = (table, func) =&gt; {
   return table.filter(row =&gt; func(row))
 }
@@ -183,19 +186,8 @@ since the values in each row are scattered across several arrays,
 but selecting is just a matter of recycling the arrays we want in the new table.
 We expect selecting to be relatively fast,
 since only the references to the columns need to be copied,
-but filtering will be relatively slow since we are constructing multiple new arrays.</p>
-<div class="callout">
-<h3 id="not-quite-polymorphic">Not quite polymorphic</h3>
-<p>Our tests would be simpler to write if the two versions of <code>filter</code> and <code>select</code>
-took exactly the same parameters,
-but the row-testing functions for <code>filter</code> are different
-because of the differences in the ways the tables are stored.
-We could force them to be the same by (for example)
-packing the values for each row in the column-major implementation
-into a temporary object
-and passing that to the same filtering function we used for the row-major implementation,
-but that extra work would bias the performance comparison in row-major's favor.</p>
-</div>
+but filtering will be relatively slow since we are constructing multiple new arrays
+(<f key="data-table-col-ops"></f>).</p>
 <pre title="table-performance.js"><code class="language-js">const colFilter = (table, func) =&gt; {
   const result = {}
   const labels = Object.keys(result)
@@ -220,6 +212,18 @@ const colSelect = (table, toKeep) =&gt; {
   return result
 }</code></pre>
 <figure id="data-table-col-ops" class="fixme"><img src="/static/tools-small.jpg" alt="Column-major operations"/><figcaption>Operations on column-major data tables.</figcaption></figure>
+<div class="callout">
+<h3 id="not-quite-polymorphic">Not quite polymorphic</h3>
+<p>Our tests would be simpler to write if the two versions of <code>filter</code> and <code>select</code>
+took exactly the same parameters,
+but the row-testing functions for <code>filter</code> are different
+because of the differences in the ways the tables are stored.
+We could force them to be the same by (for example)
+packing the values for each row in the column-major implementation
+into a temporary object
+and passing that to the same filtering function we used for the row-major implementation,
+but that extra work would bias the performance comparison in row-major's favor.</p>
+</div>
 <h2 id="how-can-we-test-the-performance-of-our-implementations">How can we test the performance of our implementations?</h2>
 <p>Now that we have our tables and operations,
 we can build a <g key="test_harness">test harness</g> to run those operations
@@ -352,7 +356,7 @@ colSelectTime: 65
 ratio: 1.0038521900413753
 </code></pre>
 <figure id="data-table-performance" class="fixme"><img src="/static/tools-small.jpg" alt="Performance of data table operations"/><figcaption>Relative performance of operations on row-major and column-major data tables.</figcaption></figure>
-<p>These results show that column-major storage is better.
+<p>The results in <f key="data-table-performance"></f> show that column-major storage is better.
 It uses less memory (presumably because labels aren't duplicated),
 and the time required to construct new objects when doing select with row-major storage
 outweighs cost of appending to arrays when doing filter with column-major storage.
@@ -402,14 +406,16 @@ but column-major storage is still the best approach.</p>
 <p>Let's try one more strategy for storing our tables.
 JavaScript stores values in <g key="tagged_data">tagged</g> data structures:
 some bits define the value's type,
-and other bits store the actual data.</p>
+and other bits store the actual data
+(<f key="data-table-object-storage"></f>).</p>
 <figure id="data-table-object-storage" class="fixme"><img src="/static/tools-small.jpg" alt="JavaScript object storage"/><figcaption>How JavaScript uses tagged data structures to store objects.</figcaption></figure>
 <p>We can save space by keeping track of the types ourselves
 and just storing the bits that represent the values.
 JavaScript has an <code>ArrayBuffer</code> class for exactly this purpose.
 It stores any value we want as a set of bits;
 we then access those bits through a view that presents the data as a particular type,
-such as unsigned 8-bit integer or 64-bit float.</p>
+such as unsigned 8-bit integer or 64-bit float
+(<f key="data-table-packed-storage"></f>).</p>
 <figure id="data-table-packed-storage" class="fixme"><img src="/static/tools-small.jpg" alt="Packing objects for storage"/><figcaption>Storing object values as bits with lookup information.</figcaption></figure>
 <p>To store a column-major table,
 we will fill an <code>ArrayBuffer</code> with:</p>

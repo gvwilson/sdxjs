@@ -17,7 +17,8 @@ Python's [Pandas][pandas] library,
 or the [DataForge][data-forge] library for JavaScript.
 A data table has one or more named columns and zero or more rows;
 each row has one value for each column,
-and all the values in a column have the same type.
+and all the values in a column have the same type
+(<f key="data-table-conceptual"></f>).
 
 <%- include('/inc/fig.html', {
     id: 'data-table-conceptual',
@@ -39,7 +40,8 @@ in which the values in each row are stored together in memory.
 This is sometimes also called <g key="heterogeneous">heterogeneous</g> storage
 because each "unit" of storage can contain values of different types.
 In JavaScript,
-we implement this as an array of objects.
+we implement this as an array of objects
+(<f key="data-table-storage-order"></f>).
 
 Another option is <g key="column_major">column-major</g> or <g key="homogeneous">homogeneous</g> order,
 in which all the values in a column are stored together.
@@ -97,7 +99,8 @@ we provide a list of the keys that identify the columns we want to keep.
 We expect filtering to be relatively fast,
 since it is recycling rows,
 while selecting should be relatively slow,
-since we have to construct a new set of arrays.
+since we have to construct a new set of arrays
+(<f key="data-table-row-ops"></f>).
 
 <%- include('/inc/keep.html', {file: 'table-performance.js', key: 'operate-rows'}) %>
 
@@ -119,7 +122,18 @@ since the values in each row are scattered across several arrays,
 but selecting is just a matter of recycling the arrays we want in the new table.
 We expect selecting to be relatively fast,
 since only the references to the columns need to be copied,
-but filtering will be relatively slow since we are constructing multiple new arrays.
+but filtering will be relatively slow since we are constructing multiple new arrays
+(<f key="data-table-col-ops"></f>).
+
+<%- include('/inc/keep.html', {file: 'table-performance.js', key: 'operate-cols'}) %>
+
+<%- include('/inc/fig.html', {
+    id: 'data-table-col-ops',
+    img: '/static/tools-small.jpg',
+    alt: 'Column-major operations',
+    cap: 'Operations on column-major data tables.',
+    fixme: true
+}) %>
 
 ::: callout
 ### Not quite polymorphic
@@ -134,16 +148,6 @@ into a temporary object
 and passing that to the same filtering function we used for the row-major implementation,
 but that extra work would bias the performance comparison in row-major's favor.
 :::
-
-<%- include('/inc/keep.html', {file: 'table-performance.js', key: 'operate-cols'}) %>
-
-<%- include('/inc/fig.html', {
-    id: 'data-table-col-ops',
-    img: '/static/tools-small.jpg',
-    alt: 'Column-major operations',
-    cap: 'Operations on column-major data tables.',
-    fixme: true
-}) %>
 
 ## How can we test the performance of our implementations?
 
@@ -195,7 +199,7 @@ And if we keep the table size the same but use a 10:1 filter/select ratio?
     fixme: true
 }) %>
 
-These results show that column-major storage is better.
+The results in <f key="data-table-performance"></f> show that column-major storage is better.
 It uses less memory (presumably because labels aren't duplicated),
 and the time required to construct new objects when doing select with row-major storage
 outweighs cost of appending to arrays when doing filter with column-major storage.
@@ -240,7 +244,8 @@ but column-major storage is still the best approach.
 Let's try one more strategy for storing our tables.
 JavaScript stores values in <g key="tagged_data">tagged</g> data structures:
 some bits define the value's type,
-and other bits store the actual data.
+and other bits store the actual data
+(<f key="data-table-object-storage"></f>).
 
 <%- include('/inc/fig.html', {
     id: 'data-table-object-storage',
@@ -255,7 +260,8 @@ and just storing the bits that represent the values.
 JavaScript has an `ArrayBuffer` class for exactly this purpose.
 It stores any value we want as a set of bits;
 we then access those bits through a view that presents the data as a particular type,
-such as unsigned 8-bit integer or 64-bit float.
+such as unsigned 8-bit integer or 64-bit float
+(<f key="data-table-packed-storage"></f>).
 
 <%- include('/inc/fig.html', {
     id: 'data-table-packed-storage',

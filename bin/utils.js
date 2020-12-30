@@ -116,6 +116,17 @@ export const getAllSources = (options) => {
 }
 
 /**
+ * Get all glossary references from a file.
+ * @param {string} text Text of file.
+ * @returns {Array<string>} Keys of all glossary references.
+ */
+export const getGlossaryReferences = (text) => {
+  const pat = /<g\s+key="(.+?)">/g
+  const matches = [...text.matchAll(pat)]
+  return matches.map(m => m[1])
+}
+
+/**
  * Load a YAML file.
  * @param {string} filename File to load.
  * @returns {Object} YAML.

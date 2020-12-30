@@ -108,13 +108,14 @@ The first step is to define the patterns we want to support:</p>
 </tr>
 </tbody>
 </table>
-<figure id="pattern-matching-query-selectors" class="fixme"><img src="/static/tools-small.jpg" alt="Query selectors"/><figcaption>A simple set of query selectors.</figcaption></figure>
 <p>According to this grammar,
 <code>blockquote#important p.highlight</code> is a highlighted paragraph inside the blockquote whose ID is <code>&quot;important&quot;</code>.
 To find elements in a page that match it,
 our <code>select</code> function breaks the query into pieces
 and then calls <code>firstMatch</code> to recurse down the document tree
-until the query string is exhausted or no matches have been found.</p>
+until the query string is exhausted or no matches have been found
+(<f key="pattern-matching-query-selectors"></f>).</p>
+<figure id="pattern-matching-query-selectors" class="fixme"><img src="/static/tools-small.jpg" alt="Query selectors"/><figcaption>A simple set of query selectors.</figcaption></figure>
 <pre title="simple-selectors.js"><code class="language-js">import assert from 'assert'
 
 const select = (root, selector) =&gt; {
@@ -169,8 +170,10 @@ then we search the children one by one to see if there is a match further down.<
 </li>
 </ol>
 <p>This algorithm is called <g key="depth_first_search">depth-first search</g>:
-it explores one possible match to the end before considering any others.
-It relies on a helper function called <code>firstChildMatch</code>,
+it explores one possible match to the end before considering any others
+(<f key="pattern-matching-traversal"></f>).</p>
+<figure id="pattern-matching-traversal" class="fixme"><img src="/static/tools-small.jpg" alt="Matching query selectors"/><figcaption>Recursing through a tree to match query selectors.</figcaption></figure>
+<p><code>firstMatch</code> relies on a helper function called <code>firstChildMatch</code>,
 which finds the first child of a node to match a set of selectors:</p>
 <pre title="simple-selectors.js"><code class="language-js">const firstChildMatch = (node, selectors) =&gt; {
   assert(node.type === 'tag',
@@ -281,7 +284,6 @@ or return an error message if something has gone wrong:</p>
 "div#id-07 p": pass
 "div#id-07 p.class-06": pass
 </code></pre>
-<figure id="pattern-matching-query-selectors-travesal" class="fixme"><img src="/static/tools-small.jpg" alt="Matching query selectors"/><figcaption>Recursing through a tree to match query selectors.</figcaption></figure>
 <p>We will rewrite these tests using <a href="https://mochajs.org/">Mocha</a> in the exercises.</p>
 <h2 id="how-can-we-implement-a-simple-regular-expression-matcher">How can we implement a simple regular expression matcher?</h2>
 <p>Matching regular expressions against text relies on the same recursive strategy
@@ -440,7 +442,8 @@ because some matchers need extra information like the character that they match.
 Each matcher has a method that takes the target string and the index to start matching at as inputs.
 Its output is the index to continue matching at
 <em>or</em> <code>undefined</code> indicating that matching failed.
-We can then combine these objects to create a matcher;
+We can then combine these objects to create a matcher
+(<f key="pattern-matching-regex-objects"></f>);
 we'll do that manually in this chapter
 and automate the process in <x key="regex-parser"></x>.</p>
 <figure id="pattern-matching-regex-objects" class="fixme"><img src="/static/tools-small.jpg" alt="Implementing regex with objects"/><figcaption>Using nested objects to match regular expressions.</figcaption></figure>
@@ -625,11 +628,13 @@ suppose we have the pattern <code>/a*ab/</code>.
 This ought to match the text <code>&quot;ab&quot;</code>, but will it?
 The <code>/*/</code> is <g key="greedy_algorithm">greedy</g>: it matches as much as it can.
 As a result,
-<code>/a*/</code> will match the leading <code>&quot;a&quot;</code>, leaving nothing for the literal <code>/a/</code> to match.
+<code>/a*/</code> will match the leading <code>&quot;a&quot;</code>, leaving nothing for the literal <code>/a/</code> to match
+(<f key="pattern-matching-greedy-failure"></f>).
 Our current implementation doesn't give us a way to try other possible matches when this happens.</p>
 <figure id="pattern-matching-greedy-failure" class="fixme"><img src="/static/tools-small.jpg" alt="Overly-greedy matching fails"/><figcaption>Why overly-greedy matching doesn't work.</figcaption></figure>
 <p>Let's re-think our design
-and have each matcher take its own arguments and a <code>rest</code> parameter containing the rest of the matchers.
+and have each matcher take its own arguments and a <code>rest</code> parameter containing the rest of the matchers
+(<f key="pattern-matching-rest"></f>).
 (We will provide a default of <code>null</code> in the creation function
 so we don't have to type <code>null</code> over and over again.)
 The matcher will try each of its possibilities and then see if the rest will also match.</p>
@@ -777,7 +782,8 @@ export default create
 </code></pre>
 <p>Matching repetition is easy but inefficient:
 we try zero matches, then one, then two, and so on until something succeeds,
-which means we are repeatedly re-matching things we already know work.</p>
+which means we are repeatedly re-matching things we already know work
+(<f key="pattern-matching-repetition"></f>).</p>
 <figure id="pattern-matching-repetition" class="fixme"><img src="/static/tools-small.jpg" alt="Repetition in regular expressions"/><figcaption>Matching repeated patterns in regular expressions.</figcaption></figure>
 <p>We also need to figure out how long to keep trying:
 each non-empty repetition matches at least one character,

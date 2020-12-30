@@ -13,6 +13,7 @@ import {
   buildOptions,
   createFilePaths,
   getAllSources,
+  getGlossaryReferences,
   yamlLoad
 } from './utils.js'
 
@@ -109,8 +110,7 @@ const getRequired = (options, gloss) => {
   const pending = new Set(
     getAllSources(options).map(filename => {
       const text = fs.readFileSync(filename, 'utf-8')
-      return [...text.matchAll(/<g\s+key="(.+?)">/g)]
-        .map(match => match[1])
+      return getGlossaryReferences(text)
     }).flat()
   )
   const queue = [...pending]

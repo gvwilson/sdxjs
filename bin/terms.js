@@ -4,6 +4,10 @@
 
 import fs from 'fs'
 
+import {
+  getGlossaryReferences
+} from 'utils.js'
+
 const main = () => {
   const defined = new Map()
   process.argv.slice(2).forEach(filename => {
@@ -32,10 +36,7 @@ const main = () => {
 
 const findTerms = (filename) => {
   const text = fs.readFileSync(filename, 'utf-8')
-  return new Set(
-    [...text.matchAll(/<g\s+key="(.+?)">/g)]
-      .map(match => match[1])
-  )
+  return new Set(getGlossaryReferences(text))
 }
 
 main()
