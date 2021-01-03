@@ -2,16 +2,17 @@ export default {
   open: (expander, node) => {
     const [indexName, targetName] = node.attribs['q-loop'].split(':')
     delete node.attribs['q-loop']
+    expander.showTag(node, false)
     const target = expander.env.find(targetName)
     for (const index of target) {
       expander.env.push({ [indexName]: index })
-      expander.walk(node)
+      node.children.forEach(child => expander.walk(child))
       expander.env.pop()
     }
     return false
   },
 
   close: (expander, node) => {
-    // do nothing
+    expander.showTag(node, true)
   }
 }

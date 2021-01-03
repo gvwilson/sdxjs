@@ -23,11 +23,6 @@ class Expander extends Visitor {
     this.result = []
   }
 
-  getResult () {
-    return this.result.join('')
-  }
-
-  // <body>
   open (node) {
     if (node.type === 'text') {
       this.output(node.data)
@@ -51,6 +46,8 @@ class Expander extends Visitor {
     }
   }
 
+  // <skip>
+  // <handlers>
   hasHandler (node) {
     for (const name in node.attribs) {
       if (name in this.handlers) {
@@ -67,7 +64,9 @@ class Expander extends Visitor {
       'Should be exactly one handler')
     return this.handlers[possible[0]]
   }
+  // </handlers>
 
+  // <helpers>
   showTag (node, closing) {
     if (closing) {
       this.output(`</${node.name}>`)
@@ -82,11 +81,16 @@ class Expander extends Visitor {
     }
     this.output('>')
   }
-  // </body>
 
   output (text) {
     this.result.push((text === undefined) ? 'UNDEF' : text)
   }
+
+  getResult () {
+    return this.result.join('')
+  }
+  // </helpers>
+  // </skip>
 }
 
 export default Expander

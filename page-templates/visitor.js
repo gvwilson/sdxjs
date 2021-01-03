@@ -5,8 +5,8 @@ class Visitor {
     this.root = root
   }
 
-  walk (node) {
-    if (node === undefined) {
+  walk (node = null) {
+    if (node === null) {
       node = this.root
     }
     if (this.open(node)) {
