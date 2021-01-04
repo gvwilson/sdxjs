@@ -10,7 +10,8 @@ so most websites use some kind of tool to create HTML from templates.
 Thousands of page templating systems have been written in the last thirty years
 in every popular programming language
 (and in fact one language, [PHP][php], was created for this purpose).
-Most of these systems use one of three designs:
+Most of these systems use one of three designs
+(<f key="page-templates-options"></f>):
 
 1.  Mix commands in a language such as JavaScript with the HTML or Markdown
     using some kind of marker to indicate which parts are commands
@@ -125,7 +126,8 @@ so we have named our stack-handling class `Env`.
 Its methods let us push and pop new stack frames
 and find a variable given its name;
 if the variable can't be found,
-`Env.find` returns `undefined` instead of throwing an exception.
+`Env.find` returns `undefined` instead of throwing an exception
+(<f key="page-templates-stack"></f>).
 
 <%- include('/inc/file.html', {file: 'env.js'}) %>
 
@@ -151,7 +153,8 @@ it uses that instead.
 
 ::: continue
 `Visitor` defines two methods called `open` and `close` that are called
-when we first arrive at a node and when we are finished with it.
+when we first arrive at a node and when we are finished with it
+(<f key="page-templates-visitor"></f>).
 The default implementations throw exceptions
 so that the creators of derived classes must remember to implement their own versions.
 :::

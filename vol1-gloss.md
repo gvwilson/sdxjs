@@ -132,6 +132,8 @@
 <dd class="glossary">A <g key="hash_function">hash function</g> that produces an apparently-random value for any input.</dd>
 <dt id="current_working_directory" class="glossary">current working directory</dt>
 <dd class="glossary">The <g key="folder">folder</g> or <g key="directory">directory</g> location in which the program operates. Any action taken by the program occurs relative to this directory.</dd>
+<dt id="cycle" class="glossary">cycle (in a graph)</dt>
+<dd class="glossary">A set of links in a graph that leads from a node back to itself.</dd>
 <dt id="data_frame" class="glossary">data frame</dt>
 <dd class="glossary">A two-dimensional data structure for storing tabular data in memory. Rows represent <g key="record">records</g> and columns represent <g key="variable_data">variables</g>.</dd>
 <dt id="data_migration" class="glossary">data migration</dt>
@@ -454,6 +456,8 @@
 <dd class="glossary">The <g key="node">node</g> in a <g key="tree">tree</g> of which all other nodes are direct or indirect <g key="child_tree">children</g>, or equivalently the only node in the tree that has no <g key="parent_tree">parent</g>.</dd>
 <dt id="row_major" class="glossary">row-major storage</dt>
 <dd class="glossary">Storing each row of a two-dimensional array as one block of memory so that elements in the same column are far apart.</dd>
+<dt id="runnable_documentation" class="glossary">runnable documentation</dt>
+<dd class="glossary">Statements about code that can be executed to check their correctness, such as <g key="assertion">assertions</g> or <g key="type_declaration">type declarations</g>.</dd>
 <dt id="s3" class="glossary">S3</dt>
 <dd class="glossary">A framework for <g key="oop">object-oriented programming</g> in <g key="r_language">R</g>.</dd>
 <dt id="sandbox" class="glossary">sandbox</dt>
@@ -554,6 +558,8 @@
 <dd class="glossary">A data type that has a fixed number of parts, such as the three color components of a red-green-blue color specification. Tuples are immutable (their values can not be reset.)</dd>
 <dt id="two_hard_problems" class="glossary">two hard problems in computer science</dt>
 <dd class="glossary">Refers to a quote by Phil Karlton—&quot;There are only two hard problems in computer science—cache invalidation and naming things.&quot; Many variations add a third problem (most often &quot;<g key="off_by_one_error">off-by-one errors</g>&quot;).</dd>
+<dt id="type_declaration" class="glossary">type declaration</dt>
+<dd class="glossary">A statement in a program that a variable or value has a particular data type. Languages like Java require type declarations for all variables; they are optional in TypeScript and Python, and not allowed in pure JavaScript.</dd>
 <dt id="unicode" class="glossary">Unicode</dt>
 <dd class="glossary">A standard that defines numeric codes for many thousands of characters and symbols. Unicode does not define how those numbers are stored; that is done by standards like <g key="utf_8">UTF-8</g>.</dd>
 <dt id="unit_test" class="glossary">unit test</dt>
