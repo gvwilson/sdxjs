@@ -145,6 +145,49 @@ and the empty parentheses makes it impossible to tell
 whether we're talking about "the function itself" or "a call to the function with no parameters",
 which is confusing when we're passing functions as arguments.
 
+## How did we get here?
+
+In the early 2000s,
+the University of Toronto asked [Greg Wilson][wilson-greg]
+to teach an undergraduate course on software architecture.
+After delivering the course three times he told the university they should cancel it
+because of a lack of useful material:
+between them,
+the dozen textbooks he had purchased with the phrase "software architecture" in their titles
+devoted a total of less than 30 pages to describing the designs of actual systems.
+
+Frustrated by that,
+he and Andy Oram persuaded some well-known programmers to contribute a chapter each
+to a collection called *Beautiful Code* <cite>Oram2007</cite>,
+which went on to win the Jolt Award in 2007.
+Entries in the book described everything from figuring out whether three points are on a line
+to core components of Linux
+and the software for the Mars Rover,
+but the breadth that made them fun to read
+also meant they weren't particularly useful for teaching.
+
+To fix that,
+Greg Wilson, Amy Brown, Tavish Armstrong, and Mike DiBernardo
+edited a four-book series between 2011 and 2016 called *[The Architecture of Open Source Applications][aosa]*.
+In the first two volumes,
+the creators of 50 open source projects described their systems' designs;
+the third book explored the performance of those systems,
+while in the fourth and final volume,
+contributors built scale models of common tools
+as a way of demonstrating how those tools worked.
+These books were closer to what an instructor would need for an undergraduate class on software design,
+but still not quite right:
+the intended audience would probably not be familiar with many of the problem domains,
+and since each author used the programming language of their choice,
+much of the code would be hard to understand.
+
+*Software Tools in JavaScript* is meant to address these shortcomings:
+all of the code is written in one language,
+and the examples are all tools that programmers use daily.
+Most of the programs are less than 60 lines long and the longest is just over 300;
+we believe each chapter can be covered in class in 1-2 hours,
+while the exercises range in difficulty from a few minutes to a couple of days.
+
 ## How can people contribute?
 
 If you would like to improve what we have or add new material,

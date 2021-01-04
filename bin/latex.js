@@ -120,7 +120,20 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     // do nothing
   } else if (RECURSE_ONLY.has(node.name)) {
     childrenToLatex(options, fileInfo, node, accum)
-  } else if (node.name === 'a') {
+  } else if (node.name in HANDLERS) {
+    HANDLERS[node.name](options, fileInfo, node, accum)
+  } else {
+    console.error('unknown', node.name, fileInfo.filename, node.startIndex, '\n', node)
+    process.exit(1)
+  }
+  return accum
+}
+
+/**
+ * Handlers for node types.
+ */
+const HANDLERS = {
+  a: (options, fileInfo, node, accum) => {
     assert('href' in node.attribs,
            `link without href at ${fileInfo.filename} ${node.startIndex}`)
     accum.push('\\hreffoot{')
@@ -128,60 +141,91 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     accum.push('}{')
     accum.push(fullEscape(node.attribs.href))
     accum.push('}')
-  } else if (node.name === 'blockquote') {
+  },
+
+  blockquote: (options, fileInfo, node, accum) => {
     accum.push('\\begin{quotation}')
     childrenToLatex(options, fileInfo, node, accum)
     accum.push('\\end{quotation}')
-  } else if (node.name === 'br') {
+  },
+
+  br: (options, fileInfo, node, accum) => {
     accum.push(' ')
-  } else if (node.name === 'cite') {
+  },
+
+  cite: (options, fileInfo, node, accum) => {
     accum.push('\\cite{')
     node.children.forEach(child => htmlToText(child, accum, fullEscape))
     accum.push('}')
-  } else if (node.name === 'code') {
+  },
+
+  code: (options, fileInfo, node, accum) => {
     accum.push('\\texttt{')
     node.children.forEach(child => htmlToText(child, accum, fullEscape))
     accum.push('}')
-  } else if (node.name === 'div') {
+  },
+
+  div: (options, fileInfo, node, accum) => {
     const cls = node.attribs.class
-    if (cls === 'html-only') {
-      // skip
-    } else if (cls === 'latex-only') {
-      node.children.forEach(child => {
-        assert(child.type === 'text',
-          'latex-only divs may only contain text')
-        accum.push(child.data)
-      })
-    } else if (cls === 'callout') {
-      accum.push('\\begin{callout}')
-      childrenToLatex(options, fileInfo, node, accum)
-      accum.push('\\end{callout}')
-    } else if (cls === 'centered') {
-      accum.push('\n{\\centering\n')
-      childrenToLatex(options, fileInfo, node, accum)
-      accum.push('\n}\n')
-    } else if (cls === 'fixme') {
-      accum.push('\\fixme{')
-      childrenToLatex(options, fileInfo, node, accum)
-      accum.push('}')
-    } else if (cls === 'hint') {
-      accum.push('\\begin{hint}')
-      childrenToLatex(options, fileInfo, node, accum)
-      accum.push('\\end{hint}')
-    } else if (cls === 'subpage') {
-      accum.push('\\begin{lstlisting}[caption=FIXME]\n')
-      accum.push('FIXME display sub-page')
-      accum.push('\\end{lstlisting}')
-    } else if (cls === 'continue') {
-      accum.push('\\begin{unindented}')
-      childrenToLatex(options, fileInfo, node, accum)
-      accum.push('\\end{unindented}')
-    } else {
-      childrenToLatex(options, fileInfo, node, accum)
+    switch (cls) {
+      case 'html-only':
+        break
+
+      case 'latex-only':
+        node.children.forEach(child => {
+          assert(child.type === 'text',
+            'latex-only divs may only contain text')
+          accum.push(child.data)
+        })
+        break
+
+      case 'callout':
+        accum.push('\\begin{callout}')
+        childrenToLatex(options, fileInfo, node, accum)
+        accum.push('\\end{callout}')
+        break
+
+      case 'centered':
+        accum.push('\n{\\centering\n')
+        childrenToLatex(options, fileInfo, node, accum)
+        accum.push('\n}\n')
+        break
+
+      case 'fixme':
+        accum.push('\\fixme{')
+        childrenToLatex(options, fileInfo, node, accum)
+        accum.push('}')
+        break
+
+      case 'hint':
+        accum.push('\\begin{hint}')
+        childrenToLatex(options, fileInfo, node, accum)
+        accum.push('\\end{hint}')
+        break
+
+      case 'subpage':
+        accum.push('\\begin{lstlisting}[caption=FIXME]\n')
+        accum.push('FIXME display sub-page')
+        accum.push('\\end{lstlisting}')
+        break
+
+      case 'continue':
+        accum.push('\\begin{unindented}')
+        childrenToLatex(options, fileInfo, node, accum)
+        accum.push('\\end{unindented}')
+        break
+
+      default:
+        childrenToLatex(options, fileInfo, node, accum)
+        break
     }
-  } else if (node.name === 'dd') {
+  },
+
+  dd: (options, fileInfo, node, accum) => {
     childrenToLatex(options, fileInfo, node, accum)
-  } else if (node.name === 'dl') {
+  },
+
+  dl: (options, fileInfo, node, accum) => {
     const cls = node.attribs.class
     if (cls === 'bibliography') {
       accum.push('\\begin{thebibliography}{ABCD}')
@@ -192,7 +236,9 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
       childrenToLatex(options, fileInfo, node, accum)
       accum.push('\\end{description}')
     }
-  } else if (node.name === 'dt') {
+  },
+
+  dt: (options, fileInfo, node, accum) => {
     const cls = node.attribs.class
     if (cls === 'bibliography') {
       const key = node.attribs.id
@@ -215,22 +261,32 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
       childrenToLatex(options, fileInfo, node, accum)
       accum.push(']')
     }
-  } else if (node.name === 'em') {
+  },
+
+  em: (options, fileInfo, node, accum) => {
     accum.push('\\emph{')
     childrenToLatex(options, fileInfo, node, accum)
     accum.push('}')
-  } else if (node.name === 'f') {
+  },
+
+  f: (options, fileInfo, node, accum) => {
     const key = node.attribs.key
     accum.push(`\\figref{${key}}`)
-  } else if (node.name === 'figure') {
+  },
+
+  figure: (options, fileInfo, node, accum) => {
     accum.push(figureToLatex(options, fileInfo, node))
-  } else if (node.name === 'g') {
+  },
+
+  g: (options, fileInfo, node, accum) => {
     accum.push('\\glossref{')
     childrenToLatex(options, fileInfo, node, accum)
     accum.push('}{')
     accum.push(fullEscape(node.attribs.key))
     accum.push('}')
-  } else if (node.name === 'h1') {
+  },
+
+  h1: (options, fileInfo, node, accum) => {
     if ('latexBefore' in fileInfo) {
       accum.push(`${fileInfo.latexBefore}\n`)
     }
@@ -245,7 +301,9 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
       accum.push(fileInfo.slug)
       accum.push('}')
     }
-  } else if (node.name === 'h2') {
+  },
+
+  h2: (options, fileInfo, node, accum) => {
     const cls = node.attribs.class
     if (cls === 'lede') {
       accum.push('\n\\lede{')
@@ -256,7 +314,9 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
       childrenToLatex(options, fileInfo, node, accum)
       accum.push('}')
     }
-  } else if (node.name === 'h3') {
+  },
+
+  h3: (options, fileInfo, node, accum) => {
     const cls = node.attribs.class
     if (cls === 'callout') {
       accum.push('\\callouttitle{')
@@ -267,24 +327,36 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
       childrenToLatex(options, fileInfo, node, accum)
       accum.push('}')
     }
-  } else if (node.name === 'img') {
+  },
+
+  img: (options, fileInfo, node, accum) => {
     const src = node.attribs.src
     accum.push(`\\image{${src}}`)
-  } else if (node.name === 'key') {
+  },
+
+  key: (options, fileInfo, node, accum) => {
     accum.push('\\keystroke{')
     childrenToLatex(options, fileInfo, node, accum)
     accum.push('}')
-  } else if (node.name === 'li') {
+  },
+
+  li: (options, fileInfo, node, accum) => {
     accum.push('\\item ')
     childrenToLatex(options, fileInfo, node, accum)
-  } else if (node.name === 'ol') {
+  },
+
+  ol: (options, fileInfo, node, accum) => {
     accum.push('\\begin{enumerate}')
     childrenToLatex(options, fileInfo, node, accum)
     accum.push('\\end{enumerate}')
-  } else if (node.name === 'p') {
+  },
+
+  p: (options, fileInfo, node, accum) => {
     accum.push('\n')
     childrenToLatex(options, fileInfo, node, accum)
-  } else if (node.name === 'pre') {
+  },
+
+  pre: (options, fileInfo, node, accum) => {
     assert((node.children.length === 1) && (node.children[0].name === 'code'),
       'Expect pre to have one code child')
     const title = node.attribs.title
@@ -292,31 +364,47 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
     accum.push(`\\begin{lstlisting}${caption}\n`)
     node.children[0].children.forEach(child => htmlToText(child, accum, nonAsciiEscape))
     accum.push('\\end{lstlisting}')
-  } else if (node.name === 'strong') {
+  },
+
+  strong: (options, fileInfo, node, accum) => {
     accum.push('\\textbf{')
     childrenToLatex(options, fileInfo, node, accum)
     accum.push('}')
-  } else if (node.name === 'sub') {
+  },
+
+  sub: (options, fileInfo, node, accum) => {
     accum.push('\\textsubscript{')
     childrenToLatex(options, fileInfo, node, accum)
     accum.push('}')
-  } else if (node.name === 'sup') {
+  },
+
+  sup: (options, fileInfo, node, accum) => {
     accum.push('\\textsuperscript{')
     childrenToLatex(options, fileInfo, node, accum)
     accum.push('}')
-  } else if (node.name === 'table') {
+  },
+
+  table: (options, fileInfo, node, accum) => {
     accum.push(tableToLatex(options, fileInfo, node))
-  } else if (node.name === 'td') {
+  },
+
+  td: (options, fileInfo, node, accum) => {
     childrenToLatex(options, fileInfo, node, accum)
-  } else if (node.name === 'th') {
+  },
+
+  th: (options, fileInfo, node, accum) => {
     accum.push('\\tablehead{')
     childrenToLatex(options, fileInfo, node, accum)
     accum.push('}')
-  } else if (node.name === 'ul') {
+  },
+
+  ul: (options, fileInfo, node, accum) => {
     accum.push('\\begin{itemize}')
     childrenToLatex(options, fileInfo, node, accum)
     accum.push('\\end{itemize}')
-  } else if (node.name === 'x') {
+  },
+
+  x: (options, fileInfo, node, accum) => {
     const key = node.attribs.key
     assert(key,
            'Cross-reference does not contain key attribute')
@@ -329,11 +417,7 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
       childrenToLatex(options, fileInfo, node, accum)
       accum.push(` (${text})`)
     }
-  } else {
-    console.error('unknown', node.name, fileInfo.filename, node.startIndex, '\n', node)
-    process.exit(1)
   }
-  return accum
 }
 
 /**
