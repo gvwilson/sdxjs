@@ -1,3 +1,4 @@
+// <block>
 export class Block {
   constructor (width, height) {
     this.width = width
@@ -12,7 +13,9 @@ export class Block {
     return this.height
   }
 }
+// </block>
 
+// <row>
 export class Row {
   constructor (...children) {
     this.children = children
@@ -34,7 +37,9 @@ export class Row {
     return result
   }
 }
+// </row>
 
+// <col>
 export class Col {
   constructor (...children) {
     this.children = children
@@ -56,3 +61,4 @@ export class Col {
     return result
   }
 }
+// </col>

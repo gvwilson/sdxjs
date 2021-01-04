@@ -68,64 +68,40 @@
   <h1>Layout Engine</h1>
   <h2 class="lede">Figuring out what goes where in a web page</h2>
 <div class="callout">
-  <p>Terms defined: <g key="coupling">coupling</g>, <g key="dom">Document Object Model (DOM)</g>, <g key="dom_selector">DOM selector</g>, <g key="easy_mode">easy mode</g>, <g key="mixin-class">mixin class</g></p>
+  <p>Terms defined: <g key="attribute">attribute</g>, <g key="cache">cache</g>, <g key="confirmation_bias">confirmation bias</g>, <g key="coupling">coupling</g>, <g key="dom_selector">DOM selector</g>, <g key="easy_mode">easy mode</g>, <g key="json">JavaScript Object Notation (JSON)</g>, <g key="layout_engine">layout engine</g>, <g key="precedence">precedence</g>, <g key="signature">signature</g></p>
 </div>
-<p>A pure-text layout engine showing how browsers decide what to put where,
-based on <a href="https://limpet.net/mbrubeck/">Matt Brubeck</a>'s <a href="https://limpet.net/mbrubeck/2014/08/08/toy-layout-engine-1.html">tutorial</a>.</p>
-<ul>
-<li>Inputs are:
-<ul>
-<li>A very small subset of HTML, which is converted to <g key="dom">DOM</g> nodes</li>
-<li>A very small subset of CSS (which we represent as JSON so that we don't have to write another parser)</li>
-</ul>
-</li>
-<li>Processing is:
-<ul>
-<li>Produce a tree of styled nodes from the DOM</li>
-<li>Walk this tree to figure out where each visible element belongs</li>
-<li>Render this as plain text</li>
-</ul>
-</li>
-<li>Coordinate system puts (0, 0) in the upper left corner
-<ul>
-<li>Increasing Y goes down</li>
-<li>Increasing X goes to the right</li>
-</ul>
-</li>
-</ul>
+<p>You might be reading this as an HTML page,
+an e-book (which is basically the same thing),
+or on the printed page.
+In all three cases,
+a piece of software took some text and some layout instructions
+and decided where each character and image was going to go.
+A tool that does that is called a <g key="layout_engine">layout engine</g>,
+and in this chapter we will build a small one
+based on <a href="https://limpet.net/mbrubeck/">Matt Brubeck</a>'s <a href="https://limpet.net/mbrubeck/2014/08/08/toy-layout-engine-1.html">tutorial</a>
+to explore how browsers decide what to put where.</p>
+<p>Our inputs will be a very small subset of HTML and an equally small subset of CSS.
+To keep things simple
+we will create our own classes for these instead of using those provided by
+various <a href="https://nodejs.org/en/">Node</a> libraries.
+To translate the combination of HTML and CSS into text on the screen,
+we will label each node in the DOM tree with the appropriate styles,
+walk that tree to figure out where each visible element belongs,
+and then draw the result as text on the screen.</p>
+<div class="callout">
+<h3 id="upside-down">Upside down</h3>
+<p>The coordinate systems for screens put (0, 0) in the upper left corner instead of the lower left.
+X increases to the right as usual,
+but Y increases as we go down, rather than up
+(<f key="layout-engine-coordinate-system"></f>).
+This convention is a holdover from the days of teletype terminals,
+which printed each successive line below the one before it.</p>
+</div>
 <figure id="layout-engine-coordinate-system" class="fixme"><img src="/static/tools-small.jpg" alt="Coordinate system"/><figcaption>Coordinate system with (0, 0) in the upper left corner.</figcaption></figure>
 <h2 id="how-can-we-size-rows-and-columns">How can we size rows and columns?</h2>
-<ul>
-<li>Let's start on <g key="easy_mode">easy mode</g>
-<ul>
-<li>No margins or padding or stretching or wrapping or…</li>
-</ul>
-</li>
-<li>A cell is a row, a column, or a block</li>
-<li>A block has a fixed width and height</li>
-<li>A row arranges one or more cells horizontally
-<ul>
-<li>Its width is the sum of the widths of its children</li>
-<li>Its height is the maximum height of any of its children</li>
-</ul>
-</li>
-<li>A column arranges one or more cells vertically
-<ul>
-<li>Its width is the maximum width of its children</li>
-<li>Its height is the sum of the heights of its children</li>
-</ul>
-</li>
-</ul>
-<figure id="layout-engine-sizing" class="fixme"><img src="/static/tools-small.jpg" alt="Calculating sizes of fixed blocks"/><figcaption>Calculating sizes of blocks with fixed width and height.</figcaption></figure>
-<ul>
-<li>Represent the tree as nested objects</li>
-<li>Calculate width and height each time they're needed
-<ul>
-<li>Inefficient: could calculate both at the same time</li>
-<li>And cache values and have a &quot;changed&quot; marker and all the other things browsers do to go faster</li>
-</ul>
-</li>
-</ul>
+<p>Let's start on <g key="easy_mode">easy mode</g> without margins, padding, line-wrapping, or other complications.
+We define a cell as a row, a column, or a block.
+A block has a fixed width and height (hence the name):</p>
 <pre title="easy-mode.js"><code class="language-js">export class Block {
   constructor (width, height) {
     this.width = width
@@ -139,9 +115,14 @@ based on <a href="https://limpet.net/mbrubeck/">Matt Brubeck</a>'s <a href="http
   getHeight () {
     return this.height
   }
-}
-
-export class Row {
+}</code></pre>
+<div class="continue">
+<p>A row arranges one or more cells horizontally;
+its width is the sum of the widths of its children,
+while its height is the maximum height of any of its children
+(<f key="layout-engine-sizing"></f>):</p>
+</div>
+<pre title="easy-mode.js"><code class="language-js">export class Row {
   constructor (...children) {
     this.children = children
   }
@@ -161,9 +142,15 @@ export class Row {
     }
     return result
   }
-}
-
-export class Col {
+}</code></pre>
+<div class="continue">
+<p>Finally,
+a column arranges one or more cells vertically;
+its width is the maximum width of its children,
+and its height is the sum of the heights of its children.
+(Here and elsewhere we use the abbreviation <code>col</code> when referring to columns.)</p>
+</div>
+<pre title="easy-mode.js"><code class="language-js">export class Col {
   constructor (...children) {
     this.children = children
   }
@@ -183,8 +170,18 @@ export class Col {
     }
     return result
   }
-}
-</code></pre>
+}</code></pre>
+<p>We represent a tree of cells as a collection of nested objects
+and recalculate the width and height of each cell each time they're needed.
+This is simple but inefficient:
+we could calculate both width and height at the same time
+and <g key="cache">cache</g> calculated values to avoid recalculation,
+but it's called &quot;easy mode&quot; for a reason.</p>
+<figure id="layout-engine-sizing" class="fixme"><img src="/static/tools-small.jpg" alt="Calculating sizes of fixed blocks"/><figcaption>Calculating sizes of blocks with fixed width and height.</figcaption></figure>
+<p>As simple as it is,
+this code could still contain errors (and did during development),
+so we write some <a href="https://mochajs.org/">Mocha</a> tests to check that it works as desired
+before trying to build anything more complicated:</p>
 <pre title="test/test-easy-mode.js"><code class="language-js">import assert from 'assert'
 
 import {
@@ -260,33 +257,27 @@ describe('lays out in easy mode', () =&gt; {
   5 passing (5ms)
 </code></pre>
 <h2 id="how-can-we-position-rows-and-columns">How can we position rows and columns?</h2>
-<ul>
-<li>Suppose we start with the upper left corner of the browser (0, 0)
-<ul>
-<li>Upper because we lay out the page top-to-bottom</li>
-<li>Left because we are doing left-to-right layout</li>
-</ul>
-</li>
-<li>If the cell is a block, just place it</li>
-<li>If the cell is a row:
-<ul>
-<li>Calculate y1 = y0 + height</li>
-<li>Place the first child at (x0, y1)</li>
-<li>Place the next child at (x0 + width, y1)</li>
-</ul>
-</li>
-<li>If the cell is a column:
-<ul>
-<li>Place the first child at (x0, y0 + height0)</li>
-<li>Place the next at (x0, y0 + height0 + height1), etc.</li>
-</ul>
-</li>
-</ul>
+<p>Now that we know how big each cell is
+we can figure out where to put it.
+Suppose we start with the upper left corner of the browser:
+upper because we lay out the page top-to-bottom
+and left because we are doing left-to-right layout.
+If the cell is a block, we just place it there.
+If the cell is a row, on the other hand,
+we gets its height
+and then calculate its lower edge as y1 = y0 + height.
+We then place the first child's lower-left corner at (x0, y1),
+the second child's at (x0 + width0, y1), and so on.
+Similarly,
+if the cell is a column
+we place the first child at (x0, y0),
+the next at (x0, y0 + height0),
+and so on
+(<f key="layout-engine-layout"></f>).</p>
 <figure id="layout-engine-layout" class="fixme"><img src="/static/tools-small.jpg" alt="Laying out rows and columns"/><figcaption>Laying out rows and columns of fixed-size blocks.</figcaption></figure>
-<ul>
-<li>Derive classes from previous classes to save testing</li>
-<li>Blocks</li>
-</ul>
+<p>To save ourselves some testing we will derive the classes that know how to do layout
+from the classes we wrote before.
+Our blocks are:</p>
 <pre title="placed.js"><code class="language-js">export class PlacedBlock extends Block {
   constructor (width, height) {
     super(width, height)
@@ -307,9 +298,9 @@ describe('lays out in easy mode', () =&gt; {
     ]
   }
 }</code></pre>
-<ul>
-<li>Columns</li>
-</ul>
+<div class="continue">
+<p>while our columns are:</p>
+</div>
 <pre title="placed.js"><code class="language-js">export class PlacedCol extends Col {
   constructor (...children) {
     super(...children)
@@ -336,9 +327,9 @@ describe('lays out in easy mode', () =&gt; {
     ]
   }
 }</code></pre>
-<ul>
-<li>Rows</li>
-</ul>
+<div class="continue">
+<p>and our rows are:</p>
+<div class="continue">
 <pre title="placed.js"><code class="language-js">export class PlacedRow extends Row {
   constructor (...children) {
     super(...children)
@@ -367,9 +358,8 @@ describe('lays out in easy mode', () =&gt; {
     ]
   }
 }</code></pre>
-<ul>
-<li>Write and run some tests</li>
-</ul>
+<p>Once again,
+we write and run some tests to check that everything is doing what it's supposed to:</p>
 <pre title="test/test-placed.js"><code class="language-js">import assert from 'assert'
 
 import {
@@ -446,36 +436,46 @@ describe('places blocks', () =&gt; {
   5 passing (6ms)
 </code></pre>
 <h2 id="how-can-we-render-elements">How can we render elements?</h2>
-<ul>
-<li>Element coordinates are good for testing but not good for understanding</li>
-<li>Create a &quot;screen&quot; of space characters</li>
-</ul>
-<pre title="render.js"><code class="language-js">const makeScreen = (width, height) =&gt; {
-  const screen = []
-  for (let i = 0; i &lt; height; i += 1) {
-    screen.push(new Array(width).fill(' '))
-  }
-  return screen
-}</code></pre>
-<ul>
-<li>Fill in blocks using successive letters</li>
-<li>Children draw over their parents</li>
-</ul>
-<pre title="render.js"><code class="language-js">const makeScreen = (width, height) =&gt; {
-  const screen = []
-  for (let i = 0; i &lt; height; i += 1) {
-    screen.push(new Array(width).fill(' '))
-  }
-  return screen
-}</code></pre>
+<p>We drew the blocks on a piece of graph paper
+in order to figure out the expected answers for the tests shown above.
+We can do something similar in software by creating a &quot;screen&quot; of space characters
+and then having each block draw itself in the right place.
+If we do this starting at the root of the tree,
+child blocks will overwrite the markings made by their parents,
+which will automatically produce the right appearance
+(<f key="layout-engine-draw-over"></f>).</p>
 <figure id="layout-engine-draw-over" class="fixme"><img src="/static/tools-small.jpg" alt="Children drawing over their parents"/><figcaption>Render blocks by drawing child nodes on top of parent nodes.</figcaption></figure>
-<ul>
-<li>JavaScript doesn't support <g key="mixin-class">mixin classes</g>
-<ul>
-<li>Add shared functionality after the fact by giving classes methods with the same [signatures][signature]</li>
-</ul>
-</li>
-</ul>
+<p>Making our pretend screen is a simple matter of creating an array of arrays:</p>
+<pre title="render.js"><code class="language-js">const makeScreen = (width, height) =&gt; {
+  const screen = []
+  for (let i = 0; i &lt; height; i += 1) {
+    screen.push(new Array(width).fill(' '))
+  }
+  return screen
+}</code></pre>
+<p>We will use successive lower-case characters to show each block,
+i.e.,
+the root block will draw itself using 'a',
+while its children will be 'b', 'c', and so on.</p>
+<pre title="render.js"><code class="language-js">const draw = (screen, node, fill = null) =&gt; {
+  fill = nextFill(fill)
+  node.render(screen, fill)
+  if ('children' in node) {
+    node.children.forEach(child =&gt; {
+      fill = draw(screen, child, fill)
+    })
+  }
+  return fill
+}
+
+const nextFill = (fill) =&gt; {
+  return (fill === null)
+    ? 'a'
+    : String.fromCharCode(fill.charCodeAt() + 1)
+}</code></pre>
+<p>To teach each kind of cell how to render itself,
+we have to derive a new class from each of the ones we have
+and give the new class a <code>render</code> method with the same <g key="signature">signature</g>:</p>
 <pre title="rendered.js"><code class="language-js">import {
   PlacedBlock,
   PlacedCol,
@@ -510,9 +510,18 @@ const drawBlock = (screen, node, fill) =&gt; {
 }
 // &lt;/keep&gt;
 </code></pre>
-<ul>
-<li>Tests are a little easier to read (sort of)</li>
-</ul>
+<div class="continue">
+<p>These <code>render</code> methods do exactly the same thing,
+so we have each one call a shared function that does the actual work.
+If we were building this code for real,
+we would go back and create a class called <code>Cell</code> with this <code>render</code> method,
+then derive our original easy-mode <code>Block</code>, <code>Row</code>, and <code>Col</code> classes from that.</p>
+</div>
+</div>
+</div>
+<p>Once we have rendering in place,
+our simpler tests are a little easier to read,
+though we still had to draw things on graph paper to figure out our complex ones:</p>
 <pre title="test/test-rendered.js"><code class="language-js">  it('renders a grid of rows of columns', async () =&gt; {
     const fixture = new Col(
       new Row(
@@ -545,25 +554,35 @@ const drawBlock = (screen, node, fill) =&gt; {
       ].join('\n')
     )
   })</code></pre>
+<div class="continue">
+<p>The fact that we find our own tests difficult to understand
+is a sign that we should do more testing.
+It would be very easy for us to get a wrong result
+and convince ourselves that it was actually correct;
+<g key="confirmation_bias">confirmation bias</g> of this kind
+is very common in software development.</p>
+</div>
 <h2 id="how-can-we-wrap-elements-to-fit">How can we wrap elements to fit?</h2>
-<ul>
-<li>Suppose we fix the width of a row
-<ul>
-<li>For now, assume all its children are less than or equal to this width</li>
-</ul>
-</li>
-<li>Layout may need to wrap around
-<ul>
-<li>Assume columns can always be made as big as they need to be</li>
-</ul>
-</li>
-<li>Solve the problem by transforming the tree</li>
-<li>Blocks and columns become themselves
-<ul>
-<li>But we need to wrap columns' children, so that class still needs a new method</li>
-</ul>
-</li>
-</ul>
+<p>One of the biggest differences between a browser and a printed page
+is that the text in the browser wraps itself automatically as the window is resized.
+The other, these days, is that the printed page doesn't spy on us,
+though someone is undoubtedly working on that...</p>
+<p>To add this to our layout engine,
+suppose we fix the width of a row.
+(For now,
+we will assume all of the row's children are less than or equal to this width;
+we will look at what happens when they're not in the exercises.)
+If the total width of the children is greater than the row's width,
+the layout engine needs to wrap the children around.
+This assumes that columns can be made as big as they need to be,
+i.e.,
+that we can grow vertically to make up for limited space horizontally.</p>
+<p>Our layout engine manages this by transforming the tree.
+The height and width of blocks are fixed,
+so they become themselves.
+Columns become themselves as well,
+but since they have children that might need to wrap,
+the class representing columns needs a new method:</p>
 <pre title="wrapped.js"><code class="language-js">export class WrappedBlock extends PlacedBlock {
   wrap () {
     return this
@@ -576,18 +595,16 @@ export class WrappedCol extends PlacedCol {
     return new PlacedCol(...children)
   }
 }</code></pre>
-<ul>
-<li>Each row is replaced with a row containing a single column with one or more rows (wrapping)
-<ul>
-<li>Replacement is unnecessary when everything will fit on a single row, but uniform is easier to code</li>
-</ul>
-</li>
-</ul>
+<p>Rows do all the hard work.
+Each row is replaced with a row containing a single column with one or more rows,
+each of which is one &quot;line&quot; of wrapped cells
+(<f key="layout-engine-wrap"></f>).
+This replacement is unnecessary when everything will fit on a single row,
+but it's easiest to write the code that does it every time;
+we will look at making this more efficient in the exercises.</p>
 <figure id="layout-engine-wrap" class="fixme"><img src="/static/tools-small.jpg" alt="Wrapping rows"/><figcaption>Wrapping rows by introducing a new row and column.</figcaption></figure>
-<ul>
-<li>Constructor takes the width followed by the children</li>
-<li>Return the fixed width when asked</li>
-</ul>
+<p>Our new wrappable row's constructor takes a fixed width followed by the children
+and returns that fixed width when asked for its size:</p>
 <pre title="wrapped.js"><code class="language-js">export class WrappedRow extends PlacedRow {
   constructor (width, ...children) {
     super(...children)
@@ -601,9 +618,8 @@ export class WrappedCol extends PlacedCol {
   }
 ...
 }</code></pre>
-<ul>
-<li>Wrapping puts children into buckets, then converts the buckets to a row of a column of rows</li>
-</ul>
+<p>Wrapping puts the row's children into buckets,
+then converts the buckets to a row of a column of rows:</p>
 <pre title="wrapped.js"><code class="language-js">  wrap () {
     const children = this.children.map(child =&gt; child.wrap())
     const rows = []
@@ -627,10 +643,9 @@ export class WrappedCol extends PlacedCol {
     const newCol = new PlacedCol(...newRows)
     return new PlacedRow(newCol)
   }</code></pre>
-<ul>
-<li>Bring forward all the previous tests</li>
-<li>Write some new ones</li>
-</ul>
+<p>Once again we bring forward all the previous tests,
+which should produce the same answers as before,
+and write some new ones to test the functionality we've added:</p>
 <pre title="test/test-wrapped.js"><code class="language-js">  it('wrap a row of two blocks that do not fit on one row', async () =&gt; {
     const fixture = new Row(
       3,
@@ -653,28 +668,37 @@ export class WrappedCol extends PlacedCol {
       ]
     )
   })</code></pre>
-<h2 id="what-subset-of-css-will-we-support">What subset of CSS will we support?</h2>
-<ul>
-<li>Our subset of HTML includes rows, columns, and text blocks</li>
-<li>Each text block has one or more lines of text
-<ul>
-<li>Number of lines determines height</li>
-<li>Length of longest line determines width</li>
-</ul>
-</li>
-<li>Rows and columns can have attributes
-<ul>
-<li>Each attribute must have a single quoted value</li>
-<li>Rows no longer take a fixed width: our CSS will handle that</li>
-</ul>
-</li>
-</ul>
-<pre title="micro-dom.js"><code class="language-js">import {
-  WrappedBlock,
-  WrappedCol,
-  WrappedRow
-} from './wrapped.js'
+<pre title="test-wrapped.out"><code class="language-out">
+&gt; stjs@1.0.0 test /u/stjs
+&gt; mocha */test/test-*.js "-g" "wraps blocks"
 
+
+
+  wraps blocks
+    ✓ wraps a single unit block
+    ✓ wraps a large block
+    ✓ wrap a row of two blocks that fit on one row
+    ✓ wraps a column of two blocks
+    ✓ wraps a grid of rows of columns that all fit on their row
+    ✓ wrap a row of two blocks that do not fit on one row
+    ✓ wrap multiple blocks that do not fit on one row
+
+
+  7 passing (9ms)
+</code></pre>
+<h2 id="what-subset-of-css-will-we-support">What subset of CSS will we support?</h2>
+<p>It's now time to do something a little more realistic.
+Our final subset of HTML includes rows, columns, and text blocks as before.
+Each text block has one or more lines of text;
+the number of lines determines the block's height
+while the length of the longest line determines its width.</p>
+<p>Rows and columns can have <g key="attribute">attributes</g> just as they can in real HTML.
+Each attribute must have a single quoted value,
+and rows no longer take a fixed width:
+our little subset of CSS will handle that.
+Together,
+these three classes are just over 40 lines of code:</p>
+<pre title="micro-dom.js"><code class="language-js">...
 export class DomBlock extends WrappedBlock {
   constructor (lines) {
     super(
@@ -719,10 +743,9 @@ export class DomRow extends WrappedRow {
   }
 }
 </code></pre>
-<ul>
-<li>Use regular expressions to parse documents, though <a href="https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454">this is a sin</a></li>
-<li>Main body</li>
-</ul>
+<p>We will use regular expressions to parse HTML,
+though <a href="https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454">this is a sin</a>.
+The main body of our parser is:</p>
 <pre title="parse.js"><code class="language-js">import assert from 'assert'
 
 import {
@@ -769,9 +792,9 @@ const isElement = (chunk) =&gt; {
 ...
 export default parseHTML
 </code></pre>
-<ul>
-<li>Two functions that do most of the work</li>
-</ul>
+<div class="continue">
+<p>while the two functions that do most of the work are:</p>
+</div>
 <pre title="parse.js"><code class="language-js">const makeNode = (chunks) =&gt; {
   assert(chunks.length &gt; 0,
     'Cannot make nodes without chunks')
@@ -813,14 +836,15 @@ const makeOpening = (chunk) =&gt; {
     `Unrecognized tag name ${tag}`)
   return new Cls(attributes)
 }</code></pre>
-<ul>
-<li>Now define a generic class for rules and a subclass for each type of rule</li>
-<li>ID rules take precedence over class rules, which take precedence over tag rules
-<ul>
-<li>Number the derived classes</li>
-</ul>
-</li>
-</ul>
+<p>The next step is to define a generic class for CSS rules
+with a subclass for each type of rule.
+From highest <g key="precedence">precedence</g> to lowest,
+the three types of rules we support identify specific nodes via their ID,
+classes of nodes via their <code>class</code> attribute,
+and then types of nodes via their element name
+(<f key="layout-engine-css-precedence"></f>).</p>
+<figure id="layout-engine-css-precedence" class="fixme"><img src="/static/tools-small.jpg" alt="Precedence of CSS rules"/><figcaption>Numbering CSS rules to define precedence.</figcaption></figure>
+<p>We keep track of these precedences through the simple expedient of numbering the classes:</p>
 <pre title="micro-css.js"><code class="language-js">export class CssRule {
   constructor (order, selector, styles) {
     this.order = order
@@ -828,15 +852,8 @@ const makeOpening = (chunk) =&gt; {
     this.styles = styles
   }
 }</code></pre>
-<figure id="layout-engine-css-precedence" class="fixme"><img src="/static/tools-small.jpg" alt="Precedence of CSS rules"/><figcaption>Numbering CSS rules to define precedence.</figcaption></figure>
-<ul>
-<li>ID rules
-<ul>
-<li><g key="dom_selector">DOM selector</g> of the form <code>#name</code></li>
-<li>HTML of the form <code>&lt;tag id=&quot;name&quot;&gt;…&lt;/tag&gt;</code> (where <code>tag</code> is <code>row</code> or <code>col</code>)</li>
-</ul>
-</li>
-</ul>
+<p>An ID rule has a <g key="dom_selector">DOM selector</g> of the form <code>#name</code>
+and matches HTML of the form <code>&lt;tag id=&quot;name&quot;&gt;…&lt;/tag&gt;</code> (where <code>tag</code> is <code>row</code> or <code>col</code>):</p>
 <pre title="micro-css.js"><code class="language-js">export class IdRule extends CssRule {
   constructor (selector, styles) {
     assert(selector.startsWith('#') &amp;&amp; (selector.length &gt; 1),
@@ -851,15 +868,9 @@ const makeOpening = (chunk) =&gt; {
   }
 }
 IdRule.ORDER = 0</code></pre>
-<ul>
-<li>Class rules
-<ul>
-<li>DOM selector of the form <code>.kind</code></li>
-<li>HTML of the form <code>&lt;tag class=&quot;kind&quot;&gt;…&lt;/tag&gt;</code></li>
-<li>Only one class per node</li>
-</ul>
-</li>
-</ul>
+<p>A class rule has a DOM selector of the form <code>.kind</code> and matches HTML of the form <code>&lt;tag class=&quot;kind&quot;&gt;…&lt;/tag&gt;</code>.
+Unlike real CSS,
+we only allow one class per node:</p>
 <pre title="micro-css.js"><code class="language-js">export class ClassRule extends CssRule {
   constructor (selector, styles) {
     assert(selector.startsWith('.') &amp;&amp; (selector.length &gt; 1),
@@ -874,14 +885,8 @@ IdRule.ORDER = 0</code></pre>
   }
 }
 ClassRule.ORDER = 1</code></pre>
-<ul>
-<li>Tag rules
-<ul>
-<li>DOM selector of the form <code>tag</code></li>
-<li>HTML of the form <code>&lt;tag&gt;…&lt;/tag&gt;</code></li>
-</ul>
-</li>
-</ul>
+<p>Finally,
+tag rules are identified by having just the name of the type of node they apply to:</p>
 <pre title="micro-css.js"><code class="language-js">export class TagRule extends CssRule {
   constructor (selector, styles) {
     super(TagRule.ORDER, selector, styles)
@@ -892,21 +897,8 @@ ClassRule.ORDER = 1</code></pre>
   }
 }
 TagRule.ORDER = 2</code></pre>
-<ul>
-<li>Convert JSON to rule objects
-<ul>
-<li>Saves us writing yet another parser</li>
-<li>Really should have the CSS rule classes look at the rule and decide if it's theirs using a <code>static</code> method</li>
-<li>Would reduce the <g key="coupling">coupling</g> between the classes</li>
-<li>Of course, then we'd have to stop accessing objects' attributes directly…</li>
-</ul>
-</li>
-<li>Provide a method for finding the rules for a given DOM node
-<ul>
-<li>Requires custom sorting that depends on CSS classes having a precedence order</li>
-</ul>
-</li>
-</ul>
+<p>We could write yet another parser to read a subset of CSS and convert it to objects,
+but it's simpler to store the CSS as <g key="json">JSON</g>:</p>
 <pre title="micro-css.js"><code class="language-js">export class CssRuleSet {
   constructor (json, mergeDefaults = true) {
     this.rules = this.jsonToRules(json)
@@ -932,9 +924,14 @@ TagRule.ORDER = 2</code></pre>
     return sorted
   }
 }</code></pre>
-<ul>
-<li>Tests</li>
-</ul>
+<div class="continue">
+<p>Our CSS ruleset class also has a method for finding the rules for a given DOM node.
+This makes use of a custom sort that depends on CSS classes having a precedence order.
+We really should have the CSS rule classes look at the rule and decide if it's theirs using a <code>static</code> method
+in order to reduce the <g key="coupling">coupling</g> between the classes.
+Of course, we should also stop accessing the objects' attributes directly…</p>
+</div>
+<p>Here's our final set of tests:</p>
 <pre title="test/test-styled.js"><code class="language-js">  it('styles a tree of nodes with multiple rules', async () =&gt; {
     const html = [
       '&lt;col id="name"&gt;',
@@ -960,17 +957,13 @@ TagRule.ORDER = 2</code></pre>
       new TagRule('row', { width: 10 })
     ])
   })</code></pre>
-<ul>
-<li>Now override <code>getWidth</code> and <code>getHeight</code> to pay attention to styles</li>
-<li>But what about nodes that don't have a style?
-<ul>
-<li>Use a default</li>
-<li>Base it on child nodes' needs</li>
-<li>Flag as an error</li>
-</ul>
-</li>
-<li>Will explore these possibilities in the exercises</li>
-</ul>
+<p>If we were going to go on,
+we would override the cells' <code>getWidth</code> and <code>getHeight</code> methods to pay attention to styles.
+But what about nodes that don't have a style?
+We could use a default,
+base it on the needs of the child nodes,
+or flag it as an error.
+We will explore these possibilities in the exercises.</p>
 <h2 id="exercises">Exercises</h2>
 <h3 class="exercise">Refactoring the node classes</h3>
 <p>Refactor the classes used to represent blocks, rows, and columns so that:</p>
