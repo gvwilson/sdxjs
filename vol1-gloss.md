@@ -258,6 +258,8 @@
 <dd class="glossary">A function that turns arbitrary data into a bit array, or a <g key="key">key</g>, of a fixed size. Hash functions are used to determine where data should be stored in a <g key="hash_table">hash table</g>.</dd>
 <dt id="hash_table" class="glossary">hash table</dt>
 <dd class="glossary">A data structure that calculates a pseudo-random key (location) for each value passed to it and stores the value in that location. Hash tables enable fast lookup for arbitrary data. This occurs at the cost of extra memory because hash tables must always be larger than the amount of information they need to store, to avoid the possibility of data collisions, when the hash function returns the same key for two different values.</dd>
+<dt id="header_file" class="glossary">header file</dt>
+<dd class="glossary">In C and C++, a file that defines constants and function <g key="signature">signatures</g> but does not contain runnable code. Header files tell the including file what is defined in other files so that the compiler can generate correct code.</dd>
 <dt id="heterogeneous" class="glossary">heterogeneous</dt>
 <dd class="glossary">Containing mixed data types. For example, in <g key="python">Python</g> and <g key="r_language">R</g>, a <g key="list">list</g> can contain a mix of numbers, character strings, and values of other types.</dd>
 <dt id="heuristic" class="glossary">heuristic</dt>
@@ -334,6 +336,8 @@
 <dd class="glossary">A <g key="vector">vector</g> that can contain values of many different (<g key="heterogeneous">heterogeneous</g>) types.</dd>
 <dt id="literal" class="glossary">literal</dt>
 <dd class="glossary">A representation of a fixed value in a program, such as the digits <code>123</code> for the number 123 or the characters <code>&quot;abc&quot;</code> for the string containing those three letters.</dd>
+<dt id="loader" class="glossary">loader</dt>
+<dd class="glossary">A function whose job is to read files containing runnable code into memory and make that code available to the calling program.</dd>
 <dt id="local_variable" class="glossary">local variable</dt>
 <dd class="glossary">A variable defined inside a function which is only visible within that function.</dd>
 <dt id="log" class="glossary">log</dt>
@@ -486,6 +490,8 @@
 <dd class="glossary">Typically, a program such as a database manager or web server that provides data to a <g key="client">client</g> upon request.</dd>
 <dt id="shell" class="glossary">shell</dt>
 <dd class="glossary">A <g key="cli">command-line interface</g> that allows a user to interact with the <g key="operating_system">operating system</g>, such as Bash (for Unix and MacOS) or PowerShell (for Windows).</dd>
+<dt id="shell_variable" class="glossary">shell variable</dt>
+<dd class="glossary">A variable set and used in the <g key="shell">Unix shell</g>. Commonly-used shell variables include <code>HOME</code> (the user's home directory) and <code>PATH</code> (their <g key="search_path">search path</g>).</dd>
 <dt id="side_effect" class="glossary">side effect</dt>
 <dd class="glossary">A change made by a function while it runs that is visible after the function finishes, such as modifying a <g key="global_variable">global variable</g> or writing to a file. Side effects make programs harder for people to understand, since the effects are not necessarily clear at the point in the program where the function is called.</dd>
 <dt id="signature" class="glossary">signature</dt>
