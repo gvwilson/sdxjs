@@ -192,6 +192,8 @@
 <dd class="glossary">A problem that only comes up under unusual circumstances or when a system is pushed to its limits; also sometimes called a <g key="corner_case">corner case</g>. Programs intended for widespread use have to handle edge cases, but doing so can make them much more complicated.</dd>
 <dt id="element" class="glossary">element</dt>
 <dd class="glossary">A named component in an <g key="html">HTML</g> or <g key="xml">XML</g> document. Elements are usually written <code>&lt;name&gt;</code>...<code>&lt;/name&gt;</code>, where &quot;...&quot; represents the content of the element. Elements often have <g key="attribute">attributes</g>.</dd>
+<dt id="encapsulate" class="glossary">encapsulate</dt>
+<dd class="glossary">To store data inside some kind of structure so that it is only accessible through that structure.</dd>
 <dt id="entry_point" class="glossary">entry point</dt>
 <dd class="glossary">Where a program begins executing.</dd>
 <dt id="environment" class="glossary">environment</dt>

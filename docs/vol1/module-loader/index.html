@@ -68,45 +68,34 @@
   <h1>Module Loader</h1>
   <h2 class="lede">Loading source files as modules</h2>
 <div class="callout">
-  <p>Terms defined: <g key="cache">cache</g>, <g key="circular_dependency">circular dependency</g>, <g key="closure">closure</g>, <g key="compiled_language">compiled language</g>, <g key="directed_graph">directed graph</g>, <g key="iife">immediately-invoked function expression (IIFE)</g>, <g key="interpreted_language">interpreted language</g>, <g key="link">link (a program)</g>, <g key="namespace">namespace</g>, <g key="plugin_architecture">plugin architecture</g></p>
+  <p>Terms defined: <g key="cache">cache</g>, <g key="circular_dependency">circular dependency</g>, <g key="closure">closure</g>, <g key="compiled_language">compiled language</g>, <g key="directed_graph">directed graph</g>, <g key="encapsulate">encapsulate</g>, <g key="iife">immediately-invoked function expression (IIFE)</g>, <g key="interpreted_language">interpreted language</g>, <g key="link">link (a program)</g>, <g key="namespace">namespace</g>, <g key="plugin_architecture">plugin architecture</g></p>
 </div>
-<ul>
-<li><x key="file-interpolator"></x> showed how to use <code>eval</code> to load code dynamically</li>
-<li>We can use this to build our own version of <code>require</code>
-<ul>
-<li>Take the name of a source file as an argument</li>
-<li>Return whatever that file exports</li>
-</ul>
-</li>
-<li>Key requirement is to avoid accidentally overwriting things
-<ul>
-<li>If we just <code>eval</code> the loaded code and it happens to define a variable called <code>x</code>,
-anything called <code>x</code> already in our program might be overwritten</li>
-</ul>
-</li>
-<li>Our approach is based on <cite>Casciaro2020</cite></li>
-</ul>
+<p><x key="file-interpolator"></x> showed how to use <code>eval</code> to load code dynamically.
+We can use this to build our own version of the <code>require</code> function
+(the predecessor to <code>import</code>)
+that takes the name of a source file as an argument
+and returns whatever that file exports.
+The key requirement for such a function is to avoid accidentally overwriting things.
+If we just <code>eval</code> some code and it happens to define a variable called <code>x</code>,
+anything called <code>x</code> already in our program might be overwritten.
+We therefore need a way to <g key="encapsulate">encapsulate</g> the contents of what we're loading.
+Our approach is based on <cite>Casciaro2020</cite>,
+which contains a lot of other useful information as well.</p>
 <h2 id="how-can-we-implement-namespaces">How can we implement namespaces?</h2>
-<ul>
-<li>A <g key="namespace">namespace</g> is a collection of names in a program that are isolated from other namespaces
-<ul>
-<li>Most modern languages provide namespaces as a feature so that programmers don't accidentally step on each other's toes</li>
-<li>JavaScript doesn't have this, so we have to implement it ourselves</li>
-</ul>
-</li>
-<li>We can implement namespaces using <g key="closure">closures</g>
-<ul>
-<li>Defining the things we care about inside a function (which gives us a temporary namespace when it runs)</li>
-<li>Return a data structure that refers to the things we just created</li>
-<li>Only way to access those things is via that data structure</li>
-</ul>
-</li>
-<li>For example, create a function that always appends the same string to its argument</li>
-</ul>
+<p>A <g key="namespace">namespace</g> is a collection of names in a program that are isolated from other namespaces.
+Most modern languages provide namespaces as a feature so that programmers don't accidentally step on each other's toes.
+JavaScript doesn't have this,
+so we have to implement them ourselves.
+We can do this using <g key="closure">closures</g>.
+Every function is a namespace:
+variables defined inside the function are distinct from variables defined outside it
+(<f key="module-loader-closure"></f>).
+If we create the things we care about inside a function
+and return a data structure that refers to the things we just created,
+the only way to access those things is via that data structure.</p>
 <figure id="module-loader-closures" class="fixme"><img src="/static/tools-small.jpg" alt="How closures work"/><figcaption>Using closures to create private variables.</figcaption></figure>
-<ul>
-<li>Gives us code like this:</li>
-</ul>
+<p>For example,
+let's create a function that always appends the same string to its argument:</p>
 <pre title="manual-namespacing.js"><code class="language-js">const createModule = () =&gt; {
   const privateValue = 'private value'
   const publicValue = 'public value'
@@ -117,20 +106,33 @@ const contents = createModule()
 console.log(`contents.publicValue is ${contents.publicValue}`)
 console.log(`contents.privateValue is ${contents.privateValue}`)
 </code></pre>
-<pre title="manual-namespacing.out"><code class="language-out">contents.publicValue is public value
-contents.privateValue is undefined
+<div class="continue">
+<p>When we run it,
+the value that was assigned to the local variable <code>publicValue</code> inside the function still exists
+but is only reachable through the structure that we returned,
+while the value we assigned to <code>privateValue</code> is gone:</p>
+</div>
+<pre title="manual-namespacing.js"><code class="language-js">const createModule = () =&gt; {
+  const privateValue = 'private value'
+  const publicValue = 'public value'
+  return { publicValue }
+}
+
+const contents = createModule()
+console.log(`contents.publicValue is ${contents.publicValue}`)
+console.log(`contents.privateValue is ${contents.privateValue}`)
 </code></pre>
-<ul>
-<li>We could require every module to define a setup function like this for users to call</li>
-<li>Or we can wrap this up and call it automatically
-<ul>
-<li><code>() =&gt; {…}</code> defines a function</li>
-<li><code>(() =&gt; {…})()</code> defines a function and immediately calls it</li>
-<li>The extra parentheses around the original definition force the parser to evaluate things in the right order</li>
-<li>This is called an <g key="iife">immediately-invoked function expression</g> (IIFE)</li>
-</ul>
-</li>
-</ul>
+<p>We could require every module to define a setup function like this for users to call,
+but thanks to <code>eval</code> we can wrap the file's contents in a function and call it automatically.
+To do this we will create something called an <g key="iife">immediately-invoked function expression</g> (IIFE).
+The syntax <code>() =&gt; {…}</code> defines a function.
+If we put the definition in parentheses and then put another pair of parentheses right after it:</p>
+<pre><code class="language-js">(() =&gt; {…})()
+</code></pre>
+<div class="continue">
+<p>we have code that defines a function of no arguments and immediately calls it.
+We can use this trick to achieve the same effect as the previous example in one step:</p>
+</div>
 <pre title="automatic-namespacing.js"><code class="language-js">const contents = (() =&gt; {
   const privateValue = 'private value'
   const publicValue = 'public value'
@@ -143,22 +145,26 @@ console.log(`contents.privateValue is ${contents.privateValue}`)
 <pre title="automatic-namespacing.out"><code class="language-out">contents.publicValue is public value
 contents.privateValue is undefined
 </code></pre>
+<div class="callout">
+<h3 id="unconfusing-the-parser">Unconfusing the parser</h3>
+<p>The extra parentheses around the original definition force the parser to evaluate things in the right order;
+if we write:</p>
+<pre><code class="language-js">() =&gt; {…}()
+</code></pre>
+<div class="continue">
+<p>then JavaScript interprets it as a function definition followed by an empty expression
+rather than an immediate call to the function just defined.</p>
+</div>
+</div>
+<p>:::</p>
 <h2 id="how-can-we-load-a-module">How can we load a module?</h2>
-<ul>
-<li>We want the module we are loading to export names by assigning to <code>module.exports</code></li>
-<li>So we need to provide an object called <code>module</code> <em>and</em> create a IIFE
-<ul>
-<li>Handle the problem of the module loading other modules later</li>
-</ul>
-</li>
-<li>Our <code>loadModule</code> function takes a filename and returns a newly-created module object
-<ul>
-<li>The parameter to the function we build and <code>eval</code> must be called <code>module</code> so that we can assign to <code>module.exports</code></li>
-<li>For clarity, we call the object we pass in <code>result</code> in <code>loadModule</code></li>
-</ul>
-</li>
-</ul>
-<figure id="module-loader-iife" class="fixme"><img src="/static/tools-small.jpg" alt="Implementing modules with IIFEs"/><figcaption>Using IIFEs to encapsulate modules and get their exports.</figcaption></figure>
+<p>We want the module we are loading to export names by assigning to <code>module.exports</code> just as <code>require</code> does,
+so we need to provide an object called <code>module</code> and create a IIFE.
+(We will handle the problem of the module loading other modules later.)
+Our <code>loadModule</code> function takes a filename and returns a newly-created module object;
+the parameter to the function we build and <code>eval</code> must be called <code>module</code> so that we can assign to <code>module.exports</code>.
+For clarity,
+we call the object we pass in <code>result</code> in <code>loadModule</code>.</p>
 <pre title="load-module-only.js"><code class="language-js">import fs from 'fs'
 
 const loadModule = (filename) =&gt; {
@@ -172,9 +178,9 @@ const loadModule = (filename) =&gt; {
 
 export default loadModule
 </code></pre>
-<ul>
-<li>Use this as a test</li>
-</ul>
+<figure id="module-loader-iife" class="fixme"><img src="/static/tools-small.jpg" alt="Implementing modules with IIFEs"/><figcaption>Using IIFEs to encapsulate modules and get their exports.</figcaption></figure>
+<p><f key="module-loader-iife"></f> shows the structure of our loader so far.
+We can use this code as a test:</p>
 <pre title="small-module.js"><code class="language-js">const publicValue = 'public value'
 
 const privateValue = 'private value'
@@ -185,6 +191,9 @@ const publicFunction = (caller) =&gt; {
 
 module.exports = { publicValue, publicFunction }
 </code></pre>
+<div class="continue">
+<p>and this short program to load the test and check its exports:</p>
+</div>
 <pre title="test-load-module-only.js"><code class="language-js">import loadModule from './load-module-only.js'
 
 const result = loadModule(process.argv[2])
@@ -211,42 +220,26 @@ result.privateValue is undefined
 publicFunction called from main
 </code></pre>
 <h2 id="do-we-need-to-handle-circular-dependencies">Do we need to handle circular dependencies?</h2>
-<ul>
-<li>We can visualize the network of who requires whom as a <g key="directed_graph">directed graph</g>
-<ul>
-<li>If X requires Y, draw an arrow from X to Y</li>
-</ul>
-</li>
-<li>A <g key="circular_dependency">circular dependency</g> exists if X depends on Y and Y depends on X
-<ul>
-<li>Either directly or indirectly</li>
-</ul>
-</li>
-<li>May seem nonsensical, but can easily arise with <g key="plugin_architecture">plugin architectures</g>
-<ul>
-<li>File containing main program loads an extension</li>
-<li>The extension calls utility functions defined in the file containing the main program</li>
-</ul>
-</li>
-<li>Most <g key="compiled_language">compiled languages</g> can handle this
-<ul>
-<li>Compile each module into low-level instructions</li>
-<li><g key="link">Link</g> those to resolve dependencies</li>
-<li>Then run</li>
-</ul>
-</li>
-<li>But <g key="interpreted_language">interpreted languages</g> execute code as it loads
-<ul>
-<li>So if X is in the process of loading Y and Y tries to call X,
-X may not (fully) exist yet</li>
-</ul>
-</li>
-</ul>
+<p>What if the code we are loading loads other code?
+We can visualize the network of who requires whom as a <g key="directed_graph">directed graph</g>:
+if X requires Y,
+we draw an arrow from X to Y.
+A <g key="circular_dependency">circular dependency</g> exists if X depends on Y and Y depends on X
+either directly or indirectly.
+This may seem nonsensical,
+but can easily arise with <g key="plugin_architecture">plugin architectures</g>:
+the file containing the main program loads an extension,
+and that extension calls utility functions defined in the file containing the main program.</p>
+<p>Most <g key="compiled_language">compiled languages</g> can handle circular dependencies easily:
+they compile each module into low-level instructions,
+then <g key="link">link</g> those to resolve dependencies before running anything
+(<f key="module-loader-circularity"></f>).
+But <g key="interpreted_language">interpreted languages</g> may run code as it loads,
+so if X is in the process of loading Y and Y tries to call X,
+X may not (fully) exist yet.</p>
 <figure id="module-loader-circularity" class="fixme"><img src="/static/tools-small.jpg" alt="Circularity test cases"/><figcaption>Testing circular imports in Python and JavaScript.</figcaption></figure>
-<ul>
-<li>It sort-of works in Python</li>
-<li>Create two files</li>
-</ul>
+<p>Circular dependencies work in Python, sort of.
+Let's create two files called <code>major.py</code> and <code>minor.py</code>:</p>
 <pre title="checking/major.py"><code class="language-py"># major.py
 
 import minor
@@ -268,9 +261,7 @@ def middle():
     print("middle")
     major.bottom()
 </code></pre>
-<ul>
-<li>Fails when run from the command line</li>
-</ul>
+<p>Loading fails when we run <code>major.py</code> from the command line:</p>
 <pre title="checking/py-command-line.out"><code class="language-out">top
 Traceback (most recent call last):
   File "major.py", line 3, in &lt;module&gt;
@@ -283,18 +274,16 @@ Traceback (most recent call last):
     minor.middle()
 AttributeError: module 'minor' has no attribute 'middle'
 </code></pre>
-<ul>
-<li>But works in the interactive interpreter (!)</li>
-</ul>
+<div class="continue">
+<p>but works in the interactive interpreter:</p>
+</div>
 <pre title="checking/py-interactive.out"><code class="language-out">$ python
 &gt;&gt;&gt; import major
 top
 middle
 bottom
 </code></pre>
-<ul>
-<li>Equivalent in JavaScript</li>
-</ul>
+<p>The equivalent test in JavaScript also has two files:</p>
 <pre title="checking/major.js"><code class="language-js">// major.js
 const { middle } = require('./minor')
 
@@ -321,9 +310,9 @@ const middle = () =&gt; {
 
 module.exports = { middle }
 </code></pre>
-<ul>
-<li>Fails on the command line</li>
-</ul>
+<div class="continue">
+<p>It fails on the command line:</p>
+</div>
 <pre title="checking/js-command-line.out"><code class="language-out">top
 middle
 /u/stjs/module-loader/checking/minor.js:6
@@ -343,9 +332,10 @@ TypeError: bottom is not a function
  (internal/modules/run_main.js:72:12)
     at internal/main/run_main_module.js:17:47
 </code></pre>
-<ul>
-<li>Also fails in the interactive interpreter</li>
-</ul>
+<div class="continue">
+<p>and also fails in the interactive interpreter
+(which is more consistent):</p>
+</div>
 <pre title="checking/js-interactive.out"><code class="language-out">$ node
 &gt; require('./major')
 top
@@ -367,13 +357,9 @@ TypeError: bottom is not a function
     at require (internal/modules/cjs/helpers.js:88:18)
     at [stdin]:1:1
 </code></pre>
-<ul>
-<li>So we will <em>not</em> handle circular dependencies
-<ul>
-<li>But we <em>will</em> detect them and generate a sensible error message</li>
-</ul>
-</li>
-</ul>
+<p>We will therefore not try to handle circular dependencies.
+However,
+we will detect them and generate a sensible error message.</p>
 <div class="callout">
 <h3 id="import-vs-require"><code>import</code> vs. <code>require</code></h3>
 <p>Circular dependencies work JavaScript's <code>import</code> syntax.
@@ -385,27 +371,31 @@ because someone might call <code>require</code> inside a function
 or create an alias and call <code>require</code> through that.</p>
 </div>
 <h2 id="how-can-a-module-load-another-module">How can a module load another module?</h2>
-<ul>
-<li>We need to provide the module with a function called <code>require</code>
-<ul>
-<li>Check a <g key="cache">cache</g> to see if the file has already been loaded</li>
-<li>Load it if it isn't there</li>
-<li>Either way, return the result</li>
-</ul>
-</li>
-<li>Use absolute paths as cache keys
-<ul>
-<li>Suppose <code>major.js</code> imports <code>subdir/minor.js</code></li>
-<li>When <code>minor.js</code> imports <code>../major.js</code>, we need to know it's already loaded</li>
-</ul>
-</li>
-<li>How to make the cache available?
-<ul>
-<li>Make it a property of the <code>require</code> function</li>
-</ul>
-</li>
-<li>To reduce confusion, we will call our function <code>need</code> instead of <code>require</code></li>
-</ul>
+<p>While we're not going to handle circular dependencies,
+modules do need to be able to load other modules.
+To enable this,
+we need to provide the module with a function called <code>require</code> as it's loading.
+As in <x key="file-interpolator"></x>,
+this function checks a <g key="cache">cache</g>
+to see if the file being asked for has already been loaded,
+loads it and saves it if necessary,
+and either way returns the result.</p>
+<p>Suppose that <code>major.js</code> loads <code>subdir/first.js</code> and <code>subdir/second.js</code>.
+When <code>subdir/second.js</code> loads <code>./first.js</code>,
+our system needs to realize that it's already in memory.
+We will use <a key="absolute_path">absolute paths</a> as cache keys
+so that every file has a unique, predictable key.</p>
+<p>To reduce confusion,
+we will call our function <code>need</code> instead of <code>require</code>.
+In order to make the cache available to modules while they're loading,
+we will make it a property of <code>need</code>.
+Remember,
+a function is just another kind of object in JavaScript;
+every function gets several properties automatically,
+and we can always add more.
+Since we're using the built-in <code>Map</code> class as a cache,
+the entire implementation of <code>need</code> is just
+16 lines long:</p>
 <pre title="need.js"><code class="language-js">import path from 'path'
 
 import loadModule from './load-module.js'
@@ -422,14 +412,9 @@ need.cache = new Map()
 
 export default need
 </code></pre>
-<ul>
-<li>Need to modify <code>loadModule</code> to take our function <code>need</code> as a parameter
-<ul>
-<li>Again, we'll have &quot;modules&quot; call <code>need('something.js')</code> instead of <code>require('something')</code> for clarity</li>
-</ul>
-</li>
-<li>Test with the same small module that doesn't need anything else to make sure we haven't broken anything</li>
-</ul>
+<p>We now need to modify <code>loadModule</code> to take our function <code>need</code> as a parameter.
+(Again, we'll have our modules call <code>need('something.js')</code> instead of <code>require('something')</code> for clarity.)
+Let's test it with the same small module that doesn't need anything else to make sure we haven't broken anything:</p>
 <pre title="test-need-small-module.js"><code class="language-js">import need from './need.js'
 
 const small = need('small-module.js')
@@ -455,9 +440,7 @@ small.publicValue is public value
 small.privateValue is undefined
 publicFunction called from main
 </code></pre>
-<ul>
-<li>Test again with a module that loads something else</li>
-</ul>
+<p>What if we test it with a module that <em>does</em> load something else?</p>
 <pre title="large-module.js"><code class="language-js">import need from './need'
 
 const small = need('small-module.js')
@@ -501,10 +484,9 @@ SyntaxError: Cannot use import statement outside a module
     at async Loader.import (internal/modules/esm/loader.js:165:24)
     at async Object.loadESM (internal/process/esm_loader.js:68:5)
 </code></pre>
-<ul>
-<li>Doesn't work because <code>import</code> only works at the top level, not inside a function</li>
-<li>So our system can only run loaded modules by <code>need</code>ing them</li>
-</ul>
+<p>This doesn't work because <code>import</code> only works at the top level of a program,
+not inside a function.
+Our system can therefore only run loaded modules by <code>need</code>ing them:</p>
 <pre title="large-needless.js"><code class="language-js">const small = need('small-module.js')
 
 const large = (caller) =&gt; {
@@ -546,6 +528,9 @@ module.exports = { publicValue, publicFunction }
 
 publicFunction called from large called from main
 </code></pre>
+<p><f key="module-loader-need"></f> shows the steps our program goes through as it loads other code.
+The full implementation of <code>require</code> does more than we do,
+but the principles stay the same.</p>
 <figure id="module-loader-need" class="fixme"><img src="/static/tools-small.jpg" alt="Module loading lifecycle"/><figcaption>Steps in loading multiple modules.</figcaption></figure>
 <h2 id="exercises">Exercises</h2>
 <h3 class="exercise">Counting with closures</h3>
