@@ -196,7 +196,7 @@ which registers tests as a <g key="side_effect">side effect</g> via calls to `ho
 <%- include('/inc/erase.html', {file: 'pray.js', key: 'options'}) %>
 
 By default,
-this program finds all files below the <g key="current_working_directory">current working directory</g>
+this program finds all files below the current working directory
 whose names match the pattern `test-*.js`
 and uses terse output.
 Since we may want to look for files somewhere else,

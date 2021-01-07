@@ -49,7 +49,7 @@ by translating human-friendly notation into computer-friendly representations.
 On the other hand,
 the world doesn't need more file formats,
 so if you need a configuration file or lookup table,
-please save it as <g key="csv">CSV</g>, <g key="json">JSON</g>, <g key="yaml">YAML</g>,
+please save it as CSV, JSON, <g key="yaml">YAML</g>,
 or something else that already has an acronym
 rather than inventing a format of your own.
 That said,

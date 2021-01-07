@@ -306,7 +306,7 @@ We are finally ready to write the program that actually backs up files:
 
 The tests for this are more complicated than tests we have written previously
 because we want to check with actual file hashes.
-Let's set up some <g key="fixture">fixtures</g> to run tests on:
+Let's set up some fixtures to run tests on:
 
 <%- include('/inc/keep.html', {file: 'test/test-backup.js', key: 'fixtures'}) %>
 

@@ -292,7 +292,7 @@ while the two functions that do most of the work are:
 
 The next step is to define a generic class for CSS rules
 with a subclass for each type of rule.
-From highest <g key="precedence">precedence</g> to lowest,
+From highest precedence to lowest,
 the three types of rules we support identify specific nodes via their ID,
 classes of nodes via their `class` attribute,
 and then types of nodes via their element name
@@ -327,7 +327,7 @@ tag rules are identified by having just the name of the type of node they apply 
 <%- include('/inc/keep.html', {file: 'micro-css.js', key: 'tag'}) %>
 
 We could write yet another parser to read a subset of CSS and convert it to objects,
-but it's simpler to store the CSS as <g key="json">JSON</g>:
+but it's simpler to store the CSS as JSON:
 
 <%- include('/inc/keep.html', {file: 'micro-css.js', key: 'ruleset'}) %>
 

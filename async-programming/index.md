@@ -4,7 +4,7 @@
 Callbacks work,
 but they are hard to read and debug,
 which means they only "work" in a limited sense.
-JavaScript's developers added <g key="promise">promises</g> to the language in 2015
+JavaScript's developers added promises to the language in 2015
 to make callbacks easier to write and understand,
 and more recently they added the keywords `async` and `await` as well
 to make them easier still.

@@ -90,7 +90,7 @@ Our tool needs the template itself,
 somewhere to write its output,
 and some variables to use in the expansion.
 These variables might come from a configuration file,
-from a <g key="yaml">YAML</g> header in the file itself,
+from a YAML header in the file itself,
 or from some mix of the two;
 for the moment,
 all we need to know is that
@@ -276,7 +276,7 @@ so we should check:
 
 Our tool supports two types of control flow:
 conditional expressions and loops.
-Since we don't support <g key="boolean">Boolean</g> expressions like `and` and `or`,
+Since we don't support Boolean expressions like `and` and `or`,
 implementing a conditional is as simple as looking up a variable
 (which we know how to do)
 and then expanding the node if the value is true:

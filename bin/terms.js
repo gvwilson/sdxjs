@@ -6,7 +6,7 @@ import fs from 'fs'
 
 import {
   getGlossaryReferences
-} from 'utils.js'
+} from './utils.js'
 
 const main = () => {
   const defined = new Map()

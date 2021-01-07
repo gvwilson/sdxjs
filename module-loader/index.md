@@ -127,11 +127,11 @@ but can easily arise with <g key="plugin_architecture">plugin architectures</g>:
 the file containing the main program loads an extension,
 and that extension calls utility functions defined in the file containing the main program.
 
-Most <g key="compiled_language">compiled languages</g> can handle circular dependencies easily:
+Most compiled languages can handle circular dependencies easily:
 they compile each module into low-level instructions,
-then <g key="link">link</g> those to resolve dependencies before running anything
+then link those to resolve dependencies before running anything
 (<f key="module-loader-circularity"></f>).
-But <g key="interpreted_language">interpreted languages</g> may run code as it loads,
+But interpreted languages may run code as it loads,
 so if X is in the process of loading Y and Y tries to call X,
 X may not (fully) exist yet.
 
@@ -200,7 +200,7 @@ modules do need to be able to load other modules.
 To enable this,
 we need to provide the module with a function called `require` as it's loading.
 As in <x key="file-interpolator"></x>,
-this function checks a <g key="cache">cache</g>
+this function checks a cache
 to see if the file being asked for has already been loaded,
 loads it and saves it if necessary,
 and either way returns the result.

@@ -1,7 +1,7 @@
 ---
 ---
 
-We have been <g key="globbing">globbing</g> to match filenames against patterns since <x key="systems-programming"></x>.
+We have been globbing to match filenames against patterns since <x key="systems-programming"></x>.
 This lesson will explore how that works
 by building a simple version of <g key="regular_expression">regular expressions</g>,
 which are patterns for matching text

@@ -42,7 +42,7 @@ particularly related to turning source code into something that will run.
 We want to load a file dynamically just like `import` does,
 but display the special comments in our web/print versions rather than the interpolated code.
 To do this,
-we need to understand the <g key="lifecycle">lifecycle</g> of a JavaScript program.
+we need to understand the lifecycle of a JavaScript program.
 When we ask for a file,
 [Node][nodejs] reads the text,
 translates it into runnable instructions,
@@ -162,8 +162,8 @@ The source files in this book are small enough
 that we don't have to worry about reading them repeatedly,
 but in larger systems or when there are network delays
 we would like to avoid doing unnecessary work.
-The usual approach is to create a <g key="cache">cache</g>
-using the <g key="singleton_pattern">Singleton</g> pattern
+The usual approach is to create a cache
+using the Singleton pattern
 that we first met in <x key="unit-test"></x>.
 Whenever we want to read a file,
 we check to see if it's already in the cache

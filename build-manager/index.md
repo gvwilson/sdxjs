@@ -96,13 +96,13 @@ Our build manager will do four things:
 
 ## Where should we start?
 
-Our rules will be stored in <g key="yaml">YAML</g> files like this:
+Our rules will be stored in YAML files like this:
 
 <%- include('/inc/file.html', {file: 'three-simple-rules.yml'}) %>
 
 ::: continue
-We could equally well have used <g key="json">JSON</g>,
-but it wouldn't have made sense to use <g key="csv">CSV</g>:
+We could equally well have used JSON,
+but it wouldn't have made sense to use CSV:
 rules have a nested structure,
 and CSV doesn't handle that particularly gracefully.
 :::
@@ -203,7 +203,7 @@ Let's write a quick test to make sure our cycle detector actually works:
 ## How can we specify that a file is out of date?
 
 The next step is to figure out which files are out of date.
-[Make][gnu-make] did this by comparing the <g key="timestamp">timestamps</g> on the files in question,
+[Make][gnu-make] did this by comparing the timestamps on the files in question,
 but this isn't always reliable across networks
 (because computers' clocks may be very slightly out of sync)
 and because the operating system may only report file update times to the nearest millisecond,
