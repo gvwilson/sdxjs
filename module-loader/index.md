@@ -190,7 +190,7 @@ get everything into memory,
 and then resolve dependencies.
 We can't do this with `require`-based code
 because someone might call `require` inside a function
-or create an alias and call `require` through that.
+or create an <g key="alias">alias</a> and call `require` through that.
 :::
 
 ## How can a module load another module?
@@ -208,7 +208,7 @@ and either way returns the result.
 Suppose that `major.js` loads `subdir/first.js` and `subdir/second.js`.
 When `subdir/second.js` loads `./first.js`,
 our system needs to realize that it's already in memory.
-We will use <a key="absolute_path">absolute paths</a> as cache keys
+We will use <g key="absolute_path">absolute paths</g> as cache keys
 so that every file has a unique, predictable key.
 
 To reduce confusion,

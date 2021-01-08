@@ -113,6 +113,14 @@ Addy Osmani:
 <em class="bibnote">A guide to design patterns using JavaScript.</em>
 </dd>
 
+<dt id="Petzold2008" class="bibliography">Petzold2008</dt>
+<dd>
+Charles Petzold:
+<em>The Annotated Turing</em>.
+Wiley, 2008, 978-0470229057.
+<em class="bibnote">A fascinating look at one of the pivotal moments in the history of computing.</em>
+</dd>
+
 <dt id="Smith2011" class="bibliography">Smith2011</dt>
 <dd>
 Peter Smith:

@@ -6,7 +6,7 @@
   <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico">
   <link href="../../static/fonts.css" rel="stylesheet" type="text/css">
   <link href="../../static/site.css" rel="stylesheet" type="text/css">
-  <script>const NUMBERING = {"vol1":"1","systems-programming":"2","async-programming":"3","unit-test":"4","file-backup":"5","data-table":"6","pattern-matching":"7","regex-parser":"8","page-templates":"9","build-manager":"10","layout-engine":"11","file-interpolator":"12","module-loader":"13","module-bundler":"14","package-manager":"15","style-checker":"16","code-generator":"17","doc-generator":"18","virtual-machine":"19","debugger":"20","text-editor":"21","conclusion":"22","bib":"A","license":"B","conduct":"C","contributing":"D","cognition":"E","gloss":"F","links":"G","authors":"H"}</script>
+  <script>const NUMBERING = {"vol1":"1","systems-programming":"2","async-programming":"3","unit-test":"4","file-backup":"5","data-table":"6","pattern-matching":"7","regex-parser":"8","page-templates":"9","build-manager":"10","layout-engine":"11","file-interpolator":"12","module-loader":"13","style-checker":"14","code-generator":"15","doc-generator":"16","module-bundler":"17","package-manager":"18","virtual-machine":"19","debugger":"20","text-editor":"21","conclusion":"22","bib":"A","license":"B","conduct":"C","contributing":"D","cognition":"E","gloss":"F","links":"G","authors":"H"}</script>
   <script src="../../static/site.js"></script>
   <script>window.onload = () => fixPage()</script>
 </head>
@@ -37,11 +37,11 @@
 <br/><a href="../layout-engine/"><span class="nowrap">Layout Engine</span></a>
 <br/><a href="../file-interpolator/"><span class="nowrap">File Interpolator</span></a>
 <br/><a href="../module-loader/"><span class="nowrap">Module Loader</span></a>
-<br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
-<br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
 <br/><a href="../style-checker/"><span class="nowrap">Style Checker</span></a>
 <br/><a href="../code-generator/"><span class="nowrap">Code Generator</span></a>
 <br/><a href="../doc-generator/"><span class="nowrap">Documentation Generator</span></a>
+<br/><a href="../module-bundler/"><span class="nowrap">Module Bundler</span></a>
+<br/><a href="../package-manager/"><span class="nowrap">Package Manager</span></a>
 <br/><a href="../virtual-machine/"><span class="nowrap">Virtual Machine</span></a>
 <br/><a href="../debugger/"><span class="nowrap">Debugger</span></a>
 <br/><a href="../text-editor/"><span class="nowrap">Text Editor</span></a>
@@ -68,48 +68,32 @@
   <h1>Module Bundler</h1>
   <h2 class="lede">Turning many files into one</h2>
 <div class="callout">
-  <p>Terms defined: <g key="absolute_path">absolute path</g>, <g key="circular_dependency">circular dependency</g>, <g key="closure">closure</g>, <g key="entry_point">entry point</g>, <g key="iife">immediately-invoked function expression (IIFE)</g>, <g key="module_bundler">module bundler</g>, <g key="transitive_closure">transitive closure</g></p>
+  <p>Terms defined: <g key="entry_point">entry point</g>, <g key="module_bundler">module bundler</g>, <g key="transitive_closure">transitive closure</g></p>
 </div>
-<ul>
-<li>JavaScript was designed in a hurry 25 years ago to make pages interactive
-<ul>
-<li>Nobody realized it would become one of the most popular programming languages in the world</li>
-<li>Which means it didn't include support for things that large programs need</li>
-<li>Like creating multi-module bundles so that browsers could load a single file
-rather than making dozens or hundreds of requests</li>
-</ul>
-</li>
-<li>A <g key="module_bundler">module bundler</g> finds all the files that an application depend on
+<p>JavaScript was designed in a hurry 25 years ago to make web pages interactive.
+Nobody realized it would become one of the most popular programming languages in the world,
+which means it didn't include support for things that large programs need.
+One of those was a way to turn many easy-to-edit source files into a single easy-to-load file
+so that browsers could get what they needed with a single request.</p>
+<p>A <g key="module_bundler">module bundler</g> finds all the files that an application depends on
 and combines them into a single loadable file
-<ul>
-<li>Much more efficient to load (same number of bytes but just one request)</li>
-<li>Ensures that dependencies actually resolve</li>
-</ul>
-</li>
-<li>Requires an <g key="entry_point">entry point</g>
-<ul>
-<li>Where processing starts</li>
-<li>Equivalently, the top level</li>
-</ul>
-</li>
-</ul>
+(<f key="module-bundler-bundling"></f>).
+This file is much more efficient to load---it's the same number of bytes
+but just one network request---and bundling files ensures that dependencies actually resolve.</p>
 <figure id="module-bundler-bundling" class="fixme"><img src="/static/tools-small.jpg" alt="Bundling modules"/><figcaption>Combining multiple modules into one.</figcaption></figure>
-<ul>
-<li>Need to:
-<ul>
-<li>Find all dependencies</li>
-<li>Combine them into one file</li>
-<li>Ensure they can find each other correctly once loaded</li>
-</ul>
-</li>
-<li>Think of test cases before starting to write code</li>
-<li>Case 1: a single file that doesn't require anything else
-<ul>
-<li>Because if this doesn't work, nothing else will</li>
-<li>We will run everything via <code>export</code> to keep the examples simple</li>
-</ul>
-</li>
-</ul>
+<p>Bundling requires an <g key="entry_point">entry point</g>,
+i.e.,
+a place to start searching for dependencies.
+Given that,
+it finds all dependencies,
+combines them into one file,
+and ensures they can find each other correctly once loaded.
+The simplest test case is a single file that doesn't require anything else:
+if this doesn't work,
+nothing else will.
+In order to avoid having to parse JavaScript looking for <code>import</code> and <code>export</code> statements,
+we will use the older <code>require</code> and <code>module.exports</code>.
+Our test case and the expected output are:</p>
 <pre title="single/main.js"><code class="language-js">const main = () =&gt; {
   console.log('in main')
 }
@@ -118,27 +102,67 @@ module.exports = main
 </code></pre>
 <pre title="expected-single.out"><code class="language-out">in main
 </code></pre>
-<ul>
-<li>Case 2: <code>main.js</code> requires <code>other.js</code>, which doesn't require anything
-<ul>
-<li>First test of dependencies</li>
-</ul>
-</li>
-</ul>
+<p>In our second test case,
+<code>main.js</code> requires <code>other.js</code>,
+which doesn't require anything.
+The main file is:</p>
+<pre title="simple/main.js"><code class="language-js">const other = require('./other')
+
+const main = () =&gt; {
+  console.log(other('main'))
+}
+
+module.exports = main
+</code></pre>
+<div class="continue">
+<p>and the required file is:</p>
+</div>
+<pre title="simple/main.js"><code class="language-js">const other = require('./other')
+
+const main = () =&gt; {
+  console.log(other('main'))
+}
+
+module.exports = main
+</code></pre>
+<div class="continue">
+<p>The output we expect is:</p>
+</div>
 <pre title="expected-simple.out"><code class="language-out">other called from main
 </code></pre>
+<p>Our third test case has multiple inclusions in multiple directories
+and is shown in <f key="module-bundler-complicated"></f>:</p>
 <ul>
-<li>Case 3: best described with a diagram
-<ul>
-<li><code>./main</code> requires all four of the files below</li>
-<li><code>./top-left</code> doesn't require anything</li>
-<li><code>./top-right</code> requires <code>top-left</code> and <code>bottom-right</code></li>
-<li><code>./subdir/bottom-left</code> also requires <code>top-left</code> and <code>bottom-right</code></li>
-<li><code>./subdir/bottom-right</code> doesn't require anything</li>
-</ul>
-</li>
+<li><code>./main</code> requires all four of the files below.</li>
+<li><code>./top-left</code> doesn't require anything.</li>
+<li><code>./top-right</code> requires <code>top-left</code> and <code>bottom-right</code>.</li>
+<li><code>./subdir/bottom-left</code> also requires <code>top-left</code> and <code>bottom-right</code>.</li>
+<li><code>./subdir/bottom-right</code> doesn't require anything.</li>
 </ul>
 <figure id="module-bundler-complicated" class="fixme"><img src="/static/tools-small.jpg" alt="Module bundler dependencies"/><figcaption>Dependencies in large module bundler test case.</figcaption></figure>
+<div class="continue">
+<p>The main program is:</p>
+</div>
+<pre title="full/main.js"><code class="language-js">// main.js
+
+const topLeft = require('./top-left')                // none
+const topRight = require('./top-right')              // needs top-left + bottom-right
+const bottomLeft = require('./subdir/bottom-left')   // needs top-left + bottom-right
+const bottomRight = require('./subdir/bottom-right') // none
+
+const main = () =&gt; {
+  const functions = [topLeft, topRight, bottomLeft, bottomRight]
+  functions.forEach(func =&gt; {
+    console.log(`${func('main')}`)
+  })
+}
+
+module.exports = main
+</code></pre>
+<div class="continue">
+<p>and the other four files use <code>require</code> and <code>module.exports</code>.
+The output we expect is:</p>
+</div>
 <pre title="expected-full.out"><code class="language-out">topLeft from main
 topRight from main with topLeft from topRight and bottomRight from \
  topRight
@@ -146,21 +170,12 @@ bottomLeft from main with topLeft from bottomLeft and bottomRight from \
  bottomLeft
 bottomRight from main
 </code></pre>
-<ul>
-<li>We do not handle <g key="circular_dependency">circular dependencies</g>
-<ul>
-<li>Because <code>require</code> itself doesn't (<x key="module-loader"></x>)</li>
-</ul>
-</li>
-</ul>
-<h2 id="how-can-we-find-all-the-dependencies">How can we find all the dependencies?</h2>
-<ul>
-<li>To get dependencies for one file, parse it and extract all the <code>require</code> calls
-<ul>
-<li>Relatively straightforward given what we know about <a href="https://github.com/acornjs/acorn">Acorn</a></li>
-</ul>
-</li>
-</ul>
+<p>We do not handle circular dependencies
+because <code>require</code> itself doesn't (<x key="module-loader"></x>).</p>
+<h2 id="how-can-we-find-dependencies">How can we find dependencies?</h2>
+<p>To get all the dependencies for one source file,
+we parse it and extract all of the calls to <code>require</code>.
+The code to do this is relatively straightforward given what we know about <a href="https://github.com/acornjs/acorn">Acorn</a>:</p>
 <pre title="get-requires.js"><code class="language-js">import acorn from 'acorn'
 import fs from 'fs'
 import walk from 'acorn-walk'
@@ -192,39 +207,47 @@ console.log(result)
 </code></pre>
 <pre title="test-get-requires.out"><code class="language-out">[ './other' ]
 </code></pre>
-<ul>
-<li>To get all dependencies, need to find <g key="transitive_closure">transitive closure</g>
-<ul>
-<li>Requirements of requirements of requirements of…</li>
-</ul>
-</li>
-<li>Algorithm uses two sets
-<ul>
-<li>Things we have seen (initially empty)</li>
-<li>Things we haven't looked at yet (initially the first file)</li>
-</ul>
-</li>
-<li>Keep taking items from <code>pending</code> until it is empty
-<ul>
-<li>If the current thing is already in <code>seen</code>, do nothing</li>
-<li>Otherwise get its dependencies and add them to either <code>seen</code> or <code>pending</code></li>
-</ul>
-</li>
-</ul>
+<div class="callout">
+<h3 id="an-unsolvable-problem">An unsolvable problem</h3>
+<p>The dependency finder shown above gives the right answer for any reasonable JavaScript program,
+but not all JavaScript is reasonable.
+Suppose creates an alias for <code>require</code> and uses that to load other files:</p>
+<pre><code class="language-js">const req = require
+const weWillMissThis = req('./other-file')
+</code></pre>
+<p>We could try to trace variable assignments to catch cases like these,
+but someone could still fool us by writing this:</p>
+<pre><code class="language-js">const clever = eval(`require`)
+const weWillMissThisToo = clever('./other-file')
+</code></pre>
+<p><em>There is no general solution to this problem</em>
+other than actually running the code to see what it does.
+If you would like to understand why not,
+and learn about a pivotal moment in the history of computing,
+we highly recommend <cite>Petzold2008</cite>.</p>
+</div>
+<p>To get all of the dependencies our bundle needs
+we need to find the <g key="transitive_closure">transitive closure</g> of the entry point's dependencies,
+i.e.,
+find the set that includes the requirements of the requirements of our requirements and so on.
+Our algorithm for doing this uses two sets:
+<code>pending</code>,
+which contains the things we haven't looked at yet,
+and <code>seen</code>,
+which contains the things we have
+(<f key="module-bundler-transitive-closer"></f>).
+<code>pending</code> initially contains the entry point file and <code>seen</code> is initially empty.
+We keep taking items from <code>pending</code> until it is empty.
+If the current thing is already in <code>seen</code> we do nothing,
+while otherwise we get its dependencies and add them to either <code>seen</code> or <code>pending</code>.</p>
 <figure id="module-bundler-transitive-closure" class="fixme"><img src="/static/tools-small.jpg" alt="Implementing transitive closure"/><figcaption>Implementing transitive closure using two sets.</figcaption></figure>
-<ul>
-<li>Complicated by the fact that we can load something under different names
-<ul>
-<li><code>./subdir/bottom-left</code> from <code>main</code>, but <code>./bottom-left</code> from <code>./subdir/bottom-right</code></li>
-<li>We will use <g key="absolute_path">absolute paths</g> as unique identifiers</li>
-</ul>
-</li>
-<li>Also complicated by the fact that JavaScript's <code>Set</code> doesn't have an equivalent of <code>Array.pop</code>
-<ul>
-<li>So we will maintain the &quot;set&quot; of pending items as a list</li>
-</ul>
-</li>
-</ul>
+<p>Finding dependencies is complicated by the fact that we can load something under different names,
+such as <code>./subdir/bottom-left</code> from <code>main</code> but <code>./bottom-left</code> from <code>./subdir/bottom-right</code>.
+As with the module loader in <x ref="module-loader"></x>,
+we use absolute paths as unique identifiers.
+Our code is also complicated by the fact that JavaScript's <code>Set</code> class doesn't have an equivalent of <code>Array.pop</code>,
+so we will maintain the set of pending items as a list.
+The resulting code is:</p>
 <pre title="transitive-closure-only.js"><code class="language-js">import path from 'path'
 
 import getRequires from './get-requires.js'
@@ -264,18 +287,19 @@ console.log(JSON.stringify(result, null, 2))
   "/u/stjs/module-bundler/full/top-right.js"
 ]
 </code></pre>
-<ul>
-<li>This works…</li>
-<li>…but we're not keeping track of the mapping from required names within files to absolute paths</li>
-<li>So modify transitive closure to construct and return a two-level structure
-<ul>
-<li>Primary keys are the absolute paths to the files being required</li>
-<li>Sub-keys are the paths they refer to when loading things</li>
-<li>Values are top-level keys</li>
-</ul>
-</li>
-</ul>
+<p>This works,
+but it isn't keeping track of the mapping from required names within files to absolute paths,
+so when one of the files in our bundle tries to access something,
+we might not know what it's after.
+The fix is to modify transitive closure to construct and return a two-level structure.
+The primary keys are the absolute paths to the files being required,
+while sub-keys are the paths they refer to when loading things
+(<f key="module-bundler-structure"></f>).</p>
 <figure id="module-bundler-structure" class="fixme"><img src="/static/tools-small.jpg" alt="Data structure for modules"/><figcaption>Data structure used to map names to absolute paths.</figcaption></figure>
+<p>Adding this takes our transitive closure code from</p>
+<p>24 lines
+to
+30 lines:</p>
 <pre title="transitive-closure.js"><code class="language-js">import path from 'path'
 
 import getRequires from './get-requires.js'
@@ -337,25 +361,21 @@ console.log(JSON.stringify(result, null, 2))
 }
 </code></pre>
 <h2 id="how-can-we-safely-combine-several-files-into-one">How can we safely combine several files into one?</h2>
-<ul>
-<li>Use the same method as in <x key="module-loader"></x>
-<ul>
-<li>Wrap the source code in an <g key="iife">IIFE</g></li>
-<li>Give it a <code>module</code> object to fill in</li>
-<li>And an implementation of <code>require</code> to resolve dependencies <em>within the same file</em></li>
-</ul>
-</li>
-<li>For example, suppose we have this file</li>
-</ul>
+<p>We now need to combine all these files into one while keeping each in its own namespace.
+We do this using the same method we used in <x key="module-loader"></x>:
+wrap the source code in an IIFE
+and give it a <code>module</code> object to fill in
+and an implementation of <code>require</code> to resolve dependencies <em>within the bundle</em>.
+For example, suppose we have this file:</p>
 <pre title="sanity-check-unwrapped.js"><code class="language-js">const main = () =&gt; {
   console.log('in main')
 }
 
 module.exports = main
 </code></pre>
-<ul>
-<li>The wrapped version will look like this:</li>
-</ul>
+<div class="continue">
+<p>The wrapped version will look like this:</p>
+</div>
 <pre title="sanity-check-wrapped.js"><code class="language-js">const wrapper = (module, require) =&gt; {
   const main = () =&gt; {
     console.log('in main')
@@ -364,9 +384,9 @@ module.exports = main
   module.exports = main
 }
 </code></pre>
-<ul>
-<li>And we can test it like this</li>
-</ul>
+<div class="continue">
+<p>And we can test it like this:</p>
+</div>
 <pre title="sanity-check-test.js"><code class="language-js">const wrapper = (module, require) =&gt; {
   const main = () =&gt; {
     console.log('in main')
@@ -382,11 +402,11 @@ temp.exports()
 </code></pre>
 <pre title="sanity-check-test.out"><code class="language-out">in main
 </code></pre>
-<ul>
-<li>But we want to do this for multiple files</li>
-<li>So we will create a map of these functions with absolute paths as keys</li>
-<li>And wrap the loading in a function so that we don't accidentally step on anyone else's toys</li>
-</ul>
+<p>We need to do this for multiple files,
+so we will put these functions in a lookup table
+with their files' absolute paths as its keys.
+We will also wrap the loading in a function
+so that we don't accidentally step on anyone else's toys:</p>
 <pre title="combine-files.js"><code class="language-js">import fs from 'fs'
 import path from 'path'
 
@@ -413,19 +433,14 @@ const combineFiles = (allFilenames) =&gt; {
 
 export default combineFiles
 </code></pre>
-<ul>
-<li>Breaking it down
-<ul>
-<li><code>HEAD</code> creates a function of no arguments and a lookup table</li>
-<li><code>TAIL</code> returns the lookup table from that function</li>
-<li>In between, <code>combineFiles</code> adds an entry to the lookup table for each file</li>
-</ul>
-</li>
-</ul>
+<p>Breaking this down,
+the code in <code>HEAD</code> creates a function of no arguments
+while the code in <code>TAIL</code> returns the lookup table from that function.
+In between,
+<code>combineFiles</code> adds an entry to the lookup table for each file
+(<f key="module-bundler-head-tail"></f>).</p>
 <figure id="module-bundler-head-tail" class="fixme"><img src="/static/tools-small.jpg" alt="Assembling runnable code"/><figcaption>Assembling fragments and modules to create a bundle.</figcaption></figure>
-<ul>
-<li>Test it with our intermediate two-file case</li>
-</ul>
+<p>We can test that this works in our two-file case:</p>
 <pre title="test-combine-files.js"><code class="language-js">import combineFiles from './combine-files.js'
 
 console.log(combineFiles(process.argv.slice(2)))
@@ -457,64 +472,58 @@ module.exports = other
 }
 
 </code></pre>
-<ul>
-<li>We can check that this works by loading the file and calling <code>initialize</code></li>
-</ul>
+<div class="continue">
+<p>and then load the result and call <code>initialize</code>:</p>
+</div>
 <pre title="show-combine-files-simple.out"><code class="language-out">Map(2) {
   '/u/stjs/module-bundler/simple/main.js' =&gt; [Function (anonymous)],
   '/u/stjs/module-bundler/simple/other.js' =&gt; [Function (anonymous)]
 }
 </code></pre>
-<ul>
-<li>This has not created our exports yet</li>
-<li>Instead, it has created a lookup table of functions that can create what we asked for</li>
-</ul>
 <h2 id="how-can-files-access-each-other">How can files access each other?</h2>
+<p>The code we have built so far has not yet created our exports;
+instead,
+it has created a lookup table of functions that can create what we asked for.
+More specifically we have</p>
 <ul>
-<li>We have:
-<ul>
-<li>A map from absolute filenames to functions that create the exports for those modules</li>
-<li>A map from absolute filenames to pairs of (written import name, absolute filename)</li>
-<li>An entry point</li>
-</ul>
+<li>
+<p>a map from absolute filenames to functions that create the exports for those modules;</p>
 </li>
-<li>So we:
-<ul>
-<li>Look up the function associated with the entry point</li>
-<li>Run it, giving it an empty module object and a <code>require</code> function (more below)</li>
-<li>Get the <code>exports</code> from the module object</li>
-</ul>
+<li>
+<p>a map from absolute filenames to pairs of (written import name, absolute filename); and</p>
+</li>
+<li>
+<p>an entry point.</p>
 </li>
 </ul>
+<div class="continue">
+<p>To turn this into what we want we look up the function associated with the entry point and run it,
+giving it an empty module object and a <code>require</code> function that we will describe below,
+then get the <code>exports</code> from the module object
+(<f key="module-bundler-extract"></f>).</p>
+</div>
 <figure id="module-bundler-extract" class="fixme"><img src="/static/tools-small.jpg" alt="Extracting exports from modules"/><figcaption>Extracting exports names from modules after initialization.</figcaption></figure>
-<ul>
-<li>Our replacement for <code>require</code> is only allowed to take one argument</li>
-<li>But it actually needs four things
-<ul>
-<li>The argument to the user's <code>require</code> call</li>
-<li>The absolute path of the file making the call</li>
-<li>The two lookup tables</li>
-</ul>
-</li>
-<li>The lookup tables can't be global variables because of possible name collisions</li>
-<li>So we will use <g key="closure">closures</g>
-<ul>
-<li>A function that takes the two tables as arguments…</li>
-<li>…and returns a function that takes an absolute path identifying this module…</li>
-<li>…and returns a function that takes a local path inside a module and returns the exports</li>
-<li>Each layer of wrappers remembers more information</li>
-</ul>
-</li>
-</ul>
+<p>Our replacement for <code>require</code> is only allowed to take one argument
+because that's all that JavaScript's <code>require</code> takes.
+However,
+it actually needs four things:
+the argument to the user's <code>require</code> call,
+the absolute path of the file making the call,
+and the two lookup tables.
+Those two tables can't be global variables because of possible name collisions:
+no matter what we call them,
+the user might have given a variable the same name.</p>
+<p>As in <x key="module-loader"></x> we solve this problem using closures.
+We will write a function that takes the two tables as arguments
+and returns a function that takes an absolute path identifying this module
+and returns a function that takes a local path inside a module and returns the exports.
+Each of these wrapping layers remembers more information for us
+(<f key="module-bundler-returning-functions"></f>),
+but we won't pretend that it's easy to trace.</p>
 <figure id="module-bundler-returning-functions" class="fixme"><img src="/static/tools-small.jpg" alt="Functions returning functions returning functions"/><figcaption>A function that returns functions that return functions.</figcaption></figure>
-<ul>
-<li>We're also going to need a third structure: a cache for the modules we've already loaded</li>
-<li>To prove it works, we will look up the function <code>main</code> in the first file and call it
-<ul>
-<li>If we were loading in the browser, we'd capture the exports in a variable for later use</li>
-</ul>
-</li>
-</ul>
+<p>We also need a third structure:
+a cache for the modules we've already loaded.
+Putting it all together we have:</p>
 <pre title="create-bundle.js"><code class="language-js">import fs from 'fs'
 import path from 'path'
 
@@ -576,16 +585,16 @@ const makeCreator = (filename) =&gt; {
 
 export default createBundle
 </code></pre>
-<ul>
-<li>This code is really hard to read
-<ul>
-<li>What is being printed in the output vs. what is being executed right now</li>
-<li>The levels of nesting needed to capture variables safely</li>
-<li>Took much more time per line of finished code than anything except the promises in <x key="async-programming"></x></li>
-</ul>
-</li>
-<li>Run this to create a bundled version of the single file</li>
-</ul>
+<p>This code is really hard to read,
+both because we have to distinguish what is being printed in the output versus what is being executed right now
+and because of the levels of nesting needed to capture variables safely.
+Getting this right took much more time per line of finished code than anything we have seen so far
+except the promises in <x key="async-programming"></x>.</p>
+<p>To prove that this works
+we will look up the function <code>main</code> in the first file and call it;
+if we were loading in the browser,
+we'd capture the exports in a variable for later use.
+First, we create the bundled file:</p>
 <pre title="test-create-bundle-single.sh"><code class="language-sh">echo '/* eslint-disable */' &gt; bundle-single.js
 node test-create-bundle.js single/main.js &gt;&gt; bundle-single.js
 </code></pre>
@@ -632,20 +641,15 @@ start(m)
 m.exports()
 
 </code></pre>
-<ul>
-<li>And when we run it</li>
-</ul>
+<div class="continue">
+<p>and then we run it:</p>
+</div>
 <pre title="test-bundle-single.out"><code class="language-out">
 n main
 </code></pre>
-<ul>
-<li>That was a lot of work to print one line
-<ul>
-<li>But it should work for other files</li>
-</ul>
-</li>
-<li>Make and run a bundle for the simple case (<code>main</code> and <code>other</code>)</li>
-</ul>
+<p>That was a lot of work to print one line,
+but what we have should work for other files.
+The two-file case with <code>main</code> and <code>other</code> works:</p>
 <pre title="bundle-simple.js"><code class="language-js">
 const translate = {
   "/u/stjs/module-bundler/simple/main.js": {
@@ -707,9 +711,9 @@ m.exports()
 <pre title="test-bundle-simple.out"><code class="language-out">
 ther called from main
 </code></pre>
-<ul>
-<li>And for the full case (<code>main</code> plus four other files)</li>
-</ul>
+<div class="continue">
+<p>and so does our most complicated test with <code>main</code> and four other files:</p>
+</div>
 <pre title="test-bundle-full.out"><code class="language-out">topLeft from main
 topRight from main with topLeft from topRight and bottomRight from \
  topRight
@@ -767,7 +771,7 @@ but can help debugging.)</p>
 <footer>
 <div class="row">
 <div class="left3">
-<a href="../module-loader/"><em>&laquo; Module Loader</em></a>
+<a href="../doc-generator/"><em>&laquo; Documentation Generator</em></a>
 </div>
 <div class="middle3">
 <a href="../license/"><img class="footer" src="../../static/cc-by.svg" alt="License" /></a>
