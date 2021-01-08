@@ -37,7 +37,7 @@
 -   Could try to do the second with <g key="regular_expression">regular expressions</g>,
     but it's astonishing how irregular real-world code can be
 -   Adopt an intermediate approach
-    -   Parse the JavaScript with [Acorn][acorn] to create an <g key="abstract_syntax_tree">AST</g>
+    -   Parse the JavaScript with [Acorn][acorn] to create an AST
     -   Modify the AST
     -   Use [Escodegen][escodegen] to turn the AST back into JavaScript
     -   Code is just another kind of data…

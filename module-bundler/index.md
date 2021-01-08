@@ -151,7 +151,7 @@ while otherwise we get its dependencies and add them to either `seen` or `pendin
 
 Finding dependencies is complicated by the fact that we can load something under different names,
 such as `./subdir/bottom-left` from `main` but `./bottom-left` from `./subdir/bottom-right`.
-As with the module loader in <x ref="module-loader"></x>,
+As with the module loader in <x key="module-loader"></x>,
 we use absolute paths as unique identifiers.
 Our code is also complicated by the fact that JavaScript's `Set` class doesn't have an equivalent of `Array.pop`,
 so we will maintain the set of pending items as a list.

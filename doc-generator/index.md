@@ -50,7 +50,7 @@
 
 ## What input will we try to handle?
 
--   Use <g key="markdown">Markdown</g> for formatting
+-   Use Markdown for formatting
 -   Parse it with [markdown-it][markdown-it]
 -   Function definitions look like this:
 

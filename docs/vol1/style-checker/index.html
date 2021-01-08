@@ -68,35 +68,34 @@
   <h1>Style Checker</h1>
   <h2 class="lede">Checking that code conforms to style guidelines</h2>
 <div class="callout">
-  <p>Terms defined: <g key="abstract_syntax_tree">abstract syntax tree (AST)</g>, <g key="dynamic_lookup">dynamic lookup</g>, <g key="generator_function">generator function</g>, <g key="iterator_pattern">Iterator pattern</g>, <g key="linter">linter</g>, <g key="visitor_pattern">Visitor pattern</g>, <g key="walk_tree">walk (a tree)</g></p>
+  <p>Terms defined: <g key="abstract_syntax_tree">abstract syntax tree (AST)</g>, <g key="dynamic_lookup">dynamic lookup</g>, <g key="generator_function">generator function</g>, <g key="iterator_pattern">Iterator pattern</g>, <g key="linter">linter</g>, <g key="markdown">Markdown</g>, <g key="walk_tree">walk (a tree)</g></p>
 </div>
-<ul>
-<li>Goal: check that source code conforms to style guidelines.
-<ul>
-<li>Tools like this are called <g key="linter">linters</g> in honor of an early one for C named <code>lint</code>
-because it looked for fluff in source code</li>
-<li>&quot;That's legal, but you shouldn't do it&quot;</li>
-</ul>
-</li>
-<li>Inspired by <a href="https://eslint.org/">ESLint</a> (which we use for our own code)</li>
-<li>Design:
-<ul>
-<li>Parse source code to create a data structure</li>
-<li>Go through the data structure and apply rules for each part of the program</li>
-<li>Collect results and report them all at the end</li>
-</ul>
-</li>
-</ul>
+<p>Programmers argue endlessly about the best way to format their programs,
+but (almost) everyone agrees that the most important thing is to be consistent.
+Since checking rules by hand is tedious,
+most programmers rely on tools that compare code against various rules
+and report any violations.
+Tools like this are called <g key="linter">linters</g>
+in honor of an early one for C named <code>lint</code>
+because it looked for fluff in source code.</p>
+<p>In this chapter we will build a linter of our own inspired by <a href="https://eslint.org/">ESLint</a>
+(which we use to check the code in this book).
+Our tool will parse source code to create a data structure,
+then go through that data structure and apply rules for each part of the program.
+It will also introduce us to one of the key ideas of this book,
+which is that source code is just another kind of data.</p>
 <h2 id="how-can-we-parse-javascript-to-create-an-ast">How can we parse JavaScript to create an AST?</h2>
-<ul>
-<li>A parser for a simple language like arithmetic or JSON is relatively easy to write (<x key="regex-parser"></x>)</li>
-<li>A parser for a language as complex as JavaScript is much more work</li>
-<li>We will use <a href="https://github.com/acornjs/acorn">Acorn</a> instead</li>
-<li>Produces an <g key="abstract_syntax_tree">abstract syntax tree</g> (AST)
-whose nodes store information about what's in the program</li>
-<li>Whole thing is
-85 lines long</li>
-</ul>
+<p>A parser for a simple language like arithmetic or JSON is relatively easy to write (<x key="regex-parser"></x>).
+A parser for a language as complex as JavaScript is much more work,
+so we will use one called <a href="https://github.com/acornjs/acorn">Acorn</a> instead.
+<a href="https://github.com/acornjs/acorn">Acorn</a> takes source code as input
+and produces an <g key="abstract_syntax_tree">abstract syntax tree</g> (AST)
+whose nodes store information about what's in the program
+(<f key="style-checker-parse-tree"></f>).
+ASTs can be quite complex---for exmaple,
+the JSON representation of the AST for a single constant declaration
+is
+85 lines long:</p>
 <pre title="parse-single-const.js"><code class="language-js">import acorn from 'acorn'
 
 const ast = acorn.parse('const x = 0', { locations: true })
@@ -125,19 +124,12 @@ console.log(JSON.stringify(ast, null, 2))
 }
 </code></pre>
 <figure id="style-checker-parse-tree" class="fixme"><img src="/static/tools-small.jpg" alt="A small parse tree"/><figcaption>The parse tree of a simple program.</figcaption></figure>
-<ul>
-<li><a href="https://esprima.org/">Esprima</a> format
-<ul>
-<li>A lot of detail</li>
-<li>But we can figure most of it out by inspection rather than by reading the standard</li>
-</ul>
-</li>
-<li>Look at the result of parsing a slightly more complex program
-<ul>
-<li>A 9-line program produces over 500 lines of structure</li>
-</ul>
-</li>
-</ul>
+<p><a href="https://github.com/acornjs/acorn">Acorn</a>'s output is in <a href="https://esprima.org/">Esprima</a> format.
+The specification is very detailed,
+but we can usually figure out most of what we need by inspection.
+For example,
+here's the output for a
+16-line program:</p>
 <pre title="parse-const-func.js"><code class="language-js">import acorn from 'acorn'
 
 const program = `const value = 2
@@ -177,17 +169,18 @@ console.log(JSON.stringify(ast, null, 2))
 ...480 more lines...
 </code></pre>
 <h2 id="how-can-we-find-things-in-an-ast">How can we find things in an AST?</h2>
-<ul>
-<li>To <g key="walk_tree">walk a tree</g> means to visit each node in turn</li>
-<li>Use a helper library <code>acorn-walk</code> to do this
-<ul>
-<li>Provide a function to act on nodes of type <code>Identifier</code></li>
-<li>Use options to say that we want to record locations and to collect comments (in the array <code>onComment</code>)</li>
-<li>We create an array called <code>state</code> to record declaration nodes as they're found</li>
-<li>Then report them all at the end</li>
-</ul>
-</li>
-</ul>
+<p>If we want to find functions, variables, or anything else in an AST
+we need to <g key="walk_tree">walk the tree</g>,
+i.e.,
+to visit each node in turn.
+The <a href="https://www.npmjs.com/package/acorn-walk"><code>acorn-walk</code></a> library will do this for us.
+We provide a function to act on nodes of type <code>Identifier</code>
+and use options to say that we want to record locations
+and to collect comments in the array <code>onComment</code>.
+Our function can do whatever we want,
+so for demonstration purposes we create an array called <code>state</code> to record declaration nodes as they're found
+and then report them all at the end
+(<f key="style-checker-walk-tree"></f>).</p>
 <figure id="style-checker-walk-tree" class="fixme"><img src="/static/tools-small.jpg" alt="Walking a tree"/><figcaption>Walking a tree to perform an operation at each node.</figcaption></figure>
 <pre title="walk-ast.js"><code class="language-js">import acorn from 'acorn'
 import walk from 'acorn-walk'
@@ -236,42 +229,20 @@ identifier result on line 12
 comments on lines 1, 4, 10
 </code></pre>
 <h2 id="how-can-we-apply-checks">How can we apply checks?</h2>
-<ul>
-<li>Check the desired properties of nodes of interest</li>
-<li>Accumulate results on demand
-<ul>
-<li>Only create arrays of results when nodes of that type are encountered</li>
-<li>Only insert nodes that fail checks</li>
-</ul>
-</li>
-</ul>
-<pre title="check-name-lengths.js"><code class="language-js">import acorn from 'acorn'
-import walk from 'acorn-walk'
-
-const program = `// Constant
-const value = 2
-
-// Function
-const double = (x) =&gt; {
-  const y = 2 * x
-  return y
-}
-
-// Main body
-const result = double(value)
-console.log(result)
-`
-
-const applyCheck = (state, label, node, passes) =&gt; {
+<p>We don't just want to collect nodes:
+we want to check their properties.
+A little function called <code>applyCheck</code> accumulates results on demand,
+building up a collection of lists:</p>
+<pre title="check-name-lengths.js"><code class="language-js">const applyCheck = (state, label, node, passes) =&gt; {
   if (!passes) {
     if (!(label in state)) {
       state[label] = []
     }
     state[label].push(node)
   }
-}
-
-const ast = acorn.parse(program, { locations: true })
+}</code></pre>
+<p>Using this, our main program is:</p>
+<pre title="check-name-lengths.js"><code class="language-js">const ast = acorn.parse(program, { locations: true })
 
 const state = {}
 walk.simple(ast, {
@@ -281,38 +252,33 @@ walk.simple(ast, {
 }, null, state)
 
 state.name_length.forEach(
-  node =&gt; console.log(`${node.name} at line ${node.loc.start.line}`))
-</code></pre>
+  node =&gt; console.log(`${node.name} at line ${node.loc.start.line}`))</code></pre>
+<div class="continue">
+<p>and the output for the same sample program as before is:</p>
+</div>
 <pre title="check-name-lengths.out"><code class="language-out">x at line 6
 y at line 7
 </code></pre>
-<ul>
-<li>Ask in the exercises why the parameter <code>x</code> doesn't show up as a violation</li>
-</ul>
+<p>The exercises will ask why the parameter <code>x</code> doesn't show up as a violation of our rule
+that variables' names must be at least four characters long.</p>
 <h2 id="how-does-the-ast-walker-work">How does the AST walker work?</h2>
-<ul>
-<li>Uses the <g key="visitor_pattern">Visitor</g> design pattern (<x key="page-templates"></x>)</li>
-<li>Define a class with methods that
-<ul>
-<li>Walk the tree</li>
-<li>Take action depending on the kind of node</li>
-<li>Go through the children of that node</li>
-</ul>
-</li>
-<li>Users overrides the set of action methods they're interested in
-<ul>
-<li>Use <g key="dynamic_lookup">dynamic lookup</g> to look up a method
-with the same name as the node type in the walker object</li>
-<li>I.e., use the walker object as a lookup table</li>
-</ul>
-</li>
-<li>Not the same architecture as <code>acorn-walk</code>
-<ul>
-<li>But easier to understand and extend</li>
-</ul>
-</li>
-<li>The class itself</li>
-</ul>
+<p>The AST walker uses the Visitor pattern first seen in <x key="page-templates"></x>.
+We can build our own by defining a class with methods that walk the tree,
+take action depending on the kind of node,
+and then go through the children of that node (if any).
+The user can then derive a class of their own from this
+and override the set of action methods they're interested in.</p>
+<p>The key difference between our visitor and <code>acorn-walk</code> is that
+our class uses <g key="dynamic_lookup">dynamic lookup</g> to look up a method
+with the same name as the node type in the object.
+While we normally refer to a particular method of an object using <code>object.method</code>,
+we can also look them up by asking for <code>object[name]</code>
+where <code>name</code> is a variable or expression that produces a string.
+We think this approach to implementing the Visitor pattern is easier to understand and extend
+than one that relies on callbacks,
+but that's a reflection of our background and experience
+rather than intrinsic to the code itself.</p>
+<p>Our class looks like this:</p>
 <pre title="walker-class.js"><code class="language-js">class Walker {
   // Construct a new AST tree walker.
   constructor (ast) {
@@ -362,9 +328,7 @@ with the same name as the node type in the walker object</li>
       nodeTypes.includes(this.stack.slice(-1)[0].type)
   }
 }</code></pre>
-<ul>
-<li>What we need to run a test</li>
-</ul>
+<p>The code we need to use it is:</p>
 <pre title="walker-class.js"><code class="language-js">import acorn from 'acorn'
 ...
 // Walk to accumulate variable and parameter definitions.
@@ -395,30 +359,23 @@ const accumulator = []
 walker.walk(accumulator)
 console.log('definitions are', accumulator)
 </code></pre>
-<ul>
-<li>Output</li>
-</ul>
+<div class="continue">
+<p>and its output is:</p>
+</div>
 <pre title="walker-class.out"><code class="language-out">definitions are [ 'value', 'double', 'x', 'y', 'result' ]
 </code></pre>
 <h2 id="how-else-could-the-ast-walker-work">How else could the AST walker work?</h2>
-<ul>
-<li>An alternative approach uses the <g key="iterator_pattern">Iterator</g> pattern
-<ul>
-<li>Return elements of a complex structure one by one for processing</li>
-<li>Visitor takes computation to the nodes, Iterator gets the nodes for processing</li>
-</ul>
-</li>
-</ul>
+<p>Yet another approach to this problem uses the <g key="iterator_pattern">Iterator</g> pattern.
+Instead of taking the computation to the nodes as a visitor does,
+an iterator returns the elements of a complex structure one by one for processing
+(<f key="style-checker-iterator"></f>).
+One way to think about it is that the Visitor pattern encapsulates recursion,
+while the Iterator pattern turns everything into a <code>for</code> loop.</p>
 <figure id="style-checker-iterator" class="fixme"><img src="/static/tools-small.jpg" alt="The Iterator pattern"/><figcaption>Finding nodes in the tree using the Iterator pattern.</figcaption></figure>
-<ul>
-<li>Can implement in JavaScript using <g key="generator_function">generator functions</g></li>
-<li>Use <code>yield</code> to return a value and suspend processing to be resumed later
-<ul>
-<li>Result is a two-part structure with <code>value</code> and <code>done</code></li>
-</ul>
-</li>
-<li>Note that a generator function returns an object that then returns values</li>
-</ul>
+<p>We can implement the Iterator pattern in JavaScript using <g key="generator_function">generator functions</g>.
+If we declare a function using <code>function *</code> rather than just <code>function</code>
+then we can use the <code>yield</code> keyword to return a value and suspend processing to be resumed later.
+The result of <code>yield</code> is a two-part structure with a value and a flag showing whether or not processing is done:</p>
 <pre title="generator-example.js"><code class="language-js">function * threeWords () {
   yield 'first'
   yield 'second'
@@ -437,14 +394,14 @@ console.log(gen.next())
 { value: 'third', done: false }
 { value: undefined, done: true }
 </code></pre>
-<ul>
-<li>This generator takes an irregular nested array of strings and yields:
-<ul>
-<li>A string</li>
-<li>Another generator (using <code>yield*</code> to mean &quot;uses its values until they run out&quot;)</li>
-</ul>
-</li>
-</ul>
+<div class="continue">
+<p>It's important to note that a generator function creates an object
+that we can then ask for values repeatedly.
+This gives us a way to have several generators in play at the same time.</p>
+</div>
+<p>This generator takes an irregular nested array of strings
+and yields a string and another generator
+(using <code>yield*</code> to mean &quot;uses its values until they run out&quot;):</p>
 <pre title="generator-tree.js"><code class="language-js">function * getNodes (here) {
   if (typeof here === 'string') {
     yield here
@@ -459,9 +416,7 @@ console.log(gen.next())
 
 export default getNodes
 </code></pre>
-<ul>
-<li>Manage iteration explicitly</li>
-</ul>
+<p>We can manage iteration explicitly:</p>
 <pre title="generator-tree-while.js"><code class="language-js">import getNodes from './generator-tree.js'
 
 const nested = ['first', ['second', 'third']]
@@ -476,9 +431,10 @@ while (!current.done) {
 second
 third
 </code></pre>
-<ul>
-<li>But <code>for…of</code> knows how to work with generators</li>
-</ul>
+<div class="continue">
+<p>but <code>for…of</code> knows how to work with generators,
+and is the usual way to manage them:</p>
+</div>
 <pre title="generator-tree-for.js"><code class="language-js">import getNodes from './generator-tree.js'
 
 const nested = ['first', ['second', 'third']]
@@ -490,12 +446,9 @@ for (const value of getNodes(nested)) {
 second
 third
 </code></pre>
-<ul>
-<li>Use this to count the number of expressions of various types in code</li>
-</ul>
-<pre title="generator-count.js"><code class="language-js">import acorn from 'acorn'
-
-function * getNodes (node) {
+<p>Let's use this to count the number of expressions of various types in a program.
+The generator function that visits each node is:</p>
+<pre title="generator-count.js"><code class="language-js">function * getNodes (node) {
   if (node &amp;&amp; (typeof node === 'object') &amp;&amp; ('type' in node)) {
     yield node
     for (const key in node) {
@@ -508,21 +461,11 @@ function * getNodes (node) {
       }
     }
   }
-}
-
-// Test.
-const program = `const value = 2
-
-const double = (x) =&gt; {
-  const y = 2 * x
-  return 2 * y + 1
-}
-
-const result = double(value)
-console.log(result)
-`
-
-const ast = acorn.parse(program, { locations: true })
+}</code></pre>
+<div class="continue">
+<p>and the program that uses it is:</p>
+</div>
+<pre title="generator-count.js"><code class="language-js">const ast = acorn.parse(program, { locations: true })
 const result = {}
 for (const node of getNodes(ast)) {
   if (node.type === 'BinaryExpression') {
@@ -533,23 +476,27 @@ for (const node of getNodes(ast)) {
     }
   }
 }
-console.log('counts are', result)
-</code></pre>
+console.log('counts are', result)</code></pre>
+<p>When we run it with our usual test program as input, we get:</p>
 <pre title="generator-count.out"><code class="language-out">counts are { '*': 2, '+': 1 }
 </code></pre>
-<ul>
-<li>More difficult to do variable identifiers than previous Visitor approach
-<ul>
-<li>Generator doesn't keep state, so we have to maintain that outside for ourselves</li>
-</ul>
-</li>
-</ul>
+<p>Generators are a clean solution to many hard problems,
+but since we have to maintain state ourselves,
+we find it more difficult to check variable identifiers using generators
+than using the class-based Visitor approach.
+Again,
+this could be a reflection of what we're used to rather than anything intrinsic;
+as with coding style,
+the most important thing is to be consistent.</p>
 <h2 id="what-other-kinds-of-analysis-can-we-do">What other kinds of analysis can we do?</h2>
-<ul>
-<li>Can be hard to keep track of which methods are defined where in a complex class hierarchy</li>
-<li>So build a tool to find that out</li>
-<li>Find the ancestors of a class</li>
-</ul>
+<p>As one final example,
+consider the problem of keeping trac of which methods are defined where
+in a deeply-nested class hierarchy.
+(This problem came up in some of the later chapters in this book:
+we wrote so many classes that incrementally extended their predecessors for pedagogical purposes
+that we lost track of what was defined where.)
+To create a table of method definitions,
+we first need to find the ancestors of the last class in the hierarchy:</p>
 <pre title="find-ancestors.js"><code class="language-js">import assert from 'assert'
 import acorn from 'acorn'
 import fs from 'fs'
@@ -580,9 +527,7 @@ class FindAncestors {
 
 export default FindAncestors
 </code></pre>
-<ul>
-<li>Finding class definitions is a straightforward extension of what we have already done</li>
-</ul>
+<p>Finding class definitions is a straightforward extension of what we have already done:</p>
 <pre title="find-ancestors.js"><code class="language-js">  findClassDef (filename, ast, className) {
     const state = []
     walk.simple(ast, {
@@ -597,9 +542,7 @@ export default FindAncestors
       `No definition for ${className} in ${filename}`)
     return state[0]
   }</code></pre>
-<ul>
-<li>Start with the lowest of these three files</li>
-</ul>
+<p>To test this, we start with the last of these three short files:</p>
 <pre title="upper.js"><code class="language-js">class Upper {
   constructor () {
     this.name = 'upper'
@@ -649,9 +592,8 @@ export default Lower
 Middle in ./middle.js
 Upper in ./upper.js
 </code></pre>
-<ul>
-<li>Finding methods is another method</li>
-</ul>
+<p>Good: we can recover the chain of inheritance.
+Finding method definitions is also straightforward:</p>
 <pre title="find-methods.js"><code class="language-js">import FindAncestors from './find-ancestors.js'
 
 class FindMethods extends FindAncestors {
@@ -681,9 +623,8 @@ class FindMethods extends FindAncestors {
 
 export default FindMethods
 </code></pre>
-<ul>
-<li>And draw a table showing which methods are defined in which class so that we can see what's overridden where</li>
-</ul>
+<p>And finally,
+we can print a <g key="markdown">Markdown</g>-formatted table showing which methods are defined in which class:</p>
 <table>
 <thead>
 <tr>
@@ -720,10 +661,9 @@ export default FindMethods
 </tr>
 </tbody>
 </table>
-<ul>
-<li>Most useful when we apply it to a larger example
-like the virtual machine we will build in <x key="virtual-machine"></x></li>
-</ul>
+<p>This may seem rather pointless for our toy example,
+but it proves its worth when we are looking at something like
+the virtual machine we will build in <x key="virtual-machine"></x>:</p>
 <table>
 <thead>
 <tr>

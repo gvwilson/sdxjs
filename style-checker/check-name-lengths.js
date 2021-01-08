@@ -15,6 +15,7 @@ const result = double(value)
 console.log(result)
 `
 
+// <applyCheck>
 const applyCheck = (state, label, node, passes) => {
   if (!passes) {
     if (!(label in state)) {
@@ -23,7 +24,9 @@ const applyCheck = (state, label, node, passes) => {
     state[label].push(node)
   }
 }
+// </applyCheck>
 
+// <main>
 const ast = acorn.parse(program, { locations: true })
 
 const state = {}
@@ -35,3 +38,4 @@ walk.simple(ast, {
 
 state.name_length.forEach(
   node => console.log(`${node.name} at line ${node.loc.start.line}`))
+// </main>
