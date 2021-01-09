@@ -1,3 +1,4 @@
+// <original>
 let funcZero = () => console.log('funcZero')
 
 let funcOne = (first) => console.log(`funcOne(${first})`)
@@ -24,7 +25,9 @@ const runAll = (title) => {
 }
 
 runAll('first time')
+// </original>
 
+// <replace>
 const replace = (func) => {
   return (...args) => {
     console.log('before')
@@ -45,3 +48,4 @@ funcTwo = replace(funcTwo)
 funcError = replace(funcError)
 
 runAll('second time')
+// </replace>
