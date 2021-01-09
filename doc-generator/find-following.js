@@ -2,6 +2,7 @@ import assert from 'assert'
 import fs from 'fs'
 import acorn from 'acorn'
 
+// <main>
 const main = () => {
   const options = {
     sourceType: 'module',
@@ -24,7 +25,9 @@ const main = () => {
   findFollowing(ast, targets, nodes)
   console.log(nodes.map(node => condense(node)))
 }
+// </main>
 
+// <findFollowing>
 const findFollowing = (node, targets, accum) => {
   if ((!node) || (typeof node !== 'object') || (!('type' in node))) {
     return
@@ -43,7 +46,9 @@ const findFollowing = (node, targets, accum) => {
     }
   }
 }
+// </findFollowing>
 
+// <condense>
 const condense = (node) => {
   const result = {
     type: node.type,
@@ -68,5 +73,6 @@ const condense = (node) => {
   }
   return result
 }
+// </condense>
 
 main()

@@ -68,25 +68,23 @@
   <h1>Documentation Generator</h1>
   <h2 class="lede">Generating documentation from comments embedded in code</h2>
 <div class="callout">
-  <p>Terms defined: <g key="block_comment">block comment</g>, <g key="line_comment">line comment</g></p>
+  <p>Terms defined: <g key="accumulator">accumulator</g>, <g key="block_comment">block comment</g>, <g key="doc_comment">doc comment</g>, <g key="line_comment">line comment</g>, <g key="slug">slug</g></p>
 </div>
-<ul>
-<li>Many programmers believe they're more likely to write documentation and keep it up to date
-if it's close to the code</li>
-<li>Tools that extract specially-formatted comments from code and turn them into documentation
-have been around since the 1980s</li>
-<li>Many are used for JavaScript, including <a href="https://jsdoc.app/">JSDoc</a> and <a href="https://esdoc.org/">ESDoc</a></li>
-<li>Good ones minimize the amount of duplicated information</li>
-</ul>
+<p>Many programmers believe they're more likely to write documentation and keep it up to date
+if it is close to the code.
+Tools that extract specially-formatted comments from code and turn them into documentation
+have been around since the 1980s;
+many are used for JavaScript,
+including <a href="https://jsdoc.app/">JSDoc</a> and <a href="https://esdoc.org/">ESDoc</a>
+(which we use to document the tools that build this book).
+This chapter will use what we now know about parsing source code
+to build a simple documentation generator of our own.</p>
 <h2 id="how-can-we-extract-documentation-comments">How can we extract documentation comments?</h2>
-<ul>
-<li>Use <a href="https://github.com/acornjs/acorn">Acorn</a> once again to extract comments</li>
-<li>Provide an <code>onComment</code> option with an array value for it to fill in
-<ul>
-<li>Don't bother assigning the AST produced by parsing to a variable because we're collecting side effects in <code>onComment</code></li>
-</ul>
-</li>
-</ul>
+<p>Once again we will use <a href="https://github.com/acornjs/acorn">Acorn</a> to extract comments
+by providing an <code>onComment</code> option to the parser
+with an array for it to fill in.
+For the moment we won't bother to assign the AST produced by parsing to a variable
+because we are just interested in the comments:</p>
 <pre title="extract-comments.js"><code class="language-js">import fs from 'fs'
 import acorn from 'acorn'
 
@@ -137,9 +135,8 @@ console.log(JSON.stringify(options.onComment, null, 2))
   }
 ]
 </code></pre>
-<ul>
-<li>Extract a subset of the JSON with key features</li>
-</ul>
+<p>There is more information here than we need,
+so let's slim down the JSON that we extract:</p>
 <pre title="extract-comments-subset.js"><code class="language-js">import fs from 'fs'
 import acorn from 'acorn'
 
@@ -177,15 +174,11 @@ console.log(JSON.stringify(subset, null, 2))
   }
 ]
 </code></pre>
-<figure id="doc-generator-comments" class="fixme"><img src="/static/tools-small.jpg" alt="Line and block comments"/><figcaption>How line comments and block comments are distinguished and represented.</figcaption></figure>
-<ul>
-<li>Acorn distinguishes two kinds of comments</li>
-<li><g key="line_comment">Line comments</g> can't span multiple lines
-<ul>
-<li>Consecutive line comments aren't combined</li>
-</ul>
-</li>
-</ul>
+<p><a href="https://github.com/acornjs/acorn">Acorn</a> distinguishes two kinds of comments.
+<g key="line_comment">Line comments</g> cannot span multiple lines;
+if one line comment occurs immediately after another,
+<a href="https://github.com/acornjs/acorn">Acorn</a> reports two comments
+(<f key="doc-generator-comments"></f>):</p>
 <pre title="multi-line-double-slash-comment.js"><code class="language-js">//
 // multi-line double-slash comment
 //
@@ -213,13 +206,11 @@ console.log(JSON.stringify(subset, null, 2))
   }
 ]
 </code></pre>
-<ul>
-<li><g key="block_comment">Block comments</g> can span any number of lines
-<ul>
-<li>Don't need to prefix each line with <code>*</code> but most people do for readability</li>
-</ul>
-</li>
-</ul>
+<figure id="doc-generator-comments" class="fixme"><img src="/static/tools-small.jpg" alt="Line and block comments"/><figcaption>How line comments and block comments are distinguished and represented.</figcaption></figure>
+<p><g key="block_comment">Block comments</g>,
+on the other hand,
+can span any number of lines.
+We don't need to prefix each line with <code>*</code> but most people do for readability:</p>
 <pre title="multi-line-slash-star-comment.js"><code class="language-js">/*
  * multi-line slash-star comment
  */
@@ -235,13 +226,10 @@ console.log(JSON.stringify(subset, null, 2))
   }
 ]
 </code></pre>
-<ul>
-<li>By convention, use block comments that start with <code>/**</code> for documentation
-<ul>
-<li>Which means the first character in the extracted text is <code>*</code></li>
-</ul>
-</li>
-</ul>
+<p>By convention,
+we use block comments that start with <code>/**</code> for documentation.
+The first two characters are recognized by the parser as &quot;start of comment&quot;,
+so the first character in the extracted text is <code>*</code>:</p>
 <pre title="doc-comment.js"><code class="language-js">/**
  * doc comment
  */
@@ -256,11 +244,8 @@ console.log(JSON.stringify(subset, null, 2))
 ]
 </code></pre>
 <h2 id="what-input-will-we-try-to-handle">What input will we try to handle?</h2>
-<ul>
-<li>Use Markdown for formatting</li>
-<li>Parse it with <a href="https://markdown-it.github.io/">markdown-it</a></li>
-<li>Function definitions look like this:</li>
-</ul>
+<p>We will use [Markdown][markdown] for formatting our documentation.
+The documentation for function definitions looks like this:</p>
 <pre title="example-plain.js"><code class="language-js">/**
  * # Demonstrate documentation generator.
  */
@@ -297,9 +282,9 @@ const process = (input, output, op = util.BaseProcessor) =&gt; {
   // body would go here
 }
 </code></pre>
-<ul>
-<li>Class definitions look like this:</li>
-</ul>
+<div class="continue">
+<p>while the documentation for class definitions looks like this:</p>
+</div>
 <pre title="util-plain.js"><code class="language-js">/**
  * # Utilities to demonstrate doc generator.
  */
@@ -327,29 +312,32 @@ class BaseProcessor {
 
 export default BaseProcessor
 </code></pre>
-<ul>
-<li>Lots of unpleasantry here
-<ul>
-<li>Repeating function and method names</li>
-<li>Have to remember the back-quotes for formatting code</li>
-<li>Have to create titles ourselves</li>
-</ul>
-</li>
-<li>But it's a start</li>
-</ul>
-<h2 id="how-can-we-extract-and-format-comments">How can we extract and format comments?</h2>
-<ul>
-<li>Processing looks like this</li>
-</ul>
-<pre title="process-plain.js"><code class="language-js">import fs from 'fs'
-import acorn from 'acorn'
-import MarkdownIt from 'markdown-it'
-import MarkdownAnchor from 'markdown-it-anchor'
-
-import slugify from './slugify.js'
-
-const main = () =&gt; {
-  const allComments = process.argv.slice(2)
+<p>The embedded comments are rather unpleasant at the moment:
+the function and method names from the code are repeated in the <g key="doc_comment">doc comments</g>,
+we have to create titles ourselves,
+and we have to remember the back-quotes for formatting code.
+We will fix some of these problems once we have a basic tool up and running.</p>
+<p>There are many [Markdown][markdown] parsers in JavaScript;
+after a bit of experimentation,
+we decided to use <a href="https://markdown-it.github.io/"><code>markdown-it</code></a>
+along with the <a href="https://www.npmjs.com/package/markdown-it-anchor"><code>markdown-it-anchor</code></a> extension
+that creates HTML anchors for headings.
+The main program gets all the doc comments from all of the input files,
+converts the Markdown to HTML,
+and displays that:</p>
+<pre title="process-plain.js"><code class="language-js">const main = () =&gt; {
+  const allComments = getAllComments(process.argv.slice(2))
+  const md = new MarkdownIt({ html: true })
+    .use(MarkdownAnchor, { level: 1, slugify: slugify })
+  const html = md.render(allComments)
+  console.log(html)
+}</code></pre>
+<p>To get all the comments
+we extract comments from all the files,
+remove the leading <code>*</code> characters (which aren't part of the documentation),
+and then join up the results after stripping off extraneous blanks:</p>
+<pre title="process-plain.js"><code class="language-js">const getAllComments = (allFilenames) =&gt; {
+  return allFilenames
     .map(filename =&gt; {
       const comments = extractComments(filename)
       return { filename, comments }
@@ -365,13 +353,9 @@ const main = () =&gt; {
       return `# ${filename}\n\n${combined}`
     })
     .join('\n\n')
-  const md = new MarkdownIt({ html: true })
-    .use(MarkdownAnchor, { level: 1, slugify: slugify })
-  const html = md.render(allComments)
-  console.log(html)
-}
-
-const extractComments = (filename) =&gt; {
+}</code></pre>
+<p>Extracting the comments from a single file is done as before:</p>
+<pre title="process-plain.js"><code class="language-js">const extractComments = (filename) =&gt; {
   const text = fs.readFileSync(filename, 'utf-8')
   const options = {
     sourceType: 'module',
@@ -390,9 +374,13 @@ const extractComments = (filename) =&gt; {
       }
     })
   return subset
-}
-
-const removePrefix = (comment) =&gt; {
+}</code></pre>
+<div class="continue">
+<p>and removing the prefix <code>*</code> characters is a matter of splitting the text into lines,
+removing the leading spaces and asterisks,
+and putting the lines back together:</p>
+</div>
+<pre title="process-plain.js"><code class="language-js">const removePrefix = (comment) =&gt; {
   comment.stripped = comment.value
     .split('\n')
     .slice(0, -1)
@@ -401,19 +389,31 @@ const removePrefix = (comment) =&gt; {
     .join('\n')
     .trim()
   return comment
+}</code></pre>
+<p>One thing that isn't in this file (because we're going to use it in later versions)
+is the function <code>slugify</code>.
+A <g key="slug">slug</g> is a short string that identifies a header or a web page;
+the name comes from the era of newspapers,
+where a slug was a short name used to identify an article while it was in production.
+Our <code>slugify</code> function strips unnecessary characters out of a title,
+adds hyphens,
+and generally makes it something you might see in a URL:</p>
+<pre title="slugify.js"><code class="language-js">const slugify = (text) =&gt; {
+  return encodeURIComponent(
+    text.split(' ')[0]
+      .replace(/.js$/, '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^ \w]/g, '')
+      .replace(/\s+/g, '-')
+  )
 }
 
-main()
+export default slugify
 </code></pre>
-<ul>
-<li>Extract all special comments from all files and concatenate with source file's name as level-1 heading</li>
-<li>Convert that document from Markdown to HTML
-<ul>
-<li>Use our own function <code>slugify</code> to give elements IDs</li>
-</ul>
-</li>
-<li>Run and inspect output</li>
-</ul>
+<p>Let's run the first version of our documentation generator
+and see what it produces
+(<f key="doc-generator-mapping"></f>):</p>
 <pre title="process-plain.sh"><code class="language-sh">node process-plain.js example-plain.js util-plain.js
 </code></pre>
 <pre title="process-plain.html"><code class="language-html">&lt;h1 id="exampleplain"&gt;example-plain.js&lt;/h1&gt;
@@ -468,38 +468,27 @@ Use @BaseProcessor unless told otherwise.</li>
 <li><code>output</code> (<code>stream</code>): where to write.</li>
 </ul>
 </div>
-<ul>
-<li>Lots of ugliness here
-<ul>
-<li>Double <code>h1</code> for each file (filename and title comment)</li>
-<li>Anchor IDs are hard to read</li>
-<li>No cross-references</li>
-</ul>
-</li>
-<li>Some visual issues can be resolved with CSS
-<ul>
-<li>And we can change our input format to make processing easier</li>
-<li>As long as it also makes authoring easier</li>
-</ul>
-</li>
-<li>But anything that's written twice will eventually be wrong in one place or another</li>
-</ul>
 <figure id="doc-generator-mapping" class="fixme"><img src="/static/tools-small.jpg" alt="Mapping comments to documentation"/><figcaption>How comments in code map to documentation in HTML.</figcaption></figure>
+<p>Again,
+there is a lot of room for improvement:
+there is a double <code>h1</code> header for each file (the filename and and the title comment),
+the anchor IDs are hard to read,
+there are no cross-references,
+and so on.
+Some of the visual issues can be resolved with CSS,
+and we can change our input format to make processing easier
+as long as it also makes authoring easier.
+However,
+anything that is written twice will eventually be wrong in one place or another,
+so our first priority is to remove duplication.</p>
 <h2 id="how-can-we-avoid-duplicating-function-names">How can we avoid duplicating function names?</h2>
-<ul>
-<li>If a comment is the first thing in a file, use it as title text
-<ul>
-<li>Saves us having to write an explicit level-1 title in a comment</li>
-</ul>
-</li>
-<li>For each other comment, find the node on the immediately following line
-<ul>
-<li>Can't return immediately when we find a match because methods are nested in classes</li>
-<li>Delete the line number we're seeking so that we only find the first matching node</li>
-</ul>
-</li>
-<li>Allows us to write tidier comments</li>
-</ul>
+<p>If a comment is the first thing in a file,
+we want to use it as title text;
+this will save us having to write an explicit level-1 title in a comment.
+For each other comment,
+we can extract the name of the function or method
+from the node on the line immediately following the doc comment.
+This allows us to write much tidier comments:</p>
 <pre title="find-following-input.js"><code class="language-js">/**
  * Overall file header.
  */
@@ -527,20 +516,15 @@ class Example {
   }
 }
 </code></pre>
-<ul>
-<li>Extract and display information from nodes immediately following doc comments
-<ul>
-<li>Find all block comments</li>
-<li>Record last line of each</li>
-<li>Recurse through AST to find code on line immediately following</li>
-</ul>
-</li>
-</ul>
-<pre title="find-following.js"><code class="language-js">import assert from 'assert'
-import fs from 'fs'
-import acorn from 'acorn'
-
-const main = () =&gt; {
+<p>To extract and display information from nodes immediately following doc comments
+we must find all the block comments,
+record the last line of each,
+and then recurse through the AST to find the node on line immediately following
+any of those last comment lines.
+The main program finds the comments as usual,
+creates a set containing the line numbers we are looking for,
+then searches for the nodes we want:</p>
+<pre title="find-following.js"><code class="language-js">const main = () =&gt; {
   const options = {
     sourceType: 'module',
     locations: true,
@@ -561,9 +545,11 @@ const main = () =&gt; {
   const nodes = []
   findFollowing(ast, targets, nodes)
   console.log(nodes.map(node =&gt; condense(node)))
-}
-
-const findFollowing = (node, targets, accum) =&gt; {
+}</code></pre>
+<p>The recursive search is straightforward as well---the only new trick is that
+we delete line numbers from the target set
+and add nodes to the <g key="accumulator">accumulator</g> as we find matches:</p>
+<pre title="find-following.js"><code class="language-js">const findFollowing = (node, targets, accum) =&gt; {
   if ((!node) || (typeof node !== 'object') || (!('type' in node))) {
     return
   }
@@ -580,9 +566,10 @@ const findFollowing = (node, targets, accum) =&gt; {
       findFollowing(node[key], targets, accum)
     }
   }
-}
-
-const condense = (node) =&gt; {
+}</code></pre>
+<p>Finally,
+we use a function called <code>condense</code> to get the name we want out of the AST we have:</p>
+<pre title="find-following.js"><code class="language-js">const condense = (node) =&gt; {
   const result = {
     type: node.type,
     start: node.loc.start.line
@@ -605,12 +592,20 @@ const condense = (node) =&gt; {
       break
   }
   return result
+}</code></pre>
+<div class="continue">
+<p>We need this because we get a different structure with:</p>
+</div>
+<pre><code class="language-js">const name = function() =&gt; {
 }
-
-main()
 </code></pre>
-<pre title="find-following.sh"><code class="language-sh">node find-following.js find-following-input.js
+<div class="continue">
+<p>than we get with:</p>
+</div>
+<pre><code class="language-js">function name() {
+}
 </code></pre>
+<p>When we run this on our test case we get:</p>
 <pre title="find-following.out"><code class="language-out">[
   { type: 'VariableDeclaration', start: 8, name: 'double' },
   { type: 'FunctionDeclaration', start: 13, name: 'triple' },
@@ -618,9 +613,7 @@ main()
   { type: 'MethodDefinition', start: 24, name: 'someMethod' }
 ]
 </code></pre>
-<ul>
-<li>Use this to create better output</li>
-</ul>
+<p>We can use this to create better output:</p>
 <pre title="fill-in-headers.js"><code class="language-js">import MarkdownIt from 'markdown-it'
 import MarkdownAnchor from 'markdown-it-anchor'
 

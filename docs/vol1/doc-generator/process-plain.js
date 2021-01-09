@@ -5,8 +5,19 @@ import MarkdownAnchor from 'markdown-it-anchor'
 
 import slugify from './slugify.js'
 
+// <main>
 const main = () => {
-  const allComments = process.argv.slice(2)
+  const allComments = getAllComments(process.argv.slice(2))
+  const md = new MarkdownIt({ html: true })
+    .use(MarkdownAnchor, { level: 1, slugify: slugify })
+  const html = md.render(allComments)
+  console.log(html)
+}
+// </main>
+
+// <getAllComments>
+const getAllComments = (allFilenames) => {
+  return allFilenames
     .map(filename => {
       const comments = extractComments(filename)
       return { filename, comments }
@@ -22,12 +33,10 @@ const main = () => {
       return `# ${filename}\n\n${combined}`
     })
     .join('\n\n')
-  const md = new MarkdownIt({ html: true })
-    .use(MarkdownAnchor, { level: 1, slugify: slugify })
-  const html = md.render(allComments)
-  console.log(html)
 }
+// </getAllComments>
 
+// <extractComments>
 const extractComments = (filename) => {
   const text = fs.readFileSync(filename, 'utf-8')
   const options = {
@@ -48,7 +57,9 @@ const extractComments = (filename) => {
     })
   return subset
 }
+// </extractComments>
 
+// <removePrefix>
 const removePrefix = (comment) => {
   comment.stripped = comment.value
     .split('\n')
@@ -59,5 +70,6 @@ const removePrefix = (comment) => {
     .trim()
   return comment
 }
+// </removePrefix>
 
 main()
