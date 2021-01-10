@@ -68,57 +68,53 @@
   <h1>Virtual Machine</h1>
   <h2 class="lede">Assembling and running low-level code</h2>
 <div class="callout">
-  <p>Terms defined: <g key="abi">Application Binary Interface (ABI)</g>, <g key="assembler">assembler</g>, <g key="assembly_code">assembly code</g>, <g key="compiler">compiler</g>, <g key="instruction_pointer">instruction pointer</g>, <g key="instruction_set">instruction set</g>, <g key="label_address">label (address in memory)</g>, <g key="op_code">op code</g>, <g key="register">register</g>, <g key="token">token</g>, <g key="word_memory">word (of memory)</g></p>
+  <p>Terms defined: <g key="abi">Application Binary Interface (ABI)</g>, <g key="assembler">assembler</g>, <g key="assembly_code">assembly code</g>, <g key="bitwise_operation">bitwise operation</g>, <g key="compiler">compiler</g>, <g key="instruction_pointer">instruction pointer</g>, <g key="instruction_set">instruction set</g>, <g key="label_address">label (address in memory)</g>, <g key="op_code">op code</g>, <g key="register">register</g>, <g key="token">token</g>, <g key="virtual_machine">virtual machine</g>, <g key="word_memory">word (of memory)</g></p>
 </div>
-<ul>
-<li>Computers don't execute JavaScript directly
-<ul>
-<li>Each processor has its own <g key="instruction_set">instruction set</g></li>
-<li>A <g key="compiler">compiler</g> translates high-level language into those instructions</li>
-</ul>
-</li>
-<li>Often use an intermediate representation called <g key="assembly_code">assembly code</g>
-<ul>
-<li>Human-readable names instead of numbers</li>
-</ul>
-</li>
-<li>We will simulate a very simple processor with a little bit of memory
-<ul>
-<li>Also check out the game <a href="https://tomorrowcorporation.com/humanresourcemachine">Human Resource Machine</a></li>
-</ul>
-</li>
-</ul>
+<p>Computers don't execute JavaScript directly.
+Each processor has its own <g key="instruction_set">instruction set</g>,
+and it's the job of a <g key="compiler">compiler</g> to translate high-level language into those instructions.
+Compilers often use an intermediate representation called <g key="assembly_code">assembly code</g>
+that gives instructions human-readable names instead of numbers.
+To understand more about how JavaScript actually runs
+we will simulate a very simple processor with a little bit of memory.
+You may also want to check out the game <a href="https://tomorrowcorporation.com/humanresourcemachine">Human Resource Machine</a>,
+which asks you to solve puzzles of increasing difficulty using an even simpler processor.</p>
 <h2 id="what-is-the-architecture-of-our-virtual-machine">What is the architecture of our virtual machine?</h2>
-<ul>
-<li>An <g key="instruction_pointer">instruction pointer</g> that holds the memory address of the next instruction to execute
-<ul>
-<li>Always starts at address 0</li>
-<li>Part of the <g key="abi">Application Binary Interface</g> (ABI) for our virtual machine</li>
-</ul>
+<p>Our <g key="virtual_machine">virtual machine</g> has three parts
+(<f key="virtual-machine-architecture"></f>):</p>
+<ol>
+<li>
+<p>An <g key="instruction_pointer">instruction pointer</g> that holds the memory address of the next instruction to execute.
+It is automatically initialized to point at address 0,
+which is where every program must start.
+This rule is part of the <g key="abi">Application Binary Interface</g> (ABI) for our virtual machine.</p>
 </li>
-<li>Four <g key="register">registers</g>
-<ul>
-<li>No memory-to-memory operations</li>
-<li>Everything happens in or through registers</li>
-</ul>
+<li>
+<p>Four <g key="register">registers</g> that instructions can access directly.
+There are no memory-to-memory operations in our VM:
+everything  happens in or through registers.</p>
 </li>
-<li>256 <g key="word_memory">words</g> of memory
-<ul>
-<li>Stores both the program and the data</li>
-<li>Each address will fit in a single byte</li>
-</ul>
+<li>
+<p>256 <g key="word_memory">words</g> of memory, each of which can store a single value.
+Both the program and its data live in this single block of memory;
+we chose the size 256 so that each address will fit in a single byte.</p>
 </li>
-<li>Instructions are 3 bytes long
-<ul>
-<li><g key="op_code">Op code</g> fits into one byte</li>
-<li>Zero, one, or two operands, each a byte long</li>
-<li>Each operand is a register or a value (constant or address)</li>
-<li>So the largest constant we can represent directly is 256</li>
-</ul>
-</li>
-<li>Use <code>r</code> and <code>v</code> to indicate format</li>
-</ul>
+</ol>
 <figure id="virtual-machine-architecture" class="fixme"><img src="/static/tools-small.jpg" alt="Virtual machine architecture"/><figcaption>Architecture of the virtual machine.</figcaption></figure>
+<p>The instructions for our VM are 3 bytes long.
+The <g key="op_code">op code</g> fits into one byte,
+and each instruction may optionally include one or two operands,
+each a byte long.
+Each operand is a register identifier,
+a constant
+or an address
+(which is just a constant that identifies a location in memory).
+This means that the largest constant we can represent directly is 256.
+<t key="virtual-machine-op-codes"></t> uses the letters <code>r</code>, <code>c</code>, and <code>a</code>
+to indicate instruction format,
+where <code>r</code> indicates a register identifier,
+<code>c</code> indicates a constant,
+and <code>a</code> indicates an address.</p>
 <table id="virtual-machine-op-codes"><caption>Virtual machine op codes.</caption>
 <thead>
 <tr>
@@ -142,7 +138,7 @@
 <tr>
 <td><code>ldc</code></td>
 <td>2</td>
-<td><code>rv</code></td>
+<td><code>rc</code></td>
 <td>Load immediate</td>
 <td><code>ldc R0 123</code></td>
 <td><code>R0 := 123</code></td>
@@ -190,7 +186,7 @@
 <tr>
 <td><code>beq</code></td>
 <td>8</td>
-<td><code>rv</code></td>
+<td><code>ra</code></td>
 <td>Branch if equal</td>
 <td><code>beq R0 123</code></td>
 <td><code>if (R0 === 0) PC := 123</code></td>
@@ -198,7 +194,7 @@
 <tr>
 <td><code>bne</code></td>
 <td>9</td>
-<td><code>rv</code></td>
+<td><code>ra</code></td>
 <td>Branch if not equal</td>
 <td><code>bne R0 123</code></td>
 <td><code>if (R0 !== 0) PC := 123</code></td>
@@ -221,9 +217,8 @@
 </tr>
 </tbody>
 </table>
-<ul>
-<li>Put architectural details into a file shared by other components</li>
-</ul>
+<p>We put our VM's architectural details in a file
+that can be shared by other components:</p>
 <pre title="architecture.js"><code class="language-js">const OPS = {
   hlt: { code:  1, fmt: '--' }, // Halt program
   ldc: { code:  2, fmt: 'rv' }, // Load immediate
@@ -255,14 +250,11 @@ export {
 }
 </code></pre>
 <h2 id="how-can-we-execute-these-instructions">How can we execute these instructions?</h2>
-<ul>
-<li>As before, split a class that would normally be written in one piece into several pieces for exposition</li>
-<li>Start by defining a class with an instruction pointer, some registers, and some memory
-<ul>
-<li>Also have a prompt for output</li>
-</ul>
-</li>
-</ul>
+<p>As in previous chapters,
+we will split a class that would normally be written in one piece into several pieces for exposition.
+To start,
+we define a class with an instruction pointer, some registers, and some memory,
+along with a prompt for output:</p>
 <pre title="vm-base.js"><code class="language-js">import assert from 'assert'
 
 import {
@@ -287,13 +279,9 @@ class VirtualMachineBase {
 
 export default VirtualMachineBase
 </code></pre>
-<ul>
-<li>A program is an array of numbers
-<ul>
-<li>Copy into RAM and reset the instruction pointer and registers</li>
-</ul>
-</li>
-</ul>
+<p>A program is just an array of numbers.
+To load one,
+we copy those numbers into RAM and reset the instruction pointer and registers:</p>
 <pre title="vm-base.js"><code class="language-js">  initialize (program) {
     assert(program.length &lt;= this.ram.length,
       'Program is too long for memory')
@@ -307,17 +295,12 @@ export default VirtualMachineBase
     this.ip = 0
     this.reg.fill(0)
   }</code></pre>
-<ul>
-<li>To get the next instruction:
-<ul>
-<li>Get the value in memory that the instruction pointer currently refers to</li>
-<li>Move the instruction pointer on by one address</li>
-<li>Use bitwise operations to extract op code and operands from the instruction</li>
-<li>Some instructions don't have two operands, but a hardware implementation would unpack the same number every time</li>
-</ul>
-</li>
-</ul>
-<figure id="virtual-machine-unpacking" class="fixme"><img src="/static/tools-small.jpg" alt="Unpacking instructions"/><figcaption>Using bitwise operations to unpack instructions.</figcaption></figure>
+<p>To handle the next instruction,
+the VM gets the value in memory that the instruction pointer currently refers to
+and moves the instruction pointer on by one address.
+It then uses <g key="bitwise_operation">bitwise operations</a>
+to extract the op code and operands from the instruction
+(<f key="virtual-machine-unpacking"></f>).</p>
 <pre title="vm-base.js"><code class="language-js">  fetch () {
     assert((0 &lt;= this.ip) &amp;&amp; (this.ip &lt; RAM_LEN),
       `Program counter ${this.ip} out of range 0..${RAM_LEN}`)
@@ -330,18 +313,18 @@ export default VirtualMachineBase
     const arg1 = instruction &amp; OP_MASK
     return [op, arg0, arg1]
   }</code></pre>
-<ul>
-<li>We have included assertions
-<ul>
-<li>Hardware detects illegal instructions and out-of-bounds memory addresses</li>
-</ul>
-</li>
-<li>Now we implement the run cycle
-<ul>
-<li>Fetch instruction and take action until told to stop</li>
-</ul>
-</li>
-</ul>
+<figure id="virtual-machine-unpacking" class="fixme"><img src="/static/tools-small.jpg" alt="Unpacking instructions"/><figcaption>Using bitwise operations to unpack instructions.</figcaption></figure>
+<div class="callout">
+<h3 id="semirealistic">Semi-realistic</h3>
+<p>We always unpack two operands regardless of whether the instructions has them or not,
+since this is what a hardware implementation would be.
+We have also included assertions in our VM
+to simulate the way that real hardware includes logic
+to detect illegal instructions and out-of-bound memory addresses.</p>
+</div>
+<p>The next step is to extend our base class with one that has a <code>run</code> method.
+As its name suggests,
+this runs the program by fetching instructions and taking action until told to stop:</p>
 <pre title="vm.js"><code class="language-js">import assert from 'assert'
 
 import {
@@ -385,27 +368,30 @@ class VirtualMachine extends VirtualMachineBase {
 
 export default VirtualMachine
 </code></pre>
-<ul>
-<li>Some typical instructions</li>
-<li>Store the value of one register in the address held by another register</li>
-</ul>
+<p>Some instructions are very similar to others,
+so we will only look at three here.
+The first stores the value of one register in the address held by another register:</p>
 <pre title="vm.js"><code class="language-js">        case OPS.str.code:
           this.assertIsRegister(arg0, op)
           this.assertIsRegister(arg1, op)
           this.assertIsAddress(this.reg[arg1], op)
           this.ram[this.reg[arg1]] = this.reg[arg0]
           break</code></pre>
-<ul>
-<li>Add the value in one register to the value in another register</li>
-</ul>
+<div class="continue">
+<p>The first three lines check that the operation is legal;
+the fourth one uses the value in one register as an address,
+which is why it has nested array indexing.</p>
+</div>
+<p>Adding the value in one register to the value in another register
+is ever simpler:</p>
 <pre title="vm.js"><code class="language-js">        case OPS.add.code:
           this.assertIsRegister(arg0, op)
           this.assertIsRegister(arg1, op)
           this.reg[arg0] += this.reg[arg1]
           break</code></pre>
-<ul>
-<li>Jump to a fixed address if the value in a register is zero</li>
-</ul>
+<div class="continue">
+<p>as is jumping to a fixed address if the value in a register is zero:</p>
+</div>
 <pre title="vm.js"><code class="language-js">        case OPS.beq.code:
           this.assertIsRegister(arg0, op)
           this.assertIsAddress(arg1, op)
@@ -414,28 +400,25 @@ export default VirtualMachine
           }
           break</code></pre>
 <h2 id="what-do-assembly-programs-look-like">What do assembly programs look like?</h2>
-<ul>
-<li>We could create numbers ourselves</li>
-<li>Much easier to use an <g key="assembler">assembler</g> to turn a very simple language into those numbers
-<ul>
-<li>A compiler for a particular kind of machine-oriented language</li>
-</ul>
-</li>
-<li>Here's a program to print the value stored in R1 and then halt</li>
-</ul>
+<p>We could figure out numerical op codes by hand,
+and in fact that's what <a href="http://eniacprogrammers.org/">the first programmers</a> did.
+However,
+it is much easier to turn a very simple language into those numbers
+using an <g key="assembler">assembler</g>,
+which is just a small compiler for a language that very closely represents actual machine instructions.
+Here's a program in assembly language to print the value stored in R1 and then halt:</p>
 <pre title="print-r1.as"><code class="language-as"># Print initial contents of R1.
 prr R1
 hlt
 </code></pre>
-<ul>
-<li>This is its numeric representation</li>
-</ul>
+<div class="continue">
+<p>and this is its numeric representation:</p>
+</div>
 <pre title="print-r1.mx"><code class="language-mx">00010a
 000001
 </code></pre>
-<ul>
-<li>This program prints the numbers from 0 to 2</li>
-</ul>
+<p>This program prints the numbers from 0 to 2
+(<f key="virtual-machine-count-up"></f>):</p>
 <pre title="count-up.as"><code class="language-as"># Count up to 3.
 # - R0: loop index.
 # - R1: loop limit.
@@ -461,34 +444,26 @@ hlt
 000001
 </code></pre>
 <figure id="virtual-machine-count-up" class="fixme"><img src="/static/tools-small.jpg" alt="Counting from 0 to 2"/><figcaption>Flowchart of assembly language program to count up from 0 to 2.</figcaption></figure>
-<ul>
-<li>The <g key="label_address">label</g> <code>loop</code> doesn't take up any space
-<ul>
-<li>Tells the assembler to give the address of the next instruction a name</li>
-<li>We can then refer to that address as <code>@loop</code></li>
-</ul>
-</li>
-<li>Trace its execution
-<ul>
-<li>R0 holds the current loop index</li>
-<li>R1 holds the loop's upper bound (in this case 3)</li>
-<li>Loop prints the value of R0 (one instruction)</li>
-<li>Adds 1 to R0 (two instructions because we can only add register-to-register)</li>
-<li>Checks to see if we should loop again (three instructions)</li>
-<li>If we <em>don't</em> jump back, halt</li>
-</ul>
-</li>
-</ul>
+<p>The <g key="label_address">label</g> <code>loop</code> doesn't take up any space,
+but instead tells the assembler to give the address of the next instruction a name
+so that we can refer to that address as <code>@loop</code>.</p>
+<p>Let's trace this program's execution
+(<f key="virtual-machine-trace-counter"></f>):</p>
+<ol>
+<li>R0 holds the current loop index.</li>
+<li>R1 holds the loop's upper bound (in this case 3).</li>
+<li>The loop prints the value of R0 (one instruction).</li>
+<li>The program adds 1 to R0.
+This takes two instructions because we can only add register-to-register.</li>
+<li>It checks to see if we should loop again,
+which takes three instructions.</li>
+<li>If the program <em>doesn't</em> jump back, it halts.</li>
+</ol>
 <figure id="virtual-machine-trace-counter" class="fixme"><img src="/static/tools-small.jpg" alt="Trace counting program"/><figcaption>Tracing registers and memory values for a simple counting program.</figcaption></figure>
-<ul>
-<li>Steps in assembly are pretty simple
-<ul>
-<li>Get interesting lines</li>
-<li>Find the addresses of labels</li>
-<li>Turn each remaining line into an instruction</li>
-</ul>
-</li>
-</ul>
+<p>The implementation of the assembler mirrors the simplicity of assembly language.
+The main method gets interesting lines,
+finds the addresses of labels,
+and turns each remaining line into an instruction:</p>
 <pre title="assembler.js"><code class="language-js">  assemble (lines) {
     lines = this.cleanLines(lines)
     const labels = this.findLabels(lines)
@@ -508,13 +483,10 @@ hlt
   isComment (line) {
     return line.startsWith('#')
   }</code></pre>
-<ul>
-<li>To find labels, go through lines one by one
-<ul>
-<li>Either save the label <em>or</em> increment the current address, because labels don't take up space</li>
-</ul>
-</li>
-</ul>
+<p>To find labels,
+we go through the lines one by one
+and either save the label <em>or</em> increment the current address
+(because labels don't take up space):</p>
 <pre title="assembler.js"><code class="language-js">  findLabels (lines) {
     const result = {}
     let index = 0
@@ -534,15 +506,9 @@ hlt
   isLabel (line) {
     return line.endsWith(':')
   }</code></pre>
-<ul>
-<li>To compile a single instruction
-<ul>
-<li>Break the line into <g key="token">tokens</g></li>
-<li>Look up the format for the operands</li>
-<li>Pack them into a single value</li>
-</ul>
-</li>
-</ul>
+<p>To compile a single instruction we break the line into <g key="token">tokens</g>,
+look up the format for the operands,
+and then pack them into a single value:</p>
 <pre title="assembler.js"><code class="language-js">  compile (instruction, labels) {
     const [op, ...args] = instruction.split(/\s+/)
     assert(op in OPS,
@@ -580,9 +546,8 @@ hlt
     }
     return result
   }</code></pre>
-<ul>
-<li>Combining op codes and operands into a single value is the reverse of the unpacking done by the virtual machine</li>
-</ul>
+<p>Combining op codes and operands into a single value
+is the reverse of the unpacking done by the virtual machine:</p>
 <pre title="assembler.js"><code class="language-js">  combine (...args) {
     assert(args.length &gt; 0,
       'Cannot combine no arguments')
@@ -593,9 +558,7 @@ hlt
     }
     return result
   }</code></pre>
-<ul>
-<li>A few utility functions</li>
-</ul>
+<p>Finally, we need few utility functions:</p>
 <pre title="assembler.js"><code class="language-js">  instructionsToText (program) {
     return program.map(op =&gt; op.toString(16).padStart(OP_WIDTH, '0'))
   }
@@ -618,16 +581,10 @@ hlt
       `Unknown label "${token}"`)
     return labels[labelName]
   }</code></pre>
-<ul>
-<li>Let's try running a few programs and display:
-<ul>
-<li>Their output</li>
-<li>The registers</li>
-<li>The interesting contents of memory</li>
-</ul>
-</li>
-<li>Counting up to three</li>
-</ul>
+<p>Let's try assembling a program and display its output,
+the registers,
+and the interesting contents of memory.
+This program counts up to three:</p>
 <pre title="count-up.as"><code class="language-as"># Count up to 3.
 # - R0: loop index.
 # - R1: loop limit.
@@ -654,16 +611,19 @@ R3 = 0
 8:   00000001  00000000  00000000  00000000
 </code></pre>
 <h2 id="how-can-we-store-data">How can we store data?</h2>
-<ul>
-<li>Allocate storage after the program for arrays</li>
-<li>Use <code>.data</code> on a line of its own to mark the start of the data section</li>
-<li>Then <code>label: number</code> to give a region a name and allocate some storage space</li>
-</ul>
+<p>It's hard to write interesting programs when each value needs a unique name.
+We can do a lot more once we have collections like arrays,
+so let's add those to our assembler.
+(We don't have to make any changes to the virtual machine,
+which doesn't care how we think about our data.)
+We will allocate storage for arrays after the program
+by using <code>.data</code> on a line of its own to mark the start of the data section
+and then <code>label: number</code> to give a region a name and allocate some storage space
+(<f key="virtual-machine-storage-allocation"></f>).</p>
 <figure id="virtual-machine-storage-allocation" class="fixme"><img src="/static/tools-small.jpg" alt="Storage allocation"/><figcaption>Allocating storage for arrays in the virtual machine.</figcaption></figure>
-<ul>
-<li>A few changes to the assembler</li>
-<li>Split the lines into instructions and data allocations</li>
-</ul>
+<p>This enhancement only requires a few changes to the assembler.
+First,
+we need to split the lines into instructions and data allocations:</p>
 <pre title="allocate-data.js"><code class="language-js">  assemble (lines) {
     lines = this.cleanLines(lines)
     const [toCompile, toAllocate] = this.splitAllocations(lines)
@@ -683,9 +643,8 @@ R3 = 0
       return [lines.slice(0, split), lines.slice(split + 1)]
     }
   }</code></pre>
-<ul>
-<li>Figure out where each allocation will lie and create a label accordingly</li>
-</ul>
+<p>Second,
+we need to figure out where each allocation will lie and create a label accordingly:</p>
 <pre title="allocate-data.js"><code class="language-js">  addAllocations (baseOfData, labels, toAllocate) {
     toAllocate.forEach(alloc =&gt; {
       const fields = alloc.split(':').map(a =&gt; a.trim())
@@ -701,10 +660,10 @@ R3 = 0
       baseOfData += numWords
     })
   }</code></pre>
-<ul>
-<li>And that's it: no changes needed to compilation or execution</li>
-<li>Fill an array with the numbers from 0 to 3</li>
-</ul>
+<p>And that's it:
+no other changes needed to compilation or execution.
+To test it,
+let's fill an array with the numbers from 0 to 3:</p>
 <pre title="fill-array.as"><code class="language-as"># Count up to 3.
 # - R0: loop index.
 # - R1: loop limit.

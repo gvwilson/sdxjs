@@ -48,6 +48,8 @@
 <dd class="glossary">A system which can have one of two possible states. In computing often represented as being in the state 0 or 1. Represented in <g key="boolean">Boolean</g> logic as <g key="false">false</g> (0) or <g key="true">true</g> (1). Computers are built upon systems which store 0s and 1s as <g key="bit">bits</g>.</dd>
 <dt id="bit" class="glossary">bit</dt>
 <dd class="glossary">A unit of information representing representing alternatives, yes/no, <g key="true">true</g>/<g key="false">false</g>. In computing a state of either 0 or 1.</dd>
+<dt id="bitwise_operation" class="glossary">bitwise operation</dt>
+<dd class="glossary">An operation that manipulates individual bits in memory. Common bitwise operations include <code>and</code>, <code>or</code>, <code>not</code>, and <code>xor</code>.</dd>
 <dt id="block_comment" class="glossary">block comment</dt>
 <dd class="glossary">A <g key="comment">comment</g> that spans multiple lines. Block comments may be marked with special start and end symbols, like <code>/*</code> and <code>*/</code> in C and its descendents, or each line may be prefixed with a marker like <code>#</code>.</dd>
 <dt id="boolean" class="glossary">Boolean</dt>
@@ -596,6 +598,8 @@
 <dd class="glossary">A sequence of values, usually of <g key="homogeneous">homogeneous</g> type. Vectors are the fundamental data structure in <g key="r_language">R</g>; a <g key="scalar">scalar</g> is just a vector with exactly one <g key="element">element</g>.</dd>
 <dt id="version_control_system" class="glossary">version control system</dt>
 <dd class="glossary">A system for managing changes made to software during its development.</dd>
+<dt id="virtual_machine" class="glossary">virtual machine</dt>
+<dd class="glossary">A program that pretends to be a computer. This may seem a bit redundant, but VMs are quick to create and start up, and changes made inside the virtual machine are contained within that VM so we can install new <g key="package">packages</g> or run a completely different operating system without affecting the underlying computer.</dd>
 <dt id="visitor_pattern" class="glossary">Visitor pattern</dt>
 <dd class="glossary">A <g key="design_pattern">design pattern</g> in which the operation to be done is taken to each element of a data structure in turn. It is usually implemented by having a generator &quot;visitor&quot; that knows how to reach the structure's elements, which is given a function or method to call for each in turn, and that carries out the specific operation.</dd>
 <dt id="walk_tree" class="glossary">walk (a tree)</dt>
