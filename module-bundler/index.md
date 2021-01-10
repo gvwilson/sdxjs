@@ -135,7 +135,7 @@ Our algorithm for doing this uses two sets:
 which contains the things we haven't looked at yet,
 and `seen`,
 which contains the things we have
-(<f key="module-bundler-transitive-closer"></f>).
+(<f key="module-bundler-transitive-closure"></f>).
 `pending` initially contains the entry point file and `seen` is initially empty.
 We keep taking items from `pending` until it is empty.
 If the current thing is already in `seen` we do nothing,

@@ -326,7 +326,7 @@ Let's test it:
 
 <%- include('/inc/multi.html', {pat: 'test-import-interpolate.*', fill: 'sh out'}) %>
 
-Here's what happens when this program runs:
+<f key="file-interpolator-lifecycle"></f> shows what happens when this program runs:
 
 1.  Node starts to run `test-import-interpolate.js`.
 1.  It sees the `import` of need-interpolate` so it reads and evaluates that code.

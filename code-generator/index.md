@@ -27,7 +27,7 @@ We can also call a function by putting values in a variable
 and using `func(...var)` to spread those values out.
 
 <%- include('/inc/figure.html', {
-    id: 'code-generator-spread-errors',
+    id: 'code-generator-spread',
     img: '/static/tools-small.jpg',
     alt: 'Spreading parameters',
     cap: 'Using ...args to capture and spread parameters.',

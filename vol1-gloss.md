@@ -246,6 +246,8 @@
 <dd class="glossary">A construct in a program that repeats one or more other statements (the <g key="loop_body">loop body</g>) once for each item in a sequence, such as each number in a range or each element of a list.</dd>
 <dt id="function" class="glossary">function</dt>
 <dd class="glossary">A code block which gathers a sequence of operations into a whole, preserving it for ongoing use by defining a set of tasks that takes zero or more required and optional arguments as inputs and returns expected outputs (return values), if any. Functions enable repeating these defined tasks with one command, known as a function call.</dd>
+<dt id="garbage_collection" class="glossary">garbage collection</dt>
+<dd class="glossary">The process of identifying memory that has been allocated but is no longer in use and reclaiming it to be re-used.</dd>
 <dt id="generator_function" class="glossary">generator function</dt>
 <dd class="glossary">A function whose state is automatically saved when it returns a value so that execution can be restarted from that point the next time it is called. One example of generator functions use is to produce streams of values that can be processed by <g key="for_loop">for loops</g>.</dd>
 <dt id="generic_function" class="glossary">generic function</dt>
@@ -370,6 +372,8 @@
 <dd class="glossary">A set of rules for annotating text to define its meaning or how it should be displayed. The markup is usually not displayed, but instead controls how the underlying text is interpreted or shown. <g key="markdown">Markdown</g> and <g key="html">HTML</g> are widely-used markup languages for web pages.</dd>
 <dt id="method" class="glossary">method</dt>
 <dd class="glossary">An implementation of a <g key="generic_function">generic function</g> that handles objects of a specific class.</dd>
+<dt id="method_chaining" class="glossary">method chaining</dt>
+<dd class="glossary">A style of object-oriented programming in which an object's methods return that object as their result so that another method can immediately be called, as in <code>obj.a().b().c()</code>.</dd>
 <dt id="mock_object" class="glossary">mock object</dt>
 <dd class="glossary">A simplified replacement for part of a program whose behavior is easy to control and predict. Mock objects are used in <g key="unit_test">unit tests</g> to simulate databases, web services, and other complex systems.</dd>
 <dt id="module" class="glossary">module</dt>

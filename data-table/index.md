@@ -171,7 +171,7 @@ use the [`microtime`][microtime] library to get microsecond level timing
 because JavaScript's `Date` only gives us millisecond-level resolution.
 We use [`object-sizeof`][object-sizeof] to estimate memory how much memory our structures require;
 We also call `process.memoryUsage()` and look at the `heapUsed` value,
-but it may be affected by [garbage collection](#garbage_collection) and a host of other factors.
+but it may be affected by <g key="garbage_collection">garbage collection</g> and a host of other factors.
 
 <%- include('/inc/keep.html', {file: 'table-performance.js', key: 'measure'}) %>
 

@@ -231,7 +231,7 @@ we would probably have added a step for that in the template method.
 And if someone ever wants to inject a new step between building the graph and adding timestamps,
 they will have to override `addTimestamps` and put their step at the top before calling `super.addTimestamps`,
 which will make the code a lot harder to understand.
-We will reflect on this in [the last section](#what-should-we-do-next) of this chapter.
+We will reflect on this in the last section of this chapter.
 
 Before we move on,
 let's make sure that adding timestamps works as we want:

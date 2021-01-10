@@ -70,15 +70,20 @@
 <div class="callout">
   <p>Terms defined: <g key="breakpoint">breakpoint</g>, <g key="source_map">source map</g></p>
 </div>
+<p>We have finally come to the subject that sparked this book:
+how does a debugger work?
+Debuggers are as much a part of good programmers' lives as version control
+but are taught far less often
+(in part, we believe, because it's harder to create homework questions for them).
+In this chapter we will build a simple single-stepping debugger
+and show how to test interactive applications.</p>
 <h2 id="what-is-our-starting-point">What is our starting point?</h2>
-<ul>
-<li>Assume a parser…</li>
-<li>Represent program as JSON
-<ul>
-<li>Every element is <code>[command ...args]</code></li>
-</ul>
-</li>
-</ul>
+<p>We would like to debug a higher-level language than the assembly code of <x key="virtual-machine"></x>,
+but we don't want to have to write a parser
+or wrestle with the ASTs of <x key="style-checker"></x>.
+As a compromise,
+we will represent programs as simple JSON data structures
+in which every element is <code>[command ...args]</code>:</p>
 <pre title="filter-base.json"><code class="language-json">// const a = [-3, -5, -1, 0, -2, 1, 3, 1]
 // const b = Array()
 // let largest = a[0]
@@ -115,19 +120,14 @@
   ]
 ]
 </code></pre>
-<ul>
-<li>Virtual machine structured like that from <x key="virtual-machine"></x>
-<ul>
-<li>Real system would parse program to create JSON, then translate JSON into assembly code, then assemble to machine instructions</li>
-</ul>
-</li>
-<li>To execute program:
-<ul>
-<li>Remove comments and blank lines</li>
-<li>Run all commands by looking up command name and calling that method</li>
-</ul>
-</li>
-</ul>
+<p>Our virtual machine is structured like the one in <x key="virtual-machine"></x>.
+A real system would parse a program to create JSON,
+then translate JSON into assembly code,
+then assemble that to create machine instructions.
+Again,
+to keep things simple we will execute a program by
+removing comments and blank lines
+and then running commands by looking up the command name's and calling that method:</p>
 <pre title="vm-base.js"><code class="language-js">import assert from 'assert'
 
 class VirtualMachineBase {
@@ -164,26 +164,22 @@ class VirtualMachineBase {
 
 export default VirtualMachineBase
 </code></pre>
-<ul>
-<li>Define a new variable with an initial value</li>
-</ul>
+<p>The method implementing definition of a new variable with an initial value looks like this:</p>
 <pre title="vm-base.js"><code class="language-js">  defV (args) {
     this.checkOp('defV', 2, args)
     const [name, value] = args
     this.env[name] = this.exec(value)
   }</code></pre>
-<ul>
-<li>Add two values</li>
-</ul>
+<div class="continue">
+<p>while adding two values looks like this:</p>
+</div>
 <pre title="vm-base.js"><code class="language-js">  add (args) {
     this.checkOp('add', 2, args)
     const left = this.exec(args[0])
     const right = this.exec(args[1])
     return left + right
   }</code></pre>
-<ul>
-<li>Run a <code>while</code> loop</li>
-</ul>
+<p>Running a <code>while</code> loop is:</p>
 <pre title="vm-base.js"><code class="language-js">  loop (args) {
     this.checkBody('loop', 1, args)
     const body = args.slice(1)
@@ -191,29 +187,23 @@ export default VirtualMachineBase
       this.runAll(body)
     }
   }</code></pre>
-<ul>
-<li>Check that a variable name refers to an array</li>
-</ul>
+<div class="continue">
+<p>and checking that a variable name refers to an array is:</p>
+</div>
 <pre title="vm-base.js"><code class="language-js">  checkArray (op, name) {
     this.checkName(op, name)
     const array = this.env[name]
     assert(Array.isArray(array),
       `Variable "${name}" used in "${op}" is not array`)
   }</code></pre>
+<p>The other operations are similar to these.</p>
 <h2 id="how-can-we-make-a-tracing-debugger">How can we make a tracing debugger?</h2>
-<ul>
-<li>First step is to build a <g key="source_map">source map</g>
-<ul>
-<li>If we are parsing with <a href="https://github.com/acornjs/acorn">Acorn</a> we get line numbers…</li>
-<li>…but then have to scrape out the information we want for this example</li>
-</ul>
-</li>
-<li>So we will cheat
-<ul>
-<li>Add a line number to each interesting statement</li>
-</ul>
-</li>
-</ul>
+<p>We start by building a <g key="source_map">source map</g>
+that keeps track of where in the source file each instruction came from.
+If we parsed our JSON with <a href="https://github.com/acornjs/acorn">Acorn</a> we would get line numbers,
+but then we would have to scrape out the information we want for this example.
+We will therefore cheat and add a line number to each interesting statement by hand
+so that our program looks like this:</p>
 <pre title="filter-source-map.json"><code class="language-json">[
   [1, "defA", "a", ["data", -3, -5, -1, 0, -2, 1, 3, 1]],
   [2, "defA", "b", ["data"]],
@@ -233,13 +223,8 @@ export default VirtualMachineBase
    [16, "setV", "i", ["add", ["getV", "i"], ["num", 1]]]
   ]
 ]</code></pre>
-<ul>
-<li>Build the source map from that
-<ul>
-<li>Modify <code>exec</code> to ignore the line number for now</li>
-</ul>
-</li>
-</ul>
+<p>Building the source map from that is simple:
+we just modify <code>exec</code> to ignore the line number for now:</p>
 <pre title="vm-source-map.js"><code class="language-js">import assert from 'assert'
 
 import VirtualMachineBase from './vm-base.js'
@@ -279,22 +264,11 @@ class VirtualMachineSourceMap extends VirtualMachineBase {
 
 export default VirtualMachineSourceMap
 </code></pre>
-<ul>
-<li>Next step is to modify the <code>exec</code> method to call a callback function for each significant operation
-<ul>
-<li>&quot;Significant&quot; meaning &quot;we bothered to record its line number&quot;</li>
-<li>Pass in the environment, the line number, and the operation</li>
-</ul>
-</li>
-<li>We also modify the constructor to record the debugger and give it a reference to the virtual machine
-<ul>
-<li>Each object needs a reference to the other</li>
-<li>One of them has to be created first</li>
-<li>&quot;A gets B then B tells A about itself&quot; is a common pattern</li>
-</ul>
-</li>
-</ul>
-<figure id="virtual-machine-initialization" class="fixme"><img src="/static/tools-small.jpg" alt="Initializing mutually-depending objects"/><figcaption>Two-step initialization of mutually-dependent objects.</figcaption></figure>
+<p>The next step is to modify <code>exec</code> to call a callback function for each significant operation,
+where &quot;significant&quot; means &quot;we bothered to record its line number&quot;.
+We give this callback the environment holding the current set of variables,
+the line number,
+and the operation being performed.</p>
 <pre title="vm-callback.js"><code class="language-js">import assert from 'assert'
 
 import VirtualMachineSourceMap from './vm-source-map.js'
@@ -321,9 +295,16 @@ class VirtualMachineCallback extends VirtualMachineSourceMap {
 
 export default VirtualMachineCallback
 </code></pre>
-<ul>
-<li>To run the program, create a debugger object and pass it in</li>
-</ul>
+<p>We also modify the constructor to record the debugger and give it a reference to the virtual machine
+(<f key="virtual-machine-initialization"></f>).
+We have to connect the two objects explicitly because
+each one needs a reference to the other,
+but one of them has to be created first.
+&quot;A gets B then B tells A about itself&quot; is a common pattern;
+we will look at other ways to manage it in the exercises.</p>
+<figure id="virtual-machine-initialization" class="fixme"><img src="/static/tools-small.jpg" alt="Initializing mutually-depending objects"/><figcaption>Two-step initialization of mutually-dependent objects.</figcaption></figure>
+<p>To run the program,
+we create a debugger object and pass it in:</p>
 <pre title="run-debugger.js"><code class="language-js">import assert from 'assert'
 
 import readSource from './read-source.js'
@@ -342,9 +323,7 @@ const main = () =&gt; {
 
 main()
 </code></pre>
-<ul>
-<li>A simple debugger traces statements</li>
-</ul>
+<p>A simple debugger just traces statements as they run:</p>
 <pre title="debugger-trace.js"><code class="language-js">import DebuggerBase from './debugger-base.js'
 
 class DebuggerTrace extends DebuggerBase {
@@ -357,9 +336,7 @@ class DebuggerTrace extends DebuggerBase {
 
 export default DebuggerTrace
 </code></pre>
-<ul>
-<li>Try it on a smaller program than our filtering example</li>
-</ul>
+<p>Let's try it on a smaller program than our filtering example:</p>
 <pre title="sum-source-map.json"><code class="language-json">// const a = [-5, 1, 3]
 // const total = 0
 // let i = 0
@@ -396,30 +373,56 @@ export default DebuggerTrace
 &gt;&gt; -1
 </code></pre>
 <h2 id="how-can-we-make-the-debugger-interactive">How can we make the debugger interactive?</h2>
+<p>The next step is to make the debugger interactive.
+We will use <a href="https://www.npmjs.com/package/prompt-sync"><code>prompt-sync</code></a> to manage user input,
+and will accept a simple set of commands:</p>
 <ul>
-<li>Use <a href="https://www.npmjs.com/package/prompt-sync"><code>prompt-sync</code></a> for user input</li>
-<li>Parse a simple set of commands
-<ul>
-<li><code>?</code> or <code>help</code> to list commands</li>
-<li><code>clear #</code> to clear a <g key="breakpoint">breakpoint</g> at a numbered line</li>
-<li><code>list</code> to list lines and breakpoints</li>
-<li><code>next</code> to go forward one line</li>
-<li><code>print name</code> to show a variable while at a breakpoint</li>
-<li><code>run</code> to run to the next breakpoint</li>
-<li><code>stop #</code> to break at a numbered line</li>
-<li><code>variables</code> to list all variable names</li>
-<li><code>exit</code> to exit immediately</li>
-</ul>
+<li>
+<p><code>?</code> or <code>help</code> to list commands.</p>
 </li>
-<li>When the virtual machine calls the debugger:
-<ul>
-<li>If this isn't a numbered line, keep going</li>
-<li>If we are single-stepping, interact</li>
-<li>If this is a breakpoint, interactive</li>
-<li>Otherwise, keep going</li>
-</ul>
+<li>
+<p><code>clear #</code> to clear a <g key="breakpoint">breakpoint</g> at a numbered line.</p>
+</li>
+<li>
+<p><code>list</code> to list lines and breakpoints.</p>
+</li>
+<li>
+<p><code>next</code> to go forward one line.</p>
+</li>
+<li>
+<p><code>print name</code> to show a variable while at a breakpoint.</p>
+</li>
+<li>
+<p><code>run</code> to run to the next breakpoint.</p>
+</li>
+<li>
+<p><code>stop #</code> to break at a numbered line.</p>
+</li>
+<li>
+<p><code>variables</code> to list all variable names.</p>
+</li>
+<li>
+<p><code>exit</code> to exit immediately.</p>
 </li>
 </ul>
+<p>When the virtual machine calls the debugger,
+the debugger first checks whether or not it is on a numbered line.
+If it is,
+it hands control back to the VM.
+Otherwise,
+its action depends on our current state:</p>
+<ol>
+<li>
+<p>If we are single-stepping, the debugger interacts with the user.</p>
+</li>
+<li>
+<p>We also interact if this line is a breakpoint.</p>
+</li>
+<li>
+<p>Otherwise, it does nothing.</p>
+</li>
+</ol>
+<p>The overall structure of the interactive debugger is shown below:</p>
 <pre title="debugger-interactive.js"><code class="language-js">import prompt from 'prompt-sync'
 
 import DebuggerBase from './debugger-base.js'
@@ -460,13 +463,8 @@ class DebuggerInteractive extends DebuggerBase {
 
 export default DebuggerInteractive
 </code></pre>
-<ul>
-<li>Interact by lookup up command and invoking method
-<ul>
-<li>Put input and output in methods that can be overridden later for testing purposes</li>
-</ul>
-</li>
-</ul>
+<p>It interacts with users by lookup up a command and invoking the corresponding method,
+just as the VM does:</p>
 <pre title="debugger-interactive.js"><code class="language-js">  interact (env, lineNum, op) {
     let interacting = true
     while (interacting) {
@@ -497,17 +495,23 @@ export default DebuggerInteractive
   input (display) {
     return prompt(PROMPT_OPTIONS)(display)
   }</code></pre>
-<ul>
-<li>Command handlers are then pretty straightforward</li>
-<li>Go to next line</li>
-</ul>
+<div class="continue">
+<p>We didn't originally put the input and output in methods that could be overridden,
+but realized later we needed to do this for testing purposes.
+Rather than coming back and rewriting this,
+we have done it here.</p>
+</div>
+<p>With this structure in place,
+the command handlers are pretty straightforward.
+For example,
+this moves us to the next line:</p>
 <pre title="debugger-interactive.js"><code class="language-js">  next (env, lineNum, op, args) {
     this.singleStep = true
     return false
   }</code></pre>
-<ul>
-<li>Print the value of a variable</li>
-</ul>
+<div class="continue">
+<p>and this prints the value of a variable:</p>
+</div>
 <pre title="debugger-interactive.js"><code class="language-js">  print (env, lineNum, op, args) {
     if (args.length !== 1) {
       this.message('p[rint] requires one variable name')
@@ -518,18 +522,16 @@ export default DebuggerInteractive
     }
     return true
   }</code></pre>
-<ul>
-<li>After using it, realized that we needed to change the signature of <code>loop</code>
-<ul>
-<li>Want to stop the loop each time</li>
-<li>Need to know where</li>
-<li>Didn't allow for this in the base class</li>
-<li>Don't want to have to change every method</li>
-<li>So take advantage of JavaScript ignoring extra arguments</li>
-<li>Sloppy</li>
-</ul>
-</li>
-</ul>
+<p>After using this for a few moments,
+though
+we realized that we needed to change the signature of the <code>loop</code> method.
+We want to stop the loop each time it runs,
+and need to know where we are.
+We didn't allow for this in the base class,
+and we don't want to have to change every method,
+so we take advantage of the fact that JavaScript ignores any extra arguments passed to a method.
+This is sloppy, but it works;
+we will tidy it up in the exercises.</p>
 <pre title="vm-interactive.js"><code class="language-js">import VirtualMachineCallback from './vm-callback.js'
 
 class VirtualMachineInteractive extends VirtualMachineCallback {
@@ -546,20 +548,15 @@ class VirtualMachineInteractive extends VirtualMachineCallback {
 export default VirtualMachineInteractive
 </code></pre>
 <h2 id="how-can-we-test-an-interactive-application">How can we test an interactive application?</h2>
-<ul>
-<li>By making it non-interactive</li>
-<li>Based (like many other tools) on <a href="https://en.wikipedia.org/wiki/Expect">Expect</a>
-<ul>
-<li>Replace the input and output functions with callbacks</li>
-<li>Provide input when asked</li>
-<li>Check output when given</li>
-</ul>
-</li>
-</ul>
+<p>How can we test an interactive application like a debugger?
+The answer is, &quot;By making it non-interactive.&quot;
+Like many other tools over the past thirty years,
+our approach is based on a program called <a href="https://en.wikipedia.org/wiki/Expect">Expect</a>.
+Our library replaces the input and output functions of the subject application with callbacks,
+then provides input when asked and checks output when it is given
+(<f key="virtual-machine-test-interact"></f>).</p>
 <figure id="virtual-machine-test-interact" class="fixme"><img src="/static/tools-small.jpg" alt="Testing interactive application"/><figcaption>Replacing input and output to test interactive applications.</figcaption></figure>
-<ul>
-<li>Result looks like this:</li>
-</ul>
+<p>The results look like this:</p>
 <pre title="test/test-expect.js"><code class="language-js">describe('interactive debugger', () =&gt; {
   it('runs and prints', (done) =&gt; {
     setup('print-0.json')
@@ -584,13 +581,8 @@ export default VirtualMachineInteractive
     done()
   })
 })</code></pre>
-<ul>
-<li>The <code>Expect</code> class is simple
-<ul>
-<li>But hard to understand because it is so abstract</li>
-</ul>
-</li>
-</ul>
+<p>Our <code>Expect</code> class may be short,
+but it is hard to understand because it is so abstract:</p>
 <pre title="expect.js"><code class="language-js">import assert from 'assert'
 
 class Expect {
@@ -639,22 +631,24 @@ class Expect {
 
 export default Expect
 </code></pre>
+<p>Piece by piece:</p>
 <ul>
-<li><code>subject</code> is the thing being tested</li>
-<li><code>start</code> is a callback to start the system
-<ul>
-<li>It is in control, calling the test framework</li>
+<li><code>subject</code> is the thing being tested.</li>
+<li><code>start</code> is a callback to start the system running.
+It gives control to the subject,
+which then calls back into the test framework for input and output.</li>
+<li><code>get</code> and <code>send</code> store things to be given to the subject
+and to be checked against its output.
+Both methods return <code>this</code> so that we can chain calls together.</li>
+<li><code>run</code> starts the system
+and checks that all expected interactions have been used up when testing is done.</li>
+<li><code>toSystem</code> and <code>fromSystem</code> use <code>next</code> to get the next test record,
+check its type,
+and return the string.</li>
 </ul>
-</li>
-<li><code>get</code> and <code>send</code> store things and return <code>this</code> for method chaining</li>
-<li><code>run</code> starts the system and checks that all expected interactions have been used up when testing is done</li>
-<li><code>toSystem</code> and <code>fromSystem</code> use <code>next</code> to get the next test record, check its type, and return the string</li>
-<li>Modify the debugger to use the tester
-<ul>
-<li>Have to remember that the prompt counts as an output (yes, we forgot this)</li>
-</ul>
-</li>
-</ul>
+<p>Let's modify the debugger to use the tester,
+keeping in mind that the prompt counts as an output
+(and yes, we forgot this in the first version):</p>
 <pre title="debugger-test.js"><code class="language-js">import DebuggerInteractive from './debugger-interactive.js'
 
 class DebuggerTest extends DebuggerInteractive {
@@ -679,10 +673,9 @@ class DebuggerTest extends DebuggerInteractive {
 
 export default DebuggerTest
 </code></pre>
-<ul>
-<li>Can't pass the tester as a constructor parameter because of initialization order</li>
-<li>Go back to the test file and look at <code>setup</code></li>
-</ul>
+<p>Again,
+we can't pass the tester as a constructor parameter because of initialization order,
+so we write a <code>setup</code> function to make sure everything is connected the right way:</p>
 <pre title="test/test-expect.js"><code class="language-js">import Expect from '../expect.js'
 import VM from '../vm-interactive.js'
 import Debugger from '../debugger-test.js'
@@ -694,9 +687,7 @@ const setup = (filename) =&gt; {
   const vm = new VM(lines, dbg)
   return new Expect(dbg, () =&gt; vm.run())
 }</code></pre>
-<ul>
-<li>Run it</li>
-</ul>
+<p>Let's try running our tests:</p>
 <pre title="test-expect.sh"><code class="language-sh">npm run test -- -g 'interactive debugger'
 </code></pre>
 <pre title="test-expect.out"><code class="language-out">
@@ -708,35 +699,30 @@ const setup = (filename) =&gt; {
   interactive debugger
     ✓ runs and prints
 </code></pre>
-<ul>
-<li>And it works—or does it?
-<ul>
-<li>Why is only one test shown?</li>
-<li>Why doesn't the summary appear?</li>
-</ul>
-</li>
-<li>The debugger's <code>exit</code> command calls <code>process.exit</code>, so the whole program stops immediately</li>
-<li>Could modify the debugger callback to return an indication of whether or not execution should continue</li>
-<li>Then modify the VM to pay attention to that flag
-<ul>
-<li>Even when it appears in a deeply-nested call to <code>exec</code> (which will happen with loops and conditionals)</li>
-</ul>
-</li>
-<li>Alternative is to use an exception for control flow</li>
-<li>Define our own exception class
-<ul>
-<li>Doesn't need any data—just using it to get a typed object</li>
-</ul>
-</li>
-</ul>
+<p>That works---or does it?
+Why is only one test shown,
+and doesn't the summary appear?
+After a bit of digging,
+we realize that the debugger's <code>exit</code> command calls <code>process.exit</code> when the simulated program ends,
+so the whole program (including the VM, debugger, and test framework) stops immediately
+<em>before</em> the promises that contain the tests have run.</p>
+<p>We could fix this by modifying the debugger callback
+to return an indication of whether or not execution should continue,
+then modify the VM to pay attention to that flag.
+However,
+this approach becomes very complicated when we have deeply-nested calls to <code>exec</code>,
+which will happen with loops and conditionals.</p>
+<p>A better alternative is to use an exception for control flow.
+We can define our own kind of exception as an empty class:
+it doesn't need any data
+because we are only using it to get a typed object:</p>
 <pre title="halt-exception.js"><code class="language-js">class HaltException {
 }
 
 export default HaltException
 </code></pre>
-<ul>
-<li>Modify the debugger to throw this exception when asked to exit</li>
-</ul>
+<p>Next,
+we modify the debugger to throw this exception when asked to exit:</p>
 <pre title="debugger-exit.js"><code class="language-js">import HaltException from './halt-exception.js'
 import DebuggerTest from './debugger-test.js'
 
@@ -748,9 +734,9 @@ class DebuggerExit extends DebuggerTest {
 
 export default DebuggerExit
 </code></pre>
-<ul>
-<li>Modify the VM to finish cleanly if this exception is thrown, but re-throw any other kind of exception</li>
-</ul>
+<p>And finally
+we modify the VM to finish cleanly if this exception is thrown,
+but re-throw any other kind of exception:</p>
 <pre title="vm-exit.js"><code class="language-js">import HaltException from './halt-exception.js'
 import VirtualMachineInteractive from './vm-interactive.js'
 
@@ -770,9 +756,8 @@ class VirtualMachineExit extends VirtualMachineInteractive {
 
 export default VirtualMachineExit
 </code></pre>
-<ul>
-<li>Run it</li>
-</ul>
+<p>With these changes in place,
+we are finally able to test our interactive debugger:</p>
 <pre title="test-exit.sh"><code class="language-sh">npm run test -- -g 'exitable debugger'
 </code></pre>
 <pre title="test-exit.out"><code class="language-out">

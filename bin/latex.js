@@ -384,6 +384,11 @@ const HANDLERS = {
     accum.push('}')
   },
 
+  t: (options, fileInfo, node, accum) => {
+    const key = node.attribs.key
+    accum.push(`\\tblref{${key}}`)
+  },
+
   table: (options, fileInfo, node, accum) => {
     accum.push(tableToLatex(options, fileInfo, node))
   },
@@ -479,10 +484,12 @@ const figureToLatex = (options, fileInfo, node) => {
 const tableToLatex = (options, fileInfo, node) => {
   assert(node.name === 'table',
     `Calling tableToLatex with wrong node type "${node.name}"`)
+
   const { headWidth, headRows } = tableHeadToRows(node)
   const { bodyWidth, bodyRows } = tableBodyToRows(node)
   assert((headWidth === 0) || (headWidth === bodyWidth),
     'Table head and body have inconsistent widths')
+
   const rows = headRows.concat(bodyRows)
   const spec = rows[0].map(x => 'l').join('')
   const body = rows.map(row => {
@@ -490,7 +497,28 @@ const tableToLatex = (options, fileInfo, node) => {
     const joined = fields.join(' & ')
     return `${joined} \\\\\n`
   }).join('')
-  return `\n\\begin{tabular}{${spec}}\n${body}\\end{tabular}\n`
+  const table = `\\begin{tabular}{${spec}}\n${body}\\end{tabular}`
+
+  // No ID because no need to cross-reference.
+  const ident = node.attribs.id
+  if (!ident) {
+    return `\n${table}\n`
+  }
+
+  // Fill in ID and caption.
+  assert(ident.length > 0,
+    'Invalid id attribute for table')
+
+  const captions = node.children.filter(child => child.name ==='caption')
+  assert(captions.length === 1,
+    'Table must have exactly one caption')
+  const caption = captions[0]
+  const accum = []
+  childrenToLatex(options, fileInfo, caption, accum)
+  const captionText = accum.join('')
+
+  const meta = `\\caption{${captionText}}\n\\label{${ident}}`
+  return `\n\\begin{table}\n${table}\n${meta}\n\\end{table}\n`
 }
 
 /**

@@ -142,7 +142,7 @@ and what to do if it doesn't (i.e., how to handle errors).
 `then` to enable more actions
 and `catch` to handle errors.
 To simplify things just a little bit,
-we will allow users to chain as many `then`s as they want,
+we will allow users to <g key="method_chaining">chain</a> as many `then`s as they want,
 but only allow one `catch`.
 
 If the original action completes successfully,
