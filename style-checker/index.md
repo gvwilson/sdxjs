@@ -32,7 +32,7 @@ is <%- include('/inc/linecount.html', {file: 'parse-single-const.out'}) %> lines
 
 <%- include('/inc/multi.html', {pat: 'parse-single-const.*', fill: 'js slice.out'}) %>
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'style-checker-parse-tree',
     img: '/static/tools-small.jpg',
     alt: 'A small parse tree',
@@ -63,7 +63,7 @@ so for demonstration purposes we create an array called `state` to record declar
 and then report them all at the end
 (<f key="style-checker-walk-tree"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'style-checker-walk-tree',
     img: '/static/tools-small.jpg',
     alt: 'Walking a tree',
@@ -138,7 +138,7 @@ an iterator returns the elements of a complex structure one by one for processin
 One way to think about it is that the Visitor pattern encapsulates recursion,
 while the Iterator pattern turns everything into a `for` loop.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'style-checker-iterator',
     img: '/static/tools-small.jpg',
     alt: 'The Iterator pattern',

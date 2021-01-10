@@ -27,7 +27,7 @@ If we create the things we care about inside a function
 and return a data structure that refers to the things we just created,
 the only way to access those things is via that data structure.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'module-loader-closures',
     img: '/static/tools-small.jpg',
     alt: 'How closures work',
@@ -95,7 +95,7 @@ we call the object we pass in `result` in `loadModule`.
 
 <%- include('/inc/file.html', {file: 'load-module-only.js'}) %>
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'module-loader-iife',
     img: '/static/tools-small.jpg',
     alt: 'Implementing modules with IIFEs',
@@ -135,7 +135,7 @@ But interpreted languages may run code as it loads,
 so if X is in the process of loading Y and Y tries to call X,
 X may not (fully) exist yet.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'module-loader-circularity',
     img: '/static/tools-small.jpg',
     alt: 'Circularity test cases',
@@ -246,7 +246,7 @@ Our system can therefore only run loaded modules by `need`ing them:
 The full implementation of `require` does more than we do,
 but the principles stay the same.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'module-loader-need',
     img: '/static/tools-small.jpg',
     alt: 'Module loading lifecycle',

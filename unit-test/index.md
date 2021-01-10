@@ -50,7 +50,7 @@ one of the assertions we put in the test as a check
 (<f key="unit-test-mental-model"></f>).
 Any other kind of assertion indicates that the test itself contains an error.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'unit-test-mental-model',
     img: '/static/tools-small.jpg',
     alt: 'Mental model of unit testing',
@@ -146,7 +146,7 @@ it can call `Hope.test` to record a test for later execution
 and `Hope.run` to execute all of the tests registered up until that point
 (<f key="unit-test-hope-structure"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'unit-test-hope-structure',
     img: '/static/tools-small.jpg',
     alt: 'Finding tests',
@@ -255,7 +255,7 @@ shown in <f key="unit-test-lifecycle"></f>:
 1.  `pray` then asks that unique instance of `Hope` to run all of the tests.
 1.  Finally, `pray` gets a report from the `Hope` singleton and displays it.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'unit-test-lifecycle',
     img: '/static/tools-small.jpg',
     alt: 'Unit testing lifecycle',

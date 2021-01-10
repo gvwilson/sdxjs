@@ -38,7 +38,7 @@ if one line comment occurs immediately after another,
 
 <%- include('/inc/multi.html', {pat: 'multi-line-double-slash-comment.*', fill: 'js sh out'}) %>
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'doc-generator-comments',
     img: '/static/tools-small.jpg',
     alt: 'Line and block comments',
@@ -128,7 +128,7 @@ and see what it produces
 <%- include('/inc/html.html', {file: 'process-plain.html'}) %>
 <%- include('/inc/page.html', {file: 'process-plain.html'}) %>
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'doc-generator-mapping',
     img: '/static/tools-small.jpg',
     alt: 'Mapping comments to documentation',

@@ -32,7 +32,7 @@ Most of these systems use one of three designs
     but eliminates the need for a special parser
     (since pages are valid HTML).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'page-templates-options',
     img: '/static/tools-small.jpg',
     alt: 'Three options for page templates',
@@ -131,7 +131,7 @@ if the variable can't be found,
 
 <%- include('/inc/file.html', {file: 'env.js'}) %>
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'page-templates-stack',
     img: '/static/tools-small.jpg',
     alt: 'Variable stack',
@@ -159,7 +159,7 @@ The default implementations throw exceptions
 so that the creators of derived classes must remember to implement their own versions.
 :::
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'page-templates-visitor',
     img: '/static/tools-small.jpg',
     alt: 'The Visitor pattern',

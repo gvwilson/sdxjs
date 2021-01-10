@@ -56,7 +56,7 @@
     -   One of them has to be created first
     -   "A gets B then B tells A about itself" is a common pattern
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'virtual-machine-initialization',
     img: '/static/tools-small.jpg',
     alt: 'Initializing mutually-depending objects',
@@ -132,7 +132,7 @@
     -   Provide input when asked
     -   Check output when given
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'virtual-machine-test-interact',
     img: '/static/tools-small.jpg',
     alt: 'Testing interactive application',

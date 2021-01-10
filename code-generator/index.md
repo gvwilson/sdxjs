@@ -26,7 +26,7 @@ are stuffed into `args`
 We can also call a function by putting values in a variable
 and using `func(...var)` to spread those values out.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'code-generator-spread-errors',
     img: '/static/tools-small.jpg',
     alt: 'Spreading parameters',

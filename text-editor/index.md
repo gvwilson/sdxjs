@@ -27,7 +27,7 @@
     -   Holds lines of text (an array of strings)
     -   Provides methods for user-level text interaction
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'text-editor-buffers',
     img: '/static/tools-small.jpg',
     alt: 'Screen and text buffers',
@@ -74,7 +74,7 @@
     -   Create a table of <g key="key_binding">key bindings</g>
     -   Look keys up in that table to find out what to do
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'text-editor-lookup-table',
     img: '/static/tools-small.jpg',
     alt: 'Looking up key bindings',
@@ -94,7 +94,7 @@
 -   But we can now also provide plugins
 -   Load functions that take the editor and the arguments to `onKey` as input
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'text-editor-plugins',
     img: '/static/tools-small.jpg',
     alt: 'Loading and running plugins',
@@ -119,7 +119,7 @@
     -   `isRecording` tells the editor whether or not to save keystrokes
     -   `recordedOperations` is the most recently saved operations
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'text-editor-playback',
     img: '/static/tools-small.jpg',
     alt: 'Implementing record and playback',
@@ -164,7 +164,7 @@
     -   Need to record state for some operations but not for others
     -   Use a stack because we undo in reverse order to doing
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'text-editor-undo-stack',
     img: '/static/tools-small.jpg',
     alt: 'Managing undo with a stack',

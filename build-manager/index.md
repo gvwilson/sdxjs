@@ -24,7 +24,7 @@ If a source file hasn't changed,
 there's no need to recompile it before linking
 unless the interface of something it depends on has changed.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'build-manager-compiling',
     img: '/static/tools-small.jpg',
     alt: 'Compiling and linking',
@@ -61,7 +61,7 @@ so the relationships between the files form a <g key="dag">directed acyclic grap
 The graph is directed because "A depends on B" is a one-way relationship;
 it has to be acyclic because if something depends on itself we cannot ever finish updating it.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'build-manager-dependencies',
     img: '/static/tools-small.jpg',
     alt: 'Respecting dependencies',
@@ -74,7 +74,7 @@ When this happens,
 we use the recipes to bring it up to date
 (<f key="build-manager-stale"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'build-manager-stale',
     img: '/static/tools-small.jpg',
     alt: 'Updating files',
@@ -139,7 +139,7 @@ while child classes fill them in.
 This pattern ensures that every child conceptually does the same things in the same order,
 even if the details vary.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'build-manager-template-method',
     img: '/static/tools-small.jpg',
     alt: 'Template Method pattern',
@@ -187,7 +187,7 @@ it shows the graph with `v` and `w` keys to represent the ends of the links
 
 <%- include('/inc/multi.html', {pat: 'display-only.*', fill: 'sh out'}) %>
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'build-manager-interpreting-graph',
     img: '/static/tools-small.jpg',
     alt: 'Interpreting graph display',
@@ -301,7 +301,7 @@ we will use `@TARGET` for the target,
 and `@DEP[1]`, `@DEP[2]`, and so on for specific dependencies
 (<f key="build-manager-pattern-rules"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'build-manager-pattern-rules',
     img: '/static/tools-small.jpg',
     alt: 'Pattern rules',

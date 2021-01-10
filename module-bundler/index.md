@@ -13,7 +13,7 @@ and combines them into a single loadable file
 This file is much more efficient to load---it's the same number of bytes
 but just one network request---and bundling files ensures that dependencies actually resolve.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'module-bundler-bundling',
     img: '/static/tools-small.jpg',
     alt: 'Bundling modules',
@@ -66,7 +66,7 @@ and is shown in <f key="module-bundler-complicated"></f>:
 -   `./subdir/bottom-left` also requires `top-left` and `bottom-right`.
 -   `./subdir/bottom-right` doesn't require anything.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'module-bundler-complicated',
     img: '/static/tools-small.jpg',
     alt: 'Module bundler dependencies',
@@ -141,7 +141,7 @@ We keep taking items from `pending` until it is empty.
 If the current thing is already in `seen` we do nothing,
 while otherwise we get its dependencies and add them to either `seen` or `pending`.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'module-bundler-transitive-closure',
     img: '/static/tools-small.jpg',
     alt: 'Implementing transitive closure',
@@ -169,7 +169,7 @@ The primary keys are the absolute paths to the files being required,
 while sub-keys are the paths they refer to when loading things
 (<f key="module-bundler-structure"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'module-bundler-structure',
     img: '/static/tools-small.jpg',
     alt: 'Data structure for modules',
@@ -222,7 +222,7 @@ In between,
 `combineFiles` adds an entry to the lookup table for each file
 (<f key="module-bundler-head-tail"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'module-bundler-head-tail',
     img: '/static/tools-small.jpg',
     alt: 'Assembling runnable code',
@@ -261,7 +261,7 @@ then get the `exports` from the module object
 (<f key="module-bundler-extract"></f>).
 :::
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'module-bundler-extract',
     img: '/static/tools-small.jpg',
     alt: 'Extracting exports from modules',
@@ -288,7 +288,7 @@ Each of these wrapping layers remembers more information for us
 (<f key="module-bundler-returning-functions"></f>),
 but we won't pretend that it's easy to trace.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'module-bundler-returning-functions',
     img: '/static/tools-small.jpg',
     alt: 'Functions returning functions returning functions',

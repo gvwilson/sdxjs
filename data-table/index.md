@@ -20,7 +20,7 @@ each row has one value for each column,
 and all the values in a column have the same type
 (<f key="data-table-conceptual"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'data-table-conceptual',
     img: '/static/tools-small.jpg',
     alt: 'Data table structure',
@@ -49,7 +49,7 @@ In JavaScript,
 this could be implemented using an object
 whose members are all arrays of the same length.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'data-table-storage-order',
     img: '/static/tools-small.jpg',
     alt: 'Row-major vs. column-major storage order',
@@ -104,7 +104,7 @@ since we have to construct a new set of arrays
 
 <%- include('/inc/keep.html', {file: 'table-performance.js', key: 'operate-rows'}) %>
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'data-table-row-ops',
     img: '/static/tools-small.jpg',
     alt: 'Row-major operations',
@@ -127,7 +127,7 @@ but filtering will be relatively slow since we are constructing multiple new arr
 
 <%- include('/inc/keep.html', {file: 'table-performance.js', key: 'operate-cols'}) %>
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'data-table-col-ops',
     img: '/static/tools-small.jpg',
     alt: 'Column-major operations',
@@ -191,7 +191,7 @@ And if we keep the table size the same but use a 10:1 filter/select ratio?
 
 <%- include('/inc/file.html', {file: 'table-performance-10000-30-10.out'}) %>
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'data-table-performance',
     img: '/static/tools-small.jpg',
     alt: 'Performance of data table operations',
@@ -247,7 +247,7 @@ some bits define the value's type,
 and other bits store the actual data
 (<f key="data-table-object-storage"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'data-table-object-storage',
     img: '/static/tools-small.jpg',
     alt: 'JavaScript object storage',
@@ -263,7 +263,7 @@ we then access those bits through a view that presents the data as a particular 
 such as unsigned 8-bit integer or 64-bit float
 (<f key="data-table-packed-storage"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'data-table-packed-storage',
     img: '/static/tools-small.jpg',
     alt: 'Packing objects for storage',

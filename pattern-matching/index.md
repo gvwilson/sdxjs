@@ -31,7 +31,7 @@ and then calls `firstMatch` to recurse down the document tree
 until the query string is exhausted or no matches have been found
 (<f key="pattern-matching-query-selectors"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'pattern-matching-query-selectors',
     img: '/static/tools-small.jpg',
     alt: 'Query selectors',
@@ -61,7 +61,7 @@ This algorithm is called <g key="depth_first_search">depth-first search</g>:
 it explores one possible match to the end before considering any others
 (<f key="pattern-matching-traversal"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'pattern-matching-traversal',
     img: '/static/tools-small.jpg',
     alt: 'Matching query selectors',
@@ -172,7 +172,7 @@ We can then combine these objects to create a matcher
 we'll do that manually in this chapter
 and automate the process in <x key="regex-parser"></x>.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'pattern-matching-regex-objects',
     img: '/static/tools-small.jpg',
     alt: 'Implementing regex with objects',
@@ -246,7 +246,7 @@ As a result,
 (<f key="pattern-matching-greedy-failure"></f>).
 Our current implementation doesn't give us a way to try other possible matches when this happens.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'pattern-matching-greedy-failure',
     img: '/static/tools-small.jpg',
     alt: 'Overly-greedy matching fails',
@@ -261,7 +261,7 @@ and have each matcher take its own arguments and a `rest` parameter containing t
 so we don't have to type `null` over and over again.)
 The matcher will try each of its possibilities and then see if the rest will also match.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'pattern-matching-rest',
     img: '/static/tools-small.jpg',
     alt: 'Matching the rest of the pattern',
@@ -301,7 +301,7 @@ we try zero matches, then one, then two, and so on until something succeeds,
 which means we are repeatedly re-matching things we already know work
 (<f key="pattern-matching-repetition"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'pattern-matching-repetition',
     img: '/static/tools-small.jpg',
     alt: 'Repetition in regular expressions',

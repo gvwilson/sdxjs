@@ -25,7 +25,7 @@ each task has its own <g key="call_stack">call stack</g>,
 but objects can be shared between tasks
 (<f key="async-programming-event-loop"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'async-programming-event-loop',
     img: '/static/tools-small.jpg',
     alt: 'The event loop',
@@ -59,7 +59,7 @@ and those tasks can then run in an arbitrary order
 
 <%- include('/inc/multi.html', {pat: 'callbacks-with-timeouts.*', fill: 'js out'}) %>
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'async-programming-set-timeout',
     img: '/static/tools-small.jpg',
     alt: 'Setting a timeout',
@@ -82,7 +82,7 @@ if any other tasks are available
 
 <%- include('/inc/multi.html', {pat: 'non-blocking.*', fill: 'js out'}) %>
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'async-programming-set-three-delays',
     img: '/static/tools-small.jpg',
     alt: 'Delaying three function calls',
@@ -123,7 +123,7 @@ it will get the value passed to `resolve`,
 which is how the first part of the action communicates with the second
 (<f key="async-programming-resolve"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'async-programming-resolve',
     img: '/static/tools-small.jpg',
     alt: 'How promises resolve',
@@ -226,7 +226,7 @@ not on the original promise
 
 <%- include('/inc/multi.html', {pat: 'promise-example.*', fill: 'js out'}) %>
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'async-programming-chained',
     img: '/static/tools-small.jpg',
     alt: 'Chained promises',
@@ -295,7 +295,7 @@ our line-counting program becomes:
 
 <%- include('/inc/file.html', {file: 'count-lines-print-filenames.js'}) %>
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'async-programming-temporary-named-fields',
     img: '/static/tools-small.jpg',
     alt: 'Temporary objects with named fields',
@@ -386,7 +386,7 @@ and our `try`/`catch` doesn't help us
 
 <%- include('/inc/multi.html', {pat: 'return-immediately.*', fill: 'js out'}) %>
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'async-programming-handling-errors',
     img: '/static/tools-small.jpg',
     alt: 'Handling asynchronous errors',

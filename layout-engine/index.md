@@ -32,7 +32,7 @@ This convention is a holdover from the days of teletype terminals,
 which printed each successive line below the one before it.
 :::
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'layout-engine-coordinate-system',
     img: '/static/tools-small.jpg',
     alt: 'Coordinate system',
@@ -74,7 +74,7 @@ we could calculate both width and height at the same time
 and <g key="cache">cache</g> calculated values to avoid recalculation,
 but it's called "easy mode" for a reason.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'layout-engine-sizing',
     img: '/static/tools-small.jpg',
     alt: 'Calculating sizes of fixed blocks',
@@ -110,7 +110,7 @@ the next at (x0, y0 + height0),
 and so on
 (<f key="layout-engine-layout"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'layout-engine-layout',
     img: '/static/tools-small.jpg',
     alt: 'Laying out rows and columns',
@@ -153,7 +153,7 @@ child blocks will overwrite the markings made by their parents,
 which will automatically produce the right appearance
 (<f key="layout-engine-draw-over"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'layout-engine-draw-over',
     img: '/static/tools-small.jpg',
     alt: 'Children drawing over their parents',
@@ -236,7 +236,7 @@ This replacement is unnecessary when everything will fit on a single row,
 but it's easiest to write the code that does it every time;
 we will look at making this more efficient in the exercises.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'layout-engine-wrap',
     img: '/static/tools-small.jpg',
     alt: 'Wrapping rows',
@@ -298,7 +298,7 @@ classes of nodes via their `class` attribute,
 and then types of nodes via their element name
 (<f key="layout-engine-css-precedence"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'layout-engine-css-precedence',
     img: '/static/tools-small.jpg',
     alt: 'Precedence of CSS rules',

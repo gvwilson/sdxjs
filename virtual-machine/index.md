@@ -27,7 +27,7 @@
     -   So the largest constant we can represent directly is 256
 -   Use `r` and `v` to indicate format
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'virtual-machine-architecture',
     img: '/static/tools-small.jpg',
     alt: 'Virtual machine architecture',
@@ -72,7 +72,7 @@
     -   Use bitwise operations to extract op code and operands from the instruction
     -   Some instructions don't have two operands, but a hardware implementation would unpack the same number every time
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'virtual-machine-unpacking',
     img: '/static/tools-small.jpg',
     alt: 'Unpacking instructions',
@@ -119,7 +119,7 @@
 
 <%- include('/inc/multi.html', {pat: 'count-up.*', fill: 'as mx'}) %>
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'virtual-machine-count-up',
     img: '/static/tools-small.jpg',
     alt: 'Counting from 0 to 2',
@@ -138,7 +138,7 @@
     -   Checks to see if we should loop again (three instructions)
     -   If we *don't* jump back, halt
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'virtual-machine-trace-counter',
     img: '/static/tools-small.jpg',
     alt: 'Trace counting program',
@@ -188,7 +188,7 @@
 -   Use `.data` on a line of its own to mark the start of the data section
 -   Then `label: number` to give a region a name and allocate some storage space
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'virtual-machine-storage-allocation',
     img: '/static/tools-small.jpg',
     alt: 'Storage allocation',

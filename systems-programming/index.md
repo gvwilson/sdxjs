@@ -58,7 +58,7 @@ while `process.argv[1]` is the name of our program (in this case `list-dir-wrong
 The rest of `process.argv` holds whatever arguments we gave at the command line when we ran the program,
 so `process.argv[2]` is the first argument after the name of our program (<f key="systems-programming-process-argv"></f>):
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'systems-programming-process-argv',
     img: '/static/tools-small.jpg',
     alt: 'Command-line arguments in `process.argv`',
@@ -111,7 +111,7 @@ Those parameters defined a standard <g key="protocol">protocol</g>
 for connecting to libraries,
 just like the USB standard allows us to plug hardware devices together.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'systems-programming-callbacks',
     img: '/static/tools-small.jpg',
     alt: 'How callbacks work',
@@ -160,7 +160,7 @@ the order in which [Node][node.js] executes the statements in this program
 
 1.  Run the callback function, which prints the directory listing.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'systems-programming-execution-order',
     img: '/static/tools-small.jpg',
     alt: 'Callback execution order',
@@ -184,7 +184,7 @@ Using an anonymous function gives us the final version of our program:
 
 <%- include('/inc/file.html', {file: 'list-dir-function-anonymous.js'}) %>
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'systems-programming-anonymous-functions',
     img: '/static/tools-small.jpg',
     alt: 'Anonymous functions as callbacks',
@@ -221,7 +221,7 @@ files and directories whose names have a leading '.'
 usually contain configuration information for various programs,
 so most commands will leave them alone unless told to do otherwise.)
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'systems-programming-globbing',
     img: '/static/tools-small.jpg',
     alt: 'Matching filenames with `glob`',
@@ -243,7 +243,7 @@ that determines if the item is kept in the new array (`true`) or left out (`fals
 `Array.filter` does not modify the original array,
 so we can filter our original list of filenames several times if we want to.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'systems-programming-array-filter',
     img: '/static/tools-small.jpg',
     alt: 'Using `Array.filter`',
@@ -329,7 +329,7 @@ if both a source and destination are given on the command line;
 we'll add that in the exercises.
 :::
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'systems-programming-destructuring-assignment',
     img: '/static/tools-small.jpg',
     alt: 'Matching values with destructuring assignment',
@@ -382,7 +382,7 @@ The program now has three levels of callback
 
 1.  When `copy` finishes, check the error status.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'systems-programming-triple-callback',
     img: '/static/tools-small.jpg',
     alt: 'Three levels of callback',

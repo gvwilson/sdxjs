@@ -12,7 +12,7 @@ but C and C++ do this with <g key="header_file">header files</g>,
 and page templating systems (<x key="page-templates"></x>) do this
 to share fragments of HTML.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'file-interpolator-conceptual',
     img: '/static/tools-small.jpg',
     alt: 'Using file inclusions',
@@ -51,7 +51,7 @@ We can do the second and third steps whenever we want using a function called `e
 which takes a string as input and executes it as if it were part of the program
 (<f key="file-interpolator-eval"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'file-interpolator-eval',
     img: '/static/tools-small.jpg',
     alt: 'How eval works',
@@ -129,7 +129,7 @@ that change outlives the call to `eval`
 
 <%- include('/inc/multi.html', {pat: 'eval-global-structure.*', fill: 'js out'}) %>
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'file-interpolator-global',
     img: '/static/tools-small.jpg',
     alt: 'Modifying a global structure',
@@ -174,7 +174,7 @@ if not,
 we read it and add it to the cache
 using the file path as a lookup key.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'file-interpolator-cache',
     img: '/static/tools-small.jpg',
     alt: 'Implementing a cache as a singleton',
@@ -223,7 +223,7 @@ we go through the directories in the search path in order
 until we find a file with a matching name
 (<f key="file-interpolator-search-path"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'file-interpolator-search-path',
     img: '/static/tools-small.jpg',
     alt: 'Implementing a search path',
@@ -341,7 +341,7 @@ Here's what happens when this program runs:
 1.  It also returns that class.
 1.  We then create an instance of that class and call its method.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'file-interpolator-lifecycle',
     img: '/static/tools-small.jpg',
     alt: 'File interpolation lifecycle',

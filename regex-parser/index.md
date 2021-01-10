@@ -31,7 +31,7 @@ from <x key="pattern-matching"></x> to keep things simple
 (<f key="regex-parser-expression-tree"></f>);
 the exercises will build the latter.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'regex-parser-expression-tree',
     img: '/static/tools-small.jpg',
     alt: 'Expression tree for regular expression',
@@ -164,7 +164,7 @@ If our input is the pattern `/a|b/`, we can:
 
 Again, this automatically handles patterns like `/(ab)|c*|(de)/`.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'regex-parser-mechanics',
     img: '/static/tools-small.jpg',
     alt: 'Mechanics of combining tokens',

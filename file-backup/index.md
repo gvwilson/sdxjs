@@ -25,7 +25,7 @@ but a quicker way is to use a <g key="hash_function">hash function</g>
 that turns arbitrary data into a fixed-length string of bits
 (<f key="file-backup-hash-function"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'file-backup-hash-function',
     img: '/static/tools-small.jpg',
     alt: 'Hash functions',
@@ -100,7 +100,7 @@ This is called asynchronously:
 as the output shows,
 the main program ends before the task handling the end of data is scheduled and run.
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'file-backup-streaming',
     img: '/static/tools-small.jpg',
     alt: 'Streaming file operations',
@@ -123,7 +123,7 @@ To restore a particular snapshot,
 all we have to do is copy the saved `.bck` files back to where they were
 (<f key="file-backup-storage"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'file-backup-storage',
     img: '/static/tools-small.jpg',
     alt: 'Backup file storage',
@@ -191,7 +191,7 @@ where `ssssssssss` is the <g key="utc">UTC</g> <g key="timestamp">timestamp</g> 
 and the `.csv` extension indicates that the file is formatted as <g key="csv">comma-separated values</g>.
 (We could store these files as <g key="json">JSON</g>, but CSV is easier for people to read.)
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'file-backup-directory-structure',
     img: '/static/tools-small.jpg',
     alt: 'File backup directory structure',
@@ -218,7 +218,7 @@ so they will both try to create the first one.
 
 <%- include('/inc/file.html', {file: 'check-existing-files.js'}) %>
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'file-backup-toctou',
     img: '/static/tools-small.jpg',
     alt: 'Time of check/time of use race condition',
@@ -273,7 +273,7 @@ A mock object has the same interface as the function, object, class, or library 
 but is designed to be used solely for testing
 (<f key="file-backup-mock-fs"></f>).
 
-<%- include('/inc/fig.html', {
+<%- include('/inc/figure.html', {
     id: 'file-backup-mock-fs',
     img: '/static/tools-small.jpg',
     alt: 'Mock filesystem',

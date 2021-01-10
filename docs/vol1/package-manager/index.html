@@ -68,34 +68,29 @@
   <h1>Package Manager</h1>
   <h2 class="lede">Getting and installing packages</h2>
 <div class="callout">
-  <p>Terms defined: <g key="backward_compatible">backward-compatible</g>, <g key="combinatorial_explosion">combinatorial explosion</g>, <g key="heuristic">heuristic</g>, <g key="manifest">manifest</g>, <g key="patch">patch</g>, <g key="prune">prune</g>, <g key="sat_solver">SAT solver</g>, <g key="semantic_versioning">semantic versioning</g>, <g key="transitive_closure">transitive closure</g></p>
+  <p>Terms defined: <g key="backward_compatible">backward-compatible</g>, <g key="combinatorial_explosion">combinatorial explosion</g>, <g key="heuristic">heuristic</g>, <g key="manifest">manifest</g>, <g key="patch">patch</g>, <g key="prune">prune</g>, <g key="sat_solver">SAT solver</g>, <g key="semantic_versioning">semantic versioning</g></p>
 </div>
-<ul>
-<li>There's no point building software if you can't install it</li>
-<li>Inspired by <a href="https://www.ctan.org/">CTAN</a>, most languages now have an online archive from which developers can download packages
-<ul>
-<li>Package name</li>
-<li>Version(s)</li>
-<li>List of dependencies, which may also specify versions or version ranges</li>
-</ul>
-</li>
-<li>Downloading files requires some web programming that is out of scope for this book</li>
-<li>Installing files uses the systems programming skills of <x key="systems-programming"></x></li>
-<li>But figuring out which packages to download can be very difficult
-<ul>
-<li>What if A and B require different versions of C?</li>
-<li>Or requires different ranges of versions of C, but there is overlap?</li>
-</ul>
-</li>
-<li>Explore how to find a workable installation or prove that there isn't one
-<ul>
-<li>Based in part on <a href="https://classic.yarnpkg.com/blog/2017/07/11/lets-dev-a-package-manager/">this tutorial</a> by <a href="https://arcanis.github.io/">Maël Nison</a></li>
-</ul>
-</li>
-</ul>
+<p>There is no point building software if you can't install it.
+Inspired by the Comprehensive TeX Archive Network <a href="https://www.ctan.org/">CTAN</a>,
+most languages now have an online archive from which developers can download packages.
+Each package typically has a name and one or more version(s),
+each of which may have a list of dependencies,
+and the package may specify a version or range of versions for each of those dependencies.</p>
+<p>Downloading files requires some web programming that is out of scope for this book,
+while installing those files uses the systems programming skills of <x key="systems-programming"></x>.
+The piece we are missing is a way to figure out exactly what versions of different packages to install
+in order to create a consistent setup.
+If packages A and B require different versions of C,
+it might not be possible to use A and B together.
+On the other hand,
+if each one requires a range of versions of C,
+and those ranges overlap,
+we might be able to find a combination that works.</p>
+<p>This chapter explores how to find a workable installation or prove that there isn't one.
+It is based in part on <a href="https://classic.yarnpkg.com/blog/2017/07/11/lets-dev-a-package-manager/">this tutorial</a> by <a href="https://arcanis.github.io/">Maël Nison</a>.</p>
 <div class="callout">
 <h3 id="satisfiability">Satisfiability</h3>
-<p>In essence what we are trying to do is find a version for each package
+<p>What we are trying to do is find a version for each package
 that makes the assertion &quot;P is compatible with all its dependencies&quot; true
 for every package P.
 The general-purpose tools for doing this are called <g key="sat_solver">SAT solvers</g>
@@ -105,76 +100,97 @@ Finding a solution can be extremely hard in the general case,
 so most SAT solvers use heuristics to try to reduce the work.</p>
 </div>
 <h2 id="what-is-semantic-versioning">What is semantic versioning?</h2>
-<ul>
-<li>Most software projects use <g key="semantic_versioning">semantic versioning</g> for software releases</li>
-<li>Version number consists of three integers X.Y.Z:
-<ul>
-<li>X is the major version</li>
-<li>Y is the minor version</li>
-<li>Z is the <g key="patch">patch</g> number</li>
-<li><a href="https://semver.org/">Full spec</a> allows for more fields, but we will ignore them</li>
-</ul>
-</li>
-<li>Increment major version number every time there's an incompatible externally-visible change</li>
-<li>Increment minor version number when adding new functionality in a <g key="backward_compatible">backward-compatible</g> manner
-(i.e. without breaking any existing code)</li>
-<li>Increment the patch number for backwards-compatible bug fixes that don't add any new features</li>
-<li>When specifying a project's dependencies:
-<ul>
-<li><code>&gt;= 1.2.3</code> means &quot;any version after 1.2.3&quot;</li>
-<li><code>&lt; 4</code> means &quot;any version before 4.anything&quot;</li>
-<li><code>1.0 - 3.1</code> means &quot;any version in the specified range (including patches)&quot;</li>
-<li>Note that 2.1 is greater than 1.99</li>
-</ul>
-</li>
-<li>The <a href="https://www.npmjs.com/package/semver">semver</a> module provides lots of useful functions
-<ul>
-<li><code>semver.valid('1.2.3')</code></li>
-<li><code>semver.satisfies('2.2', '1.0 - 3.1')</code></li>
-</ul>
-</li>
-</ul>
+<p>Most software projects use <g key="semantic_versioning">semantic versioning</g> for software releases.
+Each version number consists of three integers X.Y.Z,
+where X is the major version,
+Y is the minor version,
+and Z is the <g key="patch">patch</g> number.
+The <a href="https://semver.org/">full specification</a> allows for more fields,
+but we will ignore them.</p>
+<p>A package's authors increment its major version number
+every time something changes in a way that makes the package incompatible with previous versions
+(e.g., add a required parameter to a function).
+They increment the minor version number when they new functionality
+in a <g key="backward_compatible">backward-compatible</g> manner
+(i.e., without breaking any existing code),
+and change the patch number for backwards-compatible bug fixes that don't add any new features.
+The notation for specifying a project's dependencies looks a lot like arithmetic:
+<code>&gt;= 1.2.3</code> means &quot;any version after 1.2.3&quot;,
+<code>&lt; 4</code> means &quot;any version before 4.anything&quot;,
+and <code>1.0 - 3.1</code> means &quot;any version in the specified range (including patches)&quot;.
+Note that version 2.1 is greater than version 1.99.</p>
+<p>The <a href="https://www.npmjs.com/package/semver"><code>semver</code></a> module provides useful functions for working with semantic version identifier.
+<code>semver.valid('1.2.3')</code> checks that <code>1.2.3</code> is a valid version identifier,
+while <code>semver.satisfies('2.2', '1.0 - 3.1')</code> checks that its first argument
+is compatible with the range specified in its second.</p>
 <h2 id="how-can-we-find-a-consistent-set-of-packages">How can we find a consistent set of packages?</h2>
-<ul>
-<li>Imagine each package is an axis in a multi-dimensional space, with its versions as the tick marks
-<ul>
-<li>Each point in the space is a possible combination of package versions</li>
-<li>Check if a point satisfies all of the constraints</li>
-</ul>
-</li>
-<li>Example
-<ul>
-<li>Package X
-<ul>
-<li>X/1 requires Y/1-2 and Z/1</li>
-<li>X/2 requires Y/2-3 and Z/1-2</li>
-</ul>
-</li>
-<li>Package Y
-<ul>
-<li>Y/1 requires Z/2</li>
-<li>Y/2 requires Z/2-3</li>
-<li>Y/3 requires Z/3</li>
-</ul>
-</li>
-<li>Package Z
-<ul>
-<li>Z/1, Z/2, and Z/3 don't require anything</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
+<p>Imagine that each package we need is represented as an axis on a graph,
+with its versions as the tick marks.
+Each point on the graph is then a possible combination of package versions.
+We can block out regions of this graph using the constraints on the package versions;
+whatever points are left when we're done are legal installations.
+For example,
+suppose we have the following sets of requirements
+(<f key="package-manager-allowable"></f>):</p>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Requires</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>X/1</td>
+<td>Y/1-2</td>
+</tr>
+<tr>
+<td>X/1</td>
+<td>Z/1</td>
+</tr>
+<tr>
+<td>X/2</td>
+<td>Y/2-3</td>
+</tr>
+<tr>
+<td>X/2</td>
+<td>Z/1-2</td>
+</tr>
+<tr>
+<td>Y/1</td>
+<td>Z/2</td>
+</tr>
+<tr>
+<td>Y/2</td>
+<td>Z/2-3</td>
+</tr>
+<tr>
+<td>Y/3</td>
+<td>Z/3</td>
+</tr>
+<tr>
+<td>Z/1</td>
+<td></td>
+</tr>
+<tr>
+<td>Z/2</td>
+<td></td>
+</tr>
+<tr>
+<td>Z/3</td>
+<td></td>
+</tr>
+</tbody>
+</table>
 <figure id="package-manager-allowable" class="fixme"><img src="/static/tools-small.jpg" alt="Allowable versions"/><figcaption>Finding allowable combinations of package versions.</figcaption></figure>
-<ul>
-<li>18 possibilities (2 for X times 3 for Y times 3 for Z)
-<ul>
-<li>But 16 are excluded by various incompatibilities</li>
-<li>Of the two remaining possibilities, X/2 + Y/3 + Z/3 is strictly greater than X/2 + Y/2 + Z/2</li>
-<li>If we wound up with A/1 + B/2 vs. A/2 + B/1, we'd have to add another rule</li>
-</ul>
-</li>
-</ul>
+<p>There are 18 possible configurations
+(2 for X × 3 for Y × 3 for Z)
+but 16 are excluded by various incompatibilities.
+Of the two remaining possibilities,
+X/2 + Y/3 + Z/3 is strictly greater than X/2 + Y/2 + Z/2,
+so we would probably choose the former;
+if we wound up with A/1 + B/2 versus A/2 + B/1,
+we would have to add rules about how to resolve ties.</p>
 <table>
 <thead>
 <tr>
@@ -295,33 +311,25 @@ so most SAT solvers use heuristics to try to reduce the work.</p>
 </tr>
 </tbody>
 </table>
-<ul>
-<li>How did we do this?
-<ul>
-<li>Find all versions of all packages plus their constraints (<g key="transitive_closure">transitive closure</g>)</li>
-<li>Pick any two and create a list of valid pairs</li>
-<li>Add a third: cross off pairs that can't be satisfied, generate triples of possibilities</li>
-<li>Repeat until all packages included</li>
-</ul>
-</li>
-<li>Worst case, wind up with <g key="combinatorial_explosion">combinatorial explosion</g> of possibilities
-<ul>
-<li>Smart algorithms will try to pick additions that minimize the number of new possibilities added</li>
-<li>Or create pairs, then combine pairs of pairs, etc.</li>
-<li>Our algorithm will be simple (and therefore slow)</li>
-</ul>
-</li>
-</ul>
+<p>To construct this table
+we found the transitive closure of all packages plus all of their dependencies.
+We then picked two and created a list of valid pairs.
+Choosing a third,
+we cross off pairs that can't be satisfied
+to leave triples of legal combinations.
+We repeat this until all packages are included in our table.</p>
+<p>In the worst case this will create a <g key="combinatorial_explosion">combinatorial explosion</g> of possibilities.
+Smart algorithms will try to pick additions that minimize the number of new possibilities added,
+or create pairs and then combine them to create pairs of pairs and so on.
+Our algorithm will be simple (and therefore slow),
+but illustrates the key idea.</p>
 <h2 id="how-can-we-implement-constraint-satisfaction">How can we implement constraint satisfaction?</h2>
-<ul>
-<li>Read a JSON data structure describing the problem
-<ul>
-<li>A real package manager would read <g key="manifest">manifests</g> of packages and construct this structure</li>
-<li>Really wish JSON had a standard way to represent comments…</li>
-</ul>
-</li>
-<li>Stick to single-digit version numbers for readability</li>
-</ul>
+<p>To avoid messing around with parsers,
+our programs reads a JSON data structure describing the problem.
+A real package manager would read the <g key="manifest">manifests</g> of the packages needed
+and construct this structure.
+We will stick to single-digit version numbers for readability,
+and will use this as our first test case:</p>
 <pre title="double-chained.json"><code class="language-json">{
   "X": {
     "1": {
@@ -337,9 +345,18 @@ so most SAT solvers use heuristics to try to reduce the work.</p>
   }
 }
 </code></pre>
-<ul>
-<li>Check if a configuration (specific versions of all packages) is compatible with a manifest</li>
-</ul>
+<div class="callout">
+<h3 id="comments">Comments</h3>
+<p>If you ever design a data format,
+please include a standard way for people to add comments,
+because they will always want to.
+YAML has this,
+but JSON CSV don't.</p>
+</div>
+<p>To check if a configuration of specific versions of all packages is compatible with a manifest,
+we add each package to our active list in turn and look for violations.
+If there aren't any more packages on the active list and we haven't found a violation,
+then what we have must be a legal configuration.</p>
 <pre title="sweep.js"><code class="language-js">import configStr from './config-str.js'
 
 const sweep = (manifest) =&gt; {
@@ -365,9 +382,9 @@ const recurse = (manifest, names, config, result) =&gt; {
 ...
 export default sweep
 </code></pre>
-<ul>
-<li>Simplest way to find configuration is to sweep over all possibilities</li>
-</ul>
+<p>The simplest way to find configurations is to sweep over all possibilities.
+For debugging purposes,
+our function prints possibilities as it goes:</p>
 <pre title="sweep.js"><code class="language-js">const allows = (manifest, config) =&gt; {
   for (const [leftN, leftV] of Object.entries(config)) {
     const requirements = manifest[leftN][leftV]
@@ -383,9 +400,7 @@ export default sweep
   console.log(configStr(config))
   return true
 }</code></pre>
-<ul>
-<li>Run this on the short example</li>
-</ul>
+<p>If we run this program on the two-package example shown earlier we get this output:</p>
 <pre title="sweep-double-chained.sh"><code class="language-sh">node driver.js ./sweep.js double-chained.json
 </code></pre>
 <pre title="sweep-double-chained.out"><code class="language-out">{X:1 Y:1}
@@ -393,25 +408,32 @@ export default sweep
 {X:2 Y:1} @ X/2 Y/1
 {X:2 Y:2}
 </code></pre>
-<ul>
-<li>And on the longer example</li>
-</ul>
-<pre title="sweep-double-chained.sh"><code class="language-sh">node driver.js ./sweep.js double-chained.json
+<p>When we run it on our triple-package example we get this:</p>
+<pre title="sweep-triple.sh"><code class="language-sh">node driver.js ./sweep.js triple.json
 </code></pre>
-<pre title="sweep-double-chained.out"><code class="language-out">{X:1 Y:1}
-{X:1 Y:2} @ X/1 Y/2
-{X:2 Y:1} @ X/2 Y/1
-{X:2 Y:2}
+<pre title="sweep-triple.out"><code class="language-out">{X:1 Y:1 Z:1} @ Y/1 Z/1
+{X:1 Y:1 Z:2} @ X/1 Z/2
+{X:1 Y:1 Z:3} @ X/1 Z/3
+{X:1 Y:2 Z:1} @ Y/2 Z/1
+{X:1 Y:2 Z:2} @ X/1 Z/2
+{X:1 Y:2 Z:3} @ X/1 Z/3
+{X:1 Y:3 Z:1} @ X/1 Y/3
+{X:1 Y:3 Z:2} @ X/1 Y/3
+{X:1 Y:3 Z:3} @ X/1 Y/3
+{X:2 Y:1 Z:1} @ X/2 Y/1
+{X:2 Y:1 Z:2} @ X/2 Y/1
+{X:2 Y:1 Z:3} @ X/2 Y/1
+{X:2 Y:2 Z:1} @ Y/2 Z/1
+{X:2 Y:2 Z:2}
+{X:2 Y:2 Z:3} @ X/2 Z/3
+{X:2 Y:3 Z:1} @ Y/3 Z/1
+{X:2 Y:3 Z:2} @ Y/3 Z/2
+{X:2 Y:3 Z:3} @ X/2 Z/3
 </code></pre>
-<ul>
-<li>It works</li>
-<li>But does lots of unnecessary work
-<ul>
-<li>Sort by the case that caught the exclusion</li>
-<li>9 of the 17 exclusions are redundant rediscovery of a previous-known problem</li>
-</ul>
-</li>
-</ul>
+<p>This works,
+but it is doing a lot of unnecessary work.
+If we sort the output by the case that caught the exclusion
+it turns out that 9 of the 17 exclusions are redundant rediscovery of a previous-known problem:</p>
 <table>
 <thead>
 <tr>
@@ -533,18 +555,14 @@ export default sweep
 </tbody>
 </table>
 <h2 id="how-can-we-do-less-work">How can we do less work?</h2>
-<ul>
-<li>We can <g key="prune">prune</g> the tree
-<ul>
-<li>If X and Y are incompatible, no need to check Z</li>
-</ul>
-</li>
-</ul>
+<p>In order to make this more efficient we need to <g key="prune">prune</g> the search tree
+as we go along
+(<f key="package-manager-pruning"></f>).
+After all,
+if X and Y are incompatible, there is no need to check Z.</p>
 <figure id="package-manager-pruning" class="fixme"><img src="/static/tools-small.jpg" alt="Pruning the search tree"/><figcaption>Pruning options in the search tree to reduce work.</figcaption></figure>
-<ul>
-<li>Collect possible solutions and display them at the end</li>
-<li>Only recurse if everything looks good so far</li>
-</ul>
+<p>This version of the program collects possible solutions and displays them at the end.
+It only keeps checking a partial solution if what it has found so far looks good:</p>
 <pre title="prune.js"><code class="language-js">import configStr from './config-str.js'
 
 const prune = (manifest) =&gt; {
@@ -579,9 +597,7 @@ const report = (config, leftN, leftV, rightN, rightV) =&gt; {
 
 export default prune
 </code></pre>
-<ul>
-<li>Check to see if adding something will still be consistent</li>
-</ul>
+<p>The <code>compatible</code> function checks to see if adding something will leave us with a consistent configuration:</p>
 <pre title="prune.js"><code class="language-js">const compatible = (manifest, config) =&gt; {
   for (const [leftN, leftV] of Object.entries(config)) {
     const leftR = manifest[leftN][leftV]
@@ -599,15 +615,9 @@ export default prune
   }
   return true
 }</code></pre>
-<ul>
-<li>Gets us from 18 complete solutions to:
-<ul>
-<li>11 complete</li>
-<li>1 workable</li>
-<li>2 incomplete (representing 6 that we didn't need to finish)</li>
-</ul>
-</li>
-</ul>
+<p>Checking as we go gets us from 18 complete solutions to 11.
+One is workable
+and two are incomplete (representing 6 possible solutions that we didn't need to finish):</p>
 <pre title="prune-triple.out"><code class="language-out">{X:1 Y:1 Z:1} @ Y/1 Z/1
 {X:1 Y:1 Z:2} @ X/1 Z/2
 {X:1 Y:1 Z:3} @ X/1 Z/3
@@ -623,16 +633,11 @@ export default prune
 {X:2 Y:3 Z:3} @ X/2 Z/3
 {X:2 Y:2 Z:2}
 </code></pre>
-<ul>
-<li>Another way to look at the work is the number of steps in the search
-<ul>
-<li>Full search had 18×3 = 54</li>
-<li>Pruning leaves us with (12×3) + (2×2) = 40</li>
-<li>So we have eliminated roughly 1/4 of the work</li>
-</ul>
-</li>
-<li>What if we searched in a different order?</li>
-</ul>
+<p>Another way to look at the work is the number of steps in the search.
+The full search had 18×3 = 54 steps.
+Pruning leaves us with (12×3) + (2×2) = 40 steps
+so we have eliminated roughly 1/4 of the work.</p>
+<p>What if we searched in the reverse order?</p>
 <pre title="reverse.js"><code class="language-js">import configStr from './config-str.js'
 
 // &lt;reverse&gt;
@@ -702,20 +707,15 @@ export default reverse
 {Z:3 Y:3 X:2} @ Z/3 X/2
 {Z:2 Y:2 X:2}
 </code></pre>
-<ul>
-<li>Now have (8×3) + (5×2) = 34
-<ul>
-<li>Have eliminated roughly 1/3 of the work</li>
-</ul>
-</li>
-<li>Lots of <g key="heuristic">heuristics</g> for searching trees
-<ul>
-<li>None are guaranteed to give better performance in every case</li>
-<li>But most will give better performance in most cases</li>
-<li>And gains multiply: 2/3 of the work in each of two layers is less than half the total original work</li>
-</ul>
-</li>
-</ul>
+<p>Now we have (8×3) + (5×2) = 34 steps,
+i.e.,
+we have eliminated roughly 1/3 of the work.
+That may not seem like a big difference,
+but if we go five levels deep at the same rate
+it cuts the work in half.
+There are lots of <g key="heuristic">heuristics</g> for searching trees.
+None are guaranteed to give better performance in every case,
+but most will give better performance in most cases.</p>
 <h2 id="exercises">Exercises</h2>
 <h3 class="exercise">Comparing semantic versions</h3>
 <p>Write a function that takes an array of semantic version specifiers
