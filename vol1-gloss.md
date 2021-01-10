@@ -322,8 +322,6 @@
 <dd class="glossary"><ol>
 <li>A <g key="field">field</g> or combination of fields whose value(s) uniquely identify a <g key="record">record</g> within a <g key="table">table</g> or dataset. Keys are often used to select specific records and in <g key="join">joins</g>. 2. Part of a key/value pair, used as a unique identifier in a data structure such as a <g key="dictionary">dictionary</g>.</li>
 </ol></dd>
-<dt id="key_binding" class="glossary">key binding</dt>
-<dd class="glossary">A specification that a particular key on a computer keyboard is to invoke a particular function or operation.</dd>
 <dt id="label_address" class="glossary">label (address in memory)</dt>
 <dd class="glossary">A human-readable name given to a particular location in memory when writing programs in <g key="assembly_code">assembly code</g>.</dd>
 <dt id="layout_engine" class="glossary">layout engine</dt>
@@ -464,8 +462,6 @@
 <dd class="glossary">An interactive program that reads a command typed in by a user, executes it, prints the result, and then waits patiently for the next command. REPLs are often used to explore new ideas, or for debugging.</dd>
 <dt id="record" class="glossary">record</dt>
 <dd class="glossary">A group of related values that are stored together. A record may be represented as a <g key="tuple">tuple</g> or as a row in a <g key="table">table</g>; in the latter case, every record in the table has the same <g key="field">fields</g>.</dd>
-<dt id="refactoring" class="glossary">refactoring</dt>
-<dd class="glossary">Reorganizing software without changing its behavior.</dd>
 <dt id="register" class="glossary">register</dt>
 <dd class="glossary">A small piece of memory (typically one <g key="word_memory">word</g> long) built into a processor that operations can refer to directly.</dd>
 <dt id="regular_expression" class="glossary">regular expression</dt>
@@ -556,8 +552,6 @@
 <dd class="glossary">A program that finds and runs software tests and reports their results.</dd>
 <dt id="tdd" class="glossary">test-driven development (TDD)</dt>
 <dd class="glossary">A programming practice in which tests are written before a new feature is added or a <g key="bug">bug</g> is fixed in order to clarify the goal.</dd>
-<dt id="text_buffer" class="glossary">text buffer</dt>
-<dd class="glossary">An abstraction of an area of a user's screen used by text editors and other graphical interfaces. A text buffer provides a higher-level interface than a <g key="screen_buffer">screen buffer</g>.</dd>
 <dt id="throw_exception" class="glossary">throw (exception)</dt>
 <dd class="glossary">Another term for <g key="raise_exception">raising</g> an exception.</dd>
 <dt id="tibble" class="glossary">tibble</dt>

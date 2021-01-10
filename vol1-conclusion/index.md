@@ -4,11 +4,10 @@
 We have come a long way since we listed the contents of a directory in <x key="systems-programming"></x>.
 Saving files in version control,
 making sure code meets style rules,
-running tests and managing packages…
-Programmers do these things every day,
-and we hope that understand how they work will help you do them better.
+instrumenting it and bundling it---programmers do these things every day,
+and we hope that understanding how they work will help you do them better.
 
-We hope your journey won't stop here.
+We also hope that your journey won't stop here.
 In particular,
 contributions of all kinds are welcome,
 from errata and minor improvements to entirely new sections and chapters.
