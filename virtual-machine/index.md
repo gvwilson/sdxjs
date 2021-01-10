@@ -204,7 +204,7 @@ and either save the label *or* increment the current address
 
 <%- include('/inc/keep.html', {file: 'assembler.js', key: 'find-labels'}) %>
 
-To compile a single instruction we break the line into <g key="token">tokens</g>,
+To compile a single instruction we break the line into tokens,
 look up the format for the operands,
 and then pack them into a single value:
 
