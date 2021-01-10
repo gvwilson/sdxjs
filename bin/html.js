@@ -141,15 +141,29 @@ const translate = (options, fileInfo, glossary, linksText, numbering) => {
   // Get the glossary entries that are referenced in this page.
   const glossRefs = getGlossaryReferences(fileInfo.content)
 
+  // Construct a Markdown-to-HTML renderer (since we need to process Markdown
+  // inclusions to HTML when rendering tables).
+  const mdi = new MarkdownIt({ html: true })
+    .use(MarkdownAnchor, { level: 1, slugify: slugify })
+    .use(MarkdownContainer, 'callout')
+    .use(MarkdownContainer, 'centered')
+    .use(MarkdownContainer, 'continue')
+    .use(MarkdownContainer, 'fixme')
+    .use(MarkdownContainer, 'hint')
+
   // Settings contains "local" variables for rendering.
   const settings = {
     ...context,
     site: options,
     page: fileInfo,
-    glossary: glossary,
-    glossRefs: glossRefs,
-    numbering: numbering,
     toRoot: toRoot(options.html, fileInfo.html),
+    glossary,
+    glossRefs,
+    mdi,
+    numbering,
+    // Since inclusions may contain inclusions, we need to provide the rendering
+    // function to the renderer in the settings.
+    _render: (text) => ejs.render(text, settings, context),
     _codeClass,
     _exercise,
     _lineCount,
@@ -158,22 +172,12 @@ const translate = (options, fileInfo, glossary, linksText, numbering) => {
     _readFile,
     _readPage,
     _replace,
-    _section
+    _section,
+    _table
   }
-
-  // Since inclusions may contain inclusions, we need to provide the rendering
-  // function to the renderer in the settings.
-  settings._render = (text) => ejs.render(text, settings, context)
 
   // Translate the page.
   const translated = settings._render(`${fileInfo.content}\n\n${linksText}`)
-  const mdi = new MarkdownIt({ html: true })
-    .use(MarkdownAnchor, { level: 1, slugify: slugify })
-    .use(MarkdownContainer, 'callout')
-    .use(MarkdownContainer, 'centered')
-    .use(MarkdownContainer, 'continue')
-    .use(MarkdownContainer, 'fixme')
-    .use(MarkdownContainer, 'hint')
   let html = mdi.render(translated)
   if (options.replaceDir) {
     html = html.replace(new RegExp(options.homeDir, 'g'), STANDARD_DIR)
@@ -317,6 +321,22 @@ const _section = (mainFile, subFile, options) => {
   }
 
   return _readFile(mainFile, subFile, filters)
+}
+
+/**
+ * Load an external Markdown table and create a beautiful HTML table.
+ * @param {string} mainFile Name of file doing the inclusion.
+ * @param {Object} mdi Markdown-to-HTML renderer.
+ * @param {string} id Table ID.
+ * @param {string} tableFile File containing Markdown table.
+ * @param {string} cap Table caption
+ * @returns {string} HTML table.
+ */
+const _table = (mainFile, mdi, id, tableFile, cap) => {
+  const markdown = _readFile(mainFile, tableFile)
+  const html = mdi.render(markdown)
+  const header = `<table id="${id}"><caption>${cap}</caption>`
+  return html.replace('<table>', header)
 }
 
 /**

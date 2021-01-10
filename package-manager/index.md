@@ -66,26 +66,11 @@ is compatible with the range specified in its second.
 ## How can we find a consistent set of packages?
 
 Imagine that each package we need is represented as an axis on a graph,
-with its versions as the tick marks.
+with its versions as the tick marks
+(<f key="package-manager-allowable"></f>).
 Each point on the graph is then a possible combination of package versions.
 We can block out regions of this graph using the constraints on the package versions;
 whatever points are left when we're done are legal installations.
-For example,
-suppose we have the following sets of requirements
-(<f key="package-manager-allowable"></f>):
-
-| Package | Requires |
-| ------- | -------- |
-| X/1     | Y/1-2    |
-| X/1     | Z/1      |
-| X/2     | Y/2-3    |
-| X/2     | Z/1-2    |
-| Y/1     | Z/2      |
-| Y/2     | Z/2-3    |
-| Y/3     | Z/3      |
-| Z/1     |          |
-| Z/2     |          |
-| Z/3     |          |
 
 <%- include('/inc/figure.html', {
     id: 'package-manager-allowable',
@@ -95,35 +80,29 @@ suppose we have the following sets of requirements
     fixme: true
 }) %>
 
+For example,
+suppose we have the set of requirements shown in <t key="package-manager-example-dependencies"></t>.
 There are 18 possible configurations
 (2 for X × 3 for Y × 3 for Z)
 but 16 are excluded by various incompatibilities.
 Of the two remaining possibilities,
 X/2 + Y/3 + Z/3 is strictly greater than X/2 + Y/2 + Z/2,
-so we would probably choose the former;
+so we would probably choose the former
+(<t key="package-manager-example-result"></t>).
 if we wound up with A/1 + B/2 versus A/2 + B/1,
 we would have to add rules about how to resolve ties.
 
-|   X |   Y |   Z | Excluded  |
-| --- | --- | --- | --------- |
-|   1 |   1 |   1 | Y/1 - Z/1 |
-|   1 |   1 |   2 | X/1 - Z/2 |
-|   1 |   1 |   3 | X/1 - Z/3 |
-|   1 |   2 |   1 | Y/2 - Z/1 |
-|   1 |   2 |   2 | X/1 - Z/2 |
-|   1 |   2 |   3 | X/1 - Z/3 |
-|   1 |   3 |   1 | X/1 - Y/3 |
-|   1 |   3 |   2 | X/1 - Y/3 |
-|   1 |   3 |   3 | X/1 - Y/3 |
-|   2 |   1 |   1 | X/2 - Y/1 |
-|   2 |   1 |   2 | X/2 - Y/1 |
-|   2 |   1 |   3 | X/2 - Y/1 |
-|   2 |   2 |   1 | Y/2 - Z/1 |
-|   2 |   2 |   2 |           |
-|   2 |   2 |   3 | X/2 - Z/3 |
-|   2 |   3 |   1 | Y/3 - Z/1 |
-|   2 |   3 |   2 | Y/3 - Z/2 |
-|   2 |   3 |   3 | X/2 - Z/3 |
+<%- include('/inc/table.html', {
+    id: 'package-manager-example-dependencies',
+    file: 'example-dependencies.tbl',
+    cap: 'Example package dependencies.'
+}) %>
+
+<%- include('/inc/table.html', {
+    id: 'package-manager-example-result',
+    file: 'example-result.tbl',
+    cap: 'Result for example package dependencies.'
+}) %>
 
 To construct this table
 we found the transitive closure of all packages plus all of their dependencies.
@@ -186,26 +165,11 @@ but it is doing a lot of unnecessary work.
 If we sort the output by the case that caught the exclusion
 it turns out that 9 of the 17 exclusions are redundant rediscovery of a previous-known problem:
 
-| Excluded  |   X |   Y |   Z |
-| --------  | --- | --- | --- |
-| X/1 - Y/3 |   1 |   3 |   1 |
-| …         |   1 |   3 |   2 |
-| …         |   1 |   3 |   3 |
-| X/1 - Z/2 |   1 |   1 |   2 |
-| …         |   1 |   2 |   2 |
-| X/1 - Z/3 |   1 |   1 |   3 |
-| …         |   1 |   2 |   3 |
-| X/2 - Y/1 |   2 |   1 |   1 |
-| …         |   2 |   1 |   2 |
-| …         |   2 |   1 |   3 |
-| X/2 - Z/3 |   2 |   2 |   3 |
-| …         |   2 |   3 |   3 |
-| Y/1 - Z/1 |   1 |   1 |   1 |
-| Y/2 - Z/1 |   1 |   2 |   1 |
-| …         |   2 |   2 |   1 |
-| Y/3 - Z/1 |   2 |   3 |   1 |
-| …         |   2 |   3 |   2 |
-|           |   2 |   2 |   2 |
+<%- include('/inc/table.html', {
+    id: 'package-manager-exclusions',
+    file: 'exclusions.tbl',
+    cap: 'Package exclusions.'
+}) %>
 
 ## How can we do less work?
 

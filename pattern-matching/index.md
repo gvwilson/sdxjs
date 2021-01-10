@@ -14,14 +14,14 @@ Regular expressions have inspired pattern matching for many other kinds of data,
 such as <g key="query_selector">query selectors</g> for HTML.
 They are easier to understand and implement,
 so we will start by looking at them.
-The first step is to define the patterns we want to support:
+The first step is to define the patterns we want to support
+(<t key="pattern-matching-supported"></t>).
 
-| Meaning | Selector |
-| ------- | -------- |
-| Element with tag `"elt"` | `elt`    |
-| Element with `class="cls"` | `.cls`   |
-| Element with `id="ident"` | `#ident`   |
-| `child` element inside a `parent` element | `parent child` |
+<%- include('/inc/table.html', {
+    id: 'pattern-matching-supported',
+    file: 'supported.tbl',
+    cap: 'Supported patterns.'
+}) %>
 
 According to this grammar,
 `blockquote#important p.highlight` is a highlighted paragraph inside the blockquote whose ID is `"important"`.
@@ -116,18 +116,17 @@ if the first element of the pattern matches where we are,
 then see if the rest of the pattern matches what's left.
 Otherwise,
 see if the whole (remaining) pattern will match further along.
-Our matcher will initially handle just five cases:
+Our matcher will initially handle just the five cases shown in
+<t key="pattern-matching-cases"></t>.
 
-| Meaning | Character |
-| ------- | --------- |
-| Any literal character *c* | *c* |
-| Any single character | . |
-| Beginning of input | ^ |
-| End of input | $ |
-| Zero or more of the previous character | * |
+<%- include('/inc/table.html', {
+    id: 'pattern-matching-cases',
+    file: 'cases.tbl',
+    cap: 'Pattern matching cases.'
+}) %>
 
 ::: continue
-This is small,
+This is a small subset of what JavaScript provides,
 but as Kernighan wrote,
 "This is quite a useful class;
 in my own experience of using regular expressions on a day-to-day basis,

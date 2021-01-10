@@ -226,7 +226,7 @@ docs/${VOLUME}/links/index.html: links.md
 docs/${VOLUME}/%/index.html: %/index.md
 
 # HTML file dependencies that do map to index.md files in sub-directories.
-%/index.md: %/*/problem.md %/*/solution.md
+%/index.md: %/*/problem.md %/*/solution.md %/*.tbl
 	@touch $@
 
 # Static files.

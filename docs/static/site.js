@@ -67,37 +67,43 @@ const fixCrossRefs = (toRoot, numbering) => {
 }
 
 /**
- * Add figure numbers to figure captions.
+ * Add numbers to figures and tables.
  * @param {Object} numbering Lookup table of chapter numbers.
  * @param {string} slug The slug of this page.
- * @returns {Object} Figure IDs to figure numbers within this page.
+ * @param {string} tag Overall tag ('figure' or 'table').
+ * @param {string} caption Caption tag ('figcaption' or 'caption' respectively).
+ * @param {string} title Word to use as title ('Figure' or 'Table' respectively).
+ * @returns {Object} IDs to elements of this kind within this page.
  */
-const fixFigureNumbers = (numbering, slug) => {
+const fixNumbers = (numbering, slug, tag, caption, title) => {
   const prefix = numbering[slug]
   const result = {}
-  Array.from(document.querySelectorAll('figure'))
-    .forEach((figure, i) => {
-      const ident = figure.getAttribute('id')
+  Array.from(document.querySelectorAll(tag))
+    .forEach((node, i) => {
+      const ident = node.getAttribute('id')
       const number = `${prefix}.${i + 1}`
-      const caption = figure.querySelector('figcaption')
-      caption.innerHTML = `Figure ${number}: ${caption.innerHTML}`
+      const cap = node.querySelector(caption)
+      cap.innerHTML = `${title} ${number}: ${cap.innerHTML}`
       result[ident] = number
     })
   return result
 }
 
 /**
- * Fix figure cross-references.
- * @param {Object} refs Figure IDs to figure numbers within this page.
+ * Fix cross-references to figures and tables.
+ * @param {Object} refs IDs to elements within this page.
+ * @param {string} tag Reference tag to look for ('f' or 't').
+ * @param {string} cls Class to give reference ('figure-reference' or 'table-reference').
+ * @param {string} title Word to use as title ('Figure' or 'Table' respectively).
  */
-const fixFigureRefs = (refs) => {
-  Array.from(document.querySelectorAll('f'))
+const fixFloatRefs = (refs, tag, cls, title) => {
+  Array.from(document.querySelectorAll(tag))
     .forEach((node, i) => {
       const key = node.getAttribute('key')
       const link = document.createElement('a')
       link.setAttribute('href', `#${key}`)
-      link.setAttribute('class', 'figure-reference')
-      link.innerHTML = `Figure&nbsp;${refs[key]}`
+      link.setAttribute('class', cls)
+      link.innerHTML = `${title}&nbsp;${refs[key]}`
       node.parentNode.replaceChild(link, node)
     })
 }
@@ -173,10 +179,12 @@ const fixPage = () => {
   buildToc()
   fixBibCites(toRoot)
   fixCrossRefs(toRoot, NUMBERING)
-  const figureNumbers = fixFigureNumbers(NUMBERING, slug)
-  fixFigureRefs(figureNumbers)
+  const figureNumbers = fixNumbers(NUMBERING, slug, 'figure', 'figcaption', 'Figure')
+  fixFloatRefs(figureNumbers, 'f', 'figure-reference', 'Figure')
   fixFixmes()
   fixGlossaryRefs(toRoot)
   fixPreBlocks()
   fixPreTitles()
+  const tableNumbers = fixNumbers(NUMBERING, slug, 'table', 'caption', 'Table')
+  fixFloatRefs(tableNumbers, 't', 'table-reference', 'Table')
 }

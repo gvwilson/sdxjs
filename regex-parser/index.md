@@ -11,14 +11,11 @@ to convert those strings to the required objects.
 
 Here is the grammar that we will parse:
 
-| Meaning | Character |
-| ------- | --------- |
-| Any literal character *c* | *c* |
-| Beginning of input | ^ |
-| End of input | $ |
-| Zero or more of the previous thing | \* |
-| Either/or | \| |
-| Grouping | (…) |
+<%- include('/inc/table.html', {
+    id: 'regex-parser-grammar-codes',
+    file: 'grammar.tbl',
+    cap: 'Regular expression grammar.'
+}) %>
 
 When we are done
 we should be able to parse `/^(a|b|$)*z$/` as
