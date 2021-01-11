@@ -66,6 +66,14 @@ McGraw-Hill, 1979, 978-0070342071.
 <em class="bibnote">An early and influential description of the Unix programming philosophy.</em>
 </dd>
 
+<dt id="Kernighan1981" class="bibliography">Kernighan1981</dt>
+<dd>
+Brian W. Kernighan and P. J. Plauger:
+<em>Software Tools in Pascal</em>.
+Addison-Wesley Professional, 1981, 978-0201103427.
+<em class="bibnote">Teaches readers how to write good programs by showing them how to build good tools.</em>
+</dd>
+
 <dt id="Kernighan1983" class="bibliography">Kernighan1983</dt>
 <dd>
 Brian W. Kernighan and Rob Pike:
