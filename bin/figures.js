@@ -14,7 +14,7 @@ import {
 const main = () => {
   const options = getOptions()
   createFilePaths(options)
-  let total = { count: 0, fixme: 0 }
+  const total = { count: 0, fixme: 0 }
   const info = options.chapters
     .map(chapter => {
       const title = chapter.title
@@ -50,13 +50,13 @@ const getOptions = () => {
  */
 const countFigures = (filename) => {
   const text = fs.readFileSync(filename, 'utf-8')
-  const matches = text.match(/\/inc\/fig\.html([^]*?)%>/gm)
+  const matches = text.match(/\/inc\/figure\.html([^]*?)%>/gm)
   if (matches === null) {
-    return {count: 0, fixme: 0}
+    return { count: 0, fixme: 0 }
   }
   const count = matches.length
-  const fixme = matches.filter(m => m.match(/fixme:\s*true/gm) ? true : false).length
-  return {count, fixme}
+  const fixme = matches.filter(m => m.match(/fixme:\s*true/gm)).length
+  return { count, fixme }
 }
 
 main()
