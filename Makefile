@@ -47,6 +47,10 @@ TEX := \
   $(wildcard tex/*.tex) \
   $(wildcard tex/*.cls)
 
+# Figures.
+FIGURES_SRC := $(wildcard $(patsubst %,%/figures/*.svg,${CHAPTERS}))
+FIGURES_DST := $(patsubst %,docs/${VOLUME}/%,${FIGURES_SRC})
+
 # Static files.
 STATIC_SRC := .nojekyll CNAME favicon.ico index.html $(wildcard static/*.*) $(wildcard static/fonts/*/*.*)
 STATIC_DST := $(patsubst %,docs/%,${STATIC_SRC})
@@ -66,10 +70,10 @@ commands:
 	@grep -h -E '^##' ${MAKEFILE_LIST} | sed -e 's/## //g' | column -t -s ':'
 
 ## html: rebuild html
-html: ${HOME_PAGE}
+html: ${STATIC_DST} ${FIGURES_DST}
 
 ## serve: run a server on port 4000
-serve: ${HOME_PAGE}
+serve: ${STATIC_DST} ${FIGURES_DST}
 	@npm run serve
 
 ## pdf: rebuild PDF
@@ -97,7 +101,7 @@ hygiene:
 	-@make check
 
 ## check: check that files match style rules
-check: ${HOME_PAGE}
+check: ${STATIC_DST} ${FIGURES_DST}
 	-bin/check.js ${COMMON_PARAMS}
 
 ## ejslint: run checks on template expansions
@@ -144,7 +148,7 @@ wordlist:
 	@bin/wordlist.js --input ${HTML}
 
 ## spelling: what words are incorrect?
-spelling: ${HOME_PAGE}
+spelling: ${STATIC_DST} ${FIGURES_DST}
 	@-bin/wordlist.js --input ${HTML} | aspell list | sort | uniq | diff - tex/words.txt
 
 ## pages: count pages per chapter.
@@ -166,6 +170,8 @@ settings:
 	@echo AUTHORS = "${AUTHORS}"
 	@echo CHAPTERS = "${CHAPTERS}"
 	@echo EXERCISES = "${EXERCISES}"
+	@echo FIGURES_SRC = "${FIGURES_SRC}"
+	@echo FIGURES_DST = "${FIGURES_DST}"
 	@echo HTML = "${HTML}"
 	@echo INC = "${INC}"
 	@echo JAVASCRIPT = "${JAVASCRIPT}"
@@ -175,6 +181,8 @@ settings:
 	@echo VOLUME = "${VOLUME}"
 
 # ----------------------------------------------------------------------
+
+${STATIC_DST} ${FIGURES_DST}: ${HOME_PAGE}
 
 bib.md: bin/bib.js bib.yml
 	bin/bib.js \
@@ -195,7 +203,7 @@ ${LINKS_YML}: links.yml bin/links.js $(filter-out ${GLOSS_MD} links.md,${MARKDOW
 	--also ${AUTHORS} \
 	${COMMON_PARAMS}
 
-${HOME_PAGE}: bin/html.js ${VOLUME}.yml common.yml ${LINKS_YML} ${MARKDOWN} ${INC} ${STATIC_DST}
+${HOME_PAGE}: bin/html.js ${VOLUME}.yml common.yml ${LINKS_YML} ${MARKDOWN} ${INC}
 	bin/html.js \
 	${COMMON_PARAMS} \
 	--gloss ${GLOSS_MD} \
@@ -228,6 +236,11 @@ docs/${VOLUME}/%/index.html: %/index.md
 # HTML file dependencies that do map to index.md files in sub-directories.
 %/index.md: %/*/problem.md %/*/solution.md %/*.tbl
 	@touch $@
+
+# Figures.
+docs/${VOLUME}/%.svg: %.svg
+	mkdir -p $(dir $@)
+	cp $< $@
 
 # Static files.
 docs/static/%: static/%

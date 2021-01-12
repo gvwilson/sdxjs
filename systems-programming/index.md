@@ -60,10 +60,9 @@ so `process.argv[2]` is the first argument after the name of our program (<f key
 
 <%- include('/inc/figure.html', {
     id: 'systems-programming-process-argv',
-    img: '/static/tools-small.jpg',
+    img: './figures/process-argv.svg',
     alt: 'Command-line arguments in `process.argv`',
-    cap: 'How Node stores command-line arguments in <code>process.argv</code>.',
-    fixme: true
+    cap: 'How Node stores command-line arguments in <code>process.argv</code>.'
 }) %>
 
 If we run this program with the name of a directory as its argument,
