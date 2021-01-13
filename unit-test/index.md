@@ -52,10 +52,9 @@ Any other kind of assertion indicates that the test itself contains an error.
 
 <%- include('/inc/figure.html', {
     id: 'unit-test-mental-model',
-    img: '/static/tools-small.jpg',
+    img: './figures/mental-model.svg',
     alt: 'Mental model of unit testing',
-    cap: 'Running tests that can pass, fail, or contain errors.',
-    fixme: true
+    cap: 'Running tests that can pass, fail, or contain errors.'
 }) %>
 
 ## How can we separate test registration, execution, and reporting?
@@ -148,10 +147,9 @@ and `Hope.run` to execute all of the tests registered up until that point
 
 <%- include('/inc/figure.html', {
     id: 'unit-test-hope-structure',
-    img: '/static/tools-small.jpg',
-    alt: 'Finding tests',
-    cap: 'Finding, recording, running, and reporting unit tests.',
-    fixme: true
+    img: './figures/hope-structure.svg',
+    alt: 'Recording and running tests',
+    cap: 'Creating a singleton, recording tests, and running them.'
 }) %>
 
 Finally,
@@ -243,22 +241,22 @@ rather than an arithmetic error.
 The <g key="lifecycle">lifecycle</g> of a pair of files `test-add.js` and `test-sub.js` is
 shown in <f key="unit-test-lifecycle"></f>:
 
-1.  `pray` uses `glob` to find files with tests.
-1.  It loads `test-add.js` using `import` as a function.
-1.  As `test-add.js` runs, it loads `hope.js`.
-    1.  Loading `hope.js` creates a single instance of the class `Hope`.
-    1.  `test-add.js` uses `hope.test` to register a test (which does not run yet).
-1.  `pray` then loads `test-sub.js`.
-    1.  Import `hope` in `test-sub.js` does not reload `hope.js`.
-    1.  So the variable `hope` in `test-sub.js` refers to the unique instance of `Hope` already created.
-    1.  So when `test-sub.js` calls `hope.test`, its test is added to the same object that `test-add.js` added tests to.
-1.  `pray` then asks that unique instance of `Hope` to run all of the tests.
-1.  Finally, `pray` gets a report from the `Hope` singleton and displays it.
+1.  `pray` loads `hope.js`.
+2.  Loading `hope.js` creates a single instance of the class `Hope`.
+3.  `pray` uses `glob` to find files with tests.
+4.  `pray` loads `test-add.js` using `import` as a function.
+5.  As `test-add.js` runs, it loads `hope.js`.
+    Since `hope.js` is already loaded, this does not create a new instance of `Hope`.
+6.  `test-add.js` uses `hope.test` to register a test (which does not run yet).
+7.  `pray` then loads `test-sub.js`…
+8.   …which loads `Hope`…
+9.   …then registers a test.
+10.  `pray` can now ask the unique instance of `Hope` to run all of the tests,
+     then get a report from the `Hope` singleton and display it.
 
 <%- include('/inc/figure.html', {
     id: 'unit-test-lifecycle',
-    img: '/static/tools-small.jpg',
+    img: './figures/lifecycle.svg',
     alt: 'Unit testing lifecycle',
-    cap: 'Lifecycle of dynamically-discovered unit tests.',
-    fixme: true
+    cap: 'Lifecycle of dynamically-discovered unit tests.'
 }) %>

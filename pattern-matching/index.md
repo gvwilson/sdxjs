@@ -33,10 +33,9 @@ until the query string is exhausted or no matches have been found
 
 <%- include('/inc/figure.html', {
     id: 'pattern-matching-query-selectors',
-    img: '/static/tools-small.jpg',
-    alt: 'Query selectors',
-    cap: 'A simple set of query selectors.',
-    fixme: true
+    img: './figures/query-selectors.svg',
+    alt: 'Matching query selectors',
+    cap: 'Matching a simple set of query selectors.'
 }) %>
 
 <%- include('/inc/erase.html', {file: 'simple-selectors.js', key: 'skip'}) %>
@@ -58,17 +57,7 @@ The `firstMatch` function handles three cases:
     then we search the children one by one to see if there is a match further down.
 
 This algorithm is called <g key="depth_first_search">depth-first search</g>:
-it explores one possible match to the end before considering any others
-(<f key="pattern-matching-traversal"></f>).
-
-<%- include('/inc/figure.html', {
-    id: 'pattern-matching-traversal',
-    img: '/static/tools-small.jpg',
-    alt: 'Matching query selectors',
-    cap: 'Recursing through a tree to match query selectors.',
-    fixme: true
-}) %>
-
+it explores one possible match to the end before considering any others.
 `firstMatch` relies on a helper function called `firstChildMatch`,
 which finds the first child of a node to match a set of selectors:
 
@@ -165,18 +154,15 @@ we can implement each kind of match as an object---an object rather than functio
 because some matchers need extra information like the character that they match.
 Each matcher has a method that takes the target string and the index to start matching at as inputs.
 Its output is the index to continue matching at
-*or* `undefined` indicating that matching failed.
+or `undefined` indicating that matching failed.
 We can then combine these objects to create a matcher
-(<f key="pattern-matching-regex-objects"></f>);
-we'll do that manually in this chapter
-and automate the process in <x key="regex-parser"></x>.
+(<f key="pattern-matching-regex-objects"></f>).
 
 <%- include('/inc/figure.html', {
     id: 'pattern-matching-regex-objects',
-    img: '/static/tools-small.jpg',
+    img: './figures/regex-objects.svg',
     alt: 'Implementing regex with objects',
-    cap: 'Using nested objects to match regular expressions.',
-    fixme: true
+    cap: 'Using nested objects to match regular expressions.'
 }) %>
 
 The first step in implementing this is is to write test cases,
@@ -247,10 +233,9 @@ Our current implementation doesn't give us a way to try other possible matches w
 
 <%- include('/inc/figure.html', {
     id: 'pattern-matching-greedy-failure',
-    img: '/static/tools-small.jpg',
+    img: './figures/greedy-failure.svg',
     alt: 'Overly-greedy matching fails',
-    cap: "Why overly-greedy matching doesn't work.",
-    fixme: true
+    cap: "Why overly-greedy matching doesn't work."
 }) %>
 
 Let's re-think our design
@@ -262,10 +247,9 @@ The matcher will try each of its possibilities and then see if the rest will als
 
 <%- include('/inc/figure.html', {
     id: 'pattern-matching-rest',
-    img: '/static/tools-small.jpg',
+    img: './figures/rest.svg',
     alt: 'Matching the rest of the pattern',
-    cap: 'Using "rest" to match the remainder of a pattern.',
-    fixme: true
+    cap: 'Using "rest" to match the remainder of a pattern.'
 }) %>
 
 As a beneficial side effect,
@@ -295,22 +279,12 @@ trying the second pattern and the rest:
 
 <%- include('/inc/file.html', {file: 'regex-recursive/regex-alt.js'}) %>
 
-Matching repetition is easy but inefficient:
-we try zero matches, then one, then two, and so on until something succeeds,
-which means we are repeatedly re-matching things we already know work
-(<f key="pattern-matching-repetition"></f>).
-
-<%- include('/inc/figure.html', {
-    id: 'pattern-matching-repetition',
-    img: '/static/tools-small.jpg',
-    alt: 'Repetition in regular expressions',
-    cap: 'Matching repeated patterns in regular expressions.',
-    fixme: true
-}) %>
-
-We also need to figure out how long to keep trying:
-each non-empty repetition matches at least one character,
-so the number of remaining characters is the maximum number of matches we have to try.
+To match a repetition,
+we figure out the maximum number of matches that might be left,
+then count down until something succeeds.
+(We start with the maximum because matching is supposed to be greedy.)
+Each non-empty repetition matches at least one character,
+so the number of remaining characters is the maximum number of matches worth trying.
 
 <%- include('/inc/file.html', {file: 'regex-recursive/regex-any.js'}) %>
 

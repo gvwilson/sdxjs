@@ -8,7 +8,7 @@ class RegexAny extends RegexBase {
 
   _match (text, start) {
     const maxPossible = text.length - start
-    for (let num = 0; num <= maxPossible; num += 1) {
+    for (let num = maxPossible; num >= 0; num -= 1) {
       const afterMany = this._matchMany(text, start, num)
       if (afterMany !== undefined) {
         return afterMany

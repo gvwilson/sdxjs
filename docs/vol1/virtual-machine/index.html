@@ -79,17 +79,19 @@ we will simulate a very simple processor with a little bit of memory.
 You may also want to check out the game <a href="https://tomorrowcorporation.com/humanresourcemachine">Human Resource Machine</a>,
 which asks you to solve puzzles of increasing difficulty using an even simpler processor.</p>
 <h2 id="what-is-the-architecture-of-our-virtual-machine">What is the architecture of our virtual machine?</h2>
-<p>Our <g key="virtual_machine">virtual machine</g> has three parts
-(<f key="virtual-machine-architecture"></f>):</p>
+<p>Our <g key="virtual_machine">virtual machine</g> has three parts,
+which are shown in <f key="virtual-machine-architecture"></f>
+for a program made up of 110 instructions:</p>
 <ol>
 <li>
-<p>An <g key="instruction_pointer">instruction pointer</g> that holds the memory address of the next instruction to execute.
+<p>An <g key="instruction_pointer">instruction pointer</g> (IP)
+that holds the memory address of the next instruction to execute.
 It is automatically initialized to point at address 0,
 which is where every program must start.
 This rule is part of the <g key="abi">Application Binary Interface</g> (ABI) for our virtual machine.</p>
 </li>
 <li>
-<p>Four <g key="register">registers</g> that instructions can access directly.
+<p>Four <g key="register">registers</g> named R0 to R4 that instructions can access directly.
 There are no memory-to-memory operations in our VM:
 everything  happens in or through registers.</p>
 </li>
@@ -99,7 +101,7 @@ Both the program and its data live in this single block of memory;
 we chose the size 256 so that each address will fit in a single byte.</p>
 </li>
 </ol>
-<figure id="virtual-machine-architecture" class="fixme"><img src="/static/tools-small.jpg" alt="Virtual machine architecture"/><figcaption>Architecture of the virtual machine.</figcaption></figure>
+<figure id="virtual-machine-architecture"><img src="./figures/architecture.svg" alt="Virtual machine architecture"/><figcaption>Architecture of the virtual machine.</figcaption></figure>
 <p>The instructions for our VM are 3 bytes long.
 The <g key="op_code">op code</g> fits into one byte,
 and each instruction may optionally include one or two operands,
@@ -312,7 +314,7 @@ to extract the op code and operands from the instruction
     const arg1 = instruction &amp; OP_MASK
     return [op, arg0, arg1]
   }</code></pre>
-<figure id="virtual-machine-unpacking" class="fixme"><img src="/static/tools-small.jpg" alt="Unpacking instructions"/><figcaption>Using bitwise operations to unpack instructions.</figcaption></figure>
+<figure id="virtual-machine-unpacking"><img src="./figures/unpacking.svg" alt="Unpacking instructions"/><figcaption>Using bitwise operations to unpack instructions.</figcaption></figure>
 <div class="callout">
 <h3 id="semirealistic">Semi-realistic</h3>
 <p>We always unpack two operands regardless of whether the instructions has them or not,
@@ -442,7 +444,7 @@ hlt
 020209
 000001
 </code></pre>
-<figure id="virtual-machine-count-up" class="fixme"><img src="/static/tools-small.jpg" alt="Counting from 0 to 2"/><figcaption>Flowchart of assembly language program to count up from 0 to 2.</figcaption></figure>
+<figure id="virtual-machine-count-up"><img src="./figures/count-up.svg" alt="Counting from 0 to 2"/><figcaption>Flowchart of assembly language program to count up from 0 to 2.</figcaption></figure>
 <p>The <g key="label_address">label</g> <code>loop</code> doesn't take up any space,
 but instead tells the assembler to give the address of the next instruction a name
 so that we can refer to that address as <code>@loop</code>.</p>
@@ -458,7 +460,7 @@ This takes two instructions because we can only add register-to-register.</li>
 which takes three instructions.</li>
 <li>If the program <em>doesn't</em> jump back, it halts.</li>
 </ol>
-<figure id="virtual-machine-trace-counter" class="fixme"><img src="/static/tools-small.jpg" alt="Trace counting program"/><figcaption>Tracing registers and memory values for a simple counting program.</figcaption></figure>
+<figure id="virtual-machine-trace-counter"><img src="./figures/trace-counter.svg" alt="Trace counting program"/><figcaption>Tracing registers and memory values for a simple counting program.</figcaption></figure>
 <p>The implementation of the assembler mirrors the simplicity of assembly language.
 The main method gets interesting lines,
 finds the addresses of labels,
@@ -619,7 +621,7 @@ We will allocate storage for arrays after the program
 by using <code>.data</code> on a line of its own to mark the start of the data section
 and then <code>label: number</code> to give a region a name and allocate some storage space
 (<f key="virtual-machine-storage-allocation"></f>).</p>
-<figure id="virtual-machine-storage-allocation" class="fixme"><img src="/static/tools-small.jpg" alt="Storage allocation"/><figcaption>Allocating storage for arrays in the virtual machine.</figcaption></figure>
+<figure id="virtual-machine-storage-allocation"><img src="./figures/storage-allocation.svg" alt="Storage allocation"/><figcaption>Allocating storage for arrays in the virtual machine.</figcaption></figure>
 <p>This enhancement only requires a few changes to the assembler.
 First,
 we need to split the lines into instructions and data allocations:</p>

@@ -118,7 +118,7 @@ then we will assume the exception came from
 one of the assertions we put in the test as a check
 (<f key="unit-test-mental-model"></f>).
 Any other kind of assertion indicates that the test itself contains an error.</p>
-<figure id="unit-test-mental-model" class="fixme"><img src="/static/tools-small.jpg" alt="Mental model of unit testing"/><figcaption>Running tests that can pass, fail, or contain errors.</figcaption></figure>
+<figure id="unit-test-mental-model"><img src="./figures/mental-model.svg" alt="Mental model of unit testing"/><figcaption>Running tests that can pass, fail, or contain errors.</figcaption></figure>
 <h2 id="how-can-we-separate-test-registration-execution-and-reporting">How can we separate test registration, execution, and reporting?</h2>
 <p>To start,
 let's use a handful of <g key="global_variable">global variables</g> to record tests and their results:</p>
@@ -271,7 +271,7 @@ no matter how many times it is imported.</p>
 it can call <code>Hope.test</code> to record a test for later execution
 and <code>Hope.run</code> to execute all of the tests registered up until that point
 (<f key="unit-test-hope-structure"></f>).</p>
-<figure id="unit-test-hope-structure" class="fixme"><img src="/static/tools-small.jpg" alt="Finding tests"/><figcaption>Finding, recording, running, and reporting unit tests.</figcaption></figure>
+<figure id="unit-test-hope-structure"><img src="./figures/hope-structure.svg" alt="Recording and running tests"/><figcaption>Creating a singleton, recording tests, and running them.</figcaption></figure>
 <p>Finally,
 our class can reports results as both a terse one-line summary and as a detailed listing.
 It can also provide the titles and results of individual tests
@@ -399,25 +399,20 @@ rather than an arithmetic error.</p>
 <p>The <g key="lifecycle">lifecycle</g> of a pair of files <code>test-add.js</code> and <code>test-sub.js</code> is
 shown in <f key="unit-test-lifecycle"></f>:</p>
 <ol>
-<li><code>pray</code> uses <code>glob</code> to find files with tests.</li>
-<li>It loads <code>test-add.js</code> using <code>import</code> as a function.</li>
-<li>As <code>test-add.js</code> runs, it loads <code>hope.js</code>.
-<ol>
+<li><code>pray</code> loads <code>hope.js</code>.</li>
 <li>Loading <code>hope.js</code> creates a single instance of the class <code>Hope</code>.</li>
+<li><code>pray</code> uses <code>glob</code> to find files with tests.</li>
+<li><code>pray</code> loads <code>test-add.js</code> using <code>import</code> as a function.</li>
+<li>As <code>test-add.js</code> runs, it loads <code>hope.js</code>.
+Since <code>hope.js</code> is already loaded, this does not create a new instance of <code>Hope</code>.</li>
 <li><code>test-add.js</code> uses <code>hope.test</code> to register a test (which does not run yet).</li>
+<li><code>pray</code> then loads <code>test-sub.js</code>…</li>
+<li>…which loads <code>Hope</code>…</li>
+<li>…then registers a test.</li>
+<li><code>pray</code> can now ask the unique instance of <code>Hope</code> to run all of the tests,
+then get a report from the <code>Hope</code> singleton and display it.</li>
 </ol>
-</li>
-<li><code>pray</code> then loads <code>test-sub.js</code>.
-<ol>
-<li>Import <code>hope</code> in <code>test-sub.js</code> does not reload <code>hope.js</code>.</li>
-<li>So the variable <code>hope</code> in <code>test-sub.js</code> refers to the unique instance of <code>Hope</code> already created.</li>
-<li>So when <code>test-sub.js</code> calls <code>hope.test</code>, its test is added to the same object that <code>test-add.js</code> added tests to.</li>
-</ol>
-</li>
-<li><code>pray</code> then asks that unique instance of <code>Hope</code> to run all of the tests.</li>
-<li>Finally, <code>pray</code> gets a report from the <code>Hope</code> singleton and displays it.</li>
-</ol>
-<figure id="unit-test-lifecycle" class="fixme"><img src="/static/tools-small.jpg" alt="Unit testing lifecycle"/><figcaption>Lifecycle of dynamically-discovered unit tests.</figcaption></figure>
+<figure id="unit-test-lifecycle"><img src="./figures/lifecycle.svg" alt="Unit testing lifecycle"/><figcaption>Lifecycle of dynamically-discovered unit tests.</figcaption></figure>
 <h2 id="exercises">Exercises</h2>
 <h3 class="exercise">Asynchronous globbing</h3>
 <p>Modify <code>pray.js</code> to use the asynchronous version of <code>glob</code> rather than <code>glob.sync</code>.</p>

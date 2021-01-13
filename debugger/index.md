@@ -78,7 +78,7 @@ and the operation being performed.
 <%- include('/inc/file.html', {file: 'vm-callback.js'}) %>
 
 We also modify the constructor to record the debugger and give it a reference to the virtual machine
-(<f key="virtual-machine-initialization"></f>).
+(<f key="debugger-initialization"></f>).
 We have to connect the two objects explicitly because
 each one needs a reference to the other,
 but one of them has to be created first.
@@ -86,11 +86,10 @@ but one of them has to be created first.
 we will look at other ways to manage it in the exercises.
 
 <%- include('/inc/figure.html', {
-    id: 'virtual-machine-initialization',
-    img: '/static/tools-small.jpg',
+    id: 'debugger-initialization',
+    img: './figures/initialization.svg',
     alt: 'Initializing mutually-depending objects',
-    cap: 'Two-step initialization of mutually-dependent objects.',
-    fixme: true
+    cap: 'Two-step initialization of mutually-dependent objects.'
 }) %>
 
 To run the program,
@@ -194,14 +193,13 @@ Like many other tools over the past thirty years,
 our approach is based on a program called [Expect][expect].
 Our library replaces the input and output functions of the subject application with callbacks,
 then provides input when asked and checks output when it is given
-(<f key="virtual-machine-test-interact"></f>).
+(<f key="debugger-test-interact"></f>).
 
 <%- include('/inc/figure.html', {
-    id: 'virtual-machine-test-interact',
-    img: '/static/tools-small.jpg',
+    id: 'debugger-test-interact',
+    img: './figures/test-interact.svg',
     alt: 'Testing interactive application',
-    cap: 'Replacing input and output to test interactive applications.',
-    fixme: true
+    cap: 'Replacing input and output to test interactive applications.'
 }) %>
 
 The results look like this:
