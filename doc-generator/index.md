@@ -40,10 +40,9 @@ if one line comment occurs immediately after another,
 
 <%- include('/inc/figure.html', {
     id: 'doc-generator-comments',
-    img: '/static/tools-small.jpg',
+    img: './figures/comments.svg',
     alt: 'Line and block comments',
-    cap: 'How line comments and block comments are distinguished and represented.',
-    fixme: true
+    cap: 'How line comments and block comments are distinguished and represented.'
 }) %>
 
 <g key="block_comment">Block comments</g>,
@@ -130,10 +129,9 @@ and see what it produces
 
 <%- include('/inc/figure.html', {
     id: 'doc-generator-mapping',
-    img: '/static/tools-small.jpg',
+    img: './figures/mapping.svg',
     alt: 'Mapping comments to documentation',
-    cap: 'How comments in code map to documentation in HTML.',
-    fixme: true
+    cap: 'How comments in code map to documentation in HTML.'
 }) %>
 
 Again,

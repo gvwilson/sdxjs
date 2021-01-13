@@ -22,10 +22,9 @@ and all the values in a column have the same type
 
 <%- include('/inc/figure.html', {
     id: 'data-table-conceptual',
-    img: '/static/tools-small.jpg',
+    img: './figures/conceptual.svg',
     alt: 'Data table structure',
-    cap: 'The structure of a data table.',
-    fixme: true
+    cap: 'The structure of a data table.'
 }) %>
 
 The key operations on data tables are the same as those in <g key="sql">SQL</g>:
@@ -51,10 +50,9 @@ whose members are all arrays of the same length.
 
 <%- include('/inc/figure.html', {
     id: 'data-table-storage-order',
-    img: '/static/tools-small.jpg',
+    img: './figures/storage-order.svg',
     alt: 'Row-major vs. column-major storage order',
-    cap: 'Row-major storage vs. column-major storage for data tables.',
-    fixme: true
+    cap: 'Row-major storage vs. column-major storage for data tables.'
 }) %>
 
 To find out which is better
@@ -106,10 +104,9 @@ since we have to construct a new set of arrays
 
 <%- include('/inc/figure.html', {
     id: 'data-table-row-ops',
-    img: '/static/tools-small.jpg',
+    img: './figures/row-ops.svg',
     alt: 'Row-major operations',
-    cap: 'Operations on row-major data tables.',
-    fixme: true
+    cap: 'Operations on row-major data tables.'
 }) %>
 
 Now let's do the same for column-major storage.
@@ -129,10 +126,9 @@ but filtering will be relatively slow since we are constructing multiple new arr
 
 <%- include('/inc/figure.html', {
     id: 'data-table-col-ops',
-    img: '/static/tools-small.jpg',
+    img: './figures/col-ops.svg',
     alt: 'Column-major operations',
-    cap: 'Operations on column-major data tables.',
-    fixme: true
+    cap: 'Operations on column-major data tables.'
 }) %>
 
 ::: callout
@@ -191,15 +187,13 @@ And if we keep the table size the same but use a 10:1 filter/select ratio?
 
 <%- include('/inc/file.html', {file: 'table-performance-10000-30-10.out'}) %>
 
-<%- include('/inc/figure.html', {
+<%- include('/inc/table.html', {
     id: 'data-table-performance',
-    img: '/static/tools-small.jpg',
-    alt: 'Performance of data table operations',
-    cap: 'Relative performance of operations on row-major and column-major data tables.',
-    fixme: true
+    file: 'table-performance.tbl',
+    cap: 'Relative performance of operations on row-major and column-major data tables.'
 }) %>
 
-The results in <f key="data-table-performance"></f> show that column-major storage is better.
+The results in <t key="data-table-performance"></t> show that column-major storage is better.
 It uses less memory (presumably because labels aren't duplicated),
 and the time required to construct new objects when doing select with row-major storage
 outweighs cost of appending to arrays when doing filter with column-major storage.
@@ -249,10 +243,9 @@ and other bits store the actual data
 
 <%- include('/inc/figure.html', {
     id: 'data-table-object-storage',
-    img: '/static/tools-small.jpg',
+    img: './figures/object-storage.svg',
     alt: 'JavaScript object storage',
-    cap: 'How JavaScript uses tagged data structures to store objects.',
-    fixme: true
+    cap: 'How JavaScript uses tagged data structures to store objects.'
 }) %>
 
 We can save space by keeping track of the types ourselves
@@ -260,15 +253,16 @@ and just storing the bits that represent the values.
 JavaScript has an `ArrayBuffer` class for exactly this purpose.
 It stores any value we want as a set of bits;
 we then access those bits through a view that presents the data as a particular type,
-such as unsigned 8-bit integer or 64-bit float
-(<f key="data-table-packed-storage"></f>).
+such as Boolean (one byte per value) or number (64 bits per number).
+As <f key="data-table-packed-storage"></f> shows,
+we can mix different types of data in a single `ArrayBuffer`,
+but it's up to us to keep track of which bytes belong to which values.
 
 <%- include('/inc/figure.html', {
     id: 'data-table-packed-storage',
-    img: '/static/tools-small.jpg',
+    img: './figures/packed-storage.svg',
     alt: 'Packing objects for storage',
-    cap: 'Storing object values as bits with lookup information.',
-    fixme: true
+    cap: 'Storing object values as bits with lookup information.'
 }) %>
 
 To store a column-major table,

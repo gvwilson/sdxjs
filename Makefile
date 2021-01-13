@@ -62,6 +62,9 @@ TOOLS := $(filter-out bin/utils.js, $(wildcard bin/*.js))
 # Configuration parameters.
 COMMON_PARAMS := --common common.yml --config ${VOLUME}.yml --root . --html docs/${VOLUME}
 
+# Temporary file for showing all figures.
+ALL_FIGURES := ./all-figures.html
+
 # ----------------------------------------------------------------------
 
 .DEFAULT: commands
@@ -134,7 +137,8 @@ exercises:
 
 ## figures: count figures per chapter
 figures:
-	@bin/figures.js ${COMMON_PARAMS} | column -t -s '|'
+	@bin/figures.js ${COMMON_PARAMS} --figures ${ALL_FIGURES} | column -t -s '|'
+	@open ${ALL_FIGURES}
 
 ## examples: rebuild all examples in sub-directories
 examples:

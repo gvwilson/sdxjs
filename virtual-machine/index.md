@@ -13,15 +13,17 @@ which asks you to solve puzzles of increasing difficulty using an even simpler p
 
 ## What is the architecture of our virtual machine?
 
-Our <g key="virtual_machine">virtual machine</g> has three parts
-(<f key="virtual-machine-architecture"></f>):
+Our <g key="virtual_machine">virtual machine</g> has three parts,
+which are shown in <f key="virtual-machine-architecture"></f>
+for a program made up of 110 instructions:
 
-1.  An <g key="instruction_pointer">instruction pointer</g> that holds the memory address of the next instruction to execute.
+1.  An <g key="instruction_pointer">instruction pointer</g> (IP)
+    that holds the memory address of the next instruction to execute.
     It is automatically initialized to point at address 0,
     which is where every program must start.
     This rule is part of the <g key="abi">Application Binary Interface</g> (ABI) for our virtual machine.
 
-1.  Four <g key="register">registers</g> that instructions can access directly.
+1.  Four <g key="register">registers</g> named R0 to R4 that instructions can access directly.
     There are no memory-to-memory operations in our VM:
     everything  happens in or through registers.
 
@@ -31,10 +33,9 @@ Our <g key="virtual_machine">virtual machine</g> has three parts
 
 <%- include('/inc/figure.html', {
     id: 'virtual-machine-architecture',
-    img: '/static/tools-small.jpg',
+    img: './figures/architecture.svg',
     alt: 'Virtual machine architecture',
-    cap: 'Architecture of the virtual machine.',
-    fixme: true
+    cap: 'Architecture of the virtual machine.'
 }) %>
 
 The instructions for our VM are 3 bytes long.
@@ -90,10 +91,9 @@ to extract the op code and operands from the instruction
 
 <%- include('/inc/figure.html', {
     id: 'virtual-machine-unpacking',
-    img: '/static/tools-small.jpg',
+    img: './figures/unpacking.svg',
     alt: 'Unpacking instructions',
-    cap: 'Using bitwise operations to unpack instructions.',
-    fixme: true
+    cap: 'Using bitwise operations to unpack instructions.'
 }) %>
 
 ::: callout
@@ -160,10 +160,9 @@ This program prints the numbers from 0 to 2
 
 <%- include('/inc/figure.html', {
     id: 'virtual-machine-count-up',
-    img: '/static/tools-small.jpg',
+    img: './figures/count-up.svg',
     alt: 'Counting from 0 to 2',
-    cap: 'Flowchart of assembly language program to count up from 0 to 2.',
-    fixme: true
+    cap: 'Flowchart of assembly language program to count up from 0 to 2.'
 }) %>
 
 The <g key="label_address">label</g> `loop` doesn't take up any space,
@@ -184,10 +183,9 @@ Let's trace this program's execution
 
 <%- include('/inc/figure.html', {
     id: 'virtual-machine-trace-counter',
-    img: '/static/tools-small.jpg',
+    img: './figures/trace-counter.svg',
     alt: 'Trace counting program',
-    cap: 'Tracing registers and memory values for a simple counting program.',
-    fixme: true
+    cap: 'Tracing registers and memory values for a simple counting program.'
 }) %>
 
 The implementation of the assembler mirrors the simplicity of assembly language.
@@ -241,10 +239,9 @@ and then `label: number` to give a region a name and allocate some storage space
 
 <%- include('/inc/figure.html', {
     id: 'virtual-machine-storage-allocation',
-    img: '/static/tools-small.jpg',
+    img: './figures/storage-allocation.svg',
     alt: 'Storage allocation',
-    cap: 'Allocating storage for arrays in the virtual machine.',
-    fixme: true
+    cap: 'Allocating storage for arrays in the virtual machine.'
 }) %>
 
 This enhancement only requires a few changes to the assembler.

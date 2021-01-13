@@ -28,10 +28,9 @@ and using `func(...var)` to spread those values out.
 
 <%- include('/inc/figure.html', {
     id: 'code-generator-spread',
-    img: '/static/tools-small.jpg',
+    img: './figures/spread.svg',
     alt: 'Spreading parameters',
-    cap: 'Using ...args to capture and spread parameters.',
-    fixme: true
+    cap: 'Using ...args to capture and spread parameters.'
 }) %>
 
 We can use `...args` to capture all of the arguments to a function call

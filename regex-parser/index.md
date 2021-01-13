@@ -30,10 +30,9 @@ the exercises will build the latter.
 
 <%- include('/inc/figure.html', {
     id: 'regex-parser-expression-tree',
-    img: '/static/tools-small.jpg',
+    img: './figures/expression-tree.svg',
     alt: 'Expression tree for regular expression',
-    cap: 'Representing the result of parsing a regular expression as an tree.',
-    fixme: true
+    cap: 'Representing the result of parsing a regular expression as an tree.'
 }) %>
 
 ::: callout
@@ -156,6 +155,8 @@ If our input is the pattern `/a|b/`, we can:
     make that `Lit` token the left child of the `Alt`
     and append that without filling in the right child.
 
+1.  Append the `Lit` token for `b`.
+
 1.  After all tokens have been handled,
     look for partially-completed `Alt` tokens and make whatever comes after them their right child.
 
@@ -163,10 +164,9 @@ Again, this automatically handles patterns like `/(ab)|c*|(de)/`.
 
 <%- include('/inc/figure.html', {
     id: 'regex-parser-mechanics',
-    img: '/static/tools-small.jpg',
+    img: './figures/mechanics.svg',
     alt: 'Mechanics of combining tokens',
-    cap: 'Mechanics of combining tokens while parsing regular expressions.',
-    fixme: true
+    cap: 'Mechanics of combining tokens while parsing regular expressions.'
 }) %>
 
 Time to turn these ideas into code.

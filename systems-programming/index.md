@@ -112,10 +112,9 @@ just like the USB standard allows us to plug hardware devices together.
 
 <%- include('/inc/figure.html', {
     id: 'systems-programming-callbacks',
-    img: '/static/tools-small.jpg',
-    alt: 'How callbacks work',
-    cap: 'How JavaScript runs callback functions.',
-    fixme: true
+    img: './figures/callbacks.svg',
+    alt: 'Running callbacks',
+    cap: 'How JavaScript runs callback functions.'
 }) %>
 
 This corrected program gives `fs.readdir` a callback function called `listContents`:
@@ -139,8 +138,6 @@ Nothing in this book will make sense if we don't understand
 the order in which [Node][node.js] executes the statements in this program
 (<f key="systems-programming-execution-order"></f>):
 
-1.  Read the program file.
-
 1.  Execute the first line to load the `fs` library.
 
 1.  Define a function of two parameters and assign it to `listContents`.
@@ -161,10 +158,9 @@ the order in which [Node][node.js] executes the statements in this program
 
 <%- include('/inc/figure.html', {
     id: 'systems-programming-execution-order',
-    img: '/static/tools-small.jpg',
+    img: './figures/execution-order.svg',
     alt: 'Callback execution order',
-    cap: 'When JavaScript runs callback functions.',
-    fixme: true
+    cap: 'When JavaScript runs callback functions.'
 }) %>
 
 ## What are anonymous functions?
@@ -185,10 +181,9 @@ Using an anonymous function gives us the final version of our program:
 
 <%- include('/inc/figure.html', {
     id: 'systems-programming-anonymous-functions',
-    img: '/static/tools-small.jpg',
+    img: './figures/anonymous-functions.svg',
     alt: 'Anonymous functions as callbacks',
-    cap: 'How and when JavaScript creates and runs anonymous callback functions.',
-    fixme: true
+    cap: 'How and when JavaScript creates and runs anonymous callback functions.'
 }) %>
 
 ## How can we select a set of files?
@@ -243,10 +238,9 @@ so we can filter our original list of filenames several times if we want to.
 
 <%- include('/inc/figure.html', {
     id: 'systems-programming-array-filter',
-    img: '/static/tools-small.jpg',
+    img: './figures/array-filter.svg',
     alt: 'Using `Array.filter`',
-    cap: 'Selecting array elements using <code>Array.filter</code>.',
-    fixme: true
+    cap: 'Selecting array elements using <code>Array.filter</code>.'
 }) %>
 
 We can make our globbing program more idiomatic by
@@ -318,7 +312,7 @@ it can construct the full output path by replacing the name of the source direct
 <%- include('/inc/file.html', {file: 'glob-with-dest-directory.js'}) %>
 
 ::: continue
-This programs uses <g key="destructuring_assignment">destructuring assignment</g> to create two variables at once
+This program uses <g key="destructuring_assignment">destructuring assignment</g> to create two variables at once
 by unpacking the elements of an array
 (<f key="systems-programming-destructuring-assignment"></f>).
 It only works if the array contains enough elements,
@@ -329,10 +323,9 @@ we'll add that in the exercises.
 
 <%- include('/inc/figure.html', {
     id: 'systems-programming-destructuring-assignment',
-    img: '/static/tools-small.jpg',
+    img: './figures/destructuring-assignment.svg',
     alt: 'Matching values with destructuring assignment',
-    cap: 'Assigning many values at once by destructuring.',
-    fixme: true
+    cap: 'Assigning many values at once by destructuring.'
 }) %>
 
 A more serious problem is that
@@ -382,10 +375,9 @@ The program now has three levels of callback
 
 <%- include('/inc/figure.html', {
     id: 'systems-programming-triple-callback',
-    img: '/static/tools-small.jpg',
+    img: './figures/triple-callback.svg',
     alt: 'Three levels of callback',
-    cap: 'Three levels of callback in the running example.',
-    fixme: true
+    cap: 'Three levels of callback in the running example.'
 }) %>
 
 Our program looks like it should work,
