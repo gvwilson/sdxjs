@@ -222,10 +222,9 @@ so most commands will leave them alone unless told to do otherwise.)
 
 <%- include('/inc/figure.html', {
     id: 'systems-programming-globbing',
-    img: '/static/tools-small.jpg',
+    img: './figures/globbing.svg',
     alt: 'Matching filenames with `glob`',
-    cap: 'Using <code>glob</code> patterns to match filenames.',
-    fixme: true
+    cap: 'Using <code>glob</code> patterns to match filenames.'
 }) %>
 
 This program works,
