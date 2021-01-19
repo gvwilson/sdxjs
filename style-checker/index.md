@@ -34,10 +34,9 @@ is <%- include('/inc/linecount.html', {file: 'parse-single-const.out'}) %> lines
 
 <%- include('/inc/figure.html', {
     id: 'style-checker-parse-tree',
-    img: '/static/tools-small.jpg',
+    img: './figures/parse-tree.svg',
     alt: 'A small parse tree',
-    cap: 'The parse tree of a simple program.',
-    fixme: true
+    cap: 'The parse tree of a simple program.'
 }) %>
 
 [Acorn][acorn]'s output is in [Esprima][esprima] format.
@@ -65,10 +64,9 @@ and then report them all at the end
 
 <%- include('/inc/figure.html', {
     id: 'style-checker-walk-tree',
-    img: '/static/tools-small.jpg',
+    img: './figures/walk-tree.svg',
     alt: 'Walking a tree',
-    cap: 'Walking a tree to perform an operation at each node.',
-    fixme: true
+    cap: 'Walking a tree to perform an operation at each node.'
 }) %>
 
 <%- include('/inc/multi.html', {pat: 'walk-ast.*', fill: 'js out'}) %>
@@ -140,10 +138,9 @@ while the Iterator pattern turns everything into a `for` loop.
 
 <%- include('/inc/figure.html', {
     id: 'style-checker-iterator',
-    img: '/static/tools-small.jpg',
+    img: './figures/iterator.svg',
     alt: 'The Iterator pattern',
-    cap: 'Finding nodes in the tree using the Iterator pattern.',
-    fixme: true
+    cap: 'Finding nodes in the tree using the Iterator pattern.'
 }) %>
 
 We can implement the Iterator pattern in JavaScript using <g key="generator_function">generator functions</g>.
