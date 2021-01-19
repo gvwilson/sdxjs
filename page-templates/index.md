@@ -34,10 +34,9 @@ Most of these systems use one of three designs
 
 <%- include('/inc/figure.html', {
     id: 'page-templates-options',
-    img: '/static/tools-small.jpg',
+    img: './figures/options.svg',
     alt: 'Three options for page templates',
-    cap: 'Three different ways to implement page templating.',
-    fixme: true
+    cap: 'Three different ways to implement page templating.'
 }) %>
 
 In this chapter we will build a simple page templating system using the third option.
@@ -133,10 +132,9 @@ if the variable can't be found,
 
 <%- include('/inc/figure.html', {
     id: 'page-templates-stack',
-    img: '/static/tools-small.jpg',
+    img: './figures/stack.svg',
     alt: 'Variable stack',
-    cap: 'Using a stack to manage variables.',
-    fixme: true
+    cap: 'Using a stack to manage variables.'
 }) %>
 
 ## How do we handle nodes?
@@ -161,10 +159,9 @@ so that the creators of derived classes must remember to implement their own ver
 
 <%- include('/inc/figure.html', {
     id: 'page-templates-visitor',
-    img: '/static/tools-small.jpg',
+    img: './figures/visitor.svg',
     alt: 'The Visitor pattern',
-    cap: 'Using the Visitor pattern to evaluate a page template.',
-    fixme: true
+    cap: 'Using the Visitor pattern to evaluate a page template.'
 }) %>
 
 The `Expander` class is a `Visitor` and uses an `Env`.
