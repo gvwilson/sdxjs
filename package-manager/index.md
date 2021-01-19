@@ -74,10 +74,9 @@ whatever points are left when we're done are legal installations.
 
 <%- include('/inc/figure.html', {
     id: 'package-manager-allowable',
-    img: '/static/tools-small.jpg',
+    img: './figures/allowable.svg',
     alt: 'Allowable versions',
-    cap: 'Finding allowable combinations of package versions.',
-    fixme: true
+    cap: 'Finding allowable combinations of package versions.'
 }) %>
 
 For example,
@@ -181,10 +180,9 @@ if X and Y are incompatible, there is no need to check Z.
 
 <%- include('/inc/figure.html', {
     id: 'package-manager-pruning',
-    img: '/static/tools-small.jpg',
+    img: './figures/pruning.svg',
     alt: 'Pruning the search tree',
-    cap: 'Pruning options in the search tree to reduce work.',
-    fixme: true
+    cap: 'Pruning options in the search tree to reduce work.'
 }) %>
 
 This version of the program collects possible solutions and displays them at the end.
