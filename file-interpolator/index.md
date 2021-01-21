@@ -14,10 +14,9 @@ to share fragments of HTML.
 
 <%- include('/inc/figure.html', {
     id: 'file-interpolator-conceptual',
-    img: '/static/tools-small.jpg',
+    img: './figures/conceptual.svg',
     alt: 'Using file inclusions',
-    cap: 'Including fragments of code to create runnable programs.',
-    fixme: true
+    cap: 'Including fragments of code to create runnable programs.'
 }) %>
 
 The special comments in our source files contain two fields:
@@ -53,10 +52,9 @@ which takes a string as input and executes it as if it were part of the program
 
 <%- include('/inc/figure.html', {
     id: 'file-interpolator-eval',
-    img: '/static/tools-small.jpg',
+    img: './figures/eval.svg',
     alt: 'How eval works',
-    cap: '<code>eval</code> vs. normal translation and execution.',
-    fixme: true
+    cap: '<code>eval</code> vs. normal translation and execution.'
 }) %>
 
 ::: callout
@@ -123,19 +121,10 @@ in the same way that a function can modify global variables:
 
 ::: continue
 So if the text we give to `eval` modifies a structure that is defined outside the text,
-that change outlives the call to `eval`
-(<f key="file-interpolator-global"></f>):
+that change outlives the call to `eval`:
 :::
 
 <%- include('/inc/multi.html', {pat: 'eval-global-structure.*', fill: 'js out'}) %>
-
-<%- include('/inc/figure.html', {
-    id: 'file-interpolator-global',
-    img: '/static/tools-small.jpg',
-    alt: 'Modifying a global structure',
-    cap: 'How <code>eval</code> modifies a structure defined globally.',
-    fixme: true
-}) %>
 
 The examples so far have all evaluated strings embedded in the program itself,
 but `eval` doesn't care where its input comes from.
@@ -176,10 +165,9 @@ using the file path as a lookup key.
 
 <%- include('/inc/figure.html', {
     id: 'file-interpolator-cache',
-    img: '/static/tools-small.jpg',
+    img: './figures/cache.svg',
     alt: 'Implementing a cache as a singleton',
-    cap: 'Using the Singleton pattern to implement a cache of loaded files.',
-    fixme: true
+    cap: 'Using the Singleton pattern to implement a cache of loaded files.'
 }) %>
 
 We can write a simple cache in just a few lines of code:
@@ -225,10 +213,9 @@ until we find a file with a matching name
 
 <%- include('/inc/figure.html', {
     id: 'file-interpolator-search-path',
-    img: '/static/tools-small.jpg',
+    img: './figures/search-path.svg',
     alt: 'Implementing a search path',
-    cap: 'Using a colon-separated list of directories as a search path.',
-    fixme: true
+    cap: 'Using a colon-separated list of directories as a search path.'
 }) %>
 
 :::
@@ -326,7 +313,7 @@ Let's test it:
 
 <%- include('/inc/multi.html', {pat: 'test-import-interpolate.*', fill: 'sh out'}) %>
 
-<f key="file-interpolator-lifecycle"></f> shows what happens when this program runs:
+When this program runs:
 
 1.  Node starts to run `test-import-interpolate.js`.
 1.  It sees the `import` of need-interpolate` so it reads and evaluates that code.
@@ -340,14 +327,6 @@ Let's test it:
 1.  …and stores the result of `eval` (which is a class) in the cache.
 1.  It also returns that class.
 1.  We then create an instance of that class and call its method.
-
-<%- include('/inc/figure.html', {
-    id: 'file-interpolator-lifecycle',
-    img: '/static/tools-small.jpg',
-    alt: 'File interpolation lifecycle',
-    cap: 'The interpolate-translate-run lifecycle.',
-    fixme: true
-}) %>
 
 This works,
 but as we said in the introduction we decided not to use it

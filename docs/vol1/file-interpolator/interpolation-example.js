@@ -1,8 +1,8 @@
 /* eslint-disable */
 class Something {
-  /*+ constructor + something_constructor.js +*/
+  /*+ constructor + constructor.js +*/
 
-  /*+ a long method + a_long_method.js +*/
+  /*+ a long method + long_method.js +*/
 
-  /*+ another long method + another_long_method.js +*/
+  /*+ another method + another_method.js +*/
 }

@@ -138,7 +138,6 @@ exercises:
 ## figures: count figures per chapter
 figures:
 	@bin/figures.js ${COMMON_PARAMS} --figures ${ALL_FIGURES} | column -t -s '|'
-	@open ${ALL_FIGURES}
 
 ## examples: rebuild all examples in sub-directories
 examples:
