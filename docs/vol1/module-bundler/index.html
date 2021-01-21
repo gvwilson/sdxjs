@@ -79,7 +79,7 @@ and combines them into a single loadable file
 (<f key="module-bundler-bundling"></f>).
 This file is much more efficient to load---it's the same number of bytes
 but just one network request---and bundling files ensures that dependencies actually resolve.</p>
-<figure id="module-bundler-bundling" class="fixme"><img src="/static/tools-small.jpg" alt="Bundling modules"/><figcaption>Combining multiple modules into one.</figcaption></figure>
+<figure id="module-bundler-bundling"><img src="./figures/bundling.svg" alt="Bundling modules"/><figcaption>Combining multiple modules into one.</figcaption></figure>
 <p>Bundling requires an <g key="entry_point">entry point</g>,
 i.e.,
 a place to start searching for dependencies.
@@ -138,7 +138,7 @@ and is shown in <f key="module-bundler-complicated"></f>:</p>
 <li><code>./subdir/bottom-left</code> also requires <code>top-left</code> and <code>bottom-right</code>.</li>
 <li><code>./subdir/bottom-right</code> doesn't require anything.</li>
 </ul>
-<figure id="module-bundler-complicated" class="fixme"><img src="/static/tools-small.jpg" alt="Module bundler dependencies"/><figcaption>Dependencies in large module bundler test case.</figcaption></figure>
+<figure id="module-bundler-complicated"><img src="./figures/complicated.svg" alt="Module bundler dependencies"/><figcaption>Dependencies in large module bundler test case.</figcaption></figure>
 <div class="continue">
 <p>The main program is:</p>
 </div>
@@ -239,7 +239,7 @@ which contains the things we have
 We keep taking items from <code>pending</code> until it is empty.
 If the current thing is already in <code>seen</code> we do nothing,
 while otherwise we get its dependencies and add them to either <code>seen</code> or <code>pending</code>.</p>
-<figure id="module-bundler-transitive-closure" class="fixme"><img src="/static/tools-small.jpg" alt="Implementing transitive closure"/><figcaption>Implementing transitive closure using two sets.</figcaption></figure>
+<figure id="module-bundler-transitive-closure"><img src="./figures/transitive-closure.svg" alt="Implementing transitive closure"/><figcaption>Implementing transitive closure using two sets.</figcaption></figure>
 <p>Finding dependencies is complicated by the fact that we can load something under different names,
 such as <code>./subdir/bottom-left</code> from <code>main</code> but <code>./bottom-left</code> from <code>./subdir/bottom-right</code>.
 As with the module loader in <x key="module-loader"></x>,
@@ -294,7 +294,7 @@ The fix is to modify transitive closure to construct and return a two-level stru
 The primary keys are the absolute paths to the files being required,
 while sub-keys are the paths they refer to when loading things
 (<f key="module-bundler-structure"></f>).</p>
-<figure id="module-bundler-structure" class="fixme"><img src="/static/tools-small.jpg" alt="Data structure for modules"/><figcaption>Data structure used to map names to absolute paths.</figcaption></figure>
+<figure id="module-bundler-structure"><img src="./figures/structure.svg" alt="Data structure for modules"/><figcaption>Data structure used to map names to absolute paths.</figcaption></figure>
 <p>Adding this takes our transitive closure code from</p>
 <p>24 lines
 to
@@ -438,7 +438,7 @@ while the code in <code>TAIL</code> returns the lookup table from that function.
 In between,
 <code>combineFiles</code> adds an entry to the lookup table for each file
 (<f key="module-bundler-head-tail"></f>).</p>
-<figure id="module-bundler-head-tail" class="fixme"><img src="/static/tools-small.jpg" alt="Assembling runnable code"/><figcaption>Assembling fragments and modules to create a bundle.</figcaption></figure>
+<figure id="module-bundler-head-tail"><img src="./figures/head-tail.svg" alt="Assembling runnable code"/><figcaption>Assembling fragments and modules to create a bundle.</figcaption></figure>
 <p>We can test that this works in our two-file case:</p>
 <pre title="test-combine-files.js"><code class="language-js">import combineFiles from './combine-files.js'
 
@@ -486,23 +486,21 @@ it has created a lookup table of functions that can create what we asked for.
 More specifically we have</p>
 <ul>
 <li>
-<p>a map from absolute filenames to functions that create the exports for those modules;</p>
+<p>a lookup table from absolute filenames to functions that create the exports for those modules;</p>
 </li>
 <li>
-<p>a map from absolute filenames to pairs of (written import name, absolute filename); and</p>
+<p>a lookup table from importer's absolute filename to pairs of
+written import name and imported file's absolute filename;
+and</p>
 </li>
 <li>
 <p>an entry point.</p>
 </li>
 </ul>
-<div class="continue">
 <p>To turn this into what we want we look up the function associated with the entry point and run it,
 giving it an empty module object and a <code>require</code> function that we will describe below,
-then get the <code>exports</code> from the module object
-(<f key="module-bundler-extract"></f>).</p>
-</div>
-<figure id="module-bundler-extract" class="fixme"><img src="/static/tools-small.jpg" alt="Extracting exports from modules"/><figcaption>Extracting exports names from modules after initialization.</figcaption></figure>
-<p>Our replacement for <code>require</code> is only allowed to take one argument
+then get the <code>exports</code> from the module object.
+Our replacement for <code>require</code> is only allowed to take one argument
 because that's all that JavaScript's <code>require</code> takes.
 However,
 it actually needs four things:
@@ -514,12 +512,12 @@ no matter what we call them,
 the user might have given a variable the same name.</p>
 <p>As in <x key="module-loader"></x> we solve this problem using closures.
 We will write a function that takes the two tables as arguments
-and returns a function that takes an absolute path identifying this module
-and returns a function that takes a local path inside a module and returns the exports.
+and returns a function that takes an absolute path identifying this module.
+That function returns a function that takes a local path inside a module and returns the exports.
 Each of these wrapping layers remembers more information for us
 (<f key="module-bundler-returning-functions"></f>),
 but we won't pretend that it's easy to trace.</p>
-<figure id="module-bundler-returning-functions" class="fixme"><img src="/static/tools-small.jpg" alt="Functions returning functions returning functions"/><figcaption>A function that returns functions that return functions.</figcaption></figure>
+<figure id="module-bundler-returning-functions"><img src="./figures/returning-functions.svg" alt="Functions returning functions returning functions"/><figcaption>A function that returns functions that return functions.</figcaption></figure>
 <p>We also need a third structure:
 a cache for the modules we've already loaded.
 Putting it all together we have:</p>

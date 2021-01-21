@@ -96,9 +96,10 @@ but Y increases as we go down, rather than up
 This convention is a holdover from the days of teletype terminals,
 which printed each successive line below the one before it.</p>
 </div>
-<figure id="layout-engine-coordinate-system" class="fixme"><img src="/static/tools-small.jpg" alt="Coordinate system"/><figcaption>Coordinate system with (0, 0) in the upper left corner.</figcaption></figure>
+<figure id="layout-engine-coordinate-system"><img src="./figures/coordinate-system.svg" alt="Coordinate system"/><figcaption>Coordinate system with (0, 0) in the upper left corner.</figcaption></figure>
 <h2 id="how-can-we-size-rows-and-columns">How can we size rows and columns?</h2>
-<p>Let's start on <g key="easy_mode">easy mode</g> without margins, padding, line-wrapping, or other complications.
+<p>Let's start on <g key="easy_mode">easy mode</g>
+without margins, padding, line-wrapping, or other complications.
 We define a cell as a row, a column, or a block.
 A block has a fixed width and height (hence the name):</p>
 <pre title="easy-mode.js"><code class="language-js">export class Block {
@@ -115,12 +116,10 @@ A block has a fixed width and height (hence the name):</p>
     return this.height
   }
 }</code></pre>
-<div class="continue">
 <p>A row arranges one or more cells horizontally;
 its width is the sum of the widths of its children,
 while its height is the maximum height of any of its children
 (<f key="layout-engine-sizing"></f>):</p>
-</div>
 <pre title="easy-mode.js"><code class="language-js">export class Row {
   constructor (...children) {
     this.children = children
@@ -142,13 +141,12 @@ while its height is the maximum height of any of its children
     return result
   }
 }</code></pre>
-<div class="continue">
+<figure id="layout-engine-sizing"><img src="./figures/sizing.svg" alt="Calculating sizes of fixed blocks"/><figcaption>Calculating sizes of blocks with fixed width and height.</figcaption></figure>
 <p>Finally,
 a column arranges one or more cells vertically;
 its width is the maximum width of its children,
 and its height is the sum of the heights of its children.
 (Here and elsewhere we use the abbreviation <code>col</code> when referring to columns.)</p>
-</div>
 <pre title="easy-mode.js"><code class="language-js">export class Col {
   constructor (...children) {
     this.children = children
@@ -176,7 +174,6 @@ This is simple but inefficient:
 we could calculate both width and height at the same time
 and <g key="cache">cache</g> calculated values to avoid recalculation,
 but it's called &quot;easy mode&quot; for a reason.</p>
-<figure id="layout-engine-sizing" class="fixme"><img src="/static/tools-small.jpg" alt="Calculating sizes of fixed blocks"/><figcaption>Calculating sizes of blocks with fixed width and height.</figcaption></figure>
 <p>As simple as it is,
 this code could still contain errors (and did during development),
 so we write some <a href="https://mochajs.org/">Mocha</a> tests to check that it works as desired
@@ -263,17 +260,17 @@ upper because we lay out the page top-to-bottom
 and left because we are doing left-to-right layout.
 If the cell is a block, we just place it there.
 If the cell is a row, on the other hand,
-we gets its height
+we get its height
 and then calculate its lower edge as y1 = y0 + height.
 We then place the first child's lower-left corner at (x0, y1),
-the second child's at (x0 + width0, y1), and so on.
+the second child's at (x0 + width0, y1), and so on
+(<f key="layout-engine-layout"></f>).
 Similarly,
 if the cell is a column
 we place the first child at (x0, y0),
 the next at (x0, y0 + height0),
-and so on
-(<f key="layout-engine-layout"></f>).</p>
-<figure id="layout-engine-layout" class="fixme"><img src="/static/tools-small.jpg" alt="Laying out rows and columns"/><figcaption>Laying out rows and columns of fixed-size blocks.</figcaption></figure>
+and so on.</p>
+<figure id="layout-engine-layout"><img src="./figures/layout.svg" alt="Laying out rows and columns"/><figcaption>Laying out rows and columns of fixed-size blocks.</figcaption></figure>
 <p>To save ourselves some testing we will derive the classes that know how to do layout
 from the classes we wrote before.
 Our blocks are:</p>
@@ -443,7 +440,7 @@ If we do this starting at the root of the tree,
 child blocks will overwrite the markings made by their parents,
 which will automatically produce the right appearance
 (<f key="layout-engine-draw-over"></f>).</p>
-<figure id="layout-engine-draw-over" class="fixme"><img src="/static/tools-small.jpg" alt="Children drawing over their parents"/><figcaption>Render blocks by drawing child nodes on top of parent nodes.</figcaption></figure>
+<figure id="layout-engine-draw-over"><img src="./figures/draw-over.svg" alt="Children drawing over their parents"/><figcaption>Render blocks by drawing child nodes on top of parent nodes.</figcaption></figure>
 <p>Making our pretend screen is a simple matter of creating an array of arrays:</p>
 <pre title="render.js"><code class="language-js">const makeScreen = (width, height) =&gt; {
   const screen = []
@@ -601,7 +598,7 @@ each of which is one &quot;line&quot; of wrapped cells
 This replacement is unnecessary when everything will fit on a single row,
 but it's easiest to write the code that does it every time;
 we will look at making this more efficient in the exercises.</p>
-<figure id="layout-engine-wrap" class="fixme"><img src="/static/tools-small.jpg" alt="Wrapping rows"/><figcaption>Wrapping rows by introducing a new row and column.</figcaption></figure>
+<figure id="layout-engine-wrap"><img src="./figures/wrap.svg" alt="Wrapping rows"/><figcaption>Wrapping rows by introducing a new row and column.</figcaption></figure>
 <p>Our new wrappable row's constructor takes a fixed width followed by the children
 and returns that fixed width when asked for its size:</p>
 <pre title="wrapped.js"><code class="language-js">export class WrappedRow extends PlacedRow {
@@ -840,10 +837,8 @@ with a subclass for each type of rule.
 From highest precedence to lowest,
 the three types of rules we support identify specific nodes via their ID,
 classes of nodes via their <code>class</code> attribute,
-and then types of nodes via their element name
-(<f key="layout-engine-css-precedence"></f>).</p>
-<figure id="layout-engine-css-precedence" class="fixme"><img src="/static/tools-small.jpg" alt="Precedence of CSS rules"/><figcaption>Numbering CSS rules to define precedence.</figcaption></figure>
-<p>We keep track of these precedences through the simple expedient of numbering the classes:</p>
+and then types of nodes via their element name.
+We keep track of these precedences through the simple expedient of numbering the classes:</p>
 <pre title="micro-css.js"><code class="language-js">export class CssRule {
   constructor (order, selector, styles) {
     this.order = order

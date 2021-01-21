@@ -15,10 +15,9 @@ but just one network request---and bundling files ensures that dependencies actu
 
 <%- include('/inc/figure.html', {
     id: 'module-bundler-bundling',
-    img: '/static/tools-small.jpg',
+    img: './figures/bundling.svg',
     alt: 'Bundling modules',
-    cap: 'Combining multiple modules into one.',
-    fixme: true
+    cap: 'Combining multiple modules into one.'
 }) %>
 
 Bundling requires an <g key="entry_point">entry point</g>,
@@ -68,10 +67,9 @@ and is shown in <f key="module-bundler-complicated"></f>:
 
 <%- include('/inc/figure.html', {
     id: 'module-bundler-complicated',
-    img: '/static/tools-small.jpg',
+    img: './figures/complicated.svg',
     alt: 'Module bundler dependencies',
-    cap: 'Dependencies in large module bundler test case.',
-    fixme: true
+    cap: 'Dependencies in large module bundler test case.'
 }) %>
 
 ::: continue
@@ -143,10 +141,9 @@ while otherwise we get its dependencies and add them to either `seen` or `pendin
 
 <%- include('/inc/figure.html', {
     id: 'module-bundler-transitive-closure',
-    img: '/static/tools-small.jpg',
+    img: './figures/transitive-closure.svg',
     alt: 'Implementing transitive closure',
-    cap: 'Implementing transitive closure using two sets.',
-    fixme: true
+    cap: 'Implementing transitive closure using two sets.'
 }) %>
 
 Finding dependencies is complicated by the fact that we can load something under different names,
@@ -171,10 +168,9 @@ while sub-keys are the paths they refer to when loading things
 
 <%- include('/inc/figure.html', {
     id: 'module-bundler-structure',
-    img: '/static/tools-small.jpg',
+    img: './figures/structure.svg',
     alt: 'Data structure for modules',
-    cap: 'Data structure used to map names to absolute paths.',
-    fixme: true
+    cap: 'Data structure used to map names to absolute paths.'
 }) %>
 
 Adding this takes our transitive closure code from
@@ -224,10 +220,9 @@ In between,
 
 <%- include('/inc/figure.html', {
     id: 'module-bundler-head-tail',
-    img: '/static/tools-small.jpg',
+    img: './figures/head-tail.svg',
     alt: 'Assembling runnable code',
-    cap: 'Assembling fragments and modules to create a bundle.',
-    fixme: true
+    cap: 'Assembling fragments and modules to create a bundle.'
 }) %>
 
 We can test that this works in our two-file case:
@@ -248,27 +243,17 @@ instead,
 it has created a lookup table of functions that can create what we asked for.
 More specifically we have
 
--   a map from absolute filenames to functions that create the exports for those modules;
+-   a lookup table from absolute filenames to functions that create the exports for those modules;
 
--   a map from absolute filenames to pairs of (written import name, absolute filename); and
+-   a lookup table from importer's absolute filename to pairs of
+    written import name and imported file's absolute filename;
+    and
 
 -   an entry point.
 
-::: continue
 To turn this into what we want we look up the function associated with the entry point and run it,
 giving it an empty module object and a `require` function that we will describe below,
-then get the `exports` from the module object
-(<f key="module-bundler-extract"></f>).
-:::
-
-<%- include('/inc/figure.html', {
-    id: 'module-bundler-extract',
-    img: '/static/tools-small.jpg',
-    alt: 'Extracting exports from modules',
-    cap: 'Extracting exports names from modules after initialization.',
-    fixme: true
-}) %>
-
+then get the `exports` from the module object.
 Our replacement for `require` is only allowed to take one argument
 because that's all that JavaScript's `require` takes.
 However,
@@ -282,18 +267,17 @@ the user might have given a variable the same name.
 
 As in <x key="module-loader"></x> we solve this problem using closures.
 We will write a function that takes the two tables as arguments
-and returns a function that takes an absolute path identifying this module
-and returns a function that takes a local path inside a module and returns the exports.
+and returns a function that takes an absolute path identifying this module.
+That function returns a function that takes a local path inside a module and returns the exports.
 Each of these wrapping layers remembers more information for us
 (<f key="module-bundler-returning-functions"></f>),
 but we won't pretend that it's easy to trace.
 
 <%- include('/inc/figure.html', {
     id: 'module-bundler-returning-functions',
-    img: '/static/tools-small.jpg',
+    img: './figures/returning-functions.svg',
     alt: 'Functions returning functions returning functions',
-    cap: 'A function that returns functions that return functions.',
-    fixme: true
+    cap: 'A function that returns functions that return functions.'
 }) %>
 
 We also need a third structure:

@@ -34,36 +34,39 @@ which printed each successive line below the one before it.
 
 <%- include('/inc/figure.html', {
     id: 'layout-engine-coordinate-system',
-    img: '/static/tools-small.jpg',
+    img: './figures/coordinate-system.svg',
     alt: 'Coordinate system',
-    cap: 'Coordinate system with (0, 0) in the upper left corner.',
-    fixme: true
+    cap: 'Coordinate system with (0, 0) in the upper left corner.'
 }) %>
 
 ## How can we size rows and columns?
 
-Let's start on <g key="easy_mode">easy mode</g> without margins, padding, line-wrapping, or other complications.
+Let's start on <g key="easy_mode">easy mode</g>
+without margins, padding, line-wrapping, or other complications.
 We define a cell as a row, a column, or a block.
 A block has a fixed width and height (hence the name):
 
 <%- include('/inc/keep.html', {file: 'easy-mode.js', key: 'block'}) %>
 
-::: continue
 A row arranges one or more cells horizontally;
 its width is the sum of the widths of its children,
 while its height is the maximum height of any of its children
 (<f key="layout-engine-sizing"></f>):
-:::
 
 <%- include('/inc/keep.html', {file: 'easy-mode.js', key: 'row'}) %>
 
-::: continue
+<%- include('/inc/figure.html', {
+    id: 'layout-engine-sizing',
+    img: './figures/sizing.svg',
+    alt: 'Calculating sizes of fixed blocks',
+    cap: 'Calculating sizes of blocks with fixed width and height.'
+}) %>
+
 Finally,
 a column arranges one or more cells vertically;
 its width is the maximum width of its children,
 and its height is the sum of the heights of its children.
 (Here and elsewhere we use the abbreviation `col` when referring to columns.)
-:::
 
 <%- include('/inc/keep.html', {file: 'easy-mode.js', key: 'col'}) %>
 
@@ -73,14 +76,6 @@ This is simple but inefficient:
 we could calculate both width and height at the same time
 and <g key="cache">cache</g> calculated values to avoid recalculation,
 but it's called "easy mode" for a reason.
-
-<%- include('/inc/figure.html', {
-    id: 'layout-engine-sizing',
-    img: '/static/tools-small.jpg',
-    alt: 'Calculating sizes of fixed blocks',
-    cap: 'Calculating sizes of blocks with fixed width and height.',
-    fixme: true
-}) %>
 
 As simple as it is,
 this code could still contain errors (and did during development),
@@ -99,23 +94,22 @@ upper because we lay out the page top-to-bottom
 and left because we are doing left-to-right layout.
 If the cell is a block, we just place it there.
 If the cell is a row, on the other hand,
-we gets its height
+we get its height
 and then calculate its lower edge as y1 = y0 + height.
 We then place the first child's lower-left corner at (x0, y1),
-the second child's at (x0 + width0, y1), and so on.
+the second child's at (x0 + width0, y1), and so on
+(<f key="layout-engine-layout"></f>).
 Similarly,
 if the cell is a column
 we place the first child at (x0, y0),
 the next at (x0, y0 + height0),
-and so on
-(<f key="layout-engine-layout"></f>).
+and so on.
 
 <%- include('/inc/figure.html', {
     id: 'layout-engine-layout',
-    img: '/static/tools-small.jpg',
+    img: './figures/layout.svg',
     alt: 'Laying out rows and columns',
-    cap: 'Laying out rows and columns of fixed-size blocks.',
-    fixme: true
+    cap: 'Laying out rows and columns of fixed-size blocks.'
 }) %>
 
 To save ourselves some testing we will derive the classes that know how to do layout
@@ -155,10 +149,9 @@ which will automatically produce the right appearance
 
 <%- include('/inc/figure.html', {
     id: 'layout-engine-draw-over',
-    img: '/static/tools-small.jpg',
+    img: './figures/draw-over.svg',
     alt: 'Children drawing over their parents',
-    cap: 'Render blocks by drawing child nodes on top of parent nodes.',
-    fixme: true
+    cap: 'Render blocks by drawing child nodes on top of parent nodes.'
 }) %>
 
 Making our pretend screen is a simple matter of creating an array of arrays:
@@ -238,10 +231,9 @@ we will look at making this more efficient in the exercises.
 
 <%- include('/inc/figure.html', {
     id: 'layout-engine-wrap',
-    img: '/static/tools-small.jpg',
+    img: './figures/wrap.svg',
     alt: 'Wrapping rows',
-    cap: 'Wrapping rows by introducing a new row and column.',
-    fixme: true
+    cap: 'Wrapping rows by introducing a new row and column.'
 }) %>
 
 Our new wrappable row's constructor takes a fixed width followed by the children
@@ -295,17 +287,7 @@ with a subclass for each type of rule.
 From highest precedence to lowest,
 the three types of rules we support identify specific nodes via their ID,
 classes of nodes via their `class` attribute,
-and then types of nodes via their element name
-(<f key="layout-engine-css-precedence"></f>).
-
-<%- include('/inc/figure.html', {
-    id: 'layout-engine-css-precedence',
-    img: '/static/tools-small.jpg',
-    alt: 'Precedence of CSS rules',
-    cap: 'Numbering CSS rules to define precedence.',
-    fixme: true
-}) %>
-
+and then types of nodes via their element name.
 We keep track of these precedences through the simple expedient of numbering the classes:
 
 <%- include('/inc/keep.html', {file: 'micro-css.js', key: 'css'}) %>
