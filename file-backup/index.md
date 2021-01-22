@@ -27,7 +27,6 @@ that turns arbitrary data into a fixed-length string of bits
 
 <%- include('/inc/figure.html', {
     id: 'file-backup-hash-function',
-    img: '/static/tools-small.jpg',
     alt: 'Hash functions',
     cap: 'How hash functions speed up lookup.',
     fixme: true
@@ -102,7 +101,6 @@ the main program ends before the task handling the end of data is scheduled and 
 
 <%- include('/inc/figure.html', {
     id: 'file-backup-streaming',
-    img: '/static/tools-small.jpg',
     alt: 'Streaming file operations',
     cap: 'Processing files as streams of chunks.',
     fixme: true
@@ -125,7 +123,6 @@ all we have to do is copy the saved `.bck` files back to where they were
 
 <%- include('/inc/figure.html', {
     id: 'file-backup-storage',
-    img: '/static/tools-small.jpg',
     alt: 'Backup file storage',
     cap: 'Organization of backup file storage.',
     fixme: true
@@ -193,7 +190,6 @@ and the `.csv` extension indicates that the file is formatted as <g key="csv">co
 
 <%- include('/inc/figure.html', {
     id: 'file-backup-directory-structure',
-    img: '/static/tools-small.jpg',
     alt: 'File backup directory structure',
     cap: 'Storing backups and index files in the same directory.',
     fixme: true
@@ -220,7 +216,6 @@ so they will both try to create the first one.
 
 <%- include('/inc/figure.html', {
     id: 'file-backup-toctou',
-    img: '/static/tools-small.jpg',
     alt: 'Time of check/time of use race condition',
     cap: 'Race condition when time of check and time of use are not the same.',
     fixme: true
@@ -275,7 +270,6 @@ but is designed to be used solely for testing
 
 <%- include('/inc/figure.html', {
     id: 'file-backup-mock-fs',
-    img: '/static/tools-small.jpg',
     alt: 'Mock filesystem',
     cap: 'Using a mock filesystem to simplify testing.',
     fixme: true

@@ -359,9 +359,8 @@ const HANDLERS = {
   pre: (options, fileInfo, node, accum) => {
     assert((node.children.length === 1) && (node.children[0].name === 'code'),
       'Expect pre to have one code child')
-    const title = node.attribs.title
-    const caption = title ? `[caption={${title}}]` : ''
-    accum.push(`\\begin{lstlisting}${caption}\n`)
+    const title = node.attribs.title ? node.attribs.title : ''
+    accum.push(`\\begin{lstlisting}[caption={${title}},captionpos=b]\n`)
     node.children[0].children.forEach(child => htmlToText(child, accum, nonAsciiEscape))
     accum.push('\\end{lstlisting}')
   },
@@ -454,11 +453,7 @@ const figureToLatex = (options, fileInfo, node) => {
   assert(img.name === 'img',
     `Expected first child of figure to be img, not ${img.name}`)
 
-  const src = img.attribs.src
-  assert(src && src.length > 0,
-    'Invalid src attribute for img in figure')
-
-  const alt = img.attribs.src
+  const alt = img.attribs.alt
   assert(alt && alt.length > 0,
     'Invalid alt attribute for img in figure')
 
@@ -470,7 +465,23 @@ const figureToLatex = (options, fileInfo, node) => {
   childrenToLatex(options, fileInfo, caption, accum)
   const text = accum.join('')
 
-  const result = `\\figimg{${ident}}{${src}}{${text}}`
+  let cmd = null
+  let src = null
+  const cls = node.attribs.class
+  if (cls && (cls === 'fixme')) {
+    cmd = 'figimg'
+    src = `.${options.defaultImage}`
+  } else {
+    cmd = 'figpdf'
+    src = img.attribs.src
+    assert(src && src.length > 0,
+      'Invalid src attribute for img in figure')
+    src = src
+      .replace('./figures', `./${fileInfo.slug}/figures`)
+      .replace('.svg', '.pdf')
+  }
+
+  const result = `\\${cmd}{${ident}}{${src}}{${text}}`
   return result
 }
 

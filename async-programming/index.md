@@ -27,7 +27,6 @@ but objects can be shared between tasks
 
 <%- include('/inc/figure.html', {
     id: 'async-programming-event-loop',
-    img: '/static/tools-small.jpg',
     alt: 'The event loop',
     cap: 'Using an event loop to manage concurrent tasks.',
     fixme: true
@@ -61,7 +60,6 @@ and those tasks can then run in an arbitrary order
 
 <%- include('/inc/figure.html', {
     id: 'async-programming-set-timeout',
-    img: '/static/tools-small.jpg',
     alt: 'Setting a timeout',
     cap: 'Using <code>setTimeout</code> to delay operations.',
     fixme: true
@@ -84,7 +82,6 @@ if any other tasks are available
 
 <%- include('/inc/figure.html', {
     id: 'async-programming-set-three-delays',
-    img: '/static/tools-small.jpg',
     alt: 'Delaying three function calls',
     cap: 'Order of operations with three delays function calls.',
     fixme: true
@@ -125,7 +122,6 @@ which is how the first part of the action communicates with the second
 
 <%- include('/inc/figure.html', {
     id: 'async-programming-resolve',
-    img: '/static/tools-small.jpg',
     alt: 'How promises resolve',
     cap: 'Order of operations when a promise resolves.',
     fixme: true
@@ -228,7 +224,6 @@ not on the original promise
 
 <%- include('/inc/figure.html', {
     id: 'async-programming-chained',
-    img: '/static/tools-small.jpg',
     alt: 'Chained promises',
     cap: 'Chaining promises to make asynchronous operations depend on each other.',
     fixme: true
@@ -297,7 +292,6 @@ our line-counting program becomes:
 
 <%- include('/inc/figure.html', {
     id: 'async-programming-temporary-named-fields',
-    img: '/static/tools-small.jpg',
     alt: 'Temporary objects with named fields',
     cap: 'Creating temporary objects with named fields to carry values forward.',
     fixme: true
@@ -388,7 +382,6 @@ and our `try`/`catch` doesn't help us
 
 <%- include('/inc/figure.html', {
     id: 'async-programming-handling-errors',
-    img: '/static/tools-small.jpg',
     alt: 'Handling asynchronous errors',
     cap: 'Wrong and right ways to handle errors in asynchronous code.',
     fixme: true

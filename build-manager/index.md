@@ -26,7 +26,6 @@ unless the interface of something it depends on has changed.
 
 <%- include('/inc/figure.html', {
     id: 'build-manager-compiling',
-    img: '/static/tools-small.jpg',
     alt: 'Compiling and linking',
     cap: 'Compiling source files and linking the resulting modules.',
     fixme: true
@@ -63,7 +62,6 @@ it has to be acyclic because if something depends on itself we cannot ever finis
 
 <%- include('/inc/figure.html', {
     id: 'build-manager-dependencies',
-    img: '/static/tools-small.jpg',
     alt: 'Respecting dependencies',
     cap: 'How a build manager finds and respects dependencies.',
     fixme: true
@@ -76,7 +74,6 @@ we use the recipes to bring it up to date
 
 <%- include('/inc/figure.html', {
     id: 'build-manager-stale',
-    img: '/static/tools-small.jpg',
     alt: 'Updating files',
     cap: 'A build manager only updates files that are stale.',
     fixme: true
@@ -141,7 +138,6 @@ even if the details vary.
 
 <%- include('/inc/figure.html', {
     id: 'build-manager-template-method',
-    img: '/static/tools-small.jpg',
     alt: 'Template Method pattern',
     cap: 'The Template Method pattern in action.',
     fixme: true
@@ -189,7 +185,6 @@ it shows the graph with `v` and `w` keys to represent the ends of the links
 
 <%- include('/inc/figure.html', {
     id: 'build-manager-interpreting-graph',
-    img: '/static/tools-small.jpg',
     alt: 'Interpreting graph display',
     cap: 'Interpreting the textual representation of the graph.',
     fixme: true
@@ -303,7 +298,6 @@ and `@DEP[1]`, `@DEP[2]`, and so on for specific dependencies
 
 <%- include('/inc/figure.html', {
     id: 'build-manager-pattern-rules',
-    img: '/static/tools-small.jpg',
     alt: 'Pattern rules',
     cap: 'Turning patterns rules into runnable commands.',
     fixme: true

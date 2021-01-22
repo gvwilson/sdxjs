@@ -29,7 +29,6 @@
 
 <%- include('/inc/figure.html', {
     id: 'text-editor-buffers',
-    img: '/static/tools-small.jpg',
     alt: 'Screen and text buffers',
     cap: 'Using screen buffers and text buffers to display text.',
     fixme: true
@@ -76,7 +75,6 @@
 
 <%- include('/inc/figure.html', {
     id: 'text-editor-lookup-table',
-    img: '/static/tools-small.jpg',
     alt: 'Looking up key bindings',
     cap: 'Using a lookup table to manage key bindings.',
     fixme: true
@@ -96,7 +94,6 @@
 
 <%- include('/inc/figure.html', {
     id: 'text-editor-plugins',
-    img: '/static/tools-small.jpg',
     alt: 'Loading and running plugins',
     cap: 'Loading and running plugins to handle keystrokes.',
     fixme: true
@@ -121,7 +118,6 @@
 
 <%- include('/inc/figure.html', {
     id: 'text-editor-playback',
-    img: '/static/tools-small.jpg',
     alt: 'Implementing record and playback',
     cap: 'Storing recent state to implement record and playback.',
     fixme: true
@@ -166,7 +162,6 @@
 
 <%- include('/inc/figure.html', {
     id: 'text-editor-undo-stack',
-    img: '/static/tools-small.jpg',
     alt: 'Managing undo with a stack',
     cap: 'Using a stack to store undoable operations.',
     fixme: true
