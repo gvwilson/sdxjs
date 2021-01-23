@@ -135,9 +135,9 @@ terms:
 exercises:
 	@bin/exercises.js ${VOLUME}.yml | column -t -s '|'
 
-## figures: count figures per chapter
-figures:
-	@bin/figures.js ${COMMON_PARAMS} --figures ${ALL_FIGURES} | column -t -s '|'
+## numfigures: count figures per chapter
+numfigures:
+	@bin/numfigures.js ${COMMON_PARAMS} --figures ${ALL_FIGURES} | column -t -s '|'
 
 ## examples: rebuild all examples in sub-directories
 examples:
@@ -252,3 +252,12 @@ docs/%: ./%
 ${TOOLS}: bin/utils.js
 bin/%.js:
 	@touch $@
+
+# ----------------------------------------------------------------------
+
+# Can't use command-line to regenerate PDFs of diagrams from SVGs because the
+# SVGs are saved as full pages (8.5"x11") and the '--crop' option crops to page
+# size, not content size.
+#
+# %.pdf: %.svg
+#	/Applications/draw.io.app/Contents/MacOS/draw.io --crop --export --format pdf --border 0 --scale 1.0 --output $@ $<
