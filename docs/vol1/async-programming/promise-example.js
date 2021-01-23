@@ -8,10 +8,11 @@ const delay = (message) => {
 }
 
 console.log('before')
-delay('outer delay').then((value) => {
-  console.log(`first then: ${value}`)
-  return delay('inner delay')
-}).then((value) => {
-  console.log(`second then: ${value}`)
-})
+delay('outer delay')
+  .then((value) => {
+    console.log(`first then: ${value}`)
+    return delay('inner delay')
+  }).then((value) => {
+    console.log(`second then: ${value}`)
+  })
 console.log('after')

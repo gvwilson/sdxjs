@@ -27,9 +27,9 @@ but objects can be shared between tasks
 
 <%- include('/inc/figure.html', {
     id: 'async-programming-event-loop',
+    img: './figures/event-loop.svg',
     alt: 'The event loop',
-    cap: 'Using an event loop to manage concurrent tasks.',
-    fixme: true
+    cap: 'Using an event loop to manage concurrent tasks.'
 }) %>
 
 Most tasks execute all the code available in the order it is written.
@@ -60,9 +60,9 @@ and those tasks can then run in an arbitrary order
 
 <%- include('/inc/figure.html', {
     id: 'async-programming-set-timeout',
+    img: './figures/set-timeout.svg',
     alt: 'Setting a timeout',
-    cap: 'Using <code>setTimeout</code> to delay operations.',
-    fixme: true
+    cap: 'Using <code>setTimeout</code> to delay operations.'
 }) %>
 
 If we give `setTimeout` a delay of zero milliseconds,
@@ -75,17 +75,9 @@ but any other tasks that are waiting have a chance to run as well:
 We can use this trick to build a generic
 <g key="non_blocking_execution">non-blocking function</g>
 that takes a callback of zero arguments and switches tasks
-if any other tasks are available
-(<f key="async-programming-set-three-delays"></f>):
+if any other tasks are available:
 
 <%- include('/inc/multi.html', {pat: 'non-blocking.*', fill: 'js out'}) %>
-
-<%- include('/inc/figure.html', {
-    id: 'async-programming-set-three-delays',
-    alt: 'Delaying three function calls',
-    cap: 'Order of operations with three delays function calls.',
-    fixme: true
-}) %>
 
 [Node][nodejs]'s built-in function `setImmediate`
 does exactly what our `nonBlocking` function does:
@@ -122,9 +114,9 @@ which is how the first part of the action communicates with the second
 
 <%- include('/inc/figure.html', {
     id: 'async-programming-resolve',
+    img: './figures/resolve.svg',
     alt: 'How promises resolve',
-    cap: 'Order of operations when a promise resolves.',
-    fixme: true
+    cap: 'Order of operations when a promise resolves.'
 }) %>
 
 In order to make this work,
@@ -224,9 +216,9 @@ not on the original promise
 
 <%- include('/inc/figure.html', {
     id: 'async-programming-chained',
+    img: './figures/chained.svg',
     alt: 'Chained promises',
-    cap: 'Chaining promises to make asynchronous operations depend on each other.',
-    fixme: true
+    cap: 'Chaining promises to make asynchronous operations depend on each other.'
 }) %>
 
 We therefore have three rules for chaining promises:
@@ -292,9 +284,9 @@ our line-counting program becomes:
 
 <%- include('/inc/figure.html', {
     id: 'async-programming-temporary-named-fields',
+    img: './figures/temporary-named-fields.svg',
     alt: 'Temporary objects with named fields',
-    cap: 'Creating temporary objects with named fields to carry values forward.',
-    fixme: true
+    cap: 'Creating temporary objects with named fields to carry values forward.'
 }) %>
 
 As in <x key="systems-programming">the previous chapter</x>,
@@ -382,9 +374,9 @@ and our `try`/`catch` doesn't help us
 
 <%- include('/inc/figure.html', {
     id: 'async-programming-handling-errors',
+    img: './figures/handling-errors.svg',
     alt: 'Handling asynchronous errors',
-    cap: 'Wrong and right ways to handle errors in asynchronous code.',
-    fixme: true
+    cap: 'Wrong and right ways to handle errors in asynchronous code.'
 }) %>
 
 One solution to this problem is to be consistent and always return something.
