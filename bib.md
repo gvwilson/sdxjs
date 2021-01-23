@@ -98,6 +98,14 @@ Addison-Wesley, 2007, 978-0131495050.
 <em class="bibnote">A guide to writing good unit tests within a standard framework.</em>
 </dd>
 
+<dt id="Miller1956" class="bibliography">Miller1956</dt>
+<dd>
+George A. Miller:
+"The Magical Number Seven, Plus or Minus Two: Some Limits on Our Capacity for Processing Information".
+<em>Psychological Review</em>, 63(2), 1956, <a href="https://doi.org/10.1037/h0043158">10.1037/h0043158</a>.
+<em class="bibnote">The original paper on the limited size of short-term memory.</em>
+</dd>
+
 <dt id="Minahan1986" class="bibliography">Minahan1986</dt>
 <dd>
 Anne Minahan:
