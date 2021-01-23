@@ -26,9 +26,9 @@ unless the interface of something it depends on has changed.
 
 <%- include('/inc/figure.html', {
     id: 'build-manager-compiling',
+    img: './figures/compiling.svg',
     alt: 'Compiling and linking',
-    cap: 'Compiling source files and linking the resulting modules.',
-    fixme: true
+    cap: 'Compiling source files and linking the resulting modules.'
 }) %>
 
 A <g key="build_manager">build manager</g> is a tool that
@@ -59,24 +59,15 @@ so the relationships between the files form a <g key="dag">directed acyclic grap
 (<f key="build-manager-dependencies"></f>).
 The graph is directed because "A depends on B" is a one-way relationship;
 it has to be acyclic because if something depends on itself we cannot ever finish updating it.
+We say that a target is <g key="build_stale">stale</g> if it is older than any of its dependencies.
+When this happens,
+we use the recipes to bring it up to date.
 
 <%- include('/inc/figure.html', {
     id: 'build-manager-dependencies',
+    img: './figures/dependencies.svg',
     alt: 'Respecting dependencies',
-    cap: 'How a build manager finds and respects dependencies.',
-    fixme: true
-}) %>
-
-We say that a target is <g key="build_stale">stale</g> if it is older than any of its dependencies.
-When this happens,
-we use the recipes to bring it up to date
-(<f key="build-manager-stale"></f>).
-
-<%- include('/inc/figure.html', {
-    id: 'build-manager-stale',
-    alt: 'Updating files',
-    cap: 'A build manager only updates files that are stale.',
-    fixme: true
+    cap: 'How a build manager finds and respects dependencies.'
 }) %>
 
 Our build manager will do four things:
@@ -138,9 +129,9 @@ even if the details vary.
 
 <%- include('/inc/figure.html', {
     id: 'build-manager-template-method',
+    img: './figures/template-method.svg',
     alt: 'Template Method pattern',
-    cap: 'The Template Method pattern in action.',
-    fixme: true
+    cap: 'The Template Method pattern in action.'
 }) %>
 
 We would normally implement all of the methods required by the parent class's template method at the same time.
@@ -178,17 +169,9 @@ but does nothing else:
 <%- include('/inc/file.html', {file: 'display-only.js'}) %>
 
 If we run this with our three simple rules as input,
-it shows the graph with `v` and `w` keys to represent the ends of the links
-(<f key="build-manager-interpreting-graph"></f>):
+it shows the graph with `v` and `w` keys to represent the ends of the links:
 
 <%- include('/inc/multi.html', {pat: 'display-only.*', fill: 'sh out'}) %>
-
-<%- include('/inc/figure.html', {
-    id: 'build-manager-interpreting-graph',
-    alt: 'Interpreting graph display',
-    cap: 'Interpreting the textual representation of the graph.',
-    fixme: true
-}) %>
 
 Let's write a quick test to make sure our cycle detector actually works:
 
@@ -298,9 +281,9 @@ and `@DEP[1]`, `@DEP[2]`, and so on for specific dependencies
 
 <%- include('/inc/figure.html', {
     id: 'build-manager-pattern-rules',
+    img: './figures/pattern-rules.svg',
     alt: 'Pattern rules',
-    cap: 'Turning patterns rules into runnable commands.',
-    fixme: true
+    cap: 'Turning patterns rules into runnable commands.'
 }) %>
 
 Our variable expander looks like this:
