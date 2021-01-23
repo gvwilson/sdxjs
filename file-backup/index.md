@@ -27,9 +27,9 @@ that turns arbitrary data into a fixed-length string of bits
 
 <%- include('/inc/figure.html', {
     id: 'file-backup-hash-function',
+    img: './figures/hash-function.svg',
     alt: 'Hash functions',
-    cap: 'How hash functions speed up lookup.',
-    fixme: true
+    cap: 'How hash functions speed up lookup.'
 }) %>
 
 A hash function always produces the same <g key="hash_code">hash code</g> for a given input.
@@ -98,12 +98,14 @@ by providing a <g key="handler">handler</g> for the "finish" event.
 This is called asynchronously:
 as the output shows,
 the main program ends before the task handling the end of data is scheduled and run.
+Most programs also provide a handler for "data" events to do something with each block of data as it comes in;
+the `hash` object in our program does that for us.
 
 <%- include('/inc/figure.html', {
     id: 'file-backup-streaming',
+    img: './figures/streaming.svg',
     alt: 'Streaming file operations',
-    cap: 'Processing files as streams of chunks.',
-    fixme: true
+    cap: 'Processing files as streams of chunks.'
 }) %>
 
 ## How can we back up files?
@@ -123,9 +125,9 @@ all we have to do is copy the saved `.bck` files back to where they were
 
 <%- include('/inc/figure.html', {
     id: 'file-backup-storage',
+    img: './figures/storage.svg',
     alt: 'Backup file storage',
-    cap: 'Organization of backup file storage.',
-    fixme: true
+    cap: 'Organization of backup file storage.'
 }) %>
 
 We can build the tools we need to do this uses promises (<x key="async-programming"></x>).
@@ -181,19 +183,11 @@ let's run it for the same input files:
 
 The second part of our backup tool keeps track of which files have and haven't been backed up already.
 It stores backups in a directory that contains backup files like `abcd1234.bck`
-and files describing the contents of particular snapshots
-(<f key="file-backup-directory-structure"></f>).
+and files describing the contents of particular snapshots.
 The latter are named `ssssssssss.csv`,
 where `ssssssssss` is the <g key="utc">UTC</g> <g key="timestamp">timestamp</g> of the backup's creation
 and the `.csv` extension indicates that the file is formatted as <g key="csv">comma-separated values</g>.
 (We could store these files as <g key="json">JSON</g>, but CSV is easier for people to read.)
-
-<%- include('/inc/figure.html', {
-    id: 'file-backup-directory-structure',
-    alt: 'File backup directory structure',
-    cap: 'Storing backups and index files in the same directory.',
-    fixme: true
-}) %>
 
 ::: callout
 ### Time of check/time of use
@@ -205,21 +199,13 @@ but many faults and security holes are the result of programmers assuming things
 We could try to avoid this problem by using a two-part naming scheme `ssssssss-a.csv`,
 `ssssssss-b.csv`, and so on,
 but this leads to a <g key="race_condition">race condition</g>
-called <g key="toctou">time of check/time of use</g>
-(<f key="file-backup-toctou"></f>).
+called <g key="toctou">time of check/time of use</g>.
 If two users run the backup tool at the same time,
 they will both see that there isn't a file (yet) with the current timestamp,
 so they will both try to create the first one.
 :::
 
 <%- include('/inc/file.html', {file: 'check-existing-files.js'}) %>
-
-<%- include('/inc/figure.html', {
-    id: 'file-backup-toctou',
-    alt: 'Time of check/time of use race condition',
-    cap: 'Race condition when time of check and time of use are not the same.',
-    fixme: true
-}) %>
 
 To test our program,
 let's manually create testing directories with manufactured (shortened) hashes:
@@ -265,21 +251,20 @@ and then delete them afterward
 A better approach is to use a <g key="mock_object">mock object</g>
 instead of the real filesystem.
 A mock object has the same interface as the function, object, class, or library that it replaces,
-but is designed to be used solely for testing
-(<f key="file-backup-mock-fs"></f>).
-
-<%- include('/inc/figure.html', {
-    id: 'file-backup-mock-fs',
-    alt: 'Mock filesystem',
-    cap: 'Using a mock filesystem to simplify testing.',
-    fixme: true
-}) %>
-
+but is designed to be used solely for testing.
 [Node][nodejs]'s [`mock-fs`][node-mock-fs] library provides the same functions as the `fs` library,
-but stores everything in memory.
+but stores everything in memory
+(<f key="file-backup-mock-fs"></f>).
 This prevents our tests from accidentally disturbing the filesystem,
 and also makes tests much faster
 (since in-memory operations are thousands of times faster than operations that touch the actual filesystem).
+
+<%- include('/inc/figure.html', {
+    id: 'file-backup-mock-fs',
+    img: './figures/mock-fs.svg',
+    alt: 'Mock filesystem',
+    cap: 'Using a mock filesystem to simplify testing.'
+}) %>
 
 We can create a mock filesystem by giving the library a JSON description of
 the files and what they should contain:
