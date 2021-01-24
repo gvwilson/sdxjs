@@ -220,7 +220,7 @@ ${VOLUME}.tex: bin/latex.js ${HOME_PAGE} ${TEX}
 	--numbering docs/${VOLUME}/numbering.js
 
 ${VOLUME}.pdf ${VOLUME}.aux: ${VOLUME}.tex
-	@pdflatex ${VOLUME} && pdflatex ${VOLUME}
+	@pdflatex ${VOLUME} && pdflatex ${VOLUME} && pdflatex ${VOLUME}
 
 # ----------------------------------------------------------------------
 
