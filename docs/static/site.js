@@ -1,4 +1,27 @@
 /**
+ * Enable dropdown menus.
+ */
+const enableDropdowns = () => {
+  const dropdowns = Array.from(document.querySelectorAll('div.dropdown'))
+  dropdowns.forEach(top => {
+    const navTitle = top.querySelector('span.navtitle')
+    const items = top.querySelector('div.dropdown-content')
+    items.style.display = 'none'
+    navTitle.addEventListener('click', event => {
+      event.stopPropagation()
+      items.style.display = (items.style.display === 'none') ? 'block' : 'none'
+    })
+  })
+
+  document.addEventListener('click', event => {
+    dropdowns.forEach(top => {
+      const items = top.querySelector('div.dropdown-content')
+      items.style.display = 'none'
+    })
+  })
+}
+
+/**
  * Build table of contents for this page.
  */
 const buildToc = () => {
@@ -79,6 +102,7 @@ const fixNumbers = (numbering, slug, tag, caption, title) => {
   const prefix = numbering[slug]
   const result = {}
   Array.from(document.querySelectorAll(tag))
+    .filter(node => node.hasAttribute('id'))
     .forEach((node, i) => {
       const ident = node.getAttribute('id')
       const number = `${prefix}.${i + 1}`
@@ -176,6 +200,7 @@ const getMeta = (key) => {
 const fixPage = () => {
   const toRoot = getMeta('toRoot')
   const slug = getMeta('slug')
+  enableDropdowns()
   buildToc()
   fixBibCites(toRoot)
   fixCrossRefs(toRoot, NUMBERING)
