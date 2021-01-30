@@ -24,6 +24,12 @@ const SKIP_ENTIRELY = new Set('#comment head footer nav'.split(' '))
 const RECURSE_ONLY = new Set('#document html body main'.split(' '))
 
 /**
+ * Scaling factors for PDF images.
+ */
+const PDF_IMAGE_SCALED = '0.75'
+const PDF_IMAGE_UNSCALED = '1.0'
+
+/**
  * Main driver.
  */
 const main = () => {
@@ -473,10 +479,12 @@ const figureToLatex = (options, fileInfo, node) => {
 
   let cmd = null
   let src = null
+  let scale = null
   const cls = node.attribs.class
   if (cls && (cls === 'fixme')) {
     cmd = 'figimg'
     src = `.${options.defaultImage}`
+    scale = '1.0'
   } else {
     cmd = 'figpdf'
     src = img.attribs.src
@@ -485,9 +493,10 @@ const figureToLatex = (options, fileInfo, node) => {
     src = src
       .replace('./figures', `./${fileInfo.slug}/figures`)
       .replace('.svg', '.pdf')
+    scale = (img.attribs.latexscale === 'true') ? PDF_IMAGE_SCALED : PDF_IMAGE_UNSCALED
   }
 
-  const result = `\\${cmd}{${ident}}{${src}}{${text}}`
+  const result = `\\${cmd}{${ident}}{${src}}{${text}}{${scale}}`
   return result
 }
 

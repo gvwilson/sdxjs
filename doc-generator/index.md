@@ -125,7 +125,14 @@ and see what it produces
 
 <%- include('/inc/file.html', {file: 'process-plain.sh'}) %>
 <%- include('/inc/html.html', {file: 'process-plain.html'}) %>
-<%- include('/inc/page.html', {file: 'process-plain.html'}) %>
+
+<%- include('/inc/figure.html', {
+    id: 'doc-generator-process-plain',
+    img: './figures/process-plain.svg',
+    alt: 'Output of documentation generator',
+    cap: 'The page produced by the documentation generator.',
+    scale: false
+}) %>
 
 <%- include('/inc/figure.html', {
     id: 'doc-generator-mapping',
@@ -207,4 +214,11 @@ We can use this to create better output:
 
 <%- include('/inc/file.html', {file: 'fill-in-headers.js'}) %>
 <%- include('/inc/html.html', {file: 'fill-in-headers.html'}) %>
-<%- include('/inc/page.html', {file: 'fill-in-headers.html'}) %>
+
+<%- include('/inc/figure.html', {
+    id: 'doc-generator-fill-in-headers',
+    img: './figures/fill-in-headers.svg',
+    alt: 'Filling in headers',
+    cap: 'Filling in headers when generating documentation.',
+    scale: false
+}) %>
