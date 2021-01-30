@@ -128,8 +128,6 @@
 <dd class="glossary">A single value of a particular type, such as 1 or &quot;a&quot;. Scalars exist in most languages, but do not really exist in <g key="r_language">R</g>; in R, values that appear to be scalars are actually <g key="vector">vectors</g> of unit length.</dd>
 <dt id="schema" class="glossary">schema</dt>
 <dd class="glossary">A specification of the format of a dataset, including the name, format, and content of each <g key="table">table</g>.</dd>
-<dt id="screen_buffer" class="glossary">screen buffer</dt>
-<dd class="glossary">A low-level abstraction of a rectangular area of a user's screen used by text editors and other graphical interfaces.</dd>
 <dt id="server" class="glossary">server</dt>
 <dd class="glossary">Typically, a program such as a database manager or web server that provides data to a <g key="client">client</g> upon request.</dd>
 <dt id="table" class="glossary">table</dt>

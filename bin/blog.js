@@ -31,8 +31,7 @@ const STANDARD_METADATA = {
 /**
  * Template for overall atom.xml file.
  */
-const ATOM_FEED = `
-<?xml version="1.0" encoding="utf-8"?>
+const ATOM_FEED = `<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
  <title>Software Tools in JavaScript</title>
@@ -45,8 +44,7 @@ const ATOM_FEED = `
    <email>_EMAIL</email>
  </author>
 _POSTS
-</feed>
-`
+</feed>`
 
 /**
  * Template for individual post.
@@ -81,7 +79,7 @@ const main = () => {
   const posts = glob.sync(`${srcDir}/*.md`)
     .map(filename => loadFile(filename))
   const metadata = STANDARD_METADATA
-  writeIndex(dstDir, metadata, posts)
+  writeIndex(site, dstDir, metadata, posts, linksText)
   const blogDir = path.join(dstDir, blogSubDir)
   writeHome(site, blogDir, posts, linksText)
   posts.forEach(post => writePost(site, blogDir, post, linksText))
@@ -104,29 +102,46 @@ const loadFile = (filename) => {
 
 /**
  * Write index of all available posts as Atom file.
+ * @param {object} site Overall site information.
  * @param {string} dstDir Destination directory.
  * @param {object} metadata Overall information about blog.
  * @param {Array<object>} posts All posts.
+ * @param {string} linksText Markdown links inventory.
  */
-const writeIndex = (dstDir, metadata, posts) => {
+const writeIndex = (site, dstDir, metadata, posts, linksText) => {
   fs.mkdirSync(dstDir, { recursive: true })
   let text = ATOM_FEED
   for (let key in metadata) {
     text = text.replace(new RegExp(key, 'g'), metadata[key])
   }
-  text = text.replace(new RegExp('_POSTS', 'g'),
-                      posts.map(post => postToXml(metadata, post)).join('\n'))
+  text = text.replace(
+    new RegExp('_POSTS', 'g'),
+    posts.map(post => postToXml(site, metadata, post, linksText)).join('\n')
+  )
   fs.writeFileSync(path.join(dstDir, 'atom.xml'), text, 'utf-8')
 }
 
 /**
  * Convert a single post to XML for inclusion in atom.xml.
+ * @param {object} site Overall site information.
  * @param {object} metadata Information about blog as a whole.
  * @param {object} post Information about post.
+ * @param {string} linksText Markdown links inventory.
  * @returns {string} Post formatted as XML.
  */
-const postToXml = (metadata, post) => {
-  const html = 'FIXME'
+const postToXml = (site, metadata, post, linksText) => {
+  const mdi = new MarkdownIt({ html: true })
+  const context = {
+    root: '.',
+    filename: post.filename
+  }
+  const settings = {
+    site,
+    page: post.data
+  }
+  const text = `${post.content}\n${linksText}`
+  const translated = ejs.render(text, settings, context)
+  const html = mdi.render(translated)
   const postId = `${post.date.replace(new RegExp('-', 'g'), '/')}/${post.slug}`
   return ATOM_POST
     .replace(new RegExp('_TITLE', 'g'), post.data.title)

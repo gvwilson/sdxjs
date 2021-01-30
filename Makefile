@@ -104,8 +104,7 @@ gloss: ${GLOSS_MD}
 links: ${LINKS_YML}
 
 ## blog: rebuild blog
-blog: ${BLOG_POSTS}
-	@bin/blog.js ${COMMON_CONFIG} ${BLOG_SRC} ${DOCS} ${BLOG_DIR} ${LINKS_YML}
+blog: ${DOCS}/atom.xml
 
 ## ----: ----
 
@@ -226,7 +225,7 @@ ${LINKS_YML}: links.yml bin/links.js $(filter-out ${GLOSS_MD} links.md,${MARKDOW
 	--also ${AUTHORS} \
 	${COMMON_PARAMS}
 
-${HOME_PAGE}: bin/html.js ${VOLUME}.yml ${COMMON_CONFIG} ${LINKS_YML} ${MARKDOWN} ${INC} ${FIGURES} ${STATIC_DST}
+${HOME_PAGE}: bin/html.js ${VOLUME}.yml ${COMMON_CONFIG} ${LINKS_YML} ${MARKDOWN} ${INC} ${FIGURES} ${STATIC_DST} ${DOCS}/atom.xml
 	bin/html.js \
 	${COMMON_PARAMS} \
 	--gloss ${GLOSS_MD} \
@@ -243,6 +242,9 @@ ${VOLUME}.tex: bin/latex.js ${HOME_PAGE} ${TEX}
 
 ${VOLUME}.pdf ${VOLUME}.aux: ${VOLUME}.tex
 	@pdflatex ${VOLUME} && pdflatex ${VOLUME} && pdflatex ${VOLUME}
+
+${DOCS}/atom.xml: bin/blog.js ${BLOG_POSTS} inc/post-head.html inc/post-foot.html
+	bin/blog.js ${COMMON_CONFIG} ${BLOG_SRC} ${DOCS} ${BLOG_DIR} ${LINKS_YML}
 
 # ----------------------------------------------------------------------
 
