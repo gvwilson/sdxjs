@@ -75,15 +75,16 @@ const FOOTER = "<%- include('/inc/post-foot.html') %>"
  * Main driver.
  */
 const main = () => {
-  const [ configFile, srcDir, dstDir, blogDir, linksFile ] = process.argv.slice(2)
+  const [ configFile, srcDir, dstDir, blogSubDir, linksFile ] = process.argv.slice(2)
   const site = yamlLoad(configFile)
+  const linksText = buildLinks({ links: linksFile })
   const posts = glob.sync(`${srcDir}/*.md`)
     .map(filename => loadFile(filename))
   const metadata = STANDARD_METADATA
   writeIndex(dstDir, metadata, posts)
-  const postDir = path.join(dstDir, blogDir)
-  const linksText = buildLinks({ links: linksFile })
-  posts.forEach(post => writePost(site, postDir, post, linksText))
+  const blogDir = path.join(dstDir, blogSubDir)
+  writeHome(site, blogDir, posts, linksText)
+  posts.forEach(post => writePost(site, blogDir, post, linksText))
 }
 
 /**
@@ -136,15 +137,46 @@ const postToXml = (metadata, post) => {
 }
 
 /**
+ * Write the blog home page.
+ * @param {object} site Information about the site as a whole.
+ * @param {string} blogDir Root directory for blog posts.
+ * @param {Array<object>} posts All posts.
+ * @param {string} linksText Lookup table of Markdown links.
+ */
+const writeHome = (site, blogDir, posts, linksText) => {
+  fs.mkdirSync(blogDir, { recursive: true })
+  const mdi = new MarkdownIt({ html: true })
+  const context = {
+    root: '.'
+  }
+  const settings = {
+    site,
+    page: {
+      title: 'Blog'
+    },
+    toRoot: '..'
+  }
+  posts = posts.map(post => {
+    const [ postYear, postMonth, postDay ] = post.date.split('-')
+    const link = path.join('.', postYear, postMonth, postDay, post.slug)
+    return `<li>${post.date}: <a href="./${link}/">${post.data.title}</a></li>`
+  })
+  const text = `${HEADER}\n<ul>\n${posts}\n</ul>\n${FOOTER}\n${linksText}`
+  const translated = ejs.render(text, settings, context)
+  const html = mdi.render(translated)
+  fs.writeFileSync(path.join(blogDir, 'index.html'), html, 'utf-8')
+}
+
+/**
  * Write a single post.
  * @param {object} site Information about the site as a whole.
- * @param {string} postDir Destination directory.
+ * @param {string} blogDir Destination directory.
  * @param {object} post Information about this post.
  * @param {string} linksText Lookup table of Markdown links.
  */
-const writePost = (site, postDir, post, linksText) => {
+const writePost = (site, blogDir, post, linksText) => {
   const [ postYear, postMonth, postDay ] = post.date.split('-')
-  postDir = path.join(postDir, postYear, postMonth, postDay, post.slug)
+  const postDir = path.join(blogDir, postYear, postMonth, postDay, post.slug)
   fs.mkdirSync(postDir, { recursive: true })
 
   const postPath = path.join(postDir, 'index.html')
@@ -161,7 +193,6 @@ const writePost = (site, postDir, post, linksText) => {
   const text = `${HEADER}\n${post.content}\n${FOOTER}\n${linksText}`
   const translated = ejs.render(text, settings, context)
   const html = mdi.render(translated)
-
   fs.writeFileSync(postPath, html, 'utf-8')
 }
 
