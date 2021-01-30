@@ -18,6 +18,18 @@ export const addCommonArguments = (parser, ...extras) => {
 }
 
 /**
+ * Build table of Markdown links to append to pages during translation.
+ * @param {object} options Object with .links (overwritten).
+ * @returns {string} Table of links to append to all Markdown files.
+ */
+export const buildLinks = (options) => {
+  options.links = yamlLoad(options.links)
+  return options.links
+    .map(entry => `[${entry.slug}]: ${entry.url}`)
+    .join('\n')
+}
+
+/**
  * Build full options from command-line arguments and configuration files.
  * @param {Object} fromArgs Parsed arguments.
  */

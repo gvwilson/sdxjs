@@ -16,6 +16,7 @@ import rimraf from 'rimraf'
 
 import {
   addCommonArguments,
+  buildLinks,
   buildOptions,
   createFilePaths,
   dirname,
@@ -31,12 +32,12 @@ const STANDARD_DIR = '/u/stjs'
 /**
  * Header inclusion.
  */
-const HEADER = "<%- include('/inc/head.html') %>"
+const HEADER = "<%- include('/inc/page-head.html') %>"
 
 /**
  * Footer inclusion.
  */
-const FOOTER = "<%- include('/inc/foot.html') %>"
+const FOOTER = "<%- include('/inc/page-foot.html') %>"
 
 /**
  * Width of tables showing terms defined at the start of a chapter.
@@ -87,18 +88,6 @@ const buildGlossary = (options) => {
     result[m[1]] = m[2]
   })
   return result
-}
-
-/**
- * Build table of Markdown links to append to pages during translation.
- * @param {Object} options Options.
- * @returns {string} Table of links to append to all Markdown files.
- */
-const buildLinks = (options) => {
-  options.links = yamlLoad(options.links)
-  return options.links
-    .map(entry => `[${entry.slug}]: ${entry.url}`)
-    .join('\n')
 }
 
 /**

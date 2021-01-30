@@ -1,10 +1,17 @@
 #!/usr/bin/env node
 
 import assert from 'assert'
+import ejs from 'ejs'
 import fs from 'fs'
 import glob from 'glob'
+import MarkdownIt from 'markdown-it'
 import matter from 'gray-matter'
 import path from 'path'
+
+import {
+  buildLinks,
+  yamlLoad
+} from './utils.js'
 
 /**
  * Posts must be named YYYY-MM-DD-title-with-dashes.md
@@ -55,16 +62,28 @@ const ATOM_POST = `
 `
 
 /**
+ * Header inclusion.
+ */
+const HEADER = "<%- include('/inc/post-head.html') %>"
+
+/**
+ * Footer inclusion.
+ */
+const FOOTER = "<%- include('/inc/post-foot.html') %>"
+
+/**
  * Main driver.
  */
 const main = () => {
-  const [ srcDir, dstDir, blogDir ] = process.argv.slice(2)
+  const [ configFile, srcDir, dstDir, blogDir, linksFile ] = process.argv.slice(2)
+  const site = yamlLoad(configFile)
   const posts = glob.sync(`${srcDir}/*.md`)
     .map(filename => loadFile(filename))
   const metadata = STANDARD_METADATA
   writeIndex(dstDir, metadata, posts)
   const postDir = path.join(dstDir, blogDir)
-  posts.forEach(post => writePost(postDir, post))
+  const linksText = buildLinks({ links: linksFile })
+  posts.forEach(post => writePost(site, postDir, post, linksText))
 }
 
 /**
@@ -79,7 +98,7 @@ const loadFile = (filename) => {
   const date = fields[1]
   const slug = fields[2]
   const { data, content } = matter(fs.readFileSync(filename, 'utf-8'))
-  return { date, slug, data, content }
+  return { filename, date, slug, data, content }
 }
 
 /**
@@ -106,7 +125,6 @@ const writeIndex = (dstDir, metadata, posts) => {
  * @returns {string} Post formatted as XML.
  */
 const postToXml = (metadata, post) => {
-  console.error('postToXml metadata', metadata)
   const html = 'FIXME'
   const postId = `${post.date.replace(new RegExp('-', 'g'), '/')}/${post.slug}`
   return ATOM_POST
@@ -119,11 +137,32 @@ const postToXml = (metadata, post) => {
 
 /**
  * Write a single post.
- * @param {string} dstDir Destination directory.
+ * @param {object} site Information about the site as a whole.
+ * @param {string} postDir Destination directory.
  * @param {object} post Information about this post.
+ * @param {string} linksText Lookup table of Markdown links.
  */
-const writePost = (dstDir, post) => {
-  // FIXME
+const writePost = (site, postDir, post, linksText) => {
+  const [ postYear, postMonth, postDay ] = post.date.split('-')
+  postDir = path.join(postDir, postYear, postMonth, postDay, post.slug)
+  fs.mkdirSync(postDir, { recursive: true })
+
+  const postPath = path.join(postDir, 'index.html')
+  const mdi = new MarkdownIt({ html: true })
+  const context = {
+    root: '.',
+    filename: post.filename
+  }
+  const settings = {
+    site,
+    page: post.data,
+    toRoot: '../../../../..' // ./blog/year/month/day/slug/index.html
+  }
+  const text = `${HEADER}\n${post.content}\n${FOOTER}\n${linksText}`
+  const translated = ejs.render(text, settings, context)
+  const html = mdi.render(translated)
+
+  fs.writeFileSync(postPath, html, 'utf-8')
 }
 
 main()

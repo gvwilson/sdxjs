@@ -1,4 +1,7 @@
-# Output directory
+# Common configuration file.
+COMMON_CONFIG = common.yml
+
+# Output directory.
 DOCS = docs
 
 # Default volume (override with 'make V=2 target' at the command line).
@@ -13,7 +16,7 @@ VOLUME := vol${V}
 HOME_PAGE := ${DOCS}/${VOLUME}/index.html
 
 # Arguments for extracting information from YAML configuration.
-SLUG_ARGS := . ${DOCS}/${VOLUME} common.yml ${VOLUME}.yml
+SLUG_ARGS := . ${DOCS}/${VOLUME} ${COMMON_CONFIG} ${VOLUME}.yml
 
 # Chapter slugs.
 CHAPTERS := $(shell bin/slugs.js chapters ${SLUG_ARGS})
@@ -63,7 +66,7 @@ FIGURES := $(wildcard */figures/*.svg)
 TOOLS := $(filter-out bin/utils.js, $(wildcard bin/*.js))
 
 # Configuration parameters.
-COMMON_PARAMS := --common common.yml --config ${VOLUME}.yml --root . --html ${DOCS}/${VOLUME}
+COMMON_PARAMS := --common ${COMMON_CONFIG} --config ${VOLUME}.yml --root . --html ${DOCS}/${VOLUME}
 
 # Temporary file for showing all figures.
 ALL_FIGURES := ./all-figures.html
@@ -102,7 +105,7 @@ links: ${LINKS_YML}
 
 ## blog: rebuild blog
 blog: ${BLOG_POSTS}
-	@bin/blog.js ${BLOG_SRC} ${DOCS} ${BLOG_DIR}
+	@bin/blog.js ${COMMON_CONFIG} ${BLOG_SRC} ${DOCS} ${BLOG_DIR} ${LINKS_YML}
 
 ## ----: ----
 
@@ -223,7 +226,7 @@ ${LINKS_YML}: links.yml bin/links.js $(filter-out ${GLOSS_MD} links.md,${MARKDOW
 	--also ${AUTHORS} \
 	${COMMON_PARAMS}
 
-${HOME_PAGE}: bin/html.js ${VOLUME}.yml common.yml ${LINKS_YML} ${MARKDOWN} ${INC} ${FIGURES} ${STATIC_DST}
+${HOME_PAGE}: bin/html.js ${VOLUME}.yml ${COMMON_CONFIG} ${LINKS_YML} ${MARKDOWN} ${INC} ${FIGURES} ${STATIC_DST}
 	bin/html.js \
 	${COMMON_PARAMS} \
 	--gloss ${GLOSS_MD} \

@@ -196,20 +196,23 @@ const getMeta = (key) => {
 
 /**
  * Perform all in-page fixes.
+ * @param {Boolean} full Do everything?
  */
-const fixPage = () => {
-  const toRoot = getMeta('toRoot')
-  const slug = getMeta('slug')
+const fixPage = (full) => {
   enableDropdowns()
-  buildToc()
-  fixBibCites(toRoot)
-  fixCrossRefs(toRoot, NUMBERING)
-  const figureNumbers = fixNumbers(NUMBERING, slug, 'figure', 'figcaption', 'Figure')
-  fixFloatRefs(figureNumbers, 'f', 'figure-reference', 'Figure')
-  fixFixmes()
-  fixGlossaryRefs(toRoot)
-  fixPreBlocks()
-  fixPreTitles()
-  const tableNumbers = fixNumbers(NUMBERING, slug, 'table', 'caption', 'Table')
-  fixFloatRefs(tableNumbers, 't', 'table-reference', 'Table')
+  if (full) {
+    const slug = getMeta('slug')
+    const toRoot = getMeta('toRoot')
+    fixBibCites(toRoot)
+    buildToc()
+    fixCrossRefs(toRoot, NUMBERING)
+    const figureNumbers = fixNumbers(NUMBERING, slug, 'figure', 'figcaption', 'Figure')
+    fixFloatRefs(figureNumbers, 'f', 'figure-reference', 'Figure')
+    fixFixmes()
+    fixGlossaryRefs(toRoot)
+    fixPreBlocks()
+    fixPreTitles()
+    const tableNumbers = fixNumbers(NUMBERING, slug, 'table', 'caption', 'Table')
+    fixFloatRefs(tableNumbers, 't', 'table-reference', 'Table')
+  }
 }
