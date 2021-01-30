@@ -1,3 +1,6 @@
+# Output directory
+DOCS = docs
+
 # Default volume (override with 'make V=2 target' at the command line).
 ifndef V
 V := 1
@@ -7,10 +10,10 @@ endif
 VOLUME := vol${V}
 
 # Home page for this volume.
-HOME_PAGE := docs/${VOLUME}/index.html
+HOME_PAGE := ${DOCS}/${VOLUME}/index.html
 
 # Arguments for extracting information from YAML configuration.
-SLUG_ARGS := . docs/${VOLUME} common.yml ${VOLUME}.yml
+SLUG_ARGS := . ${DOCS}/${VOLUME} common.yml ${VOLUME}.yml
 
 # Chapter slugs.
 CHAPTERS := $(shell bin/slugs.js chapters ${SLUG_ARGS})
@@ -29,7 +32,7 @@ AUTHORS := $(patsubst %,authors/%.md,$(shell bin/slugs.js authors ${SLUG_ARGS}))
 
 # Glossary for this volume.
 GLOSS_MD := ${VOLUME}-gloss.md
-GLOSS_HTML := docs/${VOLUME}/gloss/index.html
+GLOSS_HTML := ${DOCS}/${VOLUME}/gloss/index.html
 
 # Links for this volume.
 LINKS_YML := ${VOLUME}-links.yml
@@ -51,7 +54,7 @@ TEX := \
 STATIC_SRC := .nojekyll CNAME favicon.ico index.html \
   $(wildcard static/*.*) \
   $(wildcard static/fonts/*/*.*)
-STATIC_DST := $(patsubst %,docs/%,${STATIC_SRC})
+STATIC_DST := $(patsubst %,${DOCS}/%,${STATIC_SRC})
 
 # Figures.
 FIGURES := $(wildcard */figures/*.svg)
@@ -60,10 +63,15 @@ FIGURES := $(wildcard */figures/*.svg)
 TOOLS := $(filter-out bin/utils.js, $(wildcard bin/*.js))
 
 # Configuration parameters.
-COMMON_PARAMS := --common common.yml --config ${VOLUME}.yml --root . --html docs/${VOLUME}
+COMMON_PARAMS := --common common.yml --config ${VOLUME}.yml --root . --html ${DOCS}/${VOLUME}
 
 # Temporary file for showing all figures.
 ALL_FIGURES := ./all-figures.html
+
+# Blog.
+BLOG_SRC = ./_posts
+BLOG_DIR = blog
+BLOG_POSTS = $(wildcard ${BLOG_SRC}/*.md)
 
 # ----------------------------------------------------------------------
 
@@ -91,6 +99,10 @@ gloss: ${GLOSS_MD}
 
 ## links: rebuild links
 links: ${LINKS_YML}
+
+## blog: rebuild blog
+blog: ${BLOG_POSTS}
+	@bin/blog.js ${BLOG_SRC} ${DOCS} ${BLOG_DIR}
 
 ## ----: ----
 
@@ -176,6 +188,9 @@ clean:
 ## settings: show settings
 settings:
 	@echo AUTHORS = "${AUTHORS}"
+	@echo BLOG_SRC = "${BLOG_SRC}"
+	@echo BLOG_DIR = "${BLOG_DIR}"
+	@echo BLOG_POSTS = "${BLOG_POSTS}"
 	@echo CHAPTERS = "${CHAPTERS}"
 	@echo EXERCISES = "${EXERCISES}"
 	@echo FIGURES = "${FIGURES}"
@@ -221,7 +236,7 @@ ${VOLUME}.tex: bin/latex.js ${HOME_PAGE} ${TEX}
 	--output ${VOLUME}.tex \
 	--head tex/head.tex \
 	--foot tex/foot.tex \
-	--numbering docs/${VOLUME}/numbering.js
+	--numbering ${DOCS}/${VOLUME}/numbering.js
 
 ${VOLUME}.pdf ${VOLUME}.aux: ${VOLUME}.tex
 	@pdflatex ${VOLUME} && pdflatex ${VOLUME} && pdflatex ${VOLUME}
@@ -230,25 +245,25 @@ ${VOLUME}.pdf ${VOLUME}.aux: ${VOLUME}.tex
 
 # HTML file dependencies that don't map directly to index.md files in sub-directories.
 ${HOME_PAGE}: ${VOLUME}-intro/index.md
-docs/${VOLUME}/conduct/index.html: CONDUCT.md
-docs/${VOLUME}/contributing/index.html: CONTRIBUTING.md
-docs/${VOLUME}/license/index.html: LICENSE.md
-docs/${VOLUME}/authors/index.html: authors.md
+${DOCS}/${VOLUME}/conduct/index.html: CONDUCT.md
+${DOCS}/${VOLUME}/contributing/index.html: CONTRIBUTING.md
+${DOCS}/${VOLUME}/license/index.html: LICENSE.md
+${DOCS}/${VOLUME}/authors/index.html: authors.md
 ${GLOSS_HTML}: ${GLOSS_MD}
-docs/${VOLUME}/links/index.html: links.md
-docs/${VOLUME}/%/index.html: %/index.md
+${DOCS}/${VOLUME}/links/index.html: links.md
+${DOCS}/${VOLUME}/%/index.html: %/index.md
 
 # HTML file dependencies that do map to index.md files in sub-directories.
 %/index.md: %/*/problem.md %/*/solution.md %/*.tbl %/figures/*.svg
 	@touch $@
 
 # Static files.
-docs/static/%: static/%
+${DOCS}/static/%: static/%
 	@mkdir -p $(dir $@)
 	cp $< $@
 
 # Static files in root directory.
-docs/%: ./%
+${DOCS}/%: ./%
 	@mkdir -p $(dir $@)
 	cp $< $@
 
