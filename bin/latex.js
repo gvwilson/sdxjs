@@ -32,6 +32,7 @@ const main = () => {
   const allFiles = createFilePaths(options)
   const allLatex = allFiles.map(fileInfo => {
     const doc = readFile(fileInfo.html)
+    fileInfo.linksSeen = new Set()
     return htmlToLatex(options, fileInfo, doc, [])
   }).flat().join('')
   options.head = fs.readFileSync(options.head, 'utf-8')
@@ -136,11 +137,16 @@ const HANDLERS = {
   a: (options, fileInfo, node, accum) => {
     assert('href' in node.attribs,
            `link without href at ${fileInfo.filename} ${node.startIndex}`)
-    accum.push('\\hreffoot{')
-    childrenToLatex(options, fileInfo, node, accum)
-    accum.push('}{')
-    accum.push(fullEscape(node.attribs.href))
-    accum.push('}')
+    if (fileInfo.linksSeen.has(node.attribs.href)) {
+      childrenToLatex(options, fileInfo, node, accum)
+    } else {
+      fileInfo.linksSeen.add(node.attribs.href)
+      accum.push('\\hreffoot{')
+      childrenToLatex(options, fileInfo, node, accum)
+      accum.push('}{')
+      accum.push(fullEscape(node.attribs.href))
+      accum.push('}')
+    }
   },
 
   blockquote: (options, fileInfo, node, accum) => {
@@ -360,7 +366,7 @@ const HANDLERS = {
     assert((node.children.length === 1) && (node.children[0].name === 'code'),
       'Expect pre to have one code child')
     const title = node.attribs.title ? node.attribs.title : ''
-    accum.push(`\\begin{lstlisting}[caption={${title}},captionpos=b]\n`)
+    accum.push(`\\begin{lstlisting}[caption={${title}},captionpos=b,frame=single,frameround=tttt]\n`)
     node.children[0].children.forEach(child => htmlToText(child, accum, nonAsciiEscape))
     accum.push('\\end{lstlisting}')
   },
