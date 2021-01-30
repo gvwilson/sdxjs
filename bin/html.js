@@ -39,6 +39,11 @@ const HEADER = "<%- include('/inc/head.html') %>"
 const FOOTER = "<%- include('/inc/foot.html') %>"
 
 /**
+ * Width of tables showing terms defined at the start of a chapter.
+ */
+const ITEM_TABLE_WIDTH = 3
+
+/**
  * Main driver.
  */
 const main = () => {
@@ -173,7 +178,8 @@ const translate = (options, fileInfo, glossary, linksText, numbering) => {
     _readPage,
     _replace,
     _section,
-    _table
+    _table,
+    _termsDefined
   }
 
   // Translate the page.
@@ -337,6 +343,23 @@ const _table = (mainFile, mdi, id, tableFile, cap) => {
   const html = mdi.render(markdown)
   const header = `<table id="${id}"><caption>${cap}</caption>`
   return html.replace('<table>', header)
+}
+
+/**
+ * Turn a list of defined terms into a table for the start of a chapter.
+ * @param {Array<string>} items Items to put in the table.
+ * @returns {string} HTML table.
+ */
+const _termsDefined = (items) => {
+  while ((items.length % ITEM_TABLE_WIDTH) !== 0) {
+    items.push('&nbsp;')
+  }
+  const rows = []
+  for (let i = 0; i < items.length; i += ITEM_TABLE_WIDTH) {
+    const columns = items.slice(i, i + ITEM_TABLE_WIDTH).map(item => `<td>${item}</td>`)
+    rows.push(`<tr>${columns.join('')}</td>`)
+  }
+  return `<table><tbody>${rows.join('\n')}</tbody></table>`
 }
 
 /**
