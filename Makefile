@@ -120,6 +120,10 @@ standard:
 chunklength: html
 	@bin/chunklength.js ${HTML}
 
+## duplinks: report duplicated hyperlinks within chapters
+duplinks:
+	@bin/duplinks.js ${MARKDOWN}
+
 ## latex: rebuild LaTeX file (use 'make pdf' for book)
 latex: ${VOLUME}.tex
 

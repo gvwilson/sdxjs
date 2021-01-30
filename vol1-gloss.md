@@ -295,7 +295,7 @@
 <dt id="immutable" class="glossary">immutable</dt>
 <dd class="glossary">Data that cannot be changed after being created. Immutable data is easier to think about, particularly if data structures are shared between several tasks, but may result in higher memory requirements.</dd>
 <dt id="import" class="glossary">import</dt>
-<dd class="glossary">To bring things from a <g key="module">module</g> into a program for use. In most languages, a program can only import things that the module explicitly <g key="export">exports</g>.</dd>
+<dd class="glossary">To bring things from a <g key="module">module</g> into a program for use. In most languages a program can only import things that the module explicitly <g key="export">exports</g>.</dd>
 <dt id="index_database" class="glossary">index (in a database)</dt>
 <dd class="glossary">An auxiliary data structure in a database used to speed up search for some entries. An index increases memory and disk requirements but reduces search time.</dd>
 <dt id="instance" class="glossary">instance</dt>
