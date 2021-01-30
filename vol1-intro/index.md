@@ -211,6 +211,7 @@ and to the creators of [EJS][ejs],
 [Node][nodejs],
 [NPM][npm],
 [Standard JS][standard-js],
+[SVG Screenshot][svg-screenshot],
 [WAVE][webaim-wave],
 and all the other open source tools we used in creating these lessons.
 If we all give a little, we all get a lot.
