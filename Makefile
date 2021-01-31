@@ -244,7 +244,7 @@ ${VOLUME}.pdf ${VOLUME}.aux: ${VOLUME}.tex
 	@pdflatex ${VOLUME} && pdflatex ${VOLUME} && pdflatex ${VOLUME}
 
 ${DOCS}/atom.xml: bin/blog.js ${BLOG_POSTS} inc/post-head.html inc/post-foot.html
-	bin/blog.js ${COMMON_CONFIG} ${BLOG_SRC} ${DOCS} ${BLOG_DIR} ${LINKS_YML}
+	bin/blog.js --root . --common ${COMMON_CONFIG} --source ${BLOG_SRC} --docs ${DOCS} --blog ${BLOG_DIR} --links ${LINKS_YML}
 
 # ----------------------------------------------------------------------
 

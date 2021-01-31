@@ -24,7 +24,7 @@ export const addCommonArguments = (parser, ...extras) => {
  */
 export const buildLinks = (options) => {
   options.links = yamlLoad(options.links)
-  return options.links
+  options.linksText = options.links
     .map(entry => `[${entry.slug}]: ${entry.url}`)
     .join('\n')
 }

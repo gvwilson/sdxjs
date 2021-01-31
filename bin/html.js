@@ -50,13 +50,13 @@ const ITEM_TABLE_WIDTH = 3
 const main = () => {
   const options = getOptions()
   const glossary = buildGlossary(options)
-  const linksText = buildLinks(options)
+  buildLinks(options)
   const allFiles = buildFileInfo(options)
   const numbering = buildNumbering(options)
   loadFiles(allFiles)
   rimraf.sync(options.html)
   allFiles.forEach(
-    fileInfo => translate(options, fileInfo, glossary, linksText, numbering)
+    fileInfo => translate(options, fileInfo, glossary, numbering)
   )
   finalize(options)
 }
@@ -122,10 +122,9 @@ const loadFiles = (allFiles) => {
  * @param {Object} options Program options.
  * @param {Object} fileInfo Information about file.
  * @param {Object} glossary Keys and terms.
- * @param {string} linksText Markdown-formatted links table.
  * @param {Object} numbering Map slugs to numbers/letters.
  */
-const translate = (options, fileInfo, glossary, linksText, numbering) => {
+const translate = (options, fileInfo, glossary, numbering) => {
   // Context contains variables required by EJS.
   const context = {
     root: options.root,
@@ -172,7 +171,7 @@ const translate = (options, fileInfo, glossary, linksText, numbering) => {
   }
 
   // Translate the page.
-  const translated = settings._render(`${fileInfo.content}\n\n${linksText}`)
+  const translated = settings._render(`${fileInfo.content}\n\n${options.linksText}`)
   let html = mdi.render(translated)
   if (options.replaceDir) {
     html = html.replace(new RegExp(options.homeDir, 'g'), STANDARD_DIR)
