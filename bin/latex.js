@@ -364,8 +364,14 @@ const HANDLERS = {
   },
 
   p: (options, fileInfo, node, accum) => {
-    accum.push('\n')
-    childrenToLatex(options, fileInfo, node, accum)
+    const cls = node.attribs.class
+    if (cls === 'callout') {
+      accum.push('\\vspace{\\baselineskip}\n\\noindent')
+      childrenToLatex(options, fileInfo, node, accum)
+    } else {
+      accum.push('\n')
+      childrenToLatex(options, fileInfo, node, accum)
+    }
   },
 
   pre: (options, fileInfo, node, accum) => {
