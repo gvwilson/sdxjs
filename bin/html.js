@@ -1,27 +1,27 @@
 #!/usr/bin/env node
-
 'use strict'
+
+/**
+ * Turn a single Markdown file into an HTML file.
+ */
 
 import argparse from 'argparse'
 import assert from 'assert'
 import ejs from 'ejs'
-import glob from 'glob'
 import fs from 'fs'
-import MarkdownIt from 'markdown-it'
-import MarkdownAnchor from 'markdown-it-anchor'
-import MarkdownContainer from 'markdown-it-container'
 import matter from 'gray-matter'
 import path from 'path'
-import rimraf from 'rimraf'
 
 import {
-  addCommonArguments,
-  buildLinks,
-  buildOptions,
-  createFilePaths,
+  EJS_ROOT,
   dirname,
+  ensureOutputDir,
   getGlossaryReferences,
-  yamlLoad
+  linksToMarkdown,
+  loadConfig,
+  loadJson,
+  loadYaml,
+  makeMarkdownTranslator
 } from './utils.js'
 
 /**
@@ -40,25 +40,20 @@ const HEADER = "<%- include('/inc/page-head.html') %>"
 const FOOTER = "<%- include('/inc/page-foot.html') %>"
 
 /**
- * Width of tables showing terms defined at the start of a chapter.
- */
-const ITEM_TABLE_WIDTH = 3
-
-/**
  * Main driver.
  */
 const main = () => {
   const options = getOptions()
-  const glossary = buildGlossary(options)
-  buildLinks(options)
-  const allFiles = buildFileInfo(options)
-  const numbering = buildNumbering(options)
-  loadFiles(allFiles)
-  rimraf.sync(options.html)
-  allFiles.forEach(
-    fileInfo => translate(options, fileInfo, glossary, numbering)
-  )
-  finalize(options)
+  options.homeDir = dirname(import.meta.url).replace('/bin', '')
+  const site = loadConfig(options.site, options.volume)
+  const glossary = buildGlossaryLookup(options.glossary)
+  const numbering = loadJson(options.numbering)
+  const links = loadYaml(options.links)
+  const { pageData, content } = loadFile(options.input)
+  const page = mergePageInfo(site, options.input, pageData)
+  const result = translate(options, site, glossary, numbering, links, page, content)
+  ensureOutputDir(options.output)
+  fs.writeFileSync(options.output, result, 'utf-8')
 }
 
 /**
@@ -67,96 +62,107 @@ const main = () => {
  */
 const getOptions = () => {
   const parser = new argparse.ArgumentParser()
-  addCommonArguments(parser, '--gloss', '--links')
-  parser.add_argument('--replaceDir', { action: 'store_true' })
-  const fromArgs = parser.parse_args()
-  fromArgs.homeDir = dirname(import.meta.url).replace('/bin', '')
-  return buildOptions(fromArgs)
+  parser.add_argument('--site')
+  parser.add_argument('--volume')
+  parser.add_argument('--input')
+  parser.add_argument('--output')
+  parser.add_argument('--links')
+  parser.add_argument('--numbering')
+  parser.add_argument('--glossary')
+  return parser.parse_args()
 }
 
 /**
- * Build a glossary for filling in words used.
- * @param {Object} options Options.
- * @returns {Object} Glossary keys mapped to strings.
+ * Build {key, value} lookup table for glossary.
+ * @param {string} filename File containing YAML glossary.
+ * @returns {Object} key-value lookup for glossary terms.
  */
-const buildGlossary = (options) => {
-  const text = fs.readFileSync(options.gloss, 'utf-8')
-  const pat = /<dt\s+id="(.+?)"\s+class="glossary">(.+?)<\/dt>/g
-  const matches = [...text.matchAll(pat)]
+const buildGlossaryLookup = (filename) => {
   const result = {}
-  matches.forEach(m => {
-    result[m[1]] = m[2]
+  const glossary = loadYaml(filename)
+  Object.keys(glossary).forEach(key => {
+    result[key] = glossary[key].en.term
   })
   return result
 }
 
 /**
- * Extract files from options and decorate information records.
- * @param {Object} options Options.
- * @returns {Array<Object>} File information.
+ * Load a file to be translated.
+ * @param {string} filename File to read.
+ * @returns {object + string} Page data plus text with headers.
  */
-const buildFileInfo = (options) => {
-  const allFiles = createFilePaths(options)
-  const pages = [...options.chapters, ...options.appendices]
-  pages.forEach((fileInfo, i) => {
-    fileInfo.previous = (i > 0) ? pages[i - 1] : null
-    fileInfo.next = (i < pages.length - 1) ? pages[i + 1] : null
-  })
-  return allFiles
+const loadFile = (filename) => {
+  const { data, content } = matter(fs.readFileSync(filename, 'utf-8'))
+  return {
+    pageData: data,
+    content: `${HEADER}\n${content}\n${FOOTER}`
+  }
 }
 
 /**
- * Load all files to be translated (so that cross-references can be built).
- * @param {Object} allFiles All files records.
+ * Merge configuration information about page into information from page file.
+ * @param {Object} config Configuration info.
+ * @param {string} filename Which file is being processed.
+ * @param {Object} page Page data from source file.
  */
-const loadFiles = (allFiles) => {
-  allFiles.forEach((fileInfo, i) => {
-    const { data, content } = matter(fs.readFileSync(fileInfo.source, 'utf-8'))
-    Object.assign(fileInfo, data)
-    fileInfo.content = `${HEADER}\n${content}\n${FOOTER}`
+const mergePageInfo = (config, filename, page) => {
+  const slug = path.dirname(filename, '.md').split('/').pop()
+  const all = [...config.chapters, ...config.appendices]
+  let result = null
+  all.forEach((entry, i) => {
+    if (slug === entry.slug) {
+      assert(result === null,
+        `Duplicate slug ${slug}`)
+      result = Object.assign(entry, page)
+      result.previous = (i > 0) ? all[i - 1] : null
+      result.next = (i < all.length - 1) ? all[i + 1] : null
+    }
   })
+  assert(result !== null,
+   `Unknown slug ${slug}`)
+  return result
 }
 
 /**
- * Translate and save each file.
+ * Translate and save file.
  * @param {Object} options Program options.
- * @param {Object} fileInfo Information about file.
- * @param {Object} glossary Keys and terms.
- * @param {Object} numbering Map slugs to numbers/letters.
+ * @param {Object} site Site data.
+ * @param {Array<Object>} glossary Full glossary as YAML.
+ * @param {Object} numbering Numbering lookup.
+ * @param {string} links Links as YAML.
+ * @param {Object} page Page data.
+ * @param {string} text Raw text (with headers).
+ * @returns {string} Translated text.
  */
-const translate = (options, fileInfo, glossary, numbering) => {
+const translate = (options, site, glossary, numbering, links, page, text) => {
+  // Get keys of glossary entries that are referenced in this page to build a
+  // table at the start of the chapter.
+  const glossRefs = buildGlossaryTable(glossary, text)
+
   // Context contains variables required by EJS.
   const context = {
-    root: options.root,
-    filename: fileInfo.source
+    root: EJS_ROOT,
+    filename: options.input
   }
-
-  // Get the glossary entries that are referenced in this page.
-  const glossRefs = getGlossaryReferences(fileInfo.content)
 
   // Construct a Markdown-to-HTML renderer (since we need to process Markdown
   // inclusions to HTML when rendering tables).
-  const mdi = new MarkdownIt({ html: true })
-    .use(MarkdownAnchor, { level: 1, slugify: slugify })
-    .use(MarkdownContainer, 'callout')
-    .use(MarkdownContainer, 'centered')
-    .use(MarkdownContainer, 'continue')
-    .use(MarkdownContainer, 'fixme')
-    .use(MarkdownContainer, 'hint')
+  const mdi = makeMarkdownTranslator()
 
-  // Settings contains "local" variables for rendering.
+  // Settings contains local variables for rendering.
   const settings = {
     ...context,
-    site: options,
-    page: fileInfo,
-    toRoot: toRoot(options.html, fileInfo.html),
-    glossary,
-    glossRefs,
     mdi,
+    site,
+    page,
+    glossRefs,
+    links,
     numbering,
+    toRoot: '../..',
+    toVolume: '..',
     // Since inclusions may contain inclusions, we need to provide the rendering
     // function to the renderer in the settings.
-    _render: (text) => ejs.render(text, settings, context),
+    _render: (something) => ejs.render(something, settings, context),
     _codeClass,
     _exercise,
     _lineCount,
@@ -166,20 +172,30 @@ const translate = (options, fileInfo, glossary, numbering) => {
     _readPage,
     _replace,
     _section,
-    _table,
-    _termsDefined
+    _table
   }
 
   // Translate the page.
-  const translated = settings._render(`${fileInfo.content}\n\n${options.linksText}`)
-  let html = mdi.render(translated)
-  if (options.replaceDir) {
-    html = html.replace(new RegExp(options.homeDir, 'g'), STANDARD_DIR)
-  }
+  const linksText = linksToMarkdown(links)
+  const fullText = `${text}\n\n${linksText}`
+  const translated = settings._render(fullText)
+  return mdi
+    .render(translated)
+    .replace(new RegExp(options.homeDir, 'g'), STANDARD_DIR)
+}
 
-  // Save result.
-  ensureOutputDir(fileInfo.html)
-  fs.writeFileSync(fileInfo.html, html, 'utf-8')
+/**
+ * Build a list of key/value pairs for generating the glossary lookup table at the start of a chapter.
+ * @param {Array<Object>} glossary Entire glossary.
+ * @param {Array<string>} text Page text.
+ * @returns {Array<Object>} { key, term } pairs.
+ */
+const buildGlossaryTable = (glossary, text) => {
+  return getGlossaryReferences(text)
+    .map(key => {
+      return { key, term: glossary[key] }
+    })
+    .sort((a, b) => a.term.toLowerCase() < b.term.toLowerCase() ? -1 : 1)
 }
 
 /**
@@ -331,129 +347,6 @@ const _table = (mainFile, mdi, id, tableFile, cap) => {
   const html = mdi.render(markdown)
   const header = `<table id="${id}"><caption>${cap}</caption>`
   return html.replace('<table>', header)
-}
-
-/**
- * Turn a list of defined terms into a table for the start of a chapter.
- * @param {Array<string>} items Items to put in the table.
- * @returns {string} HTML table.
- */
-const _termsDefined = (items) => {
-  while ((items.length % ITEM_TABLE_WIDTH) !== 0) {
-    items.push('&nbsp;')
-  }
-  const rows = []
-  for (let i = 0; i < items.length; i += ITEM_TABLE_WIDTH) {
-    const columns = items.slice(i, i + ITEM_TABLE_WIDTH).map(item => `<td>${item}</td>`)
-    rows.push(`<tr>${columns.join('')}</td>`)
-  }
-  return `<table><tbody>${rows.join('\n')}</tbody></table>`
-}
-
-/**
- * Turn title text into anchor.
- * @param {string} text Input text
- * @returns {string} slug
- */
-const slugify = (text) => {
-  return encodeURIComponent(text.trim()
-    .toLowerCase()
-    .replace(/[^ \w]/g, '')
-    .replace(/\s+/g, '-'))
-}
-
-/**
- * Copy static files.
- * @param {Object} options Options.
- */
-const finalize = (options) => {
-  // Copy source files.
-  const sourceFiles = [...options.chapters, ...options.appendices]
-    .map(entry => entry.slug)
-    .map(slug => options.sourceFiles.map(pattern => `${slug}/**/${pattern}`))
-    .flat()
-    .map(pattern => path.join(options.root, pattern))
-    .map(pattern => glob.sync(pattern))
-    .flat()
-  copyFiles(options, sourceFiles)
-
-  // Save numbering for LaTeX.
-  const numbering = buildNumbering(options)
-  fs.writeFileSync(path.join(options.html, 'numbering.js'),
-    JSON.stringify(numbering, null, 2), 'utf-8')
-}
-
-/**
- * Copy a set of files, making directories as needed.
- * @param {Object} options Options.
- * @param {Array<string>} filenames What to copy.
- */
-const copyFiles = (options, filenames) => {
-  filenames.forEach(source => {
-    const dest = makeOutputPath(options.html, source)
-    ensureOutputDir(dest)
-    fs.copyFileSync(source, dest)
-  })
-}
-
-/**
- * Build numbering lookup table for chapters and appendices.
- * @param {Object} options Options.
- * @returns {Object} slug-to-number-or-letter lookup table.
- */
-const buildNumbering = (options) => {
-  const result = {}
-  const numbered = [...options.extras, ...options.chapters]
-  numbered.forEach((fileInfo, i) => {
-    result[fileInfo.slug] = `${i + 1}`
-  })
-  const start = 'A'.charCodeAt(0)
-  options.appendices.forEach((fileInfo, i) => {
-    result[fileInfo.slug] = String.fromCharCode(start + i)
-  })
-  return result
-}
-
-/**
- * Construct output filename.
- * @param {string} output Output directory.
- * @param {string} source Source file path.
- * @param {Object} suffixes Lookup table for suffix substitution.
- * @returns {string} Output file path.
- */
-const makeOutputPath = (output, source, suffixes = {}) => {
-  let dest = path.join(output, source)
-  const ext = path.extname(dest)
-  if (ext in suffixes) {
-    dest = dest.slice(0, dest.lastIndexOf(ext)) + suffixes[ext]
-  }
-  return dest
-}
-
-/**
- * Ensure output directory exists.
- * @param {string} outputPath File path.
- */
-const ensureOutputDir = (outputPath) => {
-  const dirName = path.dirname(outputPath)
-  fs.mkdirSync(dirName, { recursive: true })
-}
-
-/**
- * Calculate the relative root path.
- * @param {string} rootDir Path to root directory.
- * @param {string} filePath Path to file.
- * @returns {string} Path from file to root directory.
- */
-const toRoot = (rootDir, filePath) => {
-  const path = filePath
-    .replace(rootDir, '')
-    .split('/')
-    .filter(field => field !== '')
-    .slice(1)
-    .map(field => '..')
-    .join('/')
-  return (path === '') ? '.' : path
 }
 
 // Run program.

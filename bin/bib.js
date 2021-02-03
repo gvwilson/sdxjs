@@ -1,12 +1,17 @@
 #!/usr/bin/env node
-
 'use strict'
+
+/**
+ * Convert YAML bibliography to Markdown.
+ */
 
 import argparse from 'argparse'
 import assert from 'assert'
 import fs from 'fs'
 
-import { yamlLoad } from './utils.js'
+import {
+  loadYaml
+} from './utils.js'
 
 /**
  * Top of page.
@@ -30,7 +35,7 @@ const FOOTER = `
  */
 const main = () => {
   const options = getOptions()
-  const data = yamlLoad(options.input)
+  const data = loadYaml(options.input)
   const text = makeBib(data)
   fs.writeFileSync(options.output, text, 'utf-8')
 }
@@ -43,19 +48,13 @@ const getOptions = () => {
   const parser = new argparse.ArgumentParser()
   parser.add_argument('--input')
   parser.add_argument('--output')
-
-  const options = parser.parse_args()
-
-  assert(options.input,
-    'Need input file')
-  assert(options.output,
-    'Need output file')
-  return options
+  return parser.parse_args()
 }
 
 /**
  * Convert YAML bibliography into HTML.
- * @param {Array<Object>} data YAML information.
+ * @param {Array<Object>} data YAML bibliography information.
+ * @returns {string} Text of bibliography as Markdown.
  */
 const makeBib = (data) => {
   const entries = data.map(entry => {

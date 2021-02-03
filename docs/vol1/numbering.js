@@ -1,5 +1,5 @@
 {
-  "vol1": "1",
+  "vol1-intro": "1",
   "systems-programming": "2",
   "async-programming": "3",
   "unit-test": "4",
@@ -19,13 +19,12 @@
   "package-manager": "18",
   "virtual-machine": "19",
   "debugger": "20",
-  "conclusion": "21",
+  "vol1-finale": "21",
   "bib": "A",
   "license": "B",
   "conduct": "C",
   "contributing": "D",
-  "cognition": "E",
-  "gloss": "F",
-  "links": "G",
-  "authors": "H"
+  "vol1-gloss": "E",
+  "links": "F",
+  "authors": "G"
 }

@@ -1,6 +1,9 @@
 #!/usr/bin/env node
-
 'use strict'
+
+/**
+ * Run style checks on chapter files.
+ */
 
 import argparse from 'argparse'
 import fs from 'fs'
@@ -9,11 +12,9 @@ import htmlparser2 from 'htmlparser2'
 import path from 'path'
 
 import {
-  addCommonArguments,
-  buildOptions,
-  createFilePaths,
-  getAllEntries,
-  getGlossaryReferences
+  WIDTH,
+  getGlossaryReferences,
+  loadConfig
 } from './utils.js'
 
 /**
@@ -22,25 +23,20 @@ import {
 const SUFFIX = new Set(['.html', '.js', '.txt'])
 
 /**
- * Maximum width of lines in code inclusions.
- */
-const WIDTH = 70
-
-/**
  * Main driver.
  */
 const main = () => {
   const options = getOptions()
-  createFilePaths(options)
+  const config = loadConfig(options.site, options.volume)
 
-  checkExercises(options)
+  checkExercises(config)
 
-  const markdown = loadMarkdown(options)
+  const markdown = loadMarkdown(config)
   checkGlossDups(markdown)
   checkInclusions(markdown)
   checkLineEndings(markdown)
 
-  const html = loadHtml(options)
+  const html = loadHtml(config, options.output)
   checkFigures(html)
   checkGlossRefs(html)
   checkTabs(html)
@@ -53,38 +49,45 @@ const main = () => {
  */
 const getOptions = () => {
   const parser = new argparse.ArgumentParser()
-  addCommonArguments(parser)
-  const fromArgs = parser.parse_args()
-  return buildOptions(fromArgs)
+  parser.add_argument('--site')
+  parser.add_argument('--volume')
+  parser.add_argument('--output')
+  parser.add_argument('--slugs', { nargs: '+' })
+  return parser.parse_args()
 }
 
 /**
  * Load Markdown for chapters.
- * @param {Object} options Program options.
+ * @param {Object} config Program configuration.
  * @returns {Array<Object>} Filenames and text.
  */
-const loadMarkdown = (options) => {
-  return getAllEntries(options).map(entry => {
+const loadMarkdown = (config) => {
+  const all = [...config.chapters, ...config.appendices]
+  return all.map(entry => {
+    const filename = `${entry.slug}/index.md`
     return {
-      filename: entry.source,
-      text: fs.readFileSync(entry.source, 'utf-8').trim()
+      filename,
+      text: fs.readFileSync(filename, 'utf-8').trim()
     }
   })
 }
 
 /**
  * Load HTML pages.
- * @param {Object} options Program options.
+ * @param {Object} config Program configuration.
+ * @param {string} output Output directory containing HTML files.
  * @returns {Array<Object>} Filenames, text, and DOM.
  */
-const loadHtml = (options) => {
-  return getAllEntries(options).map(entry => {
-    const text = fs.readFileSync(entry.html, 'utf-8').trim()
-    const doc = htmlparser2.parseDOM(text)
+const loadHtml = (config, output) => {
+  const all = [...config.chapters, ...config.appendices]
+  return all.map(entry => {
+    const filename = `${output}/${entry.slug}/index.html`
+    const text = fs.readFileSync(filename, 'utf-8').trim()
+    const doc = htmlparser2.parseDOM(text)[0]
     return {
-      filename: entry.html,
+      filename,
       text,
-      doc: doc[0]
+      doc
     }
   })
 }
@@ -112,9 +115,9 @@ const checkExercises = (options) => {
 
 /**
  * Check figure cross-references.
- * @param {Array<Object>} files File information.
+ * @param {Array<Object>} html HTML file information.
  */
-const checkFigures = (files) => {
+const checkFigures = (html) => {
   // How to traverse tree.
   const recurse = (node, defined, used) => {
     if (node.type !== 'tag') {
@@ -129,22 +132,22 @@ const checkFigures = (files) => {
   }
 
   // Check each file.
-  files.forEach(fileInfo => {
-    const defined = new Set()
-    const used = new Set()
-    recurse(fileInfo.doc, defined, used)
-    showSetDiff('Unused figure references', defined, used)
-    showSetDiff('Unresolved figure references', used, defined)
+  const defined = new Set()
+  const used = new Set()
+  html.forEach(entry => {
+    recurse(entry.doc, defined, used)
   })
+  showSetDiff('Unused figure references', defined, used)
+  showSetDiff('Unresolved figure references', used, defined)
 }
 
 /**
  * Check glossary references and entries.
- * @param {Array<Object>} files File information.
+ * @param {Array<Object>} html HTML file information.
  */
-const checkGlossRefs = (files) => {
-  const used = new Set(files.map(({ text }) => getGlossaryReferences(text)).flat())
-  const defined = new Set(files.map(({ text }) => {
+const checkGlossRefs = (html) => {
+  const used = new Set(html.map(({ text }) => getGlossaryReferences(text)).flat())
+  const defined = new Set(html.map(({ text }) => {
     const matches = [...text.matchAll(/<dt\s+id="(.+?)"\s+class="glossary">/g)]
     return matches.map(match => match[1])
   }).flat())
@@ -154,10 +157,10 @@ const checkGlossRefs = (files) => {
 
 /**
  * Check for duplicate glossary references within individual files.
- * @param {Array<Object>} files File information.
+ * @param {Array<Object>} markdown Markdown file information.
  */
-const checkGlossDups = (files) => {
-  files.forEach(({ filename, text }) => {
+const checkGlossDups = (markdown) => {
+  markdown.forEach(({ filename, text }) => {
     if (!filename.includes('gloss')) {
       const refs = getGlossaryReferences(text)
       const seen = new Set()
@@ -176,10 +179,10 @@ const checkGlossDups = (files) => {
  * Check file inclusions.
  * @param {Array<Object>} files File information.
  */
-const checkInclusions = (files) => {
+const checkInclusions = (markdown) => {
   const existing = new Set()
   const included = new Set()
-  files.forEach(({ filename, text }) => {
+  markdown.forEach(({ filename, text }) => {
     glob.sync(`${path.dirname(filename)}/*.*`)
       .filter(f => SUFFIX.has(path.extname(f)))
       .forEach(f => existing.add(f))
@@ -202,10 +205,10 @@ const checkLineEndings = (files) => {
 
 /**
  * Check for tabs in source files.
- * @param {Array<Object>} files File information.
+ * @param {Array<Object>} html HTML file information.
  */
-const checkTabs = (files) => {
-  files.forEach(({ filename, text }) => {
+const checkTabs = (html) => {
+  html.forEach(({ filename, text }) => {
     for (const c of text) {
       if (c === '\t') {
         console.log(`${filename} contains tabs`)
@@ -217,10 +220,10 @@ const checkTabs = (files) => {
 
 /**
  * Check widths of code inclusions.
- * @param {Array<Object>} files File information.
+ * @param {Array<Object>} html HTML file information.
  */
-const checkWidths = (files) => {
-  const counts = files.reduce((accum, { filename, text }) => {
+const checkWidths = (html) => {
+  const counts = html.reduce((accum, { filename, text }) => {
     const matches = [...text.matchAll(/<pre\s+title="(.+?)"><code.+?>([^]+?)<\/code><\/pre>/g)]
     const num = matches.reduce((accum, [match, title, body]) => {
       const lines = body.split('\n').filter(line => line.trimEnd().length > WIDTH)

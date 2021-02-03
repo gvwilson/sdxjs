@@ -1,6 +1,9 @@
 #!/usr/bin/env node
-
 'use strict'
+
+/**
+ * Translate HTML into LaTeX.
+ */
 
 import argparse from 'argparse'
 import assert from 'assert'
@@ -8,9 +11,8 @@ import fs from 'fs'
 import htmlparser2 from 'htmlparser2'
 
 import {
-  addCommonArguments,
-  buildOptions,
-  createFilePaths
+  loadConfig,
+  loadJson
 } from './utils.js'
 
 /**
@@ -34,16 +36,22 @@ const PDF_IMAGE_UNSCALED = '1.0'
  */
 const main = () => {
   const options = getOptions()
-  options.numbering = getNumbering(options)
-  const allFiles = createFilePaths(options)
-  const allLatex = allFiles.map(fileInfo => {
-    const doc = readFile(fileInfo.html)
-    fileInfo.linksSeen = new Set()
-    return htmlToLatex(options, fileInfo, doc, [])
-  }).flat().join('')
+  const config = loadConfig(options.site, options.volume)
+  options.numbering = loadJson(options.numbering)
+  addFileInfo(config, options.root)
+  const accum = []
+  const all = [...config.chapters, ...config.appendices]
+  all.forEach(fileInfo => {
+    if ('latexBefore' in fileInfo) {
+      accum.push(`${fileInfo.latexBefore}\n`)
+    }
+    const doc = readHtml(fileInfo.filename)
+    htmlToLatex(options, fileInfo, doc, new Set(), accum)
+  })
+  const latex = accum.join('')
   options.head = fs.readFileSync(options.head, 'utf-8')
   options.foot = fs.readFileSync(options.foot, 'utf-8')
-  const combined = `${options.head}\n${allLatex}\n${options.foot}`
+  const combined = `${options.head}\n${latex}\n${options.foot}`
   fs.writeFileSync(options.output, combined, 'utf-8')
 }
 
@@ -53,19 +61,26 @@ const main = () => {
  */
 const getOptions = () => {
   const parser = new argparse.ArgumentParser()
-  addCommonArguments(parser, '--foot', '--head', '--numbering', '--output')
-  const fromArgs = parser.parse_args()
-  return buildOptions(fromArgs)
+  parser.add_argument('--site')
+  parser.add_argument('--volume')
+  parser.add_argument('--foot')
+  parser.add_argument('--head')
+  parser.add_argument('--numbering')
+  parser.add_argument('--output')
+  parser.add_argument('--root')
+  return parser.parse_args()
 }
 
 /**
- * Get chapter numbering information.
- * @param {Object} options Program options.
- * @returns {Object} Numbering.
+ * Create input file paths from configuration data.
+ * @param {Array<Object>} config Volume configuration information.
+ * @param {string} root Path to volume root.
  */
-const getNumbering = (options) => {
-  const text = fs.readFileSync(options.numbering, 'utf-8')
-  return JSON.parse(text)
+const addFileInfo = (config, root) => {
+  const all = [...config.chapters, ...config.appendices]
+  all.forEach(entry => {
+    entry.filename = `${root}/${entry.slug}/index.html`
+  })
 }
 
 /**
@@ -73,7 +88,7 @@ const getNumbering = (options) => {
  * @param {string} filename File to read.
  * @returns {Object} DOM document.
  */
-const readFile = (filename) => {
+const readHtml = (filename) => {
   const text = fs.readFileSync(filename, 'utf-8').trim()
   const patched = patchHtml(text)
   return htmlparser2.parseDOM(patched)[0]
@@ -86,15 +101,15 @@ const readFile = (filename) => {
  */
 const patchHtml = (html) => {
   // \lede{} must come before \chapter{} so
-  // <h1>...</h1> <p class="lede">...</p>
+  // <h1>...</h1> <h2 class="lede">...</h2>
   // =>
-  // <p class="lede">...</p> <h1>...</h1>
+  // <h2 class="lede">...</h2> <h1>...</h1>
   if (html.includes('h1')) {
-    if (html.includes('<p class="lede">')) {
-      html = html.replace(/<h1>(.+?)<\/h1>\s+<p class="lede">(.+?)<\/p>/,
-        '<p class="lede">$2</p>\n<h1>$1</h1>')
+    if (html.includes('<h2 class="lede">')) {
+      html = html.replace(/<h1>(.+?)<\/h1>\s+<h2 class="lede">(.+?)<\/h2>/,
+        '<h2 class="lede">$2</h2>\n<h1>$1</h1>')
     } else {
-      html = html.replace('<h1>', '<p class="lede"/><h1>')
+      html = html.replace('<h1>', '<h2 class="lede"></h2><h1>')
     }
   }
 
@@ -113,12 +128,13 @@ const patchHtml = (html) => {
 /**
  * Translate a single HTML document to LaTeX.
  * @param {Object} options Program options.
- * @param {Object} fileInfo Information about this file.
+ * @param {Object} fileInfo Information about file.
  * @param {Object} node Root node of this conversion.
+ * @param {Set} linksSeen Links seen so far (not to be repeated).
  * @param {Array} accum Strings generated so far.
  * @returns {Array<string>} All strings.
  */
-const htmlToLatex = (options, fileInfo, node, accum) => {
+const htmlToLatex = (options, fileInfo, node, linksSeen, accum) => {
   if (node.type === 'text') {
     accum.push(fullEscape(node.data))
   } else if (node.type !== 'tag') {
@@ -126,11 +142,11 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
   } else if (SKIP_ENTIRELY.has(node.name)) {
     // do nothing
   } else if (RECURSE_ONLY.has(node.name)) {
-    childrenToLatex(options, fileInfo, node, accum)
+    childrenToLatex(options, fileInfo, node, linksSeen, accum)
   } else if (node.name in HANDLERS) {
-    HANDLERS[node.name](options, fileInfo, node, accum)
+    HANDLERS[node.name](options, fileInfo, node, linksSeen, accum)
   } else {
-    console.error('unknown', node.name, fileInfo.filename, node.startIndex, '\n', node)
+    console.error('unknown', node.name, fileInfo, node.startIndex, '\n', node)
     process.exit(1)
   }
   return accum
@@ -140,44 +156,39 @@ const htmlToLatex = (options, fileInfo, node, accum) => {
  * Handlers for node types.
  */
 const HANDLERS = {
-  a: (options, fileInfo, node, accum) => {
+  a: (options, fileInfo, node, linksSeen, accum) => {
     assert('href' in node.attribs,
            `link without href at ${fileInfo.filename} ${node.startIndex}`)
-    if (fileInfo.linksSeen.has(node.attribs.href)) {
-      childrenToLatex(options, fileInfo, node, accum)
-    } else {
-      fileInfo.linksSeen.add(node.attribs.href)
-      accum.push('\\hreffoot{')
-      childrenToLatex(options, fileInfo, node, accum)
-      accum.push('}{')
-      accum.push(fullEscape(node.attribs.href))
-      accum.push('}')
-    }
+    accum.push('\\hreffoot{')
+    childrenToLatex(options, fileInfo, node, linksSeen, accum)
+    accum.push('}{')
+    accum.push(fullEscape(node.attribs.href))
+    accum.push('}')
   },
 
-  blockquote: (options, fileInfo, node, accum) => {
+  blockquote: (options, fileInfo, node, linksSeen, accum) => {
     accum.push('\\begin{quotation}')
-    childrenToLatex(options, fileInfo, node, accum)
+    childrenToLatex(options, fileInfo, node, linksSeen, accum)
     accum.push('\\end{quotation}')
   },
 
-  br: (options, fileInfo, node, accum) => {
+  br: (options, fileInfo, node, linksSeen, accum) => {
     accum.push(' ')
   },
 
-  cite: (options, fileInfo, node, accum) => {
+  cite: (options, fileInfo, node, linksSeen, accum) => {
     accum.push('\\cite{')
     node.children.forEach(child => htmlToText(child, accum, fullEscape))
     accum.push('}')
   },
 
-  code: (options, fileInfo, node, accum) => {
+  code: (options, fileInfo, node, linksSeen, accum) => {
     accum.push('\\texttt{')
     node.children.forEach(child => htmlToText(child, accum, fullEscape))
     accum.push('}')
   },
 
-  div: (options, fileInfo, node, accum) => {
+  div: (options, fileInfo, node, linksSeen, accum) => {
     const cls = node.attribs.class
     switch (cls) {
       case 'html-only':
@@ -193,25 +204,25 @@ const HANDLERS = {
 
       case 'callout':
         accum.push('\\begin{callout}')
-        childrenToLatex(options, fileInfo, node, accum)
+        childrenToLatex(options, fileInfo, node, linksSeen, accum)
         accum.push('\\end{callout}')
         break
 
       case 'centered':
         accum.push('\n{\\centering\n')
-        childrenToLatex(options, fileInfo, node, accum)
+        childrenToLatex(options, fileInfo, node, linksSeen, accum)
         accum.push('\n}\n')
         break
 
       case 'fixme':
         accum.push('\\fixme{')
-        childrenToLatex(options, fileInfo, node, accum)
+        childrenToLatex(options, fileInfo, node, linksSeen, accum)
         accum.push('}')
         break
 
       case 'hint':
         accum.push('\\begin{hint}')
-        childrenToLatex(options, fileInfo, node, accum)
+        childrenToLatex(options, fileInfo, node, linksSeen, accum)
         accum.push('\\end{hint}')
         break
 
@@ -223,34 +234,34 @@ const HANDLERS = {
 
       case 'continue':
         accum.push('\\begin{unindented}')
-        childrenToLatex(options, fileInfo, node, accum)
+        childrenToLatex(options, fileInfo, node, linksSeen, accum)
         accum.push('\\end{unindented}')
         break
 
       default:
-        childrenToLatex(options, fileInfo, node, accum)
+        childrenToLatex(options, fileInfo, node, linksSeen, accum)
         break
     }
   },
 
-  dd: (options, fileInfo, node, accum) => {
-    childrenToLatex(options, fileInfo, node, accum)
+  dd: (options, fileInfo, node, linksSeen, accum) => {
+    childrenToLatex(options, fileInfo, node, linksSeen, accum)
   },
 
-  dl: (options, fileInfo, node, accum) => {
+  dl: (options, fileInfo, node, linksSeen, accum) => {
     const cls = node.attribs.class
     if (cls === 'bibliography') {
       accum.push('\\begin{thebibliography}{ABCD}')
-      childrenToLatex(options, fileInfo, node, accum)
+      childrenToLatex(options, fileInfo, node, linksSeen, accum)
       accum.push('\\end{thebibliography}')
     } else {
       accum.push('\\begin{description}')
-      childrenToLatex(options, fileInfo, node, accum)
+      childrenToLatex(options, fileInfo, node, linksSeen, accum)
       accum.push('\\end{description}')
     }
   },
 
-  dt: (options, fileInfo, node, accum) => {
+  dt: (options, fileInfo, node, linksSeen, accum) => {
     const cls = node.attribs.class
     if (cls === 'bibliography') {
       const key = node.attribs.id
@@ -264,117 +275,112 @@ const HANDLERS = {
       assert(key,
         'Every glossary definition must have an id')
       accum.push('\\glossitem{')
-      childrenToLatex(options, fileInfo, node, accum)
+      childrenToLatex(options, fileInfo, node, linksSeen, accum)
       accum.push('}{')
       accum.push(fullEscape(key))
       accum.push('}')
     } else {
       accum.push('\\item[')
-      childrenToLatex(options, fileInfo, node, accum)
+      childrenToLatex(options, fileInfo, node, linksSeen, accum)
       accum.push(']')
     }
   },
 
-  em: (options, fileInfo, node, accum) => {
+  em: (options, fileInfo, node, linksSeen, accum) => {
     accum.push('\\emph{')
-    childrenToLatex(options, fileInfo, node, accum)
+    childrenToLatex(options, fileInfo, node, linksSeen, accum)
     accum.push('}')
   },
 
-  f: (options, fileInfo, node, accum) => {
+  f: (options, fileInfo, node, linksSeen, accum) => {
     const key = node.attribs.key
     accum.push(`\\figref{${key}}`)
   },
 
-  figure: (options, fileInfo, node, accum) => {
-    accum.push(figureToLatex(options, fileInfo, node))
+  figure: (options, fileInfo, node, linksSeen, accum) => {
+    accum.push(figureToLatex(options, fileInfo, linksSeen, node))
   },
 
-  g: (options, fileInfo, node, accum) => {
+  g: (options, fileInfo, node, linksSeen, accum) => {
     accum.push('\\glossref{')
-    childrenToLatex(options, fileInfo, node, accum)
+    childrenToLatex(options, fileInfo, node, linksSeen, accum)
     accum.push('}{')
     accum.push(fullEscape(node.attribs.key))
     accum.push('}')
   },
 
-  h1: (options, fileInfo, node, accum) => {
-    if ('latexBefore' in fileInfo) {
-      accum.push(`${fileInfo.latexBefore}\n`)
-    }
+  h1: (options, fileInfo, node, linksSeen, accum) => {
     if ('latexSkipChapter' in fileInfo) {
       // do nothing
-    } else if (fileInfo.slug === '/') {
-      accum.push('\\chapter{Introduction}\\label{introduction}')
     } else {
       accum.push('\\chapter{')
-      childrenToLatex(options, fileInfo, node, accum)
+      childrenToLatex(options, fileInfo, node, linksSeen, accum)
       accum.push('}\\label{')
       accum.push(fileInfo.slug)
       accum.push('}')
     }
   },
 
-  h2: (options, fileInfo, node, accum) => {
+  h2: (options, fileInfo, node, linksSeen, accum) => {
     const cls = node.attribs.class
     if (cls === 'lede') {
       accum.push('\n\\lede{')
-      childrenToLatex(options, fileInfo, node, accum)
+      childrenToLatex(options, fileInfo, node, linksSeen, accum)
       accum.push('}')
     } else {
       accum.push('\\section{')
-      childrenToLatex(options, fileInfo, node, accum)
+      childrenToLatex(options, fileInfo, node, linksSeen, accum)
       accum.push('}')
     }
   },
 
-  h3: (options, fileInfo, node, accum) => {
+  h3: (options, fileInfo, node, linksSeen, accum) => {
     const cls = node.attribs.class
     if (cls === 'callout') {
       accum.push('\\callouttitle{')
-      childrenToLatex(options, fileInfo, node, accum)
+      childrenToLatex(options, fileInfo, node, linksSeen, accum)
       accum.push('}')
     } else {
       accum.push('\\subsection*{')
-      childrenToLatex(options, fileInfo, node, accum)
+      childrenToLatex(options, fileInfo, node, linksSeen, accum)
       accum.push('}')
     }
   },
 
-  img: (options, fileInfo, node, accum) => {
+  img: (options, fileInfo, node, linksSeen, accum) => {
     const src = node.attribs.src
     accum.push(`\\image{${src}}`)
   },
 
-  key: (options, fileInfo, node, accum) => {
+  key: (options, fileInfo, node, linksSeen, accum) => {
     accum.push('\\keystroke{')
-    childrenToLatex(options, fileInfo, node, accum)
+    childrenToLatex(options, fileInfo, node, linksSeen, accum)
     accum.push('}')
   },
 
-  li: (options, fileInfo, node, accum) => {
+  li: (options, fileInfo, node, linksSeen, accum) => {
     accum.push('\\item ')
-    childrenToLatex(options, fileInfo, node, accum)
+    childrenToLatex(options, fileInfo, node, linksSeen, accum)
   },
 
-  ol: (options, fileInfo, node, accum) => {
+  ol: (options, fileInfo, node, linksSeen, accum) => {
     accum.push('\\begin{enumerate}')
-    childrenToLatex(options, fileInfo, node, accum)
+    childrenToLatex(options, fileInfo, node, linksSeen, accum)
     accum.push('\\end{enumerate}')
   },
 
-  p: (options, fileInfo, node, accum) => {
+  p: (options, fileInfo, node, linksSeen, accum) => {
     const cls = node.attribs.class
     if (cls === 'callout') {
       accum.push('\\vspace{\\baselineskip}\n\\noindent')
-      childrenToLatex(options, fileInfo, node, accum)
+      childrenToLatex(options, fileInfo, node, linksSeen, accum)
     } else {
       accum.push('\n')
-      childrenToLatex(options, fileInfo, node, accum)
+      childrenToLatex(options, fileInfo, node, linksSeen, accum)
     }
   },
 
-  pre: (options, fileInfo, node, accum) => {
+  pre: (options, fileInfo, node, linksSeen, accum) => {
     assert((node.children.length === 1) && (node.children[0].name === 'code'),
       'Expect pre to have one code child')
     const title = node.attribs.title ? node.attribs.title : ''
@@ -383,60 +389,60 @@ const HANDLERS = {
     accum.push('\\end{lstlisting}')
   },
 
-  strong: (options, fileInfo, node, accum) => {
+  strong: (options, fileInfo, node, linksSeen, accum) => {
     accum.push('\\textbf{')
-    childrenToLatex(options, fileInfo, node, accum)
+    childrenToLatex(options, fileInfo, node, linksSeen, accum)
     accum.push('}')
   },
 
-  sub: (options, fileInfo, node, accum) => {
+  sub: (options, fileInfo, node, linksSeen, accum) => {
     accum.push('\\textsubscript{')
-    childrenToLatex(options, fileInfo, node, accum)
+    childrenToLatex(options, fileInfo, node, linksSeen, accum)
     accum.push('}')
   },
 
-  sup: (options, fileInfo, node, accum) => {
+  sup: (options, fileInfo, node, linksSeen, accum) => {
     accum.push('\\textsuperscript{')
-    childrenToLatex(options, fileInfo, node, accum)
+    childrenToLatex(options, fileInfo, node, linksSeen, accum)
     accum.push('}')
   },
 
-  t: (options, fileInfo, node, accum) => {
+  t: (options, fileInfo, node, linksSeen, accum) => {
     const key = node.attribs.key
     accum.push(`\\tblref{${key}}`)
   },
 
-  table: (options, fileInfo, node, accum) => {
-    accum.push(tableToLatex(options, fileInfo, node))
+  table: (options, fileInfo, node, linksSeen, accum) => {
+    accum.push(tableToLatex(options, fileInfo, linksSeen, node))
   },
 
-  td: (options, fileInfo, node, accum) => {
-    childrenToLatex(options, fileInfo, node, accum)
+  td: (options, fileInfo, node, linksSeen, accum) => {
+    childrenToLatex(options, fileInfo, node, linksSeen, accum)
   },
 
-  th: (options, fileInfo, node, accum) => {
+  th: (options, fileInfo, node, linksSeen, accum) => {
     accum.push('\\tablehead{')
-    childrenToLatex(options, fileInfo, node, accum)
+    childrenToLatex(options, fileInfo, node, linksSeen, accum)
     accum.push('}')
   },
 
-  ul: (options, fileInfo, node, accum) => {
+  ul: (options, fileInfo, node, linksSeen, accum) => {
     accum.push('\\begin{itemize}')
-    childrenToLatex(options, fileInfo, node, accum)
+    childrenToLatex(options, fileInfo, node, linksSeen, accum)
     accum.push('\\end{itemize}')
   },
 
-  x: (options, fileInfo, node, accum) => {
+  x: (options, fileInfo, node, linksSeen, accum) => {
     const key = node.attribs.key
     assert(key,
-           'Cross-reference does not contain key attribute')
+      'Cross-reference does not contain key attribute')
     assert(key in options.numbering,
-           `Unknown cross-reference "${key}"`)
+      `Unknown cross-reference "${key}"`)
     const text = (options.numbering[key] < 'A') ? `\\chapref{${key}}` : `\\appref{${key}}`
     if (node.children.length === 0) {
       accum.push(text)
     } else {
-      childrenToLatex(options, fileInfo, node, accum)
+      childrenToLatex(options, fileInfo, node, linksSeen, accum)
       accum.push(` (${text})`)
     }
   }
@@ -449,18 +455,19 @@ const HANDLERS = {
  * @param {Object} node Root node whose children are to be converted.
  * @param {Array} accum Strings generated so far.
  */
-const childrenToLatex = (options, fileInfo, node, accum) => {
-  node.children.forEach(child => htmlToLatex(options, fileInfo, child, accum))
+const childrenToLatex = (options, fileInfo, node, linksSeen, accum) => {
+  node.children.forEach(child => htmlToLatex(options, fileInfo, child, linksSeen, accum))
 }
 
 /**
  * Translate an HTML figure to LaTeX.
  * @param {Object} options Program options.
  * @param {Object} fileInfo Information about this file.
+ * @param {Set} linksSeen Links seen so far.
  * @param {Object} node Root node of this conversion.
  * @returns {string} Figure as LaTeX.
  */
-const figureToLatex = (options, fileInfo, node) => {
+const figureToLatex = (options, fileInfo, linksSeen, node) => {
   assert(node.children.length === 2,
     `Expected 2 children for figure element, not ${node.children.length}`)
   const ident = node.attribs.id
@@ -480,7 +487,7 @@ const figureToLatex = (options, fileInfo, node) => {
     `Expected first child of figure to be figcaption, not ${img.name}`)
 
   const accum = []
-  childrenToLatex(options, fileInfo, caption, accum)
+  childrenToLatex(options, fileInfo, caption, linksSeen, accum)
   const text = accum.join('')
 
   let cmd = null
@@ -510,10 +517,11 @@ const figureToLatex = (options, fileInfo, node) => {
  * Translate a single HTML table to LaTeX.
  * @param {Object} options Program options.
  * @param {Object} fileInfo Information about this file.
+ * @param {Set} linksSeen Links seen so far.
  * @param {Object} node Root node of this conversion.
  * @returns {string} Table as LaTeX.
  */
-const tableToLatex = (options, fileInfo, node) => {
+const tableToLatex = (options, fileInfo, linksSeen, node) => {
   assert(node.name === 'table',
     `Calling tableToLatex with wrong node type "${node.name}"`)
 
@@ -525,7 +533,7 @@ const tableToLatex = (options, fileInfo, node) => {
   const rows = headRows.concat(bodyRows)
   const spec = rows[0].map(x => 'l').join('')
   const body = rows.map(row => {
-    const fields = row.map(cell => htmlToLatex(options, fileInfo, cell, []).flat().join(''))
+    const fields = row.map(cell => htmlToLatex(options, fileInfo, cell, linksSeen, []).flat().join(''))
     const joined = fields.join(' & ')
     return `${joined} \\\\\n`
   }).join('')
@@ -541,12 +549,12 @@ const tableToLatex = (options, fileInfo, node) => {
   assert(ident.length > 0,
     'Invalid id attribute for table')
 
-  const captions = node.children.filter(child => child.name ==='caption')
+  const captions = node.children.filter(child => child.name === 'caption')
   assert(captions.length === 1,
     'Table must have exactly one caption')
   const caption = captions[0]
   const accum = []
-  childrenToLatex(options, fileInfo, caption, accum)
+  childrenToLatex(options, fileInfo, caption, linksSeen, accum)
   const captionText = accum.join('')
 
   const meta = `\\caption{${captionText}}\n\\label{${ident}}`

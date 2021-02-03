@@ -1,19 +1,37 @@
 #!/usr/bin/env node
-
 'use strict'
+
+/**
+ * Wrap and slice lines in sample output and replace home directory with
+ * something innocuous.
+ */
 
 import argparse from 'argparse'
 import fs from 'fs'
 
-import { dirname } from './utils.js'
+import {
+  WIDTH,
+  dirname
+} from './utils.js'
 
-const WIDTH = 72
+/** Strip out file protocol. */
 const PROTOCOL = 'file://'
+
+/** Actual home directory of this run. */
 const HOME = dirname(import.meta.url).replace('/bin', '')
+
+/** Home directory to pretend to have. */
 const FAKE = '/u/stjs'
+
+/** How to show removed lines. */
 const REMOVED = '...'
+
+/** Default output slice size. */
 const SLICE = 10
 
+/**
+ * Main driver.
+ */
 const main = () => {
   const options = getOptions()
   const lines = fs.readFileSync(0, 'utf-8')
@@ -24,6 +42,10 @@ const main = () => {
   selected.forEach(line => console.log(line))
 }
 
+/**
+ * Get command-line options.
+ * @returns {Object} Options.
+ */
 const getOptions = () => {
   const parser = new argparse.ArgumentParser()
   parser.add_argument('--head', { type: 'int', default: null })
@@ -41,6 +63,12 @@ const getOptions = () => {
   return options
 }
 
+/**
+ * Select lines vertically.
+ * @param {Object} options Control settings.
+ * @param {Array<string>} lines Lines to slice.
+ * @returns {Array<string>} New array of output.
+ */
 const select = (options, lines) => {
   if ((options.head === null) && (options.tail === null)) {
     return lines
@@ -56,6 +84,11 @@ const select = (options, lines) => {
   return result
 }
 
+/**
+ * Wrap lines to maximum length with continuation characters.
+ * @param {Array<string>} lines Lines to wrap.
+ * @returns {Array<string>} Wrapped lines.
+ */
 const wrap = (lines) => {
   const findIndent = /^( *)/
   const result = []
@@ -80,6 +113,11 @@ const wrap = (lines) => {
   return result
 }
 
+/**
+ * Split an overly-long line.
+ * @param {string} line Line to split.
+ * @returns {Array<string>} Line as chunks.
+ */
 const split = (line) => {
   if (line.length <= WIDTH) {
     return [line, '', '']
@@ -94,4 +132,5 @@ const split = (line) => {
   return [line.slice(0, WIDTH), line.slice(WIDTH), ' \\']
 }
 
+// Run program.
 main()

@@ -1,9 +1,15 @@
 #!/usr/bin/env node
-
 'use strict'
+
+/**
+ * Report pages per chapter in the LaTeX version.
+ */
 
 import fs from 'fs'
 
+/**
+ * Main driver.
+ */
 const main = () => {
   const entries = fs.readFileSync(process.argv[2], 'utf-8')
     .split('\n')
@@ -24,6 +30,11 @@ const main = () => {
   console.log(` | Total | ${total}`)
 }
 
+/**
+ * Determine if a line is interesting for page count purposes.
+ * @param {string} line Line to check.
+ * @returns {Boolean} Worth paying attention to?
+ */
 const interesting = (line) => {
   for (const f of [chapter, bibliography, end]) {
     const match = f(line)
@@ -34,6 +45,11 @@ const interesting = (line) => {
   return null
 }
 
+/**
+ * Check if this line is the bibliography entry.
+ * @param {string} line Line to check.
+ * @returns {Boolean} Worth paying attention to?
+ */
 const bibliography = (line) => {
   const pat = /\\@writefile{toc}{\\contentsline\s+{fm}{Bibliography}{(.+?)}/
   const match = pat.exec(line)
@@ -42,6 +58,11 @@ const bibliography = (line) => {
     : null
 }
 
+/**
+ * Check if this line is a chapter entry.
+ * @param {string} line Line to check.
+ * @returns {Boolean} Worth paying attention to?
+ */
 const chapter = (line) => {
   const pat = /\\@writefile{toc}{\\contentsline\s+{chapter}{\\numberline\s+{(.+?)}(.+?)}{(.+?)}/
   const match = pat.exec(line)
@@ -52,6 +73,11 @@ const chapter = (line) => {
   return { kind: kind, index: match[1], name: match[2], page: parseInt(match[3]) }
 }
 
+/**
+ * Check if this line is the end.
+ * @param {string} line Line to check.
+ * @returns {Boolean} Worth paying attention to?
+ */
 const end = (line) => {
   const pat = /\\gdef\s+\\@abspage@last{(.+?)}/
   const match = pat.exec(line)
@@ -60,4 +86,5 @@ const end = (line) => {
     : null
 }
 
+// Run program.
 main()

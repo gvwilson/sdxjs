@@ -1,90 +1,22 @@
 'use strict'
 
-import assert from 'assert'
 import fs from 'fs'
 import path from 'path'
 import url from 'url'
 import yaml from 'js-yaml'
+import MarkdownIt from 'markdown-it'
+import MarkdownAnchor from 'markdown-it-anchor'
+import MarkdownContainer from 'markdown-it-container'
 
 /**
- * Add common options to argument parser.
- * @param {Object} parser Argument parser.
- * Other parameters are extra options.
+ * Root directory for EJS lookups.
  */
-export const addCommonArguments = (parser, ...extras) => {
-  const args = ['--config', '--common', '--html', '--root']
-  args.forEach(arg => parser.add_argument(arg))
-  extras.forEach(arg => parser.add_argument(arg))
-}
+export const EJS_ROOT = '.'
 
 /**
- * Build table of Markdown links to append to pages during translation.
- * @param {object} options Object with .links (overwritten).
- * @returns {string} Table of links to append to all Markdown files.
+ * Maximum width of lines in code inclusions.
  */
-export const buildLinks = (options) => {
-  options.links = yamlLoad(options.links)
-  options.linksText = options.links
-    .map(entry => `[${entry.slug}]: ${entry.url}`)
-    .join('\n')
-}
-
-/**
- * Build full options from command-line arguments and configuration files.
- * @param {Object} fromArgs Parsed arguments.
- */
-export const buildOptions = (fromArgs) => {
-  const common = yamlLoad(fromArgs.common)
-  const config = yamlLoad(fromArgs.config)
-  return { ...common, ...config, ...fromArgs }
-}
-
-/**
- * Fill in file paths for all files in a set.
- * @param {Object} options Object with .root, .html, .extras, .chapters, and .appendices.
- * @returns {Array<Object>} Concatenated and decorated file information.
- */
-export const createFilePaths = (options) => {
-  const allEntries = getAllEntries(options)
-  allEntries.forEach((fileInfo, i) => {
-    assert('slug' in fileInfo,
-      `Every page must have a slug ${Object.keys(fileInfo)}`)
-    fileInfo.index = i
-
-    // Markdown source file
-    if (!('source' in fileInfo)) {
-      fileInfo.source = path.join(options.root, fileInfo.slug, 'index.md')
-    }
-
-    // Problems and solutions (if any)
-    if ('exercises' in fileInfo) {
-      fileInfo.exercises.map(ex => {
-        ex.problem = path.join(options.root, fileInfo.slug, ex.slug, 'problem.md')
-        ex.solution = path.join(options.root, fileInfo.slug, ex.slug, 'solution.md')
-      })
-    }
-
-    // Output HTML
-    if ('html' in fileInfo) {
-      fileInfo.html = path.join(options.html, fileInfo.html)
-    } else {
-      fileInfo.html = path.join(options.html, fileInfo.slug, 'index.html')
-    }
-  })
-
-  // Mark entries as chapters or not.
-  options.chapters.forEach(fileInfo => {
-    fileInfo.isChapter = true
-  })
-  options.extras.forEach(fileInfo => {
-    fileInfo.isChapter = false
-  })
-  options.appendices.forEach(fileInfo => {
-    fileInfo.isChapter = false
-  })
-
-  return allEntries
-}
+export const WIDTH = 72
 
 /**
  * Extract directory name from file path.
@@ -96,35 +28,12 @@ export const dirname = (callerURL) => {
 }
 
 /**
- * Get all entries from options.
- * @param {Object} options Options with .extras, .chapters, and .appendices.
- * @returns {Array<Object>} Linearized chapters
+ * Ensure output directory exists.
+ * @param {string} outputPath File path.
  */
-export const getAllEntries = (options) => {
-  return [
-    ...options.extras,
-    ...options.chapters,
-    ...options.appendices
-  ]
-}
-
-/**
- * Get all Markdown source files.
- * @param {Object} options Options with .extras, .chapters, and .appendices.
- * @returns {Array<string>} All Markdown file paths.
- */
-export const getAllSources = (options) => {
-  const result = []
-  getAllEntries(options).forEach(entry => {
-    result.push(entry.source)
-    if ('exercises' in entry) {
-      entry.exercises.forEach(ex => {
-        result.push(ex.problem)
-        result.push(ex.solution)
-      })
-    }
-  })
-  return result
+export const ensureOutputDir = (outputPath) => {
+  const dirName = path.dirname(outputPath)
+  fs.mkdirSync(dirName, { recursive: true })
 }
 
 /**
@@ -139,12 +48,76 @@ export const getGlossaryReferences = (text) => {
 }
 
 /**
+ * Convert links YAML to Markdown.
+ * @param {Array<Object>} links Links as YAML.
+ * @returns {string} Links as Markdown.
+ */
+export const linksToMarkdown = (links) => {
+  return links
+    .map(entry => `[${entry.slug}]: ${entry.url}`)
+    .join('\n')
+}
+
+/**
+ * Load multiple configuration files.
+ * @param {Array<string>} filenames Files to load.
+ * @result {Object} Merged configuration files.
+ */
+export const loadConfig = (...filenames) => {
+  let result = {}
+  filenames.forEach(filename => {
+    result = { ...result, ...loadYaml(filename) }
+  })
+  result.chapters.forEach(entry => {
+    entry.isChapter = true
+    if ('exercises' in entry) {
+      entry.exercises.forEach(ex => {
+        ex.problem = path.join(entry.slug, ex.slug, 'problem.md')
+        ex.solution = path.join(entry.slug, ex.slug, 'solution.md')
+      })
+    }
+  })
+  result.appendices.forEach(entry => {
+    entry.isChapter = false
+  })
+  return result
+}
+
+/**
+ * Load a JSON file.
+ * @param {Array<string>} filename File to read.
+ * @returns {Object} contents.
+ */
+export const loadJson = (filename) => {
+  return JSON.parse(fs.readFileSync(filename, 'utf-8'))
+}
+
+/**
  * Load a YAML file.
  * @param {string} filename File to load.
  * @returns {Object} YAML.
  */
-export const yamlLoad = (filename) => {
+export const loadYaml = (filename) => {
   return yaml.safeLoad(fs.readFileSync(filename, 'utf-8'))
+}
+
+/**
+ * Construct Markdown-to-HTML translator.
+ */
+export const makeMarkdownTranslator = () => {
+  const slugify = (text) => {
+    return encodeURIComponent(text.trim()
+      .toLowerCase()
+      .replace(/[^ \w]/g, '')
+      .replace(/\s+/g, '-'))
+  }
+  return new MarkdownIt({ html: true })
+    .use(MarkdownAnchor, { level: 1, slugify: slugify })
+    .use(MarkdownContainer, 'callout')
+    .use(MarkdownContainer, 'centered')
+    .use(MarkdownContainer, 'continue')
+    .use(MarkdownContainer, 'fixme')
+    .use(MarkdownContainer, 'hint')
 }
 
 /**
@@ -152,6 +125,6 @@ export const yamlLoad = (filename) => {
  * @param {string} filename File to write.
  * @param {Object} data YAML.
  */
-export const yamlSave = (filename, data) => {
+export const saveYaml = (filename, data) => {
   fs.writeFileSync(filename, yaml.safeDump(data), 'utf-8')
 }

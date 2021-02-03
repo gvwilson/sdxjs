@@ -1,6 +1,10 @@
 #!/usr/bin/env node
-
 'use strict'
+
+/**
+ * Create a glossary by merging web entries with local entries and filtering for
+ * terms that are actually needed (transitively).
+ */
 
 import argparse from 'argparse'
 import fs from 'fs'
@@ -9,12 +13,9 @@ import request from 'request'
 import yaml from 'js-yaml'
 
 import {
-  addCommonArguments,
-  buildOptions,
-  createFilePaths,
-  getAllSources,
   getGlossaryReferences,
-  yamlLoad
+  loadYaml,
+  saveYaml
 } from './utils.js'
 
 /**
@@ -44,18 +45,18 @@ const FOOTER = `
  */
 const main = () => {
   const options = getOptions()
-  createFilePaths(options)
   download(options, GLOSARIO_URL).then(glosario => {
-    const local = getGlossary(options)
+    const local = loadYaml(options.input)
     const merged = mergeGlossaries(glosario, local)
     const required = getRequired(options, merged)
     if (required !== null) {
       const filtered = filterGlossary(merged, required)
+      saveYaml(options.yaml, filtered)
       const text = makeGloss(filtered)
-      fs.writeFileSync(options.output, text, 'utf-8')
+      fs.writeFileSync(options.markdown, text, 'utf-8')
     }
   }).catch(err => {
-    console.error('GOT ERROR', err)
+    console.error('Error building glossary', err)
   })
 }
 
@@ -65,19 +66,12 @@ const main = () => {
  */
 const getOptions = () => {
   const parser = new argparse.ArgumentParser()
-  addCommonArguments(parser, '--input', '--output')
+  parser.add_argument('--input')
+  parser.add_argument('--yaml')
+  parser.add_argument('--markdown')
   parser.add_argument('--glosario', { action: 'store_true' })
-  const fromArgs = parser.parse_args()
-  return buildOptions(fromArgs)
-}
-
-/**
- * Get local glossary from file.
- * @param {Object} options Program options.
- * @returns {Object} All entries keyed by slug.
- */
-const getGlossary = (options) => {
-  return yamlLoad(options.input)
+  parser.add_argument('--files', { nargs: '+' })
+  return parser.parse_args()
 }
 
 /**
@@ -88,7 +82,7 @@ const getGlossary = (options) => {
 const mergeGlossaries = (...glossaries) => {
   return glossaries.reduce((accum, current) => {
     current.forEach(item => {
-      if (accum.hasOwnProperty(item.slug)) {
+      if (item.slug in accum) {
         if (('override' in item) && item.override) {
           // do nothing
         } else {
@@ -108,9 +102,10 @@ const mergeGlossaries = (...glossaries) => {
  */
 const getRequired = (options, gloss) => {
   const pending = new Set(
-    getAllSources(options).map(filename => {
+    options.files.map(filename => {
       const text = fs.readFileSync(filename, 'utf-8')
-      return getGlossaryReferences(text)
+      const refs = getGlossaryReferences(text)
+      return refs
     }).flat()
   )
   const queue = [...pending]

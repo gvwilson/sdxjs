@@ -1,26 +1,27 @@
 #!/usr/bin/env node
-
 'use strict'
+
+/**
+ * Create a Markdown-formatted links table for use in generating HTML.
+ */
 
 import argparse from 'argparse'
 import fs from 'fs'
 
 import {
-  addCommonArguments,
-  buildOptions,
-  createFilePaths,
-  getAllSources,
-  yamlLoad,
-  yamlSave
+  loadYaml
 } from './utils.js'
 
+/**
+ * Main driver.
+ */
 const main = () => {
   const options = getOptions()
-  createFilePaths(options)
-  const needed = getNeeded(options)
-  const available = yamlLoad(options.input)
-  const result = available.filter(entry => needed.has(entry.slug))
-  yamlSave(options.output, result)
+  const entries = loadYaml(options.input)
+  const markdown = entries
+    .map(entry => `[${entry.slug}]: ${entry.url}`)
+    .join('\n')
+  fs.writeFileSync(options.output, markdown, 'utf-8')
 }
 
 /**
@@ -29,36 +30,10 @@ const main = () => {
  */
 const getOptions = () => {
   const parser = new argparse.ArgumentParser()
-  addCommonArguments(parser, '--input', '--output')
-  parser.add_argument('--also', { nargs: '+' })
-  const fromArgs = parser.parse_args()
-  const options = buildOptions(fromArgs)
-  return options
+  parser.add_argument('--input')
+  parser.add_argument('--output')
+  return parser.parse_args()
 }
 
-/**
- * Get all needed link keys.
- * @param {Object} options Program options.
- * @returns {Set} Needed keys.
- */
-const getNeeded = (options) => {
-  const result = new Set()
-  getAllSources(options).forEach(filename => getLinkKeys(filename, result))
-  options.also.forEach(filename => getLinkKeys(filename, result))
-  return result
-}
-
-/**
- * Get link keys from a single file.
- * @param {string} filename What file to read.
- * @param {Set} accum Accumulated keys.
- */
-const getLinkKeys = (filename, accum) => {
-  const text = fs.readFileSync(filename, 'utf-8')
-  const matches = [...text.matchAll(/\[.+?\]\[(.+?)\]/g)]
-  matches
-    .map(match => match[1])
-    .forEach(key => accum.add(key))
-}
-
+// Run program.
 main()

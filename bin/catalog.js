@@ -1,6 +1,9 @@
 #!/usr/bin/env node
-
 'use strict'
+
+/**
+ * Make a catalog of HTML entities.
+ */
 
 import argparse from 'argparse'
 import fs from 'fs'

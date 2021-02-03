@@ -4,14 +4,14 @@ import argparse from 'argparse'
 import assert from 'assert'
 import ejs from 'ejs'
 import fs from 'fs'
-import glob from 'glob'
 import MarkdownIt from 'markdown-it'
 import matter from 'gray-matter'
 import path from 'path'
 
 import {
-  buildLinks,
-  yamlLoad
+  EJS_ROOT,
+  linksToMarkdown,
+  loadYaml
 } from './utils.js'
 
 /**
@@ -75,10 +75,9 @@ const FOOTER = "<%- include('/inc/post-foot.html') %>"
  */
 const main = () => {
   const options = getOptions()
-  const site = yamlLoad(options.common)
-  buildLinks(options)
-  const posts = glob.sync(`${options.source}/*.md`)
-    .map(filename => loadFile(filename))
+  const site = loadYaml(options.site)
+  options.links = linksToMarkdown(loadYaml(options.links))
+  const posts = options.posts.map(filename => loadFile(filename))
   const maxDate = getMaxDate(posts)
   const metadata = Object.assign({}, STANDARD_METADATA, { _DATE: maxDate })
   writeIndex(options, site, metadata, posts)
@@ -93,11 +92,10 @@ const main = () => {
 const getOptions = () => {
   const parser = new argparse.ArgumentParser()
   parser.add_argument('--blog')
-  parser.add_argument('--common')
+  parser.add_argument('--site')
   parser.add_argument('--docs')
   parser.add_argument('--links')
-  parser.add_argument('--root')
-  parser.add_argument('--source')
+  parser.add_argument('--posts', { nargs: '+' })
   return parser.parse_args()
 }
 
@@ -141,11 +139,11 @@ const getMaxDate = (posts) => {
 const writeIndex = (options, site, metadata, posts) => {
   fs.mkdirSync(options.docs, { recursive: true })
   let text = ATOM_FEED
-  for (let key in metadata) {
+  for (const key in metadata) {
     text = text.replace(new RegExp(key, 'g'), metadata[key])
   }
   text = text.replace(
-    new RegExp('_POSTS', 'g'),
+    /_POSTS/g,
     posts.map(post => postToXml(options, site, metadata, post)).join('\n')
   )
   fs.writeFileSync(path.join(options.docs, 'atom.xml'), text, 'utf-8')
@@ -162,23 +160,23 @@ const writeIndex = (options, site, metadata, posts) => {
 const postToXml = (options, site, metadata, post) => {
   const mdi = new MarkdownIt({ html: true })
   const context = {
-    root: options.root,
+    root: EJS_ROOT,
     filename: post.filename
   }
   const settings = {
     site,
     page: post.data
   }
-  const text = `${post.content}\n${options.linksText}`
+  const text = `${post.content}\n${options.links}`
   const translated = ejs.render(text, settings, context)
   const html = mdi.render(translated)
-  const postId = `${post.date.replace(new RegExp('-', 'g'), '/')}/${post.slug}`
+  const postId = `${post.date.replace(/-/g, '/')}/${post.slug}`
   return ATOM_POST
-    .replace(new RegExp('_TITLE', 'g'), post.data.title)
-    .replace(new RegExp('_URL', 'g'), metadata._URL)
-    .replace(new RegExp('_ID', 'g'), postId)
-    .replace(new RegExp('_DATE', 'g'), post.date)
-    .replace(new RegExp('_HTML', 'g'), escape(html))
+    .replace(/_TITLE/g, post.data.title)
+    .replace(/_URL/g, metadata._URL)
+    .replace(/_ID/g, postId)
+    .replace(/_DATE/g, post.date)
+    .replace(/_HTML/g, escape(html))
 }
 
 /**
@@ -192,7 +190,7 @@ const escape = (text) => {
     '<': '&lt;',
     '>': '&gt;',
     '"': '&quot;'
-  };
+  }
   return text.replace(/[&<>"]/g, (ch) => lookup[ch] || ch)
 }
 
@@ -207,7 +205,7 @@ const writeHome = (options, site, posts) => {
   fs.mkdirSync(blogDir, { recursive: true })
   const mdi = new MarkdownIt({ html: true })
   const context = {
-    root: options.root
+    root: EJS_ROOT
   }
   const settings = {
     site,
@@ -217,11 +215,11 @@ const writeHome = (options, site, posts) => {
     toRoot: '..'
   }
   posts = posts.map(post => {
-    const [ postYear, postMonth, postDay ] = post.date.split('-')
+    const [postYear, postMonth, postDay] = post.date.split('-')
     const link = path.join('.', postYear, postMonth, postDay, post.slug)
     return `<li>${post.date}: <a href="./${link}/">${post.data.title}</a></li>`
   })
-  const text = `${HEADER}\n<ul>\n${posts}\n</ul>\n${FOOTER}\n${options.linksText}`
+  const text = `${HEADER}\n<ul>\n${posts}\n</ul>\n${FOOTER}\n${options.links}`
   const translated = ejs.render(text, settings, context)
   const html = mdi.render(translated)
   fs.writeFileSync(path.join(blogDir, 'index.html'), html, 'utf-8')
@@ -234,14 +232,14 @@ const writeHome = (options, site, posts) => {
  * @param {object} post Information about this post.
  */
 const writePost = (options, site, post) => {
-  const [ postYear, postMonth, postDay ] = post.date.split('-')
+  const [postYear, postMonth, postDay] = post.date.split('-')
   const postDir = path.join(options.docs, options.blog, postYear, postMonth, postDay, post.slug)
   fs.mkdirSync(postDir, { recursive: true })
 
   const postPath = path.join(postDir, 'index.html')
   const mdi = new MarkdownIt({ html: true })
   const context = {
-    root: options.root,
+    root: EJS_ROOT,
     filename: post.filename
   }
   const settings = {
@@ -249,7 +247,7 @@ const writePost = (options, site, post) => {
     page: post.data,
     toRoot: '../../../../..' // ./blog/year/month/day/slug/index.html
   }
-  const text = `${HEADER}\n${post.content}\n${FOOTER}\n${options.linksText}`
+  const text = `${HEADER}\n${post.content}\n${FOOTER}\n${options.links}`
   const translated = ejs.render(text, settings, context)
   const html = mdi.render(translated)
   fs.writeFileSync(postPath, html, 'utf-8')

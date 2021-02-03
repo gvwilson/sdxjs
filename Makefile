@@ -1,287 +1,267 @@
-# Common configuration file.
-COMMON_CONFIG = common.yml
-
-# Output directory.
-DOCS = docs
-
-# Default volume (override with 'make V=2 target' at the command line).
-ifndef V
-V := 1
+# Default volume.
+ifndef VOL
+VOL := vol1
 endif
 
-# Full name of volume (volN).
-VOLUME := vol${V}
+# Numbering file for this volume.
+NUMBERING := docs/${VOL}/numbering.js
 
-# Home page for this volume.
-HOME_PAGE := ${DOCS}/${VOLUME}/index.html
+# Chapter and appendix slugs.
+SLUGS := $(shell bin/info.js --site site.yml --volume ${VOL}.yml --get slugs)
 
-# Arguments for extracting information from YAML configuration.
-SLUG_ARGS := . ${DOCS}/${VOLUME} ${COMMON_CONFIG} ${VOLUME}.yml
+# Markdown source files.
+MARKDOWN := $(patsubst %,%/index.md,${SLUGS})
 
-# Chapter slugs.
-CHAPTERS := $(shell bin/slugs.js chapters ${SLUG_ARGS})
+# HTML output files.
+HTML := $(patsubst %,docs/${VOL}/%/index.html,${SLUGS})
 
-# Markdown chapter files.
-MARKDOWN := $(shell bin/slugs.js source ${SLUG_ARGS})
+# Exercise files.
+EXERCISES := $(wildcard $(patsubst %,%/x-*/*.md,${SLUGS}))
 
-# All HTML output files.
-HTML := $(shell bin/slugs.js html ${SLUG_ARGS})
+# Example files
+EXAMPLES_SRC := \
+  $(wildcard $(patsubst %,%/*.as,${SLUGS})) \
+  $(wildcard $(patsubst %,%/*.html,${SLUGS})) \
+  $(wildcard $(patsubst %,%/*.js,${SLUGS})) \
+  $(wildcard $(patsubst %,%/*.json,${SLUGS})) \
+  $(wildcard $(patsubst %,%/*.mx,${SLUGS})) \
+  $(wildcard $(patsubst %,%/*.out,${SLUGS})) \
+  $(wildcard $(patsubst %,%/*.py,${SLUGS})) \
+  $(wildcard $(patsubst %,%/*.sh,${SLUGS})) \
+  $(wildcard $(patsubst %,%/*.yml,${SLUGS}))
+EXAMPLES_DST := $(patsubst %,docs/${VOL}/%,${EXAMPLES_SRC})
 
-# Complete list of exercise source files.
-EXERCISES := $(shell bin/slugs.js exercises ${SLUG_ARGS})
+# Directories with examples to rebuild.
+EXAMPLE_DIRS := $(patsubst %/Makefile,%,$(wildcard */Makefile))
 
-# Author files.
-AUTHORS := $(patsubst %,authors/%.md,$(shell bin/slugs.js authors ${SLUG_ARGS}))
-
-# Glossary for this volume.
-GLOSS_MD := ${VOLUME}-gloss.md
-GLOSS_HTML := ${DOCS}/${VOLUME}/gloss/index.html
-
-# Links for this volume.
-LINKS_YML := ${VOLUME}-links.yml
+# Figures (input and output).
+FIGURES_SRC := $(wildcard $(patsubst %,%/figures/*.svg,${SLUGS}))
+FIGURES_DST := $(patsubst %,docs/${VOL}/%,${FIGURES_SRC})
 
 # Complete list of JavaScript source files.
 JAVASCRIPT := \
-  $(wildcard $(patsubst %,%/*.js,${CHAPTERS})) \
-  $(wildcard $(patsubst %,%/*/*.js,${CHAPTERS}))
+  $(wildcard $(patsubst %,%/*.js,${SLUGS})) \
+  $(wildcard $(patsubst %,%/*/*.js,${SLUGS}))
 
-# Include files for HTML.
-INC := $(wildcard inc/*.html)
-
-# Supporting LaTeX files for PDF version.
-TEX := \
-  $(wildcard tex/*.tex) \
-  $(wildcard tex/*.cls)
-
-# Static files.
+# Static files (input and output).
 STATIC_SRC := .nojekyll CNAME favicon.ico index.html \
   $(wildcard static/*.*) \
   $(wildcard static/fonts/*/*.*)
-STATIC_DST := $(patsubst %,${DOCS}/%,${STATIC_SRC})
+STATIC_DST := $(patsubst %,docs/%,${STATIC_SRC})
 
-# Figures.
-FIGURES := $(wildcard */figures/*.svg)
+# Tools used to create and update things.
+TOOLS := $(filter-out bin/utils.js,$(wildcard bin/*.js))
 
-# Tools.
-TOOLS := $(filter-out bin/utils.js, $(wildcard bin/*.js))
-
-# Configuration parameters.
-COMMON_PARAMS := --common ${COMMON_CONFIG} --config ${VOLUME}.yml --root . --html ${DOCS}/${VOLUME}
-
-# Temporary file for showing all figures.
-ALL_FIGURES := ./all-figures.html
-
-# Blog.
-BLOG_SRC = ./_posts
-BLOG_DIR = blog
-BLOG_POSTS = $(wildcard ${BLOG_SRC}/*.md)
+# Blog posts.
+BLOG_POSTS = $(wildcard posts/*.md)
 
 # ----------------------------------------------------------------------
 
 .DEFAULT: commands
 
-## commands: show available commands
+## commands: show available commands.
 commands:
 	@grep -h -E '^##' ${MAKEFILE_LIST} | sed -e 's/## //g' | column -t -s ':'
 
-## html: rebuild html
-html: ${HOME_PAGE}
+## examples: rebuild all examples in sub-directories (slow).
+examples:
+	@for d in ${EXAMPLE_DIRS}; do echo ""; echo $$d; make -C $$d; done
+
+## html: rebuild HTML without serving.
+html: ${FIGURES_DST} ${STATIC_DST} ${HTML} ${EXAMPLES_DST} docs/atom.xml
 
 ## serve: run a server on port 4000
-serve: ${HOME_PAGE}
+serve: ${HTML}
 	@npm run serve
 
 ## pdf: rebuild PDF
-pdf: ${VOLUME}.pdf
-
-## bib: rebuild bibliography
-bib: bib.md
-
-## gloss: rebuild glossary
-gloss: ${GLOSS_MD}
-
-## links: rebuild links
-links: ${LINKS_YML}
+pdf: ${VOL}.pdf
 
 ## blog: rebuild blog
-blog: ${DOCS}/atom.xml
+blog: docs/atom.xml
 
 ## ----: ----
 
-## fixme: show all FIXME markers
-fixme:
-	@fgrep -i fixme ${MARKDOWN}
-
-## hygiene: run all checks
-hygiene:
-	-@make ejslint
-	-@make standard
-	-@make check
+## catalog: list all nodes and attributes
+catalog:
+	@bin/catalog.js --ignore --input ${HTML}
 
 ## check: check that files match style rules
 check: ${HOME_PAGE}
-	-bin/check.js ${COMMON_PARAMS}
+	@bin/check.js \
+	--site site.yml \
+	--volume ${VOL}.yml \
+	--output docs/${VOL} \
+	--slugs ${SLUGS}
+
+## chunk-length: report lengths of included chunks
+chunk-length: ${HTML}
+	@bin/chunk-length.js ${HTML}
+
+## clean: clean up
+clean:
+	@rm -f ${VOL}.{aux,log,out,pdf,tex,toc}
+	@rm -rf tmp
+	@find . -name '*~' -exec rm {} \;
+
+## duplicate-links: report duplicated hyperlinks within chapters
+duplicate-links:
+	@bin/duplicate-links.js ${MARKDOWN}
 
 ## ejslint: run checks on template expansions
 ejslint:
 	@npm run ejslint
 
+## long-lines: report overly-long lines in JavaScript files
+long-lines:
+	@bin/long-lines.js ${JAVASCRIPT}
+
 ## standard: run checks on code formatting
 standard:
-	@standard ${JAVASCRIPT}
-
-## chunklength: report lengths of included chunks
-chunklength: html
-	@bin/chunklength.js ${HTML}
-
-## duplinks: report duplicated hyperlinks within chapters
-duplinks:
-	@bin/duplinks.js ${MARKDOWN}
-
-## latex: rebuild LaTeX file (use 'make pdf' for book)
-latex: ${VOLUME}.tex
-
-## catalog: list all nodes and attributes
-catalog:
-	bin/catalog.js --ignore --input ${HTML}
-
-## terms: list glossary terms per chapter
-terms:
-	@bin/terms.js $(filter-out CONTRIBUTING.md ${GLOSS_MD},${MARKDOWN})
-
-## exercises: count exercises per chapter
-exercises:
-	@bin/exercises.js ${VOLUME}.yml | column -t -s '|'
-
-## numfigures: count figures per chapter
-numfigures:
-	@bin/numfigures.js ${COMMON_PARAMS} --figures ${ALL_FIGURES} | column -t -s '|'
-
-## examples: rebuild all examples in sub-directories
-examples:
-	@for d in ${CHAPTERS}; do echo ""; echo $$d; make -C $$d; done
-
-## erase: erase all examples in sub-directories
-erase:
-	@for d in ${CHAPTERS}; do echo ""; echo $$d; make -C $$d erase; done
-
-## wordlist: what words are used in prose?
-wordlist:
-	@bin/wordlist.js --input ${HTML}
-
-## spelling: what words are incorrect?
-spelling: ${HOME_PAGE}
-	@-bin/wordlist.js --input ${HTML} | aspell list | sort | uniq | diff - tex/words.txt
+	@npx standard ${JAVASCRIPT} bin/*.js
 
 ## pages: count pages per chapter.
-pages: ${VOLUME}.aux
-	@bin/pages.js ${VOLUME}.aux | column -t -s '|'
+pages: ${VOL}.aux
+	@bin/pages.js ${VOL}.aux | column -t -s '|'
 
-## progress: report progress on prosifying chapters.
-progress:
-	@bin/progress.js admin/vol1-wordcount.csv | column -t -s ':'
-
-## clean: clean up
-clean:
-	@rm -f ${VOLUME}.{aux,log,out,pdf,tex,toc}
-	@rm -f *-links.yml
-	@find . -name '*~' -exec rm {} \;
-
-## settings: show settings
+## settings: show all settings.
 settings:
-	@echo AUTHORS = "${AUTHORS}"
-	@echo BLOG_SRC = "${BLOG_SRC}"
-	@echo BLOG_DIR = "${BLOG_DIR}"
-	@echo BLOG_POSTS = "${BLOG_POSTS}"
-	@echo CHAPTERS = "${CHAPTERS}"
-	@echo EXERCISES = "${EXERCISES}"
-	@echo FIGURES = "${FIGURES}"
-	@echo HTML = "${HTML}"
-	@echo INC = "${INC}"
-	@echo JAVASCRIPT = "${JAVASCRIPT}"
-	@echo MARKDOWN = "${MARKDOWN}"
-	@echo STATIC_DST = "${STATIC_DST}"
-	@echo STATIC_SRC = "${STATIC_SRC}"
-	@echo VOLUME = "${VOLUME}"
+	@echo "SLUGS =" ${SLUGS}
+	@echo "MARKDOWN =" ${MARKDOWN}
+	@echo "HTML =" ${HTML}
+	@echo "EXAMPLES_SRC =" ${EXAMPLES_SRC}
+	@echo "EXAMPLES_DST =" ${EXAMPLES_DST}
+	@echo "EXERCISES =" ${EXERCISES}
+	@echo "LINKS_TABLE =" ${LINKS_TABLE}
+	@echo "FIGURES_SRC =" ${FIGURES_SRC}
+	@echo "FIGURES_DST =" ${FIGURES_DST}
+	@echo "JAVASCRIPT =" ${JAVASCRIPT}
+	@echo "STATIC_SRC =" ${STATIC_SRC}
+	@echo "STATIC_DST =" ${STATIC_DST}
+	@echo "TOOLS =" ${TOOLS}
+
+## word-list: what words are used in prose?
+word-list:
+	@bin/word-list.js --input ${HTML}
 
 # ----------------------------------------------------------------------
 
-bib.md: bin/bib.js bib.yml
-	bin/bib.js \
-	--input bib.yml \
-	--output bib.md
+# HTML output file.
+docs/${VOL}/%/index.html: %/index.md bin/html.js $(wildcard %/x-*/*.md) links.yml ${NUMBERING} tmp/${VOL}-gloss.yml
+	bin/html.js \
+	--site site.yml \
+	--volume ${VOL}.yml \
+	--input $< \
+	--output $@ \
+	--links links.yml \
+	--numbering ${NUMBERING} \
+	--glossary tmp/${VOL}-gloss.yml
 
-${GLOSS_MD}: gloss.yml bin/gloss.js $(filter-out ${GLOSS_MD} links.md,${MARKDOWN}) ${EXERCISES}
+# bib/index.md: bibliography as Markdown.
+bib/index.md: bib.yml bin/bib.js
+	@mkdir -p bib
+	bin/bib.js \
+	--input $< \
+	--output $@
+
+# volN-gloss/index.md: glossary as YAML and Markdown.
+GLOSSARY_SOURCES := $(filter-out ${VOL}-gloss/index.md,${MARKDOWN})
+tmp/${VOL}-gloss.yml ${VOL}-gloss/index.md: gloss.yml bin/gloss.js ${GLOSSARY_SOURCES} ${EXERCISES}
+	@mkdir -p tmp
+	@mkdir -p ${VOL}-gloss
 	bin/gloss.js \
 	--glosario \
-	--input gloss.yml \
-	--output ${GLOSS_MD} \
-	${COMMON_PARAMS}
+	--input $< \
+	--yaml tmp/${VOL}-gloss.yml \
+	--markdown ${VOL}-gloss/index.md \
+	--files ${GLOSSARY_SOURCES} ${EXERCISES}
 
-${LINKS_YML}: links.yml bin/links.js $(filter-out ${GLOSS_MD} links.md,${MARKDOWN}) ${EXERCISES}
-	bin/links.js \
-	--input links.yml \
-	--output ${LINKS_YML} \
-	--also ${AUTHORS} \
-	${COMMON_PARAMS}
+# Numbering file for a volume.
+${NUMBERING}: ${VOL}.yml bin/numbering.js
+	@mkdir -p docs/${VOL}
+	bin/numbering.js \
+	--volume $< \
+	--output $@
 
-${HOME_PAGE}: bin/html.js ${VOLUME}.yml ${COMMON_CONFIG} ${LINKS_YML} ${MARKDOWN} ${INC} ${FIGURES} ${STATIC_DST} ${DOCS}/atom.xml
-	bin/html.js \
-	${COMMON_PARAMS} \
-	--gloss ${GLOSS_MD} \
-	--links ${LINKS_YML} \
-	--replaceDir
-
-${VOLUME}.tex: bin/latex.js ${HOME_PAGE} ${TEX}
+# LaTeX version of book.
+${VOL}.tex: bin/latex.js ${HTML} ${TEX}
 	bin/latex.js \
-	${COMMON_PARAMS} \
-	--output ${VOLUME}.tex \
+	--site site.yml \
+	--volume ${VOL}.yml \
+	--output ${VOL}.tex \
 	--head tex/head.tex \
 	--foot tex/foot.tex \
-	--numbering ${DOCS}/${VOLUME}/numbering.js
+	--root docs/${VOL} \
+	--numbering docs/${VOL}/numbering.js
 
-${VOLUME}.pdf ${VOLUME}.aux: ${VOLUME}.tex
-	@pdflatex ${VOLUME} && pdflatex ${VOLUME} && pdflatex ${VOLUME}
+# PDF version of book.
+${VOL}.pdf ${VOL}.aux: ${VOL}.tex
+	@pdflatex ${VOL} && pdflatex ${VOL} && pdflatex ${VOL}
 
-${DOCS}/atom.xml: bin/blog.js ${BLOG_POSTS} inc/post-head.html inc/post-foot.html
-	bin/blog.js --root . --common ${COMMON_CONFIG} --source ${BLOG_SRC} --docs ${DOCS} --blog ${BLOG_DIR} --links ${LINKS_YML}
+# Blog (post generated as side effect).
+docs/atom.xml: bin/blog.js ${BLOG_POSTS} inc/post-head.html inc/post-foot.html
+	bin/blog.js \
+	--site site.yml \
+	--docs docs \
+	--blog blog \
+	--links links.yml \
+	--posts ${BLOG_POSTS}
 
-# ----------------------------------------------------------------------
-
-# HTML file dependencies that don't map directly to index.md files in sub-directories.
-${HOME_PAGE}: ${VOLUME}-intro/index.md
-${DOCS}/${VOLUME}/conduct/index.html: CONDUCT.md
-${DOCS}/${VOLUME}/contributing/index.html: CONTRIBUTING.md
-${DOCS}/${VOLUME}/license/index.html: LICENSE.md
-${DOCS}/${VOLUME}/authors/index.html: authors.md
-${GLOSS_HTML}: ${GLOSS_MD}
-${DOCS}/${VOLUME}/links/index.html: links.md
-${DOCS}/${VOLUME}/%/index.html: %/index.md
-
-# HTML file dependencies that do map to index.md files in sub-directories.
-%/index.md: %/*/problem.md %/*/solution.md %/*.tbl %/figures/*.svg
-	@touch $@
+# Rearranging files.
+license/index.md: LICENSE.md
+	@mkdir -p license
+	cp $< $@
+conduct/index.md: CONDUCT.md
+	@mkdir -p conduct
+	cp $< $@
+contributing/index.md: CONTRIBUTING.md
+	@mkdir -p contributing
+	cp $< $@
 
 # Static files.
-${DOCS}/static/%: static/%
+docs/static/%: static/%
 	@mkdir -p $(dir $@)
 	cp $< $@
 
 # Static files in root directory.
-${DOCS}/%: ./%
+docs/%: ./%
 	@mkdir -p $(dir $@)
 	cp $< $@
 
-# Tools all depend on utilities.
+# SVG figures.
+docs/${VOL}/%.svg: %.svg
+	@mkdir -p $(dir $@)
+	cp $< $@
+
+# Miscellaneous example files.
+docs/${VOL}/%.as: %.as
+	@mkdir -p $(dir $@)
+	cp $< $@
+docs/${VOL}/%.html: %.html
+	@mkdir -p $(dir $@)
+	cp $< $@
+docs/${VOL}/%.js: %.js
+	@mkdir -p $(dir $@)
+	cp $< $@
+docs/${VOL}/%.json: %.json
+	@mkdir -p $(dir $@)
+	cp $< $@
+docs/${VOL}/%.mx: %.mx
+	@mkdir -p $(dir $@)
+	cp $< $@
+docs/${VOL}/%.out: %.out
+	@mkdir -p $(dir $@)
+	cp $< $@
+docs/${VOL}/%.py: %.py
+	@mkdir -p $(dir $@)
+	cp $< $@
+docs/${VOL}/%.sh: %.sh
+	@mkdir -p $(dir $@)
+	cp $< $@
+docs/${VOL}/%.yml: %.yml
+	@mkdir -p $(dir $@)
+	cp $< $@
+
+# Tools.
 ${TOOLS}: bin/utils.js
-bin/%.js:
-	@touch $@
-
-# ----------------------------------------------------------------------
-
-# Can't use command-line to regenerate PDFs of diagrams from SVGs because the
-# SVGs are saved as full pages (8.5"x11") and the '--crop' option crops to page
-# size, not content size.
-#
-# %.pdf: %.svg
-#	/Applications/draw.io.app/Contents/MacOS/draw.io --crop --export --format pdf --border 0 --scale 1.0 --output $@ $<
+	touch $@

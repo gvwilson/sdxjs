@@ -71,8 +71,7 @@ The program then uses `for (const name of results)` to loop over the contents of
 We could use `let` instead of `const`,
 but it's good practice to declare things as `const` wherever possible
 so that anyone reading the program knows the variable isn't actually going to vary---doing
-this reduces the <g key="cognitive_load">cognitive load</g> on people reading the program
-(<x key="cognition"></x>).
+this reduces the <g key="cognitive_load">cognitive load</g> on people reading the program.
 Finally,
 `console.log` is JavaScript's equivalent of other languages' `print` command;
 its strange name comes from the fact that

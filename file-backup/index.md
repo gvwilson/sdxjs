@@ -151,7 +151,7 @@ and there would be only one `Promise.all` at the end to bring them all together.
 :::
 
 The first two helper functions that `hashExisting` relies on
-wrap asynchronouss operation in promises:
+wrap asynchronous operation in promises:
 
 <%- include('/inc/keep.html', {file: 'hash-existing-promise.js', key: 'helpers'}) %>
 
