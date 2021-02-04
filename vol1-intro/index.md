@@ -80,7 +80,7 @@ will explore those used in the applications that programmers build.
 
 ## What ideas do we cover?
 
-The glossary in <x key="vol1-gloss"></x> defines the terms we introduce in these lessons.
+The glossary in <x key="gloss"></x> defines the terms we introduce in these lessons.
 Together, these define the scope of our lessons:
 
 -   How to turn a program into a data structure that can be processed like any other.
