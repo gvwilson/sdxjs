@@ -50,7 +50,8 @@ const main = () => {
   const numbering = loadJson(options.numbering)
   const links = loadYaml(options.links)
   const { pageData, content } = loadFile(options.input)
-  const page = mergePageInfo(site, options.input, pageData)
+  const volumeName = path.basename(options.volume, '.yml')
+  const page = mergePageInfo(site, options.input, pageData, volumeName)
   const result = translate(options, site, glossary, numbering, links, page, content)
   ensureOutputDir(options.output)
   fs.writeFileSync(options.output, result, 'utf-8')
@@ -104,22 +105,30 @@ const loadFile = (filename) => {
  * @param {Object} config Configuration info.
  * @param {string} filename Which file is being processed.
  * @param {Object} page Page data from source file.
+ * @param {string} volumeName Name of this volume.
+ * @returns {Object} merged page data.
  */
-const mergePageInfo = (config, filename, page) => {
+const mergePageInfo = (config, filename, page, volumeName) => {
   const slug = path.dirname(filename, '.md').split('/').pop()
+  const navigation = {
+    toRoot: '../..',
+    toVolume: '..',
+    volume: volumeName
+  }
   const all = [...config.chapters, ...config.appendices]
   let result = null
   all.forEach((entry, i) => {
     if (slug === entry.slug) {
       assert(result === null,
         `Duplicate slug ${slug}`)
-      result = Object.assign(entry, page)
+      result = Object.assign(navigation, entry, page)
       result.previous = (i > 0) ? all[i - 1] : null
       result.next = (i < all.length - 1) ? all[i + 1] : null
     }
   })
   assert(result !== null,
    `Unknown slug ${slug}`)
+
   return result
 }
 
@@ -158,8 +167,6 @@ const translate = (options, site, glossary, numbering, links, page, text) => {
     glossRefs,
     links,
     numbering,
-    toRoot: '../..',
-    toVolume: '..',
     // Since inclusions may contain inclusions, we need to provide the rendering
     // function to the renderer in the settings.
     _render: (something) => ejs.render(something, settings, context),

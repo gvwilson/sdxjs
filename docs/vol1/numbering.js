@@ -24,7 +24,7 @@
   "license": "B",
   "conduct": "C",
   "contributing": "D",
-  "vol1-gloss": "E",
+  "gloss": "E",
   "links": "F",
   "authors": "G"
 }

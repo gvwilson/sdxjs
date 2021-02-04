@@ -44,16 +44,16 @@ const buildToc = () => {
 
 /**
  * Find and fix bibliographic citations.
- * @param {string} toRoot Path to root of website.
+ * @param {string} toVolume Path to root of volume.
  */
-const fixBibCites = (toRoot) => {
+const fixBibCites = (toVolume) => {
   Array.from(document.querySelectorAll('cite'))
     .forEach(node => {
       const keys = node.innerHTML
             .trim()
             .split(',')
             .map(key => key.trim())
-            .map(key => `<a href="${toRoot}/bib/#${key}">${key}</a>`)
+            .map(key => `<a href="${toVolume}/bib/#${key}">${key}</a>`)
             .join(', ')
       const cite = document.createElement('span')
       cite.innerHTML = `[${keys}]`
@@ -63,8 +63,10 @@ const fixBibCites = (toRoot) => {
 
 /**
  * Fill in cross-references.
+ * @param {string} toVolume Path to root of volume.
+ * @param {Object} numbering Numbering data.
  */
-const fixCrossRefs = (toRoot, numbering) => {
+const fixCrossRefs = (toVolume, numbering) => {
   Array.from(document.querySelectorAll('x'))
     .forEach(node => {
       const slug = node.getAttribute('key')
@@ -72,7 +74,7 @@ const fixCrossRefs = (toRoot, numbering) => {
 
       const link = document.createElement('a')
       const path = (slug === '/') ? '' : `${slug}/`
-      link.setAttribute('href', `${toRoot}/${path}`)
+      link.setAttribute('href', `${toVolume}/${path}`)
       link.setAttribute('number', numbering[slug])
 
       if (content) {
@@ -146,14 +148,15 @@ const fixFixmes = () => {
 
 /**
  * Find and fix glossary references.
- * @param {string} toRoot Path to root of website.
+ * @param {string} toVolume Path to root of this volume.
+ * @param {string} volume Name of this volume.
  */
-const fixGlossaryRefs = (toRoot) => {
+const fixGlossaryRefs = (toVolume) => {
   Array.from(document.querySelectorAll('g'))
     .forEach(node => {
       const key = node.getAttribute('key')
       const link = document.createElement('a')
-      link.setAttribute('href', `${toRoot}/gloss/#${key}`)
+      link.setAttribute('href', `${toVolume}/gloss/#${key}`)
       link.setAttribute('class', 'glossary-reference')
       link.innerHTML = node.innerHTML
       node.parentNode.replaceChild(link, node)
@@ -202,14 +205,14 @@ const fixPage = (full) => {
   enableDropdowns()
   if (full) {
     const slug = getMeta('slug')
-    const toRoot = getMeta('toRoot')
-    fixBibCites(toRoot)
+    const toVolume = getMeta('toVolume')
+    fixBibCites(toVolume)
     buildToc()
-    fixCrossRefs(toRoot, NUMBERING)
+    fixCrossRefs(toVolume, NUMBERING)
     const figureNumbers = fixNumbers(NUMBERING, slug, 'figure', 'figcaption', 'Figure')
     fixFloatRefs(figureNumbers, 'f', 'figure-reference', 'Figure')
     fixFixmes()
-    fixGlossaryRefs(toRoot)
+    fixGlossaryRefs(toVolume)
     fixPreBlocks()
     fixPreTitles()
     const tableNumbers = fixNumbers(NUMBERING, slug, 'table', 'caption', 'Table')

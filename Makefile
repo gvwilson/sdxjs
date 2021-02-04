@@ -9,14 +9,16 @@ NUMBERING := docs/${VOL}/numbering.js
 # Chapter and appendix slugs.
 SLUGS := $(shell bin/info.js --site site.yml --volume ${VOL}.yml --get slugs)
 
-# Markdown source files.
+# Markdown source files for this volume.
 MARKDOWN := $(patsubst %,%/index.md,${SLUGS})
+ALL_MARKDOWN := $(wildcard *.md) $(wildcard */index.md)
 
 # HTML output files.
 HTML := $(patsubst %,docs/${VOL}/%/index.html,${SLUGS})
 
 # Exercise files.
 EXERCISES := $(wildcard $(patsubst %,%/x-*/*.md,${SLUGS}))
+ALL_EXERCISES := $(wildcard */x-*/*.md)
 
 # Example files
 EXAMPLES_SRC := \
@@ -38,6 +40,9 @@ EXAMPLE_DIRS := $(patsubst %/Makefile,%,$(wildcard */Makefile))
 FIGURES_SRC := $(wildcard $(patsubst %,%/figures/*.svg,${SLUGS}))
 FIGURES_DST := $(patsubst %,docs/${VOL}/%,${FIGURES_SRC})
 
+# EJS inclusions.
+INCLUSIONS := $(wildcard inc/*.html)
+
 # Complete list of JavaScript source files.
 JAVASCRIPT := \
   $(wildcard $(patsubst %,%/*.js,${SLUGS})) \
@@ -55,6 +60,9 @@ TOOLS := $(filter-out bin/utils.js,$(wildcard bin/*.js))
 # Blog posts.
 BLOG_POSTS = $(wildcard posts/*.md)
 
+# Everything.
+ALL_TARGETS := ${FIGURES_DST} ${STATIC_DST} ${HTML} ${EXAMPLES_DST} docs/atom.xml
+
 # ----------------------------------------------------------------------
 
 .DEFAULT: commands
@@ -68,10 +76,10 @@ examples:
 	@for d in ${EXAMPLE_DIRS}; do echo ""; echo $$d; make -C $$d; done
 
 ## html: rebuild HTML without serving.
-html: ${FIGURES_DST} ${STATIC_DST} ${HTML} ${EXAMPLES_DST} docs/atom.xml
+html: ${ALL_TARGETS}
 
 ## serve: run a server on port 4000
-serve: ${HTML}
+serve: ${ALL_TARGETS}
 	@npm run serve
 
 ## pdf: rebuild PDF
@@ -147,7 +155,7 @@ word-list:
 # ----------------------------------------------------------------------
 
 # HTML output file.
-docs/${VOL}/%/index.html: %/index.md bin/html.js $(wildcard %/x-*/*.md) links.yml ${NUMBERING} tmp/${VOL}-gloss.yml
+docs/${VOL}/%/index.html: %/index.md bin/html.js $(wildcard %/x-*/*.md) links.yml tmp/gloss.yml ${NUMBERING} ${INCLUSIONS}
 	bin/html.js \
 	--site site.yml \
 	--volume ${VOL}.yml \
@@ -155,7 +163,7 @@ docs/${VOL}/%/index.html: %/index.md bin/html.js $(wildcard %/x-*/*.md) links.ym
 	--output $@ \
 	--links links.yml \
 	--numbering ${NUMBERING} \
-	--glossary tmp/${VOL}-gloss.yml
+	--glossary tmp/gloss.yml
 
 # bib/index.md: bibliography as Markdown.
 bib/index.md: bib.yml bin/bib.js
@@ -164,17 +172,17 @@ bib/index.md: bib.yml bin/bib.js
 	--input $< \
 	--output $@
 
-# volN-gloss/index.md: glossary as YAML and Markdown.
-GLOSSARY_SOURCES := $(filter-out ${VOL}-gloss/index.md,${MARKDOWN})
-tmp/${VOL}-gloss.yml ${VOL}-gloss/index.md: gloss.yml bin/gloss.js ${GLOSSARY_SOURCES} ${EXERCISES}
+# gloss/index.md: glossary as YAML and Markdown.
+GLOSSARY_SOURCES := $(filter-out gloss/index.md,${ALL_MARKDOWN}) ${ALL_EXERCISES}
+tmp/gloss.yml gloss/index.md: gloss.yml bin/gloss.js ${GLOSSARY_SOURCES}
 	@mkdir -p tmp
-	@mkdir -p ${VOL}-gloss
+	@mkdir -p gloss
 	bin/gloss.js \
 	--glosario \
 	--input $< \
-	--yaml tmp/${VOL}-gloss.yml \
-	--markdown ${VOL}-gloss/index.md \
-	--files ${GLOSSARY_SOURCES} ${EXERCISES}
+	--yaml tmp/gloss.yml \
+	--markdown gloss/index.md \
+	--files ${GLOSSARY_SOURCES}
 
 # Numbering file for a volume.
 ${NUMBERING}: ${VOL}.yml bin/numbering.js
