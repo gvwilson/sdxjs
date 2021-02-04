@@ -148,8 +148,12 @@ settings:
 	@echo "STATIC_DST =" ${STATIC_DST}
 	@echo "TOOLS =" ${TOOLS}
 
+## terms: which terms are defined in which files?
+terms:
+	@bin/terms.js --glossary tmp/gloss.yml --input $(filter-out gloss/index.md,${MARKDOWN})
+
 ## word-list: what words are used in prose?
-word-list:
+word-list: tmp/gloss.yml
 	@bin/word-list.js --input ${HTML}
 
 # ----------------------------------------------------------------------
