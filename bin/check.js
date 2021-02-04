@@ -250,21 +250,19 @@ const getIncluded = (filename, text) => {
   const base = path.dirname(filename)
   const matches = [...text.matchAll(/<%-\s+include\('\/inc\/(.+?).html',\s*{(.+?)}\s*\)\s*%>/g)]
   matches.forEach(match => {
-    if ((match[1] === 'file') || (match[1] === 'html')) {
-      const f = match[2].match(/file:\s*'(.+?)'/)[1]
-      const full = path.join(base, f)
-      result.add(full)
-    } else if ((match[1] === 'erase') || (match[1] === 'slice')) {
-      const f = match[2].match(/file:\s*'(.+?)'/)[1]
-      const full = path.join(base, f)
-      result.add(full)
-    } else if (match[1] === 'multi') {
+    if (match[1] === 'multi') {
       const pair = match[2].match(/pat:\s*'(.+?)',\s*fill:\s*'(.+?)'/)
       const pat = pair[1]
       pair[2].split(' ').forEach(fill => {
         const full = path.join(base, pat.replace('*', fill))
         result.add(full)
       })
+    } else {
+      const f = match[2].match(/file:\s*'(.+?)'/)
+      if (f) {
+        const full = path.join(base, f[1])
+        result.add(full)
+      }
     }
   })
   return result
