@@ -18,7 +18,7 @@ import {
 /**
  * Nodes to skip entirely.
  */
-const SKIP_ENTIRELY = new Set('#comment head footer nav'.split(' '))
+const SKIP_ENTIRELY = new Set('head footer nav'.split(' '))
 
 /**
  * Nodes to recurse through.
@@ -135,12 +135,14 @@ const patchHtml = (html) => {
  * @returns {Array<string>} All strings.
  */
 const htmlToLatex = (options, fileInfo, node, linksSeen, accum) => {
-  if (node.type === 'text') {
+  if (SKIP_ENTIRELY.has(node.name)) {
+    // do nothing
+  } else if (node.type === 'comment') {
+    commentToLatex(node, accum)
+  } else if (node.type === 'text') {
     accum.push(fullEscape(node.data))
   } else if (node.type !== 'tag') {
     assert(false, `unknown node type ${node.type}`)
-  } else if (SKIP_ENTIRELY.has(node.name)) {
-    // do nothing
   } else if (RECURSE_ONLY.has(node.name)) {
     childrenToLatex(options, fileInfo, node, linksSeen, accum)
   } else if (node.name in HANDLERS) {
@@ -150,6 +152,20 @@ const htmlToLatex = (options, fileInfo, node, linksSeen, accum) => {
     process.exit(1)
   }
   return accum
+}
+
+/**
+ * Convert special comments to LaTeX.
+ * @param {Object} node DOM comment node.
+ * @param {Array} accum Strings generated so far.
+ * @returns {Array<string>} All strings.
+ */
+const commentToLatex = (node, accum) => {
+  const match = node.data.match(/\s*latex\s*:\s*(.+)/)
+  if (match) {
+    const command = match[1]
+    accum.push(command)
+  }
 }
 
 /**
