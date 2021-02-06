@@ -24,21 +24,9 @@ import {
 const GLOSARIO_URL = 'https://raw.githubusercontent.com/carpentries/glosario/master/glossary.yml'
 
 /**
- * Top of page.
+ * Fields to keep in final glossary entries.
  */
-const HEADER = `---
----
-
-<dl class="glossary">
-`
-
-/**
- * Bottom of page.
- */
-const FOOTER = `
-
-</dl>
-`
+const FIELDS = ['slug', 'en', 'ref']
 
 /**
  * Main driver.
@@ -50,10 +38,9 @@ const main = () => {
     const merged = mergeGlossaries(glosario, local)
     const required = getRequired(options, merged)
     if (required !== null) {
-      const filtered = filterGlossary(merged, required)
-      saveYaml(options.yaml, filtered)
-      const text = makeGloss(filtered)
-      fs.writeFileSync(options.markdown, text, 'utf-8')
+      const cleaned = cleanGlossary(merged, required)
+      const reverseKeys = (left, right) => left < right ? 1 : -1
+      saveYaml(options.output, cleaned, { sortKeys: reverseKeys })
     }
   }).catch(err => {
     console.error('Error building glossary', err)
@@ -68,7 +55,7 @@ const getOptions = () => {
   const parser = new argparse.ArgumentParser()
   parser.add_argument('--input')
   parser.add_argument('--yaml')
-  parser.add_argument('--markdown')
+  parser.add_argument('--output')
   parser.add_argument('--glosario', { action: 'store_true' })
   parser.add_argument('--files', { nargs: '+' })
   return parser.parse_args()
@@ -82,12 +69,8 @@ const getOptions = () => {
 const mergeGlossaries = (...glossaries) => {
   return glossaries.reduce((accum, current) => {
     current.forEach(item => {
-      if (item.slug in accum) {
-        if (('override' in item) && item.override) {
-          // do nothing
-        } else {
-          console.error(`slug ${item.slug} is defined redundantly`)
-        }
+      if (accum.hasOwnProperty(item.slug)) {
+        console.error(`slug ${item.slug} defined redundantly`)
       }
       accum[item.slug] = item
     })
@@ -137,75 +120,24 @@ const getRequired = (options, gloss) => {
 }
 
 /**
- * Filter glossary entries by required key.
- * @param {Object} glossary Entire glossary.
- * @param {Set} keys Required keys.
- * @returns {Object} Subset of glossary.
+ * Clean up required glossary entries.
+ * @param {Object} glossary Entire glossary (keyed by slug).
+ * @param {Set} keep Keys of items to keep.
+ * @returns {Array<Object>} Subset of glossary as array in slug order.
  */
-const filterGlossary = (glossary, keys) => {
-  const result = {}
-  keys.forEach(key => {
-    result[key] = glossary[key]
+const cleanGlossary = (glossary, keep) => {
+  const result = []
+  keep = Array.from(keep).sort()
+  keep.forEach(key => {
+    const entry = {}
+    FIELDS.forEach(f => {
+      if (f in glossary[key]) {
+        entry[f] = glossary[key][f]
+      }
+    })
+    result.push(entry)
   })
-  return result
-}
-
-/**
- * Convert YAML glossary into HTML.
- * @param {Array<Object>} data YAML information.
- * @returns {string} HTML text.
- */
-const makeGloss = (data) => {
-  const slugs = sortTerms(data)
-  const items = slugs.map(slug => makeEntry(data[slug]))
-  return `${HEADER}${items.join('\n')}${FOOTER}`
-}
-
-/**
- * Sort glossary entries by term.
- * @param {Array<Object>} data YAML information.
- * @returns {Array<string>} item slugs (keys) sorted by term.
- */
-const sortTerms = (data) => {
-  return Object.keys(data).sort((left, right) => {
-    const leftTerm = data[left].en.term.toLowerCase()
-    const rightTerm = data[right].en.term.toLowerCase()
-    if (leftTerm < rightTerm) {
-      return -1
-    } else if (leftTerm > rightTerm) {
-      return 1
-    }
-    return 0
-  })
-}
-
-/**
- * Make a glossary entry.
- * @param {Object} entry YAML entry.
- * @returns {string} HTML text.
- */
-const makeEntry = (entry) => {
-  const acronym = ('acronym' in entry.en) ? ` (${entry.en.acronym})` : ''
-  const term = `<dt id="${entry.slug}" class="glossary">${entry.en.term}${acronym}</dt>`
-  const mdi = new MarkdownIt({ html: true })
-  const def = mdi.render(entry.en.def.replace('\n', ' '))
-    .replace('<p>', '')
-    .replace('</p>', '')
-    .trim()
-    .replace(/<a href="#(.+?)">(.+?)<\/a>/g, fixCrossRef)
-  const body = `<dd class="glossary">${def}</dd>`
-  return `${term}\n${body}`
-}
-
-/**
- * Fix internal cross-reference links.
- * @param {string} match Entire matching string.
- * @param {string} key Key embedded in URL.
- * @param {string} value Visible text.
- * @returns {string} Patched definition.
- */
-const fixCrossRef = (match, key, value) => {
-  return `<g key="${key}">${value}</g>`
+  return result.sort((left, right) => left.slug < right.slug ? -1 : 1)
 }
 
 /**
@@ -217,7 +149,7 @@ const fixCrossRef = (match, key, value) => {
 const download = (options, url) => {
   return new Promise((resolve, reject) => {
     if (!options.glosario) {
-      resolve({})
+      resolve([])
     }
     request(url, (error, response, body) => {
       if (error) {

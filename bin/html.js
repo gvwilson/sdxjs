@@ -74,15 +74,14 @@ const getOptions = () => {
 }
 
 /**
- * Build {key, value} lookup table for glossary.
+ * Build {key, value} lookup table out of glossary.
  * @param {string} filename File containing YAML glossary.
  * @returns {Object} key-value lookup for glossary terms.
  */
 const buildGlossaryLookup = (filename) => {
   const result = {}
-  const glossary = loadYaml(filename)
-  Object.keys(glossary).forEach(key => {
-    result[key] = glossary[key].en.term
+  loadYaml(filename).forEach(entry => {
+    result[entry.slug] = entry.en.term
   })
   return result
 }
@@ -192,7 +191,7 @@ const translate = (options, site, glossary, numbering, links, page, text) => {
 }
 
 /**
- * Build a list of key/value pairs for generating the glossary lookup table at the start of a chapter.
+ * Build a table of key/value pairs for generating the glossary lookup table at the start of a chapter.
  * @param {Array<Object>} glossary Entire glossary.
  * @param {Array<string>} text Page text.
  * @returns {Array<Object>} { key, term } pairs.

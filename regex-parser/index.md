@@ -205,6 +205,6 @@ it is still very simple.
 If we have more operators with different <g key="precedence">precedences</g>
 we should switch to the [shunting-yard algorithm][shunting-yard-algorithm],
 and if we need to handle a language like JavaScript we should explore tools like [ANTLR][antlr],
-which can geneate a parser automatically given a description of the language to be parsed.
+which can generate a parser automatically given a description of the language to be parsed.
 But as we implied at the start,
 if our design requires us to write a parser we should try to come up with a better design.

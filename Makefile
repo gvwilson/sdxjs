@@ -134,18 +134,19 @@ pages: ${VOL}.aux
 
 ## settings: show all settings.
 settings:
-	@echo "SLUGS =" ${SLUGS}
-	@echo "MARKDOWN =" ${MARKDOWN}
-	@echo "HTML =" ${HTML}
-	@echo "EXAMPLES_SRC =" ${EXAMPLES_SRC}
 	@echo "EXAMPLES_DST =" ${EXAMPLES_DST}
+	@echo "EXAMPLES_SRC =" ${EXAMPLES_SRC}
 	@echo "EXERCISES =" ${EXERCISES}
-	@echo "LINKS_TABLE =" ${LINKS_TABLE}
-	@echo "FIGURES_SRC =" ${FIGURES_SRC}
 	@echo "FIGURES_DST =" ${FIGURES_DST}
+	@echo "FIGURES_SRC =" ${FIGURES_SRC}
+	@echo "GLOSSARY_SOURCES =" ${GLOSSARY_SOURCES}
+	@echo "HTML =" ${HTML}
 	@echo "JAVASCRIPT =" ${JAVASCRIPT}
-	@echo "STATIC_SRC =" ${STATIC_SRC}
+	@echo "LINKS_TABLE =" ${LINKS_TABLE}
+	@echo "MARKDOWN =" ${MARKDOWN}
+	@echo "SLUGS =" ${SLUGS}
 	@echo "STATIC_DST =" ${STATIC_DST}
+	@echo "STATIC_SRC =" ${STATIC_SRC}
 	@echo "TOOLS =" ${TOOLS}
 
 ## terms: which terms are defined in which files?
@@ -158,6 +159,36 @@ word-list: tmp/gloss.yml
 
 # ----------------------------------------------------------------------
 
+# Numbering file for a volume.
+${NUMBERING}: ${VOL}.yml bin/numbering.js
+	@mkdir -p docs/${VOL}
+	bin/numbering.js \
+	--volume $< \
+	--output $@
+
+# bib/index.md: bibliography as Markdown.
+bib/index.md: bib.yml bin/bib.js
+	@mkdir -p bib
+	bin/bib.js \
+	--input $< \
+	--output $@
+
+# gloss/index.md: glossary as YAML.
+gloss/index.md: tmp/gloss.yml bin/make-gloss-markdown.js
+	@mkdir -p gloss
+	bin/make-gloss-markdown.js \
+	--input $< \
+	--output $@
+
+# tmp/gloss.yml: glossary as YAML.
+GLOSSARY_SOURCES := $(filter-out gloss/index.md,${ALL_MARKDOWN}) ${ALL_EXERCISES}
+tmp/gloss.yml: gloss.yml bin/make-gloss-yaml.js ${GLOSSARY_SOURCES}
+	@mkdir -p tmp
+	bin/make-gloss-yaml.js \
+	--input $< \
+	--output tmp/gloss.yml \
+	--files ${GLOSSARY_SOURCES}
+
 # HTML output file.
 docs/${VOL}/%/index.html: %/index.md bin/html.js $(wildcard %/x-*/*.md) links.yml tmp/gloss.yml ${NUMBERING} ${INCLUSIONS}
 	bin/html.js \
@@ -168,32 +199,6 @@ docs/${VOL}/%/index.html: %/index.md bin/html.js $(wildcard %/x-*/*.md) links.ym
 	--links links.yml \
 	--numbering ${NUMBERING} \
 	--glossary tmp/gloss.yml
-
-# bib/index.md: bibliography as Markdown.
-bib/index.md: bib.yml bin/bib.js
-	@mkdir -p bib
-	bin/bib.js \
-	--input $< \
-	--output $@
-
-# gloss/index.md: glossary as YAML and Markdown.
-GLOSSARY_SOURCES := $(filter-out gloss/index.md,${ALL_MARKDOWN}) ${ALL_EXERCISES}
-tmp/gloss.yml gloss/index.md: gloss.yml bin/gloss.js ${GLOSSARY_SOURCES}
-	@mkdir -p tmp
-	@mkdir -p gloss
-	bin/gloss.js \
-	--glosario \
-	--input $< \
-	--yaml tmp/gloss.yml \
-	--markdown gloss/index.md \
-	--files ${GLOSSARY_SOURCES}
-
-# Numbering file for a volume.
-${NUMBERING}: ${VOL}.yml bin/numbering.js
-	@mkdir -p docs/${VOL}
-	bin/numbering.js \
-	--volume $< \
-	--output $@
 
 # LaTeX version of book.
 ${VOL}.tex: bin/latex.js ${HTML} ${TEX}

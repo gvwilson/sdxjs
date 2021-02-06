@@ -124,7 +124,8 @@ export const makeMarkdownTranslator = () => {
  * Save a YAML file.
  * @param {string} filename File to write.
  * @param {Object} data YAML.
+ * @param {Object} options Options for saving.
  */
-export const saveYaml = (filename, data) => {
-  fs.writeFileSync(filename, yaml.safeDump(data), 'utf-8')
+export const saveYaml = (filename, data, options = {}) => {
+  fs.writeFileSync(filename, yaml.safeDump(data, options), 'utf-8')
 }
