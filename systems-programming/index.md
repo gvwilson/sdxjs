@@ -4,15 +4,34 @@
 The biggest difference between JavaScript and most other programming languages
 is that many operations in JavaScript are <g key="asynchronous">asynchronous</g>.
 Its designers didn't want browsers to freeze while waiting for data to arrive or for users to click on things,
-so operations that might be slow are implemented by describing *now* what to do *later*.
+so operations that might be slow are implemented by describing now what to do later.
 And since anything that touches the hard drive is slow from a processor's point of view,
 [Node][nodejs] implements <g key="filesystem">filesystem</g> operations the same way.
 
+::: callout
+### How slow is slow?
+
+<cite>Gregg2020</cite> uses this analogy to show
+how long it takes a computer to do different things
+if we imagine that one CPU cycle is equivalent to one second.
+
+| Operation | Actual Time | Would Be… |
+| --------- | ----------- | --------- |
+| 1 CPU cycle | 0.3 nsec | 1 sec |
+| Main memory access | 120 nsec | 6 min |
+| Solid-state disk I/O | 50-150 μsec | 2-6 days |
+| Rotational disk I/O | 1-10 msec | 1-12 months |
+| Internet: San Francisco to New York | 40 msec | 4 years |
+| Internet: San Francisco to Australia | 183 msec | 19 years |
+| Physical system reboot | 5 min | 32,000 years |
+:::
+
 Early JavaScript programs used <g key="callback">callback functions</g> to describe asynchronous operations,
-but callbacks can be hard to understand even in small programs.
+but as we're about to see,
+callbacks can be hard to understand even in small programs.
 In 2015,
 the language's developers standardized a higher-level tool called <g key="promise">promises</g>
-to make callbacks a little easier to manage,
+to make callbacks easier to manage,
 and more recently they have added new keywords called `async` and `await` to make it easier still.
 We need to understand all three layers in order to debug things when they go wrong,
 so this chapter explores callbacks,
@@ -42,20 +61,20 @@ we will take advantage of this in future chapters.
 ### `require` versus `import`
 
 In 2015, a new version of JavaScript called ES6 introduced the keyword `import` for importing modules.
-It improves on the older `require` method in several ways,
+It improves on the older `require` function in several ways,
 but [Node][nodejs] still uses `require` by default.
 To tell it to use `import`,
-we have added `"type": "module"` at the top level of [Node][nodejs]'s `package.json` file.
+we have added `"type": "module"` at the top level of our [Node][nodejs] `package.json` file.
 :::
 
 Our little program uses the [`fs`][node-fs] library
 which contains functions to create directories, read or delete files, etc.
 (Its name is short for "filesystem".)
-[Node][nodejs] automatically stores the program's <g key="command_line_argument">command-line arguments</g>
-in an array called `process.argv`:
+We tell the program what to list using <g key="command_line_argument">command-line arguments</g>,
+which [Node][nodejs] automatically stores in an array called `process.argv`.
 `process.argv[0]` is the name of the program used to run our code (in this case `node`),
-while `process.argv[1]` is the name of our program (in this case `list-dir-wrong.js`).
-The rest of `process.argv` holds whatever arguments we gave at the command line when we ran the program,
+while `process.argv[1]` is the name of our program (in this case `list-dir-wrong.js`);
+the rest of `process.argv` holds whatever arguments we gave at the command line when we ran the program,
 so `process.argv[2]` is the first argument after the name of our program (<f key="systems-programming-process-argv"></f>):
 
 <%- include('/inc/figure.html', {
@@ -67,7 +86,7 @@ so `process.argv[2]` is the first argument after the name of our program (<f key
 
 If we run this program with the name of a directory as its argument,
 `fs.readdir` returns the names of the things in that directory as an array of strings.
-The program then uses `for (const name of results)` to loop over the contents of that array.
+The program uses `for (const name of results)` to loop over the contents of that array.
 We could use `let` instead of `const`,
 but it's good practice to declare things as `const` wherever possible
 so that anyone reading the program knows the variable isn't actually going to vary---doing
@@ -92,16 +111,28 @@ while everything below it is [Node][nodejs] loading and running our program.
 
 The problem is that `fs.readdir` doesn't return anything.
 Instead,
-[its documentation][node-fs] says that it takes a callback function,
+[its documentation][node-fs] says that it needs a callback function
+that tells it what to do when data is available,
 so we need to explore those in order to make our program work.
+
+:::callout
+### A theorem
+
+1.  Every program contains at least one bug.
+2.  Every program can be made one line shorter.
+3.  Therefore, every program can be reduced to a single statement which is wrong.
+
+--- variously attributed
+:::
 
 ## What is a callback function?
 
 JavaScript uses a <g key="single_threaded">single-threaded</g> programming model:
 as the introduction to this lesson said,
-it divides operations like file I/O into "please do this" and "do this when you're done".
+it splits operations like file I/O into "please do this" and "do this when data is available".
 `fs.readdir` is the first part,
 but we need to write a function that specifies the second part.
+
 JavaScript saves a reference to this function
 and calls with a specific set of parameters when our data is ready
 (<f key="systems-programming-callbacks"></f>).
@@ -133,16 +164,14 @@ as an argument:
 
 <%- include('/inc/multi.html', {pat: 'list-dir-function-defined.*', fill: 'sh slice.out'}) %>
 
-Nothing in this book will make sense if we don't understand
+Nothing that follows will make sense if we don't understand
 the order in which [Node][node.js] executes the statements in this program
 (<f key="systems-programming-execution-order"></f>):
 
 1.  Execute the first line to load the `fs` library.
 
 1.  Define a function of two parameters and assign it to `listContents`.
-    Remember, a function is just another kind of data.
-    Instead of being made up of numbers, characters, or pixels, it is made up of instructions,
-    but these are stored in memory like anything else.
+    (Remember, a function is just another kind of data.)
 
 1.  Get the name of the directory from the command-line arguments.
 
@@ -164,7 +193,7 @@ the order in which [Node][node.js] executes the statements in this program
 
 ## What are anonymous functions?
 
-Most programmers wouldn't define the function `listContents`
+Most JavaScript programmers wouldn't define the function `listContents`
 and then pass it as a callback.
 Instead,
 since the callback is only used in one place,
@@ -185,6 +214,18 @@ Using an anonymous function gives us the final version of our program:
     cap: 'How and when JavaScript creates and runs anonymous callback functions.'
 }) %>
 
+:::callout
+### Functions are data
+
+As we noted above,
+a function is just another kind of data.
+Instead of being made up of numbers, characters, or pixels, it is made up of instructions,
+but these are stored in memory like anything else.
+Defining a function on the fly is no different from defining an array in-place using `[1, 3, 5]`,
+and passing a function as an argument to another function is no different from passing an array.
+We are going to rely on this insight over and over again in the coming lessons.
+:::
+
 ## How can we select a set of files?
 
 Suppose we want to copy some files instead of listing a directory's contents.
@@ -203,16 +244,16 @@ and does something with every filename that matched the pattern:
 
 <%- include('/inc/multi.html', {pat: 'glob-all-files.*', fill: 'js slice.out'}) %>
 
-The leading `**` means "recurse into subdirectories";
-the `*.*` means "any characters followed by '.' followed by any characters"
+The leading `**` means "recurse into subdirectories",
+while `*.*` means "any characters followed by '.' followed by any characters"
 (<f key="systems-programming-globbing"></f>).
 Names that don't match `*.*` won't be included,
 and by default,
 neither are names that start with a '.' character.
-(This is another old Unix convention:
+This is another old Unix convention:
 files and directories whose names have a leading '.'
 usually contain configuration information for various programs,
-so most commands will leave them alone unless told to do otherwise.)
+so most commands will leave them alone unless told to do otherwise.
 
 <%- include('/inc/figure.html', {
     id: 'systems-programming-globbing',
@@ -222,7 +263,7 @@ so most commands will leave them alone unless told to do otherwise.)
 }) %>
 
 This program works,
-but we probably don't want to copy editor backup files whose names end with `~`.
+but we probably don't want to copy Emacs backup files whose names end with `~`.
 We can get rid of them by <g key="filter">filtering</g> the list that `glob` returns:
 
 <%- include('/inc/multi.html', {pat: 'glob-get-then-filter-pedantic.*', fill: 'js slice.out'}) %>
@@ -230,8 +271,9 @@ We can get rid of them by <g key="filter">filtering</g> the list that `glob` ret
 `Array.filter` creates a new array containing all the items of the original array that pass a test
 (<f key="systems-programming-array-filter"></f>).
 The test is specified as a callback function
-that runs once for each item and returns a <g key="boolean">Boolean</g>
-that determines if the item is kept in the new array (`true`) or left out (`false`).
+that `Array.filter` calls once once for each item.
+This function must return a <g key="boolean">Boolean</g>
+that tells `Array.filter` whether to keep the item in the new array or not.
 `Array.filter` does not modify the original array,
 so we can filter our original list of filenames several times if we want to.
 
@@ -252,15 +294,17 @@ However,
 it turns out that `glob` will filter for us.
 According to its documentation,
 the function takes an `options` object full of key-value settings
-that can control its behavior.
-This is another common pattern in Node libraries and in our own code:
+that control its behavior.
+This is another common pattern in [Node][node.js] libraries:
 rather than accepting a large number of rarely-used parameters,
 a function can take a single object full of settings.
+
 If we use this,
 our program becomes:
 
 <%- include('/inc/file.html', {file: 'glob-filter-with-options.js'}) %>
 
+:::continue
 Notice that we don't quote the key in the `options` object.
 The keys in objects are almost always strings,
 and if a string is simple enough that it won't confuse the parser,
@@ -268,6 +312,7 @@ we don't need to put quotes around it.
 Here,
 "simple enough" means "looks like it could be a variable name",
 or equivalently "contains only letters, digits, and the underscore".
+:::
 
 ::: callout
 ### No one knows everything
@@ -296,17 +341,18 @@ let's specify a source directory on the command line and include that in the pat
 This program uses <g key="string_interpolation">string interpolation</g>
 to insert the value of `srcDir` into a string.
 The template string is written in back quotes,
-and we use `${expression}` to insert the value of an expression.
+and JavaScript converts every expression written as `${expression}` to text.
 We could create the pattern by concatenating strings using
 `srcDir + '/**/*.*'`,
-but most programmers find the interpolating version easier to read.
+but most programmers find interpolation easier to read.
 :::
 
 ## How can we copy a set of files?
 
-We now have a way to create the <g key="path">paths</g> of the files we want to copy.
-If our program takes a second argument that specifies the output directory to copy those files to,
-it can construct the full output path by replacing the name of the source directory with the name of the output directory.
+If we want to copy a set of files instead of just listing them
+we need a way to create the <g key="path">paths</g> of the files we are going to create.
+If our program takes a second argument that specifies the desired output directory,
+we can construct the full output path by replacing the name of the source directory with that path:
 
 <%- include('/inc/file.html', {file: 'glob-with-dest-directory.js'}) %>
 
@@ -314,10 +360,10 @@ it can construct the full output path by replacing the name of the source direct
 This program uses <g key="destructuring_assignment">destructuring assignment</g> to create two variables at once
 by unpacking the elements of an array
 (<f key="systems-programming-destructuring-assignment"></f>).
-It only works if the array contains enough elements,
+It only works if the array contains the enough elements,
 i.e.,
 if both a source and destination are given on the command line;
-we'll add that in the exercises.
+we'll add a check for that in the exercises.
 :::
 
 <%- include('/inc/figure.html', {
@@ -330,7 +376,7 @@ we'll add that in the exercises.
 A more serious problem is that
 this program only works if the destination directory already exists:
 `fs` and equivalent libraries in other languages usually won't create directories for us automatically.
-The need to do this comes up so often that there is a function called `ensureDir` to do what we need:
+The need to do this comes up so often that there is a function called `ensureDir` to do it:
 
 <%- include('/inc/file.html', {file: 'glob-ensure-output-directory.js'}) %>
 
@@ -354,12 +400,12 @@ every function creates a new <g key="scope">scope</g> for variable definitions,
 and it's perfectly legal to give a variable inside a function
 the same name as something outside it.
 However, "legal" isn't the same thing as "comprehensible";
-giving the two variables different names makes the program easier for humans to read.
+giving the variables different names makes the program easier for humans to read.
 :::
 
-Our file copying program currently creates an empty tree of destination directories
+Our file copying program currently creates empty destination directories
 but doesn't actually copy any files.
-Let's add a call to `fs.copy` to do that:
+Let's use `fs.copy` to do that:
 
 <%- include('/inc/file.html', {file: 'copy-file-unfiltered.js'}) %>
 

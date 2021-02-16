@@ -58,6 +58,14 @@ Davide Fucci, Hakan Erdogmus, Burak Turhan, Markku Oivo, and Natalia Juristo:
 <em class="bibnote">An evidence-based look at whether writing tests first produces better code faster.</em>
 </dd>
 
+<dt id="Gregg2020" class="bibliography">Gregg2020</dt>
+<dd>
+Brendan Gregg:
+<em>Systems Performance: Enterprise and the Cloud</em>.
+Pearson, 2020, 978-0136820154.
+<em class="bibnote">Covers strategies and tools for getting the best performance out of operating systems and applications.</em>
+</dd>
+
 <dt id="Kernighan1979" class="bibliography">Kernighan1979</dt>
 <dd>
 Brian W. Kernighan and P. J. Plauger:
