@@ -4,10 +4,10 @@
 Callbacks work,
 but they are hard to read and debug,
 which means they only "work" in a limited sense.
-JavaScript's developers added promises to the language in 2015
+JavaScript's developers added <g key="promise">promises</g> to the language in 2015
 to make callbacks easier to write and understand,
 and more recently they added the keywords `async` and `await` as well
-to make them easier still.
+to make asynchronous programming easier still.
 To show how these work,
 we will create a <g key="class">class</g> of our own called `Pledge`
 that provides the same core features as promises.
@@ -18,10 +18,11 @@ and we encourage you to read that as well.
 
 JavaScript is built around an <g key="event_loop">event loop</g>.
 Every task is represented by an entry in a queue;
-the event loop repeatedly takes a task from the front of the queue and runs it,
-adding any new tasks that it creates to the back of the queue to run later.
+the event loop repeatedly takes a task from the front of the queue,
+runs it,
+and adds any new tasks that it creates to the back of the queue to run later.
 Only one task runs at a time;
-each task has its own <g key="call_stack">call stack</g>,
+each has its own <g key="call_stack">call stack</g>,
 but objects can be shared between tasks
 (<f key="async-programming-event-loop"></f>).
 
@@ -45,15 +46,28 @@ or add new tasks to the run queue.
 For example,
 `setTimeout` tells [Node][nodejs] to run a callback function
 after a certain number of milliseconds have passed.
-Its first argument is a function of no arguments,
+Its first argument is a callback function that takes no arguments,
 and its second is the delay.
 When `setTimeout` is called,
-[Node][nodejs] sets the callback aside for the requested time,
-then adds it to the run queue
-(which means that the task runs *at least* that many milliseconds later).
+[Node][nodejs] sets the callback aside for the requested length of time,
+then adds it to the run queue.
+(This means the task runs *at least* the specified number of milliseconds later).
+
+:::callout
+### Why zero arguments?
+
+`setTimeout`'s requirement that callback functions take no arguments
+is another example of a protocol---a set of conventions
+that enables us to connect functions to each other
+in the same way that USB ports allow us to connect hardware.
+Another way to think about it is that protocols allow old code to use new code:
+whoever wrote `setTimeout` couldn't know what specific tasks we want to delay,
+so they specified a way to wrap up any task at all.
+:::
+
 As the listing below shows,
-this means that the original task can generate many new tasks before it completes,
-and those tasks can then run in an arbitrary order
+the original task can generate many new tasks before it completes,
+and those tasks can run in a different order than the order in which they were created
 (<f key="async-programming-set-timeout"></f>).
 
 <%- include('/inc/multi.html', {pat: 'callbacks-with-timeouts.*', fill: 'js out'}) %>
@@ -74,8 +88,8 @@ but any other tasks that are waiting have a chance to run as well:
 ::: continue
 We can use this trick to build a generic
 <g key="non_blocking_execution">non-blocking function</g>
-that takes a callback of zero arguments and switches tasks
-if any other tasks are available:
+that takes a callback defining a task
+and switches tasks if any others are available:
 
 <%- include('/inc/multi.html', {pat: 'non-blocking.*', fill: 'js out'}) %>
 
@@ -95,13 +109,13 @@ let's look at how we want them to work:
 
 This short program creates a new `Pledge`
 with a callback that takes two other callbacks as arguments:
-`resolve` (which we run when everything worked)
-and `reject` (which we run when something went wrong).
+`resolve` (which will run when everything worked)
+and `reject` (which will run when something went wrong).
 The top-level callback does the first part of what we want to do,
 i.e.,
-whatever we want to run before we expect a delay.
-For demonstration purposes, we will use `setTimeout` with zero delay to switch tasks;
-once this task resumes,
+whatever we want to run before we expect a delay;
+for demonstration purposes, we will use `setTimeout` with zero delay to switch tasks.
+Once this task resumes,
 we call the `resolve` callback to trigger whatever is supposed to happen after the delay.
 
 Now look at the line with `then`.
@@ -133,8 +147,54 @@ To simplify things just a little bit,
 we will allow users to <g key="method_chaining">chain</a> as many `then`s as they want,
 but only allow one `catch`.
 
-If the original action completes successfully,
-it gives us a value by calling the `resolve` callback.
+:::callout
+### Fluent interfaces
+
+A <g key="fluent_interface">fluent interface</g> is a style of object-oriented programming
+in which the methods of an object return `this`
+so that method calls can be chained together.
+For example,
+if our class is:
+
+```js
+class Fluent {
+  constructor () {...}
+
+  first (top) {
+    ...do something with top...
+    return this
+  }
+
+  second (left, right) {
+    ...do something with left and right...
+  }
+}
+```
+
+:::continue
+then we can write:
+:::
+
+```js
+  const f = new Fluent()
+  f.first('hello').second('and', 'goodbye')
+```
+
+:::continue
+or even
+:::
+
+```js
+  (new Fluent()).first('hello').second('and', 'goodbye')
+```
+
+`Array`'s (mostly) fluent interface allows us to write expressions like
+`Array.filter(...).map(...).map(...)`,
+which is usually more readable than assigning intermediate results to temporary variables.
+:::
+
+If the original action given to our `Pledge` completes successfully,
+the `Pledge` gives us a value by calling the `resolve` callback.
 We pass this value to the first `then`,
 pass the result of that `then` to the second one,
 and so on.
@@ -210,7 +270,10 @@ This is a signal that [Node][nodejs] is delaying the execution of the code in th
 A very common pattern is to return another promise from inside `then`
 so that the next `then` is called on the returned promise,
 not on the original promise
-(<f key="async-programming-chained"></f>):
+(<f key="async-programming-chained"></f>).
+This is another way to implement a fluent interface:
+if a method of one object returns a second object,
+we can call a method of the second object immediately.
 
 <%- include('/inc/multi.html', {pat: 'promise-example.*', fill: 'js out'}) %>
 
@@ -231,16 +294,19 @@ We therefore have three rules for chaining promises:
 1.  Finally,
     if we want to use a library function that relies on callbacks,
     we have to convert it to use promises.
-    Doing this is called <g key="promisification">promisification</g>,
+    Doing this is called <g key="promisification">promisification</g>
+    (because programmers will rarely pass up an opportunity add a bit of jargon to the world),
     and most functions in the [Node][nodejs] have already been promisified.
 
 ## How can we build tools with promises?
 
 Promises may seem more complex than callbacks right now,
 but that's because we're looking at how they work rather than at how to use them.
-To explore the latter,
-let's use promises to build a line-counting program.
-We will rely on the promisified version of `fs-extra` for file operations.
+To explore the latter subject,
+let's use promises to build a program to count the number of lines in a set of files.
+A few moments of search on [NPM][npm] turns up a promisified version of `fs-extra`
+called `fs-extra-promise`,
+so we will rely on it for file operations.
 
 Our first step is to count the lines in a single file:
 
@@ -254,7 +320,9 @@ The most widely used is <g key="utf_8">UTF-8</g>,
 which stores characters common in Western European languages in a single byte
 and uses multi-byte sequences for other symbols.
 If we don't specify a character encoding,
-`fs.readFileAsync` gives us an array of bytes rather than an array of characters.
+`fs.readFileAsync` gives us an array of bytes rather than a string of characters.
+We can tell we've made this mistake when we try to call a method of `String`
+and [Node][node.js] tells us we can't.
 :::
 
 The next step is to count the lines in multiple files.
@@ -271,7 +339,7 @@ we will put the creation of the promise for each file in a separate function:
 
 However,
 we want to display the names of the files whose lines we're counting along with the counts.
-To do this we have to return two values from our `then`.
+To do this our `then` must return two values.
 We could put them in an array,
 but it's better practice to construct a temporary object with named fields
 (<f key="async-programming-temporary-named-fields"></f>).
@@ -291,7 +359,7 @@ our line-counting program becomes:
 
 As in <x key="systems-programming">the previous chapter</x>,
 this works until we run into a directory whose name name matches `*.*`,
-which we do in `node_modules`.
+which we do when counting the lines in the contents of `node_modules`.
 The solution once again is to use `stat` to check if something is a file or not
 before trying to read it.
 And since `stat` returns an object that doesn't include the file's name,
@@ -300,15 +368,14 @@ we create another temporary object to pass information down the chain of `then`s
 <%- include('/inc/multi.html', {pat: 'count-lines-with-stat.*', fill: 'js sh slice.out'}) %>
 
 ::: continue
-This code is complex, but a lot simpler than it would be if we were using callbacks.
+This code is complex, but much simpler than it would be if we were using callbacks.
 :::
 
 ::: callout
 ## Lining things up
 
-One trick this code uses that we haven't seen before is
-to create an object using variable names as both keys and values.
-The expression `{filename, stats}` creates an object whose keys are `filename` and `stats`,
+This code uses the expression `{filename, stats}`
+to create an object whose keys are `filename` and `stats`,
 and whose values are the values of the corresponding variables.
 Doing this makes the code easier to read,
 both because it's shorter
@@ -333,11 +400,14 @@ This short program uses both keywords to print the first ten characters of a fil
 
 When [Node][nodejs] sees `await` and `async`
 it silently converts the code to use promises with `then`, `resolve`, and `reject`;
-we will see how this is done in <x key="code-generator"></x>.
-In order to provide a context for this,
-we can only use `await` inside a function that is declared to be `async`:
-we can't put a statement like `await fs.statAsync(…)` at the top level of our program
+we will see how this works in <x key="code-generator"></x>.
+In order to provide a context for this transformation
+we must put `await` inside a function that is declared to be `async`:
+we can't simply write `await fs.statAsync(…)` at the top level of our program
 outside a function.
+This requirement is occasionally annoying,
+but since we should be putting our code in functions anyway
+it's hard to complain.
 :::
 
 To see how much cleaner our code is with `await` and `async`,

@@ -651,6 +651,7 @@ const fullEscape = (text) => {
     .replace(/_/g, '\\_')
     .replace(/#/g, '\\#')
     .replace(/\v/g, '\\textbackslash{}')
+    .replace('μ', '{\\textmu}')
   return nonAsciiEscape(result)
 }
 

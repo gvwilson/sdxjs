@@ -30,7 +30,7 @@ Early JavaScript programs used <g key="callback">callback functions</g> to descr
 but as we're about to see,
 callbacks can be hard to understand even in small programs.
 In 2015,
-the language's developers standardized a higher-level tool called <g key="promise">promises</g>
+the language's developers standardized a higher-level tool called promises
 to make callbacks easier to manage,
 and more recently they have added new keywords called `async` and `await` to make it easier still.
 We need to understand all three layers in order to debug things when they go wrong,
