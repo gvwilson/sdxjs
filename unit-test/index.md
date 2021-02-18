@@ -4,38 +4,41 @@
 We have written many small programs in the previous two chapters,
 but haven't really tested any of them.
 That's OK for <g key="exploratory_programming">exploratory programming</g>,
-but if we are building software that is going to be used instead of just read,
+but if our software is going to be used instead of just read,
 we should try to make sure it works.
 
 A tool for writing and running <g key="unit_test">unit tests</g> is a good first step.
-Such a tool should be able to:
+Such a tool should:
 
--   Find and load files containing tests.
--   Identify the tests in those files
-    (which may contain helper functions that aren't actually tests).
--   Execute the tests and capture results.
--   Report each test's result and summarize those results.
+-   find files containing tests;
+-   find the tests in those files;
+-   run the tests;
+-   capture their results; and
+-   report each test's result and a summary of those results.
 
 Our design is inspired by tools like [Mocha][mocha] and [Jest][jest],
-which were in turn inspired by tools built for languages like Java
-<cite>Meszaros2007,Tudose2020</cite>.
+which were in turn inspired by tools built for other languages
+from the 1980s onward <cite>Meszaros2007,Tudose2020</cite>.
 
-## How should we handle unit testing?
+## How should we structure unit testing?
 
-As in [Mocha][mocha] and other frameworks,
-every one of our unit tests will be a function of zero arguments
-(so that the framework can run every test the same way).
+As in other unit testing frameworks,
+each test will be a function of zero arguments
+so that the framework can run them all in the same way.
 Each test will create a <g key="fixture">fixture</g> to be tested
 and use <g key="assertion">assertions</g>
 to compare the <g key="actual_result">actual result</g>
 against the <g key="expected_result">expected result</g>.
-Each test can have one of three outcomes:
+The outcome can be exactly one of:
 
--   <g key="pass_test">Pass</g>: the test's subject works as expected.
+-   <g key="pass_test">Pass</g>:
+    the <g key="test_subject">test subject</g> works as expected.
 
--   <g key="fail_test">Fail</g>: something is wrong with the test's subject.
+-   <g key="fail_test">Fail</g>:
+    something is wrong with the test subject.
 
--   <g key="error_test">Error</g>: something wrong in the testing code itself,
+-   <g key="error_test">Error</g>:
+    something wrong in the test itself,
     which means we don't know whether the test subject is working properly or not.
 
 To make this work,
@@ -43,8 +46,7 @@ we need some way to distinguish failing tests from broken ones.
 Our solution relies on the fact that exceptions are objects
 and that a program can use <g key="introspection">introspection</g>
 to determine the class of an object.
-If a test <g key="throw_exception">throws an exception</g>
-and that exception's class is `assert.AssertionError`,
+If a test <g key="throw_exception">throws an exception</g> whose class is `assert.AssertionError`,
 then we will assume the exception came from
 one of the assertions we put in the test as a check
 (<f key="unit-test-mental-model"></f>).
@@ -64,18 +66,21 @@ let's use a handful of <g key="global_variable">global variables</g> to record t
 
 <%- include('/inc/keep.html', {file: 'dry-run.js', key: 'state'}) %>
 
-The function `hopeThat` saves a descriptive message and a callback function that implements a test
-in one of these global variables.
-(We don't run tests immediately
-because we want to wrap each one in our own <g key="exception_handler">exception handler</g>.)
+We don't run tests immediately
+because we want to wrap each one in our own <g key="exception_handler">exception handler</g>.
+Instead,
+the function `hopeThat` saves a descriptive message and a callback function that implements a test
+in the `HopeTest` array.
 
 <%- include('/inc/keep.html', {file: 'dry-run.js', key: 'save'}) %>
 
-::: continue
+::: callout
+### Independence
+
 Because we're appending tests to an array,
 they will be run in the order in which they are registered,
 but we shouldn't rely on that.
-Every unit test should be independent
+Every unit test should work independently of every other
 so that an error or failure in an early test
 doesn't affect the result of a later one.
 :::
@@ -100,7 +105,7 @@ Let's try it out:
 <%- include('/inc/keep.html', {file: 'dry-run.js', key: 'use'}) %>
 <%- include('/inc/file.html', {file: 'dry-run.out'}) %>
 
-Our simple "framework" does what it's supposed to, but:
+This simple "framework" does what it's supposed to, but:
 
 1.  It doesn't tell us which tests have passed or failed.
 
@@ -122,10 +127,11 @@ The next version of our testing tool solves the first two problems in the origin
 by putting the testing machinery in a class.
 It uses the <g key="singleton_pattern">Singleton</g> <g key="design_pattern">design pattern</g>
 to ensure that only one object of that class is ever created.
-Singletons are a way to manage related global variables
-like the ones we're using to record tests and their results,
-and if we change our mind later about only having one instance of the class,
-there will be less code to rewrite and re-test.
+Singletons are a way to manage global variables that belong together
+like the ones we're using to record tests and their results.
+As an extra benefit,
+if we decide later that we need several copies of those variables,
+we can just construct more instances of the class.
 
 The file `hope.js` defines the class and exports one instance of it:
 
@@ -136,9 +142,10 @@ This strategy relies on two things:
 1.  [Node][nodejs] executes the code in a JavaScript module as it loads it,
     which means that it runs `new Hope()` and exports the newly-created object.
 
-1.  [Node][nodejs] <g key="caching">caches</g> modules,
-    which means that a given module is only loaded once
+1.  [Node][nodejs] <g key="caching">caches</g> modules
+    so that a given module is only loaded once
     no matter how many times it is imported.
+    This ensures that `new Hope()` really is only called once.
 
 Once a program has imported `hope`,
 it can call `Hope.test` to record a test for later execution
@@ -153,7 +160,7 @@ and `Hope.run` to execute all of the tests registered up until that point
 }) %>
 
 Finally,
-our class can reports results as both a terse one-line summary and as a detailed listing.
+our `Hope` class can report results as both a terse one-line summary and as a detailed listing.
 It can also provide the titles and results of individual tests
 so that if someone wants to format them in a different way (e.g., as HTML) they can do so:
 
@@ -164,32 +171,62 @@ so that if someone wants to format them in a different way (e.g., as HTML) they 
 
 `Hope.test` uses the [`caller`][caller] module
 to get the name of the function that is registering a test.
-Reporting the test's name helps the user figure out where to start debugging,
-and getting it via introspection
-rather than requiring the user to pass it into the call
+Reporting the test's name helps the user figure out where to start debugging;
+getting it via introspection
+rather than requiring the user to pass the function's name as a string
 reduces typing
-and eliminates the problem of a function called `test_this`
-telling the framework that its name is `test_that`.
+and guarantees that what we report is accurate.
+Programmers will often copy, paste, and modify tests;
+sooner or later (probably sooner) they will forget to modify
+the copy-and-pasted function name being passed into `Hope.test`
+and will then lose time trying to figure out why `test_this` is failing
+when the failure is actually in `test_that`.
 :::
 
-## How can we build a command-line driver for our test manager?
+## How can we build a command-line interface for our test manager?
 
-The most important concern in our design is
-to keep the files containing tests as simple as possible.
+Most programmers don't enjoy writing tests,
+so if we want them to do it,
+we have to make it as painless as possible.
 A couple of `import` statements to get `assert` and `hope`
 and then one function call per test
-is about as simple as it gets:
+is about as simple as we can make the tests themselves:
 
 <%- include('/inc/file.html', {file: 'test-add.js'}) %>
 
-We *don't* want users to have to list files containing tests explicitly,
-so we will load test files <g key="dynamic_loading">dynamically</g>.
+But that just defines the tests---how will we find them so that we can run them?
+One option is to require people to `import` each of the files containing tests
+into another file:
+
+```js
+// all-the-tests.js
+
+import './test-add.js'
+import './test-sub.js'
+import './test-mul.js'
+import './test-div.js'
+
+Hope.run()
+...
+```
+
+:::continue
+Here,
+`all-the-tests.js` imports other files so that they will register tests
+as a <g key="side_effect">side effect</g> via calls to `hope.test`
+and then calls `Hope.run` to execute them.
+It works,
+but sooner or later (probably sooner) someone will forget to import one of the test files.
+:::
+
+
+A better strategy is to load test files <g key="dynamic_loading">dynamically</g>.
 While `import` is usually written as a statement,
 it can also be used as an `async` function
 that takes a path as a parameter and loads the corresponding file.
 As before,
 loading files executes the code they contain,
-which registers tests as a <g key="side_effect">side effect</g> via calls to `hope.test`:
+which registers tests as a side effect:
 
 <%- include('/inc/erase.html', {file: 'pray.js', key: 'options'}) %>
 
@@ -238,8 +275,13 @@ because thinks the result of dividing by zero is the special value `Infinity`
 rather than an arithmetic error.
 :::
 
-The <g key="lifecycle">lifecycle</g> of a pair of files `test-add.js` and `test-sub.js` is
-shown in <f key="unit-test-lifecycle"></f>:
+Loading modules dynamically so that they can register something for us to call later
+is a common pattern in many programming languages.
+Control flow goes back and forth between the framework and the module being loaded
+as this happens
+so we must specify the <g key="lifecycle">lifecycle</g> of the loaded modules quite carefully.
+<f key="unit-test-lifecycle"></f> illustrates what happens
+when a pair of files `test-add.js` and `test-sub.js` are loaded by our framework:
 
 1.  `pray` loads `hope.js`.
 2.  Loading `hope.js` creates a single instance of the class `Hope`.

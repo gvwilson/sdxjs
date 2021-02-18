@@ -74,44 +74,47 @@
 <div class="callout">
   <p class="callout">
     <strong>Terms defined:</strong>
-    <g key="actual_result">actual result (of test)</g>, <g key="assertion">assertion</g>, <g key="caching">caching</g>, <g key="defensive_programming">defensive programming</g>, <g key="design_pattern">design pattern</g>, <g key="dynamic_loading">dynamic loading</g>, <g key="error_test">error (in a test)</g>, <g key="exception_handler">exception handler</g>, <g key="expected_result">expected result (of test)</g>, <g key="exploratory_programming">exploratory programming</g>, <g key="fail_test">fail (a test)</g>, <g key="fixture">fixture</g>, <g key="global_variable">global variable</g>, <g key="introspection">introspection</g>, <g key="lifecycle">lifecycle</g>, <g key="pass_test">pass (a test)</g>, <g key="side_effect">side effect</g>, <g key="singleton_pattern">Singleton pattern</g>, <g key="test_runner">test runner</g>, <g key="throw_exception">throw (exception)</g>, <g key="unit_test">unit test</g>
+    <g key="actual_result">actual result (of test)</g>, <g key="assertion">assertion</g>, <g key="caching">caching</g>, <g key="defensive_programming">defensive programming</g>, <g key="design_pattern">design pattern</g>, <g key="dynamic_loading">dynamic loading</g>, <g key="error_test">error (in a test)</g>, <g key="exception_handler">exception handler</g>, <g key="expected_result">expected result (of test)</g>, <g key="exploratory_programming">exploratory programming</g>, <g key="fail_test">fail (a test)</g>, <g key="fixture">fixture</g>, <g key="global_variable">global variable</g>, <g key="introspection">introspection</g>, <g key="lifecycle">lifecycle</g>, <g key="pass_test">pass (a test)</g>, <g key="side_effect">side effect</g>, <g key="singleton_pattern">Singleton pattern</g>, <g key="test_runner">test runner</g>, <g key="test_subject">test subject</g>, <g key="throw_exception">throw (exception)</g>, <g key="unit_test">unit test</g>
   </p>
 </div>
 <p>We have written many small programs in the previous two chapters,
 but haven't really tested any of them.
 That's OK for <g key="exploratory_programming">exploratory programming</g>,
-but if we are building software that is going to be used instead of just read,
+but if our software is going to be used instead of just read,
 we should try to make sure it works.</p>
 <p>A tool for writing and running <g key="unit_test">unit tests</g> is a good first step.
-Such a tool should be able to:</p>
+Such a tool should:</p>
 <ul>
-<li>Find and load files containing tests.</li>
-<li>Identify the tests in those files
-(which may contain helper functions that aren't actually tests).</li>
-<li>Execute the tests and capture results.</li>
-<li>Report each test's result and summarize those results.</li>
+<li>find files containing tests;</li>
+<li>find the tests in those files;</li>
+<li>run the tests;</li>
+<li>capture their results; and</li>
+<li>report each test's result and a summary of those results.</li>
 </ul>
 <p>Our design is inspired by tools like <a href="https://mochajs.org/">Mocha</a> and <a href="https://jestjs.io/">Jest</a>,
-which were in turn inspired by tools built for languages like Java
-<cite>Meszaros2007,Tudose2020</cite>.</p>
-<h2 id="how-should-we-handle-unit-testing">How should we handle unit testing?</h2>
-<p>As in <a href="https://mochajs.org/">Mocha</a> and other frameworks,
-every one of our unit tests will be a function of zero arguments
-(so that the framework can run every test the same way).
+which were in turn inspired by tools built for other languages
+from the 1980s onward <cite>Meszaros2007,Tudose2020</cite>.</p>
+<h2 id="how-should-we-structure-unit-testing">How should we structure unit testing?</h2>
+<p>As in other unit testing frameworks,
+each test will be a function of zero arguments
+so that the framework can run them all in the same way.
 Each test will create a <g key="fixture">fixture</g> to be tested
 and use <g key="assertion">assertions</g>
 to compare the <g key="actual_result">actual result</g>
 against the <g key="expected_result">expected result</g>.
-Each test can have one of three outcomes:</p>
+The outcome can be exactly one of:</p>
 <ul>
 <li>
-<p><g key="pass_test">Pass</g>: the test's subject works as expected.</p>
+<p><g key="pass_test">Pass</g>:
+the <g key="test_subject">test subject</g> works as expected.</p>
 </li>
 <li>
-<p><g key="fail_test">Fail</g>: something is wrong with the test's subject.</p>
+<p><g key="fail_test">Fail</g>:
+something is wrong with the test subject.</p>
 </li>
 <li>
-<p><g key="error_test">Error</g>: something wrong in the testing code itself,
+<p><g key="error_test">Error</g>:
+something wrong in the test itself,
 which means we don't know whether the test subject is working properly or not.</p>
 </li>
 </ul>
@@ -120,8 +123,7 @@ we need some way to distinguish failing tests from broken ones.
 Our solution relies on the fact that exceptions are objects
 and that a program can use <g key="introspection">introspection</g>
 to determine the class of an object.
-If a test <g key="throw_exception">throws an exception</g>
-and that exception's class is <code>assert.AssertionError</code>,
+If a test <g key="throw_exception">throws an exception</g> whose class is <code>assert.AssertionError</code>,
 then we will assume the exception came from
 one of the assertions we put in the test as a check
 (<f key="unit-test-mental-model"></f>).
@@ -135,19 +137,21 @@ const HopeTests = []
 let HopePass = 0
 let HopeFail = 0
 let HopeError = 0</code></pre>
-<p>The function <code>hopeThat</code> saves a descriptive message and a callback function that implements a test
-in one of these global variables.
-(We don't run tests immediately
-because we want to wrap each one in our own <g key="exception_handler">exception handler</g>.)</p>
+<p>We don't run tests immediately
+because we want to wrap each one in our own <g key="exception_handler">exception handler</g>.
+Instead,
+the function <code>hopeThat</code> saves a descriptive message and a callback function that implements a test
+in the <code>HopeTest</code> array.</p>
 <pre title="dry-run.js"><code class="language-js">// Record a single test for running later.
 const hopeThat = (message, callback) =&gt; {
   HopeTests.push([message, callback])
 }</code></pre>
-<div class="continue">
+<div class="callout">
+<h3 id="independence">Independence</h3>
 <p>Because we're appending tests to an array,
 they will be run in the order in which they are registered,
 but we shouldn't rely on that.
-Every unit test should be independent
+Every unit test should work independently of every other
 so that an error or failure in an early test
 doesn't affect the result of a later one.</p>
 </div>
@@ -207,7 +211,7 @@ main()</code></pre>
 fail 1
 error 1
 </code></pre>
-<p>Our simple &quot;framework&quot; does what it's supposed to, but:</p>
+<p>This simple &quot;framework&quot; does what it's supposed to, but:</p>
 <ol>
 <li>
 <p>It doesn't tell us which tests have passed or failed.</p>
@@ -233,10 +237,11 @@ just as we should test our smoke detectors every once in a while.</p>
 by putting the testing machinery in a class.
 It uses the <g key="singleton_pattern">Singleton</g> <g key="design_pattern">design pattern</g>
 to ensure that only one object of that class is ever created.
-Singletons are a way to manage related global variables
-like the ones we're using to record tests and their results,
-and if we change our mind later about only having one instance of the class,
-there will be less code to rewrite and re-test.</p>
+Singletons are a way to manage global variables that belong together
+like the ones we're using to record tests and their results.
+As an extra benefit,
+if we decide later that we need several copies of those variables,
+we can just construct more instances of the class.</p>
 <p>The file <code>hope.js</code> defines the class and exports one instance of it:</p>
 <pre title="hope.js"><code class="language-js">  terse () {
     return this.cases()
@@ -270,9 +275,10 @@ there will be less code to rewrite and re-test.</p>
 which means that it runs <code>new Hope()</code> and exports the newly-created object.</p>
 </li>
 <li>
-<p><a href="https://nodejs.org/en/">Node</a> <g key="caching">caches</g> modules,
-which means that a given module is only loaded once
-no matter how many times it is imported.</p>
+<p><a href="https://nodejs.org/en/">Node</a> <g key="caching">caches</g> modules
+so that a given module is only loaded once
+no matter how many times it is imported.
+This ensures that <code>new Hope()</code> really is only called once.</p>
 </li>
 </ol>
 <p>Once a program has imported <code>hope</code>,
@@ -281,7 +287,7 @@ and <code>Hope.run</code> to execute all of the tests registered up until that p
 (<f key="unit-test-hope-structure"></f>).</p>
 <figure id="unit-test-hope-structure"><img src="./figures/hope-structure.svg" alt="Recording and running tests" latexscale="true"/><figcaption>Creating a singleton, recording tests, and running them.</figcaption></figure>
 <p>Finally,
-our class can reports results as both a terse one-line summary and as a detailed listing.
+our <code>Hope</code> class can report results as both a terse one-line summary and as a detailed listing.
 It can also provide the titles and results of individual tests
 so that if someone wants to format them in a different way (e.g., as HTML) they can do so:</p>
 <pre title="hope.js"><code class="language-js">  terse () {
@@ -313,32 +319,57 @@ so that if someone wants to format them in a different way (e.g., as HTML) they 
 <h3 id="whos-calling">Who's calling?</h3>
 <p><code>Hope.test</code> uses the <a href="https://www.npmjs.com/package/caller"><code>caller</code></a> module
 to get the name of the function that is registering a test.
-Reporting the test's name helps the user figure out where to start debugging,
-and getting it via introspection
-rather than requiring the user to pass it into the call
+Reporting the test's name helps the user figure out where to start debugging;
+getting it via introspection
+rather than requiring the user to pass the function's name as a string
 reduces typing
-and eliminates the problem of a function called <code>test_this</code>
-telling the framework that its name is <code>test_that</code>.</p>
+and guarantees that what we report is accurate.
+Programmers will often copy, paste, and modify tests;
+sooner or later (probably sooner) they will forget to modify
+the copy-and-pasted function name being passed into <code>Hope.test</code>
+and will then lose time trying to figure out why <code>test_this</code> is failing
+when the failure is actually in <code>test_that</code>.</p>
 </div>
-<h2 id="how-can-we-build-a-commandline-driver-for-our-test-manager">How can we build a command-line driver for our test manager?</h2>
-<p>The most important concern in our design is
-to keep the files containing tests as simple as possible.
+<h2 id="how-can-we-build-a-commandline-interface-for-our-test-manager">How can we build a command-line interface for our test manager?</h2>
+<p>Most programmers don't enjoy writing tests,
+so if we want them to do it,
+we have to make it as painless as possible.
 A couple of <code>import</code> statements to get <code>assert</code> and <code>hope</code>
 and then one function call per test
-is about as simple as it gets:</p>
+is about as simple as we can make the tests themselves:</p>
 <pre title="test-add.js"><code class="language-js">import assert from 'assert'
 import hope from './hope.js'
 
 hope.test('Sum of 1 and 2', () =&gt; assert((1 + 2) === 3))
 </code></pre>
-<p>We <em>don't</em> want users to have to list files containing tests explicitly,
-so we will load test files <g key="dynamic_loading">dynamically</g>.
+<p>But that just defines the tests---how will we find them so that we can run them?
+One option is to require people to <code>import</code> each of the files containing tests
+into another file:</p>
+<pre><code class="language-js">// all-the-tests.js
+
+import './test-add.js'
+import './test-sub.js'
+import './test-mul.js'
+import './test-div.js'
+
+Hope.run()
+...
+</code></pre>
+<div class="continue">
+<p>Here,
+<code>all-the-tests.js</code> imports other files so that they will register tests
+as a <g key="side_effect">side effect</g> via calls to <code>hope.test</code>
+and then calls <code>Hope.run</code> to execute them.
+It works,
+but sooner or later (probably sooner) someone will forget to import one of the test files.</p>
+</div>
+<p>A better strategy is to load test files <g key="dynamic_loading">dynamically</g>.
 While <code>import</code> is usually written as a statement,
 it can also be used as an <code>async</code> function
 that takes a path as a parameter and loads the corresponding file.
 As before,
 loading files executes the code they contain,
-which registers tests as a <g key="side_effect">side effect</g> via calls to <code>hope.test</code>:</p>
+which registers tests as a side effect:</p>
 <pre title="pray.js"><code class="language-js">import minimist from 'minimist'
 import glob from 'glob'
 import hope from './hope.js'
@@ -404,8 +435,13 @@ errors:
 because thinks the result of dividing by zero is the special value <code>Infinity</code>
 rather than an arithmetic error.</p>
 </div>
-<p>The <g key="lifecycle">lifecycle</g> of a pair of files <code>test-add.js</code> and <code>test-sub.js</code> is
-shown in <f key="unit-test-lifecycle"></f>:</p>
+<p>Loading modules dynamically so that they can register something for us to call later
+is a common pattern in many programming languages.
+Control flow goes back and forth between the framework and the module being loaded
+as this happens
+so we must specify the <g key="lifecycle">lifecycle</g> of the loaded modules quite carefully.
+<f key="unit-test-lifecycle"></f> illustrates what happens
+when a pair of files <code>test-add.js</code> and <code>test-sub.js</code> are loaded by our framework:</p>
 <ol>
 <li><code>pray</code> loads <code>hope.js</code>.</li>
 <li>Loading <code>hope.js</code> creates a single instance of the class <code>Hope</code>.</li>
