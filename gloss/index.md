@@ -20,6 +20,8 @@
 <dd class="glossary">A second or subsequent reference to the same object. Aliases are useful, but increase the cognitive load on readers who have to remember that all these names refer to the same thing.</dd>
 <dt id="anonymous_function" class="glossary">anonymous function</dt>
 <dd class="glossary">A function that has not been assigned a name. Anonymous functions are usually quite short, and are usually defined where they are used, e.g., as callbacks. In Python, these are called lambda functions and are created through use of the lambda reserved word.</dd>
+<dt id="api" class="glossary">Application Programming Interface (API)</dt>
+<dd class="glossary">A set of functions provided by a software library or web service that other software can call.</dd>
 <dt id="ascii" class="glossary">ASCII</dt>
 <dd class="glossary">A standard way to represent the characters commonly used in the Western European languages as 7- or 8-bit integers, now largely superceded by <g key="unicode">Unicode</g>.</dd>
 <dt id="assembler" class="glossary">assembler</dt>
@@ -500,6 +502,8 @@
 <dd class="glossary">A predefined communication channel for a <g key="process">process</g>, typically used to send output to the screen or to the next process in a <g key="pipe_shell">pipe</g>.</dd>
 <dt id="stream" class="glossary">stream</dt>
 <dd class="glossary">A sequential flow of data, such as the <g key="bit">bits</g> arriving across a network connection or the bytes read from a file.</dd>
+<dt id="streaming-api" class="glossary">streaming API</dt>
+<dd class="glossary">An <g key="api">API</g> that processes data in chunks rather than needing to have all of it in memory at once. Streaming APIs usually require <g key="handler">handlers</g> for events such as &quot;start of data&quot;, &quot;next block&quot;, and &quot;end of data&quot;.</dd>
 <dt id="string" class="glossary">string</dt>
 <dd class="glossary">A block of text in a program. The term is short for &quot;character string&quot;.</dd>
 <dt id="string_interpolation" class="glossary">string interpolation</dt>

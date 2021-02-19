@@ -1,12 +1,11 @@
 ---
 ---
 
-Now that we can test software,
-the next step is to be able to save it.
+Now that we can test software we have something worth saving.
 A <g key="version_control_system">version control system</g> like [Git][git]
 keeps track of changes to files
 so that we can recover old versions if we want to.
-At its core is a system for archiving files in a way that:
+Its heart is a way to archive files that:
 
 1.  records which versions of which files existed at the same time
     (so that we can go back to a consistent previous state), and
@@ -14,13 +13,18 @@ At its core is a system for archiving files in a way that:
 1.  stores any particular version of a file only once,
     so that we don't waste disk space.
 
-In this chapter we will build a simple tool for doing both tasks.
+In this chapter we will build a tool for doing both tasks.
+It won't do everything [Git][git] does:
+in particular, it won't let us create and merge branches.
+If you would like to know how that works,
+please see [Mary Rose Cook][cook-mary-rose]'s excellet [Gitlet][gitlet] project.
 
 ## How can we uniquely identify files?
 
 To avoid storing redundant copies of files,
 we need a way to tell when two files contain the same data.
-We could compare the files byte by byte,
+We can't rely on names because files can be renamed or moved over time;
+we could compare the files byte by byte,
 but a quicker way is to use a <g key="hash_function">hash function</g>
 that turns arbitrary data into a fixed-length string of bits
 (<f key="file-backup-hash-function"></f>).
@@ -35,12 +39,12 @@ that turns arbitrary data into a fixed-length string of bits
 A hash function always produces the same <g key="hash_code">hash code</g> for a given input.
 A <g key="cryptographic_hash_function">cryptographic hash function</g> has two extra properties:
 
-1.  The hash codes it produces look like random numbers:
-    they are evenly distributed
-    (i.e., the odds of getting any specific output value are exactly the same).
-
-1.  The hash code depends on the entire input:
+1.  The output depends on the entire input:
     changing even a single byte results in a different hash code.
+
+1.  The outputs look like random numbers:
+    they are unpredictable and evenly distributed
+    (i.e., the odds of getting any specific hash code are the same)
 
 It's easy to write a bad hash function,
 but very hard to write one that qualifies as cryptographic.
@@ -61,12 +65,16 @@ If we keep calculating, there's a 50% chance of two people sharing a birthday in
 and a 99.9% chance with 70 people.
 
 We can use the same math to calculate how many files we need to hash before there's a 50% chance of a collision.
-Instead of 365, we use 2<sup>160</sup> (the number of values that are 160 bits long),
-and quickly get into "if every atom in the universe was a file there still wouldn't be collisions" territory.
+Instead of 365 we use 2<sup>160</sup> (the number of values that are 160 bits long),
+and after checking [Wikipedia][wikipedia-birthday-problem]
+and doing a few calculations with [Wolfram Alpha][wolfram-alpha],
+we calculate that we would need to have approximately 10<sup>24</sup> files
+in order to have a 50% chance of a collision.
+We're willing to take that risk…
 :::
 
-[Node][nodejs]'s [`crypto`][node-crypto] module provides the functions we need to create a SHA-1 hash.
-To do this,
+[Node][nodejs]'s [`crypto`][node-crypto] module provides tools to create a SHA-1 hash.
+To use them,
 we create an object that keeps track of the current state of the hashing calculations,
 tell it how we want to encode (or represent) the hash value,
 and then feed it some bytes.
@@ -76,9 +84,8 @@ and then use its `.read` method to get the final result:
 
 <%- include('/inc/multi.html', {pat: 'hash-text.*', fill: 'js sh out'}) %>
 
-Given this,
-hashing a file is straightforward:
-we just read the file and pass its contents to the hashing object:
+Hashing a file instead of a fixed string is straightforward:
+we just read the file's contents and pass those characters to the hashing object:
 
 <%- include('/inc/multi.html', {pat: 'hash-file.*', fill: 'js sh out'}) %>
 
@@ -87,8 +94,14 @@ it is more efficient to process the file as a <g key="stream">stream</g>:
 
 <%- include('/inc/multi.html', {pat: 'hash-stream.*', fill: 'js sh out'}) %>
 
-Many libraries rely on streams
+::: continue
+This kind of interface is called a <g key="streaming-api">streaming API</g>
+because it is designed to process a stream of data one chunk at a time
+rather than requiring all of the data to be in memory at once.
+Many applications use streams
 so that programs don't have to read entire (possibly large) files into memory.
+:::
+
 To start,
 this program asks the `fs` library to create a reading stream for a file
 and to <g key="pipe">pipe</g> the data from that stream to the hashing object
@@ -110,8 +123,8 @@ the `hash` object in our program does that for us.
 
 ## How can we back up files?
 
-Many files don't change after they're created, or only change very slowly.
-It would be wasteful for a version control system to copy them all
+Many files only change occasionally after they're created, or not at all.
+It would be wasteful for a version control system to make copies
 each time the user wanted to save a snapshot of a project,
 so instead our tool will copy each unique file to something like `abcd1234.bck`,
 where `abcd1234` is a hash of the file's contents.
@@ -143,11 +156,12 @@ and then:
 <%- include('/inc/erase.html', {file: 'hash-existing-promise.js', key: 'helpers'}) %>
 
 ::: continue
-Notice that this function uses `Promise.all` to wait for the operations on all of the files in the list to complete
+This function uses `Promise.all`
+to wait for the operations on all of the files in the list to complete
 before going on to the next step.
 A different design would combine stat, read, and hash into a single step
 so that each file would be handled independently
-and there would be only one `Promise.all` at the end to bring them all together.
+and use one `Promise.all` at the end to bring them all together.
 :::
 
 The first two helper functions that `hashExisting` relies on
@@ -164,9 +178,10 @@ Let's try running it:
 
 <%- include('/inc/multi.html', {pat: 'run-hash-existing-promise.*', fill: 'js sh slice.out'}) %>
 
-The code we have writen is clearer than it would be with callbacks---if you don't believe this,
-try rewriting it---but the layer of promises around everything still obscures its meaning.
-Here are the same operations written using `async` and `await`:
+The code we have writen is clearer than it would be with callbacks
+(try rewriting it if you don't believe this)
+but the layer of promises around everything still obscures its meaning.
+The same operations are easier to read when written using `async` and `await`:
 
 <%- include('/inc/file.html', {file: 'hash-existing-async.js'}) %>
 
@@ -257,7 +272,7 @@ but stores everything in memory
 (<f key="file-backup-mock-fs"></f>).
 This prevents our tests from accidentally disturbing the filesystem,
 and also makes tests much faster
-(since in-memory operations are thousands of times faster than operations that touch the actual filesystem).
+(since in-memory operations are thousands of times faster than operations that touch the disk).
 
 <%- include('/inc/figure.html', {
     id: 'file-backup-mock-fs',
@@ -294,9 +309,17 @@ and then run some tests:
 :::
 
 <%- include('/inc/keep.html', {file: 'test/test-backup.js', key: 'tests'}) %>
-
-::: fixme
-OK, what did I break?
-:::
-
 <%- include('/inc/file.html', {file: 'test-backup.out'}) %>
+
+::: callout
+## Design for test
+
+One of the best ways---maybe *the* best way---to evaluate software design
+is by thinking about testability <cite>Feathers2004</cite>.
+We were able to use a mock filesystem instead of a real one
+because the filesystem has a well-defined API
+that is provided to us in a single library,
+so replacing it is a matter of changing one thing in one place.
+If you have to change several parts of your code in order to test it,
+the code is telling you to consolidate those parts into one component.
+:::

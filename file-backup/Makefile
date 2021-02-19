@@ -10,6 +10,8 @@ TARGETS=\
 
 include ../examples.mk
 
+test-backup.out: backup.js
+
 test-backup.sh: test/test-backup.js
 	@touch $@
 
