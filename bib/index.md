@@ -106,6 +106,14 @@ Prentice-Hall, 1988, 978-0131103627.
 <em class="bibnote">The book that made C a popular programming language.</em>
 </dd>
 
+<dt id="Kohavi2020" class="bibliography">Kohavi2020</dt>
+<dd>
+Ron Kohavi, Diane Tang, and Ya Xu:
+<em>Trustworthy Online Controlled Experiments: A Practical Guide to A/B Testing</em>.
+Cambridge University Press, 2020, 978-1108724265.
+<em class="bibnote">A guide to statistics and methodology that draws on the authors' experience.</em>
+</dd>
+
 <dt id="Meszaros2007" class="bibliography">Meszaros2007</dt>
 <dd>
 Gerard Meszaros:
@@ -143,6 +151,14 @@ O'Reilly, 2007, 978-0596510046.
 Addy Osmani:
 "<a href="https://addyosmani.com/resources/essentialjsdesignpatterns/book/">Learning JavaScript Design Patterns</a>".
 <em class="bibnote">A guide to design patterns using JavaScript.</em>
+</dd>
+
+<dt id="Patterson2017" class="bibliography">Patterson2017</dt>
+<dd>
+David A. Patterson and John L. Hennessy:
+<em>Computer Organization and Design: The Hardware/Software Interface</em>.
+Morgan Kaufmann, 2017, 978-0128122754.
+<em class="bibnote">The latest in a series of classic textbooks describing a methodical approach to hardware design.</em>
 </dd>
 
 <dt id="Petre2016" class="bibliography">Petre2016</dt>

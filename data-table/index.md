@@ -1,24 +1,24 @@
 ---
 ---
 
-In <x key="file-backup">the previous chapter</x> we said that
+<x key="systems-programming"></x> said that
 operations in memory are thousands of times faster than operations that touch the filesystem,
-but how accurate is that?
-More generally,
-given two ways to implement something,
-how can we tell which is the most efficient?
+but what about different in-memory operations---how do they compare with each other?
+Putting it another way,
+how can we tell which of several designs is going to be the most efficient?
 
-The simplest way is usually to conduct some experiments.
+The best answer is to conduct some experiments.
 To see how to do this,
 we will take a look several ways to implement data tables
-(sometimes called <g key="data_frame">data frames</g>)
-like those in R's [tidyverse][tidyverse],
-Python's [Pandas][pandas] library,
-or the [DataForge][data-forge] library for JavaScript.
-A data table has one or more named columns and zero or more rows;
-each row has one value for each column,
+with one or more named columns and zero or more rows.
+Each row has one value for each column,
 and all the values in a column have the same type
 (<f key="data-table-conceptual"></f>).
+Data tables appear over and over again in programming,
+from spreadsheets and databases
+to the <g key="data_frame">data frames</g> in R's [tidyverse][tidyverse] packages,
+Python's [Pandas][pandas] library,
+or the [DataForge][data-forge] library for JavaScript.
 
 <%- include('/inc/figure.html', {
     id: 'data-table-conceptual',
@@ -27,9 +27,9 @@ and all the values in a column have the same type
     cap: 'The structure of a data table.'
 }) %>
 
-The key operations on data tables are the same as those in <g key="sql">SQL</g>:
+The key operations on data tables are those provided by <g key="sql">SQL</g>:
 filter, select, summarize, and join.
-These can be implemented in about 1000 lines of code,
+These can be implemented in about five hundred lines of code,
 but their performance depends on how the data table is stored.
 
 ## How can we implement data tables?
@@ -38,8 +38,8 @@ One way to store a table is <g key="row_major">row-major</g> order,
 in which the values in each row are stored together in memory.
 This is sometimes also called <g key="heterogeneous">heterogeneous</g> storage
 because each "unit" of storage can contain values of different types.
-In JavaScript,
-we implement this as an array of objects
+We can implement this design in JavaScript using an array of objects,
+each of which has the same keys
 (<f key="data-table-storage-order"></f>).
 
 Another option is <g key="column_major">column-major</g> or <g key="homogeneous">homogeneous</g> order,
@@ -60,9 +60,10 @@ we will construct one of each,
 try some operations,
 record their execution times and memory use,
 and then compare them.
-The answer will depend on both the implementations
-and on what mix of operations we measure:
-for example,
+Crucially,
+the answer will depend on both the implementations themselves
+and on what mix of operations we measure.
+For example,
 if one strategy works better for filter and another for select,
 the ratio of filters to selects may determine which is "best".
 
@@ -72,13 +73,9 @@ the ratio of filters to selects may determine which is "best".
 All of our implementations will treat each data table as <g key="immutable">immutable</g>:
 once we have created it,
 we will not modify its contents.
-This makes the programming easier
-(and safer, since shared data structures are a rich source of bugs),
-and doesn't actually have much impact on performance.
-For example,
-if we filter a data table stored in column major order,
-we can either move elements in memory to fill the holes created by deleted rows,
-or copy the values we want to keep to a new block of contiguous storage.
+This doesn't actually have much impact on performance
+an makes the programming easier and safer,
+since shared data structures are a rich source of bugs.
 :::
 
 For our first experiment,
@@ -96,8 +93,7 @@ for selecting columns,
 we provide a list of the keys that identify the columns we want to keep.
 We expect filtering to be relatively fast,
 since it is recycling rows,
-while selecting should be relatively slow,
-since we have to construct a new set of arrays
+while selecting should be relatively slow because we have to construct a new set of arrays
 (<f key="data-table-row-ops"></f>).
 
 <%- include('/inc/keep.html', {file: 'table-performance.js', key: 'operate-rows'}) %>
@@ -114,8 +110,7 @@ Building the object that holds the columns is straightforward:
 
 <%- include('/inc/keep.html', {file: 'build.js', key: 'build-cols'}) %>
 
-Filtering is more complex,
-since the values in each row are scattered across several arrays,
+Filtering is more complex because the values in each row are scattered across several arrays,
 but selecting is just a matter of recycling the arrays we want in the new table.
 We expect selecting to be relatively fast,
 since only the references to the columns need to be copied,
@@ -155,7 +150,7 @@ these ratios will affect our decision about which is better,
 so if we were doing this for a real application we would test what happens
 as these fractions vary.
 And as we said earlier,
-the relative performance will depend on the ratio of filters to selects;
+the relative performance will also depend on the how many filters we do for each select;
 our balance should be based on data from whatever application we intend to support.
 
 Our performance measurement program looks like this:
@@ -166,8 +161,10 @@ The functions that actually do the measurements
 use the [`microtime`][microtime] library to get microsecond level timing
 because JavaScript's `Date` only gives us millisecond-level resolution.
 We use [`object-sizeof`][object-sizeof] to estimate memory how much memory our structures require;
-We also call `process.memoryUsage()` and look at the `heapUsed` value,
-but it may be affected by <g key="garbage_collection">garbage collection</g> and a host of other factors.
+we also call `process.memoryUsage()` and look at the `heapUsed` value
+to see how much memory [Node][node.js] is using while the program runs,
+but that may be affected by <g key="garbage_collection">garbage collection</g>
+and a host of other factors outside our control.
 
 <%- include('/inc/keep.html', {file: 'table-performance.js', key: 'measure'}) %>
 
@@ -194,7 +191,7 @@ And if we keep the table size the same but use a 10:1 filter/select ratio?
 }) %>
 
 The results in <t key="data-table-performance"></t> show that column-major storage is better.
-It uses less memory (presumably because labels aren't duplicated),
+It uses less memory (presumably because column labels aren't duplicated once per row)
 and the time required to construct new objects when doing select with row-major storage
 outweighs cost of appending to arrays when doing filter with column-major storage.
 Unfortunately,
@@ -203,21 +200,21 @@ which is a cost that doesn't show up in experiments.
 
 ## What is the most efficient way to save a table?
 
-Our data tables are going to be stored in files of some kind.
+Data is valuable,
+so we are going to store data tables in files of some kind.
 If one storage scheme is much more efficient than another and we are reading or writing frequently,
-that could change our mind about how to implement them.
-Two simple text-based schemes are row-oriented and column-oriented [JSON](#json),
-i.e.,
-we just print the data structures we have.
+that could change our mind about which implementation to pick.
 
+Two simple text-based schemes are row-oriented and column-oriented [JSON](#json)---basically,
+just printing the data structures we have.
 Let's run the 10,000×30 test:
 
 <%- include('/inc/file.html', {file: 'storage-performance-10000-30.out'}) %>
 
 The time needed for the row-major version is almost ten times greater than
 that needed for the column-major version;
-again,
-we assume that the redundant printing of the labels is at least partly to blame.
+we assume that the redundant printing of the labels is mostly to blame,
+just as redundant storage of the labels was to blame for row-major's greater memory requirements.
 
 If that diagnosis is correct,
 then a packed version of row-major storage ought to be faster.
@@ -227,8 +224,8 @@ then copy the data values into an array of arrays and save that:
 <%- include('/inc/keep.html', {file: 'packed-rows.js', key: 'packed'}) %>
 <%- include('/inc/file.html', {file: 'packed-rows-10000-30.out'}) %>
 
-These results show that packing the rows takes less time
-than turning the data structure we have into a string.
+These results show that changing layout for storage
+is faster than turning the data structure we have into a string.
 Again,
 we assume this is because copying data takes less time than turning labels into strings over and over,
 but column-major storage is still the best approach.
@@ -237,8 +234,8 @@ but column-major storage is still the best approach.
 
 Let's try one more strategy for storing our tables.
 JavaScript stores values in <g key="tagged_data">tagged</g> data structures:
-some bits define the value's type,
-and other bits store the actual data
+some bits define the value's type
+while other bits store the value itself in a type-dependent way
 (<f key="data-table-object-storage"></f>).
 
 <%- include('/inc/figure.html', {
@@ -268,9 +265,9 @@ but it's up to us to keep track of which bytes belong to which values.
 To store a column-major table,
 we will fill an `ArrayBuffer` with:
 
-1.  Two integers that hold the table's dimensions.
+1.  Two integers that hold the table's size (number of rows and number of columns).
 
-1.  A string with the labels joined by newline characters.
+1.  A string with the column labels joined by newline characters.
     (We use newlines as a separator because we assume column labels can't contain them.)
 
 1.  The numbers themselves.
@@ -284,5 +281,18 @@ but it doesn't save as much space as expected.
 The reason is that double-precision numbers are 8 bytes long,
 but because we have chosen simple integer values for our tests,
 they can be represented by just 5 characters (which is 10 bytes).
-If we had "real" numbers,
-the storage benefit would probably be more pronounced.
+If we had "real" numbers the storage benefit would probably be more pronounced;
+once again,
+the result of our experiment depends on the test cases we choose.
+
+::: callout
+### Engineering
+
+If science is the use of the experimental method to investigate the world,
+engineering is the use of the experimental method
+to investigate and improve the things that people build.
+Good software designers collect and analyze data all the time
+to find out whether one website design works better than another <cite>Kohavi2020</cite>
+or to improve the performance of CPUs <cite>Patterson2017</cite>;
+a few simple experiments like these can sometimes save weeks or months of effort.
+:::

@@ -3,10 +3,6 @@ such as contracts, novels, and resumés,
 since padding every document to the length of the longest will probably waste a lot of space.
 An alternative way to store these in binary is to save each entry as a (length, text) pair.
 
-::: fixme
-Diagram of (length, text) pairs.
-:::
-
 1.  Write a function that takes a list of strings as input
     and returns an `ArrayBuffer` containing (length, text) pairs.
 
