@@ -85,6 +85,9 @@ serve: ${ALL_TARGETS}
 ## pdf: rebuild PDF
 pdf: ${VOL}.pdf
 
+## epub: rebuild EPUB
+epub: docs/${VOL}/${VOL}.epub
+
 ## blog: rebuild blog
 blog: docs/atom.xml
 
@@ -214,6 +217,10 @@ ${VOL}.tex: bin/latex.js ${HTML} ${TEX}
 # PDF version of book.
 ${VOL}.pdf ${VOL}.aux: ${VOL}.tex
 	@pdflatex ${VOL} && pdflatex ${VOL} && pdflatex ${VOL}
+
+# EPUB version of book.
+docs/${VOL}/${VOL}.epub: ${VOL}.tex
+	sed -e 's/\.pdf}/\.svg}/g' $< | pandoc --from latex --to epub > $@
 
 # Blog (post generated as side effect).
 docs/atom.xml: bin/blog.js ${BLOG_POSTS} inc/post-head.html inc/post-foot.html
