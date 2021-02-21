@@ -41,7 +41,7 @@ Most of these systems use one of three designs
 
 In this chapter we will build a simple page templating system using the third option.
 We will process each page independently by parsing the HTML
-and walking the <g key="dom">DOM</g> to find nodes with special attributes.
+and walking the DOM to find nodes with special attributes.
 Our program will execute the instructions in those nodes
 to do the equivalent of loops and if/else statements;
 other nodes will be copied as-is to create text.

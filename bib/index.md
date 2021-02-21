@@ -2,6 +2,14 @@
 ---
 
 <dl class="bibliography">
+<dt id="Brand1995" class="bibliography">Brand1995</dt>
+<dd>
+Stewart Brand:
+<em>How Buildings Learn: What Happens After They're Built</em>.
+Penguin USA, 1995, 978-0140139969.
+<em class="bibnote">A thoughtful and insightful books about the design of everything, not just buildings.</em>
+</dd>
+
 <dt id="Brown2011" class="bibliography">Brown2011</dt>
 <dd>
 Amy Brown and Greg Wilson (eds.):
