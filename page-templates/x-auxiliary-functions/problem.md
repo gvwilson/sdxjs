@@ -8,6 +8,6 @@
     })
     ```
 
-2.  Add a directive `<span q-call="functionName" q-args="var,var"/>`
+2.  Add a directive `<span z-call="functionName" z-args="var,var"/>`
     that looks up a function in `auxiliaries` and calls it
     with the given variables as arguments.

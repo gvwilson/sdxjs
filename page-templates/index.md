@@ -4,12 +4,15 @@
 Every program needs documentation in order to be usable,
 and the best place to put that documentation is on the web.
 Writing and updating pages by hand is time-consuming and error-prone,
-particularly when so many of their parts are the same,
-so most websites use some kind of tool to create HTML from templates.
+particularly when many parts are the same,
+so most documentation sites use some kind of
+<g key="static-site-generator">static site generator</g>
+to create web pages from templates.
 
-Thousands of page templating systems have been written in the last thirty years
+At the heart of every static site generator is a page templating system.
+Thousands of these have been written in the last thirty years
 in every popular programming language
-(and in fact one language, [PHP][php], was created for this purpose).
+(and one language, [PHP][php], was created for this purpose).
 Most of these systems use one of three designs
 (<f key="page-templates-options"></f>):
 
@@ -17,20 +20,20 @@ Most of these systems use one of three designs
     using some kind of marker to indicate which parts are commands
     and which parts are to be taken as-is.
     This approach is taken by [EJS][ejs],
-    which we have used to write these lessons.
+    which we used to write these lessons.
 
 2.  Create a mini-language with its own commands like [Jekyll][jekyll]
-    (the templating system used by [GitHub Pages][github-pages]).
+    (which is used by [GitHub Pages][github-pages]).
     Mini-languages are appealing because they are smaller and safer than general-purpose languages,
-    but experience shows that they quickly grow many of the features
-    of a general-purpose language.
+    but experience shows that they eventually grow
+    most of the features of a general-purpose language.
     Again, some kind of marker must be used to show
     which parts of the page are code and which are ordinary text.
 
-3.  Use specially-named attributes in the HTML.
+3.  Put directives in specially-named attributes in the HTML.
     This approach has been the least popular,
-    but eliminates the need for a special parser
-    (since pages are valid HTML).
+    but since pages are valid HTML,
+    it eliminates the need for a special parser.
 
 <%- include('/inc/figure.html', {
     id: 'page-templates-options',
@@ -39,7 +42,7 @@ Most of these systems use one of three designs
     cap: 'Three different ways to implement page templating.'
 }) %>
 
-In this chapter we will build a simple page templating system using the third option.
+In this chapter we will build a simple page templating system using the third strategy.
 We will process each page independently by parsing the HTML
 and walking the DOM to find nodes with special attributes.
 Our program will execute the instructions in those nodes
@@ -55,12 +58,13 @@ Our page will look like this:
 <%- include('/inc/html.html', {file: 'input-loop.html'}) %>
 
 ::: continue
-The attribute `q-loop` tells the tool to repeat that node;
-the loop variable and the collection being looped over
-are the attribute's value, separated by a colon.
-The attribute `q-var` tells the tool to fill in the node with the value of the variable.
-The output will look like HTML without any traces of how it was created:
+The attribute `z-loop` tells the tool to repeat the contents of that node;
+the loop variable and the collection being looped over are separated by a colon.
+The attribute `z-var` tells the tool to fill in the node with the value of the variable.
 :::
+
+When our tool processes this page,
+the output will be standard HTML without any traces of how it was created:
 
 <%- include('/inc/html.html', {file: 'output-loop.html'}) %>
 
@@ -71,20 +75,30 @@ The introduction said that mini-languages for page templating
 quickly start to accumulate extra features.
 We have already started down that road
 by putting the loop variable and loop target in a single attribute
-and parsing that attribute to get them out.
-Doing that makes loop elements easier for people to type,
-but means that important information is hidden from standard HTML processing tools,
-which can't know that this particular attribute of these particular elements
+and splitting that attribute to get them out.
+Doing this makes loops easy for people to type,
+but hides important information from standard HTML processing tools.
+They can't know that this particular attribute of these particular elements
 contains multiple values
 or that those values should be extracted by splitting a string on a colon.
 We could instead require people to use two attributes, as in:
 
 ```html
-    <ul q-loop="names" q-loop-var="item">
+<ul z-loop="names" z-loop-var="item">
 ```
+
+::: continue
+but we have decided to err on the side of minimal typing.
+And note that strictly speaking,
+we should call our attributes `data-something` instead of `z-something`
+to conform with [the HTML5 specification][html5-data-attributes],
+but by the time we're finished processing our templates,
+there shouldn't be any `z-*` attributes left to confuse a browser.
 :::
 
-What about processing templates?
+:::
+
+The next step is to define the API for filling in templates.
 Our tool needs the template itself,
 somewhere to write its output,
 and some variables to use in the expansion.
@@ -92,20 +106,23 @@ These variables might come from a configuration file,
 from a YAML header in the file itself,
 or from some mix of the two;
 for the moment,
-all we need to know is that
-we wil pass them into the expansion function as an object:
+we will just pass them into the expansion function as an object:
 
 <%- include('/inc/file.html', {file: 'example-call.js'}) %>
 
 ## How can we keep track of values?
 
 Speaking of variables,
-we need a way to keep track of their current values:
-"current", because the value of a loop variable changes each time we go around the loop.
+we need a way to keep track of their current values;
+we say "current" because the value of a loop variable changes each time we go around the loop.
 We also need to maintain multiple sets of variables
-so that we can nest loops.
+so that variables used inside a loop
+don't conflict with ones used outside it.
+(We don't actually "need" to do this---we could just have one global set of variables---but
+experience teaches us that if all our variables are global,
+all of our programs will be buggy.)
 
-The standard solution is to create a stack of lookup tables.
+The standard way to manage variables is to create a stack of lookup tables.
 Each <g key="stack_frame">stack frame</g> is an object with names and values;
 when we need to find a variable,
 we look through the stack frames in order to find the uppermost definition of that variable..
@@ -140,7 +157,7 @@ if the variable can't be found,
 ## How do we handle nodes?
 
 HTML pages have a nested structure,
-so we will process them using the <g key="visitor_pattern">Visitor pattern</g>.
+so we will process them using the <g key="visitor_pattern">Visitor</g> design pattern.
 `Visitor`'s constructor takes the root node of the DOM tree as an argument and saves it.
 When we call `Visitor.walk` without a value,
 it starts recursing from that saved root;
@@ -153,8 +170,8 @@ it uses that instead.
 `Visitor` defines two methods called `open` and `close` that are called
 when we first arrive at a node and when we are finished with it
 (<f key="page-templates-visitor"></f>).
-The default implementations throw exceptions
-so that the creators of derived classes must remember to implement their own versions.
+The default implementations of these methods throw exceptions
+to remind the creators of derived classes to implement their own versions.
 :::
 
 <%- include('/inc/figure.html', {
@@ -164,20 +181,24 @@ so that the creators of derived classes must remember to implement their own ver
     cap: 'Using the Visitor pattern to evaluate a page template.'
 }) %>
 
-The `Expander` class is a `Visitor` and uses an `Env`.
-It loads a handler for each type of special node we support---we will write these in a moment---and
+The `Expander` class is specialization of `Visitor`
+that uses an `Env` to keep track of variables.
+It imports a handler
+for each type of special node we support---we will write those in a moment---and
 uses them to process each type of node:
 
 1.  If the node is plain text, copy it to the output.
 
-2.  If there is a handler for the node, call the handler's `open` or `close` method.
+1.  If there is a handler for the node,
+    call the handler's `open` or `close` method.
 
-3.  Otherwise, open or close a regular tag.
+1.  Otherwise, open or close a regular tag.
 
 <%- include('/inc/erase.html', {file: 'expander.js', key: 'skip'}) %>
 
 Checking to see if there is a handler for a particular node
-and getting that handler are straightforward:
+and getting that handler are straightforward---we just
+look at the node's attributes:
 
 <%- include('/inc/keep.html', {file: 'expander.js', key: 'handlers'}) %>
 
@@ -186,7 +207,7 @@ Finally, we need a few helper methods to show tags and generate output:
 <%- include('/inc/keep.html', {file: 'expander.js', key: 'helpers'}) %>
 
 ::: continue
-Notice that this class adds strings to an array and then joins them all right at the end
+Notice that this class adds strings to an array and joins them all right at the end
 rather than concatenating strings repeatedly.
 Doing this is more efficient and also helps with debugging,
 since each string in the array corresponds to a single method call.
@@ -194,34 +215,41 @@ since each string in the array corresponds to a single method call.
 
 ## How do we implement node handlers?
 
-So far we have built a lot of infrastructure but haven't actually processed a single special node.
+At this point
+we have built a lot of infrastructure but haven't actually processed any special nodes.
 To do that,
-let's start with a handler that copies a constant number into the output:
+let's write a handler that copies a constant number into the output:
 
-<%- include('/inc/file.html', {file: 'q-num.js'}) %>
+<%- include('/inc/file.html', {file: 'z-num.js'}) %>
 
 ::: continue
-When we enter a node like `<span q-num="123"/>`,
-this handler prints an opening tag
-and then copies the value of the `q-num` attribute to the output.
-When we are exiting the node,
-the handler closes the tag.
+When we enter a node like `<span z-num="123"/>`
+this handler asks the expander to show an opening tag
+followed by the value of the `z-num` attribute.
+When we exit the node,
+the handler asks the expander to close the tag.
+The handler doesn't know whether things are printed immediately,
+added to an output list,
+or something else;
+it just knows that whoever called it implements the low-level operations it needs.
 :::
 
-Note that this is *not* a class,
+Note that this expander is *not* a class,
 but instead an object with two functions stored under the keys `open` and `close`.
-We could (and probably should) use a class for each handler
+We could use a class for each handler
 so that handlers can store any extra state they need,
-but <g key="bare_object">bare objects</g> are still often used in JavaScript.
+but <g key="bare_object">bare objects</g> are common and useful in JavaScript
+(though we will see below that we *should* have used classes).
 
 So much for constants; what about variables?
 
-<%- include('/inc/file.html', {file: 'q-var.js'}) %>
+<%- include('/inc/file.html', {file: 'z-var.js'}) %>
 
 ::: continue
-This code is almost the same as the previous example;
-the only difference is that instead of copying the attribute value directly to the output,
-we use the attribute value as a key to look up a value in the environment.
+This code is almost the same as the previous example.
+The only difference is that instead of copying the attribute's value
+directly to the output,
+we use it as a key to look up a value in the environment.
 :::
 
 These two pairs of handlers look plausible, but do they work?
@@ -232,8 +260,8 @@ and does the expansion:
 
 <%- include('/inc/file.html', {file: 'template.js'}) %>
 
-As we were writing this chapter,
-we added new variables for our test cases one by one.
+We added new variables for our test cases one by one
+as we were writing this chapter.
 To avoid repeating text repeatedly,
 we show the entire set once:
 
@@ -280,8 +308,8 @@ What about a single variable?
 
 What about a page containing multiple variables?
 There's no reason it should fail if the single-variable case works,
-but variable lookup is one of the more complicated parts of our processing,
-so we should check:
+but we should still check---again,
+software isn't done until it has been tested.
 
 <%- include('/inc/html.html', {file: 'input-multiple-variables.html'}) %>
 <%- include('/inc/html.html', {file: 'output-multiple-variables.html'}) %>
@@ -302,7 +330,7 @@ implementing a conditional is as simple as looking up a variable
 (which we know how to do)
 and then expanding the node if the value is true:
 
-<%- include('/inc/file.html', {file: 'q-if.js'}) %>
+<%- include('/inc/file.html', {file: 'z-if.js'}) %>
 
 Let's test it:
 
@@ -316,19 +344,33 @@ Let's test it:
     scale: false
 }) %>
 
-And finally we come to loops.
+::: callout
+### Spot the bug
+
+This implementation of `if` contains a subtle bug.
+The `open` and `close` functions both check the value of the control variable.
+If something inside the body of the `if` changes that value,
+the result could be an opening tag without a matching closing tag or vice versa.
+We haven't implemented an assignment operator,
+so right now there's no way for that to happen,
+but it's a plausible thing for us to add later,
+and tracking down a bug in old code that is revealed by new code
+is always a headache.
+:::
+
+Finally we come to loops.
 For these,
 we need to get the array we're looping over from the environment
-and do something once for each of its elements.
+and do something for each of its elements.
 That "something" is:
 
 1.  Create a new stack frame holding the current value of the loop variable.
 
-2.  Expand all of the node's children with that stack frame in place.
+1.  Expand all of the node's children with that stack frame in place.
 
-3.  Pop the stack frame to get rid of the temporary variable.
+1.  Pop the stack frame to get rid of the temporary variable.
 
-<%- include('/inc/file.html', {file: 'q-loop.js'}) %>
+<%- include('/inc/file.html', {file: 'z-loop.js'}) %>
 
 Once again,
 it's not done until we test it:
@@ -372,8 +414,9 @@ We can't do this either:
 though it seems like we should be able to.
 Instead,
 we create an array containing the string we want.
-JavaScript automatically converts arrays to strings by concatenating their elements when it needs to,
-so our expression is a quick way to get the same effect as:
+Since JavaScript automatically converts arrays to strings
+by concatenating their elements when it needs to,
+our expression is a quick way to get the same effect as:
 :::
 
 ```js
@@ -382,6 +425,11 @@ temp[indexName] = index
 expander.env.push(temp)
 ```
 
+::: continue
+Those three lines *are* much easier to understand, though,
+so we should probably have been less clever.
+:::
+
 ## How did we know how to do all of this?
 
 We have just implemented a simple programming language.
@@ -389,7 +437,7 @@ It can't do arithmetic,
 but if we wanted to add tags like:
 
 ```js
-<span q-math="+"><span q-var="width"/><span q-num="1"/></span>
+<span z-math="+"><span z-var="width"/><span z-num="1"/></span>
 ```
 
 ::: continue
@@ -405,3 +453,61 @@ Instead,
 we did what you are doing now:
 we read what other programmers had written
 and tried to make sense of the key ideas.
+
+The problem is that "making sense" depends on who we are.
+When we use a low-level language,
+we incur the cognitive load of assembling micro-steps into something more meaningful.
+When we use a high-level language,
+on the other hand,
+we incur a similar load translating functions of functions of functions
+(or meta-classes templated on object factories)
+into actual operations on actual data.
+
+More experienced programmers are more capable at both ends of the curve,
+but that's not the only thing that changes.
+If a novice's comprehension curve looks like the one on the left
+of <f key="page-templates-comprehension"></f>,
+then an expert's looks like the one on the right.
+Experts don't just understand more at all levels of abstraction;
+their *preferred* level has also shifted
+so that &radic;x<sup>2</sup>+y<sup>2</sup>
+is actually more readable than the medieval expression
+"the side of the square whose area is the sum of the areas of the two squares
+whose sides are given by the first part and the second part".
+
+<%- include('/inc/figure.html', {
+    id: 'page-templates-comprehension',
+    img: './figures/comprehension.svg',
+    alt: 'Comprehension curves',
+    cap: 'Novice and expert comprehension curves.'
+}) %>
+
+
+One implication of this is that for any given task,
+the software that is quickest for a novice to comprehend
+will almost certainly be different from the software that
+an expert can understand most quickly.
+In an ideal world our tools would automatically re-represent programs at different levels,
+so that with a click of a button we could view our code as either:
+
+```
+const hosts = links.map(a => a.href.split(':')[1].split('/')[0]).unique()
+```
+
+or:
+
+```
+hosts = []
+for (each a in links) do
+  temp <- attr(a, 'href').split(':')[1].split('/')[0]
+  if (not (temp in hosts)) do
+    hosts.append(temp)
+  end
+end
+```
+
+just as we could change the colors used for syntax highlighting
+or the depth to which loop bodies are indented.
+But today's tools don't do that,
+and I suspect that any IDE smart enough to translate between comprehension levels automatically
+would also be smart enough to write the code without our help.

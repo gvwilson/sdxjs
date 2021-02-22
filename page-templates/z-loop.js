@@ -1,7 +1,7 @@
 export default {
   open: (expander, node) => {
-    const [indexName, targetName] = node.attribs['q-loop'].split(':')
-    delete node.attribs['q-loop']
+    const [indexName, targetName] = node.attribs['z-loop'].split(':')
+    delete node.attribs['z-loop']
     expander.showTag(node, false)
     const target = expander.env.find(targetName)
     for (const index of target) {

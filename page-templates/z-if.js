@@ -1,6 +1,6 @@
 export default {
   open: (expander, node) => {
-    const doRest = expander.env.find(node.attribs['q-if'])
+    const doRest = expander.env.find(node.attribs['z-if'])
     if (doRest) {
       expander.showTag(node, false)
     }
@@ -8,7 +8,7 @@ export default {
   },
 
   close: (expander, node) => {
-    if (expander.env.find(node.attribs['q-if'])) {
+    if (expander.env.find(node.attribs['z-if'])) {
       expander.showTag(node, true)
     }
   }

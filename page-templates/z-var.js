@@ -1,7 +1,7 @@
 export default {
   open: (expander, node) => {
     expander.showTag(node, false)
-    expander.output(node.attribs['q-num'])
+    expander.output(expander.env.find(node.attribs['z-var']))
   },
 
   close: (expander, node) => {

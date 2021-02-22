@@ -74,17 +74,20 @@
 <div class="callout">
   <p class="callout">
     <strong>Terms defined:</strong>
-    <g key="bare_object">bare object</g>, <g key="dynamic_scoping">dynamic scoping</g>, <g key="environment">environment</g>, <g key="lexical_scoping">lexical scoping</g>, <g key="stack_frame">stack frame</g>, <g key="visitor_pattern">Visitor pattern</g>
+    <g key="bare_object">bare object</g>, <g key="dynamic_scoping">dynamic scoping</g>, <g key="environment">environment</g>, <g key="lexical_scoping">lexical scoping</g>, <g key="stack_frame">stack frame</g>, <g key="static-site-generator">static site generator</g>, <g key="visitor_pattern">Visitor pattern</g>
   </p>
 </div>
 <p>Every program needs documentation in order to be usable,
 and the best place to put that documentation is on the web.
 Writing and updating pages by hand is time-consuming and error-prone,
-particularly when so many of their parts are the same,
-so most websites use some kind of tool to create HTML from templates.</p>
-<p>Thousands of page templating systems have been written in the last thirty years
+particularly when many parts are the same,
+so most documentation sites use some kind of
+<g key="static-site-generator">static site generator</g>
+to create web pages from templates.</p>
+<p>At the heart of every static site generator is a page templating system.
+Thousands of these have been written in the last thirty years
 in every popular programming language
-(and in fact one language, <a href="https://www.php.net/">PHP</a>, was created for this purpose).
+(and one language, <a href="https://www.php.net/">PHP</a>, was created for this purpose).
 Most of these systems use one of three designs
 (<f key="page-templates-options"></f>):</p>
 <ol>
@@ -93,26 +96,26 @@ Most of these systems use one of three designs
 using some kind of marker to indicate which parts are commands
 and which parts are to be taken as-is.
 This approach is taken by <a href="https://ejs.co/">EJS</a>,
-which we have used to write these lessons.</p>
+which we used to write these lessons.</p>
 </li>
 <li>
 <p>Create a mini-language with its own commands like <a href="https://jekyllrb.com/">Jekyll</a>
-(the templating system used by <a href="https://pages.github.com/">GitHub Pages</a>).
+(which is used by <a href="https://pages.github.com/">GitHub Pages</a>).
 Mini-languages are appealing because they are smaller and safer than general-purpose languages,
-but experience shows that they quickly grow many of the features
-of a general-purpose language.
+but experience shows that they eventually grow
+most of the features of a general-purpose language.
 Again, some kind of marker must be used to show
 which parts of the page are code and which are ordinary text.</p>
 </li>
 <li>
-<p>Use specially-named attributes in the HTML.
+<p>Put directives in specially-named attributes in the HTML.
 This approach has been the least popular,
-but eliminates the need for a special parser
-(since pages are valid HTML).</p>
+but since pages are valid HTML,
+it eliminates the need for a special parser.</p>
 </li>
 </ol>
 <figure id="page-templates-options"><img src="./figures/options.svg" alt="Three options for page templates" latexscale="true"/><figcaption>Three different ways to implement page templating.</figcaption></figure>
-<p>In this chapter we will build a simple page templating system using the third option.
+<p>In this chapter we will build a simple page templating system using the third strategy.
 We will process each page independently by parsing the HTML
 and walking the DOM to find nodes with special attributes.
 Our program will execute the instructions in those nodes
@@ -125,19 +128,19 @@ Our page will look like this:</p>
 <pre title="input-loop.html"><code class="language-html">&lt;html&gt;
   &lt;body&gt;
     &lt;p&gt;Expect three items&lt;/p&gt;
-    &lt;ul q-loop="item:names"&gt;
-      &lt;li&gt;&lt;span q-var="item"/&gt;&lt;/li&gt;
+    &lt;ul z-loop="item:names"&gt;
+      &lt;li&gt;&lt;span z-var="item"/&gt;&lt;/li&gt;
     &lt;/ul&gt;
   &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
 <div class="continue">
-<p>The attribute <code>q-loop</code> tells the tool to repeat that node;
-the loop variable and the collection being looped over
-are the attribute's value, separated by a colon.
-The attribute <code>q-var</code> tells the tool to fill in the node with the value of the variable.
-The output will look like HTML without any traces of how it was created:</p>
+<p>The attribute <code>z-loop</code> tells the tool to repeat the contents of that node;
+the loop variable and the collection being looped over are separated by a colon.
+The attribute <code>z-var</code> tells the tool to fill in the node with the value of the variable.</p>
 </div>
+<p>When our tool processes this page,
+the output will be standard HTML without any traces of how it was created:</p>
 <pre title="output-loop.html"><code class="language-html">&lt;html&gt;
   &lt;body&gt;
     &lt;p&gt;Expect three items&lt;/p&gt;
@@ -157,17 +160,26 @@ The output will look like HTML without any traces of how it was created:</p>
 quickly start to accumulate extra features.
 We have already started down that road
 by putting the loop variable and loop target in a single attribute
-and parsing that attribute to get them out.
-Doing that makes loop elements easier for people to type,
-but means that important information is hidden from standard HTML processing tools,
-which can't know that this particular attribute of these particular elements
+and splitting that attribute to get them out.
+Doing this makes loops easy for people to type,
+but hides important information from standard HTML processing tools.
+They can't know that this particular attribute of these particular elements
 contains multiple values
 or that those values should be extracted by splitting a string on a colon.
 We could instead require people to use two attributes, as in:</p>
-<pre><code class="language-html">    &lt;ul q-loop=&quot;names&quot; q-loop-var=&quot;item&quot;&gt;
+<pre><code class="language-html">&lt;ul z-loop=&quot;names&quot; z-loop-var=&quot;item&quot;&gt;
 </code></pre>
+<div class="continue">
+<p>but we have decided to err on the side of minimal typing.
+And note that strictly speaking,
+we should call our attributes <code>data-something</code> instead of <code>z-something</code>
+to conform with <a href="https://developer.mozilla.org/en-US/docs/Learn/HTML/Howto/Use_data_attributes">the HTML5 specification</a>,
+but by the time we're finished processing our templates,
+there shouldn't be any <code>z-*</code> attributes left to confuse a browser.</p>
 </div>
-<p>What about processing templates?
+</div>
+<p>:::</p>
+<p>The next step is to define the API for filling in templates.
 Our tool needs the template itself,
 somewhere to write its output,
 and some variables to use in the expansion.
@@ -175,8 +187,7 @@ These variables might come from a configuration file,
 from a YAML header in the file itself,
 or from some mix of the two;
 for the moment,
-all we need to know is that
-we wil pass them into the expansion function as an object:</p>
+we will just pass them into the expansion function as an object:</p>
 <pre title="example-call.js"><code class="language-js">const variables = {
   names: ['Johnson', 'Vaughan', 'Jackson']
 }
@@ -187,11 +198,15 @@ console.log(expander.result)
 </code></pre>
 <h2 id="how-can-we-keep-track-of-values">How can we keep track of values?</h2>
 <p>Speaking of variables,
-we need a way to keep track of their current values:
-&quot;current&quot;, because the value of a loop variable changes each time we go around the loop.
+we need a way to keep track of their current values;
+we say &quot;current&quot; because the value of a loop variable changes each time we go around the loop.
 We also need to maintain multiple sets of variables
-so that we can nest loops.</p>
-<p>The standard solution is to create a stack of lookup tables.
+so that variables used inside a loop
+don't conflict with ones used outside it.
+(We don't actually &quot;need&quot; to do this---we could just have one global set of variables---but
+experience teaches us that if all our variables are global,
+all of our programs will be buggy.)</p>
+<p>The standard way to manage variables is to create a stack of lookup tables.
 Each <g key="stack_frame">stack frame</g> is an object with names and values;
 when we need to find a variable,
 we look through the stack frames in order to find the uppermost definition of that variable..</p>
@@ -243,7 +258,7 @@ export default Env
 <figure id="page-templates-stack"><img src="./figures/stack.svg" alt="Variable stack" latexscale="true"/><figcaption>Using a stack to manage variables.</figcaption></figure>
 <h2 id="how-do-we-handle-nodes">How do we handle nodes?</h2>
 <p>HTML pages have a nested structure,
-so we will process them using the <g key="visitor_pattern">Visitor pattern</g>.
+so we will process them using the <g key="visitor_pattern">Visitor</g> design pattern.
 <code>Visitor</code>'s constructor takes the root node of the DOM tree as an argument and saves it.
 When we call <code>Visitor.walk</code> without a value,
 it starts recursing from that saved root;
@@ -285,19 +300,22 @@ export default Visitor
 <p><code>Visitor</code> defines two methods called <code>open</code> and <code>close</code> that are called
 when we first arrive at a node and when we are finished with it
 (<f key="page-templates-visitor"></f>).
-The default implementations throw exceptions
-so that the creators of derived classes must remember to implement their own versions.</p>
+The default implementations of these methods throw exceptions
+to remind the creators of derived classes to implement their own versions.</p>
 </div>
 <figure id="page-templates-visitor"><img src="./figures/visitor.svg" alt="The Visitor pattern" latexscale="true"/><figcaption>Using the Visitor pattern to evaluate a page template.</figcaption></figure>
-<p>The <code>Expander</code> class is a <code>Visitor</code> and uses an <code>Env</code>.
-It loads a handler for each type of special node we support---we will write these in a moment---and
+<p>The <code>Expander</code> class is specialization of <code>Visitor</code>
+that uses an <code>Env</code> to keep track of variables.
+It imports a handler
+for each type of special node we support---we will write those in a moment---and
 uses them to process each type of node:</p>
 <ol>
 <li>
 <p>If the node is plain text, copy it to the output.</p>
 </li>
 <li>
-<p>If there is a handler for the node, call the handler's <code>open</code> or <code>close</code> method.</p>
+<p>If there is a handler for the node,
+call the handler's <code>open</code> or <code>close</code> method.</p>
 </li>
 <li>
 <p>Otherwise, open or close a regular tag.</p>
@@ -308,16 +326,16 @@ uses them to process each type of node:</p>
 import Visitor from './visitor.js'
 import Env from './env.js'
 
-import q_if from './q-if.js'
-import q_loop from './q-loop.js'
-import q_num from './q-num.js'
-import q_var from './q-var.js'
+import z_if from './z-if.js'
+import z_loop from './z-loop.js'
+import z_num from './z-num.js'
+import z_var from './z-var.js'
 
 const HANDLERS = {
-  'q-if': q_if,
-  'q-loop': q_loop,
-  'q-num': q_num,
-  'q-var': q_var
+  'z-if': z_if,
+  'z-loop': z_loop,
+  'z-num': z_num,
+  'z-var': z_var
 }
 
 class Expander extends Visitor {
@@ -356,7 +374,8 @@ class Expander extends Visitor {
 export default Expander
 </code></pre>
 <p>Checking to see if there is a handler for a particular node
-and getting that handler are straightforward:</p>
+and getting that handler are straightforward---we just
+look at the node's attributes:</p>
 <pre title="expander.js"><code class="language-js">  hasHandler (node) {
     for (const name in node.attribs) {
       if (name in this.handlers) {
@@ -382,7 +401,7 @@ and getting that handler are straightforward:</p>
 
     this.output(`&lt;${node.name}`)
     for (const name in node.attribs) {
-      if (!name.startsWith('q-')) {
+      if (!name.startsWith('z-')) {
         this.output(` ${name}="${node.attribs[name]}"`)
       }
     }
@@ -397,19 +416,20 @@ and getting that handler are straightforward:</p>
     return this.result.join('')
   }</code></pre>
 <div class="continue">
-<p>Notice that this class adds strings to an array and then joins them all right at the end
+<p>Notice that this class adds strings to an array and joins them all right at the end
 rather than concatenating strings repeatedly.
 Doing this is more efficient and also helps with debugging,
 since each string in the array corresponds to a single method call.</p>
 </div>
 <h2 id="how-do-we-implement-node-handlers">How do we implement node handlers?</h2>
-<p>So far we have built a lot of infrastructure but haven't actually processed a single special node.
+<p>At this point
+we have built a lot of infrastructure but haven't actually processed any special nodes.
 To do that,
-let's start with a handler that copies a constant number into the output:</p>
-<pre title="q-num.js"><code class="language-js">export default {
+let's write a handler that copies a constant number into the output:</p>
+<pre title="z-num.js"><code class="language-js">export default {
   open: (expander, node) =&gt; {
     expander.showTag(node, false)
-    expander.output(node.attribs['q-num'])
+    expander.output(node.attribs['z-num'])
   },
 
   close: (expander, node) =&gt; {
@@ -418,22 +438,27 @@ let's start with a handler that copies a constant number into the output:</p>
 }
 </code></pre>
 <div class="continue">
-<p>When we enter a node like <code>&lt;span q-num=&quot;123&quot;/&gt;</code>,
-this handler prints an opening tag
-and then copies the value of the <code>q-num</code> attribute to the output.
-When we are exiting the node,
-the handler closes the tag.</p>
+<p>When we enter a node like <code>&lt;span z-num=&quot;123&quot;/&gt;</code>
+this handler asks the expander to show an opening tag
+followed by the value of the <code>z-num</code> attribute.
+When we exit the node,
+the handler asks the expander to close the tag.
+The handler doesn't know whether things are printed immediately,
+added to an output list,
+or something else;
+it just knows that whoever called it implements the low-level operations it needs.</p>
 </div>
-<p>Note that this is <em>not</em> a class,
+<p>Note that this expander is <em>not</em> a class,
 but instead an object with two functions stored under the keys <code>open</code> and <code>close</code>.
-We could (and probably should) use a class for each handler
+We could use a class for each handler
 so that handlers can store any extra state they need,
-but <g key="bare_object">bare objects</g> are still often used in JavaScript.</p>
+but <g key="bare_object">bare objects</g> are common and useful in JavaScript
+(though we will see below that we <em>should</em> have used classes).</p>
 <p>So much for constants; what about variables?</p>
-<pre title="q-var.js"><code class="language-js">export default {
+<pre title="z-var.js"><code class="language-js">export default {
   open: (expander, node) =&gt; {
     expander.showTag(node, false)
-    expander.output(expander.env.find(node.attribs['q-var']))
+    expander.output(expander.env.find(node.attribs['z-var']))
   },
 
   close: (expander, node) =&gt; {
@@ -442,9 +467,10 @@ but <g key="bare_object">bare objects</g> are still often used in JavaScript.</p
 }
 </code></pre>
 <div class="continue">
-<p>This code is almost the same as the previous example;
-the only difference is that instead of copying the attribute value directly to the output,
-we use the attribute value as a key to look up a value in the environment.</p>
+<p>This code is almost the same as the previous example.
+The only difference is that instead of copying the attribute's value
+directly to the output,
+we use it as a key to look up a value in the environment.</p>
 </div>
 <p>These two pairs of handlers look plausible, but do they work?
 To find out,
@@ -476,8 +502,8 @@ const readHtml = (filename) =&gt; {
 
 main()
 </code></pre>
-<p>As we were writing this chapter,
-we added new variables for our test cases one by one.
+<p>We added new variables for our test cases one by one
+as we were writing this chapter.
 To avoid repeating text repeatedly,
 we show the entire set once:</p>
 <pre title="vars.json"><code class="language-json">{
@@ -520,7 +546,7 @@ is static text copied over as-is?</p>
 Now, does the expander handle constants?</p>
 <pre title="input-single-constant.html"><code class="language-html">&lt;html&gt;
   &lt;body&gt;
-    &lt;p&gt;&lt;span q-num="123"/&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;span z-num="123"/&gt;&lt;/p&gt;
   &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
@@ -534,7 +560,7 @@ Now, does the expander handle constants?</p>
 <p>What about a single variable?</p>
 <pre title="input-single-variable.html"><code class="language-html">&lt;html&gt;
   &lt;body&gt;
-    &lt;p&gt;&lt;span q-var="variableName"/&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;span z-var="variableName"/&gt;&lt;/p&gt;
   &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
@@ -547,12 +573,12 @@ Now, does the expander handle constants?</p>
 <figure id="page-templates-output-single-variable"><img src="./figures/output-single-variable.svg" alt="Generating a single variable" latexscale="false"/><figcaption>A single variable generated by page templates.</figcaption></figure>
 <p>What about a page containing multiple variables?
 There's no reason it should fail if the single-variable case works,
-but variable lookup is one of the more complicated parts of our processing,
-so we should check:</p>
+but we should still check---again,
+software isn't done until it has been tested.</p>
 <pre title="input-multiple-variables.html"><code class="language-html">&lt;html&gt;
   &lt;body&gt;
-    &lt;p&gt;&lt;span q-var="firstVariable" /&gt;&lt;/p&gt;
-    &lt;p&gt;&lt;span q-var="secondVariable" /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;span z-var="firstVariable" /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;span z-var="secondVariable" /&gt;&lt;/p&gt;
   &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
@@ -571,9 +597,9 @@ Since we don't support Boolean expressions like <code>and</code> and <code>or</c
 implementing a conditional is as simple as looking up a variable
 (which we know how to do)
 and then expanding the node if the value is true:</p>
-<pre title="q-if.js"><code class="language-js">export default {
+<pre title="z-if.js"><code class="language-js">export default {
   open: (expander, node) =&gt; {
-    const doRest = expander.env.find(node.attribs['q-if'])
+    const doRest = expander.env.find(node.attribs['z-if'])
     if (doRest) {
       expander.showTag(node, false)
     }
@@ -581,7 +607,7 @@ and then expanding the node if the value is true:</p>
   },
 
   close: (expander, node) =&gt; {
-    if (expander.env.find(node.attribs['q-if'])) {
+    if (expander.env.find(node.attribs['z-if'])) {
       expander.showTag(node, true)
     }
   }
@@ -590,8 +616,8 @@ and then expanding the node if the value is true:</p>
 <p>Let's test it:</p>
 <pre title="input-conditional.html"><code class="language-html">&lt;html&gt;
   &lt;body&gt;
-    &lt;p q-if="showThis"&gt;This should be shown.&lt;/p&gt;
-    &lt;p q-if="doNotShowThis"&gt;This should &lt;em&gt;not&lt;/em&gt; be shown.&lt;/p&gt;
+    &lt;p z-if="showThis"&gt;This should be shown.&lt;/p&gt;
+    &lt;p z-if="doNotShowThis"&gt;This should &lt;em&gt;not&lt;/em&gt; be shown.&lt;/p&gt;
   &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
@@ -603,10 +629,22 @@ and then expanding the node if the value is true:</p>
 &lt;/html&gt;
 </code></pre>
 <figure id="page-templates-output-conditional"><img src="./figures/output-conditional.svg" alt="Generating conditional text" latexscale="false"/><figcaption>Conditional text generated by page templates.</figcaption></figure>
-<p>And finally we come to loops.
+<div class="callout">
+<h3 id="spot-the-bug">Spot the bug</h3>
+<p>This implementation of <code>if</code> contains a subtle bug.
+The <code>open</code> and <code>close</code> functions both check the value of the control variable.
+If something inside the body of the <code>if</code> changes that value,
+the result could be an opening tag without a matching closing tag or vice versa.
+We haven't implemented an assignment operator,
+so right now there's no way for that to happen,
+but it's a plausible thing for us to add later,
+and tracking down a bug in old code that is revealed by new code
+is always a headache.</p>
+</div>
+<p>Finally we come to loops.
 For these,
 we need to get the array we're looping over from the environment
-and do something once for each of its elements.
+and do something for each of its elements.
 That &quot;something&quot; is:</p>
 <ol>
 <li>
@@ -619,10 +657,10 @@ That &quot;something&quot; is:</p>
 <p>Pop the stack frame to get rid of the temporary variable.</p>
 </li>
 </ol>
-<pre title="q-loop.js"><code class="language-js">export default {
+<pre title="z-loop.js"><code class="language-js">export default {
   open: (expander, node) =&gt; {
-    const [indexName, targetName] = node.attribs['q-loop'].split(':')
-    delete node.attribs['q-loop']
+    const [indexName, targetName] = node.attribs['z-loop'].split(':')
+    delete node.attribs['z-loop']
     expander.showTag(node, false)
     const target = expander.env.find(targetName)
     for (const index of target) {
@@ -643,8 +681,8 @@ it's not done until we test it:</p>
 <pre title="input-loop.html"><code class="language-html">&lt;html&gt;
   &lt;body&gt;
     &lt;p&gt;Expect three items&lt;/p&gt;
-    &lt;ul q-loop="item:names"&gt;
-      &lt;li&gt;&lt;span q-var="item"/&gt;&lt;/li&gt;
+    &lt;ul z-loop="item:names"&gt;
+      &lt;li&gt;&lt;span z-var="item"/&gt;&lt;/li&gt;
     &lt;/ul&gt;
   &lt;/body&gt;
 &lt;/html&gt;
@@ -683,18 +721,23 @@ We can't do this either:</p>
 <p>though it seems like we should be able to.
 Instead,
 we create an array containing the string we want.
-JavaScript automatically converts arrays to strings by concatenating their elements when it needs to,
-so our expression is a quick way to get the same effect as:</p>
+Since JavaScript automatically converts arrays to strings
+by concatenating their elements when it needs to,
+our expression is a quick way to get the same effect as:</p>
 </div>
 <pre><code class="language-js">const temp = {}
 temp[indexName] = index
 expander.env.push(temp)
 </code></pre>
+<div class="continue">
+<p>Those three lines <em>are</em> much easier to understand, though,
+so we should probably have been less clever.</p>
+</div>
 <h2 id="how-did-we-know-how-to-do-all-of-this">How did we know how to do all of this?</h2>
 <p>We have just implemented a simple programming language.
 It can't do arithmetic,
 but if we wanted to add tags like:</p>
-<pre><code class="language-js">&lt;span q-math=&quot;+&quot;&gt;&lt;span q-var=&quot;width&quot;/&gt;&lt;span q-num=&quot;1&quot;/&gt;&lt;/span&gt;
+<pre><code class="language-js">&lt;span z-math=&quot;+&quot;&gt;&lt;span z-var=&quot;width&quot;/&gt;&lt;span z-num=&quot;1&quot;/&gt;&lt;/span&gt;
 </code></pre>
 <div class="continue">
 <p>we could.
@@ -708,24 +751,66 @@ Instead,
 we did what you are doing now:
 we read what other programmers had written
 and tried to make sense of the key ideas.</p>
+<p>The problem is that &quot;making sense&quot; depends on who we are.
+When we use a low-level language,
+we incur the cognitive load of assembling micro-steps into something more meaningful.
+When we use a high-level language,
+on the other hand,
+we incur a similar load translating functions of functions of functions
+(or meta-classes templated on object factories)
+into actual operations on actual data.</p>
+<p>More experienced programmers are more capable at both ends of the curve,
+but that's not the only thing that changes.
+If a novice's comprehension curve looks like the one on the left
+of <f key="page-templates-comprehension"></f>,
+then an expert's looks like the one on the right.
+Experts don't just understand more at all levels of abstraction;
+their <em>preferred</em> level has also shifted
+so that √x<sup>2</sup>+y<sup>2</sup>
+is actually more readable than the medieval expression
+&quot;the side of the square whose area is the sum of the areas of the two squares
+whose sides are given by the first part and the second part&quot;.</p>
+<figure id="page-templates-comprehension"><img src="./figures/comprehension.svg" alt="Comprehension curves" latexscale="true"/><figcaption>Novice and expert comprehension curves.</figcaption></figure>
+<p>One implication of this is that for any given task,
+the software that is quickest for a novice to comprehend
+will almost certainly be different from the software that
+an expert can understand most quickly.
+In an ideal world our tools would automatically re-represent programs at different levels,
+so that with a click of a button we could view our code as either:</p>
+<pre><code>const hosts = links.map(a =&gt; a.href.split(':')[1].split('/')[0]).unique()
+</code></pre>
+<p>or:</p>
+<pre><code>hosts = []
+for (each a in links) do
+  temp &lt;- attr(a, 'href').split(':')[1].split('/')[0]
+  if (not (temp in hosts)) do
+    hosts.append(temp)
+  end
+end
+</code></pre>
+<p>just as we could change the colors used for syntax highlighting
+or the depth to which loop bodies are indented.
+But today's tools don't do that,
+and I suspect that any IDE smart enough to translate between comprehension levels automatically
+would also be smart enough to write the code without our help.</p>
 <h2 id="exercises">Exercises</h2>
 <h3 class="exercise">Tracing execution</h3>
-<p>Add a directive <code>&lt;span q-trace=&quot;variable&quot;/&gt;</code>
+<p>Add a directive <code>&lt;span z-trace=&quot;variable&quot;/&gt;</code>
 that prints the current value of a variable using <code>console.error</code> for debugging.</p>
 <h3 class="exercise">Unit tests</h3>
 <p>Write unit tests for template expansion using Mocha.</p>
 <h3 class="exercise">Trimming text</h3>
-<p>Modify all of the directives to take an extra optional attribute <code>q-trim=&quot;true&quot;</code>
+<p>Modify all of the directives to take an extra optional attribute <code>z-trim=&quot;true&quot;</code>
 If this attribute is set,
 leading and trailing whitespace is trimmed from the directive's expansion.</p>
 <h3 class="exercise">Literal text</h3>
-<p>Add a directive <code>&lt;div q-literal=&quot;true&quot;&gt;…&lt;/div&gt;</code> that copies the enclosed text as-is
+<p>Add a directive <code>&lt;div z-literal=&quot;true&quot;&gt;…&lt;/div&gt;</code> that copies the enclosed text as-is
 without interpreting or expanding any contained directives.
 (A directive like this would be needed when writing documentation for the template expander.)</p>
 <h3 class="exercise">Including other files</h3>
 <ol>
 <li>
-<p>Add a directive <code>&lt;div q-include=&quot;filename.html&quot;/&gt;</code> that includes another file
+<p>Add a directive <code>&lt;div z-include=&quot;filename.html&quot;/&gt;</code> that includes another file
 in the file being processed.</p>
 </li>
 <li>
@@ -735,16 +820,16 @@ What difference does it make to the way variables are evaluated?</p>
 </li>
 </ol>
 <h3 class="exercise">HTML snippets</h3>
-<p>Add a directive <code>&lt;div q-snippet=&quot;variable&quot;&gt;…&lt;/div&gt;</code> that saves some text in a variable
+<p>Add a directive <code>&lt;div z-snippet=&quot;variable&quot;&gt;…&lt;/div&gt;</code> that saves some text in a variable
 so that it can be displayed later.
 For example:</p>
 <pre><code class="language-html">&lt;html&gt;
   &lt;body&gt;
-    &lt;div q-snippet=&quot;prefix&quot;&gt;&lt;strong&gt;Important:&lt;/strong&gt;&lt;/div&gt;
+    &lt;div z-snippet=&quot;prefix&quot;&gt;&lt;strong&gt;Important:&lt;/strong&gt;&lt;/div&gt;
     &lt;p&gt;Expect three items&lt;/p&gt;
     &lt;ul&gt;
-      &lt;li q-loop=&quot;item:names&quot;&gt;
-        &lt;span q-var=&quot;prefix&quot;&gt;&lt;span q-var=&quot;item&quot;/&gt;
+      &lt;li z-loop=&quot;item:names&quot;&gt;
+        &lt;span z-var=&quot;prefix&quot;&gt;&lt;span z-var=&quot;item&quot;/&gt;
       &lt;/li&gt;
     &lt;/ul&gt;
   &lt;/body&gt;
@@ -761,7 +846,7 @@ name: &quot;Dorothy Johnson Vaughan&quot;
 ---
 &lt;html&gt;
   &lt;body&gt;
-    &lt;p&gt;&lt;span q-var=&quot;name&quot;/&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;span z-var=&quot;name&quot;/&gt;&lt;/p&gt;
   &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
@@ -773,7 +858,7 @@ name: &quot;Dorothy Johnson Vaughan&quot;
 and builds a website in the second directory by expanding all of the HTML files found in the first
 or in sub-directories of the first.</p>
 <h3 class="exercise">Counting loops</h3>
-<p>Add a directive <code>&lt;div q-index=&quot;indexName&quot; q-limit=&quot;limitName&quot;&gt;…&lt;/div&gt;</code>
+<p>Add a directive <code>&lt;div z-index=&quot;indexName&quot; z-limit=&quot;limitName&quot;&gt;…&lt;/div&gt;</code>
 that loops from zero to the value in the variable <code>limitName</code>,
 putting the current iteration index in <code>indexName</code>.</p>
 <h3 class="exercise">Auxiliary functions</h3>
@@ -788,7 +873,7 @@ containing zero or more named functions:</p>
 </code></pre>
 </li>
 <li>
-<p>Add a directive <code>&lt;span q-call=&quot;functionName&quot; q-args=&quot;var,var&quot;/&gt;</code>
+<p>Add a directive <code>&lt;span z-call=&quot;functionName&quot; z-args=&quot;var,var&quot;/&gt;</code>
 that looks up a function in <code>auxiliaries</code> and calls it
 with the given variables as arguments.</p>
 </li>

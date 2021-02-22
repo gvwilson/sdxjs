@@ -1,4 +1,4 @@
-1.  Add a directive `<div q-include="filename.html"/>` that includes another file
+1.  Add a directive `<div z-include="filename.html"/>` that includes another file
     in the file being processed.
 
 2.  Should included files be processed and the result copied into the including file,

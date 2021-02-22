@@ -7,7 +7,7 @@ name: "Dorothy Johnson Vaughan"
 ---
 <html>
   <body>
-    <p><span q-var="name"/></p>
+    <p><span z-var="name"/></p>
   </body>
 </html>
 ```

@@ -3,16 +3,16 @@ import assert from 'assert'
 import Visitor from './visitor.js'
 import Env from './env.js'
 
-import q_if from './q-if.js'
-import q_loop from './q-loop.js'
-import q_num from './q-num.js'
-import q_var from './q-var.js'
+import z_if from './z-if.js'
+import z_loop from './z-loop.js'
+import z_num from './z-num.js'
+import z_var from './z-var.js'
 
 const HANDLERS = {
-  'q-if': q_if,
-  'q-loop': q_loop,
-  'q-num': q_num,
-  'q-var': q_var
+  'z-if': z_if,
+  'z-loop': z_loop,
+  'z-num': z_num,
+  'z-var': z_var
 }
 
 class Expander extends Visitor {
@@ -75,7 +75,7 @@ class Expander extends Visitor {
 
     this.output(`<${node.name}`)
     for (const name in node.attribs) {
-      if (!name.startsWith('q-')) {
+      if (!name.startsWith('z-')) {
         this.output(` ${name}="${node.attribs[name]}"`)
       }
     }

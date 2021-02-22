@@ -95,7 +95,8 @@ it is more efficient to process the file as a <g key="stream">stream</g>:
 <%- include('/inc/multi.html', {pat: 'hash-stream.*', fill: 'js sh out'}) %>
 
 ::: continue
-This kind of interface is called a <g key="streaming-api">streaming API</g>
+This kind of interface is called
+a <g key="streaming-api">streaming</g> <g key="api">API</g>
 because it is designed to process a stream of data one chunk at a time
 rather than requiring all of the data to be in memory at once.
 Many applications use streams
