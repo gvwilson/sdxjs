@@ -42,6 +42,14 @@ Packt, 2020, 978-1839214110.
 <em class="bibnote">A readable, up-to-date technical exploration of Node's more advanced capabilities.</em>
 </dd>
 
+<dt id="Conery2021" class="bibliography">Conery2021</dt>
+<dd>
+Rob Conery:
+<em>The Imposter's Handbook: A CS Primer for Self-Taught Developers</em>.
+Independently published, 2021, 979-8708185266.
+<em class="bibnote">An overview of computer science theory for people who didn't do computer science in school.</em>
+</dd>
+
 <dt id="Davis2018" class="bibliography">Davis2018</dt>
 <dd>
 Ashley Davis:

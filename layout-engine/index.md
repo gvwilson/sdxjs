@@ -271,7 +271,8 @@ these three classes are just over 40 lines of code:
 <%- include('/inc/erase.html', {file: 'micro-dom.js', key: 'erase'}) %>
 
 We will use regular expressions to parse HTML,
-though [this is a sin][stack-overflow-html-regex].
+though as we explained in <x key="regex-parser"></x>,
+[this is a sin][stack-overflow-html-regex].
 The main body of our parser is:
 
 <%- include('/inc/erase.html', {file: 'parse.js', key: 'makenode'}) %>

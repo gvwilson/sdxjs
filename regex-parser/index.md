@@ -1,15 +1,12 @@
 ---
 ---
 
-In the <x key="pattern-matching">previous chapter</x>
-we created regular expressions out of objects.
-Writing them as strings,
+In <x key="pattern-matching"></x> we created regular expressions by constructing objects.
+It takes a lot less typing to write them as strings,
 as we did for HTML selectors,
-takes a lot less typing,
-but if we're going to do that we need to build something
-to convert those strings to the required objects.
-
-Here is the grammar that we will parse:
+but if we're going to do that we need something to convert those strings to the required objects.
+We need to write a <g key="parser">parser</g>.
+Here is the grammar we will handle:
 
 <%- include('/inc/table.html', {
     id: 'regex-parser-grammar-codes',
@@ -23,10 +20,11 @@ we should be able to parse `/^(a|b|$)*z$/` as
 "any number of 'a', 'b', or '$'",
 "a single 'z',
 and "end of text".
-We will create a tree of objects rather than instances of the `RegexBase` classes
-from <x key="pattern-matching"></x> to keep things simple
-(<f key="regex-parser-expression-tree"></f>);
-the exercises will build the latter.
+(We write regular expressions inside slashes to distinguish them from strings.)
+To keep things simple,
+we will create a tree of objects (<f key="regex-parser-expression-tree"></f>)
+rather than instances of the regular expression classes from <x key="pattern-matching"></x>;
+the exercises will tackle the latter.
 
 <%- include('/inc/figure.html', {
     id: 'regex-parser-expression-tree',
@@ -38,26 +36,23 @@ the exercises will build the latter.
 ::: callout
 ### Please don't write parsers
 
-Languages that are comfortable for people to read are often difficult for computers to understand
+Languages that are comfortable for people to read are usually difficult for computers to understand
 and vice versa,
-so we can often make tools and libraries easier for people to use
-by translating human-friendly notation into computer-friendly representations.
-On the other hand,
-the world doesn't need more file formats,
-so if you need a configuration file or lookup table,
-please save it as CSV, JSON, <g key="yaml">YAML</g>,
+so we need parsers to translate human-friendly notation into computer-friendly representations.
+However,
+the world doesn't need more file formats;
+if you need a configuration file or lookup table,
+please use CSV, JSON, <g key="yaml">YAML</g>,
 or something else that already has an acronym
 rather than inventing a format of your own.
-That said,
-understanding how parsers work can help make error messages comprehensible.
 :::
 
 ## How can we break text into tokens?
 
 A <g key="token">token</g> is an atom of text,
-such as a number or a variable name.
-In this case our tokens are the characters `*`, `|`, `(`, `)`, `^`, and `$`,
-and any sequence of one or more other characters.
+such as the digits making up a number or the letters making up a variable name.
+In our grammar the tokens are the special characters `*`, `|`, `(`, `)`, `^`, and `$`,
+plus any sequence of one or more other characters (which count as one multi-letter token).
 This classification guides the design of our parser:
 
 1.  If a character is special, create a token for it.
@@ -68,9 +63,11 @@ This classification guides the design of our parser:
 
 1.  Since `^` and `$` are either special or regular depending on position,
     we must treat them as separate tokens or as part of a literal
-    based on where they are in the string being parsed.
+    based on where they appear.
 
-We can translate these rules almost directly into code:
+We can translate these rules almost directly into code
+to create a list of objects whose keys are `kind` and `loc` (short for location),
+with the extra key `value` for literal values:
 
 <%- include('/inc/erase.html', {file: 'tokenizer-collapse.js', key: 'combine'}) %>
 
@@ -81,6 +78,10 @@ otherwise,
 we append the new character to the literal we're building:
 
 <%- include('/inc/keep.html', {file: 'tokenizer-collapse.js', key: 'combine'}) %>
+
+We can try this out with a three-line test program:
+
+<%- include('/inc/multi.html', {pat: 'tokenizer-collapse-example.*', fill: 'js out'}) %>
 
 This simple tokenizer is readable, efficient, and wrong.
 The problem is that the expression `/ab*/` means "a single `a` followed by zero or more `b`".
@@ -104,13 +105,12 @@ along with the output for the full set:
 <%- include('/inc/erase.html', {file: 'test/test-tokenizer.js', key: 'omit'}) %>
 <%- include('/inc/file.html', {file: 'tokenizer-test.out'}) %>
 
-## How can we turn a stream of tokens into a tree?
+## How can we turn a list of tokens into a tree?
 
 We now have a list of tokens,
 but we need a tree that captures the nesting introduced by parentheses
 and the way that `*` applies to whatever comes before it.
-In order to see how to build this tree,
-let's trace a few cases.
+Let's trace a few cases in order to see how to build this tree:
 
 1.  If the regular expression is `/a/`, we create a `Lit` token for the letter `a`
     (where "create" means "append to the output list").
@@ -123,15 +123,14 @@ let's trace a few cases.
 
 1.  Our next thought experiment is `/(ab)/`.
     We don't know how long the group is going to be when we see the `(`,
-    so we put it onto the output as a marker.
+    so we put the parenthesis onto the output as a marker.
     We then add the `Lit` tokens for the `a` and `b`
     until we see the `)`,
     at which point we pull tokens off the end of the output list
     until we get back to the `(` marker.
     When we find it,
     we put everything we have temporarily collected into a `Group` token and append it to the output list.
-    This algorithm automatically handles `/(a*)/`
-    (trace it through).
+    This algorithm automatically handles `/(a*)/` and `/(a(b*)c)/`.
 
 1.  What about `/a|b/`?
     We append a `Lit` token for `a`, get the `|` and---and we're stuck,
@@ -169,7 +168,7 @@ Again, this automatically handles patterns like `/(ab)|c*|(de)/`.
     cap: 'Mechanics of combining tokens while parsing regular expressions.'
 }) %>
 
-Time to turn these ideas into code.
+It's time to turn these ideas into code.
 The main structure of our parser is:
 
 <%- include('/inc/erase.html', {file: 'parser.js', key: 'skip'}) %>
@@ -181,7 +180,8 @@ We handle tokens case by case
 
 When we find the `)` that marks the end of a group,
 we take items from the end of the output list
-until we find the matching start:
+until we find the matching start
+and use them to create a group:
 
 <%- include('/inc/keep.html', {file: 'parser.js', key: 'groupend'}) %>
 
@@ -206,5 +206,33 @@ If we have more operators with different <g key="precedence">precedences</g>
 we should switch to the [shunting-yard algorithm][shunting-yard-algorithm],
 and if we need to handle a language like JavaScript we should explore tools like [ANTLR][antlr],
 which can generate a parser automatically given a description of the language to be parsed.
-But as we implied at the start,
+As we said at the start,
+though,
 if our design requires us to write a parser we should try to come up with a better design.
+CSV, JSON, YAML, and other formats [have their quirks][third-bit-nice-things],
+but at least they're broken the same way everywhere.
+
+:::callout
+### The limits of computing
+
+One of the most important theoretical results in computer science is that
+every formal language corresponds to a type of abstract machine and vice versa,
+and that some languages (or machines) are more or less powerful than others.
+For example,
+every regular expression corresponds to a <g key="fsm">finite state machine</g> (FSM)
+like the one in <f key="regex-parser-finite-state-machine"></f>.
+As powerful as FSMs are,
+they cannot match things like nested parentheses or HTML tags,
+and [attempting to do so is a sin][stack-overflow-html-regex].
+If you add a stack to the system you can process a much richer set of languages,
+and if you add two stacks you have something equivalent to a <g key="turing_machine">Turing Machine</g>
+that can do any conceivable computation.
+<cite>Conery2021</cite> presents this idea and others for self-taught developers.
+:::
+
+<%- include('/inc/figure.html', {
+    id: 'regex-parser-finite-state-machine',
+    img: './figures/finite-state-machine.svg',
+    alt: 'Finite state machine',
+    cap: 'A finite state machine equivalent to a regular expression.'
+}) %>

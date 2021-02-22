@@ -74,17 +74,15 @@
 <div class="callout">
   <p class="callout">
     <strong>Terms defined:</strong>
-    <g key="literal">literal</g>, <g key="precedence">precedence</g>, <g key="token">token</g>, <g key="well_formed">well formed</g>, <g key="yaml">YAML</g>
+    <g key="fsm">finite state machine</g>, <g key="literal">literal</g>, <g key="parser">parser</g>, <g key="precedence">precedence</g>, <g key="token">token</g>, <g key="turing_machine">Turing Machine</g>, <g key="well_formed">well formed</g>, <g key="yaml">YAML</g>
   </p>
 </div>
-<p>In the <x key="pattern-matching">previous chapter</x>
-we created regular expressions out of objects.
-Writing them as strings,
+<p>In <x key="pattern-matching"></x> we created regular expressions by constructing objects.
+It takes a lot less typing to write them as strings,
 as we did for HTML selectors,
-takes a lot less typing,
-but if we're going to do that we need to build something
-to convert those strings to the required objects.</p>
-<p>Here is the grammar that we will parse:</p>
+but if we're going to do that we need something to convert those strings to the required objects.
+We need to write a <g key="parser">parser</g>.
+Here is the grammar we will handle:</p>
 <table id="regex-parser-grammar-codes"><caption>Regular expression grammar.</caption>
 <thead>
 <tr>
@@ -125,31 +123,29 @@ we should be able to parse <code>/^(a|b|$)*z$/</code> as
 &quot;any number of 'a', 'b', or '$'&quot;,
 &quot;a single 'z',
 and &quot;end of text&quot;.
-We will create a tree of objects rather than instances of the <code>RegexBase</code> classes
-from <x key="pattern-matching"></x> to keep things simple
-(<f key="regex-parser-expression-tree"></f>);
-the exercises will build the latter.</p>
+(We write regular expressions inside slashes to distinguish them from strings.)
+To keep things simple,
+we will create a tree of objects (<f key="regex-parser-expression-tree"></f>)
+rather than instances of the regular expression classes from <x key="pattern-matching"></x>;
+the exercises will tackle the latter.</p>
 <figure id="regex-parser-expression-tree"><img src="./figures/expression-tree.svg" alt="Expression tree for regular expression" latexscale="true"/><figcaption>Representing the result of parsing a regular expression as an tree.</figcaption></figure>
 <div class="callout">
 <h3 id="please-dont-write-parsers">Please don't write parsers</h3>
-<p>Languages that are comfortable for people to read are often difficult for computers to understand
+<p>Languages that are comfortable for people to read are usually difficult for computers to understand
 and vice versa,
-so we can often make tools and libraries easier for people to use
-by translating human-friendly notation into computer-friendly representations.
-On the other hand,
-the world doesn't need more file formats,
-so if you need a configuration file or lookup table,
-please save it as CSV, JSON, <g key="yaml">YAML</g>,
+so we need parsers to translate human-friendly notation into computer-friendly representations.
+However,
+the world doesn't need more file formats;
+if you need a configuration file or lookup table,
+please use CSV, JSON, <g key="yaml">YAML</g>,
 or something else that already has an acronym
-rather than inventing a format of your own.
-That said,
-understanding how parsers work can help make error messages comprehensible.</p>
+rather than inventing a format of your own.</p>
 </div>
 <h2 id="how-can-we-break-text-into-tokens">How can we break text into tokens?</h2>
 <p>A <g key="token">token</g> is an atom of text,
-such as a number or a variable name.
-In this case our tokens are the characters <code>*</code>, <code>|</code>, <code>(</code>, <code>)</code>, <code>^</code>, and <code>$</code>,
-and any sequence of one or more other characters.
+such as the digits making up a number or the letters making up a variable name.
+In our grammar the tokens are the special characters <code>*</code>, <code>|</code>, <code>(</code>, <code>)</code>, <code>^</code>, and <code>$</code>,
+plus any sequence of one or more other characters (which count as one multi-letter token).
 This classification guides the design of our parser:</p>
 <ol>
 <li>
@@ -165,10 +161,12 @@ This classification guides the design of our parser:</p>
 <li>
 <p>Since <code>^</code> and <code>$</code> are either special or regular depending on position,
 we must treat them as separate tokens or as part of a literal
-based on where they are in the string being parsed.</p>
+based on where they appear.</p>
 </li>
 </ol>
-<p>We can translate these rules almost directly into code:</p>
+<p>We can translate these rules almost directly into code
+to create a list of objects whose keys are <code>kind</code> and <code>loc</code> (short for location),
+with the extra key <code>value</code> for literal values:</p>
 <pre title="tokenizer-collapse.js"><code class="language-js">const SIMPLE = {
   '*': 'Any',
   '|': 'Alt',
@@ -217,6 +215,39 @@ we append the new character to the literal we're building:</p>
     soFar[topIndex].value += character
   }
 }</code></pre>
+<p>We can try this out with a three-line test program:</p>
+<pre title="tokenizer-collapse-example.js"><code class="language-js">import tokenize from './tokenizer-collapse.js'
+
+const test = '^a^b*'
+const result = tokenize(test)
+console.log(JSON.stringify(result, null, 2))
+</code></pre>
+<pre title="tokenizer-collapse-example.out"><code class="language-out">[
+  {
+    "kind": "Start",
+    "loc": 0
+  },
+  {
+    "kind": "Lit",
+    "value": "a",
+    "loc": 1
+  },
+  {
+    "kind": "Lit",
+    "value": "^",
+    "loc": 2
+  },
+  {
+    "kind": "Lit",
+    "value": "b",
+    "loc": 3
+  },
+  {
+    "kind": "Any",
+    "loc": 4
+  }
+]
+</code></pre>
 <p>This simple tokenizer is readable, efficient, and wrong.
 The problem is that the expression <code>/ab*/</code> means &quot;a single <code>a</code> followed by zero or more <code>b</code>&quot;.
 If we combine the <code>a</code> and <code>b</code> as we read them,
@@ -342,12 +373,11 @@ describe('tokenizes correctly', async () =&gt; {
 
   19 passing (8ms)
 </code></pre>
-<h2 id="how-can-we-turn-a-stream-of-tokens-into-a-tree">How can we turn a stream of tokens into a tree?</h2>
+<h2 id="how-can-we-turn-a-list-of-tokens-into-a-tree">How can we turn a list of tokens into a tree?</h2>
 <p>We now have a list of tokens,
 but we need a tree that captures the nesting introduced by parentheses
 and the way that <code>*</code> applies to whatever comes before it.
-In order to see how to build this tree,
-let's trace a few cases.</p>
+Let's trace a few cases in order to see how to build this tree:</p>
 <ol>
 <li>
 <p>If the regular expression is <code>/a/</code>, we create a <code>Lit</code> token for the letter <code>a</code>
@@ -363,15 +393,14 @@ and replace it with an <code>Any</code> token that has the <code>Lit</code> toke
 <li>
 <p>Our next thought experiment is <code>/(ab)/</code>.
 We don't know how long the group is going to be when we see the <code>(</code>,
-so we put it onto the output as a marker.
+so we put the parenthesis onto the output as a marker.
 We then add the <code>Lit</code> tokens for the <code>a</code> and <code>b</code>
 until we see the <code>)</code>,
 at which point we pull tokens off the end of the output list
 until we get back to the <code>(</code> marker.
 When we find it,
 we put everything we have temporarily collected into a <code>Group</code> token and append it to the output list.
-This algorithm automatically handles <code>/(a*)/</code>
-(trace it through).</p>
+This algorithm automatically handles <code>/(a*)/</code> and <code>/(a(b*)c)/</code>.</p>
 </li>
 <li>
 <p>What about <code>/a|b/</code>?
@@ -408,7 +437,7 @@ look for partially-completed <code>Alt</code> tokens and make whatever comes aft
 </ol>
 <p>Again, this automatically handles patterns like <code>/(ab)|c*|(de)/</code>.</p>
 <figure id="regex-parser-mechanics"><img src="./figures/mechanics.svg" alt="Mechanics of combining tokens" latexscale="true"/><figcaption>Mechanics of combining tokens while parsing regular expressions.</figcaption></figure>
-<p>Time to turn these ideas into code.
+<p>It's time to turn these ideas into code.
 The main structure of our parser is:</p>
 <pre title="parser.js"><code class="language-js">import assert from 'assert'
 
@@ -461,7 +490,8 @@ export default parse
 }</code></pre>
 <p>When we find the <code>)</code> that marks the end of a group,
 we take items from the end of the output list
-until we find the matching start:</p>
+until we find the matching start
+and use them to create a group:</p>
 <pre title="parser.js"><code class="language-js">const groupEnd = (result, token) =&gt; {
   const group = {
     kind: 'Group',
@@ -576,8 +606,28 @@ If we have more operators with different <g key="precedence">precedences</g>
 we should switch to the <a href="https://en.wikipedia.org/wiki/Shunting-yard_algorithm">shunting-yard algorithm</a>,
 and if we need to handle a language like JavaScript we should explore tools like <a href="https://www.antlr.org/">ANTLR</a>,
 which can generate a parser automatically given a description of the language to be parsed.
-But as we implied at the start,
-if our design requires us to write a parser we should try to come up with a better design.</p>
+As we said at the start,
+though,
+if our design requires us to write a parser we should try to come up with a better design.
+CSV, JSON, YAML, and other formats <a href="https://third-bit.com/2015/06/11/why-we-cant-have-nice-things/">have their quirks</a>,
+but at least they're broken the same way everywhere.</p>
+<div class="callout">
+<h3 id="the-limits-of-computing">The limits of computing</h3>
+<p>One of the most important theoretical results in computer science is that
+every formal language corresponds to a type of abstract machine and vice versa,
+and that some languages (or machines) are more or less powerful than others.
+For example,
+every regular expression corresponds to a <g key="fsm">finite state machine</g> (FSM)
+like the one in <f key="regex-parser-finite-state-machine"></f>.
+As powerful as FSMs are,
+they cannot match things like nested parentheses or HTML tags,
+and <a href="https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454">attempting to do so is a sin</a>.
+If you add a stack to the system you can process a much richer set of languages,
+and if you add two stacks you have something equivalent to a <g key="turing_machine">Turing Machine</g>
+that can do any conceivable computation.
+<cite>Conery2021</cite> presents this idea and others for self-taught developers.</p>
+</div>
+<figure id="regex-parser-finite-state-machine"><img src="./figures/finite-state-machine.svg" alt="Finite state machine" latexscale="true"/><figcaption>A finite state machine equivalent to a regular expression.</figcaption></figure>
 <h2 id="exercises">Exercises</h2>
 <h3 class="exercise">Create objects</h3>
 <p>Modify the parser to return instances of classes derived from <code>RegexBase</code>.</p>
