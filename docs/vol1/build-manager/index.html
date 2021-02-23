@@ -77,18 +77,17 @@
     <g key="automatic_variable">automatic variable</g>, <g key="build_manager">build manager</g>, <g key="build_recipe">build recipe</g>, <g key="build_rule">build rule</g>, <g key="build_target">build target</g>, <g key="compiled_language">compiled language</g>, <g key="cycle">cycle (in a graph)</g>, <g key="dependency">dependency</g>, <g key="dag">directed acyclic graph</g>, <g key="driver">driver</g>, <g key="interpreted_language">interpreted language</g>, <g key="link">link (a program)</g>, <g key="pattern_rule">pattern rule</g>, <g key="runnable_documentation">runnable documentation</g>, <g key="build_stale">stale (in build)</g>, <g key="template_method_pattern">Template Method pattern</g>, <g key="topological_order">topological order</g>
   </p>
 </div>
-<p>Suppose we are using a page templating system to create a website
-and make a change to a single page.
-Our tool should translate that page, but shouldn't waste time translating others.
-If we change one of our template,
+<p>Suppose we are using a page templating system to create a website (<x key="page-templates"></x>).
+If we a change a single page our tool should translate it,
+but shouldn't waste time translating others.
+If we change a template,
 on the other hand,
 the tool should realize that every page in the site is potentially affected
-and should automatically re-translate all of them.</p>
-<p>Taking actions based on dependencies between files
-comes up in many other situations.
+and automatically re-translate all of them.</p>
+<p>Choosing what actions to take based on how files depend on one another is a common pattern.
 For example,
 programs in <g key="compiled_language">compiled languages</g> like C and Java
-have to be translated explicitly before they can be run.
+have to be translated into lower-level forms before they can run.
 In fact,
 there are usually two stages to the translation:
 compiling each source file into some intermediate form,
@@ -96,19 +95,19 @@ and then <g key="link">linking</g> the compiled modules to each other and to lib
 to create a runnable program
 (<f key="build-manager-compiling"></f>).
 If a source file hasn't changed,
-there's no need to recompile it before linking
-unless the interface of something it depends on has changed.</p>
+there's no need to recompile it before linking.</p>
 <figure id="build-manager-compiling"><img src="./figures/compiling.svg" alt="Compiling and linking" latexscale="true"/><figcaption>Compiling source files and linking the resulting modules.</figcaption></figure>
-<p>A <g key="build_manager">build manager</g> is a tool that
-takes a description of what depends on what,
-figures out what is out of date,
-figures out an order in which to rebuild things,
+<p>A <g key="build_manager">build manager</g> takes a description of what depends on what,
+figures out which files are out of date,
+determines an order in which to rebuild things,
 and then executes any necessary steps.
-They are useful even for programs written in <g key="interpreted_language">interpreted languages</g> like JavaScript
-if we want to bundle multiple files into a single loadable module (<x key="module-bundler"></x>)
+Originally created to manage compilation,
+they are also useful for programs written in <g key="interpreted_language">interpreted languages</g> like JavaScript
+when we want to bundle multiple modules into a single loadable file (<x key="module-bundler"></x>)
 or re-create documentation from source code (<x key="doc-generator"></x>).
 In this chapter we will create a simple build manager
-based on <a href="https://www.gnu.org/software/make/">Make</a>, <a href="https://www.npmjs.com/package/bajel">Bajel</a>, <a href="https://jakejs.com/">Jake</a>, and <cite>Smith2011</cite>.</p>
+based on <a href="https://www.gnu.org/software/make/">Make</a>, <a href="https://www.npmjs.com/package/bajel">Bajel</a>, <a href="https://jakejs.com/">Jake</a>,
+and other systems discussed in <cite>Smith2011</cite>.</p>
 <h2 id="whats-in-a-build-manager">What's in a build manager?</h2>
 <p>The input to a build manager is a set of rules,
 each of which has:</p>
@@ -117,7 +116,8 @@ each of which has:</p>
 <p>a <g key="build_target">target</g>, which is the file to be updated;</p>
 </li>
 <li>
-<p>some <g key="dependency">dependencies</g>, which are the things that file depends on; and</p>
+<p>some <g key="dependency">dependencies</g>, which are the things that file depends on;
+and</p>
 </li>
 <li>
 <p>a <g key="build_recipe">recipe</g> that specifies how to update the target
@@ -128,12 +128,13 @@ if it is out of date compared to its dependencies.</p>
 so the relationships between the files form a <g key="dag">directed acyclic graph</g> or DAG
 (<f key="build-manager-dependencies"></f>).
 The graph is directed because &quot;A depends on B&quot; is a one-way relationship;
-it has to be acyclic because if something depends on itself we cannot ever finish updating it.
+it cannot contain cycles (or loops) because
+if something depends on itself we can never finish updating it.
 We say that a target is <g key="build_stale">stale</g> if it is older than any of its dependencies.
 When this happens,
 we use the recipes to bring it up to date.</p>
 <figure id="build-manager-dependencies"><img src="./figures/dependencies.svg" alt="Respecting dependencies" latexscale="true"/><figcaption>How a build manager finds and respects dependencies.</figcaption></figure>
-<p>Our build manager will do four things:</p>
+<p>Our build manager must:</p>
 <ol>
 <li>
 <p>Read a file containing rules.</p>
@@ -145,13 +146,20 @@ we use the recipes to bring it up to date.</p>
 <p>Figure out which targets are stale.</p>
 </li>
 <li>
-<p>Build those targets in <g key="topological_order">topological order</g>,
-i.e.,
-make sure things are built <em>before</em> things that depend on them are built.</p>
+<p>Build those targets,
+making sure to build things <em>before</em> anything that depends on them is built.</p>
 </li>
 </ol>
+<div class="callout">
+<h3 id="topological-order">Topological order</h3>
+<p>A <g key="topological_order">topological ordering</g> of a graph
+arranges the nodes so that every node comes after everything it depends on.
+For example,
+if A depends on both B and C,
+then (B, C, A) and (C, B, A) are both valid topological orders of the graph.</p>
+</div>
 <h2 id="where-should-we-start">Where should we start?</h2>
-<p>Our rules will be stored in YAML files like this:</p>
+<p>We will store our rules in YAML files like this:</p>
 <pre title="three-simple-rules.yml"><code class="language-yml">- target: A
   depends:
   - B
@@ -171,12 +179,12 @@ make sure things are built <em>before</em> things that depend on them are built.
 <p>We could equally well have used JSON,
 but it wouldn't have made sense to use CSV:
 rules have a nested structure,
-and CSV doesn't handle that particularly gracefully.</p>
+and CSV doesn't represent nesting particularly gracefully.</p>
 </div>
 <p>We are going to create our build manager in stages,
 so we start by writing a simple <g key="driver">driver</g> that loads a JavaScript source file,
-creates an instance of whatever class that file exports,
-and runs that instance with the rest of the command-line parameters:</p>
+creates an object of whatever class that file exports,
+and runs the <code>.build</code> method of that object with the rest of the command-line parameters:</p>
 <pre title="driver.js"><code class="language-js">const main = async () =&gt; {
   const BuilderClass = (await import(process.argv[2])).default
   const builder = new BuilderClass(...process.argv.slice(3))
@@ -190,14 +198,21 @@ and runs that instance with the rest of the command-line parameters:</p>
 main()
 </code></pre>
 <div class="continue">
-<p>This only saves us a few lines of code in this case,
-but we will use this idea for larger programs in future chapters.</p>
+<p>We use the <code>import</code> function to dynamically load files containing in <x key="unit-test"></x> as well.
+It only saves us a few lines of code in this case,
+but we will use this idea of a general-purpose driver for larger programs in future chapters.</p>
 </div>
-<p>Looking at the driver,
-each version of our build manager must be a class
-whose constructor takes a configuration file as an argument
-and that provides a <code>build</code> method.
-That method must create a graph from the configuration file,
+<p>To work with our driver,
+each version of our build manager must be a class that satistifes two requirements:</p>
+<ol>
+<li>
+<p>Its constructor must take a configuration file as an argument.</p>
+</li>
+<li>
+<p>It must provide a <code>build</code> method that needs no arguments.</p>
+</li>
+</ol>
+<p>The <code>build</code> method must create a graph from the configuration file,
 check that it does not contain any <g key="cycle">cycles</g>,
 and then run whatever commands are needed to update stale targets.
 Just as we built a generic <code>Visitor</code> class in <x key="page-templates"></x>,
@@ -236,17 +251,17 @@ class SkeletonBuilder {
 
 export default SkeletonBuilder
 </code></pre>
-<p>This is a simple example of the <g key="template_method_pattern">Template Method</g> pattern
-(<f key="build-manager-template-method"></f>):
-the parent class defines the order of the steps,
-while child classes fill them in.
-This pattern ensures that every child conceptually does the same things in the same order,
-even if the details vary.</p>
+<p>This is an example of the <g key="template_method_pattern">Template Method</g> design pattern:
+the parent class defines the order of the steps
+and child classes fill them in
+(<f key="build-manager-template-method"></f>).
+This design pattern ensures that every child does the same things in the same order,
+even if the details of <em>how</em> vary from case to case.</p>
 <figure id="build-manager-template-method"><img src="./figures/template-method.svg" alt="Template Method pattern" latexscale="true"/><figcaption>The Template Method pattern in action.</figcaption></figure>
-<p>We would normally implement all of the methods required by the parent class's template method at the same time.
-For tutorial purposes,
-we will write them them one by one to make the evolving code more readable.
-The first method we implement loads the configuration file during construction:</p>
+<p>We would normally implement all of the methods required by the <code>build</code> method at the same time,
+but to make the evolving code easier to follow we will write them them one by one.
+The <code>loadConfig</code> method loads the configuration file
+as the builder object is being constructed:</p>
 <pre title="config-loader.js"><code class="language-js">import assert from 'assert'
 import fs from 'fs'
 import yaml from 'js-yaml'
@@ -283,15 +298,20 @@ export default ConfigLoader
 <p>The first line does the loading;
 the rest of the method checks that the rules are at least superficially plausible.
 We need these checks because YAML is a generic file format
-that doesn't know anything about the extra requirements of our rules.</p>
+that doesn't know anything about the extra requirements of our rules.
+And as we first saw in <x key="async-programming"></x>,
+we have to specify that the character encoding of our file is UTF-8
+so that JavaScript knows how to convert bytes into text.</p>
 </div>
 <p>The next step is to turn the configuration into a graph in memory.
-We use <a href="https://www.npmjs.com/package/graphlib"><code>graphlib</code></a> to manage nodes and links rather than writing our own classes for graphs,
+We use the <a href="https://www.npmjs.com/package/graphlib"><code>graphlib</code></a> module to manage nodes and links
+rather than writing our own classes for graphs,
 and store the recipe to rebuild a node in that node.
-Two features of <a href="https://www.npmjs.com/package/graphlib"><code>graphlib</code></a> that took us a while to figure out are:</p>
+Two features of <a href="https://www.npmjs.com/package/graphlib"><code>graphlib</code></a> that took us a while to figure out are that:</p>
 <ol>
 <li>
-<p>links go <em>from</em> the dependency <em>to</em> the target, and</p>
+<p>links go <em>from</em> the dependency <em>to</em> the target,
+and</p>
 </li>
 <li>
 <p><code>setEdge</code> automatically adds nodes if they aren't already present.</p>
@@ -299,7 +319,7 @@ Two features of <a href="https://www.npmjs.com/package/graphlib"><code>graphlib<
 </ol>
 <p><a href="https://www.npmjs.com/package/graphlib"><code>graphlib</code></a> provides implementations of some common graph algorithms,
 including one to check for cycles,
-so we decided to write that method at this point as well:</p>
+so we might as well write that method at this point as well:</p>
 <pre title="graph-creator.js"><code class="language-js">import assert from 'assert'
 import graphlib from '@dagrejs/graphlib'
 
@@ -359,7 +379,7 @@ it shows the graph with <code>v</code> and <code>w</code> keys to represent the 
 Sorted
 [ 'C', 'B', 'A' ]
 </code></pre>
-<p>Let's write a quick test to make sure our cycle detector actually works:</p>
+<p>Let's write a quick test to make sure the cycle detector works as intended:</p>
 <pre title="circular-rules.yml"><code class="language-yml">- target: A
   depends:
   - B
@@ -389,17 +409,18 @@ Sorted
 </code></pre>
 <h2 id="how-can-we-specify-that-a-file-is-out-of-date">How can we specify that a file is out of date?</h2>
 <p>The next step is to figure out which files are out of date.
-<a href="https://www.gnu.org/software/make/">Make</a> did this by comparing the timestamps on the files in question,
-but this isn't always reliable across networks
-(because computers' clocks may be very slightly out of sync)
-and because the operating system may only report file update times to the nearest millisecond,
-which seemed like a very short time in 1970 but seems very long today.
-More modern systems store a hash of each file's contents
-and compare the current hash to the stored one to see if the file has changed.</p>
-<p>Since we already looked at hashing in <x key="file-backup"></x>,
-we will use the timestamp approach in our design.
-For testing,
-we will use another configuration file to specify fake timestamps for files:</p>
+<a href="https://www.gnu.org/software/make/">Make</a> does this by comparing the timestamps of the files in question,
+but this isn't always reliable:
+computers' clocks may be slightly out of sync,
+which can produce a wrong answer on a networked filesystem,
+and the operating system may only report file update times to the nearest millisecond
+(which seemed very short in 1970 but seems very long today).</p>
+<p>More modern build systems store a hash of each file's contents
+and compare the current hash to the stored one to see if the file has changed.
+Since we already looked at hashing in <x key="file-backup"></x>,
+we will use the timestamp approach here.
+And instead of using a mock filesystem as we did in <x key="file-backup"></x>,
+we will simply load another configuration file that specifies fake timestamps for files:</p>
 <pre title="add-timestamps.yml"><code class="language-yml">A: 2
 B: 5
 C: 8
@@ -446,6 +467,8 @@ class AddTimestamps extends GraphCreator {
 
 export default AddTimestamps
 </code></pre>
+<div class="callout">
+<h3 id="not-quite-what-we-were-expecting">Not quite what we were expecting</h3>
 <p>The steps defined in <code>SkeletonBuilder.build</code> don't change when we do this,
 so people reading the code don't have to change their mental model of what it does overall.
 However,
@@ -455,6 +478,7 @@ And if someone ever wants to inject a new step between building the graph and ad
 they will have to override <code>addTimestamps</code> and put their step at the top before calling <code>super.addTimestamps</code>,
 which will make the code a lot harder to understand.
 We will reflect on this in the last section of this chapter.</p>
+</div>
 <p>Before we move on,
 let's make sure that adding timestamps works as we want:</p>
 <pre title="add-timestamps.sh"><code class="language-sh">node driver.js ./add-timestamps.js three-simple-rules.yml add-timestamps.yml
@@ -467,13 +491,13 @@ let's make sure that adding timestamps works as we want:</p>
 </code></pre>
 <h2 id="how-can-we-update-outofdate-files">How can we update out-of-date files?</h2>
 <p>To figure out which recipes to execute and in which order,
-we set the pretended &quot;current time&quot; to the latest time of any file,
-then look at each file from the &quot;bottom&quot; to the &quot;top&quot; in topological order.
+we set the pretended current time to the latest time of any file,
+then look at each file in topological order.
 If a file is older than any of its dependencies,
 we update the file <em>and</em> its pretended timestamp
 to trigger an update of anything that depends on it.</p>
-<p>We will pretend for now that updating a file takes one unit of time,
-so we advance our fictional clock once for each build.
+<p>We can pretend that updating a file always takes one unit of time,
+so we advance our fictional clock by one for each build.
 Using <code>graphlib.alg.topsort</code> to create the topological order,
 we get this:</p>
 <pre title="update-timestamps.js"><code class="language-js">import graphlib from '@dagrejs/graphlib'
@@ -538,19 +562,20 @@ it seems to do the right thing:</p>
 11: END
 </code></pre>
 <h2 id="how-can-we-add-generic-build-rules">How can we add generic build rules?</h2>
-<p>If our website has a hundred blog posts or a hundred pages of documentation about particular JavaScript files,
+<p>If our website has a hundred blog posts
+or a hundred pages of documentation about particular JavaScript files,
 we don't want to have to write a hundred nearly-identical recipes.
 Instead,
 we want to be able to write generic <g key="build_rule">build rules</g> that say,
-&quot;Build all things in this set the same way.&quot;
-To do this,
-we need:</p>
+&quot;Build all things of this kind the same way.&quot;
+These generic rules need:</p>
 <ul>
 <li>
 <p>a way to define a set of files;</p>
 </li>
 <li>
-<p>a way to specify a generic rule; and</p>
+<p>a way to specify a generic rule;
+and</p>
 </li>
 <li>
 <p>a way to fill in parts of that rule.</p>
@@ -601,10 +626,8 @@ class VariableExpander extends UpdateOnTimestamps {
 
 export default VariableExpander
 </code></pre>
-<div class="continue">
-<p>and the first thing we do is test that it works when there <em>aren't</em> any variables to expand
+<p>The first thing we do is test that it works when there <em>aren't</em> any variables to expand
 by running it on the same example we used previously:</p>
-</div>
 <pre title="variable-expander.out"><code class="language-out">9: START
 9: B
     update B from C
@@ -612,6 +635,12 @@ by running it on the same example we used previously:</p>
     update A from B C
 11: END
 </code></pre>
+<div class="continue">
+<p>This is perhaps the most important reason to create tests:
+they tell us right away if something we have added or changed
+has broken something that used to work.
+That gives us a firm base to build on as we debug the new code.</p>
+</div>
 <p>Now we need to add <g key="pattern_rule">pattern rules</g>.
 Our first attempt at a rules file looks like this:</p>
 <pre title="pattern-rules.yml"><code class="language-yml">- target: left.out
@@ -694,20 +723,22 @@ we wind up tripping over the lack of a node for <code>%.in</code> before we get 
 </div>
 <div class="callout">
 <h3 id="errors-become-assertions">Errors become assertions</h3>
-<p>We didn't have the assertion in <code>add-timestamps.js</code> that printed the error message shown above when we first wrote it.
+<p>When we first wrote <code>add-timestamps.js</code>,
+it didn't contain the assertion
+that printed the error message shown above.
 Once we tracked down our bug,
 though,
 we added the assertion to ensure we didn't make the same mistake again,
 and as <g key="runnable_documentation">runnable documentation</g>
 to tell the next programmer more about the code.
 Regular code tells the computer what to do;
-assertions tell the reader why it's doing it.</p>
+assertions with meaningful error messages tell the reader why.</p>
 </div>
 <p>We can fix our problem by rewriting the rule loader
 to separate pattern rules from simple rules;
 we can tell the two apart by checking if the rule's dependencies include <code>%</code>.
 While we're here,
-we will timestamps as an optional field in the rules for testing purposes
+we will enable timestamps as an optional field in the rules for testing purposes
 rather than having them in a separate file:</p>
 <pre title="pattern-user-read.js"><code class="language-js">import assert from 'assert'
 import graphlib from '@dagrejs/graphlib'
@@ -901,7 +932,7 @@ if it never does,
 then Template Method is probably the wrong pattern for our situation.
 Realizing this isn't a failure in initial design:
 we always learn about our problem as we try to capture it in code,
-and if we can anticipate 100% of the issues that are going to come up,
+and if we know enough to anticipate 100% of the issues that are going to come up,
 it's time to put what we've learned in a library for future use.</p>
 <h2 id="exercises">Exercises</h2>
 <h3 class="exercise">Handle failure</h3>
