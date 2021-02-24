@@ -346,7 +346,7 @@ we can put them together however we want.
 ::: callout
 ### The Open-Closed Principle
 
-The <g key="open_closed_principle">open-closed principle</g> states that
+The <g key="open_closed_principle">Open-Closed Principle</g> states that
 software should be open for extension but closed for modification,
 i.e., that it should be possible to extend functionality
 without having to rewrite existing code.

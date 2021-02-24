@@ -6,7 +6,7 @@ and the best place to put that documentation is on the web.
 Writing and updating pages by hand is time-consuming and error-prone,
 particularly when many parts are the same,
 so most documentation sites use some kind of
-<g key="static-site-generator">static site generator</g>
+<g key="static_site_generator">static site generator</g>
 to create web pages from templates.
 
 At the heart of every static site generator is a page templating system.

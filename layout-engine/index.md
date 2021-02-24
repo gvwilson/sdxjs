@@ -5,18 +5,16 @@ You might be reading this as an HTML page,
 an e-book (which is basically the same thing),
 or on the printed page.
 In all three cases,
-a piece of software took some text and some layout instructions
-and decided where each character and image was going to go.
-A tool that does that is called a <g key="layout_engine">layout engine</g>,
-and in this chapter we will build a small one
+a <g key="layout_engine">layout engine</g> took some text and some layout instructions
+and decided where to put each character and image.
+We will build a small layout engine in this chapter
 based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial]
 to explore how browsers decide what to put where.
 
 Our inputs will be a very small subset of HTML and an equally small subset of CSS.
-To keep things simple
-we will create our own classes for these instead of using those provided by
-various [Node][nodejs] libraries.
-To translate the combination of HTML and CSS into text on the screen,
+We will create our own classes to represent these
+instead of using those provided by various [Node][nodejs] libraries;
+to translate the combination of HTML and CSS into text on the screen,
 we will label each node in the DOM tree with the appropriate styles,
 walk that tree to figure out where each visible element belongs,
 and then draw the result as text on the screen.
@@ -28,8 +26,10 @@ The coordinate systems for screens put (0, 0) in the upper left corner instead o
 X increases to the right as usual,
 but Y increases as we go down, rather than up
 (<f key="layout-engine-coordinate-system"></f>).
-This convention is a holdover from the days of teletype terminals,
-which printed each successive line below the one before it.
+This convention is a holdover from the days of teletype terminals
+that printed lines on rolls of paper;
+as [Mike Hoye][hoye-mike] has [repeatedly observed][punching-holes],
+the past is all around us.
 :::
 
 <%- include('/inc/figure.html', {
@@ -43,14 +43,15 @@ which printed each successive line below the one before it.
 
 Let's start on <g key="easy_mode">easy mode</g>
 without margins, padding, line-wrapping, or other complications.
-We define a cell as a row, a column, or a block.
-A block has a fixed width and height (hence the name):
+Everything we can put on the screen is represented as a rectangular cell,
+and every cell is either a row, a column, or a block.
+A block has a fixed width and height:
 
 <%- include('/inc/keep.html', {file: 'easy-mode.js', key: 'block'}) %>
 
 A row arranges one or more cells horizontally;
 its width is the sum of the widths of its children,
-while its height is the maximum height of any of its children
+while its height is the height of its tallest child
 (<f key="layout-engine-sizing"></f>):
 
 <%- include('/inc/keep.html', {file: 'easy-mode.js', key: 'row'}) %>
@@ -64,18 +65,23 @@ while its height is the maximum height of any of its children
 
 Finally,
 a column arranges one or more cells vertically;
-its width is the maximum width of its children,
+its width is the width of its widest child
 and its height is the sum of the heights of its children.
 (Here and elsewhere we use the abbreviation `col` when referring to columns.)
 
 <%- include('/inc/keep.html', {file: 'easy-mode.js', key: 'col'}) %>
 
-We represent a tree of cells as a collection of nested objects
-and recalculate the width and height of each cell each time they're needed.
+Rows and columns nest inside one another:
+a row cannot span two or more columns,
+and a column cannot cross the boundary between two rows.
+Any time we have a structure with that property
+we can represent it as a tree of nested objects.
+Given such a tree,
+we can calculate the width and height of each cell every time we need to.
 This is simple but inefficient:
 we could calculate both width and height at the same time
-and <g key="cache">cache</g> calculated values to avoid recalculation,
-but it's called "easy mode" for a reason.
+and <g key="cache">cache</g> those values to avoid recalculation,
+but we called this "easy mode" for a reason.
 
 As simple as it is,
 this code could still contain errors (and did during development),
@@ -92,7 +98,7 @@ we can figure out where to put it.
 Suppose we start with the upper left corner of the browser:
 upper because we lay out the page top-to-bottom
 and left because we are doing left-to-right layout.
-If the cell is a block, we just place it there.
+If the cell is a block, we place it there.
 If the cell is a row, on the other hand,
 we get its height
 and then calculate its lower edge as y1 = y0 + height.
@@ -146,6 +152,9 @@ If we do this starting at the root of the tree,
 child blocks will overwrite the markings made by their parents,
 which will automatically produce the right appearance
 (<f key="layout-engine-draw-over"></f>).
+(A more sophisticated version of this called <g key="z_buffering">z-buffering</g>
+keeps track of the visual depth of each pixel
+in order to draw things in three dimensions.)
 
 <%- include('/inc/figure.html', {
     id: 'layout-engine-draw-over',
@@ -154,7 +163,7 @@ which will automatically produce the right appearance
     cap: 'Render blocks by drawing child nodes on top of parent nodes.'
 }) %>
 
-Making our pretend screen is a simple matter of creating an array of arrays:
+Our pretended screen is just an array of arrays of characters:
 
 <%- include('/inc/keep.html', {file: 'render.js', key: 'makeScreen'}) %>
 
@@ -174,14 +183,16 @@ and give the new class a `render` method with the same <g key="signature">signat
 ::: continue
 These `render` methods do exactly the same thing,
 so we have each one call a shared function that does the actual work.
-If we were building this code for real,
-we would go back and create a class called `Cell` with this `render` method,
-then derive our original easy-mode `Block`, `Row`, and `Col` classes from that.
+If we were building a real layout engine,
+a cleaner solution would be to go back and create a class called `Cell` with this `render` method,
+then derive our `Block`, `Row`, and `Col` classes from that.
+In general,
+if two or more classes need to be able to do something,
+we should add a method to do that to their lowest common ancestor.
 :::
 
-Once we have rendering in place,
-our simpler tests are a little easier to read,
-though we still had to draw things on graph paper to figure out our complex ones:
+Our simpler tests are a little easier to read once we have rendering in place,
+though we still had to draw things on paper to figure out our complex ones:
 
 <%- include('/inc/keep.html', {file: 'test/test-rendered.js', key: 'large'}) %>
 
@@ -198,21 +209,20 @@ is very common in software development.
 
 One of the biggest differences between a browser and a printed page
 is that the text in the browser wraps itself automatically as the window is resized.
-The other, these days, is that the printed page doesn't spy on us,
-though someone is undoubtedly working on that...
+(The other, these days, is that the printed page doesn't spy on us,
+though someone is undoubtedly working on that…)
 
-To add this to our layout engine,
+To add wrapping to our layout engine,
 suppose we fix the width of a row.
-(For now,
-we will assume all of the row's children are less than or equal to this width;
-we will look at what happens when they're not in the exercises.)
 If the total width of the children is greater than the row's width,
 the layout engine needs to wrap the children around.
 This assumes that columns can be made as big as they need to be,
 i.e.,
 that we can grow vertically to make up for limited space horizontally.
+It also assumes that all of the row's children are no wider than the width of the row;
+we will look at what happens when they're not in the exercises.
 
-Our layout engine manages this by transforming the tree.
+Our layout engine manages wrapping by transforming the tree.
 The height and width of blocks are fixed,
 so they become themselves.
 Columns become themselves as well,
@@ -222,7 +232,7 @@ the class representing columns needs a new method:
 <%- include('/inc/keep.html', {file: 'wrapped.js', key: 'blockcol'}) %>
 
 Rows do all the hard work.
-Each row is replaced with a row containing a single column with one or more rows,
+Each original row is replaced with a new row that contains a single column with one or more rows,
 each of which is one "line" of wrapped cells
 (<f key="layout-engine-wrap"></f>).
 This replacement is unnecessary when everything will fit on a single row,
@@ -241,41 +251,63 @@ and returns that fixed width when asked for its size:
 
 <%- include('/inc/keeperase.html', {file: 'wrapped.js', keep: 'row', erase: 'wrap'}) %>
 
+::: continue
 Wrapping puts the row's children into buckets,
 then converts the buckets to a row of a column of rows:
+:::
 
 <%- include('/inc/keep.html', {file: 'wrapped.js', key: 'wrap'}) %>
 
-Once again we bring forward all the previous tests,
-which should produce the same answers as before,
+Once again we bring forward all the previous tests
 and write some new ones to test the functionality we've added:
 
 <%- include('/inc/keep.html', {file: 'test/test-wrapped.js', key: 'example'}) %>
 <%- include('/inc/file.html', {file: 'test-wrapped.out'}) %>
 
+
+::: callout
+### The Liskov Substitution Principle
+
+We are able to re-use tests like this because of
+the <g key="liskov_substitution_principle">Liskov Substitution Principle</g>,
+which states that
+it should be possible to replace objects in a program
+with objects of derived classes
+without breaking anything.
+In order to satisfy this principle,
+new code must handle the same set of inputs as the old code,
+though it may be able to process more inputs as well.
+Conversely,
+its output must be a subset of what the old code produced
+so that whatever is downstream from it won't be surprised.
+Thinking in these terms leads to a methodology called
+<g key="design_by_contract">design by contract</g>.
+:::
+
 ## What subset of CSS will we support?
 
-It's now time to do something a little more realistic.
-Our final subset of HTML includes rows, columns, and text blocks as before.
+It's finally time to style pages that contain text.
+Our final subset of HTML has rows, columns, and text blocks as before.
 Each text block has one or more lines of text;
 the number of lines determines the block's height
-while the length of the longest line determines its width.
+and the length of the longest line determines its width.
 
-Rows and columns can have <g key="attribute">attributes</g> just as they can in real HTML.
-Each attribute must have a single quoted value,
-and rows no longer take a fixed width:
-our little subset of CSS will handle that.
+Rows and columns can have <g key="attribute">attributes</g> just as they can in real HTML,
+and each attribute must have a single value in quotes.
+Rows no longer take a fixed width:
+instead,
+we will specify that with our little subset of CSS.
 Together,
 these three classes are just over 40 lines of code:
 
 <%- include('/inc/erase.html', {file: 'micro-dom.js', key: 'erase'}) %>
 
-We will use regular expressions to parse HTML,
-though as we explained in <x key="regex-parser"></x>,
-[this is a sin][stack-overflow-html-regex].
+We will use regular expressions to parse HTML
+(though as we explained in <x key="regex-parser"></x>,
+[this is a sin][stack-overflow-html-regex]).
 The main body of our parser is:
 
-<%- include('/inc/erase.html', {file: 'parse.js', key: 'makenode'}) %>
+<%- include('/inc/erase.html', {file: 'parse.js', key: 'skip'}) %>
 
 ::: continue
 while the two functions that do most of the work are:
@@ -283,53 +315,81 @@ while the two functions that do most of the work are:
 
 <%- include('/inc/keep.html', {file: 'parse.js', key: 'makenode'}) %>
 
+::: continue
+and:
+:::
+
+<%- include('/inc/keep.html', {file: 'parse.js', key: 'makeopening'}) %>
+
 The next step is to define a generic class for CSS rules
 with a subclass for each type of rule.
 From highest precedence to lowest,
 the three types of rules we support identify specific nodes via their ID,
 classes of nodes via their `class` attribute,
-and then types of nodes via their element name.
-We keep track of these precedences through the simple expedient of numbering the classes:
+and types of nodes via their element name.
+We keep track of which rules take precedence over which through the simple expedient of numbering the classes:
 
 <%- include('/inc/keep.html', {file: 'micro-css.js', key: 'css'}) %>
 
-An ID rule has a <g key="dom_selector">DOM selector</g> of the form `#name`
-and matches HTML of the form `<tag id="name">…</tag>` (where `tag` is `row` or `col`):
+An ID rule's <g key="dom_selector">DOM selector</g> is written as `#name`
+and matches HTML like `<tag id="name">…</tag>` (where `tag` is `row` or `col`):
 
 <%- include('/inc/keep.html', {file: 'micro-css.js', key: 'id'}) %>
 
-A class rule has a DOM selector of the form `.kind` and matches HTML of the form `<tag class="kind">…</tag>`.
+A class rule's DOM selector is written as `.kind` and matches HTML like `<tag class="kind">…</tag>`.
 Unlike real CSS,
 we only allow one class per node:
 
 <%- include('/inc/keep.html', {file: 'micro-css.js', key: 'class'}) %>
 
 Finally,
-tag rules are identified by having just the name of the type of node they apply to:
+tag rules just have the name of the type of node they apply to without any punctuation:
 
 <%- include('/inc/keep.html', {file: 'micro-css.js', key: 'tag'}) %>
 
-We could write yet another parser to read a subset of CSS and convert it to objects,
-but it's simpler to store the CSS as JSON:
+We could build yet another parser to read a subset of CSS and convert it to objects,
+but this chapter is long enough,
+so we will write our rules as JSON:
+
+```js
+{
+  'row': { width: 20 },
+  '.kind': { width: 5 },
+  '#name': { height: 10 }
+}
+```
+
+::: continue
+and build a class that converts this representation to a set of objects:
+:::
 
 <%- include('/inc/keep.html', {file: 'micro-css.js', key: 'ruleset'}) %>
 
-::: continue
 Our CSS ruleset class also has a method for finding the rules for a given DOM node.
-This makes use of a custom sort that depends on CSS classes having a precedence order.
-We really should have the CSS rule classes look at the rule and decide if it's theirs using a `static` method
-in order to reduce the <g key="coupling">coupling</g> between the classes.
-Of course, we should also stop accessing the objects' attributes directly…
-:::
+This method relies on the precedence values we defined for our classes
+in order to sort them
+so that we can find the most specific.
 
 Here's our final set of tests:
 
 <%- include('/inc/keep.html', {file: 'test/test-styled.js', key: 'test'}) %>
 
-If we were going to go on,
+If we were going on,
 we would override the cells' `getWidth` and `getHeight` methods to pay attention to styles.
-But what about nodes that don't have a style?
-We could use a default,
-base it on the needs of the child nodes,
-or flag it as an error.
+We would also decide what to do with cells that don't have any styles defined:
+use a default,
+flag it as an error,
+or make a choice based on the contents of the child nodes.
 We will explore these possibilities in the exercises.
+
+::: callout
+### Where it all started
+
+This chapter's topic was the seed from which this entire book grew.
+After struggling with CSS for several years,
+[Greg Wilson][wilson-greg] began wondering whether it really had to be so complicated.
+That question led to others,
+which eventually led to all of this.
+The moral of the story is,
+be careful what you ask…
+:::

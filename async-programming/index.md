@@ -158,15 +158,15 @@ if our class is:
 
 ```js
 class Fluent {
-  constructor () {...}
+  constructor () {…}
 
   first (top) {
-    ...do something with top...
+    …do something with top…
     return this
   }
 
   second (left, right) {
-    ...do something with left and right...
+    …do something with left and right…
   }
 }
 ```
@@ -189,7 +189,7 @@ or even
 ```
 
 `Array`'s (mostly) fluent interface allows us to write expressions like
-`Array.filter(...).map(...).map(...)`,
+`Array.filter(…).map(…).map(…)`,
 which is usually more readable than assigning intermediate results to temporary variables.
 :::
 

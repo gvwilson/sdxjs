@@ -207,7 +207,7 @@ import './test-mul.js'
 import './test-div.js'
 
 Hope.run()
-...
+…
 ```
 
 :::continue

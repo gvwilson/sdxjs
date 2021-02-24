@@ -126,8 +126,6 @@
 <dd class="glossary">A function that creates an <g key="object">object</g> of a particular <g key="class">class</g>.</dd>
 <dt id="corner_case" class="glossary">corner case</dt>
 <dd class="glossary">Another name for an <g key="edge_case">edge case</g>.</dd>
-<dt id="coupling" class="glossary">coupling</dt>
-<dd class="glossary">The degree of interaction between two <g key="class">classes</g>, <g key="module">modules</g>, or other software components. If a system's components are <g key="loosely_coupled">loosely coupled</g>, changes to one are unlikely to affect others.  If they are <g key="tightly_coupled">tightly coupled</g>, then any change requires other changes elsewhere, which complicates maintenance and evolution.</dd>
 <dt id="cryptographic_hash_function" class="glossary">cryptographic hash function</dt>
 <dd class="glossary">A <g key="hash_function">hash function</g> that produces an apparently-random value for any input.</dd>
 <dt id="css" class="glossary">Cascading Style Sheets (CSS)</dt>
@@ -160,6 +158,8 @@
 <dd class="glossary">A search algorithm that explores one possibility all the way to its conclusion before moving on to the next.</dd>
 <dt id="derived_class" class="glossary">derived class</dt>
 <dd class="glossary">In <g key="oop">object-oriented programming</g>, a class that is a direct or indirect extension of a <g key="base_class">base class</g>.</dd>
+<dt id="design_by_contract" class="glossary">design by contract</dt>
+<dd class="glossary">A style of designing software in which functions specify the <g key="pre_condition">pre-conditions</g> that must be true in order for them to run and the <g key="post_condition">post-conditions</g> they guarantee will be true when they return. A function can then be replaced by one with weaker pre-conditions (i.e., it accepts a wider set of input) and/or stronger post-conditions (i.e., it produces a smaller range of output) without breaking anything else.</dd>
 <dt id="design_pattern" class="glossary">design pattern</dt>
 <dd class="glossary">A recurring pattern in software design that is specific enough to be worth naming, but not so specific that a single best implementation can be provided by a <g key="library">library</g>.</dd>
 <dt id="destructuring_assignment" class="glossary">destructuring assignment</dt>
@@ -195,7 +195,7 @@
 <dt id="edge_case" class="glossary">edge case</dt>
 <dd class="glossary">A problem that only comes up under unusual circumstances or when a system is pushed to its limits; also sometimes called a <g key="corner_case">corner case</g>. Programs intended for widespread use have to handle edge cases, but doing so can make them much more complicated.</dd>
 <dt id="element" class="glossary">element</dt>
-<dd class="glossary">A named component in an <g key="html">HTML</g> or <g key="xml">XML</g> document. Elements are usually written <code>&lt;name&gt;</code>...<code>&lt;/name&gt;</code>, where &quot;...&quot; represents the content of the element. Elements often have <g key="attribute">attributes</g>.</dd>
+<dd class="glossary">A named component in an <g key="html">HTML</g> or <g key="xml">XML</g> document. Elements are usually written <code>&lt;name&gt;</code>…<code>&lt;/name&gt;</code>, where &quot;…&quot; represents the content of the element. Elements often have <g key="attribute">attributes</g>.</dd>
 <dt id="encapsulate" class="glossary">encapsulate</dt>
 <dd class="glossary">To store data inside some kind of structure so that it is only accessible through that structure.</dd>
 <dt id="entry_point" class="glossary">entry point</dt>
@@ -332,6 +332,8 @@
 <dd class="glossary">To combine separately <g key="compile">compiled</g> modules into a single runnable program.</dd>
 <dt id="linter" class="glossary">linter</dt>
 <dd class="glossary">A program that checks for common problems in software, such as violations of indentation rules or variable naming conventions. The name comes from the first tool of its kind, called <code>lint</code>.</dd>
+<dt id="liskov_substitution_principle" class="glossary">Liskov Substitution Principle</dt>
+<dd class="glossary">A design rule stating that it should be possible to replace objects in a program with objects of derived classes without breaking the program. <g key="design_by_contract">Design by contract</g> is intended to enforce this rule.</dd>
 <dt id="list" class="glossary">list</dt>
 <dd class="glossary">A <g key="vector">vector</g> that can contain values of many different (<g key="heterogeneous">heterogeneous</g>) types.</dd>
 <dt id="literal" class="glossary">literal</dt>
@@ -342,8 +344,6 @@
 <dd class="glossary">A status report or error message written to a file as a program runs.</dd>
 <dt id="loop_body" class="glossary">loop body</dt>
 <dd class="glossary">The statement or statements executed by a loop.</dd>
-<dt id="loosely_coupled" class="glossary">loosely coupled</dt>
-<dd class="glossary">Components in a software system are said to be loosely coupled if they are relatively independent of one another, i.e., if any one of them can be changed or replaced without others having to be altered as well.</dd>
 <dt id="lru_cache" class="glossary">Least Recently Used cache (LRU cache)</dt>
 <dd class="glossary">A <g key="cache">cache</g> that discards items that have not been used recently in order to limit memory requirements.</dd>
 <dt id="macro" class="glossary">macro</dt>
@@ -386,8 +386,8 @@
 <dd class="glossary">A style of programming in which functions and data are bound together in <g key="object">objects</g> that only interact with each other through well-defined interfaces.</dd>
 <dt id="op_code" class="glossary">op code</dt>
 <dd class="glossary">The numerical code for a particular instruction that a processor can execute.</dd>
-<dt id="open_closed_principle" class="glossary">open-closed principle</dt>
-<dd class="glossary">Software should be open for extension but closed for modification, i.e., it should be possible to extend functionality without having to rewrite existing code.</dd>
+<dt id="open_closed_principle" class="glossary">Open-Closed Principle</dt>
+<dd class="glossary">A design rule stating that software should be open for extension but closed for modification, i.e., it should be possible to extend functionality without having to rewrite existing code.</dd>
 <dt id="operating_system" class="glossary">operating system</dt>
 <dd class="glossary">A program that provides a standard interface to whatever hardware it is running on. Theoretically, any program that only interacts with the operating system should run on any computer that operating system runs on.</dd>
 <dt id="package" class="glossary">package</dt>
@@ -418,6 +418,10 @@
 <dd class="glossary">A style of application design in which the main program loads and runs small independent modules that do the bulk of the work.</dd>
 <dt id="polymorphism" class="glossary">polymorphism</dt>
 <dd class="glossary">Having many different implementations of the same interface. If a set of functions or objects are polymorphic, they can be called interchangeably.</dd>
+<dt id="post_condition" class="glossary">post-condition</dt>
+<dd class="glossary">Something that is guaranteed to be true after a function runs successfully. Post-conditions are often expressed as as <g key="assertion">assertions</g> that must be true of its results.</dd>
+<dt id="pre_condition" class="glossary">pre-condition</dt>
+<dd class="glossary">Something that must be true before a function runs in order for it to work correctly. Pre-conditions are often expressed as as <g key="assertion">assertions</g> that must be true of input values.</dd>
 <dt id="precedence" class="glossary">precedence</dt>
 <dd class="glossary">The priority of an operation. For example, multiplication has a higher precedence than addition, so <code>a+b*c</code> is read as &quot;the sum of <code>a</code> with the product of <code>b</code> and <code>c</code>&quot;.</dd>
 <dt id="prerequisite" class="glossary">prerequisite</dt>
@@ -506,7 +510,7 @@
 <dd class="glossary">The language used for writing queries for a <g key="relational_database">relational database</g>. The term was originally an acronym for Structured Query Language.</dd>
 <dt id="stack_frame" class="glossary">stack frame</dt>
 <dd class="glossary">A section of the <g key="call_stack">call stack</g> that records details of a single call to a specific function.</dd>
-<dt id="static-site-generator" class="glossary">static site generator</dt>
+<dt id="static_site_generator" class="glossary">static site generator</dt>
 <dd class="glossary">A software tool that creates HTML pages from templates and content.</dd>
 <dt id="stdin" class="glossary">standard input</dt>
 <dd class="glossary">A predefined communication channel for a <g key="process">process</g>, typically used to read input from the keyboard or from the previous process in a <g key="pipe_shell">pipe</g>.</dd>
@@ -514,7 +518,7 @@
 <dd class="glossary">A predefined communication channel for a <g key="process">process</g>, typically used to send output to the screen or to the next process in a <g key="pipe_shell">pipe</g>.</dd>
 <dt id="stream" class="glossary">stream</dt>
 <dd class="glossary">A sequential flow of data, such as the <g key="bit">bits</g> arriving across a network connection or the bytes read from a file.</dd>
-<dt id="streaming-api" class="glossary">streaming API</dt>
+<dt id="streaming_api" class="glossary">streaming API</dt>
 <dd class="glossary">An <g key="api">API</g> that processes data in chunks rather than needing to have all of it in memory at once. Streaming APIs usually require <g key="handler">handlers</g> for events such as &quot;start of data&quot;, &quot;next block&quot;, and &quot;end of data&quot;.</dd>
 <dt id="string" class="glossary">string</dt>
 <dd class="glossary">A block of text in a program. The term is short for &quot;character string&quot;.</dd>
@@ -540,8 +544,6 @@
 <dd class="glossary">The thing being tested, sometimes also called the system under test (SUT).</dd>
 <dt id="throw_exception" class="glossary">throw (exception)</dt>
 <dd class="glossary">Another term for <g key="raise_exception">raising</g> an exception.</dd>
-<dt id="tightly_coupled" class="glossary">tightly coupled</dt>
-<dd class="glossary">Components in a software system are said to be tightly coupled if they depend on each other's internals, so that if one is altered then others have to be altered as well.</dd>
 <dt id="timestamp" class="glossary">timestamp</dt>
 <dd class="glossary">A digital identifier showing the time at which something was created or accessed. Timestamps should use <g key="iso_date_format">ISO date format</g> for portability.</dd>
 <dt id="toctou" class="glossary">Time of check/time of use (ToCToU)</dt>
@@ -594,5 +596,7 @@
 <dd class="glossary">A set of rules for defining <g key="html">HTML</g>-like tags and using them to format documents (typically data). XML was popular in the early 2000s, but its complexity led many programmers to adopt <g key="json">JSON</g>, instead.</dd>
 <dt id="yaml" class="glossary">YAML</dt>
 <dd class="glossary">Short for &quot;YAML Ain't Markup Language&quot;, a way to represent nested data using indentation rather than the parentheses and commas of <g key="json">JSON</g>. YAML is often used in configuration files and to define <g key="parameter">parameters</g> for various flavors of <g key="markdown">Markdown</g> documents.</dd>
+<dt id="z_buffering" class="glossary">z-buffering</dt>
+<dd class="glossary">A drawing method that keeps track of the depth of what lies &quot;under&quot; each pixel so that it displays whatever is nearest to the observer.</dd>
 
 </dl>
