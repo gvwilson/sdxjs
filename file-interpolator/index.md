@@ -1,13 +1,16 @@
 ---
 ---
 
-Many of our examples are too long to show comfortably in one block of code on a printed page.
+Many of the examples in these lessons are too long
+to show comfortably in one block of code on a printed page,
+so we needed a way to break them up.
 As an experiment,
 we wrote a custom <g key="loader">loader</a>
-that reads a source file with specially-formatted comments
+that reads a source file containing specially-formatted comments
 and then reads and inserts the files specified in those comments
+before running the code
 (<f key="file-interpolator-conceptual"></f>).
-This isn't how modern programming languages manage multi-file programs,
+Modern programming languages don't work this way,
 but C and C++ do this with <g key="header_file">header files</g>,
 and page templating systems (<x key="page-templates"></x>) do this
 to share fragments of HTML.
@@ -25,21 +28,25 @@ and file to include when loading:
 
 <%- include('/inc/file.html', {file: 'interpolation-example.js'}) %>
 
-Spoiler alert:
-we got this to work,
-then decided to use a different approach for managing the source code fragments in this book.
+We got this to work,
+but decided to use a different approach in this book.
 The stumbling block was that the style-checking tool [ESLint][eslint]
-didn't know how to handle our inclusions
+didn't know what to make of our inclusions,
 so we would either have to modify it or build a style checker of our own.
 (We will actually do that in <x key="style-checker"></x>,
 but we won't go nearly as far as [ESLint][eslint].)
-There are some useful lessons in how we built the inclusion tool despite that,
-particularly related to turning source code into something that will run.
+
+Despite being a dead end,
+the inclusion tool is a good way to show
+how JavaScript turns source code into something it can execute.
+We need to be able to do this in the next couple of chapters,
+so we might as well tackle it now.
 
 ## How can we evaluate JavaScript dynamically?
 
-We want to load a file dynamically just like `import` does,
-but display the special comments in our web/print versions rather than the interpolated code.
+We want to display files as they are on the web and in print,
+but interpolate the files referenced in special comments
+when we load things with `import`.
 To do this,
 we need to understand the lifecycle of a JavaScript program.
 When we ask for a file,
@@ -68,7 +75,7 @@ erase our hard drive,
 or do anything else that code can do (which is pretty much anything).
 Browsers do their best to run code in a <g key="sandbox">sandbox</g> for safety,
 but [Node][nodejs] doesn't,
-so it's up to us to be very (very) careful.
+so it's up to us to be (very) careful.
 :::
 
 To see `eval` in action,
@@ -114,13 +121,14 @@ only exist during a call to that function:
 <%- include('/inc/multi.html', {pat: 'eval-local-vars.*', fill: 'js out'}) %>
 
 However,
-`eval` can modify variables outside the text
+`eval` can modify variables defined outside the text being evaluated
 in the same way that a function can modify global variables:
 
 <%- include('/inc/multi.html', {pat: 'eval-global-vars.*', fill: 'js out'}) %>
 
 ::: continue
-So if the text we give to `eval` modifies a structure that is defined outside the text,
+This means that
+if the text we give to `eval` modifies a structure that is defined outside the text,
 that change outlives the call to `eval`:
 :::
 
@@ -149,15 +157,15 @@ it does what we want:
 
 The source files in this book are small enough
 that we don't have to worry about reading them repeatedly,
-but in larger systems or when there are network delays
-we would like to avoid doing unnecessary work.
+but we would like to avoid re-reading things unnecessarily
+in large systems or when there might be network delays.
 The usual approach is to create a cache
 using the Singleton pattern
 that we first met in <x key="unit-test"></x>.
 Whenever we want to read a file,
 we check to see if it's already in the cache
 (<f key="file-interpolator-cache"></f>).
-If so,
+If it is,
 we use that copy;
 if not,
 we read it and add it to the cache
@@ -193,20 +201,26 @@ which we call in order to show that everything is working:
 
 <%- include('/inc/multi.html', {pat: 'test-simple.*', fill: 'js sh'}) %>
 
-While each of the files we read in our code interpolation example will probably be unique,
-page templating systems often want to read the same file from multiple places.
-We could specify everything using relative paths,
-but another option is to give our program a <g key="search_path">search path</g>,
-i.e.,
-a list of directories to look in for the things it needs.
-Many programs use search paths,
-including [Node][nodejs] itself;
-by convention,
-they are written as a colon-separated list of directories on Unix
+## How can we find files?
+
+Each of the files included in our examples is in the same directory as the file including it,
+but in C/C++ or a page templating system
+we might include a particular file in several different places.
+We don't want to have to put all of our files in a single directory,
+so we need a way specify where to look for files that are being included.
+
+One option is to use relative paths,
+but another option is to give our program
+a list of directories to look in.
+This is called a <g key="search_path">search path</g>,
+and many programs use them,
+including [Node][nodejs] itself.
+By convention,
+a search path is written as a colon-separated list of directories on Unix
 or using semi-colons on Windows.
-If a path starts with `./`,
-we look for it locally,
-and if not,
+If the path to an included starts with `./`,
+we look for it locally;
+if not,
 we go through the directories in the search path in order
 until we find a file with a matching name
 (<f key="file-interpolator-search-path"></f>).
@@ -224,13 +238,15 @@ until we find a file with a matching name
 The rules about search paths in the paragraph above are a convention:
 somebody did it this way years ago
 and (almost) everyone has imitated it since.
-It could have been done many other ways,
-and there's no guarantee that any particular application does it exactly this way;
-it's just how it is.
+We could implement search paths some other way,
+but as with configuration file formats,
+variable naming conventions,
+and many other things,
+the last thing the world needs is more innovation.
 :::
 
 Since the cache is responsible for finding files,
-let's teach it about search paths.
+it should also handle the search path.
 The outline of the class stays the same:
 
 <%- include('/inc/erase.html', {file: 'need-path.js', key: 'skip'}) %>
@@ -243,9 +259,9 @@ we split it on colons to create a list of directories:
 
 <%- include('/inc/keep.html', {file: 'need-path.js', key: 'search'}) %>
 
-When the time comes to find a file we check to see if the path is local,
-and if it's not,
-we try the directories in order:
+When we need to find a file we first check to see if the path is local.
+If it's not,
+we try the directories in the search path in order:
 
 <%- include('/inc/keep.html', {file: 'need-path.js', key: 'search'}) %>
 
@@ -269,7 +285,9 @@ the simplest is to write it as:
 NAME=value command
 ```
 
-Here's the shell command that runs out test case,
+::: continue
+right before the command (on the same line).
+Here's the shell command that runs our test case
 using `$PWD` to get the current working directory:
 
 <%- include('/inc/multi.html', {pat: 'test-import-left.*', fill: 'sh out'}) %>
@@ -286,8 +304,7 @@ and load that twice to check that caching works:
 
 ## How can we interpolate pieces of code?
 
-Now that all this machinery is in place,
-interpolating files is straightforward.
+Interpolating files is straightforward once we have this machinery in place.
 We modify `Cache.find` to return a directory and a file path,
 then add an `interpolate` method to replace special comments:
 
@@ -330,18 +347,17 @@ When this program runs:
 
 This works,
 but as we said in the introduction we decided not to use it
-because it didn't work *with other tools*.
+because it didn't play well with other tools.
 No piece of software exists in isolation;
-when we are evaluating a design,
+when we evaluate a design,
 we always have to ask how it fits into everything else we have.
 
-::: callout
-### What we did instead
+## What did we do instead?
 
 Rather than interpolating file fragments,
-we extract or erase parts of complete (valid) JavaScript files
-based on specially-formatted comments,
-like the "fragment" comment pair shown below.
+we extract or erase parts of regular JavaScript files
+based on specially-formatted comments
+like the `<fragment>…</fragment>` pair shown below.
 
 ```js
 class Example {
@@ -356,4 +372,18 @@ class Example {
   // </fragment>
 }
 ```
-:::
+
+The code that selects the part of the file we want to display
+is part of our page templating system.
+It re-extracts code for display every time the web version of this site is built,
+which ensures that we always shows what's in the current version of our examples.
+However,
+this system doesn't automatically update the description of the code:
+if we write, "It does X,"
+then modify the code to do Y,
+our lesson can be inconsistent.
+<g key="literate_programming">Literate programming</g> was invented
+to try to prevent this from happening,
+but it never really caught on---unfortunately,
+most programming systems that describe themselves as "literate" these days
+only implement part of [Donald Knuth][knuth-donald]'s original vision.
