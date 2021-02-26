@@ -2,12 +2,12 @@
 ---
 
 <x key="file-interpolator"></x> showed how to use `eval` to load code dynamically.
-We can use this to build our own version of the `require` function
-(the predecessor to `import`)
-that takes the name of a source file as an argument
-and returns whatever that file exports.
-The key requirement for such a function is to avoid accidentally overwriting things.
-If we just `eval` some code and it happens to define a variable called `x`,
+We can use this to build our own version of JavaScript's `require` function
+(the predecessor to `import`).
+Our function will take the name of a source file as an argument
+and return whatever that file exports.
+The key requirement for such a function is to avoid accidentally overwriting things:
+if we just `eval` some code and it happens to assign to a variable called `x`,
 anything called `x` already in our program might be overwritten.
 We therefore need a way to <g key="encapsulate">encapsulate</g> the contents of what we're loading.
 Our approach is based on <cite>Casciaro2020</cite>,
@@ -15,17 +15,21 @@ which contains a lot of other useful information as well.
 
 ## How can we implement namespaces?
 
-A <g key="namespace">namespace</g> is a collection of names in a program that are isolated from other namespaces.
-Most modern languages provide namespaces as a feature so that programmers don't accidentally step on each other's toes.
-JavaScript doesn't have this,
+A <g key="namespace">namespace</g> is a collection of names in a program
+that are isolated from other namespaces.
+Most modern languages provide namespaces as a built-in feature
+so that programmers don't accidentally step on each other's toes.
+JavaScript doesn't,
 so we have to implement them ourselves.
+
 We can do this using <g key="closure">closures</g>.
 Every function is a namespace:
 variables defined inside the function are distinct from variables defined outside it
 (<f key="module-loader-closures"></f>).
-If we create the things we care about inside a function
-and return a data structure that refers to the things we just created,
-the only way to access those things is via that data structure.
+If we create the variables we want to manage inside a function,
+then defined another function inside the first
+and return that <g key="inner_function">inner function</g>,
+that inner function will be the only thing with references to those variables.
 
 <%- include('/inc/figure.html', {
     id: 'module-loader-closures',
@@ -41,12 +45,11 @@ let's create a function that always appends the same string to its argument:
 
 ::: continue
 When we run it,
-the value that was assigned to the local variable `publicValue` inside the function still exists
-but is only reachable through the structure that we returned,
-while the value we assigned to `privateValue` is gone:
+the value that was assigned to the parameter `suffix` still exists
+but can only be reached by the inner function:
 :::
 
-<%- include('/inc/file.html', {file: 'manual-namespacing.js'}) %>
+<%- include('/inc/file.html', {file: 'manual-namespacing.out'}) %>
 
 We could require every module to define a setup function like this for users to call,
 but thanks to `eval` we can wrap the file's contents in a function and call it automatically.
@@ -118,7 +121,11 @@ What if the code we are loading loads other code?
 We can visualize the network of who requires whom as a <g key="directed_graph">directed graph</g>:
 if X requires Y,
 we draw an arrow from X to Y.
-A <g key="circular_dependency">circular dependency</g> exists if X depends on Y and Y depends on X
+Unlike the directed *acyclic* graphs we met in <x key="build-manager"></x>,
+though,
+these graphs can contain cycles:
+we say a <g key="circular_dependency">circular dependency</g> exists
+if X depends on Y and Y depends on X
 either directly or indirectly.
 This may seem nonsensical,
 but can easily arise with <g key="plugin_architecture">plugin architectures</g>:
@@ -129,7 +136,7 @@ Most compiled languages can handle circular dependencies easily:
 they compile each module into low-level instructions,
 then link those to resolve dependencies before running anything
 (<f key="module-loader-circularity"></f>).
-But interpreted languages may run code as it loads,
+But interpreted languages usually run code as they're loading it,
 so if X is in the process of loading Y and Y tries to call X,
 X may not (fully) exist yet.
 
@@ -174,20 +181,22 @@ and also fails in the interactive interpreter
 
 <%- include('/inc/file.html', {file: 'checking/js-interactive.out'}) %>
 
-We will therefore not try to handle circular dependencies.
+We therefore won't try to handle circular dependencies.
 However,
 we will detect them and generate a sensible error message.
 
 ::: callout
 ### `import` vs. `require`
 
-Circular dependencies work JavaScript's `import` syntax.
-The difference is that we can reliably analyze files to determine what needs what,
+Circular dependencies work JavaScript's `import` syntax
+because we can analyze files to determine what needs what,
 get everything into memory,
 and then resolve dependencies.
 We can't do this with `require`-based code
-because someone might call `require` inside a function
-or create an <g key="alias">alias</a> and call `require` through that.
+because someone might create an <g key="alias">alias</a>
+and call `require` through that
+or `eval` a string that contains a `require` call.
+(Of course, they can also do these things with the function version of `import`…)
 :::
 
 ## How can a module load another module?
@@ -195,16 +204,21 @@ or create an <g key="alias">alias</a> and call `require` through that.
 While we're not going to handle circular dependencies,
 modules do need to be able to load other modules.
 To enable this,
-we need to provide the module with a function called `require` as it's loading.
+we need to provide the module with a function called `require`
+that it can call as it's loading.
 As in <x key="file-interpolator"></x>,
 this function checks a cache
-to see if the file being asked for has already been loaded,
-loads it and saves it if necessary,
-and either way returns the result.
+to see if the file being asked for has already been loaded.
+If not, it loads it and saves it;
+either way, it returns the result.
 
-Suppose that `major.js` loads `subdir/first.js` and `subdir/second.js`.
+Our cache needs to be careful about how it identifies files
+so that it can detect duplicates loading attempts that use different names.
+For example,
+suppose that `major.js` loads `subdir/first.js` and `subdir/second.js`.
 When `subdir/second.js` loads `./first.js`,
-our system needs to realize that it's already in memory.
+our system needs to realize that it already has that file
+even though the path looks different.
 We will use <g key="absolute_path">absolute paths</g> as cache keys
 so that every file has a unique, predictable key.
 
@@ -212,10 +226,10 @@ To reduce confusion,
 we will call our function `need` instead of `require`.
 In order to make the cache available to modules while they're loading,
 we will make it a property of `need`.
-Remember,
+(Remember,
 a function is just another kind of object in JavaScript;
 every function gets several properties automatically,
-and we can always add more.
+and we can always add more.)
 Since we're using the built-in `Map` class as a cache,
 the entire implementation of `need` is just <%- include('/inc/linecount.html', {file: 'need.js'}) %> lines long:
 
@@ -239,5 +253,20 @@ Our system can therefore only run loaded modules by `need`ing them:
 <%- include('/inc/file.html', {file: 'large-needless.js'}) %>
 <%- include('/inc/multi.html', {pat: 'test-need-large-needless.*', fill: 'js out'}) %>
 
-The full implementation of `require` does more than we do,
-but the principles stay the same.
+::: callout
+### "It's so deep it's meaningless"
+
+The programs we have written in this chapter are harder to understand
+than most of the programs in earlir chapters
+because they are so abstract.
+Reading through them,
+it's easy to get the feeling that everything is happening somewhere else.
+Programmers' tools are often like this:
+there's always a risk of confusing the thing in the program
+with the thing the program is working on.
+Drawing pictures of data structures can help,
+and so can practicing with closures
+(which are one of the most powerful ideas in programming),
+but a lot of the difficulty is irreducible,
+so don't feel bad if it takes you a while to wrap your head around it.
+:::

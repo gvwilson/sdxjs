@@ -74,60 +74,64 @@
 <div class="callout">
   <p class="callout">
     <strong>Terms defined:</strong>
-    <g key="absolute_path">absolute path</g>, <g key="alias">alias</g>, <g key="circular_dependency">circular dependency</g>, <g key="closure">closure</g>, <g key="directed_graph">directed graph</g>, <g key="encapsulate">encapsulate</g>, <g key="iife">immediately-invoked function expression</g>, <g key="namespace">namespace</g>, <g key="plugin_architecture">plugin architecture</g>
+    <g key="absolute_path">absolute path</g>, <g key="alias">alias</g>, <g key="circular_dependency">circular dependency</g>, <g key="closure">closure</g>, <g key="directed_graph">directed graph</g>, <g key="encapsulate">encapsulate</g>, <g key="iife">immediately-invoked function expression</g>, <g key="inner_function">inner function</g>, <g key="namespace">namespace</g>, <g key="plugin_architecture">plugin architecture</g>
   </p>
 </div>
 <p><x key="file-interpolator"></x> showed how to use <code>eval</code> to load code dynamically.
-We can use this to build our own version of the <code>require</code> function
-(the predecessor to <code>import</code>)
-that takes the name of a source file as an argument
-and returns whatever that file exports.
-The key requirement for such a function is to avoid accidentally overwriting things.
-If we just <code>eval</code> some code and it happens to define a variable called <code>x</code>,
+We can use this to build our own version of JavaScript's <code>require</code> function
+(the predecessor to <code>import</code>).
+Our function will take the name of a source file as an argument
+and return whatever that file exports.
+The key requirement for such a function is to avoid accidentally overwriting things:
+if we just <code>eval</code> some code and it happens to assign to a variable called <code>x</code>,
 anything called <code>x</code> already in our program might be overwritten.
 We therefore need a way to <g key="encapsulate">encapsulate</g> the contents of what we're loading.
 Our approach is based on <cite>Casciaro2020</cite>,
 which contains a lot of other useful information as well.</p>
 <h2 id="how-can-we-implement-namespaces">How can we implement namespaces?</h2>
-<p>A <g key="namespace">namespace</g> is a collection of names in a program that are isolated from other namespaces.
-Most modern languages provide namespaces as a feature so that programmers don't accidentally step on each other's toes.
-JavaScript doesn't have this,
-so we have to implement them ourselves.
-We can do this using <g key="closure">closures</g>.
+<p>A <g key="namespace">namespace</g> is a collection of names in a program
+that are isolated from other namespaces.
+Most modern languages provide namespaces as a built-in feature
+so that programmers don't accidentally step on each other's toes.
+JavaScript doesn't,
+so we have to implement them ourselves.</p>
+<p>We can do this using <g key="closure">closures</g>.
 Every function is a namespace:
 variables defined inside the function are distinct from variables defined outside it
 (<f key="module-loader-closures"></f>).
-If we create the things we care about inside a function
-and return a data structure that refers to the things we just created,
-the only way to access those things is via that data structure.</p>
+If we create the variables we want to manage inside a function,
+then defined another function inside the first
+and return that <g key="inner_function">inner function</g>,
+that inner function will be the only thing with references to those variables.</p>
 <figure id="module-loader-closures"><img src="./figures/closures.svg" alt="How closures work" latexscale="true"/><figcaption>Using closures to create private variables.</figcaption></figure>
 <p>For example,
 let's create a function that always appends the same string to its argument:</p>
-<pre title="manual-namespacing.js"><code class="language-js">const createModule = () =&gt; {
-  const privateValue = 'private value'
-  const publicValue = 'public value'
-  return { publicValue }
+<pre title="manual-namespacing.js"><code class="language-js">const createAppender = (suffix) =&gt; {
+  const appender = (text) =&gt; {
+    return text + suffix
+  }
+  return appender
 }
 
-const contents = createModule()
-console.log(`contents.publicValue is ${contents.publicValue}`)
-console.log(`contents.privateValue is ${contents.privateValue}`)
+const exampleFunction = createAppender(' and that')
+console.log(exampleFunction('this'))
+console.log('suffix is', suffix)
 </code></pre>
 <div class="continue">
 <p>When we run it,
-the value that was assigned to the local variable <code>publicValue</code> inside the function still exists
-but is only reachable through the structure that we returned,
-while the value we assigned to <code>privateValue</code> is gone:</p>
+the value that was assigned to the parameter <code>suffix</code> still exists
+but can only be reached by the inner function:</p>
 </div>
-<pre title="manual-namespacing.js"><code class="language-js">const createModule = () =&gt; {
-  const privateValue = 'private value'
-  const publicValue = 'public value'
-  return { publicValue }
-}
+<pre title="manual-namespacing.out"><code class="language-out">this and that
+/u/stjs/module-loader/manual-namespacing.js:10
+console.log('suffix is', suffix)
+                         ^
 
-const contents = createModule()
-console.log(`contents.publicValue is ${contents.publicValue}`)
-console.log(`contents.privateValue is ${contents.privateValue}`)
+ReferenceError: suffix is not defined
+    at /u/stjs/module-loader/manual-namespacing.js:10:26
+    at ModuleJob.run (internal/modules/esm/module_job.js:152:23)
+    at async Loader.import (internal/modules/esm/loader.js:166:24)
+    at async Object.loadESM (internal/process/esm_loader.js:68:5)
 </code></pre>
 <p>We could require every module to define a setup function like this for users to call,
 but thanks to <code>eval</code> we can wrap the file's contents in a function and call it automatically.
@@ -231,7 +235,11 @@ publicFunction called from main
 We can visualize the network of who requires whom as a <g key="directed_graph">directed graph</g>:
 if X requires Y,
 we draw an arrow from X to Y.
-A <g key="circular_dependency">circular dependency</g> exists if X depends on Y and Y depends on X
+Unlike the directed <em>acyclic</em> graphs we met in <x key="build-manager"></x>,
+though,
+these graphs can contain cycles:
+we say a <g key="circular_dependency">circular dependency</g> exists
+if X depends on Y and Y depends on X
 either directly or indirectly.
 This may seem nonsensical,
 but can easily arise with <g key="plugin_architecture">plugin architectures</g>:
@@ -241,7 +249,7 @@ and that extension calls utility functions defined in the file containing the ma
 they compile each module into low-level instructions,
 then link those to resolve dependencies before running anything
 (<f key="module-loader-circularity"></f>).
-But interpreted languages may run code as it loads,
+But interpreted languages usually run code as they're loading it,
 so if X is in the process of loading Y and Y tries to call X,
 X may not (fully) exist yet.</p>
 <figure id="module-loader-circularity"><img src="./figures/circularity.svg" alt="Circularity test case" latexscale="true"/><figcaption>Testing circular imports.</figcaption></figure>
@@ -364,42 +372,49 @@ TypeError: bottom is not a function
     at require (internal/modules/cjs/helpers.js:88:18)
     at [stdin]:1:1
 </code></pre>
-<p>We will therefore not try to handle circular dependencies.
+<p>We therefore won't try to handle circular dependencies.
 However,
 we will detect them and generate a sensible error message.</p>
 <div class="callout">
 <h3 id="import-vs-require"><code>import</code> vs. <code>require</code></h3>
-<p>Circular dependencies work JavaScript's <code>import</code> syntax.
-The difference is that we can reliably analyze files to determine what needs what,
+<p>Circular dependencies work JavaScript's <code>import</code> syntax
+because we can analyze files to determine what needs what,
 get everything into memory,
 and then resolve dependencies.
 We can't do this with <code>require</code>-based code
-because someone might call <code>require</code> inside a function
-or create an <g key="alias">alias</a> and call <code>require</code> through that.</p>
+because someone might create an <g key="alias">alias</a>
+and call <code>require</code> through that
+or <code>eval</code> a string that contains a <code>require</code> call.
+(Of course, they can also do these things with the function version of <code>import</code>…)</p>
 </div>
 <h2 id="how-can-a-module-load-another-module">How can a module load another module?</h2>
 <p>While we're not going to handle circular dependencies,
 modules do need to be able to load other modules.
 To enable this,
-we need to provide the module with a function called <code>require</code> as it's loading.
+we need to provide the module with a function called <code>require</code>
+that it can call as it's loading.
 As in <x key="file-interpolator"></x>,
 this function checks a cache
-to see if the file being asked for has already been loaded,
-loads it and saves it if necessary,
-and either way returns the result.</p>
-<p>Suppose that <code>major.js</code> loads <code>subdir/first.js</code> and <code>subdir/second.js</code>.
+to see if the file being asked for has already been loaded.
+If not, it loads it and saves it;
+either way, it returns the result.</p>
+<p>Our cache needs to be careful about how it identifies files
+so that it can detect duplicates loading attempts that use different names.
+For example,
+suppose that <code>major.js</code> loads <code>subdir/first.js</code> and <code>subdir/second.js</code>.
 When <code>subdir/second.js</code> loads <code>./first.js</code>,
-our system needs to realize that it's already in memory.
+our system needs to realize that it already has that file
+even though the path looks different.
 We will use <g key="absolute_path">absolute paths</g> as cache keys
 so that every file has a unique, predictable key.</p>
 <p>To reduce confusion,
 we will call our function <code>need</code> instead of <code>require</code>.
 In order to make the cache available to modules while they're loading,
 we will make it a property of <code>need</code>.
-Remember,
+(Remember,
 a function is just another kind of object in JavaScript;
 every function gets several properties automatically,
-and we can always add more.
+and we can always add more.)
 Since we're using the built-in <code>Map</code> class as a cache,
 the entire implementation of <code>need</code> is just
 16 lines long:</p>
@@ -535,8 +550,22 @@ module.exports = { publicValue, publicFunction }
 
 publicFunction called from large called from main
 </code></pre>
-<p>The full implementation of <code>require</code> does more than we do,
-but the principles stay the same.</p>
+<div class="callout">
+<h3 id="its-so-deep-its-meaningless">&quot;It's so deep it's meaningless&quot;</h3>
+<p>The programs we have written in this chapter are harder to understand
+than most of the programs in earlir chapters
+because they are so abstract.
+Reading through them,
+it's easy to get the feeling that everything is happening somewhere else.
+Programmers' tools are often like this:
+there's always a risk of confusing the thing in the program
+with the thing the program is working on.
+Drawing pictures of data structures can help,
+and so can practicing with closures
+(which are one of the most powerful ideas in programming),
+but a lot of the difficulty is irreducible,
+so don't feel bad if it takes you a while to wrap your head around it.</p>
+</div>
 <h2 id="exercises">Exercises</h2>
 <h3 class="exercise">Counting with closures</h3>
 <p>Write a function <code>makeCounter</code> that returns a function
