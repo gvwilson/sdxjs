@@ -5,8 +5,9 @@ TARGETS=\
   run-find-methods.raw.out \
   generator-count.out \
   generator-example.out \
-  generator-tree-for.out \
-  generator-tree-while.out \
+  generator-vowels-while.out \
+  generator-vowels-for.out \
+  generator-tree.out \
   parse-single-const.out \
   parse-single-const.slice.out \
   parse-const-func.slice.out \

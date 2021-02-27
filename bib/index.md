@@ -2,6 +2,14 @@
 ---
 
 <dl class="bibliography">
+<dt id="Binkley2012" class="bibliography">Binkley2012</dt>
+<dd>
+Dave Binkley, Marcia Davis, Dawn Lawrie, Jonathan I. Maletic, Christopher Morrell, and Bonita Sharif:
+"The Impact of Identifier Style on Effort and Comprehension".
+<em>Empirical Software Engineering</em>, 18(2), 2012, <a href="https://doi.org/10.1007/s10664-012-9201-4">10.1007/s10664-012-9201-4</a>.
+<em class="bibnote">Found that reading and comprehending code is fundamentally different from reading and comprehending natural language, and that identifier style can make a small difference for novices.</em>
+</dd>
+
 <dt id="Brand1995" class="bibliography">Brand1995</dt>
 <dd>
 Stewart Brand:
@@ -88,6 +96,14 @@ Brendan Gregg:
 <em>Systems Performance: Enterprise and the Cloud</em>.
 Pearson, 2020, 978-0136820154.
 <em class="bibnote">Covers strategies and tools for getting the best performance out of operating systems and applications.</em>
+</dd>
+
+<dt id="Johnson2019" class="bibliography">Johnson2019</dt>
+<dd>
+John Johnson, Sergio Lubo, Nishitha Yedla, Jairo Aponte, and Bonita Sharif:
+"An Empirical Study Assessing Source Code Readability in Comprehension".
+<em>ICSME'19</em>, <a href="https://doi.org/10.1109/ICSME.2019.00085">10.1109/ICSME.2019.00085</a>.
+<em class="bibnote">Found that reducing nesting in source code improved readability.</em>
 </dd>
 
 <dt id="Kernighan1979" class="bibliography">Kernighan1979</dt>
