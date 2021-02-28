@@ -2,29 +2,46 @@
 ---
 
 We've been writing tests since <x key="unit-test"></x>,
-but how much of our code do they actually exercise?
+but how much of our code do they actually check?
 One way to find out is to use a <g key="code_coverage">code coverage</g> tool like [Istanbul][istanbul]
 that watches a program while it executes
 and keeps track of which lines have run and which haven't.
-Running each line at least once doesn't guarantee that the code is bug-free,
-but any code that *isn't* run during tested shouldn't be trusted.
+Making sure that each line is tested at least once doesn't guarantee that the code is bug-free,
+but any code that *isn't* run shouldn't be trusted.
 
 Our code coverage tool will keep track of which functions have and haven't been called.
-Since we don't want to rewrite [Node][nodejs] to make a note each time every function is called,
+Rather than rewriting [Node][nodejs] to keep track of this for us,
 we will modify the functions themselves
 by parsing the code with [Acorn][acorn],
 inserting the instructions we need into the AST,
 and then turning the AST back into code.
+
+::: callout
+### Simple usually isn't
+
+At first glance it would be a lot simpler
+to use regular expressions to find every line that looks like the start of a function definition
+and insert a line right after each one
+to record the information we want.
+Of course,
+some people split function headers across several lines if they have lots of parameters,
+and there might be things that look like function definitions embedded in comments or strings.
+It doesn't take long before our simple solution turns into
+a poorly-implemented parser for a subset of JavaScript that no-one else understands.
+Using a full-blown parser and working with the AST is almost always less work.
+:::
 
 ## How can we replace a function with another function?
 
 The first thing we need is a way to wrap up an arbitrary function call.
 If we declare a function in JavaScript with a parameter like `...args`,
 all of the "extra" arguments in the call that don't line up with regular parameters
-are stuffed into `args`
+are stuffed into the variable `args`
 (<f key="code-generator-spread"></f>).
 We can also call a function by putting values in a variable
 and using `func(...var)` to spread those values out.
+There's nothing special about the names `args` and `vars`:
+what matters is the ellipsis `...`
 
 <%- include('/inc/figure.html', {
     id: 'code-generator-spread',
@@ -50,19 +67,19 @@ Let's try it out:
 
 <%- include('/inc/file.html', {file: 'replace-func.out'}) %>
 
-This is an example of the <g key="decorator_pattern">Decorator</g> pattern.
+This is an example of the <g key="decorator_pattern">Decorator</g> design pattern.
 A decorator is a function whose job is to modify the behavior of other functions
 in some general ways.
 Decorators are built in to some languages (like Python),
-and we can add them to most others as we have done here.
+and we can add them in most others as we have done here.
 
 ## How can we generate JavaScript?
 
 We could use a decorator to replace every function in our program
-with one that kept track of whether or not it was called,
-but we would have to apply it to every one of our functions.
-What we really want is a way to do this automatically for everything;
-for that, we need to parse and generate code.
+with one that keeps track of whether or not it was called,
+but it would be tedious to apply the decorator to every one of our functions by hand.
+What we really want is a way to do this automatically for everything,
+and for that we need to parse and generate code.
 
 ::: callout
 ### Other ways to do it
@@ -70,24 +87,26 @@ for that, we need to parse and generate code.
 A third way to achieve what we want is
 to let the system turn code into runnable instructions
 and then modify those instructions.
-We can't do this because [Node][nodejs] doesn't save the generated <g key="byte_code">byte code</g>
-for us to play with.
-In other languages,
-such as Java,
-this can be an attractive approach.
+This approach is often used in compiled languages like [Java][java],
+where the <g key="byte_code">byte code</g> produced by the compiler is saved in files
+in order to be run.
+We can't do this here because [Node][nodejs] compiles and runs code in a single step.
 :::
 
 Our tool will parse the JavaScript with [Acorn][acorn] to create an AST,
 modify the AST,
 and then use a library called [Escodegen][escodegen] to turn the AST back into JavaScript.
 To start,
-let's look at the Acorn parse tree for a simple function definition,
+let's look at the AST for a simple function definition,
 which is <%- include('/inc/linecount.html', {file: 'func-def.out'}) %> lines of pretty-printed JSON:
 
 <%- include('/inc/multi.html', {pat: 'func-def.*', fill: 'js out'}) %>
 
 After inspecting a few nodes,
-we can try to create a few of our own and turn them into code:
+we can try to create some of our own and turn them into code.
+Here,
+for example,
+we have the JSON representation of the expression `40+2`:
 
 <%- include('/inc/multi.html', {pat: 'one-plus-two.*', fill: 'js out'}) %>
 
@@ -95,6 +114,9 @@ we can try to create a few of our own and turn them into code:
 
 Our tool will find all the function declaration nodes in the program
 and insert a node to increment an entry in a global variable called `__counters`.
+(Prefixing the name with two underscores doesn't guarantee that
+we won't accidentally clobber a variable in the user's program with the same name,
+but hopefully it makes that less likely.)
 Our test case is:
 
 <%- include('/inc/keep.html', {file: 'multi-func-counter.js', key: 'test'}) %>
@@ -105,8 +127,8 @@ and the main function of our program is:
 
 <%- include('/inc/keep.html', {file: 'multi-func-counter.js', key: 'main'}) %>
 
-To insert a count we call `insertCounter`,
-which records the function's name and modifies the node:
+To insert a count we call `insertCounter`
+to record the function's name and modify the node:
 
 <%- include('/inc/keep.html', {file: 'multi-func-counter.js', key: 'insert'}) %>
 
@@ -116,8 +138,8 @@ but instead construct the string we need,
 use [Acorn][acorn] to parse that,
 and use the result.
 Doing this saves us from embedding multiple lines of JSON in our program
-and also ensures that if the AST for our code ever changes,
-the program will do the right thing automatically.
+and also ensures that if a newer version of Acorn decides to generate a different AST,
+our program will do the right thing automatically.
 :::
 
 Finally,
@@ -126,7 +148,7 @@ we need to add a couple of helper functions:
 <%- include('/inc/keep.html', {file: 'multi-func-counter.js', key: 'admin'}) %>
 
 ::: continue
-and to run it to make sure it all works:
+and run it to make sure it all works:
 :::
 
 <%- include('/inc/file.html', {file: 'multi-func-counter.out'}) %>
@@ -134,21 +156,26 @@ and to run it to make sure it all works:
 ::: callout
 ### Too simple to be safe
 
-Our simple approach doesn't work if functions can have the same names,
+Our simple approach to naming counters doesn't work if functions can have the same names,
 which they can if we use modules or <g key="nested_function">nested functions</g>.
 One way to solve this would be to manufacture a label from the function's name
-and the line number in the source code.
+and the line number in the source code;
+another would be to keep track of which functions are nested within which
+and concatenate their names to produce a unique key.
+Problems like this are why people say that naming things
+is one of the <g key="two_hard_problems">two hard problems</g> in computer science.
 :::
 
 ## How can we time function execution?
 
-We can use this same strategy to do many other things.
+Now that we have a way to insert code into functions
+we can use it to do many other things.
 For example,
 we can find out how long it takes functions to run
 by wrapping them up in code that records the start and end time of each call.
 As before,
 we find the nodes of interest and decorate them,
-then stitch the result together with a bit of administrative code:
+then stitch the result together with a bit of bookkeeping:
 
 <%- include('/inc/keep.html', {file: 'time-func.js', key: 'timeFunc'}) %>
 
@@ -168,18 +195,16 @@ so that we have a spot in the AST to insert the actual code:
 
 <%- include('/inc/keep.html', {file: 'time-func.js', key: 'timeFunc'}) %>
 
-One more test:
+Let's run one last test:
 
 <%- include('/inc/file.html', {file: 'test-time-func.out'}) %>
 
 Source-to-source translation is widely used in JavaScript:
-tools like [Babel][babel] use it to turn modern features like `async` and `await`
+tools like [Babel][babel] use it to transform modern features like `async` and `await`
 (<x key="async-programming"></x>)
 into code that older browsers can understand.
 The technique is so powerful that it is built into languages like Scheme,
 which allow programmers to add new syntax to the language
 by defining <g key="macro">macros</g>.
 Depending on how carefully they are used,
-macros can make programs extremely elegant,
-practically incomprehensible,
-or both.
+macros can make programs elegant, incomprehensible, or both.
