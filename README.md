@@ -28,10 +28,7 @@ for more information about what we assume you already know.
 ## FAQ
 
 -   **Is this done yet?**
-    No: what we have now is the first complete draft.
-    There is still one coding bug in
-    the [file backup example](https://stjs.tech/vol1/file-backup/#how-can-we-test-code-that-modifies-files)
-    and a lot of the prose is still too dense for our intended audience,
+    No: what we have now is the first complete draft,
     but we think it's in a reviewable state.
 
 -   **Why did you start this project?**
@@ -103,8 +100,3 @@ for more information about what we assume you already know.
     (And we apologize for our dependence on LaTeX for generating PDFs:
     it is hard to set up and even harder to debug things that go wrong,
     but there is no realistic alternative.)
-
--   **Can you please make your site work properly on mobile?**
-    Making our dropdown menus work on mobile devices is
-    [on the to-do list](https://github.com/software-tools-in-javascript/stjs/issues/8).
-    Pull requests are always welcome.
