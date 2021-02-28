@@ -1,4 +1,4 @@
-// <match>
+// [match]
 const match = (pattern, text) => {
   // '^' at start of pattern matches start of text.
   if (pattern[0] === '^') {
@@ -17,9 +17,9 @@ const match = (pattern, text) => {
   // Nothing worked.
   return false
 }
-// </match>
+// [/match]
 
-// <matchHere>
+// [matchHere]
 const matchHere = (pattern, iPattern, text, iText) => {
   // There is no more pattern to match.
   if (iPattern === pattern.length) {
@@ -51,9 +51,9 @@ const matchHere = (pattern, iPattern, text, iText) => {
   // Nothing worked.
   return false
 }
-// </matchHere>
+// [/matchHere]
 
-// <tests>
+// [tests]
 const main = () => {
   const tests = [
     ['a', 'a', true],
@@ -80,4 +80,4 @@ const main = () => {
 }
 
 main()
-// </tests>
+// [/tests]

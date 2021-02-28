@@ -4,9 +4,8 @@ Modify the existing code so that:
 
 2.  When the node is rendered, that many blank spaces are added on all four sides of the contents.
 
-::: continue
+{: .continue}
 For example, the HTML `<row>text</row>` would render as:
-:::
 
 ```txt
 +------+
@@ -16,6 +15,5 @@ For example, the HTML `<row>text</row>` would render as:
 +------+
 ```
 
-::: continue
+{: .continue}
 where the lines show the outer border of the rendering.
-:::

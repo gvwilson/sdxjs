@@ -30,15 +30,15 @@ class VirtualMachineBase {
     return this[op](args)
   }
 
-  // <skip>
-  // <add>
+  // [skip]
+  // [add]
   add (args) {
     this.checkOp('add', 2, args)
     const left = this.exec(args[0])
     const right = this.exec(args[1])
     return left + right
   }
-  // </add>
+  // [/add]
 
   append (args) {
     this.checkOp('append', 2, args)
@@ -57,13 +57,13 @@ class VirtualMachineBase {
     this.env[name] = this.exec(data)
   }
 
-  // <defV>
+  // [defV]
   defV (args) {
     this.checkOp('defV', 2, args)
     const [name, value] = args
     this.env[name] = this.exec(value)
   }
-  // </defV>
+  // [/defV]
 
   getA (args) {
     this.checkOp('getA', 2, args)
@@ -99,7 +99,7 @@ class VirtualMachineBase {
     return left < right
   }
 
-  // <loop>
+  // [loop]
   loop (args) {
     this.checkBody('loop', 1, args)
     const body = args.slice(1)
@@ -107,7 +107,7 @@ class VirtualMachineBase {
       this.runAll(body)
     }
   }
-  // </loop>
+  // [/loop]
 
   num (args) {
     this.checkOp('num', 1, args)
@@ -146,14 +146,14 @@ class VirtualMachineBase {
     }
   }
 
-  // <checkArray>
+  // [checkArray]
   checkArray (op, name) {
     this.checkName(op, name)
     const array = this.env[name]
     assert(Array.isArray(array),
       `Variable "${name}" used in "${op}" is not array`)
   }
-  // </checkArray>
+  // [/checkArray]
 
   checkBody (op, minimum, args) {
     assert(args.length >= minimum,
@@ -179,7 +179,7 @@ class VirtualMachineBase {
   message (prefix, val) {
     console.log(prefix, val)
   }
-  // </skip>
+  // [/skip]
 }
 
 export default VirtualMachineBase

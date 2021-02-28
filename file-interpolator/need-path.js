@@ -21,8 +21,8 @@ class Cache {
     return result
   }
 
-  // <skip>
-  // <search>
+  // [skip]
+  // [search]
   constructSearchPath () {
     this.searchPath = []
     if ('NEED_PATH' in process.env) {
@@ -31,9 +31,9 @@ class Cache {
         .filter(x => x.length > 0)
     }
   }
-  // </search>
+  // [/search]
 
-  // <find>
+  // [find]
   find (fileSpec) {
     let result
     if (fileSpec.startsWith('.')) {
@@ -56,8 +56,8 @@ class Cache {
     }
     return result
   }
-  // </find>
-  // </skip>
+  // [/find]
+  // [/skip]
 }
 
 const cache = new Cache()

@@ -5,6 +5,5 @@
 
 3.  Write tests for this using [`mock-fs`][node-mock-fs].
 
-::: continue
+{: .continue}
 Please be careful doing this exercise.
-:::

@@ -14,6 +14,5 @@ function process(
 }
 ```
 
-::: continue
+{: .continue}
 Modify the documentation generator to handle this.
-:::

@@ -108,7 +108,7 @@ describe('wraps blocks', () => {
     )
   })
 
-  // <example>
+  // [example]
   it('wrap a row of two blocks that do not fit on one row', async () => {
     const fixture = new Row(
       3,
@@ -131,7 +131,7 @@ describe('wraps blocks', () => {
       ]
     )
   })
-  // </example>
+  // [/example]
 
   it('wrap multiple blocks that do not fit on one row', async () => {
     const fixture = new Row(

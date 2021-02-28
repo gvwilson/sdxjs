@@ -12,9 +12,8 @@ class Example {
 }
 ```
 
-::: continue
+{: .continue}
 then the output should be:
-:::
 
 ```js
 class Example {

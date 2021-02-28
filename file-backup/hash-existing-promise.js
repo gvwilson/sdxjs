@@ -19,8 +19,8 @@ const hashExisting = (rootDir) => {
   })
 }
 
-// <helpers>
-// <async>
+// [helpers]
+// [async]
 const statPath = (path) => {
   return new Promise((resolve, reject) => {
     fs.statAsync(path)
@@ -36,16 +36,16 @@ const readPath = (path) => {
       .catch(err => reject(err))
   })
 }
-// </async>
+// [/async]
 
-// <hashPath>
+// [hashPath]
 const hashPath = (path, content) => {
   const hasher = crypto.createHash('sha1').setEncoding('hex')
   hasher.write(content)
   hasher.end()
   return [path, hasher.read()]
 }
-// </hashPath>
-// </helpers>
+// [/hashPath]
+// [/helpers]
 
 export default hashExisting

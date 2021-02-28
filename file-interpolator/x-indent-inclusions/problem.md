@@ -11,18 +11,16 @@ const withLogging = (args) => {
 withLogging
 ```
 
-::: continue
+{: .continue}
 and the included file is:
-:::
 
 ```js
 console.log('first message')
 console.log('second message')
 ```
 
-::: continue
+{: .continue}
 then the result will be:
-:::
 
 ```js
 const withLogging = (args) => {
@@ -33,6 +31,5 @@ const withLogging = (args) => {
 withLogging
 ```
 
-::: continue
+{: .continue}
 i.e., all lines of the inclusion will be indented to match the first.
-:::

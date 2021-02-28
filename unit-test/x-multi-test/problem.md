@@ -10,9 +10,8 @@ hope.multiTest('check all of these`, functionToTest, [
 ])
 ```
 
-::: continue
+{: .continue}
 should be equivalent to this:
-:::
 
 ```js
 hope.test('check all of these 0',

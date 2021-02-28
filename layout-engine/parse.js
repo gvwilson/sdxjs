@@ -42,8 +42,8 @@ const isElement = (chunk) => {
   return chunk && (chunk[0] === '<')
 }
 
-// <skip>
-// <makenode>
+// [skip]
+// [makenode]
 const makeNode = (chunks) => {
   assert(chunks.length > 0,
     'Cannot make nodes without chunks')
@@ -66,9 +66,9 @@ const makeNode = (chunks) => {
     `Node with tag ${node.tag} not closed`)
   return [node, remainder.slice(1)]
 }
-// </makenode>
+// [/makenode]
 
-// <makeopening>
+// [makeopening]
 const makeOpening = (chunk) => {
   const outer = chunk.match(TAG_AND_ATTR)
   const tag = outer[1]
@@ -87,7 +87,7 @@ const makeOpening = (chunk) => {
     `Unrecognized tag name ${tag}`)
   return new Cls(attributes)
 }
-// </makeopening>
-// </skip>
+// [/makeopening]
+// [/skip]
 
 export default parseHTML

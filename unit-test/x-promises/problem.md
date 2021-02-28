@@ -5,8 +5,7 @@ so that:
 hope.test('delayed test', async () => {...})
 ```
 
-::: continue
+{: .continue}
 does the right thing.
 (Note that you can use `typeof` to determine whether the object given to `hope.test`
 is a function or a promise.)
-:::

@@ -6,7 +6,7 @@ import {
   PlacedRow
 } from './placed.js'
 
-// <blockcol>
+// [blockcol]
 export class WrappedBlock extends PlacedBlock {
   wrap () {
     return this
@@ -19,9 +19,9 @@ export class WrappedCol extends PlacedCol {
     return new PlacedCol(...children)
   }
 }
-// </blockcol>
+// [/blockcol]
 
-// <row>
+// [row]
 export class WrappedRow extends PlacedRow {
   constructor (width, ...children) {
     super(...children)
@@ -34,7 +34,7 @@ export class WrappedRow extends PlacedRow {
     return this.width
   }
 
-  // <wrap>
+  // [wrap]
   wrap () {
     const children = this.children.map(child => child.wrap())
     const rows = []
@@ -58,6 +58,6 @@ export class WrappedRow extends PlacedRow {
     const newCol = new PlacedCol(...newRows)
     return new PlacedRow(newCol)
   }
-  // </wrap>
+  // [/wrap]
 }
-// </row>
+// [/row]

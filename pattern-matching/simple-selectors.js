@@ -29,8 +29,8 @@ const firstMatch = (node, selectors) => {
   return firstChildMatch(node, selectors)
 }
 
-// <skip>
-// <firstChild>
+// [skip]
+// [firstChild]
 const firstChildMatch = (node, selectors) => {
   assert(node.type === 'tag',
     `Should only try to match first child of tags, not ${node.type}`)
@@ -46,9 +46,9 @@ const firstChildMatch = (node, selectors) => {
   // Nothing worked.
   return null
 }
-// </firstChild>
+// [/firstChild]
 
-// <matchHere>
+// [matchHere]
 const matchHere = (node, selector) => {
   let name = null
   let id = null
@@ -64,7 +64,7 @@ const matchHere = (node, selector) => {
     ((id === null) || (node.attribs.id === id)) &&
     ((cls === null) || (node.attribs.class === cls))
 }
-// </matchHere>
-// </skip>
+// [/matchHere]
+// [/skip]
 
 export default select

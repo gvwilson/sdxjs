@@ -29,7 +29,7 @@ describe('tokenizes correctly', async () => {
     ])
   })
 
-  // <omit>
+  // [omit]
   it('tokenizes circumflex not at start', () => {
     assert.deepStrictEqual(tokenize('a^b'), [
       { kind: 'Lit', value: 'a', loc: 0 },
@@ -128,7 +128,7 @@ describe('tokenizes correctly', async () => {
     ])
   })
 
-  // </omit>
+  // [/omit]
   it('tokenizes a complex expression', () => {
     assert.deepStrictEqual(tokenize('^a*(bcd|e^)*f$gh$'), [
       { kind: 'Start', loc: 0 },

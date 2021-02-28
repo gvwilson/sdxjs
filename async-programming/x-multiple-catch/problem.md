@@ -1,12 +1,11 @@
 Suppose we create a promise that deliberately fails and then add two error handlers:
 
-<%- include('/inc/file.html', {file: 'x-multiple-catch/example.js'}) %>
+{% include file file='x-multiple-catch/example.js' %}
 
-::: continue
+{: .continue}
 When the code is run it produces:
-:::
 
-<%- include('/inc/file.html', {file: 'x-multiple-catch/example.txt'}) %>
+{% include file file='x-multiple-catch/example.txt' %}
 
 1.  Trace the order of operations: what is created and executed when?
 2.  What happens if we run these same lines interactively?

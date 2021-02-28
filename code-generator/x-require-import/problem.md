@@ -7,9 +7,8 @@ for example, if the input is:
 const name = require('module')
 ```
 
-::: continue
+{: .continue}
 then the output is:
-:::
 
 ```js
 import name from 'module'

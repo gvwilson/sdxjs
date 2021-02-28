@@ -7,7 +7,7 @@ const render = (root) => {
   return screen.map(row => row.join('')).join('\n')
 }
 
-// <makeScreen>
+// [makeScreen]
 const makeScreen = (width, height) => {
   const screen = []
   for (let i = 0; i < height; i += 1) {
@@ -15,9 +15,9 @@ const makeScreen = (width, height) => {
   }
   return screen
 }
-// </makeScreen>
+// [/makeScreen]
 
-// <draw>
+// [draw]
 const draw = (screen, node, fill = null) => {
   fill = nextFill(fill)
   node.render(screen, fill)
@@ -34,6 +34,6 @@ const nextFill = (fill) => {
     ? 'a'
     : String.fromCharCode(fill.charCodeAt() + 1)
 }
-// </draw>
+// [/draw]
 
 export default render

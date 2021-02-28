@@ -4,7 +4,7 @@ import {
   Row
 } from './easy-mode.js'
 
-// <block>
+// [block]
 export class PlacedBlock extends Block {
   constructor (width, height) {
     super(width, height)
@@ -25,9 +25,9 @@ export class PlacedBlock extends Block {
     ]
   }
 }
-// </block>
+// [/block]
 
-// <col>
+// [col]
 export class PlacedCol extends Col {
   constructor (...children) {
     super(...children)
@@ -54,9 +54,9 @@ export class PlacedCol extends Col {
     ]
   }
 }
-// </col>
+// [/col]
 
-// <row>
+// [row]
 export class PlacedRow extends Row {
   constructor (...children) {
     super(...children)
@@ -85,4 +85,4 @@ export class PlacedRow extends Row {
     ]
   }
 }
-// </row>
+// [/row]

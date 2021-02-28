@@ -1,4 +1,4 @@
-A <g key="lru_cache">Least Recently Used (LRU) cache</g>
+A <span g="lru_cache">Least Recently Used (LRU) cache</span>
 reduces access time while limiting the amount of memory used
 by keeping track of the N items that have been used most recently.
 For example,

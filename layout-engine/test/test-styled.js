@@ -35,7 +35,7 @@ describe('styles tree', () => {
     ])
   })
 
-  // <test>
+  // [test]
   it('styles a tree of nodes with multiple rules', async () => {
     const html = [
       '<col id="name">',
@@ -61,5 +61,5 @@ describe('styles tree', () => {
       new TagRule('row', { width: 10 })
     ])
   })
-  // </test>
+  // [/test]
 })

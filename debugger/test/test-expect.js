@@ -1,6 +1,6 @@
 import path from 'path'
 
-// <setup>
+// [setup]
 import Expect from '../expect.js'
 import VM from '../vm-interactive.js'
 import Debugger from '../debugger-test.js'
@@ -12,9 +12,9 @@ const setup = (filename) => {
   const vm = new VM(lines, dbg)
   return new Expect(dbg, () => vm.run())
 }
-// </setup>
+// [/setup]
 
-// <tests>
+// [tests]
 describe('interactive debugger', () => {
   it('runs and prints', (done) => {
     setup('print-0.json')
@@ -39,4 +39,4 @@ describe('interactive debugger', () => {
     done()
   })
 })
-// </tests>
+// [/tests]

@@ -16,6 +16,5 @@ For example:
 </html>
 ```
 
-::: continue
+{: .continue}
 would printed the word "Important:" in bold before each item in the list.
-:::

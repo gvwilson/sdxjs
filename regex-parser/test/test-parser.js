@@ -20,7 +20,7 @@ describe('parses correctly', async () => {
     ])
   })
 
-  // <omit>
+  // [omit]
   it('parses start anchors', () => {
     assert.deepStrictEqual(parse('^a'), [
       { kind: 'Start', loc: 0 },
@@ -142,7 +142,7 @@ describe('parses correctly', async () => {
       }
     ])
   })
-  // </omit>
+  // [/omit]
 
   it('parses alt of groups', () => {
     assert.deepStrictEqual(parse('a|(bc)'), [

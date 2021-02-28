@@ -17,8 +17,7 @@ const createFixtures = () => {
 hope.setup(createFixtures)
 ```
 
-::: continue
+{: .continue}
 then the function `createFixtures` will be called
 exactly once before each test in that file.
 Add a similar way to register a teardown function with `hope.teardown`.
-:::

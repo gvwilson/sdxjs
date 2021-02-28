@@ -1,7 +1,7 @@
 import glob from 'glob-promise'
 import fs from 'fs-extra-promise'
 
-// <recycle>
+// [recycle]
 const statPair = async (filename) => {
   const stats = await fs.statAsync(filename)
   return { filename, stats }
@@ -14,9 +14,9 @@ const lineCount = async (filename) => {
     lines: data.split('\n').length - 1
   }
 }
-// </recycle>
+// [/recycle]
 
-// <main>
+// [main]
 const main = async (srcDir) => {
   const files = await glob(`${srcDir}/**/*.*`)
   const pairs = await Promise.all(
@@ -35,4 +35,4 @@ const main = async (srcDir) => {
 
 const srcDir = process.argv[2]
 main(srcDir)
-// </main>
+// [/main]

@@ -3,11 +3,11 @@
 
 We have written many small programs in the previous two chapters,
 but haven't really tested any of them.
-That's OK for <g key="exploratory_programming">exploratory programming</g>,
+That's OK for <span g="exploratory_programming">exploratory programming</span>,
 but if our software is going to be used instead of just read,
 we should try to make sure it works.
 
-A tool for writing and running <g key="unit_test">unit tests</g> is a good first step.
+A tool for writing and running <span g="unit_test">unit tests</span> is a good first step.
 Such a tool should:
 
 -   find files containing tests;
@@ -25,56 +25,52 @@ from the 1980s onward <cite>Meszaros2007,Tudose2020</cite>.
 As in other unit testing frameworks,
 each test will be a function of zero arguments
 so that the framework can run them all in the same way.
-Each test will create a <g key="fixture">fixture</g> to be tested
-and use <g key="assertion">assertions</g>
-to compare the <g key="actual_result">actual result</g>
-against the <g key="expected_result">expected result</g>.
+Each test will create a <span g="fixture">fixture</span> to be tested
+and use <span g="assertion">assertions</span>
+to compare the <span g="actual_result">actual result</span>
+against the <span g="expected_result">expected result</span>.
 The outcome can be exactly one of:
 
--   <g key="pass_test">Pass</g>:
-    the <g key="test_subject">test subject</g> works as expected.
+-   <span g="pass_test">Pass</span>:
+    the <span g="test_subject">test subject</span> works as expected.
 
--   <g key="fail_test">Fail</g>:
+-   <span g="fail_test">Fail</span>:
     something is wrong with the test subject.
 
--   <g key="error_test">Error</g>:
+-   <span g="error_test">Error</span>:
     something wrong in the test itself,
     which means we don't know whether the test subject is working properly or not.
 
 To make this work,
 we need some way to distinguish failing tests from broken ones.
 Our solution relies on the fact that exceptions are objects
-and that a program can use <g key="introspection">introspection</g>
+and that a program can use <span g="introspection">introspection</span>
 to determine the class of an object.
-If a test <g key="throw_exception">throws an exception</g> whose class is `assert.AssertionError`,
+If a test <span g="throw_exception">throws an exception</span> whose class is `assert.AssertionError`,
 then we will assume the exception came from
 one of the assertions we put in the test as a check
-(<f key="unit-test-mental-model"></f>).
+(<span f="unit-test-mental-model"></span>).
 Any other kind of assertion indicates that the test itself contains an error.
 
-<%- include('/inc/figure.html', {
-    id: 'unit-test-mental-model',
-    img: './figures/mental-model.svg',
-    alt: 'Mental model of unit testing',
-    cap: 'Running tests that can pass, fail, or contain errors.'
-}) %>
+{% include figure id='unit-test-mental-model' img='figures/mental-model.svg' alt='Mental model of unit testing' cap='Running tests that can pass, fail, or contain errors.' %}
 
 ## How can we separate test registration, execution, and reporting?
 
 To start,
-let's use a handful of <g key="global_variable">global variables</g> to record tests and their results:
+let's use a handful of <span g="global_variable">global variables</span> to record tests and their results:
 
-<%- include('/inc/keep.html', {file: 'dry-run.js', key: 'state'}) %>
+{% include keep file='dry-run.js' key='state' %}
 
 We don't run tests immediately
-because we want to wrap each one in our own <g key="exception_handler">exception handler</g>.
+because we want to wrap each one in our own <span g="exception_handler">exception handler</span>.
 Instead,
 the function `hopeThat` saves a descriptive message and a callback function that implements a test
 in the `HopeTest` array.
 
-<%- include('/inc/keep.html', {file: 'dry-run.js', key: 'save'}) %>
+{% include keep file='dry-run.js' key='save' %}
 
-::: callout
+<div class="callout" markdown="1">
+
 ### Independence
 
 Because we're appending tests to an array,
@@ -83,14 +79,15 @@ but we shouldn't rely on that.
 Every unit test should work independently of every other
 so that an error or failure in an early test
 doesn't affect the result of a later one.
-:::
+
+</div>
 
 Finally,
 the function `main` runs all registered tests:
 
-<%- include('/inc/keep.html', {file: 'dry-run.js', key: 'main'}) %>
+{% include keep file='dry-run.js' key='main' %}
 
-::: continue
+{: .continue}
 If a test completes without an exception, it passes.
 If any of the `assert` calls inside the test raises an `AssertionError`,
 the test fails,
@@ -98,12 +95,11 @@ and if it raises any other exception,
 it's an error.
 After all tests are run,
 `main` reports the number of results of each kind.
-:::
 
 Let's try it out:
 
-<%- include('/inc/keep.html', {file: 'dry-run.js', key: 'use'}) %>
-<%- include('/inc/file.html', {file: 'dry-run.out'}) %>
+{% include keep file='dry-run.js' key='use' %}
+{% include file file='dry-run.out' %}
 
 This simple "framework" does what it's supposed to, but:
 
@@ -116,7 +112,7 @@ This simple "framework" does what it's supposed to, but:
 
 1.  We don't have a way to test things that are supposed to raise `AssertionError`.
     Putting assertions into code to check that it is behaving correctly
-    is called <g key="defensive_programming">defensive programming</g>;
+    is called <span g="defensive_programming">defensive programming</span>;
     it's a good practice,
     but we should make sure those assertions are failing when they're supposed to,
     just as we should test our smoke detectors every once in a while.
@@ -125,7 +121,7 @@ This simple "framework" does what it's supposed to, but:
 
 The next version of our testing tool solves the first two problems in the original
 by putting the testing machinery in a class.
-It uses the <g key="singleton_pattern">Singleton</g> <g key="design_pattern">design pattern</g>
+It uses the <span g="singleton_pattern">Singleton</span> <span g="design_pattern">design pattern</span>
 to ensure that only one object of that class is ever created.
 Singletons are a way to manage global variables that belong together
 like the ones we're using to record tests and their results.
@@ -135,14 +131,14 @@ we can just construct more instances of the class.
 
 The file `hope.js` defines the class and exports one instance of it:
 
-<%- include('/inc/keep.html', {file: 'hope.js', key: 'report'}) %>
+{% include keep file='hope.js' key='report' %}
 
 This strategy relies on two things:
 
 1.  [Node][nodejs] executes the code in a JavaScript module as it loads it,
     which means that it runs `new Hope()` and exports the newly-created object.
 
-1.  [Node][nodejs] <g key="caching">caches</g> modules
+1.  Node <span g="caching">caches</span> modules
     so that a given module is only loaded once
     no matter how many times it is imported.
     This ensures that `new Hope()` really is only called once.
@@ -150,23 +146,19 @@ This strategy relies on two things:
 Once a program has imported `hope`,
 it can call `Hope.test` to record a test for later execution
 and `Hope.run` to execute all of the tests registered up until that point
-(<f key="unit-test-hope-structure"></f>).
+(<span f="unit-test-hope-structure"></span>).
 
-<%- include('/inc/figure.html', {
-    id: 'unit-test-hope-structure',
-    img: './figures/hope-structure.svg',
-    alt: 'Recording and running tests',
-    cap: 'Creating a singleton, recording tests, and running them.'
-}) %>
+{% include figure id='unit-test-hope-structure' img='figures/hope-structure.svg' alt='Recording and running tests' cap='Creating a singleton, recording tests, and running them.' %}
 
 Finally,
 our `Hope` class can report results as both a terse one-line summary and as a detailed listing.
 It can also provide the titles and results of individual tests
 so that if someone wants to format them in a different way (e.g., as HTML) they can do so:
 
-<%- include('/inc/keep.html', {file: 'hope.js', key: 'report'}) %>
+{% include keep file='hope.js' key='report' %}
 
-::: callout
+<div class="callout" markdown="1">
+
 ### Who's calling?
 
 `Hope.test` uses the [`caller`][caller] module
@@ -181,7 +173,8 @@ sooner or later (probably sooner) they will forget to modify
 the copy-and-pasted function name being passed into `Hope.test`
 and will then lose time trying to figure out why `test_this` is failing
 when the failure is actually in `test_that`.
-:::
+
+</div>
 
 ## How can we build a command-line interface for our test manager?
 
@@ -192,7 +185,7 @@ A couple of `import` statements to get `assert` and `hope`
 and then one function call per test
 is about as simple as we can make the tests themselves:
 
-<%- include('/inc/file.html', {file: 'test-add.js'}) %>
+{% include file file='test-add.js' %}
 
 But that just defines the tests---how will we find them so that we can run them?
 One option is to require people to `import` each of the files containing tests
@@ -207,20 +200,18 @@ import './test-mul.js'
 import './test-div.js'
 
 Hope.run()
-…
+...
 ```
 
-:::continue
+{: .continue}
 Here,
 `all-the-tests.js` imports other files so that they will register tests
-as a <g key="side_effect">side effect</g> via calls to `hope.test`
+as a <span g="side_effect">side effect</span> via calls to `hope.test`
 and then calls `Hope.run` to execute them.
 It works,
 but sooner or later (probably sooner) someone will forget to import one of the test files.
-:::
 
-
-A better strategy is to load test files <g key="dynamic_loading">dynamically</g>.
+A better strategy is to load test files <span g="dynamic_loading">dynamically</span>.
 While `import` is usually written as a statement,
 it can also be used as an `async` function
 that takes a path as a parameter and loads the corresponding file.
@@ -228,7 +219,7 @@ As before,
 loading files executes the code they contain,
 which registers tests as a side effect:
 
-<%- include('/inc/erase.html', {file: 'pray.js', key: 'options'}) %>
+{% include erase file='pray.js' key='options' %}
 
 By default,
 this program finds all files below the current working directory
@@ -245,7 +236,8 @@ Given command-line arguments *after* the program's name
 it looks for patterns like `-x something`
 and creates an object with flags as keys and values associated with them.
 
-::: callout
+<div class="callout" markdown="1">
+
 ### Filenames in `minimist`
 
 If we use a command line like `pray.js -v something.js`,
@@ -254,14 +246,16 @@ To indicate that we want `something.js` added to the list of trailing filenames
 associated with the special key `_` (a single underscore),
 we have to write `pray.js -v -- something.js`.
 The double dash is a common Unix convention for signalling the end of parameters.
-:::
 
-Our <g key="test_runner">test runner</g> is now complete,
+</div>
+
+Our <span g="test_runner">test runner</span> is now complete,
 so we can try it out with some files containing tests that pass, fail, and contain errors:
 
-<%- include('/inc/multi.html', {pat: 'pray.*', fill: 'sh out'}) %>
+{% include multi pat='pray.*' fill='sh out' %}
 
-::: callout
+<div class="callout" markdown="1">
+
 ### Infinity is allowed
 
 `test-div.js` contains the line:
@@ -273,14 +267,15 @@ hope.test('Quotient of 1 and 0', () => assert((1 / 0) === 0))
 This test counts as a failure rather than an error
 because thinks the result of dividing by zero is the special value `Infinity`
 rather than an arithmetic error.
-:::
+
+</div>
 
 Loading modules dynamically so that they can register something for us to call later
 is a common pattern in many programming languages.
 Control flow goes back and forth between the framework and the module being loaded
 as this happens
-so we must specify the <g key="lifecycle">lifecycle</g> of the loaded modules quite carefully.
-<f key="unit-test-lifecycle"></f> illustrates what happens
+so we must specify the <span g="lifecycle">lifecycle</span> of the loaded modules quite carefully.
+<span f="unit-test-lifecycle"></span> illustrates what span
 when a pair of files `test-add.js` and `test-sub.js` are loaded by our framework:
 
 1.  `pray` loads `hope.js`.
@@ -296,9 +291,4 @@ when a pair of files `test-add.js` and `test-sub.js` are loaded by our framework
 10.  `pray` can now ask the unique instance of `Hope` to run all of the tests,
      then get a report from the `Hope` singleton and display it.
 
-<%- include('/inc/figure.html', {
-    id: 'unit-test-lifecycle',
-    img: './figures/lifecycle.svg',
-    alt: 'Unit testing lifecycle',
-    cap: 'Lifecycle of dynamically-discovered unit tests.'
-}) %>
+{% include figure id='unit-test-lifecycle' img='figures/lifecycle.svg' alt='Unit testing lifecycle' cap='Lifecycle of dynamically-discovered unit tests.' %}

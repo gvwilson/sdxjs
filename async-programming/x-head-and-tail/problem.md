@@ -7,14 +7,12 @@ so that:
 node head.js 5 first.txt second.txt third.txt
 ```
 
-::: continue
+{: .continue}
 prints the first 5 lines of each of the three files and:
-:::
 
 ```sh
 node tail.js 5 first.txt second.txt third.txt
 ```
 
-::: continue
+{: .continue}
 prints the last five lines of each file.
-:::

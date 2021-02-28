@@ -1,6 +1,6 @@
-The regular expressions we have seen so far are <g key="eager_matching">eager</g>:
+The regular expressions we have seen so far are <span g="eager_matching">eager</span>:
 they match as much as they can, as early as they can.
-An alternative is <g key="lazy_matching">lazy matching</g>,
+An alternative is <span g="lazy_matching">lazy matching</span>,
 in which expressions match as little as they need to.
 For example,
 given the string `"ab"`,

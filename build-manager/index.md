@@ -1,7 +1,7 @@
 ---
 ---
 
-Suppose we are using a page templating system to create a website (<x key="page-templates"></x>).
+Suppose we are using a page templating system to create a website (<span x="page-templates"></span>).
 If we a change a single page our tool should translate it,
 but shouldn't waste time translating others.
 If we change a template,
@@ -11,32 +11,27 @@ and automatically re-translate all of them.
 
 Choosing what actions to take based on how files depend on one another is a common pattern.
 For example,
-programs in <g key="compiled_language">compiled languages</g> like C and Java
+programs in <span g="compiled_language">compiled languages</span> like C and Java
 have to be translated into lower-level forms before they can run.
 In fact,
 there are usually two stages to the translation:
 compiling each source file into some intermediate form,
-and then <g key="link">linking</g> the compiled modules to each other and to libraries
+and then <span g="link">linking</span> the compiled modules to each other and to libraries
 to create a runnable program
-(<f key="build-manager-compiling"></f>).
+(<span f="build-manager-compiling"></span>).
 If a source file hasn't changed,
 there's no need to recompile it before linking.
 
-<%- include('/inc/figure.html', {
-    id: 'build-manager-compiling',
-    img: './figures/compiling.svg',
-    alt: 'Compiling and linking',
-    cap: 'Compiling source files and linking the resulting modules.'
-}) %>
+{% include figure id='build-manager-compiling' img='figures/compiling.svg' alt='Compiling and linking' cap='Compiling source files and linking the resulting modules.' %}
 
-A <g key="build_manager">build manager</g> takes a description of what depends on what,
+A <span g="build_manager">build manager</span> takes a description of what depends on what,
 figures out which files are out of date,
 determines an order in which to rebuild things,
 and then executes any necessary steps.
 Originally created to manage compilation,
-they are also useful for programs written in <g key="interpreted_language">interpreted languages</g> like JavaScript
-when we want to bundle multiple modules into a single loadable file (<x key="module-bundler"></x>)
-or re-create documentation from source code (<x key="doc-generator"></x>).
+they are also useful for programs written in <span g="interpreted_language">interpreted languages</span> like JavaScript
+when we want to bundle multiple modules into a single loadable file (<span x="module-bundler"></span>)
+or re-create documentation from source code (<span x="doc-generator"></span>).
 In this chapter we will create a simple build manager
 based on [Make][gnu-make], [Bajel][bajel], [Jake][jake],
 and other systems discussed in <cite>Smith2011</cite>.
@@ -46,30 +41,25 @@ and other systems discussed in <cite>Smith2011</cite>.
 The input to a build manager is a set of rules,
 each of which has:
 
--   a <g key="build_target">target</g>, which is the file to be updated;
+-   a <span g="build_target">target</span>, which is the file to be updated;
 
--   some <g key="dependency">dependencies</g>, which are the things that file depends on;
+-   some <span g="dependency">dependencies</span>, which are the things that file depends on;
     and
 
--   a <g key="build_recipe">recipe</g> that specifies how to update the target
+-   a <span g="build_recipe">recipe</span> that specifies how to update the target
     if it is out of date compared to its dependencies.
 
 The target of one rule can be a dependency of another rule,
-so the relationships between the files form a <g key="dag">directed acyclic graph</g> or DAG
-(<f key="build-manager-dependencies"></f>).
+so the relationships between the files form a <span g="dag">directed acyclic graph</span> or DAG
+(<span f="build-manager-dependencies"></span>).
 The graph is directed because "A depends on B" is a one-way relationship;
 it cannot contain cycles (or loops) because
 if something depends on itself we can never finish updating it.
-We say that a target is <g key="build_stale">stale</g> if it is older than any of its dependencies.
+We say that a target is <span g="build_stale">stale</span> if it is older than any of its dependencies.
 When this happens,
 we use the recipes to bring it up to date.
 
-<%- include('/inc/figure.html', {
-    id: 'build-manager-dependencies',
-    img: './figures/dependencies.svg',
-    alt: 'Respecting dependencies',
-    cap: 'How a build manager finds and respects dependencies.'
-}) %>
+{% include figure id='build-manager-dependencies' img='figures/dependencies.svg' alt='Respecting dependencies' cap='How a build manager finds and respects dependencies.' %}
 
 Our build manager must:
 
@@ -82,41 +72,41 @@ Our build manager must:
 1.  Build those targets,
     making sure to build things *before* anything that depends on them is built.
 
-::: callout
+<div class="callout" markdown="1">
+
 ### Topological order
 
-A <g key="topological_order">topological ordering</g> of a graph
+A <span g="topological_order">topological ordering</span> of a graph
 arranges the nodes so that every node comes after everything it depends on.
 For example,
 if A depends on both B and C,
 then (B, C, A) and (C, B, A) are both valid topological orders of the graph.
-:::
+
+</div>
 
 ## Where should we start?
 
 We will store our rules in YAML files like this:
 
-<%- include('/inc/file.html', {file: 'three-simple-rules.yml'}) %>
+{% include file file='three-simple-rules.yml' %}
 
-::: continue
+{: .continue}
 We could equally well have used JSON,
 but it wouldn't have made sense to use CSV:
 rules have a nested structure,
 and CSV doesn't represent nesting particularly gracefully.
-:::
 
 We are going to create our build manager in stages,
-so we start by writing a simple <g key="driver">driver</g> that loads a JavaScript source file,
+so we start by writing a simple <span g="driver">driver</span> that loads a JavaScript source file,
 creates an object of whatever class that file exports,
 and runs the `.build` method of that object with the rest of the command-line parameters:
 
-<%- include('/inc/file.html', {file: 'driver.js'}) %>
+{% include file file='driver.js' %}
 
-::: continue
-We use the `import` function to dynamically load files containing in <x key="unit-test"></x> as well.
+{: .continue}
+We use the `import` function to dynamically load files containing in <span x="unit-test"></span> as well.
 It only saves us a few lines of code in this case,
 but we will use this idea of a general-purpose driver for larger programs in future chapters.
-:::
 
 To work with our driver,
 each version of our build manager must be a class that satistifes two requirements:
@@ -126,81 +116,75 @@ each version of our build manager must be a class that satistifes two requiremen
 1.  It must provide a `build` method that needs no arguments.
 
 The `build` method must create a graph from the configuration file,
-check that it does not contain any <g key="cycle">cycles</g>,
+check that it does not contain any <span g="cycle">cycles</span>,
 and then run whatever commands are needed to update stale targets.
-Just as we built a generic `Visitor` class in <x key="page-templates"></x>,
+Just as we built a generic `Visitor` class in <span x="page-templates"></span>,
 we can build a generic base class for our build manager that does these steps in this order
 without actually implementing any of them:
 
-<%- include('/inc/file.html', {file: 'skeleton-builder.js'}) %>
+{% include file file='skeleton-builder.js' %}
 
-This is an example of the <g key="template_method_pattern">Template Method</g> design pattern:
+This is an example of the <span g="template_method_pattern">Template Method</span> design pattern:
 the parent class defines the order of the steps
 and child classes fill them in
-(<f key="build-manager-template-method"></f>).
+(<span f="build-manager-template-method"></span>).
 This design pattern ensures that every child does the same things in the same order,
 even if the details of *how* vary from case to case.
 
-<%- include('/inc/figure.html', {
-    id: 'build-manager-template-method',
-    img: './figures/template-method.svg',
-    alt: 'Template Method pattern',
-    cap: 'The Template Method pattern in action.'
-}) %>
+{% include figure id='build-manager-template-method' img='figures/template-method.svg' alt='Template Method pattern' cap='The Template Method pattern in action.' %}
 
 We would normally implement all of the methods required by the `build` method at the same time,
 but to make the evolving code easier to follow we will write them them one by one.
 The `loadConfig` method loads the configuration file
 as the builder object is being constructed:
 
-<%- include('/inc/file.html', {file: 'config-loader.js'}) %>
+{% include file file='config-loader.js' %}
 
-::: continue
+{: .continue}
 The first line does the loading;
 the rest of the method checks that the rules are at least superficially plausible.
 We need these checks because YAML is a generic file format
 that doesn't know anything about the extra requirements of our rules.
-And as we first saw in <x key="async-programming"></x>,
+And as we first saw in <span x="async-programming"></span>,
 we have to specify that the character encoding of our file is UTF-8
 so that JavaScript knows how to convert bytes into text.
-:::
 
 The next step is to turn the configuration into a graph in memory.
 We use the [`graphlib`][graphlib] module to manage nodes and links
 rather than writing our own classes for graphs,
 and store the recipe to rebuild a node in that node.
-Two features of [`graphlib`][graphlib] that took us a while to figure out are that:
+Two features of `graphlib` that took us a while to figure out are that:
 
 1.  links go *from* the dependency *to* the target,
     and
 
 1.  `setEdge` automatically adds nodes if they aren't already present.
 
-[`graphlib`][graphlib] provides implementations of some common graph algorithms,
+`graphlib` provides implementations of some common graph algorithms,
 including one to check for cycles,
 so we might as well write that method at this point as well:
 
-<%- include('/inc/file.html', {file: 'graph-creator.js'}) %>
+{% include file file='graph-creator.js' %}
 
 We can now create something that displays our configuration when it runs
 but does nothing else:
 
-<%- include('/inc/file.html', {file: 'display-only.js'}) %>
+{% include file file='display-only.js' %}
 
 If we run this with our three simple rules as input,
 it shows the graph with `v` and `w` keys to represent the ends of the links:
 
-<%- include('/inc/multi.html', {pat: 'display-only.*', fill: 'sh out'}) %>
+{% include multi pat='display-only.*' fill='sh out' %}
 
 Let's write a quick test to make sure the cycle detector works as intended:
 
-<%- include('/inc/file.html', {file: 'circular-rules.yml'}) %>
-<%- include('/inc/multi.html', {pat: 'check-cycles.*', fill: 'sh out'}) %>
+{% include file file='circular-rules.yml' %}
+{% include multi pat='check-cycles.*' fill='sh out' %}
 
 ## How can we specify that a file is out of date?
 
 The next step is to figure out which files are out of date.
-[Make][gnu-make] does this by comparing the timestamps of the files in question,
+Make does this by comparing the timestamps of the files in question,
 but this isn't always reliable:
 computers' clocks may be slightly out of sync,
 which can produce a wrong answer on a networked filesystem,
@@ -209,19 +193,20 @@ and the operating system may only report file update times to the nearest millis
 
 More modern build systems store a hash of each file's contents
 and compare the current hash to the stored one to see if the file has changed.
-Since we already looked at hashing in <x key="file-backup"></x>,
+Since we already looked at hashing in <span x="file-backup"></span>,
 we will use the timestamp approach here.
-And instead of using a mock filesystem as we did in <x key="file-backup"></x>,
+And instead of using a mock filesystem as we did in <span x="file-backup"></span>,
 we will simply load another configuration file that specifies fake timestamps for files:
 
-<%- include('/inc/file.html', {file: 'add-timestamps.yml'}) %>
+{% include file file='add-timestamps.yml' %}
 
 Since we want to associate those timestamps with files,
 we add a step to `buildGraph` to read the timestamp file and add information to the graph's nodes:
 
-<%- include('/inc/file.html', {file: 'add-timestamps.js'}) %>
+{% include file file='add-timestamps.js' %}
 
-::: callout
+<div class="callout" markdown="1">
+
 ### Not quite what we were expecting
 
 The steps defined in `SkeletonBuilder.build` don't change when we do this,
@@ -233,12 +218,13 @@ And if someone ever wants to inject a new step between building the graph and ad
 they will have to override `addTimestamps` and put their step at the top before calling `super.addTimestamps`,
 which will make the code a lot harder to understand.
 We will reflect on this in the last section of this chapter.
-:::
+
+</div>
 
 Before we move on,
 let's make sure that adding timestamps works as we want:
 
-<%- include('/inc/multi.html', {pat: 'add-timestamps.*', fill: 'sh out'}) %>
+{% include multi pat='add-timestamps.*' fill='sh out' %}
 
 ## How can we update out-of-date files?
 
@@ -254,7 +240,7 @@ so we advance our fictional clock by one for each build.
 Using `graphlib.alg.topsort` to create the topological order,
 we get this:
 
-<%- include('/inc/file.html', {file: 'update-timestamps.js'}) %>
+{% include file file='update-timestamps.js' %}
 
 The `run` method:
 
@@ -272,7 +258,7 @@ we see if any of its dependencies currently have timestamps greater than or equa
 When we run this,
 it seems to do the right thing:
 
-<%- include('/inc/multi.html', {pat: 'update-timestamps.*', fill: 'sh out'}) %>
+{% include multi pat='update-timestamps.*' fill='sh out' %}
 
 ## How can we add generic build rules?
 
@@ -280,7 +266,7 @@ If our website has a hundred blog posts
 or a hundred pages of documentation about particular JavaScript files,
 we don't want to have to write a hundred nearly-identical recipes.
 Instead,
-we want to be able to write generic <g key="build_rule">build rules</g> that say,
+we want to be able to write generic <span g="build_rule">build rules</span> that say,
 "Build all things of this kind the same way."
 These generic rules need:
 
@@ -296,60 +282,53 @@ Once again,
 object-oriented programming helps us change only what we need to change,
 provided we divided our problem into sensible chunks in the first place.
 
-[Make][gnu-make] provides <g key="automatic_variable">automatic variables</g> with names like `$<` and `$@`
+Make provides <span g="automatic_variable">automatic variables</span> with names like `$<` and `$@`
 to represent the parts of a rule.
 Our variables will be more readable:
 we will use `@TARGET` for the target,
 `@DEPENDENCIES` for the dependencies (in order),
 and `@DEP[1]`, `@DEP[2]`, and so on for specific dependencies
-(<f key="build-manager-pattern-rules"></f>).
+(<span f="build-manager-pattern-rules"></span>).
 
-<%- include('/inc/figure.html', {
-    id: 'build-manager-pattern-rules',
-    img: './figures/pattern-rules.svg',
-    alt: 'Pattern rules',
-    cap: 'Turning patterns rules into runnable commands.'
-}) %>
+{% include figure id='build-manager-pattern-rules' img='figures/pattern-rules.svg' alt='Pattern rules' cap='Turning patterns rules into runnable commands.' %}
 
 Our variable expander looks like this:
 
-<%- include('/inc/file.html', {file: 'variable-expander.js'}) %>
+{% include file file='variable-expander.js' %}
 
 The first thing we do is test that it works when there *aren't* any variables to expand
 by running it on the same example we used previously:
 
-<%- include('/inc/file.html', {file: 'variable-expander.out'}) %>
+{% include file file='variable-expander.out' %}
 
-::: continue
+{: .continue}
 This is perhaps the most important reason to create tests:
 they tell us right away if something we have added or changed
 has broken something that used to work.
 That gives us a firm base to build on as we debug the new code.
-:::
 
-Now we need to add <g key="pattern_rule">pattern rules</g>.
+Now we need to add <span g="pattern_rule">pattern rules</span>.
 Our first attempt at a rules file looks like this:
 
-<%- include('/inc/file.html', {file: 'pattern-rules.yml'}) %>
+{% include file file='pattern-rules.yml' %}
 
-::: continue
+{: .continue}
 and our first attempt at reading it extracts rules before expanding variables:
-:::
 
-<%- include('/inc/file.html', {file: 'pattern-user-attempt.js'}) %>
+{% include file file='pattern-user-attempt.js' %}
 
 However,
 that doesn't work:
 
-<%- include('/inc/file.html', {file: 'pattern-user-attempt.out'}) %>
+{% include file file='pattern-user-attempt.out' %}
 
-::: continue
+{: .continue}
 The problem is that our simple graph loader creates nodes for dependencies even if they aren't targets.
 As a result,
 we wind up tripping over the lack of a node for `%.in` before we get to extracting rules.
-:::
 
-::: callout
+<div class="callout" markdown="1">
+
 ### Errors become assertions
 
 When we first wrote `add-timestamps.js`,
@@ -358,11 +337,12 @@ that printed the error message shown above.
 Once we tracked down our bug,
 though,
 we added the assertion to ensure we didn't make the same mistake again,
-and as <g key="runnable_documentation">runnable documentation</g>
+and as <span g="runnable_documentation">runnable documentation</span>
 to tell the next programmer more about the code.
 Regular code tells the computer what to do;
 assertions with meaningful error messages tell the reader why.
-:::
+
+</div>
 
 We can fix our problem by rewriting the rule loader
 to separate pattern rules from simple rules;
@@ -371,18 +351,18 @@ While we're here,
 we will enable timestamps as an optional field in the rules for testing purposes
 rather than having them in a separate file:
 
-<%- include('/inc/file.html', {file: 'pattern-user-read.js'}) %>
+{% include file file='pattern-user-read.js' %}
 
 Before we try to run this,
 let's add methods to show the state of our two internal data structures:
 
-<%- include('/inc/multi.html', {pat: 'pattern-user-show.*', fill: 'js sh out'}) %>
+{% include multi pat='pattern-user-show.*' fill='js sh out' %}
 
 The output seems to be right,
 so let's try expanding rules *after* building the graph and rules
 but *before* expanding variables:
 
-<%- include('/inc/multi.html', {pat: 'pattern-user-run.*', fill: 'js out'}) %>
+{% include multi pat='pattern-user-run.*' fill='js out' %}
 
 ## What should we do next?
 

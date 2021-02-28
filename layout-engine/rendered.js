@@ -4,7 +4,7 @@ import {
   PlacedRow
 } from './placed.js'
 
-// <keep>
+// [keep]
 export class RenderedBlock extends PlacedBlock {
   render (screen, fill) {
     drawBlock(screen, this, fill)
@@ -30,4 +30,4 @@ const drawBlock = (screen, node, fill) => {
     }
   }
 }
-// </keep>
+// [/keep]

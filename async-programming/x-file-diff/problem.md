@@ -12,9 +12,8 @@ some
 people
 ```
 
-::: continue
+{: .continue}
 and `right.txt` contains:
-:::
 
 ```txt
 write
@@ -22,17 +21,15 @@ some
 code
 ```
 
-::: continue
+{: .continue}
 then:
-:::
 
 ```sh
 node file-diff.js left.txt right.txt
 ```
 
-::: continue
+{: .continue}
 would print:
-:::
 
 ```txt
 2 code
@@ -41,12 +38,9 @@ would print:
 2 write
 ```
 
-::: continue
+{: .continue}
 where `1`, `2`, and `*` show whether lines are in only the first or second file
 or are in both.
 Note that the order of the lines in the file doesn't matter.
-:::
 
-::: hint
-You may want to use the `Set` class to store lines.
-:::
+Hint: you may want to use the `Set` class to store lines.

@@ -1,14 +1,11 @@
 ---
 ---
 
-<% site.authors.forEach(author => { %>
-<%- `<div class="html-only">
-  <img src="../../static/${author.img}" id="${author.id}" width="100px" />
-</div>
-<div class="latex-only">
-  \\includegraphics[width=0.2\\linewidth]{static/${author.img}}
-</div>` %>
-<%- '<div class="continue">' %>
-<%- include('/inc/raw.html', {file: `${author.id}.md`}) %>
-<%- '</div>' %>
-<% }) %>
+**[Greg Wilson][wilson-greg]** has worked in industry and academia for 35 years,
+and is the author or editor of several books,
+including *Beautiful Code*,
+*[The Architecture of Open Source Applications][aosa]*,
+*[JavaScript for Data Science][js4ds]*,
+and *[Teaching Tech Together][t3]*.
+He was the co-founder and first Executive Director of [Software Carpentry][carpentries]
+and received ACM SIGSOFT's Influential Educator Award in 2020.
