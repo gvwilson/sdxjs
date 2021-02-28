@@ -1,6 +1,0 @@
----
----
-
-::: fixme
-Write introduction.
-:::

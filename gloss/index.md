@@ -280,8 +280,6 @@
 <dd class="glossary">The standard <g key="markup_language">markup language</g> used for web pages. HTML is represented in memory using <g key="dom">DOM</g> (Digital Object Model).</dd>
 <dt id="http" class="glossary">HyperText Transfer Protocol (HTTP)</dt>
 <dd class="glossary">The standard <g key="protocol">protocol</g> for data transfer on the World-Wide Web. HTTP defines the format of <g key="http_request">requests</g> and <g key="http_response">responses</g>, the meanings of standard error codes, and other features.</dd>
-<dt id="http_header" class="glossary">HTTP header</dt>
-<dd class="glossary">A key-value pair at the top of an <g key="http">HTTP</g> <g key="http_request">request</g> or <g key="http_response">response</g> that carries additional information such as the user's preferred language or the length of the data being transferred.</dd>
 <dt id="http_request" class="glossary">HTTP request</dt>
 <dd class="glossary">A message sent from a <g key="client">client</g> to a <g key="server">server</g> using the <g key="http">HTTP</g> <g key="protocol">protocol</g> asking for data. A request usually asks for a web page, image, or other data.</dd>
 <dt id="http_response" class="glossary">HTTP response</dt>
@@ -368,8 +366,6 @@
 <dd class="glossary">An implementation of a <g key="generic_function">generic function</g> that handles objects of a specific class.</dd>
 <dt id="method_chaining" class="glossary">method chaining</dt>
 <dd class="glossary">A style of object-oriented programming in which an object's methods return that object as their result so that another method can immediately be called, as in <code>obj.a().b().c()</code>.</dd>
-<dt id="mime_type" class="glossary">MIME type</dt>
-<dd class="glossary">A standard way to identify the contents of files on the internet. The term is an acronym of &quot;multi-purpose Internet mail extension&quot;, and MIME types are often identified by <g key="filename_extension">filename extensions</g>, such as <code>.png</code> for PNG-formatted images.</dd>
 <dt id="mock_object" class="glossary">mock object</dt>
 <dd class="glossary">A simplified replacement for part of a program whose behavior is easy to control and predict. Mock objects are used in <g key="unit_test">unit tests</g> to simulate databases, web services, and other complex systems.</dd>
 <dt id="module" class="glossary">module</dt>
@@ -452,8 +448,6 @@
 <dd class="glossary">A value generated in a repeatable way that resembles the true randomness of the universe well enough to fool observers.</dd>
 <dt id="query_selector" class="glossary">query selector</dt>
 <dd class="glossary">A pattern that specifies a set of <g key="dom">DOM</g> nodes.  Query selectors are used in <g key="css">CSS</g> to specify the elements that rules apply to, or by JavaScript programs to manipulate web pages.</dd>
-<dt id="query_string" class="glossary">query string</dt>
-<dd class="glossary">The portion of a <g key="url">URL</g> after the quesiton mark <code>?</code> that specifies extra parameters for the <g key="http_request">HTTP request</g> as name-value pairs.</dd>
 <dt id="race_condition" class="glossary">race condition</dt>
 <dd class="glossary">A situation in which a result depends on the order in which two or more concurrent operations are carried out.</dd>
 <dt id="raise_exception" class="glossary">raise (an exception)</dt>
@@ -578,8 +572,6 @@
 <dd class="glossary">A standard that defines numeric codes for many thousands of characters and symbols. Unicode does not define how those numbers are stored; that is done by standards like <g key="utf_8">UTF-8</g>.</dd>
 <dt id="unit_test" class="glossary">unit test</dt>
 <dd class="glossary">A test that exercises one function or feature of a piece of software and produces <g key="pass_test">pass</g>, <g key="fail_test">fail</g>, or <g key="error_test">error</g>.</dd>
-<dt id="url" class="glossary">Uniform Resource Locator (URL)</dt>
-<dd class="glossary">A unique address on the World-Wide Web. URLs originally identified web pages, but may also represent datasets or database queries, particularly if they include a <g key="query_string">query string</g>.</dd>
 <dt id="utc" class="glossary">Coordinated Universal Time (UTC)</dt>
 <dd class="glossary">The standard time against which all others are defined. UTC is the time at longitude 0°, and is not adjusted for daylight savings. <g key="timestamp">Timestamps</g> are often reported in UTC so that they will be the same no matter what timezone the computer is in.</dd>
 <dt id="utf_8" class="glossary">UTF-8</dt>
