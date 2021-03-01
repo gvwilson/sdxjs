@@ -251,7 +251,7 @@ This gives us a way to have several generators in play at the same time.
 As another example,
 this generator takes a string and produces its vowels one by one:
 
-{% include('/inc/multi.html', {pat: 'generator-vowels-while.*', fille: 'js out'}) %}
+{% include('/inc/multi.html', {pat: 'generator-vowels-while.*', fill: 'js out'}) %}
 
 ::: continue
 Instead of a `while` loop it is much more common to use `for…of`,
