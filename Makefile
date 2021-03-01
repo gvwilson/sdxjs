@@ -57,9 +57,6 @@ STATIC_DST := $(patsubst %,docs/%,${STATIC_SRC})
 # Tools used to create and update things.
 TOOLS := $(filter-out bin/utils.js,$(wildcard bin/*.js))
 
-# Blog posts.
-BLOG_POSTS = $(wildcard posts/*.md)
-
 # Everything.
 ALL_TARGETS := ${FIGURES_DST} ${STATIC_DST} ${HTML} ${EXAMPLES_DST} docs/atom.xml
 
@@ -87,9 +84,6 @@ pdf: ${VOL}.pdf
 
 ## epub: rebuild EPUB
 epub: docs/${VOL}/${VOL}.epub
-
-## blog: rebuild blog
-blog: docs/atom.xml
 
 ## ----: ----
 
@@ -221,15 +215,6 @@ ${VOL}.pdf ${VOL}.aux: ${VOL}.tex
 # EPUB version of book.
 docs/${VOL}/${VOL}.epub: ${VOL}.tex
 	sed -e 's/\.pdf}/\.svg}/g' $< | pandoc --from latex --to epub > $@
-
-# Blog (post generated as side effect).
-docs/atom.xml: bin/blog.js ${BLOG_POSTS} inc/post-head.html inc/post-foot.html
-	bin/blog.js \
-	--site site.yml \
-	--docs docs \
-	--blog blog \
-	--links links.yml \
-	--posts ${BLOG_POSTS}
 
 # Rearranging files.
 license/index.md: LICENSE.md
