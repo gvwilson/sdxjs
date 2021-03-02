@@ -7,6 +7,12 @@ import sys
 import yaml
 
 
+# Width of output lines.
+WIDTH = 72
+
+# Length of included chunks.
+LENGTH = 30
+
 # Glossary references use <span g="...">...</span>.
 GLOSS_REF = re.compile(r'<span\s+g="(.+?)">', re.DOTALL)
 

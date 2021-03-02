@@ -7,6 +7,7 @@ CONFIG=_config.yml
 INCLUDES=$(wildcard _includes/*)
 LAYOUTS=$(wildcard _layouts/*.html)
 MARKDOWN=$(wildcard *.md) $(wildcard */index.md)
+HTML=${SITE}/index.html $(wildcard ${SITE}/*/index.html)
 EXERCISES=$(wildcard */x-*/problem.md) $(wildcard */x-*/solution.md)
 STATIC=$(wildcard _sass/*/*.scss) $(wildcard css/*.css) $(wildcard css/*.scss) $(wildcard js/*.js)
 TEX=$(wildcard tex/*.*)
@@ -98,6 +99,7 @@ $(filter-out bin/utils.py,$(wildcard bin/*.py)): bin/utils.py
 ## check: run all checks
 check:
 	@make check-bib
+	@make check-chunk-length
 	@make check-gloss
 	@make check-links
 	@make check-numbering
@@ -107,6 +109,10 @@ check:
 ## check-bib: compare citations and definitions
 check-bib:
 	@bin/check-bib.py --bibliography ${BIB_IN} --sources ${MARKDOWN} _includes/intro.md
+
+## check-chunk-length: see whether any inclusions are overly long
+check-chunk-length:
+	@bin/check-chunk-length.py --sources ${HTML}
 
 ## check-gloss: compare references and definitions
 check-gloss:
