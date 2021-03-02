@@ -1,10 +1,10 @@
-// <erase>
+// [erase]
 import {
   WrappedBlock,
   WrappedCol,
   WrappedRow
 } from './wrapped.js'
-// </erase>
+// [/erase]
 export class DomBlock extends WrappedBlock {
   constructor (lines) {
     super(

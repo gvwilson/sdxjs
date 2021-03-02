@@ -7,8 +7,8 @@ function * getVowels (text) {
 }
 
 const test = 'this is a test'
-// <loop>
+// [loop]
 for (const vowel of getVowels(test)) {
   console.log(vowel)
 }
-// </loop>
+// [/loop]

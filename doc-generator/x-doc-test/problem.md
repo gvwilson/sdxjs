@@ -7,9 +7,8 @@ Write a tool that:
 2.  Extracts the code and output from those blocks comments
     and turns them into assertions.
 
-::: continue
+{: .continue}
 For example, given this input:
-:::
 
 ```js
 const findIncreasing = (values) => {
@@ -26,9 +25,8 @@ const findIncreasing = (values) => {
 }
 ```
 
-::: continue
+{: .continue}
 the tool would produce:
-:::
 
 ```js
 assert.deepStrictEqual(findIncreasing([]), [])

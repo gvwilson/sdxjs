@@ -5,7 +5,7 @@ import MarkdownAnchor from 'markdown-it-anchor'
 
 import slugify from './slugify.js'
 
-// <main>
+// [main]
 const main = () => {
   const allComments = getAllComments(process.argv.slice(2))
   const md = new MarkdownIt({ html: true })
@@ -13,9 +13,9 @@ const main = () => {
   const html = md.render(allComments)
   console.log(html)
 }
-// </main>
+// [/main]
 
-// <getAllComments>
+// [getAllComments]
 const getAllComments = (allFilenames) => {
   return allFilenames
     .map(filename => {
@@ -34,9 +34,9 @@ const getAllComments = (allFilenames) => {
     })
     .join('\n\n')
 }
-// </getAllComments>
+// [/getAllComments]
 
-// <extractComments>
+// [extractComments]
 const extractComments = (filename) => {
   const text = fs.readFileSync(filename, 'utf-8')
   const options = {
@@ -57,9 +57,9 @@ const extractComments = (filename) => {
     })
   return subset
 }
-// </extractComments>
+// [/extractComments]
 
-// <removePrefix>
+// [removePrefix]
 const removePrefix = (comment) => {
   comment.stripped = comment.value
     .split('\n')
@@ -70,6 +70,6 @@ const removePrefix = (comment) => {
     .trim()
   return comment
 }
-// </removePrefix>
+// [/removePrefix]
 
 main()

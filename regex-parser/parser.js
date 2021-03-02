@@ -13,8 +13,8 @@ const parse = (text) => {
   return compress(result)
 }
 
-// <skip>
-// <handle>
+// [skip]
+// [handle]
 const handle = (result, token, last) => {
   if (token.kind === 'Lit') {
     result.push(token)
@@ -45,9 +45,9 @@ const handle = (result, token, last) => {
     assert(false, 'UNIMPLEMENTED')
   }
 }
-// </handle>
+// [/handle]
 
-// <groupend>
+// [groupend]
 const groupEnd = (result, token) => {
   const group = {
     kind: 'Group',
@@ -67,9 +67,9 @@ const groupEnd = (result, token) => {
   }
   return group
 }
-// </groupend>
+// [/groupend]
 
-// <compress>
+// [compress]
 const compress = (raw) => {
   const cooked = []
   while (raw.length > 0) {
@@ -83,7 +83,7 @@ const compress = (raw) => {
   }
   return cooked
 }
-// </compress>
-// </skip>
+// [/compress]
+// [/skip]
 
 export default parse

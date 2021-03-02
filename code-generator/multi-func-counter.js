@@ -2,7 +2,7 @@ import acorn from 'acorn'
 import walk from 'acorn-walk'
 import escodegen from 'escodegen'
 
-// <test>
+// [test]
 const TEXT = `
 const funcOuter = (param) => {
   return param + 1
@@ -14,9 +14,9 @@ for (const i of [1, 3, 5]) {
   funcOuter(funcInner(i) + funcInner(i))
 }
 `
-// </test>
+// [/test]
 
-// <main>
+// [main]
 const main = () => {
   const ast = acorn.parse(TEXT, { sourceType: 'module' })
 
@@ -35,9 +35,9 @@ const main = () => {
   console.log(escodegen.generate(ast))
   console.log(reportCounters())
 }
-// </main>
+// [/main]
 
-// <insert>
+// [insert]
 const insertCounter = (names, node) => {
   const name = node.id.name
   names[name] = 0
@@ -47,9 +47,9 @@ const insertCounter = (names, node) => {
     acorn.parse(`__counters['${name}'] += 1`, { sourceType: 'module' })
   body.unshift(increment)
 }
-// </insert>
+// [/insert]
 
-// <admin>
+// [admin]
 const initializeCounters = (names) => {
   const body = Object.keys(names).map(n => `'${n}': 0`).join(',\n')
   return 'const __counters = {\n' + body + '\n}'
@@ -58,6 +58,6 @@ const initializeCounters = (names) => {
 const reportCounters = () => {
   return 'console.log(__counters)'
 }
-// </admin>
+// [/admin]
 
 main()

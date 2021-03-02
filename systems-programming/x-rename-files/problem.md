@@ -1,6 +1,6 @@
 Write a program called `rename` that takes three or more command-line arguments:
 
-1.  A <g key="filename_extension">filename extension</g> to match.
+1.  A <span g="filename_extension">filename extension</span> to match.
 2.  An extension to replace it with.
 3.  The names of one or more existing files.
 
@@ -15,7 +15,6 @@ The command:
 rename .txt .bck a.txt b.txt
 ```
 
-::: continue
+{: .continue}
 will rename `a.txt` to `a.bck`,
 but will *not* rename `b.txt` because `b.bck` already exists.
-:::

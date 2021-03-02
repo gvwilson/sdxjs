@@ -25,7 +25,7 @@ const recurse = (manifest, names, config, result) => {
   }
 }
 
-// <compatible>
+// [compatible]
 const compatible = (manifest, config) => {
   for (const [leftN, leftV] of Object.entries(config)) {
     const leftR = manifest[leftN][leftV]
@@ -43,7 +43,7 @@ const compatible = (manifest, config) => {
   }
   return true
 }
-// </compatible>
+// [/compatible]
 
 const report = (config, leftN, leftV, rightN, rightV) => {
   const title = configStr(config)

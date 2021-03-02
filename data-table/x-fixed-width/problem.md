@@ -1,8 +1,8 @@
 To improve performance,
-databases often store <g key="fixed_width_string">fixed-width</g> strings,
+databases often store <span g="fixed_width_string">fixed-width</span> strings,
 i.e.,
 they limit the length of the strings in a column to some fixed size
-and <g key="pad_string">pad</g> strings that are shorter than that.
+and <span g="pad_string">pad</span> strings that are shorter than that.
 
 1.  Write a function that takes an array of strings and an integer with
     and creates an `ArrayBuffer` containing the strings padded to that width.

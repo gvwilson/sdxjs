@@ -2,7 +2,7 @@ import htmlparser2 from 'htmlparser2'
 
 import select from './simple-selectors.js'
 
-// <tests>
+// [tests]
 const HTML = `<main>
   <p>text of first p</p>
   <p id="id-01">text of p#id-01</p>
@@ -19,9 +19,9 @@ const HTML = `<main>
     <p class="class-06">text of div#id-07 / p.class-06</p>
   </div>
 </main>`
-// </tests>
+// [/tests]
 
-// <getText>
+// [getText]
 const getText = (node) => {
   if (!node) {
     return 'MISSING NODE'
@@ -37,9 +37,9 @@ const getText = (node) => {
   }
   return node.children[0].data
 }
-// </getText>
+// [/getText]
 
-// <main>
+// [main]
 const main = () => {
   const doc = htmlparser2.parseDOM(HTML)[0]
   const tests = [
@@ -62,4 +62,4 @@ const main = () => {
 }
 
 main()
-// </main>
+// [/main]

@@ -21,7 +21,7 @@ class VirtualMachine extends VirtualMachineBase {
           this.reg[arg0] = arg1
           break
 
-        // <skip>
+        // [skip]
         case OPS.ldr.code:
           this.assertIsRegister(arg0, op)
           this.assertIsRegister(arg1, op)
@@ -34,22 +34,22 @@ class VirtualMachine extends VirtualMachineBase {
           this.reg[arg0] = this.reg[arg1]
           break
 
-        // <op_str>
+        // [op_str]
         case OPS.str.code:
           this.assertIsRegister(arg0, op)
           this.assertIsRegister(arg1, op)
           this.assertIsAddress(this.reg[arg1], op)
           this.ram[this.reg[arg1]] = this.reg[arg0]
           break
-        // </op_str>
+        // [/op_str]
 
-        // <op_add>
+        // [op_add]
         case OPS.add.code:
           this.assertIsRegister(arg0, op)
           this.assertIsRegister(arg1, op)
           this.reg[arg0] += this.reg[arg1]
           break
-        // </op_add>
+        // [/op_add]
 
         case OPS.sub.code:
           this.assertIsRegister(arg0, op)
@@ -57,7 +57,7 @@ class VirtualMachine extends VirtualMachineBase {
           this.reg[arg0] -= this.reg[arg1]
           break
 
-        // <op_beq>
+        // [op_beq]
         case OPS.beq.code:
           this.assertIsRegister(arg0, op)
           this.assertIsAddress(arg1, op)
@@ -65,7 +65,7 @@ class VirtualMachine extends VirtualMachineBase {
             this.ip = arg1
           }
           break
-        // </op_beq>
+        // [/op_beq]
 
         case OPS.bne.code:
           this.assertIsRegister(arg0, op)
@@ -85,7 +85,7 @@ class VirtualMachine extends VirtualMachineBase {
           this.assertIsAddress(this.reg[arg0])
           console.log(this.prompt, this.ram[this.reg[arg0]])
           break
-        // </skip>
+        // [/skip]
 
         default:
           assert(false, `Unknown op ${op}`)

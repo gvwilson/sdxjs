@@ -17,6 +17,4 @@
       .then(result => console.log(result))
     ```
 
-::: hint
-Try each snippet of code interactively in the Node interpreter and as a command-line script.
-:::
+Hint: try each snippet of code interactively in the Node interpreter and as a command-line script.

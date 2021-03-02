@@ -23,13 +23,13 @@ const main = () => {
   console.log(yaml.safeDump(result))
 }
 
-// <packed>
+// [packed]
 const asPackedJson = (table) => {
   const temp = {}
   temp.keys = Object.keys(table[0])
   temp.values = table.map(row => temp.keys.map(k => row[k]))
   return JSON.stringify(temp)
 }
-// </packed>
+// [/packed]
 
 main()

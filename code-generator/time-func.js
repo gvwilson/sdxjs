@@ -2,7 +2,7 @@ import acorn from 'acorn'
 import walk from 'acorn-walk'
 import escodegen from 'escodegen'
 
-// <timeFunc>
+// [timeFunc]
 const timeFunc = (text) => {
   const ast = acorn.parse(text, { sourceType: 'module' })
   const allNodes = gatherNodes(ast)
@@ -13,9 +13,9 @@ const timeFunc = (text) => {
     reportCounters()
   ].join('\n')
 }
-// </timeFunc>
+// [/timeFunc]
 
-// <gatherNodes>
+// [gatherNodes]
 const gatherNodes = (ast) => {
   const allNodes = []
   walk.simple(ast, {
@@ -27,18 +27,18 @@ const gatherNodes = (ast) => {
   }, null, allNodes)
   return allNodes
 }
-// </gatherNodes>
+// [/gatherNodes]
 
-// <wrapFuncDef>
+// [wrapFuncDef]
 const wrapFuncDef = (originalAst) => {
   const name = originalAst.id.name
   const wrapperAst = makeWrapperAst(name)
   wrapperAst.init.body.body[0].declarations[0].init = originalAst.init
   originalAst.init = wrapperAst.init
 }
-// </wrapFuncDef>
+// [/wrapFuncDef]
 
-// <makeWrapper>
+// [makeWrapper]
 const makeWrapperAst = (name) => {
   const template = `const ${name} = (...originalArgs) => {
     const originalFunc = () => {}
@@ -58,9 +58,9 @@ const makeWrapperAst = (name) => {
     .body[0]
     .declarations[0]
 }
-// </makeWrapper>
+// [/makeWrapper]
 
-// <admin>
+// [admin]
 const initializeCounters = (nodes) => {
   const body = nodes.map(n => `'${n.id.name}': 0`).join(',\n')
   return 'const __counters = {\n' + body + '\n}'
@@ -69,6 +69,6 @@ const initializeCounters = (nodes) => {
 const reportCounters = () => {
   return 'console.log(__counters)'
 }
-// </admin>
+// [/admin]
 
 export default timeFunc

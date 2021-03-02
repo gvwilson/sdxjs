@@ -3,7 +3,7 @@
 
 2.  Write another program called `migrate.js` that converts a set of manifests
     from CSV to JSON.
-    (The program's name comes from the term <g key="data_migration">data migration</g>.)
+    (The program's name comes from the term <span g="data_migration">data migration</span>.)
 
 3.  Modify `backup.js` programs so that each manifest stores the user name of the person who created it
     along with file hashes,

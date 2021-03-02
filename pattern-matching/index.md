@@ -1,41 +1,32 @@
 ---
 ---
 
-We have been globbing to match filenames against patterns since <x key="systems-programming"></x>.
+We have been globbing to match filenames against patterns since <span x="systems-programming"></span>.
 This lesson will explore how that works
-by building a simple version of the <g key="regular_expression">regular expressions</g>
+by building a simple version of the <span g="regular_expression">regular expressions</span>
 used to match text in everything from editor and shell commands to web scrapers.
 Our approach is inspired by [Brian Kernighan][kernighan-brian]'s entry in <cite>Oram2007</cite>.
 
 Regular expressions have inspired pattern matching for many other kinds of data,
-such as <g key="query_selector">query selectors</g> for HTML.
+such as <span g="query_selector">query selectors</span> for HTML.
 They are easier to understand and implement than patterns for matching text,
 so we will start by looking at them.
 
 ## How can we match query selectors?
 
-Programs stores HTML pages in memory using a <g key="dom">document object model</g> or DOM.
+Programs stores HTML pages in memory using a <span g="dom">document object model</span> or DOM.
 Each element in the page,
 such as a heading and or paragraph,
-is a <g key="node">nodes</g>;
-the <g key="child_tree">children</g> of a node are the elements it contains
-(<f key="pattern-matching-dom-tree"></f>).
+is a <span g="node">nodes</span>;
+the <span g="child_tree">children</span> of a node are the elements it contains
+(<span f="pattern-matching-dom-tree"></span>).
 
-<%- include('/inc/figure.html', {
-    id: 'pattern-matching-dom-tree',
-    img: './figures/dom-tree.svg',
-    alt: 'The Document Object Model',
-    cap: 'Representing an HTML document as a tree.'
-}) %>
+{% include figure id='pattern-matching-dom-tree' img='figures/dom-tree.svg' alt='The Document Object Model' cap='Representing an HTML document as a tree.' %}
 
 The first step is to define the patterns we want to support
-(<t key="pattern-matching-supported"></t>).
+(<span t="pattern-matching-supported"></span>).
 
-<%- include('/inc/table.html', {
-    id: 'pattern-matching-supported',
-    file: 'supported.tbl',
-    cap: 'Supported patterns.'
-}) %>
+{% include table id='pattern-matching-supported' file='supported.tbl' cap='Supported patterns.' %}
 
 According to this grammar,
 `blockquote#important p.highlight` is a highlighted paragraph inside the blockquote whose ID is `"important"`.
@@ -43,16 +34,11 @@ To find elements in a page that match it,
 our `select` function breaks the query into pieces
 and uses `firstMatch` to search recursively down the document tree
 until all the selectors in the query string have matched or no matches have been found
-(<f key="pattern-matching-query-selectors"></f>).
+(<span f="pattern-matching-query-selectors"></span>).
 
-<%- include('/inc/figure.html', {
-    id: 'pattern-matching-query-selectors',
-    img: './figures/query-selectors.svg',
-    alt: 'Matching query selectors',
-    cap: 'Matching a simple set of query selectors.'
-}) %>
+{% include figure id='pattern-matching-query-selectors' img='figures/query-selectors.svg' alt='Matching query selectors' cap='Matching a simple set of query selectors.' %}
 
-<%- include('/inc/erase.html', {file: 'simple-selectors.js', key: 'skip'}) %>
+{% include erase file='simple-selectors.js' key='skip' %}
 
 The `firstMatch` function handles three cases:
 
@@ -70,18 +56,17 @@ The `firstMatch` function handles three cases:
 1.  This node *doesn't* match the current selector,
     so we search the children one by one to see if there is a match further down.
 
-This algorithm is called <g key="depth_first_search">depth-first search</g>:
+This algorithm is called <span g="depth_first">depth-first search</span>:
 it explores one possible match to the end before considering any others.
 `firstMatch` relies on a helper function called `firstChildMatch`,
 which finds the first child of a node to match a set of selectors:
 
-<%- include('/inc/keep.html', {file: 'simple-selectors.js', key: 'firstChild'}) %>
+{% include keep file='simple-selectors.js' key='firstChild' %}
 
-::: continue
+{: .continue}
 and on the function `matchHere` which compares a node against a selector:
-:::
 
-<%- include('/inc/keep.html', {file: 'simple-selectors.js', key: 'matchHere'}) %>
+{% include keep file='simple-selectors.js' key='matchHere' %}
 
 This version of `matchHere` is simple but inefficient,
 since it breaks the selector into parts each time it is called
@@ -90,36 +75,37 @@ We will build a more efficient version in the exercises,
 but let's try out the one we have.
 Our test cases are all in one piece of HTML:
 
-<%- include('/inc/keep.html', {file: 'simple-selectors-test.js', key: 'tests'}) %>
+{% include keep file='simple-selectors-test.js' key='tests' %}
 
 The program contains a table of queries and the expected matches.
 The function `main` loops over it to report whether each test passes or fails:
 
-<%- include('/inc/keep.html', {file: 'simple-selectors-test.js', key: 'main'}) %>
+{% include keep file='simple-selectors-test.js' key='main' %}
 
-::: continue
+{: .continue}
 `main` uses a helper function called `getText` to extract text from a node
 or return an error message if something has gone wrong:
-:::
 
-<%- include('/inc/keep.html', {file: 'simple-selectors-test.js', key: 'getText'}) %>
+{% include keep file='simple-selectors-test.js' key='getText' %}
 
 When we run our program it produces this result:
 
-<%- include('/inc/file.html', {file: 'simple-selectors-test.out'}) %>
+{% include file file='simple-selectors-test.out' %}
 
 We will rewrite these tests using [Mocha][mocha] in the exercises.
 
-::: callout
+<div class="callout" markdown="1">
+
 ### Test then build
 
 We actually wrote our test cases *before* implementing the code to match query selectors
 in order to give ourselves a goal to work toward.
-Doing this is called <g key="tdd">test-driven development</g>, or TDD;
+Doing this is called <span g="tdd">test-driven development</span>, or TDD;
 while research doesn't support the claim that
 it makes programmers more productive <cite>Fucci2016,Fucci2017</cite>,
-we find it helps prevent <g key="scope_creep">scope creep</g> when writing lessons.
-:::
+we find it helps prevent <span g="scope_creep">scope creep</span> when writing lessons.
+
+</div>
 
 ## How can we implement a simple regular expression matcher?
 
@@ -130,21 +116,16 @@ we see if the rest of the pattern matches what's left;
 otherwise,
 we see if the the pattern will match further along.
 Our matcher will initially handle just the five cases shown in
-<t key="pattern-matching-cases"></t>.
+<span t="pattern-matching-cases"></span>.
 
-<%- include('/inc/table.html', {
-    id: 'pattern-matching-cases',
-    file: 'cases.tbl',
-    cap: 'Pattern matching cases.'
-}) %>
+{% include table id='pattern-matching-cases' file='cases.tbl' cap='Pattern matching cases.' %}
 
-::: continue
+{: .continue}
 These five cases are a small subset of what JavaScript provides,
 but as Kernighan wrote,
 "This is quite a useful class;
 in my own experience of using regular expressions on a day-to-day basis,
 it easily accounts for 95 percent of all instances."
-:::
 
 The top-level function that users call
 handles the special case of `^` at the start of a pattern
@@ -152,17 +133,17 @@ matching the start of the target string being searched.
 It then tries the pattern against each successive substring of the target string
 until it finds a match or runs out of characters:
 
-<%- include('/inc/keep.html', {file: 'simple-regex.js', key: 'match'}) %>
+{% include keep file='simple-regex.js' key='match' %}
 
 `matchHere` does the matching and recursing:
 
-<%- include('/inc/keep.html', {file: 'simple-regex.js', key: 'matchHere'}) %>
+{% include keep file='simple-regex.js' key='matchHere' %}
 
 Once again,
 we use a table of test cases and expected results to test it:
 
-<%- include('/inc/keep.html', {file: 'simple-regex.js', key: 'tests'}) %>
-<%- include('/inc/file.html', {file: 'simple-regex.out'}) %>
+{% include keep file='simple-regex.js' key='tests' %}
+{% include file file='simple-regex.out' %}
 
 This program seems to work,
 but it actually contains an error that we will correct in the exercises.
@@ -190,40 +171,35 @@ Each matching object has a method that takes the target string and the index to 
 Its output is the index to continue matching at
 or `undefined` indicating that matching failed.
 We can then combine these objects to match complex patterns
-(<f key="pattern-matching-regex-objects"></f>).
+(<span f="pattern-matching-regex-objects"></span>).
 
-<%- include('/inc/figure.html', {
-    id: 'pattern-matching-regex-objects',
-    img: './figures/regex-objects.svg',
-    alt: 'Implementing regex with objects',
-    cap: 'Using nested objects to match regular expressions.'
-}) %>
+{% include figure id='pattern-matching-regex-objects' img='figures/regex-objects.svg' alt='Implementing regex with objects' cap='Using nested objects to match regular expressions.' %}
 
 The first step in implementing this is is to write test cases,
 which forces us to define the syntax we are going to support:
 
-<%- include('/inc/file.html', {file: 'regex-initial/regex-complete.js'}) %>
+{% include file file='regex-initial/regex-complete.js' %}
 
 Next,
-we define a <g key="base_class">base class</g> that all matchers will inherit from.
+we define a <span g="base_class">base class</span> that all matchers will inherit from.
 This class contains the `match` method that users will call
 so that we can start matching right away
 no matter what kind of matcher we have at the top level of our pattern.
 
-<%- include('/inc/file.html', {file: 'regex-initial/regex-base.js'}) %>
+{% include file file='regex-initial/regex-base.js' %}
 
-::: continue
+{: .continue}
 The base class also defines a `_match` method (with a leading underscore)
 that other classes will fill in with actual matching code.
 The base implementation of this method throws an exception
-so that if we forget to provide `_match` in a <g key="derived_class">derived class</g>
+so that if we forget to provide `_match` in a <span g="derived_class">derived class</span>
 our code will fail with a meaningful reminder.
-:::
 
-::: callout
+<div class="callout" markdown="1">
+
 ### One interface to call them all
 
-Our design makes use of <g key="polymorphism">polymorphism</g>,
+Our design makes use of <span g="polymorphism">polymorphism</span>,
 which literally means "having multiple forms".
 If a set of objects all have methods that can be called the same way,
 then those objects can be used interchangeably.
@@ -231,34 +207,33 @@ Putting it another way,
 a program can use them without knowing exactly what they are.
 Polymorphism is what enables different USB devices to plug into the same socket
 and why drawing programs can select and move arbitrary shapes.
-:::
+
+</div>
 
 We can now define empty versions of each matching class that all say "no match here"
 like this one for literal characters:
 
-<%- include('/inc/file.html', {file: 'regex-initial/regex-lit.js'}) %>
+{% include file file='regex-initial/regex-lit.js' %}
 
-::: continue
+{: .continue}
 Our tests now run, but most of them fail:
 "most" because we expect some tests not to match,
 so the test runner reports `true`.
-:::
 
-<%- include('/inc/file.html', {file: 'regex-initial.out'}) %>
+{% include file file='regex-initial.out' %}
 
-::: continue
+{: .continue}
 This output tells us how much work we have left to do:
 when all of these tests pass,
 we're finished.
-:::
 
 Let's implement a literal character string matcher first:
 
-<%- include('/inc/file.html', {file: 'regex-beginning/regex-lit.js'}) %>
+{% include file file='regex-beginning/regex-lit.js' %}
 
 Some tests now pass, others still fail as expected:
 
-<%- include('/inc/file.html', {file: 'regex-beginning.out'}) %>
+{% include file file='regex-beginning.out' %}
 
 We will tackle `RegexSeq` next so that we can combine other matchers.
 This is why we have tests for `Seq(Lit('a'), Lit('b'))` and `Lit('ab')`:
@@ -267,57 +242,47 @@ all children have to match in order without gaps.
 But wait:
 suppose we have the pattern `/a*ab/`.
 This ought to match the text `"ab"`, but will it?
-The `/*/` is <g key="greedy_algorithm">greedy</g>: it matches as much as it can.
+The `/*/` is <span g="greedy_algorithm">greedy</span>: it matches as much as it can
+(which is also called <span g="eager_matching">eager matching</span>).
 As a result,
 `/a*/` will match the leading `"a"`, leaving nothing for the literal `/a/` to match
-(<f key="pattern-matching-greedy-failure"></f>).
+(<span f="pattern-matching-greedy-failure"></span>).
 Our current implementation doesn't give us a way to try other possible matches when this happens.
 
-<%- include('/inc/figure.html', {
-    id: 'pattern-matching-greedy-failure',
-    img: './figures/greedy-failure.svg',
-    alt: 'Overly-greedy matching fails',
-    cap: "Why overly-greedy matching doesn't work."
-}) %>
+{% include figure id='pattern-matching-greedy-failure' img='figures/greedy-failure.svg' alt='Overly-greedy matching fails' cap="Why overly-greedy matching doesn't work." %}
 
 Let's re-think our design
 and have each matcher take its own arguments and a `rest` parameter containing the rest of the matchers
-(<f key="pattern-matching-rest"></f>).
+(<span f="pattern-matching-rest"></span>).
 (We will provide a default of `null` in the creation function
 so we don't have to type `null` over and over again.)
 Each matcher will try each of its possibilities and then see if the rest will also match.
 
-<%- include('/inc/figure.html', {
-    id: 'pattern-matching-rest',
-    img: './figures/rest.svg',
-    alt: 'Matching the rest of the pattern',
-    cap: 'Using "rest" to match the remainder of a pattern.'
-}) %>
+{% include figure id='pattern-matching-rest' img='figures/rest.svg' alt='Matching the rest of the pattern' cap='Using "rest" to match the remainder of a pattern.' %}
 
 This design means we can get rid of `RegexSeq`,
 but it does make our tests a little harder to read:
 
-<%- include('/inc/file.html', {file: 'regex-recursive/regex-complete.js'}) %>
+{% include file file='regex-recursive/regex-complete.js' %}
 
 Here's how this works for matching a literal expression:
 
-<%- include('/inc/file.html', {file: 'regex-recursive/regex-lit.js'}) %>
+{% include file file='regex-recursive/regex-lit.js' %}
 
-::: continue
+{: .continue}
 The `_match` method checks whether all of the pattern matches the target text starting at the current location.
 If so, it checks whether the rest of the overall pattern matches what's left.
 Matching the start `/^/` and end `/$/` anchors is just as straightforward:
-:::
 
-<%- include('/inc/file.html', {file: 'regex-recursive/regex-start.js'}) %>
+{% include file file='regex-recursive/regex-start.js' %}
 
-<%- include('/inc/file.html', {file: 'regex-recursive/regex-end.js'}) %>
+{% include file file='regex-recursive/regex-end.js' %}
 
 Matching either/or is done by trying the first pattern and the rest,
 and if that fails,
 trying the second pattern and the rest:
 
-<%- include('/inc/file.html', {file: 'regex-recursive/regex-alt.js'}) %>
+{% include file file='regex-recursive/regex-alt.js' %}
 
 To match a repetition,
 we figure out the maximum number of matches that might be left,
@@ -326,35 +291,37 @@ then count down until something succeeds.
 Each non-empty repetition matches at least one character,
 so the number of remaining characters is the maximum number of matches worth trying.
 
-<%- include('/inc/file.html', {file: 'regex-recursive/regex-any.js'}) %>
+{% include file file='regex-recursive/regex-any.js' %}
 
 With these classes in place,
 our tests all pass:
 
-<%- include('/inc/file.html', {file: 'regex-recursive.out'}) %>
+{% include file file='regex-recursive.out' %}
 
 The most important thing about this design is how extensible it is:
 if we want to add other kinds of matching,
 all we have to do is add more classes.
 That extensibility comes from the lack of centralized decision-making,
 which in turn comes from our use of polymorphism
-and the <g key="chain_of_responsibility_pattern">Chain of Responsibility</g> design pattern.
+and the <span g="chain_of_responsibility_pattern">Chain of Responsibility</span> design pattern.
 Each component does its part and asks something else to handle the remaining work;
 so long as each component takes the same inputs,
 we can put them together however we want.
 
-::: callout
+<div class="callout" markdown="1">
+
 ### The Open-Closed Principle
 
-The <g key="open_closed_principle">Open-Closed Principle</g> states that
+The <span g="open_closed_principle">Open-Closed Principle</span> states that
 software should be open for extension but closed for modification,
 i.e., that it should be possible to extend functionality
 without having to rewrite existing code.
-As we said in <x key="async-programming"></x>,
+As we said in <span x="async-programming"></span>,
 this allows old code to use new code,
 but only if our design permits the kinds of extensions people are going to want to make.
 Since we can't anticipate everything,
 it is normal to have to revise a design the first two or three times we try to extend it.
 As <cite>Brand1995</cite> said of buildings,
 the things we make learn how to do things better as we use them.
-:::
+
+</div>

@@ -8,6 +8,5 @@ const double = (x) => {
 EXPORTS.append(double)
 ```
 
-::: continue
+{: .continue}
 and returns a list containing all the loaded functions.
-:::

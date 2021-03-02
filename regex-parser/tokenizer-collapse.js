@@ -31,7 +31,7 @@ const tokenize = (text) => {
   return result
 }
 
-// <combine>
+// [combine]
 const combineOrPush = (soFar, character, location) => {
   const topIndex = soFar.length - 1
   if ((soFar.length === 0) || (soFar[topIndex].token !== 'Lit')) {
@@ -40,6 +40,6 @@ const combineOrPush = (soFar, character, location) => {
     soFar[topIndex].value += character
   }
 }
-// </combine>
+// [/combine]
 
 export default tokenize

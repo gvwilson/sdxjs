@@ -1,4 +1,4 @@
-<g key="fixed_width_string">Fixed-width</g> storage is inefficient for large blocks of text
+<span g="fixed_width_string">Fixed-width</span> storage is inefficient for large blocks of text
 such as contracts, novels, and resumés,
 since padding every document to the length of the longest will probably waste a lot of space.
 An alternative way to store these in binary is to save each entry as a (length, text) pair.

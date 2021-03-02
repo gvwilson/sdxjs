@@ -1,4 +1,4 @@
-A <g key="sparse_matrix">sparse matrix</g> is one in which most of the values are zero.
+A <span g="sparse_matrix">sparse matrix</span> is one in which most of the values are zero.
 Instead of storing them all,
 a program can use a map to store non-zero values
 and a lookup function to return zero for anything that isn't stored explicitly:

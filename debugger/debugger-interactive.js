@@ -34,8 +34,8 @@ class DebuggerInteractive extends DebuggerBase {
     }
   }
 
-  // <skip>
-  // <interact>
+  // [skip]
+  // [interact]
   interact (env, lineNum, op) {
     let interacting = true
     while (interacting) {
@@ -66,7 +66,7 @@ class DebuggerInteractive extends DebuggerBase {
   input (display) {
     return prompt(PROMPT_OPTIONS)(display)
   }
-  // </interact>
+  // [/interact]
 
   help (env, lineNum, op, args) {
     this.message(this.lookup)
@@ -98,14 +98,14 @@ class DebuggerInteractive extends DebuggerBase {
     return true
   }
 
-  // <next>
+  // [next]
   next (env, lineNum, op, args) {
     this.singleStep = true
     return false
   }
-  // </next>
+  // [/next]
 
-  // <print>
+  // [print]
   print (env, lineNum, op, args) {
     if (args.length !== 1) {
       this.message('p[rint] requires one variable name')
@@ -116,7 +116,7 @@ class DebuggerInteractive extends DebuggerBase {
     }
     return true
   }
-  // </print>
+  // [/print]
 
   run (env, lineNum, op, args) {
     this.singleStep = false
@@ -140,7 +140,7 @@ class DebuggerInteractive extends DebuggerBase {
   exit (env, lineNum, op, args) {
     process.exit(0)
   }
-  // </skip>
+  // [/skip]
 }
 
 export default DebuggerInteractive

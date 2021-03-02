@@ -12,7 +12,7 @@ const result = double(value)
 console.log(result)
 `
 
-// <generator>
+// [generator]
 function * getNodes (node) {
   if (node && (typeof node === 'object') && ('type' in node)) {
     yield node
@@ -27,9 +27,9 @@ function * getNodes (node) {
     }
   }
 }
-// </generator>
+// [/generator]
 
-// <main>
+// [main]
 const ast = acorn.parse(program, { locations: true })
 const result = {}
 for (const node of getNodes(ast)) {
@@ -42,4 +42,4 @@ for (const node of getNodes(ast)) {
   }
 }
 console.log('counts are', result)
-// </main>
+// [/main]

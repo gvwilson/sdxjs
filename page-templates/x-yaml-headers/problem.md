@@ -12,6 +12,5 @@ name: "Dorothy Johnson Vaughan"
 </html>
 ```
 
-::: continue
+{: .continue}
 will create a paragraph containing the given name.
-:::

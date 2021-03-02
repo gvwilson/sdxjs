@@ -1,6 +1,6 @@
 import configStr from './config-str.js'
 
-// <reverse>
+// [reverse]
 const reverse = (manifest) => {
   const names = Object.keys(manifest)
   names.reverse()
@@ -10,7 +10,7 @@ const reverse = (manifest) => {
     console.log(configStr(config))
   }
 }
-// </reverse>
+// [/reverse]
 
 const recurse = (manifest, names, config, result) => {
   if (names.length === 0) {

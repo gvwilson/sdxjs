@@ -9,9 +9,8 @@ fileset:
     - Z
 ```
 
-::: continue
+{: .continue}
 and then refer to them later:
-:::
 
 ```yml
 - target: P

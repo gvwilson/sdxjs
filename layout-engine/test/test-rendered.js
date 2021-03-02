@@ -66,7 +66,7 @@ describe('renders blocks', () => {
     )
   })
 
-  // <large>
+  // [large]
   it('renders a grid of rows of columns', async () => {
     const fixture = new Col(
       new Row(
@@ -99,5 +99,5 @@ describe('renders blocks', () => {
       ].join('\n')
     )
   })
-  // </large>
+  // [/large]
 })

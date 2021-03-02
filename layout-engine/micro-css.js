@@ -1,6 +1,6 @@
 import assert from 'assert'
 
-// <css>
+// [css]
 export class CssRule {
   constructor (order, selector, styles) {
     this.order = order
@@ -8,9 +8,9 @@ export class CssRule {
     this.styles = styles
   }
 }
-// </css>
+// [/css]
 
-// <id>
+// [id]
 export class IdRule extends CssRule {
   constructor (selector, styles) {
     assert(selector.startsWith('#') && (selector.length > 1),
@@ -25,9 +25,9 @@ export class IdRule extends CssRule {
   }
 }
 IdRule.ORDER = 0
-// </id>
+// [/id]
 
-// <class>
+// [class]
 export class ClassRule extends CssRule {
   constructor (selector, styles) {
     assert(selector.startsWith('.') && (selector.length > 1),
@@ -42,9 +42,9 @@ export class ClassRule extends CssRule {
   }
 }
 ClassRule.ORDER = 1
-// </class>
+// [/class]
 
-// <tag>
+// [tag]
 export class TagRule extends CssRule {
   constructor (selector, styles) {
     super(TagRule.ORDER, selector, styles)
@@ -55,9 +55,9 @@ export class TagRule extends CssRule {
   }
 }
 TagRule.ORDER = 2
-// </tag>
+// [/tag]
 
-// <ruleset>
+// [ruleset]
 export class CssRuleSet {
   constructor (json, mergeDefaults = true) {
     this.rules = this.jsonToRules(json)
@@ -83,4 +83,4 @@ export class CssRuleSet {
     return sorted
   }
 }
-// </ruleset>
+// [/ruleset]

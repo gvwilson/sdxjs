@@ -17,7 +17,7 @@ const main = async (args) => {
   console.log(result)
 }
 
-// <options>
+// [options]
 const DEFAULTS = {
   filenames: [],
   root: '.',
@@ -45,6 +45,6 @@ const parse = (args) => {
   }
   return options
 }
-// </options>
+// [/options]
 
 main(process.argv.slice(2))

@@ -32,7 +32,7 @@ const timeAndSize = (func, ...params) => {
   return [after - before, result.byteLength]
 }
 
-// <binary>
+// [binary]
 const asBinary = (table) => {
   const labels = Object.keys(table)
 
@@ -62,6 +62,6 @@ const asBinary = (table) => {
 
   return result
 }
-// </binary>
+// [/binary]
 
 main()

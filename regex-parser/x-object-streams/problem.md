@@ -12,9 +12,8 @@ right: "right value"
 third: 3
 ```
 
-::: continue
+{: .continue}
 then the output will be:
-:::
 
 ```js
 [

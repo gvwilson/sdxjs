@@ -5,7 +5,7 @@ import yaml from 'js-yaml'
 
 import { buildRows, buildCols } from './build.js'
 
-// <main>
+// [main]
 const RANGE = 3
 
 const main = () => {
@@ -52,9 +52,9 @@ const main = () => {
   }
   console.log(yaml.safeDump(result))
 }
-// </main>
+// [/main]
 
-// <measure>
+// [measure]
 const memory = (func, ...params) => {
   const before = process.memoryUsage()
   const result = func(...params)
@@ -74,9 +74,9 @@ const time = (func, ...params) => {
 const calculateRatio = (f2S, rFilterT, rSelectT, cFilterT, cSelectT) => {
   return ((f2S * rFilterT) + rSelectT) / ((f2S * cFilterT) + cSelectT)
 }
-// </measure>
+// [/measure]
 
-// <operate-rows>
+// [operate-rows]
 const rowFilter = (table, func) => {
   return table.filter(row => func(row))
 }
@@ -90,9 +90,9 @@ const rowSelect = (table, toKeep) => {
     return newRow
   })
 }
-// </operate-rows>
+// [/operate-rows]
 
-// <operate-cols>
+// [operate-cols]
 const colFilter = (table, func) => {
   const result = {}
   const labels = Object.keys(result)
@@ -116,6 +116,6 @@ const colSelect = (table, toKeep) => {
   })
   return result
 }
-// </operate-cols>
+// [/operate-cols]
 
 main()

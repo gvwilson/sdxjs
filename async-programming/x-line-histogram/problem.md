@@ -9,9 +9,8 @@ if we run:
 node lh.js promises/*.*
 ```
 
-::: continue
+{: .continue}
 the output might be:
-:::
 
 | Length | Number of Files |
 | ------ | --------------- |

@@ -46,8 +46,8 @@ class Expander extends Visitor {
     }
   }
 
-  // <skip>
-  // <handlers>
+  // [skip]
+  // [handlers]
   hasHandler (node) {
     for (const name in node.attribs) {
       if (name in this.handlers) {
@@ -64,9 +64,9 @@ class Expander extends Visitor {
       'Should be exactly one handler')
     return this.handlers[possible[0]]
   }
-  // </handlers>
+  // [/handlers]
 
-  // <helpers>
+  // [helpers]
   showTag (node, closing) {
     if (closing) {
       this.output(`</${node.name}>`)
@@ -89,8 +89,8 @@ class Expander extends Visitor {
   getResult () {
     return this.result.join('')
   }
-  // </helpers>
-  // </skip>
+  // [/helpers]
+  // [/skip]
 }
 
 export default Expander

@@ -19,7 +19,7 @@
     assertApproxEqual(1.0, 2.0, 'Large margin of error', 10.0)
     ```
 
-3.  Modify the function again so that it checks the <g key="relative_error">relative error</g>
-    instead of the <g key="absolute_error">absolute error</g>.
+3.  Modify the function again so that it checks the <span g="relative_error">relative error</span>
+    instead of the <span g="absolute_error">absolute error</span>.
     (The relative error is the absolute value of the difference between the actual and expected value,
     divided by the absolute value.)

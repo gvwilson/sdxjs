@@ -21,7 +21,7 @@ const recurse = (manifest, names, config, result) => {
   }
 }
 
-// <allows>
+// [allows]
 const allows = (manifest, config) => {
   for (const [leftN, leftV] of Object.entries(config)) {
     const requirements = manifest[leftN][leftV]
@@ -37,6 +37,6 @@ const allows = (manifest, config) => {
   console.log(configStr(config))
   return true
 }
-// </allows>
+// [/allows]
 
 export default sweep

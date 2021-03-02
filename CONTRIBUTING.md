@@ -1,11 +1,12 @@
 ---
+permalink: /contributing/
 ---
 
-All contributors must abide by our <x key="conduct">Code of Conduct</x>.
+All contributors must abide by our Code of Conduct.
 
 ## Making Decisions
 
-This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/088610998600100206) for consensus decision making:
+This project uses [Martha's Rules][marthas-rules] for consensus decision making:
 
 1.  Before each meeting, anyone who wishes may sponsor a proposal by filing an issue in the GitHub repository tagged "proposal".
     Proposals must be filed at least 24 hours before a meeting in order to be considered at that meeting, and must include:
@@ -42,176 +43,75 @@ This project uses [Martha's Rules](https://journals.sagepub.com/doi/10.1177/0886
     If a majority votes "yes" the proposal is implemented.
     Otherwise, the proposal is returned to the sponsor for further work.
 
-## Development Process
+## Formatting
 
-1.  Use `discussion` to label general discussion threads,
-    `proposal` to identify proposals that need to be voted on,
-    and `bug` for things that need to be fixed.
+1.  The commands to rebuild the site, run a server, produce the PDF
+    version, and check internal consistency are stored in `Makefile`
+    and use the tools in `bin/*.py`. Run `make` on its own to get a list
+    of available commands.
 
-1.  When starting work on a subject,
-    create an issue labelled `in progress` and assign it to yourself.
-    Use `help wanted` if you need assistance or want someone else to take it over
-    and `ready for review` when the pull request is ready for review or being reviewed.
+1.  Each chapter or appendix is identified by a slug such as `version-control`.
+    Its text lives in <code><em>slug</em>/index.md</code>, and there is an entry
+    under the `chapters` key in `_config.yml` with its slug and its title. This
+    list controls ordering.
 
-1.  The first draft for each topic should be point-form notes and working code.
-    We will reorganize these once we have written enough to see overall scope.
+1.  Use only level-2 headings within chapters and appendices
+    and use "Title Case" the titles.
 
-## Structure
+1.  To create a cross-reference:
+    -   Use `{% raw %}<span g="key">some text</span>{% endraw %}` for glossary entries.
+        The key must appear in `_data/glossary.yml`.
+    -   Use `{% raw %}<span x="slug"></span>{% endraw %}` to cross-reference a chapter or appendix.
+        The slugs must appear in `_config.yml`.
+    -   Use `{% raw %}<span f="key"></span>{% endraw %}` to cross-reference a figure
+        and `{% raw %}<span t="key"></span>{% endraw %}` to cross-reference a table.
+    -   Use `{% raw %}<cite>key,key</cite>{% endraw %}` for bibliography citations.
+        The keys must appear in `bibliography/index.md`.
 
-1.  Each lesson is in a file `./slug/index.md`,
-    where "slug" is a hyphenated short name for the topic (e.g., `build-manager`).
+1.  To include a code sample use
+    `{% raw %}{% include code file="name.ext" %}{% endraw %}`.
+    The path to the file must be relative to the including file. in most
+    cases it will be in the same directory as the chapter or appendix.
 
-1.  The home page for a Volume 1 is in `./vol1/index.md`,
-    and the home pages for other volumes will be in similarly-named directories.
-
-1.  The home page for the site as a whole is in `./index.html`.
-    At present, this immediately redirects to the home page of Volume 1.
-
-### Authors
-
-1.  Add an entry in the YAML configuration file for each volume you are contributing to
-    (alphabetically by surname) with `id`, `name`, and `img` sub-keys.
-    If possible, use your GitHub ID as your `id`.
-
-2.  Create a Markdown file `./authors/id.md` (with your ID instead of `id`)
-    with a few lines about yourself.
-
-3.  Add an image to `./static` to be included in the author display.
-
-## Writing Style
-
-1.  Please install [WAVE][webaim-wave] and check that pages are accessible
-    before committing changes.
-
-1.  Write in Markdown wherever possible; only use HTML tags for special cases.
-    Note that you cannot nest Markdown inside HTML.
-
-1.  Use first person plural ("we" rather than "you"),
-    Simplified English (i.e., American spelling),
-    and the Oxford comma.
-
-1.  Do not use exclamation marks—few things are actually that surprising the first time around,
-    and none the second.
-
-1.  Use level-2 headings for sub-topics, and phrase their titles as questions
-    (e.g., "How do I check if a file exists?").
-    Do not use headings below level 2 except in callouts.
-
-1.  To display a callout box, use:
+1.  To continue a paragraph that has been interrupted by a code sample
+    or something else, use:
 
     ```
-    ::: callout
-    ### Title of callout (in sentence case).
-
-    body of callout
-    :::
+    {: .continue}
+    text of paragraph
     ```
 
-1.  Use a similar syntax with:
-    -   `centered` to create centered blocks
-    -   `continue` to continue a paragraph after a code sample
-    -   `fixme` to create FIXME markers for further work
-    -   `hint` for exercise hints
+    This has no effect on the appearance of the HTML, but prevents an
+    unwanted paragraph indent in the PDF version.
 
-1.  Put definitions of external links in `links.yml`
-    and refer to them using `[text to display][link-key]`.
-    Entries should be in alphabetical order by slug.
+1.  To create a callout box, use:
 
-1.  Write cross-references like `<x key="slug"></x>` or `<x key="slug">some text</x>`
-    to refer from one chapter or appendix to another.
-    (We cannot use the empty tag `<x key="slug"/>` because the Markdown parser doesn't like it.)
-    if no text is provided inside the tag,
-    we fill it in with `Chapter N` or `Appendix X`.
+    ```
+    <div class="callout" markdown="1">
+    ### Title of callout
 
-1.  When defining a term, use something like `<g key="absolute_path">absolute path</g>`.
-    The key must exist in either `gloss.yml` (our local glossary)
-    or [Glosario][glosario];
-    definitions in the former override definitions in the latter.
+    text of callout
+    </div>
+    ```
 
-1.  Use something like `<cite>Osmani2017,Casciaro2020</cite>` for bibliographic citations.
-    The keys must exist in `bib.yml`.
+    Use "Sentence case" for the callout's title.
 
-1.  We use [JavaScript Standard Style][standard-js] almost everywhere
-    ("almost" because some of our examples have to break rules to illustrate points
-    or to fit on the printed page).
-    Please install `standard` and check your code with it using `make standard` before committing;
-    if you need to break a rule, add an [ESLint][eslint] directive to the source file:
-    `./bin/html.js` removes these during Markdown-to-HTML conversion.
+1.  To insert an external link, use `{% raw %}[text][tag]{% endraw %}`
+    in the body, then add the link to the Kramdown `link_defs` section
+    in `_config.yml`. The clumsy syntax is necessary to get around
+    [this bug][jekyll-bug].)
 
-### Exercises
+1.  To create a figure, put the image file in the same directory as
+    the chapter or appendix and use this to include it:
 
-1.  Create a sub-directory for each exercise, e.g., `style-checker/x-some-question`.
-    (We use the `x-` prefix to make exercise directories easier to see.)
+    ```
+    {% raw %}{% include figure id="label" img="file.svg" alt="short text" cap="full caption" %}{% endraw %}
+    ```
 
-1.  Add a file in that sub-directory called `problem.md` and another called `solution.md`.
-    Do *not* put the exercise title in either file.
+    where `label` has the form <code><em>chapter-slug</em>-<em>image-slug</em></code>,
+    `alt` is just a few words long (plain text),
+    and `cap` is the full caption that will appear inline (Markdown).
 
-1.  Put any files needed for the exercise in the same sub-directory.
-
-1.  Add a key `exercises` to the YAML for the chapter with sub-keys `slug` and `title`.
-    The slug must match the sub-directory name (e.g., `x-some-question`);
-    the title will be used as a level-3 heading in the chapter and in the solutions.
-
-## Configuration and Build
-
-[NPM][npm] doesn't allow us to make tasks depend on one another,
-so we use [GNU Make][gnu-make] to manage our build.
-To see the available commands, run `make` without any targets.
-In order to handle multiple volumes in a single repository,
-we have split configuration between several files.
-
--   `./Makefile`: defines `VOLUME` to be `vol1` by default.
-    This can be overridden using `make V=2 target` to build things from Volume 2.
-
--   `./common.yml`: configuration values shared by all volumes.
-
--   `./vol1.yml`: configuration values for Volume 1.
-
--   `./vol2.yml`: configuration values for Volume 2.
-
-### Re-creating Examples
-
-`./examples.mk` contains rules for re-creating examples.
-Each chapter directory contains a Makefile that:
-
--   defines the files to be rebuilt as `TARGETS`,
-
--   includes `./examples.mk`, and
-
--   lists any extra dependencies or rules the chapter needs.
-
-The rules in `./examples.mk` can re-create these types of files:
-
--   `.html`: HTML-formatted text.
-
--   `.out`: plain text that is to be HTML-escaped when included.
-    (We use `.out` as a suffix rather than `.txt` to make the files easier to identify.)
-
--   `.raw.out`: plain text that is *not* to be HTML-escaped when included.
-
--   `.slice.out`: a subset of plain-txt output.
-    (The two-part suffix tells the Make rules to slice output.)
-
-Shell scripts are used whenever command-line arguments are needed to re-create a file.
-The rules used to re-create a file `something.suffix` are (in order):
-
-1.  If there is a shell script `something.sh` *and* a JavaScript file `something.js`,
-    then `something.suffix` depends on both
-    and is re-created by running the shell script.
-
-1.  If there is only a shell script `something.sh`
-    then `something.suffix` depends on it and is re-created by running it.
-
-1.  Finally,
-    if there is a JavaScript file `something.js` but not a shell script,
-    `something.suffix` depends on the `.js` file and is re-created by running it.
-
-### Miscellaneous
-
-1.  We use [EJS][ejs] to turn Markdown into HTML.
-    Our HTML fragments are all in `./inc/*.html`;
-    please see `./inc/README.md` for an inventory
-    and the comments in individual files for usage.
-
-1.  All of our tools are written in JavaScript and placed in the `bin` directory;
-    please see `./bin/README.md` for an inventory.
+1.  Use [diagrams.net][diagrams] to create SVG diagrams.
+    Avoid screenshots when possible,
+    since getting them to display correctly in print is a pain.

@@ -1,6 +1,6 @@
 Many different combinations of package versions can be mutually compatible.
 One way to decide which actual combination to install
-is to create a <g key="scoring_function">scoring function</g>
+is to create a <span g="scoring_function">scoring function</span>
 that measures how good or bad a particular combination is.
 For example,
 a function could measure the "distance" between two versions as:

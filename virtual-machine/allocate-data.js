@@ -6,7 +6,7 @@ import Assembler from './assembler.js'
 const DIVIDER = '.data'
 
 class DataAllocator extends Assembler {
-  // <assemble>
+  // [assemble]
   assemble (lines) {
     lines = this.cleanLines(lines)
     const [toCompile, toAllocate] = this.splitAllocations(lines)
@@ -18,9 +18,9 @@ class DataAllocator extends Assembler {
     const program = this.instructionsToText(compiled)
     return program
   }
-  // </assemble>
+  // [/assemble]
 
-  // <split-allocations>
+  // [split-allocations]
   splitAllocations (lines) {
     const split = lines.indexOf(DIVIDER)
     if (split === -1) {
@@ -29,9 +29,9 @@ class DataAllocator extends Assembler {
       return [lines.slice(0, split), lines.slice(split + 1)]
     }
   }
-  // </split-allocations>
+  // [/split-allocations]
 
-  // <add-allocations>
+  // [add-allocations]
   addAllocations (baseOfData, labels, toAllocate) {
     toAllocate.forEach(alloc => {
       const fields = alloc.split(':').map(a => a.trim())
@@ -47,7 +47,7 @@ class DataAllocator extends Assembler {
       baseOfData += numWords
     })
   }
-  // </add-allocations>
+  // [/add-allocations]
 }
 
 export default DataAllocator

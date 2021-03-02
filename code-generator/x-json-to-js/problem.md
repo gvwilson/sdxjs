@@ -6,9 +6,8 @@ For example, the tool should translate:
 ['+', 3, ['*', 5, 'a']]
 ```
 
-::: continue
+{: .continue}
 into:
-:::
 
 ```js
 3 + (5 * a)

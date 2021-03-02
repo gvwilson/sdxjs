@@ -4,7 +4,7 @@ Write a function that creates fixtures for testing the constraint solver:
     and whose values are integers indicating the number of versions of that package
     to include in the test set,
     such as `{'left': 3, 'middle': 2, 'right': 15}`.
-    Its second argument is a <g key="seed">seed</g> for random number generation.
+    Its second argument is a <span g="seed">seed</span> for random number generation.
 
 2.  It generates one valid configuration,
     such as `{'left': 2, 'middle': 2, 'right': 9}`.

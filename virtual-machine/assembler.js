@@ -8,7 +8,7 @@ import {
 } from './architecture.js'
 
 class Assembler {
-  // <assemble>
+  // [assemble]
   assemble (lines) {
     lines = this.cleanLines(lines)
     const labels = this.findLabels(lines)
@@ -28,9 +28,9 @@ class Assembler {
   isComment (line) {
     return line.startsWith('#')
   }
-  // </assemble>
+  // [/assemble]
 
-  // <find-labels>
+  // [find-labels]
   findLabels (lines) {
     const result = {}
     let index = 0
@@ -50,9 +50,9 @@ class Assembler {
   isLabel (line) {
     return line.endsWith(':')
   }
-  // </find-labels>
+  // [/find-labels]
 
-  // <compile>
+  // [compile]
   compile (instruction, labels) {
     const [op, ...args] = instruction.split(/\s+/)
     assert(op in OPS,
@@ -90,9 +90,9 @@ class Assembler {
     }
     return result
   }
-  // </compile>
+  // [/compile]
 
-  // <combine>
+  // [combine]
   combine (...args) {
     assert(args.length > 0,
       'Cannot combine no arguments')
@@ -103,9 +103,9 @@ class Assembler {
     }
     return result
   }
-  // </combine>
+  // [/combine]
 
-  // <utilities>
+  // [utilities]
   instructionsToText (program) {
     return program.map(op => op.toString(16).padStart(OP_WIDTH, '0'))
   }
@@ -128,7 +128,7 @@ class Assembler {
       `Unknown label "${token}"`)
     return labels[labelName]
   }
-  // </utilities>
+  // [/utilities]
 }
 
 export default Assembler

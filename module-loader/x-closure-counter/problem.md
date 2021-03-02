@@ -11,9 +11,8 @@ console.log(`left ${left()`)
 console.log(`right ${right()`)
 ```
 
-::: continue
+{: .continue}
 must produce:
-:::
 
 ```txt
 left 0

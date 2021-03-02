@@ -4,56 +4,52 @@
 Callbacks work,
 but they are hard to read and debug,
 which means they only "work" in a limited sense.
-JavaScript's developers added <g key="promise">promises</g> to the language in 2015
+JavaScript's developers added <span g="promise">promises</span> to the language in 2015
 to make callbacks easier to write and understand,
 and more recently they added the keywords `async` and `await` as well
 to make asynchronous programming easier still.
 To show how these work,
-we will create a <g key="class">class</g> of our own called `Pledge`
+we will create a <span g="class">class</span> of our own called `Pledge`
 that provides the same core features as promises.
 Our explanation was inspired by [Trey Huffine][huffine-trey]'s [tutorial][huffine-promises],
 and we encourage you to read that as well.
 
 ## How can we manage asynchronous execution?
 
-JavaScript is built around an <g key="event_loop">event loop</g>.
+JavaScript is built around an <span g="event_loop">event loop</span>.
 Every task is represented by an entry in a queue;
 the event loop repeatedly takes a task from the front of the queue,
 runs it,
 and adds any new tasks that it creates to the back of the queue to run later.
 Only one task runs at a time;
-each has its own <g key="call_stack">call stack</g>,
+each has its own <span g="call_stack">call stack</span>,
 but objects can be shared between tasks
-(<f key="async-programming-event-loop"></f>).
+(<span f="async-programming-event-loop"></span>).
 
-<%- include('/inc/figure.html', {
-    id: 'async-programming-event-loop',
-    img: './figures/event-loop.svg',
-    alt: 'The event loop',
-    cap: 'Using an event loop to manage concurrent tasks.'
-}) %>
+{% include figure id='async-programming-event-loop' img='figures/event-loop.svg' alt='The event loop' cap='Using an event loop to manage concurrent tasks.' %}
 
 Most tasks execute all the code available in the order it is written.
 For example,
 this one-line program uses `Array.forEach`
 to print each element of an array in turn:
 
-<%- include('/inc/multi.html', {pat: 'not-callbacks-alone.*', fill: 'js out'}) %>
+{% include multi pat='not-callbacks-alone.*' fill='js out' %}
 
 However,
 a handful of special built-in functions make [Node][nodejs] switch tasks
 or add new tasks to the run queue.
 For example,
-`setTimeout` tells [Node][nodejs] to run a callback function
+`setTimeout` tells Node to run a callback function
 after a certain number of milliseconds have passed.
 Its first argument is a callback function that takes no arguments,
 and its second is the delay.
 When `setTimeout` is called,
-[Node][nodejs] sets the callback aside for the requested length of time,
+Node sets the callback aside for the requested length of time,
 then adds it to the run queue.
 (This means the task runs *at least* the specified number of milliseconds later).
 
-:::callout
+<div class="callout" markdown="1">
+
 ### Why zero arguments?
 
 `setTimeout`'s requirement that callback functions take no arguments
@@ -63,49 +59,45 @@ in the same way that USB ports allow us to connect hardware.
 Another way to think about it is that protocols allow old code to use new code:
 whoever wrote `setTimeout` couldn't know what specific tasks we want to delay,
 so they specified a way to wrap up any task at all.
-:::
+
+</div>
 
 As the listing below shows,
 the original task can generate many new tasks before it completes,
 and those tasks can run in a different order than the order in which they were created
-(<f key="async-programming-set-timeout"></f>).
+(<span f="async-programming-set-timeout"></span>).
 
-<%- include('/inc/multi.html', {pat: 'callbacks-with-timeouts.*', fill: 'js out'}) %>
+{% include multi pat='callbacks-with-timeouts.*' fill='js out' %}
 
-<%- include('/inc/figure.html', {
-    id: 'async-programming-set-timeout',
-    img: './figures/set-timeout.svg',
-    alt: 'Setting a timeout',
-    cap: 'Using <code>setTimeout</code> to delay operations.'
-}) %>
+{% include figure id='async-programming-set-timeout' img='figures/set-timeout.svg' alt='Setting a timeout' cap='Using <code>setTimeout</code> to delay operations.' %}
 
 If we give `setTimeout` a delay of zero milliseconds,
 the new task can be run right away,
 but any other tasks that are waiting have a chance to run as well:
 
-<%- include('/inc/multi.html', {pat: 'callbacks-with-zero-timeouts.*', fill: 'js out'}) %>
+{% include multi pat='callbacks-with-zero-timeouts.*' fill='js out' %}
 
-::: continue
+{: .continue}
 We can use this trick to build a generic
-<g key="non_blocking_execution">non-blocking function</g>
+<span g="non_blocking_execution">non-blocking function</span>
 that takes a callback defining a task
 and switches tasks if any others are available:
 
-<%- include('/inc/multi.html', {pat: 'non-blocking.*', fill: 'js out'}) %>
+{% include multi pat='non-blocking.*' fill='js out' %}
 
-[Node][nodejs]'s built-in function `setImmediate`
+Node's built-in function `setImmediate`
 does exactly what our `nonBlocking` function does:
-[Node][nodejs] also has `process.nextTick`,
+Node also has `process.nextTick`,
 which doesn't do quite the same thing---we'll explore the differences in the exercises.
 
-<%- include('/inc/multi.html', {pat: 'set-immediate.*', fill: 'js out'}) %>
+{% include multi pat='set-immediate.*' fill='js out' %}
 
 ## How do promises work?
 
 Before we start building our own promises,
 let's look at how we want them to work:
 
-<%- include('/inc/multi.html', {pat: 'use-pledge-motivation.*', fill: 'js out'}) %>
+{% include multi pat='use-pledge-motivation.*' fill='js out' %}
 
 This short program creates a new `Pledge`
 with a callback that takes two other callbacks as arguments:
@@ -119,22 +111,17 @@ Once this task resumes,
 we call the `resolve` callback to trigger whatever is supposed to happen after the delay.
 
 Now look at the line with `then`.
-This is a <g key="method">method</g> of the `Pledge` object we just created,
+This is a <span g="method">method</span> of the `Pledge` object we just created,
 and its job is to do whatever we want to do after the delay.
 The argument to `then` is yet another callback function;
 it will get the value passed to `resolve`,
 which is how the first part of the action communicates with the second
-(<f key="async-programming-resolve"></f>).
+(<span f="async-programming-resolve"></span>).
 
-<%- include('/inc/figure.html', {
-    id: 'async-programming-resolve',
-    img: './figures/resolve.svg',
-    alt: 'How promises resolve',
-    cap: 'Order of operations when a promise resolves.'
-}) %>
+{% include figure id='async-programming-resolve' img='figures/resolve.svg' alt='How promises resolve' cap='Order of operations when a promise resolves.' %}
 
 In order to make this work,
-`Pledge`'s <g key="constructor">constructor</g> must take a single function called `action`.
+`Pledge`'s <span g="constructor">constructor</span> must take a single function called `action`.
 This function must take take two callbacks as arguments:
 what to do if the action completes successfully
 and what to do if it doesn't (i.e., how to handle errors).
@@ -144,13 +131,12 @@ and what to do if it doesn't (i.e., how to handle errors).
 `then` to enable more actions
 and `catch` to handle errors.
 To simplify things just a little bit,
-we will allow users to <g key="method_chaining">chain</a> as many `then`s as they want,
+we will allow users to <span g="method_chaining">chain</span> as many `then`s as they want,
 but only allow one `catch`.
 
-:::callout
 ### Fluent interfaces
 
-A <g key="fluent_interface">fluent interface</g> is a style of object-oriented programming
+A <span g="fluent_interface">fluent interface</span> is a style of object-oriented programming
 in which the methods of an object return `this`
 so that method calls can be chained together.
 For example,
@@ -158,54 +144,52 @@ if our class is:
 
 ```js
 class Fluent {
-  constructor () {…}
+  constructor () {...}
 
   first (top) {
-    …do something with top…
+    ...do something with top...
     return this
   }
 
   second (left, right) {
-    …do something with left and right…
+    ...do something with left and right...
   }
 }
 ```
 
-:::continue
+{: .continue}
 then we can write:
-:::
 
 ```js
   const f = new Fluent()
   f.first('hello').second('and', 'goodbye')
 ```
 
-:::continue
+{: .continue}
 or even
-:::
 
 ```js
   (new Fluent()).first('hello').second('and', 'goodbye')
 ```
 
 `Array`'s (mostly) fluent interface allows us to write expressions like
-`Array.filter(…).map(…).map(…)`,
+`Array.filter(...).map(...).map(...)`,
 which is usually more readable than assigning intermediate results to temporary variables.
-:::
 
 If the original action given to our `Pledge` completes successfully,
 the `Pledge` gives us a value by calling the `resolve` callback.
 We pass this value to the first `then`,
 pass the result of that `then` to the second one,
 and so on.
-If any of them fail and throw an <g key="exception">exception</g>,
+If any of them fail and throw an <span g="exception">exception</span>,
 we pass that exception to the error handler.
 Putting it all together,
 the whole class looks like this:
 
-<%- include('/inc/file.html', {file: 'pledge.js'}) %>
+{% include file file='pledge.js' %}
 
-::: callout
+<div class="callout" markdown="1">
+
 ### Binding `this`
 
 `Pledge`'s constructor makes two calls to a special function called `bind`.
@@ -217,15 +201,15 @@ though,
 To convert the method to a plain old function with the right `this`,
 we have to use `bind`.
 [The documentation][bind-docs] has more details and examples.
-:::
+
+</div>
 
 Let's create a `Pledge` and return a value:
 
-<%- include('/inc/multi.html', {pat: 'use-pledge-return.*', fill: 'js out'}) %>
+{% include multi pat='use-pledge-return.*' fill='js out' %}
 
-::: continue
+{: .continue}
 Why didn't this work?
-:::
 
 1.  We can't use `return` with pledges
     because the call stack of the task that created the pledge is gone
@@ -240,49 +224,43 @@ Why didn't this work?
 
 This example shows how we can chain actions together:
 
-<%- include('/inc/multi.html', {pat: 'use-pledge-chained.*', fill: 'js out'}) %>
+{% include multi pat='use-pledge-chained.*' fill='js out' %}
 
-::: continue
+{: .continue}
 Notice that inside each `then` we *do* use `return`
 because these clauses all run in a single task.
 As we will see in the next section,
 the full implementation of `Promise` allows us to run both normal code
 and delayed tasks inside `then` handlers.
-:::
 
 Finally,
 in this example we explicitly signal a problem by calling `reject`
 to make sure our error handling does what it's supposed to:
 
-<%- include('/inc/multi.html', {pat: 'use-pledge-reject.*', fill: 'js out'}) %>
+{% include multi pat='use-pledge-reject.*' fill='js out' %}
 
 ## How are real promises different?
 
 Let's rewrite our chained pledge with built-in promises:
 
-<%- include('/inc/multi.html', {pat: 'use-promise-chained.*', fill: 'js out'}) %>
+{% include multi pat='use-promise-chained.*' fill='js out' %}
 
 It looks almost the same,
 but if we read the output carefully
 we can see that the callbacks run *after* the main program finishes.
-This is a signal that [Node][nodejs] is delaying the execution of the code in the `then` handler.
+This is a signal that Node is delaying the execution of the code in the `then` handler.
 
 A very common pattern is to return another promise from inside `then`
 so that the next `then` is called on the returned promise,
 not on the original promise
-(<f key="async-programming-chained"></f>).
+(<span f="async-programming-chained"></span>).
 This is another way to implement a fluent interface:
 if a method of one object returns a second object,
 we can call a method of the second object immediately.
 
-<%- include('/inc/multi.html', {pat: 'promise-example.*', fill: 'js out'}) %>
+{% include multi pat='promise-example.*' fill='js out' %}
 
-<%- include('/inc/figure.html', {
-    id: 'async-programming-chained',
-    img: './figures/chained.svg',
-    alt: 'Chained promises',
-    cap: 'Chaining promises to make asynchronous operations depend on each other.'
-}) %>
+{% include figure id='async-programming-chained' img='figures/chained.svg' alt='Chained promises' cap='Chaining promises to make asynchronous operations depend on each other.' %}
 
 We therefore have three rules for chaining promises:
 
@@ -294,9 +272,9 @@ We therefore have three rules for chaining promises:
 1.  Finally,
     if we want to use a library function that relies on callbacks,
     we have to convert it to use promises.
-    Doing this is called <g key="promisification">promisification</g>
+    Doing this is called <span g="promisification">promisification</span>
     (because programmers will rarely pass up an opportunity add a bit of jargon to the world),
-    and most functions in the [Node][nodejs] have already been promisified.
+    and most functions in the Node have already been promisified.
 
 ## How can we build tools with promises?
 
@@ -310,20 +288,22 @@ so we will rely on it for file operations.
 
 Our first step is to count the lines in a single file:
 
-<%- include('/inc/multi.html', {pat: 'count-lines-single-file.*', fill: 'js sh out'}) %>
+{% include multi pat='count-lines-single-file.*' fill='js sh out' %}
 
-::: callout
+<div class="callout" markdown="1">
+
 ### Character encoding
 
-A <g key="character_encoding">character encoding</g> specifies how characters are stored as bytes.
-The most widely used is <g key="utf_8">UTF-8</g>,
+A <span g="character_encoding">character encoding</span> specifies how characters are stored as bytes.
+The most widely used is <span g="utf_8">UTF-8</span>,
 which stores characters common in Western European languages in a single byte
 and uses multi-byte sequences for other symbols.
 If we don't specify a character encoding,
 `fs.readFileAsync` gives us an array of bytes rather than a string of characters.
 We can tell we've made this mistake when we try to call a method of `String`
-and [Node][node.js] tells us we can't.
-:::
+and Node tells us we can't.
+
+</div>
 
 The next step is to count the lines in multiple files.
 We can use `glob-promise` to delay handling the output of `glob`,
@@ -335,29 +315,24 @@ which waits until all of the promises in an array have completed.
 To make our program a little more readable,
 we will put the creation of the promise for each file in a separate function:
 
-<%- include('/inc/multi.html', {pat: 'count-lines-globbed-files.*', fill: 'js sh slice.out'}) %>
+{% include multi pat='count-lines-globbed-files.*' fill='js sh slice.out' %}
 
 However,
 we want to display the names of the files whose lines we're counting along with the counts.
 To do this our `then` must return two values.
 We could put them in an array,
 but it's better practice to construct a temporary object with named fields
-(<f key="async-programming-temporary-named-fields"></f>).
+(<span f="async-programming-temporary-named-fields"></span>).
 This approach allows us to add or rearrange fields without breaking code
 and also serves as a bit of documentation.
 With this change
 our line-counting program becomes:
 
-<%- include('/inc/file.html', {file: 'count-lines-print-filenames.js'}) %>
+{% include file file='count-lines-print-filenames.js' %}
 
-<%- include('/inc/figure.html', {
-    id: 'async-programming-temporary-named-fields',
-    img: './figures/temporary-named-fields.svg',
-    alt: 'Temporary objects with named fields',
-    cap: 'Creating temporary objects with named fields to carry values forward.'
-}) %>
+{% include figure id='async-programming-temporary-named-fields' img='figures/temporary-named-fields.svg' alt='Temporary objects with named fields' cap='Creating temporary objects with named fields to carry values forward.' %}
 
-As in <x key="systems-programming">the previous chapter</x>,
+As in <span x="systems-programming"></span>,
 this works until we run into a directory whose name name matches `*.*`,
 which we do when counting the lines in the contents of `node_modules`.
 The solution once again is to use `stat` to check if something is a file or not
@@ -365,13 +340,13 @@ before trying to read it.
 And since `stat` returns an object that doesn't include the file's name,
 we create another temporary object to pass information down the chain of `then`s.
 
-<%- include('/inc/multi.html', {pat: 'count-lines-with-stat.*', fill: 'js sh slice.out'}) %>
+{% include multi pat='count-lines-with-stat.*' fill='js sh slice.out' %}
 
-::: continue
+{: .continue}
 This code is complex, but much simpler than it would be if we were using callbacks.
-:::
 
-::: callout
+<div class="callout" markdown="1">
+
 ## Lining things up
 
 This code uses the expression `{filename, stats}`
@@ -381,7 +356,8 @@ Doing this makes the code easier to read,
 both because it's shorter
 but also because it signals that the value associated with the key `filename`
 is exactly the value of the variable with the same name.
-:::
+
+</div>
 
 ## How can we make this more readable?
 
@@ -393,31 +369,33 @@ to flatten code further.
 while `await` means "wait for a promise to resolve".
 This short program uses both keywords to print the first ten characters of a file:
 
-<%- include('/inc/multi.html', {pat: 'await-fs.*', fill: 'js out'}) %>
+{% include multi pat='await-fs.*' fill='js out' %}
 
-::: callout
+<div class="callout" markdown="1">
+
 ### Translating code
 
-When [Node][nodejs] sees `await` and `async`
+When Node sees `await` and `async`
 it silently converts the code to use promises with `then`, `resolve`, and `reject`;
-we will see how this works in <x key="code-generator"></x>.
+we will see how this works in <span x="code-generator"></span>.
 In order to provide a context for this transformation
 we must put `await` inside a function that is declared to be `async`:
-we can't simply write `await fs.statAsync(…)` at the top level of our program
+we can't simply write `await fs.statAsync(...)` at the top level of our program
 outside a function.
 This requirement is occasionally annoying,
 but since we should be putting our code in functions anyway
 it's hard to complain.
-:::
+
+</div>
 
 To see how much cleaner our code is with `await` and `async`,
 let's rewrite our line counting program to use them.
 First,
 we modify the two helper functions to look like they're waiting for results and returning them.
 They actually wrap their results in promises and return those,
-but [Node][nodejs] now takes care of that for us:
+but Node now takes care of that for us:
 
-<%- include('/inc/keep.html', {file: 'count-lines-with-stat-async.js', key: 'recycle'}) %>
+{% include keep file='count-lines-with-stat-async.js' key='recycle' %}
 
 Next,
 we modify `main` to wait for things to complete.
@@ -425,7 +403,7 @@ We must still use `Promise.all` to handle the promises
 that are counting lines for individual files,
 but the result is less cluttered than our previous version.
 
-<%- include('/inc/keep.html', {file: 'count-lines-with-stat-async.js', key: 'main'}) %>
+{% include keep file='count-lines-with-stat-async.js' key='main' %}
 
 ## How can we handle errors with asynchronous code?
 
@@ -438,23 +416,18 @@ First,
 if we return a promise that fails without using `await`,
 then our main function will finish running before the error occurs,
 and our `try`/`catch` doesn't help us
-(<f key="async-programming-handling-errors"></f>):
+(<span f="async-programming-handling-errors"></span>):
 
-<%- include('/inc/multi.html', {pat: 'return-immediately.*', fill: 'js out'}) %>
+{% include multi pat='return-immediately.*' fill='js out' %}
 
-<%- include('/inc/figure.html', {
-    id: 'async-programming-handling-errors',
-    img: './figures/handling-errors.svg',
-    alt: 'Handling asynchronous errors',
-    cap: 'Wrong and right ways to handle errors in asynchronous code.'
-}) %>
+{% include figure id='async-programming-handling-errors' img='figures/handling-errors.svg' alt='Handling asynchronous errors' cap='Wrong and right ways to handle errors in asynchronous code.' %}
 
 One solution to this problem is to be consistent and always return something.
 Because the function is declared `async`,
 the `Error` in the code below is automatically wrapped in a promise
 so we can use `.then` and `.catch` to handle it as before:
 
-<%- include('/inc/multi.html', {pat: 'assign-immediately.*', fill: 'js out'}) %>
+{% include multi pat='assign-immediately.*' fill='js out' %}
 
 If instead we `return await`,
 the function waits until the promise runs before returning.
@@ -462,10 +435,9 @@ The promise is turned into an exception because it failed,
 and since we're inside the scope of our `try`/`catch` block,
 everything works as we want:
 
-<%- include('/inc/multi.html', {pat: 'return-await.*', fill: 'js out'}) %>
+{% include multi pat='return-await.*' fill='js out' %}
 
-::: continue
+{: .continue}
 We prefer the second approach,
 but whichever you choose,
 please be consistent.
-:::

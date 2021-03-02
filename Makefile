@@ -1,276 +1,149 @@
-# Default volume.
-ifndef VOL
-VOL := vol1
-endif
+JEKYLL=bundle exec jekyll
+BIB=_includes/bib.html
+SITE=./_site
+LANGUAGE=en
 
-# Numbering file for this volume.
-NUMBERING := docs/${VOL}/numbering.js
+CONFIG=_config.yml
+INCLUDES=$(wildcard _includes/*)
+LAYOUTS=$(wildcard _layouts/*.html)
+MARKDOWN=$(wildcard *.md) $(wildcard */index.md)
+EXERCISES=$(wildcard */x-*/problem.md) $(wildcard */x-*/solution.md)
+STATIC=$(wildcard _sass/*/*.scss) $(wildcard css/*.css) $(wildcard css/*.scss) $(wildcard js/*.js)
+TEX=$(wildcard tex/*.*)
 
-# Chapter and appendix slugs.
-SLUGS := $(shell bin/info.js --site site.yml --volume ${VOL}.yml --get slugs)
+BIB_IN=_data/bibliography.yml
+BIB_OUT=bibliography/index.md
+GLOSSARY_IN=_data/glossary.yml
+HOME_PAGE=${SITE}/index.html
+UNSPELLED=${BIB_OUT} glossary/index.md links/index.md index.md
+NUM_OUT=_data/numbering.yml
+TERMS_OUT=_data/terms.yml
+ALL_OUT=${BIB_OUT} ${NUM_OUT} ${TERMS_OUT}
+EXTRA_MARKDOWN=_includes/intro.md
 
-# Markdown source files for this volume.
-MARKDOWN := $(patsubst %,%/index.md,${SLUGS})
-ALL_MARKDOWN := $(wildcard *.md) $(wildcard */index.md)
+RELEASE_FILES=\
+  CONDUCT.md\
+  CONTRIBUTING.md\
+  LICENSE.md\
+  Makefile\
+  Gemfile\
+  Gemfile.lock\
+  _includes\
+  _layouts\
+  _sass\
+  bin\
+  css\
+  favicon.ico\
+  links\
+  static/local.*\
+  static/*.pdf\
+  static/*.svg\
+  tex
 
-# HTML output files.
-HTML := $(patsubst %,docs/${VOL}/%/index.html,${SLUGS})
-
-# Exercise files.
-EXERCISES := $(wildcard $(patsubst %,%/x-*/*.md,${SLUGS}))
-ALL_EXERCISES := $(wildcard */x-*/*.md)
-
-# Example files
-EXAMPLES_SRC := \
-  $(wildcard $(patsubst %,%/*.as,${SLUGS})) \
-  $(wildcard $(patsubst %,%/*.html,${SLUGS})) \
-  $(wildcard $(patsubst %,%/*.js,${SLUGS})) \
-  $(wildcard $(patsubst %,%/*.json,${SLUGS})) \
-  $(wildcard $(patsubst %,%/*.mx,${SLUGS})) \
-  $(wildcard $(patsubst %,%/*.out,${SLUGS})) \
-  $(wildcard $(patsubst %,%/*.py,${SLUGS})) \
-  $(wildcard $(patsubst %,%/*.sh,${SLUGS})) \
-  $(wildcard $(patsubst %,%/*.yml,${SLUGS}))
-EXAMPLES_DST := $(patsubst %,docs/${VOL}/%,${EXAMPLES_SRC})
-
-# Directories with examples to rebuild.
-EXAMPLE_DIRS := $(patsubst %/Makefile,%,$(wildcard */Makefile))
-
-# Figures (input and output).
-FIGURES_SRC := $(wildcard $(patsubst %,%/figures/*.svg,${SLUGS}))
-FIGURES_DST := $(patsubst %,docs/${VOL}/%,${FIGURES_SRC})
-
-# EJS inclusions.
-INCLUSIONS := $(wildcard inc/*.html)
-
-# Complete list of JavaScript source files.
-JAVASCRIPT := \
-  $(wildcard $(patsubst %,%/*.js,${SLUGS})) \
-  $(wildcard $(patsubst %,%/*/*.js,${SLUGS}))
-
-# Static files (input and output).
-STATIC_SRC := .nojekyll CNAME favicon.ico index.html \
-  $(wildcard static/*.*) \
-  $(wildcard static/fonts/*/*.*)
-STATIC_DST := $(patsubst %,docs/%,${STATIC_SRC})
-
-# Tools used to create and update things.
-TOOLS := $(filter-out bin/utils.js,$(wildcard bin/*.js))
-
-# Everything.
-ALL_TARGETS := ${FIGURES_DST} ${STATIC_DST} ${HTML} ${EXAMPLES_DST} docs/atom.xml
-
-# ----------------------------------------------------------------------
+RELEASE_EXCLUDES=_includes/intro.md
 
 .DEFAULT: commands
 
-## commands: show available commands.
+## commands: show available commands
 commands:
 	@grep -h -E '^##' ${MAKEFILE_LIST} | sed -e 's/## //g' | column -t -s ':'
 
-## examples: rebuild all examples in sub-directories (slow).
-examples:
-	@for d in ${EXAMPLE_DIRS}; do echo ""; echo $$d; make -C $$d; done
+## build: rebuild site without running server
+build: ${ALL_OUT}
+	${JEKYLL} build
 
-## html: rebuild HTML without serving.
-html: ${ALL_TARGETS}
+## serve: build site and run server
+serve: ${ALL_OUT}
+	${JEKYLL} serve
 
-## serve: run a server on port 4000
-serve: ${ALL_TARGETS}
-	@npm run serve
+## book.tex: create LaTeX file
+book.tex: ${HOME_PAGE} bin/html2tex.py ${NUM_OUT} ${TEX}
+	bin/html2tex.py --config ${CONFIG} --numbering ${NUM_OUT} --site _site --head tex/head.tex --foot tex/foot.tex > book.tex
 
-## pdf: rebuild PDF
-pdf: ${VOL}.pdf
+## book.pdf: create PDF file
+book.pdf: book.tex ${TEX}
+	@pdflatex book
+	@pdflatex book
 
-## epub: rebuild EPUB
-epub: docs/${VOL}/${VOL}.epub
+## make-bib: create Markdown version of bibliography
+make-bib: ${BIB_OUT}
 
-## ----: ----
+## make-numbering: create YAML cross-referencing
+make-numbering: ${NUM_OUT}
 
-## catalog: list all nodes and attributes
-catalog:
-	@bin/catalog.js --ignore --input ${HTML}
+## make-spelling: create list of unknown words
+make-spelling:
+	@bin/make-spelling.py --sources $(filter-out ${UNSPELLED},${MARKDOWN})
 
-## check: check that files match style rules
-check: ${HOME_PAGE}
-	@bin/check.js \
-	--site site.yml \
-	--volume ${VOL}.yml \
-	--output docs/${VOL} \
-	--slugs ${SLUGS}
+## make-terms: create YAML file listing terms per chapter
+make-terms: ${TERMS_OUT}
 
-## chunk-length: report lengths of included chunks
-chunk-length: ${HTML}
-	@bin/chunk-length.js ${HTML}
+${BIB_OUT}: ${BIB_IN} bin/make-bib.py
+	bin/make-bib.py --input ${BIB_IN} --output ${BIB_OUT}
 
-## clean: clean up
-clean:
-	@rm -f ${VOL}.{aux,log,out,pdf,tex,toc}
-	@rm -rf tmp
-	@find . -name '*~' -exec rm {} \;
+${NUM_OUT}: bin/make-numbering.py ${CONFIG} ${MARKDOWN}
+	 bin/make-numbering.py --config ${CONFIG} --output ${NUM_OUT}
 
-## duplicate-links: report duplicated hyperlinks within chapters
-duplicate-links:
-	@bin/duplicate-links.js ${MARKDOWN}
+${TERMS_OUT}: bin/make-terms.py ${CONFIG} ${MARKDOWN} ${GLOSSARY_IN}
+	bin/make-terms.py --config ${CONFIG} --glossary ${GLOSSARY_IN} --language ${LANGUAGE} --output ${TERMS_OUT}
 
-## ejslint: run checks on template expansions
-ejslint:
-	@npm run ejslint
+${HOME_PAGE}: ${CONFIG} ${MARKDOWN} ${INCLUDES} ${LAYOUTS} ${STATIC} ${ALL_OUT}
+	${JEKYLL} build
 
-## long-lines: report overly-long lines in JavaScript files
-long-lines:
-	@bin/long-lines.js ${JAVASCRIPT}
-
-## standard: run checks on code formatting
-standard:
-	@npx standard ${JAVASCRIPT} bin/*.js
-
-## pages: count pages per chapter.
-pages: ${VOL}.aux
-	@bin/pages.js ${VOL}.aux | column -t -s '|'
-
-## settings: show all settings.
-settings:
-	@echo "EXAMPLES_DST =" ${EXAMPLES_DST}
-	@echo "EXAMPLES_SRC =" ${EXAMPLES_SRC}
-	@echo "EXERCISES =" ${EXERCISES}
-	@echo "FIGURES_DST =" ${FIGURES_DST}
-	@echo "FIGURES_SRC =" ${FIGURES_SRC}
-	@echo "GLOSSARY_SOURCES =" ${GLOSSARY_SOURCES}
-	@echo "HTML =" ${HTML}
-	@echo "JAVASCRIPT =" ${JAVASCRIPT}
-	@echo "LINKS_TABLE =" ${LINKS_TABLE}
-	@echo "MARKDOWN =" ${MARKDOWN}
-	@echo "SLUGS =" ${SLUGS}
-	@echo "STATIC_DST =" ${STATIC_DST}
-	@echo "STATIC_SRC =" ${STATIC_SRC}
-	@echo "TOOLS =" ${TOOLS}
-
-## terms: which terms are defined in which files?
-terms:
-	@bin/terms.js --glossary tmp/gloss.yml --input $(filter-out gloss/index.md,${MARKDOWN})
-
-## word-list: what words are used in prose?
-word-list: tmp/gloss.yml
-	@bin/word-list.js --input ${HTML}
-
-# ----------------------------------------------------------------------
-
-# Numbering file for a volume.
-${NUMBERING}: ${VOL}.yml bin/numbering.js
-	@mkdir -p docs/${VOL}
-	bin/numbering.js \
-	--volume $< \
-	--output $@
-
-# bib/index.md: bibliography as Markdown.
-bib/index.md: bib.yml bin/bib.js
-	@mkdir -p bib
-	bin/bib.js \
-	--input $< \
-	--output $@
-
-# gloss/index.md: glossary as YAML.
-gloss/index.md: tmp/gloss.yml bin/make-gloss-markdown.js
-	@mkdir -p gloss
-	bin/make-gloss-markdown.js \
-	--input $< \
-	--output $@
-
-# tmp/gloss.yml: glossary as YAML.
-GLOSSARY_SOURCES := $(filter-out gloss/index.md,${ALL_MARKDOWN}) ${ALL_EXERCISES}
-tmp/gloss.yml: gloss.yml bin/make-gloss-yaml.js ${GLOSSARY_SOURCES}
-	@mkdir -p tmp
-	bin/make-gloss-yaml.js \
-	--input $< \
-	--output tmp/gloss.yml \
-	--files ${GLOSSARY_SOURCES}
-
-# HTML output file.
-docs/${VOL}/%/index.html: %/index.md bin/html.js $(wildcard %/x-*/*.md) links.yml tmp/gloss.yml ${NUMBERING} ${INCLUSIONS}
-	bin/html.js \
-	--site site.yml \
-	--volume ${VOL}.yml \
-	--input $< \
-	--output $@ \
-	--links links.yml \
-	--numbering ${NUMBERING} \
-	--glossary tmp/gloss.yml
-
-# LaTeX version of book.
-${VOL}.tex: bin/latex.js ${HTML} ${TEX}
-	bin/latex.js \
-	--site site.yml \
-	--volume ${VOL}.yml \
-	--output ${VOL}.tex \
-	--head tex/head.tex \
-	--foot tex/foot.tex \
-	--root docs/${VOL} \
-	--numbering docs/${VOL}/numbering.js
-
-# PDF version of book.
-${VOL}.pdf ${VOL}.aux: ${VOL}.tex
-	@pdflatex ${VOL} && pdflatex ${VOL} && pdflatex ${VOL}
-
-# EPUB version of book.
-docs/${VOL}/${VOL}.epub: ${VOL}.tex
-	sed -e 's/\.pdf}/\.svg}/g' $< | pandoc --from latex --to epub > $@
-
-# Rearranging files.
-license/index.md: LICENSE.md
-	@mkdir -p license
-	cp $< $@
-conduct/index.md: CONDUCT.md
-	@mkdir -p conduct
-	cp $< $@
-contributing/index.md: CONTRIBUTING.md
-	@mkdir -p contributing
-	cp $< $@
-
-# Static files.
-docs/static/%: static/%
-	@mkdir -p $(dir $@)
-	cp $< $@
-
-# Static files in root directory.
-docs/%: ./%
-	@mkdir -p $(dir $@)
-	cp $< $@
-
-# SVG figures.
-docs/${VOL}/%.svg: %.svg
-	@mkdir -p $(dir $@)
-	cp $< $@
-
-# Miscellaneous example files.
-docs/${VOL}/%.as: %.as
-	@mkdir -p $(dir $@)
-	cp $< $@
-docs/${VOL}/%.html: %.html
-	@mkdir -p $(dir $@)
-	cp $< $@
-docs/${VOL}/%.js: %.js
-	@mkdir -p $(dir $@)
-	cp $< $@
-docs/${VOL}/%.json: %.json
-	@mkdir -p $(dir $@)
-	cp $< $@
-docs/${VOL}/%.mx: %.mx
-	@mkdir -p $(dir $@)
-	cp $< $@
-docs/${VOL}/%.out: %.out
-	@mkdir -p $(dir $@)
-	cp $< $@
-docs/${VOL}/%.py: %.py
-	@mkdir -p $(dir $@)
-	cp $< $@
-docs/${VOL}/%.sh: %.sh
-	@mkdir -p $(dir $@)
-	cp $< $@
-docs/${VOL}/%.yml: %.yml
-	@mkdir -p $(dir $@)
-	cp $< $@
-
-# Tools.
-${TOOLS}: bin/utils.js
+$(filter-out bin/utils.py,$(wildcard bin/*.py)): bin/utils.py
 	touch $@
+
+## ----
+
+## check: run all checks
+check:
+	@make check-bib
+	@make check-gloss
+	@make check-links
+	@make check-numbering
+	@make check-ref
+	@make check-spelling
+
+## check-bib: compare citations and definitions
+check-bib:
+	@bin/check-bib.py --bibliography ${BIB_IN} --sources ${MARKDOWN} _includes/intro.md
+
+## check-gloss: compare references and definitions
+check-gloss:
+	@bin/check-gloss.py --glossary ${GLOSSARY_IN} --language ${LANGUAGE} --sources ${MARKDOWN} ${EXERCISES}
+
+## check-links: make sure all external links resolve
+check-links:
+	@bin/check-links.py --config ${CONFIG} --sources ${MARKDOWN} ${EXTRA_MARKDOWN} ${EXERCISES}
+
+## check-numbering: make sure all internal cross-references resolve
+check-numbering: ${NUM_OUT}
+	@bin/check-numbering.py --numbering ${NUM_OUT} --sources ${MARKDOWN} ${EXERCISES}
+
+## check-ref: compare chapter cross-references to chapters and appendices
+check-ref:
+	@bin/check-ref.py --config ${CONFIG} --sources ${MARKDOWN} ${EXERCISES}
+
+## check-spelling: check for misspelled words
+check-spelling:
+	@bin/check-spelling.py --compare _data/spelling.yml --sources $(filter-out ${UNSPELLED},${MARKDOWN} ${EXERCISES})
+
+## ----
+
+## count-pages: how many pages are in the PDF version?
+count-pages: book.pdf
+	@bin/count-pages.py --input book.aux | column -t -s '|'
+
+## release: make a zip file with infrastructure for use elsehwere
+release:
+	@zip -r ../template.zip ${RELEASE_FILES} --exclude ${RELEASE_EXCLUDES}
+
+## clean: clean up stray files
+clean:
+	@find . -name '*~' -exec rm {} \;
+	@rm -f *.aux *.log *.out *.tex *.toc
+
+## sterile: clean up and erase generated site
+sterile:
+	@make clean
+	@rm -rf ${SITE}

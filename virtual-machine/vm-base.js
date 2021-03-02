@@ -18,8 +18,8 @@ class VirtualMachineBase {
     this.prompt = '>>'
   }
 
-  // <skip>
-  // <initialize>
+  // [skip]
+  // [initialize]
   initialize (program) {
     assert(program.length <= this.ram.length,
       'Program is too long for memory')
@@ -33,9 +33,9 @@ class VirtualMachineBase {
     this.ip = 0
     this.reg.fill(0)
   }
-  // </initialize>
+  // [/initialize]
 
-  // <fetch>
+  // [fetch]
   fetch () {
     assert((0 <= this.ip) && (this.ip < RAM_LEN),
       `Program counter ${this.ip} out of range 0..${RAM_LEN}`)
@@ -48,7 +48,7 @@ class VirtualMachineBase {
     const arg1 = instruction & OP_MASK
     return [op, arg0, arg1]
   }
-  // </fetch>
+  // [/fetch]
 
   show () {
     // Show registers
@@ -73,7 +73,7 @@ class VirtualMachineBase {
       base += COLUMNS
     }
   }
-  // </skip>
+  // [/skip]
 }
 
 export default VirtualMachineBase

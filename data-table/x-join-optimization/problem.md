@@ -1,6 +1,6 @@
-The simplest way to <g key="join">join</g> two tables is
+The simplest way to <span g="join">join</span> two tables is
 to look for matching keys using a double loop.
-An alternative is to build an <g key="index_database">index</g> for each table
+An alternative is to build an <span g="index_database">index</span> for each table
 and then use it to construct matches.
 For example, suppose the tables are:
 
@@ -10,9 +10,8 @@ For example, suppose the tables are:
 | B   | b1   |
 | C   | c1   |
 
-::: continue
+{: .continue}
 and:
-:::
 
 | Key | Right |
 | --- | ----- |
@@ -26,19 +25,17 @@ The first step is to create a `Map` showing where each key is found in the first
 {A: [0], B: [1], C: [2]}
 ```
 
-::: continue
+{: .continue}
 The second step is to create a similar `Map` for the second table:
-:::
 
 ```js
 {A: [0, 1], B: [2]}
 ```
 
-::: continue
+{: .continue}
 We can then loop over the keys in one of the maps,
 look up values in the second map,
 and construct all of the matches.
-:::
 
 Write a function that joins two tables this way.
 Is it faster or slower than using a double loop?

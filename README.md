@@ -12,18 +12,18 @@ Please see [the description of our audience](https://stjs.tech/vol1/#who-is-our-
 for more information about what we assume you already know.
 
 -   All of the written material in this project can be freely reused
-    under the terms of the [Creative Commons - Attribution license](https://stjs.tech/vol1/license/#writing),
-    while all of the software is made available under the terms of the [Hippocratic License](https://stjs.tech/vol1/license/#software).
+    under the terms of the [Creative Commons - Attribution license](https://stjs.tech/license/#writing),
+    while all of the software is made available under the terms of the [Hippocratic License](https://stjs.tech/license/#software).
 
 -   E-books and printed copies will be available by mid-2021.
     All proceeds from sales will go to supported the [Red Door Family Shelter](https://www.reddoorshelter.ca/) in Toronto.
 
--   Please see [the contributors' guide](https://stjs.tech/vol1/contributing/)
-    and our [Code of Conduct](https://stjs.tech/vol1/conduct/)
+-   Please see [the contributors' guide](https://stjs.tech/contributing/)
+    and our [Code of Conduct](https://stjs.tech/conduct/)
     if you would like to help improve or extend this work.
     Anyone who provides minor fixes or feedback will be added to
-    [the acknowledgments](https://stjs.tech/vol1/#who-helped-us-and-inspired-us);
-    anyone who writes a chapter will be added to [the authors' list](https://stjs.tech/vol1/authors/).
+    [the acknowledgments](https://stjs.tech/#who-helped-us-and-inspired-us);
+    anyone who writes a chapter will be added to [the authors' list](https://stjs.tech/authors/).
 
 ## FAQ
 
@@ -67,7 +67,7 @@ for more information about what we assume you already know.
 
 -   **I'm teaching a programming class: can I use this, and if so, how?**
     1.  The answer to the first part is "yes please".
-        All of this material is covered by [an open license](https://stjs.tech/vol1/license/),
+        All of this material is covered by [an open license](https://stjs.tech/license/),
         so as long as you acknowledge the original source (e.g., by providing a link back),
         you can use it in whole or in part,
         as-is or with modification.

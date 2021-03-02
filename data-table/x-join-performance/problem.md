@@ -1,4 +1,4 @@
-A <g key="join">join</g> combines data from two tables based on matching keys.
+A join combines data from two tables based on matching keys.
 For example,
 if the two tables are:
 
@@ -8,9 +8,8 @@ if the two tables are:
 | B   | b1   |
 | C   | c1   |
 
-::: continue
+{: .continue}
 and:
-:::
 
 | Key | Right |
 | --- | ----- |
@@ -18,9 +17,8 @@ and:
 | A   | a3    |
 | B   | b2    |
 
-::: continue
+{: .continue}
 then the join is:
-:::
 
 | Key | Left | Right |
 | --- | ---- | ----- |
