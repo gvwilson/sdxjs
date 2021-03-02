@@ -147,3 +147,6 @@ clean:
 sterile:
 	@make clean
 	@rm -rf ${SITE}
+
+# Local commands if available.
+-include local.mk
