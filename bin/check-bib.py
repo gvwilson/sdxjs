@@ -9,13 +9,17 @@ import sys
 import utils
 
 
-# Citation use <cite>key,key</cite>.
+# Citations use <cite>key,key</cite>.
 CITATION = re.compile(r'<cite>(.+?)</cite>', re.DOTALL)
+
+# Pattern that keys must match.
+KEY = re.compile(r'^[A-Za-z]+\d{4}$')
 
 def check_bib(options):
     '''Main driver.'''
     defined = get_definitions(options.bibliography)
     check_order(defined)
+    check_keys(defined)
     cited = utils.get_all_matches(CITATION, options.sources)
     utils.report('bibliography', cited=cited, defined=set(defined))
 
@@ -36,10 +40,18 @@ def check_order(keys):
                 unordered.append(key)
         previous = key
     if unordered:
-        print('- bibliography')
-        print('  - out of order')
+        print('- bibliography order')
         for key in unordered:
-            print(f'    - {key}')
+            print(f'  - {key}')
+
+
+def check_keys(keys):
+    '''Make sure all keys are name + 4-digit year.'''
+    bad_keys = [k for k in keys if not KEY.match(k)]
+    if bad_keys:
+        print('- bibliography keys')
+        for k in bad_keys:
+            print(f'  - {k}')
 
 
 if __name__ == '__main__':

@@ -40,7 +40,7 @@ def html2tex(options):
     for f in filenames:
         convert_file(f, accum)
     result = ''.join(accum)
-    display(options, config['title'], result)
+    display(options, config, result)
 
 
 def update_numbering(filename):
@@ -372,7 +372,7 @@ def add_class(node, cls):
     node['class'] = node.get('class', []) + [cls]
 
 
-def display(options, title, text):
+def display(options, config, text):
     '''Display translated files with header and footer.'''
     head = open(options.head, 'r').read()
     foot = open(options.foot, 'r').read()
@@ -380,7 +380,13 @@ def display(options, title, text):
         .replace('“', "``")\
         .replace('”', "''")\
         .replace('’', "'")
-    print(head.replace(r'\title{TITLE}', fr'\title{{{title}}}'))
+    if 'subtitle' in config:
+        head = head.replace(r'\title{TITLE}',
+                            f'\\title{{{config["title"]} \\subtitle{{{config["subtitle"]}}}}}')
+    else:
+        head = head.replace(r'\title{TITLE}',
+                            f'\\title{{{config["title"]}}}')
+    print(head)
     print(text)
     print(foot)
 

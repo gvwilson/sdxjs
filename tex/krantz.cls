@@ -159,6 +159,7 @@
 \newcommand\ContributorNameFont{\reset@font\fontsize{10}{12}\bfseries\raggedright\selectfont}
 
 \newcommand\TitlePageTitleFont{\fontsize{24}{28}\slshape\bfseries\selectfont}
+\newcommand\SubTitleFont{\fontsize{16}{20}\selectfont}
 \newcommand\PageNumFont{\reset@font\fontsize{10}{12}\selectfont}
 \newcommand\ChapNumFont{\reset@font\fontsize{24}{24}\bfseries\selectfont}
 \newcommand\ChapTitleFont{\reset@font\fontsize{18}{20}\slshape\selectfont}
@@ -477,6 +478,11 @@
     \@cip{\rule{0pt}{9pt}0-8493-0052-5/00/\$0.00+\$.50}%
       {\copyright\ \ 2001 by CRC Press LLC}}%
 \fi
+
+\def\subtitle#1{\gdef\@subtitle{\SubTitleFont#1}\par\vspace*{5pt}}
+\def\@subtitle{\par\vspace*{-10pt}}
+
+
   \if@titlepage
   \newcommand\maketitle{\begin{titlepage}%
   \let\footnotesize\small
@@ -491,7 +497,7 @@
     \vskip -2bp
     \crcrule
     \vskip 22bp
-    {\baselineskip 24bp\lineskip 24bp\TitlePageTitleFont\@title\par}}}
+    {\baselineskip 24bp\lineskip 24bp\TitlePageTitleFont\@title\par\vskip6pt\@subtitle\par}}}
   \@thanks
   \vfil\null
   \end{titlepage}%
@@ -502,7 +508,9 @@
   \global\let\@author\@empty
   \global\let\@date\@empty
 %  \global\let\@title\@empty
+%\global\let\@subtitle\@empty
   \global\let\title\relax
+  \global\let\subtitle\relax
   \global\let\author\relax
   \global\let\date\relax
   \global\let\and\relax
@@ -536,7 +544,9 @@
   \global\let\@author\@empty
   \global\let\@date\@empty
   \global\let\@title\@empty
+  \global\let\@subtitle\@empty
   \global\let\title\relax
+  \global\let\subtitle\relax
   \global\let\author\relax
   \global\let\date\relax
   \global\let\and\relax
