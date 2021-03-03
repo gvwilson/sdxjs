@@ -3,15 +3,19 @@
 
 JavaScript was designed in a hurry 25 years ago to make web pages interactive.
 Nobody realized it would become one of the most popular programming languages in the world,
-which means it didn't include support for things that large programs need.
-One of those was a way to turn many easy-to-edit source files into a single easy-to-load file
-so that browsers could get what they needed with a single request.
+so it didn't include support for things that large programs need.
+One of those things was a way to turn a set of easy-to-edit source files
+into a single easy-to-load file
+so that browsers could get what they needed with one request.
 
 A <span g="module_bundler">module bundler</span> finds all the files that an application depends on
 and combines them into a single loadable file
 (<span f="module-bundler-bundling"></span>).
-This file is much more efficient to load---it's the same number of bytes
-but just one network request---and bundling files ensures that dependencies actually resolve.
+This file is much more efficient to load:
+it's the same number of bytes but just one network request.
+(See <span t="systems-programming-times"></span> for a reminder of why this is important.)
+Bundling files also tests that dependencies actually resolve
+so that the application has at least a chance of being able to run.
 
 {% include figure id='module-bundler-bundling' img='figures/bundling.svg' alt='Bundling modules' cap='Combining multiple modules into one.' %}
 
@@ -22,11 +26,13 @@ Given that,
 it finds all dependencies,
 combines them into one file,
 and ensures they can find each other correctly once loaded.
+The sections below go through these steps one by one.
+
+## What will we use as test cases?
+
 The simplest test case is a single file that doesn't require anything else:
 if this doesn't work,
-nothing else will.
-In order to avoid having to parse JavaScript looking for `import` and `export` statements,
-we will use the older `require` and `module.exports`.
+nothing will.
 Our test case and the expected output are:
 
 {% include file file='single/main.js' %}
@@ -49,6 +55,21 @@ The output we expect is:
 
 {% include file file='expected-simple.out' %}
 
+<div class="callout" markdown="1">
+
+### Why `require`?
+
+Our tests cases use the old-style `require` function
+and assign things that are to be visible outside the module to `module.exports`
+rather than using `import` and `export`.
+We tried writing the chapter using the latter,
+but kept stumbling over whether we were talking about `import` in Node's module loader
+or the `import` we were building.
+This kind of confusion is common when building programming tools;
+we hope that splitting terminology as we have will help.
+
+</div>
+
 Our third test case has multiple inclusions in multiple directories
 and is shown in <span f="module-bundler-complicated"></span>:
 
@@ -66,7 +87,7 @@ The main program is:
 {% include file file='full/main.js' %}
 
 {: .continue}
-and the other four files use `require` and `module.exports`.
+and the other four files use `require` and `module.exports` to get what they need.
 The output we expect is:
 
 {% include file file='expected-full.out' %}
@@ -87,7 +108,7 @@ The code to do this is relatively straightforward given what we know about [Acor
 
 ### An unsolvable problem
 
-The dependency finder shown above gives the right answer for any reasonable JavaScript program,
+The dependency finder shown above gives the right answer for reasonable JavaScript programs,
 but not all JavaScript is reasonable.
 Suppose creates an alias for `require` and uses that to load other files:
 
@@ -105,17 +126,17 @@ const weWillMissThisToo = clever('./other-file')
 ```
 
 *There is no general solution to this problem*
-other than actually running the code to see what it does.
+other than running the code to see what it does.
 If you would like to understand why not,
 and learn about a pivotal moment in the history of computing,
 we highly recommend <cite>Petzold2008</cite>.
 
 </div>
 
-To get all of the dependencies our bundle needs
+To get all of the dependencies a bundle needs
 we need to find the <span g="transitive_closure">transitive closure</span> of the entry point's dependencies,
 i.e.,
-find the set that includes the requirements of the requirements of our requirements and so on.
+the requirements of the requirements and so on recursively.
 Our algorithm for doing this uses two sets:
 `pending`,
 which contains the things we haven't looked at yet,
@@ -124,8 +145,8 @@ which contains the things we have
 (<span f="module-bundler-transitive-closure"></span>).
 `pending` initially contains the entry point file and `seen` is initially empty.
 We keep taking items from `pending` until it is empty.
-If the current thing is already in `seen` we do nothing,
-while otherwise we get its dependencies and add them to either `seen` or `pending`.
+If the current thing is already in `seen` we do nothing;
+otherwise we get its dependencies and add them to either `seen` or `pending`.
 
 {% include figure id='module-bundler-transitive-closure' img='figures/transitive-closure.svg' alt='Implementing transitive closure' cap='Implementing transitive closure using two sets.' %}
 
@@ -134,7 +155,7 @@ such as `./subdir/bottom-left` from `main` but `./bottom-left` from `./subdir/bo
 As with the module loader in <span x="module-loader"></span>,
 we use absolute paths as unique identifiers.
 Our code is also complicated by the fact that JavaScript's `Set` class doesn't have an equivalent of `Array.pop`,
-so we will maintain the set of pending items as a list.
+so we will actually maintain the "set" of pending items as a list.
 The resulting code is:
 
 {% include file file='transitive-closure-only.js' %}
@@ -158,12 +179,23 @@ to {% include linecount file='transitive-closure.js' %} lines:
 {% include file file='transitive-closure.js' %}
 {% include multi pat='test-transitive-closure.*' fill='js sh out' %}
 
+{: .continue}
+The real cost, though, is the extra complexity of the data structure:
+it took a couple of tries to get it right,
+and it will be harder for the next person to understand than the original.
+Comprehension and maintenance would be a little easier
+if we could draw diagrams directly in our source code,
+but as long as we insist that our programs be stored in a punchcard-compatible format
+(i.e., as lines of text),
+that will remain a dream.
+
 ## How can we safely combine several files into one?
 
-We now need to combine all these files into one while keeping each in its own namespace.
+We now need to combine the files we have found into one
+while keeping each in its own namespace.
 We do this using the same method we used in <span x="module-loader"></span>:
-wrap the source code in an IIFE
-and give it a `module` object to fill in
+wrap the source code in an IIFE,
+giving that IIFE a `module` object to fill in
 and an implementation of `require` to resolve dependencies *within the bundle*.
 For example, suppose we have this file:
 
@@ -180,9 +212,9 @@ And we can test it like this:
 {% include multi pat='sanity-check-test.*' fill='js out' %}
 
 We need to do this for multiple files,
-so we will put these functions in a lookup table
-with their files' absolute paths as its keys.
-We will also wrap the loading in a function
+so we will put these IIFEs in a lookup table
+that uses the files' absolute paths as its keys.
+We will also wrap loading in a function
 so that we don't accidentally step on anyone else's toys:
 
 {% include file file='combine-files.js' %}
@@ -208,37 +240,43 @@ and then load the result and call `initialize`:
 
 ## How can files access each other?
 
-The code we have built so far has not yet created our exports;
+The code we have built so far has not created our exports;
 instead,
-it has created a lookup table of functions that can create what we asked for.
-More specifically we have
+it has build a lookup table of functions that can create what we asked for.
+More specifically we have:
 
--   a lookup table from absolute filenames to functions that create the exports for those modules;
+-   a lookup table from absolute filenames
+    to functions that create the exports for those modules;
 
--   a lookup table from importer's absolute filename to pairs of
-    written import name and imported file's absolute filename;
+-   a lookup table from the importer's absolute filename
+    to pairs storing the name of the required file as it was written
+    and the required file's absolute filename;
     and
 
 -   an entry point.
 
-To turn this into what we want we look up the function associated with the entry point and run it,
+To turn this into what we want,
+we must look up the function associated with the entry point and run it,
 giving it an empty module object and a `require` function that we will describe below,
-then get the `exports` from the module object.
+then get the `exports` it has added to that module object.
 Our replacement for `require` is only allowed to take one argument
-because that's all that JavaScript's `require` takes.
+(because that's all that JavaScript's `require` takes).
 However,
 it actually needs four things:
 the argument to the user's `require` call,
 the absolute path of the file making the call,
-and the two lookup tables.
+and the two lookup tables described above.
 Those two tables can't be global variables because of possible name collisions:
 no matter what we call them,
 the user might have given a variable the same name.
 
 As in <span x="module-loader"></span> we solve this problem using closures.
-We will write a function that takes the two tables as arguments
+The result is probably the most difficult code in this book to understand
+because of its many levels of abstraction.
+First, we write a function that takes the two tables as arguments
 and returns a function that takes an absolute path identifying this module.
-That function returns a function that takes a local path inside a module and returns the exports.
+When that function is called,
+it creates and returns a function that takes a local path inside a module and returns the exports.
 Each of these wrapping layers remembers more information for us
 (<span f="module-bundler-returning-functions"></span>),
 but we won't pretend that it's easy to trace.
@@ -251,16 +289,19 @@ Putting it all together we have:
 
 {% include file file='create-bundle.js' %}
 
-This code is really hard to read,
-both because we have to distinguish what is being printed in the output versus what is being executed right now
+This code is hard to read
+because we have to distinguish what is being printed in the output versus what is being executed right now
 and because of the levels of nesting needed to capture variables safely.
 Getting this right took much more time per line of finished code than anything we have seen so far
 except the promises in <span x="async-programming"></span>.
+However,
+it is all intrinsic complexity:
+anything that does what `require` does is going to be equally convoluted.
 
-To prove that this works
-we will look up the function `main` in the first file and call it;
-if we were loading in the browser,
-we'd capture the exports in a variable for later use.
+To prove that our code works
+we will look up the function `main` in the first file and call it.
+(If we were loading in the browser,
+we'd capture the exports in a variable for later use.)
 First, we create the bundled file:
 
 {% include file file='test-create-bundle-single.sh' %}

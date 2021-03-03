@@ -12,19 +12,11 @@ And since anything that touches the hard drive is slow from a processor's point 
 
 ### How slow is slow?
 
-<cite>Gregg2020</cite> uses this analogy to show
-how long it takes a computer to do different things
+<cite>Gregg2020</cite> used the analogy in <span t="systems-programming-times"></span>
+to show how long it takes a computer to do different things
 if we imagine that one CPU cycle is equivalent to one second.
 
-| Operation | Actual Time | Would Be… |
-| --------- | ----------- | --------- |
-| 1 CPU cycle | 0.3 nsec | 1 sec |
-| Main memory access | 120 nsec | 6 min |
-| Solid-state disk I/O | 50-150 μsec | 2-6 days |
-| Rotational disk I/O | 1-10 msec | 1-12 months |
-| Internet: San Francisco to New York | 40 msec | 4 years |
-| Internet: San Francisco to Australia | 183 msec | 19 years |
-| Physical system reboot | 5 min | 32,000 years |
+{% include table id="systems-programming-times" file="times.tbl" cap="Computer operation times at human scale." %}
 
 </div>
 
