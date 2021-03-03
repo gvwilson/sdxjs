@@ -479,7 +479,7 @@
       {\copyright\ \ 2001 by CRC Press LLC}}%
 \fi
 
-\def\subtitle#1{\gdef\@subtitle{\SubTitleFont#1}\par\vspace*{5pt}}
+\def\subtitle#1{\gdef\@subtitle{\SubTitleFont#1}}%
 \def\@subtitle{\par\vspace*{-10pt}}
 
 
@@ -508,7 +508,7 @@
   \global\let\@author\@empty
   \global\let\@date\@empty
 %  \global\let\@title\@empty
-%\global\let\@subtitle\@empty
+\global\let\@subtitle\@empty
   \global\let\title\relax
   \global\let\subtitle\relax
   \global\let\author\relax

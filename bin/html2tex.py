@@ -380,12 +380,12 @@ def display(options, config, text):
         .replace('“', "``")\
         .replace('”', "''")\
         .replace('’', "'")
-    if 'subtitle' in config:
-        head = head.replace(r'\title{TITLE}',
-                            f'\\title{{{config["title"]} \\subtitle{{{config["subtitle"]}}}}}')
-    else:
-        head = head.replace(r'\title{TITLE}',
-                            f'\\title{{{config["title"]}}}')
+    head = head.replace(r'\title{TITLE}',
+                        f'\\title{{{config["title"]}}}')
+    subtitle = f'\\subtitle{{{config["subtitle"]}}}' \
+        if 'subtitle' in config \
+        else ''
+    head = head.replace(r'\subtitle{SUBTITLE}', subtitle)
     print(head)
     print(text)
     print(foot)
