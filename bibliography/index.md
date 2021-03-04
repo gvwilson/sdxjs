@@ -165,6 +165,12 @@ Peter Smith:
 <em>Software Build Systems: Principles and Experience</em>.
 Addison-Wesley Professional, 2011, 978-0134185965.
 </dd>
+<dt id="taschuk2017" class="bibliography">Taschuk2017</dt>
+<dd>
+Morgan Taschuk and Greg Wilson:
+"Ten Simple Rules for Making Research Software More Robust".
+<em>PLoS Computational Biology</em>, 13(4), 2017, <a href="https://doi.org/10.1371/journal.pcbi.1005412">10.1371/journal.pcbi.1005412</a>.
+</dd>
 <dt id="tudose2020" class="bibliography">Tudose2020</dt>
 <dd>
 Cătălin Tudose:

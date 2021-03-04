@@ -206,7 +206,9 @@ then those objects can be used interchangeably.
 Putting it another way,
 a program can use them without knowing exactly what they are.
 Polymorphism is what enables different USB devices to plug into the same socket
-and why drawing programs can select and move arbitrary shapes.
+and why drawing programs can select and move arbitrary shapes;
+it reduces the <span g="coupling">coupling</span> between different parts of our program,
+which in turn makes it easier for those programs to evolve.
 
 </div>
 

@@ -2,14 +2,13 @@
 ---
 
 In <span x="pattern-matching"></span> we created regular expressions by constructing objects.
-It takes a lot less typing to write them as strings,
-as we did for HTML selectors,
+It takes a lot less typing to write them as strings as we did for HTML selectors,
 but if we're going to do that we need something to convert those strings to the required objects.
-We need to write a <span g="parser">parser</span>.
-Here is the grammar we will handle:
+In other words, we need to write a <span g="parser">parser</span>.
 
 {% include table id='regex-parser-grammar-codes' file='grammar.tbl' cap='Regular expression grammar.' %}
 
+<span t="regex-parser-grammar-codes"></span> shows the grammar we will handle.
 When we are done
 we should be able to parse `/^(a|b|$)*z$/` as
 "start of text",

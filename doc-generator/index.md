@@ -113,7 +113,7 @@ and generally makes it something you might see in a URL:
 
 Let's run the first version of our documentation generator
 and see what it produces
-(<span f="doc-generator-mapping"></span>):
+(<span f="doc-generator-process-plain"></span> and <span f="doc-generator-mapping"></span>):
 
 {% include file file='process-plain.sh' %}
 {% include file file='process-plain.html' %}

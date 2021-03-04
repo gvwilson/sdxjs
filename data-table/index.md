@@ -18,7 +18,7 @@ Data tables appear over and over again in programming,
 from spreadsheets and databases
 to the <span g="data_frame">data frames</span> in R's [tidyverse][tidyverse] packages,
 [Python][python]'s [Pandas][pandas] library,
-or the [DataForge][data-forge] library for JavaScript.
+or the [DataForge][data-forge] library for JavaScript <cite>Davis2018</cite>.
 
 {% include figure id='data-table-conceptual' img='figures/conceptual.svg' alt='Data table structure' cap='The structure of a data table.' %}
 
