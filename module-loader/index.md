@@ -240,7 +240,7 @@ Our system can therefore only run loaded modules by `need`ing them:
 ### "It's so deep it's meaningless"
 
 The programs we have written in this chapter are harder to understand
-than most of the programs in earlir chapters
+than most of the programs in earlier chapters
 because they are so abstract.
 Reading through them,
 it's easy to get the feeling that everything is happening somewhere else.

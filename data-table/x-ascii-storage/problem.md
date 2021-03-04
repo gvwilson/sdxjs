@@ -1,6 +1,6 @@
 The original ASCII standard specified
 a 7-bit <span g="character_encoding">character encoding</span> for letters commonly used in English,
-and many data files still only use characters whose numeric codes are in the range 0-127.
+and many data files still only use characters whose numeric codes are in the range 0--127.
 
 1.  Write a function that takes an array of single-letter strings
     and returns an `ArrayBuffer` that stores them using one byte per character

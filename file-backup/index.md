@@ -17,7 +17,7 @@ In this chapter we will build a tool for doing both tasks.
 It won't do everything Git does:
 in particular, it won't let us create and merge branches.
 If you would like to know how that works,
-please see [Mary Rose Cook][cook-mary-rose]'s excellet [Gitlet][gitlet] project.
+please see [Mary Rose Cook][cook-mary-rose]'s excellent [Gitlet][gitlet] project.
 
 ## How can we uniquely identify files?
 

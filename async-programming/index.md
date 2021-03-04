@@ -410,7 +410,7 @@ but the result is less cluttered than our previous version.
 We created several intermediate variables in the line-counting program to make the steps clearer.
 Doing this also helps with error handling:
 to see how,
-we will build up an xample in stages.
+we will build up an example in stages.
 
 First,
 if we return a promise that fails without using `await`,

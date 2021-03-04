@@ -56,7 +56,7 @@ then code built for the old version will fail or behave unpredictably with the n
 The minor version number is incremented when new functionality
 is <span g="backward_compatible">backward-compatible</span>---i.e.,
 it won't break any existing code---and the patch number is changed
-for backwards-compatible bug fixes that don't add any new features.
+for backward-compatible bug fixes that don't add any new features.
 
 The notation for specifying a project's dependencies looks a lot like arithmetic:
 `>= 1.2.3` means "any version from 1.2.3 onward",
@@ -182,7 +182,7 @@ When we run it on our triple-package example we get this:
 This works,
 but it is doing a lot of unnecessary work.
 If we sort the output by the case that caught the exclusion
-it turns out that 9 of the 17 exclusions are redundant rediscovery of a previous-known problem
+it turns out that 9 of the 17 exclusions are redundant rediscovery of a previously-known problem
 <span t="package-manager-exclusions"></span>.
 
 {% include table id='package-manager-exclusions' file='exclusions.tbl' cap='Package exclusions.' %}
