@@ -8,8 +8,8 @@ import utils
 
 
 # Figure and table inclusion
-FIG_INC = re.compile(r'{%\s+include\s+figure\b.+?id=["\'](.+?)["\'].+?%}')
-TBL_INC = re.compile(r'{%\s+include\s+table\b.+?id=["\'](.+?)["\'].+?%}')
+FIG_INC = re.compile(r'{%\s+include\s+figure\b.+?id=["\'](.+?)["\'].+?%}', re.DOTALL)
+TBL_INC = re.compile(r'{%\s+include\s+table\b.+?id=["\'](.+?)["\'].+?%}', re.DOTALL)
 
 
 def make_numbering(options):

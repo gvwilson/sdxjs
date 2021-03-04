@@ -34,7 +34,7 @@ def make_bib(options):
     entries = []
     for entry in data:
         assert 'type' in entry, \
-            'Entries must have "type"'
+            f'Entries must have "type": {entry}'
         assert entry['type'] in HANDLERS, \
             f'Unknown entry type {entry["type"]}'
         text = HANDLERS[entry['type']](entry)

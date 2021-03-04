@@ -17,23 +17,28 @@ LENGTH = 30
 GLOSS_REF = re.compile(r'<span\s+g="(.+?)">', re.DOTALL)
 
 # Patterns to remove from input when tokenizing Markdown source files.
-SCRUB = [
+ALWAYS = [
     re.compile(r'---'),                                         # em-dashes
     re.compile(r'[©×μ…]'),                                      # strange characters
     re.compile(r'```.+?```', re.DOTALL),                        # code blocks
     re.compile(r'`.+?`', re.DOTALL),                            # inline code
     re.compile(r'{%\s+raw\s+%}.*?{%\s+endraw\s+%}', re.DOTALL), # raw blocks
+    re.compile(r'<div\s+class="callout"\s*markdown="1">'),      # opening callout
+    re.compile(r'</div>')                                       # closing callout
+]
+SCRUB = [
     re.compile(r'{%\s+include\s+.+?%}', re.DOTALL),             # inclusions
-    re.compile(r'{:\s+.continue\s*}', re.DOTALL),               # continued paragraphs
-    re.compile(r'<span\b.+?>', re.DOTALL),                      # opening <span>
-    re.compile(r'</span>', re.DOTALL),                          # closing <span>
-    re.compile(r'<cite>,+?</cite>', re.DOTALL)                  # citations
+    re.compile(r'{:\s+.continue\s*}', re.DOTALL)                # continued paragraphs
 ]
 REPLACE = [
     re.compile(r'\[(.+?)\]\[.+?\]', re.DOTALL),                 # link reference (keep text)
     re.compile(r'\[(.+?)\]\(.+?\)', re.DOTALL)                  # link reference (keep text)
 ]
-
+SPANS = [
+    re.compile(r'<span\b.+?>', re.DOTALL),                      # opening <span>
+    re.compile(r'</span>', re.DOTALL),                          # closing <span>
+    re.compile(r'<cite>.+?</cite>', re.DOTALL)                  # citations
+]
 
 def get_all_matches(pattern, filenames, group=1, scrub=True, no_duplicates=False):
     '''Create set of matches in source files.'''
@@ -97,6 +102,10 @@ def get_words(filename):
     '''Get words from a file for spell-checking.'''
     from nltk.tokenize import TweetTokenizer # loaded here to cut run time
     text = read_file(filename, scrub=True)
+    for pattern in SPANS:
+        text = pattern.sub(' ', text)
+    for pattern in REPLACE:
+        text = pattern.sub(lambda x: x.group(1), text)
     tokenizer = TweetTokenizer()
     return set(tokenizer.tokenize(text))
 
@@ -105,16 +114,12 @@ def read_file(filename, scrub=True):
     '''Read a file, removing raw sections if requested.'''
     with open(filename, 'r') as reader:
         text = reader.read()
+        for pattern in ALWAYS:
+            text = pattern.sub(' ', text)
         if scrub:
             for pattern in SCRUB:
                 text = pattern.sub(' ', text)
-            for pattern in REPLACE:
-                text = pattern.sub(_replace_first, text)
         return text
-
-def _replace_first(match):
-    '''Replace text with first group in regular expression.'''
-    return match.group(1)
 
 
 def read_yaml(filename):

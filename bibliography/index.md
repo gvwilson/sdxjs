@@ -118,12 +118,6 @@ Gerard Meszaros:
 <em>xUnit Test Patterns: Refactoring Test Code</em>.
 Addison-Wesley, 2007, 978-0131495050.
 </dd>
-<dt id="miller1956" class="bibliography">Miller1956</dt>
-<dd>
-George A. Miller:
-"The Magical Number Seven, Plus or Minus Two: Some Limits on Our Capacity for Processing Information".
-<em>Psychological Review</em>, 63(2), 1956, <a href="https://doi.org/10.1037/h0043158">10.1037/h0043158</a>.
-</dd>
 <dt id="minahan1986" class="bibliography">Minahan1986</dt>
 <dd>
 Anne Minahan:

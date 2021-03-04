@@ -37,11 +37,13 @@ def check_figures(numbering, filenames):
     referenced = utils.get_all_matches(FIGURE_REF, filenames)
     utils.report('figure references', referenced=referenced, defined=defined)
 
+
 def check_tables(numbering, filenames):
     '''Check that table references resolve.'''
     defined = set(numbering['tables'].keys())
     referenced = utils.get_all_matches(TABLE_REF, filenames)
     utils.report('table references', referenced=referenced, defined=defined)
+
 
 if __name__ == '__main__':
     options = utils.get_options(
