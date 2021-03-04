@@ -41,7 +41,10 @@ RELEASE_FILES=\
   static/*.svg\
   tex
 
-RELEASE_EXCLUDES=_includes/intro.md
+RELEASE_EXCLUDES=\
+  _includes/intro.md\
+  bin/__pycache\
+  bin/__pycache__/*
 
 .DEFAULT: commands
 
