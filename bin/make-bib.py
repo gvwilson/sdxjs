@@ -7,9 +7,8 @@ import utils
 
 # Top of page.
 HEADER = '''---
+nochaptertitle: true
 ---
-
-{% include table id="bibliography-sources" file="sources.tbl" cap="Bibliography sources" %}
 
 <dl class="bibliography">
 '''
@@ -18,6 +17,8 @@ HEADER = '''---
 FOOTER = '''
 
 </dl>
+
+{% include table id="bibliography-sources" file="sources.tbl" cap="Bibliography sources" %}
 '''
 
 # Start of entry.

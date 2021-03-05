@@ -127,3 +127,4 @@ After installing it, you will need these package:
 -   `keystroke`
 -   `listings`
 -   `textgreek`
+-   `tocbibind`

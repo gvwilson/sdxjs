@@ -35,10 +35,13 @@ def html2tex(options):
     '''Main driver.'''
     update_numbering(options.numbering)
     config = utils.read_yaml(options.config)
-    filenames = get_filenames(options.site, config)
+    entries = get_filenames(options.site, config)
     accum = []
-    for f in filenames:
-        convert_file(f, accum)
+    for [kind, filename] in entries:
+        if kind == 'entry':
+            convert_file(filename, accum)
+        elif kind == 'appendix':
+            accum.append('\n\\appendix\n')
     result = ''.join(accum)
     display(options, config, result)
 
@@ -52,10 +55,14 @@ def update_numbering(filename):
 
 
 def get_filenames(site, config):
-    '''Get names of input files from configuration data.'''
-    return [f"{site}/{entry['slug']}/index.html"
-            for entry in config['chapters']
-            if 'slug' in entry]
+    '''Get names of input files from configuration data, marking the first appendix.'''
+    result = []
+    for entry in config['chapters']:
+        if 'slug' in entry:
+            result.append(['entry', f"{site}/{entry['slug']}/index.html"])
+        elif 'appendix' in entry:
+            result.append(['appendix', None])
+    return result
 
 
 def convert_file(filename, accum):
@@ -168,12 +175,15 @@ def convert(node, accum, doEscape):
 
     # h1 => chapter title
     elif node.name == 'h1':
-        key = node['key']
-        accum.append(r'\chapter{')
-        convert_children(node, accum, doEscape)
-        accum.append(r'}\label{')
-        accum.append(key)
-        accum.append('}\n')
+        if has_class(node, 'nochaptertitle'):
+            pass
+        else:
+            key = node['key']
+            accum.append(r'\chapter{')
+            convert_children(node, accum, doEscape)
+            accum.append(r'}\label{')
+            accum.append(key)
+            accum.append('}\n')
 
     # h2 => section title
     elif node.name == 'h2':
@@ -265,6 +275,8 @@ def convert(node, accum, doEscape):
     elif node.name == 'table':
         if has_class(node, 'links'):
             convert_links_table(node, accum)
+        elif node.has_attr('id') and (node['id'] == 'bibliography-sources'):
+            convert_table(node, accum, placement='h')
         else:
             convert_table(node, accum)
 
@@ -318,10 +330,11 @@ def convert_links_table(node, accum):
     accum.append('\\end{description}\n')
 
 
-def convert_table(node, accum):
+def convert_table(node, accum, placement=None):
     '''Convert a table.'''
     assert node.name == 'table', 'Node is not a table'
     label = node['id'] if node.has_attr('id') else None
+    placement = placement if placement is not None else ''
     thead = node.thead
     assert thead, f'Table node does not have head {node}'
     row = thead.tr
@@ -335,7 +348,7 @@ def convert_table(node, accum):
     spec = 'l' * width
     if label:
         caption = ''.join(convert_children(node.caption, [], True))
-        accum.append('\\begin{table}\n')
+        accum.append(f'\\begin{{table}}[{placement}]\n')
     accum.append(f'\\begin{{tabular}}{{{spec}}}\n')
     accum.append('\n'.join(rows))
     accum.append('\n\\end{tabular}\n')

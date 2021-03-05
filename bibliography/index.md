@@ -1,7 +1,6 @@
 ---
+nochaptertitle: true
 ---
-
-{% include table id="bibliography-sources" file="sources.tbl" cap="Bibliography sources" %}
 
 <dl class="bibliography">
 <dt id="binkley2012" class="bibliography">Binkley2012</dt>
@@ -179,3 +178,5 @@ Manning, 2020, 978-1617297045.
 </dd>
 
 </dl>
+
+{% include table id="bibliography-sources" file="sources.tbl" cap="Bibliography sources" %}
