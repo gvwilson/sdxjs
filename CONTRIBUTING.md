@@ -115,3 +115,15 @@ This project uses [Martha's Rules][marthas-rules] <cite>Minahan1986</cite> for c
 1.  Use [diagrams.net][diagrams] to create SVG diagrams.
     Avoid screenshots when possible,
     since getting them to display correctly in print is a pain.
+
+Note: you will need LaTeX in order to build the PDF version of this book.
+After installing it, you will need these package:
+
+-   `babel-english`
+-   `babel-greek`
+-   `cbfonts`
+-   `enumitem`
+-   `greek-fontenc`
+-   `keystroke`
+-   `listings`
+-   `textgreek`

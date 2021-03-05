@@ -86,7 +86,7 @@ A third way to achieve what we want is
 to let the system turn code into runnable instructions
 and then modify those instructions.
 This approach is often used in compiled languages like [Java][java],
-where the <span g="byte_code">byte code</span> produced by the compiler is saved in files
+where the <span g="byte_code">byte code</span> produced by the <span g="compiler">compiler</span> is saved in files
 in order to be run.
 We can't do this here because Node compiles and runs code in a single step.
 
