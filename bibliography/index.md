@@ -75,6 +75,12 @@ Brendan Gregg:
 <em>Systems Performance: Enterprise and the Cloud</em>.
 Pearson, 2020, 978-0136820154.
 </dd>
+<dt id="jackson2016" class="bibliography">Jackson2016</dt>
+<dd>
+Daniel Jackson:
+<em>Software Abstractions: Logic, Language, and Analysis (revised edition)</em>.
+MIT Press, 2016, 978-0262528900.
+</dd>
 <dt id="johnson2019" class="bibliography">Johnson2019</dt>
 <dd>
 John Johnson, Sergio Lubo, Nishitha Yedla, Jairo Aponte, and Bonita Sharif:
@@ -175,6 +181,18 @@ Morgan Taschuk and Greg Wilson:
 Cătălin Tudose:
 <em>JUnit in Action</em>.
 Manning, 2020, 978-1617297045.
+</dd>
+<dt id="wayne2018" class="bibliography">Wayne2018</dt>
+<dd>
+Hillel Wayne:
+<em>Practical TLA+: Planning Driven Development</em>.
+Apress, 2018, 978-1484238288.
+</dd>
+<dt id="zeller2009" class="bibliography">Zeller2009</dt>
+<dd>
+Andreas Zeller:
+<em>Why Programs Fail: A Guide to Systematic Debugging (2nd edition)</em>.
+Morgan Kaufmann, 2009, 978-0080923000.
 </dd>
 
 </dl>

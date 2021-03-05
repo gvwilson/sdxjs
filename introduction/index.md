@@ -142,7 +142,7 @@ but the breadth that made them fun to read
 also meant they weren't particularly useful for teaching.
 
 To fix that,
-Greg Wilson, [Amy Brown][brown-amy], Tavish Armstrong, and Mike DiBernardo
+Greg Wilson, [Amy Brown][brown-amy], [Tavish Armstrong][armstrong-tavish], and [Mike DiBernardo][dibernardo-mike]
 edited a four-book series between 2011 and 2016 called *[The Architecture of Open Source Applications][aosa]*.
 In the first two volumes,
 the creators of fifty open source projects described their systems' designs;
