@@ -6,8 +6,9 @@ how does a debugger work?
 Debuggers are as much a part of good programmers' lives as version control
 but are taught far less often
 (in part, we believe, because it's harder to create homework questions for them).
-In this chapter we will build a simple single-stepping debugger
-and show how to test interactive applications.
+In this chapter we will build a simple single-stepping debugger;
+in doing so,
+we will show one way to test interactive applications (<span x="unit-test"></span>).
 
 ## What is our starting point?
 
@@ -16,7 +17,7 @@ but we don't want to have to write a parser
 or wrestle with the ASTs of <span x="style-checker"></span>.
 As a compromise,
 we will represent programs as simple JSON data structures
-in which every element is `[command ...args]`:
+in which every element has the form `[command ...args]`:
 
 {% include file file='filter-base.json' %}
 
@@ -31,12 +32,20 @@ and then running commands by looking up the command name's and calling that meth
 
 {% include erase file='vm-base.js' key='skip' %}
 
-The method implementing definition of a new variable with an initial value looks like this:
+{: .continue}
+Remember, functions and methods are just another kind of data,
+so if an object has a method called `"meth"`,
+the expression `this["meth"]` will look it up
+and the expression `this["meth"](args)` will call it.
+If the string `"meth"` is stored in a variable called `name`,
+then `this[name](args)` will do exaactly the same thing.
+
+The method in our VM that defines a new variable with an initial value looks like this:
 
 {% include keep file='vm-base.js' key='defV' %}
 
 {: .continue}
-while adding two values looks like this:
+while the one that adds two values looks like this:
 
 {% include keep file='vm-base.js' key='add' %}
 
@@ -53,29 +62,37 @@ The other operations are similar to these.
 
 ## How can we make a tracing debugger?
 
-We start by building a <span g="source_map">source map</span>
-that keeps track of where in the source file each instruction came from.
-If we parsed our JSON with [Acorn][acorn] we would get line numbers,
-but then we would have to scrape out the information we want for this example.
-We will therefore cheat and add a line number to each interesting statement by hand
+The next thing we need in our debugger is
+a <span g="source_map">source map</span> that keeps track of
+where in the source file each instruction came from.
+Since JSON is a subset of JavaScript,
+we could get line numbers by parsing our programs with [Acorn][acorn].
+However,
+we would then have to scrape the information we want for this example out of the AST.
+Since this chapter is supposed to be about debugging,
+not parsing,
+we will instead cheat and add a line number to each interesting statement by hand
 so that our program looks like this:
 
 {% include keep file='filter-source-map.json' key='program' %}
 
-Building the source map from that is simple:
-we just modify `exec` to ignore the line number for now:
+Building the source map from that is simple;
+for now,
+we just modify `exec` to ignore the line number:
 
 {% include file file='vm-source-map.js' %}
 
-The next step is to modify `exec` to call a callback function for each significant operation,
-where "significant" means "we bothered to record its line number".
-We give this callback the environment holding the current set of variables,
+The next step is to modify the VM's `exec` method
+so that it executes a callback function for each significant operation
+(where "significant" means "we bothered to record its line number").
+Since we're not sure what our debugger is going to need,
+we give this callback the environment holding the current set of variables,
 the line number,
-and the operation being performed.
+and the operation being performed:
 
 {% include file file='vm-callback.js' %}
 
-We also modify the constructor to record the debugger and give it a reference to the virtual machine
+We also modify the VM's constructor to record the debugger and give it a reference to the virtual machine
 (<span f="debugger-initialization"></span>).
 We have to connect the two objects explicitly because
 each one needs a reference to the other,
@@ -86,24 +103,25 @@ we will look at other ways to manage it in the exercises.
 {% include figure id='debugger-initialization' img='figures/initialization.svg' alt='Initializing mutually-depending objects' cap='Two-step initialization of mutually-dependent objects.' %}
 
 To run the program,
-we create a debugger object and pass it in:
+we create a debugger object and pass it to the VM's constructor:
 
 {% include file file='run-debugger.js' %}
 
-A simple debugger just traces statements as they run:
+A simple debugger just traces interesting statements as they run:
 
 {% include file file='debugger-trace.js' %}
 
-Let's try it on a smaller program than our filtering example:
+Let's try it on a program that adds the numbers in an array:
 
 {% include file file='sum-source-map.json' %}
 {% include file file='sum-source-map-trace.out' %}
 
 ## How can we make the debugger interactive?
 
-The next step is to make the debugger interactive.
-We will use [`prompt-sync`][node-prompt-sync] to manage user input,
-and will accept a simple set of commands:
+What we have built so far is an always-on `print` statement.
+To turn it into an interactive debugger,
+we will use the [`prompt-sync`][node-prompt-sync] module to manage user input
+with the following set of commands:
 
 -   `?` or `help` to list commands.
 
@@ -125,18 +143,14 @@ and will accept a simple set of commands:
 
 When the virtual machine calls the debugger,
 the debugger first checks whether or not it is on a numbered line.
-If it is,
+If it isn't,
 it hands control back to the VM.
 Otherwise,
-its action depends on our current state:
+its action depends on our current state.
+If we are single-stepping or if this line is a breakpoint,
+Otherwise, it does nothing.
 
-1.  If we are single-stepping, the debugger interacts with the user.
-
-2.  We also interact if this line is a breakpoint.
-
-3.  Otherwise, it does nothing.
-
-The overall structure of the interactive debugger is shown below:
+The overall structure of the interactive debugger is:
 
 {% include erase file='debugger-interactive.js' key='skip' %}
 
@@ -145,21 +159,25 @@ just as the VM does:
 
 {% include keep file='debugger-interactive.js' key='interact' %}
 
-{: .continue}
+<div class="callout" markdown="1">
+### Learning as we go
+
 We didn't originally put the input and output in methods that could be overridden,
-but realized later we needed to do this for testing purposes.
+but realized later we needed to do this to make the debugger testable.
 Rather than coming back and rewriting this,
 we have done it here.
+
+</div>
 
 With this structure in place,
 the command handlers are pretty straightforward.
 For example,
-this moves us to the next line:
+this method moves us to the next line:
 
 {% include keep file='debugger-interactive.js' key='next' %}
 
 {: .continue}
-and this prints the value of a variable:
+while this one prints the value of a variable:
 
 {% include keep file='debugger-interactive.js' key='print' %}
 
@@ -170,24 +188,27 @@ We want to stop the loop each time it runs,
 and need to know where we are.
 We didn't allow for this in the base class,
 and we don't want to have to change every method,
-so we take advantage of the fact that JavaScript ignores any extra arguments passed to a method.
-This is sloppy, but it works;
-we will tidy it up in the exercises.
+so we take advantage of the fact that JavaScript ignores any extra arguments passed to a method:
 
 {% include file file='vm-interactive.js' %}
+
+{: .continue}
+This is sloppy, but it works;
+we will tidy it up in the exercises.
 
 ## How can we test an interactive application?
 
 How can we test an interactive application like a debugger?
 The answer is, "By making it non-interactive."
-Like many other tools over the past thirty years,
+Like many tools over the past thirty years,
 our approach is based on a program called [Expect][expect].
-Our library replaces the input and output functions of the subject application with callbacks,
+Our library replaces the input and output functions of the application being tested with callbacks,
 then provides input when asked and checks output when it is given
 (<span f="debugger-test-interact"></span>).
 
 {% include figure id='debugger-test-interact' img='figures/test-interact.svg' alt='Testing interactive application' cap='Replacing input and output to test interactive applications.' %}
 
+{: .continue}
 The results look like this:
 
 {% include keep file='test/test-expect.js' key='tests' %}
@@ -197,6 +218,7 @@ but it is hard to understand because it is so abstract:
 
 {% include file file='expect.js' %}
 
+{: .continue}
 Piece by piece:
 
 -   `subject` is the thing being tested.
@@ -250,11 +272,13 @@ because we are only using it to get a typed object:
 
 {% include file file='halt-exception.js' %}
 
+{: .continue}
 Next,
 we modify the debugger to throw this exception when asked to exit:
 
 {% include file file='debugger-exit.js' %}
 
+{: .continue}
 And finally
 we modify the VM to finish cleanly if this exception is thrown,
 but re-throw any other kind of exception:

@@ -9,7 +9,7 @@ and we hope that understanding how they work will help you do them better.
 
 We also hope that your journey won't stop here.
 We would really like to have a chapter showing how <span g="formal_verification">formal verification tools</span>
-like [Alloy][alloy] and [TLA+][tla] work <cite>Jackson2016,Wayne2018</cite>,
+like [Alloy][alloy] and [TLA+][tla+] work <cite>Jackson2016,Wayne2018</cite>,
 along with one ones on [intelligent code completion][intelligent-code-completion],
 [fuzzing][fuzzing],
 [delta debugging][delta-debugging] <cite>Zeller2009</cite>,
