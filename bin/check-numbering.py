@@ -10,11 +10,11 @@ import utils
 
 
 # Chapter and appendix cross-references use '<span x="key"></span>'.
-CROSS_REF = re.compile(r'<span\s+x="(.+?)"></span>', re.DOTALL)
+CROSS_REF = re.compile(r'<span\s+?x="(.+?)">\s*?</span>', re.DOTALL)
 
 # Figure and table cross-references.
-FIGURE_REF = re.compile(r'<span\s+f="(.+?)"></span>', re.DOTALL)
-TABLE_REF = re.compile(r'<span\s+t="(.+?)"></span>', re.DOTALL)
+FIGURE_REF = re.compile(r'<span\s+?f="(.+?)">\s*?</span>', re.DOTALL)
+TABLE_REF = re.compile(r'<span\s+?t="(.+?)">\s*?</span>', re.DOTALL)
 
 def check_numbering(options):
     '''Main driver.'''

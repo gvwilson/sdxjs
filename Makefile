@@ -106,10 +106,10 @@ $(filter-out bin/utils.py,$(wildcard bin/*.py)): bin/utils.py
 check:
 	@make check-bib
 	@make check-chunk-length
+	@make check-code-blocks
 	@make check-gloss
 	@make check-links
 	@make check-numbering
-	@make check-ref
 	@make check-spelling
 
 ## check-bib: compare citations and definitions
@@ -119,6 +119,10 @@ check-bib:
 ## check-chunk-length: see whether any inclusions are overly long
 check-chunk-length:
 	@bin/check-chunk-length.py --sources ${HTML}
+
+## check-code-blocks: check inline code blocks
+check-code-blocks:
+	@bin/check-code-blocks.py --sources ${MARKDOWN}
 
 ## check-gloss: compare references and definitions
 check-gloss:
@@ -131,10 +135,6 @@ check-links:
 ## check-numbering: make sure all internal cross-references resolve
 check-numbering: ${NUM_OUT}
 	@bin/check-numbering.py --numbering ${NUM_OUT} --sources ${MARKDOWN} ${EXERCISES}
-
-## check-ref: compare chapter cross-references to chapters and appendices
-check-ref:
-	@bin/check-ref.py --config ${CONFIG} --sources ${MARKDOWN} ${EXERCISES}
 
 ## check-spelling: check for misspelled words
 check-spelling:
