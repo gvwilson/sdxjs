@@ -43,8 +43,11 @@ RELEASE_FILES=\
 
 RELEASE_EXCLUDES=\
   _includes/intro.md\
-  bin/__pycache\
-  bin/__pycache__/*
+  bin/__pycache__\
+  bin/__pycache__/*\
+  misc\
+  misc/*.*\
+  *~
 
 .DEFAULT: commands
 
