@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-'''Merge Markdown bibliographies.'''
+'''Merge Markdown glossaries.'''
 
 import sys
 import yaml
@@ -8,32 +8,30 @@ import yaml
 import utils
 
 
-KEY_ORDER = [
-    'key',
-    'type',
-    'author',
-    'title',
-    'edition',
-    'booktitle',
-    'editor',
-    'journal',
-    'volume',
-    'number',
-    'month',
-    'year',
-    'doi',
-    'isbn',
-    'publisher',
-    'url',
-    'note'
+LANGUAGE_ORDER = [
+    'en'
 ]
 
+KEY_ORDER = [
+    'key',
+    'ref',
+    *LANGUAGE_ORDER
+]
 
-def merge_bib_md(options):
+SUBKEY_ORDER = [
+    'term',
+    'acronym',
+    'def'
+]
+
+INFINITE = 100000
+
+
+def merge_gloss_md(filenames):
     '''Main driver.'''
     merged = merge_inputs(options)
     ordered = [merged[key] for key in sorted(merged.keys())]
-    cleaned = [cleanup(entry) for entry in ordered]
+    cleaned = [cleanup(options, entry) for entry in ordered]
     raw = yaml.dump(cleaned, sort_keys=False, width=utils.YAML_INFINITE)
     cooked = utils.cook_yaml(raw)
     print(cooked)
@@ -52,16 +50,26 @@ def merge_inputs(options):
     return result
 
 
-def cleanup(entry):
+def cleanup(options, entry):
     '''Create new dict for entry with keys in desired order.'''
-    return {key:utils.strip_nested(entry[key])
-            for key in KEY_ORDER
-            if key in entry}
+    temp = {}
+    for key in KEY_ORDER:
+        if key not in entry:
+            pass
+        elif (key in LANGUAGE_ORDER) and (key in options.languages):
+            assert key in entry, f'Entry {entry} lacks language {key}'
+            temp[key] = {k:utils.strip_nested(entry[key][k])
+                         for k in SUBKEY_ORDER
+                         if k in entry[key]}
+        else:
+            temp[key] = utils.strip_nested(entry[key])
+    return temp
 
 
 if __name__ == '__main__':
     options = utils.get_options(
+        ['--languages', True, 'List of two-letter language codes'],
         ['--sources', True, 'List of input files'],
         ['--verbose', None, 'Report duplicate keys?']
     )
-    merge_bib_md(options)
+    merge_gloss_md(options)

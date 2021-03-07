@@ -7,7 +7,7 @@ import sys
 import yaml
 
 
-# Width of output lines.
+# Width of output lines in included chunks.
 WIDTH = 72
 
 # Length of included chunks.
@@ -39,6 +39,32 @@ SPANS = [
     re.compile(r'</span>', re.DOTALL),                          # closing <span>
     re.compile(r'<cite>.+?</cite>', re.DOTALL)                  # citations
 ]
+
+# Width of YAML dumps.
+YAML_INFINITE = 100000
+
+# Characters to replace in YAML dumps.
+YAML_CHARACTERS = {
+    r'\u0103': 'ă',
+    r'\u2014': '—',
+    r'\u2026': '…',
+    r'\xB0': '°',
+    r'\xC5': 'Å',
+    r'\xE1': 'á',
+    r'\xE9': 'é',
+    r'\xF3': 'ó',
+    r'\xF6': 'ö'
+}
+
+
+def cook_yaml(text, doublespace_keys=True):
+    '''Fix text produced by .'''
+    for src in YAML_CHARACTERS:
+        text = text.replace(src, YAML_CHARACTERS[src])
+    if doublespace_keys:
+        text = text.replace('- key:', '\n- key:').lstrip()
+    return text
+
 
 def get_all_matches(pattern, filenames, group=1, scrub=True, no_duplicates=False):
     '''Create set of matches in source files.'''
@@ -144,6 +170,15 @@ def report(title, checkOnlyRight=True, **kwargs):
             print(f'  - {right} but not {left}')
             for item in sorted(onlyRight):
                 print(f'    - {item}')
+
+
+def strip_nested(value):
+    '''Strip a string or all strings in a list.'''
+    if type(value) == str:
+        return value.strip()
+    elif type(value) == list:
+        return [x.strip() for x in value]
+    return value
 
 
 def write_yaml(filename, data):

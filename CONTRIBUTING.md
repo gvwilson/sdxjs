@@ -99,7 +99,7 @@ This project uses [Martha's Rules][marthas-rules] <cite>Minahan1986</cite> for c
 1.  To insert an external link, use `{% raw %}[text][tag]{% endraw %}`
     in the body, then add the link to the Kramdown `link_defs` section
     in `_config.yml`. The clumsy syntax is necessary to get around
-    [this bug][jekyll-bug].)
+    [this bug][jekyll-bug].
 
 1.  To create a figure, put the image file in the same directory as
     the chapter or appendix and use this to include it:
