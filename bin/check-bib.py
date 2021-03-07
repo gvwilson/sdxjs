@@ -13,7 +13,7 @@ import utils
 CITATION = re.compile(r'<cite>(.+?)</cite>', re.DOTALL)
 
 # Pattern that keys must match.
-KEY = re.compile(r'^[A-Za-z]+\d{4}$')
+KEY = re.compile(r'^[A-Za-z]+\d{4}[a-z]?$')
 
 def check_bib(options):
     '''Main driver.'''
