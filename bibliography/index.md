@@ -61,7 +61,7 @@ Prentice-Hall, 2004, 978-0131177055.
 <dd>
 Davide Fucci, Giuseppe Scanniello, Simone Romano, Martin Shepperd, Boyce Sigweni, Fernando Uyaguari, Burak Turhan, Natalia Juristo, and Markku Oivo:
 "An External Replication on the Effects of Test-driven Development Using a Multi-site Blind Analysis Approach".
-<em>ESEM'16</em>, <a href="https://doi.org/10.1145/2961111.2962592">10.1145/2961111.2962592</a>.
+<em>Proc. ESEM'16</em>, <a href="https://doi.org/10.1145/2961111.2962592">10.1145/2961111.2962592</a>.
 </dd>
 <dt id="fucci2017" class="bibliography">Fucci2017</dt>
 <dd>
@@ -85,7 +85,7 @@ MIT Press, 2016, 978-0262528900.
 <dd>
 John Johnson, Sergio Lubo, Nishitha Yedla, Jairo Aponte, and Bonita Sharif:
 "An Empirical Study Assessing Source Code Readability in Comprehension".
-<em>ICSME'19</em>, <a href="https://doi.org/10.1109/ICSME.2019.00085">10.1109/ICSME.2019.00085</a>.
+<em>Proc. ICSME'19</em>, <a href="https://doi.org/10.1109/ICSME.2019.00085">10.1109/ICSME.2019.00085</a>.
 </dd>
 <dt id="kernighan1979" class="bibliography">Kernighan1979</dt>
 <dd>
@@ -197,4 +197,4 @@ Morgan Kaufmann, 2009, 978-0080923000.
 
 </dl>
 
-{% include table id="bibliography-sources" file="sources.tbl" cap="Bibliography sources" %}
+{% include sources.html %}

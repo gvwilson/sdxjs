@@ -18,7 +18,7 @@ FOOTER = '''
 
 </dl>
 
-{% include table id="bibliography-sources" file="sources.tbl" cap="Bibliography sources" %}
+{% include sources.html %}
 '''
 
 # Start of entry.
