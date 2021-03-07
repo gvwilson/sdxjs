@@ -12,14 +12,14 @@ EXERCISES=$(wildcard */x-*/problem.md) $(wildcard */x-*/solution.md)
 STATIC=$(wildcard _sass/*/*.scss) $(wildcard css/*.css) $(wildcard css/*.scss) $(wildcard js/*.js)
 TEX=$(wildcard tex/*.*)
 
-BIB_IN=_data/bibliography.yml
-BIB_OUT=bibliography/index.md
+BIB_YAML=_data/bibliography.yml
+BIB_MD=bibliography/index.md
 GLOSSARY_IN=_data/glossary.yml
 HOME_PAGE=${SITE}/index.html
-UNSPELLED=${BIB_OUT} glossary/index.md links/index.md index.md
+UNSPELLED=${BIB_MD} glossary/index.md links/index.md index.md
 NUM_OUT=_data/numbering.yml
 TERMS_OUT=_data/terms.yml
-ALL_OUT=${BIB_OUT} ${NUM_OUT} ${TERMS_OUT}
+ALL_OUT=${BIB_MD} ${NUM_OUT} ${TERMS_OUT}
 EXTRA_MARKDOWN=_includes/intro.md
 
 RELEASE_FILES=\
@@ -72,8 +72,8 @@ book.pdf: book.tex ${TEX}
 	@pdflatex book
 	@pdflatex book
 
-## make-bib: create Markdown version of bibliography
-make-bib: ${BIB_OUT}
+## make-bib-md: create Markdown version of bibliography
+make-bib-md: ${BIB_MD}
 
 ## make-numbering: create YAML cross-referencing
 make-numbering: ${NUM_OUT}
@@ -85,8 +85,8 @@ make-spelling:
 ## make-terms: create YAML file listing terms per chapter
 make-terms: ${TERMS_OUT}
 
-${BIB_OUT}: ${BIB_IN} bin/make-bib.py
-	bin/make-bib.py --input ${BIB_IN} --output ${BIB_OUT}
+${BIB_MD}: ${BIB_YAML} bin/make-bib-md.py
+	bin/make-bib-md.py --input ${BIB_YAML} --output ${BIB_MD}
 
 ${NUM_OUT}: bin/make-numbering.py ${CONFIG} ${MARKDOWN}
 	 bin/make-numbering.py --config ${CONFIG} --output ${NUM_OUT}
@@ -114,7 +114,7 @@ check:
 
 ## check-bib: compare citations and definitions
 check-bib:
-	@bin/check-bib.py --bibliography ${BIB_IN} --sources ${MARKDOWN} _includes/intro.md
+	@bin/check-bib.py --bibliography ${BIB_YAML} --sources ${MARKDOWN} _includes/intro.md
 
 ## check-chunk-length: see whether any inclusions are overly long
 check-chunk-length:

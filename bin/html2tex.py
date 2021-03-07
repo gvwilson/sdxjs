@@ -154,7 +154,7 @@ def convert(node, accum, doEscape):
     elif node.name == 'dt':
         if has_class(node, 'bibliography'):
             temp = ''.join(convert_children(node, [], doEscape))
-            accum.append(rf'\bibitem{{{temp}}}')
+            accum.append(rf'\bibitem[{temp}]{{{temp}}}')
         elif has_class(node, 'glossary'):
             key = escape(node['id'], True)
             temp = ''.join(convert_children(node, [], doEscape))

@@ -16,6 +16,9 @@ LENGTH = 30
 # Glossary references use <span g="...">...</span>.
 GLOSS_REF = re.compile(r'<span\s+g="(.+?)">', re.DOTALL)
 
+# Citations use <cite>key,key</cite>.
+CITATION = re.compile(r'<cite>(.+?)</cite>', re.DOTALL)
+
 # Patterns to remove from input when tokenizing Markdown source files.
 ALWAYS = [
     re.compile(r'---'),                                         # em-dashes

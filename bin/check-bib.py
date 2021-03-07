@@ -9,9 +9,6 @@ import sys
 import utils
 
 
-# Citations use <cite>key,key</cite>.
-CITATION = re.compile(r'<cite>(.+?)</cite>', re.DOTALL)
-
 # Pattern that keys must match.
 KEY = re.compile(r'^[A-Za-z]+\d{4}[a-z]?$')
 
@@ -20,7 +17,7 @@ def check_bib(options):
     defined = get_definitions(options.bibliography)
     check_order(defined)
     check_keys(defined)
-    cited = utils.get_all_matches(CITATION, options.sources)
+    cited = utils.get_all_matches(utils.CITATION, options.sources)
     utils.report('bibliography', cited=cited, defined=set(defined))
 
 
