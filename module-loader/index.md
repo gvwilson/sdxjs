@@ -174,7 +174,7 @@ because we can analyze files to determine what needs what,
 get everything into memory,
 and then resolve dependencies.
 We can't do this with `require`-based code
-because someone might create an <span g="alias">alias</a>
+because someone might create an <span g="alias">alias</span>
 and call `require` through that
 or `eval` a string that contains a `require` call.
 (Of course, they can also do these things with the function version of `import`…)

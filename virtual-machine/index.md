@@ -84,7 +84,7 @@ we copy those numbers into RAM and reset the instruction pointer and registers:
 In order to handle the next instruction,
 the VM gets the value in memory that the instruction pointer currently refers to
 and moves the instruction pointer on by one address.
-It then uses <span g="bitwise_operation">bitwise operations</a>
+It then uses <span g="bitwise_operation">bitwise operations</span>
 to extract the op code and operands from the instruction
 (<span f="virtual-machine-unpacking"></span>):
 

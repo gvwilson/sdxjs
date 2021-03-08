@@ -49,7 +49,7 @@ This classification guides the design of our parser:
 
 1.  If a character is special, create a token for it.
 
-1.  If it is a <span g="literal">literal</a> then:
+1.  If it is a <span g="literal">literal</span> then:
     1.  combine it with the current literal if there is one, or
     1.  start a new literal.
 

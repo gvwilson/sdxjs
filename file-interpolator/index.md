@@ -5,7 +5,7 @@ Many of the examples in these lessons are too long
 to show comfortably in one block of code on a printed page,
 so we needed a way to break them up.
 As an experiment,
-we wrote a custom <span g="loader">loader</a>
+we wrote a custom <span g="loader">loader</span>
 that reads a source file containing specially-formatted comments
 and then reads and inserts the files specified in those comments
 before running the code
