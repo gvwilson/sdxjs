@@ -27,7 +27,7 @@ def get_all_keys(config):
     '''Get all terms, returning a dictionary of sets indexed by slug.'''
     result = {}
     for entry in utils.get_entry_info(config):
-        result[entry['slug']] = utils.get_matches(utils.GLOSS_REF, entry['file'])
+        result[entry['slug']] = sorted(utils.get_matches(utils.GLOSS_REF, entry['file']))
     return result
 
 
