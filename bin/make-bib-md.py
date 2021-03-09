@@ -34,11 +34,11 @@ def make_bib(options):
     data = utils.read_yaml(options.input)
     entries = []
     for entry in data:
-        assert 'type' in entry, \
-            f'Entries must have "type": {entry}'
-        assert entry['type'] in HANDLERS, \
-            f'Unknown entry type {entry["type"]}'
-        text = HANDLERS[entry['type']](entry)
+        assert 'kind' in entry, \
+            f'Entries must have "kind": {entry}'
+        assert entry['kind'] in HANDLERS, \
+            f'Unknown entry kind {entry["kind"]}'
+        text = HANDLERS[entry['kind']](entry)
         entries.append(text)
     entries = '\n'.join(entries)
     result = f'{HEADER}{entries}{FOOTER}'

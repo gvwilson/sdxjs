@@ -88,13 +88,16 @@ This project uses [Martha's Rules][marthas-rules] <cite>Minahan1986</cite> for c
 
     ```
     <div class="callout" markdown="1">
+
     ### Title of callout
 
     text of callout
+
     </div>
     ```
 
-    Use "Sentence case" for the callout's title.
+    Use "Sentence case" for the callout's title, and please put blank
+    lines before and after the opening and closing `<div>` markers.
 
 1.  To insert an external link, use `{% raw %}[text][tag]{% endraw %}`
     in the body, then add the link to the Kramdown `link_defs` section
