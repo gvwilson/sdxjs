@@ -22,16 +22,21 @@ CITATION = re.compile(r'<cite>(.+?)</cite>', re.DOTALL)
 # Patterns to remove from input when tokenizing Markdown source files.
 ALWAYS = [
     re.compile(r'---'),                                         # em-dashes
-    re.compile(r'[©×±μ…]'),                                     # strange characters
+    re.compile(r'[©×±μ…\(\);:]'),                               # strange characters and punctuation
     re.compile(r'```.+?```', re.DOTALL),                        # code blocks
     re.compile(r'`.+?`', re.DOTALL),                            # inline code
     re.compile(r'{%\s+raw\s+%}.*?{%\s+endraw\s+%}', re.DOTALL), # raw blocks
     re.compile(r'<div\s+class="callout"\s*markdown="1">'),      # opening callout
-    re.compile(r'</div>')                                       # closing callout
+    re.compile(r'</div>'),                                      # closing callout
+    re.compile(r'<http.+?>')
 ]
 SCRUB = [
     re.compile(r'{%\s+include\s+.+?%}', re.DOTALL),             # inclusions
-    re.compile(r'{:\s+.continue\s*}', re.DOTALL)                # continued paragraphs
+    re.compile(r'{:\s+.continue\s*}', re.DOTALL),               # continued paragraphs
+    re.compile('<code>'),                                       # start code
+    re.compile('</code>'),                                      # end code
+    re.compile('<em>'),                                         # start emphasis
+    re.compile('</em>')                                         # end emphasis
 ]
 REPLACE = [
     re.compile(r'\[(.+?)\]\[.+?\]', re.DOTALL),                 # link reference (keep text)

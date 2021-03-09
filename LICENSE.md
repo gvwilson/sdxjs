@@ -11,10 +11,9 @@ license. You are free:
 
 Under the following conditions:
 
--   Attribution - You must attribute the work using "Copyright © Greg Wilson"
-    (but not in any way that suggests that we endorse you or your use of the
-    work).  Where practical, you must also include a hyperlink to
-    <https://third-bit.com>.
+-   Attribution - You must attribute the work using "Copyright © Greg Wilson" (but
+    not in any way that suggests that we endorse you or your use of the work).
+    Where practical, you must also include a hyperlink to http://stjs.tech/.
 
 With the understanding that:
 

@@ -25,7 +25,6 @@ EXTRA_MARKDOWN=_includes/intro.md
 RELEASE_FILES=\
   CONDUCT.md\
   CONTRIBUTING.md\
-  LICENSE.md\
   Makefile\
   Gemfile\
   Gemfile.lock\
