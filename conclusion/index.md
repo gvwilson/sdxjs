@@ -29,8 +29,8 @@ Contributions of all kinds are therefore welcome,
 from errata and minor improvements to entirely new sections and chapters,
 and everyone whose work is incorporated will be acknowledged.
 If you'd like to join us,
-please file an issue or submit a pull request in [our GitHub repository][stjs-repo];
-or the contributors' guide (<span x="contributing"></span>) for more information.
+please file an issue or submit a pull request in [our GitHub repository][stjs-repo],
+or see the contributors' guide (<span x="contributing"></span>) for more information.
 
 > We shape our tools, and thereafter our tools shape us.
 >
