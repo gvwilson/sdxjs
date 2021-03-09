@@ -178,6 +178,7 @@ def convert(node, accum, doEscape):
         if has_class(node, 'nochaptertitle'):
             pass
         else:
+            assert node.has_attr('key'), f'H1 {node} lacks key'
             key = node['key']
             accum.append(r'\chapter{')
             convert_children(node, accum, doEscape)

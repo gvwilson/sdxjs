@@ -196,7 +196,7 @@ def key(entry):
 def title(entry, quote):
     '''Generate title (possibly linking and/or quoting).'''
     assert 'title' in entry, \
-        'Every entry must have title'
+        f'Entry {entry} does not have title'
     title = f'<a href="{entry["url"]}">{entry["title"]}</a>' \
         if ('url' in entry) else entry["title"]
     if quote:

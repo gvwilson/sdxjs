@@ -22,7 +22,7 @@ CITATION = re.compile(r'<cite>(.+?)</cite>', re.DOTALL)
 # Patterns to remove from input when tokenizing Markdown source files.
 ALWAYS = [
     re.compile(r'---'),                                         # em-dashes
-    re.compile(r'[©×μ…]'),                                      # strange characters
+    re.compile(r'[©×±μ…]'),                                     # strange characters
     re.compile(r'```.+?```', re.DOTALL),                        # code blocks
     re.compile(r'`.+?`', re.DOTALL),                            # inline code
     re.compile(r'{%\s+raw\s+%}.*?{%\s+endraw\s+%}', re.DOTALL), # raw blocks
