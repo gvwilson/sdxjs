@@ -36,7 +36,7 @@ Lulu, 2016, 978-1329871274.
 <dt id="casciaro2020" class="bibliography">Casciaro2020</dt>
 <dd>
 Mario Casciaro and Luciano Mammino:
-<em>Node.js Design Patterns</em>.
+<em>Node.js Design Patterns</em> (3rd edition).
 Packt, 2020, 978-1839214110.
 </dd>
 <dt id="conery2021" class="bibliography">Conery2021</dt>
@@ -72,13 +72,13 @@ Davide Fucci, Hakan Erdogmus, Burak Turhan, Markku Oivo, and Natalia Juristo:
 <dt id="gregg2020" class="bibliography">Gregg2020</dt>
 <dd>
 Brendan Gregg:
-<em>Systems Performance: Enterprise and the Cloud</em>.
+<em>Systems Performance: Enterprise and the Cloud</em> (2nd edition).
 Pearson, 2020, 978-0136820154.
 </dd>
 <dt id="jackson2016" class="bibliography">Jackson2016</dt>
 <dd>
 Daniel Jackson:
-<em>Software Abstractions: Logic, Language, and Analysis (revised edition)</em>.
+<em>Software Abstractions: Logic, Language, and Analysis</em> (revised edition).
 MIT Press, 2016, 978-0262528900.
 </dd>
 <dt id="johnson2019" class="bibliography">Johnson2019</dt>
@@ -179,7 +179,7 @@ Morgan Taschuk and Greg Wilson:
 <dt id="tudose2020" class="bibliography">Tudose2020</dt>
 <dd>
 Cătălin Tudose:
-<em>JUnit in Action</em>.
+<em>JUnit in Action</em> (3rd edition).
 Manning, 2020, 978-1617297045.
 </dd>
 <dt id="wayne2018" class="bibliography">Wayne2018</dt>
@@ -191,7 +191,7 @@ Apress, 2018, 978-1484238288.
 <dt id="zeller2009" class="bibliography">Zeller2009</dt>
 <dd>
 Andreas Zeller:
-<em>Why Programs Fail: A Guide to Systematic Debugging (2nd edition)</em>.
+<em>Why Programs Fail: A Guide to Systematic Debugging</em> (2nd edition).
 Morgan Kaufmann, 2009, 978-0080923000.
 </dd>
 

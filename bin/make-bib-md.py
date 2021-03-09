@@ -79,7 +79,7 @@ def incollection(entry):
         title(entry, True),
         'In ',
         credit(entry, which='editor'),
-        bookTitle(entry, False),
+        bookTitle(entry),
         bookInfo(entry),
         ENTRY_END
     ])
@@ -141,13 +141,15 @@ def bookInfo(entry):
     return f'{entry["publisher"]}, {entry["year"]}, {entry["isbn"]}.'
 
 
-def bookTitle(entry, quote):
+def bookTitle(entry):
     '''Generate book title (possibly linking).'''
     assert 'booktitle' in entry, \
         'Entry must have booktitle'
     title = f'<a href="{entry["url"]}">{entry["booktitle"]}</a>' \
         if ('url' in entry) else entry["booktitle"]
-    return f'<em>{title}.</em>'
+    edition = f' ({entry["edition"]} edition)' \
+        if ('edition' in entry) else ''
+    return f'<em>{title}{edition}.</em>'
 
 
 def proceedingsInfo(entry):
@@ -199,11 +201,10 @@ def title(entry, quote):
         f'Entry {entry} does not have title'
     title = f'<a href="{entry["url"]}">{entry["title"]}</a>' \
         if ('url' in entry) else entry["title"]
-    if quote:
-        title = f'"{title}"'
-    else:
-        title = f'<em>{title}</em>'
-    return f'{title}.'
+    title = f'"{title}"' if quote else f'<em>{title}</em>'
+    edition = f' ({entry["edition"]} edition)' \
+        if ('edition' in entry) else ''
+    return f'{title}{edition}.'
 
 
 if __name__ == '__main__':
