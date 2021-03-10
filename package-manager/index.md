@@ -20,7 +20,11 @@ if each one requires a range of versions of C and those ranges overlap,
 we might be able to find a combination that works---at least,
 until we try to install packages D and E.
 
-This chapter explores how to find a workable installation or prove that there isn't one.
+We *could* install every package's dependencies separately with it;
+the disk space wouldn't be much of an obstacle,
+but loading dozens of copies of the same package into the browser
+would slow applications down.
+This chapter therefore explores how to find a workable installation or prove that there isn't one.
 It is based in part on [this tutorial][package-manager-tutorial] by [Maël Nison][nison-mael].
 
 <div class="callout" markdown="1">
