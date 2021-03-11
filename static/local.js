@@ -2,21 +2,30 @@
  * Enable dropdown menus.
  */
 const enableDropdowns = () => {
-  const dropdowns = Array.from(document.querySelectorAll('div.dropdown'))
-  dropdowns.forEach(top => {
+  const allDropdowns = Array.from(document.querySelectorAll('div.dropdown'))
+
+  // Handle clicks on dropdowns.
+  allDropdowns.forEach(top => {
     const navTitle = top.querySelector('span.navtitle')
     const items = top.querySelector('div.dropdown-content')
     items.style.display = 'none'
     navTitle.addEventListener('click', event => {
+      // Toggle visibility of this dropown.
       event.stopPropagation()
       items.style.display = (items.style.display === 'none') ? 'block' : 'none'
+      // Make sure all other dropdowns aren't visible.
+      allDropdowns.forEach(check => {
+        if (check.id !== top.id) {
+          check.querySelector('div.dropdown-content').style.display = 'none'
+        }
+      })
     })
   })
 
+  // Clicking anywhere else in the document closes dropdowns.
   document.addEventListener('click', event => {
-    dropdowns.forEach(top => {
-      const items = top.querySelector('div.dropdown-content')
-      items.style.display = 'none'
+    allDropdowns.forEach(top => {
+      top.querySelector('div.dropdown-content').style.display = 'none'
     })
   })
 }
