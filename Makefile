@@ -25,6 +25,7 @@ EXTRA_MARKDOWN=_includes/intro.md
 RELEASE_FILES=\
   CONDUCT.md\
   CONTRIBUTING.md\
+  LICENSE.md\
   Makefile\
   Gemfile\
   Gemfile.lock\
@@ -104,6 +105,7 @@ $(filter-out bin/utils.py,$(wildcard bin/*.py)): bin/utils.py
 ## check: run all checks
 check:
 	@make check-bib
+	@make check-boilerplate
 	@make check-chunk-length
 	@make check-code-blocks
 	@make check-gloss
@@ -114,6 +116,10 @@ check:
 ## check-bib: compare citations and definitions
 check-bib:
 	@bin/check-bib.py --bibliography ${BIB_YAML} --sources ${MARKDOWN} _includes/intro.md
+
+## check-boilerplate: check standard files
+check-boilerplate:
+	@bin/check-boilerplate.py --config ${CONFIG} --license LICENSE.md
 
 ## check-chunk-length: see whether any inclusions are overly long
 check-chunk-length:
