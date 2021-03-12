@@ -22,6 +22,8 @@ What about [an HTTP server][500-lines-server] or [a text editor][termit],
 or tools like [Redux][redux],
 [web components][web-components],
 and [OAuth][oauth]?
+How about an accessibility checking tool like [WAVE][webaim-wave]
+(which we have used while building this site)?
 Building small versions of these would be excellent semester-long projects for undergraduate software engineering classes,
 and would help programmers at all stages of their careers.
 
