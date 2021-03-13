@@ -178,11 +178,9 @@ please [send us email][email].
 
 ## Who helped us and inspired us?
 
-This book is dedicated to [Brian Kernighan][kernighan-brian], who taught us all how to write about software.
-
-We are very grateful for feedback from [Darren McElligott][mcelligott-darren]
-and [Evan Schultz][schultz-evan],
-and to the creators of [EJS][ejs],
+This book is dedicated to [Brian Kernighan][kernighan-brian],
+who taught us all how to write about software.
+I am grateful to the creators of [EJS][ejs],
 [Emacs][emacs],
 [ESLint][eslint],
 [Glosario][glosario],
@@ -193,4 +191,8 @@ and to the creators of [EJS][ejs],
 [Standard JS][standard-js],
 [SVG Screenshot][svg-screenshot],
 [WAVE][webaim-wave],
-and all the other open source tools we used in creating these lessons.
+and all the other open source tools we used in creating these lessons:
+if we all give a little,
+we all get a lot.
+
+{% include thanks.html %}
