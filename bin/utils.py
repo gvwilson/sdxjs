@@ -36,16 +36,9 @@ SCRUB = [
     re.compile('<code>'),                                       # start code
     re.compile('</code>'),                                      # end code
     re.compile('<em>'),                                         # start emphasis
-    re.compile('</em>')                                         # end emphasis
-]
-REPLACE = [
-    re.compile(r'\[(.+?)\]\[.+?\]', re.DOTALL),                 # link reference (keep text)
-    re.compile(r'\[(.+?)\]\(.+?\)', re.DOTALL)                  # link reference (keep text)
-]
-SPANS = [
-    re.compile(r'<span\b.+?>', re.DOTALL),                      # opening <span>
-    re.compile(r'</span>', re.DOTALL),                          # closing <span>
-    re.compile(r'<cite>.+?</cite>', re.DOTALL)                  # citations
+    re.compile('</em>'),                                        # end emphasis
+    re.compile('<blockquote>'),                                 # start quotation
+    re.compile('</blockquote>')                                 # end quotation
 ]
 
 # Width of YAML dumps.

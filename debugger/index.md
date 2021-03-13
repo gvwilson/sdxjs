@@ -38,7 +38,7 @@ so if an object has a method called `"meth"`,
 the expression `this["meth"]` will look it up
 and the expression `this["meth"](args)` will call it.
 If the string `"meth"` is stored in a variable called `name`,
-then `this[name](args)` will do exaactly the same thing.
+then `this[name](args)` will do exactly the same thing.
 
 The method in our VM that defines a new variable with an initial value looks like this:
 

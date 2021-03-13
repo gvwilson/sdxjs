@@ -151,7 +151,7 @@ Its numeric representation is:
 One thing the assembly language has that the instruction set doesn't
 is <span g="label_address">address labels</span>
 The label `loop` doesn't take up any space;
-insead,
+instead,
 it tells the assembler to give the address of the next instruction a name
 so that we can refer to that address as `@loop` in jump instructions.
 For example,

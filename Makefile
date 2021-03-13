@@ -79,8 +79,8 @@ make-bib-md: ${BIB_MD}
 make-numbering: ${NUM_OUT}
 
 ## make-spelling: create list of unknown words
-make-spelling:
-	@bin/make-spelling.py --sources $(filter-out ${UNSPELLED},${MARKDOWN})
+make-spelling: ${HOME_PAGE}
+	@cat ${HTML} | aspell -H list | sort | uniq
 
 ## make-terms: create YAML file listing terms per chapter
 make-terms: ${TERMS_OUT}
@@ -142,8 +142,8 @@ check-numbering: ${NUM_OUT}
 	@bin/check-numbering.py --numbering ${NUM_OUT} --sources ${MARKDOWN} ${EXERCISES}
 
 ## check-spelling: check for misspelled words
-check-spelling:
-	@bin/check-spelling.py --compare _data/spelling.yml --sources $(filter-out ${UNSPELLED},${MARKDOWN} ${EXERCISES})
+check-spelling: ${HOME_PAGE}
+	@cat ${HTML} | aspell -H list | sort | uniq | bin/check-spelling.py --compare _data/spelling.txt
 
 ## ----
 

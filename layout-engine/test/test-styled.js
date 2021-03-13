@@ -40,7 +40,7 @@ describe('styles tree', () => {
     const html = [
       '<col id="name">',
       '<row class="kind">first\nsecond</row>',
-      '<row>third/nfourth</row>',
+      '<row>third\nfourth</row>',
       '</col>'
     ]
     const dom = parseHTML(html.join(''))

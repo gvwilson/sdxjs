@@ -109,7 +109,7 @@ It only saves us a few lines of code in this case,
 but we will use this idea of a general-purpose driver for larger programs in future chapters.
 
 To work with our driver,
-each version of our build manager must be a class that satistifes two requirements:
+each version of our build manager must be a class that satisfies two requirements:
 
 1.  Its constructor must take a configuration file as an argument.
 

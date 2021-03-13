@@ -164,7 +164,7 @@ Let's try running it:
 
 {% include multi pat='run-hash-existing-promise.*' fill='js sh slice.out' %}
 
-The code we have writen is clearer than it would be with callbacks
+The code we have written is clearer than it would be with callbacks
 (try rewriting it if you don't believe this)
 but the layer of promises around everything still obscures its meaning.
 The same operations are easier to read when written using `async` and `await`:
