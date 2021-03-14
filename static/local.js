@@ -50,7 +50,7 @@ const fixBibCites = (toRoot) => {
 }
 
 /**
- * Fill in references to figures.
+ * Fill in references to figures and tables.
  * @param {string} toRoot Path to root of volume.
  * @param {Object} numbering Lookup table.
  * @param {string} major Major element.
@@ -85,7 +85,7 @@ const fixCrossRefs = (toRoot, numbering) => {
 }
 
 /**
- * Fill in references to figures.
+ * Fill in references to figures and tables.
  * @param {string} toRoot Path to root of volume.
  * @param {Object} numbering Lookup table.
  * @param {string} key Attribute to look for.
@@ -97,7 +97,7 @@ const fixFloatRefs = (toRoot, numbering, key, name) => {
     .forEach(node => {
       const slug = node.getAttribute(key)
       const link = document.createElement('a')
-      link.setAttribute('href', `#{slug}`)
+      link.setAttribute('href', `#${slug}`)
       link.innerHTML = `${name} ${numbering[slug]}`
       node.parentNode.replaceChild(link, node)
     })

@@ -22,10 +22,10 @@ FOOTER = '''
 '''
 
 # Start of entry.
-ENTRY_START = '<dd>'
+ENTRY_START = '<dd><p>'
 
 # End of entry.
-ENTRY_END = '</dd>'
+ENTRY_END = '</p></dd>'
 
 
 

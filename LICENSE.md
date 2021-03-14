@@ -32,5 +32,3 @@ With the understanding that:
     <http://creativecommons.org/licenses/by/4.0/>.
 
 For the full legal text of this license, please see <http://creativecommons.org/licenses/by/4.0/legalcode>.
-
-The theme for this site is based on <https://github.com/nicoelayda/celeste>, copyright © 2015 Nico Elayda.
