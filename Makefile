@@ -151,6 +151,10 @@ check-spelling: ${HOME_PAGE}
 count-pages: book.pdf
 	@bin/count-pages.py --input book.aux | column -t -s '|'
 
+## list-html-attributes: what classes and other attributes are used?
+list-html-attributes: ${HOME_PAGE}
+	@bin/list-html-attributes.py --sources ${HTML}
+
 ## release: make a zip file with infrastructure for use elsehwere
 release:
 	@zip -r ../template.zip ${RELEASE_FILES} --exclude ${RELEASE_EXCLUDES}
