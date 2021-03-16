@@ -25,23 +25,19 @@ EXTRA_MARKDOWN=_includes/intro.md
 RELEASE_FILES=\
   CONDUCT.md\
   CONTRIBUTING.md\
-  LICENSE.md\
   Makefile\
   Gemfile\
   Gemfile.lock\
   _includes\
   _layouts\
-  _sass\
   bin\
-  css\
   favicon.ico\
+  glossary\
   links\
   static/local.*\
   static/*.pdf\
   static/*.svg\
-  tex\
-  glossary/index.md\
-  links/index.md
+  tex
 
 RELEASE_EXCLUDES=\
   _includes/intro.md\
@@ -58,11 +54,11 @@ commands:
 	@grep -h -E '^##' ${MAKEFILE_LIST} | sed -e 's/## //g' | column -t -s ':'
 
 ## build: rebuild site without running server
-build: ${ALL_OUT}
+build: ${ALL_OUT} LICENSE.md
 	${JEKYLL} build
 
 ## serve: build site and run server
-serve: ${ALL_OUT}
+serve: ${ALL_OUT} LICENSE.md
 	${JEKYLL} serve
 
 ## book.tex: create LaTeX file
@@ -96,11 +92,14 @@ ${NUM_OUT}: bin/make-numbering.py ${CONFIG} ${MARKDOWN}
 ${TERMS_OUT}: bin/make-terms.py ${CONFIG} ${MARKDOWN} ${GLOSSARY_IN}
 	bin/make-terms.py --config ${CONFIG} --glossary ${GLOSSARY_IN} --language ${LANGUAGE} --output ${TERMS_OUT}
 
-${HOME_PAGE}: ${CONFIG} ${MARKDOWN} ${INCLUDES} ${LAYOUTS} ${STATIC} ${ALL_OUT}
+${HOME_PAGE}: ${CONFIG} ${MARKDOWN} ${INCLUDES} ${LAYOUTS} ${STATIC} ${ALL_OUT} LICENSE.md
 	${JEKYLL} build
 
 $(filter-out bin/utils.py,$(wildcard bin/*.py)): bin/utils.py
 	touch $@
+
+LICENSE.md: _config.yml bin/make-license.py
+	@bin/make-license.py --config ${CONFIG} --output $@
 
 ## ----
 
