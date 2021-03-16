@@ -39,7 +39,9 @@ RELEASE_FILES=\
   static/local.*\
   static/*.pdf\
   static/*.svg\
-  tex
+  tex\
+  glossary/index.md\
+  links/index.md
 
 RELEASE_EXCLUDES=\
   _includes/intro.md\
