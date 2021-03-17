@@ -11,7 +11,7 @@ CHAP_LINE = re.compile(r'\\@writefile{toc}{\\contentsline\s+{chapter}{\\numberli
 END_LINE = re.compile(r'\\gdef\s+\\@abspage@last{(.+?)}')
 
 
-def count_pages(options):
+def show_pages(options):
     '''Main driver.'''
     with open(options.input, 'r') as reader:
         lines = reader.readlines()
@@ -76,4 +76,4 @@ if __name__ == '__main__':
     options = utils.get_options(
         ['--input', False, 'Path to LaTeX .aux file']
     )
-    count_pages(options)
+    show_pages(options)

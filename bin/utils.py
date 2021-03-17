@@ -59,7 +59,7 @@ YAML_CHARACTERS = {
 
 
 def cook_yaml(text, doublespace_keys=True):
-    '''Fix text produced by .'''
+    '''Fix text produced by converting YAML to text.'''
     for src in YAML_CHARACTERS:
         text = text.replace(src, YAML_CHARACTERS[src])
     if doublespace_keys:
@@ -123,18 +123,6 @@ def get_options(*options):
         else:
             parser.add_argument(flag, help=explain)
     return parser.parse_args()
-
-
-def get_words(filename):
-    '''Get words from a file for spell-checking.'''
-    from nltk.tokenize import TweetTokenizer # loaded here to cut run time
-    text = read_file(filename, scrub=True)
-    for pattern in SPANS:
-        text = pattern.sub(' ', text)
-    for pattern in REPLACE:
-        text = pattern.sub(lambda x: x.group(1), text)
-    tokenizer = TweetTokenizer()
-    return set(tokenizer.tokenize(text))
 
 
 def read_file(filename, scrub=True):

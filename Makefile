@@ -1,5 +1,4 @@
 JEKYLL=bundle exec jekyll
-BIB=_includes/bib.html
 SITE=./_site
 LANGUAGE=en
 
@@ -9,14 +8,13 @@ LAYOUTS=$(wildcard _layouts/*.html)
 MARKDOWN=$(wildcard *.md) $(wildcard */index.md)
 HTML=${SITE}/index.html $(wildcard ${SITE}/*/index.html)
 EXERCISES=$(wildcard */x-*/problem.md) $(wildcard */x-*/solution.md)
-STATIC=$(wildcard _sass/*/*.scss) $(wildcard css/*.css) $(wildcard css/*.scss) $(wildcard js/*.js)
+STATIC=$(wildcard static/*.*)
 TEX=$(wildcard tex/*.*)
 
 BIB_YAML=_data/bibliography.yml
 BIB_MD=bibliography/index.md
 GLOSSARY_IN=_data/glossary.yml
 HOME_PAGE=${SITE}/index.html
-UNSPELLED=${BIB_MD} glossary/index.md links/index.md index.md
 NUM_OUT=_data/numbering.yml
 TERMS_OUT=_data/terms.yml
 ALL_OUT=${BIB_MD} ${NUM_OUT} ${TERMS_OUT}
@@ -148,10 +146,6 @@ check-spelling: ${HOME_PAGE}
 
 ## ----
 
-## count-pages: how many pages are in the PDF version?
-count-pages: book.pdf
-	@bin/count-pages.py --input book.aux | column -t -s '|'
-
 ## list-html-attributes: what classes and other attributes are used?
 list-html-attributes: ${HOME_PAGE}
 	@bin/list-html-attributes.py --sources ${HTML}
@@ -159,6 +153,14 @@ list-html-attributes: ${HOME_PAGE}
 ## release: make a zip file with infrastructure for use elsehwere
 release:
 	@zip -r ../template.zip ${RELEASE_FILES} --exclude ${RELEASE_EXCLUDES}
+
+## show-pages: how many pages are in the PDF version?
+show-pages: book.pdf
+	@bin/show-pages.py --input book.aux | column -t -s '|'
+
+## show-sections: how many words are in each section?
+show-sections:
+	@bin/show-sections.py --config ${CONFIG} | column -t -s '|'
 
 ## clean: clean up stray files
 clean:
