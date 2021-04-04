@@ -377,7 +377,7 @@ def convert_table(node, accum, placement=None):
 
     assert node.tbody, f'Table node does not have body {node}'
     rows = [convert_table_row(row, 'td') for row in node.tbody.find_all('tr')]
-    width = len(rows[0])
+    width = len(node.tbody.find('tr').find_all('td'))
     spec = 'l' * width
 
     thead = node.thead
@@ -403,7 +403,7 @@ def convert_table(node, accum, placement=None):
 
 
 def convert_table_row(row, tag):
-    '''Convert a single row of a table.'''
+    '''Convert a single row of a table to a string.'''
     cells = row.find_all(tag)
     result = []
     for cell in cells:

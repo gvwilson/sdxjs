@@ -16,9 +16,9 @@ And since anything that touches the hard drive is slow from a processor's point 
 to show how long it takes a computer to do different things
 if we imagine that one CPU cycle is equivalent to one second.
 
-{% include table id="systems-programming-times" file="times.tbl" cap="Computer operation times at human scale." %}
-
 </div>
+
+{% include table id="systems-programming-times" file="times.tbl" cap="Computer operation times at human scale." %}
 
 Early JavaScript programs used <span g="callback">callback functions</span> to describe asynchronous operations,
 but as we're about to see,
