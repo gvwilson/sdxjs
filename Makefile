@@ -66,6 +66,7 @@ book.tex: ${HOME_PAGE} bin/html2tex.py ${NUM_OUT} ${TEX}
 ## book.pdf: create PDF file
 book.pdf: book.tex ${TEX}
 	@pdflatex book
+	makeindex book
 	@pdflatex book
 
 ## make-bib-md: create Markdown version of bibliography
@@ -76,7 +77,7 @@ make-numbering: ${NUM_OUT}
 
 ## make-spelling: create list of unknown words
 make-spelling: ${HOME_PAGE}
-	@cat ${HTML} | aspell -H list | sort | uniq
+	@cat ${HTML} | bin/prep-spelling.py | aspell -H list | sort | uniq
 
 ## make-terms: create YAML file listing terms per chapter
 make-terms: ${TERMS_OUT}
@@ -104,29 +105,34 @@ LICENSE.md: _config.yml bin/make-license.py
 ## check: run all checks
 check:
 	@make check-bib
+	@make check-gloss
 	@make check-boilerplate
 	@make check-chunk-length
 	@make check-code-blocks
-	@make check-gloss
+	@make check-dom
 	@make check-links
 	@make check-numbering
 	@make check-spelling
 
 ## check-bib: compare citations and definitions
 check-bib:
-	@bin/check-bib.py --bibliography ${BIB_YAML} --sources ${MARKDOWN} _includes/intro.md
+	@bin/check-bib.py --bibliography ${BIB_YAML} --sources ${MARKDOWN} ${BIB_YAML} _includes/intro.md
 
 ## check-boilerplate: check standard files
 check-boilerplate:
 	@bin/check-boilerplate.py --config ${CONFIG} --license LICENSE.md
 
 ## check-chunk-length: see whether any inclusions are overly long
-check-chunk-length:
+check-chunk-length: ${HOME_PAGE}
 	@bin/check-chunk-length.py --sources ${HTML}
 
 ## check-code-blocks: check inline code blocks
 check-code-blocks:
-	@bin/check-code-blocks.py --sources ${MARKDOWN}
+	@bin/check-code-blocks.py --config ${CONFIG}
+
+## check-dom: check classes and attributes in generated HTML.
+check-dom: ${HOME_PAGE}
+	@bin/check-dom.py --sources ${HTML}
 
 ## check-gloss: compare references and definitions
 check-gloss:
@@ -134,7 +140,7 @@ check-gloss:
 
 ## check-links: make sure all external links resolve
 check-links:
-	@bin/check-links.py --config ${CONFIG} --sources ${MARKDOWN} ${EXTRA_MARKDOWN} ${EXERCISES}
+	@bin/check-links.py --config ${CONFIG} --sources ${MARKDOWN} ${EXTRA_MARKDOWN} ${EXERCISES} ${GLOSSARY_IN}
 
 ## check-numbering: make sure all internal cross-references resolve
 check-numbering: ${NUM_OUT}
@@ -142,17 +148,26 @@ check-numbering: ${NUM_OUT}
 
 ## check-spelling: check for misspelled words
 check-spelling: ${HOME_PAGE}
-	@cat ${HTML} | aspell -H list | sort | uniq | bin/check-spelling.py --compare _data/spelling.txt
+	@cat ${HTML} | bin/prep-spelling.py | aspell -H list | sort | uniq | bin/check-spelling.py --compare _data/spelling.txt
 
 ## ----
 
-## list-html-attributes: what classes and other attributes are used?
-list-html-attributes: ${HOME_PAGE}
-	@bin/list-html-attributes.py --sources ${HTML}
+## show-chapters: how many words are in each chapter?
+show-chapters:
+	@bin/show-chapters.py --config ${CONFIG} | column -t -s '|'
 
-## release: make a zip file with infrastructure for use elsehwere
-release:
-	@zip -r ../template.zip ${RELEASE_FILES} --exclude ${RELEASE_EXCLUDES}
+## show-dom: what classes and other attributes are used?
+show-dom: ${HOME_PAGE}
+	@bin/show-dom.py --sources ${HTML}
+
+## show-fixme: what still needs to be done?
+show-fixme:
+	@bin/show-fixme.py --config ${CONFIG} | column -t -s '|'
+	@fgrep fixme ${MARKDOWN} | wc -l
+
+## show-index: what terms are indexed where?
+show-index:
+	@bin/show-index.py --config ${CONFIG}
 
 ## show-pages: how many pages are in the PDF version?
 show-pages: book.pdf
@@ -162,10 +177,16 @@ show-pages: book.pdf
 show-sections:
 	@bin/show-sections.py --config ${CONFIG} | column -t -s '|'
 
+## ----
+
+## release: make a zip file with infrastructure for use elsehwere
+release:
+	@zip -r ../template.zip ${RELEASE_FILES} --exclude ${RELEASE_EXCLUDES}
+
 ## clean: clean up stray files
 clean:
 	@find . -name '*~' -exec rm {} \;
-	@rm -f *.aux *.log *.out *.tex *.toc
+	@rm -f *.aux *.idx *.ilg *.ind *.log *.out *.tex *.toc
 
 ## sterile: clean up and erase generated site
 sterile:

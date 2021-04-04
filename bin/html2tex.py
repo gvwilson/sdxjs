@@ -93,7 +93,12 @@ def convert(node, accum, doEscape):
     elif node.name in RECURSE_ONLY:
         convert_children(node, accum, doEscape)
 
-    # a => hyperlink
+    # DOI reference
+    elif (node.name == 'a') and has_class(node, 'doi'):
+        link = escape(node['href'], doEscape)
+        accum.append(rf'\href{{{link}}}{{{link}}}')
+
+    # a => regular hyperlink
     elif node.name == 'a':
         link = escape(node['href'], doEscape)
         temp = ''.join(convert_children(node, [], doEscape))
@@ -128,40 +133,44 @@ def convert(node, accum, doEscape):
         accum.append(temp)
         accum.append('\n')
 
-    # div => it depends...
+    # div callout
+    elif (node.name == 'div') and has_class(node, 'callout'):
+        accum.append('\\begin{callout}\n')
+        convert_children(node, accum, doEscape)
+        accum.append('\\end{callout}\n')
+
+    # other div
     elif node.name == 'div':
-        # Patch the bibliography
-        if has_class(node, 'bibliography'):
-            bib = node.dl # assume exactly one
-            add_class(bib, 'bibliography')
-            for entry in bib.find_all('dt'):
-                add_class(entry, 'bibliography')
-        # Always convert children of div
+        patch_bibliography(node) # needs special handling
         convert_children(node, accum, doEscape)
 
-    # dl => description list
-    elif node.name == 'dl':
-        if has_class(node, 'bibliography'):
-            accum.append(r'\begin{thebibliography}{ABCD}')
-            convert_children(node, accum, doEscape)
-            accum.append(r'\end{thebibliography}')
-        else:
-            accum.append(r'\begin{description}')
-            convert_children(node, accum, doEscape)
-            accum.append(r'\end{description}')
+    # dl in bibliography => description list
+    elif (node.name == 'dl') and has_class(node, 'bibliography'):
+        accum.append(r'\begin{thebibliography}{ABCD}')
+        convert_children(node, accum, doEscape)
+        accum.append(r'\end{thebibliography}')
 
-    # dt => description item
-    elif node.name == 'dt':
-        if has_class(node, 'bibliography'):
-            temp = ''.join(convert_children(node, [], doEscape))
-            accum.append(rf'\bibitem[{temp}]{{{temp}}}')
-        elif has_class(node, 'glossary'):
-            key = escape(node['id'], True)
-            temp = ''.join(convert_children(node, [], doEscape))
-            accum.append(rf'\glossitem{{{key}}}{{{temp}}} ')
-        else:
-            temp = ''.join(convert_children(node, [], doEscape))
-            accum.append(rf'\item[{temp}] ')
+    # other dl
+    elif node.name == 'dl':
+        accum.append(r'\begin{description}')
+        convert_children(node, accum, doEscape)
+        accum.append(r'\end{description}')
+
+    # dt in bibliography => description item
+    elif (node.name == 'dt') and has_class(node, 'bibliography'):
+        temp = ''.join(convert_children(node, [], doEscape))
+        accum.append(rf'\bibitem[{temp}]{{{temp}}}')
+
+    # dt in glossary
+    elif (node.name == 'dt') and has_class(node, 'glossary'):
+        key = escape(node['id'], True)
+        temp = ''.join(convert_children(node, [], doEscape))
+        accum.append(rf'\glossitem{{{key}}}{{{temp}}} ')
+
+    # other dt
+    elif (node.name == 'dt'):
+        temp = ''.join(convert_children(node, [], doEscape))
+        accum.append(rf'\item[{temp}] ')
 
     # em => italics
     elif node.name == 'em':
@@ -173,30 +182,32 @@ def convert(node, accum, doEscape):
     elif node.name == 'figure':
         convert_figure(node, accum)
 
+    # h1 to be skipped
+    elif (node.name == 'h1') and has_class(node, 'nochaptertitle'):
+        pass
+
     # h1 => chapter title
     elif node.name == 'h1':
-        if has_class(node, 'nochaptertitle'):
-            pass
-        else:
-            assert node.has_attr('key'), f'H1 {node} lacks key'
-            key = node['key']
-            accum.append(r'\chapter{')
-            convert_children(node, accum, doEscape)
-            accum.append(r'}\label{')
-            accum.append(key)
-            accum.append('}\n')
+        assert node.has_attr('slug'), f'H1 {node} lacks slug'
+        slug = node['slug']
+        accum.append(r'\chapter{')
+        convert_children(node, accum, doEscape)
+        accum.append(r'}\label{')
+        accum.append(slug)
+        accum.append('}\n')
 
+    # h2 chapter lede
+    elif (node.name == 'h2') and has_class(node, 'lede'):
+        temp = ''.join(convert_children(node, [], doEscape))
+        accum.append(r'\chapterlede{')
+        accum.append(temp)
+
+        accum.append('}')
     # h2 => section title
     elif node.name == 'h2':
-        if has_class(node, 'lede'):
-            temp = ''.join(convert_children(node, [], doEscape))
-            accum.append(r'\chapterlede{')
-            accum.append(temp)
-            accum.append('}')
-        else:
-            accum.append(r'\section{')
-            convert_children(node, accum, doEscape)
-            accum.append('}\n')
+        accum.append(r'\section{')
+        convert_children(node, accum, doEscape)
+        accum.append('}\n')
 
     # h3 => subsection title
     elif node.name == 'h3':
@@ -243,52 +254,59 @@ def convert(node, accum, doEscape):
         convert_children(node, accum, doEscape)
         accum.append(r'}')
 
-    # chap => cross-reference of some kind
+    # fixme span
+    elif (node.name == 'span') and has_class(node, 'fixme'):
+        accum.append(r'\fixme{')
+        convert_children(node, accum, doEscape)
+        accum.append(r'}')
+
+    # figure reference span
+    elif (node.name == 'span') and node.has_attr('f'):
+        key = node['f']
+        accum.append(rf'\figref{{{key}}}')
+
+    # table reference span
+    elif (node.name == 'span') and node.has_attr('t'):
+        key = node['t']
+        accum.append(rf'\tblref{{{key}}}')
+
+    # chapter/appendix cross-reference span
+    elif (node.name == 'span') and node.has_attr('x'):
+        key = node['x']
+        if is_chapter(key):
+            accum.append(rf'\chapref{{{key}}}')
+        else:
+            accum.append(rf'\appref{{{key}}}')
+
+    # glossary and/or index span
+    elif (node.name == 'span') and (node.has_attr('g') or node.has_attr('i')):
+        convert_glossary_index(node, accum, doEscape)
+
+    # some other kind of span
     elif node.name == 'span':
-        # figure
-        if node.has_attr('f'):
-            key = node['f']
-            accum.append(rf'\figref{{{key}}}')
-        # glossary
-        elif node.has_attr('g'):
-            key = node['g']
-            accum.append(r'\glossref{')
-            convert_children(node, accum, doEscape)
-            accum.append('}{')
-            accum.append(key)
-            accum.append('}')
-        # table
-        elif node.has_attr('t'):
-            key = node['t']
-            accum.append(rf'\tblref{{{key}}}')
-        # cross-reference
-        elif node.has_attr('x'):
-            key = node['x']
-            if is_chapter(key):
-                accum.append(rf'\chapref{{{key}}}')
-            else:
-                accum.append(rf'\appref{{{key}}}')
-        # not our problem
-        else:
-            convert_children(node, accum, doEscape)
+        convert_children(node, accum, doEscape)
 
-    # table
+    # links table
+    elif (node.name == 'table') and has_class(node, 'links'):
+        convert_links_table(node, accum)
+
+    # table of bibliography sources
+    elif (node.name == 'table') and node.has_attr('id') and (node['id'] == 'bibliography-sources'):
+        convert_table(node, accum, placement='h')
+
+    # some other kind of table
     elif node.name == 'table':
-        if has_class(node, 'links'):
-            convert_links_table(node, accum)
-        elif node.has_attr('id') and (node['id'] == 'bibliography-sources'):
-            convert_table(node, accum, placement='h')
-        else:
-            convert_table(node, accum)
+        convert_table(node, accum)
 
-    # unordered list
+    # table of contents list
+    elif (node.name == 'ul') and has_class(node, 'toc'):
+        pass
+
+    # other unordered list
     elif node.name == 'ul':
-        if has_class(node, 'toc'):
-            pass
-        else:
-            accum.append('\\begin{itemize}\n')
-            convert_children(node, accum, doEscape)
-            accum.append('\\end{itemize}\n')
+        accum.append('\\begin{itemize}\n')
+        convert_children(node, accum, doEscape)
+        accum.append('\\end{itemize}\n')
 
     # unrecognized
     else:
@@ -319,6 +337,26 @@ def convert_figure(node, accum):
     accum.append(f'\\figpdf{{{label}}}{{{path}}}{{{caption}}}{{0.75}}')
 
 
+def convert_glossary_index(node, accum, doEscape):
+    '''Convert a span that is a glossary and/or index reference.'''
+    assert node.name == 'span', 'Expected span'
+    assert node.has_attr('g') or node.has_attr('i'), 'Expected "g" or "i"'
+
+    if node.has_attr('g'):
+        key = node['g']
+        accum.append(r'\glossref{')
+        convert_children(node, accum, doEscape)
+        accum.append('}{')
+        accum.append(key)
+        accum.append('}')
+    else:
+        convert_children(node, accum, doEscape)
+
+    if node.has_attr('i'):
+        term = node['i']
+        accum.append(fr'\index{{{term}}}')
+
+
 def convert_links_table(node, accum):
     '''Convert the end-table of links.'''
     accum.append('\\begin{description}\n')
@@ -336,20 +374,25 @@ def convert_table(node, accum, placement=None):
     assert node.name == 'table', 'Node is not a table'
     label = node['id'] if node.has_attr('id') else None
     placement = placement if placement is not None else ''
-    thead = node.thead
-    assert thead, f'Table node does not have head {node}'
-    row = thead.tr
-    assert row, f'Table head does not have row {node}'
-    headers = node.thead.tr.find_all('th')
-    assert headers, f'Table node does not have headers {node}'
-    width = len(headers)
-    head = convert_table_row(node.thead.tr, 'th')
-    body = [convert_table_row(row, 'td') for row in node.tbody.find_all('tr')]
-    rows = [head, *body]
+
+    assert node.tbody, f'Table node does not have body {node}'
+    rows = [convert_table_row(row, 'td') for row in node.tbody.find_all('tr')]
+    width = len(rows[0])
     spec = 'l' * width
+
+    thead = node.thead
+    if thead:
+        row = thead.tr
+        assert row, f'Table head does not have row {node}'
+        headers = node.thead.tr.find_all('th')
+        assert headers, f'Table node does not have headers {node}'
+        head = convert_table_row(node.thead.tr, 'th')
+        rows = [head, *rows]
+
     if label:
         caption = ''.join(convert_children(node.caption, [], True))
         accum.append(f'\\begin{{table}}[{placement}]\n')
+
     accum.append(f'\\begin{{tabular}}{{{spec}}}\n')
     accum.append('\n'.join(rows))
     accum.append('\n\\end{tabular}\n')
@@ -403,6 +446,17 @@ def display(options, config, text):
     print(head)
     print(text)
     print(foot)
+
+
+def patch_bibliography(node):
+    '''Patch the bibliography div.'''
+    assert (node.name == 'div'), 'Expected div'
+    if not has_class(node, 'bibliography'):
+        return
+    bib = node.dl
+    add_class(bib, 'bibliography')
+    for entry in bib.find_all('dt'):
+        add_class(entry, 'bibliography')
 
 
 def replace_internal_links(text):

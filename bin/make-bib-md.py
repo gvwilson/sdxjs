@@ -129,7 +129,7 @@ def article_info(entry):
         details = f'{details}({entry["number"]})'
     if details:
         details = f', {details}'
-    doi = f', <a href="https://doi.org/{entry["doi"]}">{entry["doi"]}</a>' \
+    doi = f', <a class="doi" href="https://doi.org/{entry["doi"]}">{entry["doi"]}</a>' \
         if 'doi' in entry else ''
     return f'<em>{entry["journal"]}</em>{details}, {entry["year"]}{doi}.'
 
@@ -137,7 +137,7 @@ def article_info(entry):
 def bookInfo(entry):
     '''Generate book information.'''
     assert ('publisher' in entry) and ('year' in entry) and ('isbn' in entry), \
-        'Entry requires publisher, year, and ISBN'
+        f'Entry requires publisher, year, and ISBN: {entry}'
     return f'{entry["publisher"]}, {entry["year"]}, {entry["isbn"]}.'
 
 
@@ -156,7 +156,7 @@ def proceedingsInfo(entry):
     '''Generate proceedings entry information.'''
     assert ('booktitle' in entry), \
         f'Entry requires booktitle {entry}'
-    doi = f', <a href="https://doi.org/{entry["doi"]}">{entry["doi"]}</a>' \
+    doi = f', <a class="doi" href="https://doi.org/{entry["doi"]}">{entry["doi"]}</a>' \
         if 'doi' in entry else ''
     return f'<em>{entry["booktitle"]}</em>{doi}.'
 

@@ -7,7 +7,7 @@ nochaptertitle: true
 <dd>
 Dave Binkley, Marcia Davis, Dawn Lawrie, Jonathan I. Maletic, Christopher Morrell, and Bonita Sharif:
 "The Impact of Identifier Style on Effort and Comprehension".
-<em>Empirical Software Engineering</em>, 18(2), 2012, <a href="https://doi.org/10.1007/s10664-012-9201-4">10.1007/s10664-012-9201-4</a>.
+<em>Empirical Software Engineering</em>, 18(2), 2012, <a class="doi" href="https://doi.org/10.1007/s10664-012-9201-4">10.1007/s10664-012-9201-4</a>.
 </dd>
 <dt id="brand1995" class="bibliography">Brand1995</dt>
 <dd>
@@ -61,13 +61,13 @@ Prentice-Hall, 2004, 978-0131177055.
 <dd>
 Davide Fucci, Giuseppe Scanniello, Simone Romano, Martin Shepperd, Boyce Sigweni, Fernando Uyaguari, Burak Turhan, Natalia Juristo, and Markku Oivo:
 "An External Replication on the Effects of Test-driven Development Using a Multi-site Blind Analysis Approach".
-<em>Proc. ESEM'16</em>, <a href="https://doi.org/10.1145/2961111.2962592">10.1145/2961111.2962592</a>.
+<em>Proc. ESEM'16</em>, <a class="doi" href="https://doi.org/10.1145/2961111.2962592">10.1145/2961111.2962592</a>.
 </dd>
 <dt id="fucci2017" class="bibliography">Fucci2017</dt>
 <dd>
 Davide Fucci, Hakan Erdogmus, Burak Turhan, Markku Oivo, and Natalia Juristo:
 "A Dissection of the Test-Driven Development Process: Does It Really Matter to Test-First or to Test-Last?".
-<em>IEEE Transactions on Software Engineering</em>, 43(7), 2017, <a href="https://doi.org/10.1109/tse.2016.2616877">10.1109/tse.2016.2616877</a>.
+<em>IEEE Transactions on Software Engineering</em>, 43(7), 2017, <a class="doi" href="https://doi.org/10.1109/tse.2016.2616877">10.1109/tse.2016.2616877</a>.
 </dd>
 <dt id="gregg2020" class="bibliography">Gregg2020</dt>
 <dd>
@@ -85,7 +85,7 @@ MIT Press, 2016, 978-0262528900.
 <dd>
 John Johnson, Sergio Lubo, Nishitha Yedla, Jairo Aponte, and Bonita Sharif:
 "An Empirical Study Assessing Source Code Readability in Comprehension".
-<em>Proc. ICSME'19</em>, <a href="https://doi.org/10.1109/ICSME.2019.00085">10.1109/ICSME.2019.00085</a>.
+<em>Proc. ICSME'19</em>, <a class="doi" href="https://doi.org/10.1109/ICSME.2019.00085">10.1109/ICSME.2019.00085</a>.
 </dd>
 <dt id="kernighan1979" class="bibliography">Kernighan1979</dt>
 <dd>
@@ -127,7 +127,7 @@ Addison-Wesley, 2007, 978-0131495050.
 <dd>
 Anne Minahan:
 "Martha's Rules".
-<em>Affilia</em>, 1(2), 1986, <a href="https://doi.org/10.1177/088610998600100206">10.1177/088610998600100206</a>.
+<em>Affilia</em>, 1(2), 1986, <a class="doi" href="https://doi.org/10.1177/088610998600100206">10.1177/088610998600100206</a>.
 </dd>
 <dt id="oram2007" class="bibliography">Oram2007</dt>
 <dd>
@@ -174,7 +174,7 @@ Addison-Wesley Professional, 2011, 978-0134185965.
 <dd>
 Morgan Taschuk and Greg Wilson:
 "Ten Simple Rules for Making Research Software More Robust".
-<em>PLoS Computational Biology</em>, 13(4), 2017, <a href="https://doi.org/10.1371/journal.pcbi.1005412">10.1371/journal.pcbi.1005412</a>.
+<em>PLoS Computational Biology</em>, 13(4), 2017, <a class="doi" href="https://doi.org/10.1371/journal.pcbi.1005412">10.1371/journal.pcbi.1005412</a>.
 </dd>
 <dt id="tudose2020" class="bibliography">Tudose2020</dt>
 <dd>

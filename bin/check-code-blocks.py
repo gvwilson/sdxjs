@@ -8,20 +8,12 @@ import sys
 import utils
 
 
-# Known languages.
-LANGUAGES = {
-    'html',
-    'make',
-    'out',
-    'python',
-    'sh',
-    'txt'
-}
-
 def check_code_blocks(options):
     '''Main driver.'''
+    config = utils.read_yaml(options.config)
+    filenames = [entry['file'] for entry in utils.get_entry_info(config)]
     result = {}
-    for filename in options.sources:
+    for filename in filenames:
         problems = find_problems(filename)
         if problems:
             result[filename] = problems
@@ -40,7 +32,7 @@ def find_problems(filename):
                 in_code = False
             else:
                 line = line.strip().replace('```', '', 1)
-                if (not line) or (line not in LANGUAGES):
+                if (not line) or (line not in utils.LANGUAGES):
                     result.append(i+1)
                 in_code = True
     return result
@@ -58,6 +50,6 @@ def report(result):
 
 if __name__ == '__main__':
     options = utils.get_options(
-        ['--sources', True, 'List of input files']
+        ['--config', False, 'Path to YAML configuration file']
     )
     check_code_blocks(options)

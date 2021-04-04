@@ -13,8 +13,26 @@ WIDTH = 72
 # Length of included chunks.
 LENGTH = 30
 
+# Known languages.
+LANGUAGES = {
+    'html',
+    'js',
+    'make',
+    'out',
+    'py',
+    'sh',
+    'txt',
+    'yml'
+}
+
+# Multiple consecutive whitespace characters.
+WHITESPACE = re.compile(r'\s+')
+
 # Glossary references use <span g="...">...</span>.
-GLOSS_REF = re.compile(r'<span\s+g="(.+?)">', re.DOTALL)
+GLOSS_REF = re.compile(r'<span[^>]+g="(.+?)"[^>]*>', re.DOTALL)
+
+# Index references use <span i="...">...</span>.
+INDEX_REF = re.compile(r'<span[^>]+i="(.+?)"[^>]*>', re.DOTALL)
 
 # Citations use <cite>key,key</cite>.
 CITATION = re.compile(r'<cite>(.+?)</cite>', re.DOTALL)
@@ -79,7 +97,7 @@ def get_all_matches(pattern, filenames, group=1, scrub=True, no_duplicates=False
 
 
 def get_entry_info(config):
-    '''Return dictionary of {slug, filename, label} for all chapters.'''
+    '''Return dictionary of {slug, title, file, kind, label} for all chapters.'''
     num_chapters = None
     kind = 'Chapter'
     result = []
@@ -100,15 +118,17 @@ def get_entry_info(config):
     return result
 
 
-def get_matches(pattern, filename, group=1, scrub=True, duplicates=None):
+def get_matches(pattern, filename, group=1, scrub=True, duplicates=None, split=True):
     '''Get matches from a single file.'''
     result = set()
     text = read_file(filename, scrub)
     for match in pattern.finditer(text):
-        for key in match.group(group).split(','):
-            if (duplicates is not None) and (key in result):
-                duplicates.append(key)
-            result.add(key.strip())
+        words = match.group(group)
+        words = words.split(',') if split else [words]
+        for word in words:
+            if (duplicates is not None) and (word in result):
+                duplicates.append(word)
+            result.add(word.strip())
     return result
 
 

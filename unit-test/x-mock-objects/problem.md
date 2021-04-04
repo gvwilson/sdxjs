@@ -1,4 +1,4 @@
-A <span mock_object>mock object</span> is a simplified replacement for part of a program
+A mock object is a simplified replacement for part of a program
 whose behavior is easier to control and predict than the thing it is replacing.
 For example,
 we may want to test that our program does the right thing if an error occurs while reading a file.

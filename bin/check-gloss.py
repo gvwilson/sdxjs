@@ -20,7 +20,7 @@ def check_gloss(options):
     '''Main driver.'''
     glossary = utils.read_yaml(options.glossary)
     check_keys(glossary, options.language)
-    check_order(glossary)
+    check_order(glossary, options.language)
     defined = get_definitions(glossary)
     referenced = utils.get_all_matches(utils.GLOSS_REF, options.sources, no_duplicates=True)
     referenced |= get_internal(glossary, options.language)
@@ -47,13 +47,13 @@ def check_keys(glossary, language):
             print(f'    - {message}')
 
 
-def check_order(glossary):
-    '''Check that entries are in alphabetical order.'''
+def check_order(glossary, language):
+    '''Check that entries are in alphabetical order for the given language.'''
     previous = None
     unordered = []
     for entry in glossary:
         if previous is not None:
-            if entry['key'].lower() < previous['key'].lower():
+            if entry[language]['term'].lower() < previous[language]['term'].lower():
                 unordered.append(entry['key'])
         previous = entry
     if unordered:

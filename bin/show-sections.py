@@ -13,17 +13,11 @@ def show_sections(options):
     config = utils.read_yaml(options.config)
     print('Chapter | Section | Words')
     print('------- | ------- | -----')
-    for (title, filename) in get_entries(config):
-        for (heading, words) in measure_sections(filename):
+    for info in utils.get_entry_info(config):
+        title = info["title"]
+        for (heading, words) in measure_sections(info["file"]):
             print(f'{title} | {heading} | {words}')
             title = ''
-
-
-def get_entries(config):
-    '''Get titles and filenames.'''
-    return [(entry['title'], entry['file'] if ('file' in entry) else f'./{entry["slug"]}/index.md')
-            for entry in config['chapters']
-            if 'appendix' not in entry]
 
 
 def measure_sections(filename):
