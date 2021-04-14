@@ -12,13 +12,16 @@ And since anything that touches the hard drive is slow from a processor's point 
 
 ### How slow is slow?
 
-<cite>Gregg2020</cite> used the analogy in <span t="systems-programming-times"></span>
+<cite>Gregg2020</cite> used the analogy in <span t="systems-programming-times"/>
 to show how long it takes a computer to do different things
 if we imagine that one CPU cycle is equivalent to one second.
 
 </div>
 
-{% include table id="systems-programming-times" file="times.tbl" cap="Computer operation times at human scale." %}
+{% include table
+   id="systems-programming-times"
+   file="times.tbl"
+   cap="Computer operation times at human scale." %}
 
 Early JavaScript programs used <span g="callback">callback functions</span> to describe asynchronous operations,
 but as we're about to see,
@@ -29,7 +32,7 @@ to make callbacks easier to manage,
 and more recently they have added new keywords called `async` and `await` to make it easier still.
 We need to understand all three layers in order to debug things when they go wrong,
 so this chapter explores callbacks,
-while <span x="async-programming"></span> shows how promises and `async`/`await` work.
+while <span x="async-programming"/> shows how promises and `async`/`await` work.
 This chapter also shows how to read and write files and directories with Node's standard libraries,
 because we're going to be doing that a lot.
 
@@ -70,9 +73,13 @@ which Node automatically stores in an array called `process.argv`.
 `process.argv[0]` is the name of the program used to run our code (in this case `node`),
 while `process.argv[1]` is the name of our program (in this case `list-dir-wrong.js`);
 the rest of `process.argv` holds whatever arguments we gave at the command line when we ran the program,
-so `process.argv[2]` is the first argument after the name of our program (<span f="systems-programming-process-argv"></span>):
+so `process.argv[2]` is the first argument after the name of our program (<span f="systems-programming-process-argv"/>):
 
-{% include figure id='systems-programming-process-argv' img='figures/process-argv.svg' alt='Command-line arguments in `process.argv`' cap='How Node stores command-line arguments in <code>process.argv</code>.' %}
+{% include figure
+   id='systems-programming-process-argv'
+   img='figures/process-argv.svg'
+   alt='Command-line arguments in `process.argv`'
+   cap='How Node stores command-line arguments in <code>process.argv</code>.' %}
 
 If we run this program with the name of a directory as its argument,
 `fs.readdir` returns the names of the things in that directory as an array of strings.
@@ -126,12 +133,16 @@ but we need to write a function that specifies the second part.
 
 JavaScript saves a reference to this function
 and calls with a specific set of parameters when our data is ready
-(<span f="systems-programming-callbacks"></span>).
+(<span f="systems-programming-callbacks"/>).
 Those parameters defined a standard <span g="protocol">protocol</span>
 for connecting to libraries,
 just like the USB standard allows us to plug hardware devices together.
 
-{% include figure id='systems-programming-callbacks' img='figures/callbacks.svg' alt='Running callbacks' cap='How JavaScript runs callback functions.' %}
+{% include figure
+   id='systems-programming-callbacks'
+   img='figures/callbacks.svg'
+   alt='Running callbacks'
+   cap='How JavaScript runs callback functions.' %}
 
 This corrected program gives `fs.readdir` a callback function called `listContents`:
 
@@ -151,7 +162,7 @@ as an argument:
 
 Nothing that follows will make sense if we don't understand
 the order in which Node executes the statements in this program
-(<span f="systems-programming-execution-order"></span>):
+(<span f="systems-programming-execution-order"/>):
 
 1.  Execute the first line to load the `fs` library.
 
@@ -169,7 +180,11 @@ the order in which Node executes the statements in this program
 
 1.  Run the callback function, which prints the directory listing.
 
-{% include figure id='systems-programming-execution-order' img='figures/execution-order.svg' alt='Callback execution order' cap='When JavaScript runs callback functions.' %}
+{% include figure
+   id='systems-programming-execution-order'
+   img='figures/execution-order.svg'
+   alt='Callback execution order'
+   cap='When JavaScript runs callback functions.' %}
 
 ## What are anonymous functions?
 
@@ -182,12 +197,16 @@ to define it where it is needed
 as an <span g="anonymous_function">anonymous function</span>.
 This makes it easier to see what's going to happen when the operation completes,
 though it means the order of execution is quite different from the order of reading
-(<span f="systems-programming-anonymous-functions"></span>).
+(<span f="systems-programming-anonymous-functions"/>).
 Using an anonymous function gives us the final version of our program:
 
 {% include file file='list-dir-function-anonymous.js' %}
 
-{% include figure id='systems-programming-anonymous-functions' img='figures/anonymous-functions.svg' alt='Anonymous functions as callbacks' cap='How and when JavaScript creates and runs anonymous callback functions.' %}
+{% include figure
+   id='systems-programming-anonymous-functions'
+   img='figures/anonymous-functions.svg'
+   alt='Anonymous functions as callbacks'
+   cap='How and when JavaScript creates and runs anonymous callback functions.' %}
 
 <div class="callout" markdown="1">
 
@@ -223,7 +242,7 @@ and does something with every filename that matched the pattern:
 
 The leading `**` means "recurse into subdirectories",
 while `*.*` means "any characters followed by '.' followed by any characters"
-(<span f="systems-programming-globbing"></span>).
+(<span f="systems-programming-globbing"/>).
 Names that don't match `*.*` won't be included,
 and by default,
 neither are names that start with a '.' character.
@@ -232,7 +251,11 @@ files and directories whose names have a leading '.'
 usually contain configuration information for various programs,
 so most commands will leave them alone unless told to do otherwise.
 
-{% include figure id='systems-programming-globbing' img='figures/globbing.svg' alt='Matching filenames with `glob`' cap='Using <code>glob</code> patterns to match filenames.' %}
+{% include figure
+   id='systems-programming-globbing'
+   img='figures/globbing.svg'
+   alt='Matching filenames with `glob`'
+   cap='Using <code>glob</code> patterns to match filenames.' %}
 
 This program works,
 but we probably don't want to copy Emacs backup files whose names end with `~`.
@@ -241,7 +264,7 @@ We can get rid of them by <span g="filter">filtering</span> the list that `glob`
 {% include multi pat='glob-get-then-filter-pedantic.*' fill='js slice.out' %}
 
 `Array.filter` creates a new array containing all the items of the original array that pass a test
-(<span f="systems-programming-array-filter"></span>).
+(<span f="systems-programming-array-filter"/>).
 The test is specified as a callback function
 that `Array.filter` calls once once for each item.
 This function must return a <span g="boolean">Boolean</span>
@@ -249,7 +272,11 @@ that tells `Array.filter` whether to keep the item in the new array or not.
 `Array.filter` does not modify the original array,
 so we can filter our original list of filenames several times if we want to.
 
-{% include figure id='systems-programming-array-filter' img='figures/array-filter.svg' alt='Using `Array.filter`' cap='Selecting array elements using <code>Array.filter</code>.' %}
+{% include figure
+   id='systems-programming-array-filter'
+   img='figures/array-filter.svg'
+   alt='Using `Array.filter`'
+   cap='Selecting array elements using <code>Array.filter</code>.' %}
 
 We can make our globbing program more idiomatic by
 removing the parentheses around the single parameter
@@ -326,13 +353,17 @@ we can construct the full output path by replacing the name of the source direct
 {: .continue}
 This program uses <span g="destructuring_assignment">destructuring assignment</span> to create two variables at once
 by unpacking the elements of an array
-(<span f="systems-programming-destructuring-assignment"></span>).
+(<span f="systems-programming-destructuring-assignment"/>).
 It only works if the array contains the enough elements,
 i.e.,
 if both a source and destination are given on the command line;
 we'll add a check for that in the exercises.
 
-{% include figure id='systems-programming-destructuring-assignment' img='figures/destructuring-assignment.svg' alt='Matching values with destructuring assignment' cap='Assigning many values at once by destructuring.' %}
+{% include figure
+   id='systems-programming-destructuring-assignment'
+   img='figures/destructuring-assignment.svg'
+   alt='Matching values with destructuring assignment'
+   cap='Assigning many values at once by destructuring.' %}
 
 A more serious problem is that
 this program only works if the destination directory already exists:
@@ -373,7 +404,7 @@ Let's use `fs.copy` to do that:
 {% include file file='copy-file-unfiltered.js' %}
 
 The program now has three levels of callback
-(<span f="systems-programming-triple-callback"></span>):
+(<span f="systems-programming-triple-callback"/>):
 
 1.  When `glob` has data, do things and then call `ensureDir`.
 
@@ -381,7 +412,11 @@ The program now has three levels of callback
 
 1.  When `copy` finishes, check the error status.
 
-{% include figure id='systems-programming-triple-callback' img='figures/triple-callback.svg' alt='Three levels of callback' cap='Three levels of callback in the running example.' %}
+{% include figure
+   id='systems-programming-triple-callback'
+   img='figures/triple-callback.svg'
+   alt='Three levels of callback'
+   cap='Three levels of callback in the running example.' %}
 
 Our program looks like it should work,
 but if we try to copy everything in the directory containing these lessons
@@ -405,5 +440,5 @@ Here's the final version of our file copying program:
 {: .continue}
 It works,
 but four levels of asynchronous callbacks is hard for humans to understand.
-<span x="async-programming"></span> will introduce a pair of tools
+<span x="async-programming"/> will introduce a pair of tools
 that make code like this easier to read.

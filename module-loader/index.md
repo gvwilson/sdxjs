@@ -1,7 +1,7 @@
 ---
 ---
 
-<span x="file-interpolator"></span> showed how to use `eval` to load code dynamically.
+<span x="file-interpolator"/> showed how to use `eval` to load code dynamically.
 We can use this to build our own version of JavaScript's `require` function
 (the predecessor to `import`).
 Our function will take the name of a source file as an argument
@@ -25,13 +25,17 @@ so we have to implement them ourselves.
 We can do this using <span g="closure">closures</span>.
 Every function is a namespace:
 variables defined inside the function are distinct from variables defined outside it
-(<span f="module-loader-closures"></span>).
+(<span f="module-loader-closures"/>).
 If we create the variables we want to manage inside a function,
 then defined another function inside the first
 and return that <span g="inner_function">inner function</span>,
 that inner function will be the only thing with references to those variables.
 
-{% include figure id='module-loader-closures' img='figures/closures.svg' alt='How closures work' cap='Using closures to create private variables.' %}
+{% include figure
+   id='module-loader-closures'
+   img='figures/closures.svg'
+   alt='How closures work'
+   cap='Using closures to create private variables.' %}
 
 For example,
 let's create a function that always appends the same string to its argument:
@@ -91,9 +95,13 @@ we call the object we pass in `result` in `loadModule`.
 
 {% include file file='load-module-only.js' %}
 
-{% include figure id='module-loader-iife' img='figures/iife.svg' alt='Implementing modules with IIFEs' cap='Using IIFEs to encapsulate modules and get their exports.' %}
+{% include figure
+   id='module-loader-iife'
+   img='figures/iife.svg'
+   alt='Implementing modules with IIFEs'
+   cap='Using IIFEs to encapsulate modules and get their exports.' %}
 
-<span f="module-loader-iife"></span> shows the structure of our loader so far.
+<span f="module-loader-iife"/> shows the structure of our loader so far.
 We can use this code as a test:
 
 {% include file file='small-module.js' %}
@@ -109,7 +117,7 @@ What if the code we are loading loads other code?
 We can visualize the network of who requires whom as a <span g="directed_graph">directed graph</span>:
 if X requires Y,
 we draw an arrow from X to Y.
-Unlike the directed *acyclic* graphs we met in <span x="build-manager"></span>,
+Unlike the directed *acyclic* graphs we met in <span x="build-manager"/>,
 though,
 these graphs can contain cycles:
 we say a <span g="circular_dependency">circular dependency</span> exists
@@ -123,12 +131,16 @@ and that extension calls utility functions defined in the file containing the ma
 Most compiled languages can handle circular dependencies easily:
 they compile each module into low-level instructions,
 then link those to resolve dependencies before running anything
-(<span f="module-loader-circularity"></span>).
+(<span f="module-loader-circularity"/>).
 But interpreted languages usually run code as they're loading it,
 so if X is in the process of loading Y and Y tries to call X,
 X may not (fully) exist yet.
 
-{% include figure id='module-loader-circularity' img='figures/circularity.svg' alt='Circularity test case' cap='Testing circular imports.' %}
+{% include figure
+   id='module-loader-circularity'
+   img='figures/circularity.svg'
+   alt='Circularity test case'
+   cap='Testing circular imports.' %}
 
 Circular dependencies work in [Python][python], sort of.
 Let's create two files called `major.py` and `minor.py`:
@@ -188,7 +200,7 @@ modules do need to be able to load other modules.
 To enable this,
 we need to provide the module with a function called `require`
 that it can call as it's loading.
-As in <span x="file-interpolator"></span>,
+As in <span x="file-interpolator"/>,
 this function checks a cache
 to see if the file being asked for has already been loaded.
 If not, it loads it and saves it;

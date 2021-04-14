@@ -50,7 +50,7 @@ This book can be read on its own or as a companion to *[Building Software Togeth
 which is a guide for students who are about to embark on their first large software project in a team.
 If you are looking for a project to do in a course,
 adding a tool to those covered here would be fun as well as educational.
-Please see <span x="conclusion"></span> for more details.
+Please see <span x="conclusion"/> for more details.
 
 ## What tools do we cover?
 
@@ -65,7 +65,7 @@ will explore those used in the applications that programmers build.
 
 ## What ideas do we cover?
 
-<span x="glossary"></span> defines the terms we introduce in these lessons,
+<span x="glossary"/> defines the terms we introduce in these lessons,
 which in turn define the scope of our lessons:
 
 -   How to process a program like any other piece of text.
@@ -168,13 +168,9 @@ Most of the programs are less than 60 lines long and the longest is less than 20
 we believe each chapter can be covered in class in 1-2 hours,
 while the exercises range in difficulty from a few minutes to a couple of days.
 
-## How can people contribute?
+## How can people use and contribute to this material?
 
-If you would like to improve what we have or add new material,
-please see the Code of Conduct in <span x="conduct"></span>
-and the contributor guidelines in <span x="contributing"></span>.
-If you have questions or would like to use this material in a course,
-please [send us email][email].
+{% include contributing.md %}
 
 ## Who helped us and inspired us?
 

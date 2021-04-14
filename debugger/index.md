@@ -8,20 +8,20 @@ but are taught far less often
 (in part, we believe, because it's harder to create homework questions for them).
 In this chapter we will build a simple single-stepping debugger;
 in doing so,
-we will show one way to test interactive applications (<span x="unit-test"></span>).
+we will show one way to test interactive applications (<span x="unit-test"/>).
 
 ## What is our starting point?
 
-We would like to debug a higher-level language than the assembly code of <span x="virtual-machine"></span>,
+We would like to debug a higher-level language than the assembly code of <span x="virtual-machine"/>,
 but we don't want to have to write a parser
-or wrestle with the ASTs of <span x="style-checker"></span>.
+or wrestle with the ASTs of <span x="style-checker"/>.
 As a compromise,
 we will represent programs as simple JSON data structures
 in which every element has the form `[command ...args]`:
 
 {% include file file='filter-base.json' %}
 
-Our virtual machine is structured like the one in <span x="virtual-machine"></span>.
+Our virtual machine is structured like the one in <span x="virtual-machine"/>.
 A real system would parse a program to create JSON,
 then translate JSON into assembly code,
 then assemble that to create machine instructions.
@@ -93,14 +93,18 @@ and the operation being performed:
 {% include file file='vm-callback.js' %}
 
 We also modify the VM's constructor to record the debugger and give it a reference to the virtual machine
-(<span f="debugger-initialization"></span>).
+(<span f="debugger-initialization"/>).
 We have to connect the two objects explicitly because
 each one needs a reference to the other,
 but one of them has to be created first.
 "A gets B then B tells A about itself" is a common pattern;
 we will look at other ways to manage it in the exercises.
 
-{% include figure id='debugger-initialization' img='figures/initialization.svg' alt='Initializing mutually-depending objects' cap='Two-step initialization of mutually-dependent objects.' %}
+{% include figure
+   id='debugger-initialization'
+   img='figures/initialization.svg'
+   alt='Initializing mutually-depending objects'
+   cap='Two-step initialization of mutually-dependent objects.' %}
 
 To run the program,
 we create a debugger object and pass it to the VM's constructor:
@@ -204,9 +208,13 @@ Like many tools over the past thirty years,
 our approach is based on a program called [Expect][expect].
 Our library replaces the input and output functions of the application being tested with callbacks,
 then provides input when asked and checks output when it is given
-(<span f="debugger-test-interact"></span>).
+(<span f="debugger-test-interact"/>).
 
-{% include figure id='debugger-test-interact' img='figures/test-interact.svg' alt='Testing interactive application' cap='Replacing input and output to test interactive applications.' %}
+{% include figure
+   id='debugger-test-interact'
+   img='figures/test-interact.svg'
+   alt='Testing interactive application'
+   cap='Replacing input and output to test interactive applications.' %}
 
 {: .continue}
 The results look like this:

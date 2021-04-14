@@ -26,7 +26,7 @@ and then draw the result as text on the screen.
 The coordinate systems for screens put (0, 0) in the upper left corner instead of the lower left.
 X increases to the right as usual,
 but Y increases as we go down, rather than up
-(<span f="layout-engine-coordinate-system"></span>).
+(<span f="layout-engine-coordinate-system"/>).
 This convention is a holdover from the days of teletype terminals
 that printed lines on rolls of paper;
 as [Mike Hoye][hoye-mike] has [repeatedly observed][punching-holes],
@@ -34,7 +34,11 @@ the past is all around us.
 
 </div>
 
-{% include figure id='layout-engine-coordinate-system' img='figures/coordinate-system.svg' alt='Coordinate system' cap='Coordinate system with (0, 0) in the upper left corner.' %}
+{% include figure
+   id='layout-engine-coordinate-system'
+   img='figures/coordinate-system.svg'
+   alt='Coordinate system'
+   cap='Coordinate system with (0, 0) in the upper left corner.' %}
 
 ## How can we size rows and columns?
 
@@ -49,11 +53,15 @@ A block has a fixed width and height:
 A row arranges one or more cells horizontally;
 its width is the sum of the widths of its children,
 while its height is the height of its tallest child
-(<span f="layout-engine-sizing"></span>):
+(<span f="layout-engine-sizing"/>):
 
 {% include keep file='easy-mode.js' key='row' %}
 
-{% include figure id='layout-engine-sizing' img='figures/sizing.svg' alt='Calculating sizes of fixed blocks' cap='Calculating sizes of blocks with fixed width and height.' %}
+{% include figure
+   id='layout-engine-sizing'
+   img='figures/sizing.svg'
+   alt='Calculating sizes of fixed blocks'
+   cap='Calculating sizes of blocks with fixed width and height.' %}
 
 Finally,
 a column arranges one or more cells vertically;
@@ -96,14 +104,18 @@ we get its height
 and then calculate its lower edge as y1 = y0 + height.
 We then place the first child's lower-left corner at (x0, y1),
 the second child's at (x0 + width0, y1), and so on
-(<span f="layout-engine-layout"></span>).
+(<span f="layout-engine-layout"/>).
 Similarly,
 if the cell is a column
 we place the first child at (x0, y0),
 the next at (x0, y0 + height0),
 and so on.
 
-{% include figure id='layout-engine-layout' img='figures/layout.svg' alt='Laying out rows and columns' cap='Laying out rows and columns of fixed-size blocks.' %}
+{% include figure
+   id='layout-engine-layout'
+   img='figures/layout.svg'
+   alt='Laying out rows and columns'
+   cap='Laying out rows and columns of fixed-size blocks.' %}
 
 To save ourselves some testing we will derive the classes that know how to do layout
 from the classes we wrote before.
@@ -136,12 +148,16 @@ and then having each block draw itself in the right place.
 If we do this starting at the root of the tree,
 child blocks will overwrite the markings made by their parents,
 which will automatically produce the right appearance
-(<span f="layout-engine-draw-over"></span>).
+(<span f="layout-engine-draw-over"/>).
 (A more sophisticated version of this called <span g="z_buffering">z-buffering</span>
 keeps track of the visual depth of each pixel
 in order to draw things in three dimensions.)
 
-{% include figure id='layout-engine-draw-over' img='figures/draw-over.svg' alt='Children drawing over their parents' cap='Render blocks by drawing child nodes on top of parent nodes.' %}
+{% include figure
+   id='layout-engine-draw-over'
+   img='figures/draw-over.svg'
+   alt='Children drawing over their parents'
+   cap='Render blocks by drawing child nodes on top of parent nodes.' %}
 
 Our pretended screen is just an array of arrays of characters:
 
@@ -212,12 +228,16 @@ the class representing columns needs a new method:
 Rows do all the hard work.
 Each original row is replaced with a new row that contains a single column with one or more rows,
 each of which is one "line" of wrapped cells
-(<span f="layout-engine-wrap"></span>).
+(<span f="layout-engine-wrap"/>).
 This replacement is unnecessary when everything will fit on a single row,
 but it's easiest to write the code that does it every time;
 we will look at making this more efficient in the exercises.
 
-{% include figure id='layout-engine-wrap' img='figures/wrap.svg' alt='Wrapping rows' cap='Wrapping rows by introducing a new row and column.' %}
+{% include figure
+   id='layout-engine-wrap'
+   img='figures/wrap.svg'
+   alt='Wrapping rows'
+   cap='Wrapping rows by introducing a new row and column.' %}
 
 Our new wrappable row's constructor takes a fixed width followed by the children
 and returns that fixed width when asked for its size:
@@ -277,7 +297,7 @@ these three classes are just over 40 lines of code:
 {% include erase file='micro-dom.js' key='erase' %}
 
 We will use regular expressions to parse HTML
-(though as we explained in <span x="regex-parser"></span>,
+(though as we explained in <span x="regex-parser"/>,
 [this is a sin][stack-overflow-html-regex]).
 The main body of our parser is:
 

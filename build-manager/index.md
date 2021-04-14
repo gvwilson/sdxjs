@@ -1,7 +1,7 @@
 ---
 ---
 
-Suppose we are using a page templating system to create a website (<span x="page-templates"></span>).
+Suppose we are using a page templating system to create a website (<span x="page-templates"/>).
 If we a change a single page our tool should translate it,
 but shouldn't waste time translating others.
 If we change a template,
@@ -18,11 +18,15 @@ there are usually two stages to the translation:
 compiling each source file into some intermediate form,
 and then <span g="link">linking</span> the compiled modules to each other and to libraries
 to create a runnable program
-(<span f="build-manager-compiling"></span>).
+(<span f="build-manager-compiling"/>).
 If a source file hasn't changed,
 there's no need to recompile it before linking.
 
-{% include figure id='build-manager-compiling' img='figures/compiling.svg' alt='Compiling and linking' cap='Compiling source files and linking the resulting modules.' %}
+{% include figure
+   id='build-manager-compiling'
+   img='figures/compiling.svg'
+   alt='Compiling and linking'
+   cap='Compiling source files and linking the resulting modules.' %}
 
 A <span g="build_manager">build manager</span> takes a description of what depends on what,
 figures out which files are out of date,
@@ -30,8 +34,8 @@ determines an order in which to rebuild things,
 and then executes any necessary steps.
 Originally created to manage compilation,
 they are also useful for programs written in <span g="interpreted_language">interpreted languages</span> like JavaScript
-when we want to bundle multiple modules into a single loadable file (<span x="module-bundler"></span>)
-or re-create documentation from source code (<span x="doc-generator"></span>).
+when we want to bundle multiple modules into a single loadable file (<span x="module-bundler"/>)
+or re-create documentation from source code (<span x="doc-generator"/>).
 In this chapter we will create a simple build manager
 based on [Make][gnu-make], [Bajel][bajel], [Jake][jake],
 and other systems discussed in <cite>Smith2011</cite>.
@@ -51,7 +55,7 @@ each of which has:
 
 The target of one rule can be a dependency of another rule,
 so the relationships between the files form a <span g="dag">directed acyclic graph</span> or DAG
-(<span f="build-manager-dependencies"></span>).
+(<span f="build-manager-dependencies"/>).
 The graph is directed because "A depends on B" is a one-way relationship;
 it cannot contain cycles (or loops) because
 if something depends on itself we can never finish updating it.
@@ -59,7 +63,11 @@ We say that a target is <span g="build_stale">stale</span> if it is older than a
 When this happens,
 we use the recipes to bring it up to date.
 
-{% include figure id='build-manager-dependencies' img='figures/dependencies.svg' alt='Respecting dependencies' cap='How a build manager finds and respects dependencies.' %}
+{% include figure
+   id='build-manager-dependencies'
+   img='figures/dependencies.svg'
+   alt='Respecting dependencies'
+   cap='How a build manager finds and respects dependencies.' %}
 
 Our build manager must:
 
@@ -104,7 +112,7 @@ and runs the `.build` method of that object with the rest of the command-line pa
 {% include file file='driver.js' %}
 
 {: .continue}
-We use the `import` function to dynamically load files containing in <span x="unit-test"></span> as well.
+We use the `import` function to dynamically load files containing in <span x="unit-test"/> as well.
 It only saves us a few lines of code in this case,
 but we will use this idea of a general-purpose driver for larger programs in future chapters.
 
@@ -118,7 +126,7 @@ each version of our build manager must be a class that satisfies two requirement
 The `build` method must create a graph from the configuration file,
 check that it does not contain any <span g="cycle">cycles</span>,
 and then run whatever commands are needed to update stale targets.
-Just as we built a generic `Visitor` class in <span x="page-templates"></span>,
+Just as we built a generic `Visitor` class in <span x="page-templates"/>,
 we can build a generic base class for our build manager that does these steps in this order
 without actually implementing any of them:
 
@@ -127,11 +135,15 @@ without actually implementing any of them:
 This is an example of the <span g="template_method_pattern">Template Method</span> design pattern:
 the parent class defines the order of the steps
 and child classes fill them in
-(<span f="build-manager-template-method"></span>).
+(<span f="build-manager-template-method"/>).
 This design pattern ensures that every child does the same things in the same order,
 even if the details of *how* vary from case to case.
 
-{% include figure id='build-manager-template-method' img='figures/template-method.svg' alt='Template Method pattern' cap='The Template Method pattern in action.' %}
+{% include figure
+   id='build-manager-template-method'
+   img='figures/template-method.svg'
+   alt='Template Method pattern'
+   cap='The Template Method pattern in action.' %}
 
 We would normally implement all of the methods required by the `build` method at the same time,
 but to make the evolving code easier to follow we will write them them one by one.
@@ -145,7 +157,7 @@ The first line does the loading;
 the rest of the method checks that the rules are at least superficially plausible.
 We need these checks because YAML is a generic file format
 that doesn't know anything about the extra requirements of our rules.
-And as we first saw in <span x="async-programming"></span>,
+And as we first saw in <span x="async-programming"/>,
 we have to specify that the character encoding of our file is UTF-8
 so that JavaScript knows how to convert bytes into text.
 
@@ -193,9 +205,9 @@ and the operating system may only report file update times to the nearest millis
 
 More modern build systems store a hash of each file's contents
 and compare the current hash to the stored one to see if the file has changed.
-Since we already looked at hashing in <span x="file-backup"></span>,
+Since we already looked at hashing in <span x="file-backup"/>,
 we will use the timestamp approach here.
-And instead of using a mock filesystem as we did in <span x="file-backup"></span>,
+And instead of using a mock filesystem as we did in <span x="file-backup"/>,
 we will simply load another configuration file that specifies fake timestamps for files:
 
 {% include file file='add-timestamps.yml' %}
@@ -288,9 +300,13 @@ Our variables will be more readable:
 we will use `@TARGET` for the target,
 `@DEPENDENCIES` for the dependencies (in order),
 and `@DEP[1]`, `@DEP[2]`, and so on for specific dependencies
-(<span f="build-manager-pattern-rules"></span>).
+(<span f="build-manager-pattern-rules"/>).
 
-{% include figure id='build-manager-pattern-rules' img='figures/pattern-rules.svg' alt='Pattern rules' cap='Turning patterns rules into runnable commands.' %}
+{% include figure
+   id='build-manager-pattern-rules'
+   img='figures/pattern-rules.svg'
+   alt='Pattern rules'
+   cap='Turning patterns rules into runnable commands.' %}
 
 Our variable expander looks like this:
 

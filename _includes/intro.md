@@ -16,7 +16,7 @@ All of the written material in this project can be freely reused
 under the terms of the [Creative Commons - Attribution license][cc-by],
 while all of the software is made available under the terms of
 the [Hippocratic License][hippocratic-license];
-see <span x="license"></span> for details.
+see <span x="license"/> for details.
 
 <div class="centered" markdown="1">
 

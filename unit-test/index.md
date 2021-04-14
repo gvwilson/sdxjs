@@ -49,10 +49,14 @@ to determine the class of an object.
 If a test <span g="throw_exception">throws an exception</span> whose class is `assert.AssertionError`,
 then we will assume the exception came from
 one of the assertions we put in the test as a check
-(<span f="unit-test-mental-model"></span>).
+(<span f="unit-test-mental-model"/>).
 Any other kind of assertion indicates that the test itself contains an error.
 
-{% include figure id='unit-test-mental-model' img='figures/mental-model.svg' alt='Mental model of unit testing' cap='Running tests that can pass, fail, or contain errors.' %}
+{% include figure
+   id='unit-test-mental-model'
+   img='figures/mental-model.svg'
+   alt='Mental model of unit testing'
+   cap='Running tests that can pass, fail, or contain errors.' %}
 
 ## How can we separate test registration, execution, and reporting?
 
@@ -146,9 +150,13 @@ This strategy relies on two things:
 Once a program has imported `hope`,
 it can call `Hope.test` to record a test for later execution
 and `Hope.run` to execute all of the tests registered up until that point
-(<span f="unit-test-hope-structure"></span>).
+(<span f="unit-test-hope-structure"/>).
 
-{% include figure id='unit-test-hope-structure' img='figures/hope-structure.svg' alt='Recording and running tests' cap='Creating a singleton, recording tests, and running them.' %}
+{% include figure
+   id='unit-test-hope-structure'
+   img='figures/hope-structure.svg'
+   alt='Recording and running tests'
+   cap='Creating a singleton, recording tests, and running them.' %}
 
 Finally,
 our `Hope` class can report results as both a terse one-line summary and as a detailed listing.
@@ -275,7 +283,7 @@ is a common pattern in many programming languages.
 Control flow goes back and forth between the framework and the module being loaded
 as this happens
 so we must specify the <span g="lifecycle">lifecycle</span> of the loaded modules quite carefully.
-<span f="unit-test-lifecycle"></span> illustrates what span
+<span f="unit-test-lifecycle"/> illustrates what span
 when a pair of files `test-add.js` and `test-sub.js` are loaded by our framework:
 
 1.  `pray` loads `hope.js`.
@@ -291,4 +299,8 @@ when a pair of files `test-add.js` and `test-sub.js` are loaded by our framework
 10.  `pray` can now ask the unique instance of `Hope` to run all of the tests,
      then get a report from the `Hope` singleton and display it.
 
-{% include figure id='unit-test-lifecycle' img='figures/lifecycle.svg' alt='Unit testing lifecycle' cap='Lifecycle of dynamically-discovered unit tests.' %}
+{% include figure
+   id='unit-test-lifecycle'
+   img='figures/lifecycle.svg'
+   alt='Unit testing lifecycle'
+   cap='Lifecycle of dynamically-discovered unit tests.' %}

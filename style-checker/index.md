@@ -21,7 +21,7 @@ which is that source code is just another kind of data.
 
 ### Don't define your own style
 
-Just as the world doesn't need more file format (<span x="regex-parser"></span>)
+Just as the world doesn't need more file format (<span x="regex-parser"/>)
 it also doesn't need more programming styles,
 or more arguments among programmers about whether there should be spaces before curly braces or not.
 [Standard JS][standard-js] may not do everything exactly the way you want,
@@ -37,11 +37,15 @@ so we will use one called [Acorn][acorn] instead.
 Acorn takes a string containing source code as input
 and produces an <span g="abstract_syntax_tree">abstract syntax tree</span> (AST)
 whose nodes store information about what's in the program
-(<span f="style-checker-parse-tree"></span>).
+(<span f="style-checker-parse-tree"/>).
 An AST is for a program what the DOM is for HTML:
 an in-memory representation that is easy for software to inspect and manipulate.
 
-{% include figure id='style-checker-parse-tree' img='figures/parse-tree.svg' alt='A small parse tree' cap='The parse tree of a simple program.' %}
+{% include figure
+   id='style-checker-parse-tree'
+   img='figures/parse-tree.svg'
+   alt='A small parse tree'
+   cap='The parse tree of a simple program.' %}
 
 ASTs can be quite complex---for example,
 the JSON representation of the AST for a single constant declaration
@@ -68,7 +72,7 @@ we need to <span g="walk_tree">walk the tree</span>,
 i.e.,
 to visit each node in turn.
 The [`acorn-walk`][acorn-walk] library will do this for us
-using the Visitor design pattern we first saw in <span x="page-templates"></span>
+using the Visitor design pattern we first saw in <span x="page-templates"/>
 If we provide a function to act on nodes of type `Identifier`,
 `acorn-walk` will call that function each time it finds an identifier.
 We can use other options to say that we want to record the locations of nodes (i.e., their line numbers)
@@ -76,9 +80,13 @@ and to collect comments in an array called `onComment`.
 Our function can do whatever we want;
 for demonstration purposes we will add nodes to an array called `state`
 and report them all at the end
-(<span f="style-checker-walk-tree"></span>).
+(<span f="style-checker-walk-tree"/>).
 
-{% include figure id='style-checker-walk-tree' img='figures/walk-tree.svg' alt='Walking a tree' cap='Walking a tree to perform an operation at each node.' %}
+{% include figure
+   id='style-checker-walk-tree'
+   img='figures/walk-tree.svg'
+   alt='Walking a tree'
+   cap='Walking a tree to perform an operation at each node.' %}
 
 {% include multi pat='walk-ast.*' fill='js out' %}
 
@@ -212,11 +220,15 @@ we should implement it that way everywhere.
 A third approach to this problem uses the <span g="iterator_pattern">Iterator</span> design pattern.
 Instead of taking the computation to the nodes as a visitor does,
 an iterator returns the elements of a complex structure one by one for processing
-(<span f="style-checker-iterator"></span>).
+(<span f="style-checker-iterator"/>).
 One way to think about it is that the Visitor pattern encapsulates recursion,
 while the Iterator pattern turns everything into a `for` loop.
 
-{% include figure id='style-checker-iterator' img='figures/iterator.svg' alt='The Iterator pattern' cap='Finding nodes in the tree using the Iterator pattern.' %}
+{% include figure
+   id='style-checker-iterator'
+   img='figures/iterator.svg'
+   alt='The Iterator pattern'
+   cap='Finding nodes in the tree using the Iterator pattern.' %}
 
 We can implement the Iterator pattern in JavaScript using <span g="generator_function">generator functions</span>.
 If we declare a function using `function *` (with an asterisk) instead of `function`
@@ -305,7 +317,7 @@ we can print a <span g="markdown">Markdown</span>-formatted table showing which 
 
 This may seem rather pointless for our toy example,
 but it proves its worth when we are looking at something like
-the virtual machine we will build in <span x="virtual-machine"></span>,
+the virtual machine we will build in <span x="virtual-machine"/>,
 which has a method definition table like this:
 
 {% include file file='find-debugger-methods.raw.out' %}

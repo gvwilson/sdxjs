@@ -27,9 +27,13 @@ We can't rely on names because files can be renamed or moved over time;
 we could compare the files byte by byte,
 but a quicker way is to use a <span g="hash_function">hash function</span>
 that turns arbitrary data into a fixed-length string of bits
-(<span f="file-backup-hash-function"></span>).
+(<span f="file-backup-hash-function"/>).
 
-{% include figure id='file-backup-hash-function' img='figures/hash-function.svg' alt='Hash functions' cap='How hash functions speed up lookup.' %}
+{% include figure
+   id='file-backup-hash-function'
+   img='figures/hash-function.svg'
+   alt='Hash functions'
+   cap='How hash functions speed up lookup.' %}
 
 A hash function always produces the same <span g="hash_code">hash code</span> for a given input.
 A <span g="cryptographic_hash_function">cryptographic hash function</span> has two extra properties:
@@ -102,7 +106,7 @@ so that programs don't have to read entire (possibly large) files into memory.
 To start,
 this program asks the `fs` library to create a reading stream for a file
 and to <span g="pipe">pipe</span> the data from that stream to the hashing object
-(<span f="file-backup-streaming"></span>).
+(<span f="file-backup-streaming"/>).
 It then tells the hashing object what to do when there is no more data
 by providing a <span g="handler">handler</span> for the "finish" event.
 This is called asynchronously:
@@ -111,7 +115,11 @@ the main program ends before the task handling the end of data is scheduled and 
 Most programs also provide a handler for "data" events to do something with each block of data as it comes in;
 the `hash` object in our program does that for us.
 
-{% include figure id='file-backup-streaming' img='figures/streaming.svg' alt='Streaming file operations' cap='Processing files as streams of chunks.' %}
+{% include figure
+   id='file-backup-streaming'
+   img='figures/streaming.svg'
+   alt='Streaming file operations'
+   cap='Processing files as streams of chunks.' %}
 
 ## How can we back up files?
 
@@ -126,11 +134,15 @@ while the filenames tell us what each file's contents were called when the snaps
 (since files can be moved or renamed).
 To restore a particular snapshot,
 all we have to do is copy the saved `.bck` files back to where they were
-(<span f="file-backup-storage"></span>).
+(<span f="file-backup-storage"/>).
 
-{% include figure id='file-backup-storage' img='figures/storage.svg' alt='Backup file storage' cap='Organization of backup file storage.' %}
+{% include figure
+   id='file-backup-storage'
+   img='figures/storage.svg'
+   alt='Backup file storage'
+   cap='Organization of backup file storage.' %}
 
-We can build the tools we need to do this uses promises (<span x="async-programming"></span>).
+We can build the tools we need to do this uses promises (<span x="async-programming"/>).
 The main function creates a promise that uses the asynchronous version of `glob` to find files
 and then:
 
@@ -254,12 +266,16 @@ A mock object has the same interface as the function, object, class, or library 
 but is designed to be used solely for testing.
 Node's [`mock-fs`][node-mock-fs] library provides the same functions as the `fs` library,
 but stores everything in memory
-(<span f="file-backup-mock-fs"></span>).
+(<span f="file-backup-mock-fs"/>).
 This prevents our tests from accidentally disturbing the filesystem,
 and also makes tests much faster
 (since in-memory operations are thousands of times faster than operations that touch the disk).
 
-{% include figure id='file-backup-mock-fs' img='figures/mock-fs.svg' alt='Mock filesystem' cap='Using a mock filesystem to simplify testing.' %}
+{% include figure
+   id='file-backup-mock-fs'
+   img='figures/mock-fs.svg'
+   alt='Mock filesystem'
+   cap='Using a mock filesystem to simplify testing.' %}
 
 We can create a mock filesystem by giving the library a JSON description of
 the files and what they should contain:

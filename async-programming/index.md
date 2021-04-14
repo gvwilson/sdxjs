@@ -24,9 +24,13 @@ and adds any new tasks that it creates to the back of the queue to run later.
 Only one task runs at a time;
 each has its own <span g="call_stack">call stack</span>,
 but objects can be shared between tasks
-(<span f="async-programming-event-loop"></span>).
+(<span f="async-programming-event-loop"/>).
 
-{% include figure id='async-programming-event-loop' img='figures/event-loop.svg' alt='The event loop' cap='Using an event loop to manage concurrent tasks.' %}
+{% include figure
+   id='async-programming-event-loop'
+   img='figures/event-loop.svg'
+   alt='The event loop'
+   cap='Using an event loop to manage concurrent tasks.' %}
 
 Most tasks execute all the code available in the order it is written.
 For example,
@@ -65,11 +69,15 @@ so they specified a way to wrap up any task at all.
 As the listing below shows,
 the original task can generate many new tasks before it completes,
 and those tasks can run in a different order than the order in which they were created
-(<span f="async-programming-set-timeout"></span>).
+(<span f="async-programming-set-timeout"/>).
 
 {% include multi pat='callbacks-with-timeouts.*' fill='js out' %}
 
-{% include figure id='async-programming-set-timeout' img='figures/set-timeout.svg' alt='Setting a timeout' cap='Using <code>setTimeout</code> to delay operations.' %}
+{% include figure
+   id='async-programming-set-timeout'
+   img='figures/set-timeout.svg'
+   alt='Setting a timeout'
+   cap='Using <code>setTimeout</code> to delay operations.' %}
 
 If we give `setTimeout` a delay of zero milliseconds,
 the new task can be run right away,
@@ -116,9 +124,13 @@ and its job is to do whatever we want to do after the delay.
 The argument to `then` is yet another callback function;
 it will get the value passed to `resolve`,
 which is how the first part of the action communicates with the second
-(<span f="async-programming-resolve"></span>).
+(<span f="async-programming-resolve"/>).
 
-{% include figure id='async-programming-resolve' img='figures/resolve.svg' alt='How promises resolve' cap='Order of operations when a promise resolves.' %}
+{% include figure
+   id='async-programming-resolve'
+   img='figures/resolve.svg'
+   alt='How promises resolve'
+   cap='Order of operations when a promise resolves.' %}
 
 In order to make this work,
 `Pledge`'s <span g="constructor">constructor</span> must take a single function called `action`.
@@ -253,14 +265,18 @@ This is a signal that Node is delaying the execution of the code in the `then` h
 A very common pattern is to return another promise from inside `then`
 so that the next `then` is called on the returned promise,
 not on the original promise
-(<span f="async-programming-chained"></span>).
+(<span f="async-programming-chained"/>).
 This is another way to implement a fluent interface:
 if a method of one object returns a second object,
 we can call a method of the second object immediately.
 
 {% include multi pat='promise-example.*' fill='js out' %}
 
-{% include figure id='async-programming-chained' img='figures/chained.svg' alt='Chained promises' cap='Chaining promises to make asynchronous operations depend on each other.' %}
+{% include figure
+   id='async-programming-chained'
+   img='figures/chained.svg'
+   alt='Chained promises'
+   cap='Chaining promises to make asynchronous operations depend on each other.' %}
 
 We therefore have three rules for chaining promises:
 
@@ -322,7 +338,7 @@ we want to display the names of the files whose lines we're counting along with 
 To do this our `then` must return two values.
 We could put them in an array,
 but it's better practice to construct a temporary object with named fields
-(<span f="async-programming-temporary-named-fields"></span>).
+(<span f="async-programming-temporary-named-fields"/>).
 This approach allows us to add or rearrange fields without breaking code
 and also serves as a bit of documentation.
 With this change
@@ -330,9 +346,13 @@ our line-counting program becomes:
 
 {% include file file='count-lines-print-filenames.js' %}
 
-{% include figure id='async-programming-temporary-named-fields' img='figures/temporary-named-fields.svg' alt='Temporary objects with named fields' cap='Creating temporary objects with named fields to carry values forward.' %}
+{% include figure
+   id='async-programming-temporary-named-fields'
+   img='figures/temporary-named-fields.svg'
+   alt='Temporary objects with named fields'
+   cap='Creating temporary objects with named fields to carry values forward.' %}
 
-As in <span x="systems-programming"></span>,
+As in <span x="systems-programming"/>,
 this works until we run into a directory whose name name matches `*.*`,
 which we do when counting the lines in the contents of `node_modules`.
 The solution once again is to use `stat` to check if something is a file or not
@@ -377,7 +397,7 @@ This short program uses both keywords to print the first ten characters of a fil
 
 When Node sees `await` and `async`
 it silently converts the code to use promises with `then`, `resolve`, and `reject`;
-we will see how this works in <span x="code-generator"></span>.
+we will see how this works in <span x="code-generator"/>.
 In order to provide a context for this transformation
 we must put `await` inside a function that is declared to be `async`:
 we can't simply write `await fs.statAsync(...)` at the top level of our program
@@ -416,11 +436,15 @@ First,
 if we return a promise that fails without using `await`,
 then our main function will finish running before the error occurs,
 and our `try`/`catch` doesn't help us
-(<span f="async-programming-handling-errors"></span>):
+(<span f="async-programming-handling-errors"/>):
 
 {% include multi pat='return-immediately.*' fill='js out' %}
 
-{% include figure id='async-programming-handling-errors' img='figures/handling-errors.svg' alt='Handling asynchronous errors' cap='Wrong and right ways to handle errors in asynchronous code.' %}
+{% include figure
+   id='async-programming-handling-errors'
+   img='figures/handling-errors.svg'
+   alt='Handling asynchronous errors'
+   cap='Wrong and right ways to handle errors in asynchronous code.' %}
 
 One solution to this problem is to be consistent and always return something.
 Because the function is declared `async`,

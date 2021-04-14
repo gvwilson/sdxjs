@@ -11,18 +11,20 @@ EXERCISES=$(wildcard */x-*/problem.md) $(wildcard */x-*/solution.md)
 STATIC=$(wildcard static/*.*)
 TEX=$(wildcard tex/*.*)
 
-BIB_YAML=_data/bibliography.yml
+BIB_YML=_data/bibliography.yml
 BIB_MD=bibliography/index.md
 GLOSSARY_IN=_data/glossary.yml
 HOME_PAGE=${SITE}/index.html
-NUM_OUT=_data/numbering.yml
-TERMS_OUT=_data/terms.yml
-ALL_OUT=${BIB_MD} ${NUM_OUT} ${TERMS_OUT}
+INDEX_YML=_data/index.yml
+NUM_YML=_data/numbering.yml
+TERMS_YML=_data/terms.yml
+ALL_OUT=${BIB_MD} ${INDEX_YML} ${NUM_YML} ${TERMS_YML}
 EXTRA_MARKDOWN=_includes/intro.md
 
 RELEASE_FILES=\
   CONDUCT.md\
   CONTRIBUTING.md\
+  LICENSE.md\
   Makefile\
   Gemfile\
   Gemfile.lock\
@@ -43,7 +45,8 @@ RELEASE_EXCLUDES=\
   bin/__pycache__/*\
   misc\
   misc/*.*\
-  *~
+  *~\
+  */*~
 
 .DEFAULT: commands
 
@@ -60,8 +63,8 @@ serve: ${ALL_OUT} LICENSE.md
 	${JEKYLL} serve
 
 ## book.tex: create LaTeX file
-book.tex: ${HOME_PAGE} bin/html2tex.py ${NUM_OUT} ${TEX}
-	bin/html2tex.py --config ${CONFIG} --numbering ${NUM_OUT} --site _site --head tex/head.tex --foot tex/foot.tex > book.tex
+book.tex: ${HOME_PAGE} bin/html2tex.py ${NUM_YML} ${TEX}
+	bin/html2tex.py --config ${CONFIG} --numbering ${NUM_YML} --site _site --head tex/head.tex --foot tex/foot.tex > book.tex
 
 ## book.pdf: create PDF file
 book.pdf: book.tex ${TEX}
@@ -69,36 +72,21 @@ book.pdf: book.tex ${TEX}
 	makeindex book
 	@pdflatex book
 
-## make-bib-md: create Markdown version of bibliography
-make-bib-md: ${BIB_MD}
+## make-bib: create Markdown version of bibliography
+make-bib: ${BIB_MD}
+
+## make-index: create YAML version of index
+make-index: ${INDEX_YML}
 
 ## make-numbering: create YAML cross-referencing
-make-numbering: ${NUM_OUT}
+make-numbering: ${NUM_YML}
 
 ## make-spelling: create list of unknown words
 make-spelling: ${HOME_PAGE}
 	@cat ${HTML} | bin/prep-spelling.py | aspell -H list | sort | uniq
 
 ## make-terms: create YAML file listing terms per chapter
-make-terms: ${TERMS_OUT}
-
-${BIB_MD}: ${BIB_YAML} bin/make-bib-md.py
-	bin/make-bib-md.py --input ${BIB_YAML} --output ${BIB_MD}
-
-${NUM_OUT}: bin/make-numbering.py ${CONFIG} ${MARKDOWN}
-	 bin/make-numbering.py --config ${CONFIG} --output ${NUM_OUT}
-
-${TERMS_OUT}: bin/make-terms.py ${CONFIG} ${MARKDOWN} ${GLOSSARY_IN}
-	bin/make-terms.py --config ${CONFIG} --glossary ${GLOSSARY_IN} --language ${LANGUAGE} --output ${TERMS_OUT}
-
-${HOME_PAGE}: ${CONFIG} ${MARKDOWN} ${INCLUDES} ${LAYOUTS} ${STATIC} ${ALL_OUT} LICENSE.md
-	${JEKYLL} build
-
-$(filter-out bin/utils.py,$(wildcard bin/*.py)): bin/utils.py
-	touch $@
-
-LICENSE.md: _config.yml bin/make-license.py
-	@bin/make-license.py --config ${CONFIG} --output $@
+make-terms: ${TERMS_YML}
 
 ## ----
 
@@ -106,7 +94,6 @@ LICENSE.md: _config.yml bin/make-license.py
 check:
 	@make check-bib
 	@make check-gloss
-	@make check-boilerplate
 	@make check-chunk-length
 	@make check-code-blocks
 	@make check-dom
@@ -116,11 +103,7 @@ check:
 
 ## check-bib: compare citations and definitions
 check-bib:
-	@bin/check-bib.py --bibliography ${BIB_YAML} --sources ${MARKDOWN} ${BIB_YAML} _includes/intro.md
-
-## check-boilerplate: check standard files
-check-boilerplate:
-	@bin/check-boilerplate.py --config ${CONFIG} --license LICENSE.md
+	@bin/check-bib.py --bibliography ${BIB_YML} --sources ${MARKDOWN} ${GLOSSARY_IN} _includes/intro.md
 
 ## check-chunk-length: see whether any inclusions are overly long
 check-chunk-length: ${HOME_PAGE}
@@ -143,8 +126,8 @@ check-links:
 	@bin/check-links.py --config ${CONFIG} --sources ${MARKDOWN} ${EXTRA_MARKDOWN} ${EXERCISES} ${GLOSSARY_IN}
 
 ## check-numbering: make sure all internal cross-references resolve
-check-numbering: ${NUM_OUT}
-	@bin/check-numbering.py --numbering ${NUM_OUT} --sources ${MARKDOWN} ${EXERCISES}
+check-numbering: ${NUM_YML}
+	@bin/check-numbering.py --numbering ${NUM_YML} --sources ${MARKDOWN} ${EXERCISES}
 
 ## check-spelling: check for misspelled words
 check-spelling: ${HOME_PAGE}
@@ -162,11 +145,11 @@ show-dom: ${HOME_PAGE}
 
 ## show-fixme: what still needs to be done?
 show-fixme:
-	@bin/show-fixme.py --config ${CONFIG} | column -t -s '|'
+	@bin/show-fixme.py --sources ${MARKDOWN} ${GLOSSARY_IN} | column -t -s '|'
 	@fgrep fixme ${MARKDOWN} | wc -l
 
 ## show-index: what terms are indexed where?
-show-index:
+show-index: ${HOME_PAGE}
 	@bin/show-index.py --config ${CONFIG}
 
 ## show-pages: how many pages are in the PDF version?
@@ -192,6 +175,29 @@ clean:
 sterile:
 	@make clean
 	@rm -rf ${SITE}
+
+# Files
+
+${BIB_MD}: ${BIB_YML} bin/make-bib.py
+	bin/make-bib.py --input ${BIB_YML} --output ${BIB_MD}
+
+${INDEX_YML}: bin/make-index.py ${CONFIG} ${MARKDOWN}
+	bin/make-index.py --config ${CONFIG} --output ${INDEX_YML}
+
+${NUM_YML}: bin/make-numbering.py ${CONFIG} ${MARKDOWN}
+	 bin/make-numbering.py --config ${CONFIG} --output ${NUM_YML}
+
+${TERMS_YML}: bin/make-terms.py ${CONFIG} ${MARKDOWN} ${GLOSSARY_IN}
+	bin/make-terms.py --config ${CONFIG} --glossary ${GLOSSARY_IN} --language ${LANGUAGE} --output ${TERMS_YML}
+
+${HOME_PAGE}: ${CONFIG} ${MARKDOWN} ${INCLUDES} ${LAYOUTS} ${STATIC} ${ALL_OUT} LICENSE.md
+	${JEKYLL} build
+
+$(filter-out bin/utils.py,$(wildcard bin/*.py)): bin/utils.py
+	touch $@
+
+LICENSE.md: _config.yml bin/make-license.py
+	@bin/make-license.py --config ${CONFIG} --output $@
 
 # Local commands if available.
 -include local.mk

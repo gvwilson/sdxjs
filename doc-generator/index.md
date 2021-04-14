@@ -7,7 +7,7 @@ Tools that extract specially-formatted comments from code and turn them into doc
 have been around since at least the 1980s;
 many are used for JavaScript,
 including [JSDoc][jsdoc] and [ESDoc][esdoc].
-This chapter will use what we learned in <span x="code-generator"></span> about parsing source code
+This chapter will use what we learned in <span x="code-generator"/> about parsing source code
 to build a simple documentation generator of our own.
 
 ## How can we extract documentation comments?
@@ -29,9 +29,13 @@ so let's slim down the JSON that we extract:
 
 {% include multi pat='two-kinds-of-comment-subset.*' fill='sh out' %}
 
-{% include figure id='doc-generator-comments' img='figures/comments.svg' alt='Line and block comments' cap='How line comments and block comments are distinguished and represented.' %}
+{% include figure
+   id='doc-generator-comments'
+   img='figures/comments.svg'
+   alt='Line and block comments'
+   cap='How line comments and block comments are distinguished and represented.' %}
 
-Acorn distinguishes two kinds of comments (<span f="doc-generator-comments"></span>).
+Acorn distinguishes two kinds of comments (<span f="doc-generator-comments"/>).
 <span g="line_comment">Line comments</span> cannot span multiple lines;
 if one line comment occurs immediately after another,
 Acorn reports two comments:
@@ -113,14 +117,22 @@ and generally makes it something you might see in a URL:
 
 Let's run the first version of our documentation generator
 and see what it produces
-(<span f="doc-generator-process-plain"></span> and <span f="doc-generator-mapping"></span>):
+(<span f="doc-generator-process-plain"/> and <span f="doc-generator-mapping"/>):
 
 {% include file file='process-plain.sh' %}
 {% include file file='process-plain.html' %}
 
-{% include figure id='doc-generator-process-plain' img='figures/process-plain.svg' alt='Output of documentation generator' cap='The page produced by the documentation generator.' %}
+{% include figure
+   id='doc-generator-process-plain'
+   img='figures/process-plain.svg'
+   alt='Output of documentation generator'
+   cap='The page produced by the documentation generator.' %}
 
-{% include figure id='doc-generator-mapping' img='figures/mapping.svg' alt='Mapping comments to documentation' cap='How comments in code map to documentation in HTML.' %}
+{% include figure
+   id='doc-generator-mapping'
+   img='figures/mapping.svg'
+   alt='Mapping comments to documentation'
+   cap='How comments in code map to documentation in HTML.' %}
 
 It works,
 but there is a double `h1` header for each file (the filename and and the title comment),
@@ -189,12 +201,16 @@ When we run this on our test case we get:
 
 {% include file file='find-following.out' %}
 
-We can use this to create better output (<span f="doc-generator-fill-in-headers"></span>):
+We can use this to create better output (<span f="doc-generator-fill-in-headers"/>):
 
 {% include file file='fill-in-headers.js' %}
 {% include file file='fill-in-headers.html' %}
 
-{% include figure id='doc-generator-fill-in-headers' img='figures/fill-in-headers.svg' alt='Filling in headers' cap='Filling in headers when generating documentation.' %}
+{% include figure
+   id='doc-generator-fill-in-headers'
+   img='figures/fill-in-headers.svg'
+   alt='Filling in headers'
+   cap='Filling in headers when generating documentation.' %}
 
 <div class="callout" markdown="1">
 

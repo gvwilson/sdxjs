@@ -10,7 +10,7 @@ and the package may specify a version or range of versions for each dependency.
 
 Downloading files requires some web programming that is out of scope for this book,
 while installing those files in the right places
-uses the systems programming skills of <span x="systems-programming"></span>.
+uses the systems programming skills of <span x="systems-programming"/>.
 The piece we are missing is a way to figure out exactly what versions of different packages to install
 in order to create a consistent setup.
 If packages A and B require different versions of C,
@@ -82,22 +82,26 @@ is compatible with the range specified in its second.
 
 Imagine that each package we need is represented as an axis on a multi-dimensional grid,
 with its versions as the tick marks
-(<span f="package-manager-allowable"></span>).
+(<span f="package-manager-allowable"/>).
 Each point on the grid is a possible combination of package versions.
 We can block out regions of this grid using the constraints on the package versions;
 whatever points are left when we're done represent legal combinations.
 
-{% include figure id='package-manager-allowable' img='figures/allowable.svg' alt='Allowable versions' cap='Finding allowable combinations of package versions.' %}
+{% include figure
+   id='package-manager-allowable'
+   img='figures/allowable.svg'
+   alt='Allowable versions'
+   cap='Finding allowable combinations of package versions.' %}
 
 For example,
-suppose we have the set of requirements shown in <span t="package-manager-example-dependencies"></span>.
+suppose we have the set of requirements shown in <span t="package-manager-example-dependencies"/>.
 There are 18 possible configurations
 (2 for X × 3 for Y × 3 for Z)
 but 16 are excluded by various incompatibilities.
 Of the two remaining possibilities,
 X/2 + Y/3 + Z/3 is strictly greater than X/2 + Y/2 + Z/2,
 so we would probably choose the former
-(<span t="package-manager-example-result"></span>).
+(<span t="package-manager-example-result"/>).
 if we wound up with A/1 + B/2 versus A/2 + B/1,
 we would need to add rules for resolving ties.
 
@@ -119,11 +123,17 @@ If you want to reproduce someone else's setup for debugging purposes,
 you should install what is described in the latter file.
 </div>
 
-{% include table id='package-manager-example-dependencies' file='example-dependencies.tbl' cap='Example package dependencies.' %}
+{% include table
+   id='package-manager-example-dependencies'
+   file='example-dependencies.tbl'
+   cap='Example package dependencies.' %}
 
-{% include table id='package-manager-example-result' file='example-result.tbl' cap='Result for example package dependencies.' %}
+{% include table
+   id='package-manager-example-result'
+   file='example-result.tbl'
+   cap='Result for example package dependencies.' %}
 
-To construct <span t="package-manager-example-dependencies"></span>
+To construct <span t="package-manager-example-dependencies"/>
 we find the transitive closure of all packages plus all of their dependencies.
 We then pick two packages and create a list of their valid pairs.
 Choosing a third package,
@@ -187,20 +197,27 @@ This works,
 but it is doing a lot of unnecessary work.
 If we sort the output by the case that caught the exclusion
 it turns out that 9 of the 17 exclusions are redundant rediscovery of a previously-known problem
-<span t="package-manager-exclusions"></span>.
+<span t="package-manager-exclusions"/>.
 
-{% include table id='package-manager-exclusions' file='exclusions.tbl' cap='Package exclusions.' %}
+{% include table
+   id='package-manager-exclusions'
+   file='exclusions.tbl'
+   cap='Package exclusions.' %}
 
 ## How can we do less work?
 
 In order to make this more efficient we need to <span g="prune">prune</span> the search tree
 as we go along
-(<span f="package-manager-pruning"></span>).
+(<span f="package-manager-pruning"/>).
 After all,
 if we know that X and Y are incompatible,
 there is no need to check Z as well.
 
-{% include figure id='package-manager-pruning' img='figures/pruning.svg' alt='Pruning the search tree' cap='Pruning options in the search tree to reduce work.' %}
+{% include figure
+   id='package-manager-pruning'
+   img='figures/pruning.svg'
+   alt='Pruning the search tree'
+   cap='Pruning options in the search tree to reduce work.' %}
 
 This version of the program collects possible solutions and displays them at the end.
 It only keeps checking a partial solution if what it has found so far looks good:

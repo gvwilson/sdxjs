@@ -9,13 +9,17 @@ we wrote a custom <span g="loader">loader</span>
 that reads a source file containing specially-formatted comments
 and then reads and inserts the files specified in those comments
 before running the code
-(<span f="file-interpolator-conceptual"></span>).
+(<span f="file-interpolator-conceptual"/>).
 Modern programming languages don't work this way,
 but C and C++ do this with <span g="header_file">header files</span>,
-and page templating systems (<span x="page-templates"></span>) do this
+and page templating systems (<span x="page-templates"/>) do this
 to share fragments of HTML.
 
-{% include figure id='file-interpolator-conceptual' img='figures/conceptual.svg' alt='Using file inclusions' cap='Including fragments of code to create runnable programs.' %}
+{% include figure
+   id='file-interpolator-conceptual'
+   img='figures/conceptual.svg'
+   alt='Using file inclusions'
+   cap='Including fragments of code to create runnable programs.' %}
 
 The special comments in our source files contain two fields:
 the text to put in the displayed version
@@ -28,7 +32,7 @@ but decided to use a different approach in this book.
 The stumbling block was that the style-checking tool [ESLint][eslint]
 didn't know what to make of our inclusions,
 so we would either have to modify it or build a style checker of our own.
-(We will actually do that in <span x="style-checker"></span>,
+(We will actually do that in <span x="style-checker"/>,
 but we won't go nearly as far as ESLint.)
 
 Despite being a dead end,
@@ -50,9 +54,13 @@ translates it into runnable instructions,
 and runs those instructions.
 We can do the second and third steps whenever we want using a function called `eval`,
 which takes a string as input and executes it as if it were part of the program
-(<span f="file-interpolator-eval"></span>).
+(<span f="file-interpolator-eval"/>).
 
-{% include figure id='file-interpolator-eval' img='figures/eval.svg' alt='How eval works' cap='<code>eval</code> vs. normal translation and execution.' %}
+{% include figure
+   id='file-interpolator-eval'
+   img='figures/eval.svg'
+   alt='How eval works'
+   cap='<code>eval</code> vs. normal translation and execution.' %}
 
 <div class="callout" markdown="1">
 
@@ -148,17 +156,21 @@ but we would like to avoid re-reading things unnecessarily
 in large systems or when there might be network delays.
 The usual approach is to create a cache
 using the Singleton pattern
-that we first met in <span x="unit-test"></span>.
+that we first met in <span x="unit-test"/>.
 Whenever we want to read a file,
 we check to see if it's already in the cache
-(<span f="file-interpolator-cache"></span>).
+(<span f="file-interpolator-cache"/>).
 If it is,
 we use that copy;
 if not,
 we read it and add it to the cache
 using the file path as a lookup key.
 
-{% include figure id='file-interpolator-cache' img='figures/cache.svg' alt='Implementing a cache as a singleton' cap='Using the Singleton pattern to implement a cache of loaded files.' %}
+{% include figure
+   id='file-interpolator-cache'
+   img='figures/cache.svg'
+   alt='Implementing a cache as a singleton'
+   cap='Using the Singleton pattern to implement a cache of loaded files.' %}
 
 We can write a simple cache in just a few lines of code:
 
@@ -205,9 +217,13 @@ we look for it locally;
 if not,
 we go through the directories in the search path in order
 until we find a file with a matching name
-(<span f="file-interpolator-search-path"></span>).
+(<span f="file-interpolator-search-path"/>).
 
-{% include figure id='file-interpolator-search-path' img='figures/search-path.svg' alt='Implementing a search path' cap='Using a colon-separated list of directories as a search path.' %}
+{% include figure
+   id='file-interpolator-search-path'
+   img='figures/search-path.svg'
+   alt='Implementing a search path'
+   cap='Using a colon-separated list of directories as a search path.' %}
 
 <div class="callout" markdown="1">
 

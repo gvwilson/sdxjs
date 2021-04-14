@@ -1,7 +1,7 @@
 ---
 ---
 
-We have come a long way since we listed the contents of a directory in <span x="systems-programming"></span>.
+We have come a long way since we listed the contents of a directory in <span x="systems-programming"/>.
 Saving files in version control,
 making sure code meets style rules,
 debugging it and bundling it (hopefully in that order)---programmers do these things every day,
@@ -32,7 +32,7 @@ from errata and minor improvements to entirely new sections and chapters,
 and everyone whose work is incorporated will be acknowledged.
 If you'd like to join us,
 please file an issue or submit a pull request in [our GitHub repository][stjs-repo],
-or see the contributors' guide (<span x="contributing"></span>) for more information.
+or see the contributors' guide (<span x="contributing"/>) for more information.
 
 > We shape our tools, and thereafter our tools shape us.
 >

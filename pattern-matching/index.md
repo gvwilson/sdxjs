@@ -1,7 +1,7 @@
 ---
 ---
 
-We have been globbing to match filenames against patterns since <span x="systems-programming"></span>.
+We have been globbing to match filenames against patterns since <span x="systems-programming"/>.
 This lesson will explore how that works
 by building a simple version of the <span g="regular_expression">regular expressions</span>
 used to match text in everything from editor and shell commands to web scrapers.
@@ -19,14 +19,21 @@ Each element in the page,
 such as a heading and or paragraph,
 is a <span g="node">nodes</span>;
 the <span g="child_tree">children</span> of a node are the elements it contains
-(<span f="pattern-matching-dom-tree"></span>).
+(<span f="pattern-matching-dom-tree"/>).
 
-{% include figure id='pattern-matching-dom-tree' img='figures/dom-tree.svg' alt='The Document Object Model' cap='Representing an HTML document as a tree.' %}
+{% include figure
+   id='pattern-matching-dom-tree'
+   img='figures/dom-tree.svg'
+   alt='The Document Object Model'
+   cap='Representing an HTML document as a tree.' %}
 
 The first step is to define the patterns we want to support
-(<span t="pattern-matching-supported"></span>).
+(<span t="pattern-matching-supported"/>).
 
-{% include table id='pattern-matching-supported' file='supported.tbl' cap='Supported patterns.' %}
+{% include table
+   id='pattern-matching-supported'
+   file='supported.tbl'
+   cap='Supported patterns.' %}
 
 According to this grammar,
 `blockquote#important p.highlight` is a highlighted paragraph inside the blockquote whose ID is `"important"`.
@@ -34,9 +41,13 @@ To find elements in a page that match it,
 our `select` function breaks the query into pieces
 and uses `firstMatch` to search recursively down the document tree
 until all the selectors in the query string have matched or no matches have been found
-(<span f="pattern-matching-query-selectors"></span>).
+(<span f="pattern-matching-query-selectors"/>).
 
-{% include figure id='pattern-matching-query-selectors' img='figures/query-selectors.svg' alt='Matching query selectors' cap='Matching a simple set of query selectors.' %}
+{% include figure
+   id='pattern-matching-query-selectors'
+   img='figures/query-selectors.svg'
+   alt='Matching query selectors'
+   cap='Matching a simple set of query selectors.' %}
 
 {% include erase file='simple-selectors.js' key='skip' %}
 
@@ -116,9 +127,12 @@ we see if the rest of the pattern matches what's left;
 otherwise,
 we see if the the pattern will match further along.
 Our matcher will initially handle just the five cases shown in
-<span t="pattern-matching-cases"></span>.
+<span t="pattern-matching-cases"/>.
 
-{% include table id='pattern-matching-cases' file='cases.tbl' cap='Pattern matching cases.' %}
+{% include table
+   id='pattern-matching-cases'
+   file='cases.tbl'
+   cap='Pattern matching cases.' %}
 
 {: .continue}
 These five cases are a small subset of what JavaScript provides,
@@ -171,9 +185,13 @@ Each matching object has a method that takes the target string and the index to 
 Its output is the index to continue matching at
 or `undefined` indicating that matching failed.
 We can then combine these objects to match complex patterns
-(<span f="pattern-matching-regex-objects"></span>).
+(<span f="pattern-matching-regex-objects"/>).
 
-{% include figure id='pattern-matching-regex-objects' img='figures/regex-objects.svg' alt='Implementing regex with objects' cap='Using nested objects to match regular expressions.' %}
+{% include figure
+   id='pattern-matching-regex-objects'
+   img='figures/regex-objects.svg'
+   alt='Implementing regex with objects'
+   cap='Using nested objects to match regular expressions.' %}
 
 The first step in implementing this is is to write test cases,
 which forces us to define the syntax we are going to support:
@@ -248,19 +266,27 @@ The `/*/` is <span g="greedy_algorithm">greedy</span>: it matches as much as it 
 (which is also called <span g="eager_matching">eager matching</span>).
 As a result,
 `/a*/` will match the leading `"a"`, leaving nothing for the literal `/a/` to match
-(<span f="pattern-matching-greedy-failure"></span>).
+(<span f="pattern-matching-greedy-failure"/>).
 Our current implementation doesn't give us a way to try other possible matches when this happens.
 
-{% include figure id='pattern-matching-greedy-failure' img='figures/greedy-failure.svg' alt='Overly-greedy matching fails' cap="Why overly-greedy matching doesn't work." %}
+{% include figure
+   id='pattern-matching-greedy-failure'
+   img='figures/greedy-failure.svg'
+   alt='Overly-greedy matching fails'
+   cap="Why overly-greedy matching doesn't work." %}
 
 Let's re-think our design
 and have each matcher take its own arguments and a `rest` parameter containing the rest of the matchers
-(<span f="pattern-matching-rest"></span>).
+(<span f="pattern-matching-rest"/>).
 (We will provide a default of `null` in the creation function
 so we don't have to type `null` over and over again.)
 Each matcher will try each of its possibilities and then see if the rest will also match.
 
-{% include figure id='pattern-matching-rest' img='figures/rest.svg' alt='Matching the rest of the pattern' cap='Using "rest" to match the remainder of a pattern.' %}
+{% include figure
+   id='pattern-matching-rest'
+   img='figures/rest.svg'
+   alt='Matching the rest of the pattern'
+   cap='Using "rest" to match the remainder of a pattern.' %}
 
 This design means we can get rid of `RegexSeq`,
 but it does make our tests a little harder to read:
@@ -318,7 +344,7 @@ The <span g="open_closed_principle">Open-Closed Principle</span> states that
 software should be open for extension but closed for modification,
 i.e., that it should be possible to extend functionality
 without having to rewrite existing code.
-As we said in <span x="async-programming"></span>,
+As we said in <span x="async-programming"/>,
 this allows old code to use new code,
 but only if our design permits the kinds of extensions people are going to want to make.
 Since we can't anticipate everything,

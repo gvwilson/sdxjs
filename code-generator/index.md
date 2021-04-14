@@ -1,7 +1,7 @@
 ---
 ---
 
-We've been writing tests since <span x="unit-test"></span>,
+We've been writing tests since <span x="unit-test"/>,
 but how much of our code do they actually check?
 One way to find out is to use a <span g="code_coverage">code coverage</span> tool like [Istanbul][istanbul]
 that watches a program while it executes
@@ -39,13 +39,17 @@ The first thing we need is a way to wrap up an arbitrary function call.
 If we declare a function in JavaScript with a parameter like `...args`,
 all of the "extra" arguments in the call that don't line up with regular parameters
 are stuffed into the variable `args`
-(<span f="code-generator-spread"></span>).
+(<span f="code-generator-spread"/>).
 We can also call a function by putting values in a variable
 and using `func(...var)` to spread those values out.
 There's nothing special about the names `args` and `vars`:
 what matters is the ellipsis `...`
 
-{% include figure id='code-generator-spread' img='figures/spread.svg' alt='Spreading parameters' cap='Using ...args to capture and spread parameters.' %}
+{% include figure
+   id='code-generator-spread'
+   img='figures/spread.svg'
+   alt='Spreading parameters'
+   cap='Using ...args to capture and spread parameters.' %}
 
 We can use `...args` to capture all of the arguments to a function call
 and forward them to another function.
@@ -198,7 +202,7 @@ Let's run one last test:
 
 Source-to-source translation is widely used in JavaScript:
 tools like [Babel][babel] use it to transform modern features like `async` and `await`
-(<span x="async-programming"></span>)
+(<span x="async-programming"/>)
 into code that older browsers can understand.
 The technique is so powerful that it is built into languages like Scheme,
 which allow programmers to add new syntax to the language

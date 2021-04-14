@@ -116,7 +116,7 @@ const fixGlossaryRefs = (toRoot) => {
       link.setAttribute('href', `${toRoot}/glossary/#${key}`)
       link.setAttribute('class', 'glossary-reference')
       link.innerHTML = node.innerHTML
-      node.parentNode.replaceChild(link, node)
+      node.replaceChildren(link)
     })
 }
 

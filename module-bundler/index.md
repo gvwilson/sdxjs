@@ -10,14 +10,18 @@ so that browsers could get what they needed with one request.
 
 A <span g="module_bundler">module bundler</span> finds all the files that an application depends on
 and combines them into a single loadable file
-(<span f="module-bundler-bundling"></span>).
+(<span f="module-bundler-bundling"/>).
 This file is much more efficient to load:
 it's the same number of bytes but just one network request.
-(See <span t="systems-programming-times"></span> for a reminder of why this is important.)
+(See <span t="systems-programming-times"/> for a reminder of why this is important.)
 Bundling files also tests that dependencies actually resolve
 so that the application has at least a chance of being able to run.
 
-{% include figure id='module-bundler-bundling' img='figures/bundling.svg' alt='Bundling modules' cap='Combining multiple modules into one.' %}
+{% include figure
+   id='module-bundler-bundling'
+   img='figures/bundling.svg'
+   alt='Bundling modules'
+   cap='Combining multiple modules into one.' %}
 
 Bundling requires an <span g="entry_point">entry point</span>,
 i.e.,
@@ -71,7 +75,7 @@ we hope that splitting terminology as we have will help.
 </div>
 
 Our third test case has multiple inclusions in multiple directories
-and is shown in <span f="module-bundler-complicated"></span>:
+and is shown in <span f="module-bundler-complicated"/>:
 
 -   `./main` requires all four of the files below.
 -   `./top-left` doesn't require anything.
@@ -79,7 +83,11 @@ and is shown in <span f="module-bundler-complicated"></span>:
 -   `./subdir/bottom-left` also requires `top-left` and `bottom-right`.
 -   `./subdir/bottom-right` doesn't require anything.
 
-{% include figure id='module-bundler-complicated' img='figures/complicated.svg' alt='Module bundler dependencies' cap='Dependencies in large module bundler test case.' %}
+{% include figure
+   id='module-bundler-complicated'
+   img='figures/complicated.svg'
+   alt='Module bundler dependencies'
+   cap='Dependencies in large module bundler test case.' %}
 
 {: .continue}
 The main program is:
@@ -93,7 +101,7 @@ The output we expect is:
 {% include file file='expected-full.out' %}
 
 We do not handle circular dependencies
-because `require` itself doesn't (<span x="module-loader"></span>).
+because `require` itself doesn't (<span x="module-loader"/>).
 
 ## How can we find dependencies?
 
@@ -142,17 +150,21 @@ Our algorithm for doing this uses two sets:
 which contains the things we haven't looked at yet,
 and `seen`,
 which contains the things we have
-(<span f="module-bundler-transitive-closure"></span>).
+(<span f="module-bundler-transitive-closure"/>).
 `pending` initially contains the entry point file and `seen` is initially empty.
 We keep taking items from `pending` until it is empty.
 If the current thing is already in `seen` we do nothing;
 otherwise we get its dependencies and add them to either `seen` or `pending`.
 
-{% include figure id='module-bundler-transitive-closure' img='figures/transitive-closure.svg' alt='Implementing transitive closure' cap='Implementing transitive closure using two sets.' %}
+{% include figure
+   id='module-bundler-transitive-closure'
+   img='figures/transitive-closure.svg'
+   alt='Implementing transitive closure'
+   cap='Implementing transitive closure using two sets.' %}
 
 Finding dependencies is complicated by the fact that we can load something under different names,
 such as `./subdir/bottom-left` from `main` but `./bottom-left` from `./subdir/bottom-right`.
-As with the module loader in <span x="module-loader"></span>,
+As with the module loader in <span x="module-loader"/>,
 we use absolute paths as unique identifiers.
 Our code is also complicated by the fact that JavaScript's `Set` class doesn't have an equivalent of `Array.pop`,
 so we will actually maintain the "set" of pending items as a list.
@@ -168,9 +180,13 @@ we might not know what it's after.
 The fix is to modify transitive closure to construct and return a two-level structure.
 The primary keys are the absolute paths to the files being required,
 while sub-keys are the paths they refer to when loading things
-(<span f="module-bundler-structure"></span>).
+(<span f="module-bundler-structure"/>).
 
-{% include figure id='module-bundler-structure' img='figures/structure.svg' alt='Data structure for modules' cap='Data structure used to map names to absolute paths.' %}
+{% include figure
+   id='module-bundler-structure'
+   img='figures/structure.svg'
+   alt='Data structure for modules'
+   cap='Data structure used to map names to absolute paths.' %}
 
 Adding this takes our transitive closure code from
 {% include linecount file='transitive-closure-only.js' %} lines
@@ -193,7 +209,7 @@ that will remain a dream.
 
 We now need to combine the files we have found into one
 while keeping each in its own namespace.
-We do this using the same method we used in <span x="module-loader"></span>:
+We do this using the same method we used in <span x="module-loader"/>:
 wrap the source code in an IIFE,
 giving that IIFE a `module` object to fill in
 and an implementation of `require` to resolve dependencies *within the bundle*.
@@ -224,9 +240,13 @@ the code in `HEAD` creates a function of no arguments
 while the code in `TAIL` returns the lookup table from that function.
 In between,
 `combineFiles` adds an entry to the lookup table for each file
-(<span f="module-bundler-head-tail"></span>).
+(<span f="module-bundler-head-tail"/>).
 
-{% include figure id='module-bundler-head-tail' img='figures/head-tail.svg' alt='Assembling runnable code' cap='Assembling fragments and modules to create a bundle.' %}
+{% include figure
+   id='module-bundler-head-tail'
+   img='figures/head-tail.svg'
+   alt='Assembling runnable code'
+   cap='Assembling fragments and modules to create a bundle.' %}
 
 We can test that this works in our two-file case:
 
@@ -270,7 +290,7 @@ Those two tables can't be global variables because of possible name collisions:
 no matter what we call them,
 the user might have given a variable the same name.
 
-As in <span x="module-loader"></span> we solve this problem using closures.
+As in <span x="module-loader"/> we solve this problem using closures.
 The result is probably the most difficult code in this book to understand
 because of its many levels of abstraction.
 First, we write a function that takes the two tables as arguments
@@ -278,10 +298,14 @@ and returns a function that takes an absolute path identifying this module.
 When that function is called,
 it creates and returns a function that takes a local path inside a module and returns the exports.
 Each of these wrapping layers remembers more information for us
-(<span f="module-bundler-returning-functions"></span>),
+(<span f="module-bundler-returning-functions"/>),
 but we won't pretend that it's easy to trace.
 
-{% include figure id='module-bundler-returning-functions' img='figures/returning-functions.svg' alt='Functions returning functions returning functions' cap='A function that returns functions that return functions.' %}
+{% include figure
+   id='module-bundler-returning-functions'
+   img='figures/returning-functions.svg'
+   alt='Functions returning functions returning functions'
+   cap='A function that returns functions that return functions.' %}
 
 We also need a third structure:
 a cache for the modules we've already loaded.
@@ -293,7 +317,7 @@ This code is hard to read
 because we have to distinguish what is being printed in the output versus what is being executed right now
 and because of the levels of nesting needed to capture variables safely.
 Getting this right took much more time per line of finished code than anything we have seen so far
-except the promises in <span x="async-programming"></span>.
+except the promises in <span x="async-programming"/>.
 However,
 it is all intrinsic complexity:
 anything that does what `require` does is going to be equally convoluted.

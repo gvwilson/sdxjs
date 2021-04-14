@@ -1,14 +1,17 @@
 ---
 ---
 
-In <span x="pattern-matching"></span> we created regular expressions by constructing objects.
+In <span x="pattern-matching"/> we created regular expressions by constructing objects.
 It takes a lot less typing to write them as strings as we did for HTML selectors,
 but if we're going to do that we need something to convert those strings to the required objects.
 In other words, we need to write a <span g="parser">parser</span>.
 
-{% include table id='regex-parser-grammar-codes' file='grammar.tbl' cap='Regular expression grammar.' %}
+{% include table
+   id='regex-parser-grammar-codes'
+   file='grammar.tbl'
+   cap='Regular expression grammar.' %}
 
-<span t="regex-parser-grammar-codes"></span> shows the grammar we will handle.
+<span t="regex-parser-grammar-codes"/> shows the grammar we will handle.
 When we are done
 we should be able to parse `/^(a|b|$)*z$/` as
 "start of text",
@@ -17,11 +20,15 @@ we should be able to parse `/^(a|b|$)*z$/` as
 and "end of text".
 (We write regular expressions inside slashes to distinguish them from strings.)
 To keep things simple,
-we will create a tree of objects (<span f="regex-parser-expression-tree"></span>)
-rather than instances of the regular expression classes from <span x="pattern-matching"></span>;
+we will create a tree of objects (<span f="regex-parser-expression-tree"/>)
+rather than instances of the regular expression classes from <span x="pattern-matching"/>;
 the exercises will tackle the latter.
 
-{% include figure id='regex-parser-expression-tree' img='figures/expression-tree.svg' alt='Expression tree for regular expression' cap='Representing the result of parsing a regular expression as an tree.' %}
+{% include figure
+   id='regex-parser-expression-tree'
+img='figures/expression-tree.svg'
+alt='Expression tree for regular expression'
+cap='Representing the result of parsing a regular expression as an tree.' %}
 
 <div class="callout" markdown="1">
 
@@ -137,7 +144,7 @@ but the check-and-combine strategy will turn it into the equivalent of `/(a|b)*/
 
 A better (i.e., correct) solution is
 to leave some partially-completed tokens in the output and compress them later
-(<span f="regex-parser-mechanics"></span>).
+(<span f="regex-parser-mechanics"/>).
 If our input is the pattern `/a|b/`, we can:
 
 1.  Append a `Lit` token for `a`.
@@ -153,7 +160,11 @@ If our input is the pattern `/a|b/`, we can:
 
 Again, this automatically handles patterns like `/(ab)|c*|(de)/`.
 
-{% include figure id='regex-parser-mechanics' img='figures/mechanics.svg' alt='Mechanics of combining tokens' cap='Mechanics of combining tokens while parsing regular expressions.' %}
+{% include figure
+   id='regex-parser-mechanics'
+img='figures/mechanics.svg'
+alt='Mechanics of combining tokens'
+cap='Mechanics of combining tokens while parsing regular expressions.' %}
 
 It's time to turn these ideas into code.
 The main structure of our parser is:
@@ -208,7 +219,7 @@ every formal language corresponds to a type of abstract machine and vice versa,
 and that some languages (or machines) are more or less powerful than others.
 For example,
 every regular expression corresponds to a <span g="fsm">finite state machine</span> (FSM)
-like the one in <span f="regex-parser-finite-state-machine"></span>.
+like the one in <span f="regex-parser-finite-state-machine"/>.
 As powerful as FSMs are,
 they cannot match things like nested parentheses or HTML tags,
 and [attempting to do so is a sin][stack-overflow-html-regex].
@@ -219,4 +230,8 @@ that can do any conceivable computation.
 
 </div>
 
-{% include figure id='regex-parser-finite-state-machine' img='figures/finite-state-machine.svg' alt='Finite state machine' cap='A finite state machine equivalent to a regular expression.' %}
+{% include figure
+   id='regex-parser-finite-state-machine'
+   img='figures/finite-state-machine.svg'
+   alt='Finite state machine'
+   cap='A finite state machine equivalent to a regular expression.' %}
