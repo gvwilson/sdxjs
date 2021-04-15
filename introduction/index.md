@@ -190,5 +190,7 @@ I am grateful to the creators of [EJS][ejs],
 and all the other open source tools we used in creating these lessons:
 if we all give a little,
 we all get a lot.
+I would also like to thank these people for their reviews and feedback;
+any errors, omissions, or misunderstandings that remain are entirely my fault.
 
 {% include thanks.html %}
