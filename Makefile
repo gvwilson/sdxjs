@@ -32,7 +32,9 @@ RELEASE_FILES=\
   _layouts\
   bin\
   favicon.ico\
+  authors\
   glossary\
+  index\
   links\
   static/local.*\
   static/*.pdf\
