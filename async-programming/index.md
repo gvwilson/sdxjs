@@ -4,19 +4,19 @@
 Callbacks work,
 but they are hard to read and debug,
 which means they only "work" in a limited sense.
-JavaScript's developers added <span g="promise">promises</span> to the language in 2015
+JavaScript's developers added <span g="promise" i="promise!as alternative to callback">promises</span> to the language in 2015
 to make callbacks easier to write and understand,
 and more recently they added the keywords `async` and `await` as well
 to make asynchronous programming easier still.
 To show how these work,
 we will create a <span g="class">class</span> of our own called `Pledge`
 that provides the same core features as promises.
-Our explanation was inspired by [Trey Huffine][huffine-trey]'s [tutorial][huffine-promises],
+Our explanation was inspired by <span i="Huffine, Trey">[Trey Huffine][huffine-trey]</span>'s [tutorial][huffine-promises],
 and we encourage you to read that as well.
 
 ## How can we manage asynchronous execution?
 
-JavaScript is built around an <span g="event_loop">event loop</span>.
+JavaScript is built around an <span g="event_loop" i="event loop; execution!event loop">event loop</span>.
 Every task is represented by an entry in a queue;
 the event loop repeatedly takes a task from the front of the queue,
 runs it,
@@ -34,7 +34,7 @@ but objects can be shared between tasks
 
 Most tasks execute all the code available in the order it is written.
 For example,
-this one-line program uses `Array.forEach`
+this one-line program uses <span i="Array.forEach">`Array.forEach`</span>
 to print each element of an array in turn:
 
 {% include multi pat='not-callbacks-alone.*' fill='js out' %}
@@ -43,7 +43,7 @@ However,
 a handful of special built-in functions make [Node][nodejs] switch tasks
 or add new tasks to the run queue.
 For example,
-`setTimeout` tells Node to run a callback function
+<span i="setTimeout">`setTimeout`</span> tells Node to run a callback function
 after a certain number of milliseconds have passed.
 Its first argument is a callback function that takes no arguments,
 and its second is the delay.
@@ -57,10 +57,8 @@ then adds it to the run queue.
 ### Why zero arguments?
 
 `setTimeout`'s requirement that callback functions take no arguments
-is another example of a protocol---a set of conventions
-that enables us to connect functions to each other
-in the same way that USB ports allow us to connect hardware.
-Another way to think about it is that protocols allow old code to use new code:
+is another example of a <span g="protocol" i="protocol!API as; API!as protocol">protocol</span>.
+One way to think about it is that protocols allow old code to use new code:
 whoever wrote `setTimeout` couldn't know what specific tasks we want to delay,
 so they specified a way to wrap up any task at all.
 
@@ -87,13 +85,13 @@ but any other tasks that are waiting have a chance to run as well:
 
 {: .continue}
 We can use this trick to build a generic
-<span g="non_blocking_execution">non-blocking function</span>
+<span g="non_blocking_execution" i="execution!non-blocking; non-blocking execution">non-blocking function</span>
 that takes a callback defining a task
 and switches tasks if any others are available:
 
 {% include multi pat='non-blocking.*' fill='js out' %}
 
-Node's built-in function `setImmediate`
+Node's built-in function <span i="setImmediate">`setImmediate`</span>
 does exactly what our `nonBlocking` function does:
 Node also has `process.nextTick`,
 which doesn't do quite the same thing---we'll explore the differences in the exercises.
@@ -102,15 +100,15 @@ which doesn't do quite the same thing---we'll explore the differences in the exe
 
 ## How do promises work?
 
-Before we start building our own promises,
+Before we start building our own <span i="promise!behavior">promises</span>,
 let's look at how we want them to work:
 
 {% include multi pat='use-pledge-motivation.*' fill='js out' %}
 
 This short program creates a new `Pledge`
 with a callback that takes two other callbacks as arguments:
-`resolve` (which will run when everything worked)
-and `reject` (which will run when something went wrong).
+<span i="promise!resolve; resolve promise">`resolve`</span> (which will run when everything worked)
+and <span i="promise!reject; reject promise">`reject`</span> (which will run when something went wrong).
 The top-level callback does the first part of what we want to do,
 i.e.,
 whatever we want to run before we expect a delay;
@@ -140,15 +138,16 @@ and what to do if it doesn't (i.e., how to handle errors).
 `Pledge` will provide these callbacks to the action at the right times.
 
 `Pledge` also needs two methods:
-`then` to enable more actions
-and `catch` to handle errors.
+<span i="promise!then">`then`</span> to enable more actions
+and <span i="promise!catch">`catch`</span> to handle errors.
 To simplify things just a little bit,
-we will allow users to <span g="method_chaining">chain</span> as many `then`s as they want,
+we will allow users to <span g="method_chaining" i="method chaining">chain</span> as many `then`s as they want,
 but only allow one `catch`.
 
 ### Fluent interfaces
 
-A <span g="fluent_interface">fluent interface</span> is a style of object-oriented programming
+A <span g="fluent_interface" i="fluent interface; programming style!fluent interface">fluent interface</span>
+is a style of object-oriented programming
 in which the methods of an object return `this`
 so that method calls can be chained together.
 For example,
@@ -193,7 +192,7 @@ the `Pledge` gives us a value by calling the `resolve` callback.
 We pass this value to the first `then`,
 pass the result of that `then` to the second one,
 and so on.
-If any of them fail and throw an <span g="exception">exception</span>,
+If any of them fail and throw an <span g="exception" i="exception!in promise">exception</span>,
 we pass that exception to the error handler.
 Putting it all together,
 the whole class looks like this:
@@ -204,7 +203,7 @@ the whole class looks like this:
 
 ### Binding `this`
 
-`Pledge`'s constructor makes two calls to a special function called `bind`.
+`Pledge`'s constructor makes two calls to a special function called <span i="bind method to object">`bind`</span>.
 When we create an object `obj` and call a method `meth`,
 JavaScript sets the special variable `this` to `obj` inside `meth`.
 If we use a method as a callback,
@@ -310,8 +309,8 @@ Our first step is to count the lines in a single file:
 
 ### Character encoding
 
-A <span g="character_encoding">character encoding</span> specifies how characters are stored as bytes.
-The most widely used is <span g="utf_8">UTF-8</span>,
+A <span g="character_encoding" i="character encoding">character encoding</span> specifies how characters are stored as bytes.
+The most widely used is <span g="utf_8" i="UTF-8; character encoding!UTF-8">UTF-8</span>,
 which stores characters common in Western European languages in a single byte
 and uses multi-byte sequences for other symbols.
 If we don't specify a character encoding,
@@ -326,7 +325,7 @@ We can use `glob-promise` to delay handling the output of `glob`,
 but we need some way to create a separate task to count the lines in each file
 and to wait until those line counts are available before exiting our program.
 
-The tool we want is `Promise.all`,
+The tool we want is <span i="Promise.all">`Promise.all`</span>,
 which waits until all of the promises in an array have completed.
 To make our program a little more readable,
 we will put the creation of the promise for each file in a separate function:
@@ -383,7 +382,7 @@ is exactly the value of the variable with the same name.
 
 Promises eliminate the deep nesting associated with callbacks of callbacks,
 but they are still hard to follow.
-The latest versions of JavaScript provide two new keywords called `async` and `await`
+The latest versions of JavaScript provide two new keywords <span i="async keyword">`async`</span> and <span i="await keyword">`await`</span>
 to flatten code further.
 `async` means "this function implicitly returns a promise",
 while `await` means "wait for a promise to resolve".
@@ -396,7 +395,7 @@ This short program uses both keywords to print the first ten characters of a fil
 ### Translating code
 
 When Node sees `await` and `async`
-it silently converts the code to use promises with `then`, `resolve`, and `reject`;
+it silently <span i="promise!automatic creation of">converts</span> the code to use promises with `then`, `resolve`, and `reject`;
 we will see how this works in <span x="code-generator"/>.
 In order to provide a context for this transformation
 we must put `await` inside a function that is declared to be `async`:
@@ -453,7 +452,7 @@ so we can use `.then` and `.catch` to handle it as before:
 
 {% include multi pat='assign-immediately.*' fill='js out' %}
 
-If instead we `return await`,
+If instead we <span i="<span i="exception!with await">">`return await`</span>,
 the function waits until the promise runs before returning.
 The promise is turned into an exception because it failed,
 and since we're inside the scope of our `try`/`catch` block,

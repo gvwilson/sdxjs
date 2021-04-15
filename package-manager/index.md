@@ -2,7 +2,7 @@
 ---
 
 There is no point building software if you can't install it.
-Inspired by the Comprehensive TeX Archive Network [CTAN][ctan],
+Inspired by the <span i="Comprehensive TeX Archive Network">Comprehensive TeX Archive Network</span> [CTAN][ctan],
 most languages now have an online archive from which developers can download packages.
 Each package typically has a name and one or more version(s);
 each version may have a list of dependencies,
@@ -25,7 +25,7 @@ the disk space wouldn't be much of an obstacle,
 but loading dozens of copies of the same package into the browser
 would slow applications down.
 This chapter therefore explores how to find a workable installation or prove that there isn't one.
-It is based in part on [this tutorial][package-manager-tutorial] by [Maël Nison][nison-mael].
+It is based in part on [this tutorial][package-manager-tutorial] by <span i="Nison, Maël">[Maël Nison][nison-mael]</span>.
 
 <div class="callout" markdown="1">
 
@@ -34,7 +34,7 @@ It is based in part on [this tutorial][package-manager-tutorial] by [Maël Nison
 What we are trying to do is find a version for each package
 that makes the assertion "P is compatible with all its dependencies" true
 for every package P.
-The general-purpose tools for doing this are called <span g="sat_solver">SAT solvers</span>
+The general-purpose tools for doing this are called <span g="sat_solver" i="satisfiability; SAT solver">SAT solvers</span>
 because they determine whether there is some assignment of values
 that satisfies the claim (i.e., makes it true).
 Finding a solution can be extremely hard in the general case,
@@ -44,11 +44,11 @@ so most SAT solvers use heuristics to try to reduce the work.
 
 ## What is semantic versioning?
 
-Most software projects use <span g="semantic_versioning">semantic versioning</span> for software releases.
+Most software projects use <span g="semantic_versioning" i="semantic versioning">semantic versioning</span> for software releases.
 Each version number consists of three integers X.Y.Z,
 where X is the major version,
 Y is the minor version,
-and Z is the <span g="patch">patch</span> number.
+and Z is the <span g="patch" i="patch number; semantic versioning!patch number">patch</span> number.
 (The [full specification][semver-spec] allows for more fields,
 but we will ignore them in this tutorial.)
 
@@ -58,7 +58,7 @@ For example,
 if they add a required parameter to a function,
 then code built for the old version will fail or behave unpredictably with the new one.
 The minor version number is incremented when new functionality
-is <span g="backward_compatible">backward-compatible</span>---i.e.,
+is <span g="backward_compatible" i="backward compatibility">backward-compatible</span>---i.e.,
 it won't break any existing code---and the patch number is changed
 for backward-compatible bug fixes that don't add any new features.
 
@@ -134,7 +134,7 @@ you should install what is described in the latter file.
    cap='Result for example package dependencies.' %}
 
 To construct <span t="package-manager-example-dependencies"/>
-we find the transitive closure of all packages plus all of their dependencies.
+we find the <span i="transitive closure">transitive closure</span> of all packages plus all of their dependencies.
 We then pick two packages and create a list of their valid pairs.
 Choosing a third package,
 we cross off pairs that can't be satisfied
@@ -142,18 +142,18 @@ to leave triples of legal combinations.
 We repeat this until all packages are included in our table.
 
 In the worst case this procedure will create
-a <span g="combinatorial_explosion">combinatorial explosion</span> of possibilities.
+a <span g="combinatorial_explosion" i="combinatorial explosion">combinatorial explosion</span> of possibilities.
 Smart algorithms will try to add packages to the mix
 in an order that minimize the number of new possibilities at each stage,
 or create pairs and then combine them to create pairs of pairs and so on.
 Our algorithm will be simpler (and therefore slower),
 but illustrates the key idea.
 
-## How can we implement constraint satisfaction?
+## How can we implement satisfy constraints?
 
 To avoid messing around with parsers,
 our programs reads a JSON data structure describing the problem;
-a real package manager would read the <span g="manifest">manifests</span> of the packages in question
+a real package manager would read the <span g="manifest" i="manifest (of package); package manifest">manifests</span> of the packages in question
 and construct a similar data structure.
 We will stick to single-digit version numbers for readability,
 and will use this as our first test case:
@@ -206,7 +206,7 @@ it turns out that 9 of the 17 exclusions are redundant rediscovery of a previous
 
 ## How can we do less work?
 
-In order to make this more efficient we need to <span g="prune">prune</span> the search tree
+In order to make this more efficient we need to <span g="prune" i="prune (a search tree)">prune</span> the search tree
 as we go along
 (<span f="package-manager-pruning"/>).
 After all,
@@ -258,10 +258,11 @@ but most give better performance in most cases.
 <div class="callout" markdown="1">
 ### What research is for
 
-SAT solvers are like regular expression libraries and random number generators:
+<span i="SAT solver">SAT solvers</span> are like regular expression libraries and random number generators:
 it is the work of many lifetimes to create ones that are both fast and correct.
 A lot of computer science researchers devote their careers to highly-specialized topics like this.
 The debates often seem esoteric to outsiders,
 and most ideas turn out to be dead ends,
 but even small improvements in fundamental tools can have a profound impact.
+
 </div>

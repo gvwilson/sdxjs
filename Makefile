@@ -55,11 +55,11 @@ commands:
 	@grep -h -E '^##' ${MAKEFILE_LIST} | sed -e 's/## //g' | column -t -s ':'
 
 ## build: rebuild site without running server
-build: ${ALL_OUT} LICENSE.md
+build: ${ALL_OUT}
 	${JEKYLL} build
 
 ## serve: build site and run server
-serve: ${ALL_OUT} LICENSE.md
+serve: ${ALL_OUT}
 	${JEKYLL} serve
 
 ## book.tex: create LaTeX file
@@ -190,14 +190,11 @@ ${NUM_YML}: bin/make-numbering.py ${CONFIG} ${MARKDOWN}
 ${TERMS_YML}: bin/make-terms.py ${CONFIG} ${MARKDOWN} ${GLOSSARY_IN}
 	bin/make-terms.py --config ${CONFIG} --glossary ${GLOSSARY_IN} --language ${LANGUAGE} --output ${TERMS_YML}
 
-${HOME_PAGE}: ${CONFIG} ${MARKDOWN} ${INCLUDES} ${LAYOUTS} ${STATIC} ${ALL_OUT} LICENSE.md
+${HOME_PAGE}: ${CONFIG} ${MARKDOWN} ${INCLUDES} ${LAYOUTS} ${STATIC} ${ALL_OUT}
 	${JEKYLL} build
 
 $(filter-out bin/utils.py,$(wildcard bin/*.py)): bin/utils.py
 	touch $@
-
-LICENSE.md: _config.yml bin/make-license.py
-	@bin/make-license.py --config ${CONFIG} --output $@
 
 # Local commands if available.
 -include local.mk

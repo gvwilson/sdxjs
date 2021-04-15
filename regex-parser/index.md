@@ -4,7 +4,7 @@
 In <span x="pattern-matching"/> we created regular expressions by constructing objects.
 It takes a lot less typing to write them as strings as we did for HTML selectors,
 but if we're going to do that we need something to convert those strings to the required objects.
-In other words, we need to write a <span g="parser">parser</span>.
+In other words, we need to write a <span g="parser" i="parser">parser</span>.
 
 {% include table
    id='regex-parser-grammar-codes'
@@ -38,7 +38,7 @@ Languages that are comfortable for people to read are usually difficult for comp
 and vice versa,
 so we need parsers to translate human-friendly notation into computer-friendly representations.
 However,
-the world doesn't need more file formats;
+<span i="parser!reasons not to write">the world doesn't need more file formats</span>;
 if you need a configuration file or lookup table,
 please use CSV, JSON, <span g="yaml">YAML</span>,
 or something else that already has an acronym
@@ -48,7 +48,7 @@ rather than inventing a format of your own.
 
 ## How can we break text into tokens?
 
-A <span g="token">token</span> is an atom of text,
+A <span g="token" i="token (in parsing)">token</span> is an atom of text,
 such as the digits making up a number or the letters making up a variable name.
 In our grammar the tokens are the special characters `*`, `|`, `(`, `)`, `^`, and `$`,
 plus any sequence of one or more other characters (which count as one multi-letter token).
@@ -56,7 +56,7 @@ This classification guides the design of our parser:
 
 1.  If a character is special, create a token for it.
 
-1.  If it is a <span g="literal">literal</span> then:
+1.  If it is a <span g="literal" i="literal (in parsing)">literal</span> then:
     1.  combine it with the current literal if there is one, or
     1.  start a new literal.
 
@@ -97,7 +97,7 @@ Doing this lets us get rid of the nested `if` for handling `^` and `$` as well:
 {% include file file='tokenizer.js' %}
 
 Software isn't done until it's tested,
-so let's build some [Mocha][mocha] tests for our tokenizer.
+so let's build some <span i="Mocha">[Mocha][mocha]</span> tests for our tokenizer.
 The listing below shows a few of these
 along with the output for the full set:
 
@@ -140,10 +140,10 @@ each time we append a new token.
 However,
 this doesn't handle `/a|b*/` properly.
 The pattern is supposed to mean "one `a` or any number of `b`",
-but the check-and-combine strategy will turn it into the equivalent of `/(a|b)*/`.
+but the <span i="parser!check-and-combine">check-and-combine strategy</span> will turn it into the equivalent of `/(a|b)*/`.
 
 A better (i.e., correct) solution is
-to leave some partially-completed tokens in the output and compress them later
+to leave some partially-completed tokens in the output and <span i="parser!post-hoc compression strategy">compress</span> them later
 (<span f="regex-parser-mechanics"/>).
 If our input is the pattern `/a|b/`, we can:
 
@@ -200,9 +200,9 @@ it is doing a lot of complex things.
 Compared to parsers for things like JSON and YAML,
 though,
 it is still very simple.
-If we have more operators with different <span g="precedence">precedences</span>
-we should switch to the [shunting-yard algorithm][shunting-yard-algorithm],
-and if we need to handle a language like JavaScript we should explore tools like [ANTLR][antlr],
+If we have more operators with different <span g="precedence" i="operator precedence!implementing">precedences</span>
+we should switch to the <span i="shunting-yard algorithm; parser!shunting-yard algorithm">[shunting-yard algorithm][shunting-yard-algorithm]</span>,
+and if we need to handle a language like JavaScript we should explore tools like <span i="ANTLR">[ANTLR][antlr]</span>,
 which can generate a parser automatically given a description of the language to be parsed.
 As we said at the start,
 though,
@@ -218,13 +218,13 @@ One of the most important theoretical results in computer science is that
 every formal language corresponds to a type of abstract machine and vice versa,
 and that some languages (or machines) are more or less powerful than others.
 For example,
-every regular expression corresponds to a <span g="fsm">finite state machine</span> (FSM)
+every regular expression corresponds to a <span g="fsm" i="finite state machine!correspondence with regular expressions">finite state machine</span> (FSM)
 like the one in <span f="regex-parser-finite-state-machine"/>.
 As powerful as FSMs are,
 they cannot match things like nested parentheses or HTML tags,
-and [attempting to do so is a sin][stack-overflow-html-regex].
+and <span i="sin!using regular expressions to parse HTML">[attempting to do so is a sin][stack-overflow-html-regex]</span>.
 If you add a stack to the system you can process a much richer set of languages,
-and if you add two stacks you have something equivalent to a <span g="turing_machine">Turing Machine</span>
+and if you add two stacks you have something equivalent to a <span g="turing_machine" i="Turing Machine">Turing Machine</span>
 that can do any conceivable computation.
 <cite>Conery2021</cite> presents this idea and others for self-taught developers.
 

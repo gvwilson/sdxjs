@@ -7,7 +7,7 @@ but what about different in-memory operations---how do they compare with each ot
 Putting it another way,
 how can we tell which of several designs is going to be the most efficient?
 
-The best answer is to conduct some experiments.
+The best answer is to conduct some <span i="experiments">experiments</span>.
 To see how to do this,
 we will take a look several ways to implement data tables
 with one or more named columns and zero or more rows.
@@ -16,9 +16,9 @@ and all the values in a column have the same type
 (<span f="data-table-conceptual"/>).
 Data tables appear over and over again in programming,
 from spreadsheets and databases
-to the <span g="data_frame">data frames</span> in R's [tidyverse][tidyverse] packages,
-[Python][python]'s [Pandas][pandas] library,
-or the [DataForge][data-forge] library for JavaScript <cite>Davis2018</cite>.
+to the <span g="data_frame" i="data frame">data frames</span> in <span i="R">R</span>'s <span i="tidyverse">[tidyverse][tidyverse]</span> packages,
+<span i="Python">[Python][python]</span>'s <span i="Pandas">[Pandas][pandas]</span> library,
+or the <span i="DataForge">[DataForge][data-forge]</span> library for JavaScript <cite>Davis2018</cite>.
 
 {% include figure
    id='data-table-conceptual'
@@ -26,22 +26,23 @@ or the [DataForge][data-forge] library for JavaScript <cite>Davis2018</cite>.
    alt='Data table structure'
    cap='The structure of a data table.' %}
 
-The key operations on data tables are those provided by <span g="sql">SQL</span>:
+The key operations on data tables are those provided by <span g="sql" i="SQL">SQL</span>:
 filter, select, summarize, and join.
 These can be implemented in about five hundred lines of code,
 but their performance depends on how the data table is stored.
 
 ## How can we implement data tables?
 
-One way to store a table is <span g="row_major">row-major</span> order,
+One way to store a table is <span g="row_major" i="row-major storage order; storage order!row-major">row-major</span> order,
 in which the values in each row are stored together in memory.
-This is sometimes also called <span g="heterogeneous">heterogeneous</span> storage
+This is sometimes also called <span g="heterogeneous" i="heterogeneous storage; storage!heterogeneous">heterogeneous</span> storage
 because each "unit" of storage can contain values of different types.
 We can implement this design in JavaScript using an array of objects,
 each of which has the same keys
 (<span f="data-table-storage-order"/>).
 
-Another option is <span g="column_major">column-major</span> or <span g="homogeneous">homogeneous</span> order,
+Another option is <span g="column_major" i="column-major storage order; storage order!column-major">column-major</span>
+or <span g="homogeneous" i="homogeneous storage; storage!homogeneous">homogeneous</span> order,
 in which all the values in a column are stored together.
 In JavaScript,
 this could be implemented using an object
@@ -69,7 +70,7 @@ the ratio of filters to selects may determine which is "best".
 
 ### Immutability
 
-All of our implementations will treat each data table as <span g="immutable">immutable</span>:
+All of our implementations will treat each data table as <span g="immutable" i="immutable data">immutable</span>:
 once we have created it,
 we will not modify its contents.
 This doesn't actually have much impact on performance
@@ -92,7 +93,7 @@ like the callback for `Array.filter`;
 for selecting columns,
 we provide a list of the keys that identify the columns we want to keep.
 We expect filtering to be relatively fast,
-since it is recycling rows,
+since it is <span i="recycling data">recycling</span> rows,
 while selecting should be relatively slow because we have to construct a new set of arrays
 (<span f="data-table-row-ops"/>).
 
@@ -143,7 +144,7 @@ but that extra work would bias the performance comparison in row-major's favor.
 ## How can we test the performance of our implementations?
 
 Now that we have our tables and operations,
-we can build a <span g="test_harness">test harness</span> to run those operations
+we can build a <span g="test_harness" i="test harness; experiments!test harness">test harness</span> to run those operations
 on data tables of varying sizes.
 We arbitrarily decide to keep half of the columns and one-third of the rows;
 these ratios will affect our decision about which is better,
@@ -230,7 +231,7 @@ but column-major storage is still the best approach.
 ## Does binary storage improve performance?
 
 Let's try one more strategy for storing our tables.
-JavaScript stores values in <span g="tagged_data">tagged</span> data structures:
+JavaScript stores values in <span g="tagged_data" i="tagged data structure">tagged</span> data structures:
 some bits define the value's type
 while other bits store the value itself in a type-dependent way
 (<span f="data-table-object-storage"/>).
@@ -243,7 +244,7 @@ while other bits store the value itself in a type-dependent way
 
 We can save space by keeping track of the types ourselves
 and just storing the bits that represent the values.
-JavaScript has an `ArrayBuffer` class for exactly this purpose.
+JavaScript has an <span i="ArrayBuffer">`ArrayBuffer`</span> class for exactly this purpose.
 It stores any value we want as a set of bits;
 we then access those bits through a view that presents the data as a particular type,
 such as Boolean (one byte per value) or number (64 bits per number).
@@ -257,8 +258,7 @@ but it's up to us to keep track of which bytes belong to which values.
    alt='Packing objects for storage'
    cap='Storing object values as bits with lookup information.' %}
 
-To store a column-major table,
-we will fill an `ArrayBuffer` with:
+To store a column-major table we will fill an `ArrayBuffer` with:
 
 1.  Two integers that hold the table's size (number of rows and number of columns).
 

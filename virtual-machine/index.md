@@ -3,32 +3,32 @@
 
 Computers don't execute JavaScript directly.
 Instead,
-each processor has its own <span g="instruction_set">instruction set</span>,
+each processor has its own <span g="instruction_set" i="instruction set">instruction set</span>,
 and a compiler translates high-level languages into those instructions.
-Compilers often use an intermediate representation called <span g="assembly_code">assembly code</span>
+Compilers often use an intermediate representation called <span g="assembly_code" i="assembly code">assembly code</span>
 that gives instructions human-readable names instead of numbers.
 To understand more about how JavaScript actually runs
 we will simulate a very simple processor with a little bit of memory.
 If you want to dive deeper,
-have a look at [Bob Nystrom][nystrom-bob]'s excellent *[Crafting Interpreters][crafting-interpreters]*.
-You may also enjoy [Human Resource Machine][human-resource-machine],
+have a look at <span i="Nystrom, Bob">[Bob Nystrom][nystrom-bob]</span>'s excellent *[Crafting Interpreters][crafting-interpreters]*.
+You may also enjoy <span i="Human Resource Machine">[Human Resource Machine][human-resource-machine]</span>,
 which asks you to solve puzzles of increasing difficulty
 using a processor almost as simple as ours.
 
 ## What is the architecture of our virtual machine?
 
-Our <span g="virtual_machine">virtual machine</span> has three parts,
+Our <span g="virtual_machine" i="virtual machine">virtual machine</span> has three parts,
 which are shown in <span f="virtual-machine-architecture"/>
 for a program made up of 110 instructions:
 
-1.  An <span g="instruction_pointer">instruction pointer</span> (IP)
+1.  An <span g="instruction_pointer" i="instruction pointer">instruction pointer</span> (IP)
     that holds the memory address of the next instruction to execute.
     It is automatically initialized to point at address 0,
     which is where every program must start.
-    This rule is part of the <span g="abi">Application Binary Interface</span> (ABI)
+    This rule is part of the <span g="abi" i="Application Binary Interface">Application Binary Interface</span> (ABI)
     for our virtual machine.
 
-1.  Four <span g="register">registers</span> named R0 to R4 that instructions can access directly.
+1.  Four <span g="register" i="register (in computer)">registers</span> named R0 to R4 that instructions can access directly.
     There are no memory-to-memory operations in our VM:
     everything  happens in or through registers.
 
@@ -43,7 +43,7 @@ for a program made up of 110 instructions:
    cap='Architecture of the virtual machine.' %}
 
 The instructions for our VM are 3 bytes long.
-The <span g="op_code">op code</span> fits into one byte,
+The <span g="op_code" i="op code; virtual machine!op code">op code</span> fits into one byte,
 and each instruction may optionally include one or two single-byte operands.
 Each operand is a register identifier,
 a constant,
@@ -84,14 +84,14 @@ along with a prompt for output:
 
 A program is just an array of numbers representing instructions.
 To load one,
-we copy those numbers into RAM and reset the instruction pointer and registers:
+we copy those numbers into memory and reset the instruction pointer and registers:
 
 {% include keep file='vm-base.js' key='initialize' %}
 
 In order to handle the next instruction,
 the VM gets the value in memory that the instruction pointer currently refers to
 and moves the instruction pointer on by one address.
-It then uses <span g="bitwise_operation">bitwise operations</span>
+It then uses <span g="bitwise_operation" i="bitwise operation">bitwise operations</span>
 to extract the op code and operands from the instruction
 (<span f="virtual-machine-unpacking"/>):
 
@@ -146,7 +146,7 @@ as is jumping to a fixed address if the value in a register is zero:
 We could figure out numerical op codes by hand,
 and in fact that's what [the first programmers][eniac-programmers] did.
 However,
-it is much easier to use an <span g="assembler">assembler</span>,
+it is much easier to use an <span g="assembler" i="assembler">assembler</span>,
 which is just a small compiler for a language that very closely represents actual machine instructions.
 
 Each command in our assembly languages matches an instruction in the VM.
@@ -160,7 +160,7 @@ Its numeric representation is:
 {% include file file='print-r1.mx' %}
 
 One thing the assembly language has that the instruction set doesn't
-is <span g="label_address">address labels</span>
+is <span g="label_address" i="label (on address)">labels on addresses</span>.
 The label `loop` doesn't take up any space;
 instead,
 it tells the assembler to give the address of the next instruction a name
@@ -236,7 +236,7 @@ this program counts up to three:
 ## How can we store data?
 
 It is tedious to write interesting programs when each value needs a unique name.
-We can do a lot more once we have collections like arrays,
+We can do a lot more once we have collections like <span i="array!implementation of">arrays</span>,
 so let's add those to our assembler.
 We don't have to make any changes to the virtual machine,
 which doesn't care if we think of a bunch of numbers as individuals or elements of an array,
@@ -275,7 +275,8 @@ let's fill an array with the numbers from 0 to 3:
 {% include file file='fill-array-out.out' %}
 
 <div class="callout" markdown="1">
-### But how does it *work*?
+
+### How does it actually work?
 
 Our VM is just another program.
 If you'd like to know what happens when instructions finally meet hardware,
@@ -283,4 +284,5 @@ and how electrical circuits are able to do arithmetic,
 make decisions,
 and talk to the world,
 <cite>Patterson2017</cite> has everything you want to know and more.
+
 </div>

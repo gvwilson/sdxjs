@@ -5,10 +5,10 @@ You might be reading this as an HTML page,
 an e-book (which is basically the same thing),
 or on the printed page.
 In all three cases,
-a <span g="layout_engine">layout engine</span> took some text and some layout instructions
+a <span g="layout_engine" i="layout engine">layout engine</span> took some text and some layout instructions
 and decided where to put each character and image.
 We will build a small layout engine in this chapter
-based on [Matt Brubeck][brubeck-matt]'s [tutorial][browser-tutorial]
+based on <span i="Brubeck, Matt">[Matt Brubeck][brubeck-matt]</span>'s [tutorial][browser-tutorial]
 to explore how browsers decide what to put where.
 
 Our inputs will be a very small subset of HTML and an equally small subset of CSS.
@@ -23,13 +23,13 @@ and then draw the result as text on the screen.
 
 ### Upside down
 
-The coordinate systems for screens put (0, 0) in the upper left corner instead of the lower left.
+The <span i="coordinate system">coordinate systems</span> for screens put (0, 0) in the upper left corner instead of the lower left.
 X increases to the right as usual,
 but Y increases as we go down, rather than up
 (<span f="layout-engine-coordinate-system"/>).
 This convention is a holdover from the days of teletype terminals
 that printed lines on rolls of paper;
-as [Mike Hoye][hoye-mike] has [repeatedly observed][punching-holes],
+as <span i="Hoye, Mike">[Mike Hoye][hoye-mike]</span> has [repeatedly observed][punching-holes],
 the past is all around us.
 
 </div>
@@ -80,12 +80,12 @@ Given such a tree,
 we can calculate the width and height of each cell every time we need to.
 This is simple but inefficient:
 we could calculate both width and height at the same time
-and <span g="cache">cache</span> those values to avoid recalculation,
+and <span g="cache" i="cache!calculated values">cache</span> those values to avoid recalculation,
 but we called this "easy mode" for a reason.
 
 As simple as it is,
 this code could still contain errors (and did during development),
-so we write some [Mocha][mocha] tests to check that it works as desired
+so we write some <span i="Mocha">[Mocha][mocha]</span> tests to check that it works as desired
 before trying to build anything more complicated:
 
 {% include file file='test/test-easy-mode.js' %}
@@ -172,7 +172,7 @@ while its children will be 'b', 'c', and so on.
 
 To teach each kind of cell how to render itself,
 we have to derive a new class from each of the ones we have
-and give the new class a `render` method with the same <span g="signature">signature</span>:
+and give the new class a `render` method with the same <span g="signature" i="signature!of function; function signature">signature</span>:
 
 {% include file file='rendered.js' %}
 
@@ -196,7 +196,7 @@ The fact that we find our own tests difficult to understand
 is a sign that we should do more testing.
 It would be very easy for us to get a wrong result
 and convince ourselves that it was actually correct;
-<span g="confirmation_bias">confirmation bias</span> of this kind
+<span g="confirmation_bias" i="confirmation bias">confirmation bias</span> of this kind
 is very common in software development.
 
 ## How can we wrap elements to fit?
@@ -204,7 +204,7 @@ is very common in software development.
 One of the biggest differences between a browser and a printed page
 is that the text in the browser wraps itself automatically as the window is resized.
 (The other, these days, is that the printed page doesn't spy on us,
-though someone is undoubtedly working on that…)
+though someone is undoubtedly working on that.)
 
 To add wrapping to our layout engine,
 suppose we fix the width of a row.
@@ -256,13 +256,12 @@ and write some new ones to test the functionality we've added:
 {% include keep file='test/test-wrapped.js' key='example' %}
 {% include file file='test-wrapped.out' %}
 
-
 <div class="callout" markdown="1">
 
 ### The Liskov Substitution Principle
 
 We are able to re-use tests like this because of
-the <span g="liskov_substitution_principle">Liskov Substitution Principle</span>,
+the <span g="liskov_substitution_principle" i="Liskov Substitution Principle; software design!Liskov Substitution Principle">Liskov Substitution Principle</span>,
 which states that
 it should be possible to replace objects in a program
 with objects of derived classes
@@ -274,7 +273,7 @@ Conversely,
 its output must be a subset of what the old code produced
 so that whatever is downstream from it won't be surprised.
 Thinking in these terms leads to a methodology called
-<span g="design_by_contract">design by contract</span>.
+<span g="design_by_contract" i="design by contract; software design!design by contract">design by contract</span>.
 
 </div>
 
@@ -290,7 +289,7 @@ Rows and columns can have <span g="attribute">attributes</span> just as they can
 and each attribute must have a single value in quotes.
 Rows no longer take a fixed width:
 instead,
-we will specify that with our little subset of CSS.
+we will specify that with our little subset of <span i="CSS">CSS</span>.
 Together,
 these three classes are just over 40 lines of code:
 
@@ -323,12 +322,12 @@ We keep track of which rules take precedence over which through the simple exped
 
 {% include keep file='micro-css.js' key='css' %}
 
-An ID rule's <span g="dom_selector">DOM selector</span> is written as `#name`
+An ID rule's <span g="query_selector" i="query selector">query selector</span> is written as `#name`
 and matches HTML like `<tag id="name">...</tag>` (where `tag` is `row` or `col`):
 
 {% include keep file='micro-css.js' key='id' %}
 
-A class rule's DOM selector is written as `.kind` and matches HTML like `<tag class="kind">...</tag>`.
+A class rule's query selector is written as `.kind` and matches HTML like `<tag class="kind">...</tag>`.
 Unlike real CSS,
 we only allow one class per node:
 
@@ -377,12 +376,13 @@ We will explore these possibilities in the exercises.
 
 ### Where it all started
 
-This chapter's topic was the seed from which this entire book grew.
-After struggling with CSS for several years,
-[Greg Wilson][wilson-greg] began wondering whether it really had to be so complicated.
+This chapter's topic was one of the seeds from which this entire book grew
+(the other being debuggers discussed in <span x="debugger"/>).
+After struggling with <span i="CSS!struggles with">CSS</span> for several years,
+<span i="Wilson, Greg">[Greg Wilson][wilson-greg]</span> began wondering whether it really had to be so complicated.
 That question led to others,
 which eventually led to all of this.
-The moral of the story is,
-be careful what you ask…
+The moral is,
+be careful what you ask.
 
 </div>

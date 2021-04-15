@@ -2,7 +2,8 @@
 ---
 
 Now that we can test software we have something worth saving.
-A <span g="version_control_system">version control system</span> like [Git][git]
+A <span g="version_control_system" i="version control system">version control system</span>
+like <span i="Git; version control system!Git">[Git][git]</span>
 keeps track of changes to files
 so that we can recover old versions if we want to.
 Its heart is a way to archive files that:
@@ -17,7 +18,7 @@ In this chapter we will build a tool for doing both tasks.
 It won't do everything Git does:
 in particular, it won't let us create and merge branches.
 If you would like to know how that works,
-please see [Mary Rose Cook][cook-mary-rose]'s excellent [Gitlet][gitlet] project.
+please see <span i="Cook, Mary Rose">[Mary Rose Cook][cook-mary-rose]</span>'s excellent [Gitlet][gitlet] project.
 
 ## How can we uniquely identify files?
 
@@ -25,7 +26,7 @@ To avoid storing redundant copies of files,
 we need a way to tell when two files contain the same data.
 We can't rely on names because files can be renamed or moved over time;
 we could compare the files byte by byte,
-but a quicker way is to use a <span g="hash_function">hash function</span>
+but a quicker way is to use a <span g="hash_function" i="hash function">hash function</span>
 that turns arbitrary data into a fixed-length string of bits
 (<span f="file-backup-hash-function"/>).
 
@@ -35,8 +36,9 @@ that turns arbitrary data into a fixed-length string of bits
    alt='Hash functions'
    cap='How hash functions speed up lookup.' %}
 
-A hash function always produces the same <span g="hash_code">hash code</span> for a given input.
-A <span g="cryptographic_hash_function">cryptographic hash function</span> has two extra properties:
+A hash function always produces the same <span g="hash_code" i="hash code">hash code</span> for a given input.
+A <span g="cryptographic_hash_function" i="cryptographic hash function; hash function!cryptographic">cryptographic hash function</span>
+has two extra properties:
 
 1.  The output depends on the entire input:
     changing even a single byte results in a different hash code.
@@ -47,10 +49,10 @@ A <span g="cryptographic_hash_function">cryptographic hash function</span> has t
 
 It's easy to write a bad hash function,
 but very hard to write one that qualifies as cryptographic.
-We will therefore use a library to calculate 160-bit <span g="sha_1">SHA-1</span> hashes for our files.
+We will therefore use a library to calculate 160-bit <span g="sha_1" i="hash code!SHA-1; SHA-1 hash code">SHA-1</span> hashes for our files.
 These are not random enough to keep data secret from a patient, well-funded attacker,
 but that's not what we're using them for:
-we just want hashes that are random to make <span g="collision">collision</span> extremely unlikely.
+we just want hashes that are random to make <span g="collision" i="hash function!collision; collision (in hashing)">collision</span> extremely unlikely.
 
 <div class="callout" markdown="1">
 
@@ -67,7 +69,7 @@ and a 99.9% chance with 70 people.
 We can use the same math to calculate how many files we need to hash before there's a 50% chance of a collision.
 Instead of 365 we use $$2^{160}$$ (the number of values that are 160 bits long),
 and after checking [Wikipedia][wikipedia-birthday-problem]
-and doing a few calculations with [Wolfram Alpha][wolfram-alpha],
+and doing a few calculations with <span i="Wolfram Alpha">[Wolfram Alpha][wolfram-alpha]</span>,
 we calculate that we would need to have approximately $$10^{24}$$ files
 in order to have a 50% chance of a collision.
 We're willing to take that risk…
@@ -97,7 +99,7 @@ it is more efficient to process the file as a <span g="stream">stream</span>:
 
 {: .continue}
 This kind of interface is called
-a <span g="streaming_api">streaming</span> <span g="api">API</span>
+a <span g="streaming_api" i="streaming API; execution!streaming">streaming</span> <span g="api">API</span>
 because it is designed to process a stream of data one chunk at a time
 rather than requiring all of the data to be in memory at once.
 Many applications use streams
@@ -108,7 +110,7 @@ this program asks the `fs` library to create a reading stream for a file
 and to <span g="pipe">pipe</span> the data from that stream to the hashing object
 (<span f="file-backup-streaming"/>).
 It then tells the hashing object what to do when there is no more data
-by providing a <span g="handler">handler</span> for the "finish" event.
+by providing a <span g="handler" i="event handler!streaming API; streaming API!event handler">handler</span> for the "finish" event.
 This is called asynchronously:
 as the output shows,
 the main program ends before the task handling the end of data is scheduled and run.
@@ -162,7 +164,7 @@ A different design would combine stat, read, and hash into a single step
 so that each file would be handled independently
 and use one `Promise.all` at the end to bring them all together.
 
-The first two helper functions that `hashExisting` relies on
+The first two <span i="helper function">helper functions</span> that `hashExisting` relies on
 wrap asynchronous operation in promises:
 
 {% include keep file='hash-existing-promise.js' key='helpers' %}
@@ -211,8 +213,8 @@ but many faults and security holes are the result of programmers assuming things
 
 We could try to avoid this problem by using a two-part naming scheme `ssssssss-a.csv`,
 `ssssssss-b.csv`, and so on,
-but this leads to a <span g="race_condition">race condition</span>
-called <span g="toctou">time of check/time of use</span>.
+but this leads to a <span g="race_condition" i="race condition">race condition</span>
+called <span g="toctou" i="race condition!time of check/time of use; time of check/time of use">time of check/time of use</span>.
 If two users run the backup tool at the same time,
 they will both see that there isn't a file (yet) with the current timestamp,
 so they will both try to create the first one.
@@ -226,7 +228,7 @@ let's manually create testing directories with manufactured (shortened) hashes:
 
 {% include multi pat='tree-test.*' fill='sh out' %}
 
-We use [Mocha][mocha] to manage our tests.
+We use <span i="Mocha">[Mocha][mocha]</span> to manage our tests.
 Every test is an `async` function;
 Mocha automatically waits for them all to complete before reporting results.
 To run them,
@@ -260,7 +262,7 @@ that our tests will need to create directories and files before they run
 and then delete them afterward
 (so that they don't contaminate subsequent tests).
 
-A better approach is to use a <span g="mock_object">mock object</span>
+A better approach is to use a <span g="mock_object" i="mock object!for testing; unit test!using mock object">mock object</span>
 instead of the real filesystem.
 A mock object has the same interface as the function, object, class, or library that it replaces,
 but is designed to be used solely for testing.
@@ -283,8 +285,9 @@ the files and what they should contain:
 {% include erase file='test/test-find-mock.js' key='tests' %}
 
 {: .continue}
-Mocha automatically calls `beforeEach` before running each tests,
-and `afterEach` after each tests completes.
+<span i="Mocha!beforeEach">Mocha</span> automatically calls `beforeEach` before running each tests,
+and <span i="Mocha!afterEach">`afterEach`</span> after each tests completes
+(which is yet another <span i="protocol!for unit testing">protocol</span>).
 All of the tests stay exactly the same,
 and since `mock-fs` replaces the functions in the standard `fs` library with its own,
 nothing in our application needs to change either.
@@ -310,7 +313,7 @@ and then run some tests:
 ## Design for test
 
 One of the best ways---maybe *the* best way---to evaluate software design
-is by thinking about testability <cite>Feathers2004</cite>.
+is by thinking about <span i="testability!as design criterion; software design!testability">testability</span> <cite>Feathers2004</cite>.
 We were able to use a mock filesystem instead of a real one
 because the filesystem has a well-defined API
 that is provided to us in a single library,

@@ -2,33 +2,32 @@
 ---
 
 <span x="file-interpolator"/> showed how to use `eval` to load code dynamically.
-We can use this to build our own version of JavaScript's `require` function
-(the predecessor to `import`).
+We can use this to build our own version of JavaScript's `require` function.
 Our function will take the name of a source file as an argument
 and return whatever that file exports.
 The key requirement for such a function is to avoid accidentally overwriting things:
 if we just `eval` some code and it happens to assign to a variable called `x`,
 anything called `x` already in our program might be overwritten.
-We therefore need a way to <span g="encapsulate">encapsulate</span> the contents of what we're loading.
+We therefore need a way to <span g="encapsulate" i="encapsulation; software design!encapsulation">encapsulate</span> the contents of what we're loading.
 Our approach is based on <cite>Casciaro2020</cite>,
 which contains a lot of other useful information as well.
 
 ## How can we implement namespaces?
 
-A <span g="namespace">namespace</span> is a collection of names in a program
+A <span g="namespace" i="namespace">namespace</span> is a collection of names in a program
 that are isolated from other namespaces.
 Most modern languages provide namespaces as a built-in feature
 so that programmers don't accidentally step on each other's toes.
 JavaScript doesn't,
 so we have to implement them ourselves.
 
-We can do this using <span g="closure">closures</span>.
+We can do this using <span g="closure" i="closure">closures</span>.
 Every function is a namespace:
 variables defined inside the function are distinct from variables defined outside it
 (<span f="module-loader-closures"/>).
 If we create the variables we want to manage inside a function,
 then defined another function inside the first
-and return that <span g="inner_function">inner function</span>,
+and return that <span g="inner_function" i="inner function; function!inner">inner function</span>,
 that inner function will be the only thing with references to those variables.
 
 {% include figure
@@ -51,7 +50,8 @@ but can only be reached by the inner function:
 
 We could require every module to define a setup function like this for users to call,
 but thanks to `eval` we can wrap the file's contents in a function and call it automatically.
-To do this we will create something called an <span g="iife">immediately-invoked function expression</span> (IIFE).
+To do this we will create something called
+an <span g="iife" i="immediately-invoked function expression">immediately-invoked function expression</span> (IIFE).
 The syntax `() => {...}` defines a function.
 If we put the definition in parentheses and then put another pair of parentheses right after it:
 
@@ -75,7 +75,6 @@ if we write:
 ```js
 () => {...}()
 ```
-
 
 {: .continue}
 then JavaScript interprets it as a function definition followed by an empty expression
@@ -114,17 +113,17 @@ and this short program to load the test and check its exports:
 ## Do we need to handle circular dependencies?
 
 What if the code we are loading loads other code?
-We can visualize the network of who requires whom as a <span g="directed_graph">directed graph</span>:
+We can visualize the network of who requires whom as a <span g="directed_graph" i="directed graph">directed graph</span>:
 if X requires Y,
 we draw an arrow from X to Y.
-Unlike the directed *acyclic* graphs we met in <span x="build-manager"/>,
+Unlike the <span i="directed acyclic graph">directed *acyclic* graphs</span> we met in <span x="build-manager"/>,
 though,
 these graphs can contain cycles:
-we say a <span g="circular_dependency">circular dependency</span> exists
+we say a <span g="circular_dependency" i="circular dependency">circular dependency</span> exists
 if X depends on Y and Y depends on X
 either directly or indirectly.
 This may seem nonsensical,
-but can easily arise with <span g="plugin_architecture">plugin architectures</span>:
+but can easily arise with <span g="plugin_architecture" i="plugin architecture; software design!plugin architecture">plugin architectures</span>:
 the file containing the main program loads an extension,
 and that extension calls utility functions defined in the file containing the main program.
 
@@ -142,7 +141,8 @@ X may not (fully) exist yet.
    alt='Circularity test case'
    cap='Testing circular imports.' %}
 
-Circular dependencies work in [Python][python], sort of.
+Circular dependencies work in <span i="Python">[Python][python]</span>,
+but only sort of.
 Let's create two files called `major.py` and `minor.py`:
 
 {% include file file='checking/major.py' %}
@@ -186,10 +186,10 @@ because we can analyze files to determine what needs what,
 get everything into memory,
 and then resolve dependencies.
 We can't do this with `require`-based code
-because someone might create an <span g="alias">alias</span>
+because someone might create an <span g="alias" i="alias!during import; import!alias">alias</span>
 and call `require` through that
 or `eval` a string that contains a `require` call.
-(Of course, they can also do these things with the function version of `import`…)
+(Of course, they can also do these things with the function version of `import`.)
 
 </div>
 
@@ -201,7 +201,7 @@ To enable this,
 we need to provide the module with a function called `require`
 that it can call as it's loading.
 As in <span x="file-interpolator"/>,
-this function checks a cache
+this function checks a <span i="cache!of loaded files">cache</span>
 to see if the file being asked for has already been loaded.
 If not, it loads it and saves it;
 either way, it returns the result.

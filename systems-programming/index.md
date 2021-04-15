@@ -2,11 +2,11 @@
 ---
 
 The biggest difference between JavaScript and most other programming languages
-is that many operations in JavaScript are <span g="asynchronous">asynchronous</span>.
+is that many operations in JavaScript are <span g="asynchronous" i="asynchronous execution; execution!asynchronous">asynchronous</span>.
 Its designers didn't want browsers to freeze while waiting for data to arrive or for users to click on things,
 so operations that might be slow are implemented by describing now what to do later.
 And since anything that touches the hard drive is slow from a processor's point of view,
-[Node][nodejs] implements <span g="filesystem">filesystem</span> operations the same way.
+[Node][nodejs] implements <span g="filesystem" i="filesystem operations">filesystem</span> operations the same way.
 
 <div class="callout" markdown="1">
 
@@ -23,7 +23,7 @@ if we imagine that one CPU cycle is equivalent to one second.
    file="times.tbl"
    cap="Computer operation times at human scale." %}
 
-Early JavaScript programs used <span g="callback">callback functions</span> to describe asynchronous operations,
+Early JavaScript programs used <span g="callback" i="callback function">callback functions</span> to describe asynchronous operations,
 but as we're about to see,
 callbacks can be hard to understand even in small programs.
 In 2015,
@@ -39,12 +39,13 @@ because we're going to be doing that a lot.
 ## How can we list a directory?
 
 To start,
-let's try listing the contents of a directory the way we would in [Python][python] or [Java][java]:
+let's try listing the contents of a directory the way we would in <span i="Python">[Python][python]</span>
+or <span i="Java">[Java][java]</span>:
 
 {% include file file='list-dir-wrong.js' %}
 
 {: .continue}
-We use <code>import <em>module</em> from 'source'</code> to load the library <code><em>source</em></code>
+We use <span i="import module"><code>import <em>module</em> from 'source'</code></span> to load the library <code><em>source</em></code>
 and assign its contents to <code><em>module</em></code>.
 After that,
 we can refer to things in the library using <code><em>module.component</em></code>
@@ -57,7 +58,8 @@ we will take advantage of this in future chapters.
 
 ### `require` versus `import`
 
-In 2015, a new version of JavaScript called ES6 introduced the keyword `import` for importing modules.
+In 2015, a new version of JavaScript called ES6 introduced
+the keyword <span i="import vs. require; require vs. import">`import`</span> for importing modules.
 It improves on the older `require` function in several ways,
 but Node still uses `require` by default.
 To tell it to use `import`,
@@ -68,8 +70,8 @@ we have added `"type": "module"` at the top level of our Node `package.json` fil
 Our little program uses the [`fs`][node-fs] library
 which contains functions to create directories, read or delete files, etc.
 (Its name is short for "filesystem".)
-We tell the program what to list using <span g="command_line_argument">command-line arguments</span>,
-which Node automatically stores in an array called `process.argv`.
+We tell the program what to list using <span g="command_line_argument" i="command-line argument">command-line arguments</span>,
+which Node automatically stores in an array called <span i="process.argv">`process.argv`</span>.
 `process.argv[0]` is the name of the program used to run our code (in this case `node`),
 while `process.argv[1]` is the name of our program (in this case `list-dir-wrong.js`);
 the rest of `process.argv` holds whatever arguments we gave at the command line when we ran the program,
@@ -85,11 +87,11 @@ If we run this program with the name of a directory as its argument,
 `fs.readdir` returns the names of the things in that directory as an array of strings.
 The program uses `for (const name of results)` to loop over the contents of that array.
 We could use `let` instead of `const`,
-but it's good practice to declare things as `const` wherever possible
+but it's good practice to declare things as <span i="const declaration!advantages of">`const`</span> wherever possible
 so that anyone reading the program knows the variable isn't actually going to vary---doing
-this reduces the <span g="cognitive_load">cognitive load</span> on people reading the program.
+this reduces the <span g="cognitive_load" i="cognitive load">cognitive load</span> on people reading the program.
 Finally,
-`console.log` is JavaScript's equivalent of other languages' `print` command;
+<span i="console.log">`console.log`</span> is JavaScript's equivalent of other languages' `print` command;
 its strange name comes from the fact that
 its original purpose was to create <span g="log_message">log messages</span> in the browser <span g="console">console</span>.
 
@@ -125,7 +127,7 @@ so we need to explore those in order to make our program work.
 
 ## What is a callback function?
 
-JavaScript uses a <span g="single_threaded">single-threaded</span> programming model:
+JavaScript uses a <span g="single_threaded" i="single-threaded execution; execution!single-threaded">single-threaded</span> programming model:
 as the introduction to this lesson said,
 it splits operations like file I/O into "please do this" and "do this when data is available".
 `fs.readdir` is the first part,
@@ -134,7 +136,7 @@ but we need to write a function that specifies the second part.
 JavaScript saves a reference to this function
 and calls with a specific set of parameters when our data is ready
 (<span f="systems-programming-callbacks"/>).
-Those parameters defined a standard <span g="protocol">protocol</span>
+Those parameters defined a standard <span g="protocol" i="protocol!API as; API!as protocol">protocol</span>
 for connecting to libraries,
 just like the USB standard allows us to plug hardware devices together.
 
@@ -149,7 +151,8 @@ This corrected program gives `fs.readdir` a callback function called `listConten
 {% include file file='list-dir-function-defined.js' %}
 
 {: .continue}
-Node callbacks always get an error (if there is any) as their first argument
+<span i="callback function!conventions for">Node callbacks</span>
+always get an error (if there is any) as their first argument
 and the result of a successful function call as their second.
 The function can tell the difference by checking to see if the error argument is `null`.
 If it is, the function lists the directory's contents with `console.log`,
@@ -194,7 +197,7 @@ Instead,
 since the callback is only used in one place,
 it is more <span g="idiomatic">idiomatic</span>
 to define it where it is needed
-as an <span g="anonymous_function">anonymous function</span>.
+as an <span g="anonymous_function" i="anonymous function; function!anonymous">anonymous function</span>.
 This makes it easier to see what's going to happen when the operation completes,
 though it means the order of execution is quite different from the order of reading
 (<span f="systems-programming-anonymous-functions"/>).
@@ -213,7 +216,7 @@ Using an anonymous function gives us the final version of our program:
 ### Functions are data
 
 As we noted above,
-a function is just another kind of data.
+a function is just <span i="code!as data">another kind of data</span>.
 Instead of being made up of numbers, characters, or pixels, it is made up of instructions,
 but these are stored in memory like anything else.
 Defining a function on the fly is no different from defining an array in-place using `[1, 3, 5]`,
@@ -234,7 +237,7 @@ we want to be able to write patterns like `*.js`.
 
 To find files that match patterns like that,
 we can use the [`glob`][node-glob] module.
-(To <span g="globbing">glob</span> (short for "global") is an old Unix term for matching a set of files by name.)
+(To <span g="globbing" i="globbing">glob</span> (short for "global") is an old Unix term for matching a set of files by name.)
 The `glob` module provides a function that takes a pattern and a callback
 and does something with every filename that matched the pattern:
 
@@ -259,11 +262,12 @@ so most commands will leave them alone unless told to do otherwise.
 
 This program works,
 but we probably don't want to copy Emacs backup files whose names end with `~`.
-We can get rid of them by <span g="filter">filtering</span> the list that `glob` returns:
+We can get rid of them by <span g="filter" i="globbing!filtering results">filtering</span> the list that `glob` returns:
 
 {% include multi pat='glob-get-then-filter-pedantic.*' fill='js slice.out' %}
 
-`Array.filter` creates a new array containing all the items of the original array that pass a test
+<span i="Array.filter">`Array.filter`</span> creates a new array
+containing all the items of the original array that pass a test
 (<span f="systems-programming-array-filter"/>).
 The test is specified as a callback function
 that `Array.filter` calls once once for each item.
@@ -333,7 +337,7 @@ let's specify a source directory on the command line and include that in the pat
 {% include file file='glob-with-source-directory.js' %}
 
 {: .continue}
-This program uses <span g="string_interpolation">string interpolation</span>
+This program uses <span g="string_interpolation" i="string interpolation">string interpolation</span>
 to insert the value of `srcDir` into a string.
 The template string is written in back quotes,
 and JavaScript converts every expression written as `${expression}` to text.
@@ -351,7 +355,8 @@ we can construct the full output path by replacing the name of the source direct
 {% include file file='glob-with-dest-directory.js' %}
 
 {: .continue}
-This program uses <span g="destructuring_assignment">destructuring assignment</span> to create two variables at once
+This program uses <span g="destructuring_assignment" i="destructuring assignment; assignment!destructuring">destructuring assignment</span>
+to create two variables at once
 by unpacking the elements of an array
 (<span f="systems-programming-destructuring-assignment"/>).
 It only works if the array contains the enough elements,
@@ -389,7 +394,7 @@ As we were writing this example we used `dstDir` as both
 the name of the top-level destination directory (from the command line)
 and the name of the particular output directory to create.
 JavaScript didn't complain because
-every function creates a new <span g="scope">scope</span> for variable definitions,
+every function creates a new <span g="scope" i="scope!of variable definitions; variable definition!scope">scope</span> for variable definitions,
 and it's perfectly legal to give a variable inside a function
 the same name as something outside it.
 However, "legal" isn't the same thing as "comprehensible";
@@ -431,7 +436,7 @@ we must use `fs.stat` to get the properties of the thing whose name `glob` has g
 and then check if it's a file.
 The name "stat" is short for "status",
 and since the status of something in the filesystem can be very complex,
-`fs.stat` returns [an object with methods that can answer common questions][node-fs-stats].
+<span i="fs.stat">`fs.stat`</span> returns [an object with methods that can answer common questions][node-fs-stats].
 
 Here's the final version of our file copying program:
 

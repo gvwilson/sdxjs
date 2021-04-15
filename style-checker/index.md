@@ -2,15 +2,15 @@
 ---
 
 Programmers argue endlessly about the best way to format their programs,
-but everyone agrees that the most important thing is to be consistent
+but everyone agrees that the most important thing is to be <span i="coding style!importance of consistency">consistent</span>
 <cite>Binkley2012,Johnson2019</cite>.
 Since checking rules by hand is tedious,
 most programmers use tools to compare code against various rules and report any violations.
-Programs that do this are often called <span g="linter">linters</span>
-in honor of an early one for C named `lint`
+Programs that do this are often called <span g="linter" i="linter; coding style!linter">linters</span>
+in honor of an early one for <span i="C">C</span> named `lint`
 (because it looked for fluff in source code).
 
-In this chapter we will build a simple linter of our own inspired by [ESLint][eslint],
+In this chapter we will build a simple linter of our own inspired by <span i="ESLint">[ESLint][eslint]</span>,
 which we use to check the code in this book.
 Our tool will parse source code to create a data structure,
 then go through that data structure and apply rules for each part of the program.
@@ -24,7 +24,7 @@ which is that source code is just another kind of data.
 Just as the world doesn't need more file format (<span x="regex-parser"/>)
 it also doesn't need more programming styles,
 or more arguments among programmers about whether there should be spaces before curly braces or not.
-[Standard JS][standard-js] may not do everything exactly the way you want,
+<span i="Standard JS">[Standard JS][standard-js]</span> may not do everything exactly the way you want,
 but adopting it increases the odds that other programmers will be able to read your code at first glance.
 
 </div>
@@ -33,12 +33,12 @@ but adopting it increases the odds that other programmers will be able to read y
 
 A parser for a simple language like arithmetic or JSON is relatively easy to write.
 A parser for a language as complex as JavaScript is much more work,
-so we will use one called [Acorn][acorn] instead.
+so we will use one called <span i="Acorn">[Acorn][acorn]</span> instead.
 Acorn takes a string containing source code as input
-and produces an <span g="abstract_syntax_tree">abstract syntax tree</span> (AST)
+and produces an <span g="abstract_syntax_tree" i="abstract syntax tree">abstract syntax tree</span> (AST)
 whose nodes store information about what's in the program
 (<span f="style-checker-parse-tree"/>).
-An AST is for a program what the DOM is for HTML:
+An AST is for a program what the <span i="Document Object Model">DOM</span> is for HTML:
 an in-memory representation that is easy for software to inspect and manipulate.
 
 {% include figure
@@ -53,7 +53,7 @@ is {% include linecount file='parse-single-const.out' %} lines long:
 
 {% include multi pat='parse-single-const.*' fill='js slice.out' %}
 
-Acorn's output is in [Esprima][esprima] format
+Acorn's output is in <span i="Esprima format">[Esprima][esprima] format</span>
 (so-called because it was originally defined by a tool with that name).
 The format's specification is very detailed,
 but we can usually figure out most of what we need by inspection.
@@ -68,11 +68,11 @@ Yes, it really is almost 500 lines long…
 ## How can we find things in an AST?
 
 If we want to find functions, variables, or anything else in an AST
-we need to <span g="walk_tree">walk the tree</span>,
+we need to <span g="walk_tree" i="walk a tree">walk the tree</span>,
 i.e.,
 to visit each node in turn.
 The [`acorn-walk`][acorn-walk] library will do this for us
-using the Visitor design pattern we first saw in <span x="page-templates"/>
+using the <span i="Visitor pattern; design pattern!Visitor">Visitor design pattern</span> we first saw in <span x="page-templates"/>
 If we provide a function to act on nodes of type `Identifier`,
 `acorn-walk` will call that function each time it finds an identifier.
 We can use other options to say that we want to record the locations of nodes (i.e., their line numbers)
@@ -125,7 +125,7 @@ We don't just want to collect nodes:
 we want to check their properties against a set of rules.
 One way to do this would be to call `walk.simple` once for each rule,
 passing it a function that checks just that rule.
-Another way---the one we'll use---is to write a generic function
+Another way---the one we'll use---is to write a <span i="software design!generic function">generic function</span>
 that checks a rule and records any nodes that don't satisfy it,
 and then call that function once for each rule inside our `Identifier` handler.
 This may see like extra work,
@@ -154,7 +154,7 @@ We can now put a call to `applyCheck` inside the handler for `Identifier`:
 {: .continue}
 We can't just use `applyCheck` as the handler for `Identifier`
 because `walk.simple` wouldn't know how to call it.
-This is a (very simple) example of the <span g="adapter_pattern">Adapter</span> design pattern:
+This is a (very simple) example of the <span g="adapter_pattern" i="Adapter pattern; design pattern!Adapter">Adapter</span> design pattern:
 we write a function or class to connect the code we want to call
 to the already-written code that is going to call it.
 
@@ -184,12 +184,14 @@ That simplifies the methods---one less parameter---but it does mean that
 anyone who wants to use our visitor has to derive a class,
 which is a bit more complicated than writing a function.
 This tradeoff is a sign that managing state is part of the problem's
-<span g="intrinsic_complexity">intrinsic complexity</span>:
+<span g="intrinsic_complexity" i="intrinsic complexity">intrinsic complexity</span>:
 we can move it around,
 but we can't get rid of it.
 
 The other difference between our visitor and `acorn-walk` is that
-our class uses <span g="dynamic_lookup">dynamic lookup</span> to look up a method
+our class uses <span g="dynamic_lookup" i="dynamic lookup">dynamic lookup</span>
+(a form of <span i="introspection!of methods">introspection</span>)
+to look up a method
 with the same name as the node type in the object.
 While we normally refer to a particular method of an object using `object.method`,
 we can also look them up by asking for `object[name]`
@@ -217,7 +219,8 @@ we should implement it that way everywhere.
 
 ## How else could the AST walker work?
 
-A third approach to this problem uses the <span g="iterator_pattern">Iterator</span> design pattern.
+A third approach to this problem uses
+the <span g="iterator_pattern" i="Iterator pattern; design pattern!Iterator">Iterator</span> design pattern.
 Instead of taking the computation to the nodes as a visitor does,
 an iterator returns the elements of a complex structure one by one for processing
 (<span f="style-checker-iterator"/>).
@@ -230,7 +233,8 @@ while the Iterator pattern turns everything into a `for` loop.
    alt='The Iterator pattern'
    cap='Finding nodes in the tree using the Iterator pattern.' %}
 
-We can implement the Iterator pattern in JavaScript using <span g="generator_function">generator functions</span>.
+We can implement the Iterator pattern in JavaScript using
+<span g="generator_function" i="generator function; Iterator pattern!generator function">generator functions</span>.
 If we declare a function using `function *` (with an asterisk) instead of `function`
 then we can use the `yield` keyword to return a value and suspend processing to be resumed later.
 The result of `yield` is a two-part structure with a value and a flag showing whether or not processing is done:
@@ -305,13 +309,13 @@ To test this code, we start with the last of these three short files:
 {% include multi pat='*.js' fill='upper middle lower' %}
 {% include file file='run-find-ancestors.out' %}
 
-Good: we can recover the chain of inheritance.
+Good: we can recover the <span i="chain of inheritance">chain of inheritance</span>.
 Finding method definitions is also straightforward:
 
 {% include file file='find-methods.js' %}
 
 And finally,
-we can print a <span g="markdown">Markdown</span>-formatted table showing which methods are defined in which class:
+we can print a <span g="markdown" i="Markdown">Markdown</span>-formatted table showing which methods are defined in which class:
 
 {% include file file='run-find-methods.raw.out' %}
 

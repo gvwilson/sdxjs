@@ -6,16 +6,16 @@ if it is close to the code.
 Tools that extract specially-formatted comments from code and turn them into documentation
 have been around since at least the 1980s;
 many are used for JavaScript,
-including [JSDoc][jsdoc] and [ESDoc][esdoc].
+including <span i="JSDoc">[JSDoc][jsdoc]</span> and <span i="ESDoc">[ESDoc][esdoc]</span>.
 This chapter will use what we learned in <span x="code-generator"/> about parsing source code
 to build a simple documentation generator of our own.
 
 ## How can we extract documentation comments?
 
-We will use [Acorn][acorn] once again to parse our source files.
+We will use <span i="Acorn">[Acorn][acorn]</span> once again to parse our source files.
 This time we will use the parser's `onComment` option,
 giving it an array to fill in.
-For the moment we won't bother to assign the AST produced by parsing to a variable
+For the moment we won't bother to assign the <span i="abstract syntax tree">AST</span> produced by parsing to a variable
 because we are just interested in the comments:
 
 {% include file file='extract-comments.js' %}
@@ -36,13 +36,13 @@ so let's slim down the JSON that we extract:
    cap='How line comments and block comments are distinguished and represented.' %}
 
 Acorn distinguishes two kinds of comments (<span f="doc-generator-comments"/>).
-<span g="line_comment">Line comments</span> cannot span multiple lines;
+<span g="line_comment" i="line comment; comment!line">Line comments</span> cannot span multiple lines;
 if one line comment occurs immediately after another,
 Acorn reports two comments:
 
 {% include multi pat='multi-line-double-slash-comment.*' fill='js sh out' %}
 
-<span g="block_comment">Block comments</span>,
+<span g="block_comment" i="block comment; comment!block">Block comments</span>,
 on the other hand,
 can span any number of lines.
 We don't need to prefix each line with `*` but most people do for readability:
@@ -58,8 +58,8 @@ so the first character in the extracted text is `*`:
 
 ## What input will we try to handle?
 
-We will use [Markdown][markdown] for formatting our documentation.
-The <span g="doc_comment">doc comments</span> for function definitions look like this:
+We will use <span i="Markdown">[Markdown][markdown]</span> for formatting our documentation.
+The <span g="doc_comment" i="doc comment; comment!doc">doc comments</span> for function definitions look like this:
 
 {% include file file='example-plain.js' %}
 
@@ -75,7 +75,7 @@ and we have to remember the back-quotes for formatting code.
 We will fix some of these problems once we have a basic tool up and running.
 
 The next step in doing that is to translate Markdown into HTML.
-There are many Markdown parsers in JavaScript;
+There are many <span i="Markdown!parser">Markdown parsers</span> in JavaScript;
 after experimenting with a few,
 we decided to use [`markdown-it`][markdown-it]
 along with the [`markdown-it-anchor`][markdown-it-anchor] extension
@@ -106,7 +106,7 @@ and putting the lines back together:
 
 One thing that isn't in this file (because we're going to use it in later versions)
 is the function `slugify`.
-A <span g="slug">slug</span> is a short string that identifies a header or a web page;
+A <span g="slug" i="slug (unique identifier)">slug</span> is a short string that identifies a header or a web page;
 the name comes from the era of newspapers,
 where a slug was a short name used to identify an article while it was in production.
 Our `slugify` function strips unnecessary characters out of a title,
@@ -139,7 +139,7 @@ but there is a double `h1` header for each file (the filename and and the title 
 the anchor IDs are hard to read,
 there are no cross-references,
 and so on.
-Some of the visual issues can be resolved with CSS,
+Some of the visual issues can be resolved with <span i="CSS">CSS</span>,
 and we can change our input format to make processing easier
 as long as it also makes authoring easier.
 However,
@@ -172,7 +172,7 @@ then searches for the nodes we want:
 {% include keep file='find-following.js' key='main' %}
 
 The recursive search is straightforward as well---we delete line numbers from the target set
-and add nodes to the <span g="accumulator">accumulator</span> as we find matches:
+and add nodes to the <span g="accumulator" i="Accumulator pattern; design pattern!Accumulator">accumulator</span> as we find matches:
 
 {% include keep file='find-following.js' key='findFollowing' %}
 
@@ -218,7 +218,7 @@ We can use this to create better output (<span f="doc-generator-fill-in-headers"
 
 We haven't made this point explicitly in a while,
 so we will repeat it here:
-code is just another kind of data,
+<span i="code!as data">code is just another kind of data</span>,
 and we can process it just like we would process any other data.
 Parsing code to produce an AST is no different from parsing HTML to produce DOM;
 in both cases we are simply transforming a textual representation that's easy for people to author
@@ -229,7 +229,7 @@ is no different from pulling numbers out of a hospital database to report monthl
 Treating code as data enables us to do routine programming tasks with a single command,
 which in turn gives us more time to think about the tasks that we can't (yet) automate.
 Doing this is the foundation of a tool-based approach to software engineering;
-as the mathematician Alfred North Whitehead once wrote,
+as the mathematician <span i="Whitehead, Alfred North">Alfred North Whitehead</span> once wrote,
 "Civilization advances by extending the number of important operations which we can perform without thinking about them."
 
 </div>

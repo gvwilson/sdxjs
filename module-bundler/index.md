@@ -1,14 +1,14 @@
 ---
 ---
 
-JavaScript was designed in a hurry 25 years ago to make web pages interactive.
+<span i="JavaScript!hurried design of">JavaScript</span> was designed in a hurry 25 years ago to make web pages interactive.
 Nobody realized it would become one of the most popular programming languages in the world,
 so it didn't include support for things that large programs need.
 One of those things was a way to turn a set of easy-to-edit source files
 into a single easy-to-load file
 so that browsers could get what they needed with one request.
 
-A <span g="module_bundler">module bundler</span> finds all the files that an application depends on
+A <span g="module_bundler" i="module bundler">module bundler</span> finds all the files that an application depends on
 and combines them into a single loadable file
 (<span f="module-bundler-bundling"/>).
 This file is much more efficient to load:
@@ -23,7 +23,7 @@ so that the application has at least a chance of being able to run.
    alt='Bundling modules'
    cap='Combining multiple modules into one.' %}
 
-Bundling requires an <span g="entry_point">entry point</span>,
+Bundling requires an <span g="entry_point" i="entry point (of module); module!entry point">entry point</span>,
 i.e.,
 a place to start searching for dependencies.
 Given that,
@@ -63,7 +63,7 @@ The output we expect is:
 
 ### Why `require`?
 
-Our tests cases use the old-style `require` function
+Our tests cases use the old-style <span i="require vs. import; import vs. require">`require`</span> function
 and assign things that are to be visible outside the module to `module.exports`
 rather than using `import` and `export`.
 We tried writing the chapter using the latter,
@@ -107,7 +107,7 @@ because `require` itself doesn't (<span x="module-loader"/>).
 
 To get all the dependencies for one source file,
 we parse it and extract all of the calls to `require`.
-The code to do this is relatively straightforward given what we know about [Acorn][acorn]:
+The code to do this is relatively straightforward given what we know about <span i="Acorn">[Acorn][acorn]</span>:
 
 {% include file file='get-requires.js' %}
 {% include multi pat='test-get-requires.*' fill='js sh out' %}
@@ -142,7 +142,7 @@ we highly recommend <cite>Petzold2008</cite>.
 </div>
 
 To get all of the dependencies a bundle needs
-we need to find the <span g="transitive_closure">transitive closure</span> of the entry point's dependencies,
+we need to find the <span g="transitive_closure" i="transitive closure">transitive closure</span> of the entry point's dependencies,
 i.e.,
 the requirements of the requirements and so on recursively.
 Our algorithm for doing this uses two sets:
@@ -210,7 +210,7 @@ that will remain a dream.
 We now need to combine the files we have found into one
 while keeping each in its own namespace.
 We do this using the same method we used in <span x="module-loader"/>:
-wrap the source code in an IIFE,
+wrap the source code in an <span i="immediately-invoked function expression">IIFE</span>,
 giving that IIFE a `module` object to fill in
 and an implementation of `require` to resolve dependencies *within the bundle*.
 For example, suppose we have this file:
@@ -319,7 +319,7 @@ and because of the levels of nesting needed to capture variables safely.
 Getting this right took much more time per line of finished code than anything we have seen so far
 except the promises in <span x="async-programming"/>.
 However,
-it is all intrinsic complexity:
+it is all <span i="intrinsic complexity">intrinsic complexity</span>:
 anything that does what `require` does is going to be equally convoluted.
 
 To prove that our code works
