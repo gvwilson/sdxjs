@@ -1,7 +1,7 @@
 ---
 ---
 
-**[Greg Wilson][wilson-greg]** has worked in industry and academia for 35 years,
+**<span i="Wilson, Greg">[Greg Wilson][wilson-greg]</span>** has worked in industry and academia for 35 years,
 and is the author or editor of several books,
 including *Beautiful Code*,
 *[The Architecture of Open Source Applications][aosa]*,

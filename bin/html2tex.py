@@ -58,7 +58,9 @@ def get_filenames(site, config):
     '''Get names of input files from configuration data, marking the first appendix.'''
     result = []
     for entry in config['chapters']:
-        if 'slug' in entry:
+        if 'skip' in entry:
+            pass
+        elif 'slug' in entry:
             result.append(['entry', f"{site}/{entry['slug']}/index.html"])
         elif 'appendix' in entry:
             result.append(['appendix', None])
@@ -353,8 +355,9 @@ def convert_glossary_index(node, accum, doEscape):
         convert_children(node, accum, doEscape)
 
     if node.has_attr('i'):
-        term = node['i']
-        accum.append(fr'\index{{{term}}}')
+        terms = [t.strip() for t in node['i'].split(';')]
+        for term in terms:
+            accum.append(fr'\index{{{escape(term, doEscape)}}}')
 
 
 def convert_links_table(node, accum):

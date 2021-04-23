@@ -5,17 +5,21 @@ Many of the examples in these lessons are too long
 to show comfortably in one block of code on a printed page,
 so we needed a way to break them up.
 As an experiment,
-we wrote a custom <span g="loader">loader</span>
+we wrote a custom <span g="loader" i="module loader">module loader</span>
 that reads a source file containing specially-formatted comments
 and then reads and inserts the files specified in those comments
 before running the code
-(<span f="file-interpolator-conceptual"></span>).
+(<span f="file-interpolator-conceptual"/>).
 Modern programming languages don't work this way,
-but C and C++ do this with <span g="header_file">header files</span>,
-and page templating systems (<span x="page-templates"></span>) do this
+but <span i="C">C</span> and <span i="C++">C++</span> do this with <span g="header_file" i="header file!in C and C++">header files</span>,
+and <span i="static site generator!header file; header file!static site generator">static site generators</span> (<span x="page-templates"/>) do this
 to share fragments of HTML.
 
-{% include figure id='file-interpolator-conceptual' img='figures/conceptual.svg' alt='Using file inclusions' cap='Including fragments of code to create runnable programs.' %}
+{% include figure
+   id='file-interpolator-conceptual'
+   img='figures/conceptual.svg'
+   alt='Using file inclusions'
+   cap='Including fragments of code to create runnable programs.' %}
 
 The special comments in our source files contain two fields:
 the text to put in the displayed version
@@ -25,10 +29,10 @@ and file to include when loading:
 
 We got this to work,
 but decided to use a different approach in this book.
-The stumbling block was that the style-checking tool [ESLint][eslint]
+The stumbling block was that the style-checking tool <span i="ESLint">[ESLint][eslint]</span>
 didn't know what to make of our inclusions,
 so we would either have to modify it or build a style checker of our own.
-(We will actually do that in <span x="style-checker"></span>,
+(We will actually do that in <span x="style-checker"/>,
 but we won't go nearly as far as ESLint.)
 
 Despite being a dead end,
@@ -50,21 +54,25 @@ translates it into runnable instructions,
 and runs those instructions.
 We can do the second and third steps whenever we want using a function called `eval`,
 which takes a string as input and executes it as if it were part of the program
-(<span f="file-interpolator-eval"></span>).
+(<span f="file-interpolator-eval"/>).
 
-{% include figure id='file-interpolator-eval' img='figures/eval.svg' alt='How eval works' cap='<code>eval</code> vs. normal translation and execution.' %}
+{% include figure
+   id='file-interpolator-eval'
+   img='figures/eval.svg'
+   alt='How eval works'
+   cap='<code>eval</code> vs. normal translation and execution.' %}
 
 <div class="callout" markdown="1">
 
 ### This is not a good idea
 
-`eval` is a security risk:
+<span i="eval!insecurity of">`eval`</span> is a security risk:
 arbitrary code can do arbitrary things,
 so if we take a string typed in by a user and execute it without any checks
 it could email our bookmark list to villains all over the world,
 erase our hard drive,
 or do anything else that code can do (which is pretty much anything).
-Browsers do their best to run code in a <span g="sandbox">sandbox</span> for safety,
+Browsers do their best to run code in a <span g="sandbox" i="sandbox (for safe execution)">sandbox</span> for safety,
 but Node doesn't,
 so it's up to us to be (very) careful.
 
@@ -146,19 +154,23 @@ The source files in this book are small enough
 that we don't have to worry about reading them repeatedly,
 but we would like to avoid re-reading things unnecessarily
 in large systems or when there might be network delays.
-The usual approach is to create a cache
-using the Singleton pattern
-that we first met in <span x="unit-test"></span>.
+The usual approach is to create a <span i="cache!of loaded files">cache</span>
+using the <span i="Singleton pattern; design pattern!Singleton">Singleton pattern</span>
+that we first met in <span x="unit-test"/>.
 Whenever we want to read a file,
 we check to see if it's already in the cache
-(<span f="file-interpolator-cache"></span>).
+(<span f="file-interpolator-cache"/>).
 If it is,
 we use that copy;
 if not,
 we read it and add it to the cache
 using the file path as a lookup key.
 
-{% include figure id='file-interpolator-cache' img='figures/cache.svg' alt='Implementing a cache as a singleton' cap='Using the Singleton pattern to implement a cache of loaded files.' %}
+{% include figure
+   id='file-interpolator-cache'
+   img='figures/cache.svg'
+   alt='Implementing a cache as a singleton'
+   cap='Using the Singleton pattern to implement a cache of loaded files.' %}
 
 We can write a simple cache in just a few lines of code:
 
@@ -194,7 +206,7 @@ so we need a way specify where to look for files that are being included.
 One option is to use relative paths,
 but another option is to give our program
 a list of directories to look in.
-This is called a <span g="search_path">search path</span>,
+This is called a <span g="search_path" i="search path">search path</span>,
 and many programs use them,
 including Node itself.
 By convention,
@@ -205,9 +217,13 @@ we look for it locally;
 if not,
 we go through the directories in the search path in order
 until we find a file with a matching name
-(<span f="file-interpolator-search-path"></span>).
+(<span f="file-interpolator-search-path"/>).
 
-{% include figure id='file-interpolator-search-path' img='figures/search-path.svg' alt='Implementing a search path' cap='Using a colon-separated list of directories as a search path.' %}
+{% include figure
+   id='file-interpolator-search-path'
+   img='figures/search-path.svg'
+   alt='Implementing a search path'
+   cap='Using a colon-separated list of directories as a search path.' %}
 
 <div class="callout" markdown="1">
 
@@ -231,7 +247,7 @@ The outline of the class stays the same:
 {% include erase file='need-path.js' key='skip' %}
 
 To get the search path,
-we look for the <span g="shell_variable">shell variable</span> `NEED_PATH`.
+we look for the <span g="shell_variable" i="shell variable (for storing search path); search path!shell variable">shell variable</span> `NEED_PATH`.
 (Writing shell variables' names in upper case is another convention.)
 If `NEED_PATH` exists,
 we split it on colons to create a list of directories:
@@ -305,7 +321,7 @@ Let's test it:
 
 {% include multi pat='test-import-interpolate.*' fill='sh out' %}
 
-When this program runs:
+When this program runs, its <span i="lifecycle!of file interpolation">lifecycle</span> is:
 
 1.  Node starts to run `test-import-interpolate.js`.
 1.  It sees the `import` of need-interpolate` so it reads and evaluates that code.
@@ -357,8 +373,8 @@ this system doesn't automatically update the description of the code:
 if we write, "It does X,"
 then modify the code to do Y,
 our lesson can be inconsistent.
-<span g="literate_programming">Literate programming</span> was invented
+<span g="literate_programming" i="literate programming">Literate programming</span> was invented
 to try to prevent this from happening,
 but it never really caught on---unfortunately,
 most programming systems that describe themselves as "literate" these days
-only implement part of [Donald Knuth][knuth-donald]'s original vision.
+only implement part of <span i="Knuth, Donald">[Donald Knuth][knuth-donald]</span>'s original vision.

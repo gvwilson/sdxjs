@@ -3,32 +3,32 @@
 
 Computers don't execute JavaScript directly.
 Instead,
-each processor has its own <span g="instruction_set">instruction set</span>,
+each processor has its own <span g="instruction_set" i="instruction set">instruction set</span>,
 and a compiler translates high-level languages into those instructions.
-Compilers often use an intermediate representation called <span g="assembly_code">assembly code</span>
+Compilers often use an intermediate representation called <span g="assembly_code" i="assembly code">assembly code</span>
 that gives instructions human-readable names instead of numbers.
 To understand more about how JavaScript actually runs
 we will simulate a very simple processor with a little bit of memory.
 If you want to dive deeper,
-have a look at [Bob Nystrom][nystrom-bob]'s excellent *[Crafting Interpreters][crafting-interpreters]*.
-You may also enjoy [Human Resource Machine][human-resource-machine],
+have a look at <span i="Nystrom, Bob">[Bob Nystrom][nystrom-bob]</span>'s excellent *[Crafting Interpreters][crafting-interpreters]*.
+You may also enjoy <span i="Human Resource Machine">[Human Resource Machine][human-resource-machine]</span>,
 which asks you to solve puzzles of increasing difficulty
 using a processor almost as simple as ours.
 
 ## What is the architecture of our virtual machine?
 
-Our <span g="virtual_machine">virtual machine</span> has three parts,
-which are shown in <span f="virtual-machine-architecture"></span>
+Our <span g="virtual_machine" i="virtual machine">virtual machine</span> has three parts,
+which are shown in <span f="virtual-machine-architecture"/>
 for a program made up of 110 instructions:
 
-1.  An <span g="instruction_pointer">instruction pointer</span> (IP)
+1.  An <span g="instruction_pointer" i="instruction pointer">instruction pointer</span> (IP)
     that holds the memory address of the next instruction to execute.
     It is automatically initialized to point at address 0,
     which is where every program must start.
-    This rule is part of the <span g="abi">Application Binary Interface</span> (ABI)
+    This rule is part of the <span g="abi" i="Application Binary Interface">Application Binary Interface</span> (ABI)
     for our virtual machine.
 
-1.  Four <span g="register">registers</span> named R0 to R4 that instructions can access directly.
+1.  Four <span g="register" i="register (in computer)">registers</span> named R0 to R4 that instructions can access directly.
     There are no memory-to-memory operations in our VM:
     everything  happens in or through registers.
 
@@ -36,10 +36,14 @@ for a program made up of 110 instructions:
     Both the program and its data live in this single block of memory;
     we chose the size 256 so that each address will fit in a single byte.
 
-{% include figure id='virtual-machine-architecture' img='figures/architecture.svg' alt='Virtual machine architecture' cap='Architecture of the virtual machine.' %}
+{% include figure
+   id='virtual-machine-architecture'
+   img='figures/architecture.svg'
+   alt='Virtual machine architecture'
+   cap='Architecture of the virtual machine.' %}
 
 The instructions for our VM are 3 bytes long.
-The <span g="op_code">op code</span> fits into one byte,
+The <span g="op_code" i="op code; virtual machine!op code">op code</span> fits into one byte,
 and each instruction may optionally include one or two single-byte operands.
 Each operand is a register identifier,
 a constant,
@@ -47,13 +51,16 @@ or an address
 (which is just a constant that identifies a location in memory);
 since constants have to fit in one byte,
 the largest number we can represent directly is 256.
-<span t="virtual-machine-op-codes"></span> uses the letters `r`, `c`, and `a`
+<span t="virtual-machine-op-codes"/> uses the letters `r`, `c`, and `a`
 to indicate instruction format,
 where `r` indicates a register identifier,
 `c` indicates a constant,
 and `a` indicates an address.
 
-{% include table id='virtual-machine-op-codes' file='op-codes.tbl' cap='Virtual machine op codes.' %}
+{% include table
+   id='virtual-machine-op-codes'
+   file='op-codes.tbl'
+   cap='Virtual machine op codes.' %}
 
 We put our VM's architectural details in a file
 that can be shared by other components:
@@ -77,20 +84,24 @@ along with a prompt for output:
 
 A program is just an array of numbers representing instructions.
 To load one,
-we copy those numbers into RAM and reset the instruction pointer and registers:
+we copy those numbers into memory and reset the instruction pointer and registers:
 
 {% include keep file='vm-base.js' key='initialize' %}
 
 In order to handle the next instruction,
 the VM gets the value in memory that the instruction pointer currently refers to
 and moves the instruction pointer on by one address.
-It then uses <span g="bitwise_operation">bitwise operations</span>
+It then uses <span g="bitwise_operation" i="bitwise operation">bitwise operations</span>
 to extract the op code and operands from the instruction
-(<span f="virtual-machine-unpacking"></span>):
+(<span f="virtual-machine-unpacking"/>):
 
 {% include keep file='vm-base.js' key='fetch' %}
 
-{% include figure id='virtual-machine-unpacking' img='figures/unpacking.svg' alt='Unpacking instructions' cap='Using bitwise operations to unpack instructions.' %}
+{% include figure
+   id='virtual-machine-unpacking'
+   img='figures/unpacking.svg'
+   alt='Unpacking instructions'
+   cap='Using bitwise operations to unpack instructions.' %}
 
 <div class="callout" markdown="1">
 
@@ -135,7 +146,7 @@ as is jumping to a fixed address if the value in a register is zero:
 We could figure out numerical op codes by hand,
 and in fact that's what [the first programmers][eniac-programmers] did.
 However,
-it is much easier to use an <span g="assembler">assembler</span>,
+it is much easier to use an <span g="assembler" i="assembler">assembler</span>,
 which is just a small compiler for a language that very closely represents actual machine instructions.
 
 Each command in our assembly languages matches an instruction in the VM.
@@ -149,21 +160,25 @@ Its numeric representation is:
 {% include file file='print-r1.mx' %}
 
 One thing the assembly language has that the instruction set doesn't
-is <span g="label_address">address labels</span>
+is <span g="label_address" i="label (on address)">labels on addresses</span>.
 The label `loop` doesn't take up any space;
 instead,
 it tells the assembler to give the address of the next instruction a name
 so that we can refer to that address as `@loop` in jump instructions.
 For example,
 this program prints the numbers from 0 to 2
-(<span f="virtual-machine-count-up"></span>):
+(<span f="virtual-machine-count-up"/>):
 
 {% include multi pat='count-up.*' fill='as mx' %}
 
-{% include figure id='virtual-machine-count-up' img='figures/count-up.svg' alt='Counting from 0 to 2' cap='Flowchart of assembly language program to count up from 0 to 2.' %}
+{% include figure
+   id='virtual-machine-count-up'
+   img='figures/count-up.svg'
+   alt='Counting from 0 to 2'
+   cap='Flowchart of assembly language program to count up from 0 to 2.' %}
 
 Let's trace this program's execution
-(<span f="virtual-machine-trace-counter"></span>):
+(<span f="virtual-machine-trace-counter"/>):
 
 1.  R0 holds the current loop index.
 1.  R1 holds the loop's upper bound (in this case 3).
@@ -174,7 +189,11 @@ Let's trace this program's execution
     which takes three instructions.
 1.  If the program *doesn't* jump back, it halts.
 
-{% include figure id='virtual-machine-trace-counter' img='figures/trace-counter.svg' alt='Trace counting program' cap='Tracing registers and memory values for a simple counting program.' %}
+{% include figure
+   id='virtual-machine-trace-counter'
+   img='figures/trace-counter.svg'
+   alt='Trace counting program'
+   cap='Tracing registers and memory values for a simple counting program.' %}
 
 The implementation of the assembler mirrors the simplicity of assembly language.
 The main method gets interesting lines,
@@ -217,7 +236,7 @@ this program counts up to three:
 ## How can we store data?
 
 It is tedious to write interesting programs when each value needs a unique name.
-We can do a lot more once we have collections like arrays,
+We can do a lot more once we have collections like <span i="array!implementation of">arrays</span>,
 so let's add those to our assembler.
 We don't have to make any changes to the virtual machine,
 which doesn't care if we think of a bunch of numbers as individuals or elements of an array,
@@ -226,9 +245,13 @@ but we do need a way to create arrays and refer to them.
 We will allocate storage for arrays at the end of the program
 by using `.data` on a line of its own to mark the start of the data section
 and then `label: number` to give a region a name and allocate some storage space
-(<span f="virtual-machine-storage-allocation"></span>).
+(<span f="virtual-machine-storage-allocation"/>).
 
-{% include figure id='virtual-machine-storage-allocation' img='figures/storage-allocation.svg' alt='Storage allocation' cap='Allocating storage for arrays in the virtual machine.' %}
+{% include figure
+   id='virtual-machine-storage-allocation'
+   img='figures/storage-allocation.svg'
+   alt='Storage allocation'
+   cap='Allocating storage for arrays in the virtual machine.' %}
 
 This enhancement only requires a few changes to the assembler.
 First,
@@ -252,7 +275,8 @@ let's fill an array with the numbers from 0 to 3:
 {% include file file='fill-array-out.out' %}
 
 <div class="callout" markdown="1">
-### But how does it *work*?
+
+### How does it actually work?
 
 Our VM is just another program.
 If you'd like to know what happens when instructions finally meet hardware,
@@ -260,4 +284,5 @@ and how electrical circuits are able to do arithmetic,
 make decisions,
 and talk to the world,
 <cite>Patterson2017</cite> has everything you want to know and more.
+
 </div>

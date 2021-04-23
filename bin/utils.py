@@ -118,13 +118,13 @@ def get_entry_info(config):
     return result
 
 
-def get_matches(pattern, filename, group=1, scrub=True, duplicates=None, split=True):
+def get_matches(pattern, filename, group=1, scrub=True, duplicates=None, split=','):
     '''Get matches from a single file.'''
     result = set()
     text = read_file(filename, scrub)
     for match in pattern.finditer(text):
         words = match.group(group)
-        words = words.split(',') if split else [words]
+        words = words.split(split) if split else [words]
         for word in words:
             if (duplicates is not None) and (word in result):
                 duplicates.append(word)

@@ -3,11 +3,11 @@
 
 We have written many small programs in the previous two chapters,
 but haven't really tested any of them.
-That's OK for <span g="exploratory_programming">exploratory programming</span>,
+That's OK for <span g="exploratory_programming" i="exploratory programming">exploratory programming</span>,
 but if our software is going to be used instead of just read,
 we should try to make sure it works.
 
-A tool for writing and running <span g="unit_test">unit tests</span> is a good first step.
+A tool for writing and running <span g="unit_test" i="unit test!requirements for">unit tests</span> is a good first step.
 Such a tool should:
 
 -   find files containing tests;
@@ -16,7 +16,7 @@ Such a tool should:
 -   capture their results; and
 -   report each test's result and a summary of those results.
 
-Our design is inspired by tools like [Mocha][mocha] and [Jest][jest],
+Our design is inspired by tools like <span i="Mocha"[Mocha][mocha]</span> and <span i="Jest">[Jest][jest]</span>,
 which were in turn inspired by tools built for other languages
 from the 1980s onward <cite>Meszaros2007,Tudose2020</cite>.
 
@@ -25,34 +25,38 @@ from the 1980s onward <cite>Meszaros2007,Tudose2020</cite>.
 As in other unit testing frameworks,
 each test will be a function of zero arguments
 so that the framework can run them all in the same way.
-Each test will create a <span g="fixture">fixture</span> to be tested
-and use <span g="assertion">assertions</span>
-to compare the <span g="actual_result">actual result</span>
-against the <span g="expected_result">expected result</span>.
+Each test will create a <span g="fixture" i="fixture (in unit test); unit test!fixture">fixture</span> to be tested
+and use <span g="assertion" i="assertion!in unit test">assertions</span>
+to compare the <span g="actual_result" i="actual result (in unit test); unit test!actual result">actual result</span>
+against the <span g="expected_result" i="expected result (in unit test); unit test!expected result">expected result</span>.
 The outcome can be exactly one of:
 
--   <span g="pass_test">Pass</span>:
-    the <span g="test_subject">test subject</span> works as expected.
+-   <span g="pass_test" i="pass (in unit test); unit test!pass">Pass</span>:
+    the <span g="test_subject" i="test subject (in unit test); unit test!test subject">test subject</span> works as expected.
 
--   <span g="fail_test">Fail</span>:
+-   <span g="fail_test" i="fail (in unit test); unit test!fail">Fail</span>:
     something is wrong with the test subject.
 
--   <span g="error_test">Error</span>:
+-   <span g="error_test" i="error (in unit test); unit test!error">Error</span>:
     something wrong in the test itself,
     which means we don't know whether the test subject is working properly or not.
 
 To make this work,
 we need some way to distinguish failing tests from broken ones.
 Our solution relies on the fact that exceptions are objects
-and that a program can use <span g="introspection">introspection</span>
+and that a program can use <span g="introspection" i="introspection!in unit testing">introspection</span>
 to determine the class of an object.
-If a test <span g="throw_exception">throws an exception</span> whose class is `assert.AssertionError`,
+If a test <span g="throw_exception" i="exception!throw">throws an exception</span> whose class is `assert.AssertionError`,
 then we will assume the exception came from
 one of the assertions we put in the test as a check
-(<span f="unit-test-mental-model"></span>).
+(<span f="unit-test-mental-model"/>).
 Any other kind of assertion indicates that the test itself contains an error.
 
-{% include figure id='unit-test-mental-model' img='figures/mental-model.svg' alt='Mental model of unit testing' cap='Running tests that can pass, fail, or contain errors.' %}
+{% include figure
+   id='unit-test-mental-model'
+   img='figures/mental-model.svg'
+   alt='Mental model of unit testing'
+   cap='Running tests that can pass, fail, or contain errors.' %}
 
 ## How can we separate test registration, execution, and reporting?
 
@@ -62,7 +66,7 @@ let's use a handful of <span g="global_variable">global variables</span> to reco
 {% include keep file='dry-run.js' key='state' %}
 
 We don't run tests immediately
-because we want to wrap each one in our own <span g="exception_handler">exception handler</span>.
+because we want to wrap each one in our own <span g="exception_handler" i="exception!handler">exception handler</span>.
 Instead,
 the function `hopeThat` saves a descriptive message and a callback function that implements a test
 in the `HopeTest` array.
@@ -121,7 +125,7 @@ This simple "framework" does what it's supposed to, but:
 
 The next version of our testing tool solves the first two problems in the original
 by putting the testing machinery in a class.
-It uses the <span g="singleton_pattern">Singleton</span> <span g="design_pattern">design pattern</span>
+It uses the <span g="singleton_pattern" i="Singleton pattern; design pattern!Singleton">Singleton</span> <span g="design_pattern">design pattern</span>
 to ensure that only one object of that class is ever created <cite>Osmani2017</cite>.
 Singletons are a way to manage global variables that belong together
 like the ones we're using to record tests and their results.
@@ -138,7 +142,7 @@ This strategy relies on two things:
 1.  [Node][nodejs] executes the code in a JavaScript module as it loads it,
     which means that it runs `new Hope()` and exports the newly-created object.
 
-1.  Node <span g="caching">caches</span> modules
+1.  Node <span g="caching" i="cache!modules; require!caching modules">caches</span> modules
     so that a given module is only loaded once
     no matter how many times it is imported.
     This ensures that `new Hope()` really is only called once.
@@ -146,9 +150,13 @@ This strategy relies on two things:
 Once a program has imported `hope`,
 it can call `Hope.test` to record a test for later execution
 and `Hope.run` to execute all of the tests registered up until that point
-(<span f="unit-test-hope-structure"></span>).
+(<span f="unit-test-hope-structure"/>).
 
-{% include figure id='unit-test-hope-structure' img='figures/hope-structure.svg' alt='Recording and running tests' cap='Creating a singleton, recording tests, and running them.' %}
+{% include figure
+   id='unit-test-hope-structure'
+   img='figures/hope-structure.svg'
+   alt='Recording and running tests'
+   cap='Creating a singleton, recording tests, and running them.' %}
 
 Finally,
 our `Hope` class can report results as both a terse one-line summary and as a detailed listing.
@@ -161,7 +169,7 @@ so that if someone wants to format them in a different way (e.g., as HTML) they 
 
 ### Who's calling?
 
-`Hope.test` uses the [`caller`][caller] module
+`Hope.test` uses the <span i="caller module">[`caller`][caller]</span> module
 to get the name of the function that is registering a test.
 Reporting the test's name helps the user figure out where to start debugging;
 getting it via introspection
@@ -206,12 +214,12 @@ Hope.run()
 {: .continue}
 Here,
 `all-the-tests.js` imports other files so that they will register tests
-as a <span g="side_effect">side effect</span> via calls to `hope.test`
+as a <span g="side_effect" i="side effect!for module registration">side effect</span> via calls to `hope.test`
 and then calls `Hope.run` to execute them.
 It works,
 but sooner or later (probably sooner) someone will forget to import one of the test files.
 
-A better strategy is to load test files <span g="dynamic_loading">dynamically</span>.
+A better strategy is to load test files <span g="dynamic_loading" i="dynamic loading">dynamically</span>.
 While `import` is usually written as a statement,
 it can also be used as an `async` function
 that takes a path as a parameter and loads the corresponding file.
@@ -249,7 +257,7 @@ The double dash is a common Unix convention for signalling the end of parameters
 
 </div>
 
-Our <span g="test_runner">test runner</span> is now complete,
+Our <span g="test_runner" i="test runner; unit test!test runner">test runner</span> is now complete,
 so we can try it out with some files containing tests that pass, fail, and contain errors:
 
 {% include multi pat='pray.*' fill='sh out' %}
@@ -274,8 +282,8 @@ Loading modules dynamically so that they can register something for us to call l
 is a common pattern in many programming languages.
 Control flow goes back and forth between the framework and the module being loaded
 as this happens
-so we must specify the <span g="lifecycle">lifecycle</span> of the loaded modules quite carefully.
-<span f="unit-test-lifecycle"></span> illustrates what span
+so we must specify the <span g="lifecycle" i="lifecycle!of unit test; unit test!lifecycle">lifecycle</span> of the loaded modules quite carefully.
+<span f="unit-test-lifecycle"/> illustrates what span
 when a pair of files `test-add.js` and `test-sub.js` are loaded by our framework:
 
 1.  `pray` loads `hope.js`.
@@ -291,4 +299,8 @@ when a pair of files `test-add.js` and `test-sub.js` are loaded by our framework
 10.  `pray` can now ask the unique instance of `Hope` to run all of the tests,
      then get a report from the `Hope` singleton and display it.
 
-{% include figure id='unit-test-lifecycle' img='figures/lifecycle.svg' alt='Unit testing lifecycle' cap='Lifecycle of dynamically-discovered unit tests.' %}
+{% include figure
+   id='unit-test-lifecycle'
+   img='figures/lifecycle.svg'
+   alt='Unit testing lifecycle'
+   cap='Lifecycle of dynamically-discovered unit tests.' %}

@@ -1,9 +1,10 @@
 ---
 ---
 
-We've been writing tests since <span x="unit-test"></span>,
+We've been writing tests since <span x="unit-test"/>,
 but how much of our code do they actually check?
-One way to find out is to use a <span g="code_coverage">code coverage</span> tool like [Istanbul][istanbul]
+One way to find out is to use a <span g="code_coverage" i="code coverage">code coverage</span> tool
+like <span i="Istanbul">[Istanbul][istanbul]</span>
 that watches a program while it executes
 and keeps track of which lines have run and which haven't.
 Making sure that each line is tested at least once doesn't guarantee that the code is bug-free,
@@ -12,8 +13,8 @@ but any code that *isn't* run shouldn't be trusted.
 Our code coverage tool will keep track of which functions have and haven't been called.
 Rather than rewriting [Node][nodejs] to keep track of this for us,
 we will modify the functions themselves
-by parsing the code with [Acorn][acorn],
-inserting the instructions we need into the AST,
+by parsing the code with <span i="Acorn">[Acorn][acorn]</span>,
+inserting the instructions we need into the <span i="abstract syntax tree">AST</span>,
 and then turning the AST back into code.
 
 <div class="callout" markdown="1">
@@ -39,13 +40,17 @@ The first thing we need is a way to wrap up an arbitrary function call.
 If we declare a function in JavaScript with a parameter like `...args`,
 all of the "extra" arguments in the call that don't line up with regular parameters
 are stuffed into the variable `args`
-(<span f="code-generator-spread"></span>).
+(<span f="code-generator-spread"/>).
 We can also call a function by putting values in a variable
-and using `func(...var)` to spread those values out.
+and using `func(...var)` to <span i="spread!function arguments">spread</span> those values out.
 There's nothing special about the names `args` and `vars`:
 what matters is the ellipsis `...`
 
-{% include figure id='code-generator-spread' img='figures/spread.svg' alt='Spreading parameters' cap='Using ...args to capture and spread parameters.' %}
+{% include figure
+   id='code-generator-spread'
+   img='figures/spread.svg'
+   alt='Spreading parameters'
+   cap='Using ...args to capture and spread parameters.' %}
 
 We can use `...args` to capture all of the arguments to a function call
 and forward them to another function.
@@ -64,10 +69,10 @@ Let's try it out:
 
 {% include file file='replace-func.out' %}
 
-This is an example of the <span g="decorator_pattern">Decorator</span> design pattern.
+This is an example of the <span g="decorator_pattern" i="Decorator pattern; design pattern!Decorator">Decorator</span> design pattern.
 A decorator is a function whose job is to modify the behavior of other functions
 in some general ways.
-Decorators are built in to some languages (like [Python][python]),
+Decorators are built in to some languages (like <span i="Python">[Python][python]</span>),
 and we can add them in most others as we have done here.
 
 ## How can we generate JavaScript?
@@ -85,7 +90,7 @@ and for that we need to parse and generate code.
 A third way to achieve what we want is
 to let the system turn code into runnable instructions
 and then modify those instructions.
-This approach is often used in compiled languages like [Java][java],
+This approach is often used in compiled languages like <span i="Java">[Java][java]</span>,
 where the <span g="byte_code">byte code</span> produced by the <span g="compiler">compiler</span> is saved in files
 in order to be run.
 We can't do this here because Node compiles and runs code in a single step.
@@ -94,7 +99,7 @@ We can't do this here because Node compiles and runs code in a single step.
 
 Our tool will parse the JavaScript with Acorn to create an AST,
 modify the AST,
-and then use a library called [Escodegen][escodegen] to turn the AST back into JavaScript.
+and then use a library called <span i="Escodegen">[Escodegen][escodegen]</span> to turn the AST back into JavaScript.
 To start,
 let's look at the AST for a simple function definition,
 which is {% include linecount file='func-def.out' %} lines of pretty-printed JSON:
@@ -133,14 +138,14 @@ to record the function's name and modify the node:
 {: .continue}
 Notice how we don't try to build the nodes by hand,
 but instead construct the string we need,
-use Acorn to parse that,
+use <span i="Acorn">Acorn</span> to parse that,
 and use the result.
 Doing this saves us from embedding multiple lines of JSON in our program
 and also ensures that if a newer version of Acorn decides to generate a different AST,
 our program will do the right thing automatically.
 
 Finally,
-we need to add a couple of helper functions:
+we need to add a couple of <span i="helper function">helper functions</span>:
 
 {% include keep file='multi-func-counter.js' key='admin' %}
 
@@ -154,13 +159,13 @@ and run it to make sure it all works:
 ### Too simple to be safe
 
 Our simple approach to naming counters doesn't work if functions can have the same names,
-which they can if we use modules or <span g="nested_function">nested functions</span>.
+which they can if we use modules or <span g="nested_function" i="nested function; function!nested">nested functions</span>.
 One way to solve this would be to manufacture a label from the function's name
 and the line number in the source code;
 another would be to keep track of which functions are nested within which
 and concatenate their names to produce a unique key.
 Problems like this are why people say that naming things
-is one of the <span g="two_hard_problems">two hard problems</span> in computer science.
+is one of the <span g="two_hard_problems" i="two hard problems in computer science">two hard problems</span> in computer science.
 
 </div>
 
@@ -197,11 +202,11 @@ Let's run one last test:
 {% include file file='test-time-func.out' %}
 
 Source-to-source translation is widely used in JavaScript:
-tools like [Babel][babel] use it to transform modern features like `async` and `await`
-(<span x="async-programming"></span>)
+tools like <span i="Babel">[Babel][babel]</span> use it to transform modern features like `async` and `await`
+(<span x="async-programming"/>)
 into code that older browsers can understand.
 The technique is so powerful that it is built into languages like Scheme,
 which allow programmers to add new syntax to the language
-by defining <span g="macro">macros</span>.
+by defining <span g="macro" i="macro">macros</span>.
 Depending on how carefully they are used,
 macros can make programs elegant, incomprehensible, or both.

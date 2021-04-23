@@ -25,7 +25,7 @@ def find_terms(slug, filename, terms):
             for entry in entries:
                 if entry not in terms:
                     terms[entry] = []
-            terms[entry].append(slug)
+                terms[entry].append(slug)
 
 
 def report(terms):

@@ -1,27 +1,28 @@
 ---
 ---
 
-We have finally come to the subject that sparked this book:
-how does a debugger work?
+We have finally come to one of the topics that sparked this book:
+how does a <span i="debugger">debugger</span> work?
+(The other was layout engines, discussed in <span x="layout-engine"/>.)
 Debuggers are as much a part of good programmers' lives as version control
 but are taught far less often
 (in part, we believe, because it's harder to create homework questions for them).
 In this chapter we will build a simple single-stepping debugger;
 in doing so,
-we will show one way to test interactive applications (<span x="unit-test"></span>).
+we will show one way to test interactive applications (<span x="unit-test"/>).
 
 ## What is our starting point?
 
-We would like to debug a higher-level language than the assembly code of <span x="virtual-machine"></span>,
+We would like to debug a higher-level language than the <span i="assembly code">assembly code</span> of <span x="virtual-machine"/>,
 but we don't want to have to write a parser
-or wrestle with the ASTs of <span x="style-checker"></span>.
+or wrestle with the <span i="abstract syntax tree">ASTs</span> of <span x="style-checker"/>.
 As a compromise,
 we will represent programs as simple JSON data structures
 in which every element has the form `[command ...args]`:
 
 {% include file file='filter-base.json' %}
 
-Our virtual machine is structured like the one in <span x="virtual-machine"></span>.
+Our <span i="virtual machine">virtual machine</span> is structured like the one in <span x="virtual-machine"/>.
 A real system would parse a program to create JSON,
 then translate JSON into assembly code,
 then assemble that to create machine instructions.
@@ -63,10 +64,10 @@ The other operations are similar to these.
 ## How can we make a tracing debugger?
 
 The next thing we need in our debugger is
-a <span g="source_map">source map</span> that keeps track of
+a <span g="source_map" i="source map; debugger!source map">source map</span> that keeps track of
 where in the source file each instruction came from.
 Since JSON is a subset of JavaScript,
-we could get line numbers by parsing our programs with [Acorn][acorn].
+we could get line numbers by parsing our programs with <span i="Acorn">[Acorn][acorn]</span>.
 However,
 we would then have to scrape the information we want for this example out of the AST.
 Since this chapter is supposed to be about debugging,
@@ -82,6 +83,21 @@ we just modify `exec` to ignore the line number:
 
 {% include file file='vm-source-map.js' %}
 
+<div class="callout" markdown="1">
+
+### It's not really cheating
+
+We said that adding line numbers by hand was cheating,
+but it isn't.
+What we're actually doing is deferring a problem until we're sure we need to solve it.
+If our approach is clumsy or fails outright because of some aspect of design we didn't foresee,
+there will have been no point handling line numbers the "right" way.
+A good rule for <span i="software design!deferring problems">software design</span>
+is to tackle the thing you're least sure about first,
+using temporary code in place of what you think you'll eventually need.
+
+</div>
+
 The next step is to modify the VM's `exec` method
 so that it executes a callback function for each significant operation
 (where "significant" means "we bothered to record its line number").
@@ -93,14 +109,18 @@ and the operation being performed:
 {% include file file='vm-callback.js' %}
 
 We also modify the VM's constructor to record the debugger and give it a reference to the virtual machine
-(<span f="debugger-initialization"></span>).
-We have to connect the two objects explicitly because
-each one needs a reference to the other,
+(<span f="debugger-initialization"/>).
+We have to <span i="mutual references">connect the two objects explicitly</span>
+because each one needs a reference to the other,
 but one of them has to be created first.
 "A gets B then B tells A about itself" is a common pattern;
 we will look at other ways to manage it in the exercises.
 
-{% include figure id='debugger-initialization' img='figures/initialization.svg' alt='Initializing mutually-depending objects' cap='Two-step initialization of mutually-dependent objects.' %}
+{% include figure
+   id='debugger-initialization'
+   img='figures/initialization.svg'
+   alt='Initializing mutually-depending objects'
+   cap='Two-step initialization of mutually-dependent objects.' %}
 
 To run the program,
 we create a debugger object and pass it to the VM's constructor:
@@ -154,12 +174,14 @@ The overall structure of the interactive debugger is:
 
 {% include erase file='debugger-interactive.js' key='skip' %}
 
+{: .continue}
 It interacts with users by lookup up a command and invoking the corresponding method,
 just as the VM does:
 
 {% include keep file='debugger-interactive.js' key='interact' %}
 
 <div class="callout" markdown="1">
+
 ### Learning as we go
 
 We didn't originally put the input and output in methods that could be overridden,
@@ -198,15 +220,19 @@ we will tidy it up in the exercises.
 
 ## How can we test an interactive application?
 
-How can we test an interactive application like a debugger?
+How can we <span i="unit test!interactive application">test</span> an interactive application like a debugger?
 The answer is, "By making it non-interactive."
 Like many tools over the past thirty years,
-our approach is based on a program called [Expect][expect].
+our approach is based on a program called <span i="Expect">[Expect][expect]</span>.
 Our library replaces the input and output functions of the application being tested with callbacks,
 then provides input when asked and checks output when it is given
-(<span f="debugger-test-interact"></span>).
+(<span f="debugger-test-interact"/>).
 
-{% include figure id='debugger-test-interact' img='figures/test-interact.svg' alt='Testing interactive application' cap='Replacing input and output to test interactive applications.' %}
+{% include figure
+   id='debugger-test-interact'
+   img='figures/test-interact.svg'
+   alt='Testing interactive application'
+   cap='Replacing input and output to test interactive applications.' %}
 
 {: .continue}
 The results look like this:
@@ -255,7 +281,7 @@ Why is only one test shown,
 and doesn't the summary appear?
 After a bit of digging,
 we realize that the debugger's `exit` command calls `process.exit` when the simulated program ends,
-so the whole program (including the VM, debugger, and test framework) stops immediately
+so the whole program including the VM, debugger, and test framework stops immediately
 *before* the promises that contain the tests have run.
 
 We could fix this by modifying the debugger callback
@@ -265,7 +291,7 @@ However,
 this approach becomes very complicated when we have deeply-nested calls to `exec`,
 which will happen with loops and conditionals.
 
-A better alternative is to use an exception for control flow.
+A better alternative is to use an <span i="exception!for control flow">exception for control flow</span>.
 We can define our own kind of exception as an empty class:
 it doesn't need any data
 because we are only using it to get a typed object:

@@ -1,7 +1,7 @@
 ---
 ---
 
-Suppose we are using a page templating system to create a website (<span x="page-templates"></span>).
+Suppose we are using a page templating system to create a website (<span x="page-templates"/>).
 If we a change a single page our tool should translate it,
 but shouldn't waste time translating others.
 If we change a template,
@@ -11,29 +11,36 @@ and automatically re-translate all of them.
 
 Choosing what actions to take based on how files depend on one another is a common pattern.
 For example,
-programs in <span g="compiled_language">compiled languages</span> like C and Java
+programs in <span g="compiled_language" i="compiled language; language!compiled">compiled languages</span>
+like <span i="C">C</span> and <span i="Java">Java</span>
 have to be translated into lower-level forms before they can run.
 In fact,
 there are usually two stages to the translation:
 compiling each source file into some intermediate form,
-and then <span g="link">linking</span> the compiled modules to each other and to libraries
+and then <span g="link" i="linking (compiled language); compiled language!linking">linking</span> the compiled modules
+to each other and to libraries
 to create a runnable program
-(<span f="build-manager-compiling"></span>).
+(<span f="build-manager-compiling"/>).
 If a source file hasn't changed,
 there's no need to recompile it before linking.
 
-{% include figure id='build-manager-compiling' img='figures/compiling.svg' alt='Compiling and linking' cap='Compiling source files and linking the resulting modules.' %}
+{% include figure
+   id='build-manager-compiling'
+   img='figures/compiling.svg'
+   alt='Compiling and linking'
+   cap='Compiling source files and linking the resulting modules.' %}
 
-A <span g="build_manager">build manager</span> takes a description of what depends on what,
+A <span g="build_manager" i="build manager">build manager</span> takes a description of what depends on what,
 figures out which files are out of date,
 determines an order in which to rebuild things,
 and then executes any necessary steps.
 Originally created to manage compilation,
-they are also useful for programs written in <span g="interpreted_language">interpreted languages</span> like JavaScript
-when we want to bundle multiple modules into a single loadable file (<span x="module-bundler"></span>)
-or re-create documentation from source code (<span x="doc-generator"></span>).
+they are also useful for programs written in <span g="interpreted_language" i="language!interpreted; interpreted language">interpreted languages</span>
+like JavaScript
+when we want to bundle multiple modules into a single loadable file (<span x="module-bundler"/>)
+or re-create documentation from source code (<span x="doc-generator"/>).
 In this chapter we will create a simple build manager
-based on [Make][gnu-make], [Bajel][bajel], [Jake][jake],
+based on <span i="Make">[Make][gnu-make]</span>, <span i="Bajel">[Bajel][bajel]</span>, <span i="Jake">[Jake][jake]</span>,
 and other systems discussed in <cite>Smith2011</cite>.
 
 ## What's in a build manager?
@@ -41,25 +48,29 @@ and other systems discussed in <cite>Smith2011</cite>.
 The input to a build manager is a set of rules,
 each of which has:
 
--   a <span g="build_target">target</span>, which is the file to be updated;
+-   a <span g="build_target" i="build target; target!build">target</span>, which is the file to be updated;
 
--   some <span g="dependency">dependencies</span>, which are the things that file depends on;
+-   some <span g="dependency" i="dependency (in build); build!dependency">dependencies</span>, which are the things that file depends on;
     and
 
--   a <span g="build_recipe">recipe</span> that specifies how to update the target
+-   a <span g="build_recipe" i="recipe (in build); build!recipe">recipe</span> that specifies how to update the target
     if it is out of date compared to its dependencies.
 
 The target of one rule can be a dependency of another rule,
-so the relationships between the files form a <span g="dag">directed acyclic graph</span> or DAG
-(<span f="build-manager-dependencies"></span>).
+so the relationships between the files form a <span g="dag" i="directed acyclic graph (DAG); DAG">directed acyclic graph</span> or DAG
+(<span f="build-manager-dependencies"/>).
 The graph is directed because "A depends on B" is a one-way relationship;
 it cannot contain cycles (or loops) because
 if something depends on itself we can never finish updating it.
-We say that a target is <span g="build_stale">stale</span> if it is older than any of its dependencies.
+We say that a target is <span g="build_stale" i="stale (in build); build!stale">stale</span> if it is older than any of its dependencies.
 When this happens,
 we use the recipes to bring it up to date.
 
-{% include figure id='build-manager-dependencies' img='figures/dependencies.svg' alt='Respecting dependencies' cap='How a build manager finds and respects dependencies.' %}
+{% include figure
+   id='build-manager-dependencies'
+   img='figures/dependencies.svg'
+   alt='Respecting dependencies'
+   cap='How a build manager finds and respects dependencies.' %}
 
 Our build manager must:
 
@@ -76,7 +87,7 @@ Our build manager must:
 
 ### Topological order
 
-A <span g="topological_order">topological ordering</span> of a graph
+A <span g="topological_order" i="topological order">topological ordering</span> of a graph
 arranges the nodes so that every node comes after everything it depends on.
 For example,
 if A depends on both B and C,
@@ -97,14 +108,14 @@ rules have a nested structure,
 and CSV doesn't represent nesting particularly gracefully.
 
 We are going to create our build manager in stages,
-so we start by writing a simple <span g="driver">driver</span> that loads a JavaScript source file,
+so we start by writing a simple <span g="driver" i="software design!driver">driver</span> that loads a JavaScript source file,
 creates an object of whatever class that file exports,
 and runs the `.build` method of that object with the rest of the command-line parameters:
 
 {% include file file='driver.js' %}
 
 {: .continue}
-We use the `import` function to dynamically load files containing in <span x="unit-test"></span> as well.
+We use the `import` function to dynamically load files containing in <span x="unit-test"/> as well.
 It only saves us a few lines of code in this case,
 but we will use this idea of a general-purpose driver for larger programs in future chapters.
 
@@ -118,20 +129,25 @@ each version of our build manager must be a class that satisfies two requirement
 The `build` method must create a graph from the configuration file,
 check that it does not contain any <span g="cycle">cycles</span>,
 and then run whatever commands are needed to update stale targets.
-Just as we built a generic `Visitor` class in <span x="page-templates"></span>,
+Just as we built a generic <span i="Visitor pattern; design pattern!Visitor">`Visitor`</span> class in <span x="page-templates"/>,
 we can build a generic base class for our build manager that does these steps in this order
 without actually implementing any of them:
 
 {% include file file='skeleton-builder.js' %}
 
-This is an example of the <span g="template_method_pattern">Template Method</span> design pattern:
+This is an example of
+the <span g="template_method_pattern" i="Template Method pattern; design pattern!Template Method">Template Method</span> design pattern:
 the parent class defines the order of the steps
 and child classes fill them in
-(<span f="build-manager-template-method"></span>).
+(<span f="build-manager-template-method"/>).
 This design pattern ensures that every child does the same things in the same order,
 even if the details of *how* vary from case to case.
 
-{% include figure id='build-manager-template-method' img='figures/template-method.svg' alt='Template Method pattern' cap='The Template Method pattern in action.' %}
+{% include figure
+   id='build-manager-template-method'
+   img='figures/template-method.svg'
+   alt='Template Method pattern'
+   cap='The Template Method pattern in action.' %}
 
 We would normally implement all of the methods required by the `build` method at the same time,
 but to make the evolving code easier to follow we will write them them one by one.
@@ -145,7 +161,7 @@ The first line does the loading;
 the rest of the method checks that the rules are at least superficially plausible.
 We need these checks because YAML is a generic file format
 that doesn't know anything about the extra requirements of our rules.
-And as we first saw in <span x="async-programming"></span>,
+And as we first saw in <span x="async-programming"/>,
 we have to specify that the character encoding of our file is UTF-8
 so that JavaScript knows how to convert bytes into text.
 
@@ -184,18 +200,18 @@ Let's write a quick test to make sure the cycle detector works as intended:
 ## How can we specify that a file is out of date?
 
 The next step is to figure out which files are out of date.
-Make does this by comparing the timestamps of the files in question,
+Make does this by comparing the <span i="timestamp!in build; build!timestamp">timestamps</span> of the files in question,
 but this isn't always reliable:
-computers' clocks may be slightly out of sync,
+<span i="clock synchronization (in build); build!clock synchronization">computers' clocks may be slightly out of sync</span>,
 which can produce a wrong answer on a networked filesystem,
 and the operating system may only report file update times to the nearest millisecond
 (which seemed very short in 1970 but seems very long today).
 
-More modern build systems store a hash of each file's contents
+More modern build systems store a <span i="hash code!in build; build!hash code">hash</span> of each file's contents
 and compare the current hash to the stored one to see if the file has changed.
-Since we already looked at hashing in <span x="file-backup"></span>,
+Since we already looked at hashing in <span x="file-backup"/>,
 we will use the timestamp approach here.
-And instead of using a mock filesystem as we did in <span x="file-backup"></span>,
+And instead of using a mock filesystem as we did in <span x="file-backup"/>,
 we will simply load another configuration file that specifies fake timestamps for files:
 
 {% include file file='add-timestamps.yml' %}
@@ -248,7 +264,7 @@ The `run` method:
 
 1.  Sets the starting time to be one unit past the largest file time.
 
-1.  Uses `Array.reduce` to operate on each node (i.e., each file) in order.
+1.  Uses <span i="Array.reduce">`Array.reduce`</span> to operate on each node (i.e., each file) in order.
     If that file is stale,
     we print the steps we would run and then update the file's timestamp.
     We only advance the notional current time when we do an update.
@@ -266,7 +282,7 @@ If our website has a hundred blog posts
 or a hundred pages of documentation about particular JavaScript files,
 we don't want to have to write a hundred nearly-identical recipes.
 Instead,
-we want to be able to write generic <span g="build_rule">build rules</span> that say,
+we want to be able to write generic <span g="build_rule" i="build!rule; rule (in build)">build rules</span> that say,
 "Build all things of this kind the same way."
 These generic rules need:
 
@@ -282,15 +298,20 @@ Once again,
 object-oriented programming helps us change only what we need to change,
 provided we divided our problem into sensible chunks in the first place.
 
-Make provides <span g="automatic_variable">automatic variables</span> with names like `$<` and `$@`
+Make provides <span g="automatic_variable" i="automatic variable (in build); build!automatic variable">automatic variables</span>
+with names like `$<` and `$@`
 to represent the parts of a rule.
 Our variables will be more readable:
 we will use `@TARGET` for the target,
 `@DEPENDENCIES` for the dependencies (in order),
 and `@DEP[1]`, `@DEP[2]`, and so on for specific dependencies
-(<span f="build-manager-pattern-rules"></span>).
+(<span f="build-manager-pattern-rules"/>).
 
-{% include figure id='build-manager-pattern-rules' img='figures/pattern-rules.svg' alt='Pattern rules' cap='Turning patterns rules into runnable commands.' %}
+{% include figure
+   id='build-manager-pattern-rules'
+   img='figures/pattern-rules.svg'
+   alt='Pattern rules'
+   cap='Turning patterns rules into runnable commands.' %}
 
 Our variable expander looks like this:
 
@@ -307,7 +328,7 @@ they tell us right away if something we have added or changed
 has broken something that used to work.
 That gives us a firm base to build on as we debug the new code.
 
-Now we need to add <span g="pattern_rule">pattern rules</span>.
+Now we need to add <span g="pattern_rule" i="pattern rule (in build); build!pattern rule">pattern rules</span>.
 Our first attempt at a rules file looks like this:
 
 {% include file file='pattern-rules.yml' %}
@@ -337,7 +358,7 @@ that printed the error message shown above.
 Once we tracked down our bug,
 though,
 we added the assertion to ensure we didn't make the same mistake again,
-and as <span g="runnable_documentation">runnable documentation</span>
+and as <span g="runnable_documentation" i="runnable documentation (assertions as); assertion!as runnable documentation">runnable documentation</span>
 to tell the next programmer more about the code.
 Regular code tells the computer what to do;
 assertions with meaningful error messages tell the reader why.
@@ -376,7 +397,7 @@ The root of the problem is that we didn't anticipate all the steps that would be
 when we wrote our template method.
 It typically takes a few child classes for this to settle down;
 if it never does,
-then Template Method is probably the wrong pattern for our situation.
+then <span i="Template Method pattern; design pattern!Template Method">Template Method</span> is probably the wrong pattern for our situation.
 Realizing this isn't a failure in initial design:
 we always learn about our problem as we try to capture it in code,
 and if we know enough to anticipate 100% of the issues that are going to come up,

@@ -50,7 +50,7 @@ This book can be read on its own or as a companion to *[Building Software Togeth
 which is a guide for students who are about to embark on their first large software project in a team.
 If you are looking for a project to do in a course,
 adding a tool to those covered here would be fun as well as educational.
-Please see <span x="conclusion"></span> for more details.
+Please see <span x="conclusion"/> for more details.
 
 ## What tools do we cover?
 
@@ -65,7 +65,7 @@ will explore those used in the applications that programmers build.
 
 ## What ideas do we cover?
 
-<span x="glossary"></span> defines the terms we introduce in these lessons,
+<span x="glossary"/> defines the terms we introduce in these lessons,
 which in turn define the scope of our lessons:
 
 -   How to process a program like any other piece of text.
@@ -130,7 +130,7 @@ whether we're talking about "the function itself" or "a call to the function wit
 ## How did we get here?
 
 In the early 2000s,
-the University of Toronto asked [Greg Wilson][wilson-greg]
+the <span i="University of Toronto">University of Toronto</span> asked <span i="Wilson, Greg">[Greg Wilson][wilson-greg]</span>
 to teach an undergraduate course on software architecture.
 After delivering the course three times he told the university they should cancel it:
 between them,
@@ -138,7 +138,7 @@ the dozen textbooks he had purchased with the phrase "software architecture" in 
 devoted a total of less than 30 pages to describing the designs of actual systems.
 
 Frustrated by that,
-he and [Andy Oram][oram-andy] persuaded some well-known programmers to contribute a chapter each
+he and <span i="Oram, Andy">[Andy Oram][oram-andy]</span> persuaded some well-known programmers to contribute a chapter each
 to a collection called *Beautiful Code* <cite>Oram2007</cite>,
 which went on to win the Jolt Award in 2007.
 Entries in the book described everything from figuring out whether three points are on a line
@@ -148,7 +148,9 @@ but the breadth that made them fun to read
 also meant they weren't particularly useful for teaching.
 
 To fix that,
-Greg Wilson, [Amy Brown][brown-amy], [Tavish Armstrong][armstrong-tavish], and [Mike DiBernardo][dibernardo-mike]
+Greg Wilson, <span i="Brown, Amy">[Amy Brown][brown-amy]</span>,
+<span i="Armstrong, Tavish">[Tavish Armstrong][armstrong-tavish]</span>,
+and <span i="DiBernardo, Mike">[Mike DiBernardo][dibernardo-mike]</span>
 edited a four-book series between 2011 and 2016 called *[The Architecture of Open Source Applications][aosa]*.
 In the first two volumes,
 the creators of fifty open source projects described their systems' designs;
@@ -168,20 +170,15 @@ Most of the programs are less than 60 lines long and the longest is less than 20
 we believe each chapter can be covered in class in 1-2 hours,
 while the exercises range in difficulty from a few minutes to a couple of days.
 
-## How can people contribute?
+## How can people use and contribute to this material?
 
-If you would like to improve what we have or add new material,
-please see the Code of Conduct in <span x="conduct"></span>
-and the contributor guidelines in <span x="contributing"></span>.
-If you have questions or would like to use this material in a course,
-please [send us email][email].
+{% include contributing.md %}
 
 ## Who helped us and inspired us?
 
-This book is dedicated to [Brian Kernighan][kernighan-brian],
+This book is dedicated to <span i="Kernighan, Brian">[Brian Kernighan][kernighan-brian]</span>,
 who taught us all how to write about software.
-I am grateful to the creators of [EJS][ejs],
-[Emacs][emacs],
+I am grateful to the creators of [Emacs][emacs],
 [ESLint][eslint],
 [Glosario][glosario],
 [GNU Make][gnu-make],
@@ -194,5 +191,7 @@ I am grateful to the creators of [EJS][ejs],
 and all the other open source tools we used in creating these lessons:
 if we all give a little,
 we all get a lot.
+I would also like to thank these people for their reviews and feedback;
+any errors, omissions, or misunderstandings that remain are entirely my fault.
 
 {% include thanks.html %}
