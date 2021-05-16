@@ -27,7 +27,6 @@ RELEASE_FILES=\
   LICENSE.md\
   Makefile\
   Gemfile\
-  Gemfile.lock\
   _includes\
   _layouts\
   bin\
