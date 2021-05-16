@@ -141,27 +141,21 @@ def convert(node, accum, doEscape):
         convert_children(node, accum, doEscape)
         accum.append('\\end{callout}\n')
 
-    # other div
-    elif node.name == 'div':
-        patch_bibliography(node) # needs special handling
-        convert_children(node, accum, doEscape)
-
-    # dl in bibliography => description list
-    elif (node.name == 'dl') and has_class(node, 'bibliography'):
+    # bibliography div
+    elif (node.name == 'div') and has_class(node, 'bibliography'):
         accum.append(r'\begin{thebibliography}{ABCD}')
         convert_children(node, accum, doEscape)
         accum.append(r'\end{thebibliography}')
 
-    # other dl
+    # other div
+    elif node.name == 'div':
+        convert_children(node, accum, doEscape)
+
+    # dl => description list
     elif node.name == 'dl':
         accum.append(r'\begin{description}')
         convert_children(node, accum, doEscape)
         accum.append(r'\end{description}')
-
-    # dt in bibliography => description item
-    elif (node.name == 'dt') and has_class(node, 'bibliography'):
-        temp = ''.join(convert_children(node, [], doEscape))
-        accum.append(rf'\bibitem[{temp}]{{{temp}}}')
 
     # dt in glossary
     elif (node.name == 'dt') and has_class(node, 'glossary'):
@@ -230,6 +224,13 @@ def convert(node, accum, doEscape):
         convert_children(node, accum, doEscape)
         accum.append('\\end{enumerate}\n')
 
+    # bibliography paragraph => bibliography item
+    elif (node.name == 'p') and has_class(node, 'bibliography'):
+        assert node.has_attr('id'), 'Bibliography entries must have IDs'
+        key = node['id']
+        temp = ''.join(convert_children(node, [], doEscape))
+        accum.append(rf'\bibitem[{key}]{{{key}}}{temp}')
+
     # p => paragraph
     elif node.name == 'p':
         accum.append('\n')
@@ -255,6 +256,10 @@ def convert(node, accum, doEscape):
         accum.append(r'\textbf{')
         convert_children(node, accum, doEscape)
         accum.append(r'}')
+
+    # bibliography key (not included in LaTeX output: BibTeX will take care of it)
+    elif (node.name == 'span') and has_class(node, 'bibliographykey'):
+        pass
 
     # fixme span
     elif (node.name == 'span') and has_class(node, 'fixme'):

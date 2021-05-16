@@ -41,7 +41,7 @@ const fixBibCites = (toRoot) => {
             .trim()
             .split(',')
             .map(key => key.trim())
-            .map(key => `<a href="${toRoot}/bibliography/#${key.toLowerCase()}">${key}</a>`)
+            .map(key => `<a href="${toRoot}/bibliography/#${key}">${key}</a>`)
             .join(', ')
       const cite = document.createElement('span')
       cite.innerHTML = `[${keys}]`

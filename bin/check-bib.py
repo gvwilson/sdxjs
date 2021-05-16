@@ -37,7 +37,7 @@ def check_order(keys):
     unordered = []
     for key in keys:
         if previous is not None:
-            if key.lower() < previous.lower():
+            if key < previous:
                 unordered.append(key)
         previous = key
     if unordered:

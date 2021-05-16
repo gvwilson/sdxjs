@@ -10,23 +10,15 @@ HEADER = '''---
 nochaptertitle: true
 ---
 
-<dl class="bibliography">
+<div class="bibliography">
 '''
 
 # Bottom of page.
 FOOTER = '''
 
-</dl>
-
+</div>
 {% include sources.html %}
 '''
-
-# Start of entry.
-ENTRY_START = '<dd>'
-
-# End of entry.
-ENTRY_END = '</dd>'
-
 
 
 def make_bib(options):
@@ -49,62 +41,57 @@ def make_bib(options):
 def article(entry):
     '''Convert article.'''
     return '\n'.join([
-        key(entry),
-        ENTRY_START,
+        entry_start(entry),
         credit(entry),
         title(entry, True),
         article_info(entry),
-        ENTRY_END
+        entry_end()
     ])
 
 
 def book(entry):
     '''Convert book.'''
     return '\n'.join([
-        key(entry),
-        ENTRY_START,
+        entry_start(entry),
         credit(entry),
         title(entry, False),
-        bookInfo(entry),
-        ENTRY_END
+        book_info(entry),
+        entry_end()
     ])
 
 
 def incollection(entry):
     '''Convert chapter in collection.'''
     return '\n'.join([
-        key(entry),
-        ENTRY_START,
+        entry_start(entry),
         credit(entry, which='author'),
         title(entry, True),
         'In ',
         credit(entry, which='editor'),
-        bookTitle(entry),
-        bookInfo(entry),
-        ENTRY_END
+        book_title(entry),
+        book_info(entry),
+        entry_end()
     ])
 
 
 def inproceedings(entry):
     '''Convert proceedings entry.'''
     return '\n'.join([
-        key(entry),
-        ENTRY_START,
+        entry_start(entry),
         credit(entry),
         title(entry, True),
-        proceedingsInfo(entry),
-        ENTRY_END
+        proceedings_info(entry),
+        entry_end()
     ])
 
 
 def link(entry):
     '''Convert link.'''
     return '\n'.join([
-        key(entry),
-        ENTRY_START,
+        entry_start(entry),
         credit(entry),
         title(entry, True),
-        ENTRY_END
+        entry_end()
     ])
 
 
@@ -134,14 +121,14 @@ def article_info(entry):
     return f'<em>{entry["journal"]}</em>{details}, {entry["year"]}{doi}.'
 
 
-def bookInfo(entry):
+def book_info(entry):
     '''Generate book information.'''
     assert ('publisher' in entry) and ('year' in entry) and ('isbn' in entry), \
         f'Entry requires publisher, year, and ISBN: {entry}'
     return f'{entry["publisher"]}, {entry["year"]}, {entry["isbn"]}.'
 
 
-def bookTitle(entry):
+def book_title(entry):
     '''Generate book title (possibly linking).'''
     assert 'booktitle' in entry, \
         'Entry must have booktitle'
@@ -152,7 +139,7 @@ def bookTitle(entry):
     return f'<em>{title}{edition}.</em>'
 
 
-def proceedingsInfo(entry):
+def proceedings_info(entry):
     '''Generate proceedings entry information.'''
     assert ('booktitle' in entry), \
         f'Entry requires booktitle {entry}'
@@ -188,13 +175,6 @@ def credit(entry, which=None):
     return f'{names}{suffix}:'
 
 
-def key(entry):
-    '''Generate bibliography key.'''
-    assert 'key' in entry, \
-        'Every entry must have key'
-    return f'<dt id="{entry["key"].lower()}" class="bibliography">{entry["key"]}</dt>'
-
-
 def title(entry, quote):
     '''Generate title (possibly linking and/or quoting).'''
     assert 'title' in entry, \
@@ -205,6 +185,18 @@ def title(entry, quote):
     edition = f' ({entry["edition"]} edition)' \
         if ('edition' in entry) else ''
     return f'{title}{edition}.'
+
+
+def entry_start(entry):
+    '''Generate bibliography key in start of entry.'''
+    assert 'key' in entry, \
+        'Every entry must have key'
+    return f'<p id="{entry["key"]}" class="bibliography"><span class="bibliographykey">{entry["key"]}</span> '
+
+
+def entry_end():
+    '''Finish an entry.'''
+    return '</p>\n'
 
 
 if __name__ == '__main__':
