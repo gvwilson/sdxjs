@@ -1,4 +1,4 @@
-The best way to learn design in any field is to study examples <cite>Schon1984,Petre2016</cite>,
+The best way to learn design is to study examples <cite>Schon1984,Petre2016</cite>,
 and some of the best examples of software design come from
 the tools programmers use in their own work.
 In these lessons we build small versions of things like file backup systems,
