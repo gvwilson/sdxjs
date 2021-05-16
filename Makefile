@@ -177,6 +177,19 @@ sterile:
 	@make clean
 	@rm -rf ${SITE}
 
+## validate: run html5validator on generated files
+validate: ${HOME_PAGE}
+	@html5validator --root ${SITE} \
+	--ignore \
+	'Attribute "slug" not allowed on element "figure"' \
+	'Attribute "slug" not allowed on element "h1"' \
+	'Attribute "f" not allowed on element "span"' \
+	'Attribute "g" not allowed on element "span"' \
+	'Attribute "i" not allowed on element "span"' \
+	'Attribute "t" not allowed on element "span"' \
+	'Attribute "x" not allowed on element "span"' \
+	'https://fonts.googleapis.com/css'
+
 # Files
 
 ${BIB_MD}: ${BIB_YML} bin/make-bib.py
