@@ -12,7 +12,7 @@ import utils
 KNOWN = {
     'a': {'aria-label', 'class', 'href', 'title'},
     'blockquote': {},
-    'body': {},
+    'body': {'class'},
     'br': {},
     'caption': {},
     'cite': {},
@@ -40,7 +40,7 @@ KNOWN = {
     'meta': {'charset', 'content', 'name'},
     'nav': {'class'},
     'ol': {},
-    'p': {'class'},
+    'p': {'class', 'id'},
     'pre': {'class', 'title'},
     'script': {'async', 'crossorigin', 'src', 'type'},
     'small': {},

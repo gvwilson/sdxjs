@@ -27,6 +27,7 @@ RELEASE_FILES=\
   LICENSE.md\
   Makefile\
   Gemfile\
+  _data/bibliography.yml\
   _includes\
   _layouts\
   bin\
@@ -193,7 +194,7 @@ validate: ${HOME_PAGE}
 # Files
 
 ${BIB_MD}: ${BIB_YML} bin/make-bib.py
-	bin/make-bib.py --input ${BIB_YML} --output ${BIB_MD}
+	bin/make-bib.py --input ${BIB_YML} --output ${BIB_MD} --sources ${MARKDOWN} ${GLOSSARY_IN} _includes/intro.md
 
 ${INDEX_YML}: bin/make-index.py ${CONFIG} ${MARKDOWN}
 	bin/make-index.py --config ${CONFIG} --output ${INDEX_YML}

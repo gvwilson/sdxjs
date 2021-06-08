@@ -23,9 +23,14 @@ FOOTER = '''
 
 def make_bib(options):
     '''Main driver.'''
+    cited = utils.get_all_matches(utils.CITATION, options.sources)
     data = utils.read_yaml(options.input)
     entries = []
     for entry in data:
+        assert 'key' in entry, \
+            f'Entries must have "key": {entry}'
+        if entry['key'] not in cited:
+            continue
         assert 'kind' in entry, \
             f'Entries must have "kind": {entry}'
         assert entry['kind'] in HANDLERS, \
@@ -191,7 +196,7 @@ def entry_start(entry):
     '''Generate bibliography key in start of entry.'''
     assert 'key' in entry, \
         'Every entry must have key'
-    return f'<p id="{entry["key"]}" class="bibliography"><span class="bibliographykey">{entry["key"]}</span> '
+    return f'<p id="{entry["key"]}" class="bibliography"><span class="bibliographykey">{entry["key"]}</span>'
 
 
 def entry_end():
@@ -202,6 +207,7 @@ def entry_end():
 if __name__ == '__main__':
     options = utils.get_options(
         ['--input', False, 'Path to input YAML bibliography file'],
-        ['--output', False, 'Path to output Markdown file']
+        ['--output', False, 'Path to output Markdown file'],
+        ['--sources', True, 'List of input files']
     )
     make_bib(options)
