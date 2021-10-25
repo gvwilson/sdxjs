@@ -6,6 +6,6 @@
 {% for exercise in include.exercises %}
 {%- assign path = exercise.slug | append: '.md' -%}
 {%- capture content -%}{% include_relative {{ path }} problem=true %}{%- endcapture -%}
-<h3 id="{{ exercise.slug }}">{{ exercise.title | markdownify | replace: '<p>', '' | replace: '</p>', '' | strip }}</h3>
+<h3 class="exercise" id="{{ exercise.slug }}">{{ exercise.title | markdownify | replace: '<p>', '' | replace: '</p>', '' | strip }}</h3>
 {{ content | markdownify }}
 {% endfor %}
