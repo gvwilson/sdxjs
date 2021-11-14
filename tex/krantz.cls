@@ -13,6 +13,12 @@
 \newif\if@openright
 \newif\if@mainmatter \@mainmattertrue
 \if@compatibility\else
+\DeclareOption{luluexecutive}
+   {\setlength\paperheight {10in}%
+    \setlength\paperwidth  {7in}}
+\DeclareOption{leanpubtechnical}
+   {\setlength\paperheight {9.1in}%
+    \setlength\paperwidth  {7in}}
 \DeclareOption{a4paper}
    {\setlength\paperheight {297mm}%
     \setlength\paperwidth  {210mm}}
@@ -669,7 +675,7 @@
 \newif\iflede
 \global\ledefalse
 
-\def\lede#1{\gdef\@lede{\ChapsubTitleFont#1}\par\vspace*{5pt}}
+\def\lede#1{\gdef\@lede{\ChapsubTitleFont#1}\par\vspace*{-30pt}}
 \def\@lede{\par\vspace*{-15pt}}
 
 \newcommand\chapter{\if@openright\cleardoublepage\else\clearpage\fi

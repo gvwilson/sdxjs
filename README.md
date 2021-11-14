@@ -8,15 +8,14 @@ regular expression matchers,
 and browser layout engines
 both to demystify them and
 to give some insights into how experienced programmers think.
-Please see [the description of our audience](https://stjs.tech/vol1/#who-is-our-audience)
+Please see [the description of our audience](https://stjs.tech/#who-is-our-audience)
 for more information about what we assume you already know.
 
 -   All of the written material in this project can be freely reused
     under the terms of the [Creative Commons - Attribution license](https://stjs.tech/license/#writing),
     while all of the software is made available under the terms of the [Hippocratic License](https://stjs.tech/license/#software).
 
--   E-books and printed copies will be available by mid-2021.
-    All proceeds from sales will go to supported the [Red Door Family Shelter](https://www.reddoorshelter.ca/) in Toronto.
+-   All proceeds from sales will go to supported the [Red Door Family Shelter](https://www.reddoorshelter.ca/) in Toronto.
 
 -   Please see [the contributors' guide](https://stjs.tech/contributing/)
     and our [Code of Conduct](https://stjs.tech/conduct/)
@@ -44,7 +43,7 @@ for more information about what we assume you already know.
     will make this book more approachable to junior programmers.
 
 -   **How long did it take you to write this?**
-    An average of four or five hours a week over two years.
+    An average of four or five hours a week over the course of a year.
     The code and point-form notes came first;
     once that had settled down,
     it only took an hour a day for five weeks to turn the notes into prose
@@ -76,12 +75,7 @@ for more information about what we assume you already know.
         but should provide lots of material for an undergraduate course on software design or software engineering
         at the third- or fourth-year level.
         Students can tackle the exercises at the end of each chapter
-        or write and explain small tools of their own
-        like [fuzz testers](https://en.wikipedia.org/wiki/Fuzzing) as course-length projects.
-        They can also try using more formal tools like [statecharts](https://statecharts.github.io/),
-        [Alloy](https://alloytools.org/),
-        or [TLA+](https://lamport.azurewebsites.net/tla/tla.html)
-        to analyze and improve the tools that already exist.
+        or write and explain small tools of their own.
 
 -   **Do you want a chapter on X?**
     Possibly:
@@ -93,10 +87,3 @@ for more information about what we assume you already know.
     an issue tracker,
     and so on.
     If you are interested, please [get in touch](mailto:gvwilson@third-bit.com).
-
--   **Why do you translate Markdown and HTML to LaTeX yourself? Why not use [Pandoc](https://pandoc.org/)?**
-    Our experience with Pandoc in several previous projects was that
-    customizing its output and maintaining those customizations was more work than doing the translation ourselves.
-    (And we apologize for our dependence on LaTeX for generating PDFs:
-    it is hard to set up and even harder to debug things that go wrong,
-    but there is no realistic alternative.)

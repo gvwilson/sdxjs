@@ -122,11 +122,11 @@ def convert(node, accum, doEscape):
         convert_children(node, accum, doEscape)
         accum.append('}')
 
-    # code => typewriter text
+    # inline code => typewriter text
     elif node.name == 'code':
-        accum.append(r'\texttt{')
-        convert_children(node, accum, doEscape)
-        accum.append(r'}')
+        temp = ''.join(convert_children(node, [], doEscape))
+        temp = temp.replace("'", r'{\textquotesingle}')
+        accum.append(rf'\texttt{{{temp}}} ')
 
     # dd => just a paragraph in normal text, but remove internal links in glossary
     elif node.name == 'dd':
@@ -135,17 +135,23 @@ def convert(node, accum, doEscape):
         accum.append(temp)
         accum.append('\n')
 
-    # div callout
-    elif (node.name == 'div') and has_class(node, 'callout'):
-        accum.append('\\begin{callout}\n')
-        convert_children(node, accum, doEscape)
-        accum.append('\\end{callout}\n')
-
     # bibliography div
     elif (node.name == 'div') and has_class(node, 'bibliography'):
         accum.append(r'\begin{thebibliography}{ABCD}')
         convert_children(node, accum, doEscape)
         accum.append(r'\end{thebibliography}')
+
+    # callout div
+    elif (node.name == 'div') and has_class(node, 'callout'):
+        accum.append('\\begin{callout}\n')
+        convert_children(node, accum, doEscape)
+        accum.append('\\end{callout}\n')
+
+    # terms defined div
+    elif (node.name == 'div') and has_class(node, 'terms'):
+        accum.append('\\noindent')
+        convert_children(node, accum, doEscape)
+        accum.append(' \\')
 
     # other div
     elif node.name == 'div':
@@ -234,7 +240,7 @@ def convert(node, accum, doEscape):
     # p => paragraph
     elif node.name == 'p':
         accum.append('\n')
-        if has_class(node, 'noindent'):
+        if has_class(node, 'continue'):
             accum.append(r'\noindent')
             accum.append('\n')
         convert_children(node, accum, doEscape)
@@ -341,7 +347,7 @@ def convert_figure(node, accum):
         path = f'{slug}/{path}'
     alt = node.img['alt']
     caption = ''.join(convert_children(node.figcaption, [], True))
-    accum.append(f'\\figpdf{{{label}}}{{{path}}}{{{caption}}}{{0.75}}')
+    accum.append(f'\\figpdf{{{label}}}{{{path}}}{{{caption}}}{{0.6}}')
 
 
 def convert_glossary_index(node, accum, doEscape):
@@ -416,7 +422,10 @@ def convert_table_row(row, tag):
     result = []
     for cell in cells:
         temp = convert(cell, [], True)
-        result.append(''.join(temp))
+        temp = ''.join(temp)
+        if tag == 'th':
+            temp = rf'\textbf{{\underline{{{temp}}}}}'
+        result.append(temp)
     return ' & '.join(result) + r' \\'
 
 
