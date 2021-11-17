@@ -1,3 +1,5 @@
+{% if include.problem %}
+
 Modify the build manager so that:
 
 1.  The user can pass `variable=true` and `variable=false` arguments on the command-line
@@ -8,3 +10,9 @@ Modify the build manager so that:
 3.  Those rules are only executed if the variable is defined and true.
 
 4.  Write Mocha tests to check that this works correctly.
+
+{% else %}
+
+FIXME: write solution
+
+{% endif %}

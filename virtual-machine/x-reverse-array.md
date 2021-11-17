@@ -1,3 +1,5 @@
+{% if include.problem %}
+
 Write an assembly language program that starts with:
 
 -   the base address of an array in one word
@@ -6,3 +8,9 @@ Write an assembly language program that starts with:
 
 {: .continue}
 and reverses the array in place.
+
+{% else %}
+
+FIXME: write solution
+
+{% endif %}

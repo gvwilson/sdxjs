@@ -1,3 +1,5 @@
+{% if include.problem %}
+
 Many different combinations of package versions can be mutually compatible.
 One way to decide which actual combination to install
 is to create a <span g="scoring_function">scoring function</span>
@@ -23,3 +25,9 @@ const score (X, Y) => {
     and the set containing the most recent version of each package.
 
 2.  Explain why this doesn't actually solve the original problem.
+
+{% else %}
+
+FIXME: write solution
+
+{% endif %}

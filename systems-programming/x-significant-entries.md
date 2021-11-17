@@ -1,3 +1,5 @@
+{% if include.problem %}
+
 `count-lines-histogram.js` displays many zeroes and gives no visual sense of how large entries are.
 Modify it so that:
 
@@ -6,3 +8,9 @@ Modify it so that:
 2.  When it is run with the `--graphical` flag the numeric values are replaced with rows of asterisks.
 
 3.  If both flags are given the program prints an error message instead of running.
+
+{% else %}
+
+FIXME: write solution
+
+{% endif %}

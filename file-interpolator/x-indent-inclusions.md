@@ -1,3 +1,5 @@
+{% if include.problem %}
+
 Modify the file inclusion system
 so that inclusions are indented by the same amount as the including comment.
 For example,
@@ -33,3 +35,9 @@ withLogging
 
 {: .continue}
 i.e., all lines of the inclusion will be indented to match the first.
+
+{% else %}
+
+FIXME: write solution
+
+{% endif %}

@@ -1,3 +1,5 @@
+{% if include.problem %}
+
 Extend `count-lines-with-stat-async.js` to create a program `lh.js`
 that prints two columns of output:
 the number of lines in one or more files
@@ -29,3 +31,9 @@ the output might be:
 |     37 |               3 |
 |     38 |               1 |
 |    171 |               1 |
+
+{% else %}
+
+FIXME: write solution
+
+{% endif %}

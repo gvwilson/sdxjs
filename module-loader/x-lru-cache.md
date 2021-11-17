@@ -1,3 +1,5 @@
+{% if include.problem %}
+
 A <span g="lru_cache">Least Recently Used (LRU) cache</span>
 reduces access time while limiting the amount of memory used
 by keeping track of the N items that have been used most recently.
@@ -22,3 +24,9 @@ the cache's contents will be as shown in the second column:
 2.  Modify `cachedRead` so that the number of items in the cache
     is determined by their combined size
     rather than by the number of files.
+
+{% else %}
+
+FIXME: write solution
+
+{% endif %}
