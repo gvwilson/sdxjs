@@ -1,3 +1,5 @@
+{% if include.problem %}
+
 The original ASCII standard specified
 a 7-bit <span g="character_encoding">character encoding</span> for letters commonly used in English,
 and many data files still only use characters whose numeric codes are in the range 0--127.
@@ -14,3 +16,9 @@ and many data files still only use characters whose numeric codes are in the ran
     how to interpret the rest of its contents.
 
 3.  Write tests with Mocha to check that your functions work correctly.
+
+{% else %}
+
+FIXME: write solution
+
+{% endif %}

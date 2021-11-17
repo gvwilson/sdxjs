@@ -1,3 +1,5 @@
+{% if include.problem %}
+
 Write a function that removes empty constructors from class definitions.
 For example, if the input is:
 
@@ -22,3 +24,9 @@ class Example {
   }
 }
 ```
+
+{% else %}
+
+FIXME: write solution
+
+{% endif %}

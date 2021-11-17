@@ -1,3 +1,5 @@
+{% if include.problem %}
+
 The [doctest][doctest] library for Python
 allows programmers to embed unit tests as documentation in their programs.
 Write a tool that:
@@ -34,3 +36,9 @@ assert.deepStrictEqual(findIncreasing([1]), [1])
 assert.deepStrictEqual(findIncreasing([1, 2]), [1, 2])
 assert.deepStrictEqual(findIncreasing([2, 1]), [2])
 ```
+
+{% else %}
+
+FIXME: write solution
+
+{% endif %}

@@ -454,6 +454,7 @@ def display(options, config, text):
         .replace('“', "``")\
         .replace('”', "''")\
         .replace('’', "'")
+    text = patch_code_listings(text)
     head = head.replace(r'\title{TITLE}',
                         f'\\title{{{config["title"]}}}')
     subtitle = f'\\subtitle{{{config["subtitle"]}}}' \
@@ -463,6 +464,19 @@ def display(options, config, text):
     print(head)
     print(text)
     print(foot)
+
+
+def patch_code_listings(text):
+    '''Remove multiple blank lines from the start and end of code listings.'''
+    def f(match):
+        front = match.group(1)
+        body = match.group(2)
+        back = match.group(3)
+        body = body.lstrip('\n').rstrip('\n')
+        return f'{front}\n{body}\n{back}'
+
+    pat = re.compile(r'(\\begin\{lstlisting\}\[.+?\])(.+?)(\\end\{lstlisting\})', re.DOTALL)
+    return pat.sub(f, text)
 
 
 def patch_bibliography(node):
