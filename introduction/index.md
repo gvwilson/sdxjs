@@ -194,4 +194,4 @@ we all get a lot.
 I would also like to thank these people for their reviews and feedback;
 any errors, omissions, or misunderstandings that remain are entirely my fault.
 
-{% include thanks.html %}
+{% include thanks.html with_url=false %}
