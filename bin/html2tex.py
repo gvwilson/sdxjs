@@ -71,6 +71,7 @@ def convert_file(filename, accum):
     '''Translate a file from HTML to LaTeX.'''
     with open(filename, 'r') as reader:
         text = reader.read()
+        text = convert_mathjax_to_math(text)
         dom = BeautifulSoup(text, 'html.parser')
         convert(dom.html, accum, True)
     return accum
@@ -228,6 +229,10 @@ def convert(node, accum, doEscape):
         accum.append(r'\item ')
         convert_children(node, accum, doEscape)
         accum.append('\n')
+
+    # pass math through untouched
+    elif node.name == 'math':
+        accum.append(str(node))
 
     # ordered list
     elif node.name == 'ol':
@@ -460,6 +465,7 @@ def display(options, config, text):
         .replace('”', "''")\
         .replace('’', "'")
     text = patch_code_listings(text)
+    text = convert_math_to_mathjax(text)
     head = head.replace(r'\title{TITLE}',
                         f'\\title{{{config["title"]}}}')
     subtitle = f'\\subtitle{{{config["subtitle"]}}}' \
@@ -495,6 +501,31 @@ def patch_bibliography(node):
         add_class(entry, 'bibliography')
 
 
+def convert_mathjax_to_math(text):
+    '''
+    Temporarily replace MathJax markers with <math> tags so that
+    we can avoid recursing into math blocks during conversion.
+    This assumes that '\(...\)' is only used for MathJax.
+    '''
+    def f(match):
+        return f'<math>{match.group(1)}</math>'
+
+    pat = re.compile(r'\\\((.+?)\\\)', re.DOTALL)
+    result = pat.sub(f, text)
+    return result
+
+
+def convert_math_to_mathjax(text):
+    '''
+    Replace <math>...</math> with \(...\) on the way out.
+    '''
+    def f(match):
+        return rf'\({match.group(1)}\)'
+
+    pat = re.compile(r'<math>(.+?)</math>', re.DOTALL)
+    return pat.sub(f, text)
+
+
 def replace_internal_links(text):
     '''Replace internal links in glossary entries.'''
     HREFFOOT = re.compile(r'\\hreffoot\{(.+?)\}\{\\\#.+?\}')
@@ -512,8 +543,6 @@ def escape(text, doEscape):
         .replace('}', 'ACTUAL-RIGHT-CURLY-BRACE')\
         .replace('\\', r'{\textbackslash}')\
         .replace('$', r'\$')\
-        .replace(r'{\textbackslash}(', '$')\
-        .replace(r'{\textbackslash})', '$')\
         .replace('%', r'\%')\
         .replace('_', r'\_')\
         .replace('^', r'{\textasciicircum}')\
