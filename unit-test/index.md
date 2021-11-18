@@ -58,7 +58,7 @@ Any other kind of assertion indicates that the test itself contains an error.
    alt='Mental model of unit testing'
    cap='Running tests that can pass, fail, or contain errors.' %}
 
-## How can we separate test registration, execution, and reporting?
+## How can we separate registration, execution, and reporting?
 
 To start,
 let's use a handful of <span g="global_variable">global variables</span> to record tests and their results:
@@ -184,7 +184,7 @@ when the failure is actually in `test_that`.
 
 </div>
 
-## How can we build a command-line interface for our test manager?
+## How can we build a command-line interface for testing?
 
 Most programmers don't enjoy writing tests,
 so if we want them to do it,
