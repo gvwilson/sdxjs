@@ -11,9 +11,10 @@ and then reads and inserts the files specified in those comments
 before running the code
 (<span f="file-interpolator-conceptual"/>).
 Modern programming languages don't work this way,
-but <span i="C">C</span> and <span i="C++">C++</span> do this with <span g="header_file" i="header file!in C and C++">header files</span>,
-and <span i="static site generator!header file; header file!static site generator">static site generators</span> (<span x="page-templates"/>) do this
-to share fragments of HTML.
+but <span i="C">C</span> and <span i="C++">C++</span> do this
+with <span g="header_file" i="header file!in C and C++">header files</span>,
+and <span i="static site generator!header file; header file!static site generator">static site generators</span>
+(<span x="page-templates"/>) do this to share fragments of HTML.
 
 {% include figure
    id='file-interpolator-conceptual'
@@ -377,4 +378,4 @@ our lesson can be inconsistent.
 to try to prevent this from happening,
 but it never really caught on---unfortunately,
 most programming systems that describe themselves as "literate" these days
-only implement part of <span i="Knuth, Donald">[Donald Knuth][knuth-donald]</span>'s original vision.
+only implement part of <span i="Knuth, Donald">[Donald Knuth's][knuth-donald]</span> original vision.

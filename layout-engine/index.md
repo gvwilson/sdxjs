@@ -8,7 +8,7 @@ In all three cases,
 a <span g="layout_engine" i="layout engine">layout engine</span> took some text and some layout instructions
 and decided where to put each character and image.
 We will build a small layout engine in this chapter
-based on <span i="Brubeck, Matt">[Matt Brubeck][brubeck-matt]</span>'s [tutorial][browser-tutorial]
+based on <span i="Brubeck, Matt">[Matt Brubeck's][brubeck-matt]</span> [tutorial][browser-tutorial]
 to explore how browsers decide what to put where.
 
 Our inputs will be a very small subset of HTML and an equally small subset of CSS.

@@ -11,7 +11,7 @@ to make asynchronous programming easier still.
 To show how these work,
 we will create a <span g="class">class</span> of our own called `Pledge`
 that provides the same core features as promises.
-Our explanation was inspired by <span i="Huffine, Trey">[Trey Huffine][huffine-trey]</span>'s [tutorial][huffine-promises],
+Our explanation was inspired by <span i="Huffine, Trey">[Trey Huffine's][huffine-trey]</span> [tutorial][huffine-promises],
 and we encourage you to read that as well.
 
 ## How can we manage asynchronous execution?

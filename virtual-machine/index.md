@@ -10,7 +10,7 @@ that gives instructions human-readable names instead of numbers.
 To understand more about how JavaScript actually runs
 we will simulate a very simple processor with a little bit of memory.
 If you want to dive deeper,
-have a look at <span i="Nystrom, Bob">[Bob Nystrom][nystrom-bob]</span>'s excellent *[Crafting Interpreters][crafting-interpreters]*.
+have a look at <span i="Nystrom, Bob">[Bob Nystrom's][nystrom-bob]</span> *[Crafting Interpreters][crafting-interpreters]*.
 You may also enjoy <span i="Human Resource Machine">[Human Resource Machine][human-resource-machine]</span>,
 which asks you to solve puzzles of increasing difficulty
 using a processor almost as simple as ours.

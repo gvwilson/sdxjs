@@ -18,7 +18,7 @@ In this chapter we will build a tool for doing both tasks.
 It won't do everything Git does:
 in particular, it won't let us create and merge branches.
 If you would like to know how that works,
-please see <span i="Cook, Mary Rose">[Mary Rose Cook][cook-mary-rose]</span>'s excellent [Gitlet][gitlet] project.
+please see <span i="Cook, Mary Rose">[Mary Rose Cook's][cook-mary-rose]</span> excellent [Gitlet][gitlet] project.
 
 ## How can we uniquely identify files?
 
@@ -76,7 +76,7 @@ We're willing to take that risk…
 
 </div>
 
-[Node][nodejs]'s [`crypto`][node-crypto] module provides tools to create a SHA-1 hash.
+[Node's][nodejs] [`crypto`][node-crypto] module provides tools to create a SHA-1 hash.
 To use them,
 we create an object that keeps track of the current state of the hashing calculations,
 tell it how we want to encode (or represent) the hash value,

@@ -7,7 +7,7 @@ INCLUDES=$(wildcard _includes/*)
 LAYOUTS=$(wildcard _layouts/*.html)
 MARKDOWN=$(wildcard *.md) $(wildcard */index.md)
 HTML=${SITE}/index.html $(wildcard ${SITE}/*/index.html)
-EXERCISES=$(wildcard */x-*/problem.md) $(wildcard */x-*/solution.md)
+EXERCISES=$(wildcard */x-*.md)
 STATIC=$(wildcard static/*.*)
 TEX=$(wildcard tex/*.*)
 

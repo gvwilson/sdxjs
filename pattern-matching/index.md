@@ -5,7 +5,8 @@ We have been globbing to match filenames against patterns since <span x="systems
 This lesson will explore how that works
 by building a simple version of the <span g="regular_expression" i="regular expression">regular expressions</span>
 used to match text in everything from editor and shell commands to web scrapers.
-Our approach is inspired by <span i="Kernighan, Brian">[Brian Kernighan][kernighan-brian]</span>'s entry in <cite>Oram2007</cite>.
+Our approach is inspired by <span i="Kernighan, Brian">[Brian Kernighan's][kernighan-brian]</span> entry
+in <cite>Oram2007</cite>.
 
 Regular expressions have inspired pattern matching for many other kinds of data,
 such as <span g="query_selector" i="query selector (for HTML)">query selectors</span> for HTML.

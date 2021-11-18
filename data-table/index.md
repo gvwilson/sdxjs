@@ -16,8 +16,9 @@ and all the values in a column have the same type
 (<span f="data-table-conceptual"/>).
 Data tables appear over and over again in programming,
 from spreadsheets and databases
-to the <span g="data_frame" i="data frame">data frames</span> in <span i="R">R</span>'s <span i="tidyverse">[tidyverse][tidyverse]</span> packages,
-<span i="Python">[Python][python]</span>'s <span i="Pandas">[Pandas][pandas]</span> library,
+to the <span g="data_frame" i="data frame">data frames</span> in
+<span i="R">R's</span> <span i="tidyverse">[tidyverse][tidyverse]</span> packages,
+<span i="Python">[Python's][python]</span> <span i="Pandas">[Pandas][pandas]</span> library,
 or the <span i="DataForge">[DataForge][data-forge]</span> library for JavaScript <cite>Davis2018</cite>.
 
 {% include figure
