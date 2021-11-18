@@ -59,9 +59,7 @@ This volume focuses on a few that individual developers use while writing softwa
 we hope future volumes
 will explore those used in the applications that programmers build.
 
-<div class="html-only">
 {% include contents %}
-</div>
 
 ## What ideas do we cover?
 

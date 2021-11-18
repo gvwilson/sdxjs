@@ -100,6 +100,11 @@ def convert(node, accum, doEscape):
         link = escape(node['href'], doEscape)
         accum.append(rf'\href{{{link}}}{{{link}}}')
 
+    # HTML-only
+    elif (node.name == 'a') and has_class(node, 'html-only'):
+        temp = ''.join(convert_children(node, [], doEscape))
+        accum.append(temp)
+
     # a => regular hyperlink
     elif node.name == 'a':
         link = escape(node['href'], doEscape)
