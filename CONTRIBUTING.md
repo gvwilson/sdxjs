@@ -76,8 +76,8 @@ This project uses [Martha's Rules][marthas-rules] <cite>Minahan1986</cite> for c
 
 1.  To include a code sample use
     `{% raw %}{% include code file="name.ext" %}{% endraw %}`.
-    The path to the file must be relative to the including file. in most cases
-    it will be in the same directory as the chapter or appendix.
+    The path to the file must be relative to the including file.
+    In most cases it will be in the same directory as the chapter or appendix.
 
 1.  To continue a paragraph that has been interrupted by a code sample or
     something else, use:
@@ -124,15 +124,6 @@ This project uses [Martha's Rules][marthas-rules] <cite>Minahan1986</cite> for c
 1.  Use [diagrams.net][diagrams] to create SVG diagrams.  Avoid screenshots when
     possible, since getting them to display correctly in print is a pain.
 
-Note: you will need LaTeX in order to build the PDF version of this book.  After
-installing it, you will need these packages:
-
--   `babel-english`
--   `babel-greek`
--   `cbfonts`
--   `enumitem`
--   `greek-fontenc`
--   `keystroke`
--   `listings`
--   `textgreek`
--   `tocbibind`
+Note: you will need Python and LaTeX in order to build the PDF version of this book.
+After installing them, you will need the packages listed in `requirements/python.txt`
+and `requirements/latex.txt`.

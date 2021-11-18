@@ -155,7 +155,6 @@ def proceedings_info(entry):
 
 def credit(entry, which=None):
     '''Generate credit (author or editor if not specified).'''
-    import sys
     names = None
     suffix = ''
     if which is None:

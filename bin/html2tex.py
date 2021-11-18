@@ -129,7 +129,7 @@ def convert(node, accum, doEscape):
 
     # inline code => typewriter text
     elif node.name == 'code':
-        temp = ''.join(convert_children(node, [], doEscape))
+        temp = ''.join(convert_children(node, [], True))
         temp = temp.replace("'", r'{\textquotesingle}')
         accum.append(rf'\texttt{{{temp}}} ')
 
@@ -508,6 +508,8 @@ def escape(text, doEscape):
     if not doEscape:
         return text
     return text\
+        .replace('{', 'ACTUAL-LEFT-CURLY-BRACE')\
+        .replace('}', 'ACTUAL-RIGHT-CURLY-BRACE')\
         .replace('\\', r'{\textbackslash}')\
         .replace('$', r'\$')\
         .replace(r'{\textbackslash}(', '$')\
@@ -519,7 +521,9 @@ def escape(text, doEscape):
         .replace('&', r'\&')\
         .replace('©', r'{\textcopyright}')\
         .replace('μ', r'{\textmu}')\
-        .replace('…', '...')
+        .replace('…', '...')\
+        .replace('ACTUAL-LEFT-CURLY-BRACE', r'\{')\
+        .replace('ACTUAL-RIGHT-CURLY-BRACE', r'\}')
 
 
 if __name__ == '__main__':
