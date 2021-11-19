@@ -154,7 +154,7 @@ and then:
 
 1.  calculates hashes for those files.
 
-{% include erase file='hash-existing-promise.js' key='helpers' %}
+{% include keep file='hash-existing-promise.js' key='main' %}
 
 {: .continue}
 This function uses `Promise.all`
@@ -172,7 +172,7 @@ wrap asynchronous operation in promises:
 The final helper function calculates the hash synchronously,
 but we can use `Promise.all` to wait on those operations finishing anyway:
 
-{% include file file='hash-existing-promise.js' %}
+{% include keep file='hash-existing-promise.js' key='hashPath' %}
 
 Let's try running it:
 
@@ -183,7 +183,7 @@ The code we have written is clearer than it would be with callbacks
 but the layer of promises around everything still obscures its meaning.
 The same operations are easier to read when written using `async` and `await`:
 
-{% include file file='hash-existing-async.js' %}
+{% include keep file='hash-existing-async.js' key='main' %}
 
 {: .continue}
 This version creates and resolves exactly the same promises as the previous one,

@@ -1,7 +1,7 @@
 import glob from 'glob-promise'
 import path from 'path'
 
-const findNewFiles = async (rootDir, pathHashPairs) => {
+const findNew = async (rootDir, pathHashPairs) => {
   const hashToPath = pathHashPairs.reduce((obj, [path, hash]) => {
     obj[hash] = path
     return obj
@@ -19,4 +19,4 @@ const findNewFiles = async (rootDir, pathHashPairs) => {
   return hashToPath
 }
 
-export default findNewFiles
+export default findNew

@@ -2,6 +2,7 @@ import fs from 'fs-extra-promise'
 import glob from 'glob-promise'
 import crypto from 'crypto'
 
+// [main]
 const statPath = async (path) => {
   const stat = await fs.statAsync(path)
   return [path, stat]
@@ -31,5 +32,6 @@ const hashExisting = async (rootDir) => {
     ([path, content]) => hashPath(path, content))
   return hashes
 }
+// [/main]
 
 export default hashExisting

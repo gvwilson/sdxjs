@@ -1,3 +1,4 @@
+// [main]
 import fs from 'fs-extra-promise'
 import glob from 'glob-promise'
 import crypto from 'crypto'
@@ -18,9 +19,9 @@ const hashExisting = (rootDir) => {
       .catch(err => reject(err))
   })
 }
+// [/main]
 
 // [helpers]
-// [async]
 const statPath = (path) => {
   return new Promise((resolve, reject) => {
     fs.statAsync(path)
@@ -36,7 +37,7 @@ const readPath = (path) => {
       .catch(err => reject(err))
   })
 }
-// [/async]
+// [/helpers]
 
 // [hashPath]
 const hashPath = (path, content) => {
@@ -46,6 +47,5 @@ const hashPath = (path, content) => {
   return [path, hasher.read()]
 }
 // [/hashPath]
-// [/helpers]
 
 export default hashExisting

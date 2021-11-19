@@ -1,19 +1,19 @@
 import assert from 'assert'
 
-import findNewFiles from '../check-existing-files.js'
+import findNew from '../check-existing-files.js'
 
 describe('pre-existing hashes and actual filesystem', () => {
   it('finds no pre-existing files when none given or exist', async () => {
     const expected = {}
-    const actual = await findNewFiles('file-backup/test/bck-0-csv-0', [])
+    const actual = await findNew('file-backup/test/bck-0-csv-0', [])
     assert.deepStrictEqual(expected, actual,
       'Expected no files')
   })
 
-  it('finds some files when one file is given and none exist', async () => {
+  it('finds some files when one is given and none exist', async () => {
     const check = [['somefile.txt', '9876fedc']]
     const expected = { '9876fedc': 'somefile.txt' }
-    const actual = await findNewFiles('file-backup/test/bck-0-csv-0', check)
+    const actual = await findNew('file-backup/test/bck-0-csv-0', check)
     assert.deepStrictEqual(expected, actual,
       'Expected one file')
   })
@@ -21,7 +21,7 @@ describe('pre-existing hashes and actual filesystem', () => {
   it('finds nothing needs backup when there is a match', async () => {
     const check = [['alpha.js', 'abcd1234']]
     const expected = {}
-    const actual = await findNewFiles('file-backup/test/bck-1-csv-1', check)
+    const actual = await findNew('file-backup/test/bck-1-csv-1', check)
     assert.deepStrictEqual(expected, actual,
       'Expected no files')
   })
@@ -29,7 +29,7 @@ describe('pre-existing hashes and actual filesystem', () => {
   it('finds something needs backup when there is a mismatch', async () => {
     const check = [['alpha.js', 'a1b2c3d4']]
     const expected = { a1b2c3d4: 'alpha.js' }
-    const actual = await findNewFiles('file-backup/test/bck-1-csv-1', check)
+    const actual = await findNew('file-backup/test/bck-1-csv-1', check)
     assert.deepStrictEqual(expected, actual,
       'Expected one file')
   })
@@ -41,7 +41,7 @@ describe('pre-existing hashes and actual filesystem', () => {
       ['mismatch.txt', '12345678']
     ]
     const expected = { 12345678: 'mismatch.txt' }
-    const actual = await findNewFiles('file-backup/test/bck-4-csv-2', check)
+    const actual = await findNew('file-backup/test/bck-4-csv-2', check)
     assert.deepStrictEqual(expected, actual,
       'Expected one file')
   })

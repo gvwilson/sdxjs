@@ -1,7 +1,7 @@
 import fs from 'fs-extra-promise'
 
 import hashExisting from './hash-existing-async.js'
-import findNewFiles from './check-existing-files.js'
+import findNew from './check-existing-files.js'
 
 const backup = async (src, dst, timestamp = null) => {
   if (timestamp === null) {
@@ -10,7 +10,7 @@ const backup = async (src, dst, timestamp = null) => {
   timestamp = String(timestamp).padStart(10, '0')
 
   const existing = await hashExisting(src)
-  const needToCopy = await findNewFiles(dst, existing)
+  const needToCopy = await findNew(dst, existing)
   await copyFiles(dst, needToCopy)
   await saveManifest(dst, timestamp, existing)
 }
