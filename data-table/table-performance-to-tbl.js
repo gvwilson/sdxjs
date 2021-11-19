@@ -13,20 +13,30 @@ const TITLES = [
 ]
 
 const main = () => {
-  console.log(TITLES.join('|'))
-  console.log(TITLES.map(s => '---:').join('|'))
+  // build rows
+  const header = ['value']
+  const lines = [':---']
+  const rows = {}
+  TITLES.forEach(title => {
+    rows[title] = [title]
+  })
   process.argv.slice(2).forEach(filename => {
-    const lookup = {}
+    header.push(filename.replace('table-performance-', '').replace('.out', ''))
+    lines.push('---:')
     fs.readFileSync(filename, 'utf-8')
       .split('\n')
       .map(line => line.split(':'))
       .forEach(([name, value]) => {
-        if (TITLES.includes(name)) {
-          lookup[name] = parseFloat(value)
-        }
+	name = name.trim()
+	if (name in rows) {
+	  rows[name].push(parseFloat(value))
+	}
       })
-    const row = TITLES.map(name => lookup[name]).join('|')
-    console.log(row)
+  })
+  console.log(header.join('|'))
+  console.log(lines.join('|'))
+  TITLES.forEach(title => {
+    console.log(rows[title].join('|'))
   })
 }
 
