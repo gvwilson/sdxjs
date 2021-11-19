@@ -99,6 +99,7 @@ check:
 	@make check-chunk-length
 	@make check-code-blocks
 	@make check-dom
+	@make check-filter-tags
 	@make check-links
 	@make check-numbering
 	@make check-spelling
@@ -114,6 +115,10 @@ check-chunk-length: ${HOME_PAGE}
 ## check-code-blocks: check inline code blocks
 check-code-blocks:
 	@bin/check-code-blocks.py --config ${CONFIG}
+
+## check-filter-tags: see whether any code filtering tags have survived into the HTML
+check-filter-tags: ${HOME_PAGE}
+	@bin/check-filter-tags.py --sources ${HTML}
 
 ## check-dom: check classes and attributes in generated HTML.
 check-dom: ${HOME_PAGE}
