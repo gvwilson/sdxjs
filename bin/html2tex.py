@@ -143,7 +143,7 @@ def convert(node, accum, doEscape):
 
     # bibliography div
     elif (node.name == 'div') and has_class(node, 'bibliography'):
-        accum.append(r'\begin{thebibliography}{ABCD}')
+        accum.append(r'\begin{thebibliography}{\hskip-3pt}')
         convert_children(node, accum, doEscape)
         accum.append(r'\end{thebibliography}')
 
