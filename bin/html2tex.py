@@ -132,7 +132,7 @@ def convert(node, accum, doEscape):
     elif node.name == 'code':
         temp = ''.join(convert_children(node, [], True))
         temp = temp.replace("'", r'{\textquotesingle}')
-        accum.append(rf'\texttt{{{temp}}} ')
+        accum.append(rf'\texttt{{{temp}}}')
 
     # dd => just a paragraph in normal text, but remove internal links in glossary
     elif node.name == 'dd':
