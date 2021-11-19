@@ -4,20 +4,28 @@ An alternative is to build an <span g="index_database">index</span> for each tab
 and then use it to construct matches.
 For example, suppose the tables are:
 
+<div class="latex" command="\vspace{\baselineskip}"/>
+
 | Key | Left |
 | --- | ---- |
 | A   | a1   |
 | B   | b1   |
 | C   | c1   |
 
+<div class="latex" command="\vspace{\baselineskip}"/>
+
 {: .continue}
 and:
+
+<div class="latex" command="\vspace{\baselineskip}"/>
 
 | Key | Right |
 | --- | ----- |
 | A   | a2    |
 | A   | a3    |
 | B   | b2    |
+
+<div class="latex" command="\vspace{\baselineskip}"/>
 
 The first step is to create a `Map` showing where each key is found in the first table:
 

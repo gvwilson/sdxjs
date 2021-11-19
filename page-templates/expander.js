@@ -74,6 +74,9 @@ class Expander extends Visitor {
     }
 
     this.output(`<${node.name}`)
+    if (node.name === 'body') {
+      this.output(' style="font-size: 200%; margin-left: 0.5em"')
+    }
     for (const name in node.attribs) {
       if (!name.startsWith('z-')) {
         this.output(` ${name}="${node.attribs[name]}"`)

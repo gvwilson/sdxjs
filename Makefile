@@ -210,7 +210,7 @@ ${NUM_YML}: bin/make-numbering.py ${CONFIG} ${MARKDOWN}
 ${TERMS_YML}: bin/make-terms.py ${CONFIG} ${MARKDOWN} ${GLOSSARY_IN}
 	bin/make-terms.py --config ${CONFIG} --glossary ${GLOSSARY_IN} --language ${LANGUAGE} --output ${TERMS_YML}
 
-${HOME_PAGE}: ${CONFIG} ${MARKDOWN} ${INCLUDES} ${LAYOUTS} ${STATIC} ${ALL_OUT}
+${HOME_PAGE}: ${CONFIG} ${MARKDOWN} ${EXERCISES} ${INCLUDES} ${LAYOUTS} ${STATIC} ${ALL_OUT}
 	${JEKYLL} build
 
 $(filter-out bin/utils.py,$(wildcard bin/*.py)): bin/utils.py
