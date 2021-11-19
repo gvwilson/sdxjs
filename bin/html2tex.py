@@ -153,6 +153,10 @@ def convert(node, accum, doEscape):
         convert_children(node, accum, doEscape)
         accum.append('\\end{callout}\n')
 
+    # copy-through LaTeX command
+    elif (node.name == 'div') and has_class(node, 'latex'):
+        accum.append(node['command'])
+
     # terms defined div
     elif (node.name == 'div') and has_class(node, 'terms'):
         accum.append('\\noindent')

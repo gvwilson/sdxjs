@@ -52,16 +52,12 @@ If you are looking for a project to do in a course,
 adding a tool to those covered here would be fun as well as educational.
 Please see <span x="conclusion"/> for more details.
 
-## What tools do we cover?
+## What tools and ideas do we cover?
 
 Programmers have invented [a lot of tools][programming-tools] to make their lives easier.
 This volume focuses on a few that individual developers use while writing software;
 we hope future volumes
 will explore those used in the applications that programmers build.
-
-{% include contents %}
-
-## What ideas do we cover?
 
 <span x="glossary"/> defines the terms we introduce in these lessons,
 which in turn define the scope of our lessons:
