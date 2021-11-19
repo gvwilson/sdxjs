@@ -183,9 +183,9 @@ or even
   (new Fluent()).first('hello').second('and', 'goodbye')
 ```
 
-`Array`'s (mostly) fluent interface allows us to write expressions like
-`Array.filter(...).map(...).map(...)`,
-which is usually more readable than assigning intermediate results to temporary variables.
+`Array`'s fluent interface lets us write expressions like
+`Array.filter(...).map(...).map(...)`
+that are usually more readable than assigning intermediate results to temporary variables.
 
 If the original action given to our `Pledge` completes successfully,
 the `Pledge` gives us a value by calling the `resolve` callback.

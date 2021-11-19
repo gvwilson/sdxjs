@@ -19,7 +19,7 @@ FAKE = '/u/stjs'
 REMOVED = '...'
 
 # Output slice size.
-SLICE = 10
+SLICE = 5
 
 # Pattern for leading indentation.
 INDENT = re.compile(r'^(\s+)')
