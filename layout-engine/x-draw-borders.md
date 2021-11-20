@@ -18,7 +18,14 @@
     only a single border is drawn.
     For example,
     if the `border` property of `col` is `true`,
-    `<row><col>left</col><col>right</col></row>` is rendered as:
+    then:
+
+    ```html
+    <row><col>left</col><col>right</col></row>
+    ```
+
+    {: .continue}
+    is rendered as:
 
     ```txt
     +----+-----+

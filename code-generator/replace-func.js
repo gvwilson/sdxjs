@@ -1,23 +1,23 @@
 // [original]
-let funcZero = () => console.log('funcZero')
+let zero = () => console.log('zero')
 
-let funcOne = (first) => console.log(`funcOne(${first})`)
+let one = (first) => console.log(`one(${first})`)
 
-let funcTwo = (first, second) => console.log(`funcTwo(${first}, ${second})`)
+let two = (first, second) => console.log(`two(${first}, ${second})`)
 
-let funcError = () => {
-  console.log('funcError')
-  throw new Error('from funcError')
+let error = () => {
+  console.log('error')
+  throw new Error('from error')
   console.log('should not reach this') // eslint-disable-line
 }
 
 const runAll = (title) => {
   console.log(title)
-  funcZero()
-  funcOne(1)
-  funcTwo(1, 2)
+  zero()
+  one(1)
+  two(1, 2)
   try {
-    funcError()
+    error()
   } catch (error) {
     console.log(`caught ${error} as expected`)
   }
@@ -42,10 +42,10 @@ const replace = (func) => {
   }
 }
 
-funcZero = replace(funcZero)
-funcOne = replace(funcOne)
-funcTwo = replace(funcTwo)
-funcError = replace(funcError)
+zero = replace(zero)
+one = replace(one)
+two = replace(two)
+error = replace(error)
 
 runAll('second time')
 // [/replace]

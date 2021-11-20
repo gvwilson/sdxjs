@@ -7,6 +7,8 @@ For example,
 if the cache size is 3 and objects are accessed in the order shown in the first column,
 the cache's contents will be as shown in the second column:
 
+<div class="latex" command="\vspace{\baselineskip}"/>
+
 | Item | Action           | Cache After Access |
 | ---- | ---------------- | ------------------ |
 | A    | read A           | [A]                |

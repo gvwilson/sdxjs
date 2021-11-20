@@ -139,13 +139,11 @@ the node,
 and a logical value telling it whether the node passed the test or not.
 If the node failed the test
 we make sure that `state` contains a list with the appropriate label
-and then append this node to it:
-
-{% include keep file='check-name-lengths.js' key='applyCheck' %}
-
-{: .continue}
+and then append this node to it.
 This "create storage space on demand" pattern
 is widely used but doesn't have a well-known name.
+
+{% include keep file='check-name-lengths.js' key='applyCheck' %}
 
 We can now put a call to `applyCheck` inside the handler for `Identifier`:
 
@@ -315,13 +313,48 @@ Finding method definitions is also straightforward:
 {% include file file='find-methods.js' %}
 
 And finally,
-we can print a <span g="markdown" i="Markdown">Markdown</span>-formatted table showing which methods are defined in which class:
+we can print a <span g="markdown" i="Markdown">Markdown</span>-formatted table
+showing which methods are defined in which class:
 
 {% include file file='run-find-methods.raw.out' %}
+
+{: .continue}
+which renders as:
+
+<div class="latex" command="\vspace{\baselineskip}"/>
+
+| method | Upper | Middle | Lower |
+| ---- | ---- | ---- | ---- |
+| additional | . | . | X |
+| constructor | X | X | . |
+| modify | X | X | . |
+| report | X | . | X |
+
+<div class="latex" command="\vspace{\baselineskip}"/>
 
 This may seem rather pointless for our toy example,
 but it proves its worth when we are looking at something like
 the virtual machine we will build in <span x="virtual-machine"/>,
-which has a method definition table like this:
+which has a more complex method definition table:
 
-{% include file file='find-debugger-methods.raw.out' %}
+<div class="latex" command="\vspace{\baselineskip}"/>
+
+| method | DebuggerBase | DebuggerInteractive | DebuggerTest | DebuggerExit |
+| ---- | ---- | ---- | ---- | ---- |
+| clear | . | X | . | . |
+| constructor | X | X | X | . |
+| exit | . | X | . | X |
+| getCommand | . | X | . | . |
+| handle | . | X | . | . |
+| help | . | X | . | . |
+| input | . | X | X | . |
+| interact | . | X | . | . |
+| list | . | X | . | . |
+| message | X | . | X | . |
+| next | . | X | . | . |
+| print | . | X | . | . |
+| run | . | X | . | . |
+| setTester | . | . | X | . |
+| setVM | X | . | . | . |
+| stop | . | X | . | . |
+| variables | . | X | . | . |
