@@ -6,6 +6,9 @@ import getDefinitions from './get-definitions.js'
 import fillIn from './fill-in.js'
 import slugify from './slugify.js'
 
+const HEAD = '<html><body style="font-size: 100%; margin-left: 0.5em">'
+const FOOT = '</body></html>'
+
 const main = () => {
   const filenames = process.argv.slice(2)
   const allComments = getComments(filenames)
@@ -19,7 +22,9 @@ const main = () => {
   const md = new MarkdownIt({ html: true })
     .use(MarkdownAnchor, { level: 1, slugify: slugify })
   const html = md.render(combined.join('\n\n'))
+  console.log(HEAD)
   console.log(html)
+  console.log(FOOT)
 }
 
 main()

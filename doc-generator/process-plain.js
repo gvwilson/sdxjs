@@ -6,12 +6,17 @@ import MarkdownAnchor from 'markdown-it-anchor'
 import slugify from './slugify.js'
 
 // [main]
+const HEAD = '<html><body style="font-size: 100%; margin-left: 0.5em">'
+const FOOT = '</body></html>'
+
 const main = () => {
   const allComments = getAllComments(process.argv.slice(2))
   const md = new MarkdownIt({ html: true })
     .use(MarkdownAnchor, { level: 1, slugify: slugify })
   const html = md.render(allComments)
+  console.log(HEAD)
   console.log(html)
+  console.log(FOOT)
 }
 // [/main]
 

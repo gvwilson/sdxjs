@@ -115,8 +115,7 @@ and generally makes it something you might see in a URL:
 
 {% include file file='slugify.js' %}
 
-Let's run the first version of our documentation generator
-and see what it produces
+Let's run this generator and see what it produces
 (<span f="doc-generator-process-plain"/> and <span f="doc-generator-mapping"/>):
 
 {% include file file='process-plain.sh' %}
