@@ -1,6 +1,13 @@
 ---
 ---
 
+<div align="center" style="font-size: 150%; background-color: #fae8f5">
+  <p>
+    <em>Software Tools in JavaScript</em>
+    is now <a href="https://stjs.tech/">available on LeanPub</a>.
+  </p>
+</div>
+
 {% include intro.md %}
 
 <div class="centered">
