@@ -17,8 +17,8 @@ We would like to debug a higher-level language than the <span i="assembly code">
 but we don't want to have to write a parser
 or wrestle with the <span i="abstract syntax tree">ASTs</span> of <span x="style-checker"/>.
 As a compromise,
-we will represent programs as simple JSON data structures
-in which every element has the form `[command ...args]`:
+we will represent programs as JSON data structures
+whose element have the form `[command ...args]`:
 
 {% include file file='filter-base.json' %}
 
@@ -36,9 +36,9 @@ and then running commands by looking up the command name's and calling that meth
 {: .continue}
 Remember, functions and methods are just another kind of data,
 so if an object has a method called `"meth"`,
-the expression `this["meth"]` will look it up
-and the expression `this["meth"](args)` will call it.
-If the string `"meth"` is stored in a variable called `name`,
+the expression `this["meth"]` looks it up
+and `this["meth"](args)` calls it.
+If `"meth"` is stored in a variable called `name`,
 then `this[name](args)` will do exactly the same thing.
 
 The method in our VM that defines a new variable with an initial value looks like this:

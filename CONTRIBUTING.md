@@ -114,7 +114,8 @@ This project uses [Martha's Rules][marthas-rules] <cite>Minahan1986</cite> for c
     or appendix and use this to include it:
 
     ```
-    {% raw %}{% include figure id="label" img="file.svg" alt="short text" cap="full caption" %}{% endraw %}
+    {% raw %}{% include figure id="label" img="file.svg"
+                      alt="short text" cap="full caption" %}{% endraw %}
     ```
 
     where `label` is <code><em>chapter-slug</em>-<em>image-slug</em></code>,
@@ -127,3 +128,45 @@ This project uses [Martha's Rules][marthas-rules] <cite>Minahan1986</cite> for c
 Note: you will need Python and LaTeX in order to build the PDF version of this book.
 After installing them, you will need the packages listed in `requirements/python.txt`
 and `requirements/latex.txt`.
+
+## What We're Looking For
+
+We would welcome
+translations of this book into other programming languages,
+or into other human languages.
+We would also be grateful for chapters on other tools, such as:
+
+-   An accessibility checking tool like <span i="WebAIM WAVE">[WAVE][webaim-wave]</span>
+    (which we have used while building this site)?
+
+-   Formal verification tools
+    like <span i="Alloy; formal verification!Alloy">[Alloy][alloy]</span> <cite>Jackson2016</cite>
+    and <span i="TLA+; formal verification!TLA+">[TLA+][tla+]</span> work <cite>Wayne2018</cite>.
+
+-   <span i="code completion">[Intelligent code completion][intelligent-code-completion]</span>.
+
+-   <span i="fuzz testing">[Fuzzing][fuzzing]</span> and
+    <span i="delta debugging">[delta debugging][delta-debugging]</span> <cite>Zeller2009</cite>.
+
+-   How relational databases work
+    ([this tutorial][db-tutorial] could serve as a starting point).
+
+-   How to create [an HTTP server][500-lines-server] from the socket layer up.
+
+-   A text editor using [termit][termit] or [kilo][kilo] as a starting point.
+    (Turns out that "undo" is a lot harder to build than most people realize.)
+
+-   A very simple version of [React][react-tutorials] and <span i="Redux">[Redux][redux]</span>.
+
+-   <span i="OAuth">[OAuth][oauth]</span> for single sign-on.
+
+-   A text-mode browser like [Lynx][lynx].
+
+-   A collaborative text editor like [Etherpad][etherpad]
+    (the synchronization algorithm is _hard_).
+
+-   An in-browser testing tool like [Cypress][cypress].
+
+-   A package repository that's resistant to DoS attacks.
+
+-   A distributed logging and monitoring tool.
