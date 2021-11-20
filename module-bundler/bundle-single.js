@@ -1,6 +1,6 @@
 /* eslint-disable */
 const translate = {
-  "/Users/gvwilson/stjs/module-bundler/single/main.js": {}
+  "/u/stjs/stjs/module-bundler/single/main.js": {}
 }
 const creators = new Map()
 const cache = new Map()
@@ -19,9 +19,10 @@ const makeRequire = (absPath) => {
 
 const initialize = (creators) => {
 
-// /Users/gvwilson/stjs/module-bundler/single/main.js
-creators.set('/Users/gvwilson/stjs/module-bundler/single/main.js',
-(module, require = makeRequire('/Users/gvwilson/stjs/module-bundler/single/main.js')) =>
+// /u/stjs/stjs/module-bundler/single/main.js
+creators.set('/u/stjs/stjs/module-bundler/single/main.js',
+(module, require = 
+makeRequire('/u/stjs/stjs/module-bundler/single/main.js')) =>
 {const main = () => {
   console.log('in main')
 }
@@ -35,7 +36,7 @@ module.exports = main
 initialize(creators)
 
 
-const start = creators.get('/Users/gvwilson/stjs/module-bundler/single/main.js')
+const start = creators.get('/u/stjs/stjs/module-bundler/single/main.js')
 const m = {}
 start(m)
 m.exports()

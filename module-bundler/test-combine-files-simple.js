@@ -1,8 +1,8 @@
 /* eslint-disable */
 const initialize = (creators) => {
 
-// /Users/gvwilson/stjs/module-bundler/simple/main.js
-creators.set('/Users/gvwilson/stjs/module-bundler/simple/main.js',
+// /u/stjs/stjs/module-bundler/simple/main.js
+creators.set('/u/stjs/stjs/module-bundler/simple/main.js',
 (module, require) => {const other = require('./other')
 
 const main = () => {
@@ -12,8 +12,8 @@ const main = () => {
 module.exports = main
 })
 
-// /Users/gvwilson/stjs/module-bundler/simple/other.js
-creators.set('/Users/gvwilson/stjs/module-bundler/simple/other.js',
+// /u/stjs/stjs/module-bundler/simple/other.js
+creators.set('/u/stjs/stjs/module-bundler/simple/other.js',
 (module, require) => {const other = (caller) => {
   return `other called from ${caller}`
 }

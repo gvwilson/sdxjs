@@ -1,9 +1,9 @@
 // main.js
 
-const topLeft = require('./top-left')                // none
-const topRight = require('./top-right')              // needs top-left + bottom-right
-const bottomLeft = require('./subdir/bottom-left')   // needs top-left + bottom-right
-const bottomRight = require('./subdir/bottom-right') // none
+const topLeft = require('./top-left')
+const topRight = require('./top-right')
+const bottomLeft = require('./subdir/bottom-left')
+const bottomRight = require('./subdir/bottom-right')
 
 const main = () => {
   const functions = [topLeft, topRight, bottomLeft, bottomRight]
