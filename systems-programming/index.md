@@ -390,15 +390,13 @@ that the authors of that module have figured out for us.
 
 We are now calling our command-line arguments `srcRoot` and `dstRoot`
 rather than `srcDir` and `dstDir`.
-As we were writing this example we used `dstDir` as both
+We originally used `dstDir` as both
 the name of the top-level destination directory (from the command line)
 and the name of the particular output directory to create.
-JavaScript didn't complain because
-every function creates a new <span g="scope" i="scope!of variable definitions; variable definition!scope">scope</span> for variable definitions,
-and it's perfectly legal to give a variable inside a function
-the same name as something outside it.
-However, "legal" isn't the same thing as "comprehensible";
-giving the variables different names makes the program easier for humans to read.
+This was legal,
+since every function creates
+a new <span g="scope" i="scope!of variable definitions; variable definition!scope">scope</span>,
+but hard for people to understand.
 
 </div>
 

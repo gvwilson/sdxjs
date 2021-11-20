@@ -16,6 +16,7 @@ BIB_MD=bibliography/index.md
 GLOSSARY_IN=_data/glossary.yml
 HOME_PAGE=${SITE}/index.html
 INDEX_YML=_data/index.yml
+LINKS_YML=_data/long-links.yml
 NUM_YML=_data/numbering.yml
 TERMS_YML=_data/terms.yml
 ALL_OUT=${BIB_MD} ${INDEX_YML} ${NUM_YML} ${TERMS_YML}
@@ -65,8 +66,8 @@ serve: ${ALL_OUT}
 	${JEKYLL} serve
 
 ## book.tex: create LaTeX file
-book.tex: ${HOME_PAGE} bin/html2tex.py ${NUM_YML} ${TEX}
-	bin/html2tex.py --config ${CONFIG} --numbering ${NUM_YML} --site _site --head tex/head.tex --foot tex/foot.tex > book.tex
+book.tex: ${HOME_PAGE} bin/html2tex.py ${NUM_YML} ${LINKS_YML} ${TEX}
+	bin/html2tex.py --config ${CONFIG} --numbering ${NUM_YML} --site _site --head tex/head.tex --foot tex/foot.tex --links ${LINKS_YML} > book.tex
 
 ## book.pdf: create PDF file
 book.pdf: book.tex ${TEX}

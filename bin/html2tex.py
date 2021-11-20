@@ -27,12 +27,16 @@ RECURSE_ONLY = {
     'th'
 }
 
+# Long links (updated by main driver).
+LONG_LINKS = {}
+
 # Numbering (updated by main driver).
 NUMBERING = {}
 
 
 def html2tex(options):
     '''Main driver.'''
+    update_long_links(options.links)
     update_numbering(options.numbering)
     config = utils.read_yaml(options.config)
     entries = get_filenames(options.site, config)
@@ -44,6 +48,14 @@ def html2tex(options):
             accum.append('\n\\appendix\n')
     result = ''.join(accum)
     display(options, config, result)
+
+
+def update_long_links(filename):
+    '''Update table of long links that have to be line-broken.'''
+    global LONG_LINKS
+    for link in utils.read_yaml(filename):
+        key = link.replace(r'-\\ ', '')
+        LONG_LINKS[key] = link
 
 
 def update_numbering(filename):
@@ -392,6 +404,8 @@ def convert_links_table(node, accum):
     for row in rows:
         child = row.td.a
         link = escape(child['href'], True)
+        if link in LONG_LINKS:
+            link = LONG_LINKS[link]
         text = ''.join(convert_children(child, [], True))
         accum.append(f'\n\n\\item[{text}] {link}')
     accum.append('\\end{description}\n')
@@ -564,6 +578,7 @@ if __name__ == '__main__':
         ['--config', False, 'Path to YAML configuration file'],
         ['--foot', False, 'Path to LaTeX footer file'],
         ['--head', False, 'Path to LaTeX header file'],
+        ['--links', False, 'Path to long-links translation file'],
         ['--numbering', False, 'Path to numbering file'],
         ['--site', False, 'Path to root directory of HTML site']
     )
