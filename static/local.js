@@ -14,9 +14,10 @@ const enableDropdowns = () => {
       event.stopPropagation()
       items.style.display = (items.style.display === 'none') ? 'block' : 'none'
       // Make sure all other dropdowns aren't visible.
-      allDropdowns.forEach(check => {
-        if (check.id !== top.id) {
-          check.querySelector('div.dropdown-content').style.display = 'none'
+      allDropdowns.forEach(other => {
+	const check = other.querySelector('div.dropdown-content')
+        if (check.id !== items.id) {
+          check.style.display = 'none'
         }
       })
     })
