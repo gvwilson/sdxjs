@@ -1,4 +1,5 @@
 ---
+template: page.html
 ---
 
 Every program needs documentation in order to be usable,
@@ -14,7 +15,7 @@ Thousands of these have been written in the last thirty years
 in every popular programming language
 (and one language, <span i="PHP">[PHP][php]</span>, was created for this purpose).
 Most of these systems use one of three designs
-(<span f="page-templates-options"/>):
+(<a figure="page-templates-options"/>):
 
 1.  Mix commands in a language such as JavaScript with the HTML or Markdown
     using some kind of marker to indicate which parts are commands
@@ -35,11 +36,10 @@ Most of these systems use one of three designs
     but since pages are valid HTML,
     it eliminates the need for a special parser.
 
-{% include figure
-   id='page-templates-options'
-   img='figures/options.svg'
-   alt='Three options for page templates'
-   cap='Three different ways to implement page templating.' %}
+<figure id="page-templates-options">
+  <img src="figures/options.svg" alt="Three options for page templates" />
+  <figcaption>Three different ways to implement page templating.</figcaption>
+</figure>
 
 In this chapter we will build a simple page templating system using the third strategy.
 We will process each page independently by parsing the HTML
@@ -48,15 +48,15 @@ Our program will execute the instructions in those nodes
 to do the equivalent of loops and if/else statements;
 other nodes will be copied as-is to create text.
 
-## What will our system look like?
+## What will our system look like? {#page-templates-syntax}
 
 Let's start by deciding what "done" looks like.
 Suppose we want to turn an array of strings into an HTML list.
 Our page will look like this:
 
-{% include file file='input-loop.html' %}
+<div class="include" file="input-loop.html" />
 
-{: .continue}
+<!-- continue -->
 The attribute `z-loop` tells the tool to repeat the contents of that node;
 the loop variable and the collection being looped over are separated by a colon.
 The attribute `z-var` tells the tool to fill in the node with the value of the variable.
@@ -64,37 +64,33 @@ The attribute `z-var` tells the tool to fill in the node with the value of the v
 When our tool processes this page,
 the output will be standard HTML without any traces of how it was created:
 
-{% include file file='output-loop.html' %}
+<div class="include" file="output-loop.html" />
 
-<div class="callout" markdown="1">
-
-### Human-readable vs. machine-readable
-
-The introduction said that mini-languages for page templating
-quickly start to accumulate extra features.
-We have already started down that road
-by putting the loop variable and loop target in a single attribute
-and splitting that attribute to get them out.
-Doing this makes loops easy for people to type,
-but hides important information from standard HTML processing tools.
-They can't know that this particular attribute of these particular elements
-contains multiple values
-or that those values should be extracted by splitting a string on a colon.
-We could instead require people to use two attributes, as in:
-
-```html
-<ul z-loop="names" z-loop-var="item">
-```
-
-{: .continue}
-but we have decided to err on the side of minimal typing.
-And note that strictly speaking,
-we should call our attributes `data-something` instead of `z-something`
-to conform with <span i="HTML5 specification">[the HTML5 specification][html5-data-attributes]</span>,
-but by the time we're finished processing our templates,
-there shouldn't be any `z-*` attributes left to confuse a browser.
-
-</div>
+> ### Human-readable vs. machine-readable
+>
+> The introduction said that mini-languages for page templating
+> quickly start to accumulate extra features.
+> We have already started down that road
+> by putting the loop variable and loop target in a single attribute
+> and splitting that attribute to get them out.
+> Doing this makes loops easy for people to type,
+> but hides important information from standard HTML processing tools.
+> They can't know that this particular attribute of these particular elements
+> contains multiple values
+> or that those values should be extracted by splitting a string on a colon.
+> We could instead require people to use two attributes, as in:
+>
+> ```html
+> <ul z-loop="names" z-loop-var="item">
+> ```
+>
+> <!-- continue -->
+> but we have decided to err on the side of minimal typing.
+> And note that strictly speaking,
+> we should call our attributes `data-something` instead of `z-something`
+> to conform with <span i="HTML5 specification">[the HTML5 specification][html5-data-attributes]</span>,
+> but by the time we're finished processing our templates,
+> there shouldn't be any `z-*` attributes left to confuse a browser.
 
 The next step is to define the API for filling in templates.
 Our tool needs the template itself,
@@ -106,9 +102,9 @@ or from some mix of the two;
 for the moment,
 we will just pass them into the expansion function as an object:
 
-{% include file file='example-call.js' %}
+<div class="include" file="example-call.js" />
 
-## How can we keep track of values?
+## How can we keep track of values? {#page-templates-values}
 
 Speaking of variables,
 we need a way to keep track of their current values;
@@ -125,19 +121,15 @@ Each <span g="stack_frame" i="stack frame">stack frame</span> is an object with 
 when we need to find a variable,
 we look through the stack frames in order to find the uppermost definition of that variable..
 
-<div class="callout" markdown="1">
-
-### Scoping rules
-
-Searching the stack <span i="call stack!stack frame; stack frame">frame</span> by frame
-while the program is running
-is called is <span g="dynamic_scoping" i="dynamic scoping; scoping!dynamic">dynamic scoping</span>,
-since we find variables while the program is running.
-In contrast,
-most programming languages used <span g="lexical_scoping" i="lexical scoping; scoping!lexical">lexical scoping</span>,
-which figures out what a variable name refers to based on the structure of the program text.
-
-</div>
+> ### Scoping rules
+>
+> Searching the stack <span i="call stack!stack frame; stack frame">frame</span> by frame
+> while the program is running
+> is called is <span g="dynamic_scoping" i="dynamic scoping; scoping!dynamic">dynamic scoping</span>,
+> since we find variables while the program is running.
+> In contrast,
+> most programming languages used <span g="lexical_scoping" i="lexical scoping; scoping!lexical">lexical scoping</span>,
+> which figures out what a variable name refers to based on the structure of the program text.
 
 The values in a running program are sometimes called
 an <span g="environment" i="environment (to store variables); call stack!environment">environment</span>,
@@ -146,17 +138,16 @@ Its methods let us push and pop new stack frames
 and find a variable given its name;
 if the variable can't be found,
 `Env.find` returns `undefined` instead of throwing an exception
-(<span f="page-templates-stack"/>).
+(<a figure="page-templates-stack"/>).
 
-{% include file file='env.js' %}
+<div class="include" file="env.js" />
 
-{% include figure
-   id='page-templates-stack'
-   img='figures/stack.svg'
-   alt='Variable stack'
-   cap='Using a stack to manage variables.' %}
+<figure id="page-templates-stack">
+  <img src="figures/stack.svg" alt="Variable stack" />
+  <figcaption>Using a stack to manage variables.</figcaption>
+</figure>
 
-## How do we handle nodes?
+## How do we handle nodes? {#page-templates-nodes}
 
 HTML pages have a nested structure,
 so we will process them using
@@ -167,20 +158,19 @@ it starts recursing from that saved root;
 if `.walk` is given a value (as it is during recursive calls),
 it uses that instead.
 
-{% include file file='visitor.js' %}
+<div class="include" file="visitor.js" />
 
-{: .continue}
+<!-- continue -->
 `Visitor` defines two methods called `open` and `close` that are called
 when we first arrive at a node and when we are finished with it
-(<span f="page-templates-visitor"/>).
+(<a figure="page-templates-visitor"/>).
 The default implementations of these methods throw exceptions
 to remind the creators of derived classes to implement their own versions.
 
-{% include figure
-   id='page-templates-visitor'
-   img='figures/visitor.svg'
-   alt='The Visitor pattern'
-   cap='Using the Visitor pattern to evaluate a page template.' %}
+<figure id="page-templates-visitor">
+  <img src="figures/visitor.svg" alt="The Visitor pattern" />
+  <figcaption>Using the Visitor pattern to evaluate a page template.</figcaption>
+</figure>
 
 The `Expander` class is specialization of `Visitor`
 that uses an `Env` to keep track of variables.
@@ -195,34 +185,34 @@ uses them to process each type of node:
 
 1.  Otherwise, open or close a regular tag.
 
-{% include erase file='expander.js' key='skip' %}
+<div class="include" file="expander.js" omit="skip" />
 
 Checking to see if there is a handler for a particular node
 and getting that handler are straightforward---we just
 look at the node's attributes:
 
-{% include keep file='expander.js' key='handlers' %}
+<div class="include" file="expander.js" keep="handlers" />
 
 Finally, we need a few helper methods to show tags and generate output:
 
-{% include keep file='expander.js' key='helpers' %}
+<div class="include" file="expander.js" keep="helpers" />
 
-{: .continue}
+<!-- continue -->
 Notice that this class adds strings to an array and joins them all right at the end
 rather than concatenating strings repeatedly.
 Doing this is more efficient and also helps with debugging,
 since each string in the array corresponds to a single method call.
 
-## How do we implement node handlers?
+## How do we implement node handlers? {#page-templates-handlers}
 
 At this point
 we have built a lot of infrastructure but haven't actually processed any special nodes.
 To do that,
 let's write a handler that copies a constant number into the output:
 
-{% include file file='z-num.js' %}
+<div class="include" file="z-num.js" />
 
-{: .continue}
+<!-- continue -->
 When we enter a node like `<span z-num="123"/>`
 this handler asks the expander to show an opening tag
 followed by the value of the `z-num` attribute.
@@ -242,9 +232,9 @@ but <span g="bare_object" i="bare object; software design!bare object">bare obje
 
 So much for constants; what about variables?
 
-{% include file file='z-var.js' %}
+<div class="include" file="z-var.js" />
 
-{: .continue}
+<!-- continue -->
 This code is almost the same as the previous example.
 The only difference is that instead of copying the attribute's value
 directly to the output,
@@ -256,66 +246,62 @@ we can build a program that loads variable definitions from a JSON file,
 reads an HTML template,
 and does the expansion:
 
-{% include file file='template.js' %}
+<div class="include" file="template.js" />
 
 We added new variables for our test cases one by one
 as we were writing this chapter.
 To avoid repeating text repeatedly,
 we show the entire set once:
 
-{% include file file='vars.json' %}
+<div class="include" file="vars.json" />
 
 Our first test:
-is static text copied over as-is (<span f="page-templates-output-static-text"/>)?
+is static text copied over as-is (<a figure="page-templates-output-static-text"/>)?
 
-{% include file file='input-static-text.html' %}
-{% include file file='static-text.sh' %}
-{% include file file='output-static-text.html' %}
+<div class="include" file="input-static-text.html" />
+<div class="include" file="static-text.sh" />
+<div class="include" file="output-static-text.html" />
 
-{% include figure
-   id='page-templates-output-static-text'
-   img='figures/output-static-text.svg'
-   alt='Generating static text'
-   cap='Static text generated by page templates.' %}
+<figure id="page-templates-output-static-text">
+  <img src="figures/output-static-text.svg" alt="Generating static text" />
+  <figcaption>Static text generated by page templates.</figcaption>
+</figure>
 
 Good.
-Now, does the expander handle constants (<span f="page-templates-output-single-constant"/>)?
+Now, does the expander handle constants (<a figure="page-templates-output-single-constant"/>)?
 
-{% include file file='input-single-constant.html' %}
-{% include file file='output-single-constant.html' %}
+<div class="include" file="input-single-constant.html" />
+<div class="include" file="output-single-constant.html" />
 
-{% include figure
-   id='page-templates-output-single-constant'
-   img='figures/output-single-constant.svg'
-   alt='Generating a single constant'
-   cap='A single constant generated by page templates.' %}
+<figure id="page-templates-output-single-constant">
+  <img src="figures/output-single-constant.svg" alt="Generating a single constant" />
+  <figcaption>A single constant generated by page templates.</figcaption>
+</figure>
 
-What about a single variable (<span f="page-templates-output-single-variable"/>)?
+What about a single variable (<a figure="page-templates-output-single-variable"/>)?
 
-{% include file file='input-single-variable.html' %}
-{% include file file='output-single-variable.html' %}
+<div class="include" file="input-single-variable.html" />
+<div class="include" file="output-single-variable.html" />
 
-{% include figure
-   id='page-templates-output-single-variable'
-   img='figures/output-single-variable.svg'
-   alt='Generating a single variable'
-   cap='A single variable generated by page templates.' %}
+<figure id="page-templates-output-single-variable">
+  <img src="figures/output-single-variable.svg" alt="Generating a single variable" />
+  <figcaption>A single variable generated by page templates.</figcaption>
+</figure>
 
 What about a page containing multiple variables?
 There's no reason it should fail if the single-variable case works,
 but we should still check---again,
-software isn't done until it has been tested (<span f="page-templates-output-multiple-variables"/>).
+software isn't done until it has been tested (<a figure="page-templates-output-multiple-variables"/>).
 
-{% include file file='input-multiple-variables.html' %}
-{% include file file='output-multiple-variables.html' %}
+<div class="include" file="input-multiple-variables.html" />
+<div class="include" file="output-multiple-variables.html" />
 
-{% include figure
-   id='page-templates-output-multiple-variables'
-   img='figures/output-multiple-variables.svg'
-   alt='Generating multiple variables'
-   cap='Multiple variables generated by page templates.' %}
+<figure id="page-templates-output-multiple-variables">
+  <img src="figures/output-multiple-variables.svg" alt="Generating multiple variables" />
+  <figcaption>Multiple variables generated by page templates.</figcaption>
+</figure>
 
-## How can we implement control flow?
+## How can we implement control flow? {#page-templates-flow}
 
 Our tool supports two types of control flow:
 conditional expressions and loops.
@@ -324,34 +310,29 @@ implementing a conditional is as simple as looking up a variable
 (which we know how to do)
 and then expanding the node if the value is true:
 
-{% include file file='z-if.js' %}
+<div class="include" file="z-if.js" />
 
-Let's test it (<span f="page-templates-output-conditional"/>):
+Let's test it (<a figure="page-templates-output-conditional"/>):
 
-{% include file file='input-conditional.html' %}
-{% include file file='output-conditional.html' %}
+<div class="include" file="input-conditional.html" />
+<div class="include" file="output-conditional.html" />
 
-{% include figure
-   id='page-templates-output-conditional'
-   img='figures/output-conditional.svg'
-   alt='Generating conditional text'
-   cap='Conditional text generated by page templates.' %}
+<figure id="page-templates-output-conditional">
+  <img src="figures/output-conditional.svg" alt="Generating conditional text" />
+  <figcaption>Conditional text generated by page templates.</figcaption>
+</figure>
 
-<div class="callout" markdown="1">
-
-### Spot the bug
-
-This implementation of `if` contains a subtle bug.
-The `open` and `close` functions both check the value of the control variable.
-If something inside the body of the `if` changes that value,
-the result could be an opening tag without a matching closing tag or vice versa.
-We haven't implemented an assignment operator,
-so right now there's no way for that to happen,
-but it's a plausible thing for us to add later,
-and tracking down a bug in old code that is revealed by new code
-is always a headache.
-
-</div>
+> ### Spot the bug
+>
+> This implementation of `if` contains a subtle bug.
+> The `open` and `close` functions both check the value of the control variable.
+> If something inside the body of the `if` changes that value,
+> the result could be an opening tag without a matching closing tag or vice versa.
+> We haven't implemented an assignment operator,
+> so right now there's no way for that to happen,
+> but it's a plausible thing for us to add later,
+> and tracking down a bug in old code that is revealed by new code
+> is always a headache.
 
 Finally we come to loops.
 For these,
@@ -365,19 +346,18 @@ That "something" is:
 
 1.  Pop the stack frame to get rid of the temporary variable.
 
-{% include file file='z-loop.js' %}
+<div class="include" file="z-loop.js" />
 
 Once again,
-it's not done until we test it (<span f="page-templates-output-loop"/>):
+it's not done until we test it (<a figure="page-templates-output-loop"/>):
 
-{% include file file='input-loop.html' %}
-{% include file file='output-loop.html' %}
+<div class="include" file="input-loop.html" />
+<div class="include" file="output-loop.html" />
 
-{% include figure
-   id='page-templates-output-loop'
-   img='figures/output-loop.svg'
-   alt='Generating text with a loop'
-   cap='Repeated text generated with a loop by page templates.' %}
+<figure id="page-templates-output-loop">
+  <img src="figures/output-loop.svg" alt="Generating text with a loop" />
+  <figcaption>Repeated text generated with a loop by page templates.</figcaption>
+</figure>
 
 Notice how we create the new stack frame using:
 
@@ -385,7 +365,7 @@ Notice how we create the new stack frame using:
 { [indexName]: index }
 ```
 
-{: .continue}
+<!-- continue -->
 This is an ugly but useful trick.
 We can't write:
 
@@ -393,7 +373,7 @@ We can't write:
 { indexName: index }
 ```
 
-{: .continue}
+<!-- continue -->
 because that would create an object with the string `indexName` as a key,
 rather than one with the value of the variable `indexName` as its key.
 We can't do this either:
@@ -402,7 +382,7 @@ We can't do this either:
 { `${indexName}`: index }
 ```
 
-{: .continue}
+<!-- continue -->
 though it seems like we should be able to.
 Instead,
 we create an array containing the string we want.
@@ -416,11 +396,11 @@ temp[indexName] = index
 expander.env.push(temp)
 ```
 
-{: .continue}
+<!-- continue -->
 Those three lines *are* much easier to understand, though,
 so we should probably have been less clever.
 
-## How did we know how to do all of this?
+## How did we know how to do all of this? {#page-templates-learning}
 
 We have just implemented a simple programming language.
 It can't do arithmetic,
@@ -430,14 +410,14 @@ but if we wanted to add tags like:
 <span z-math="+"><span z-var="width"/><span z-num="1"//>
 ```
 
-{: .continue}
+<!-- continue -->
 we could.
 It's unlikely anyone would use the result---typing all of that
 is so much clumsier than typing `width+1` that people wouldn't use it
 unless they had no other choice---but the basic design is there.
 
 We didn't invent any of this from scratch,
-any more than we invented the parsing algorithm of <span x="regex-parser"/>.
+any more than we invented the parsing algorithm of <a section="regex-parser"/>.
 Instead,
 we did what you are doing now:
 we read what other programmers had written
@@ -455,7 +435,7 @@ into actual operations on actual data.
 More experienced programmers are more capable at both ends of the curve,
 but that's not the only thing that changes.
 If a novice's comprehension curve looks like the one on the left
-of <span f="page-templates-comprehension"/>,
+of <a figure="page-templates-comprehension"/>,
 then an expert's looks like the one on the right.
 Experts don't just understand more at all levels of abstraction;
 their *preferred* level has also shifted
@@ -464,11 +444,10 @@ is actually more readable than the medieval expression
 "the side of the square whose area is the sum of the areas of the two squares
 whose sides are given by the first part and the second part".
 
-{% include figure
-   id='page-templates-comprehension'
-   img='figures/comprehension.svg'
-   alt='Comprehension curves'
-   cap='Novice and expert comprehension curves.' %}
+<figure id="page-templates-comprehension">
+  <img src="figures/comprehension.svg" alt="Comprehension curves" />
+  <figcaption>Novice and expert comprehension curves.</figcaption>
+</figure>
 
 One implication of this is that for any given task,
 the software that is quickest for a novice to comprehend
@@ -498,3 +477,105 @@ or the depth to which loop bodies are indented.
 But today's tools don't do that,
 and I suspect that any IDE smart enough to translate between comprehension levels automatically
 would also be smart enough to write the code without our help.
+
+## Exercises {#page-templates-exercises}
+
+### Tracing execution {.exercise}
+
+Add a directive `<span z-trace="variable"/>`
+that prints the current value of a variable using `console.error` for debugging.
+
+### Unit tests {.exercise}
+
+Write unit tests for template expansion using Mocha.
+
+### Trimming text {.exercise}
+
+Modify all of the directives to take an extra optional attribute `z-trim="true"`
+If this attribute is set,
+leading and trailing whitespace is trimmed from the directive's expansion.
+
+### Literal text {.exercise}
+
+Add a directive `<div z-literal="true">…</div>` that copies the enclosed text as-is
+without interpreting or expanding any contained directives.
+(A directive like this would be needed when writing documentation for the template expander.)
+
+### Including other files {.exercise}
+
+1.  Add a directive `<div z-include="filename.html"/>` that includes another file
+    in the file being processed.
+
+2.  Should included files be processed and the result copied into the including file,
+    or should the text be copied in and then processed?
+    What difference does it make to the way variables are evaluated?
+
+### HTML snippets {.exercise}
+
+Add a directive `<div z-snippet="variable">…</div>` that saves some text in a variable
+so that it can be displayed later.
+For example:
+
+```html
+<html>
+  <body>
+    <div z-snippet="prefix"><strong>Important:</strong></div>
+    <p>Expect three items</p>
+    <ul>
+      <li z-loop="item:names">
+        <span z-var="prefix"><span z-var="item"/>
+      </li>
+    </ul>
+  </body>
+</html>
+```
+
+<!-- continue -->
+would printed the word "Important:" in bold before each item in the list.
+
+### YAML headers {.exercise}
+
+Modify the template expander to handle variables defined in a YAML header in the page being processed.
+For example, if the page is:
+
+```html
+---
+name: "Dorothy Johnson Vaughan"
+---
+<html>
+  <body>
+    <p><span z-var="name"/></p>
+  </body>
+</html>
+```
+
+<!-- continue -->
+will create a paragraph containing the given name.
+
+### Expanding all files {.exercise}
+
+Write a program `expand-all.js` that takes two directory names as command-line arguments
+and builds a website in the second directory by expanding all of the HTML files found in the first
+or in sub-directories of the first.
+
+### Counting loops {.exercise}
+
+Add a directive `<div z-index="indexName" z-limit="limitName">…</div>`
+that loops from zero to the value in the variable `limitName`,
+putting the current iteration index in `indexName`.
+
+### Auxiliary functions {.exercise}
+
+1.  Modify `Expander` so that it takes an extra argument `auxiliaries`
+    containing zero or more named functions:
+
+    ```js
+    const expander = new Expander(root, vars, {
+      max: Math.max,
+      trim: (x) => x.trim()
+    })
+    ```
+
+2.  Add a directive `<span z-call="functionName" z-args="var,var"/>`
+    that looks up a function in `auxiliaries` and calls it
+    with the given variables as arguments.

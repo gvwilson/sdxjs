@@ -1,4 +1,5 @@
 ---
+template: page.html
 ---
 
 We have written many small programs in the previous two chapters,
@@ -20,7 +21,7 @@ Our design is inspired by tools like <span i="Mocha">[Mocha][mocha]</span> and <
 which were in turn inspired by tools built for other languages
 from the 1980s onward <cite>Meszaros2007,Tudose2020</cite>.
 
-## How should we structure unit testing?
+## How should we structure unit testing? {#unit-test-structure}
 
 As in other unit testing frameworks,
 each test will be a function of zero arguments
@@ -49,21 +50,20 @@ to determine the class of an object.
 If a test <span g="throw_exception" i="exception!throw">throws an exception</span> whose class is `assert.AssertionError`,
 then we will assume the exception came from
 one of the assertions we put in the test as a check
-(<span f="unit-test-mental-model"/>).
+(<a figure="unit-test-mental-model"/>).
 Any other kind of assertion indicates that the test itself contains an error.
 
-{% include figure
-   id='unit-test-mental-model'
-   img='figures/mental-model.svg'
-   alt='Mental model of unit testing'
-   cap='Running tests that can pass, fail, or contain errors.' %}
+<figure id="unit-test-mental-model">
+  <img src="figures/mental-model.svg" alt="Mental model of unit testing" />
+  <figcaption>Running tests that can pass, fail, or contain errors.</figcaption>
+</figure>
 
-## How can we separate registration, execution, and reporting?
+## How can we separate registration, execution, and reporting? {#unit-test-design}
 
 To start,
 let's use a handful of <span g="global_variable">global variables</span> to record tests and their results:
 
-{% include keep file='dry-run.js' key='state' %}
+<div class="include" file="dry-run.js" keep="state" />
 
 We don't run tests immediately
 because we want to wrap each one in our own <span g="exception_handler" i="exception!handler">exception handler</span>.
@@ -71,27 +71,23 @@ Instead,
 the function `hopeThat` saves a descriptive message and a callback function that implements a test
 in the `HopeTest` array.
 
-{% include keep file='dry-run.js' key='save' %}
+<div class="include" file="dry-run.js" keep="save" />
 
-<div class="callout" markdown="1">
-
-### Independence
-
-Because we're appending tests to an array,
-they will be run in the order in which they are registered,
-but we shouldn't rely on that.
-Every unit test should work independently of every other
-so that an error or failure in an early test
-doesn't affect the result of a later one.
-
-</div>
+> ### Independence
+>
+> Because we're appending tests to an array,
+> they will be run in the order in which they are registered,
+> but we shouldn't rely on that.
+> Every unit test should work independently of every other
+> so that an error or failure in an early test
+> doesn't affect the result of a later one.
 
 Finally,
 the function `main` runs all registered tests:
 
-{% include keep file='dry-run.js' key='main' %}
+<div class="include" file="dry-run.js" keep="main" />
 
-{: .continue}
+<!-- continue -->
 If a test completes without an exception, it passes.
 If any of the `assert` calls inside the test raises an `AssertionError`,
 the test fails,
@@ -102,8 +98,8 @@ After all tests are run,
 
 Let's try it out:
 
-{% include keep file='dry-run.js' key='use' %}
-{% include file file='dry-run.out' %}
+<div class="include" file="dry-run.js" keep="use" />
+<div class="include" file="dry-run.out" />
 
 This simple "framework" does what it's supposed to, but:
 
@@ -121,7 +117,7 @@ This simple "framework" does what it's supposed to, but:
     but we should make sure those assertions are failing when they're supposed to,
     just as we should test our smoke detectors every once in a while.
 
-## How should we structure test registration?
+## How should we structure test registration? {#unit-test-registration}
 
 The next version of our testing tool solves the first two problems in the original
 by putting the testing machinery in a class.
@@ -135,7 +131,7 @@ we can just construct more instances of the class.
 
 The file `hope.js` defines the class and exports one instance of it:
 
-{% include keep file='hope.js' key='report' %}
+<div class="include" file="hope.js" keep="report" />
 
 This strategy relies on two things:
 
@@ -150,41 +146,36 @@ This strategy relies on two things:
 Once a program has imported `hope`,
 it can call `Hope.test` to record a test for later execution
 and `Hope.run` to execute all of the tests registered up until that point
-(<span f="unit-test-hope-structure"/>).
+(<a figure="unit-test-hope-structure"/>).
 
-{% include figure
-   id='unit-test-hope-structure'
-   img='figures/hope-structure.svg'
-   alt='Recording and running tests'
-   cap='Creating a singleton, recording tests, and running them.' %}
+<figure id="unit-test-hope-structure">
+  <img src="figures/hope-structure.svg" alt="Recording and running tests" />
+  <figcaption>Creating a singleton, recording tests, and running them.</figcaption>
+</figure>
 
 Finally,
 our `Hope` class can report results as both a terse one-line summary and as a detailed listing.
 It can also provide the titles and results of individual tests
 so that if someone wants to format them in a different way (e.g., as HTML) they can do so:
 
-{% include keep file='hope.js' key='report' %}
+<div class="include" file="hope.js" keep="report" />
 
-<div class="callout" markdown="1">
+> ### Who's calling?
+>
+> `Hope.test` uses the <span i="caller module">[`caller`][caller]</span> module
+> to get the name of the function that is registering a test.
+> Reporting the test's name helps the user figure out where to start debugging;
+> getting it via introspection
+> rather than requiring the user to pass the function's name as a string
+> reduces typing
+> and guarantees that what we report is accurate.
+> Programmers will often copy, paste, and modify tests;
+> sooner or later (probably sooner) they will forget to modify
+> the copy-and-pasted function name being passed into `Hope.test`
+> and will then lose time trying to figure out why `test_this` is failing
+> when the failure is actually in `test_that`.
 
-### Who's calling?
-
-`Hope.test` uses the <span i="caller module">[`caller`][caller]</span> module
-to get the name of the function that is registering a test.
-Reporting the test's name helps the user figure out where to start debugging;
-getting it via introspection
-rather than requiring the user to pass the function's name as a string
-reduces typing
-and guarantees that what we report is accurate.
-Programmers will often copy, paste, and modify tests;
-sooner or later (probably sooner) they will forget to modify
-the copy-and-pasted function name being passed into `Hope.test`
-and will then lose time trying to figure out why `test_this` is failing
-when the failure is actually in `test_that`.
-
-</div>
-
-## How can we build a command-line interface for testing?
+## How can we build a command-line interface for testing? {#unit-test-cli}
 
 Most programmers don't enjoy writing tests,
 so if we want them to do it,
@@ -193,7 +184,7 @@ A couple of `import` statements to get `assert` and `hope`
 and then one function call per test
 is about as simple as we can make the tests themselves:
 
-{% include file file='test-add.js' %}
+<div class="include" file="test-add.js" />
 
 But that just defines the tests---how will we find them so that we can run them?
 One option is to require people to `import` each of the files containing tests
@@ -211,7 +202,7 @@ Hope.run()
 ...
 ```
 
-{: .continue}
+<!-- continue -->
 Here,
 `all-the-tests.js` imports other files so that they will register tests
 as a <span g="side_effect" i="side effect!for module registration">side effect</span> via calls to `hope.test`
@@ -227,7 +218,7 @@ As before,
 loading files executes the code they contain,
 which registers tests as a side effect:
 
-{% include erase file='pray.js' key='options' %}
+<div class="include" file="pray.js" omit="options" />
 
 By default,
 this program finds all files below the current working directory
@@ -244,46 +235,38 @@ Given command-line arguments *after* the program's name
 it looks for patterns like `-x something`
 and creates an object with flags as keys and values associated with them.
 
-<div class="callout" markdown="1">
-
-### Filenames in `minimist`
-
-If we use a command line like `pray.js -v something.js`,
-then `something.js` becomes the value of `-v`.
-To indicate that we want `something.js` added to the list of trailing filenames
-associated with the special key `_` (a single underscore),
-we have to write `pray.js -v -- something.js`.
-The double dash is a common Unix convention for signalling the end of parameters.
-
-</div>
+> ### Filenames in `minimist`
+>
+> If we use a command line like `pray.js -v something.js`,
+> then `something.js` becomes the value of `-v`.
+> To indicate that we want `something.js` added to the list of trailing filenames
+> associated with the special key `_` (a single underscore),
+> we have to write `pray.js -v -- something.js`.
+> The double dash is a common Unix convention for signalling the end of parameters.
 
 Our <span g="test_runner" i="test runner; unit test!test runner">test runner</span> is now complete,
 so we can try it out with some files containing tests that pass, fail, and contain errors:
 
-{% include multi pat='pray.*' fill='sh out' %}
+<div class="include" pat="pray.*" fill="sh out" />
 
-<div class="callout" markdown="1">
-
-### Infinity is allowed
-
-`test-div.js` contains the line:
-
-```js
-hope.test('Quotient of 1 and 0', () => assert((1 / 0) === 0))
-```
-
-This test counts as a failure rather than an error
-because thinks the result of dividing by zero is the special value `Infinity`
-rather than an arithmetic error.
-
-</div>
+> ### Infinity is allowed
+>
+> `test-div.js` contains the line:
+>
+> ```js
+> hope.test('Quotient of 1 and 0', () => assert((1 / 0) === 0))
+> ```
+>
+> This test counts as a failure rather than an error
+> because thinks the result of dividing by zero is the special value `Infinity`
+> rather than an arithmetic error.
 
 Loading modules dynamically so that they can register something for us to call later
 is a common pattern in many programming languages.
 Control flow goes back and forth between the framework and the module being loaded
 as this happens
 so we must specify the <span g="lifecycle" i="lifecycle!of unit test; unit test!lifecycle">lifecycle</span> of the loaded modules quite carefully.
-<span f="unit-test-lifecycle"/> illustrates what span
+<a figure="unit-test-lifecycle"/> illustrates what span
 when a pair of files `test-add.js` and `test-sub.js` are loaded by our framework:
 
 1.  `pray` loads `hope.js`.
@@ -299,8 +282,189 @@ when a pair of files `test-add.js` and `test-sub.js` are loaded by our framework
 10.  `pray` can now ask the unique instance of `Hope` to run all of the tests,
      then get a report from the `Hope` singleton and display it.
 
-{% include figure
-   id='unit-test-lifecycle'
-   img='figures/lifecycle.svg'
-   alt='Unit testing lifecycle'
-   cap='Lifecycle of dynamically-discovered unit tests.' %}
+<figure id="unit-test-lifecycle">
+  <img src="figures/lifecycle.svg" alt="Unit testing lifecycle" />
+  <figcaption>Lifecycle of dynamically-discovered unit tests.</figcaption>
+</figure>
+
+## Exercises {#unit-test-exercises}
+
+### Asynchronous globbing {.exercise}
+
+Modify `pray.js` to use the asynchronous version of `glob` rather than `glob.sync`.
+
+### Timing tests {.exercise}
+
+Install the [`microtime`][microtime] package and then modify the `dry-run.js` example
+so that it records and reports the execution times for tests.
+
+### Approximately equal {.exercise}
+
+1.  Write a function `assertApproxEqual` that does nothing if two values are within a certain tolerance of each other
+    but throws an exception if they are not:
+
+    ```js
+    # throws exception
+    assertApproxEqual(1.0, 2.0, 0.01, 'Values are too far apart')
+    
+    # does not throw
+    assertApproxEqual(1.0, 2.0, 10.0, 'Large margin of error')
+    ```
+
+2.  Modify the function so that a default tolerance is used if none is specified:
+
+    ```js
+    # throws exception
+    assertApproxEqual(1.0, 2.0, 'Values are too far apart')
+    
+    # does not throw
+    assertApproxEqual(1.0, 2.0, 'Large margin of error', 10.0)
+    ```
+
+3.  Modify the function again so that it checks the <span g="relative_error">relative error</span>
+    instead of the <span g="absolute_error">absolute error</span>.
+    (The relative error is the absolute value of the difference between the actual and expected value,
+    divided by the absolute value.)
+
+### Rectangle overlay {.exercise}
+
+A windowing application represents rectangles using objects with four values:
+`x` and `y` are the coordinates of the lower-left corner,
+while `w` and `h` are the width and height.
+All values are non-negative:
+the lower-left corner of the screen is at `(0, 0)`
+and the screen's size is `WIDTH`x`HEIGHT`.
+
+1.  Write tests to check that an object represents a valid rectangle.
+
+2.  The function `overlay(a, b)` takes two rectangles and returns either
+    a new rectangle representing the region where they overlap or `null` if they do not overlap.
+    Write tests to check that `overlay` is working correctly.
+
+3.  Do you tests assume that two rectangles that touch on an edge overlap or not?
+    What about two rectangles that only touch at a single corner?
+
+### Selecting tests {.exercise}
+
+Modify `pray.js` so that if the user provides `-s pattern` or `--select pattern`
+then the program only runs tests in files that contain the string `pattern` in their name.
+
+### Tagging tests {.exercise}
+
+Modify `hope.js` so that users can optionally provide an array of strings to tag tests:
+
+```js
+hope.test('Difference of 1 and 2',
+          () => assert((1 - 2) === -1),
+          ['math', 'fast'])
+```
+
+Then modify `pray.js` so that if users specify either `-t tagName` or `--tag tagName`
+only tests with that tag are run.
+
+### Mock objects {.exercise}
+
+A mock object is a simplified replacement for part of a program
+whose behavior is easier to control and predict than the thing it is replacing.
+For example,
+we may want to test that our program does the right thing if an error occurs while reading a file.
+To do this,
+we write a function that wraps `fs.readFileSync`:
+
+```js
+const mockReadFileSync = (filename, encoding = 'utf-8') => {
+  return fs.readFileSync(filename, encoding)
+}
+```
+
+<!-- continue -->
+and then modify it so that it throws an exception under our control.
+For example,
+if we define `MOCK_READ_FILE_CONTROL` like this:
+
+```js
+const MOCK_READ_FILE_CONTROL = [false, false, true, false, true]
+```
+
+<!-- continue -->
+then the third and fifth calls to `mockReadFileSync` throw an exception instead of reading data,
+as do any calls after the fifth.
+Write this function.
+
+### Setup and teardown {.exercise}
+
+Testing frameworks often allow programmers to specify a `setup` function
+that is to be run before each test
+and a corresponding `teardown` function
+that is to be run after each test.
+(`setup` usually re-creates complicated test fixtures,
+while `teardown` functions are sometimes needed to clean up after tests,
+e.g., to close database connections or delete temporary files.)
+
+Modify the testing framework in this chapter so that
+if a file of tests contains something like this:
+
+```js
+const createFixtures = () => {
+  ...do something...
+}
+
+hope.setup(createFixtures)
+```
+
+<!-- continue -->
+then the function `createFixtures` will be called
+exactly once before each test in that file.
+Add a similar way to register a teardown function with `hope.teardown`.
+
+### Multiple tests {.exercise}
+
+Add a method `hope.multiTest` that allows users to specify
+multiple test cases for a function at once.
+For example, this:
+
+```js
+hope.multiTest('check all of these`, functionToTest, [
+  [['arg1a', 'arg1b'], 'result1'],
+  [['arg2a', 'arg2b'], 'result2'],
+  [['arg3a', 'arg3b'], 'result3']
+])
+```
+
+<!-- continue -->
+should be equivalent to this:
+
+```js
+hope.test('check all of these 0',
+  () => assert(functionToTest('arg1a', 'arg1b') === 'result1')
+)
+hope.test('check all of these 1',
+  () => assert(functionToTest('arg2a', 'arg2b') === 'result2')
+)
+hope.test('check all of these 2',
+  () => assert(functionToTest('arg3a', 'arg3b') === 'result3')
+)
+```
+
+### Assertions for sets and maps {.exercise}
+
+1.  Write functions `assertSetEqual` and `assertMapEqual`
+    that check whether two instances of `Set` or two instances of `Map` are equal.
+
+2.  Write a function `assertArraySame`
+    that checks whether two arrays have the same elements,
+    even if those elements are in different orders.
+
+### Testing promises {.exercise}
+
+Modify the unit testing framework to handle `async` functions,
+so that:
+
+```js
+hope.test('delayed test', async () => {...})
+```
+
+<!-- continue -->
+does the right thing.
+(Note that you can use `typeof` to determine whether the object given to `hope.test`
+is a function or a promise.)

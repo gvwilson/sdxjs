@@ -1,4 +1,5 @@
 ---
+template: page.html
 ---
 
 **<span i="Wilson, Greg">[Greg Wilson][wilson-greg]</span>** has worked in industry and academia for 35 years,
