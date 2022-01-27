@@ -272,7 +272,7 @@ Our current implementation doesn't give us a way to try other possible matches w
    id='pattern-matching-greedy-failure'
    img='figures/greedy-failure.svg'
    alt='Overly-greedy matching fails'
-   cap="Why overly-greedy matching doesn't work." %}
+   cap='Why overly-greedy matching does not work.' %}
 
 Let's re-think our design
 and have each matcher take its own arguments and a `rest` parameter containing the rest of the matchers
