@@ -42,7 +42,7 @@ how JavaScript turns source code into something it can execute.
 We need to be able to do this in the next couple of chapters,
 so we might as well tackle it now.
 
-## How can we evaluate JavaScript dynamically? {#file-interpolator-eval}
+## How can we evaluate JavaScript dynamically? {#file-interpolator-dynamic}
 
 We want to display files as they are on the web and in print,
 but interpolate the files referenced in special comments

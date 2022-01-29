@@ -36,7 +36,7 @@ and then draw the result as text on the screen.
   <figcaption>Coordinate system with (0, 0) in the upper left corner.</figcaption>
 </figure>
 
-## How can we size rows and columns? {#layout-engine-sizing}
+## How can we size rows and columns? {#layout-engine-size}
 
 Let's start on <span g="easy_mode">easy mode</span>
 without margins, padding, line-wrapping, or other complications.
@@ -192,7 +192,7 @@ and convince ourselves that it was actually correct;
 <span g="confirmation_bias" i="confirmation bias">confirmation bias</span> of this kind
 is very common in software development.
 
-## How can we wrap elements to fit? {#layout-engine-wrap}
+## How can we wrap elements to fit? {#layout-engine-fit}
 
 One of the biggest differences between a browser and a printed page
 is that the text in the browser wraps itself automatically as the window is resized.

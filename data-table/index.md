@@ -131,7 +131,7 @@ but filtering will be relatively slow since we are constructing multiple new arr
 > and passing that to the same filtering function we used for the row-major implementation,
 > but that extra work would bias the performance comparison in row-major's favor.
 
-## How can we test the performance of our implementations? {#data-table-performance}
+## How can we test the performance of our implementations? {#data-table-profile}
 
 Now that we have our tables and operations,
 we can build a <span g="test_harness" i="test harness; experiments!test harness">test harness</span> to run those operations

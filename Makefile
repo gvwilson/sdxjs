@@ -2,14 +2,18 @@ SITE=./docs
 LANGUAGE=en
 PORT=4000
 
-CONFIG=mccole.yml
-LAYOUTS=$(wildcard _layouts/*.html)
-MARKDOWN=$(wildcard *.md) $(wildcard */index.md)
-HTML=${SITE}/index.html $(wildcard ${SITE}/*/index.html)
-STATIC=$(wildcard static/*.*)
-
 BIB=_data/bibliography.bib
+CONFIG=mccole.yml
 GLOSSARY=_data/glossary.yml
+LINKS=_data/links.yml
+STATIC=$(wildcard static/*.*)
+TEMPLATES=$(wildcard _template/*.html)
+
+MARKDOWN=$(wildcard *.md) $(wildcard */*.md)
+HTML=\
+  $(patsubst %.md,${SITE}/%.html,$(wildcard */index.md))\
+  $(patsubst %,${SITE}/%/index.html,conduct contributing license)\
+  ${SITE}/index.html
 HOME_PAGE=${SITE}/index.html
 
 .DEFAULT: commands
@@ -18,23 +22,36 @@ HOME_PAGE=${SITE}/index.html
 commands:
 	@grep -h -E '^##' ${MAKEFILE_LIST} | sed -e 's/## //g' | column -t -s ':'
 
+## variables: show variables
+variables:
+	@echo CONFIG ${CONFIG}
+	@echo HTML ${HTML}
+	@echo MARKDOWN ${MARKDOWN}
+	@echo STATIC ${STATIC}
+	@echo TEMPLATES ${TEMPLATES}
+
 ## build: rebuild site without running server
+.PHONY: build
 build:
 	mccole
 
 ## serve: build site and run server
+.PHONY: serve
 serve:
 	mccole -r ${PORT}
 
-## make-spelling: create list of unknown words
-make-spelling: ${HOME_PAGE}
-	@cat ${HTML} | bin/prep-spelling.py | aspell -H list | sort | uniq
-
 ## ----
+
+${HOME_PAGE}: ${MARKDOWN}
+	mccole
 
 ## check-spelling: check for misspelled words
 check-spelling: ${HOME_PAGE}
 	@cat ${HTML} | bin/prep-spelling.py | aspell -H list | sort | uniq | bin/check-spelling.py --compare _data/spelling.txt
+
+## make-spelling: create list of unknown words
+make-spelling: ${HOME_PAGE}
+	@cat ${HTML} | bin/prep-spelling.py | aspell -H list | sort | uniq
 
 ## show-chapters: how many words are in each chapter?
 show-chapters:
@@ -46,7 +63,7 @@ show-dom: ${HOME_PAGE}
 
 ## show-fixme: what still needs to be done?
 show-fixme:
-	@bin/show-fixme.py --sources ${MARKDOWN} ${GLOSSARY_IN} | column -t -s '|'
+	@bin/show-fixme.py --sources ${MARKDOWN} | column -t -s '|'
 	@fgrep fixme ${MARKDOWN} | wc -l
 
 ## show-index: what terms are indexed where?
@@ -69,7 +86,10 @@ clean:
 
 ## validate: run html5validator on generated files
 validate: ${HOME_PAGE}
-	@html5validator --root ${SITE}
+	@html5validator --root ${SITE} \
+	--ignore \
+	'Attribute "g" not allowed on element "span"' \
+	'Attribute "i" not allowed on element "span"'
 
 $(filter-out bin/utils.py,$(wildcard bin/*.py)): bin/utils.py
 	touch $@
