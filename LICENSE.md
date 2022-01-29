@@ -1,6 +1,8 @@
 ---
-permalink: /license/
+template: titled.html
 ---
+
+# License
 
 All of the written material on this site is made available under the Creative
 Commons - Attribution - NonCommercial 4.0 International license (CC-BY-NC-4.0),

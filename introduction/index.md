@@ -1,9 +1,30 @@
 ---
+template: page.html
 ---
 
-{% include intro.md %}
+The best way to learn design is to study examples <cite>Schon1984,Petre2016</cite>,
+and some of the best examples of software design come from
+the tools programmers use in their own work.
+In these lessons we build small versions of things like file backup systems,
+testing frameworks,
+regular expression matchers,
+and browser layout engines
+both to demystify them
+and to give some insights into how experienced programmers think.
+We draw inspiration from <cite>Brown2011,Brown2012,Brown2016</cite>,
+[Mary Rose Cook][cook-mary-rose]'s [Gitlet][gitlet],
+and the books that introduced the Unix philosophy to an entire generation of programmers
+<cite>Kernighan1979,Kernighan1981,Kernighan1983,Kernighan1988</cite>.
 
-## Who is our audience?
+All of the written material in this project can be freely reused
+under the terms of the [Creative Commons - Attribution license][cc-by],
+while all of the software is made available under the terms of
+the [Hippocratic License][hippocratic-license];
+see <a section="license"/> for details.
+
+*All proceeds from this project will go to support the [Red Door Family Shelter][red-door].*
+
+## Who is our audience? {#introduction-audience}
 
 Every lesson should be written with specific learners in mind.
 These three [personas][t3-personas] describe ours:
@@ -50,16 +71,16 @@ This book can be read on its own or as a companion to *[Building Software Togeth
 which is a guide for students who are about to embark on their first large software project in a team.
 If you are looking for a project to do in a course,
 adding a tool to those covered here would be fun as well as educational.
-Please see <span x="conclusion"/> for more details.
+Please see <a section="conclusion"/> for more details.
 
-## What tools and ideas do we cover?
+## What tools and ideas do we cover? {#introduction-contents}
 
 Programmers have invented [a lot of tools][programming-tools] to make their lives easier.
 This volume focuses on a few that individual developers use while writing software;
 we hope future volumes
 will explore those used in the applications that programmers build.
 
-<span x="glossary"/> defines the terms we introduce in these lessons,
+<a section="glossary"/> defines the terms we introduce in these lessons,
 which in turn define the scope of our lessons:
 
 -   How to process a program like any other piece of text.
@@ -74,7 +95,7 @@ which in turn define the scope of our lessons:
 
 -   How to find and run code modules on the fly.
 
-## How are these lessons laid out?
+## How are these lessons laid out? {#introduction-layout}
 
 We display JavaScript source code like this:
 
@@ -84,7 +105,7 @@ for (const thing in collection) {
 }
 ```
 
-{: .continue}
+<!-- continue -->
 and Unix shell commands like this:
 
 ```sh
@@ -94,7 +115,7 @@ do
 done
 ```
 
-{: .continue}
+<!-- continue -->
 Data and output are shown in italics:
 
 ```txt
@@ -121,7 +142,7 @@ but people don't use `objectName{}` for objects or `arrayName[]` for arrays,
 and the empty parentheses makes it hard to tell
 whether we're talking about "the function itself" or "a call to the function with no parameters".
 
-## How did we get here?
+## How did we get here? {#introduction-history}
 
 In the early 2000s,
 the <span i="University of Toronto">University of Toronto</span> asked <span i="Wilson, Greg">[Greg Wilson][wilson-greg]</span>
@@ -164,11 +185,25 @@ Most of the programs are less than 60 lines long and the longest is less than 20
 we believe each chapter can be covered in class in 1-2 hours,
 while the exercises range in difficulty from a few minutes to a couple of days.
 
-## How can people use and contribute to this material?
+## How can people use and contribute to this material? {#introduction-use}
 
-{% include contributing.md %}
+All of the written material on this site is made available under the Creative
+Commons - Attribution - NonCommercial 4.0 International license (CC-BY-NC-4.0),
+while the software is made available under the Hippocratic License.  The first
+allows you to use and remix this material for non-commercial purposes, as-is or
+in adapted form, provided you cite its original source; the second allows you to
+use and remix the software on this site provided you do not violate
+international agreements governing human rights. Please see <a section="license"/>
+for details.
 
-## Who helped us and inspired us?
+If you would like to improve what we have or add new material, please see the
+Code of Conduct in <a section="conduct"/> and the contributor guidelines in
+<a section="contributing"/>.  If you have questions or would like to use this material in
+a course, please file an issue in
+this site's GitHub repository <!-- FIXME -->
+or send us email. <!-- FIXME -->
+
+## Who helped us and inspired us? {#introduction-help}
 
 This book is dedicated to <span i="Kernighan, Brian">[Brian Kernighan][kernighan-brian]</span>,
 who taught us all how to write about software.
