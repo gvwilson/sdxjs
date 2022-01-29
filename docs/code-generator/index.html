@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
+    <link href="../static/mccole.css" rel="stylesheet" type="text/css">
+    <title>Software Tools in JavaScript: <h1 id="code-generator">Code Generator</h1></title>
+  </head>
+  <body>
+    <main>
+      <p class="home"><a href="../">Software Tools in JavaScript</a></p>
+      <h1 id="code-generator">Code Generator</h1>
+      <div class="lede"><p>Modifying code to track coverage and execution times</p></div>
+      <ol class="toc">
+<li><a href="#code-generator-replace">How can we replace a function with another function?</a></li>
+<li><a href="#code-generator-generate">How can we generate JavaScript?</a></li>
+<li><a href="#code-generator-count">How can we count how often functions are executed?</a></li>
+<li><a href="#code-generator-time">How can we time function execution?</a></li>
+<li><a href="#code-generator-exercises">Exercises</a></li>
+</ol>
+
+      <div class="keyterms"><p><a href="../glossary/#byte_code">byte code</a>, <a href="../glossary/#code_coverage">code coverage (in testing)</a>, <a href="../glossary/#compiler">compiler</a>, <a href="../glossary/#decorator_pattern">Decorator pattern</a>, <a href="../glossary/#macro">macro</a>, <a href="../glossary/#nested_function">nested function</a>, <a href="../glossary/#two_hard_problems">two hard problems in computer science</a></p></div>
+
+      
+<p>We've been writing tests since <a class="secref" href="../unit-test/#unit-test">Chapter&nbsp;4</a>,
+but how much of our code do they actually check?
+One way to find out is to use a <span g="code_coverage" i="code coverage">code coverage</span> tool
+like <span i="Istanbul"><a href="https://istanbul.js.org/">Istanbul</a></span>
+that watches a program while it executes
+and keeps track of which lines have run and which haven't.
+Making sure that each line is tested at least once doesn't guarantee that the code is bug-free,
+but any code that <em>isn't</em> run shouldn't be trusted.</p>
+<p>Our code coverage tool will keep track of which functions have and haven't been called.
+Rather than rewriting <a href="https://nodejs.org/en/">Node</a> to keep track of this for us,
+we will modify the functions themselves
+by parsing the code with <span i="Acorn"><a href="https://github.com/acornjs/acorn">Acorn</a></span>,
+inserting the instructions we need into the <span i="abstract syntax tree">AST</span>,
+and then turning the AST back into code.</p>
+<blockquote>
+<h3>Simple usually isn't</h3>
+<p>At first glance it would be a lot simpler
+to use regular expressions to find every line that looks like the start of a function definition
+and insert a line right after each one
+to record the information we want.
+Of course,
+some people split function headers across several lines if they have lots of parameters,
+and there might be things that look like function definitions embedded in comments or strings.
+It doesn't take long before our simple solution turns into
+a poorly-implemented parser for a subset of JavaScript that no-one else understands.
+Using a full-blown parser and working with the AST is almost always less work.</p>
+</blockquote>
+<h2 id="code-generator-replace">How can we replace a function with another function?</h2>
+<p>The first thing we need is a way to wrap up an arbitrary function call.
+If we declare a function in JavaScript with a parameter like <code>...args</code>,
+all of the &quot;extra&quot; arguments in the call that don't line up with regular parameters
+are stuffed into the variable <code>args</code>
+(<a class="figref" href="#code-generator-spread">Figure&nbsp;15.1</a>).
+We can also call a function by putting values in a variable
+and using <code>func(...var)</code> to <span i="spread!function arguments">spread</span> those values out.
+There's nothing special about the names <code>args</code> and <code>vars</code>:
+what matters is the ellipsis <code>...</code></p>
+<figure id="code-generator-spread">
+  <img src="figures/spread.svg" alt="Spreading parameters" />
+  <figcaption>Figure&nbsp;15.1: Using ...args to capture and spread parameters.</figcaption>
+</figure>
+<p>We can use <code>...args</code> to capture all of the arguments to a function call
+and forward them to another function.
+Let's start by creating functions with a varying number of parameters
+that run to completion or throw an exception,
+then run them to make sure they do what we want:</p>
+<pre title="replace-func.js"><code class="language-js">let zero = () =&gt; console.log('zero')
+
+let one = (first) =&gt; console.log(`one(${first})`)
+
+let two = (first, second) =&gt; console.log(`two(${first}, ${second})`)
+
+let error = () =&gt; {
+  console.log('error')
+  throw new Error('from error')
+  console.log('should not reach this') // eslint-disable-line
+}
+
+const runAll = (title) =&gt; {
+  console.log(title)
+  zero()
+  one(1)
+  two(1, 2)
+  try {
+    error()
+  } catch (error) {
+    console.log(`caught ${error} as expected`)
+  }
+  console.log()
+}
+
+runAll('first time')
+</code></pre>
+<p>We can now write a function that takes a function as an input
+and creates a new function that handles all of the errors in the original function:</p>
+<pre title="replace-func.js"><code class="language-js">const replace = (func) =&gt; {
+  return (...args) =&gt; {
+    console.log('before')
+    try {
+      const result = func(...args)
+      console.log('after')
+      return result
+    } catch (error) {
+      console.log('error')
+      throw error
+    }
+  }
+}
+
+zero = replace(zero)
+one = replace(one)
+two = replace(two)
+error = replace(error)
+
+runAll('second time')
+</code></pre>
+<p>Let's try it out:</p>
+<pre title="replace-func.out"><code class="language-out">first time
+zero
+one(1)
+two(1, 2)
+error
+caught Error: from error as expected
+
+second time
+before
+zero
+after
+before
+one(1)
+after
+before
+two(1, 2)
+after
+before
+error
+error
+caught Error: from error as expected
+</code></pre>
+<p>This is an example of the <span g="decorator_pattern" i="Decorator pattern; design pattern!Decorator">Decorator</span> design pattern.
+A decorator is a function whose job is to modify the behavior of other functions
+in some general ways.
+Decorators are built in to some languages (like <span i="Python"><a href="https://www.python.org/">Python</a></span>),
+and we can add them in most others as we have done here.</p>
+<h2 id="code-generator-generate">How can we generate JavaScript?</h2>
+<p>We could use a decorator to replace every function in our program
+with one that keeps track of whether or not it was called,
+but it would be tedious to apply the decorator to every one of our functions by hand.
+What we really want is a way to do this automatically for everything,
+and for that we need to parse and generate code.</p>
+<blockquote>
+<h3>Other ways to do it</h3>
+<p>A third way to achieve what we want is
+to let the system turn code into runnable instructions
+and then modify those instructions.
+This approach is often used in compiled languages like <span i="Java"><a href="https://en.wikipedia.org/wiki/Java_(programming_language)">Java</a></span>,
+where the <span g="byte_code">byte code</span> produced by the <span g="compiler">compiler</span> is saved in files
+in order to be run.
+We can't do this here because Node compiles and runs code in a single step.</p>
+</blockquote>
+<p>Our tool will parse the JavaScript with Acorn to create an AST,
+modify the AST,
+and then use a library called <span i="Escodegen"><a href="https://github.com/estools/escodegen/">Escodegen</a></span> to turn the AST back into JavaScript.
+To start,
+let's look at the AST for a simple function definition,
+which is 75 lines of pretty-printed JSON:</p>
+<pre title="func-def.js"><code class="language-js">import acorn from 'acorn'
+
+const text = `const func = (param) =&gt; {
+  return param + 1
+}`
+
+const ast = acorn.parse(text, { sourceType: 'module' })
+console.log(JSON.stringify(ast, null, 2))
+</code></pre>
+
+
+<pre title="func-def.out"><code class="language-out">{
+  &quot;type&quot;: &quot;Program&quot;,
+  &quot;start&quot;: 0,
+  &quot;end&quot;: 46,
+  &quot;body&quot;: [
+    {
+      &quot;type&quot;: &quot;VariableDeclaration&quot;,
+      &quot;start&quot;: 0,
+      &quot;end&quot;: 46,
+      &quot;declarations&quot;: [
+        {
+          &quot;type&quot;: &quot;VariableDeclarator&quot;,
+          &quot;start&quot;: 6,
+          &quot;end&quot;: 46,
+          &quot;id&quot;: {
+            &quot;type&quot;: &quot;Identifier&quot;,
+            &quot;start&quot;: 6,
+            &quot;end&quot;: 10,
+            &quot;name&quot;: &quot;func&quot;
+          },
+          &quot;init&quot;: {
+            &quot;type&quot;: &quot;ArrowFunctionExpression&quot;,
+            &quot;start&quot;: 13,
+            &quot;end&quot;: 46,
+            &quot;id&quot;: null,
+            &quot;expression&quot;: false,
+            &quot;generator&quot;: false,
+            &quot;async&quot;: false,
+            &quot;params&quot;: [
+              {
+                &quot;type&quot;: &quot;Identifier&quot;,
+                &quot;start&quot;: 14,
+                &quot;end&quot;: 19,
+                &quot;name&quot;: &quot;param&quot;
+              }
+            ],
+            &quot;body&quot;: {
+              &quot;type&quot;: &quot;BlockStatement&quot;,
+              &quot;start&quot;: 24,
+              &quot;end&quot;: 46,
+              &quot;body&quot;: [
+                {
+                  &quot;type&quot;: &quot;ReturnStatement&quot;,
+                  &quot;start&quot;: 28,
+                  &quot;end&quot;: 44,
+                  &quot;argument&quot;: {
+                    &quot;type&quot;: &quot;BinaryExpression&quot;,
+                    &quot;start&quot;: 35,
+                    &quot;end&quot;: 44,
+                    &quot;left&quot;: {
+                      &quot;type&quot;: &quot;Identifier&quot;,
+                      &quot;start&quot;: 35,
+                      &quot;end&quot;: 40,
+                      &quot;name&quot;: &quot;param&quot;
+                    },
+                    &quot;operator&quot;: &quot;+&quot;,
+                    &quot;right&quot;: {
+                      &quot;type&quot;: &quot;Literal&quot;,
+                      &quot;start&quot;: 43,
+                      &quot;end&quot;: 44,
+                      &quot;value&quot;: 1,
+                      &quot;raw&quot;: &quot;1&quot;
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
+      &quot;kind&quot;: &quot;const&quot;
+    }
+  ],
+  &quot;sourceType&quot;: &quot;module&quot;
+}
+</code></pre>
+<p>After inspecting a few nodes,
+we can try to create some of our own and turn them into code.
+Here,
+for example,
+we have the JSON representation of the expression <code>40+2</code>:</p>
+<pre title="one-plus-two.js"><code class="language-js">import escodegen from 'escodegen'
+
+const result = escodegen.generate({
+  type: 'BinaryExpression',
+  operator: '+',
+  left: { type: 'Literal', value: 40 },
+  right: { type: 'Literal', value: 2 }
+})
+console.log(result)
+</code></pre>
+
+
+<pre title="one-plus-two.out"><code class="language-out">40 + 2
+</code></pre>
+<h2 id="code-generator-count">How can we count how often functions are executed?</h2>
+<p>Our tool will find all the function declaration nodes in the program
+and insert a node to increment an entry in a global variable called <code>__counters</code>.
+(Prefixing the name with two underscores doesn't guarantee that
+we won't accidentally clobber a variable in the user's program with the same name,
+but hopefully it makes that less likely.)
+Our test case is:</p>
+<pre title="multi-func-counter.js"><code class="language-js">const TEXT = `
+const funcOuter = (param) =&gt; {
+  return param + 1
+}
+const funcInner = (param) =&gt; {
+  return param + 1
+}
+for (const i of [1, 3, 5]) {
+  funcOuter(funcInner(i) + funcInner(i))
+}
+`
+</code></pre>
+<!-- continue -->
+<p>and the main function of our program is:</p>
+<pre title="multi-func-counter.js"><code class="language-js">const main = () =&gt; {
+  const ast = acorn.parse(TEXT, { sourceType: 'module' })
+
+  const allNodes = []
+  walk.simple(ast, {
+    VariableDeclarator: (node, state) =&gt; {
+      if (node.init &amp;&amp; (node.init.type === 'ArrowFunctionExpression')) {
+        state.push(node)
+      }
+    }
+  }, null, allNodes)
+
+  const names = {}
+  allNodes.forEach(node =&gt; insertCounter(names, node))
+  console.log(initializeCounters(names))
+  console.log(escodegen.generate(ast))
+  console.log(reportCounters())
+}
+</code></pre>
+<p>To insert a count we call <code>insertCounter</code>
+to record the function's name and modify the node:</p>
+<pre title="multi-func-counter.js"><code class="language-js">const insertCounter = (names, node) =&gt; {
+  const name = node.id.name
+  names[name] = 0
+
+  const body = node.init.body.body
+  const increment =
+    acorn.parse(`__counters['${name}'] += 1`, { sourceType: 'module' })
+  body.unshift(increment)
+}
+</code></pre>
+<!-- continue -->
+<p>Notice how we don't try to build the nodes by hand,
+but instead construct the string we need,
+use <span i="Acorn">Acorn</span> to parse that,
+and use the result.
+Doing this saves us from embedding multiple lines of JSON in our program
+and also ensures that if a newer version of Acorn decides to generate a different AST,
+our program will do the right thing automatically.</p>
+<p>Finally,
+we need to add a couple of <span i="helper function">helper functions</span>:</p>
+<pre title="multi-func-counter.js"><code class="language-js">const initializeCounters = (names) =&gt; {
+  const body = Object.keys(names).map(n =&gt; `'${n}': 0`).join(',\n')
+  return 'const __counters = {\n' + body + '\n}'
+}
+
+const reportCounters = () =&gt; {
+  return 'console.log(__counters)'
+}
+</code></pre>
+<!-- continue -->
+<p>and run it to make sure it all works:</p>
+<pre title="multi-func-counter.out"><code class="language-out">const __counters = {
+'funcOuter': 0,
+'funcInner': 0
+}
+const funcOuter = param =&gt; {
+        __counters['funcOuter'] += 1;
+    return param + 1;
+};
+const funcInner = param =&gt; {
+        __counters['funcInner'] += 1;
+    return param + 1;
+};
+for (const i of [
+        1,
+        3,
+        5
+    ]) {
+    funcOuter(funcInner(i) + funcInner(i));
+}
+console.log(__counters)
+</code></pre>
+<blockquote>
+<h3>Too simple to be safe</h3>
+<p>Our simple approach to naming counters doesn't work if functions can have the same names,
+which they can if we use modules or <span g="nested_function" i="nested function; function!nested">nested functions</span>.
+One way to solve this would be to manufacture a label from the function's name
+and the line number in the source code;
+another would be to keep track of which functions are nested within which
+and concatenate their names to produce a unique key.
+Problems like this are why people say that naming things
+is one of the <span g="two_hard_problems" i="two hard problems in computer science">two hard problems</span> in computer science.</p>
+</blockquote>
+<h2 id="code-generator-time">How can we time function execution?</h2>
+<p>Now that we have a way to insert code into functions
+we can use it to do many other things.
+For example,
+we can find out how long it takes functions to run
+by wrapping them up in code that records the start and end time of each call.
+As before,
+we find the nodes of interest and decorate them,
+then stitch the result together with a bit of bookkeeping:</p>
+<pre title="time-func.js"><code class="language-js">const timeFunc = (text) =&gt; {
+  const ast = acorn.parse(text, { sourceType: 'module' })
+  const allNodes = gatherNodes(ast)
+  allNodes.forEach(node =&gt; wrapFuncDef(node))
+  return [
+    initializeCounters(allNodes),
+    escodegen.generate(ast),
+    reportCounters()
+  ].join('\n')
+}
+</code></pre>
+<p>Gathering nodes is straightforward:</p>
+<pre title="time-func.js"><code class="language-js">const gatherNodes = (ast) =&gt; {
+  const allNodes = []
+  walk.simple(ast, {
+    VariableDeclarator: (node, state) =&gt; {
+      if (node.init &amp;&amp; (node.init.type === 'ArrowFunctionExpression')) {
+        state.push(node)
+      }
+    }
+  }, null, allNodes)
+  return allNodes
+}
+</code></pre>
+<!-- continue -->
+<p>as is wrapping the function definition:</p>
+<pre title="time-func.js"><code class="language-js">const wrapFuncDef = (originalAst) =&gt; {
+  const name = originalAst.id.name
+  const wrapperAst = makeWrapperAst(name)
+  wrapperAst.init.body.body[0].declarations[0].init = originalAst.init
+  originalAst.init = wrapperAst.init
+}
+</code></pre>
+<p>The only big difference is how we make the wrapper function.
+We create it with a placeholder for the original function
+so that we have a spot in the AST to insert the actual code:</p>
+<pre title="time-func.js"><code class="language-js">const timeFunc = (text) =&gt; {
+  const ast = acorn.parse(text, { sourceType: 'module' })
+  const allNodes = gatherNodes(ast)
+  allNodes.forEach(node =&gt; wrapFuncDef(node))
+  return [
+    initializeCounters(allNodes),
+    escodegen.generate(ast),
+    reportCounters()
+  ].join('\n')
+}
+</code></pre>
+<p>Let's run one last test:</p>
+<pre title="test-time-func.out"><code class="language-out">const __counters = {
+'assignment': 0,
+'readFile': 0
+}
+const assignment = (...originalArgs) =&gt; {
+    const originalFunc = range =&gt; {
+        let j = 0;
+        for (let i = 0; i &lt; range; i += 1) {
+            j = i;
+        }
+    };
+    const startTime = Date.now();
+    try {
+        const result = originalFunc(...originalArgs);
+        const endTime = Date.now();
+        __counters['assignment'] += endTime - startTime;
+        return result;
+    } catch (error) {
+        const endTime = Date.now();
+        __counters['assignment'] += endTime - startTime;
+        throw error;
+    }
+};
+const readFile = (...originalArgs) =&gt; {
+    const originalFunc = (range, filename) =&gt; {
+        for (let i = 0; i &lt; range; i += 1) {
+            fs.readFileSync(filename, 'utf-8');
+        }
+    };
+    const startTime = Date.now();
+    try {
+        const result = originalFunc(...originalArgs);
+        const endTime = Date.now();
+        __counters['readFile'] += endTime - startTime;
+        return result;
+    } catch (error) {
+        const endTime = Date.now();
+        __counters['readFile'] += endTime - startTime;
+        throw error;
+    }
+};
+const numLoops = 100000;
+assignment(numLoops);
+readFile(numLoops, 'index.md');
+console.log(__counters)
+OUTPUT
+{ assignment: 1, readFile: 3879 }
+</code></pre>
+<p>Source-to-source translation is widely used in JavaScript:
+tools like <span i="Babel"><a href="https://babeljs.io/">Babel</a></span> use it to transform modern features like <code>async</code> and <code>await</code>
+(<a class="secref" href="../async-programming/#async-programming">Chapter&nbsp;3</a>)
+into code that older browsers can understand.
+The technique is so powerful that it is built into languages like Scheme,
+which allow programmers to add new syntax to the language
+by defining <span g="macro" i="macro">macros</span>.
+Depending on how carefully they are used,
+macros can make programs elegant, incomprehensible, or both.</p>
+<h2 id="code-generator-exercises">Exercises</h2>
+<h3 class="exercise">JSON to JavaScript</h3>
+<p>Write a tool that uses <a href="https://github.com/estools/escodegen/">Escodegen</a>
+to translate simple expressions written in JSON into runnable JavaScript.
+For example, the tool should translate:</p>
+<pre><code class="language-js">['+', 3, ['*', 5, 'a']]
+</code></pre>
+<!-- continue -->
+<p>into:</p>
+<pre><code class="language-js">3 + (5 * a)
+</code></pre>
+<h3 class="exercise">JavaScript to HTML</h3>
+<p>Write a function that takes nested JavaScript function calls for generating HTML like this:</p>
+<pre><code class="language-js">div(h1('title'), p('explanation'))
+</code></pre>
+<!-- continue -->
+<p>and turns them into HTML like this:</p>
+<pre><code>&lt;div&gt;&lt;h1&gt;title&lt;/h1&gt;&lt;p&gt;explanation&lt;/p&gt;&lt;/div&gt;
+</code></pre>
+<h3 class="exercise">Handling modules</h3>
+<p>Modify the code that counts the number of times a function is called
+to handle functions with the same name from different modules.</p>
+<h3 class="exercise">Tracking calls</h3>
+<p>Write a decorator that takes a function as its argument
+and returns a new function that behaves exactly the same way
+except that it keeps track of who called it.</p>
+<ol>
+<li>
+<p>The program contains a stack where decorated functions push and pop their names
+as they are called and as they exit.</p>
+</li>
+<li>
+<p>Each time a function is called
+it adds a record to an array to record its name and the name at the top of the stack
+(i.e., the most-recently-called decorated function).</p>
+</li>
+</ol>
+<h3 class="exercise">Counting classical function definitions</h3>
+<p>Modify the code generator to handle functions declared with the <code>function</code> keyword
+as well as functions declared using <code>=&gt;</code>.</p>
+<h3 class="exercise">Recording input file size</h3>
+<ol>
+<li>
+<p>Write a program that replaces all calls to <code>fs.readFileSync</code>
+with calls to <code>readFileSyncCount</code>.</p>
+</li>
+<li>
+<p>Write the function <code>readFileSyncCount</code> to read and return a file using <code>fs.readFileSync</code>
+but to also record the file's name and size in bytes.</p>
+</li>
+<li>
+<p>Write a third function <code>reportInputFileSizes</code> that reports
+what files were read and how large they were.</p>
+</li>
+<li>
+<p>Write tests for these functions using Mocha and <code>mock-fs</code>.</p>
+</li>
+</ol>
+<h3 class="exercise">Checking argument types</h3>
+<p>Write a tool that modifies functions to check the types of their arguments at run-time.</p>
+<ol>
+<li>
+<p>Each function is replaced by a function that passes all of its arguments to <code>checkArgs</code>
+along with the function's name,
+then continues with the function's original operation.</p>
+</li>
+<li>
+<p>The first time <code>checkArgs</code> is called for a particular function
+it records the actual types of the arguments.</p>
+</li>
+<li>
+<p>On subsequent calls, it checks that the argument types match those of the first call
+and throws an exception if they do not.</p>
+</li>
+</ol>
+<h3 class="exercise">Two-dimensional arrays</h3>
+<p>The function <code>make2D</code> takes a row length and one or more values
+and creates a two-dimensional array from those values:</p>
+<pre><code class="language-js">make2D(2, 'a', 'b', 'c', 'd')
+// produces [['a', 'b'], ['c', 'd']]
+</code></pre>
+<!-- continue -->
+<p>Write a function that searches code to find calls to <code>make2D</code>
+and replaces them with inline arrays-of-arrays.
+This function only has to work for calls with a fixed row length,
+i.e., it does <em>not</em> have to handle <code>make2D(N, 'a', 'b')</code>.</p>
+<h3 class="exercise">From require to import</h3>
+<p>Write a function that searches code for simple calls to <code>require</code>
+and replaces them with calls to <code>import</code>.
+This function only needs to work for the simplest case;
+for example, if the input is:</p>
+<pre><code class="language-js">const name = require('module')
+</code></pre>
+<!-- continue -->
+<p>then the output is:</p>
+<pre><code class="language-js">import name from 'module'
+</code></pre>
+<h3 class="exercise">Removing empty constructors</h3>
+<p>Write a function that removes empty constructors from class definitions.
+For example, if the input is:</p>
+<pre><code class="language-js">class Example {
+  constructor () {
+  }
+
+  someMethod () {
+    console.log('some method')
+  }
+}
+</code></pre>
+<!-- continue -->
+<p>then the output should be:</p>
+<pre><code class="language-js">class Example {
+  someMethod () {
+    console.log('some method')
+  }
+}
+</code></pre>
+
+      <footer>
+  <hr/>
+  Copyright © 2022
+  Greg Wilson
+  &middot;
+  Powered by <a href="https://github.com/gvwilson/mccole">McCole</a>
+</footer>
+
+    </main>
+  </body>
+</html>
