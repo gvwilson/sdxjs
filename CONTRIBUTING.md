@@ -123,7 +123,7 @@ formatting guidelines. In brief:
     `<a figure="label"/>` to reference a figure,
     and `<a table="label"/>` to reference a figure.
 
--   Use <cite>Key1,Key2</cite> for bibliographic citations.
+-   Use `<cite>Key1,Key2</cite>` for bibliographic citations.
     Bibliography entries go in `_data/bibliography.bib`.
 
 -   Use `<span g="gloss_key">text</span>` to reference the glossary.
