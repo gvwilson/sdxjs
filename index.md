@@ -4,8 +4,10 @@ template: index.html
 
 <div class="announcement">
   <p>
-    <em>Software Tools in JavaScript</em>
-    is now <a href="https://leanpub.com/stjs">available on LeanPub</a>.
+    <em>Software Design by Example</em>
+    is <a href="https://leanpub.com/stjs">available on LeanPub</a>
+    <br/>
+    (under its old name <em>Software Tools in JavaScript</em>)
   </p>
 </div>
 
