@@ -1,5 +1,4 @@
 ---
-template: titled.html
 ---
 
 # License

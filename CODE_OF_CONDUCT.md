@@ -1,5 +1,4 @@
 ---
-template: titled.html
 ---
 
 # Code of Conduct
