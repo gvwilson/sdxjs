@@ -1,7 +1,8 @@
 ---
+template: page.html
 ---
 
-We have come a long way since we listed the contents of a directory in <span x="systems-programming"/>.
+We have come a long way since we listed the contents of a directory in <a section="systems-programming"/>.
 Saving files in version control,
 making sure code meets style rules,
 debugging it and bundling it (hopefully in that order)---programmers do these things every day,
@@ -13,8 +14,8 @@ or translate it into another programming language,
 human language,
 or both,
 your help would be very welcome:
-please see the introduction in <span x="introduction"/>
-and the contributors' guide in <span x="contributing"/> for more information.
+please see the introduction in <a section="introduction"/>
+and the contributors' guide in <a section="contributing"/> for more information.
 
 > We shape our tools, and thereafter our tools shape us.
 >

@@ -1,4 +1,5 @@
-# Software Tools in JavaScript
+# Software Design by Example
+## A Tool-Based Introduction with JavaScript
 
 The best way to learn design in any field is to study examples,
 and some of the best examples of software design come from the tools programmers use in their own work.
@@ -24,11 +25,13 @@ for more information about what we assume you already know.
     [the acknowledgments](https://stjs.tech/#who-helped-us-and-inspired-us);
     anyone who writes a chapter will be added to [the authors' list](https://stjs.tech/authors/).
 
+Note: this book was originally titled *Software Tools in JavaScript*.
+The title has been changed to better reflect its content and intention.
+
 ## FAQ
 
 -   **Is this done yet?**
-    No: what we have now is the first complete draft,
-    but we think it's in a reviewable state.
+    Almost: what we have now is a complete, usable draft.
 
 -   **Why did you start this project?**
     Because most books with the words "software design" or "software architecture" in their titles
@@ -76,6 +79,11 @@ for more information about what we assume you already know.
         at the third- or fourth-year level.
         Students can tackle the exercises at the end of each chapter
         or write and explain small tools of their own.
+    3.  If you're interested, I'm very happy to chat.
+        I'm also happy to give a guest lecture in your software engineering class
+	about software design,
+	[how to run a meeting](https://www.youtube.com/watch?v=PtewOjRy-1U),
+	and/or life in industry.
 
 -   **Do you want a chapter on X?**
     Possibly:
@@ -87,3 +95,17 @@ for more information about what we assume you already know.
     an issue tracker,
     and so on.
     If you are interested, please [get in touch](mailto:gvwilson@third-bit.com).
+
+-   **Why are you using your own formatting tool?**
+    Believe me, I've tried the alternatives.
+    Static site generators like Jekyll, Pelican, and Hugo don't support numbered cross-references,
+    so I've built several pre-processors to collect that information;
+    by the time that's done,
+    taking full control over the formatting pipeline actually reduces complexity.
+    Meanwhile, tools like Bookdown and Jupyter Book have complex tech stacks:
+    figuring out whether a problem is in the source document,
+    a Pandoc template,
+    a LaTeX template,
+    or somewhere else entirely is very frustrating.
+    [McCole](https://gvwilson.github.io/mccole/) doesn't do nearly as much as those tools,
+    but its lack of features makes it easier to use.

@@ -2,7 +2,6 @@
 
 EXAMPLE_DIRS = $(patsubst %/Makefile,%,$(wildcard */Makefile))
 JAVASCRIPT = $(wildcard */*.js) $(wildcard */x-*/*.js)
-HTML = _site/index.html $(wildcard _site/*/index.html)
 
 ## examples: rebuild all examples in sub-directories (slow).
 examples:
