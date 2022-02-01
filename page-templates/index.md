@@ -439,7 +439,7 @@ of <a figure="page-templates-comprehension"/>,
 then an expert's looks like the one on the right.
 Experts don't just understand more at all levels of abstraction;
 their *preferred* level has also shifted
-so that $$\sqrt{x^2 + y^2}$$
+so that \\(\sqrt{x^2 + y^2}\\)
 is actually more readable than the medieval expression
 "the side of the square whose area is the sum of the areas of the two squares
 whose sides are given by the first part and the second part".
