@@ -56,7 +56,7 @@ We can do the second and third steps whenever we want using a function called `e
 which takes a string as input and executes it as if it were part of the program
 (<a figure="file-interpolator-eval"/>).
 
-[% figure slug="file-interpolator-eval" img="figures/eval.svg" alt="How eval works" caption="<code>eval</code> vs. normal translation and execution." %]
+[% figure slug="file-interpolator-eval" img="figures/eval.svg" alt="How eval works" caption="`eval` vs. normal translation and execution." %]
 
 > ### This is not a good idea
 >

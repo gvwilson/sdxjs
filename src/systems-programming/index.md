@@ -232,7 +232,7 @@ files and directories whose names have a leading '.'
 usually contain configuration information for various programs,
 so most commands will leave them alone unless told to do otherwise.
 
-[% figure slug="systems-programming-globbing" img="figures/globbing.svg" alt="Matching filenames with `glob`" caption="Using <code>glob</code> patterns to match filenames." %]
+[% figure slug="systems-programming-globbing" img="figures/globbing.svg" alt="Matching filenames with `glob`" caption="Using `glob` patterns to match filenames." %]
 
 This program works,
 but we probably don't want to copy Emacs backup files whose names end with `~`.
@@ -250,7 +250,7 @@ that tells `Array.filter` whether to keep the item in the new array or not.
 `Array.filter` does not modify the original array,
 so we can filter our original list of filenames several times if we want to.
 
-[% figure slug="systems-programming-array-filter" img="figures/array-filter.svg" alt="Using `Array.filter`" caption="Selecting array elements using <code>Array.filter</code>." %]
+[% figure slug="systems-programming-array-filter" img="figures/array-filter.svg" alt="Using `Array.filter`" caption="Selecting array elements using `Array.filter`." %]
 
 We can make our globbing program more idiomatic by
 removing the parentheses around the single parameter

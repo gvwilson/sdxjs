@@ -66,7 +66,7 @@ and those tasks can run in a different order than the order in which they were c
 
 <div class="include" pat="callbacks-with-timeouts.*" fill="js out" />
 
-[% figure slug="async-programming-set-timeout" img="figures/set-timeout.svg" alt="Setting a timeout" caption="Using <code>setTimeout</code> to delay operations." %]
+[% figure slug="async-programming-set-timeout" img="figures/set-timeout.svg" alt="Setting a timeout" caption="Using `setTimeout` to delay operations." %]
 
 If we give `setTimeout` a delay of zero milliseconds,
 the new task can be run right away,
