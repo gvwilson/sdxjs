@@ -91,7 +91,7 @@ this reduces the [% i "cognitive load" %][% g cognitive_load %]cognitive load[% 
 Finally,
 <span i="console.log">`console.log`</span> is JavaScript's equivalent of other languages' `print` command;
 its strange name comes from the fact that
-its original purpose was to create <span g="log_message">log messages</span> in the browser <span g="console">console</span>.
+its original purpose was to create [% g log_message %]log messages[% /g %] in the browser [% g console %]console[% /g %].
 
 Unfortunately,
 our program doesn't work:
@@ -147,7 +147,7 @@ and the result of a successful function call as their second.
 The function can tell the difference by checking to see if the error argument is `null`.
 If it is, the function lists the directory's contents with `console.log`,
 otherwise, it uses `console.error` to display the error message.
-Let's run the program with the <span g="current_working_directory">current working directory</span>
+Let's run the program with the [% g current_working_directory %]current working directory[% /g %]
 (written as '.')
 as an argument:
 
@@ -181,7 +181,7 @@ Most JavaScript programmers wouldn't define the function `listContents`
 and then pass it as a callback.
 Instead,
 since the callback is only used in one place,
-it is more <span g="idiomatic">idiomatic</span>
+it is more [% g idiomatic %]idiomatic[% /g %]
 to define it where it is needed
 as an [% i "anonymous function" "function!anonymous" %][% g anonymous_function %]anonymous function[% /g %][% /i %].
 This makes it easier to see what's going to happen when the operation completes,
@@ -245,7 +245,7 @@ containing all the items of the original array that pass a test
 (<a figure="systems-programming-array-filter"/>).
 The test is specified as a callback function
 that `Array.filter` calls once once for each item.
-This function must return a <span g="boolean">Boolean</span>
+This function must return a [% g boolean %]Boolean[% /g %]
 that tells `Array.filter` whether to keep the item in the new array or not.
 `Array.filter` does not modify the original array,
 so we can filter our original list of filenames several times if we want to.
@@ -314,7 +314,7 @@ but most programmers find interpolation easier to read.
 ## How can we copy a set of files? {#systems-programming-copy}
 
 If we want to copy a set of files instead of just listing them
-we need a way to create the <span g="path">paths</span> of the files we are going to create.
+we need a way to create the [% g path %]paths[% /g %] of the files we are going to create.
 If our program takes a second argument that specifies the desired output directory,
 we can construct the full output path by replacing the name of the source directory with that path:
 
@@ -343,7 +343,7 @@ Notice that we import from `fs-extra` instead of `fs`;
 the [`fs-extra`][node-fs-extra] module provides some useful utilities on top of `fs`.
 We also use [`path`][node-path] to manipulate pathnames
 rather than concatenating or interpolating strings
-because there are a lot of tricky <span g="edge_case">edge cases</span> in pathnames
+because there are a lot of tricky [% g edge_case %]edge cases[% /g %] in pathnames
 that the authors of that module have figured out for us.
 
 > ### Using distinct names
@@ -484,7 +484,7 @@ total 506
 
 Write a program called `rename` that takes three or more command-line arguments:
 
-1.  A <span g="filename_extension">filename extension</span> to match.
+1.  A [% g filename_extension %]filename extension[% /g %] to match.
 2.  An extension to replace it with.
 3.  The names of one or more existing files.
 

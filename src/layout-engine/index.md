@@ -37,7 +37,7 @@ and then draw the result as text on the screen.
 
 ## How can we size rows and columns? {#layout-engine-size}
 
-Let's start on <span g="easy_mode">easy mode</span>
+Let's start on [% g easy_mode %]easy mode[% /g %]
 without margins, padding, line-wrapping, or other complications.
 Everything we can put on the screen is represented as a rectangular cell,
 and every cell is either a row, a column, or a block.
@@ -136,7 +136,7 @@ If we do this starting at the root of the tree,
 child blocks will overwrite the markings made by their parents,
 which will automatically produce the right appearance
 (<a figure="layout-engine-draw-over"/>).
-(A more sophisticated version of this called <span g="z_buffering">z-buffering</span>
+(A more sophisticated version of this called [% g z_buffering %]z-buffering[% /g %]
 keeps track of the visual depth of each pixel
 in order to draw things in three dimensions.)
 
@@ -260,7 +260,7 @@ Each text block has one or more lines of text;
 the number of lines determines the block's height
 and the length of the longest line determines its width.
 
-Rows and columns can have <span g="attribute">attributes</span> just as they can in real HTML,
+Rows and columns can have [% g attribute %]attributes[% /g %] just as they can in real HTML,
 and each attribute must have a single value in quotes.
 Rows no longer take a fixed width:
 instead,

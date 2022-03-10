@@ -144,7 +144,7 @@ because JavaScript's `Date` only gives us millisecond-level resolution.
 We use [`object-sizeof`][object-sizeof] to estimate memory how much memory our structures require;
 we also call `process.memoryUsage()` and look at the `heapUsed` value
 to see how much memory [Node][nodejs] is using while the program runs,
-but that may be affected by <span g="garbage_collection">garbage collection</span>
+but that may be affected by [% g garbage_collection %]garbage collection[% /g %]
 and a host of other factors outside our control.
 
 <div class="include" file="table-performance.js" keep="measure" />
@@ -190,7 +190,7 @@ so we are going to store data tables in files of some kind.
 If one storage scheme is much more efficient than another and we are reading or writing frequently,
 that could change our mind about which implementation to pick.
 
-Two simple text-based schemes are row-oriented and column-oriented <span g="json">JSON</span>---basically,
+Two simple text-based schemes are row-oriented and column-oriented [% g json %]JSON[% /g %]---basically,
 just printing the data structures we have.
 Let's run the 10,000×30 test:
 
@@ -326,9 +326,9 @@ Does the answer depend on the fraction of keys that match?
 
 ### Join optimization {.exercise}
 
-The simplest way to <span g="join">join</span> two tables is
+The simplest way to [% g join %]join[% /g %] two tables is
 to look for matching keys using a double loop.
-An alternative is to build an <span g="index_database">index</span> for each table
+An alternative is to build an [% g index_database %]index[% /g %] for each table
 and then use it to construct matches.
 For example, suppose the tables are:
 
@@ -379,7 +379,7 @@ is faster than saving the row-oriented table directly.
 
 ### Sparse storage {.exercise}
 
-A <span g="sparse_matrix">sparse matrix</span> is one in which most of the values are zero.
+A [% g sparse_matrix %]sparse matrix[% /g %] is one in which most of the values are zero.
 Instead of storing them all,
 a program can use a map to store non-zero values
 and a lookup function to return zero for anything that isn't stored explicitly:
@@ -406,10 +406,10 @@ back to a data structure.
 ### Saving fixed-width strings {.exercise}
 
 To improve performance,
-databases often store <span g="fixed_width_string">fixed-width</span> strings,
+databases often store [% g fixed_width_string %]fixed-width[% /g %] strings,
 i.e.,
 they limit the length of the strings in a column to some fixed size
-and <span g="pad_string">pad</span> strings that are shorter than that.
+and [% g pad_string %]pad[% /g %] strings that are shorter than that.
 
 1.  Write a function that takes an array of strings and an integer with
     and creates an `ArrayBuffer` containing the strings padded to that width.
@@ -423,7 +423,7 @@ and <span g="pad_string">pad</span> strings that are shorter than that.
 
 ### Saving variable-width strings {.exercise}
 
-<span g="fixed_width_string">Fixed-width</span> storage is inefficient for large blocks of text
+[% g fixed_width_string %]Fixed-width[% /g %] storage is inefficient for large blocks of text
 such as contracts, novels, and resumés,
 since padding every document to the length of the longest will probably waste a lot of space.
 An alternative way to store these in binary is to save each entry as a (length, text) pair.
@@ -439,7 +439,7 @@ An alternative way to store these in binary is to save each entry as a (length, 
 ### ASCII storage {.exercise}
 
 The original ASCII standard specified
-a 7-bit <span g="character_encoding">character encoding</span> for letters commonly used in English,
+a 7-bit [% g character_encoding %]character encoding[% /g %] for letters commonly used in English,
 and many data files still only use characters whose numeric codes are in the range 0--127.
 
 1.  Write a function that takes an array of single-letter strings

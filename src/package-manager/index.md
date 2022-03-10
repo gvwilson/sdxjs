@@ -282,7 +282,7 @@ we have eliminated roughly 1/3 of the work.
 That may not seem like a big difference,
 but if we go five levels deep at the same rate
 it cuts the work in half.
-There are lots of <span g="heuristic">heuristics</span> for searching trees;
+There are lots of [% g heuristic %]heuristics[% /g %] for searching trees;
 none are guaranteed to give better performance in every case,
 but most give better performance in most cases.
 
@@ -312,7 +312,7 @@ write a parser for a subset of the [semantic versioning specification][semver-sp
 
 Many different combinations of package versions can be mutually compatible.
 One way to decide which actual combination to install
-is to create a <span g="scoring_function">scoring function</span>
+is to create a [% g scoring_function %]scoring function[% /g %]
 that measures how good or bad a particular combination is.
 For example,
 a function could measure the "distance" between two versions as:
@@ -365,7 +365,7 @@ Write a function that creates fixtures for testing the constraint solver:
     and whose values are integers indicating the number of versions of that package
     to include in the test set,
     such as `{'left': 3, 'middle': 2, 'right': 15}`.
-    Its second argument is a <span g="seed">seed</span> for random number generation.
+    Its second argument is a [% g seed %]seed[% /g %] for random number generation.
 
 2.  It generates one valid configuration,
     such as `{'left': 2, 'middle': 2, 'right': 9}`.

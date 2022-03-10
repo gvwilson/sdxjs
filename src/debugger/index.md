@@ -139,7 +139,7 @@ with the following set of commands:
 
 -   `?` or `help` to list commands.
 
--   `clear #` to clear a <span g="breakpoint">breakpoint</span> at a numbered line.
+-   `clear #` to clear a [% g breakpoint %]breakpoint[% /g %] at a numbered line.
 
 -   `list` to list lines and breakpoints.
 
@@ -307,7 +307,7 @@ we are finally able to test our interactive debugger:
 ### Implementing tab completion {.exercise}
 
 Read the documentation for [`prompt-sync`][node-prompt-sync]
-and then implement <span g="tab_completion">tab completion</span>
+and then implement [% g tab_completion %]tab completion[% /g %]
 for the debugger.
 
 ### Modifying variables while running {.exercise}
@@ -357,7 +357,7 @@ Modify the virtual machine and debugger to use this pattern.
 
 ### Watching for variable changes {.exercise}
 
-Modify the debugger and virtual machine to implement <span g="watchpoint">watchpoints</span>
+Modify the debugger and virtual machine to implement [% g watchpoint %]watchpoints[% /g %]
 that halt the program whenever the value of a variable changes.
 
 ### Translating JSON to assembler {.exercise}

@@ -43,7 +43,7 @@ the exercises will tackle the latter.
 > However,
 > <span i="parser!reasons not to write">the world doesn't need more file formats</span>;
 > if you need a configuration file or lookup table,
-> please use CSV, JSON, <span g="yaml">YAML</span>,
+> please use CSV, JSON, [% g yaml %]YAML[% /g %],
 > or something else that already has an acronym
 > rather than inventing a format of your own.
 
@@ -169,7 +169,7 @@ The main structure of our parser is:
 <div class="include" file="parser.js" omit="skip" />
 
 We handle tokens case by case
-(with a few assertions to check that patterns are <span g="well_formed">well formed</span>):
+(with a few assertions to check that patterns are [% g well_formed %]well formed[% /g %]):
 
 <div class="include" file="parser.js" keep="handle" />
 

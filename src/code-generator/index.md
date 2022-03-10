@@ -84,7 +84,7 @@ and for that we need to parse and generate code.
 > to let the system turn code into runnable instructions
 > and then modify those instructions.
 > This approach is often used in compiled languages like <span i="Java">[Java][java]</span>,
-> where the <span g="byte_code">byte code</span> produced by the <span g="compiler">compiler</span> is saved in files
+> where the [% g byte_code %]byte code[% /g %] produced by the [% g compiler %]compiler[% /g %] is saved in files
 > in order to be run.
 > We can't do this here because Node compiles and runs code in a single step.
 

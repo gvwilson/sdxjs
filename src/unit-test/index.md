@@ -60,7 +60,7 @@ Any other kind of assertion indicates that the test itself contains an error.
 ## How can we separate registration, execution, and reporting? {#unit-test-design}
 
 To start,
-let's use a handful of <span g="global_variable">global variables</span> to record tests and their results:
+let's use a handful of [% g global_variable %]global variables[% /g %] to record tests and their results:
 
 <div class="include" file="dry-run.js" keep="state" />
 
@@ -111,7 +111,7 @@ This simple "framework" does what it's supposed to, but:
 
 1.  We don't have a way to test things that are supposed to raise `AssertionError`.
     Putting assertions into code to check that it is behaving correctly
-    is called <span g="defensive_programming">defensive programming</span>;
+    is called [% g defensive_programming %]defensive programming[% /g %];
     it's a good practice,
     but we should make sure those assertions are failing when they're supposed to,
     just as we should test our smoke detectors every once in a while.
@@ -120,7 +120,7 @@ This simple "framework" does what it's supposed to, but:
 
 The next version of our testing tool solves the first two problems in the original
 by putting the testing machinery in a class.
-It uses the [% i "Singleton pattern" "design pattern!Singleton" %][% g singleton_pattern %]Singleton[% /g %][% /i %] <span g="design_pattern">design pattern</span>
+It uses the [% i "Singleton pattern" "design pattern!Singleton" %][% g singleton_pattern %]Singleton[% /g %][% /i %] [% g design_pattern %]design pattern[% /g %]
 to ensure that only one object of that class is ever created <cite>Osmani2017</cite>.
 Singletons are a way to manage global variables that belong together
 like the ones we're using to record tests and their results.
@@ -314,8 +314,8 @@ so that it records and reports the execution times for tests.
     assertApproxEqual(1.0, 2.0, 'Large margin of error', 10.0)
     ```
 
-3.  Modify the function again so that it checks the <span g="relative_error">relative error</span>
-    instead of the <span g="absolute_error">absolute error</span>.
+3.  Modify the function again so that it checks the [% g relative_error %]relative error[% /g %]
+    instead of the [% g absolute_error %]absolute error[% /g %].
     (The relative error is the absolute value of the difference between the actual and expected value,
     divided by the absolute value.)
 

@@ -404,10 +404,10 @@ where the program contains expression like `arr[table[i]]`.
 ### Generators and arrays {.exercise}
 
 1.  Write a generator that takes a two-dimensional table represented as an array of arrays
-    and returns the values in <span g="column_major">column-major</span> order.
+    and returns the values in [% g column_major %]column-major[% /g %] order.
 
 2.  Write another generator that takes a similar table
-    and returns the values in <span g="row_major">row-major</span> order.
+    and returns the values in [% g row_major %]row-major[% /g %] order.
 
 ### Generators and identifiers {.exercise}
 

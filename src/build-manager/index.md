@@ -118,7 +118,7 @@ each version of our build manager must be a class that satisfies two requirement
 1.  It must provide a `build` method that needs no arguments.
 
 The `build` method must create a graph from the configuration file,
-check that it does not contain any <span g="cycle">cycles</span>,
+check that it does not contain any [% g cycle %]cycles[% /g %],
 and then run whatever commands are needed to update stale targets.
 Just as we built a generic <span i="Visitor pattern; design pattern!Visitor">`Visitor`</span> class in <a section="page-templates"/>,
 we can build a generic base class for our build manager that does these steps in this order

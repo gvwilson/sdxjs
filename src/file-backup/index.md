@@ -87,13 +87,13 @@ we just read the file's contents and pass those characters to the hashing object
 <div class="include" pat="hash-file.*" fill="js sh out" />
 
 However,
-it is more efficient to process the file as a <span g="stream">stream</span>:
+it is more efficient to process the file as a [% g stream %]stream[% /g %]:
 
 <div class="include" pat="hash-stream.*" fill="js sh out" />
 
 <!-- continue -->
 This kind of interface is called
-a [% i "streaming API" "execution!streaming" %][% g streaming_api %]streaming[% /g %][% /i %] <span g="api">API</span>
+a [% i "streaming API" "execution!streaming" %][% g streaming_api %]streaming[% /g %][% /i %] [% g api %]API[% /g %]
 because it is designed to process a stream of data one chunk at a time
 rather than requiring all of the data to be in memory at once.
 Many applications use streams
@@ -101,7 +101,7 @@ so that programs don't have to read entire (possibly large) files into memory.
 
 To start,
 this program asks the `fs` library to create a reading stream for a file
-and to <span g="pipe">pipe</span> the data from that stream to the hashing object
+and to [% g pipe %]pipe[% /g %] the data from that stream to the hashing object
 (<a figure="file-backup-streaming"/>).
 It then tells the hashing object what to do when there is no more data
 by providing a [% i "event handler!streaming API" "streaming API!event handler" %][% g handler %]handler[% /g %][% /i %] for the "finish" event.
@@ -185,9 +185,9 @@ The second part of our backup tool keeps track of which files have and haven't b
 It stores backups in a directory that contains backup files like `abcd1234.bck`
 and files describing the contents of particular snapshots.
 The latter are named `ssssssssss.csv`,
-where `ssssssssss` is the <span g="utc">UTC</span> <span g="timestamp">timestamp</span> of the backup's creation
-and the `.csv` extension indicates that the file is formatted as <span g="csv">comma-separated values</span>.
-(We could store these files as <span g="json">JSON</span>, but CSV is easier for people to read.)
+where `ssssssssss` is the [% g utc %]UTC[% /g %] [% g timestamp %]timestamp[% /g %] of the backup's creation
+and the `.csv` extension indicates that the file is formatted as [% g csv %]comma-separated values[% /g %].
+(We could store these files as [% g json %]JSON[% /g %], but CSV is easier for people to read.)
 
 > ### Time of check/time of use
 >
@@ -337,7 +337,7 @@ Why doesn't this solve the time of check/time of use race condition mentioned ea
 
 2.  Write another program called `migrate.js` that converts a set of manifests
     from CSV to JSON.
-    (The program's name comes from the term <span g="data_migration">data migration</span>.)
+    (The program's name comes from the term [% g data_migration %]data migration[% /g %].)
 
 3.  Modify `backup.js` programs so that each manifest stores the user name of the person who created it
     along with file hashes,

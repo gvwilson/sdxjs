@@ -35,7 +35,7 @@ for a program made up of 110 instructions:
     There are no memory-to-memory operations in our VM:
     everything  happens in or through registers.
 
-1.  256 <span g="word_memory">words</span> of memory, each of which can store a single value.
+1.  256 [% g word_memory %]words[% /g %] of memory, each of which can store a single value.
     Both the program and its data live in this single block of memory;
     we chose the size 256 so that each address will fit in a single byte.
 
@@ -337,7 +337,7 @@ The C programming language stored character strings as non-zero bytes terminated
 
 ### Disassembling instructions {.exercise}
 
-A <span g="disassembler">disassembler</span> turns machine instructions into assembly code.
+A [% g disassembler %]disassembler[% /g %] turns machine instructions into assembly code.
 Write a disassembler for the instruction set used by our virtual machine.
 (Since the labels for addresses are not stored in machine instructions,
 disassemblers typically generate labels like `@L001` and `@L002`.)

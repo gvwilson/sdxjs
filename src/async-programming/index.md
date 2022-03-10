@@ -12,7 +12,7 @@ to make callbacks easier to write and understand,
 and more recently they added the keywords `async` and `await` as well
 to make asynchronous programming easier still.
 To show how these work,
-we will create a <span g="class">class</span> of our own called `Pledge`
+we will create a [% g class %]class[% /g %] of our own called `Pledge`
 that provides the same core features as promises.
 Our explanation was inspired by <span i="Huffine, Trey">[Trey Huffine's][huffine-trey]</span> [tutorial][huffine-promises],
 and we encourage you to read that as well.
@@ -25,7 +25,7 @@ the event loop repeatedly takes a task from the front of the queue,
 runs it,
 and adds any new tasks that it creates to the back of the queue to run later.
 Only one task runs at a time;
-each has its own <span g="call_stack">call stack</span>,
+each has its own [% g call_stack %]call stack[% /g %],
 but objects can be shared between tasks
 (<a figure="async-programming-event-loop"/>).
 
@@ -108,7 +108,7 @@ Once this task resumes,
 we call the `resolve` callback to trigger whatever is supposed to happen after the delay.
 
 Now look at the line with `then`.
-This is a <span g="method">method</span> of the `Pledge` object we just created,
+This is a [% g method %]method[% /g %] of the `Pledge` object we just created,
 and its job is to do whatever we want to do after the delay.
 The argument to `then` is yet another callback function;
 it will get the value passed to `resolve`,
@@ -118,7 +118,7 @@ which is how the first part of the action communicates with the second
 [% figure slug="async-programming-resolve" img="figures/resolve.svg" alt="How promises resolve" caption="Order of operations when a promise resolves." %]
 
 In order to make this work,
-`Pledge`'s <span g="constructor">constructor</span> must take a single function called `action`.
+`Pledge`'s [% g constructor %]constructor[% /g %] must take a single function called `action`.
 This function must take take two callbacks as arguments:
 what to do if the action completes successfully
 and what to do if it doesn't (i.e., how to handle errors).
@@ -266,7 +266,7 @@ We therefore have three rules for chaining promises:
 1.  Finally,
     if we want to use a library function that relies on callbacks,
     we have to convert it to use promises.
-    Doing this is called <span g="promisification">promisification</span>
+    Doing this is called [% g promisification %]promisification[% /g %]
     (because programmers will rarely pass up an opportunity add a bit of jargon to the world),
     and most functions in the Node have already been promisified.
 

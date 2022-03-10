@@ -21,8 +21,8 @@ so we will start by looking at them.
 Programs stores HTML pages in memory using a [% i "DOM" "Document Object Model" %][% g dom %]document object model[% /g %][% /i %] or DOM.
 Each element in the page,
 such as a heading and or paragraph,
-is a <span g="node">nodes</span>;
-the <span g="child_tree">children</span> of a node are the elements it contains
+is a [% g node %]nodes[% /g %];
+the [% g child_tree %]children[% /g %] of a node are the elements it contains
 (<a figure="pattern-matching-dom-tree"/>).
 
 [% figure slug="pattern-matching-dom-tree" img="figures/dom-tree.svg" alt="The Document Object Model" caption="Representing an HTML document as a tree." %]
@@ -196,7 +196,7 @@ which forces us to define the syntax we are going to support:
 <div class="include" file="regex-initial/regex-complete.js" />
 
 Next,
-we define a <span g="base_class">base class</span> that all matchers will inherit from.
+we define a [% g base_class %]base class[% /g %] that all matchers will inherit from.
 This class contains the `match` method that users will call
 so that we can start matching right away
 no matter what kind of matcher we have at the top level of our pattern.
@@ -207,7 +207,7 @@ no matter what kind of matcher we have at the top level of our pattern.
 The base class also defines a `_match` method (with a leading underscore)
 that other classes will fill in with actual matching code.
 The base implementation of this method throws an exception
-so that if we forget to provide `_match` in a <span g="derived_class">derived class</span>
+so that if we forget to provide `_match` in a [% g derived_class %]derived class[% /g %]
 our code will fail with a meaningful reminder.
 
 > ### One interface to call them all
@@ -386,9 +386,9 @@ Rewrite `RegexAny` so that it does not repeatedly re-match text.
 
 ### Lazy matching {.exercise} {.exercise}
 
-The regular expressions we have seen so far are <span g="eager_matching">eager</span>:
+The regular expressions we have seen so far are [% g eager_matching %]eager[% /g %]:
 they match as much as they can, as early as they can.
-An alternative is <span g="lazy_matching">lazy matching</span>,
+An alternative is [% g lazy_matching %]lazy matching[% /g %],
 in which expressions match as little as they need to.
 For example,
 given the string `"ab"`,

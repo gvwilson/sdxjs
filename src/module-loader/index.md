@@ -196,7 +196,7 @@ suppose that `major.js` loads `subdir/first.js` and `subdir/second.js`.
 When `subdir/second.js` loads `./first.js`,
 our system needs to realize that it already has that file
 even though the path looks different.
-We will use <span g="absolute_path">absolute paths</span> as cache keys
+We will use [% g absolute_path %]absolute paths[% /g %] as cache keys
 so that every file has a unique, predictable key.
 
 To reduce confusion,
@@ -333,7 +333,7 @@ Refactor this code so that it works correctly while still using `require` rather
 
 ### An LRU cache {.exercise}
 
-A <span g="lru_cache">Least Recently Used (LRU) cache</span>
+A [% g lru_cache %]Least Recently Used (LRU) cache[% /g %]
 reduces access time while limiting the amount of memory used
 by keeping track of the N items that have been used most recently.
 For example,
