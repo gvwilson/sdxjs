@@ -10,7 +10,7 @@ but what about different in-memory operations---how do they compare with each ot
 Putting it another way,
 how can we tell which of several designs is going to be the most efficient?
 
-The best answer is to conduct some <span i="experiments">experiments</span>.
+The best answer is to conduct some [% i "experiments" %]experiments[% /i %].
 To see how to do this,
 we will take a look several ways to implement data tables
 with one or more named columns and zero or more rows.
@@ -20,9 +20,9 @@ and all the values in a column have the same type
 Data tables appear over and over again in programming,
 from spreadsheets and databases
 to the [% i "data frame" %][% g data_frame %]data frames[% /g %][% /i %] in
-<span i="R">R's</span> <span i="tidyverse">[tidyverse][tidyverse]</span> packages,
-<span i="Python">[Python's][python]</span> <span i="Pandas">[Pandas][pandas]</span> library,
-or the <span i="DataForge">[DataForge][data-forge]</span> library for JavaScript <cite>Davis2018</cite>.
+[% i "R" %]R's[% /i %] [% i "tidyverse" %][tidyverse][tidyverse][% /i %] packages,
+[% i "Python" %][Python's][python][% /i %] [% i "Pandas" %][Pandas][pandas][% /i %] library,
+or the [% i "DataForge" %][DataForge][data-forge][% /i %] library for JavaScript <cite>Davis2018</cite>.
 
 [% figure slug="data-table-conceptual" img="figures/conceptual.svg" alt="Data table structure" caption="The structure of a data table." %]
 
@@ -85,7 +85,7 @@ like the callback for `Array.filter`;
 for selecting columns,
 we provide a list of the keys that identify the columns we want to keep.
 We expect filtering to be relatively fast,
-since it is <span i="recycling data">recycling</span> rows,
+since it is [% i "recycling data" %]recycling[% /i %] rows,
 while selecting should be relatively slow because we have to construct a new set of arrays
 (<a figure="data-table-row-ops"/>).
 
@@ -227,7 +227,7 @@ while other bits store the value itself in a type-dependent way
 
 We can save space by keeping track of the types ourselves
 and just storing the bits that represent the values.
-JavaScript has an <span i="ArrayBuffer">`ArrayBuffer`</span> class for exactly this purpose.
+JavaScript has an [% i "ArrayBuffer" %]`ArrayBuffer`[% /i %] class for exactly this purpose.
 It stores any value we want as a set of bits;
 we then access those bits through a view that presents the data as a particular type,
 such as Boolean (one byte per value) or number (64 bits per number).

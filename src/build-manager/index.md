@@ -15,7 +15,7 @@ and automatically re-translate all of them.
 Choosing what actions to take based on how files depend on one another is a common pattern.
 For example,
 programs in [% i "compiled language" "language!compiled" %][% g compiled_language %]compiled languages[% /g %][% /i %]
-like <span i="C">C</span> and <span i="Java">Java</span>
+like [% i "C" %]C[% /i %] and [% i "Java" %]Java[% /i %]
 have to be translated into lower-level forms before they can run.
 In fact,
 there are usually two stages to the translation:
@@ -39,7 +39,7 @@ like JavaScript
 when we want to bundle multiple modules into a single loadable file (<a section="module-bundler"/>)
 or re-create documentation from source code (<a section="doc-generator"/>).
 In this chapter we will create a simple build manager
-based on <span i="Make">[Make][gnu-make]</span>, <span i="Bajel">[Bajel][bajel]</span>, <span i="Jake">[Jake][jake]</span>,
+based on [% i "Make" %][Make][gnu-make][% /i %], [% i "Bajel" %][Bajel][bajel][% /i %], [% i "Jake" %][Jake][jake][% /i %],
 and other systems discussed in <cite>Smith2011</cite>.
 
 ## What's in a build manager? {#build-manager-contents}
@@ -120,7 +120,7 @@ each version of our build manager must be a class that satisfies two requirement
 The `build` method must create a graph from the configuration file,
 check that it does not contain any [% g cycle %]cycles[% /g %],
 and then run whatever commands are needed to update stale targets.
-Just as we built a generic <span i="Visitor pattern; design pattern!Visitor">`Visitor`</span> class in <a section="page-templates"/>,
+Just as we built a generic [% i "Visitor pattern" "design pattern!Visitor" %]`Visitor`[% /i %] class in <a section="page-templates"/>,
 we can build a generic base class for our build manager that does these steps in this order
 without actually implementing any of them:
 
@@ -187,14 +187,14 @@ Let's write a quick test to make sure the cycle detector works as intended:
 ## How can we specify that a file is out of date? {#build-manager-timestamp}
 
 The next step is to figure out which files are out of date.
-Make does this by comparing the <span i="timestamp!in build; build!timestamp">timestamps</span> of the files in question,
+Make does this by comparing the [% i "timestamp!in build" "build!timestamp" %]timestamps[% /i %] of the files in question,
 but this isn't always reliable:
-<span i="clock synchronization (in build); build!clock synchronization">computers' clocks may be slightly out of sync</span>,
+[% i "clock synchronization (in build)" "build!clock synchronization" %]computers' clocks may be slightly out of sync[% /i %],
 which can produce a wrong answer on a networked filesystem,
 and the operating system may only report file update times to the nearest millisecond
 (which seemed very short in 1970 but seems very long today).
 
-More modern build systems store a <span i="hash code!in build; build!hash code">hash</span> of each file's contents
+More modern build systems store a [% i "hash code!in build" "build!hash code" %]hash[% /i %] of each file's contents
 and compare the current hash to the stored one to see if the file has changed.
 Since we already looked at hashing in <a section="file-backup"/>,
 we will use the timestamp approach here.
@@ -247,7 +247,7 @@ The `run` method:
 
 1.  Sets the starting time to be one unit past the largest file time.
 
-1.  Uses <span i="Array.reduce">`Array.reduce`</span> to operate on each node (i.e., each file) in order.
+1.  Uses [% i "Array.reduce" %]`Array.reduce`[% /i %] to operate on each node (i.e., each file) in order.
     If that file is stale,
     we print the steps we would run and then update the file's timestamp.
     We only advance the notional current time when we do an update.
@@ -372,7 +372,7 @@ The root of the problem is that we didn't anticipate all the steps that would be
 when we wrote our template method.
 It typically takes a few child classes for this to settle down;
 if it never does,
-then <span i="Template Method pattern; design pattern!Template Method">Template Method</span> is probably the wrong pattern for our situation.
+then [% i "Template Method pattern" "design pattern!Template Method" %]Template Method[% /i %] is probably the wrong pattern for our situation.
 Realizing this isn't a failure in initial design:
 we always learn about our problem as we try to capture it in code,
 and if we know enough to anticipate 100% of the issues that are going to come up,

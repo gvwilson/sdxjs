@@ -8,7 +8,7 @@ We have been globbing to match filenames against patterns since <a section="syst
 This lesson will explore how that works
 by building a simple version of the [% i "regular expression" %][% g regular_expression %]regular expressions[% /g %][% /i %]
 used to match text in everything from editor and shell commands to web scrapers.
-Our approach is inspired by <span i="Kernighan, Brian">[Brian Kernighan's][kernighan-brian]</span> entry
+Our approach is inspired by [% i "Kernighan, Brian" %][Brian Kernighan's][kernighan-brian][% /i %] entry
 in <cite>Oram2007</cite>.
 
 Regular expressions have inspired pattern matching for many other kinds of data,
@@ -103,7 +103,7 @@ When we run our program it produces this result:
 
 <div class="include" file="simple-selectors-test.out" />
 
-We will rewrite these tests using <span i="Mocha">[Mocha][mocha]</span> in the exercises.
+We will rewrite these tests using [% i "Mocha" %][Mocha][mocha][% /i %] in the exercises.
 
 > ### Test then build
 >
@@ -137,7 +137,7 @@ Our matcher will initially handle just the five cases shown in
 
 <!-- continue -->
 These five cases are a small subset of what JavaScript provides,
-but as <span i="Kernighan, Brian">Kernighan</span> wrote,
+but as [% i "Kernighan, Brian" %]Kernighan[% /i %] wrote,
 "This is quite a useful class;
 in my own experience of using regular expressions on a day-to-day basis,
 it easily accounts for 95 percent of all instances."

@@ -45,13 +45,13 @@ because we're going to be doing that a lot.
 ## How can we list a directory? {#systems-programming-ls}
 
 To start,
-let's try listing the contents of a directory the way we would in <span i="Python">[Python][python]</span>
-or <span i="Java">[Java][java]</span>:
+let's try listing the contents of a directory the way we would in [% i "Python" %][Python][python][% /i %]
+or [% i "Java" %][Java][java][% /i %]:
 
 <div class="include" file="list-dir-wrong.js" />
 
 <!-- continue -->
-We use <span i="import module"><code>import <em>module</em> from 'source'</code></span> to load the library <code><em>source</em></code>
+We use [% i "import module" %]<code>import <em>module</em> from 'source'</code>[% /i %] to load the library <code><em>source</em></code>
 and assign its contents to <code><em>module</em></code>.
 After that,
 we can refer to things in the library using <code><em>module.component</em></code>
@@ -63,7 +63,7 @@ we will take advantage of this in future chapters.
 > ### `require` versus `import`
 >
 > In 2015, a new version of JavaScript called ES6 introduced
-> the keyword <span i="import vs. require; require vs. import">`import`</span> for importing modules.
+> the keyword [% i "import vs. require" "require vs. import" %]`import`[% /i %] for importing modules.
 > It improves on the older `require` function in several ways,
 > but Node still uses `require` by default.
 > To tell it to use `import`,
@@ -73,7 +73,7 @@ Our little program uses the [`fs`][node-fs] library
 which contains functions to create directories, read or delete files, etc.
 (Its name is short for "filesystem".)
 We tell the program what to list using [% i "command-line argument" %][% g command_line_argument %]command-line arguments[% /g %][% /i %],
-which Node automatically stores in an array called <span i="process.argv">`process.argv`</span>.
+which Node automatically stores in an array called [% i "process.argv" %]`process.argv`[% /i %].
 `process.argv[0]` is the name of the program used to run our code (in this case `node`),
 while `process.argv[1]` is the name of our program (in this case `list-dir-wrong.js`);
 the rest of `process.argv` holds whatever arguments we gave at the command line when we ran the program,
@@ -85,11 +85,11 @@ If we run this program with the name of a directory as its argument,
 `fs.readdir` returns the names of the things in that directory as an array of strings.
 The program uses `for (const name of results)` to loop over the contents of that array.
 We could use `let` instead of `const`,
-but it's good practice to declare things as <span i="const declaration!advantages of">`const`</span> wherever possible
+but it's good practice to declare things as [% i "const declaration!advantages of" %]`const`[% /i %] wherever possible
 so that anyone reading the program knows the variable isn't actually going to vary---doing
 this reduces the [% i "cognitive load" %][% g cognitive_load %]cognitive load[% /g %][% /i %] on people reading the program.
 Finally,
-<span i="console.log">`console.log`</span> is JavaScript's equivalent of other languages' `print` command;
+[% i "console.log" %]`console.log`[% /i %] is JavaScript's equivalent of other languages' `print` command;
 its strange name comes from the fact that
 its original purpose was to create [% g log_message %]log messages[% /g %] in the browser [% g console %]console[% /g %].
 
@@ -141,7 +141,7 @@ This corrected program gives `fs.readdir` a callback function called `listConten
 <div class="include" file="list-dir-function-defined.js" />
 
 <!-- continue -->
-<span i="callback function!conventions for">Node callbacks</span>
+[% i "callback function!conventions for" %]Node callbacks[% /i %]
 always get an error (if there is any) as their first argument
 and the result of a successful function call as their second.
 The function can tell the difference by checking to see if the error argument is `null`.
@@ -196,7 +196,7 @@ Using an anonymous function gives us the final version of our program:
 > ### Functions are data
 >
 > As we noted above,
-> a function is just <span i="code!as data">another kind of data</span>.
+> a function is just [% i "code!as data" %]another kind of data[% /i %].
 > Instead of being made up of numbers, characters, or pixels, it is made up of instructions,
 > but these are stored in memory like anything else.
 > Defining a function on the fly is no different from defining an array in-place using `[1, 3, 5]`,
@@ -240,7 +240,7 @@ We can get rid of them by [% i "globbing!filtering results" %][% g filter %]filt
 
 <div class="include" pat="glob-get-then-filter-pedantic.*" fill="js slice.out" />
 
-<span i="Array.filter">`Array.filter`</span> creates a new array
+[% i "Array.filter" %]`Array.filter`[% /i %] creates a new array
 containing all the items of the original array that pass a test
 (<a figure="systems-programming-array-filter"/>).
 The test is specified as a callback function
@@ -388,7 +388,7 @@ we must use `fs.stat` to get the properties of the thing whose name `glob` has g
 and then check if it's a file.
 The name "stat" is short for "status",
 and since the status of something in the filesystem can be very complex,
-<span i="fs.stat">`fs.stat`</span> returns [an object with methods that can answer common questions][node-fs-stats].
+[% i "fs.stat" %]`fs.stat`[% /i %] returns [an object with methods that can answer common questions][node-fs-stats].
 
 Here's the final version of our file copying program:
 

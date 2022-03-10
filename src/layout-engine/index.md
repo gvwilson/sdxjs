@@ -11,7 +11,7 @@ In all three cases,
 a [% i "layout engine" %][% g layout_engine %]layout engine[% /g %][% /i %] took some text and some layout instructions
 and decided where to put each character and image.
 We will build a small layout engine in this chapter
-based on <span i="Brubeck, Matt">[Matt Brubeck's][brubeck-matt]</span> [tutorial][browser-tutorial]
+based on [% i "Brubeck, Matt" %][Matt Brubeck's][brubeck-matt][% /i %] [tutorial][browser-tutorial]
 to explore how browsers decide what to put where.
 
 Our inputs will be a very small subset of HTML and an equally small subset of CSS.
@@ -24,13 +24,13 @@ and then draw the result as text on the screen.
 
 > ### Upside down
 >
-> The <span i="coordinate system">coordinate systems</span> for screens put (0, 0) in the upper left corner instead of the lower left.
+> The [% i "coordinate system" %]coordinate systems[% /i %] for screens put (0, 0) in the upper left corner instead of the lower left.
 > X increases to the right as usual,
 > but Y increases as we go down, rather than up
 > (<a figure="layout-engine-coordinate-system"/>).
 > This convention is a holdover from the days of teletype terminals
 > that printed lines on rolls of paper;
-> as <span i="Hoye, Mike">[Mike Hoye][hoye-mike]</span> has [repeatedly observed][punching-holes],
+> as [% i "Hoye, Mike" %][Mike Hoye][hoye-mike][% /i %] has [repeatedly observed][punching-holes],
 > the past is all around us.
 
 [% figure slug="layout-engine-coordinate-system" img="figures/coordinate-system.svg" alt="Coordinate system" caption="Coordinate system with (0, 0) in the upper left corner." %]
@@ -76,7 +76,7 @@ but we called this "easy mode" for a reason.
 
 As simple as it is,
 this code could still contain errors (and did during development),
-so we write some <span i="Mocha">[Mocha][mocha]</span> tests to check that it works as desired
+so we write some [% i "Mocha" %][Mocha][mocha][% /i %] tests to check that it works as desired
 before trying to build anything more complicated:
 
 <div class="include" file="test/test-easy-mode.js" />
@@ -264,7 +264,7 @@ Rows and columns can have [% g attribute %]attributes[% /g %] just as they can i
 and each attribute must have a single value in quotes.
 Rows no longer take a fixed width:
 instead,
-we will specify that with our little subset of <span i="CSS">CSS</span>.
+we will specify that with our little subset of [% i "CSS" %]CSS[% /i %].
 Together,
 these three classes are just over 40 lines of code:
 
@@ -351,8 +351,8 @@ We will explore these possibilities in the exercises.
 >
 > This chapter's topic was one of the seeds from which this entire book grew
 > (the other being debuggers discussed in <a section="debugger"/>).
-> After struggling with <span i="CSS!struggles with">CSS</span> for several years,
-> <span i="Wilson, Greg">[Greg Wilson][wilson-greg]</span> began wondering whether it really had to be so complicated.
+> After struggling with [% i "CSS!struggles with" %]CSS[% /i %] for several years,
+> [% i "Wilson, Greg" %][Greg Wilson][wilson-greg][% /i %] began wondering whether it really had to be so complicated.
 > That question led to others,
 > which eventually led to all of this.
 > The moral is,

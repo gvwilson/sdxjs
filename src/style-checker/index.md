@@ -5,15 +5,15 @@ lede: "Checking that code conforms to style guidelines"
 ---
 
 Programmers argue endlessly about the best way to format their programs,
-but everyone agrees that the most important thing is to be <span i="coding style!importance of consistency">consistent</span>
+but everyone agrees that the most important thing is to be [% i "coding style!importance of consistency" %]consistent[% /i %]
 <cite>Binkley2012,Johnson2019</cite>.
 Since checking rules by hand is tedious,
 most programmers use tools to compare code against various rules and report any violations.
 Programs that do this are often called [% i "linter" "coding style!linter" %][% g linter %]linters[% /g %][% /i %]
-in honor of an early one for <span i="C">C</span> named `lint`
+in honor of an early one for [% i "C" %]C[% /i %] named `lint`
 (because it looked for fluff in source code).
 
-In this chapter we will build a simple linter of our own inspired by <span i="ESLint">[ESLint][eslint]</span>,
+In this chapter we will build a simple linter of our own inspired by [% i "ESLint" %][ESLint][eslint][% /i %],
 which we use to check the code in this book.
 Our tool will parse source code to create a data structure,
 then go through that data structure and apply rules for each part of the program.
@@ -25,19 +25,19 @@ which is that source code is just another kind of data.
 > Just as the world doesn't need more file format (<a section="regex-parser"/>)
 > it also doesn't need more programming styles,
 > or more arguments among programmers about whether there should be spaces before curly braces or not.
-> <span i="Standard JS">[Standard JS][standard-js]</span> may not do everything exactly the way you want,
+> [% i "Standard JS" %][Standard JS][standard-js][% /i %] may not do everything exactly the way you want,
 > but adopting it increases the odds that other programmers will be able to read your code at first glance.
 
 ## How can we parse JavaScript to create an AST? {#style-checker-ast}
 
 A parser for a simple language like arithmetic or JSON is relatively easy to write.
 A parser for a language as complex as JavaScript is much more work,
-so we will use one called <span i="Acorn">[Acorn][acorn]</span> instead.
+so we will use one called [% i "Acorn" %][Acorn][acorn][% /i %] instead.
 Acorn takes a string containing source code as input
 and produces an [% i "abstract syntax tree" %][% g abstract_syntax_tree %]abstract syntax tree[% /g %][% /i %] (AST)
 whose nodes store information about what's in the program
 (<a figure="style-checker-parse-tree"/>).
-An AST is for a program what the <span i="Document Object Model">DOM</span> is for HTML:
+An AST is for a program what the [% i "Document Object Model" %]DOM[% /i %] is for HTML:
 an in-memory representation that is easy for software to inspect and manipulate.
 
 [% figure slug="style-checker-parse-tree" img="figures/parse-tree.svg" alt="A small parse tree" caption="The parse tree of a simple program." %]
@@ -48,7 +48,7 @@ is <span class="linecount" file="parse-single-const.out"/> lines long:
 
 <div class="include" pat="parse-single-const.*" fill="js slice.out" />
 
-Acorn's output is in <span i="Esprima format">[Esprima][esprima] format</span>
+Acorn's output is in [% i "Esprima format" %][Esprima][esprima] format[% /i %]
 (so-called because it was originally defined by a tool with that name).
 The format's specification is very detailed,
 but we can usually figure out most of what we need by inspection.
@@ -67,7 +67,7 @@ we need to [% i "walk a tree" %][% g walk_tree %]walk the tree[% /g %][% /i %],
 i.e.,
 to visit each node in turn.
 The [`acorn-walk`][acorn-walk] library will do this for us
-using the <span i="Visitor pattern; design pattern!Visitor">Visitor design pattern</span> we first saw in <a section="page-templates"/>
+using the [% i "Visitor pattern" "design pattern!Visitor" %]Visitor design pattern[% /i %] we first saw in <a section="page-templates"/>
 If we provide a function to act on nodes of type `Identifier`,
 `acorn-walk` will call that function each time it finds an identifier.
 We can use other options to say that we want to record the locations of nodes (i.e., their line numbers)
@@ -112,7 +112,7 @@ We don't just want to collect nodes:
 we want to check their properties against a set of rules.
 One way to do this would be to call `walk.simple` once for each rule,
 passing it a function that checks just that rule.
-Another way---the one we'll use---is to write a <span i="software design!generic function">generic function</span>
+Another way---the one we'll use---is to write a [% i "software design!generic function" %]generic function[% /i %]
 that checks a rule and records any nodes that don't satisfy it,
 and then call that function once for each rule inside our `Identifier` handler.
 This may see like extra work,
@@ -175,7 +175,7 @@ but we can't get rid of it.
 
 The other difference between our visitor and `acorn-walk` is that
 our class uses [% i "dynamic lookup" %][% g dynamic_lookup %]dynamic lookup[% /g %][% /i %]
-(a form of <span i="introspection!of methods">introspection</span>)
+(a form of [% i "introspection!of methods" %]introspection[% /i %])
 to look up a method
 with the same name as the node type in the object.
 While we normally refer to a particular method of an object using `object.method`,
@@ -290,7 +290,7 @@ To test this code, we start with the last of these three short files:
 <div class="include" pat="*.js" fill="upper middle lower" />
 <div class="include" file="run-find-ancestors.out" />
 
-Good: we can recover the <span i="chain of inheritance">chain of inheritance</span>.
+Good: we can recover the [% i "chain of inheritance" %]chain of inheritance[% /i %].
 Finding method definitions is also straightforward:
 
 <div class="include" file="find-methods.js" />

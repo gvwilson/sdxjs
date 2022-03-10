@@ -14,7 +14,7 @@ to make asynchronous programming easier still.
 To show how these work,
 we will create a [% g class %]class[% /g %] of our own called `Pledge`
 that provides the same core features as promises.
-Our explanation was inspired by <span i="Huffine, Trey">[Trey Huffine's][huffine-trey]</span> [tutorial][huffine-promises],
+Our explanation was inspired by [% i "Huffine, Trey" %][Trey Huffine's][huffine-trey][% /i %] [tutorial][huffine-promises],
 and we encourage you to read that as well.
 
 ## How can we manage asynchronous execution? {#async-programming-manage}
@@ -33,7 +33,7 @@ but objects can be shared between tasks
 
 Most tasks execute all the code available in the order it is written.
 For example,
-this one-line program uses <span i="Array.forEach">`Array.forEach`</span>
+this one-line program uses [% i "Array.forEach" %]`Array.forEach`[% /i %]
 to print each element of an array in turn:
 
 <div class="include" pat="not-callbacks-alone.*" fill="js out" />
@@ -42,7 +42,7 @@ However,
 a handful of special built-in functions make [Node][nodejs] switch tasks
 or add new tasks to the run queue.
 For example,
-<span i="setTimeout">`setTimeout`</span> tells Node to run a callback function
+[% i "setTimeout" %]`setTimeout`[% /i %] tells Node to run a callback function
 after a certain number of milliseconds have passed.
 Its first argument is a callback function that takes no arguments,
 and its second is the delay.
@@ -82,7 +82,7 @@ and switches tasks if any others are available:
 
 <div class="include" pat="non-blocking.*" fill="js out" />
 
-Node's built-in function <span i="setImmediate">`setImmediate`</span>
+Node's built-in function [% i "setImmediate" %]`setImmediate`[% /i %]
 does exactly what our `nonBlocking` function does:
 Node also has `process.nextTick`,
 which doesn't do quite the same thing---we'll explore the differences in the exercises.
@@ -91,15 +91,15 @@ which doesn't do quite the same thing---we'll explore the differences in the exe
 
 ## How do promises work? {#async-programming-promises}
 
-Before we start building our own <span i="promise!behavior">promises</span>,
+Before we start building our own [% i "promise!behavior" %]promises[% /i %],
 let's look at how we want them to work:
 
 <div class="include" pat="use-pledge-motivation.*" fill="js out" />
 
 This short program creates a new `Pledge`
 with a callback that takes two other callbacks as arguments:
-<span i="promise!resolve; resolve promise">`resolve`</span> (which will run when everything worked)
-and <span i="promise!reject; reject promise">`reject`</span> (which will run when something went wrong).
+[% i "promise!resolve" "resolve promise" %]`resolve`[% /i %] (which will run when everything worked)
+and [% i "promise!reject" "reject promise" %]`reject`[% /i %] (which will run when something went wrong).
 The top-level callback does the first part of what we want to do,
 i.e.,
 whatever we want to run before we expect a delay;
@@ -125,8 +125,8 @@ and what to do if it doesn't (i.e., how to handle errors).
 `Pledge` will provide these callbacks to the action at the right times.
 
 `Pledge` also needs two methods:
-<span i="promise!then">`then`</span> to enable more actions
-and <span i="promise!catch">`catch`</span> to handle errors.
+[% i "promise!then" %]`then`[% /i %] to enable more actions
+and [% i "promise!catch" %]`catch`[% /i %] to handle errors.
 To simplify things just a little bit,
 we will allow users to [% i "method chaining" %][% g method_chaining %]chain[% /g %][% /i %] as many `then`s as they want,
 but only allow one `catch`.
@@ -188,7 +188,7 @@ the whole class looks like this:
 
 > ### Binding `this`
 >
-> `Pledge`'s constructor makes two calls to a special function called <span i="bind method to object">`bind`</span>.
+> `Pledge`'s constructor makes two calls to a special function called [% i "bind method to object" %]`bind`[% /i %].
 > When we create an object `obj` and call a method `meth`,
 > JavaScript sets the special variable `this` to `obj` inside `meth`.
 > If we use a method as a callback,
@@ -300,7 +300,7 @@ We can use `glob-promise` to delay handling the output of `glob`,
 but we need some way to create a separate task to count the lines in each file
 and to wait until those line counts are available before exiting our program.
 
-The tool we want is <span i="Promise.all">`Promise.all`</span>,
+The tool we want is [% i "Promise.all" %]`Promise.all`[% /i %],
 which waits until all of the promises in an array have completed.
 To make our program a little more readable,
 we will put the creation of the promise for each file in a separate function:
@@ -349,7 +349,7 @@ This code is complex, but much simpler than it would be if we were using callbac
 
 Promises eliminate the deep nesting associated with callbacks of callbacks,
 but they are still hard to follow.
-The latest versions of JavaScript provide two new keywords <span i="async keyword">`async`</span> and <span i="await keyword">`await`</span>
+The latest versions of JavaScript provide two new keywords [% i "async keyword" %]`async`[% /i %] and [% i "await keyword" %]`await`[% /i %]
 to flatten code further.
 `async` means "this function implicitly returns a promise",
 while `await` means "wait for a promise to resolve".
@@ -360,7 +360,7 @@ This short program uses both keywords to print the first ten characters of a fil
 > ### Translating code
 >
 > When Node sees `await` and `async`
-> it silently <span i="promise!automatic creation of">converts</span> the code to use promises with `then`, `resolve`, and `reject`;
+> it silently [% i "promise!automatic creation of" %]converts[% /i %] the code to use promises with `then`, `resolve`, and `reject`;
 > we will see how this works in <a section="code-generator"/>.
 > In order to provide a context for this transformation
 > we must put `await` inside a function that is declared to be `async`:
@@ -411,7 +411,7 @@ so we can use `.then` and `.catch` to handle it as before:
 
 <div class="include" pat="assign-immediately.*" fill="js out" />
 
-If instead we <span i="<span i="exception!with await">">`return await`</span>,
+If instead we <span i="[% i "exception!with await" %]">`return await`[% /i %],
 the function waits until the promise runs before returning.
 The promise is turned into an exception because it failed,
 and since we're inside the scope of our `try`/`catch` block,

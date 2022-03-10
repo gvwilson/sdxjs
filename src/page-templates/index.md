@@ -15,18 +15,18 @@ to create web pages from templates.
 At the heart of every static site generator is a page templating system.
 Thousands of these have been written in the last thirty years
 in every popular programming language
-(and one language, <span i="PHP">[PHP][php]</span>, was created for this purpose).
+(and one language, [% i "PHP" %][PHP][php][% /i %], was created for this purpose).
 Most of these systems use one of three designs
 (<a figure="page-templates-options"/>):
 
 1.  Mix commands in a language such as JavaScript with the HTML or Markdown
     using some kind of marker to indicate which parts are commands
     and which parts are to be taken as-is.
-    This approach is taken by <span i="EJS">[EJS][ejs]</span>,
+    This approach is taken by [% i "EJS" %][EJS][ejs][% /i %],
     which we used to write these lessons.
 
-2.  Create a mini-language with its own commands like <span i="Jekyll">[Jekyll][jekyll]</span>
-    (which is used by <span i="GitHub Pages">[GitHub Pages][github-pages]</span>).
+2.  Create a mini-language with its own commands like [% i "Jekyll" %][Jekyll][jekyll][% /i %]
+    (which is used by [% i "GitHub Pages" %][GitHub Pages][github-pages][% /i %]).
     Mini-languages are appealing because they are smaller and safer than general-purpose languages,
     but experience shows that they eventually grow
     most of the features of a general-purpose language.
@@ -42,7 +42,7 @@ Most of these systems use one of three designs
 
 In this chapter we will build a simple page templating system using the third strategy.
 We will process each page independently by parsing the HTML
-and walking the <span i="DOM">DOM</span> to find nodes with special attributes.
+and walking the [% i "DOM" %]DOM[% /i %] to find nodes with special attributes.
 Our program will execute the instructions in those nodes
 to do the equivalent of loops and if/else statements;
 other nodes will be copied as-is to create text.
@@ -87,7 +87,7 @@ the output will be standard HTML without any traces of how it was created:
 > but we have decided to err on the side of minimal typing.
 > And note that strictly speaking,
 > we should call our attributes `data-something` instead of `z-something`
-> to conform with <span i="HTML5 specification">[the HTML5 specification][html5-data-attributes]</span>,
+> to conform with [% i "HTML5 specification" %][the HTML5 specification][html5-data-attributes][% /i %],
 > but by the time we're finished processing our templates,
 > there shouldn't be any `z-*` attributes left to confuse a browser.
 
@@ -122,7 +122,7 @@ we look through the stack frames in order to find the uppermost definition of th
 
 > ### Scoping rules
 >
-> Searching the stack <span i="call stack!stack frame; stack frame">frame</span> by frame
+> Searching the stack [% i "call stack!stack frame" "stack frame" %]frame[% /i %] by frame
 > while the program is running
 > is called is [% i "dynamic scoping" "scoping!dynamic" %][% g dynamic_scoping %]dynamic scoping[% /g %][% /i %],
 > since we find variables while the program is running.
@@ -400,7 +400,7 @@ and tried to make sense of the key ideas.
 
 The problem is that "making sense" depends on who we are.
 When we use a low-level language,
-we incur the <span i="cognitive load">cognitive load</span> of assembling micro-steps into something more meaningful.
+we incur the [% i "cognitive load" %]cognitive load[% /i %] of assembling micro-steps into something more meaningful.
 When we use a high-level language,
 on the other hand,
 we incur a similar load translating functions of functions of functions

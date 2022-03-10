@@ -19,7 +19,7 @@ Such a tool should:
 -   capture their results; and
 -   report each test's result and a summary of those results.
 
-Our design is inspired by tools like <span i="Mocha">[Mocha][mocha]</span> and <span i="Jest">[Jest][jest]</span>,
+Our design is inspired by tools like [% i "Mocha" %][Mocha][mocha][% /i %] and [% i "Jest" %][Jest][jest][% /i %],
 which were in turn inspired by tools built for other languages
 from the 1980s onward <cite>Meszaros2007,Tudose2020</cite>.
 
@@ -158,7 +158,7 @@ so that if someone wants to format them in a different way (e.g., as HTML) they 
 
 > ### Who's calling?
 >
-> `Hope.test` uses the <span i="caller module">[`caller`][caller]</span> module
+> `Hope.test` uses the [% i "caller module" %][`caller`][caller][% /i %] module
 > to get the name of the function that is registering a test.
 > Reporting the test's name helps the user figure out where to start debugging;
 > getting it via introspection

@@ -13,8 +13,8 @@ that gives instructions human-readable names instead of numbers.
 To understand more about how JavaScript actually runs
 we will simulate a very simple processor with a little bit of memory.
 If you want to dive deeper,
-have a look at <span i="Nystrom, Bob">[Bob Nystrom's][nystrom-bob]</span> *[Crafting Interpreters][crafting-interpreters]*.
-You may also enjoy <span i="Human Resource Machine">[Human Resource Machine][human-resource-machine]</span>,
+have a look at [% i "Nystrom, Bob" %][Bob Nystrom's][nystrom-bob][% /i %] *[Crafting Interpreters][crafting-interpreters]*.
+You may also enjoy [% i "Human Resource Machine" %][Human Resource Machine][human-resource-machine][% /i %],
 which asks you to solve puzzles of increasing difficulty
 using a processor almost as simple as ours.
 
@@ -230,7 +230,7 @@ this program counts up to three:
 ## How can we store data? {#virtual-machine-data}
 
 It is tedious to write interesting programs when each value needs a unique name.
-We can do a lot more once we have collections like <span i="array!implementation of">arrays</span>,
+We can do a lot more once we have collections like [% i "array!implementation of" %]arrays[% /i %],
 so let's add those to our assembler.
 We don't have to make any changes to the virtual machine,
 which doesn't care if we think of a bunch of numbers as individuals or elements of an array,

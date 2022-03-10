@@ -4,7 +4,7 @@ title: "Debugger"
 lede: "Using programs to run programs"
 ---
 We have finally come to one of the topics that sparked this book:
-how does a <span i="debugger">debugger</span> work?
+how does a [% i "debugger" %]debugger[% /i %] work?
 (The other was layout engines, discussed in <a section="layout-engine"/>.)
 Debuggers are as much a part of good programmers' lives as version control
 but are taught far less often
@@ -15,16 +15,16 @@ we will show one way to test interactive applications (<a section="unit-test"/>)
 
 ## What is our starting point? {#debugger-start}
 
-We would like to debug a higher-level language than the <span i="assembly code">assembly code</span> of <a section="virtual-machine"/>,
+We would like to debug a higher-level language than the [% i "assembly code" %]assembly code[% /i %] of <a section="virtual-machine"/>,
 but we don't want to have to write a parser
-or wrestle with the <span i="abstract syntax tree">ASTs</span> of <a section="style-checker"/>.
+or wrestle with the [% i "abstract syntax tree" %]ASTs[% /i %] of <a section="style-checker"/>.
 As a compromise,
 we will represent programs as JSON data structures
 whose element have the form `[command ...args]`:
 
 <div class="include" file="filter-base.json" />
 
-Our <span i="virtual machine">virtual machine</span> is structured like the one in <a section="virtual-machine"/>.
+Our [% i "virtual machine" %]virtual machine[% /i %] is structured like the one in <a section="virtual-machine"/>.
 A real system would parse a program to create JSON,
 then translate JSON into assembly code,
 then assemble that to create machine instructions.
@@ -69,7 +69,7 @@ The next thing we need in our debugger is
 a [% i "source map" "debugger!source map" %][% g source_map %]source map[% /g %][% /i %] that keeps track of
 where in the source file each instruction came from.
 Since JSON is a subset of JavaScript,
-we could get line numbers by parsing our programs with <span i="Acorn">[Acorn][acorn]</span>.
+we could get line numbers by parsing our programs with [% i "Acorn" %][Acorn][acorn][% /i %].
 However,
 we would then have to scrape the information we want for this example out of the AST.
 Since this chapter is supposed to be about debugging,
@@ -92,7 +92,7 @@ we just modify `exec` to ignore the line number:
 > What we're actually doing is deferring a problem until we're sure we need to solve it.
 > If our approach is clumsy or fails outright because of some aspect of design we didn't foresee,
 > there will have been no point handling line numbers the "right" way.
-> A good rule for <span i="software design!deferring problems">software design</span>
+> A good rule for [% i "software design!deferring problems" %]software design[% /i %]
 > is to tackle the thing you're least sure about first,
 > using temporary code in place of what you think you'll eventually need.
 
@@ -108,7 +108,7 @@ and the operation being performed:
 
 We also modify the VM's constructor to record the debugger and give it a reference to the virtual machine
 (<a figure="debugger-initialization"/>).
-We have to <span i="mutual references">connect the two objects explicitly</span>
+We have to [% i "mutual references" %]connect the two objects explicitly[% /i %]
 because each one needs a reference to the other,
 but one of them has to be created first.
 "A gets B then B tells A about itself" is a common pattern;
@@ -210,10 +210,10 @@ we will tidy it up in the exercises.
 
 ## How can we test an interactive application? {#debugger-test}
 
-How can we <span i="unit test!interactive application">test</span> an interactive application like a debugger?
+How can we [% i "unit test!interactive application" %]test[% /i %] an interactive application like a debugger?
 The answer is, "By making it non-interactive."
 Like many tools over the past thirty years,
-our approach is based on a program called <span i="Expect">[Expect][expect]</span>.
+our approach is based on a program called [% i "Expect" %][Expect][expect][% /i %].
 Our library replaces the input and output functions of the application being tested with callbacks,
 then provides input when asked and checks output when it is given
 (<a figure="debugger-test-interact"/>).
@@ -277,7 +277,7 @@ However,
 this approach becomes very complicated when we have deeply-nested calls to `exec`,
 which will happen with loops and conditionals.
 
-A better alternative is to use an <span i="exception!for control flow">exception for control flow</span>.
+A better alternative is to use an [% i "exception!for control flow" %]exception for control flow[% /i %].
 We can define our own kind of exception as an empty class:
 it doesn't need any data
 because we are only using it to get a typed object:

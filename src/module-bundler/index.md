@@ -4,7 +4,7 @@ title: "Module Bundler"
 lede: "Turning many files into one"
 ---
 
-<span i="JavaScript!hurried design of">JavaScript</span> was designed in a hurry 25 years ago to make web pages interactive.
+[% i "JavaScript!hurried design of" %]JavaScript[% /i %] was designed in a hurry 25 years ago to make web pages interactive.
 Nobody realized it would become one of the most popular programming languages in the world,
 so it didn't include support for things that large programs need.
 One of those things was a way to turn a set of easy-to-edit source files
@@ -60,7 +60,7 @@ The output we expect is:
 
 > ### Why `require`?
 >
-> Our tests cases use the old-style <span i="require vs. import; import vs. require">`require`</span> function
+> Our tests cases use the old-style [% i "require vs. import" "import vs. require" %]`require`[% /i %] function
 > and assign things that are to be visible outside the module to `module.exports`
 > rather than using `import` and `export`.
 > We tried writing the chapter using the latter,
@@ -98,7 +98,7 @@ because `require` itself doesn't (<a section="module-loader"/>).
 
 To get all the dependencies for one source file,
 we parse it and extract all of the calls to `require`.
-The code to do this is relatively straightforward given what we know about <span i="Acorn">[Acorn][acorn]</span>:
+The code to do this is relatively straightforward given what we know about [% i "Acorn" %][Acorn][acorn][% /i %]:
 
 <div class="include" file="get-requires.js" />
 <div class="include" pat="test-get-requires.*" fill="js sh out" />
@@ -189,7 +189,7 @@ that will remain a dream.
 We now need to combine the files we have found into one
 while keeping each in its own namespace.
 We do this using the same method we used in <a section="module-loader"/>:
-wrap the source code in an <span i="immediately-invoked function expression">IIFE</span>,
+wrap the source code in an [% i "immediately-invoked function expression" %]IIFE[% /i %],
 giving that IIFE a `module` object to fill in
 and an implementation of `require` to resolve dependencies *within the bundle*.
 For example, suppose we have this file:
@@ -290,7 +290,7 @@ and because of the levels of nesting needed to capture variables safely.
 Getting this right took much more time per line of finished code than anything we have seen so far
 except the promises in <a section="async-programming"/>.
 However,
-it is all <span i="intrinsic complexity">intrinsic complexity</span>:
+it is all [% i "intrinsic complexity" %]intrinsic complexity[% /i %]:
 anything that does what `require` does is going to be equally convoluted.
 
 To prove that our code works

@@ -147,7 +147,7 @@ whether we're talking about "the function itself" or "a call to the function wit
 ## How did we get here? {#introduction-history}
 
 In the early 2000s,
-the <span i="University of Toronto">University of Toronto</span> asked <span i="Wilson, Greg">[Greg Wilson][wilson-greg]</span>
+the [% i "University of Toronto" %]University of Toronto[% /i %] asked [% i "Wilson, Greg" %][Greg Wilson][wilson-greg][% /i %]
 to teach an undergraduate course on software architecture.
 After delivering the course three times he told the university they should cancel it:
 between them,
@@ -155,7 +155,7 @@ the dozen textbooks he had purchased with the phrase "software architecture" in 
 devoted a total of less than 30 pages to describing the designs of actual systems.
 
 Frustrated by that,
-he and <span i="Oram, Andy">[Andy Oram][oram-andy]</span> persuaded some well-known programmers to contribute a chapter each
+he and [% i "Oram, Andy" %][Andy Oram][oram-andy][% /i %] persuaded some well-known programmers to contribute a chapter each
 to a collection called *Beautiful Code* <cite>Oram2007</cite>,
 which went on to win the Jolt Award in 2007.
 Entries in the book described everything from figuring out whether three points are on a line
@@ -165,9 +165,9 @@ but the breadth that made them fun to read
 also meant they weren't particularly useful for teaching.
 
 To fix that,
-Greg Wilson, <span i="Brown, Amy">[Amy Brown][brown-amy]</span>,
-<span i="Armstrong, Tavish">[Tavish Armstrong][armstrong-tavish]</span>,
-and <span i="DiBernardo, Mike">[Mike DiBernardo][dibernardo-mike]</span>
+Greg Wilson, [% i "Brown, Amy" %][Amy Brown][brown-amy][% /i %],
+[% i "Armstrong, Tavish" %][Tavish Armstrong][armstrong-tavish][% /i %],
+and [% i "DiBernardo, Mike" %][Mike DiBernardo][dibernardo-mike][% /i %]
 edited a four-book series between 2011 and 2016 called *[The Architecture of Open Source Applications][aosa]*.
 In the first two volumes,
 the creators of fifty open source projects described their systems' designs;
@@ -207,7 +207,7 @@ or send us email. <!-- FIXME -->
 
 ## Who helped us and inspired us? {#introduction-help}
 
-This book is dedicated to <span i="Kernighan, Brian">[Brian Kernighan][kernighan-brian]</span>,
+This book is dedicated to [% i "Kernighan, Brian" %][Brian Kernighan][kernighan-brian][% /i %],
 who taught us all how to write about software.
 I am grateful to the creators of [Emacs][emacs],
 [ESLint][eslint],

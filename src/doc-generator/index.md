@@ -9,16 +9,16 @@ if it is close to the code.
 Tools that extract specially-formatted comments from code and turn them into documentation
 have been around since at least the 1980s;
 many are used for JavaScript,
-including <span i="JSDoc">[JSDoc][jsdoc]</span> and <span i="ESDoc">[ESDoc][esdoc]</span>.
+including [% i "JSDoc" %][JSDoc][jsdoc][% /i %] and [% i "ESDoc" %][ESDoc][esdoc][% /i %].
 This chapter will use what we learned in <a section="code-generator"/> about parsing source code
 to build a simple documentation generator of our own.
 
 ## How can we extract documentation comments? {#doc-generator-extract}
 
-We will use <span i="Acorn">[Acorn][acorn]</span> once again to parse our source files.
+We will use [% i "Acorn" %][Acorn][acorn][% /i %] once again to parse our source files.
 This time we will use the parser's `onComment` option,
 giving it an array to fill in.
-For the moment we won't bother to assign the <span i="abstract syntax tree">AST</span> produced by parsing to a variable
+For the moment we won't bother to assign the [% i "abstract syntax tree" %]AST[% /i %] produced by parsing to a variable
 because we are just interested in the comments:
 
 <div class="include" file="extract-comments.js" />
@@ -57,7 +57,7 @@ so the first character in the extracted text is `*`:
 
 ## What input will we try to handle? {#doc-generator-input}
 
-We will use <span i="Markdown">[Markdown][markdown]</span> for formatting our documentation.
+We will use [% i "Markdown" %][Markdown][markdown][% /i %] for formatting our documentation.
 The [% i "doc comment" "comment!doc" %][% g doc_comment %]doc comments[% /g %][% /i %] for function definitions look like this:
 
 <div class="include" file="example-plain.js" />
@@ -74,7 +74,7 @@ and we have to remember the back-quotes for formatting code.
 We will fix some of these problems once we have a basic tool up and running.
 
 The next step in doing that is to translate Markdown into HTML.
-There are many <span i="Markdown!parser">Markdown parsers</span> in JavaScript;
+There are many [% i "Markdown!parser" %]Markdown parsers[% /i %] in JavaScript;
 after experimenting with a few,
 we decided to use [`markdown-it`][markdown-it]
 along with the [`markdown-it-anchor`][markdown-it-anchor] extension
@@ -129,7 +129,7 @@ but there is a double `h1` header for each file (the filename and and the title 
 the anchor IDs are hard to read,
 there are no cross-references,
 and so on.
-Some of the visual issues can be resolved with <span i="CSS">CSS</span>,
+Some of the visual issues can be resolved with [% i "CSS" %]CSS[% /i %],
 and we can change our input format to make processing easier
 as long as it also makes authoring easier.
 However,
@@ -202,7 +202,7 @@ We can use this to create better output (<a figure="doc-generator-fill-in-header
 >
 > We haven't made this point explicitly in a while,
 > so we will repeat it here:
-> <span i="code!as data">code is just another kind of data</span>,
+> [% i "code!as data" %]code is just another kind of data[% /i %],
 > and we can process it just like we would process any other data.
 > Parsing code to produce an AST is no different from parsing HTML to produce DOM;
 > in both cases we are simply transforming a textual representation that's easy for people to author
@@ -213,7 +213,7 @@ We can use this to create better output (<a figure="doc-generator-fill-in-header
 > Treating code as data enables us to do routine programming tasks with a single command,
 > which in turn gives us more time to think about the tasks that we can't (yet) automate.
 > Doing this is the foundation of a tool-based approach to software engineering;
-> as the mathematician <span i="Whitehead, Alfred North">Alfred North Whitehead</span> once wrote,
+> as the mathematician [% i "Whitehead, Alfred North" %]Alfred North Whitehead[% /i %] once wrote,
 > "Civilization advances by extending the number of important operations which we can perform without thinking about them."
 
 ## Exercises {#doc-generator-exercises}

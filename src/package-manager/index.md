@@ -5,7 +5,7 @@ lede: "Getting and installing packages"
 ---
 
 There is no point building software if you can't install it.
-Inspired by the <span i="Comprehensive TeX Archive Network">Comprehensive TeX Archive Network</span> [CTAN][ctan],
+Inspired by the [% i "Comprehensive TeX Archive Network" %]Comprehensive TeX Archive Network[% /i %] [CTAN][ctan],
 most languages now have an online archive from which developers can download packages.
 Each package typically has a name and one or more version(s);
 each version may have a list of dependencies,
@@ -28,7 +28,7 @@ the disk space wouldn't be much of an obstacle,
 but loading dozens of copies of the same package into the browser
 would slow applications down.
 This chapter therefore explores how to find a workable installation or prove that there isn't one.
-It is based in part on [this tutorial][package-manager-tutorial] by <span i="Nison, Maël">[Maël Nison][nison-mael]</span>.
+It is based in part on [this tutorial][package-manager-tutorial] by [% i "Nison, Maël" %][Maël Nison][nison-mael][% /i %].
 
 > ### Satisfiability
 >
@@ -155,7 +155,7 @@ we would need to add rules for resolving ties.
 </div>
 
 To construct <a table="package-manager-example-dependencies"/>
-we find the <span i="transitive closure">transitive closure</span> of all packages plus all of their dependencies.
+we find the [% i "transitive closure" %]transitive closure[% /i %] of all packages plus all of their dependencies.
 We then pick two packages and create a list of their valid pairs.
 Choosing a third package,
 we cross off pairs that can't be satisfied
@@ -288,7 +288,7 @@ but most give better performance in most cases.
 
 > ### What research is for
 >
-> <span i="SAT solver">SAT solvers</span> are like regular expression libraries and random number generators:
+> [% i "SAT solver" %]SAT solvers[% /i %] are like regular expression libraries and random number generators:
 > it is the work of many lifetimes to create ones that are both fast and correct.
 > A lot of computer science researchers devote their careers to highly-specialized topics like this.
 > The debates often seem esoteric to outsiders,

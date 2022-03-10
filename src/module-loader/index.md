@@ -107,7 +107,7 @@ What if the code we are loading loads other code?
 We can visualize the network of who requires whom as a [% i "directed graph" %][% g directed_graph %]directed graph[% /g %][% /i %]:
 if X requires Y,
 we draw an arrow from X to Y.
-Unlike the <span i="directed acyclic graph">directed *acyclic* graphs</span> we met in <a section="build-manager"/>,
+Unlike the [% i "directed acyclic graph" %]directed *acyclic* graphs[% /i %] we met in <a section="build-manager"/>,
 though,
 these graphs can contain cycles:
 we say a [% i "circular dependency" %][% g circular_dependency %]circular dependency[% /g %][% /i %] exists
@@ -128,7 +128,7 @@ X may not (fully) exist yet.
 
 [% figure slug="module-loader-circularity" img="figures/circularity.svg" alt="Circularity test case" caption="Testing circular imports." %]
 
-Circular dependencies work in <span i="Python">[Python][python]</span>,
+Circular dependencies work in [% i "Python" %][Python][python][% /i %],
 but only sort of.
 Let's create two files called `major.py` and `minor.py`:
 
@@ -184,7 +184,7 @@ To enable this,
 we need to provide the module with a function called `require`
 that it can call as it's loading.
 As in <a section="file-interpolator"/>,
-this function checks a <span i="cache!of loaded files">cache</span>
+this function checks a [% i "cache!of loaded files" %]cache[% /i %]
 to see if the file being asked for has already been loaded.
 If not, it loads it and saves it;
 either way, it returns the result.

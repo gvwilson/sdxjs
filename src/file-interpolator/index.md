@@ -14,9 +14,9 @@ and then reads and inserts the files specified in those comments
 before running the code
 (<a figure="file-interpolator-conceptual"/>).
 Modern programming languages don't work this way,
-but <span i="C">C</span> and <span i="C++">C++</span> do this
+but [% i "C" %]C[% /i %] and [% i "C++" %]C++[% /i %] do this
 with [% i "header file!in C and C++" %][% g header_file %]header files[% /g %][% /i %],
-and <span i="static site generator!header file; header file!static site generator">static site generators</span>
+and [% i "static site generator!header file" "header file!static site generator" %]static site generators[% /i %]
 (<a section="page-templates"/>) do this to share fragments of HTML.
 
 [% figure slug="file-interpolator-conceptual" img="figures/conceptual.svg" alt="Using file inclusions" caption="Including fragments of code to create runnable programs." %]
@@ -29,7 +29,7 @@ and file to include when loading:
 
 We got this to work,
 but decided to use a different approach in this book.
-The stumbling block was that the style-checking tool <span i="ESLint">[ESLint][eslint]</span>
+The stumbling block was that the style-checking tool [% i "ESLint" %][ESLint][eslint][% /i %]
 didn't know what to make of our inclusions,
 so we would either have to modify it or build a style checker of our own.
 (We will actually do that in <a section="style-checker"/>,
@@ -60,7 +60,7 @@ which takes a string as input and executes it as if it were part of the program
 
 > ### This is not a good idea
 >
-> <span i="eval!insecurity of">`eval`</span> is a security risk:
+> [% i "eval!insecurity of" %]`eval`[% /i %] is a security risk:
 > arbitrary code can do arbitrary things,
 > so if we take a string typed in by a user and execute it without any checks
 > it could email our bookmark list to villains all over the world,
@@ -146,8 +146,8 @@ The source files in this book are small enough
 that we don't have to worry about reading them repeatedly,
 but we would like to avoid re-reading things unnecessarily
 in large systems or when there might be network delays.
-The usual approach is to create a <span i="cache!of loaded files">cache</span>
-using the <span i="Singleton pattern; design pattern!Singleton">Singleton pattern</span>
+The usual approach is to create a [% i "cache!of loaded files" %]cache[% /i %]
+using the [% i "Singleton pattern" "design pattern!Singleton" %]Singleton pattern[% /i %]
 that we first met in <a section="unit-test"/>.
 Whenever we want to read a file,
 we check to see if it's already in the cache
@@ -301,7 +301,7 @@ Let's test it:
 
 <div class="include" pat="test-import-interpolate.*" fill="sh out" />
 
-When this program runs, its <span i="lifecycle!of file interpolation">lifecycle</span> is:
+When this program runs, its [% i "lifecycle!of file interpolation" %]lifecycle[% /i %] is:
 
 1.  Node starts to run `test-import-interpolate.js`.
 1.  It sees the `import` of need-interpolate` so it reads and evaluates that code.
@@ -357,7 +357,7 @@ our lesson can be inconsistent.
 to try to prevent this from happening,
 but it never really caught on---unfortunately,
 most programming systems that describe themselves as "literate" these days
-only implement part of <span i="Knuth, Donald">[Donald Knuth's][knuth-donald]</span> original vision.
+only implement part of [% i "Knuth, Donald" %][Donald Knuth's][knuth-donald][% /i %] original vision.
 
 ## Exercises {#file-interpolator-exercises}
 

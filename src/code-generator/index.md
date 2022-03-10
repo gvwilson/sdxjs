@@ -7,7 +7,7 @@ lede: "Modifying code to track coverage and execution times"
 We've been writing tests since <a section="unit-test"/>,
 but how much of our code do they actually check?
 One way to find out is to use a [% i "code coverage" %][% g code_coverage %]code coverage[% /g %][% /i %] tool
-like <span i="Istanbul">[Istanbul][istanbul]</span>
+like [% i "Istanbul" %][Istanbul][istanbul][% /i %]
 that watches a program while it executes
 and keeps track of which lines have run and which haven't.
 Making sure that each line is tested at least once doesn't guarantee that the code is bug-free,
@@ -16,8 +16,8 @@ but any code that *isn't* run shouldn't be trusted.
 Our code coverage tool will keep track of which functions have and haven't been called.
 Rather than rewriting [Node][nodejs] to keep track of this for us,
 we will modify the functions themselves
-by parsing the code with <span i="Acorn">[Acorn][acorn]</span>,
-inserting the instructions we need into the <span i="abstract syntax tree">AST</span>,
+by parsing the code with [% i "Acorn" %][Acorn][acorn][% /i %],
+inserting the instructions we need into the [% i "abstract syntax tree" %]AST[% /i %],
 and then turning the AST back into code.
 
 > ### Simple usually isn't
@@ -41,7 +41,7 @@ all of the "extra" arguments in the call that don't line up with regular paramet
 are stuffed into the variable `args`
 (<a figure="code-generator-spread"/>).
 We can also call a function by putting values in a variable
-and using `func(...var)` to <span i="spread!function arguments">spread</span> those values out.
+and using `func(...var)` to [% i "spread!function arguments" %]spread[% /i %] those values out.
 There's nothing special about the names `args` and `vars`:
 what matters is the ellipsis `...`
 
@@ -67,7 +67,7 @@ Let's try it out:
 This is an example of the [% i "Decorator pattern" "design pattern!Decorator" %][% g decorator_pattern %]Decorator[% /g %][% /i %] design pattern.
 A decorator is a function whose job is to modify the behavior of other functions
 in some general ways.
-Decorators are built in to some languages (like <span i="Python">[Python][python]</span>),
+Decorators are built in to some languages (like [% i "Python" %][Python][python][% /i %]),
 and we can add them in most others as we have done here.
 
 ## How can we generate JavaScript? {#code-generator-generate}
@@ -83,14 +83,14 @@ and for that we need to parse and generate code.
 > A third way to achieve what we want is
 > to let the system turn code into runnable instructions
 > and then modify those instructions.
-> This approach is often used in compiled languages like <span i="Java">[Java][java]</span>,
+> This approach is often used in compiled languages like [% i "Java" %][Java][java][% /i %],
 > where the [% g byte_code %]byte code[% /g %] produced by the [% g compiler %]compiler[% /g %] is saved in files
 > in order to be run.
 > We can't do this here because Node compiles and runs code in a single step.
 
 Our tool will parse the JavaScript with Acorn to create an AST,
 modify the AST,
-and then use a library called <span i="Escodegen">[Escodegen][escodegen]</span> to turn the AST back into JavaScript.
+and then use a library called [% i "Escodegen" %][Escodegen][escodegen][% /i %] to turn the AST back into JavaScript.
 To start,
 let's look at the AST for a simple function definition,
 which is <span class="linecount" file="func-def.out"/> lines of pretty-printed JSON:
@@ -129,14 +129,14 @@ to record the function's name and modify the node:
 <!-- continue -->
 Notice how we don't try to build the nodes by hand,
 but instead construct the string we need,
-use <span i="Acorn">Acorn</span> to parse that,
+use [% i "Acorn" %]Acorn[% /i %] to parse that,
 and use the result.
 Doing this saves us from embedding multiple lines of JSON in our program
 and also ensures that if a newer version of Acorn decides to generate a different AST,
 our program will do the right thing automatically.
 
 Finally,
-we need to add a couple of <span i="helper function">helper functions</span>:
+we need to add a couple of [% i "helper function" %]helper functions[% /i %]:
 
 <div class="include" file="multi-func-counter.js" keep="admin" />
 
@@ -189,7 +189,7 @@ Let's run one last test:
 <div class="include" file="test-time-func.out" />
 
 Source-to-source translation is widely used in JavaScript:
-tools like <span i="Babel">[Babel][babel]</span> use it to transform modern features like `async` and `await`
+tools like [% i "Babel" %][Babel][babel][% /i %] use it to transform modern features like `async` and `await`
 (<a section="async-programming"/>)
 into code that older browsers can understand.
 The technique is so powerful that it is built into languages like Scheme,

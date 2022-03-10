@@ -6,7 +6,7 @@ lede: "Archiving files with directory structure"
 
 Now that we can test software we have something worth saving.
 A [% i "version control system" %][% g version_control_system %]version control system[% /g %][% /i %]
-like <span i="Git; version control system!Git">[Git][git]</span>
+like [% i "Git" "version control system!Git" %][Git][git][% /i %]
 keeps track of changes to files
 so that we can recover old versions if we want to.
 Its heart is a way to archive files that:
@@ -20,7 +20,7 @@ In this chapter we will build a tool for doing both tasks.
 It won't do everything Git does:
 in particular, it won't let us create and merge branches.
 If you would like to know how that works,
-please see <span i="Cook, Mary Rose">[Mary Rose Cook][cook-mary-rose]</span>'s excellent [Gitlet][gitlet] project.
+please see [% i "Cook, Mary Rose" %][Mary Rose Cook][cook-mary-rose][% /i %]'s excellent [Gitlet][gitlet] project.
 
 ## How can we uniquely identify files? {#file-backup-unique}
 
@@ -65,7 +65,7 @@ we just want hashes that are random to make [% i "hash function!collision" "coll
 > We can use the same math to calculate how many files we need to hash before there's a 50% chance of a collision.
 > Instead of 365 we use \\(2^{160}\\) (the number of values that are 160 bits long),
 > and after checking [Wikipedia][wikipedia-birthday-problem]
-> and doing a few calculations with <span i="Wolfram Alpha">[Wolfram Alpha][wolfram-alpha]</span>,
+> and doing a few calculations with [% i "Wolfram Alpha" %][Wolfram Alpha][wolfram-alpha][% /i %],
 > we calculate that we would need to have approximately \\(10^{24}\\) files
 > in order to have a 50% chance of a collision.
 > We're willing to take that risk…
@@ -150,7 +150,7 @@ A different design would combine stat, read, and hash into a single step
 so that each file would be handled independently
 and use one `Promise.all` at the end to bring them all together.
 
-The first two <span i="helper function">helper functions</span> that `hashExisting` relies on
+The first two [% i "helper function" %]helper functions[% /i %] that `hashExisting` relies on
 wrap asynchronous operation in promises:
 
 <div class="include" file="hash-existing-promise.js" keep="helpers" />
@@ -210,7 +210,7 @@ let's manually create testing directories with manufactured (shortened) hashes:
 
 <div class="include" pat="tree-test.*" fill="sh out" />
 
-We use <span i="Mocha">[Mocha][mocha]</span> to manage our tests.
+We use [% i "Mocha" %][Mocha][mocha][% /i %] to manage our tests.
 Every test is an `async` function;
 Mocha automatically waits for them all to complete before reporting results.
 To run them,
@@ -263,9 +263,9 @@ the files and what they should contain:
 <div class="include" file="test/test-find-mock.js" omit="tests" />
 
 <!-- continue -->
-<span i="Mocha!beforeEach">Mocha</span> automatically calls `beforeEach` before running each tests,
-and <span i="Mocha!afterEach">`afterEach`</span> after each tests completes
-(which is yet another <span i="protocol!for unit testing">protocol</span>).
+[% i "Mocha!beforeEach" %]Mocha[% /i %] automatically calls `beforeEach` before running each tests,
+and [% i "Mocha!afterEach" %]`afterEach`[% /i %] after each tests completes
+(which is yet another [% i "protocol!for unit testing" %]protocol[% /i %]).
 All of the tests stay exactly the same,
 and since `mock-fs` replaces the functions in the standard `fs` library with its own,
 nothing in our application needs to change either.
@@ -289,7 +289,7 @@ and then run some tests:
 > ### Design for test
 >
 > One of the best ways---maybe *the* best way---to evaluate software design
-> is by thinking about <span i="testability!as design criterion; software design!testability">testability</span> <cite>Feathers2004</cite>.
+> is by thinking about [% i "testability!as design criterion" "software design!testability" %]testability[% /i %] <cite>Feathers2004</cite>.
 > We were able to use a mock filesystem instead of a real one
 > because the filesystem has a well-defined API
 > that is provided to us in a single library,
