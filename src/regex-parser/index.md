@@ -33,10 +33,7 @@ we will create a tree of objects (<a figure="regex-parser-expression-tree"/>)
 rather than instances of the regular expression classes from <a section="pattern-matching"/>;
 the exercises will tackle the latter.
 
-<figure id="regex-parser-expression-tree">
-  <img src="figures/expression-tree.svg" alt="Expression tree for regular expression" />
-  <figcaption>Representing the result of parsing a regular expression as an tree.</figcaption>
-</figure>
+[% figure slug="regex-parser-expression-tree" img="figures/expression-tree.svg" alt="Expression tree for regular expression" caption="Representing the result of parsing a regular expression as an tree." %]
 
 > ### Please don't write parsers
 >
@@ -164,10 +161,7 @@ If our input is the pattern `/a|b/`, we can:
 
 Again, this automatically handles patterns like `/(ab)|c*|(de)/`.
 
-<figure id="regex-parser-mechanics">
-  <img src="figures/mechanics.svg" alt="Mechanics of combining tokens" />
-  <figcaption>Mechanics of combining tokens while parsing regular expressions.</figcaption>
-</figure>
+[% figure slug="regex-parser-mechanics" img="figures/mechanics.svg" alt="Mechanics of combining tokens" caption="Mechanics of combining tokens while parsing regular expressions." %]
 
 It's time to turn these ideas into code.
 The main structure of our parser is:
@@ -229,10 +223,7 @@ but at least they're broken the same way everywhere.
 > that can do any conceivable computation.
 > <cite>Conery2021</cite> presents this idea and others for self-taught developers.
 
-<figure id="regex-parser-finite-state-machine">
-  <img src="figures/finite-state-machine.svg" alt="Finite state machine" />
-  <figcaption>A finite state machine equivalent to a regular expression.</figcaption>
-</figure>
+[% figure slug="regex-parser-finite-state-machine" img="figures/finite-state-machine.svg" alt="Finite state machine" caption="A finite state machine equivalent to a regular expression." %]
 
 ## Exercises {#regex-parser-exercises}
 

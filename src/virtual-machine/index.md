@@ -39,10 +39,7 @@ for a program made up of 110 instructions:
     Both the program and its data live in this single block of memory;
     we chose the size 256 so that each address will fit in a single byte.
 
-<figure id="virtual-machine-architecture">
-  <img src="figures/architecture.svg" alt="Virtual machine architecture" />
-  <figcaption>Architecture of the virtual machine.</figcaption>
-</figure>
+[% figure slug="virtual-machine-architecture" img="figures/architecture.svg" alt="Virtual machine architecture" caption="Architecture of the virtual machine." %]
 
 The instructions for our VM are 3 bytes long.
 The <span g="op_code" i="op code; virtual machine!op code">op code</span> fits into one byte,
@@ -110,10 +107,7 @@ to extract the op code and operands from the instruction
 
 <div class="include" file="vm-base.js" keep="fetch" />
 
-<figure id="virtual-machine-unpacking">
-  <img src="figures/unpacking.svg" alt="Unpacking instructions" />
-  <figcaption>Using bitwise operations to unpack instructions.</figcaption>
-</figure>
+[% figure slug="virtual-machine-unpacking" img="figures/unpacking.svg" alt="Unpacking instructions" caption="Using bitwise operations to unpack instructions." %]
 
 > ### Semi-realistic
 >
@@ -179,10 +173,7 @@ this program prints the numbers from 0 to 2
 
 <div class="include" pat="count-up.*" fill="as mx" />
 
-<figure id="virtual-machine-count-up">
-  <img src="figures/count-up.svg" alt="Counting from 0 to 2" />
-  <figcaption>Flowchart of assembly language program to count up from 0 to 2.</figcaption>
-</figure>
+[% figure slug="virtual-machine-count-up" img="figures/count-up.svg" alt="Counting from 0 to 2" caption="Flowchart of assembly language program to count up from 0 to 2." %]
 
 Let's trace this program's execution
 (<a figure="virtual-machine-trace-counter"/>):
@@ -196,10 +187,7 @@ Let's trace this program's execution
     which takes three instructions.
 1.  If the program *doesn't* jump back, it halts.
 
-<figure id="virtual-machine-trace-counter">
-  <img src="figures/trace-counter.svg" alt="Trace counting program" />
-  <figcaption>Tracing registers and memory values for a simple counting program.</figcaption>
-</figure>
+[% figure slug="virtual-machine-trace-counter" img="figures/trace-counter.svg" alt="Trace counting program" caption="Tracing registers and memory values for a simple counting program." %]
 
 The implementation of the assembler mirrors the simplicity of assembly language.
 The main method gets interesting lines,
@@ -253,10 +241,7 @@ by using `.data` on a line of its own to mark the start of the data section
 and then `label: number` to give a region a name and allocate some storage space
 (<a figure="virtual-machine-storage-allocation"/>).
 
-<figure id="virtual-machine-storage-allocation">
-  <img src="figures/storage-allocation.svg" alt="Storage allocation" />
-  <figcaption>Allocating storage for arrays in the virtual machine.</figcaption>
-</figure>
+[% figure slug="virtual-machine-storage-allocation" img="figures/storage-allocation.svg" alt="Storage allocation" caption="Allocating storage for arrays in the virtual machine." %]
 
 This enhancement only requires a few changes to the assembler.
 First,

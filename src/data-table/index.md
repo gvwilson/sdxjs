@@ -24,10 +24,7 @@ to the <span g="data_frame" i="data frame">data frames</span> in
 <span i="Python">[Python's][python]</span> <span i="Pandas">[Pandas][pandas]</span> library,
 or the <span i="DataForge">[DataForge][data-forge]</span> library for JavaScript <cite>Davis2018</cite>.
 
-<figure id="data-table-conceptual">
-  <img src="figures/conceptual.svg" alt="Data table structure" />
-  <figcaption>The structure of a data table.</figcaption>
-</figure>
+[% figure slug="data-table-conceptual" img="figures/conceptual.svg" alt="Data table structure" caption="The structure of a data table." %]
 
 The key operations on data tables are those provided by <span g="sql" i="SQL">SQL</span>:
 filter, select, summarize, and join.
@@ -51,10 +48,7 @@ In JavaScript,
 this could be implemented using an object
 whose members are all arrays of the same length.
 
-<figure id="data-table-storage-order">
-  <img src="figures/storage-order.svg" alt="Row-major vs. column-major storage order" />
-  <figcaption>Row-major storage vs. column-major storage for data tables.</figcaption>
-</figure>
+[% figure slug="data-table-storage-order" img="figures/storage-order.svg" alt="Row-major vs. column-major storage order" caption="Row-major storage vs. column-major storage for data tables." %]
 
 To find out which is better
 we will construct one of each,
@@ -97,10 +91,7 @@ while selecting should be relatively slow because we have to construct a new set
 
 <div class="include" file="table-performance.js" keep="operate-rows" />
 
-<figure id="data-table-row-ops">
-  <img src="figures/row-ops.svg" alt="Row-major operations" />
-  <figcaption>Operations on row-major data tables.</figcaption>
-</figure>
+[% figure slug="data-table-row-ops" img="figures/row-ops.svg" alt="Row-major operations" caption="Operations on row-major data tables." %]
 
 Now let's do the same for column-major storage.
 Building the object that holds the columns is straightforward:
@@ -116,10 +107,7 @@ but filtering will be relatively slow since we are constructing multiple new arr
 
 <div class="include" file="table-performance.js" keep="operate-cols" />
 
-<figure id="data-table-col-ops">
-  <img src="figures/col-ops.svg" alt="Column-major operations" />
-  <figcaption>Operations on column-major data tables.</figcaption>
-</figure>
+[% figure slug="data-table-col-ops" img="figures/col-ops.svg" alt="Column-major operations" caption="Operations on column-major data tables." %]
 
 > ### Not quite polymorphic
 >
@@ -235,10 +223,7 @@ some bits define the value's type
 while other bits store the value itself in a type-dependent way
 (<a figure="data-table-object-storage"/>).
 
-<figure id="data-table-object-storage">
-  <img src="figures/object-storage.svg" alt="JavaScript object storage" />
-  <figcaption>How JavaScript uses tagged data structures to store objects.</figcaption>
-</figure>
+[% figure slug="data-table-object-storage" img="figures/object-storage.svg" alt="JavaScript object storage" caption="How JavaScript uses tagged data structures to store objects." %]
 
 We can save space by keeping track of the types ourselves
 and just storing the bits that represent the values.
@@ -250,10 +235,7 @@ As <a figure="data-table-packed-storage"/> shows,
 we can mix different types of data in a single `ArrayBuffer`,
 but it's up to us to keep track of which bytes belong to which values.
 
-<figure id="data-table-packed-storage">
-  <img src="figures/packed-storage.svg" alt="Packing objects for storage" />
-  <figcaption>Storing object values as bits with lookup information.</figcaption>
-</figure>
+[% figure slug="data-table-packed-storage" img="figures/packed-storage.svg" alt="Packing objects for storage" caption="Storing object values as bits with lookup information." %]
 
 To store a column-major table we will fill an `ArrayBuffer` with:
 

@@ -45,10 +45,7 @@ and using `func(...var)` to <span i="spread!function arguments">spread</span> th
 There's nothing special about the names `args` and `vars`:
 what matters is the ellipsis `...`
 
-<figure id="code-generator-spread">
-  <img src="figures/spread.svg" alt="Spreading parameters" />
-  <figcaption>Using ...args to capture and spread parameters.</figcaption>
-</figure>
+[% figure slug="code-generator-spread" img="figures/spread.svg" alt="Spreading parameters" caption="Using ...args to capture and spread parameters." %]
 
 We can use `...args` to capture all of the arguments to a function call
 and forward them to another function.

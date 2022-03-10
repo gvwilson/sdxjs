@@ -32,10 +32,7 @@ so let's slim down the JSON that we extract:
 
 <div class="include" pat="two-kinds-of-comment-subset.*" fill="sh out" />
 
-<figure id="doc-generator-comments">
-  <img src="figures/comments.svg" alt="Line and block comments" />
-  <figcaption>How line comments and block comments are distinguished and represented.</figcaption>
-</figure>
+[% figure slug="doc-generator-comments" img="figures/comments.svg" alt="Line and block comments" caption="How line comments and block comments are distinguished and represented." %]
 
 Acorn distinguishes two kinds of comments (<a figure="doc-generator-comments"/>).
 <span g="line_comment" i="line comment; comment!line">Line comments</span> cannot span multiple lines;
@@ -123,15 +120,9 @@ Let's run this generator and see what it produces
 <div class="include" file="process-plain.sh" />
 <div class="include" file="process-plain.html" />
 
-<figure id="doc-generator-process-plain">
-  <img src="figures/process-plain.svg" alt="Output of documentation generator" />
-  <figcaption>The page produced by the documentation generator.</figcaption>
-</figure>
+[% figure slug="doc-generator-process-plain" img="figures/process-plain.svg" alt="Output of documentation generator" caption="The page produced by the documentation generator." %]
 
-<figure id="doc-generator-mapping">
-  <img src="figures/mapping.svg" alt="Mapping comments to documentation" />
-  <figcaption>How comments in code map to documentation in HTML.</figcaption>
-</figure>
+[% figure slug="doc-generator-mapping" img="figures/mapping.svg" alt="Mapping comments to documentation" caption="How comments in code map to documentation in HTML." %]
 
 It works,
 but there is a double `h1` header for each file (the filename and and the title comment),
@@ -205,10 +196,7 @@ We can use this to create better output (<a figure="doc-generator-fill-in-header
 <div class="include" file="fill-in-headers.js" />
 <div class="include" file="fill-in-headers.html" />
 
-<figure id="doc-generator-fill-in-headers">
-  <img src="figures/fill-in-headers.svg" alt="Filling in headers" />
-  <figcaption>Filling in headers when generating documentation.</figcaption>
-</figure>
+[% figure slug="doc-generator-fill-in-headers" img="figures/fill-in-headers.svg" alt="Filling in headers" caption="Filling in headers when generating documentation." %]
 
 > ### Code is data
 >

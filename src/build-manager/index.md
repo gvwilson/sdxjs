@@ -27,10 +27,7 @@ to create a runnable program
 If a source file hasn't changed,
 there's no need to recompile it before linking.
 
-<figure id="build-manager-compiling">
-  <img src="figures/compiling.svg" alt="Compiling and linking" />
-  <figcaption>Compiling source files and linking the resulting modules.</figcaption>
-</figure>
+[% figure slug="build-manager-compiling" img="figures/compiling.svg" alt="Compiling and linking" caption="Compiling source files and linking the resulting modules." %]
 
 A <span g="build_manager" i="build manager">build manager</span> takes a description of what depends on what,
 figures out which files are out of date,
@@ -68,10 +65,7 @@ We say that a target is <span g="build_stale" i="stale (in build); build!stale">
 When this happens,
 we use the recipes to bring it up to date.
 
-<figure id="build-manager-dependencies">
-  <img src="figures/dependencies.svg" alt="Respecting dependencies" />
-  <figcaption>How a build manager finds and respects dependencies.</figcaption>
-</figure>
+[% figure slug="build-manager-dependencies" img="figures/dependencies.svg" alt="Respecting dependencies" caption="How a build manager finds and respects dependencies." %]
 
 Our build manager must:
 
@@ -140,10 +134,7 @@ and child classes fill them in
 This design pattern ensures that every child does the same things in the same order,
 even if the details of *how* vary from case to case.
 
-<figure id="build-manager-template-method">
-  <img src="figures/template-method.svg" alt="Template Method pattern" />
-  <figcaption>The Template Method pattern in action.</figcaption>
-</figure>
+[% figure slug="build-manager-template-method" img="figures/template-method.svg" alt="Template Method pattern" caption="The Template Method pattern in action." %]
 
 We would normally implement all of the methods required by the `build` method at the same time,
 but to make the evolving code easier to follow we will write them them one by one.
@@ -299,10 +290,7 @@ we will use `@TARGET` for the target,
 and `@DEP[1]`, `@DEP[2]`, and so on for specific dependencies
 (<a figure="build-manager-pattern-rules"/>).
 
-<figure id="build-manager-pattern-rules">
-  <img src="figures/pattern-rules.svg" alt="Pattern rules" />
-  <figcaption>Turning patterns rules into runnable commands.</figcaption>
-</figure>
+[% figure slug="build-manager-pattern-rules" img="figures/pattern-rules.svg" alt="Pattern rules" caption="Turning patterns rules into runnable commands." %]
 
 Our variable expander looks like this:
 

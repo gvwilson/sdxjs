@@ -114,10 +114,7 @@ but one of them has to be created first.
 "A gets B then B tells A about itself" is a common pattern;
 we will look at other ways to manage it in the exercises.
 
-<figure id="debugger-initialization">
-  <img src="figures/initialization.svg" alt="Initializing mutually-depending objects" />
-  <figcaption>Two-step initialization of mutually-dependent objects.</figcaption>
-</figure>
+[% figure slug="debugger-initialization" img="figures/initialization.svg" alt="Initializing mutually-depending objects" caption="Two-step initialization of mutually-dependent objects." %]
 
 To run the program,
 we create a debugger object and pass it to the VM's constructor:
@@ -221,10 +218,7 @@ Our library replaces the input and output functions of the application being tes
 then provides input when asked and checks output when it is given
 (<a figure="debugger-test-interact"/>).
 
-<figure id="debugger-test-interact">
-  <img src="figures/test-interact.svg" alt="Testing interactive application" />
-  <figcaption>Replacing input and output to test interactive applications.</figcaption>
-</figure>
+[% figure slug="debugger-test-interact" img="figures/test-interact.svg" alt="Testing interactive application" caption="Replacing input and output to test interactive applications." %]
 
 <!-- continue -->
 The results look like this:

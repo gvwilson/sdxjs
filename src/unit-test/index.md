@@ -55,10 +55,7 @@ one of the assertions we put in the test as a check
 (<a figure="unit-test-mental-model"/>).
 Any other kind of assertion indicates that the test itself contains an error.
 
-<figure id="unit-test-mental-model">
-  <img src="figures/mental-model.svg" alt="Mental model of unit testing" />
-  <figcaption>Running tests that can pass, fail, or contain errors.</figcaption>
-</figure>
+[% figure slug="unit-test-mental-model" img="figures/mental-model.svg" alt="Mental model of unit testing" caption="Running tests that can pass, fail, or contain errors." %]
 
 ## How can we separate registration, execution, and reporting? {#unit-test-design}
 
@@ -150,10 +147,7 @@ it can call `Hope.test` to record a test for later execution
 and `Hope.run` to execute all of the tests registered up until that point
 (<a figure="unit-test-hope-structure"/>).
 
-<figure id="unit-test-hope-structure">
-  <img src="figures/hope-structure.svg" alt="Recording and running tests" />
-  <figcaption>Creating a singleton, recording tests, and running them.</figcaption>
-</figure>
+[% figure slug="unit-test-hope-structure" img="figures/hope-structure.svg" alt="Recording and running tests" caption="Creating a singleton, recording tests, and running them." %]
 
 Finally,
 our `Hope` class can report results as both a terse one-line summary and as a detailed listing.
@@ -284,10 +278,7 @@ when a pair of files `test-add.js` and `test-sub.js` are loaded by our framework
 10.  `pray` can now ask the unique instance of `Hope` to run all of the tests,
      then get a report from the `Hope` singleton and display it.
 
-<figure id="unit-test-lifecycle">
-  <img src="figures/lifecycle.svg" alt="Unit testing lifecycle" />
-  <figcaption>Lifecycle of dynamically-discovered unit tests.</figcaption>
-</figure>
+[% figure slug="unit-test-lifecycle" img="figures/lifecycle.svg" alt="Unit testing lifecycle" caption="Lifecycle of dynamically-discovered unit tests." %]
 
 ## Exercises {#unit-test-exercises}
 

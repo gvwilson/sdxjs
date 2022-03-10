@@ -40,10 +40,7 @@ whose nodes store information about what's in the program
 An AST is for a program what the <span i="Document Object Model">DOM</span> is for HTML:
 an in-memory representation that is easy for software to inspect and manipulate.
 
-<figure id="style-checker-parse-tree">
-  <img src="figures/parse-tree.svg" alt="A small parse tree" />
-  <figcaption>The parse tree of a simple program.</figcaption>
-</figure>
+[% figure slug="style-checker-parse-tree" img="figures/parse-tree.svg" alt="A small parse tree" caption="The parse tree of a simple program." %]
 
 ASTs can be quite complex---for example,
 the JSON representation of the AST for a single constant declaration
@@ -80,10 +77,7 @@ for demonstration purposes we will add nodes to an array called `state`
 and report them all at the end
 (<a figure="style-checker-walk-tree"/>).
 
-<figure id="style-checker-walk-tree">
-  <img src="figures/walk-tree.svg" alt="Walking a tree" />
-  <figcaption>Walking a tree to perform an operation at each node.</figcaption>
-</figure>
+[% figure slug="style-checker-walk-tree" img="figures/walk-tree.svg" alt="Walking a tree" caption="Walking a tree to perform an operation at each node." %]
 
 <div class="include" pat="walk-ast.*" fill="js out" />
 
@@ -218,10 +212,7 @@ an iterator returns the elements of a complex structure one by one for processin
 One way to think about it is that the Visitor pattern encapsulates recursion,
 while the Iterator pattern turns everything into a `for` loop.
 
-<figure id="style-checker-iterator">
-  <img src="figures/iterator.svg" alt="The Iterator pattern" />
-  <figcaption>Finding nodes in the tree using the Iterator pattern.</figcaption>
-</figure>
+[% figure slug="style-checker-iterator" img="figures/iterator.svg" alt="The Iterator pattern" caption="Finding nodes in the tree using the Iterator pattern." %]
 
 We can implement the Iterator pattern in JavaScript using
 <span g="generator_function" i="generator function; Iterator pattern!generator function">generator functions</span>.

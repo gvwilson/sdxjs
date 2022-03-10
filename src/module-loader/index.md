@@ -33,10 +33,7 @@ then defined another function inside the first
 and return that <span g="inner_function" i="inner function; function!inner">inner function</span>,
 that inner function will be the only thing with references to those variables.
 
-<figure id="module-loader-closures">
-  <img src="figures/closures.svg" alt="How closures work" />
-  <figcaption>Using closures to create private variables.</figcaption>
-</figure>
+[% figure slug="module-loader-closures" img="figures/closures.svg" alt="How closures work" caption="Using closures to create private variables." %]
 
 For example,
 let's create a function that always appends the same string to its argument:
@@ -92,10 +89,7 @@ we call the object we pass in `result` in `loadModule`.
 
 <div class="include" file="load-module-only.js" />
 
-<figure id="module-loader-iife">
-  <img src="figures/iife.svg" alt="Implementing modules with IIFEs" />
-  <figcaption>Using IIFEs to encapsulate modules and get their exports.</figcaption>
-</figure>
+[% figure slug="module-loader-iife" img="figures/iife.svg" alt="Implementing modules with IIFEs" caption="Using IIFEs to encapsulate modules and get their exports." %]
 
 <a figure="module-loader-iife"/> shows the structure of our loader so far.
 We can use this code as a test:
@@ -132,10 +126,7 @@ But interpreted languages usually run code as they're loading it,
 so if X is in the process of loading Y and Y tries to call X,
 X may not (fully) exist yet.
 
-<figure id="module-loader-circularity">
-  <img src="figures/circularity.svg" alt="Circularity test case" />
-  <figcaption>Testing circular imports.</figcaption>
-</figure>
+[% figure slug="module-loader-circularity" img="figures/circularity.svg" alt="Circularity test case" caption="Testing circular imports." %]
 
 Circular dependencies work in <span i="Python">[Python][python]</span>,
 but only sort of.

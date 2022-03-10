@@ -19,10 +19,7 @@ with <span g="header_file" i="header file!in C and C++">header files</span>,
 and <span i="static site generator!header file; header file!static site generator">static site generators</span>
 (<a section="page-templates"/>) do this to share fragments of HTML.
 
-<figure id="file-interpolator-conceptual">
-  <img src="figures/conceptual.svg" alt="Using file inclusions" />
-  <figcaption>Including fragments of code to create runnable programs.</figcaption>
-</figure>
+[% figure slug="file-interpolator-conceptual" img="figures/conceptual.svg" alt="Using file inclusions" caption="Including fragments of code to create runnable programs." %]
 
 The special comments in our source files contain two fields:
 the text to put in the displayed version
@@ -59,10 +56,7 @@ We can do the second and third steps whenever we want using a function called `e
 which takes a string as input and executes it as if it were part of the program
 (<a figure="file-interpolator-eval"/>).
 
-<figure id="file-interpolator-eval">
-  <img src="figures/eval.svg" alt="How eval works" />
-  <figcaption><code>eval</code> vs. normal translation and execution.</figcaption>
-</figure>
+[% figure slug="file-interpolator-eval" img="figures/eval.svg" alt="How eval works" caption="<code>eval</code> vs. normal translation and execution." %]
 
 > ### This is not a good idea
 >
@@ -164,10 +158,7 @@ if not,
 we read it and add it to the cache
 using the file path as a lookup key.
 
-<figure id="file-interpolator-cache">
-  <img src="figures/cache.svg" alt="Implementing a cache as a singleton" />
-  <figcaption>Using the Singleton pattern to implement a cache of loaded files.</figcaption>
-</figure>
+[% figure slug="file-interpolator-cache" img="figures/cache.svg" alt="Implementing a cache as a singleton" caption="Using the Singleton pattern to implement a cache of loaded files." %]
 
 We can write a simple cache in just a few lines of code:
 
@@ -216,10 +207,7 @@ we go through the directories in the search path in order
 until we find a file with a matching name
 (<a figure="file-interpolator-search-path"/>).
 
-<figure id="file-interpolator-search-path">
-  <img src="figures/search-path.svg" alt="Implementing a search path" />
-  <figcaption>Using a colon-separated list of directories as a search path.</figcaption>
-</figure>
+[% figure slug="file-interpolator-search-path" img="figures/search-path.svg" alt="Implementing a search path" caption="Using a colon-separated list of directories as a search path." %]
 
 > ### That's just how it is
 >

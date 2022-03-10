@@ -29,10 +29,7 @@ each has its own <span g="call_stack">call stack</span>,
 but objects can be shared between tasks
 (<a figure="async-programming-event-loop"/>).
 
-<figure id="async-programming-event-loop">
-  <img src="figures/event-loop.svg" alt="The event loop" />
-  <figcaption>Using an event loop to manage concurrent tasks.</figcaption>
-</figure>
+[% figure slug="async-programming-event-loop" img="figures/event-loop.svg" alt="The event loop" caption="Using an event loop to manage concurrent tasks." %]
 
 Most tasks execute all the code available in the order it is written.
 For example,
@@ -69,10 +66,7 @@ and those tasks can run in a different order than the order in which they were c
 
 <div class="include" pat="callbacks-with-timeouts.*" fill="js out" />
 
-<figure id="async-programming-set-timeout">
-  <img src="figures/set-timeout.svg" alt="Setting a timeout" />
-  <figcaption>Using <code>setTimeout</code> to delay operations.</figcaption>
-</figure>
+[% figure slug="async-programming-set-timeout" img="figures/set-timeout.svg" alt="Setting a timeout" caption="Using <code>setTimeout</code> to delay operations." %]
 
 If we give `setTimeout` a delay of zero milliseconds,
 the new task can be run right away,
@@ -121,10 +115,7 @@ it will get the value passed to `resolve`,
 which is how the first part of the action communicates with the second
 (<a figure="async-programming-resolve"/>).
 
-<figure id="async-programming-resolve">
-  <img src="figures/resolve.svg" alt="How promises resolve" />
-  <figcaption>Order of operations when a promise resolves.</figcaption>
-</figure>
+[% figure slug="async-programming-resolve" img="figures/resolve.svg" alt="How promises resolve" caption="Order of operations when a promise resolves." %]
 
 In order to make this work,
 `Pledge`'s <span g="constructor">constructor</span> must take a single function called `action`.
@@ -263,10 +254,7 @@ we can call a method of the second object immediately.
 
 <div class="include" pat="promise-example.*" fill="js out" />
 
-<figure id="async-programming-chained">
-  <img src="figures/chained.svg" alt="Chained promises" />
-  <figcaption>Chaining promises to make asynchronous operations depend on each other.</figcaption>
-</figure>
+[% figure slug="async-programming-chained" img="figures/chained.svg" alt="Chained promises" caption="Chaining promises to make asynchronous operations depend on each other." %]
 
 We therefore have three rules for chaining promises:
 
@@ -332,10 +320,7 @@ our line-counting program becomes:
 
 <div class="include" file="count-lines-print-filenames.js" />
 
-<figure id="async-programming-temporary-named-fields">
-  <img src="figures/temporary-named-fields.svg" alt="Temporary objects with named fields" />
-  <figcaption>Creating temporary objects with named fields to carry values forward.</figcaption>
-</figure>
+[% figure slug="async-programming-temporary-named-fields" img="figures/temporary-named-fields.svg" alt="Temporary objects with named fields" caption="Creating temporary objects with named fields to carry values forward." %]
 
 As in <a section="systems-programming"/>,
 this works until we run into a directory whose name name matches `*.*`,
@@ -417,10 +402,7 @@ and our `try`/`catch` doesn't help us
 
 <div class="include" pat="return-immediately.*" fill="js out" />
 
-<figure id="async-programming-handling-errors">
-  <img src="figures/handling-errors.svg" alt="Handling asynchronous errors" />
-  <figcaption>Wrong and right ways to handle errors in asynchronous code.</figcaption>
-</figure>
+[% figure slug="async-programming-handling-errors" img="figures/handling-errors.svg" alt="Handling asynchronous errors" caption="Wrong and right ways to handle errors in asynchronous code." %]
 
 One solution to this problem is to be consistent and always return something.
 Because the function is declared `async`,

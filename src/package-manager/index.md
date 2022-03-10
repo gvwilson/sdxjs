@@ -86,10 +86,7 @@ Each point on the grid is a possible combination of package versions.
 We can block out regions of this grid using the constraints on the package versions;
 whatever points are left when we're done represent legal combinations.
 
-<figure id="package-manager-allowable">
-  <img src="figures/allowable.svg" alt="Allowable versions" />
-  <figcaption>Finding allowable combinations of package versions.</figcaption>
-</figure>
+[% figure slug="package-manager-allowable" img="figures/allowable.svg" alt="Allowable versions" caption="Finding allowable combinations of package versions." %]
 
 For example,
 suppose we have the set of requirements shown in <a table="package-manager-example-dependencies"/>.
@@ -251,10 +248,7 @@ After all,
 if we know that X and Y are incompatible,
 there is no need to check Z as well.
 
-<figure id="package-manager-pruning">
-  <img src="figures/pruning.svg" alt="Pruning the search tree" />
-  <figcaption>Pruning options in the search tree to reduce work.</figcaption>
-</figure>
+[% figure slug="package-manager-pruning" img="figures/pruning.svg" alt="Pruning the search tree" caption="Pruning options in the search tree to reduce work." %]
 
 This version of the program collects possible solutions and displays them at the end.
 It only keeps checking a partial solution if what it has found so far looks good:
