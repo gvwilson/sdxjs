@@ -1,41 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
-<script>MathJax = {tex: {inlineMath: [["\\(", "\\)"]]}, svg: {fontCache: "global"}};</script>
-<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-<script>hljs.highlightAll();</script>
-<script src="../static/mccole.js"></script>
-<script>window.onload = () => fixPage()</script>
+    <meta charset="utf-8">
+<script defer data-domain="stjs.tech" src="https://plausible.io/js/plausible.js"></script>
+<link rel="icon" type="image/x-icon" href="../files/favicon.ico">
+<link rel="stylesheet" href="../mccole.css">
+<link rel="stylesheet" href="../codehilite-tango.css">
 
-    <script defer data-domain="stjs.tech" src="https://plausible.io/js/plausible.js"></script>
-
-    <link href="../static/mccole.css" rel="stylesheet" type="text/css">
-    <title>Software Design by Example: <h1 id="data-table">Data Tables</h1></title>
+    <title>Software Design by Example: Data Tables</title>
   </head>
-  <body>
-    <main>
-      <p class="home"><a href="../">Software Design by Example</a></p>
-      <h1 id="data-table">Data Tables</h1>
-      <div class="lede"><p>Storing and manipulating tables efficiently</p></div>
-      <nav>
-	<ol class="toc">
-<li><a href="#data-table-implement">How can we implement data tables?</a></li>
-<li><a href="#data-table-profile">How can we test the performance of our implementations?</a></li>
-<li><a href="#data-table-save">What is the most efficient way to save a table?</a></li>
-<li><a href="#data-table-binary">Does binary storage improve performance?</a></li>
-<li><a href="#data-table-exercises">Exercises</a></li>
-</ol>
-
-      </nav>
-      <div class="keyterms"><p><a href="../glossary/#character_encoding">character encoding</a>, <a href="../glossary/#column_major">column-major storage</a>, <a href="../glossary/#data_frame">data frame</a>, <a href="../glossary/#fixed_width_string">fixed-width (of strings)</a>, <a href="../glossary/#garbage_collection">garbage collection</a>, <a href="../glossary/#heterogeneous">heterogeneous</a>, <a href="../glossary/#homogeneous">homogeneous</a>, <a href="../glossary/#immutable">immutable</a>, <a href="../glossary/#index_database">index (in a database)</a>, <a href="../glossary/#json">JavaScript Object Notation</a>, <a href="../glossary/#join">join</a>, <a href="../glossary/#pad_string">pad (a string)</a>, <a href="../glossary/#row_major">row-major storage</a>, <a href="../glossary/#sparse_matrix">sparse matrix</a>, <a href="../glossary/#sql">SQL</a>, <a href="../glossary/#tagged_data">tagged data</a>, <a href="../glossary/#test_harness">test harness</a></p></div>
-
+  <body class="page">
+    <div class="centered title">
       
-<p><a class="secref" href="../systems-programming/#systems-programming">Chapter&nbsp;2</a> said that
+      <h2><a href="../">Software Design by Example</a></h2>
+      <h1>Chapter 6: Data Tables</h1>
+      
+      <p>
+        <img class="page-logo" src="../files/codebender.svg" alt="logo" />
+      </p>
+    </div>
+
+<p><a section="systems-programming"/> said that
 operations in memory are thousands of times faster than operations that touch the filesystem,
 but what about different in-memory operations---how do they compare with each other?
 Putting it another way,
@@ -46,17 +31,18 @@ we will take a look several ways to implement data tables
 with one or more named columns and zero or more rows.
 Each row has one value for each column,
 and all the values in a column have the same type
-(<a class="figref" href="#data-table-conceptual">Figure&nbsp;6.1</a>).
+(<a figure="data-table-conceptual"/>).
 Data tables appear over and over again in programming,
 from spreadsheets and databases
 to the <span g="data_frame" i="data frame">data frames</span> in
 <span i="R">R's</span> <span i="tidyverse"><a href="https://www.tidyverse.org/">tidyverse</a></span> packages,
 <span i="Python"><a href="https://www.python.org/">Python's</a></span> <span i="Pandas"><a href="https://pandas.pydata.org/">Pandas</a></span> library,
-or the <span i="DataForge"><a href="http://www.data-forge-js.com/">DataForge</a></span> library for JavaScript [<a href="../bibliography/#Davis2018">Davis2018</a>].</p>
+or the <span i="DataForge"><a href="http://www.data-forge-js.com/">DataForge</a></span> library for JavaScript <cite>Davis2018</cite>.</p>
 <figure id="data-table-conceptual">
   <img src="figures/conceptual.svg" alt="Data table structure" />
-  <figcaption>Figure&nbsp;6.1: The structure of a data table.</figcaption>
+  <figcaption>The structure of a data table.</figcaption>
 </figure>
+
 <p>The key operations on data tables are those provided by <span g="sql" i="SQL">SQL</span>:
 filter, select, summarize, and join.
 These can be implemented in about five hundred lines of code,
@@ -65,10 +51,10 @@ but their performance depends on how the data table is stored.</p>
 <p>One way to store a table is <span g="row_major" i="row-major storage order; storage order!row-major">row-major</span> order,
 in which the values in each row are stored together in memory.
 This is sometimes also called <span g="heterogeneous" i="heterogeneous storage; storage!heterogeneous">heterogeneous</span> storage
-because each &quot;unit&quot; of storage can contain values of different types.
+because each "unit" of storage can contain values of different types.
 We can implement this design in JavaScript using an array of objects,
 each of which has the same keys
-(<a class="figref" href="#data-table-storage-order">Figure&nbsp;6.2</a>).</p>
+(<a figure="data-table-storage-order"/>).</p>
 <p>Another option is <span g="column_major" i="column-major storage order; storage order!column-major">column-major</span>
 or <span g="homogeneous" i="homogeneous storage; storage!homogeneous">homogeneous</span> order,
 in which all the values in a column are stored together.
@@ -77,8 +63,9 @@ this could be implemented using an object
 whose members are all arrays of the same length.</p>
 <figure id="data-table-storage-order">
   <img src="figures/storage-order.svg" alt="Row-major vs. column-major storage order" />
-  <figcaption>Figure&nbsp;6.2: Row-major storage vs. column-major storage for data tables.</figcaption>
+  <figcaption>Row-major storage vs. column-major storage for data tables.</figcaption>
 </figure>
+
 <p>To find out which is better
 we will construct one of each,
 try some operations,
@@ -89,7 +76,7 @@ the answer will depend on both the implementations themselves
 and on what mix of operations we measure.
 For example,
 if one strategy works better for filter and another for select,
-the ratio of filters to selects may determine which is &quot;best&quot;.</p>
+the ratio of filters to selects may determine which is "best".</p>
 <blockquote>
 <h3>Immutability</h3>
 <p>All of our implementations will treat each data table as <span g="immutable" i="immutable data">immutable</span>:
@@ -103,18 +90,8 @@ since shared data structures are a rich source of bugs.</p>
 let's build a row-major table with some number of columns.
 To keep it simple,
 we will repeat the values 0, 1, and 2 to fill the table.</p>
-<pre title="build.js"><code class="language-js">export const buildRows = (nRows, labels) =&gt; {
-  const result = []
-  for (let iR = 0; iR &lt; nRows; iR += 1) {
-    const row = {}
-    labels.forEach(label =&gt; {
-      row[label] = iR
-    })
-    result.push(row)
-  }
-  return result
-}
-</code></pre>
+<div class="include" file="build.js" keep="build-rows" />
+
 <p>Next,
 we write <code>filter</code> and <code>select</code> for tables laid out this way.
 We need to provide a callback function to <code>filter</code> to determine which rows to keep
@@ -124,72 +101,31 @@ we provide a list of the keys that identify the columns we want to keep.
 We expect filtering to be relatively fast,
 since it is <span i="recycling data">recycling</span> rows,
 while selecting should be relatively slow because we have to construct a new set of arrays
-(<a class="figref" href="#data-table-row-ops">Figure&nbsp;6.3</a>).</p>
-<pre title="table-performance.js"><code class="language-js">const rowFilter = (table, func) =&gt; {
-  return table.filter(row =&gt; func(row))
-}
+(<a figure="data-table-row-ops"/>).</p>
+<div class="include" file="table-performance.js" keep="operate-rows" />
 
-const rowSelect = (table, toKeep) =&gt; {
-  return table.map(row =&gt; {
-    const newRow = {}
-    toKeep.forEach(label =&gt; {
-      newRow[label] = row[label]
-    })
-    return newRow
-  })
-}
-</code></pre>
 <figure id="data-table-row-ops">
   <img src="figures/row-ops.svg" alt="Row-major operations" />
-  <figcaption>Figure&nbsp;6.3: Operations on row-major data tables.</figcaption>
+  <figcaption>Operations on row-major data tables.</figcaption>
 </figure>
+
 <p>Now let's do the same for column-major storage.
 Building the object that holds the columns is straightforward:</p>
-<pre title="build.js"><code class="language-js">export const buildCols = (nRows, labels) =&gt; {
-  const result = {}
-  labels.forEach(label =&gt; {
-    result[label] = []
-    for (let iR = 0; iR &lt; nRows; iR += 1) {
-      result[label].push(iR)
-    }
-  })
-  return result
-}
-</code></pre>
+<div class="include" file="build.js" keep="build-cols" />
+
 <p>Filtering is more complex because the values in each row are scattered across several arrays,
 but selecting is just a matter of recycling the arrays we want in the new table.
 We expect selecting to be relatively fast,
 since only the references to the columns need to be copied,
 but filtering will be relatively slow since we are constructing multiple new arrays
-(<a class="figref" href="#data-table-col-ops">Figure&nbsp;6.4</a>).</p>
-<pre title="table-performance.js"><code class="language-js">const colFilter = (table, func) =&gt; {
-  const result = {}
-  const labels = Object.keys(result)
-  labels.forEach(label =&gt; {
-    result[label] = []
-  })
-  for (let iR = 0; iR &lt; table.label_1.length; iR += 1) {
-    if (func(table, iR)) {
-      labels.forEach(label =&gt; {
-        result[label].push(table[label][iR])
-      })
-    }
-  }
-  return result
-}
+(<a figure="data-table-col-ops"/>).</p>
+<div class="include" file="table-performance.js" keep="operate-cols" />
 
-const colSelect = (table, toKeep) =&gt; {
-  const result = {}
-  toKeep.forEach(label =&gt; {
-    result[label] = table[label]
-  })
-  return result
-}
-</code></pre>
 <figure id="data-table-col-ops">
   <img src="figures/col-ops.svg" alt="Column-major operations" />
-  <figcaption>Figure&nbsp;6.4: Operations on column-major data tables.</figcaption>
+  <figcaption>Operations on column-major data tables.</figcaption>
 </figure>
+
 <blockquote>
 <h3>Not quite polymorphic</h3>
 <p>Our tests would be simpler to write if the two versions of <code>filter</code> and <code>select</code>
@@ -214,53 +150,8 @@ And as we said earlier,
 the relative performance will also depend on the how many filters we do for each select;
 our balance should be based on data from whatever application we intend to support.</p>
 <p>Our performance measurement program looks like this:</p>
-<pre title="table-performance.js"><code class="language-js">const RANGE = 3
+<div class="include" file="table-performance.js" keep="main" />
 
-const main = () =&gt; {
-  const nRows = parseInt(process.argv[2])
-  const nCols = parseInt(process.argv[3])
-  const filterPerSelect = parseFloat(process.argv[4])
-
-  const labels = [...Array(nCols).keys()].map(i =&gt; `label_${i + 1}`)
-  const someLabels = labels.slice(0, Math.floor(labels.length / 2))
-  assert(someLabels.length &gt; 0,
-    'Must have some labels for select (array too short)')
-
-  const [rowTable, rowSize, rowHeap] = memory(buildRows, nRows, labels)
-  const [colTable, colSize, colHeap] = memory(buildCols, nRows, labels)
-
-  const rowFilterTime =
-    time(rowFilter, rowTable,
-      row =&gt; ((row.label_1 % RANGE) === 0))
-  const rowSelectTime =
-    time(rowSelect, rowTable, someLabels)
-  const colFilterTime =
-    time(colFilter, colTable,
-      (table, iR) =&gt; ((table.label_1[iR] % RANGE) === 0))
-  const colSelectTime =
-    time(colSelect, colTable, someLabels)
-
-  const ratio = calculateRatio(filterPerSelect,
-    rowFilterTime, rowSelectTime,
-    colFilterTime, colSelectTime)
-
-  const result = {
-    nRows,
-    nCols,
-    filterPerSelect,
-    rowSize,
-    rowHeap,
-    colSize,
-    colHeap,
-    rowFilterTime,
-    rowSelectTime,
-    colFilterTime,
-    colSelectTime,
-    ratio
-  }
-  console.log(yaml.safeDump(result))
-}
-</code></pre>
 <p>The functions that actually do the measurements
 use the <a href="https://www.npmjs.com/package/microtime"><code>microtime</code></a> library to get microsecond level timing
 because JavaScript's <code>Date</code> only gives us millisecond-level resolution.
@@ -269,129 +160,32 @@ we also call <code>process.memoryUsage()</code> and look at the <code>heapUsed</
 to see how much memory <a href="https://nodejs.org/en/">Node</a> is using while the program runs,
 but that may be affected by <span g="garbage_collection">garbage collection</span>
 and a host of other factors outside our control.</p>
-<pre title="table-performance.js"><code class="language-js">const memory = (func, ...params) =&gt; {
-  const before = process.memoryUsage()
-  const result = func(...params)
-  const after = process.memoryUsage()
-  const heap = after.heapUsed - before.heapUsed
-  const size = sizeof(result)
-  return [result, size, heap]
-}
+<div class="include" file="table-performance.js" keep="measure" />
 
-const time = (func, ...params) =&gt; {
-  const before = microtime.now()
-  func(...params)
-  const after = microtime.now()
-  return after - before
-}
-
-const calculateRatio = (f2S, rFilterT, rSelectT, cFilterT, cSelectT) =&gt; {
-  return ((f2S * rFilterT) + rSelectT) / ((f2S * cFilterT) + cSelectT)
-}
-</code></pre>
 <p>Let's run our program for a table with 100 rows and 3 columns and a 3:1 ratio of filter to select:</p>
-<pre title="table-performance-100-03-03.sh"><code class="language-sh">node table-performance.js 100 3 3
-</code></pre>
+<div class="include" pat="table-performance-100-03-03.*" fill="sh out" />
 
-
-<pre title="table-performance-100-03-03.out"><code class="language-out">nRows: 100
-nCols: 3
-filterPerSelect: 3
-rowSize: 6600
-rowHeap: 26512
-colSize: 2442
-colHeap: 8536
-rowFilterTime: 75
-rowSelectTime: 111
-colFilterTime: 137
-colSelectTime: 48
-ratio: 0.7320261437908496
-</code></pre>
 <!-- continue -->
 <p>What if we increase the table size to 10,000 rows by 30 columns with the same 3:1 filter/select ratio?</p>
-<pre title="table-performance-10000-30-03.out"><code class="language-out">nRows: 10000
-nCols: 30
-filterPerSelect: 3
-rowSize: 7020000
-rowHeap: 18392064
-colSize: 2400462
-colHeap: -3473800
-rowFilterTime: 2929
-rowSelectTime: 15863
-colFilterTime: 4529
-colSelectTime: 104
-ratio: 1.8004528522386969
-</code></pre>
+<div class="include" file="table-performance-10000-30-03.out" />
+
 <!-- continue -->
 <p>And if we keep the table size the same but use a 10:1 filter/select ratio?</p>
-<pre title="table-performance-10000-30-10.out"><code class="language-out">nRows: 10000
-nCols: 30
-filterPerSelect: 10
-rowSize: 7020000
-rowHeap: 18287160
-colSize: 2400462
-colHeap: -3645056
-rowFilterTime: 2376
-rowSelectTime: 15566
-colFilterTime: 4380
-colSelectTime: 90
-ratio: 0.8960127591706539
-</code></pre>
-<table id="data-table-performance"><caption>Table&nbsp;6.1: Relative performance of operations on row-major and column-major data tables.</caption>
-<thead>
-<tr>
-<th style="text-align:left">value</th>
-<th style="text-align:right">100-03-03</th>
-<th style="text-align:right">10000-30-03</th>
-<th style="text-align:right">10000-30-10</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">nRows</td>
-<td style="text-align:right">100</td>
-<td style="text-align:right">10000</td>
-<td style="text-align:right">10000</td>
-</tr>
-<tr>
-<td style="text-align:left">nCols</td>
-<td style="text-align:right">3</td>
-<td style="text-align:right">30</td>
-<td style="text-align:right">30</td>
-</tr>
-<tr>
-<td style="text-align:left">filterPerSelect</td>
-<td style="text-align:right">3</td>
-<td style="text-align:right">3</td>
-<td style="text-align:right">10</td>
-</tr>
-<tr>
-<td style="text-align:left">rowFilterTime</td>
-<td style="text-align:right">75</td>
-<td style="text-align:right">2929</td>
-<td style="text-align:right">2376</td>
-</tr>
-<tr>
-<td style="text-align:left">rowSelectTime</td>
-<td style="text-align:right">111</td>
-<td style="text-align:right">15863</td>
-<td style="text-align:right">15566</td>
-</tr>
-<tr>
-<td style="text-align:left">colFilterTime</td>
-<td style="text-align:right">137</td>
-<td style="text-align:right">4529</td>
-<td style="text-align:right">4380</td>
-</tr>
-<tr>
-<td style="text-align:left">colSelectTime</td>
-<td style="text-align:right">48</td>
-<td style="text-align:right">104</td>
-<td style="text-align:right">90</td>
-</tr>
-</tbody>
-</table>
-<p>The results in <a class="tblref" href="#data-table-performance">Table&nbsp;6.1</a> show that column-major storage is better.
+<div class="include" file="table-performance-10000-30-10.out" />
+
+<div class="table" id="data-table-performance" caption="Relative performance of operations on row-major and column-major data tables.">
+value|100-03-03|10000-30-03|10000-30-10
+:---|---:|---:|---:
+nRows|100|10000|10000
+nCols|3|30|30
+filterPerSelect|3|3|10
+rowFilterTime|75|2929|2376
+rowSelectTime|111|15863|15566
+colFilterTime|137|4529|4380
+colSelectTime|48|104|90
+</div>
+
+<p>The results in <a table="data-table-performance"/> show that column-major storage is better.
 It uses less memory (presumably because column labels aren't duplicated once per row)
 and the time required to construct new objects when doing select with row-major storage
 outweighs cost of appending to arrays when doing filter with column-major storage.
@@ -406,13 +200,8 @@ that could change our mind about which implementation to pick.</p>
 <p>Two simple text-based schemes are row-oriented and column-oriented <span g="json">JSON</span>---basically,
 just printing the data structures we have.
 Let's run the 10,000×30 test:</p>
-<pre title="storage-performance-10000-30.out"><code class="language-out">nRows: 10000
-nCols: 30
-rowStringTime: 57342
-rowStringSize: 9393402
-colStringTime: 13267
-colStringSize: 2934164
-</code></pre>
+<div class="include" file="storage-performance-10000-30.out" />
+
 <p>The time needed for the row-major version is almost ten times greater than
 that needed for the column-major version;
 we assume that the redundant printing of the labels is mostly to blame,
@@ -421,13 +210,9 @@ just as redundant storage of the labels was to blame for row-major's greater mem
 then a packed version of row-major storage ought to be faster.
 We save the column headers once,
 then copy the data values into an array of arrays and save that:</p>
-<pre title="packed-rows.js"><code class="language-js">const asPackedJson = (table) =&gt; {
-  const temp = {}
-  temp.keys = Object.keys(table[0])
-  temp.values = table.map(row =&gt; temp.keys.map(k =&gt; row[k]))
-  return JSON.stringify(temp)
-}
-</code></pre>
+<div class="include" file="packed-rows.js" keep="packed" />
+<div class="include" file="packed-rows-10000-30.out" />
+
 <p>These results show that changing layout for storage
 is faster than turning the data structure we have into a string.
 Again,
@@ -438,24 +223,26 @@ but column-major storage is still the best approach.</p>
 JavaScript stores values in <span g="tagged_data" i="tagged data structure">tagged</span> data structures:
 some bits define the value's type
 while other bits store the value itself in a type-dependent way
-(<a class="figref" href="#data-table-object-storage">Figure&nbsp;6.5</a>).</p>
+(<a figure="data-table-object-storage"/>).</p>
 <figure id="data-table-object-storage">
   <img src="figures/object-storage.svg" alt="JavaScript object storage" />
-  <figcaption>Figure&nbsp;6.5: How JavaScript uses tagged data structures to store objects.</figcaption>
+  <figcaption>How JavaScript uses tagged data structures to store objects.</figcaption>
 </figure>
+
 <p>We can save space by keeping track of the types ourselves
 and just storing the bits that represent the values.
 JavaScript has an <span i="ArrayBuffer"><code>ArrayBuffer</code></span> class for exactly this purpose.
 It stores any value we want as a set of bits;
 we then access those bits through a view that presents the data as a particular type,
 such as Boolean (one byte per value) or number (64 bits per number).
-As <a class="figref" href="#data-table-packed-storage">Figure&nbsp;6.6</a> shows,
+As <a figure="data-table-packed-storage"/> shows,
 we can mix different types of data in a single <code>ArrayBuffer</code>,
 but it's up to us to keep track of which bytes belong to which values.</p>
 <figure id="data-table-packed-storage">
   <img src="figures/packed-storage.svg" alt="Packing objects for storage" />
-  <figcaption>Figure&nbsp;6.6: Storing object values as bits with lookup information.</figcaption>
+  <figcaption>Storing object values as bits with lookup information.</figcaption>
 </figure>
+
 <p>To store a column-major table we will fill an <code>ArrayBuffer</code> with:</p>
 <ol>
 <li>
@@ -463,49 +250,22 @@ but it's up to us to keep track of which bytes belong to which values.</p>
 </li>
 <li>
 <p>A string with the column labels joined by newline characters.
-(We use newlines as a separator because we assume column labels can't contain them.)</p>
+    (We use newlines as a separator because we assume column labels can't contain them.)</p>
 </li>
 <li>
 <p>The numbers themselves.</p>
 </li>
 </ol>
-<pre title="packed-cols.js"><code class="language-js">const asBinary = (table) =&gt; {
-  const labels = Object.keys(table)
+<div class="include" file="packed-cols.js" keep="binary" />
+<div class="include" file="packed-cols-10000-30.out" />
 
-  const nCols = labels.length
-  const nRows = table[labels[0]].length
-  const dimensions = new Uint32Array([nCols, nRows])
-
-  const allLabels = labels.join('\n')
-  const encoder = new TextEncoder()
-  const encodedLabels = encoder.encode(allLabels)
-
-  const dataSize = sizeof(0) * nCols * nRows
-  const totalSize =
-    dimensions.byteLength + encodedLabels.byteLength + dataSize
-
-  const buffer = new ArrayBuffer(totalSize)
-  const result = new Uint8Array(buffer)
-  result.set(dimensions, 0)
-  result.set(encodedLabels, dimensions.byteLength)
-
-  let current = dimensions.byteLength + encodedLabels.byteLength
-  labels.forEach(label =&gt; {
-    const temp = new Float64Array(table[label])
-    result.set(temp, current)
-    current += temp.byteLength
-  })
-
-  return result
-}
-</code></pre>
 <p>Packing the data table saves time
 because copying bits is faster than turning numbers into characters,
 but it doesn't save as much space as expected.
 The reason is that double-precision numbers are 8 bytes long,
 but because we have chosen simple integer values for our tests,
 they can be represented by just 5 characters (which is 10 bytes).
-If we had &quot;real&quot; numbers the storage benefit would probably be more pronounced;
+If we had "real" numbers the storage benefit would probably be more pronounced;
 once again,
 the result of our experiment depends on the test cases we choose.</p>
 <blockquote>
@@ -514,8 +274,8 @@ the result of our experiment depends on the test cases we choose.</p>
 engineering is the use of the experimental method
 to investigate and improve the things that people build.
 Good software designers collect and analyze data all the time
-to find out whether one website design works better than another [<a href="../bibliography/#Kohavi2020">Kohavi2020</a>]
-or to improve the performance of CPUs [<a href="../bibliography/#Patterson2017">Patterson2017</a>];
+to find out whether one website design works better than another <cite>Kohavi2020</cite>
+or to improve the performance of CPUs <cite>Patterson2017</cite>;
 a few simple experiments like these can sometimes save weeks or months of effort.</p>
 </blockquote>
 <h2 id="data-table-exercises">Exercises</h2>
@@ -669,12 +429,14 @@ For example, suppose the tables are:</p>
 </tbody>
 </table>
 <p>The first step is to create a <code>Map</code> showing where each key is found in the first table:</p>
-<pre><code class="language-js">{A: [0], B: [1], C: [2]}
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="nx">A</span><span class="o">:</span> <span class="p">[</span><span class="mf">0</span><span class="p">],</span> <span class="nx">B</span><span class="o">:</span> <span class="p">[</span><span class="mf">1</span><span class="p">],</span> <span class="nx">C</span><span class="o">:</span> <span class="p">[</span><span class="mf">2</span><span class="p">]}</span>
+</code></pre></div>
+
 <!-- continue -->
 <p>The second step is to create a similar <code>Map</code> for the second table:</p>
-<pre><code class="language-js">{A: [0, 1], B: [2]}
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="nx">A</span><span class="o">:</span> <span class="p">[</span><span class="mf">0</span><span class="p">,</span> <span class="mf">1</span><span class="p">],</span> <span class="nx">B</span><span class="o">:</span> <span class="p">[</span><span class="mf">2</span><span class="p">]}</span>
+</code></pre></div>
+
 <!-- continue -->
 <p>We can then loop over the keys in one of the maps,
 look up values in the second map,
@@ -693,12 +455,13 @@ is faster than saving the row-oriented table directly.</p>
 Instead of storing them all,
 a program can use a map to store non-zero values
 and a lookup function to return zero for anything that isn't stored explicitly:</p>
-<pre><code class="language-js">def spareMatrixGet(matrix, row, col) =&gt; {
-  return matrix.contains(row, col)
-    ? matrix.get(row, col)
-    : 0
-}
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="nx">def</span> <span class="nx">spareMatrixGet</span><span class="p">(</span><span class="nx">matrix</span><span class="p">,</span> <span class="nx">row</span><span class="p">,</span> <span class="nx">col</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">matrix</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="nx">row</span><span class="p">,</span> <span class="nx">col</span><span class="p">)</span>
+    <span class="o">?</span> <span class="nx">matrix</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">row</span><span class="p">,</span> <span class="nx">col</span><span class="p">)</span>
+    <span class="o">:</span> <span class="mf">0</span>
+<span class="p">}</span>
+</code></pre></div>
+
 <p>The same technique can be used if most of the entries in a data table are missing.
 Write a function that creates a sparse table in which a random 5% of the values are non-zero
 and the other 95% are zero,
@@ -716,15 +479,15 @@ and <span g="pad_string">pad</span> strings that are shorter than that.</p>
 <ol>
 <li>
 <p>Write a function that takes an array of strings and an integer with
-and creates an <code>ArrayBuffer</code> containing the strings padded to that width.
-The function should throw an exception if any of the strings
-are longer than the specified width.</p>
+    and creates an <code>ArrayBuffer</code> containing the strings padded to that width.
+    The function should throw an exception if any of the strings
+    are longer than the specified width.</p>
 </li>
 <li>
 <p>Write another function that takes an <code>ArrayBuffer</code> as input
-and returns an array of strings.
-This function should remove the padding
-so that strings shorter than the fixed width are restored to their original form.</p>
+    and returns an array of strings.
+    This function should remove the padding
+    so that strings shorter than the fixed width are restored to their original form.</p>
 </li>
 </ol>
 <h3 class="exercise">Saving variable-width strings</h3>
@@ -735,11 +498,11 @@ An alternative way to store these in binary is to save each entry as a (length, 
 <ol>
 <li>
 <p>Write a function that takes a list of strings as input
-and returns an <code>ArrayBuffer</code> containing (length, text) pairs.</p>
+    and returns an <code>ArrayBuffer</code> containing (length, text) pairs.</p>
 </li>
 <li>
 <p>Write another function that takes such an <code>ArrayBuffer</code>
-and returns an array containing the original text.</p>
+    and returns an array containing the original text.</p>
 </li>
 <li>
 <p>Write tests with Mocha to confirm that your functions work correctly.</p>
@@ -752,34 +515,42 @@ and many data files still only use characters whose numeric codes are in the ran
 <ol>
 <li>
 <p>Write a function that takes an array of single-letter strings
-and returns an <code>ArrayBuffer</code> that stores them using one byte per character
-if all of the characters will fit into 7 bits,
-and multiple bytes per character if any of the characters require more than 7 bits.</p>
+    and returns an <code>ArrayBuffer</code> that stores them using one byte per character
+    if all of the characters will fit into 7 bits,
+    and multiple bytes per character if any of the characters require more than 7 bits.</p>
 </li>
 <li>
 <p>Write another function that takes an <code>ArrayBuffer</code> generated by the first function
-and re-creates the array of characters.
-The function must <em>only</em> take the <code>ArrayBuffer</code> as an argument,
-so the first element of the <code>ArrayBuffer</code> should indicate
-how to interpret the rest of its contents.</p>
+    and re-creates the array of characters.
+    The function must <em>only</em> take the <code>ArrayBuffer</code> as an argument,
+    so the first element of the <code>ArrayBuffer</code> should indicate
+    how to interpret the rest of its contents.</p>
 </li>
 <li>
 <p>Write tests with Mocha to check that your functions work correctly.</p>
 </li>
 </ol>
 
-    </main>
-    <footer>
   <hr/>
-  <p>
-    Copyright © 2022 Greg Wilson
-    &nbsp;
-    <a href="../license/"><img class="icon" src="../static/cc-by-nc.svg" alt="CC-BY-NC icon"/></a>
-    <a href="../license/"><img class="icon" src="../static/hippocratic.svg" alt="Hippocratic License icon"/></a>
-    <a href="https://github.com/software-tools-books/stjs/"><img class="icon" src="../static/github.svg" alt="GitHub icon"/></a>
-    <a href="mailto:gvwilson@third-bit.com"><img class="icon" src="../static/email.svg" alt="email icon"/></a>
-  </p>
-</footer>
+<div class="centered">
+  <table class="plain footer">
+    <tr>
+      
+      <td><a href="../license/">License</a></td>
+      
+      <td><a href="../conduct/">Code of Conduct</a></td>
+      
+      <td><a href="../bibliography/">Bibliography</a></td>
+      
+      <td><a href="../glossary/">Glossary</a></td>
+      
+      <td><a href="../links/">Links</a></td>
+      
+      <td><a href="https://github.com/software-tools-books/stjs/">GitHub</a></td>
+      
+    </tr>
+  </table>
+</div>
 
   </body>
 </html>

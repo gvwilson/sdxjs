@@ -1,45 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
-<script>MathJax = {tex: {inlineMath: [["\\(", "\\)"]]}, svg: {fontCache: "global"}};</script>
-<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-<script>hljs.highlightAll();</script>
-<script src="../static/mccole.js"></script>
-<script>window.onload = () => fixPage()</script>
+    <meta charset="utf-8">
+<script defer data-domain="stjs.tech" src="https://plausible.io/js/plausible.js"></script>
+<link rel="icon" type="image/x-icon" href="../files/favicon.ico">
+<link rel="stylesheet" href="../mccole.css">
+<link rel="stylesheet" href="../codehilite-tango.css">
 
-    <script defer data-domain="stjs.tech" src="https://plausible.io/js/plausible.js"></script>
-
-    <link href="../static/mccole.css" rel="stylesheet" type="text/css">
-    <title>Software Design by Example: <h1 id="style-checker">Style Checker</h1></title>
+    <title>Software Design by Example: Style Checker</title>
   </head>
-  <body>
-    <main>
-      <p class="home"><a href="../">Software Design by Example</a></p>
-      <h1 id="style-checker">Style Checker</h1>
-      <div class="lede"><p>Checking that code conforms to style guidelines</p></div>
-      <nav>
-	<ol class="toc">
-<li><a href="#style-checker-ast">How can we parse JavaScript to create an AST?</a></li>
-<li><a href="#style-checker-search">How can we find things in an AST?</a></li>
-<li><a href="#style-checker-apply">How can we apply checks?</a></li>
-<li><a href="#style-checker-walker">How does the AST walker work?</a></li>
-<li><a href="#style-checker-alternatives">How else could the AST walker work?</a></li>
-<li><a href="#style-checker-analysis">What other kinds of analysis can we do?</a></li>
-<li><a href="#style-checker-exercises">Exercises</a></li>
-</ol>
-
-      </nav>
-      <div class="keyterms"><p><a href="../glossary/#abstract_syntax_tree">abstract syntax tree</a>, <a href="../glossary/#adapter_pattern">Adapter pattern</a>, <a href="../glossary/#column_major">column-major storage</a>, <a href="../glossary/#dynamic_lookup">dynamic lookup</a>, <a href="../glossary/#generator_function">generator function</a>, <a href="../glossary/#intrinsic_complexity">intrinsic complexity</a>, <a href="../glossary/#iterator_pattern">Iterator pattern</a>, <a href="../glossary/#linter">linter</a>, <a href="../glossary/#markdown">Markdown</a>, <a href="../glossary/#row_major">row-major storage</a>, <a href="../glossary/#walk_tree">walk (a tree)</a></p></div>
-
+  <body class="page">
+    <div class="centered title">
       
+      <h2><a href="../">Software Design by Example</a></h2>
+      <h1>Chapter 14: Style Checker</h1>
+      
+      <p>
+        <img class="page-logo" src="../files/codebender.svg" alt="logo" />
+      </p>
+    </div>
+
 <p>Programmers argue endlessly about the best way to format their programs,
 but everyone agrees that the most important thing is to be <span i="coding style!importance of consistency">consistent</span>
-[<a href="../bibliography/#Binkley2012">Binkley2012</a>, <a href="../bibliography/#Johnson2019">Johnson2019</a>].
+<cite>Binkley2012,Johnson2019</cite>.
 Since checking rules by hand is tedious,
 most programmers use tools to compare code against various rules and report any violations.
 Programs that do this are often called <span g="linter" i="linter; coding style!linter">linters</span>
@@ -53,7 +36,7 @@ It will also introduce us to one of the key ideas of this book,
 which is that source code is just another kind of data.</p>
 <blockquote>
 <h3>Don't define your own style</h3>
-<p>Just as the world doesn't need more file format (<a class="secref" href="../regex-parser/#regex-parser">Chapter&nbsp;8</a>)
+<p>Just as the world doesn't need more file format (<a section="regex-parser"/>)
 it also doesn't need more programming styles,
 or more arguments among programmers about whether there should be spaces before curly braces or not.
 <span i="Standard JS"><a href="https://standardjs.com/">Standard JS</a></span> may not do everything exactly the way you want,
@@ -66,91 +49,27 @@ so we will use one called <span i="Acorn"><a href="https://github.com/acornjs/ac
 Acorn takes a string containing source code as input
 and produces an <span g="abstract_syntax_tree" i="abstract syntax tree">abstract syntax tree</span> (AST)
 whose nodes store information about what's in the program
-(<a class="figref" href="#style-checker-parse-tree">Figure&nbsp;14.1</a>).
+(<a figure="style-checker-parse-tree"/>).
 An AST is for a program what the <span i="Document Object Model">DOM</span> is for HTML:
 an in-memory representation that is easy for software to inspect and manipulate.</p>
 <figure id="style-checker-parse-tree">
   <img src="figures/parse-tree.svg" alt="A small parse tree" />
-  <figcaption>Figure&nbsp;14.1: The parse tree of a simple program.</figcaption>
+  <figcaption>The parse tree of a simple program.</figcaption>
 </figure>
+
 <p>ASTs can be quite complex---for example,
 the JSON representation of the AST for a single constant declaration
-is 84 lines long:</p>
-<pre title="parse-single-const.js"><code class="language-js">import acorn from 'acorn'
+is <span class="linecount" file="parse-single-const.out"/> lines long:</p>
+<div class="include" pat="parse-single-const.*" fill="js slice.out" />
 
-const ast = acorn.parse('const x = 0', { locations: true })
-console.log(JSON.stringify(ast, null, 2))
-</code></pre>
-
-
-<pre title="parse-single-const.slice.out"><code class="language-out">{
-  &quot;type&quot;: &quot;Program&quot;,
-  &quot;start&quot;: 0,
-  &quot;end&quot;: 11,
-  &quot;loc&quot;: {
-    &quot;start&quot;: {
-      &quot;line&quot;: 1,
-      &quot;column&quot;: 0
-    },
-    &quot;end&quot;: {
-...
-            &quot;value&quot;: 0,
-            &quot;raw&quot;: &quot;0&quot;
-          }
-        }
-      ],
-      &quot;kind&quot;: &quot;const&quot;
-    }
-  ],
-  &quot;sourceType&quot;: &quot;script&quot;
-}
-</code></pre>
 <p>Acorn's output is in <span i="Esprima format"><a href="https://esprima.org/">Esprima</a> format</span>
 (so-called because it was originally defined by a tool with that name).
 The format's specification is very detailed,
 but we can usually figure out most of what we need by inspection.
 For example,
-here is the output for a 15-line program:</p>
-<pre title="parse-const-func.js"><code class="language-js">import acorn from 'acorn'
+here is the output for a <span class="linecount" file="parse-const-func.js"/>-line program:</p>
+<div class="include" pat="parse-const-func.*" fill="js slice.out" />
 
-const program = `const value = 2
-
-const double = (x) =&gt; {
-  const y = 2 * x
-  return y
-}
-
-const result = double(value)
-console.log(result)
-`
-
-const ast = acorn.parse(program, { locations: true })
-console.log(JSON.stringify(ast, null, 2))
-</code></pre>
-
-
-<pre title="parse-const-func.slice.out"><code class="language-out">{
-  &quot;type&quot;: &quot;Program&quot;,
-  &quot;start&quot;: 0,
-  &quot;end&quot;: 122,
-  &quot;loc&quot;: {
-    &quot;start&quot;: {
-      &quot;line&quot;: 1,
-      &quot;column&quot;: 0
-    },
-    &quot;end&quot;: {
-...
-          &quot;line&quot;: 1,
-          &quot;column&quot;: 0
-        },
-        &quot;end&quot;: {
-          &quot;line&quot;: 1,
-          &quot;column&quot;: 15
-        }
-      },
-      &quot;declarations&quot;: [
-...480 more lines...
-</code></pre>
 <!-- continue -->
 <p>Yes, it really is almost 500 lines long…</p>
 <h2 id="style-checker-search">How can we find things in an AST?</h2>
@@ -159,7 +78,7 @@ we need to <span g="walk_tree" i="walk a tree">walk the tree</span>,
 i.e.,
 to visit each node in turn.
 The <a href="https://www.npmjs.com/package/acorn-walk"><code>acorn-walk</code></a> library will do this for us
-using the <span i="Visitor pattern; design pattern!Visitor">Visitor design pattern</span> we first saw in <a class="secref" href="../page-templates/#page-templates">Chapter&nbsp;9</a>
+using the <span i="Visitor pattern; design pattern!Visitor">Visitor design pattern</span> we first saw in <a section="page-templates"/>
 If we provide a function to act on nodes of type <code>Identifier</code>,
 <code>acorn-walk</code> will call that function each time it finds an identifier.
 We can use other options to say that we want to record the locations of nodes (i.e., their line numbers)
@@ -167,59 +86,14 @@ and to collect comments in an array called <code>onComment</code>.
 Our function can do whatever we want;
 for demonstration purposes we will add nodes to an array called <code>state</code>
 and report them all at the end
-(<a class="figref" href="#style-checker-walk-tree">Figure&nbsp;14.2</a>).</p>
+(<a figure="style-checker-walk-tree"/>).</p>
 <figure id="style-checker-walk-tree">
   <img src="figures/walk-tree.svg" alt="Walking a tree" />
-  <figcaption>Figure&nbsp;14.2: Walking a tree to perform an operation at each node.</figcaption>
+  <figcaption>Walking a tree to perform an operation at each node.</figcaption>
 </figure>
-<pre title="walk-ast.js"><code class="language-js">import acorn from 'acorn'
-import walk from 'acorn-walk'
 
-const program = `// Constant
-const value = 2
+<div class="include" pat="walk-ast.*" fill="js out" />
 
-// Function
-const double = (x) =&gt; {
-  const y = 2 * x
-  return y
-}
-
-// Main body
-const result = double(value)
-console.log(result)
-`
-
-const options = {
-  locations: true,
-  onComment: []
-}
-const ast = acorn.parse(program, options)
-
-const state = []
-walk.simple(ast, {
-  Identifier: (node, state) =&gt; {
-    state.push(node)
-  }
-}, null, state)
-
-state.forEach(node =&gt; console.log(
-  `identifier ${node.name} on line ${node.loc.start.line}`
-))
-const comments = options.onComment.map(
-  node =&gt; node.loc.start.line
-).join(', ')
-console.log(`comments on lines ${comments}`)
-</code></pre>
-
-
-<pre title="walk-ast.out"><code class="language-out">identifier x on line 6
-identifier y on line 7
-identifier double on line 11
-identifier value on line 11
-identifier console on line 12
-identifier result on line 12
-comments on lines 1, 4, 10
-</code></pre>
 <blockquote>
 <h3>There's more than one way to do it</h3>
 <p><code>walk.simple</code> takes four arguments:</p>
@@ -232,17 +106,17 @@ comments on lines 1, 4, 10
 </li>
 <li>
 <p>Another object that specifies what algorithm to use---we have set this to <code>null</code>
-to use the default because
-we don't particularly care about the order in which the nodes are processed.</p>
+    to use the default because
+    we don't particularly care about the order in which the nodes are processed.</p>
 </li>
 <li>
 <p>Something we want passed in to each of the node handlers,
-which in our case is the <code>state</code> array.
-If our node handling functions don't require any extra data
-from one call to the next
-we can leave this out;
-if we want to accumulate information across calls,
-this argument acts as the Visitor's memory.</p>
+    which in our case is the <code>state</code> array.
+    If our node handling functions don't require any extra data
+    from one call to the next
+    we can leave this out;
+    if we want to accumulate information across calls,
+    this argument acts as the Visitor's memory.</p>
 </li>
 </ol>
 <p>Any general-purpose implementation of the Visitor pattern
@@ -269,30 +143,13 @@ and a logical value telling it whether the node passed the test or not.
 If the node failed the test
 we make sure that <code>state</code> contains a list with the appropriate label
 and then append this node to it.
-This &quot;create storage space on demand&quot; pattern
+This "create storage space on demand" pattern
 is widely used but doesn't have a well-known name.</p>
-<pre title="check-name-lengths.js"><code class="language-js">const applyCheck = (state, label, node, passes) =&gt; {
-  if (!passes) {
-    if (!(label in state)) {
-      state[label] = []
-    }
-    state[label].push(node)
-  }
-}
-</code></pre>
+<div class="include" file="check-name-lengths.js" keep="applyCheck" />
+
 <p>We can now put a call to <code>applyCheck</code> inside the handler for <code>Identifier</code>:</p>
-<pre title="check-name-lengths.js"><code class="language-js">const ast = acorn.parse(program, { locations: true })
+<div class="include" file="check-name-lengths.js" keep="main" />
 
-const state = {}
-walk.simple(ast, {
-  Identifier: (node, state) =&gt; {
-    applyCheck(state, 'name_length', node, node.name.length &gt;= 4)
-  }
-}, null, state)
-
-state.name_length.forEach(
-  node =&gt; console.log(`${node.name} at line ${node.loc.start.line}`))
-</code></pre>
 <!-- continue -->
 <p>We can't just use <code>applyCheck</code> as the handler for <code>Identifier</code>
 because <code>walk.simple</code> wouldn't know how to call it.
@@ -300,9 +157,8 @@ This is a (very simple) example of the <span g="adapter_pattern" i="Adapter patt
 we write a function or class to connect the code we want to call
 to the already-written code that is going to call it.</p>
 <p>The output for the same sample program as before is:</p>
-<pre title="check-name-lengths.out"><code class="language-out">x at line 6
-y at line 7
-</code></pre>
+<div class="include" file="check-name-lengths.out" />
+
 <!-- continue -->
 <p>The exercises will ask why the parameter <code>x</code> doesn't show up
 as a violation of our rule
@@ -334,92 +190,15 @@ While we normally refer to a particular method of an object using <code>object.m
 we can also look them up by asking for <code>object[name]</code>
 in the same way that we would look up any other property of any other object.
 Our completed class looks like this:</p>
-<pre title="walker-class.js"><code class="language-js">class Walker {
-  // Construct a new AST tree walker.
-  constructor (ast) {
-    this.ast = ast
-  }
+<div class="include" file="walker-class.js" keep="walker" />
 
-  // Walk the tree.
-  walk (accumulator) {
-    this.stack = []
-    this._walk(this.ast, accumulator)
-    return accumulator
-  }
-
-  // Act on node and then on children.
-  _walk (node, accumulator) {
-    if (node &amp;&amp; (typeof node === 'object') &amp;&amp; ('type' in node)) {
-      this._doNode(node, accumulator)
-      this._doChildren(node, accumulator)
-    }
-  }
-
-  // Handle a single node by lookup.
-  _doNode (node, accumulator) {
-    if (node.type in this) {
-      this[node.type](node, accumulator)
-    }
-  }
-
-  // Recurse for anything interesting within the node.
-  _doChildren (node, accumulator) {
-    this.stack.push(node)
-    for (const key in node) {
-      if (Array.isArray(node[key])) {
-        node[key].forEach(child =&gt; {
-          this._walk(child, accumulator)
-        })
-      } else if (typeof node[key] === 'object') {
-        this._walk(node[key], accumulator)
-      }
-    }
-    this.stack.pop(node)
-  }
-
-  // Is the current node a child of some other type of node?
-  _childOf (nodeTypes) {
-    return this.stack &amp;&amp;
-      nodeTypes.includes(this.stack.slice(-1)[0].type)
-  }
-}
-</code></pre>
 <p>The code we need to use it is:</p>
-<pre title="walker-class.js"><code class="language-js">import acorn from 'acorn'
+<div class="include" file="walker-class.js" omit="walker" />
 
-
-// Walk to accumulate variable and parameter definitions.
-class VariableWalker extends Walker {
-  Identifier (node, accumulator) {
-    if (this._childOf(['ArrowFunctionExpression',
-      'VariableDeclarator'])) {
-      accumulator.push(node.name)
-    }
-  }
-}
-
-// Test.
-const program = `const value = 2
-
-const double = (x) =&gt; {
-  const y = 2 * x
-  return y
-}
-
-const result = double(value)
-console.log(result)
-`
-
-const ast = acorn.parse(program, { locations: true })
-const walker = new VariableWalker(ast)
-const accumulator = []
-walker.walk(accumulator)
-console.log('definitions are', accumulator)
-</code></pre>
 <!-- continue -->
 <p>and its output is:</p>
-<pre title="walker-class.out"><code class="language-out">definitions are [ 'value', 'double', 'x', 'y', 'result' ]
-</code></pre>
+<div class="include" file="walker-class.out" />
+
 <p>We think this approach to implementing the Visitor pattern is easier to understand and extend
 than one that relies on callbacks,
 but that could just be a reflection of our background and experience.
@@ -432,38 +211,21 @@ we should implement it that way everywhere.</p>
 the <span g="iterator_pattern" i="Iterator pattern; design pattern!Iterator">Iterator</span> design pattern.
 Instead of taking the computation to the nodes as a visitor does,
 an iterator returns the elements of a complex structure one by one for processing
-(<a class="figref" href="#style-checker-iterator">Figure&nbsp;14.3</a>).
+(<a figure="style-checker-iterator"/>).
 One way to think about it is that the Visitor pattern encapsulates recursion,
 while the Iterator pattern turns everything into a <code>for</code> loop.</p>
 <figure id="style-checker-iterator">
   <img src="figures/iterator.svg" alt="The Iterator pattern" />
-  <figcaption>Figure&nbsp;14.3: Finding nodes in the tree using the Iterator pattern.</figcaption>
+  <figcaption>Finding nodes in the tree using the Iterator pattern.</figcaption>
 </figure>
+
 <p>We can implement the Iterator pattern in JavaScript using
 <span g="generator_function" i="generator function; Iterator pattern!generator function">generator functions</span>.
 If we declare a function using <code>function *</code> (with an asterisk) instead of <code>function</code>
 then we can use the <code>yield</code> keyword to return a value and suspend processing to be resumed later.
 The result of <code>yield</code> is a two-part structure with a value and a flag showing whether or not processing is done:</p>
-<pre title="generator-example.js"><code class="language-js">function * threeWords () {
-  yield 'first'
-  yield 'second'
-  yield 'third'
-}
+<div class="include" pat="generator-example.*" fill="js out" />
 
-const gen = threeWords()
-
-console.log(gen.next())
-console.log(gen.next())
-console.log(gen.next())
-console.log(gen.next())
-</code></pre>
-
-
-<pre title="generator-example.out"><code class="language-out">{ value: 'first', done: false }
-{ value: 'second', done: false }
-{ value: 'third', done: false }
-{ value: undefined, done: true }
-</code></pre>
 <!-- continue -->
 <p>A generator function doesn't actually generate anything;
 instead,
@@ -471,91 +233,29 @@ it creates an object that we can then ask for values repeatedly.
 This gives us a way to have several generators in play at the same time.</p>
 <p>As another example,
 this generator takes a string and produces its vowels one by one:</p>
-<pre title="generator-vowels-while.js"><code class="language-js">function * getVowels (text) {
-  for (const char of text) {
-    if ('AEIOUaeiou'.includes(char)) {
-      yield char
-    }
-  }
-}
+<div class="include" pat="generator-vowels-while.*" fill="js out" />
 
-const test = 'this is a test'
-const gen = getVowels(test)
-let current = gen.next()
-while (!current.done) {
-  console.log(current.value)
-  current = gen.next()
-}
-</code></pre>
-
-
-<pre title="generator-vowels-while.out"><code class="language-out">i
-i
-a
-e
-</code></pre>
 <p>Instead of a <code>while</code> loop it is much more common to use <code>for...of</code>,
 which knows how to work with generators:</p>
-<pre title="generator-vowels-for.js"><code class="language-js">for (const vowel of getVowels(test)) {
-  console.log(vowel)
-}
-</code></pre>
-<p>Finally,
-just as <code>function *</code> says &quot;this function is a generator&quot;,
-<code>yield *</code> says &quot;yield the values from a nested generator one by one&quot;.
-We can use it to walk irregular structures like nested arrays:</p>
-<pre title="generator-tree.js"><code class="language-js">function * getNodes (here) {
-  if (typeof here === 'string') {
-    yield here
-  } else if (Array.isArray(here)) {
-    for (const child of here) {
-      yield * getNodes(child)
-    }
-  } else {
-    throw new Error(`unknown type &quot;${typeof here}&quot;`)
-  }
-}
+<div class="include" file="generator-vowels-for.js" keep="loop" />
 
-const nested = ['first', ['second', 'third']]
-for (const value of getNodes(nested)) {
-  console.log(value)
-}
-</code></pre>
+<p>Finally,
+just as <code>function *</code> says "this function is a generator",
+<code>yield *</code> says "yield the values from a nested generator one by one".
+We can use it to walk irregular structures like nested arrays:</p>
+<div class="include" file="generator-tree.js" />
+
 <p>Let's use generators to count the number of expressions of various types in a program.
 The generator function that visits each node is:</p>
-<pre title="generator-count.js"><code class="language-js">function * getNodes (node) {
-  if (node &amp;&amp; (typeof node === 'object') &amp;&amp; ('type' in node)) {
-    yield node
-    for (const key in node) {
-      if (Array.isArray(node[key])) {
-        for (const child of node[key]) {
-          yield * getNodes(child)
-        }
-      } else if (typeof node[key] === 'object') {
-        yield * getNodes(node[key])
-      }
-    }
-  }
-}
-</code></pre>
+<div class="include" file="generator-count.js" keep="generator" />
+
 <!-- continue -->
 <p>and the program that uses it is:</p>
-<pre title="generator-count.js"><code class="language-js">const ast = acorn.parse(program, { locations: true })
-const result = {}
-for (const node of getNodes(ast)) {
-  if (node.type === 'BinaryExpression') {
-    if (node.operator in result) {
-      result[node.operator] += 1
-    } else {
-      result[node.operator] = 1
-    }
-  }
-}
-console.log('counts are', result)
-</code></pre>
+<div class="include" file="generator-count.js" keep="main" />
+
 <p>When we run it with our usual test program as input, we get:</p>
-<pre title="generator-count.out"><code class="language-out">counts are { '*': 2, '+': 1 }
-</code></pre>
+<div class="include" file="generator-count.out" />
+
 <p>Generators are a clean solution to many hard problems,
 but we find it more difficult to check variable identifiers using generators
 than using the class-based Visitor approach
@@ -573,143 +273,24 @@ we wrote so many classes that incrementally extended their predecessors for peda
 that we lost track of what was defined where.)
 To create a table of method definitions,
 we first need to find the ancestors of the last class in the hierarchy:</p>
-<pre title="find-ancestors.js"><code class="language-js">import assert from 'assert'
-import acorn from 'acorn'
-import fs from 'fs'
-import path from 'path'
-import walk from 'acorn-walk'
+<div class="include" file="find-ancestors.js" omit="skip" />
 
-class FindAncestors {
-  find (dirname, filename, className) {
-    return this.traceAncestry(dirname, filename, className, [])
-  }
-
-  traceAncestry (dirname, filename, className, accum) {
-    const fullPath = path.join(dirname, filename)
-    const program = fs.readFileSync(fullPath, 'utf-8')
-    const options = { locations: true, sourceType: 'module' }
-    const ast = acorn.parse(program, options)
-    const classDef = this.findClassDef(filename, ast, className)
-    accum.push({ filename, className, classDef })
-    const ancestorName = this.getAncestor(classDef)
-    if (ancestorName === null) {
-      return accum
-    }
-    const ancestorFile = this.findImport(filename, ast, ancestorName)
-    return this.traceAncestry(dirname, ancestorFile, ancestorName, accum)
-  }
-
-}
-
-export default FindAncestors
-</code></pre>
 <p>Finding class definitions is a straightforward extension of what we have already done:</p>
-<pre title="find-ancestors.js"><code class="language-js">  findClassDef (filename, ast, className) {
-    const state = []
-    walk.simple(ast, {
-      ClassDeclaration: (node, state) =&gt; {
-        if ((node.id.type === 'Identifier') &amp;&amp;
-            (node.id.name === className)) {
-          state.push(node)
-        }
-      }
-    }, null, state)
-    assert(state.length === 1,
-      `No definition for ${className} in ${filename}`)
-    return state[0]
-  }
-</code></pre>
+<div class="include" file="find-ancestors.js" keep="findClassDef" />
+
 <p>To test this code, we start with the last of these three short files:</p>
-<pre title="upper.js"><code class="language-js">class Upper {
-  constructor () {
-    this.name = 'upper'
-  }
+<div class="include" pat="*.js" fill="upper middle lower" />
+<div class="include" file="run-find-ancestors.out" />
 
-  report () {
-    console.log(this.modify(this.name))
-  }
-
-  modify (text) {
-    return text.toUpperCase()
-  }
-}
-
-module.exports = Upper
-</code></pre>
-
-
-<pre title="middle.js"><code class="language-js">import Upper from './upper.js'
-
-class Middle extends Upper {
-  constructor () {
-    super()
-    this.range = 'middle'
-  }
-
-  modify (text) {
-    return `** ${super.modify(text)} **`
-  }
-}
-
-export default Middle
-</code></pre>
-
-
-<pre title="lower.js"><code class="language-js">import Middle from './middle.js'
-
-class Lower extends Middle {
-  report () {
-    console.log(this.additional())
-  }
-
-  additional () {
-    return 'lower'
-  }
-}
-
-export default Lower
-</code></pre>
 <p>Good: we can recover the <span i="chain of inheritance">chain of inheritance</span>.
 Finding method definitions is also straightforward:</p>
-<pre title="find-methods.js"><code class="language-js">import FindAncestors from './find-ancestors.js'
+<div class="include" file="find-methods.js" />
 
-class FindMethods extends FindAncestors {
-  find (dirname, filename, className) {
-    const classes = super.find(dirname, filename, className)
-    classes.forEach(record =&gt; {
-      record.methods = this.findMethods(record.classDef)
-    })
-    return classes
-  }
-
-  findMethods (classDef) {
-    return classDef.body.body
-      .filter(item =&gt; item.type === 'MethodDefinition')
-      .map(item =&gt; {
-        if (item.kind === 'constructor') {
-          return 'constructor'
-        } else if (item.kind === 'method') {
-          return item.key.name
-        } else {
-          return null
-        }
-      })
-      .filter(item =&gt; item !== null)
-  }
-}
-
-export default FindMethods
-</code></pre>
 <p>And finally,
 we can print a <span g="markdown" i="Markdown">Markdown</span>-formatted table
 showing which methods are defined in which class:</p>
-<pre title="run-find-methods.raw.out"><code class="language-out">| method | Upper | Middle | Lower |
-| ---- | ---- | ---- | ---- |
-| additional | . | . | X |
-| constructor | X | X | . |
-| modify | X | X | . |
-| report | X | . | X |
-</code></pre>
+<div class="include" file="run-find-methods.raw.out" />
+
 <!-- continue -->
 <p>which renders as:</p>
 <table>
@@ -750,7 +331,7 @@ showing which methods are defined in which class:</p>
 </table>
 <p>This may seem rather pointless for our toy example,
 but it proves its worth when we are looking at something like
-the virtual machine we will build in <a class="secref" href="../virtual-machine/#virtual-machine">Chapter&nbsp;19</a>,
+the virtual machine we will build in <a section="virtual-machine"/>,
 which has a more complex method definition table:</p>
 <table>
 <thead>
@@ -906,8 +487,8 @@ The first command-line argument to <code>sniff.js</code> must be a JavaScript so
 that exports a class derived from <code>Walker</code> called <code>Check</code>
 that implements the checks the user wants.
 The other command-line arguments must be the names of JavaScript source files to be checked:</p>
-<pre title="x-across-files/sniff.sh"><code class="language-sh">node sniff.js my-check.js source-1.js source-2.js
-</code></pre>
+<div class="include" file="x-across-files/sniff.sh"/>
+
 <h3 class="exercise">Finding assertions</h3>
 <p>Write a program <code>find-assertions.js</code> that finds all calls to <code>assert</code> or <code>assert.something</code>
 and prints the assertion message (if any).</p>
@@ -915,7 +496,7 @@ and prints the assertion message (if any).</p>
 <ol>
 <li>
 <p>Why doesn't the parameter <code>x</code> show up as a rule violation
-in the example where we check name lengths?</p>
+    in the example where we check name lengths?</p>
 </li>
 <li>
 <p>Modify the example so that it does.</p>
@@ -929,12 +510,12 @@ where the program contains expression like <code>arr[table[i]]</code>.</p>
 <ol>
 <li>
 <p>Write a function <code>dynamicExecution</code> that takes an object,
-the name of a method,
-and zero or more parameters as arguments
-and calls that method on that object:</p>
-<pre><code class="language-js">dynamicExecution(obj, 'meth', 1, 'a')
-// same as obj.meth(1, 'a')
-</code></pre>
+    the name of a method,
+    and zero or more parameters as arguments
+    and calls that method on that object:</p>
+<p><code>js
+dynamicExecution(obj, 'meth', 1, 'a')
+// same as obj.meth(1, 'a')</code></p>
 </li>
 <li>
 <p>What <em>doesn't</em> this work for?</p>
@@ -944,28 +525,36 @@ and calls that method on that object:</p>
 <ol>
 <li>
 <p>Write a generator that takes a two-dimensional table represented as an array of arrays
-and returns the values in <span g="column_major">column-major</span> order.</p>
+    and returns the values in <span g="column_major">column-major</span> order.</p>
 </li>
 <li>
 <p>Write another generator that takes a similar table
-and returns the values in <span g="row_major">row-major</span> order.</p>
+    and returns the values in <span g="row_major">row-major</span> order.</p>
 </li>
 </ol>
 <h3 class="exercise">Generators and identifiers</h3>
 <p>Rewrite the tool to check identifier lengths using a generator.</p>
 
-    </main>
-    <footer>
   <hr/>
-  <p>
-    Copyright © 2022 Greg Wilson
-    &nbsp;
-    <a href="../license/"><img class="icon" src="../static/cc-by-nc.svg" alt="CC-BY-NC icon"/></a>
-    <a href="../license/"><img class="icon" src="../static/hippocratic.svg" alt="Hippocratic License icon"/></a>
-    <a href="https://github.com/software-tools-books/stjs/"><img class="icon" src="../static/github.svg" alt="GitHub icon"/></a>
-    <a href="mailto:gvwilson@third-bit.com"><img class="icon" src="../static/email.svg" alt="email icon"/></a>
-  </p>
-</footer>
+<div class="centered">
+  <table class="plain footer">
+    <tr>
+      
+      <td><a href="../license/">License</a></td>
+      
+      <td><a href="../conduct/">Code of Conduct</a></td>
+      
+      <td><a href="../bibliography/">Bibliography</a></td>
+      
+      <td><a href="../glossary/">Glossary</a></td>
+      
+      <td><a href="../links/">Links</a></td>
+      
+      <td><a href="https://github.com/software-tools-books/stjs/">GitHub</a></td>
+      
+    </tr>
+  </table>
+</div>
 
   </body>
 </html>

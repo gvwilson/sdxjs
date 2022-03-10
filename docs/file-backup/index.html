@@ -1,40 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
-<script>MathJax = {tex: {inlineMath: [["\\(", "\\)"]]}, svg: {fontCache: "global"}};</script>
-<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-<script>hljs.highlightAll();</script>
-<script src="../static/mccole.js"></script>
-<script>window.onload = () => fixPage()</script>
+    <meta charset="utf-8">
+<script defer data-domain="stjs.tech" src="https://plausible.io/js/plausible.js"></script>
+<link rel="icon" type="image/x-icon" href="../files/favicon.ico">
+<link rel="stylesheet" href="../mccole.css">
+<link rel="stylesheet" href="../codehilite-tango.css">
 
-    <script defer data-domain="stjs.tech" src="https://plausible.io/js/plausible.js"></script>
-
-    <link href="../static/mccole.css" rel="stylesheet" type="text/css">
-    <title>Software Design by Example: <h1 id="file-backup">File Backup</h1></title>
+    <title>Software Design by Example: File Backup</title>
   </head>
-  <body>
-    <main>
-      <p class="home"><a href="../">Software Design by Example</a></p>
-      <h1 id="file-backup">File Backup</h1>
-      <div class="lede"><p>Archiving files with directory structure</p></div>
-      <nav>
-	<ol class="toc">
-<li><a href="#file-backup-unique">How can we uniquely identify files?</a></li>
-<li><a href="#file-backup-backup">How can we back up files?</a></li>
-<li><a href="#file-backup-track">How can we track which files have already been backed up?</a></li>
-<li><a href="#file-backup-test">How can we test code that modifies files?</a></li>
-<li><a href="#file-backup-exercises">Exercises</a></li>
-</ol>
-
-      </nav>
-      <div class="keyterms"><p><a href="../glossary/#api">Application Programming Interface</a>, <a href="../glossary/#collision">collision</a>, <a href="../glossary/#csv">comma-separated values</a>, <a href="../glossary/#utc">Coordinated Universal Time</a>, <a href="../glossary/#cryptographic_hash_function">cryptographic hash function</a>, <a href="../glossary/#data_migration">data migration</a>, <a href="../glossary/#handler">handler</a>, <a href="../glossary/#hash_code">hash code</a>, <a href="../glossary/#hash_function">hash function</a>, <a href="../glossary/#json">JavaScript Object Notation</a>, <a href="../glossary/#mock_object">mock object</a>, <a href="../glossary/#pipe">pipe</a>, <a href="../glossary/#race_condition">race condition</a>, <a href="../glossary/#sha_1">SHA-1 hash</a>, <a href="../glossary/#stream">stream</a>, <a href="../glossary/#streaming_api">streaming API</a>, <a href="../glossary/#toctou">Time of check/time of use</a>, <a href="../glossary/#timestamp">timestamp</a>, <a href="../glossary/#version_control_system">version control system</a></p></div>
-
+  <body class="page">
+    <div class="centered title">
       
+      <h2><a href="../">Software Design by Example</a></h2>
+      <h1>Chapter 5: File Backup</h1>
+      
+      <p>
+        <img class="page-logo" src="../files/codebender.svg" alt="logo" />
+      </p>
+    </div>
+
 <p>Now that we can test software we have something worth saving.
 A <span g="version_control_system" i="version control system">version control system</span>
 like <span i="Git; version control system!Git"><a href="https://git-scm.com/">Git</a></span>
@@ -43,9 +28,9 @@ so that we can recover old versions if we want to.
 Its heart is a way to archive files that:</p>
 <ol>
 <li>records which versions of which files existed at the same time
-(so that we can go back to a consistent previous state), and</li>
+    (so that we can go back to a consistent previous state), and</li>
 <li>stores any particular version of a file only once,
-so that we don't waste disk space.</li>
+    so that we don't waste disk space.</li>
 </ol>
 <p>In this chapter we will build a tool for doing both tasks.
 It won't do everything Git does:
@@ -59,23 +44,24 @@ We can't rely on names because files can be renamed or moved over time;
 we could compare the files byte by byte,
 but a quicker way is to use a <span g="hash_function" i="hash function">hash function</span>
 that turns arbitrary data into a fixed-length string of bits
-(<a class="figref" href="#file-backup-hash-function">Figure&nbsp;5.1</a>).</p>
+(<a figure="file-backup-hash-function"/>).</p>
 <figure id="file-backup-hash-function">
   <img src="figures/hash-function.svg" alt="Hash functions" />
-  <figcaption>Figure&nbsp;5.1: How hash functions speed up lookup.</figcaption>
+  <figcaption>How hash functions speed up lookup.</figcaption>
 </figure>
+
 <p>A hash function always produces the same <span g="hash_code" i="hash code">hash code</span> for a given input.
 A <span g="cryptographic_hash_function" i="cryptographic hash function; hash function!cryptographic">cryptographic hash function</span>
 has two extra properties:</p>
 <ol>
 <li>
 <p>The output depends on the entire input:
-changing even a single byte results in a different hash code.</p>
+    changing even a single byte results in a different hash code.</p>
 </li>
 <li>
 <p>The outputs look like random numbers:
-they are unpredictable and evenly distributed
-(i.e., the odds of getting any specific hash code are the same)</p>
+    they are unpredictable and evenly distributed
+    (i.e., the odds of getting any specific hash code are the same)</p>
 </li>
 </ol>
 <p>It's easy to write a bad hash function,
@@ -109,79 +95,16 @@ and then feed it some bytes.
 When we are done,
 we call its <code>.end</code> method
 and then use its <code>.read</code> method to get the final result:</p>
-<pre title="hash-text.js"><code class="language-js">import crypto from 'crypto'
+<div class="include" pat="hash-text.*" fill="js sh out" />
 
-// create a SHA1 hasher
-const hash = crypto.createHash('sha1')
-
-// encode as hex (rather than binary)
-hash.setEncoding('hex')
-
-// send it some text
-const text = process.argv[2]
-hash.write(text)
-
-// signal end of text
-hash.end()
-
-// display the result
-const sha1sum = hash.read()
-console.log(`SHA1 of &quot;${text}&quot; is ${sha1sum}`)
-</code></pre>
-
-
-<pre title="hash-text.sh"><code class="language-sh">node hash-text.js something
-</code></pre>
-
-
-<pre title="hash-text.out"><code class="language-out">SHA1 of &quot;something&quot; is 1af17e73721dbe0c40011b82ed4bb1a7dbe3ce29
-</code></pre>
 <p>Hashing a file instead of a fixed string is straightforward:
 we just read the file's contents and pass those characters to the hashing object:</p>
-<pre title="hash-file.js"><code class="language-js">import fs from 'fs'
-import crypto from 'crypto'
+<div class="include" pat="hash-file.*" fill="js sh out" />
 
-const filename = process.argv[2]
-const data = fs.readFileSync(filename, 'utf-8')
-
-const hash = crypto.createHash('sha1').setEncoding('hex')
-hash.write(data)
-hash.end()
-const sha1sum = hash.read()
-
-console.log(`SHA1 of &quot;${filename}&quot; is ${sha1sum}`)
-</code></pre>
-
-
-<pre title="hash-file.sh"><code class="language-sh">node hash-file.js hash-file.js
-</code></pre>
-
-
-<pre title="hash-file.out"><code class="language-out">SHA1 of &quot;hash-file.js&quot; is c54c8ee3e576770d29ae2d0d73568e5a5c49eac0
-</code></pre>
 <p>However,
 it is more efficient to process the file as a <span g="stream">stream</span>:</p>
-<pre title="hash-stream.js"><code class="language-js">import fs from 'fs'
-import crypto from 'crypto'
+<div class="include" pat="hash-stream.*" fill="js sh out" />
 
-const filename = process.argv[2]
-const hash = crypto.createHash('sha1').setEncoding('hex')
-fs.createReadStream(filename).pipe(hash)
-hash.on('finish', () =&gt; {
-  const final = hash.read()
-  console.log('final', final)
-})
-console.log('program ends')
-</code></pre>
-
-
-<pre title="hash-stream.sh"><code class="language-sh">node hash-stream.js hash-stream.js
-</code></pre>
-
-
-<pre title="hash-stream.out"><code class="language-out">program ends
-final dc9e6c231e243860dace2dbf52845b121062b60e
-</code></pre>
 <!-- continue -->
 <p>This kind of interface is called
 a <span g="streaming_api" i="streaming API; execution!streaming">streaming</span> <span g="api">API</span>
@@ -192,18 +115,19 @@ so that programs don't have to read entire (possibly large) files into memory.</
 <p>To start,
 this program asks the <code>fs</code> library to create a reading stream for a file
 and to <span g="pipe">pipe</span> the data from that stream to the hashing object
-(<a class="figref" href="#file-backup-streaming">Figure&nbsp;5.2</a>).
+(<a figure="file-backup-streaming"/>).
 It then tells the hashing object what to do when there is no more data
-by providing a <span g="handler" i="event handler!streaming API; streaming API!event handler">handler</span> for the &quot;finish&quot; event.
+by providing a <span g="handler" i="event handler!streaming API; streaming API!event handler">handler</span> for the "finish" event.
 This is called asynchronously:
 as the output shows,
 the main program ends before the task handling the end of data is scheduled and run.
-Most programs also provide a handler for &quot;data&quot; events to do something with each block of data as it comes in;
+Most programs also provide a handler for "data" events to do something with each block of data as it comes in;
 the <code>hash</code> object in our program does that for us.</p>
 <figure id="file-backup-streaming">
   <img src="figures/streaming.svg" alt="Streaming file operations" />
-  <figcaption>Figure&nbsp;5.2: Processing files as streams of chunks.</figcaption>
+  <figcaption>Processing files as streams of chunks.</figcaption>
 </figure>
+
 <h2 id="file-backup-backup">How can we back up files?</h2>
 <p>Many files only change occasionally after they're created, or not at all.
 It would be wasteful for a version control system to make copies
@@ -216,12 +140,13 @@ while the filenames tell us what each file's contents were called when the snaps
 (since files can be moved or renamed).
 To restore a particular snapshot,
 all we have to do is copy the saved <code>.bck</code> files back to where they were
-(<a class="figref" href="#file-backup-storage">Figure&nbsp;5.3</a>).</p>
+(<a figure="file-backup-storage"/>).</p>
 <figure id="file-backup-storage">
   <img src="figures/storage.svg" alt="Backup file storage" />
-  <figcaption>Figure&nbsp;5.3: Organization of backup file storage.</figcaption>
+  <figcaption>Organization of backup file storage.</figcaption>
 </figure>
-<p>We can build the tools we need to do this uses promises (<a class="secref" href="../async-programming/#async-programming">Chapter&nbsp;3</a>).
+
+<p>We can build the tools we need to do this uses promises (<a section="async-programming"/>).
 The main function creates a promise that uses the asynchronous version of <code>glob</code> to find files
 and then:</p>
 <ol>
@@ -235,27 +160,8 @@ and then:</p>
 <p>calculates hashes for those files.</p>
 </li>
 </ol>
-<pre title="hash-existing-promise.js"><code class="language-js">import fs from 'fs-extra-promise'
-import glob from 'glob-promise'
-import crypto from 'crypto'
+<div class="include" file="hash-existing-promise.js" keep="main" />
 
-const hashExisting = (rootDir) =&gt; {
-  const pattern = `${rootDir}/**/*`
-  return new Promise((resolve, reject) =&gt; {
-    glob(pattern, {})
-      .then(matches =&gt; Promise.all(
-        matches.map(path =&gt; statPath(path))))
-      .then(pairs =&gt; pairs.filter(
-        ([path, stat]) =&gt; stat.isFile()))
-      .then(pairs =&gt; Promise.all(
-        pairs.map(([path, stat]) =&gt; readPath(path))))
-      .then(pairs =&gt; Promise.all(
-        pairs.map(([path, content]) =&gt; hashPath(path, content))))
-      .then(pairs =&gt; resolve(pairs))
-      .catch(err =&gt; reject(err))
-  })
-}
-</code></pre>
 <!-- continue -->
 <p>This function uses <code>Promise.all</code>
 to wait for the operations on all of the files in the list to complete
@@ -265,120 +171,28 @@ so that each file would be handled independently
 and use one <code>Promise.all</code> at the end to bring them all together.</p>
 <p>The first two <span i="helper function">helper functions</span> that <code>hashExisting</code> relies on
 wrap asynchronous operation in promises:</p>
-<pre title="hash-existing-promise.js"><code class="language-js">const statPath = (path) =&gt; {
-  return new Promise((resolve, reject) =&gt; {
-    fs.statAsync(path)
-      .then(stat =&gt; resolve([path, stat]))
-      .catch(err =&gt; reject(err))
-  })
-}
+<div class="include" file="hash-existing-promise.js" keep="helpers" />
 
-const readPath = (path) =&gt; {
-  return new Promise((resolve, reject) =&gt; {
-    fs.readFileAsync(path, 'utf-8')
-      .then(content =&gt; resolve([path, content]))
-      .catch(err =&gt; reject(err))
-  })
-}
-</code></pre>
 <p>The final helper function calculates the hash synchronously,
 but we can use <code>Promise.all</code> to wait on those operations finishing anyway:</p>
-<pre title="hash-existing-promise.js"><code class="language-js">const hashPath = (path, content) =&gt; {
-  const hasher = crypto.createHash('sha1').setEncoding('hex')
-  hasher.write(content)
-  hasher.end()
-  return [path, hasher.read()]
-}
-</code></pre>
+<div class="include" file="hash-existing-promise.js" keep="hashPath" />
+
 <p>Let's try running it:</p>
-<pre title="run-hash-existing-promise.js"><code class="language-js">import hashExisting from './hash-existing-promise.js'
+<div class="include" pat="run-hash-existing-promise.*" fill="js sh slice.out" />
 
-const root = process.argv[2]
-hashExisting(root).then(pairs =&gt; pairs.forEach(
-  ([path, hash]) =&gt; console.log(path, hash)
-))
-</code></pre>
-
-
-<pre title="run-hash-existing-promise.sh"><code class="language-sh">node run-hash-existing-promise.js . | fgrep -v test/ | fgrep -v '~'
-</code></pre>
-
-
-<pre title="run-hash-existing-promise.slice.out"><code class="language-out">./backup.js 11422489e11be3d8ff76278503457665f6152ebe
-./check-existing-files.js 66b933cf9e792e9a9204171d04e0f8b530ec3f4f
-./figures/hash-function.pdf 0eb82de379a95ee2be3f00b38c0102e2f2f8170e
-./figures/hash-function.svg 563996575d581f2a08e3e954d7faba4d189d0773
-./figures/mock-fs.pdf 0b3bba44e69122ee53bcc9d777c186c84b7c2ff2
-...
-./x-from-to.md f0f63b3576042dfc0050029ddfcccc3c42fe275d
-./x-io-streams.md 1fb4d8b7785c5e7b2f1e29588e2ba28d101ced1a
-./x-json-manifests.md 223e0e4167acc6d4d81b76ba1287b90234c95e22
-./x-mock-hashes.md 580edfc0cb8eaca4f3700307002ae10ee97af8d2
-./x-pre-commit.md b7d945af4554fc0f64b708fe735417bee8b33eef
-</code></pre>
 <p>The code we have written is clearer than it would be with callbacks
 (try rewriting it if you don't believe this)
 but the layer of promises around everything still obscures its meaning.
 The same operations are easier to read when written using <code>async</code> and <code>await</code>:</p>
-<pre title="hash-existing-async.js"><code class="language-js">const statPath = async (path) =&gt; {
-  const stat = await fs.statAsync(path)
-  return [path, stat]
-}
+<div class="include" file="hash-existing-async.js" keep="main" />
 
-const readPath = async (path) =&gt; {
-  const content = await fs.readFileAsync(path, 'utf-8')
-  return [path, content]
-}
-
-const hashPath = (path, content) =&gt; {
-  const hasher = crypto.createHash('sha1').setEncoding('hex')
-  hasher.write(content)
-  hasher.end()
-  return [path, hasher.read()]
-}
-
-const hashExisting = async (rootDir) =&gt; {
-  const pattern = `${rootDir}/**/*`
-  const options = {}
-  const matches = await glob(pattern, options)
-  const stats = await Promise.all(matches.map(path =&gt; statPath(path)))
-  const files = stats.filter(([path, stat]) =&gt; stat.isFile())
-  const contents = await Promise.all(
-    files.map(([path, stat]) =&gt; readPath(path)))
-  const hashes = contents.map(
-    ([path, content]) =&gt; hashPath(path, content))
-  return hashes
-}
-</code></pre>
 <!-- continue -->
 <p>This version creates and resolves exactly the same promises as the previous one,
 but those promises are created for us automatically by Node.
 To check that it works,
 let's run it for the same input files:</p>
-<pre title="run-hash-existing-async.js"><code class="language-js">import hashExisting from './hash-existing-async.js'
+<div class="include" pat="run-hash-existing-async.*" fill="js sh slice.out" />
 
-const root = process.argv[2]
-hashExisting(root).then(
-  pairs =&gt; pairs.forEach(([path, hash]) =&gt; console.log(path, hash)))
-</code></pre>
-
-
-<pre title="run-hash-existing-async.sh"><code class="language-sh">node run-hash-existing-async.js . | fgrep -v test/ | fgrep -v '~'
-</code></pre>
-
-
-<pre title="run-hash-existing-async.slice.out"><code class="language-out">./backup.js 11422489e11be3d8ff76278503457665f6152ebe
-./check-existing-files.js 66b933cf9e792e9a9204171d04e0f8b530ec3f4f
-./figures/hash-function.pdf 0eb82de379a95ee2be3f00b38c0102e2f2f8170e
-./figures/hash-function.svg 563996575d581f2a08e3e954d7faba4d189d0773
-./figures/mock-fs.pdf 0b3bba44e69122ee53bcc9d777c186c84b7c2ff2
-...
-./x-from-to.md f0f63b3576042dfc0050029ddfcccc3c42fe275d
-./x-io-streams.md 1fb4d8b7785c5e7b2f1e29588e2ba28d101ced1a
-./x-json-manifests.md 223e0e4167acc6d4d81b76ba1287b90234c95e22
-./x-mock-hashes.md 580edfc0cb8eaca4f3700307002ae10ee97af8d2
-./x-pre-commit.md b7d945af4554fc0f64b708fe735417bee8b33eef
-</code></pre>
 <h2 id="file-backup-track">How can we track which files have already been backed up?</h2>
 <p>The second part of our backup tool keeps track of which files have and haven't been backed up already.
 It stores backups in a directory that contains backup files like <code>abcd1234.bck</code>
@@ -400,121 +214,31 @@ If two users run the backup tool at the same time,
 they will both see that there isn't a file (yet) with the current timestamp,
 so they will both try to create the first one.</p>
 </blockquote>
-<pre title="check-existing-files.js"><code class="language-js">import glob from 'glob-promise'
-import path from 'path'
+<div class="include" file="check-existing-files.js" />
 
-const findNew = async (rootDir, pathHashPairs) =&gt; {
-  const hashToPath = pathHashPairs.reduce((obj, [path, hash]) =&gt; {
-    obj[hash] = path
-    return obj
-  }, {})
-
-  const pattern = `${rootDir}/*.bck`
-  const options = {}
-  const existingFiles = await glob(pattern, options)
-
-  existingFiles.forEach(filename =&gt; {
-    const stripped = path.basename(filename).replace(/\.bck$/, '')
-    delete hashToPath[stripped]
-  })
-
-  return hashToPath
-}
-
-export default findNew
-</code></pre>
 <p>To test our program,
 let's manually create testing directories with manufactured (shortened) hashes:</p>
-<pre title="tree-test.sh"><code class="language-sh">tree --charset unicode test
-</code></pre>
+<div class="include" pat="tree-test.*" fill="sh out" />
 
-
-<pre title="tree-test.out"><code class="language-out">test
-|-- bck-0-csv-0
-|-- bck-1-csv-1
-|   |-- 0001.csv
-|   `-- abcd1234.bck
-|-- bck-4-csv-2
-|   |-- 0001.csv
-|   |-- 3028.csv
-|   |-- 3456cdef.bck
-|   |-- abcd1234.bck
-|   `-- bcde2345.bck
-|-- test-backup.js
-|-- test-find-mock.js
-`-- test-find.js
-
-3 directories, 10 files
-</code></pre>
 <p>We use <span i="Mocha"><a href="https://mochajs.org/">Mocha</a></span> to manage our tests.
 Every test is an <code>async</code> function;
 Mocha automatically waits for them all to complete before reporting results.
 To run them,
 we add the line:</p>
-<pre><code class="language-js">&quot;test&quot;: &quot;mocha */test/test-*.js&quot;
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="s2">&quot;test&quot;</span><span class="o">:</span> <span class="s2">&quot;mocha */test/test-*.js&quot;</span>
+</code></pre></div>
+
 <!-- continue -->
 <p>in the <code>scripts</code> section of our project's <code>package.json</code> file
 so that when we run <code>npm run test</code>,
 Mocha looks for files in <code>test</code> sub-directories of the directories holding our lessons.</p>
 <p>Here are our first few tests:</p>
-<pre title="test/test-find.js"><code class="language-js">import assert from 'assert'
+<div class="include" file="test/test-find.js" />
 
-import findNew from '../check-existing-files.js'
-
-describe('pre-existing hashes and actual filesystem', () =&gt; {
-  it('finds no pre-existing files when none given or exist', async () =&gt; {
-    const expected = {}
-    const actual = await findNew('file-backup/test/bck-0-csv-0', [])
-    assert.deepStrictEqual(expected, actual,
-      'Expected no files')
-  })
-
-  it('finds some files when one is given and none exist', async () =&gt; {
-    const check = [['somefile.txt', '9876fedc']]
-    const expected = { '9876fedc': 'somefile.txt' }
-    const actual = await findNew('file-backup/test/bck-0-csv-0', check)
-    assert.deepStrictEqual(expected, actual,
-      'Expected one file')
-  })
-
-  it('finds nothing needs backup when there is a match', async () =&gt; {
-    const check = [['alpha.js', 'abcd1234']]
-    const expected = {}
-    const actual = await findNew('file-backup/test/bck-1-csv-1', check)
-    assert.deepStrictEqual(expected, actual,
-      'Expected no files')
-  })
-
-  it('finds something needs backup when there is a mismatch', async () =&gt; {
-    const check = [['alpha.js', 'a1b2c3d4']]
-    const expected = { a1b2c3d4: 'alpha.js' }
-    const actual = await findNew('file-backup/test/bck-1-csv-1', check)
-    assert.deepStrictEqual(expected, actual,
-      'Expected one file')
-  })
-
-  it('finds mixed matches', async () =&gt; {
-    const check = [
-      ['matches.js', '3456cdef'],
-      ['matches.txt', 'abcd1234'],
-      ['mismatch.txt', '12345678']
-    ]
-    const expected = { 12345678: 'mismatch.txt' }
-    const actual = await findNew('file-backup/test/bck-4-csv-2', check)
-    assert.deepStrictEqual(expected, actual,
-      'Expected one file')
-  })
-})
-</code></pre>
 <!-- continue -->
 <p>and here is Mocha's report:</p>
-<pre title="test-check-filesystem.out"><code class="language-out">
-&gt; stjs@1.0.0 test
-&gt; mocha */test/test-*.js &quot;-g&quot; &quot;pre-existing hashes&quot;
+<div class="include" file="test-check-filesystem.out" />
 
-sh: mocha: command not found
-</code></pre>
 <h2 id="file-backup-test">How can we test code that modifies files?</h2>
 <p>The final thing our tool needs to do
 is copy the files that need copying and create a new index file.
@@ -529,48 +253,19 @@ A mock object has the same interface as the function, object, class, or library 
 but is designed to be used solely for testing.
 Node's <a href="https://www.npmjs.com/package/mock-fs"><code>mock-fs</code></a> library provides the same functions as the <code>fs</code> library,
 but stores everything in memory
-(<a class="figref" href="#file-backup-mock-fs">Figure&nbsp;5.4</a>).
+(<a figure="file-backup-mock-fs"/>).
 This prevents our tests from accidentally disturbing the filesystem,
 and also makes tests much faster
 (since in-memory operations are thousands of times faster than operations that touch the disk).</p>
 <figure id="file-backup-mock-fs">
   <img src="figures/mock-fs.svg" alt="Mock filesystem" />
-  <figcaption>Figure&nbsp;5.4: Using a mock filesystem to simplify testing.</figcaption>
+  <figcaption>Using a mock filesystem to simplify testing.</figcaption>
 </figure>
+
 <p>We can create a mock filesystem by giving the library a JSON description of
 the files and what they should contain:</p>
-<pre title="test/test-find-mock.js"><code class="language-js">import assert from 'assert'
-import mock from 'mock-fs'
+<div class="include" file="test/test-find-mock.js" omit="tests" />
 
-import findNew from '../check-existing-files.js'
-
-describe('checks for pre-existing hashes using mock filesystem', () =&gt; {
-  beforeEach(() =&gt; {
-    mock({
-      'bck-0-csv-0': {},
-      'bck-1-csv-1': {
-        '0001.csv': 'alpha.js,abcd1234',
-        'abcd1234.bck': 'alpha.js content'
-      },
-      'bck-4-csv-2': {
-        '0001.csv': ['alpha.js,abcd1234',
-          'beta.txt,bcde2345'].join('\n'),
-        '3024.csv': ['alpha.js,abcd1234',
-          'gamma.png,3456cdef',
-          'subdir/renamed.txt,bcde2345'].join('\n'),
-        '3456cdef.bck': 'gamma.png content',
-        'abcd1234.bck': 'alpha content',
-        'bcde2345.bck': 'beta.txt became subdir/renamed.txt'
-      }
-    })
-  })
-
-  afterEach(() =&gt; {
-    mock.restore()
-  })
-
-})
-</code></pre>
 <!-- continue -->
 <p><span i="Mocha!beforeEach">Mocha</span> automatically calls <code>beforeEach</code> before running each tests,
 and <span i="Mocha!afterEach"><code>afterEach</code></span> after each tests completes
@@ -579,153 +274,22 @@ All of the tests stay exactly the same,
 and since <code>mock-fs</code> replaces the functions in the standard <code>fs</code> library with its own,
 nothing in our application needs to change either.</p>
 <p>We are finally ready to write the program that actually backs up files:</p>
-<pre title="backup.js"><code class="language-js">import fs from 'fs-extra-promise'
+<div class="include" file="backup.js" />
 
-import hashExisting from './hash-existing-async.js'
-import findNew from './check-existing-files.js'
-
-const backup = async (src, dst, timestamp = null) =&gt; {
-  if (timestamp === null) {
-    timestamp = Math.round((new Date()).getTime() / 1000)
-  }
-  timestamp = String(timestamp).padStart(10, '0')
-
-  const existing = await hashExisting(src)
-  const needToCopy = await findNew(dst, existing)
-  await copyFiles(dst, needToCopy)
-  await saveManifest(dst, timestamp, existing)
-}
-
-const copyFiles = async (dst, needToCopy) =&gt; {
-  const promises = Object.keys(needToCopy).map(hash =&gt; {
-    const srcPath = needToCopy[hash]
-    const dstPath = `${dst}/${hash}.bck`
-    fs.copyFileAsync(srcPath, dstPath)
-  })
-  return Promise.all(promises)
-}
-
-const saveManifest = async (dst, timestamp, pathHash) =&gt; {
-  pathHash = pathHash.sort()
-  const content = pathHash.map(
-    ([path, hash]) =&gt; `${path},${hash}`).join('\n')
-  const manifest = `${dst}/${timestamp}.csv`
-  fs.writeFileAsync(manifest, content, 'utf-8')
-}
-
-export default backup
-</code></pre>
 <p>The tests for this are more complicated than tests we have written previously
 because we want to check with actual file hashes.
 Let's set up some fixtures to run tests on:</p>
-<pre title="test/test-backup.js"><code class="language-js">import backup from '../backup.js'
+<div class="include" file="test/test-backup.js" keep="fixtures" />
 
-const hashString = (data) =&gt; {
-  const hasher = crypto.createHash('sha1').setEncoding('hex')
-  hasher.write(data)
-  hasher.end()
-  return hasher.read()
-}
-
-const Contents = {
-  aaa: 'AAA',
-  bbb: 'BBB',
-  ccc: 'CCC'
-}
-
-const Hashes = Object.keys(Contents).reduce((obj, key) =&gt; {
-  obj[key] = hashString(Contents[key])
-  return obj
-}, {})
-
-const Fixture = {
-  source: {
-    'alpha.txt': Contents.aaa,
-    'beta.txt': Contents.bbb,
-    gamma: {
-      'delta.txt': Contents.ccc
-    }
-  },
-  backup: {}
-}
-
-const InitialBackups = Object.keys(Hashes).reduce((set, filename) =&gt; {
-  set.add(`backup/${Hashes[filename]}.bck`)
-  return set
-}, new Set())
-</code></pre>
 <!-- continue -->
 <p>and then run some tests:</p>
-<pre title="test/test-backup.js"><code class="language-js">describe('check entire backup process', () =&gt; {
-  beforeEach(() =&gt; {
-    mock(Fixture)
-  })
+<div class="include" file="test/test-backup.js" keep="tests" />
+<div class="include" file="test-backup.out" />
 
-  afterEach(() =&gt; {
-    mock.restore()
-  })
-
-  it('creates an initial CSV manifest', async () =&gt; {
-    await backup('source', 'backup', 0)
-
-    assert.strictEqual((await glob('backup/*')).length, 4,
-      'Expected 4 files')
-
-    const actualBackups = new Set(await glob('backup/*.bck'))
-    assert.deepStrictEqual(actualBackups, InitialBackups,
-      'Expected 3 backup files')
-
-    const actualManifests = await glob('backup/*.csv')
-    assert.deepStrictEqual(actualManifests, ['backup/0000000000.csv'],
-      'Expected one manifest')
-  })
-
-  it('does not duplicate files unnecessarily', async () =&gt; {
-    await backup('source', 'backup', 0)
-    assert.strictEqual((await glob('backup/*')).length, 4,
-      'Expected 4 files after first backup')
-
-    await backup('source', 'backup', 1)
-    assert.strictEqual((await glob('backup/*')).length, 5,
-      'Expected 5 files after second backup')
-    const actualBackups = new Set(await glob('backup/*.bck'))
-    assert.deepStrictEqual(actualBackups, InitialBackups,
-      'Expected 3 backup files after second backup')
-
-    const actualManifests = (await glob('backup/*.csv')).sort()
-    assert.deepStrictEqual(actualManifests,
-      ['backup/0000000000.csv', 'backup/0000000001.csv'],
-      'Expected two manifests')
-  })
-
-  it('adds a file as needed', async () =&gt; {
-    await backup('source', 'backup', 0)
-    assert.strictEqual((await glob('backup/*')).length, 4,
-      'Expected 4 files after first backup')
-
-    await fs.writeFileAsync('source/newfile.txt', 'NNN')
-    const hashOfNewFile = hashString('NNN')
-
-    await backup('source', 'backup', 1)
-    assert.strictEqual((await glob('backup/*')).length, 6,
-      'Expected 6 files after second backup')
-    const expected = new Set(InitialBackups)
-      .add(`backup/${hashOfNewFile}.bck`)
-    const actualBackups = new Set(await glob('backup/*.bck'))
-    assert.deepStrictEqual(actualBackups, expected,
-      'Expected 4 backup files after second backup')
-
-    const actualManifests = (await glob('backup/*.csv')).sort()
-    assert.deepStrictEqual(actualManifests,
-      ['backup/0000000000.csv', 'backup/0000000001.csv'],
-      'Expected two manifests')
-  })
-})
-</code></pre>
 <blockquote>
 <h3>Design for test</h3>
 <p>One of the best ways---maybe <em>the</em> best way---to evaluate software design
-is by thinking about <span i="testability!as design criterion; software design!testability">testability</span> [<a href="../bibliography/#Feathers2004">Feathers2004</a>].
+is by thinking about <span i="testability!as design criterion; software design!testability">testability</span> <cite>Feathers2004</cite>.
 We were able to use a mock filesystem instead of a real one
 because the filesystem has a well-defined API
 that is provided to us in a single library,
@@ -734,7 +298,7 @@ If you have to change several parts of your code in order to test it,
 the code is telling you to consolidate those parts into one component.</p>
 </blockquote>
 <h2 id="file-backup-exercises">Exercises</h2>
-<h3 class="exercise">Odds of collision</h3>
+<h3 class="exercise">Odds of collision {.exercise}</h3>
 <p>If hashes were only 2 bits long,
 then the chances of collision with each successive file
 assuming no previous collision are:</p>
@@ -771,33 +335,33 @@ assuming no previous collision are:</p>
 <p>A colleague of yours says this means that if we hash four files,
 there's only a 75% chance of any collision occurring.
 What are the actual odds?</p>
-<h3 class="exercise">Streaming I/O</h3>
+<h3 class="exercise">Streaming I/O {.exercise}</h3>
 <p>Write a small program using <code>fs.createReadStream</code> and <code>fs.createWriteStream</code>
 that copies a file piece by piece
 instead of reading it into memory and then writing it out again.</p>
-<h3 class="exercise">Sequencing backups</h3>
+<h3 class="exercise">Sequencing backups {.exercise}</h3>
 <p>Modify the backup program so that manifests are numbered sequentially
 as <code>00000001.csv</code>, <code>00000002.csv</code>, and so on
 rather than being timestamped.
 Why doesn't this solve the time of check/time of use race condition mentioned earlier.</p>
-<h3 class="exercise">JSON manifests</h3>
+<h3 class="exercise">JSON manifests {.exercise}</h3>
 <ol>
 <li>
 <p>Modify <code>backup.js</code> so that it can save JSON manifests as well as CSV manifests
-based on a command-line flag.</p>
+    based on a command-line flag.</p>
 </li>
 <li>
 <p>Write another program called <code>migrate.js</code> that converts a set of manifests
-from CSV to JSON.
-(The program's name comes from the term <span g="data_migration">data migration</span>.)</p>
+    from CSV to JSON.
+    (The program's name comes from the term <span g="data_migration">data migration</span>.)</p>
 </li>
 <li>
 <p>Modify <code>backup.js</code> programs so that each manifest stores the user name of the person who created it
-along with file hashes,
-and then modify <code>migrate.js</code> to transform old files into the new format.</p>
+    along with file hashes,
+    and then modify <code>migrate.js</code> to transform old files into the new format.</p>
 </li>
 </ol>
-<h3 class="exercise">Mock hashes</h3>
+<h3 class="exercise">Mock hashes {.exercise}</h3>
 <ol>
 <li>
 <p>Modify the file backup program so that it uses a function called <code>ourHash</code> to hash files.</p>
@@ -810,73 +374,81 @@ and then modify <code>migrate.js</code> to transform old files into the new form
 </li>
 </ol>
 <p>How did you modify the main program so that the tests could control which hashing function is used?</p>
-<h3 class="exercise">Comparing manifests</h3>
+<h3 class="exercise">Comparing manifests {.exercise}</h3>
 <p>Write a program <code>compare-manifests.js</code> that reads two manifest files and reports:</p>
 <ul>
 <li>
 <p>Which files have the same names but different hashes
-(i.e., their contents have changed).</p>
+    (i.e., their contents have changed).</p>
 </li>
 <li>
 <p>Which files have the same hashes but different names
-(i.e., they have been renamed).</p>
+    (i.e., they have been renamed).</p>
 </li>
 <li>
 <p>Which files are in the first hash but neither their names nor their hashes are in the second
-(i.e., they have been deleted).</p>
+    (i.e., they have been deleted).</p>
 </li>
 <li>
 <p>Which files are in the second hash but neither their names nor their hashes are in the first
-(i.e., they have been added).</p>
+    (i.e., they have been added).</p>
 </li>
 </ul>
-<h3 class="exercise">From one state to another</h3>
+<h3 class="exercise">From one state to another {.exercise}</h3>
 <ol>
 <li>
 <p>Write a program called <code>from-to.js</code> that takes the name of a directory
-and the name of a manifest file
-as its command-line arguments,
-then adds, removes, and/or renames files in the directory
-to restore the state described in the manifest.
-The program should only perform file operations when it needs to,
-e.g.,
-it should not delete a file and re-add it if the contents have not changed.</p>
+    and the name of a manifest file
+    as its command-line arguments,
+    then adds, removes, and/or renames files in the directory
+    to restore the state described in the manifest.
+    The program should only perform file operations when it needs to,
+    e.g.,
+    it should not delete a file and re-add it if the contents have not changed.</p>
 </li>
 <li>
 <p>Write some tests for <code>from-to.js</code> using Mocha and <code>mock-fs</code>.</p>
 </li>
 </ol>
-<h3 class="exercise">File history</h3>
+<h3 class="exercise">File history {.exercise}</h3>
 <ol>
 <li>
 <p>Write a program called <code>file-history.js</code>
-that takes the name of a file as a command-line argument
-and displays the history of that file
-by tracing it back in time through the available manifests.</p>
+    that takes the name of a file as a command-line argument
+    and displays the history of that file
+    by tracing it back in time through the available manifests.</p>
 </li>
 <li>
 <p>Write tests for your program using Mocha and <code>mock-fs</code>.</p>
 </li>
 </ol>
-<h3 class="exercise">Pre-commit hooks</h3>
+<h3 class="exercise">Pre-commit hooks {.exercise}</h3>
 <p>Modify <code>backup.js</code> to load and run a function called <code>preCommit</code> from a file called <code>pre-commit.js</code>
 stored in the root directory of the files being backed up.
 If <code>preCommit</code> returns <code>true</code>, the backup proceeds;
 if it returns <code>false</code> or throws an exception,
 no backup is created.</p>
 
-    </main>
-    <footer>
   <hr/>
-  <p>
-    Copyright © 2022 Greg Wilson
-    &nbsp;
-    <a href="../license/"><img class="icon" src="../static/cc-by-nc.svg" alt="CC-BY-NC icon"/></a>
-    <a href="../license/"><img class="icon" src="../static/hippocratic.svg" alt="Hippocratic License icon"/></a>
-    <a href="https://github.com/software-tools-books/stjs/"><img class="icon" src="../static/github.svg" alt="GitHub icon"/></a>
-    <a href="mailto:gvwilson@third-bit.com"><img class="icon" src="../static/email.svg" alt="email icon"/></a>
-  </p>
-</footer>
+<div class="centered">
+  <table class="plain footer">
+    <tr>
+      
+      <td><a href="../license/">License</a></td>
+      
+      <td><a href="../conduct/">Code of Conduct</a></td>
+      
+      <td><a href="../bibliography/">Bibliography</a></td>
+      
+      <td><a href="../glossary/">Glossary</a></td>
+      
+      <td><a href="../links/">Links</a></td>
+      
+      <td><a href="https://github.com/software-tools-books/stjs/">GitHub</a></td>
+      
+    </tr>
+  </table>
+</div>
 
   </body>
 </html>

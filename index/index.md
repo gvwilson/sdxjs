@@ -1,5 +1,0 @@
----
-template: page.html
----
-
-<!-- FIXME -->

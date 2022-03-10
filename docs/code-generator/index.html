@@ -1,41 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
-<script>MathJax = {tex: {inlineMath: [["\\(", "\\)"]]}, svg: {fontCache: "global"}};</script>
-<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-<script>hljs.highlightAll();</script>
-<script src="../static/mccole.js"></script>
-<script>window.onload = () => fixPage()</script>
+    <meta charset="utf-8">
+<script defer data-domain="stjs.tech" src="https://plausible.io/js/plausible.js"></script>
+<link rel="icon" type="image/x-icon" href="../files/favicon.ico">
+<link rel="stylesheet" href="../mccole.css">
+<link rel="stylesheet" href="../codehilite-tango.css">
 
-    <script defer data-domain="stjs.tech" src="https://plausible.io/js/plausible.js"></script>
-
-    <link href="../static/mccole.css" rel="stylesheet" type="text/css">
-    <title>Software Design by Example: <h1 id="code-generator">Code Generator</h1></title>
+    <title>Software Design by Example: Code Generator</title>
   </head>
-  <body>
-    <main>
-      <p class="home"><a href="../">Software Design by Example</a></p>
-      <h1 id="code-generator">Code Generator</h1>
-      <div class="lede"><p>Modifying code to track coverage and execution times</p></div>
-      <nav>
-	<ol class="toc">
-<li><a href="#code-generator-replace">How can we replace a function with another function?</a></li>
-<li><a href="#code-generator-generate">How can we generate JavaScript?</a></li>
-<li><a href="#code-generator-count">How can we count how often functions are executed?</a></li>
-<li><a href="#code-generator-time">How can we time function execution?</a></li>
-<li><a href="#code-generator-exercises">Exercises</a></li>
-</ol>
-
-      </nav>
-      <div class="keyterms"><p><a href="../glossary/#byte_code">byte code</a>, <a href="../glossary/#code_coverage">code coverage (in testing)</a>, <a href="../glossary/#compiler">compiler</a>, <a href="../glossary/#decorator_pattern">Decorator pattern</a>, <a href="../glossary/#macro">macro</a>, <a href="../glossary/#nested_function">nested function</a>, <a href="../glossary/#two_hard_problems">two hard problems in computer science</a></p></div>
-
+  <body class="page">
+    <div class="centered title">
       
-<p>We've been writing tests since <a class="secref" href="../unit-test/#unit-test">Chapter&nbsp;4</a>,
+      <h2><a href="../">Software Design by Example</a></h2>
+      <h1>Chapter 15: Code Generator</h1>
+      
+      <p>
+        <img class="page-logo" src="../files/codebender.svg" alt="logo" />
+      </p>
+    </div>
+
+<p>We've been writing tests since <a section="unit-test"/>,
 but how much of our code do they actually check?
 One way to find out is to use a <span g="code_coverage" i="code coverage">code coverage</span> tool
 like <span i="Istanbul"><a href="https://istanbul.js.org/">Istanbul</a></span>
@@ -65,95 +50,32 @@ Using a full-blown parser and working with the AST is almost always less work.</
 <h2 id="code-generator-replace">How can we replace a function with another function?</h2>
 <p>The first thing we need is a way to wrap up an arbitrary function call.
 If we declare a function in JavaScript with a parameter like <code>...args</code>,
-all of the &quot;extra&quot; arguments in the call that don't line up with regular parameters
+all of the "extra" arguments in the call that don't line up with regular parameters
 are stuffed into the variable <code>args</code>
-(<a class="figref" href="#code-generator-spread">Figure&nbsp;15.1</a>).
+(<a figure="code-generator-spread"/>).
 We can also call a function by putting values in a variable
 and using <code>func(...var)</code> to <span i="spread!function arguments">spread</span> those values out.
 There's nothing special about the names <code>args</code> and <code>vars</code>:
 what matters is the ellipsis <code>...</code></p>
 <figure id="code-generator-spread">
   <img src="figures/spread.svg" alt="Spreading parameters" />
-  <figcaption>Figure&nbsp;15.1: Using ...args to capture and spread parameters.</figcaption>
+  <figcaption>Using ...args to capture and spread parameters.</figcaption>
 </figure>
+
 <p>We can use <code>...args</code> to capture all of the arguments to a function call
 and forward them to another function.
 Let's start by creating functions with a varying number of parameters
 that run to completion or throw an exception,
 then run them to make sure they do what we want:</p>
-<pre title="replace-func.js"><code class="language-js">let zero = () =&gt; console.log('zero')
+<div class="include" file="replace-func.js" keep="original" />
 
-let one = (first) =&gt; console.log(`one(${first})`)
-
-let two = (first, second) =&gt; console.log(`two(${first}, ${second})`)
-
-let error = () =&gt; {
-  console.log('error')
-  throw new Error('from error')
-  console.log('should not reach this') // eslint-disable-line
-}
-
-const runAll = (title) =&gt; {
-  console.log(title)
-  zero()
-  one(1)
-  two(1, 2)
-  try {
-    error()
-  } catch (error) {
-    console.log(`caught ${error} as expected`)
-  }
-  console.log()
-}
-
-runAll('first time')
-</code></pre>
 <p>We can now write a function that takes a function as an input
 and creates a new function that handles all of the errors in the original function:</p>
-<pre title="replace-func.js"><code class="language-js">const replace = (func) =&gt; {
-  return (...args) =&gt; {
-    console.log('before')
-    try {
-      const result = func(...args)
-      console.log('after')
-      return result
-    } catch (error) {
-      console.log('error')
-      throw error
-    }
-  }
-}
+<div class="include" file="replace-func.js" keep="replace" />
 
-zero = replace(zero)
-one = replace(one)
-two = replace(two)
-error = replace(error)
-
-runAll('second time')
-</code></pre>
 <p>Let's try it out:</p>
-<pre title="replace-func.out"><code class="language-out">first time
-zero
-one(1)
-two(1, 2)
-error
-caught Error: from error as expected
+<div class="include" file="replace-func.out" />
 
-second time
-before
-zero
-after
-before
-one(1)
-after
-before
-two(1, 2)
-after
-before
-error
-error
-caught Error: from error as expected
-</code></pre>
 <p>This is an example of the <span g="decorator_pattern" i="Decorator pattern; design pattern!Decorator">Decorator</span> design pattern.
 A decorator is a function whose job is to modify the behavior of other functions
 in some general ways.
@@ -180,113 +102,16 @@ modify the AST,
 and then use a library called <span i="Escodegen"><a href="https://github.com/estools/escodegen/">Escodegen</a></span> to turn the AST back into JavaScript.
 To start,
 let's look at the AST for a simple function definition,
-which is 75 lines of pretty-printed JSON:</p>
-<pre title="func-def.js"><code class="language-js">import acorn from 'acorn'
+which is <span class="linecount" file="func-def.out"/> lines of pretty-printed JSON:</p>
+<div class="include" pat="func-def.*" fill="js out" />
 
-const text = `const func = (param) =&gt; {
-  return param + 1
-}`
-
-const ast = acorn.parse(text, { sourceType: 'module' })
-console.log(JSON.stringify(ast, null, 2))
-</code></pre>
-
-
-<pre title="func-def.out"><code class="language-out">{
-  &quot;type&quot;: &quot;Program&quot;,
-  &quot;start&quot;: 0,
-  &quot;end&quot;: 46,
-  &quot;body&quot;: [
-    {
-      &quot;type&quot;: &quot;VariableDeclaration&quot;,
-      &quot;start&quot;: 0,
-      &quot;end&quot;: 46,
-      &quot;declarations&quot;: [
-        {
-          &quot;type&quot;: &quot;VariableDeclarator&quot;,
-          &quot;start&quot;: 6,
-          &quot;end&quot;: 46,
-          &quot;id&quot;: {
-            &quot;type&quot;: &quot;Identifier&quot;,
-            &quot;start&quot;: 6,
-            &quot;end&quot;: 10,
-            &quot;name&quot;: &quot;func&quot;
-          },
-          &quot;init&quot;: {
-            &quot;type&quot;: &quot;ArrowFunctionExpression&quot;,
-            &quot;start&quot;: 13,
-            &quot;end&quot;: 46,
-            &quot;id&quot;: null,
-            &quot;expression&quot;: false,
-            &quot;generator&quot;: false,
-            &quot;async&quot;: false,
-            &quot;params&quot;: [
-              {
-                &quot;type&quot;: &quot;Identifier&quot;,
-                &quot;start&quot;: 14,
-                &quot;end&quot;: 19,
-                &quot;name&quot;: &quot;param&quot;
-              }
-            ],
-            &quot;body&quot;: {
-              &quot;type&quot;: &quot;BlockStatement&quot;,
-              &quot;start&quot;: 24,
-              &quot;end&quot;: 46,
-              &quot;body&quot;: [
-                {
-                  &quot;type&quot;: &quot;ReturnStatement&quot;,
-                  &quot;start&quot;: 28,
-                  &quot;end&quot;: 44,
-                  &quot;argument&quot;: {
-                    &quot;type&quot;: &quot;BinaryExpression&quot;,
-                    &quot;start&quot;: 35,
-                    &quot;end&quot;: 44,
-                    &quot;left&quot;: {
-                      &quot;type&quot;: &quot;Identifier&quot;,
-                      &quot;start&quot;: 35,
-                      &quot;end&quot;: 40,
-                      &quot;name&quot;: &quot;param&quot;
-                    },
-                    &quot;operator&quot;: &quot;+&quot;,
-                    &quot;right&quot;: {
-                      &quot;type&quot;: &quot;Literal&quot;,
-                      &quot;start&quot;: 43,
-                      &quot;end&quot;: 44,
-                      &quot;value&quot;: 1,
-                      &quot;raw&quot;: &quot;1&quot;
-                    }
-                  }
-                }
-              ]
-            }
-          }
-        }
-      ],
-      &quot;kind&quot;: &quot;const&quot;
-    }
-  ],
-  &quot;sourceType&quot;: &quot;module&quot;
-}
-</code></pre>
 <p>After inspecting a few nodes,
 we can try to create some of our own and turn them into code.
 Here,
 for example,
 we have the JSON representation of the expression <code>40+2</code>:</p>
-<pre title="one-plus-two.js"><code class="language-js">import escodegen from 'escodegen'
+<div class="include" pat="one-plus-two.*" fill="js out" />
 
-const result = escodegen.generate({
-  type: 'BinaryExpression',
-  operator: '+',
-  left: { type: 'Literal', value: 40 },
-  right: { type: 'Literal', value: 2 }
-})
-console.log(result)
-</code></pre>
-
-
-<pre title="one-plus-two.out"><code class="language-out">40 + 2
-</code></pre>
 <h2 id="code-generator-count">How can we count how often functions are executed?</h2>
 <p>Our tool will find all the function declaration nodes in the program
 and insert a node to increment an entry in a global variable called <code>__counters</code>.
@@ -294,51 +119,16 @@ and insert a node to increment an entry in a global variable called <code>__coun
 we won't accidentally clobber a variable in the user's program with the same name,
 but hopefully it makes that less likely.)
 Our test case is:</p>
-<pre title="multi-func-counter.js"><code class="language-js">const TEXT = `
-const funcOuter = (param) =&gt; {
-  return param + 1
-}
-const funcInner = (param) =&gt; {
-  return param + 1
-}
-for (const i of [1, 3, 5]) {
-  funcOuter(funcInner(i) + funcInner(i))
-}
-`
-</code></pre>
+<div class="include" file="multi-func-counter.js" keep="test" />
+
 <!-- continue -->
 <p>and the main function of our program is:</p>
-<pre title="multi-func-counter.js"><code class="language-js">const main = () =&gt; {
-  const ast = acorn.parse(TEXT, { sourceType: 'module' })
+<div class="include" file="multi-func-counter.js" keep="main" />
 
-  const allNodes = []
-  walk.simple(ast, {
-    VariableDeclarator: (node, state) =&gt; {
-      if (node.init &amp;&amp; (node.init.type === 'ArrowFunctionExpression')) {
-        state.push(node)
-      }
-    }
-  }, null, allNodes)
-
-  const names = {}
-  allNodes.forEach(node =&gt; insertCounter(names, node))
-  console.log(initializeCounters(names))
-  console.log(escodegen.generate(ast))
-  console.log(reportCounters())
-}
-</code></pre>
 <p>To insert a count we call <code>insertCounter</code>
 to record the function's name and modify the node:</p>
-<pre title="multi-func-counter.js"><code class="language-js">const insertCounter = (names, node) =&gt; {
-  const name = node.id.name
-  names[name] = 0
+<div class="include" file="multi-func-counter.js" keep="insert" />
 
-  const body = node.init.body.body
-  const increment =
-    acorn.parse(`__counters['${name}'] += 1`, { sourceType: 'module' })
-  body.unshift(increment)
-}
-</code></pre>
 <!-- continue -->
 <p>Notice how we don't try to build the nodes by hand,
 but instead construct the string we need,
@@ -349,38 +139,12 @@ and also ensures that if a newer version of Acorn decides to generate a differen
 our program will do the right thing automatically.</p>
 <p>Finally,
 we need to add a couple of <span i="helper function">helper functions</span>:</p>
-<pre title="multi-func-counter.js"><code class="language-js">const initializeCounters = (names) =&gt; {
-  const body = Object.keys(names).map(n =&gt; `'${n}': 0`).join(',\n')
-  return 'const __counters = {\n' + body + '\n}'
-}
+<div class="include" file="multi-func-counter.js" keep="admin" />
 
-const reportCounters = () =&gt; {
-  return 'console.log(__counters)'
-}
-</code></pre>
 <!-- continue -->
 <p>and run it to make sure it all works:</p>
-<pre title="multi-func-counter.out"><code class="language-out">const __counters = {
-'funcOuter': 0,
-'funcInner': 0
-}
-const funcOuter = param =&gt; {
-        __counters['funcOuter'] += 1;
-    return param + 1;
-};
-const funcInner = param =&gt; {
-        __counters['funcInner'] += 1;
-    return param + 1;
-};
-for (const i of [
-        1,
-        3,
-        5
-    ]) {
-    funcOuter(funcInner(i) + funcInner(i));
-}
-console.log(__counters)
-</code></pre>
+<div class="include" file="multi-func-counter.out" />
+
 <blockquote>
 <h3>Too simple to be safe</h3>
 <p>Our simple approach to naming counters doesn't work if functions can have the same names,
@@ -401,105 +165,26 @@ by wrapping them up in code that records the start and end time of each call.
 As before,
 we find the nodes of interest and decorate them,
 then stitch the result together with a bit of bookkeeping:</p>
-<pre title="time-func.js"><code class="language-js">const timeFunc = (text) =&gt; {
-  const ast = acorn.parse(text, { sourceType: 'module' })
-  const allNodes = gatherNodes(ast)
-  allNodes.forEach(node =&gt; wrapFuncDef(node))
-  return [
-    initializeCounters(allNodes),
-    escodegen.generate(ast),
-    reportCounters()
-  ].join('\n')
-}
-</code></pre>
+<div class="include" file="time-func.js" keep="timeFunc" />
+
 <p>Gathering nodes is straightforward:</p>
-<pre title="time-func.js"><code class="language-js">const gatherNodes = (ast) =&gt; {
-  const allNodes = []
-  walk.simple(ast, {
-    VariableDeclarator: (node, state) =&gt; {
-      if (node.init &amp;&amp; (node.init.type === 'ArrowFunctionExpression')) {
-        state.push(node)
-      }
-    }
-  }, null, allNodes)
-  return allNodes
-}
-</code></pre>
+<div class="include" file="time-func.js" keep="gatherNodes" />
+
 <!-- continue -->
 <p>as is wrapping the function definition:</p>
-<pre title="time-func.js"><code class="language-js">const wrapFuncDef = (originalAst) =&gt; {
-  const name = originalAst.id.name
-  const wrapperAst = makeWrapperAst(name)
-  wrapperAst.init.body.body[0].declarations[0].init = originalAst.init
-  originalAst.init = wrapperAst.init
-}
-</code></pre>
+<div class="include" file="time-func.js" keep="wrapFuncDef" />
+
 <p>The only big difference is how we make the wrapper function.
 We create it with a placeholder for the original function
 so that we have a spot in the AST to insert the actual code:</p>
-<pre title="time-func.js"><code class="language-js">const timeFunc = (text) =&gt; {
-  const ast = acorn.parse(text, { sourceType: 'module' })
-  const allNodes = gatherNodes(ast)
-  allNodes.forEach(node =&gt; wrapFuncDef(node))
-  return [
-    initializeCounters(allNodes),
-    escodegen.generate(ast),
-    reportCounters()
-  ].join('\n')
-}
-</code></pre>
+<div class="include" file="time-func.js" keep="timeFunc" />
+
 <p>Let's run one last test:</p>
-<pre title="test-time-func.out"><code class="language-out">const __counters = {
-'assignment': 0,
-'readFile': 0
-}
-const assignment = (...originalArgs) =&gt; {
-    const originalFunc = range =&gt; {
-        let j = 0;
-        for (let i = 0; i &lt; range; i += 1) {
-            j = i;
-        }
-    };
-    const startTime = Date.now();
-    try {
-        const result = originalFunc(...originalArgs);
-        const endTime = Date.now();
-        __counters['assignment'] += endTime - startTime;
-        return result;
-    } catch (error) {
-        const endTime = Date.now();
-        __counters['assignment'] += endTime - startTime;
-        throw error;
-    }
-};
-const readFile = (...originalArgs) =&gt; {
-    const originalFunc = (range, filename) =&gt; {
-        for (let i = 0; i &lt; range; i += 1) {
-            fs.readFileSync(filename, 'utf-8');
-        }
-    };
-    const startTime = Date.now();
-    try {
-        const result = originalFunc(...originalArgs);
-        const endTime = Date.now();
-        __counters['readFile'] += endTime - startTime;
-        return result;
-    } catch (error) {
-        const endTime = Date.now();
-        __counters['readFile'] += endTime - startTime;
-        throw error;
-    }
-};
-const numLoops = 100000;
-assignment(numLoops);
-readFile(numLoops, 'index.md');
-console.log(__counters)
-OUTPUT
-{ assignment: 1, readFile: 3879 }
-</code></pre>
+<div class="include" file="test-time-func.out" />
+
 <p>Source-to-source translation is widely used in JavaScript:
 tools like <span i="Babel"><a href="https://babeljs.io/">Babel</a></span> use it to transform modern features like <code>async</code> and <code>await</code>
-(<a class="secref" href="../async-programming/#async-programming">Chapter&nbsp;3</a>)
+(<a section="async-programming"/>)
 into code that older browsers can understand.
 The technique is so powerful that it is built into languages like Scheme,
 which allow programmers to add new syntax to the language
@@ -511,20 +196,24 @@ macros can make programs elegant, incomprehensible, or both.</p>
 <p>Write a tool that uses <a href="https://github.com/estools/escodegen/">Escodegen</a>
 to translate simple expressions written in JSON into runnable JavaScript.
 For example, the tool should translate:</p>
-<pre><code class="language-js">['+', 3, ['*', 5, 'a']]
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="p">[</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="mf">3</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="mf">5</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">]]</span>
+</code></pre></div>
+
 <!-- continue -->
 <p>into:</p>
-<pre><code class="language-js">3 + (5 * a)
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="mf">3</span> <span class="o">+</span> <span class="p">(</span><span class="mf">5</span> <span class="o">*</span> <span class="nx">a</span><span class="p">)</span>
+</code></pre></div>
+
 <h3 class="exercise">JavaScript to HTML</h3>
 <p>Write a function that takes nested JavaScript function calls for generating HTML like this:</p>
-<pre><code class="language-js">div(h1('title'), p('explanation'))
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="nx">div</span><span class="p">(</span><span class="nx">h1</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">),</span> <span class="nx">p</span><span class="p">(</span><span class="s1">&#39;explanation&#39;</span><span class="p">))</span>
+</code></pre></div>
+
 <!-- continue -->
 <p>and turns them into HTML like this:</p>
-<pre><code>&lt;div&gt;&lt;h1&gt;title&lt;/h1&gt;&lt;p&gt;explanation&lt;/p&gt;&lt;/div&gt;
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="nt">&lt;div&gt;&lt;h1&gt;</span>title<span class="nt">&lt;/h1&gt;&lt;p&gt;</span>explanation<span class="nt">&lt;/p&gt;&lt;/div&gt;</span>
+</code></pre></div>
+
 <h3 class="exercise">Handling modules</h3>
 <p>Modify the code that counts the number of times a function is called
 to handle functions with the same name from different modules.</p>
@@ -535,12 +224,12 @@ except that it keeps track of who called it.</p>
 <ol>
 <li>
 <p>The program contains a stack where decorated functions push and pop their names
-as they are called and as they exit.</p>
+    as they are called and as they exit.</p>
 </li>
 <li>
 <p>Each time a function is called
-it adds a record to an array to record its name and the name at the top of the stack
-(i.e., the most-recently-called decorated function).</p>
+    it adds a record to an array to record its name and the name at the top of the stack
+    (i.e., the most-recently-called decorated function).</p>
 </li>
 </ol>
 <h3 class="exercise">Counting classical function definitions</h3>
@@ -550,15 +239,15 @@ as well as functions declared using <code>=&gt;</code>.</p>
 <ol>
 <li>
 <p>Write a program that replaces all calls to <code>fs.readFileSync</code>
-with calls to <code>readFileSyncCount</code>.</p>
+    with calls to <code>readFileSyncCount</code>.</p>
 </li>
 <li>
 <p>Write the function <code>readFileSyncCount</code> to read and return a file using <code>fs.readFileSync</code>
-but to also record the file's name and size in bytes.</p>
+    but to also record the file's name and size in bytes.</p>
 </li>
 <li>
 <p>Write a third function <code>reportInputFileSizes</code> that reports
-what files were read and how large they were.</p>
+    what files were read and how large they were.</p>
 </li>
 <li>
 <p>Write tests for these functions using Mocha and <code>mock-fs</code>.</p>
@@ -569,24 +258,25 @@ what files were read and how large they were.</p>
 <ol>
 <li>
 <p>Each function is replaced by a function that passes all of its arguments to <code>checkArgs</code>
-along with the function's name,
-then continues with the function's original operation.</p>
+    along with the function's name,
+    then continues with the function's original operation.</p>
 </li>
 <li>
 <p>The first time <code>checkArgs</code> is called for a particular function
-it records the actual types of the arguments.</p>
+    it records the actual types of the arguments.</p>
 </li>
 <li>
 <p>On subsequent calls, it checks that the argument types match those of the first call
-and throws an exception if they do not.</p>
+    and throws an exception if they do not.</p>
 </li>
 </ol>
 <h3 class="exercise">Two-dimensional arrays</h3>
 <p>The function <code>make2D</code> takes a row length and one or more values
 and creates a two-dimensional array from those values:</p>
-<pre><code class="language-js">make2D(2, 'a', 'b', 'c', 'd')
-// produces [['a', 'b'], ['c', 'd']]
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="nx">make2D</span><span class="p">(</span><span class="mf">2</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">)</span>
+<span class="c1">// produces [[&#39;a&#39;, &#39;b&#39;], [&#39;c&#39;, &#39;d&#39;]]</span>
+</code></pre></div>
+
 <!-- continue -->
 <p>Write a function that searches code to find calls to <code>make2D</code>
 and replaces them with inline arrays-of-arrays.
@@ -597,45 +287,56 @@ i.e., it does <em>not</em> have to handle <code>make2D(N, 'a', 'b')</code>.</p>
 and replaces them with calls to <code>import</code>.
 This function only needs to work for the simplest case;
 for example, if the input is:</p>
-<pre><code class="language-js">const name = require('module')
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">name</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;module&#39;</span><span class="p">)</span>
+</code></pre></div>
+
 <!-- continue -->
 <p>then the output is:</p>
-<pre><code class="language-js">import name from 'module'
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">name</span> <span class="kr">from</span> <span class="s1">&#39;module&#39;</span>
+</code></pre></div>
+
 <h3 class="exercise">Removing empty constructors</h3>
 <p>Write a function that removes empty constructors from class definitions.
 For example, if the input is:</p>
-<pre><code class="language-js">class Example {
-  constructor () {
-  }
+<div class="codehilite"><pre><span></span><code><span class="kd">class</span> <span class="nx">Example</span> <span class="p">{</span>
+  <span class="kr">constructor</span> <span class="p">()</span> <span class="p">{</span>
+  <span class="p">}</span>
 
-  someMethod () {
-    console.log('some method')
-  }
-}
-</code></pre>
+  <span class="nx">someMethod</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;some method&#39;</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
 <!-- continue -->
 <p>then the output should be:</p>
-<pre><code class="language-js">class Example {
-  someMethod () {
-    console.log('some method')
-  }
-}
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="kd">class</span> <span class="nx">Example</span> <span class="p">{</span>
+  <span class="nx">someMethod</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;some method&#39;</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
 
-    </main>
-    <footer>
   <hr/>
-  <p>
-    Copyright © 2022 Greg Wilson
-    &nbsp;
-    <a href="../license/"><img class="icon" src="../static/cc-by-nc.svg" alt="CC-BY-NC icon"/></a>
-    <a href="../license/"><img class="icon" src="../static/hippocratic.svg" alt="Hippocratic License icon"/></a>
-    <a href="https://github.com/software-tools-books/stjs/"><img class="icon" src="../static/github.svg" alt="GitHub icon"/></a>
-    <a href="mailto:gvwilson@third-bit.com"><img class="icon" src="../static/email.svg" alt="email icon"/></a>
-  </p>
-</footer>
+<div class="centered">
+  <table class="plain footer">
+    <tr>
+      
+      <td><a href="../license/">License</a></td>
+      
+      <td><a href="../conduct/">Code of Conduct</a></td>
+      
+      <td><a href="../bibliography/">Bibliography</a></td>
+      
+      <td><a href="../glossary/">Glossary</a></td>
+      
+      <td><a href="../links/">Links</a></td>
+      
+      <td><a href="https://github.com/software-tools-books/stjs/">GitHub</a></td>
+      
+    </tr>
+  </table>
+</div>
 
   </body>
 </html>
