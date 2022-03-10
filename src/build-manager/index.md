@@ -40,7 +40,7 @@ when we want to bundle multiple modules into a single loadable file (<a section=
 or re-create documentation from source code (<a section="doc-generator"/>).
 In this chapter we will create a simple build manager
 based on [% i "Make" %][Make][gnu-make][% /i %], [% i "Bajel" %][Bajel][bajel][% /i %], [% i "Jake" %][Jake][jake][% /i %],
-and other systems discussed in <cite>Smith2011</cite>.
+and other systems discussed in [% b Smith2011 %].
 
 ## What's in a build manager? {#build-manager-contents}
 

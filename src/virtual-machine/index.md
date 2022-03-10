@@ -271,7 +271,7 @@ let's fill an array with the numbers from 0 to 3:
 > and how electrical circuits are able to do arithmetic,
 > make decisions,
 > and talk to the world,
-> <cite>Patterson2017</cite> has everything you want to know and more.
+> [% b Patterson2017 %] has everything you want to know and more.
 
 ## Exercises {#virtual-machine-exercises}
 

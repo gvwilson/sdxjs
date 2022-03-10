@@ -22,7 +22,7 @@ from spreadsheets and databases
 to the [% i "data frame" %][% g data_frame %]data frames[% /g %][% /i %] in
 [% i "R" %]R's[% /i %] [% i "tidyverse" %][tidyverse][tidyverse][% /i %] packages,
 [% i "Python" %][Python's][python][% /i %] [% i "Pandas" %][Pandas][pandas][% /i %] library,
-or the [% i "DataForge" %][DataForge][data-forge][% /i %] library for JavaScript <cite>Davis2018</cite>.
+or the [% i "DataForge" %][DataForge][data-forge][% /i %] library for JavaScript [% b Davis2018 %].
 
 [% figure slug="data-table-conceptual" img="figures/conceptual.svg" alt="Data table structure" caption="The structure of a data table." %]
 
@@ -265,8 +265,8 @@ the result of our experiment depends on the test cases we choose.
 > engineering is the use of the experimental method
 > to investigate and improve the things that people build.
 > Good software designers collect and analyze data all the time
-> to find out whether one website design works better than another <cite>Kohavi2020</cite>
-> or to improve the performance of CPUs <cite>Patterson2017</cite>;
+> to find out whether one website design works better than another [% b Kohavi2020 %]
+> or to improve the performance of CPUs [% b Patterson2017 %];
 > a few simple experiments like these can sometimes save weeks or months of effort.
 
 ## Exercises {#data-table-exercises}

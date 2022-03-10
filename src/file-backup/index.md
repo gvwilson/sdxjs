@@ -289,7 +289,7 @@ and then run some tests:
 > ### Design for test
 >
 > One of the best ways---maybe *the* best way---to evaluate software design
-> is by thinking about [% i "testability!as design criterion" "software design!testability" %]testability[% /i %] <cite>Feathers2004</cite>.
+> is by thinking about [% i "testability!as design criterion" "software design!testability" %]testability[% /i %] [% b Feathers2004 %].
 > We were able to use a mock filesystem instead of a real one
 > because the filesystem has a well-defined API
 > that is provided to us in a single library,

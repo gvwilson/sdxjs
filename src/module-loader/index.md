@@ -12,7 +12,7 @@ The key requirement for such a function is to avoid accidentally overwriting thi
 if we just `eval` some code and it happens to assign to a variable called `x`,
 anything called `x` already in our program might be overwritten.
 We therefore need a way to [% i "encapsulation" "software design!encapsulation" %][% g encapsulate %]encapsulate[% /g %][% /i %] the contents of what we're loading.
-Our approach is based on <cite>Casciaro2020</cite>,
+Our approach is based on [% b Casciaro2020 %],
 which contains a lot of other useful information as well.
 
 ## How can we implement namespaces? {#module-loader-namespace}

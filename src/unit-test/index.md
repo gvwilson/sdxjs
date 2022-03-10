@@ -21,7 +21,7 @@ Such a tool should:
 
 Our design is inspired by tools like [% i "Mocha" %][Mocha][mocha][% /i %] and [% i "Jest" %][Jest][jest][% /i %],
 which were in turn inspired by tools built for other languages
-from the 1980s onward <cite>Meszaros2007,Tudose2020</cite>.
+from the 1980s onward [% b Meszaros2007 Tudose2020 %].
 
 ## How should we structure unit testing? {#unit-test-structure}
 
@@ -121,7 +121,7 @@ This simple "framework" does what it's supposed to, but:
 The next version of our testing tool solves the first two problems in the original
 by putting the testing machinery in a class.
 It uses the [% i "Singleton pattern" "design pattern!Singleton" %][% g singleton_pattern %]Singleton[% /g %][% /i %] [% g design_pattern %]design pattern[% /g %]
-to ensure that only one object of that class is ever created <cite>Osmani2017</cite>.
+to ensure that only one object of that class is ever created [% b Osmani2017 %].
 Singletons are a way to manage global variables that belong together
 like the ones we're using to record tests and their results.
 As an extra benefit,

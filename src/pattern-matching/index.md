@@ -9,7 +9,7 @@ This lesson will explore how that works
 by building a simple version of the [% i "regular expression" %][% g regular_expression %]regular expressions[% /g %][% /i %]
 used to match text in everything from editor and shell commands to web scrapers.
 Our approach is inspired by [% i "Kernighan, Brian" %][Brian Kernighan's][kernighan-brian][% /i %] entry
-in <cite>Oram2007</cite>.
+in [% b Oram2007 %].
 
 Regular expressions have inspired pattern matching for many other kinds of data,
 such as [% i "query selector (for HTML)" %][% g query_selector %]query selectors[% /g %][% /i %] for HTML.
@@ -111,7 +111,7 @@ We will rewrite these tests using [% i "Mocha" %][Mocha][mocha][% /i %] in the e
 > in order to give ourselves a goal to work toward.
 > Doing this is called [% i "test-driven development" "TDD" %][% g tdd %]test-driven development[% /g %][% /i %], or TDD;
 > while research doesn't support the claim that
-> it makes programmers more productive <cite>Fucci2016,Fucci2017</cite>,
+> it makes programmers more productive [% b Fucci2016 Fucci2017 %],
 > we find it helps prevent [% i "scope creep!when writing lessons" %][% g scope_creep %]scope creep[% /g %][% /i %] when writing lessons.
 
 ## How can we implement a simple regular expression matcher? {#pattern-matching-re}
@@ -330,7 +330,7 @@ we can put them together however we want.
 > but only if our design permits the kinds of extensions people are going to want to make.
 > Since we can't anticipate everything,
 > it is normal to have to revise a design the first two or three times we try to extend it.
-> As <cite>Brand1995</cite> said of buildings,
+> As [% b Brand1995 %] said of buildings,
 > the things we make learn how to do things better as we use them.
 
 ## Exercises {#pattern-matching-exercises}

@@ -6,7 +6,7 @@ lede: "Checking that code conforms to style guidelines"
 
 Programmers argue endlessly about the best way to format their programs,
 but everyone agrees that the most important thing is to be [% i "coding style!importance of consistency" %]consistent[% /i %]
-<cite>Binkley2012,Johnson2019</cite>.
+[% b Binkley2012 Johnson2019 %].
 Since checking rules by hand is tedious,
 most programmers use tools to compare code against various rules and report any violations.
 Programs that do this are often called [% i "linter" "coding style!linter" %][% g linter %]linters[% /g %][% /i %]

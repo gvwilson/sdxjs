@@ -105,7 +105,7 @@ we would need to add rules for resolving ties.
 > No matter what kind of software you build,
 > a given set of inputs should always produce the same output;
 > if they don't,
-> testing is much more difficult (or impossible) <cite>Taschuk2017</cite>.
+> testing is much more difficult (or impossible) [% b Taschuk2017 %].
 > There may not be a strong reason to prefer one mutually-compatible set of packages over another,
 > but a package manager should still resolve the ambiguity the same way every time.
 > It may not be what everyone wants,

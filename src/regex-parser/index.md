@@ -221,7 +221,7 @@ but at least they're broken the same way everywhere.
 > If you add a stack to the system you can process a much richer set of languages,
 > and if you add two stacks you have something equivalent to a [% i "Turing Machine" %][% g turing_machine %]Turing Machine[% /g %][% /i %]
 > that can do any conceivable computation.
-> <cite>Conery2021</cite> presents this idea and others for self-taught developers.
+> [% b Conery2021 %] presents this idea and others for self-taught developers.
 
 [% figure slug="regex-parser-finite-state-machine" img="figures/finite-state-machine.svg" alt="Finite state machine" caption="A finite state machine equivalent to a regular expression." %]
 

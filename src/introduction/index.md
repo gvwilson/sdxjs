@@ -4,7 +4,7 @@ title: "Introduction"
 lede: "Who you are and where we're going"
 ---
 
-The best way to learn design is to study examples <cite>Schon1984,Petre2016</cite>,
+The best way to learn design is to study examples [% b Schon1984 Petre2016 %],
 and some of the best examples of software design come from
 the tools programmers use in their own work.
 In these lessons we build small versions of things like file backup systems,
@@ -13,10 +13,10 @@ regular expression matchers,
 and browser layout engines
 both to demystify them
 and to give some insights into how experienced programmers think.
-We draw inspiration from <cite>Brown2011,Brown2012,Brown2016</cite>,
+We draw inspiration from [% b Brown2011 Brown2012 Brown2016 %],
 [Mary Rose Cook][cook-mary-rose]'s [Gitlet][gitlet],
 and the books that introduced the Unix philosophy to an entire generation of programmers
-<cite>Kernighan1979,Kernighan1981,Kernighan1983,Kernighan1988</cite>.
+[% b Kernighan1979 Kernighan1981 Kernighan1983 Kernighan1988 %].
 
 All of the written material in this project can be freely reused
 under the terms of the [Creative Commons - Attribution license][cc-by],
@@ -156,7 +156,7 @@ devoted a total of less than 30 pages to describing the designs of actual system
 
 Frustrated by that,
 he and [% i "Oram, Andy" %][Andy Oram][oram-andy][% /i %] persuaded some well-known programmers to contribute a chapter each
-to a collection called *Beautiful Code* <cite>Oram2007</cite>,
+to a collection called *Beautiful Code* [% b Oram2007 %],
 which went on to win the Jolt Award in 2007.
 Entries in the book described everything from figuring out whether three points are on a line
 to core components of Linux

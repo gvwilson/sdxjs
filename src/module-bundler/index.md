@@ -126,7 +126,7 @@ The code to do this is relatively straightforward given what we know about [% i 
 > other than running the code to see what it does.
 > If you would like to understand why not,
 > and learn about a pivotal moment in the history of computing,
-> we highly recommend <cite>Petzold2008</cite>.
+> we highly recommend [% b Petzold2008 %].
 
 To get all of the dependencies a bundle needs
 we need to find the [% i "transitive closure" %][% g transitive_closure %]transitive closure[% /g %][% /i %] of the entry point's dependencies,
