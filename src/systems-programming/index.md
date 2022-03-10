@@ -48,7 +48,7 @@ To start,
 let's try listing the contents of a directory the way we would in [% i "Python" %][Python][python][% /i %]
 or [% i "Java" %][Java][java][% /i %]:
 
-<div class="include" file="list-dir-wrong.js" />
+[% excerpt file="list-dir-wrong.js" %]
 
 <!-- continue -->
 We use [% i "import module" %]<code>import <em>module</em> from 'source'</code>[% /i %] to load the library <code><em>source</em></code>
@@ -96,7 +96,7 @@ its original purpose was to create [% g log_message %]log messages[% /g %] in th
 Unfortunately,
 our program doesn't work:
 
-<div class="include" pat="list-dir-wrong.*" fill="sh out" />
+[% excerpt pat="list-dir-wrong.*" fill="sh out" %]
 
 <!-- continue -->
 The error message comes from something we didn't write whose source we would struggle to read.
@@ -138,7 +138,7 @@ just like the USB standard allows us to plug hardware devices together.
 
 This corrected program gives `fs.readdir` a callback function called `listContents`:
 
-<div class="include" file="list-dir-function-defined.js" />
+[% excerpt file="list-dir-function-defined.js" %]
 
 <!-- continue -->
 [% i "callback function!conventions for" %]Node callbacks[% /i %]
@@ -151,7 +151,7 @@ Let's run the program with the [% g current_working_directory %]current working 
 (written as '.')
 as an argument:
 
-<div class="include" pat="list-dir-function-defined.*" fill="sh slice.out" />
+[% excerpt pat="list-dir-function-defined.*" fill="sh slice.out" %]
 
 Nothing that follows will make sense if we don't understand
 the order in which Node executes the statements in this program
@@ -189,7 +189,7 @@ though it means the order of execution is quite different from the order of read
 (<a figure="systems-programming-anonymous-functions"/>).
 Using an anonymous function gives us the final version of our program:
 
-<div class="include" file="list-dir-function-anonymous.js" />
+[% excerpt file="list-dir-function-anonymous.js" %]
 
 [% figure slug="systems-programming-anonymous-functions" img="figures/anonymous-functions.svg" alt="Anonymous functions as callbacks" caption="How and when JavaScript creates and runs anonymous callback functions." %]
 
@@ -219,7 +219,7 @@ we can use the [`glob`][node-glob] module.
 The `glob` module provides a function that takes a pattern and a callback
 and does something with every filename that matched the pattern:
 
-<div class="include" pat="glob-all-files.*" fill="js slice.out" />
+[% excerpt pat="glob-all-files.*" fill="js slice.out" %]
 
 The leading `**` means "recurse into subdirectories",
 while `*.*` means "any characters followed by '.' followed by any characters"
@@ -238,7 +238,7 @@ This program works,
 but we probably don't want to copy Emacs backup files whose names end with `~`.
 We can get rid of them by [% i "globbing!filtering results" %][% g filter %]filtering[% /g %][% /i %] the list that `glob` returns:
 
-<div class="include" pat="glob-get-then-filter-pedantic.*" fill="js slice.out" />
+[% excerpt pat="glob-get-then-filter-pedantic.*" fill="js slice.out" %]
 
 [% i "Array.filter" %]`Array.filter`[% /i %] creates a new array
 containing all the items of the original array that pass a test
@@ -256,7 +256,7 @@ We can make our globbing program more idiomatic by
 removing the parentheses around the single parameter
 and writing just the expression we want the function to return:
 
-<div class="include" file="glob-get-then-filter-idiomatic.js" />
+[% excerpt file="glob-get-then-filter-idiomatic.js" %]
 
 However,
 it turns out that `glob` will filter for us.
@@ -270,7 +270,7 @@ a function can take a single object full of settings.
 If we use this,
 our program becomes:
 
-<div class="include" file="glob-filter-with-options.js" />
+[% excerpt file="glob-filter-with-options.js" %]
 
 <!-- continue -->
 Notice that we don't quote the key in the `options` object.
@@ -300,7 +300,7 @@ or equivalently "contains only letters, digits, and the underscore".
 To finish off our globbing program,
 let's specify a source directory on the command line and include that in the pattern:
 
-<div class="include" file="glob-with-source-directory.js" />
+[% excerpt file="glob-with-source-directory.js" %]
 
 <!-- continue -->
 This program uses [% i "string interpolation" %][% g string_interpolation %]string interpolation[% /g %][% /i %]
@@ -318,7 +318,7 @@ we need a way to create the [% g path %]paths[% /g %] of the files we are going 
 If our program takes a second argument that specifies the desired output directory,
 we can construct the full output path by replacing the name of the source directory with that path:
 
-<div class="include" file="glob-with-dest-directory.js" />
+[% excerpt file="glob-with-dest-directory.js" %]
 
 <!-- continue -->
 This program uses [% i "destructuring assignment" "assignment!destructuring" %][% g destructuring_assignment %]destructuring assignment[% /g %][% /i %]
@@ -337,7 +337,7 @@ this program only works if the destination directory already exists:
 `fs` and equivalent libraries in other languages usually won't create directories for us automatically.
 The need to do this comes up so often that there is a function called `ensureDir` to do it:
 
-<div class="include" file="glob-ensure-output-directory.js" />
+[% excerpt file="glob-ensure-output-directory.js" %]
 
 Notice that we import from `fs-extra` instead of `fs`;
 the [`fs-extra`][node-fs-extra] module provides some useful utilities on top of `fs`.
@@ -362,7 +362,7 @@ Our file copying program currently creates empty destination directories
 but doesn't actually copy any files.
 Let's use `fs.copy` to do that:
 
-<div class="include" file="copy-file-unfiltered.js" />
+[% excerpt file="copy-file-unfiltered.js" %]
 
 The program now has three levels of callback
 (<a figure="systems-programming-triple-callback"/>):
@@ -379,7 +379,7 @@ Our program looks like it should work,
 but if we try to copy everything in the directory containing these lessons
 we get an error message:
 
-<div class="include" pat="copy-file-unfiltered.*" fill="sh out" />
+[% excerpt pat="copy-file-unfiltered.*" fill="sh out" %]
 
 The problem is that `node_modules/fs.stat` and `node_modules/fs.walk` match our globbing expression,
 but are directories rather than files.
@@ -392,7 +392,7 @@ and since the status of something in the filesystem can be very complex,
 
 Here's the final version of our file copying program:
 
-<div class="include" file="copy-file-filtered.js" />
+[% excerpt file="copy-file-filtered.js" %]
 
 <!-- continue -->
 It works,
@@ -410,13 +410,13 @@ Write a program called `wherenode.js` that prints the full path to the version o
 
 In what order does the program below print messages?
 
-<div class="include" file="x-trace-callback/trace.js"/>
+[% excerpt file="x-trace-callback/trace.js" %]
 
 ### Tracing anonymous callbacks {.exercise}
 
 In what order does the program below print messages?
 
-<div class="include" file="x-trace-anonymous/trace.js"/>
+[% excerpt file="x-trace-anonymous/trace.js" %]
 
 ### Checking arguments {.exercise}
 
@@ -450,13 +450,13 @@ Note: you can compare strings in JavaScript using `<`, `>=`, and other operators
 so that (for example) `person.personal > 'P'` is `true`
 if someone's personal name starts with a letter that comes after 'P' in the alphabet.
 
-<div class="include" pat="x-array-filter/filter.*" fill="js txt"/>
+[% excerpt pat="x-array-filter/filter.*" fill="js txt" %]
 
 ### String interpolation {.exercise}
 
 Fill in the code below so that it prints the message shown.
 
-<div class="include" pat="x-string-interpolation/interpolate.*" fill="js txt"/>
+[% excerpt pat="x-string-interpolation/interpolate.*" fill="js txt" %]
 
 ### Destructuring assignment {.exercise}
 

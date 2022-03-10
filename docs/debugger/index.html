@@ -21,7 +21,7 @@
     </div>
 
 <p>We have finally come to one of the topics that sparked this book:
-how does a <span i="debugger">debugger</span> work?
+how does a <span class="indexref" key="debugger" markdown="1">debugger</span> work?
 (The other was layout engines, discussed in <a section="layout-engine"/>.)
 Debuggers are as much a part of good programmers' lives as version control
 but are taught far less often
@@ -30,15 +30,50 @@ In this chapter we will build a simple single-stepping debugger;
 in doing so,
 we will show one way to test interactive applications (<a section="unit-test"/>).</p>
 <h2 id="debugger-start">What is our starting point?</h2>
-<p>We would like to debug a higher-level language than the <span i="assembly code">assembly code</span> of <a section="virtual-machine"/>,
+<p>We would like to debug a higher-level language than the <span class="indexref" key="assembly code" markdown="1">assembly code</span> of <a section="virtual-machine"/>,
 but we don't want to have to write a parser
-or wrestle with the <span i="abstract syntax tree">ASTs</span> of <a section="style-checker"/>.
+or wrestle with the <span class="indexref" key="abstract syntax tree" markdown="1">ASTs</span> of <a section="style-checker"/>.
 As a compromise,
 we will represent programs as JSON data structures
 whose element have the form <code>[command ...args]</code>:</p>
-<div class="include" file="filter-base.json" />
+<div class="codehilite"><pre><span></span><code><span class="err">//</span><span class="w"> </span><span class="err">co</span><span class="kc">nst</span><span class="w"> </span><span class="err">a</span><span class="w"> </span><span class="err">=</span><span class="w"> </span><span class="p">[</span><span class="mi">-3</span><span class="p">,</span><span class="w"> </span><span class="mi">-5</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">-2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"></span>
+<span class="err">//</span><span class="w"> </span><span class="err">co</span><span class="kc">nst</span><span class="w"> </span><span class="err">b</span><span class="w"> </span><span class="err">=</span><span class="w"> </span><span class="err">Array()</span><span class="w"></span>
+<span class="err">//</span><span class="w"> </span><span class="err">le</span><span class="kc">t</span><span class="w"> </span><span class="err">larges</span><span class="kc">t</span><span class="w"> </span><span class="err">=</span><span class="w"> </span><span class="err">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"></span>
+<span class="err">//</span><span class="w"> </span><span class="err">le</span><span class="kc">t</span><span class="w"> </span><span class="err">i</span><span class="w"> </span><span class="err">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="err">//</span><span class="w"> </span><span class="err">while</span><span class="w"> </span><span class="err">(i</span><span class="w"> </span><span class="err">&lt;</span><span class="w"> </span><span class="err">le</span><span class="kc">n</span><span class="err">g</span><span class="kc">t</span><span class="err">h(a))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="err">//</span><span class="w">   </span><span class="err">i</span><span class="kc">f</span><span class="w"> </span><span class="err">(a</span><span class="p">[</span><span class="err">i</span><span class="p">]</span><span class="w"> </span><span class="err">&gt;</span><span class="w"> </span><span class="err">larges</span><span class="kc">t</span><span class="err">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="err">//</span><span class="w">     </span><span class="err">b.push(a</span><span class="p">[</span><span class="err">i</span><span class="p">]</span><span class="err">)</span><span class="w"></span>
+<span class="err">//</span><span class="w">   </span><span class="p">}</span><span class="w"></span>
+<span class="err">//</span><span class="w">   </span><span class="err">i</span><span class="w"> </span><span class="err">+=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="err">//</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="err">//</span><span class="w"> </span><span class="err">i</span><span class="w"> </span><span class="err">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="err">//</span><span class="w"> </span><span class="err">while</span><span class="w"> </span><span class="err">(i</span><span class="w"> </span><span class="err">&lt;</span><span class="w"> </span><span class="err">le</span><span class="kc">n</span><span class="err">g</span><span class="kc">t</span><span class="err">h(b))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="err">//</span><span class="w">   </span><span class="err">co</span><span class="kc">ns</span><span class="err">ole.log(b</span><span class="p">[</span><span class="err">i</span><span class="p">]</span><span class="err">)</span><span class="w"></span>
+<span class="err">//</span><span class="w">   </span><span class="err">i</span><span class="w"> </span><span class="err">+=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="err">//</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 
-<p>Our <span i="virtual machine">virtual machine</span> is structured like the one in <a section="virtual-machine"/>.
+<span class="p">[</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="s2">&quot;defA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">-3</span><span class="p">,</span><span class="w"> </span><span class="mi">-5</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">-2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]],</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="s2">&quot;defA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]],</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="s2">&quot;defV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;largest&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]]],</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="s2">&quot;append&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;largest&quot;</span><span class="p">]],</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="s2">&quot;defV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]],</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="s2">&quot;loop&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;lt&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;len&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">]],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;gt&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">]],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;largest&quot;</span><span class="p">]],</span><span class="w"></span>
+<span class="w">      </span><span class="p">[</span><span class="s2">&quot;setV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;largest&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">]]],</span><span class="w"></span>
+<span class="w">      </span><span class="p">[</span><span class="s2">&quot;append&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;largest&quot;</span><span class="p">]]</span><span class="w"></span>
+<span class="w">    </span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s2">&quot;setV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;add&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]]]</span><span class="w"></span>
+<span class="w">  </span><span class="p">],</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="s2">&quot;setV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]],</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="s2">&quot;loop&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;lt&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;len&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">]],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s2">&quot;print&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">]]],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s2">&quot;setV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;add&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]]]</span><span class="w"></span>
+<span class="w">  </span><span class="p">]</span><span class="w"></span>
+<span class="p">]</span><span class="w"></span>
+</code></pre></div>
+
+<p>Our <span class="indexref" key="virtual machine" markdown="1">virtual machine</span> is structured like the one in <a section="virtual-machine"/>.
 A real system would parse a program to create JSON,
 then translate JSON into assembly code,
 then assemble that to create machine instructions.
@@ -46,7 +81,42 @@ Again,
 to keep things simple we will execute a program by
 removing comments and blank lines
 and then running commands by looking up the command name's and calling that method:</p>
-<div class="include" file="vm-base.js" omit="skip" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">assert</span> <span class="kr">from</span> <span class="s1">&#39;assert&#39;</span>
+
+<span class="kd">class</span> <span class="nx">VirtualMachineBase</span> <span class="p">{</span>
+  <span class="kr">constructor</span> <span class="p">(</span><span class="nx">program</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">program</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">compile</span><span class="p">(</span><span class="nx">program</span><span class="p">)</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">prefix</span> <span class="o">=</span> <span class="s1">&#39;&gt;&gt;&#39;</span>
+  <span class="p">}</span>
+
+  <span class="nx">compile</span> <span class="p">(</span><span class="nx">lines</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">text</span> <span class="o">=</span> <span class="nx">lines</span>
+      <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">line</span> <span class="p">=&gt;</span> <span class="nx">line</span><span class="p">.</span><span class="nx">trim</span><span class="p">())</span>
+      <span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">line</span> <span class="p">=&gt;</span> <span class="p">(</span><span class="nx">line</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mf">0</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nx">line</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s1">&#39;//&#39;</span><span class="p">))</span>
+      <span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;\n&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">text</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="nx">run</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">env</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">runAll</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">program</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="nx">runAll</span> <span class="p">(</span><span class="nx">commands</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">commands</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">command</span> <span class="p">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="nx">command</span><span class="p">))</span>
+  <span class="p">}</span>
+
+  <span class="nx">exec</span> <span class="p">(</span><span class="nx">command</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="p">[</span><span class="nx">op</span><span class="p">,</span> <span class="p">...</span><span class="nx">args</span><span class="p">]</span> <span class="o">=</span> <span class="nx">command</span>
+    <span class="nx">assert</span><span class="p">(</span><span class="nx">op</span> <span class="ow">in</span> <span class="k">this</span><span class="p">,</span>
+      <span class="sb">`Unknown op &quot;</span><span class="si">${</span><span class="nx">op</span><span class="si">}</span><span class="sb">&quot;`</span><span class="p">)</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">[</span><span class="nx">op</span><span class="p">](</span><span class="nx">args</span><span class="p">)</span>
+  <span class="p">}</span>
+
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">VirtualMachineBase</span>
+</code></pre></div>
 
 <!-- continue -->
 <p>Remember, functions and methods are just another kind of data,
@@ -56,38 +126,119 @@ and <code>this["meth"](args)</code> calls it.
 If <code>"meth"</code> is stored in a variable called <code>name</code>,
 then <code>this[name](args)</code> will do exactly the same thing.</p>
 <p>The method in our VM that defines a new variable with an initial value looks like this:</p>
-<div class="include" file="vm-base.js" keep="defV" />
+<div class="codehilite"><pre><span></span><code>  <span class="nx">defV</span> <span class="p">(</span><span class="nx">args</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">checkOp</span><span class="p">(</span><span class="s1">&#39;defV&#39;</span><span class="p">,</span> <span class="mf">2</span><span class="p">,</span> <span class="nx">args</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="p">[</span><span class="nx">name</span><span class="p">,</span> <span class="nx">value</span><span class="p">]</span> <span class="o">=</span> <span class="nx">args</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">env</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span>
+  <span class="p">}</span>
+</code></pre></div>
 
 <!-- continue -->
 <p>while the one that adds two values looks like this:</p>
-<div class="include" file="vm-base.js" keep="add" />
+<div class="codehilite"><pre><span></span><code>  <span class="nx">add</span> <span class="p">(</span><span class="nx">args</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">checkOp</span><span class="p">(</span><span class="s1">&#39;add&#39;</span><span class="p">,</span> <span class="mf">2</span><span class="p">,</span> <span class="nx">args</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="nx">left</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mf">0</span><span class="p">])</span>
+    <span class="kd">const</span> <span class="nx">right</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mf">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="nx">left</span> <span class="o">+</span> <span class="nx">right</span>
+  <span class="p">}</span>
+</code></pre></div>
 
 <p>Running a <code>while</code> loop is:</p>
-<div class="include" file="vm-base.js" keep="loop" />
+<div class="codehilite"><pre><span></span><code>  <span class="nx">loop</span> <span class="p">(</span><span class="nx">args</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">checkBody</span><span class="p">(</span><span class="s1">&#39;loop&#39;</span><span class="p">,</span> <span class="mf">1</span><span class="p">,</span> <span class="nx">args</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="nx">body</span> <span class="o">=</span> <span class="nx">args</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
+    <span class="k">while</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mf">0</span><span class="p">]))</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">runAll</span><span class="p">(</span><span class="nx">body</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+</code></pre></div>
 
 <!-- continue -->
 <p>and checking that a variable name refers to an array is:</p>
-<div class="include" file="vm-base.js" keep="checkArray" />
+<div class="codehilite"><pre><span></span><code>  <span class="nx">checkArray</span> <span class="p">(</span><span class="nx">op</span><span class="p">,</span> <span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">checkName</span><span class="p">(</span><span class="nx">op</span><span class="p">,</span> <span class="nx">name</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="nx">array</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">env</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span>
+    <span class="nx">assert</span><span class="p">(</span><span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">array</span><span class="p">),</span>
+      <span class="sb">`Variable &quot;</span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">&quot; used in &quot;</span><span class="si">${</span><span class="nx">op</span><span class="si">}</span><span class="sb">&quot; is not array`</span><span class="p">)</span>
+  <span class="p">}</span>
+</code></pre></div>
 
 <p>The other operations are similar to these.</p>
 <h2 id="debugger-tracing">How can we make a tracing debugger?</h2>
 <p>The next thing we need in our debugger is
-a <span g="source_map" i="source map; debugger!source map">source map</span> that keeps track of
+a <span class="indexref" key="source map;debugger!source map" markdown="1"><a class="glossref" href="../glossary/#source_map" markdown="1">source map</a></span> that keeps track of
 where in the source file each instruction came from.
 Since JSON is a subset of JavaScript,
-we could get line numbers by parsing our programs with <span i="Acorn"><a href="https://github.com/acornjs/acorn">Acorn</a></span>.
+we could get line numbers by parsing our programs with <span class="indexref" key="Acorn" markdown="1"><a href="https://github.com/acornjs/acorn">Acorn</a></span>.
 However,
 we would then have to scrape the information we want for this example out of the AST.
 Since this chapter is supposed to be about debugging,
 not parsing,
 we will instead cheat and add a line number to each interesting statement by hand
 so that our program looks like this:</p>
-<div class="include" file="filter-source-map.json" keep="program" />
+<div class="codehilite"><pre><span></span><code><span class="p">[</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;defA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">-3</span><span class="p">,</span><span class="w"> </span><span class="mi">-5</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">-2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]],</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;defA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]],</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;defV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;largest&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]]],</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;append&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;largest&quot;</span><span class="p">]],</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;defV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]],</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;loop&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;lt&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;len&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">]],</span><span class="w"></span>
+<span class="w">   </span><span class="p">[</span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;test&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;gt&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">]],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;largest&quot;</span><span class="p">]],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;setV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;largest&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">]]],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;append&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;largest&quot;</span><span class="p">]]</span><span class="w"></span>
+<span class="w">   </span><span class="p">],</span><span class="w"></span>
+<span class="w">   </span><span class="p">[</span><span class="mi">11</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;setV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;add&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]]]</span><span class="w"></span>
+<span class="w">  </span><span class="p">],</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="mi">13</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;setV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]],</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="mi">14</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;loop&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;lt&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;len&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">]],</span><span class="w"></span>
+<span class="w">   </span><span class="p">[</span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;print&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">]]],</span><span class="w"></span>
+<span class="w">   </span><span class="p">[</span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;setV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;add&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]]]</span><span class="w"></span>
+<span class="w">  </span><span class="p">]</span><span class="w"></span>
+<span class="p">]</span><span class="w"></span>
+</code></pre></div>
 
 <p>Building the source map from that is simple;
 for now,
 we just modify <code>exec</code> to ignore the line number:</p>
-<div class="include" file="vm-source-map.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">assert</span> <span class="kr">from</span> <span class="s1">&#39;assert&#39;</span>
+
+<span class="k">import</span> <span class="nx">VirtualMachineBase</span> <span class="kr">from</span> <span class="s1">&#39;./vm-base.js&#39;</span>
+
+<span class="kd">class</span> <span class="nx">VirtualMachineSourceMap</span> <span class="k">extends</span> <span class="nx">VirtualMachineBase</span> <span class="p">{</span>
+  <span class="nx">compile</span> <span class="p">(</span><span class="nx">lines</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">original</span> <span class="o">=</span> <span class="k">super</span><span class="p">.</span><span class="nx">compile</span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">sourceMap</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">original</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">command</span> <span class="p">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">transform</span><span class="p">(</span><span class="nx">command</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nx">result</span>
+  <span class="p">}</span>
+
+  <span class="nx">transform</span> <span class="p">(</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">node</span><span class="p">))</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">node</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">Array</span><span class="p">.</span><span class="nx">length</span> <span class="o">===</span> <span class="mf">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="p">[]</span>
+    <span class="p">}</span>
+    <span class="kd">const</span> <span class="p">[</span><span class="nx">first</span><span class="p">,</span> <span class="p">...</span><span class="nx">rest</span><span class="p">]</span> <span class="o">=</span> <span class="nx">node</span>
+    <span class="k">if</span> <span class="p">(</span><span class="ow">typeof</span> <span class="nx">first</span> <span class="o">!==</span> <span class="s1">&#39;number&#39;</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="p">[</span><span class="nx">first</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="p">...</span><span class="nx">rest</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">arg</span> <span class="p">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">transform</span><span class="p">(</span><span class="nx">arg</span><span class="p">))]</span>
+    <span class="p">}</span>
+    <span class="kd">const</span> <span class="p">[</span><span class="nx">op</span><span class="p">,</span> <span class="p">...</span><span class="nx">args</span><span class="p">]</span> <span class="o">=</span> <span class="nx">rest</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">sourceMap</span><span class="p">[</span><span class="nx">first</span><span class="p">]</span> <span class="o">=</span>
+      <span class="p">[</span><span class="nx">op</span><span class="p">,</span> <span class="nx">first</span><span class="p">,</span> <span class="p">...</span><span class="nx">args</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">arg</span> <span class="p">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">transform</span><span class="p">(</span><span class="nx">arg</span><span class="p">))]</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">sourceMap</span><span class="p">[</span><span class="nx">first</span><span class="p">]</span>
+  <span class="p">}</span>
+
+  <span class="nx">exec</span> <span class="p">(</span><span class="nx">command</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="p">[</span><span class="nx">op</span><span class="p">,</span> <span class="nx">lineNum</span><span class="p">,</span> <span class="p">...</span><span class="nx">args</span><span class="p">]</span> <span class="o">=</span> <span class="nx">command</span>
+    <span class="nx">assert</span><span class="p">(</span><span class="nx">op</span> <span class="ow">in</span> <span class="k">this</span><span class="p">,</span>
+      <span class="sb">`Unknown op &quot;</span><span class="si">${</span><span class="nx">op</span><span class="si">}</span><span class="sb">&quot;`</span><span class="p">)</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">[</span><span class="nx">op</span><span class="p">](</span><span class="nx">args</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">VirtualMachineSourceMap</span>
+</code></pre></div>
 
 <blockquote>
 <h3>It's not really cheating</h3>
@@ -96,7 +247,7 @@ but it isn't.
 What we're actually doing is deferring a problem until we're sure we need to solve it.
 If our approach is clumsy or fails outright because of some aspect of design we didn't foresee,
 there will have been no point handling line numbers the "right" way.
-A good rule for <span i="software design!deferring problems">software design</span>
+A good rule for <span class="indexref" key="software design!deferring problems" markdown="1">software design</span>
 is to tackle the thing you're least sure about first,
 using temporary code in place of what you think you'll eventually need.</p>
 </blockquote>
@@ -107,30 +258,117 @@ Since we're not sure what our debugger is going to need,
 we give this callback the environment holding the current set of variables,
 the line number,
 and the operation being performed:</p>
-<div class="include" file="vm-callback.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">assert</span> <span class="kr">from</span> <span class="s1">&#39;assert&#39;</span>
+
+<span class="k">import</span> <span class="nx">VirtualMachineSourceMap</span> <span class="kr">from</span> <span class="s1">&#39;./vm-source-map.js&#39;</span>
+
+<span class="kd">class</span> <span class="nx">VirtualMachineCallback</span> <span class="k">extends</span> <span class="nx">VirtualMachineSourceMap</span> <span class="p">{</span>
+  <span class="kr">constructor</span> <span class="p">(</span><span class="nx">program</span><span class="p">,</span> <span class="nx">dbg</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">super</span><span class="p">(</span><span class="nx">program</span><span class="p">)</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">dbg</span> <span class="o">=</span> <span class="nx">dbg</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">dbg</span><span class="p">.</span><span class="nx">setVM</span><span class="p">(</span><span class="k">this</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="nx">exec</span> <span class="p">(</span><span class="nx">command</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="p">[</span><span class="nx">op</span><span class="p">,</span> <span class="nx">lineNum</span><span class="p">,</span> <span class="p">...</span><span class="nx">args</span><span class="p">]</span> <span class="o">=</span> <span class="nx">command</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">dbg</span><span class="p">.</span><span class="nx">handle</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">env</span><span class="p">,</span> <span class="nx">lineNum</span><span class="p">,</span> <span class="nx">op</span><span class="p">)</span>
+    <span class="nx">assert</span><span class="p">(</span><span class="nx">op</span> <span class="ow">in</span> <span class="k">this</span><span class="p">,</span>
+      <span class="sb">`Unknown op &quot;</span><span class="si">${</span><span class="nx">op</span><span class="si">}</span><span class="sb">&quot;`</span><span class="p">)</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">[</span><span class="nx">op</span><span class="p">](</span><span class="nx">args</span><span class="p">,</span> <span class="nx">lineNum</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="nx">message</span> <span class="p">(</span><span class="nx">prefix</span><span class="p">,</span> <span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">dbg</span><span class="p">.</span><span class="nx">message</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">prefix</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">val</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">VirtualMachineCallback</span>
+</code></pre></div>
 
 <p>We also modify the VM's constructor to record the debugger and give it a reference to the virtual machine
 (<a figure="debugger-initialization"/>).
-We have to <span i="mutual references">connect the two objects explicitly</span>
+We have to <span class="indexref" key="mutual references" markdown="1">connect the two objects explicitly</span>
 because each one needs a reference to the other,
 but one of them has to be created first.
 "A gets B then B tells A about itself" is a common pattern;
 we will look at other ways to manage it in the exercises.</p>
 <figure id="debugger-initialization">
-  <img src="figures/initialization.svg" alt="Initializing mutually-depending objects" />
-  <figcaption>Two-step initialization of mutually-dependent objects.</figcaption>
+  <img src="./figures/initialization.svg" alt="Initializing mutually-depending objects" />
+  <figcaption markdown="1">Figure 20.1: Two-step initialization of mutually-dependent objects.</figcaption>
 </figure>
 
 <p>To run the program,
 we create a debugger object and pass it to the VM's constructor:</p>
-<div class="include" file="run-debugger.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">assert</span> <span class="kr">from</span> <span class="s1">&#39;assert&#39;</span>
+
+<span class="k">import</span> <span class="nx">readSource</span> <span class="kr">from</span> <span class="s1">&#39;./read-source.js&#39;</span>
+
+<span class="kd">const</span> <span class="nx">main</span> <span class="o">=</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">assert</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">.</span><span class="nx">length</span> <span class="o">===</span> <span class="mf">5</span><span class="p">,</span>
+    <span class="s1">&#39;Usage: run-debugger.js ./vm ./debugger input|-&#39;</span><span class="p">)</span>
+  <span class="kd">const</span> <span class="nx">VM</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">])</span>
+  <span class="kd">const</span> <span class="nx">Debugger</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">3</span><span class="p">])</span>
+  <span class="kd">const</span> <span class="nx">inFile</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">4</span><span class="p">]</span>
+  <span class="kd">const</span> <span class="nx">lines</span> <span class="o">=</span> <span class="nx">readSource</span><span class="p">(</span><span class="nx">inFile</span><span class="p">)</span>
+  <span class="kd">const</span> <span class="nx">dbg</span> <span class="o">=</span> <span class="ow">new</span> <span class="nx">Debugger</span><span class="p">()</span>
+  <span class="kd">const</span> <span class="nx">vm</span> <span class="o">=</span> <span class="ow">new</span> <span class="nx">VM</span><span class="p">(</span><span class="nx">lines</span><span class="p">,</span> <span class="nx">dbg</span><span class="p">)</span>
+  <span class="nx">vm</span><span class="p">.</span><span class="nx">run</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="nx">main</span><span class="p">()</span>
+</code></pre></div>
 
 <p>A simple debugger just traces interesting statements as they run:</p>
-<div class="include" file="debugger-trace.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">DebuggerBase</span> <span class="kr">from</span> <span class="s1">&#39;./debugger-base.js&#39;</span>
+
+<span class="kd">class</span> <span class="nx">DebuggerTrace</span> <span class="k">extends</span> <span class="nx">DebuggerBase</span> <span class="p">{</span>
+  <span class="nx">handle</span> <span class="p">(</span><span class="nx">env</span><span class="p">,</span> <span class="nx">lineNum</span><span class="p">,</span> <span class="nx">op</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">lineNum</span> <span class="o">!==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">lineNum</span><span class="si">}</span><span class="sb"> / </span><span class="si">${</span><span class="nx">op</span><span class="si">}</span><span class="sb">: </span><span class="si">${</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">env</span><span class="p">)</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">DebuggerTrace</span>
+</code></pre></div>
 
 <p>Let's try it on a program that adds the numbers in an array:</p>
-<div class="include" file="sum-source-map.json" />
-<div class="include" file="sum-source-map-trace.out" />
+<div class="codehilite"><pre><span></span><code><span class="err">//</span><span class="w"> </span><span class="err">co</span><span class="kc">nst</span><span class="w"> </span><span class="err">a</span><span class="w"> </span><span class="err">=</span><span class="w"> </span><span class="p">[</span><span class="mi">-5</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">]</span><span class="w"></span>
+<span class="err">//</span><span class="w"> </span><span class="err">co</span><span class="kc">nst</span><span class="w"> </span><span class="kc">t</span><span class="err">o</span><span class="kc">tal</span><span class="w"> </span><span class="err">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="err">//</span><span class="w"> </span><span class="err">le</span><span class="kc">t</span><span class="w"> </span><span class="err">i</span><span class="w"> </span><span class="err">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="err">//</span><span class="w"> </span><span class="err">while</span><span class="w"> </span><span class="err">(i</span><span class="w"> </span><span class="err">&lt;</span><span class="w"> </span><span class="err">le</span><span class="kc">n</span><span class="err">g</span><span class="kc">t</span><span class="err">h(a))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="err">//</span><span class="w">   </span><span class="kc">t</span><span class="err">o</span><span class="kc">tal</span><span class="w"> </span><span class="err">+=</span><span class="w"> </span><span class="err">a</span><span class="p">[</span><span class="err">i</span><span class="p">]</span><span class="w"></span>
+<span class="err">//</span><span class="w">   </span><span class="err">i</span><span class="w"> </span><span class="err">+=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="err">//</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="err">//</span><span class="w"> </span><span class="err">co</span><span class="kc">ns</span><span class="err">ole.log(</span><span class="kc">t</span><span class="err">o</span><span class="kc">tal</span><span class="err">)</span><span class="w"></span>
+
+<span class="p">[</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;defA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">-5</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">]],</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;defV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;total&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]],</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;defV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]],</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;loop&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;lt&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;len&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">]],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;setV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;total&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="p">[</span><span class="s2">&quot;add&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;total&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">]]]</span><span class="w"></span>
+<span class="w">    </span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;setV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;add&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;i&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]]]</span><span class="w"></span>
+<span class="w">  </span><span class="p">],</span><span class="w"></span>
+<span class="w">  </span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;print&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;total&quot;</span><span class="p">]]</span><span class="w"></span>
+<span class="p">]</span><span class="w"></span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="mi">1</span> <span class="o">/</span> <span class="s s-Atom">defA:</span> <span class="p">{}</span>
+<span class="mi">2</span> <span class="o">/</span> <span class="s s-Atom">defV:</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="s s-Atom">:</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">]}</span>
+<span class="mi">3</span> <span class="o">/</span> <span class="s s-Atom">defV:</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="s s-Atom">:</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="s2">&quot;total&quot;</span><span class="s s-Atom">:</span><span class="mi">0</span><span class="p">}</span>
+<span class="mi">4</span> <span class="o">/</span> <span class="nn">loop</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="s s-Atom">:</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="s2">&quot;total&quot;</span><span class="s s-Atom">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">&quot;i&quot;</span><span class="s s-Atom">:</span><span class="mi">0</span><span class="p">}</span>
+<span class="mi">5</span> <span class="o">/</span> <span class="s s-Atom">setV:</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="s s-Atom">:</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="s2">&quot;total&quot;</span><span class="s s-Atom">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">&quot;i&quot;</span><span class="s s-Atom">:</span><span class="mi">0</span><span class="p">}</span>
+<span class="mi">8</span> <span class="o">/</span> <span class="s s-Atom">setV:</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="s s-Atom">:</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="s2">&quot;total&quot;</span><span class="p">:-</span><span class="mi">5</span><span class="p">,</span><span class="s2">&quot;i&quot;</span><span class="s s-Atom">:</span><span class="mi">0</span><span class="p">}</span>
+<span class="mi">5</span> <span class="o">/</span> <span class="s s-Atom">setV:</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="s s-Atom">:</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="s2">&quot;total&quot;</span><span class="p">:-</span><span class="mi">5</span><span class="p">,</span><span class="s2">&quot;i&quot;</span><span class="s s-Atom">:</span><span class="mi">1</span><span class="p">}</span>
+<span class="mi">8</span> <span class="o">/</span> <span class="s s-Atom">setV:</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="s s-Atom">:</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="s2">&quot;total&quot;</span><span class="p">:-</span><span class="mi">4</span><span class="p">,</span><span class="s2">&quot;i&quot;</span><span class="s s-Atom">:</span><span class="mi">1</span><span class="p">}</span>
+<span class="mi">5</span> <span class="o">/</span> <span class="s s-Atom">setV:</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="s s-Atom">:</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="s2">&quot;total&quot;</span><span class="p">:-</span><span class="mi">4</span><span class="p">,</span><span class="s2">&quot;i&quot;</span><span class="s s-Atom">:</span><span class="mi">2</span><span class="p">}</span>
+<span class="mi">8</span> <span class="o">/</span> <span class="s s-Atom">setV:</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="s s-Atom">:</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="s2">&quot;total&quot;</span><span class="p">:-</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;i&quot;</span><span class="s s-Atom">:</span><span class="mi">2</span><span class="p">}</span>
+<span class="mi">10</span> <span class="o">/</span> <span class="nn">print</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="s s-Atom">:</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="s2">&quot;total&quot;</span><span class="p">:-</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;i&quot;</span><span class="s s-Atom">:</span><span class="mi">3</span><span class="p">}</span>
+<span class="s s-Atom">&gt;&gt;</span> <span class="o">-</span><span class="mi">1</span>
+</code></pre></div>
 
 <h2 id="debugger-interactive">How can we make the debugger interactive?</h2>
 <p>What we have built so far is an always-on <code>print</code> statement.
@@ -142,7 +380,7 @@ with the following set of commands:</p>
 <p><code>?</code> or <code>help</code> to list commands.</p>
 </li>
 <li>
-<p><code>clear #</code> to clear a <span g="breakpoint">breakpoint</span> at a numbered line.</p>
+<p><code>clear #</code> to clear a <a class="glossref" href="../glossary/#breakpoint" markdown="1">breakpoint</a> at a numbered line.</p>
 </li>
 <li>
 <p><code>list</code> to list lines and breakpoints.</p>
@@ -175,12 +413,81 @@ its action depends on our current state.
 If we are single-stepping or if this line is a breakpoint,
 Otherwise, it does nothing.</p>
 <p>The overall structure of the interactive debugger is:</p>
-<div class="include" file="debugger-interactive.js" omit="skip" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">prompt</span> <span class="kr">from</span> <span class="s1">&#39;prompt-sync&#39;</span>
+
+<span class="k">import</span> <span class="nx">DebuggerBase</span> <span class="kr">from</span> <span class="s1">&#39;./debugger-base.js&#39;</span>
+
+<span class="kd">const</span> <span class="nx">PROMPT_OPTIONS</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">sigint</span><span class="o">:</span> <span class="kc">true</span> <span class="p">}</span>
+
+<span class="kd">class</span> <span class="nx">DebuggerInteractive</span> <span class="k">extends</span> <span class="nx">DebuggerBase</span> <span class="p">{</span>
+  <span class="kr">constructor</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">super</span><span class="p">()</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">singleStep</span> <span class="o">=</span> <span class="kc">true</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">breakpoints</span> <span class="o">=</span> <span class="ow">new</span> <span class="nb">Set</span><span class="p">()</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">lookup</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="s1">&#39;?&#39;</span><span class="o">:</span> <span class="s1">&#39;help&#39;</span><span class="p">,</span>
+      <span class="nx">c</span><span class="o">:</span> <span class="s1">&#39;clear&#39;</span><span class="p">,</span>
+      <span class="nx">l</span><span class="o">:</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span>
+      <span class="nx">n</span><span class="o">:</span> <span class="s1">&#39;next&#39;</span><span class="p">,</span>
+      <span class="nx">p</span><span class="o">:</span> <span class="s1">&#39;print&#39;</span><span class="p">,</span>
+      <span class="nx">r</span><span class="o">:</span> <span class="s1">&#39;run&#39;</span><span class="p">,</span>
+      <span class="nx">s</span><span class="o">:</span> <span class="s1">&#39;stop&#39;</span><span class="p">,</span>
+      <span class="nx">v</span><span class="o">:</span> <span class="s1">&#39;variables&#39;</span><span class="p">,</span>
+      <span class="nx">x</span><span class="o">:</span> <span class="s1">&#39;exit&#39;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="nx">handle</span> <span class="p">(</span><span class="nx">env</span><span class="p">,</span> <span class="nx">lineNum</span><span class="p">,</span> <span class="nx">op</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">lineNum</span> <span class="o">===</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">singleStep</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">singleStep</span> <span class="o">=</span> <span class="kc">false</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">interact</span><span class="p">(</span><span class="nx">env</span><span class="p">,</span> <span class="nx">lineNum</span><span class="p">,</span> <span class="nx">op</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">breakpoints</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">lineNum</span><span class="p">))</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">interact</span><span class="p">(</span><span class="nx">env</span><span class="p">,</span> <span class="nx">lineNum</span><span class="p">,</span> <span class="nx">op</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">DebuggerInteractive</span>
+</code></pre></div>
 
 <!-- continue -->
 <p>It interacts with users by lookup up a command and invoking the corresponding method,
 just as the VM does:</p>
-<div class="include" file="debugger-interactive.js" keep="interact" />
+<div class="codehilite"><pre><span></span><code>  <span class="nx">interact</span> <span class="p">(</span><span class="nx">env</span><span class="p">,</span> <span class="nx">lineNum</span><span class="p">,</span> <span class="nx">op</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nx">interacting</span> <span class="o">=</span> <span class="kc">true</span>
+    <span class="k">while</span> <span class="p">(</span><span class="nx">interacting</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">const</span> <span class="nx">command</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getCommand</span><span class="p">(</span><span class="nx">env</span><span class="p">,</span> <span class="nx">lineNum</span><span class="p">,</span> <span class="nx">op</span><span class="p">)</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">command</span><span class="p">.</span><span class="nx">length</span> <span class="o">===</span> <span class="mf">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">continue</span>
+      <span class="p">}</span>
+      <span class="kd">const</span> <span class="p">[</span><span class="nx">cmd</span><span class="p">,</span> <span class="p">...</span><span class="nx">args</span><span class="p">]</span> <span class="o">=</span> <span class="nx">command</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">cmd</span> <span class="ow">in</span> <span class="k">this</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">interacting</span> <span class="o">=</span> <span class="k">this</span><span class="p">[</span><span class="nx">cmd</span><span class="p">](</span><span class="nx">env</span><span class="p">,</span> <span class="nx">lineNum</span><span class="p">,</span> <span class="nx">op</span><span class="p">,</span> <span class="nx">args</span><span class="p">)</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">cmd</span> <span class="ow">in</span> <span class="k">this</span><span class="p">.</span><span class="nx">lookup</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">interacting</span> <span class="o">=</span> <span class="k">this</span><span class="p">[</span><span class="k">this</span><span class="p">.</span><span class="nx">lookup</span><span class="p">[</span><span class="nx">cmd</span><span class="p">]](</span><span class="nx">env</span><span class="p">,</span> <span class="nx">lineNum</span><span class="p">,</span> <span class="nx">op</span><span class="p">,</span> <span class="nx">args</span><span class="p">)</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">message</span><span class="p">(</span><span class="sb">`unknown command </span><span class="si">${</span><span class="nx">command</span><span class="si">}</span><span class="sb"> (use &#39;?&#39; for help)`</span><span class="p">)</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="nx">getCommand</span> <span class="p">(</span><span class="nx">env</span><span class="p">,</span> <span class="nx">lineNum</span><span class="p">,</span> <span class="nx">op</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">options</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">lookup</span><span class="p">).</span><span class="nx">sort</span><span class="p">().</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="nx">display</span> <span class="o">=</span> <span class="sb">`[</span><span class="si">${</span><span class="nx">lineNum</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">options</span><span class="si">}</span><span class="sb">] `</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">input</span><span class="p">(</span><span class="nx">display</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="sr">/\s+/</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">s</span> <span class="p">=&gt;</span> <span class="nx">s</span><span class="p">.</span><span class="nx">trim</span><span class="p">())</span>
+      <span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">s</span> <span class="p">=&gt;</span> <span class="nx">s</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mf">0</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="nx">input</span> <span class="p">(</span><span class="nx">display</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">prompt</span><span class="p">(</span><span class="nx">PROMPT_OPTIONS</span><span class="p">)(</span><span class="nx">display</span><span class="p">)</span>
+  <span class="p">}</span>
+</code></pre></div>
 
 <blockquote>
 <h3>Learning as we go</h3>
@@ -193,11 +500,25 @@ we have done it here.</p>
 the command handlers are pretty straightforward.
 For example,
 this method moves us to the next line:</p>
-<div class="include" file="debugger-interactive.js" keep="next" />
+<div class="codehilite"><pre><span></span><code>  <span class="nx">next</span> <span class="p">(</span><span class="nx">env</span><span class="p">,</span> <span class="nx">lineNum</span><span class="p">,</span> <span class="nx">op</span><span class="p">,</span> <span class="nx">args</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">singleStep</span> <span class="o">=</span> <span class="kc">true</span>
+    <span class="k">return</span> <span class="kc">false</span>
+  <span class="p">}</span>
+</code></pre></div>
 
 <!-- continue -->
 <p>while this one prints the value of a variable:</p>
-<div class="include" file="debugger-interactive.js" keep="print" />
+<div class="codehilite"><pre><span></span><code>  <span class="nx">print</span> <span class="p">(</span><span class="nx">env</span><span class="p">,</span> <span class="nx">lineNum</span><span class="p">,</span> <span class="nx">op</span><span class="p">,</span> <span class="nx">args</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">args</span><span class="p">.</span><span class="nx">length</span> <span class="o">!==</span> <span class="mf">1</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">message</span><span class="p">(</span><span class="s1">&#39;p[rint] requires one variable name&#39;</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span> <span class="ow">in</span> <span class="nx">env</span><span class="p">))</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">message</span><span class="p">(</span><span class="sb">`unknown variable name &quot;</span><span class="si">${</span><span class="nx">args</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="si">}</span><span class="sb">&quot;`</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">message</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">env</span><span class="p">[</span><span class="nx">args</span><span class="p">[</span><span class="mf">0</span><span class="p">]]))</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="kc">true</span>
+  <span class="p">}</span>
+</code></pre></div>
 
 <p>After using this for a few moments,
 though
@@ -207,31 +528,116 @@ and need to know where we are.
 We didn't allow for this in the base class,
 and we don't want to have to change every method,
 so we take advantage of the fact that JavaScript ignores any extra arguments passed to a method:</p>
-<div class="include" file="vm-interactive.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">VirtualMachineCallback</span> <span class="kr">from</span> <span class="s1">&#39;./vm-callback.js&#39;</span>
+
+<span class="kd">class</span> <span class="nx">VirtualMachineInteractive</span> <span class="k">extends</span> <span class="nx">VirtualMachineCallback</span> <span class="p">{</span>
+  <span class="nx">loop</span> <span class="p">(</span><span class="nx">args</span><span class="p">,</span> <span class="nx">lineNum</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">checkBody</span><span class="p">(</span><span class="s1">&#39;loop&#39;</span><span class="p">,</span> <span class="mf">1</span><span class="p">,</span> <span class="nx">args</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="nx">body</span> <span class="o">=</span> <span class="nx">args</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
+    <span class="k">while</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mf">0</span><span class="p">]))</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">dbg</span><span class="p">.</span><span class="nx">handle</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">env</span><span class="p">,</span> <span class="nx">lineNum</span><span class="p">,</span> <span class="s1">&#39;loop&#39;</span><span class="p">)</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">runAll</span><span class="p">(</span><span class="nx">body</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">VirtualMachineInteractive</span>
+</code></pre></div>
 
 <!-- continue -->
 <p>This is sloppy, but it works;
 we will tidy it up in the exercises.</p>
 <h2 id="debugger-test">How can we test an interactive application?</h2>
-<p>How can we <span i="unit test!interactive application">test</span> an interactive application like a debugger?
+<p>How can we <span class="indexref" key="unit test!interactive application" markdown="1">test</span> an interactive application like a debugger?
 The answer is, "By making it non-interactive."
 Like many tools over the past thirty years,
-our approach is based on a program called <span i="Expect"><a href="https://en.wikipedia.org/wiki/Expect">Expect</a></span>.
+our approach is based on a program called <span class="indexref" key="Expect" markdown="1"><a href="https://en.wikipedia.org/wiki/Expect">Expect</a></span>.
 Our library replaces the input and output functions of the application being tested with callbacks,
 then provides input when asked and checks output when it is given
 (<a figure="debugger-test-interact"/>).</p>
 <figure id="debugger-test-interact">
-  <img src="figures/test-interact.svg" alt="Testing interactive application" />
-  <figcaption>Replacing input and output to test interactive applications.</figcaption>
+  <img src="./figures/test-interact.svg" alt="Testing interactive application" />
+  <figcaption markdown="1">Figure 20.2: Replacing input and output to test interactive applications.</figcaption>
 </figure>
 
 <!-- continue -->
 <p>The results look like this:</p>
-<div class="include" file="test/test-expect.js" keep="tests" />
+<div class="codehilite"><pre><span></span><code><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;interactive debugger&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;runs and prints&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">setup</span><span class="p">(</span><span class="s1">&#39;print-0.json&#39;</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;[1 ?clnprsvx] &#39;</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;&gt;&gt; 0&#39;</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">run</span><span class="p">()</span>
+    <span class="nx">done</span><span class="p">()</span>
+  <span class="p">})</span>
+
+  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;breaks and resumes&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">setup</span><span class="p">(</span><span class="s1">&#39;print-3.json&#39;</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;[1 ?clnprsvx] &#39;</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="s1">&#39;s 3&#39;</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;[1 ?clnprsvx] &#39;</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;&gt;&gt; 0&#39;</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;&gt;&gt; 1&#39;</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;[3 ?clnprsvx] &#39;</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">run</span><span class="p">()</span>
+    <span class="nx">done</span><span class="p">()</span>
+  <span class="p">})</span>
+<span class="p">})</span>
+</code></pre></div>
 
 <p>Our <code>Expect</code> class may be short,
 but it is hard to understand because it is so abstract:</p>
-<div class="include" file="expect.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">assert</span> <span class="kr">from</span> <span class="s1">&#39;assert&#39;</span>
+
+<span class="kd">class</span> <span class="nx">Expect</span> <span class="p">{</span>
+  <span class="kr">constructor</span> <span class="p">(</span><span class="nx">subject</span><span class="p">,</span> <span class="nx">start</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">start</span> <span class="o">=</span> <span class="nx">start</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">steps</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="nx">subject</span><span class="p">.</span><span class="nx">setTester</span><span class="p">(</span><span class="k">this</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="nx">send</span> <span class="p">(</span><span class="nx">text</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">steps</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span> <span class="nx">op</span><span class="o">:</span> <span class="s1">&#39;toSystem&#39;</span><span class="p">,</span> <span class="nx">arg</span><span class="o">:</span> <span class="nx">text</span> <span class="p">})</span>
+    <span class="k">return</span> <span class="k">this</span>
+  <span class="p">}</span>
+
+  <span class="nx">get</span> <span class="p">(</span><span class="nx">text</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">steps</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span> <span class="nx">op</span><span class="o">:</span> <span class="s1">&#39;fromSystem&#39;</span><span class="p">,</span> <span class="nx">arg</span><span class="o">:</span> <span class="nx">text</span> <span class="p">})</span>
+    <span class="k">return</span> <span class="k">this</span>
+  <span class="p">}</span>
+
+  <span class="nx">run</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">start</span><span class="p">()</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">steps</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span> <span class="mf">0</span><span class="p">,</span>
+      <span class="s1">&#39;Extra steps at end of test&#39;</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="nx">toSystem</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="s1">&#39;toSystem&#39;</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="nx">fromSystem</span> <span class="p">(</span><span class="nx">actual</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">expected</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">next</span><span class="p">(</span><span class="s1">&#39;fromSystem&#39;</span><span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">(</span><span class="nx">expected</span><span class="p">,</span> <span class="nx">actual</span><span class="p">,</span>
+      <span class="sb">`Expected &quot;</span><span class="si">${</span><span class="nx">expected</span><span class="si">}</span><span class="sb">&quot; got &quot;</span><span class="si">${</span><span class="nx">actual</span><span class="si">}</span><span class="sb">&quot;`</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="nx">next</span> <span class="p">(</span><span class="nx">kind</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">assert</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">steps</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mf">0</span><span class="p">,</span>
+      <span class="s1">&#39;Unexpected end of steps&#39;</span><span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">steps</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">op</span><span class="p">,</span> <span class="nx">kind</span><span class="p">,</span>
+      <span class="sb">`Expected </span><span class="si">${</span><span class="nx">kind</span><span class="si">}</span><span class="sb">, got &quot;</span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">steps</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">op</span><span class="si">}</span><span class="sb">&quot;`</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="nx">text</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">steps</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">arg</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">steps</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">steps</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nx">text</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">Expect</span>
+</code></pre></div>
 
 <!-- continue -->
 <p>Piece by piece:</p>
@@ -252,15 +658,59 @@ but it is hard to understand because it is so abstract:</p>
 <p>Let's modify the debugger to use the tester,
 keeping in mind that the prompt counts as an output
 (and yes, we forgot this in the first version):</p>
-<div class="include" file="debugger-test.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">DebuggerInteractive</span> <span class="kr">from</span> <span class="s1">&#39;./debugger-interactive.js&#39;</span>
+
+<span class="kd">class</span> <span class="nx">DebuggerTest</span> <span class="k">extends</span> <span class="nx">DebuggerInteractive</span> <span class="p">{</span>
+  <span class="kr">constructor</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">super</span><span class="p">()</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">tester</span> <span class="o">=</span> <span class="kc">null</span>
+  <span class="p">}</span>
+
+  <span class="nx">setTester</span> <span class="p">(</span><span class="nx">tester</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">tester</span> <span class="o">=</span> <span class="nx">tester</span>
+  <span class="p">}</span>
+
+  <span class="nx">input</span> <span class="p">(</span><span class="nx">display</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">tester</span><span class="p">.</span><span class="nx">fromSystem</span><span class="p">(</span><span class="nx">display</span><span class="p">)</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">tester</span><span class="p">.</span><span class="nx">toSystem</span><span class="p">()</span>
+  <span class="p">}</span>
+
+  <span class="nx">message</span> <span class="p">(</span><span class="nx">m</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">tester</span><span class="p">.</span><span class="nx">fromSystem</span><span class="p">(</span><span class="nx">m</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">DebuggerTest</span>
+</code></pre></div>
 
 <p>Again,
 we can't pass the tester as a constructor parameter because of initialization order,
 so we write a <code>setup</code> function to make sure everything is connected the right way:</p>
-<div class="include" file="test/test-expect.js" keep="setup" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">Expect</span> <span class="kr">from</span> <span class="s1">&#39;../expect.js&#39;</span>
+<span class="k">import</span> <span class="nx">VM</span> <span class="kr">from</span> <span class="s1">&#39;../vm-interactive.js&#39;</span>
+<span class="k">import</span> <span class="nx">Debugger</span> <span class="kr">from</span> <span class="s1">&#39;../debugger-test.js&#39;</span>
+<span class="k">import</span> <span class="nx">readSource</span> <span class="kr">from</span> <span class="s1">&#39;../read-source.js&#39;</span>
+
+<span class="kd">const</span> <span class="nx">setup</span> <span class="o">=</span> <span class="p">(</span><span class="nx">filename</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">lines</span> <span class="o">=</span> <span class="nx">readSource</span><span class="p">(</span><span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;debugger/test&#39;</span><span class="p">,</span> <span class="nx">filename</span><span class="p">))</span>
+  <span class="kd">const</span> <span class="nx">dbg</span> <span class="o">=</span> <span class="ow">new</span> <span class="nx">Debugger</span><span class="p">()</span>
+  <span class="kd">const</span> <span class="nx">vm</span> <span class="o">=</span> <span class="ow">new</span> <span class="nx">VM</span><span class="p">(</span><span class="nx">lines</span><span class="p">,</span> <span class="nx">dbg</span><span class="p">)</span>
+  <span class="k">return</span> <span class="ow">new</span> <span class="nx">Expect</span><span class="p">(</span><span class="nx">dbg</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="nx">vm</span><span class="p">.</span><span class="nx">run</span><span class="p">())</span>
+<span class="p">}</span>
+</code></pre></div>
 
 <p>Let's try running our tests:</p>
-<div class="include" pat="test-expect.*" fill="sh out" />
+<div class="codehilite"><pre><span></span><code>npm run <span class="nb">test</span> -- -g <span class="s1">&#39;interactive debugger&#39;</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="o">&gt;</span><span class="w"> </span><span class="n">stjs</span><span class="mf">@1.0.0</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="o">/</span><span class="n">u</span><span class="o">/</span><span class="n">stjs</span><span class="w"></span>
+<span class="o">&gt;</span><span class="w"> </span><span class="n">mocha</span><span class="w"> </span><span class="o">*/</span><span class="n">test</span><span class="o">/</span><span class="n">test</span><span class="o">-*</span><span class="p">.</span><span class="n">js</span><span class="w"> </span><span class="s">&quot;-g&quot;</span><span class="w"> </span><span class="s">&quot;interactive debugger&quot;</span><span class="w"></span>
+
+
+
+<span class="w">  </span><span class="n">interactive</span><span class="w"> </span><span class="n">debugger</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">runs</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">prints</span><span class="w"></span>
+</code></pre></div>
 
 <p>That works---or does it?
 Why is only one test shown,
@@ -275,31 +725,77 @@ then modify the VM to pay attention to that flag.
 However,
 this approach becomes very complicated when we have deeply-nested calls to <code>exec</code>,
 which will happen with loops and conditionals.</p>
-<p>A better alternative is to use an <span i="exception!for control flow">exception for control flow</span>.
+<p>A better alternative is to use an <span class="indexref" key="exception!for control flow" markdown="1">exception for control flow</span>.
 We can define our own kind of exception as an empty class:
 it doesn't need any data
 because we are only using it to get a typed object:</p>
-<div class="include" file="halt-exception.js" />
+<div class="codehilite"><pre><span></span><code><span class="kd">class</span> <span class="nx">HaltException</span> <span class="p">{</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">HaltException</span>
+</code></pre></div>
 
 <!-- continue -->
 <p>Next,
 we modify the debugger to throw this exception when asked to exit:</p>
-<div class="include" file="debugger-exit.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">HaltException</span> <span class="kr">from</span> <span class="s1">&#39;./halt-exception.js&#39;</span>
+<span class="k">import</span> <span class="nx">DebuggerTest</span> <span class="kr">from</span> <span class="s1">&#39;./debugger-test.js&#39;</span>
+
+<span class="kd">class</span> <span class="nx">DebuggerExit</span> <span class="k">extends</span> <span class="nx">DebuggerTest</span> <span class="p">{</span>
+  <span class="nx">exit</span> <span class="p">(</span><span class="nx">env</span><span class="p">,</span> <span class="nx">lineNum</span><span class="p">,</span> <span class="nx">op</span><span class="p">,</span> <span class="nx">args</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">throw</span> <span class="ow">new</span> <span class="nx">HaltException</span><span class="p">()</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">DebuggerExit</span>
+</code></pre></div>
 
 <!-- continue -->
 <p>And finally
 we modify the VM to finish cleanly if this exception is thrown,
 but re-throw any other kind of exception:</p>
-<div class="include" file="vm-exit.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">HaltException</span> <span class="kr">from</span> <span class="s1">&#39;./halt-exception.js&#39;</span>
+<span class="k">import</span> <span class="nx">VirtualMachineInteractive</span> <span class="kr">from</span> <span class="s1">&#39;./vm-interactive.js&#39;</span>
+
+<span class="kd">class</span> <span class="nx">VirtualMachineExit</span> <span class="k">extends</span> <span class="nx">VirtualMachineInteractive</span> <span class="p">{</span>
+  <span class="nx">run</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">env</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">try</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">runAll</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">program</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">exc</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">exc</span> <span class="ow">instanceof</span> <span class="nx">HaltException</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span>
+      <span class="p">}</span>
+      <span class="k">throw</span> <span class="nx">exc</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">VirtualMachineExit</span>
+</code></pre></div>
 
 <p>With these changes in place,
 we are finally able to test our interactive debugger:</p>
-<div class="include" pat="test-exit.*" fill="sh out" />
+<div class="codehilite"><pre><span></span><code>npm run <span class="nb">test</span> -- -g <span class="s1">&#39;exitable debugger&#39;</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="o">&gt;</span><span class="w"> </span><span class="n">stjs</span><span class="mf">@1.0.0</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="o">/</span><span class="n">u</span><span class="o">/</span><span class="n">stjs</span><span class="w"></span>
+<span class="o">&gt;</span><span class="w"> </span><span class="n">mocha</span><span class="w"> </span><span class="o">*/</span><span class="n">test</span><span class="o">/</span><span class="n">test</span><span class="o">-*</span><span class="p">.</span><span class="n">js</span><span class="w"> </span><span class="s">&quot;-g&quot;</span><span class="w"> </span><span class="s">&quot;exitable debugger&quot;</span><span class="w"></span>
+
+
+
+<span class="w">  </span><span class="n">exitable</span><span class="w"> </span><span class="n">debugger</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">runs</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">prints</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">breaks</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">resumes</span><span class="w"></span>
+
+
+<span class="w">  </span><span class="mi">2</span><span class="w"> </span><span class="n">passing</span><span class="w"> </span><span class="p">(</span><span class="mi">7</span><span class="n">ms</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
 
 <h2 id="debugger-exercises">Exercises</h2>
 <h3 class="exercise">Implementing tab completion</h3>
 <p>Read the documentation for <a href="https://www.npmjs.com/package/prompt-sync"><code>prompt-sync</code></a>
-and then implement <span g="tab_completion">tab completion</span>
+and then implement <a class="glossref" href="../glossary/#tab_completion" markdown="1">tab completion</a>
 for the debugger.</p>
 <h3 class="exercise">Modifying variables while running</h3>
 <p>Add a <code>set</code> command that sets the value of a variable to a new value in a running program.
@@ -336,7 +832,7 @@ it is common practice to use a lookup table for mutual dependencies:</p>
 </ol>
 <p>Modify the virtual machine and debugger to use this pattern.</p>
 <h3 class="exercise">Watching for variable changes</h3>
-<p>Modify the debugger and virtual machine to implement <span g="watchpoint">watchpoints</span>
+<p>Modify the debugger and virtual machine to implement <a class="glossref" href="../glossary/#watchpoint" markdown="1">watchpoints</a>
 that halt the program whenever the value of a variable changes.</p>
 <h3 class="exercise">Translating JSON to assembler</h3>
 <p>Write a tool that translates the JSON program representation

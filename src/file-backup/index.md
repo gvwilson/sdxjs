@@ -79,17 +79,17 @@ When we are done,
 we call its `.end` method
 and then use its `.read` method to get the final result:
 
-<div class="include" pat="hash-text.*" fill="js sh out" />
+[% excerpt pat="hash-text.*" fill="js sh out" %]
 
 Hashing a file instead of a fixed string is straightforward:
 we just read the file's contents and pass those characters to the hashing object:
 
-<div class="include" pat="hash-file.*" fill="js sh out" />
+[% excerpt pat="hash-file.*" fill="js sh out" %]
 
 However,
 it is more efficient to process the file as a [% g stream %]stream[% /g %]:
 
-<div class="include" pat="hash-stream.*" fill="js sh out" />
+[% excerpt pat="hash-stream.*" fill="js sh out" %]
 
 <!-- continue -->
 This kind of interface is called
@@ -140,7 +140,7 @@ and then:
 
 1.  calculates hashes for those files.
 
-<div class="include" file="hash-existing-promise.js" keep="main" />
+[% excerpt file="hash-existing-promise.js" keep="main" %]
 
 <!-- continue -->
 This function uses `Promise.all`
@@ -153,23 +153,23 @@ and use one `Promise.all` at the end to bring them all together.
 The first two [% i "helper function" %]helper functions[% /i %] that `hashExisting` relies on
 wrap asynchronous operation in promises:
 
-<div class="include" file="hash-existing-promise.js" keep="helpers" />
+[% excerpt file="hash-existing-promise.js" keep="helpers" %]
 
 The final helper function calculates the hash synchronously,
 but we can use `Promise.all` to wait on those operations finishing anyway:
 
-<div class="include" file="hash-existing-promise.js" keep="hashPath" />
+[% excerpt file="hash-existing-promise.js" keep="hashPath" %]
 
 Let's try running it:
 
-<div class="include" pat="run-hash-existing-promise.*" fill="js sh slice.out" />
+[% excerpt pat="run-hash-existing-promise.*" fill="js sh slice.out" %]
 
 The code we have written is clearer than it would be with callbacks
 (try rewriting it if you don't believe this)
 but the layer of promises around everything still obscures its meaning.
 The same operations are easier to read when written using `async` and `await`:
 
-<div class="include" file="hash-existing-async.js" keep="main" />
+[% excerpt file="hash-existing-async.js" keep="main" %]
 
 <!-- continue -->
 This version creates and resolves exactly the same promises as the previous one,
@@ -177,7 +177,7 @@ but those promises are created for us automatically by Node.
 To check that it works,
 let's run it for the same input files:
 
-<div class="include" pat="run-hash-existing-async.*" fill="js sh slice.out" />
+[% excerpt pat="run-hash-existing-async.*" fill="js sh slice.out" %]
 
 ## How can we track which files have already been backed up? {#file-backup-track}
 
@@ -203,12 +203,12 @@ and the `.csv` extension indicates that the file is formatted as [% g csv %]comm
 > they will both see that there isn't a file (yet) with the current timestamp,
 > so they will both try to create the first one.
 
-<div class="include" file="check-existing-files.js" />
+[% excerpt file="check-existing-files.js" %]
 
 To test our program,
 let's manually create testing directories with manufactured (shortened) hashes:
 
-<div class="include" pat="tree-test.*" fill="sh out" />
+[% excerpt pat="tree-test.*" fill="sh out" %]
 
 We use [% i "Mocha" %][Mocha][mocha][% /i %] to manage our tests.
 Every test is an `async` function;
@@ -227,12 +227,12 @@ Mocha looks for files in `test` sub-directories of the directories holding our l
 
 Here are our first few tests:
 
-<div class="include" file="test/test-find.js" />
+[% excerpt file="test/test-find.js" %]
 
 <!-- continue -->
 and here is Mocha's report:
 
-<div class="include" file="test-check-filesystem.out" />
+[% excerpt file="test-check-filesystem.out" %]
 
 ## How can we test code that modifies files? {#file-backup-test}
 
@@ -260,7 +260,7 @@ and also makes tests much faster
 We can create a mock filesystem by giving the library a JSON description of
 the files and what they should contain:
 
-<div class="include" file="test/test-find-mock.js" omit="tests" />
+[% excerpt file="test/test-find-mock.js" omit="tests" %]
 
 <!-- continue -->
 [% i "Mocha!beforeEach" %]Mocha[% /i %] automatically calls `beforeEach` before running each tests,
@@ -272,19 +272,19 @@ nothing in our application needs to change either.
 
 We are finally ready to write the program that actually backs up files:
 
-<div class="include" file="backup.js" />
+[% excerpt file="backup.js" %]
 
 The tests for this are more complicated than tests we have written previously
 because we want to check with actual file hashes.
 Let's set up some fixtures to run tests on:
 
-<div class="include" file="test/test-backup.js" keep="fixtures" />
+[% excerpt file="test/test-backup.js" keep="fixtures" %]
 
 <!-- continue -->
 and then run some tests:
 
-<div class="include" file="test/test-backup.js" keep="tests" />
-<div class="include" file="test-backup.out" />
+[% excerpt file="test/test-backup.js" keep="tests" %]
+[% excerpt file="test-backup.out" %]
 
 > ### Design for test
 >

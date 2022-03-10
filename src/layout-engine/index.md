@@ -43,14 +43,14 @@ Everything we can put on the screen is represented as a rectangular cell,
 and every cell is either a row, a column, or a block.
 A block has a fixed width and height:
 
-<div class="include" file="easy-mode.js" keep="block" />
+[% excerpt file="easy-mode.js" keep="block" %]
 
 A row arranges one or more cells horizontally;
 its width is the sum of the widths of its children,
 while its height is the height of its tallest child
 (<a figure="layout-engine-sizing"/>):
 
-<div class="include" file="easy-mode.js" keep="row" />
+[% excerpt file="easy-mode.js" keep="row" %]
 
 [% figure slug="layout-engine-sizing" img="figures/sizing.svg" alt="Calculating sizes of fixed blocks" caption="Calculating sizes of blocks with fixed width and height." %]
 
@@ -60,7 +60,7 @@ its width is the width of its widest child
 and its height is the sum of the heights of its children.
 (Here and elsewhere we use the abbreviation `col` when referring to columns.)
 
-<div class="include" file="easy-mode.js" keep="col" />
+[% excerpt file="easy-mode.js" keep="col" %]
 
 Rows and columns nest inside one another:
 a row cannot span two or more columns,
@@ -79,8 +79,8 @@ this code could still contain errors (and did during development),
 so we write some [% i "Mocha" %][Mocha][mocha][% /i %] tests to check that it works as desired
 before trying to build anything more complicated:
 
-<div class="include" file="test/test-easy-mode.js" />
-<div class="include" file="test-easy-mode.out" />
+[% excerpt file="test/test-easy-mode.js" %]
+[% excerpt file="test-easy-mode.out" %]
 
 ## How can we position rows and columns? {#layout-engine-position}
 
@@ -108,23 +108,23 @@ To save ourselves some testing we will derive the classes that know how to do la
 from the classes we wrote before.
 Our blocks are:
 
-<div class="include" file="placed.js" keep="block" />
+[% excerpt file="placed.js" keep="block" %]
 
 <!-- continue -->
 while our columns are:
 
-<div class="include" file="placed.js" keep="col" />
+[% excerpt file="placed.js" keep="col" %]
 
 <!-- continue -->
 and our rows are:
 
-<div class="include" file="placed.js" keep="row" />
+[% excerpt file="placed.js" keep="row" %]
 
 Once again,
 we write and run some tests to check that everything is doing what it's supposed to:
 
-<div class="include" file="test/test-placed.js" omit="large" />
-<div class="include" file="test-placed.out" />
+[% excerpt file="test/test-placed.js" omit="large" %]
+[% excerpt file="test-placed.out" %]
 
 ## How can we render elements? {#layout-engine-render}
 
@@ -144,20 +144,20 @@ in order to draw things in three dimensions.)
 
 Our pretended screen is just an array of arrays of characters:
 
-<div class="include" file="render.js" keep="makeScreen" />
+[% excerpt file="render.js" keep="makeScreen" %]
 
 We will use successive lower-case characters to show each block,
 i.e.,
 the root block will draw itself using 'a',
 while its children will be 'b', 'c', and so on.
 
-<div class="include" file="render.js" keep="draw" />
+[% excerpt file="render.js" keep="draw" %]
 
 To teach each kind of cell how to render itself,
 we have to derive a new class from each of the ones we have
 and give the new class a `render` method with the same [% i "signature!of function" "function signature" %][% g signature %]signature[% /g %][% /i %]:
 
-<div class="include" file="rendered.js" />
+[% excerpt file="rendered.js" %]
 
 <!-- continue -->
 These `render` methods do exactly the same thing,
@@ -172,7 +172,7 @@ we should add a method to do that to their lowest common ancestor.
 Our simpler tests are a little easier to read once we have rendering in place,
 though we still had to draw things on paper to figure out our complex ones:
 
-<div class="include" file="test/test-rendered.js" keep="large" />
+[% excerpt file="test/test-rendered.js" keep="large" %]
 
 <!-- continue -->
 The fact that we find our own tests difficult to understand
@@ -206,7 +206,7 @@ Columns become themselves as well,
 but since they have children that might need to wrap,
 the class representing columns needs a new method:
 
-<div class="include" file="wrapped.js" keep="blockcol" />
+[% excerpt file="wrapped.js" keep="blockcol" %]
 
 Rows do all the hard work.
 Each original row is replaced with a new row that contains a single column with one or more rows,
@@ -221,19 +221,19 @@ we will look at making this more efficient in the exercises.
 Our new wrappable row's constructor takes a fixed width followed by the children
 and returns that fixed width when asked for its size:
 
-<div class="include" file="wrapped.js" keep="row" omit="wrap"/>
+[% excerpt file="wrapped.js" keep="row" omit="wrap" %]
 
 <!-- continue -->
 Wrapping puts the row's children into buckets,
 then converts the buckets to a row of a column of rows:
 
-<div class="include" file="wrapped.js" keep="wrap" />
+[% excerpt file="wrapped.js" keep="wrap" %]
 
 Once again we bring forward all the previous tests
 and write some new ones to test the functionality we've added:
 
-<div class="include" file="test/test-wrapped.js" keep="example" />
-<div class="include" file="test-wrapped.out" />
+[% excerpt file="test/test-wrapped.js" keep="example" %]
+[% excerpt file="test-wrapped.out" %]
 
 > ### The Liskov Substitution Principle
 >
@@ -268,24 +268,24 @@ we will specify that with our little subset of [% i "CSS" %]CSS[% /i %].
 Together,
 these three classes are just over 40 lines of code:
 
-<div class="include" file="micro-dom.js" omit="erase" />
+[% excerpt file="micro-dom.js" omit="erase" %]
 
 We will use regular expressions to parse HTML
 (though as we explained in <a section="regex-parser"/>,
 [this is a sin][stack-overflow-html-regex]).
 The main body of our parser is:
 
-<div class="include" file="parse.js" omit="skip" />
+[% excerpt file="parse.js" omit="skip" %]
 
 <!-- continue -->
 while the two functions that do most of the work are:
 
-<div class="include" file="parse.js" keep="makenode" />
+[% excerpt file="parse.js" keep="makenode" %]
 
 <!-- continue -->
 and:
 
-<div class="include" file="parse.js" keep="makeopening" />
+[% excerpt file="parse.js" keep="makeopening" %]
 
 The next step is to define a generic class for CSS rules
 with a subclass for each type of rule.
@@ -295,23 +295,23 @@ classes of nodes via their `class` attribute,
 and types of nodes via their element name.
 We keep track of which rules take precedence over which through the simple expedient of numbering the classes:
 
-<div class="include" file="micro-css.js" keep="css" />
+[% excerpt file="micro-css.js" keep="css" %]
 
 An ID rule's [% i "query selector" %][% g query_selector %]query selector[% /g %][% /i %] is written as `#name`
 and matches HTML like `<tag id="name">...</tag>` (where `tag` is `row` or `col`):
 
-<div class="include" file="micro-css.js" keep="id" />
+[% excerpt file="micro-css.js" keep="id" %]
 
 A class rule's query selector is written as `.kind` and matches HTML like `<tag class="kind">...</tag>`.
 Unlike real CSS,
 we only allow one class per node:
 
-<div class="include" file="micro-css.js" keep="class" />
+[% excerpt file="micro-css.js" keep="class" %]
 
 Finally,
 tag rules just have the name of the type of node they apply to without any punctuation:
 
-<div class="include" file="micro-css.js" keep="tag" />
+[% excerpt file="micro-css.js" keep="tag" %]
 
 We could build yet another parser to read a subset of CSS and convert it to objects,
 but this chapter is long enough,
@@ -328,7 +328,7 @@ so we will write our rules as JSON:
 <!-- continue -->
 and build a class that converts this representation to a set of objects:
 
-<div class="include" file="micro-css.js" keep="ruleset" />
+[% excerpt file="micro-css.js" keep="ruleset" %]
 
 Our CSS ruleset class also has a method for finding the rules for a given DOM node.
 This method relies on the precedence values we defined for our classes
@@ -337,7 +337,7 @@ so that we can find the most specific.
 
 Here's our final set of tests:
 
-<div class="include" file="test/test-styled.js" keep="test" />
+[% excerpt file="test/test-styled.js" keep="test" %]
 
 If we were going on,
 we would override the cells' `getWidth` and `getHeight` methods to pay attention to styles.

@@ -38,14 +38,14 @@ that inner function will be the only thing with references to those variables.
 For example,
 let's create a function that always appends the same string to its argument:
 
-<div class="include" file="manual-namespacing.js" />
+[% excerpt file="manual-namespacing.js" %]
 
 <!-- continue -->
 When we run it,
 the value that was assigned to the parameter `suffix` still exists
 but can only be reached by the inner function:
 
-<div class="include" file="manual-namespacing.out" />
+[% excerpt file="manual-namespacing.out" %]
 
 We could require every module to define a setup function like this for users to call,
 but thanks to `eval` we can wrap the file's contents in a function and call it automatically.
@@ -62,7 +62,7 @@ If we put the definition in parentheses and then put another pair of parentheses
 we have code that defines a function of no arguments and immediately calls it.
 We can use this trick to achieve the same effect as the previous example in one step:
 
-<div class="include" pat="automatic-namespacing.*" fill="js out" />
+[% excerpt pat="automatic-namespacing.*" fill="js out" %]
 
 > ### Unconfusing the parser
 >
@@ -87,19 +87,19 @@ the parameter to the function we build and `eval` must be called `module` so tha
 For clarity,
 we call the object we pass in `result` in `loadModule`.
 
-<div class="include" file="load-module-only.js" />
+[% excerpt file="load-module-only.js" %]
 
 [% figure slug="module-loader-iife" img="figures/iife.svg" alt="Implementing modules with IIFEs" caption="Using IIFEs to encapsulate modules and get their exports." %]
 
 <a figure="module-loader-iife"/> shows the structure of our loader so far.
 We can use this code as a test:
 
-<div class="include" file="small-module.js" />
+[% excerpt file="small-module.js" %]
 
 <!-- continue -->
 and this short program to load the test and check its exports:
 
-<div class="include" pat="test-load-module-only.*" fill="js sh out" />
+[% excerpt pat="test-load-module-only.*" fill="js sh out" %]
 
 ## Do we need to handle circular dependencies? {#module-loader-circular}
 
@@ -132,33 +132,33 @@ Circular dependencies work in [% i "Python" %][Python][python][% /i %],
 but only sort of.
 Let's create two files called `major.py` and `minor.py`:
 
-<div class="include" file="checking/major.py" />
-<div class="include" file="checking/minor.py" />
+[% excerpt file="checking/major.py" %]
+[% excerpt file="checking/minor.py" %]
 
 Loading fails when we run `major.py` from the command line:
 
-<div class="include" file="checking/py-command-line.out" />
+[% excerpt file="checking/py-command-line.out" %]
 
 <!-- continue -->
 but works in the interactive interpreter:
 
-<div class="include" file="checking/py-interactive.out" />
+[% excerpt file="checking/py-interactive.out" %]
 
 The equivalent test in JavaScript also has two files:
 
-<div class="include" file="checking/major.js" />
-<div class="include" file="checking/minor.js" />
+[% excerpt file="checking/major.js" %]
+[% excerpt file="checking/minor.js" %]
 
 <!-- continue -->
 It fails on the command line:
 
-<div class="include" file="checking/js-command-line.out" />
+[% excerpt file="checking/js-command-line.out" %]
 
 <!-- continue -->
 and also fails in the interactive interpreter
 (which is more consistent):
 
-<div class="include" file="checking/js-interactive.out" />
+[% excerpt file="checking/js-interactive.out" %]
 
 We therefore won't try to handle circular dependencies.
 However,
@@ -210,25 +210,25 @@ and we can always add more.)
 Since we're using the built-in `Map` class as a cache,
 the entire implementation of `need` is just <span class="linecount" file="need.js"/> lines long:
 
-<div class="include" file="need.js" />
+[% excerpt file="need.js" %]
 
 We now need to modify `loadModule` to take our function `need` as a parameter.
 (Again, we'll have our modules call `need('something.js')` instead of `require('something')` for clarity.)
 Let's test it with the same small module that doesn't need anything else to make sure we haven't broken anything:
 
-<div class="include" pat="test-need-small-module.*" fill="js out" />
+[% excerpt pat="test-need-small-module.*" fill="js out" %]
 
 What if we test it with a module that *does* load something else?
 
-<div class="include" file="large-module.js" />
-<div class="include" pat="test-need-large-module.*" fill="js out" />
+[% excerpt file="large-module.js" %]
+[% excerpt pat="test-need-large-module.*" fill="js out" %]
 
 This doesn't work because `import` only works at the top level of a program,
 not inside a function.
 Our system can therefore only run loaded modules by `need`ing them:
 
-<div class="include" file="large-needless.js" />
-<div class="include" pat="test-need-large-needless.*" fill="js out" />
+[% excerpt file="large-needless.js" %]
+[% excerpt pat="test-need-large-needless.*" fill="js out" %]
 
 > ### "It's so deep it's meaningless"
 >
@@ -321,12 +321,12 @@ rather than using `module.exports`.
 
 Suppose that `main.js` contains this:
 
-<div class="include" file="x-refactoring-circularity/main.js"/>
+[% excerpt file="x-refactoring-circularity/main.js" %]
 
 <!-- continue -->
 and `plugin.js` contains this:
 
-<div class="include" file="x-refactoring-circularity/plugin.js"/>
+[% excerpt file="x-refactoring-circularity/plugin.js" %]
 
 <!-- continue -->
 Refactor this code so that it works correctly while still using `require` rather than `import`.

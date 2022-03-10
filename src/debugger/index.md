@@ -22,7 +22,7 @@ As a compromise,
 we will represent programs as JSON data structures
 whose element have the form `[command ...args]`:
 
-<div class="include" file="filter-base.json" />
+[% excerpt file="filter-base.json" %]
 
 Our [% i "virtual machine" %]virtual machine[% /i %] is structured like the one in <a section="virtual-machine"/>.
 A real system would parse a program to create JSON,
@@ -33,7 +33,7 @@ to keep things simple we will execute a program by
 removing comments and blank lines
 and then running commands by looking up the command name's and calling that method:
 
-<div class="include" file="vm-base.js" omit="skip" />
+[% excerpt file="vm-base.js" omit="skip" %]
 
 <!-- continue -->
 Remember, functions and methods are just another kind of data,
@@ -45,21 +45,21 @@ then `this[name](args)` will do exactly the same thing.
 
 The method in our VM that defines a new variable with an initial value looks like this:
 
-<div class="include" file="vm-base.js" keep="defV" />
+[% excerpt file="vm-base.js" keep="defV" %]
 
 <!-- continue -->
 while the one that adds two values looks like this:
 
-<div class="include" file="vm-base.js" keep="add" />
+[% excerpt file="vm-base.js" keep="add" %]
 
 Running a `while` loop is:
 
-<div class="include" file="vm-base.js" keep="loop" />
+[% excerpt file="vm-base.js" keep="loop" %]
 
 <!-- continue -->
 and checking that a variable name refers to an array is:
 
-<div class="include" file="vm-base.js" keep="checkArray" />
+[% excerpt file="vm-base.js" keep="checkArray" %]
 
 The other operations are similar to these.
 
@@ -77,13 +77,13 @@ not parsing,
 we will instead cheat and add a line number to each interesting statement by hand
 so that our program looks like this:
 
-<div class="include" file="filter-source-map.json" keep="program" />
+[% excerpt file="filter-source-map.json" keep="program" %]
 
 Building the source map from that is simple;
 for now,
 we just modify `exec` to ignore the line number:
 
-<div class="include" file="vm-source-map.js" />
+[% excerpt file="vm-source-map.js" %]
 
 > ### It's not really cheating
 >
@@ -104,7 +104,7 @@ we give this callback the environment holding the current set of variables,
 the line number,
 and the operation being performed:
 
-<div class="include" file="vm-callback.js" />
+[% excerpt file="vm-callback.js" %]
 
 We also modify the VM's constructor to record the debugger and give it a reference to the virtual machine
 (<a figure="debugger-initialization"/>).
@@ -119,16 +119,16 @@ we will look at other ways to manage it in the exercises.
 To run the program,
 we create a debugger object and pass it to the VM's constructor:
 
-<div class="include" file="run-debugger.js" />
+[% excerpt file="run-debugger.js" %]
 
 A simple debugger just traces interesting statements as they run:
 
-<div class="include" file="debugger-trace.js" />
+[% excerpt file="debugger-trace.js" %]
 
 Let's try it on a program that adds the numbers in an array:
 
-<div class="include" file="sum-source-map.json" />
-<div class="include" file="sum-source-map-trace.out" />
+[% excerpt file="sum-source-map.json" %]
+[% excerpt file="sum-source-map-trace.out" %]
 
 ## How can we make the debugger interactive? {#debugger-interactive}
 
@@ -166,13 +166,13 @@ Otherwise, it does nothing.
 
 The overall structure of the interactive debugger is:
 
-<div class="include" file="debugger-interactive.js" omit="skip" />
+[% excerpt file="debugger-interactive.js" omit="skip" %]
 
 <!-- continue -->
 It interacts with users by lookup up a command and invoking the corresponding method,
 just as the VM does:
 
-<div class="include" file="debugger-interactive.js" keep="interact" />
+[% excerpt file="debugger-interactive.js" keep="interact" %]
 
 > ### Learning as we go
 >
@@ -186,12 +186,12 @@ the command handlers are pretty straightforward.
 For example,
 this method moves us to the next line:
 
-<div class="include" file="debugger-interactive.js" keep="next" />
+[% excerpt file="debugger-interactive.js" keep="next" %]
 
 <!-- continue -->
 while this one prints the value of a variable:
 
-<div class="include" file="debugger-interactive.js" keep="print" />
+[% excerpt file="debugger-interactive.js" keep="print" %]
 
 After using this for a few moments,
 though
@@ -202,7 +202,7 @@ We didn't allow for this in the base class,
 and we don't want to have to change every method,
 so we take advantage of the fact that JavaScript ignores any extra arguments passed to a method:
 
-<div class="include" file="vm-interactive.js" />
+[% excerpt file="vm-interactive.js" %]
 
 <!-- continue -->
 This is sloppy, but it works;
@@ -223,12 +223,12 @@ then provides input when asked and checks output when it is given
 <!-- continue -->
 The results look like this:
 
-<div class="include" file="test/test-expect.js" keep="tests" />
+[% excerpt file="test/test-expect.js" keep="tests" %]
 
 Our `Expect` class may be short,
 but it is hard to understand because it is so abstract:
 
-<div class="include" file="expect.js" />
+[% excerpt file="expect.js" %]
 
 <!-- continue -->
 Piece by piece:
@@ -250,17 +250,17 @@ Let's modify the debugger to use the tester,
 keeping in mind that the prompt counts as an output
 (and yes, we forgot this in the first version):
 
-<div class="include" file="debugger-test.js" />
+[% excerpt file="debugger-test.js" %]
 
 Again,
 we can't pass the tester as a constructor parameter because of initialization order,
 so we write a `setup` function to make sure everything is connected the right way:
 
-<div class="include" file="test/test-expect.js" keep="setup" />
+[% excerpt file="test/test-expect.js" keep="setup" %]
 
 Let's try running our tests:
 
-<div class="include" pat="test-expect.*" fill="sh out" />
+[% excerpt pat="test-expect.*" fill="sh out" %]
 
 That works---or does it?
 Why is only one test shown,
@@ -282,25 +282,25 @@ We can define our own kind of exception as an empty class:
 it doesn't need any data
 because we are only using it to get a typed object:
 
-<div class="include" file="halt-exception.js" />
+[% excerpt file="halt-exception.js" %]
 
 <!-- continue -->
 Next,
 we modify the debugger to throw this exception when asked to exit:
 
-<div class="include" file="debugger-exit.js" />
+[% excerpt file="debugger-exit.js" %]
 
 <!-- continue -->
 And finally
 we modify the VM to finish cleanly if this exception is thrown,
 but re-throw any other kind of exception:
 
-<div class="include" file="vm-exit.js" />
+[% excerpt file="vm-exit.js" %]
 
 With these changes in place,
 we are finally able to test our interactive debugger:
 
-<div class="include" pat="test-exit.*" fill="sh out" />
+[% excerpt pat="test-exit.*" fill="sh out" %]
 
 ## Exercises {#debugger-exercises}
 

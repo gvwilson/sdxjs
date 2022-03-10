@@ -23,7 +23,7 @@
 <p>In <a section="pattern-matching"/> we created regular expressions by constructing objects.
 It takes a lot less typing to write them as strings as we did for HTML selectors,
 but if we're going to do that we need something to convert those strings to the required objects.
-In other words, we need to write a <span g="parser" i="parser">parser</span>.</p>
+In other words, we need to write a <span class="indexref" key="parser" markdown="1"><a class="glossref" href="../glossary/#parser" markdown="1">parser</a></span>.</p>
 <div class="table" id="regex-parser-grammar-codes" caption="Regular expression grammar.">
 | Meaning | Character |
 | ------- | --------- |
@@ -48,8 +48,8 @@ we will create a tree of objects (<a figure="regex-parser-expression-tree"/>)
 rather than instances of the regular expression classes from <a section="pattern-matching"/>;
 the exercises will tackle the latter.</p>
 <figure id="regex-parser-expression-tree">
-  <img src="figures/expression-tree.svg" alt="Expression tree for regular expression" />
-  <figcaption>Representing the result of parsing a regular expression as an tree.</figcaption>
+  <img src="./figures/expression-tree.svg" alt="Expression tree for regular expression" />
+  <figcaption markdown="1">Figure 8.1: Representing the result of parsing a regular expression as an tree.</figcaption>
 </figure>
 
 <blockquote>
@@ -58,14 +58,14 @@ the exercises will tackle the latter.</p>
 and vice versa,
 so we need parsers to translate human-friendly notation into computer-friendly representations.
 However,
-<span i="parser!reasons not to write">the world doesn't need more file formats</span>;
+<span class="indexref" key="parser!reasons not to write" markdown="1">the world doesn't need more file formats</span>;
 if you need a configuration file or lookup table,
-please use CSV, JSON, <span g="yaml">YAML</span>,
+please use CSV, JSON, <a class="glossref" href="../glossary/#yaml" markdown="1">YAML</a>,
 or something else that already has an acronym
 rather than inventing a format of your own.</p>
 </blockquote>
 <h2 id="regex-parser-tokenize">How can we break text into tokens?</h2>
-<p>A <span g="token" i="token (in parsing)">token</span> is an atom of text,
+<p>A <span class="indexref" key="token (in parsing)" markdown="1"><a class="glossref" href="../glossary/#token" markdown="1">token</a></span> is an atom of text,
 such as the digits making up a number or the letters making up a variable name.
 In our grammar the tokens are the special characters <code>*</code>, <code>|</code>, <code>(</code>, <code>)</code>, <code>^</code>, and <code>$</code>,
 plus any sequence of one or more other characters (which count as one multi-letter token).
@@ -75,7 +75,7 @@ This classification guides the design of our parser:</p>
 <p>If a character is special, create a token for it.</p>
 </li>
 <li>
-<p>If it is a <span g="literal" i="literal (in parsing)">literal</span> then:</p>
+<p>If it is a <span class="indexref" key="literal (in parsing)" markdown="1"><a class="glossref" href="../glossary/#literal" markdown="1">literal</a></span> then:</p>
 <ol>
 <li>combine it with the current literal if there is one, or</li>
 <li>start a new literal.</li>
@@ -90,17 +90,92 @@ This classification guides the design of our parser:</p>
 <p>We can translate these rules almost directly into code
 to create a list of objects whose keys are <code>kind</code> and <code>loc</code> (short for location),
 with the extra key <code>value</code> for literal values:</p>
-<div class="include" file="tokenizer-collapse.js" omit="combine" />
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">SIMPLE</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s1">&#39;*&#39;</span><span class="o">:</span> <span class="s1">&#39;Any&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;|&#39;</span><span class="o">:</span> <span class="s1">&#39;Alt&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;(&#39;</span><span class="o">:</span> <span class="s1">&#39;GroupStart&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;)&#39;</span><span class="o">:</span> <span class="s1">&#39;GroupEnd&#39;</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">tokenize</span> <span class="o">=</span> <span class="p">(</span><span class="nx">text</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mf">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">text</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="mf">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">c</span> <span class="o">=</span> <span class="nx">text</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">c</span> <span class="ow">in</span> <span class="nx">SIMPLE</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span> <span class="nx">kind</span><span class="o">:</span> <span class="nx">SIMPLE</span><span class="p">[</span><span class="nx">c</span><span class="p">],</span> <span class="nx">loc</span><span class="o">:</span> <span class="nx">i</span> <span class="p">})</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">c</span> <span class="o">===</span> <span class="s1">&#39;^&#39;</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">i</span> <span class="o">===</span> <span class="mf">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Start&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="nx">i</span> <span class="p">})</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">combineOrPush</span><span class="p">(</span><span class="nx">result</span><span class="p">,</span> <span class="nx">c</span><span class="p">,</span> <span class="nx">i</span><span class="p">)</span>
+      <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">c</span> <span class="o">===</span> <span class="s1">&#39;$&#39;</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">i</span> <span class="o">===</span> <span class="p">(</span><span class="nx">text</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mf">1</span><span class="p">))</span> <span class="p">{</span>
+        <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;End&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="nx">i</span> <span class="p">})</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">combineOrPush</span><span class="p">(</span><span class="nx">result</span><span class="p">,</span> <span class="nx">c</span><span class="p">,</span> <span class="nx">i</span><span class="p">)</span>
+      <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="nx">combineOrPush</span><span class="p">(</span><span class="nx">result</span><span class="p">,</span> <span class="nx">c</span><span class="p">,</span> <span class="nx">i</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="nx">result</span>
+<span class="p">}</span>
+
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">tokenize</span>
+</code></pre></div>
 
 <p>The helper function <code>combineOrPush</code> does exactly what its name says.
 If the thing most recently added to the list of tokens isn't a literal,
 the new character becomes a new token;
 otherwise,
 we append the new character to the literal we're building:</p>
-<div class="include" file="tokenizer-collapse.js" keep="combine" />
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">combineOrPush</span> <span class="o">=</span> <span class="p">(</span><span class="nx">soFar</span><span class="p">,</span> <span class="nx">character</span><span class="p">,</span> <span class="nx">location</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">topIndex</span> <span class="o">=</span> <span class="nx">soFar</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mf">1</span>
+  <span class="k">if</span> <span class="p">((</span><span class="nx">soFar</span><span class="p">.</span><span class="nx">length</span> <span class="o">===</span> <span class="mf">0</span><span class="p">)</span> <span class="o">||</span> <span class="p">(</span><span class="nx">soFar</span><span class="p">[</span><span class="nx">topIndex</span><span class="p">].</span><span class="nx">token</span> <span class="o">!==</span> <span class="s1">&#39;Lit&#39;</span><span class="p">))</span> <span class="p">{</span>
+    <span class="nx">soFar</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="nx">character</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="nx">location</span> <span class="p">})</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">soFar</span><span class="p">[</span><span class="nx">topIndex</span><span class="p">].</span><span class="nx">value</span> <span class="o">+=</span> <span class="nx">character</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
 
 <p>We can try this out with a three-line test program:</p>
-<div class="include" pat="tokenizer-collapse-example.*" fill="js out" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">tokenize</span> <span class="kr">from</span> <span class="s1">&#39;./tokenizer-collapse.js&#39;</span>
+
+<span class="kd">const</span> <span class="nx">test</span> <span class="o">=</span> <span class="s1">&#39;^a^b*&#39;</span>
+<span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">tokenize</span><span class="p">(</span><span class="nx">test</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">result</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="mf">2</span><span class="p">))</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>[
+  {
+    &quot;kind&quot;: &quot;Start&quot;,
+    &quot;loc&quot;: 0
+  },
+  {
+    &quot;kind&quot;: &quot;Lit&quot;,
+    &quot;value&quot;: &quot;a&quot;,
+    &quot;loc&quot;: 1
+  },
+  {
+    &quot;kind&quot;: &quot;Lit&quot;,
+    &quot;value&quot;: &quot;^&quot;,
+    &quot;loc&quot;: 2
+  },
+  {
+    &quot;kind&quot;: &quot;Lit&quot;,
+    &quot;value&quot;: &quot;b&quot;,
+    &quot;loc&quot;: 3
+  },
+  {
+    &quot;kind&quot;: &quot;Any&quot;,
+    &quot;loc&quot;: 4
+  }
+]
+</code></pre></div>
 
 <p>This simple tokenizer is readable, efficient, and wrong.
 The problem is that the expression <code>/ab*/</code> means "a single <code>a</code> followed by zero or more <code>b</code>".
@@ -112,14 +187,122 @@ we didn't notice the problem until we were implementing the next step.)</p>
 <p>The solution is to treat each regular character as its own literal in this stage
 and then combine things later.
 Doing this lets us get rid of the nested <code>if</code> for handling <code>^</code> and <code>$</code> as well:</p>
-<div class="include" file="tokenizer.js" />
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">SIMPLE</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s1">&#39;*&#39;</span><span class="o">:</span> <span class="s1">&#39;Any&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;|&#39;</span><span class="o">:</span> <span class="s1">&#39;Alt&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;(&#39;</span><span class="o">:</span> <span class="s1">&#39;GroupStart&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;)&#39;</span><span class="o">:</span> <span class="s1">&#39;GroupEnd&#39;</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">tokenize</span> <span class="o">=</span> <span class="p">(</span><span class="nx">text</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mf">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">text</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="mf">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">c</span> <span class="o">=</span> <span class="nx">text</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">c</span> <span class="ow">in</span> <span class="nx">SIMPLE</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span> <span class="nx">kind</span><span class="o">:</span> <span class="nx">SIMPLE</span><span class="p">[</span><span class="nx">c</span><span class="p">],</span> <span class="nx">loc</span><span class="o">:</span> <span class="nx">i</span> <span class="p">})</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">((</span><span class="nx">c</span> <span class="o">===</span> <span class="s1">&#39;^&#39;</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">i</span> <span class="o">===</span> <span class="mf">0</span><span class="p">))</span> <span class="p">{</span>
+      <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Start&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="nx">i</span> <span class="p">})</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">((</span><span class="nx">c</span> <span class="o">===</span> <span class="s1">&#39;$&#39;</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">i</span> <span class="o">===</span> <span class="p">(</span><span class="nx">text</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mf">1</span><span class="p">)))</span> <span class="p">{</span>
+      <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;End&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="nx">i</span> <span class="p">})</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="nx">c</span> <span class="p">})</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="nx">result</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">tokenize</span>
+</code></pre></div>
 
 <p>Software isn't done until it's tested,
-so let's build some <span i="Mocha"><a href="https://mochajs.org/">Mocha</a></span> tests for our tokenizer.
+so let's build some <span class="indexref" key="Mocha" markdown="1"><a href="https://mochajs.org/">Mocha</a></span> tests for our tokenizer.
 The listing below shows a few of these
 along with the output for the full set:</p>
-<div class="include" file="test/test-tokenizer.js" omit="omit" />
-<div class="include" file="tokenizer-test.out" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">assert</span> <span class="kr">from</span> <span class="s1">&#39;assert&#39;</span>
+
+<span class="k">import</span> <span class="nx">tokenize</span> <span class="kr">from</span> <span class="s1">&#39;../tokenizer.js&#39;</span>
+
+<span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;tokenizes correctly&#39;</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;tokenizes a single character&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">tokenize</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">),</span> <span class="p">[</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">0</span> <span class="p">}</span>
+    <span class="p">])</span>
+  <span class="p">})</span>
+
+  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;tokenizes a sequence of characters&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">tokenize</span><span class="p">(</span><span class="s1">&#39;ab&#39;</span><span class="p">),</span> <span class="p">[</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">0</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">1</span> <span class="p">}</span>
+    <span class="p">])</span>
+  <span class="p">})</span>
+
+  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;tokenizes start anchor alone&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">tokenize</span><span class="p">(</span><span class="s1">&#39;^&#39;</span><span class="p">),</span> <span class="p">[</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Start&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">0</span> <span class="p">}</span>
+    <span class="p">])</span>
+  <span class="p">})</span>
+
+  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;tokenizes start anchor followed by characters&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">tokenize</span><span class="p">(</span><span class="s1">&#39;^a&#39;</span><span class="p">),</span> <span class="p">[</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Start&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">0</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">1</span> <span class="p">}</span>
+    <span class="p">])</span>
+  <span class="p">})</span>
+
+  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;tokenizes a complex expression&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">tokenize</span><span class="p">(</span><span class="s1">&#39;^a*(bcd|e^)*f$gh$&#39;</span><span class="p">),</span> <span class="p">[</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Start&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">0</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">1</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="s1">&#39;a&#39;</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Any&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">2</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;GroupStart&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">3</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">4</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="s1">&#39;b&#39;</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">5</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="s1">&#39;c&#39;</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">6</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="s1">&#39;d&#39;</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Alt&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">7</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">8</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="s1">&#39;e&#39;</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">9</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="s1">&#39;^&#39;</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;GroupEnd&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">10</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Any&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">11</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">12</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="s1">&#39;f&#39;</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">13</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="s1">&#39;$&#39;</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">14</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="s1">&#39;g&#39;</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">15</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="s1">&#39;h&#39;</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;End&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">16</span> <span class="p">}</span>
+    <span class="p">])</span>
+  <span class="p">})</span>
+<span class="p">})</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="o">&gt;</span><span class="w"> </span><span class="n">stjs</span><span class="mf">@1.0.0</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="o">/</span><span class="n">u</span><span class="o">/</span><span class="n">stjs</span><span class="w"></span>
+<span class="o">&gt;</span><span class="w"> </span><span class="n">mocha</span><span class="w"> </span><span class="o">*/</span><span class="n">test</span><span class="o">/</span><span class="n">test</span><span class="o">-*</span><span class="p">.</span><span class="n">js</span><span class="w"> </span><span class="s">&quot;-g&quot;</span><span class="w"> </span><span class="s">&quot;tokenizes correctly&quot;</span><span class="w"></span>
+
+
+
+<span class="w">  </span><span class="n">tokenizes</span><span class="w"> </span><span class="n">correctly</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">tokenizes</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">single</span><span class="w"> </span><span class="n">character</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">tokenizes</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">sequence</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">characters</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">tokenizes</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="n">anchor</span><span class="w"> </span><span class="n">alone</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">tokenizes</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="n">anchor</span><span class="w"> </span><span class="n">followed</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">characters</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">tokenizes</span><span class="w"> </span><span class="n">circumflex</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="n">start</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">tokenizes</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="n">anchor</span><span class="w"> </span><span class="n">alone</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">tokenizes</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="n">anchor</span><span class="w"> </span><span class="n">preceded</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">characters</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">tokenizes</span><span class="w"> </span><span class="n">dollar</span><span class="w"> </span><span class="n">sign</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="n">end</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">tokenizes</span><span class="w"> </span><span class="n">repetition</span><span class="w"> </span><span class="n">alone</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">tokenizes</span><span class="w"> </span><span class="n">repetition</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">string</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">tokenizes</span><span class="w"> </span><span class="n">repetition</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">string</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">tokenizes</span><span class="w"> </span><span class="n">alternation</span><span class="w"> </span><span class="n">alone</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">tokenizes</span><span class="w"> </span><span class="n">alternation</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">string</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">tokenizes</span><span class="w"> </span><span class="n">alternation</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">string</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">tokenizes</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">group</span><span class="w"> </span><span class="n">alone</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">tokenizes</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">group</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">string</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">tokenizes</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">group</span><span class="w"> </span><span class="n">alone</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">tokenizes</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">group</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">string</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">tokenizes</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">complex</span><span class="w"> </span><span class="n">expression</span><span class="w"></span>
+
+
+<span class="w">  </span><span class="mi">19</span><span class="w"> </span><span class="n">passing</span><span class="w"> </span><span class="p">(</span><span class="mi">12</span><span class="n">ms</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
 
 <h2 id="regex-parser-tree">How can we turn a list of tokens into a tree?</h2>
 <p>We now have a list of tokens,
@@ -161,9 +344,9 @@ each time we append a new token.
 However,
 this doesn't handle <code>/a|b*/</code> properly.
 The pattern is supposed to mean "one <code>a</code> or any number of <code>b</code>",
-but the <span i="parser!check-and-combine">check-and-combine strategy</span> will turn it into the equivalent of <code>/(a|b)*/</code>.</p>
+but the <span class="indexref" key="parser!check-and-combine" markdown="1">check-and-combine strategy</span> will turn it into the equivalent of <code>/(a|b)*/</code>.</p>
 <p>A better (i.e., correct) solution is
-to leave some partially-completed tokens in the output and <span i="parser!post-hoc compression strategy">compress</span> them later
+to leave some partially-completed tokens in the output and <span class="indexref" key="parser!post-hoc compression strategy" markdown="1">compress</span> them later
 (<a figure="regex-parser-mechanics"/>).
 If our input is the pattern <code>/a|b/</code>, we can:</p>
 <ol>
@@ -185,42 +368,188 @@ If our input is the pattern <code>/a|b/</code>, we can:</p>
 </ol>
 <p>Again, this automatically handles patterns like <code>/(ab)|c*|(de)/</code>.</p>
 <figure id="regex-parser-mechanics">
-  <img src="figures/mechanics.svg" alt="Mechanics of combining tokens" />
-  <figcaption>Mechanics of combining tokens while parsing regular expressions.</figcaption>
+  <img src="./figures/mechanics.svg" alt="Mechanics of combining tokens" />
+  <figcaption markdown="1">Figure 8.2: Mechanics of combining tokens while parsing regular expressions.</figcaption>
 </figure>
 
 <p>It's time to turn these ideas into code.
 The main structure of our parser is:</p>
-<div class="include" file="parser.js" omit="skip" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">assert</span> <span class="kr">from</span> <span class="s1">&#39;assert&#39;</span>
+
+<span class="k">import</span> <span class="nx">tokenize</span> <span class="kr">from</span> <span class="s1">&#39;./tokenizer.js&#39;</span>
+
+<span class="kd">const</span> <span class="nx">parse</span> <span class="o">=</span> <span class="p">(</span><span class="nx">text</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="kd">const</span> <span class="nx">allTokens</span> <span class="o">=</span> <span class="nx">tokenize</span><span class="p">(</span><span class="nx">text</span><span class="p">)</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mf">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">allTokens</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="mf">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">token</span> <span class="o">=</span> <span class="nx">allTokens</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+    <span class="kd">const</span> <span class="nx">last</span> <span class="o">=</span> <span class="nx">i</span> <span class="o">===</span> <span class="nx">allTokens</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mf">1</span>
+    <span class="nx">handle</span><span class="p">(</span><span class="nx">result</span><span class="p">,</span> <span class="nx">token</span><span class="p">,</span> <span class="nx">last</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nx">compress</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span>
+<span class="p">}</span>
+
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">parse</span>
+</code></pre></div>
 
 <p>We handle tokens case by case
-(with a few assertions to check that patterns are <span g="well_formed">well formed</span>):</p>
-<div class="include" file="parser.js" keep="handle" />
+(with a few assertions to check that patterns are <a class="glossref" href="../glossary/#well_formed" markdown="1">well formed</a>):</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">handle</span> <span class="o">=</span> <span class="p">(</span><span class="nx">result</span><span class="p">,</span> <span class="nx">token</span><span class="p">,</span> <span class="nx">last</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">token</span><span class="p">.</span><span class="nx">kind</span> <span class="o">===</span> <span class="s1">&#39;Lit&#39;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">token</span><span class="p">.</span><span class="nx">kind</span> <span class="o">===</span> <span class="s1">&#39;Start&#39;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">assert</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">length</span> <span class="o">===</span> <span class="mf">0</span><span class="p">,</span>
+      <span class="s1">&#39;Should not have start token after other tokens&#39;</span><span class="p">)</span>
+    <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">token</span><span class="p">.</span><span class="nx">kind</span> <span class="o">===</span> <span class="s1">&#39;End&#39;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">assert</span><span class="p">(</span><span class="nx">last</span><span class="p">,</span>
+      <span class="s1">&#39;Should not have end token before other tokens&#39;</span><span class="p">)</span>
+    <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">token</span><span class="p">.</span><span class="nx">kind</span> <span class="o">===</span> <span class="s1">&#39;GroupStart&#39;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">token</span><span class="p">.</span><span class="nx">kind</span> <span class="o">===</span> <span class="s1">&#39;GroupEnd&#39;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">groupEnd</span><span class="p">(</span><span class="nx">result</span><span class="p">,</span> <span class="nx">token</span><span class="p">))</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">token</span><span class="p">.</span><span class="nx">kind</span> <span class="o">===</span> <span class="s1">&#39;Any&#39;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">assert</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mf">0</span><span class="p">,</span>
+      <span class="sb">`No operand for &#39;*&#39; (location </span><span class="si">${</span><span class="nx">token</span><span class="p">.</span><span class="nx">loc</span><span class="si">}</span><span class="sb">)`</span><span class="p">)</span>
+    <span class="nx">token</span><span class="p">.</span><span class="nx">child</span> <span class="o">=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">pop</span><span class="p">()</span>
+    <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">token</span><span class="p">.</span><span class="nx">kind</span> <span class="o">===</span> <span class="s1">&#39;Alt&#39;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">assert</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mf">0</span><span class="p">,</span>
+      <span class="sb">`No operand for &#39;*&#39; (location </span><span class="si">${</span><span class="nx">token</span><span class="p">.</span><span class="nx">loc</span><span class="si">}</span><span class="sb">)`</span><span class="p">)</span>
+    <span class="nx">token</span><span class="p">.</span><span class="nx">left</span> <span class="o">=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">pop</span><span class="p">()</span>
+    <span class="nx">token</span><span class="p">.</span><span class="nx">right</span> <span class="o">=</span> <span class="kc">null</span>
+    <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">assert</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span> <span class="s1">&#39;UNIMPLEMENTED&#39;</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
 
 <p>When we find the <code>)</code> that marks the end of a group,
 we take items from the end of the output list
 until we find the matching start
 and use them to create a group:</p>
-<div class="include" file="parser.js" keep="groupend" />
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">groupEnd</span> <span class="o">=</span> <span class="p">(</span><span class="nx">result</span><span class="p">,</span> <span class="nx">token</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">group</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Group&#39;</span><span class="p">,</span>
+    <span class="nx">loc</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nx">end</span><span class="o">:</span> <span class="nx">token</span><span class="p">.</span><span class="nx">loc</span><span class="p">,</span>
+    <span class="nx">children</span><span class="o">:</span> <span class="p">[]</span>
+  <span class="p">}</span>
+  <span class="k">while</span> <span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">assert</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mf">0</span><span class="p">,</span>
+           <span class="sb">`Unmatched end parenthesis (location </span><span class="si">${</span><span class="nx">token</span><span class="p">.</span><span class="nx">loc</span><span class="si">}</span><span class="sb">)`</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="nx">child</span> <span class="o">=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">pop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">child</span><span class="p">.</span><span class="nx">kind</span> <span class="o">===</span> <span class="s1">&#39;GroupStart&#39;</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">group</span><span class="p">.</span><span class="nx">loc</span> <span class="o">=</span> <span class="nx">child</span><span class="p">.</span><span class="nx">loc</span>
+      <span class="k">break</span>
+    <span class="p">}</span>
+    <span class="nx">group</span><span class="p">.</span><span class="nx">children</span><span class="p">.</span><span class="nx">unshift</span><span class="p">(</span><span class="nx">child</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nx">group</span>
+<span class="p">}</span>
+</code></pre></div>
 
 <p>Finally,
 when we have finished with the input,
 we go through the output list one last time to fill in the right side of <code>Alt</code>s:</p>
-<div class="include" file="parser.js" keep="compress" />
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">compress</span> <span class="o">=</span> <span class="p">(</span><span class="nx">raw</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">cooked</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="k">while</span> <span class="p">(</span><span class="nx">raw</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mf">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">token</span> <span class="o">=</span> <span class="nx">raw</span><span class="p">.</span><span class="nx">pop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">token</span><span class="p">.</span><span class="nx">kind</span> <span class="o">===</span> <span class="s1">&#39;Alt&#39;</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">assert</span><span class="p">(</span><span class="nx">cooked</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mf">0</span><span class="p">,</span>
+             <span class="sb">`No right operand for alt (location </span><span class="si">${</span><span class="nx">token</span><span class="p">.</span><span class="nx">loc</span><span class="si">}</span><span class="sb">)`</span><span class="p">)</span>
+      <span class="nx">token</span><span class="p">.</span><span class="nx">right</span> <span class="o">=</span> <span class="nx">cooked</span><span class="p">.</span><span class="nx">shift</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="nx">cooked</span><span class="p">.</span><span class="nx">unshift</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nx">cooked</span>
+<span class="p">}</span>
+</code></pre></div>
 
 <p>Once again,
 it's not done until we've tested it:</p>
-<div class="include" file="test/test-parser.js" omit="omit" />
-<div class="include" file="parser-test.out" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">assert</span> <span class="kr">from</span> <span class="s1">&#39;assert&#39;</span>
+
+<span class="k">import</span> <span class="nx">parse</span> <span class="kr">from</span> <span class="s1">&#39;../parser.js&#39;</span>
+
+<span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;parses correctly&#39;</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;parses the empty string&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">parse</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">),</span> <span class="p">[])</span>
+  <span class="p">})</span>
+
+  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;parses a single literal&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">parse</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">),</span> <span class="p">[</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">0</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="s1">&#39;a&#39;</span> <span class="p">}</span>
+    <span class="p">])</span>
+  <span class="p">})</span>
+
+  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;parses multiple literals&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">parse</span><span class="p">(</span><span class="s1">&#39;ab&#39;</span><span class="p">),</span> <span class="p">[</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">0</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="s1">&#39;a&#39;</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">1</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="s1">&#39;b&#39;</span> <span class="p">}</span>
+    <span class="p">])</span>
+  <span class="p">})</span>
+
+
+  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;parses alt of groups&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">parse</span><span class="p">(</span><span class="s1">&#39;a|(bc)&#39;</span><span class="p">),</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Alt&#39;</span><span class="p">,</span>
+        <span class="nx">loc</span><span class="o">:</span> <span class="mf">1</span><span class="p">,</span>
+        <span class="nx">left</span><span class="o">:</span> <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">0</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="s1">&#39;a&#39;</span> <span class="p">},</span>
+        <span class="nx">right</span><span class="o">:</span> <span class="p">{</span>
+          <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Group&#39;</span><span class="p">,</span>
+          <span class="nx">loc</span><span class="o">:</span> <span class="mf">2</span><span class="p">,</span>
+          <span class="nx">end</span><span class="o">:</span> <span class="mf">5</span><span class="p">,</span>
+          <span class="nx">children</span><span class="o">:</span> <span class="p">[</span>
+            <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">3</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="s1">&#39;b&#39;</span> <span class="p">},</span>
+            <span class="p">{</span> <span class="nx">kind</span><span class="o">:</span> <span class="s1">&#39;Lit&#39;</span><span class="p">,</span> <span class="nx">loc</span><span class="o">:</span> <span class="mf">4</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="s1">&#39;c&#39;</span> <span class="p">}</span>
+          <span class="p">]</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">])</span>
+  <span class="p">})</span>
+<span class="p">})</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="o">&gt;</span><span class="w"> </span><span class="n">stjs</span><span class="mf">@1.0.0</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="o">/</span><span class="n">u</span><span class="o">/</span><span class="n">stjs</span><span class="w"></span>
+<span class="o">&gt;</span><span class="w"> </span><span class="n">mocha</span><span class="w"> </span><span class="o">*/</span><span class="n">test</span><span class="o">/</span><span class="n">test</span><span class="o">-*</span><span class="p">.</span><span class="n">js</span><span class="w"> </span><span class="s">&quot;-g&quot;</span><span class="w"> </span><span class="s">&quot;parses correctly&quot;</span><span class="w"></span>
+
+
+
+<span class="w">  </span><span class="n">parses</span><span class="w"> </span><span class="n">correctly</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">parses</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">empty</span><span class="w"> </span><span class="n">string</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">parses</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">single</span><span class="w"> </span><span class="n">literal</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">parses</span><span class="w"> </span><span class="n">multiple</span><span class="w"> </span><span class="n">literals</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">parses</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="n">anchors</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">handles</span><span class="w"> </span><span class="n">circumflex</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="n">start</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">parses</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="n">anchors</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">parses</span><span class="w"> </span><span class="n">circumflex</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="n">start</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">parses</span><span class="w"> </span><span class="n">empty</span><span class="w"> </span><span class="n">groups</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">parses</span><span class="w"> </span><span class="n">groups</span><span class="w"> </span><span class="n">containing</span><span class="w"> </span><span class="n">characters</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">parses</span><span class="w"> </span><span class="n">two</span><span class="w"> </span><span class="n">groups</span><span class="w"> </span><span class="n">containing</span><span class="w"> </span><span class="n">characters</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">parses</span><span class="w"> </span><span class="n">any</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">parses</span><span class="w"> </span><span class="n">any</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">group</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">parses</span><span class="w"> </span><span class="n">alt</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">parses</span><span class="w"> </span><span class="n">alt</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">any</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">parses</span><span class="w"> </span><span class="n">alt</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">groups</span><span class="w"></span>
+
+
+<span class="w">  </span><span class="mi">15</span><span class="w"> </span><span class="n">passing</span><span class="w"> </span><span class="p">(</span><span class="mi">11</span><span class="n">ms</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
 
 <p>While our final parser is less than 90 lines of code,
 it is doing a lot of complex things.
 Compared to parsers for things like JSON and YAML,
 though,
 it is still very simple.
-If we have more operators with different <span g="precedence" i="operator precedence!implementing">precedences</span>
-we should switch to the <span i="shunting-yard algorithm; parser!shunting-yard algorithm"><a href="https://en.wikipedia.org/wiki/Shunting-yard_algorithm">shunting-yard algorithm</a></span>,
-and if we need to handle a language like JavaScript we should explore tools like <span i="ANTLR"><a href="https://www.antlr.org/">ANTLR</a></span>,
+If we have more operators with different <span class="indexref" key="operator precedence!implementing" markdown="1"><a class="glossref" href="../glossary/#precedence" markdown="1">precedences</a></span>
+we should switch to the <span class="indexref" key="shunting-yard algorithm;parser!shunting-yard algorithm" markdown="1"><a href="https://en.wikipedia.org/wiki/Shunting-yard_algorithm">shunting-yard algorithm</a></span>,
+and if we need to handle a language like JavaScript we should explore tools like <span class="indexref" key="ANTLR" markdown="1"><a href="https://www.antlr.org/">ANTLR</a></span>,
 which can generate a parser automatically given a description of the language to be parsed.
 As we said at the start,
 though,
@@ -233,19 +562,19 @@ but at least they're broken the same way everywhere.</p>
 every formal language corresponds to a type of abstract machine and vice versa,
 and that some languages (or machines) are more or less powerful than others.
 For example,
-every regular expression corresponds to a <span g="fsm" i="finite state machine!correspondence with regular expressions">finite state machine</span> (FSM)
+every regular expression corresponds to a <span class="indexref" key="finite state machine!correspondence with regular expressions" markdown="1"><a class="glossref" href="../glossary/#fsm" markdown="1">finite state machine</a></span> (FSM)
 like the one in <a figure="regex-parser-finite-state-machine"/>.
 As powerful as FSMs are,
 they cannot match things like nested parentheses or HTML tags,
-and <span i="sin!using regular expressions to parse HTML"><a href="https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454">attempting to do so is a sin</a></span>.
+and <span class="indexref" key="sin!using regular expressions to parse HTML" markdown="1"><a href="https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454">attempting to do so is a sin</a></span>.
 If you add a stack to the system you can process a much richer set of languages,
-and if you add two stacks you have something equivalent to a <span g="turing_machine" i="Turing Machine">Turing Machine</span>
+and if you add two stacks you have something equivalent to a <span class="indexref" key="Turing Machine" markdown="1"><a class="glossref" href="../glossary/#turing_machine" markdown="1">Turing Machine</a></span>
 that can do any conceivable computation.
-<cite>Conery2021</cite> presents this idea and others for self-taught developers.</p>
+[<a href="../bibliography/#Conery2021">Conery2021</a>] presents this idea and others for self-taught developers.</p>
 </blockquote>
 <figure id="regex-parser-finite-state-machine">
-  <img src="figures/finite-state-machine.svg" alt="Finite state machine" />
-  <figcaption>A finite state machine equivalent to a regular expression.</figcaption>
+  <img src="./figures/finite-state-machine.svg" alt="Finite state machine" />
+  <figcaption markdown="1">Figure 8.3: A finite state machine equivalent to a regular expression.</figcaption>
 </figure>
 
 <h2 id="regex-parser-exercises">Exercises</h2>

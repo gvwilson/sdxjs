@@ -49,7 +49,7 @@ until all the selectors in the query string have matched or no matches have been
 
 [% figure slug="pattern-matching-query-selectors" img="figures/query-selectors.svg" alt="Matching query selectors" caption="Matching a simple set of query selectors." %]
 
-<div class="include" file="simple-selectors.js" omit="skip" />
+[% excerpt file="simple-selectors.js" omit="skip" %]
 
 The `firstMatch` function handles three cases:
 
@@ -72,12 +72,12 @@ it explores one possible match to the end before considering any others.
 `firstMatch` relies on a helper function called `firstChildMatch`,
 which finds the first child of a node to match a set of selectors:
 
-<div class="include" file="simple-selectors.js" keep="firstChild" />
+[% excerpt file="simple-selectors.js" keep="firstChild" %]
 
 <!-- continue -->
 and on the function `matchHere` which compares a node against a selector:
 
-<div class="include" file="simple-selectors.js" keep="matchHere" />
+[% excerpt file="simple-selectors.js" keep="matchHere" %]
 
 This version of `matchHere` is simple but inefficient,
 since it breaks the selector into parts each time it is called
@@ -86,22 +86,22 @@ We will build a more efficient version in the exercises,
 but let's try out the one we have.
 Our test cases are all in one piece of HTML:
 
-<div class="include" file="simple-selectors-test.js" keep="tests" />
+[% excerpt file="simple-selectors-test.js" keep="tests" %]
 
 The program contains a table of queries and the expected matches.
 The function `main` loops over it to report whether each test passes or fails:
 
-<div class="include" file="simple-selectors-test.js" keep="main" />
+[% excerpt file="simple-selectors-test.js" keep="main" %]
 
 <!-- continue -->
 `main` uses a helper function called `getText` to extract text from a node
 or return an error message if something has gone wrong:
 
-<div class="include" file="simple-selectors-test.js" keep="getText" />
+[% excerpt file="simple-selectors-test.js" keep="getText" %]
 
 When we run our program it produces this result:
 
-<div class="include" file="simple-selectors-test.out" />
+[% excerpt file="simple-selectors-test.out" %]
 
 We will rewrite these tests using [% i "Mocha" %][Mocha][mocha][% /i %] in the exercises.
 
@@ -148,17 +148,17 @@ matching the start of the target string being searched.
 It then tries the pattern against each successive substring of the target string
 until it finds a match or runs out of characters:
 
-<div class="include" file="simple-regex.js" keep="match" />
+[% excerpt file="simple-regex.js" keep="match" %]
 
 `matchHere` does the matching and recursing:
 
-<div class="include" file="simple-regex.js" keep="matchHere" />
+[% excerpt file="simple-regex.js" keep="matchHere" %]
 
 Once again,
 we use a table of test cases and expected results to test it:
 
-<div class="include" file="simple-regex.js" keep="tests" />
-<div class="include" file="simple-regex.out" />
+[% excerpt file="simple-regex.js" keep="tests" %]
+[% excerpt file="simple-regex.out" %]
 
 This program seems to work,
 but it actually contains an error that we will correct in the exercises.
@@ -193,7 +193,7 @@ We can then combine these objects to match complex patterns
 The first step in implementing this is is to write test cases,
 which forces us to define the syntax we are going to support:
 
-<div class="include" file="regex-initial/regex-complete.js" />
+[% excerpt file="regex-initial/regex-complete.js" %]
 
 Next,
 we define a [% g base_class %]base class[% /g %] that all matchers will inherit from.
@@ -201,7 +201,7 @@ This class contains the `match` method that users will call
 so that we can start matching right away
 no matter what kind of matcher we have at the top level of our pattern.
 
-<div class="include" file="regex-initial/regex-base.js" />
+[% excerpt file="regex-initial/regex-base.js" %]
 
 <!-- continue -->
 The base class also defines a `_match` method (with a leading underscore)
@@ -224,14 +224,14 @@ our code will fail with a meaningful reminder.
 We can now define empty versions of each matching class that all say "no match here"
 like this one for literal characters:
 
-<div class="include" file="regex-initial/regex-lit.js" />
+[% excerpt file="regex-initial/regex-lit.js" %]
 
 <!-- continue -->
 Our tests now run, but most of them fail:
 "most" because we expect some tests not to match,
 so the test runner reports `true`.
 
-<div class="include" file="regex-initial.out" />
+[% excerpt file="regex-initial.out" %]
 
 <!-- continue -->
 This output tells us how much work we have left to do:
@@ -240,11 +240,11 @@ we're finished.
 
 Let's implement a literal character string matcher first:
 
-<div class="include" file="regex-beginning/regex-lit.js" />
+[% excerpt file="regex-beginning/regex-lit.js" %]
 
 Some tests now pass, others still fail as expected:
 
-<div class="include" file="regex-beginning.out" />
+[% excerpt file="regex-beginning.out" %]
 
 We will tackle `RegexSeq` next so that we can combine other matchers.
 This is why we have tests for `Seq(Lit('a'), Lit('b'))` and `Lit('ab')`:
@@ -274,26 +274,26 @@ Each matcher will try each of its possibilities and then see if the rest will al
 This design means we can get rid of `RegexSeq`,
 but it does make our tests a little harder to read:
 
-<div class="include" file="regex-recursive/regex-complete.js" />
+[% excerpt file="regex-recursive/regex-complete.js" %]
 
 Here's how this works for matching a literal expression:
 
-<div class="include" file="regex-recursive/regex-lit.js" />
+[% excerpt file="regex-recursive/regex-lit.js" %]
 
 <!-- continue -->
 The `_match` method checks whether all of the pattern matches the target text starting at the current location.
 If so, it checks whether the rest of the overall pattern matches what's left.
 Matching the start `/^/` and end `/$/` anchors is just as straightforward:
 
-<div class="include" file="regex-recursive/regex-start.js" />
+[% excerpt file="regex-recursive/regex-start.js" %]
 
-<div class="include" file="regex-recursive/regex-end.js" />
+[% excerpt file="regex-recursive/regex-end.js" %]
 
 Matching either/or is done by trying the first pattern and the rest,
 and if that fails,
 trying the second pattern and the rest:
 
-<div class="include" file="regex-recursive/regex-alt.js" />
+[% excerpt file="regex-recursive/regex-alt.js" %]
 
 To match a repetition,
 we figure out the maximum number of matches that might be left,
@@ -302,12 +302,12 @@ then count down until something succeeds.
 Each non-empty repetition matches at least one character,
 so the number of remaining characters is the maximum number of matches worth trying.
 
-<div class="include" file="regex-recursive/regex-any.js" />
+[% excerpt file="regex-recursive/regex-any.js" %]
 
 With these classes in place,
 our tests all pass:
 
-<div class="include" file="regex-recursive.out" />
+[% excerpt file="regex-recursive.out" %]
 
 The most important thing about this design is how extensible it is:
 if we want to add other kinds of matching,

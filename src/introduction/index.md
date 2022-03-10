@@ -19,7 +19,7 @@ and the books that introduced the Unix philosophy to an entire generation of pro
 [% b Kernighan1979 Kernighan1981 Kernighan1983 Kernighan1988 %].
 
 All of the written material in this project can be freely reused
-under the terms of the [Creative Commons - Attribution license][cc-by],
+under the terms of the [Creative Commons - Attribution - NonCommercial license][cc-by-nc],
 while all of the software is made available under the terms of
 the [Hippocratic License][hippocratic-license];
 see <a section="license"/> for details.

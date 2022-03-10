@@ -179,7 +179,7 @@ and construct a similar data structure.
 We will stick to single-digit version numbers for readability,
 and will use this as our first test case:
 
-<div class="include" file="double-chained.json" />
+[% excerpt file="double-chained.json" %]
 
 > ### Comments
 >
@@ -194,21 +194,21 @@ we add each package to our active list in turn and look for violations.
 If there aren't any more packages to add and we haven't found a violation,
 then what we have must be a legal configuration.
 
-<div class="include" file="sweep.js" omit="allows" />
+[% excerpt file="sweep.js" omit="allows" %]
 
 The simplest way to find configurations is to sweep over all possibilities.
 For debugging purposes,
 our function prints possibilities as it goes:
 
-<div class="include" file="sweep.js" keep="allows" />
+[% excerpt file="sweep.js" keep="allows" %]
 
 If we run this program on the two-package example shown earlier we get this output:
 
-<div class="include" pat="sweep-double-chained.*" fill="sh out" />
+[% excerpt pat="sweep-double-chained.*" fill="sh out" %]
 
 When we run it on our triple-package example we get this:
 
-<div class="include" pat="sweep-triple.*" fill="sh out" />
+[% excerpt pat="sweep-triple.*" fill="sh out" %]
 
 This works,
 but it is doing a lot of unnecessary work.
@@ -253,17 +253,17 @@ there is no need to check Z as well.
 This version of the program collects possible solutions and displays them at the end.
 It only keeps checking a partial solution if what it has found so far looks good:
 
-<div class="include" file="prune.js" omit="compatible" />
+[% excerpt file="prune.js" omit="compatible" %]
 
 The `compatible` function checks to see if adding something will leave us with a consistent configuration:
 
-<div class="include" file="prune.js" keep="compatible" />
+[% excerpt file="prune.js" keep="compatible" %]
 
 Checking as we go gets us from 18 complete solutions to 11.
 One is workable
 and two are incomplete---they represent 6 possible complete solutions that we didn't need to finish:
 
-<div class="include" file="prune-triple.out" />
+[% excerpt file="prune-triple.out" %]
 
 Another way to look at the work is the number of steps in the search.
 The full search had 18×3 = 54 steps.
@@ -272,9 +272,9 @@ so we have eliminated roughly 1/4 of the work.
 
 What if we searched in the reverse order?
 
-<div class="include" file="reverse.js" />
+[% excerpt file="reverse.js" %]
 
-<div class="include" file="reverse-triple.out" />
+[% excerpt file="reverse-triple.out" %]
 
 Now we have (8×3) + (5×2) = 34 steps,
 i.e.,

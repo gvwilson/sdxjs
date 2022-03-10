@@ -75,7 +75,7 @@ and `a` indicates an address.
 We put our VM's architectural details in a file
 that can be shared by other components:
 
-<div class="include" file="architecture.js" />
+[% excerpt file="architecture.js" %]
 
 <!-- continue -->
 While there isn't a name for this design pattern,
@@ -90,13 +90,13 @@ we will split a class that would normally be written in one piece into several p
 We start by defining a class with an instruction pointer, some registers, and some memory
 along with a prompt for output:
 
-<div class="include" file="vm-base.js" omit="skip" />
+[% excerpt file="vm-base.js" omit="skip" %]
 
 A program is just an array of numbers representing instructions.
 To load one,
 we copy those numbers into memory and reset the instruction pointer and registers:
 
-<div class="include" file="vm-base.js" keep="initialize" />
+[% excerpt file="vm-base.js" keep="initialize" %]
 
 In order to handle the next instruction,
 the VM gets the value in memory that the instruction pointer currently refers to
@@ -105,7 +105,7 @@ It then uses [% i "bitwise operation" %][% g bitwise_operation %]bitwise operati
 to extract the op code and operands from the instruction
 (<a figure="virtual-machine-unpacking"/>):
 
-<div class="include" file="vm-base.js" keep="fetch" />
+[% excerpt file="vm-base.js" keep="fetch" %]
 
 [% figure slug="virtual-machine-unpacking" img="figures/unpacking.svg" alt="Unpacking instructions" caption="Using bitwise operations to unpack instructions." %]
 
@@ -121,13 +121,13 @@ The next step is to extend our base class with one that has a `run` method.
 As its name suggests,
 this runs the program by fetching instructions and executing them until told to stop:
 
-<div class="include" file="vm.js" omit="skip" />
+[% excerpt file="vm.js" omit="skip" %]
 
 Some instructions are very similar to others,
 so we will only look at three here.
 The first stores the value of one register in the address held by another register:
 
-<div class="include" file="vm.js" keep="op_str" />
+[% excerpt file="vm.js" keep="op_str" %]
 
 <!-- continue -->
 The first three lines check that the operation is legal;
@@ -136,12 +136,12 @@ which is why it has nested array indexing.
 
 Adding the value in one register to the value in another register is simpler:
 
-<div class="include" file="vm.js" keep="op_add" />
+[% excerpt file="vm.js" keep="op_add" %]
 
 <!-- continue -->
 as is jumping to a fixed address if the value in a register is zero:
 
-<div class="include" file="vm.js" keep="op_beq" />
+[% excerpt file="vm.js" keep="op_beq" %]
 
 ## What do assembly programs look like? {#virtual-machine-assembly}
 
@@ -154,12 +154,12 @@ which is just a small compiler for a language that very closely represents actua
 Each command in our assembly languages matches an instruction in the VM.
 Here's an assembly language program to print the value stored in R1 and then halt:
 
-<div class="include" file="print-r1.as" />
+[% excerpt file="print-r1.as" %]
 
 <!-- continue -->
 Its numeric representation is:
 
-<div class="include" file="print-r1.mx" />
+[% excerpt file="print-r1.mx" %]
 
 One thing the assembly language has that the instruction set doesn't
 is [% i "label (on address)" %][% g label_address %]labels on addresses[% /g %][% /i %].
@@ -171,7 +171,7 @@ For example,
 this program prints the numbers from 0 to 2
 (<a figure="virtual-machine-count-up"/>):
 
-<div class="include" pat="count-up.*" fill="as mx" />
+[% excerpt pat="count-up.*" fill="as mx" %]
 
 [% figure slug="virtual-machine-count-up" img="figures/count-up.svg" alt="Counting from 0 to 2" caption="Flowchart of assembly language program to count up from 0 to 2." %]
 
@@ -194,29 +194,29 @@ The main method gets interesting lines,
 finds the addresses of labels,
 and turns each remaining line into an instruction:
 
-<div class="include" file="assembler.js" keep="assemble" />
+[% excerpt file="assembler.js" keep="assemble" %]
 
 To find labels,
 we go through the lines one by one
 and either save the label *or* increment the current address
 (because labels don't take up space):
 
-<div class="include" file="assembler.js" keep="find-labels" />
+[% excerpt file="assembler.js" keep="find-labels" %]
 
 To compile a single instruction we break the line into tokens,
 look up the format for the operands,
 and pack them into a single value:
 
-<div class="include" file="assembler.js" keep="compile" />
+[% excerpt file="assembler.js" keep="compile" %]
 
 Combining op codes and operands into a single value
 is the reverse of the unpacking done by the virtual machine:
 
-<div class="include" file="assembler.js" keep="combine" />
+[% excerpt file="assembler.js" keep="combine" %]
 
 Finally, we need few utility functions:
 
-<div class="include" file="assembler.js" keep="utilities" />
+[% excerpt file="assembler.js" keep="utilities" %]
 
 Let's try assembling a program and display its output,
 the registers,
@@ -224,8 +224,8 @@ and the interesting contents of memory.
 As a test,
 this program counts up to three:
 
-<div class="include" file="count-up.as" />
-<div class="include" file="count-up-out.out" />
+[% excerpt file="count-up.as" %]
+[% excerpt file="count-up-out.out" %]
 
 ## How can we store data? {#virtual-machine-data}
 
@@ -247,22 +247,22 @@ This enhancement only requires a few changes to the assembler.
 First,
 we need to split the lines into instructions and data allocations:
 
-<div class="include" file="allocate-data.js" keep="assemble" />
+[% excerpt file="allocate-data.js" keep="assemble" %]
 
-<div class="include" file="allocate-data.js" keep="split-allocations" />
+[% excerpt file="allocate-data.js" keep="split-allocations" %]
 
 Second,
 we need to figure out where each allocation lies and create a label accordingly:
 
-<div class="include" file="allocate-data.js" keep="add-allocations" />
+[% excerpt file="allocate-data.js" keep="add-allocations" %]
 
 And that's it:
 no other changes are needed to either compilation or execution.
 To test it,
 let's fill an array with the numbers from 0 to 3:
 
-<div class="include" file="fill-array.as" />
-<div class="include" file="fill-array-out.out" />
+[% excerpt file="fill-array.as" %]
+[% excerpt file="fill-array-out.out" %]
 
 > ### How does it actually work?
 >

@@ -38,25 +38,25 @@ if this doesn't work,
 nothing will.
 Our test case and the expected output are:
 
-<div class="include" file="single/main.js" />
-<div class="include" file="expected-single.out" />
+[% excerpt file="single/main.js" %]
+[% excerpt file="expected-single.out" %]
 
 In our second test case,
 `main.js` requires `other.js`,
 which doesn't require anything.
 The main file is:
 
-<div class="include" file="simple/main.js" />
+[% excerpt file="simple/main.js" %]
 
 <!-- continue -->
 and the required file is:
 
-<div class="include" file="simple/main.js" />
+[% excerpt file="simple/main.js" %]
 
 <!-- continue -->
 The output we expect is:
 
-<div class="include" file="expected-simple.out" />
+[% excerpt file="expected-simple.out" %]
 
 > ### Why `require`?
 >
@@ -83,13 +83,13 @@ and is shown in <a figure="module-bundler-complicated"/>:
 <!-- continue -->
 The main program is:
 
-<div class="include" file="full/main.js" />
+[% excerpt file="full/main.js" %]
 
 <!-- continue -->
 and the other four files use `require` and `module.exports` to get what they need.
 The output we expect is:
 
-<div class="include" file="expected-full.out" />
+[% excerpt file="expected-full.out" %]
 
 We do not handle circular dependencies
 because `require` itself doesn't (<a section="module-loader"/>).
@@ -100,8 +100,8 @@ To get all the dependencies for one source file,
 we parse it and extract all of the calls to `require`.
 The code to do this is relatively straightforward given what we know about [% i "Acorn" %][Acorn][acorn][% /i %]:
 
-<div class="include" file="get-requires.js" />
-<div class="include" pat="test-get-requires.*" fill="js sh out" />
+[% excerpt file="get-requires.js" %]
+[% excerpt pat="test-get-requires.*" fill="js sh out" %]
 
 > ### An unsolvable problem
 >
@@ -153,8 +153,8 @@ Our code is also complicated by the fact that JavaScript's `Set` class doesn't h
 so we will actually maintain the "set" of pending items as a list.
 The resulting code is:
 
-<div class="include" file="transitive-closure-only.js" />
-<div class="include" pat="test-transitive-closure-only.*" fill="js sh out" />
+[% excerpt file="transitive-closure-only.js" %]
+[% excerpt pat="test-transitive-closure-only.*" fill="js sh out" %]
 
 This works,
 but it isn't keeping track of the mapping from required names within files to absolute paths,
@@ -171,8 +171,8 @@ Adding this takes our transitive closure code from
 <span class="linecount" file="transitive-closure-only.js"/> lines
 to <span class="linecount" file="transitive-closure.js"/> lines:
 
-<div class="include" file="transitive-closure.js" />
-<div class="include" pat="test-transitive-closure.*" fill="js sh out" />
+[% excerpt file="transitive-closure.js" %]
+[% excerpt pat="test-transitive-closure.*" fill="js sh out" %]
 
 <!-- continue -->
 The real cost, though, is the extra complexity of the data structure:
@@ -194,17 +194,17 @@ giving that IIFE a `module` object to fill in
 and an implementation of `require` to resolve dependencies *within the bundle*.
 For example, suppose we have this file:
 
-<div class="include" file="sanity-check-unwrapped.js" />
+[% excerpt file="sanity-check-unwrapped.js" %]
 
 <!-- continue -->
 The wrapped version will look like this:
 
-<div class="include" file="sanity-check-wrapped.js" />
+[% excerpt file="sanity-check-wrapped.js" %]
 
 <!-- continue -->
 And we can test it like this:
 
-<div class="include" pat="sanity-check-test.*" fill="js out" />
+[% excerpt pat="sanity-check-test.*" fill="js out" %]
 
 We need to do this for multiple files,
 so we will put these IIFEs in a lookup table
@@ -212,7 +212,7 @@ that uses the files' absolute paths as its keys.
 We will also wrap loading in a function
 so that we don't accidentally step on anyone else's toys:
 
-<div class="include" file="combine-files.js" />
+[% excerpt file="combine-files.js" %]
 
 Breaking this down,
 the code in `HEAD` creates a function of no arguments
@@ -225,13 +225,13 @@ In between,
 
 We can test that this works in our two-file case:
 
-<div class="include" file="test-combine-files.js" />
-<div class="include" file="test-combine-files-simple.js" />
+[% excerpt file="test-combine-files.js" %]
+[% excerpt file="test-combine-files-simple.js" %]
 
 <!-- continue -->
 and then load the result and call `initialize`:
 
-<div class="include" file="show-combine-files-simple.out" />
+[% excerpt file="show-combine-files-simple.out" %]
 
 ## How can files access each other? {#module-bundler-access}
 
@@ -282,7 +282,7 @@ We also need a third structure:
 a cache for the modules we've already loaded.
 Putting it all together we have:
 
-<div class="include" file="create-bundle.js" />
+[% excerpt file="create-bundle.js" %]
 
 This code is hard to read
 because we have to distinguish what is being printed in the output versus what is being executed right now
@@ -299,25 +299,25 @@ we will look up the function `main` in the first file and call it.
 we'd capture the exports in a variable for later use.)
 First, we create the bundled file:
 
-<div class="include" file="test-create-bundle-single.sh" />
-<div class="include" file="bundle-single.js" />
+[% excerpt file="test-create-bundle-single.sh" %]
+[% excerpt file="bundle-single.js" %]
 
 <!-- continue -->
 and then we run it:
 
-<div class="include" file="test-bundle-single.out" />
+[% excerpt file="test-bundle-single.out" %]
 
 That was a lot of work to print one line,
 but what we have should work for other files.
 The two-file case with `main` and `other` works:
 
-<div class="include" file="bundle-simple.js" />
-<div class="include" file="test-bundle-simple.out" />
+[% excerpt file="bundle-simple.js" %]
+[% excerpt file="test-bundle-simple.out" %]
 
 <!-- continue -->
 and so does our most complicated test with `main` and four other files:
 
-<div class="include" file="test-bundle-full.out" />
+[% excerpt file="test-bundle-full.out" %]
 
 ## Exercises {#module-bundler-exercises}
 

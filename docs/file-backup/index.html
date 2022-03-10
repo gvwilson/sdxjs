@@ -21,8 +21,8 @@
     </div>
 
 <p>Now that we can test software we have something worth saving.
-A <span g="version_control_system" i="version control system">version control system</span>
-like <span i="Git; version control system!Git"><a href="https://git-scm.com/">Git</a></span>
+A <span class="indexref" key="version control system" markdown="1"><a class="glossref" href="../glossary/#version_control_system" markdown="1">version control system</a></span>
+like <span class="indexref" key="Git;version control system!Git" markdown="1"><a href="https://git-scm.com/">Git</a></span>
 keeps track of changes to files
 so that we can recover old versions if we want to.
 Its heart is a way to archive files that:</p>
@@ -36,22 +36,22 @@ Its heart is a way to archive files that:</p>
 It won't do everything Git does:
 in particular, it won't let us create and merge branches.
 If you would like to know how that works,
-please see <span i="Cook, Mary Rose"><a href="https://maryrosecook.com/">Mary Rose Cook</a></span>'s excellent <a href="http://gitlet.maryrosecook.com/">Gitlet</a> project.</p>
+please see <span class="indexref" key="Cook, Mary Rose" markdown="1"><a href="https://maryrosecook.com/">Mary Rose Cook</a></span>'s excellent <a href="http://gitlet.maryrosecook.com/">Gitlet</a> project.</p>
 <h2 id="file-backup-unique">How can we uniquely identify files?</h2>
 <p>To avoid storing redundant copies of files,
 we need a way to tell when two files contain the same data.
 We can't rely on names because files can be renamed or moved over time;
 we could compare the files byte by byte,
-but a quicker way is to use a <span g="hash_function" i="hash function">hash function</span>
+but a quicker way is to use a <span class="indexref" key="hash function" markdown="1"><a class="glossref" href="../glossary/#hash_function" markdown="1">hash function</a></span>
 that turns arbitrary data into a fixed-length string of bits
 (<a figure="file-backup-hash-function"/>).</p>
 <figure id="file-backup-hash-function">
-  <img src="figures/hash-function.svg" alt="Hash functions" />
-  <figcaption>How hash functions speed up lookup.</figcaption>
+  <img src="./figures/hash-function.svg" alt="Hash functions" />
+  <figcaption markdown="1">Figure 5.1: How hash functions speed up lookup.</figcaption>
 </figure>
 
-<p>A hash function always produces the same <span g="hash_code" i="hash code">hash code</span> for a given input.
-A <span g="cryptographic_hash_function" i="cryptographic hash function; hash function!cryptographic">cryptographic hash function</span>
+<p>A hash function always produces the same <span class="indexref" key="hash code" markdown="1"><a class="glossref" href="../glossary/#hash_code" markdown="1">hash code</a></span> for a given input.
+A <span class="indexref" key="cryptographic hash function;hash function!cryptographic" markdown="1"><a class="glossref" href="../glossary/#cryptographic_hash_function" markdown="1">cryptographic hash function</a></span>
 has two extra properties:</p>
 <ol>
 <li>
@@ -66,10 +66,10 @@ has two extra properties:</p>
 </ol>
 <p>It's easy to write a bad hash function,
 but very hard to write one that qualifies as cryptographic.
-We will therefore use a library to calculate 160-bit <span g="sha_1" i="hash code!SHA-1; SHA-1 hash code">SHA-1</span> hashes for our files.
+We will therefore use a library to calculate 160-bit <span class="indexref" key="hash code!SHA-1;SHA-1 hash code" markdown="1"><a class="glossref" href="../glossary/#sha_1" markdown="1">SHA-1</a></span> hashes for our files.
 These are not random enough to keep data secret from a patient, well-funded attacker,
 but that's not what we're using them for:
-we just want hashes that are random to make <span g="collision" i="hash function!collision; collision (in hashing)">collision</span> extremely unlikely.</p>
+we just want hashes that are random to make <span class="indexref" key="hash function!collision;collision (in hashing)" markdown="1"><a class="glossref" href="../glossary/#collision" markdown="1">collision</a></span> extremely unlikely.</p>
 <blockquote>
 <h3>The Birthday Problem</h3>
 <p>The odds that two people share a birthday are 1/365 (ignoring February 29).
@@ -82,7 +82,7 @@ and a 99.9% chance with 70 people.</p>
 <p>We can use the same math to calculate how many files we need to hash before there's a 50% chance of a collision.
 Instead of 365 we use \(2^{160}\) (the number of values that are 160 bits long),
 and after checking <a href="https://en.wikipedia.org/wiki/Birthday_problem#A_simple_exponentiation">Wikipedia</a>
-and doing a few calculations with <span i="Wolfram Alpha"><a href="http://wolframalpha.com">Wolfram Alpha</a></span>,
+and doing a few calculations with <span class="indexref" key="Wolfram Alpha" markdown="1"><a href="http://wolframalpha.com">Wolfram Alpha</a></span>,
 we calculate that we would need to have approximately \(10^{24}\) files
 in order to have a 50% chance of a collision.
 We're willing to take that risk…</p>
@@ -95,37 +95,97 @@ and then feed it some bytes.
 When we are done,
 we call its <code>.end</code> method
 and then use its <code>.read</code> method to get the final result:</p>
-<div class="include" pat="hash-text.*" fill="js sh out" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">crypto</span> <span class="kr">from</span> <span class="s1">&#39;crypto&#39;</span>
+
+<span class="c1">// create a SHA1 hasher</span>
+<span class="kd">const</span> <span class="nx">hash</span> <span class="o">=</span> <span class="nx">crypto</span><span class="p">.</span><span class="nx">createHash</span><span class="p">(</span><span class="s1">&#39;sha1&#39;</span><span class="p">)</span>
+
+<span class="c1">// encode as hex (rather than binary)</span>
+<span class="nx">hash</span><span class="p">.</span><span class="nx">setEncoding</span><span class="p">(</span><span class="s1">&#39;hex&#39;</span><span class="p">)</span>
+
+<span class="c1">// send it some text</span>
+<span class="kd">const</span> <span class="nx">text</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span>
+<span class="nx">hash</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">text</span><span class="p">)</span>
+
+<span class="c1">// signal end of text</span>
+<span class="nx">hash</span><span class="p">.</span><span class="nx">end</span><span class="p">()</span>
+
+<span class="c1">// display the result</span>
+<span class="kd">const</span> <span class="nx">sha1sum</span> <span class="o">=</span> <span class="nx">hash</span><span class="p">.</span><span class="nx">read</span><span class="p">()</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`SHA1 of &quot;</span><span class="si">${</span><span class="nx">text</span><span class="si">}</span><span class="sb">&quot; is </span><span class="si">${</span><span class="nx">sha1sum</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>node hash-text.js something
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>SHA1 of &quot;something&quot; is 1af17e73721dbe0c40011b82ed4bb1a7dbe3ce29
+</code></pre></div>
 
 <p>Hashing a file instead of a fixed string is straightforward:
 we just read the file's contents and pass those characters to the hashing object:</p>
-<div class="include" pat="hash-file.*" fill="js sh out" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">fs</span> <span class="kr">from</span> <span class="s1">&#39;fs&#39;</span>
+<span class="k">import</span> <span class="nx">crypto</span> <span class="kr">from</span> <span class="s1">&#39;crypto&#39;</span>
+
+<span class="kd">const</span> <span class="nx">filename</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span>
+<span class="kd">const</span> <span class="nx">data</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">filename</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+
+<span class="kd">const</span> <span class="nx">hash</span> <span class="o">=</span> <span class="nx">crypto</span><span class="p">.</span><span class="nx">createHash</span><span class="p">(</span><span class="s1">&#39;sha1&#39;</span><span class="p">).</span><span class="nx">setEncoding</span><span class="p">(</span><span class="s1">&#39;hex&#39;</span><span class="p">)</span>
+<span class="nx">hash</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+<span class="nx">hash</span><span class="p">.</span><span class="nx">end</span><span class="p">()</span>
+<span class="kd">const</span> <span class="nx">sha1sum</span> <span class="o">=</span> <span class="nx">hash</span><span class="p">.</span><span class="nx">read</span><span class="p">()</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`SHA1 of &quot;</span><span class="si">${</span><span class="nx">filename</span><span class="si">}</span><span class="sb">&quot; is </span><span class="si">${</span><span class="nx">sha1sum</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>node hash-file.js hash-file.js
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>SHA1 of &quot;hash-file.js&quot; is c54c8ee3e576770d29ae2d0d73568e5a5c49eac0
+</code></pre></div>
 
 <p>However,
-it is more efficient to process the file as a <span g="stream">stream</span>:</p>
-<div class="include" pat="hash-stream.*" fill="js sh out" />
+it is more efficient to process the file as a <a class="glossref" href="../glossary/#stream" markdown="1">stream</a>:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">fs</span> <span class="kr">from</span> <span class="s1">&#39;fs&#39;</span>
+<span class="k">import</span> <span class="nx">crypto</span> <span class="kr">from</span> <span class="s1">&#39;crypto&#39;</span>
+
+<span class="kd">const</span> <span class="nx">filename</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span>
+<span class="kd">const</span> <span class="nx">hash</span> <span class="o">=</span> <span class="nx">crypto</span><span class="p">.</span><span class="nx">createHash</span><span class="p">(</span><span class="s1">&#39;sha1&#39;</span><span class="p">).</span><span class="nx">setEncoding</span><span class="p">(</span><span class="s1">&#39;hex&#39;</span><span class="p">)</span>
+<span class="nx">fs</span><span class="p">.</span><span class="nx">createReadStream</span><span class="p">(</span><span class="nx">filename</span><span class="p">).</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">hash</span><span class="p">)</span>
+<span class="nx">hash</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;finish&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="kr">final</span> <span class="o">=</span> <span class="nx">hash</span><span class="p">.</span><span class="nx">read</span><span class="p">()</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;final&#39;</span><span class="p">,</span> <span class="kr">final</span><span class="p">)</span>
+<span class="p">})</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;program ends&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>node hash-stream.js hash-stream.js
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>program ends
+final dc9e6c231e243860dace2dbf52845b121062b60e
+</code></pre></div>
 
 <!-- continue -->
 <p>This kind of interface is called
-a <span g="streaming_api" i="streaming API; execution!streaming">streaming</span> <span g="api">API</span>
+a <span class="indexref" key="streaming API;execution!streaming" markdown="1"><a class="glossref" href="../glossary/#streaming_api" markdown="1">streaming</a></span> <a class="glossref" href="../glossary/#api" markdown="1">API</a>
 because it is designed to process a stream of data one chunk at a time
 rather than requiring all of the data to be in memory at once.
 Many applications use streams
 so that programs don't have to read entire (possibly large) files into memory.</p>
 <p>To start,
 this program asks the <code>fs</code> library to create a reading stream for a file
-and to <span g="pipe">pipe</span> the data from that stream to the hashing object
+and to <a class="glossref" href="../glossary/#pipe" markdown="1">pipe</a> the data from that stream to the hashing object
 (<a figure="file-backup-streaming"/>).
 It then tells the hashing object what to do when there is no more data
-by providing a <span g="handler" i="event handler!streaming API; streaming API!event handler">handler</span> for the "finish" event.
+by providing a <span class="indexref" key="event handler!streaming API;streaming API!event handler" markdown="1"><a class="glossref" href="../glossary/#handler" markdown="1">handler</a></span> for the "finish" event.
 This is called asynchronously:
 as the output shows,
 the main program ends before the task handling the end of data is scheduled and run.
 Most programs also provide a handler for "data" events to do something with each block of data as it comes in;
 the <code>hash</code> object in our program does that for us.</p>
 <figure id="file-backup-streaming">
-  <img src="figures/streaming.svg" alt="Streaming file operations" />
-  <figcaption>Processing files as streams of chunks.</figcaption>
+  <img src="./figures/streaming.svg" alt="Streaming file operations" />
+  <figcaption markdown="1">Figure 5.2: Processing files as streams of chunks.</figcaption>
 </figure>
 
 <h2 id="file-backup-backup">How can we back up files?</h2>
@@ -142,8 +202,8 @@ To restore a particular snapshot,
 all we have to do is copy the saved <code>.bck</code> files back to where they were
 (<a figure="file-backup-storage"/>).</p>
 <figure id="file-backup-storage">
-  <img src="figures/storage.svg" alt="Backup file storage" />
-  <figcaption>Organization of backup file storage.</figcaption>
+  <img src="./figures/storage.svg" alt="Backup file storage" />
+  <figcaption markdown="1">Figure 5.3: Organization of backup file storage.</figcaption>
 </figure>
 
 <p>We can build the tools we need to do this uses promises (<a section="async-programming"/>).
@@ -160,7 +220,27 @@ and then:</p>
 <p>calculates hashes for those files.</p>
 </li>
 </ol>
-<div class="include" file="hash-existing-promise.js" keep="main" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">fs</span> <span class="kr">from</span> <span class="s1">&#39;fs-extra-promise&#39;</span>
+<span class="k">import</span> <span class="nx">glob</span> <span class="kr">from</span> <span class="s1">&#39;glob-promise&#39;</span>
+<span class="k">import</span> <span class="nx">crypto</span> <span class="kr">from</span> <span class="s1">&#39;crypto&#39;</span>
+
+<span class="kd">const</span> <span class="nx">hashExisting</span> <span class="o">=</span> <span class="p">(</span><span class="nx">rootDir</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">pattern</span> <span class="o">=</span> <span class="sb">`</span><span class="si">${</span><span class="nx">rootDir</span><span class="si">}</span><span class="sb">/**/*`</span>
+  <span class="k">return</span> <span class="ow">new</span> <span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">glob</span><span class="p">(</span><span class="nx">pattern</span><span class="p">,</span> <span class="p">{})</span>
+      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">matches</span> <span class="p">=&gt;</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span>
+        <span class="nx">matches</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">path</span> <span class="p">=&gt;</span> <span class="nx">statPath</span><span class="p">(</span><span class="nx">path</span><span class="p">))))</span>
+      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">pairs</span> <span class="p">=&gt;</span> <span class="nx">pairs</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span>
+        <span class="p">([</span><span class="nx">path</span><span class="p">,</span> <span class="nx">stat</span><span class="p">])</span> <span class="p">=&gt;</span> <span class="nx">stat</span><span class="p">.</span><span class="nx">isFile</span><span class="p">()))</span>
+      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">pairs</span> <span class="p">=&gt;</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span>
+        <span class="nx">pairs</span><span class="p">.</span><span class="nx">map</span><span class="p">(([</span><span class="nx">path</span><span class="p">,</span> <span class="nx">stat</span><span class="p">])</span> <span class="p">=&gt;</span> <span class="nx">readPath</span><span class="p">(</span><span class="nx">path</span><span class="p">))))</span>
+      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">pairs</span> <span class="p">=&gt;</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span>
+        <span class="nx">pairs</span><span class="p">.</span><span class="nx">map</span><span class="p">(([</span><span class="nx">path</span><span class="p">,</span> <span class="nx">content</span><span class="p">])</span> <span class="p">=&gt;</span> <span class="nx">hashPath</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span> <span class="nx">content</span><span class="p">))))</span>
+      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">pairs</span> <span class="p">=&gt;</span> <span class="nx">resolve</span><span class="p">(</span><span class="nx">pairs</span><span class="p">))</span>
+      <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span> <span class="p">=&gt;</span> <span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">))</span>
+  <span class="p">})</span>
+<span class="p">}</span>
+</code></pre></div>
 
 <!-- continue -->
 <p>This function uses <code>Promise.all</code>
@@ -169,38 +249,131 @@ before going on to the next step.
 A different design would combine stat, read, and hash into a single step
 so that each file would be handled independently
 and use one <code>Promise.all</code> at the end to bring them all together.</p>
-<p>The first two <span i="helper function">helper functions</span> that <code>hashExisting</code> relies on
+<p>The first two <span class="indexref" key="helper function" markdown="1">helper functions</span> that <code>hashExisting</code> relies on
 wrap asynchronous operation in promises:</p>
-<div class="include" file="hash-existing-promise.js" keep="helpers" />
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">statPath</span> <span class="o">=</span> <span class="p">(</span><span class="nx">path</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="ow">new</span> <span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">fs</span><span class="p">.</span><span class="nx">statAsync</span><span class="p">(</span><span class="nx">path</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">stat</span> <span class="p">=&gt;</span> <span class="nx">resolve</span><span class="p">([</span><span class="nx">path</span><span class="p">,</span> <span class="nx">stat</span><span class="p">]))</span>
+      <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span> <span class="p">=&gt;</span> <span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">))</span>
+  <span class="p">})</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">readPath</span> <span class="o">=</span> <span class="p">(</span><span class="nx">path</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="ow">new</span> <span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">content</span> <span class="p">=&gt;</span> <span class="nx">resolve</span><span class="p">([</span><span class="nx">path</span><span class="p">,</span> <span class="nx">content</span><span class="p">]))</span>
+      <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span> <span class="p">=&gt;</span> <span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">))</span>
+  <span class="p">})</span>
+<span class="p">}</span>
+</code></pre></div>
 
 <p>The final helper function calculates the hash synchronously,
 but we can use <code>Promise.all</code> to wait on those operations finishing anyway:</p>
-<div class="include" file="hash-existing-promise.js" keep="hashPath" />
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">hashPath</span> <span class="o">=</span> <span class="p">(</span><span class="nx">path</span><span class="p">,</span> <span class="nx">content</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">hasher</span> <span class="o">=</span> <span class="nx">crypto</span><span class="p">.</span><span class="nx">createHash</span><span class="p">(</span><span class="s1">&#39;sha1&#39;</span><span class="p">).</span><span class="nx">setEncoding</span><span class="p">(</span><span class="s1">&#39;hex&#39;</span><span class="p">)</span>
+  <span class="nx">hasher</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">content</span><span class="p">)</span>
+  <span class="nx">hasher</span><span class="p">.</span><span class="nx">end</span><span class="p">()</span>
+  <span class="k">return</span> <span class="p">[</span><span class="nx">path</span><span class="p">,</span> <span class="nx">hasher</span><span class="p">.</span><span class="nx">read</span><span class="p">()]</span>
+<span class="p">}</span>
+</code></pre></div>
 
 <p>Let's try running it:</p>
-<div class="include" pat="run-hash-existing-promise.*" fill="js sh slice.out" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">hashExisting</span> <span class="kr">from</span> <span class="s1">&#39;./hash-existing-promise.js&#39;</span>
+
+<span class="kd">const</span> <span class="nx">root</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span>
+<span class="nx">hashExisting</span><span class="p">(</span><span class="nx">root</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">pairs</span> <span class="p">=&gt;</span> <span class="nx">pairs</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span>
+  <span class="p">([</span><span class="nx">path</span><span class="p">,</span> <span class="nx">hash</span><span class="p">])</span> <span class="p">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span> <span class="nx">hash</span><span class="p">)</span>
+<span class="p">))</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>node run-hash-existing-promise.js . <span class="p">|</span> fgrep -v test/ <span class="p">|</span> fgrep -v <span class="s1">&#39;~&#39;</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>./backup.js 11422489e11be3d8ff76278503457665f6152ebe
+./check-existing-files.js 66b933cf9e792e9a9204171d04e0f8b530ec3f4f
+./figures/hash-function.pdf 0eb82de379a95ee2be3f00b38c0102e2f2f8170e
+./figures/hash-function.svg 563996575d581f2a08e3e954d7faba4d189d0773
+./figures/mock-fs.pdf 0b3bba44e69122ee53bcc9d777c186c84b7c2ff2
+...
+./x-from-to.md f0f63b3576042dfc0050029ddfcccc3c42fe275d
+./x-io-streams.md 1fb4d8b7785c5e7b2f1e29588e2ba28d101ced1a
+./x-json-manifests.md 223e0e4167acc6d4d81b76ba1287b90234c95e22
+./x-mock-hashes.md 580edfc0cb8eaca4f3700307002ae10ee97af8d2
+./x-pre-commit.md b7d945af4554fc0f64b708fe735417bee8b33eef
+</code></pre></div>
 
 <p>The code we have written is clearer than it would be with callbacks
 (try rewriting it if you don't believe this)
 but the layer of promises around everything still obscures its meaning.
 The same operations are easier to read when written using <code>async</code> and <code>await</code>:</p>
-<div class="include" file="hash-existing-async.js" keep="main" />
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">statPath</span> <span class="o">=</span> <span class="k">async</span> <span class="p">(</span><span class="nx">path</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">stat</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">statAsync</span><span class="p">(</span><span class="nx">path</span><span class="p">)</span>
+  <span class="k">return</span> <span class="p">[</span><span class="nx">path</span><span class="p">,</span> <span class="nx">stat</span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">readPath</span> <span class="o">=</span> <span class="k">async</span> <span class="p">(</span><span class="nx">path</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">content</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+  <span class="k">return</span> <span class="p">[</span><span class="nx">path</span><span class="p">,</span> <span class="nx">content</span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">hashPath</span> <span class="o">=</span> <span class="p">(</span><span class="nx">path</span><span class="p">,</span> <span class="nx">content</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">hasher</span> <span class="o">=</span> <span class="nx">crypto</span><span class="p">.</span><span class="nx">createHash</span><span class="p">(</span><span class="s1">&#39;sha1&#39;</span><span class="p">).</span><span class="nx">setEncoding</span><span class="p">(</span><span class="s1">&#39;hex&#39;</span><span class="p">)</span>
+  <span class="nx">hasher</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">content</span><span class="p">)</span>
+  <span class="nx">hasher</span><span class="p">.</span><span class="nx">end</span><span class="p">()</span>
+  <span class="k">return</span> <span class="p">[</span><span class="nx">path</span><span class="p">,</span> <span class="nx">hasher</span><span class="p">.</span><span class="nx">read</span><span class="p">()]</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">hashExisting</span> <span class="o">=</span> <span class="k">async</span> <span class="p">(</span><span class="nx">rootDir</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">pattern</span> <span class="o">=</span> <span class="sb">`</span><span class="si">${</span><span class="nx">rootDir</span><span class="si">}</span><span class="sb">/**/*`</span>
+  <span class="kd">const</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">{}</span>
+  <span class="kd">const</span> <span class="nx">matches</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">glob</span><span class="p">(</span><span class="nx">pattern</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+  <span class="kd">const</span> <span class="nx">stats</span> <span class="o">=</span> <span class="k">await</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">matches</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">path</span> <span class="p">=&gt;</span> <span class="nx">statPath</span><span class="p">(</span><span class="nx">path</span><span class="p">)))</span>
+  <span class="kd">const</span> <span class="nx">files</span> <span class="o">=</span> <span class="nx">stats</span><span class="p">.</span><span class="nx">filter</span><span class="p">(([</span><span class="nx">path</span><span class="p">,</span> <span class="nx">stat</span><span class="p">])</span> <span class="p">=&gt;</span> <span class="nx">stat</span><span class="p">.</span><span class="nx">isFile</span><span class="p">())</span>
+  <span class="kd">const</span> <span class="nx">contents</span> <span class="o">=</span> <span class="k">await</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span>
+    <span class="nx">files</span><span class="p">.</span><span class="nx">map</span><span class="p">(([</span><span class="nx">path</span><span class="p">,</span> <span class="nx">stat</span><span class="p">])</span> <span class="p">=&gt;</span> <span class="nx">readPath</span><span class="p">(</span><span class="nx">path</span><span class="p">)))</span>
+  <span class="kd">const</span> <span class="nx">hashes</span> <span class="o">=</span> <span class="nx">contents</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span>
+    <span class="p">([</span><span class="nx">path</span><span class="p">,</span> <span class="nx">content</span><span class="p">])</span> <span class="p">=&gt;</span> <span class="nx">hashPath</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span> <span class="nx">content</span><span class="p">))</span>
+  <span class="k">return</span> <span class="nx">hashes</span>
+<span class="p">}</span>
+</code></pre></div>
 
 <!-- continue -->
 <p>This version creates and resolves exactly the same promises as the previous one,
 but those promises are created for us automatically by Node.
 To check that it works,
 let's run it for the same input files:</p>
-<div class="include" pat="run-hash-existing-async.*" fill="js sh slice.out" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">hashExisting</span> <span class="kr">from</span> <span class="s1">&#39;./hash-existing-async.js&#39;</span>
+
+<span class="kd">const</span> <span class="nx">root</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span>
+<span class="nx">hashExisting</span><span class="p">(</span><span class="nx">root</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span>
+  <span class="nx">pairs</span> <span class="p">=&gt;</span> <span class="nx">pairs</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(([</span><span class="nx">path</span><span class="p">,</span> <span class="nx">hash</span><span class="p">])</span> <span class="p">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span> <span class="nx">hash</span><span class="p">)))</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>node run-hash-existing-async.js . <span class="p">|</span> fgrep -v test/ <span class="p">|</span> fgrep -v <span class="s1">&#39;~&#39;</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>./backup.js 11422489e11be3d8ff76278503457665f6152ebe
+./check-existing-files.js 66b933cf9e792e9a9204171d04e0f8b530ec3f4f
+./figures/hash-function.pdf 0eb82de379a95ee2be3f00b38c0102e2f2f8170e
+./figures/hash-function.svg 563996575d581f2a08e3e954d7faba4d189d0773
+./figures/mock-fs.pdf 0b3bba44e69122ee53bcc9d777c186c84b7c2ff2
+...
+./x-from-to.md f0f63b3576042dfc0050029ddfcccc3c42fe275d
+./x-io-streams.md 1fb4d8b7785c5e7b2f1e29588e2ba28d101ced1a
+./x-json-manifests.md 223e0e4167acc6d4d81b76ba1287b90234c95e22
+./x-mock-hashes.md 580edfc0cb8eaca4f3700307002ae10ee97af8d2
+./x-pre-commit.md b7d945af4554fc0f64b708fe735417bee8b33eef
+</code></pre></div>
 
 <h2 id="file-backup-track">How can we track which files have already been backed up?</h2>
 <p>The second part of our backup tool keeps track of which files have and haven't been backed up already.
 It stores backups in a directory that contains backup files like <code>abcd1234.bck</code>
 and files describing the contents of particular snapshots.
 The latter are named <code>ssssssssss.csv</code>,
-where <code>ssssssssss</code> is the <span g="utc">UTC</span> <span g="timestamp">timestamp</span> of the backup's creation
-and the <code>.csv</code> extension indicates that the file is formatted as <span g="csv">comma-separated values</span>.
-(We could store these files as <span g="json">JSON</span>, but CSV is easier for people to read.)</p>
+where <code>ssssssssss</code> is the <a class="glossref" href="../glossary/#utc" markdown="1">UTC</a> <a class="glossref" href="../glossary/#timestamp" markdown="1">timestamp</a> of the backup's creation
+and the <code>.csv</code> extension indicates that the file is formatted as <a class="glossref" href="../glossary/#csv" markdown="1">comma-separated values</a>.
+(We could store these files as <a class="glossref" href="../glossary/#json" markdown="1">JSON</a>, but CSV is easier for people to read.)</p>
 <blockquote>
 <h3>Time of check/time of use</h3>
 <p>Our naming convention for index files will fail if we try to create more than one backup per second.
@@ -208,19 +381,60 @@ This might seem very unlikely,
 but many faults and security holes are the result of programmers assuming things weren't going to happen.</p>
 <p>We could try to avoid this problem by using a two-part naming scheme <code>ssssssss-a.csv</code>,
 <code>ssssssss-b.csv</code>, and so on,
-but this leads to a <span g="race_condition" i="race condition">race condition</span>
-called <span g="toctou" i="race condition!time of check/time of use; time of check/time of use">time of check/time of use</span>.
+but this leads to a <span class="indexref" key="race condition" markdown="1"><a class="glossref" href="../glossary/#race_condition" markdown="1">race condition</a></span>
+called <span class="indexref" key="race condition!time of check/time of use;time of check/time of use" markdown="1"><a class="glossref" href="../glossary/#toctou" markdown="1">time of check/time of use</a></span>.
 If two users run the backup tool at the same time,
 they will both see that there isn't a file (yet) with the current timestamp,
 so they will both try to create the first one.</p>
 </blockquote>
-<div class="include" file="check-existing-files.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">glob</span> <span class="kr">from</span> <span class="s1">&#39;glob-promise&#39;</span>
+<span class="k">import</span> <span class="nx">path</span> <span class="kr">from</span> <span class="s1">&#39;path&#39;</span>
+
+<span class="kd">const</span> <span class="nx">findNew</span> <span class="o">=</span> <span class="k">async</span> <span class="p">(</span><span class="nx">rootDir</span><span class="p">,</span> <span class="nx">pathHashPairs</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">hashToPath</span> <span class="o">=</span> <span class="nx">pathHashPairs</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">obj</span><span class="p">,</span> <span class="p">[</span><span class="nx">path</span><span class="p">,</span> <span class="nx">hash</span><span class="p">])</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">obj</span><span class="p">[</span><span class="nx">hash</span><span class="p">]</span> <span class="o">=</span> <span class="nx">path</span>
+    <span class="k">return</span> <span class="nx">obj</span>
+  <span class="p">},</span> <span class="p">{})</span>
+
+  <span class="kd">const</span> <span class="nx">pattern</span> <span class="o">=</span> <span class="sb">`</span><span class="si">${</span><span class="nx">rootDir</span><span class="si">}</span><span class="sb">/*.bck`</span>
+  <span class="kd">const</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">{}</span>
+  <span class="kd">const</span> <span class="nx">existingFiles</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">glob</span><span class="p">(</span><span class="nx">pattern</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+
+  <span class="nx">existingFiles</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">filename</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">stripped</span> <span class="o">=</span> <span class="nx">path</span><span class="p">.</span><span class="nx">basename</span><span class="p">(</span><span class="nx">filename</span><span class="p">).</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/\.bck$/</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="ow">delete</span> <span class="nx">hashToPath</span><span class="p">[</span><span class="nx">stripped</span><span class="p">]</span>
+  <span class="p">})</span>
+
+  <span class="k">return</span> <span class="nx">hashToPath</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">findNew</span>
+</code></pre></div>
 
 <p>To test our program,
 let's manually create testing directories with manufactured (shortened) hashes:</p>
-<div class="include" pat="tree-test.*" fill="sh out" />
+<div class="codehilite"><pre><span></span><code>tree --charset unicode <span class="nb">test</span>
+</code></pre></div>
 
-<p>We use <span i="Mocha"><a href="https://mochajs.org/">Mocha</a></span> to manage our tests.
+<div class="codehilite"><pre><span></span><code>test
+|-- bck-0-csv-0
+|-- bck-1-csv-1
+|   |-- 0001.csv
+|   `-- abcd1234.bck
+|-- bck-4-csv-2
+|   |-- 0001.csv
+|   |-- 3028.csv
+|   |-- 3456cdef.bck
+|   |-- abcd1234.bck
+|   `-- bcde2345.bck
+|-- test-backup.js
+|-- test-find-mock.js
+`-- test-find.js
+
+3 directories, 10 files
+</code></pre></div>
+
+<p>We use <span class="indexref" key="Mocha" markdown="1"><a href="https://mochajs.org/">Mocha</a></span> to manage our tests.
 Every test is an <code>async</code> function;
 Mocha automatically waits for them all to complete before reporting results.
 To run them,
@@ -233,11 +447,63 @@ we add the line:</p>
 so that when we run <code>npm run test</code>,
 Mocha looks for files in <code>test</code> sub-directories of the directories holding our lessons.</p>
 <p>Here are our first few tests:</p>
-<div class="include" file="test/test-find.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">assert</span> <span class="kr">from</span> <span class="s1">&#39;assert&#39;</span>
+
+<span class="k">import</span> <span class="nx">findNew</span> <span class="kr">from</span> <span class="s1">&#39;../check-existing-files.js&#39;</span>
+
+<span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;pre-existing hashes and actual filesystem&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;finds no pre-existing files when none given or exist&#39;</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">expected</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="kd">const</span> <span class="nx">actual</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">findNew</span><span class="p">(</span><span class="s1">&#39;file-backup/test/bck-0-csv-0&#39;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">expected</span><span class="p">,</span> <span class="nx">actual</span><span class="p">,</span>
+      <span class="s1">&#39;Expected no files&#39;</span><span class="p">)</span>
+  <span class="p">})</span>
+
+  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;finds some files when one is given and none exist&#39;</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">check</span> <span class="o">=</span> <span class="p">[[</span><span class="s1">&#39;somefile.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;9876fedc&#39;</span><span class="p">]]</span>
+    <span class="kd">const</span> <span class="nx">expected</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;9876fedc&#39;</span><span class="o">:</span> <span class="s1">&#39;somefile.txt&#39;</span> <span class="p">}</span>
+    <span class="kd">const</span> <span class="nx">actual</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">findNew</span><span class="p">(</span><span class="s1">&#39;file-backup/test/bck-0-csv-0&#39;</span><span class="p">,</span> <span class="nx">check</span><span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">expected</span><span class="p">,</span> <span class="nx">actual</span><span class="p">,</span>
+      <span class="s1">&#39;Expected one file&#39;</span><span class="p">)</span>
+  <span class="p">})</span>
+
+  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;finds nothing needs backup when there is a match&#39;</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">check</span> <span class="o">=</span> <span class="p">[[</span><span class="s1">&#39;alpha.js&#39;</span><span class="p">,</span> <span class="s1">&#39;abcd1234&#39;</span><span class="p">]]</span>
+    <span class="kd">const</span> <span class="nx">expected</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="kd">const</span> <span class="nx">actual</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">findNew</span><span class="p">(</span><span class="s1">&#39;file-backup/test/bck-1-csv-1&#39;</span><span class="p">,</span> <span class="nx">check</span><span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">expected</span><span class="p">,</span> <span class="nx">actual</span><span class="p">,</span>
+      <span class="s1">&#39;Expected no files&#39;</span><span class="p">)</span>
+  <span class="p">})</span>
+
+  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;finds something needs backup when there is a mismatch&#39;</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">check</span> <span class="o">=</span> <span class="p">[[</span><span class="s1">&#39;alpha.js&#39;</span><span class="p">,</span> <span class="s1">&#39;a1b2c3d4&#39;</span><span class="p">]]</span>
+    <span class="kd">const</span> <span class="nx">expected</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">a1b2c3d4</span><span class="o">:</span> <span class="s1">&#39;alpha.js&#39;</span> <span class="p">}</span>
+    <span class="kd">const</span> <span class="nx">actual</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">findNew</span><span class="p">(</span><span class="s1">&#39;file-backup/test/bck-1-csv-1&#39;</span><span class="p">,</span> <span class="nx">check</span><span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">expected</span><span class="p">,</span> <span class="nx">actual</span><span class="p">,</span>
+      <span class="s1">&#39;Expected one file&#39;</span><span class="p">)</span>
+  <span class="p">})</span>
+
+  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;finds mixed matches&#39;</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">check</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="p">[</span><span class="s1">&#39;matches.js&#39;</span><span class="p">,</span> <span class="s1">&#39;3456cdef&#39;</span><span class="p">],</span>
+      <span class="p">[</span><span class="s1">&#39;matches.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;abcd1234&#39;</span><span class="p">],</span>
+      <span class="p">[</span><span class="s1">&#39;mismatch.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;12345678&#39;</span><span class="p">]</span>
+    <span class="p">]</span>
+    <span class="kd">const</span> <span class="nx">expected</span> <span class="o">=</span> <span class="p">{</span> <span class="mf">12345678</span><span class="o">:</span> <span class="s1">&#39;mismatch.txt&#39;</span> <span class="p">}</span>
+    <span class="kd">const</span> <span class="nx">actual</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">findNew</span><span class="p">(</span><span class="s1">&#39;file-backup/test/bck-4-csv-2&#39;</span><span class="p">,</span> <span class="nx">check</span><span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">expected</span><span class="p">,</span> <span class="nx">actual</span><span class="p">,</span>
+      <span class="s1">&#39;Expected one file&#39;</span><span class="p">)</span>
+  <span class="p">})</span>
+<span class="p">})</span>
+</code></pre></div>
 
 <!-- continue -->
 <p>and here is Mocha's report:</p>
-<div class="include" file="test-check-filesystem.out" />
+<div class="codehilite"><pre><span></span><code><span class="o">&gt;</span><span class="w"> </span><span class="n">stjs</span><span class="mf">@1.0.0</span><span class="w"> </span><span class="n">test</span><span class="w"></span>
+<span class="o">&gt;</span><span class="w"> </span><span class="n">mocha</span><span class="w"> </span><span class="o">*/</span><span class="n">test</span><span class="o">/</span><span class="n">test</span><span class="o">-*</span><span class="p">.</span><span class="n">js</span><span class="w"> </span><span class="s">&quot;-g&quot;</span><span class="w"> </span><span class="s">&quot;pre-existing hashes&quot;</span><span class="w"></span>
+
+<span class="nl">sh</span><span class="p">:</span><span class="w"> </span><span class="n">mocha</span><span class="o">:</span><span class="w"> </span><span class="n">command</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">found</span><span class="w"></span>
+</code></pre></div>
 
 <h2 id="file-backup-test">How can we test code that modifies files?</h2>
 <p>The final thing our tool needs to do
@@ -247,7 +513,7 @@ but testing will be complicated by the fact
 that our tests will need to create directories and files before they run
 and then delete them afterward
 (so that they don't contaminate subsequent tests).</p>
-<p>A better approach is to use a <span g="mock_object" i="mock object!for testing; unit test!using mock object">mock object</span>
+<p>A better approach is to use a <span class="indexref" key="mock object!for testing;unit test!using mock object" markdown="1"><a class="glossref" href="../glossary/#mock_object" markdown="1">mock object</a></span>
 instead of the real filesystem.
 A mock object has the same interface as the function, object, class, or library that it replaces,
 but is designed to be used solely for testing.
@@ -258,38 +524,217 @@ This prevents our tests from accidentally disturbing the filesystem,
 and also makes tests much faster
 (since in-memory operations are thousands of times faster than operations that touch the disk).</p>
 <figure id="file-backup-mock-fs">
-  <img src="figures/mock-fs.svg" alt="Mock filesystem" />
-  <figcaption>Using a mock filesystem to simplify testing.</figcaption>
+  <img src="./figures/mock-fs.svg" alt="Mock filesystem" />
+  <figcaption markdown="1">Figure 5.4: Using a mock filesystem to simplify testing.</figcaption>
 </figure>
 
 <p>We can create a mock filesystem by giving the library a JSON description of
 the files and what they should contain:</p>
-<div class="include" file="test/test-find-mock.js" omit="tests" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">assert</span> <span class="kr">from</span> <span class="s1">&#39;assert&#39;</span>
+<span class="k">import</span> <span class="nx">mock</span> <span class="kr">from</span> <span class="s1">&#39;mock-fs&#39;</span>
+
+<span class="k">import</span> <span class="nx">findNew</span> <span class="kr">from</span> <span class="s1">&#39;../check-existing-files.js&#39;</span>
+
+<span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;checks for pre-existing hashes using mock filesystem&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">beforeEach</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">mock</span><span class="p">({</span>
+      <span class="s1">&#39;bck-0-csv-0&#39;</span><span class="o">:</span> <span class="p">{},</span>
+      <span class="s1">&#39;bck-1-csv-1&#39;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s1">&#39;0001.csv&#39;</span><span class="o">:</span> <span class="s1">&#39;alpha.js,abcd1234&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;abcd1234.bck&#39;</span><span class="o">:</span> <span class="s1">&#39;alpha.js content&#39;</span>
+      <span class="p">},</span>
+      <span class="s1">&#39;bck-4-csv-2&#39;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s1">&#39;0001.csv&#39;</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;alpha.js,abcd1234&#39;</span><span class="p">,</span>
+          <span class="s1">&#39;beta.txt,bcde2345&#39;</span><span class="p">].</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;\n&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;3024.csv&#39;</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;alpha.js,abcd1234&#39;</span><span class="p">,</span>
+          <span class="s1">&#39;gamma.png,3456cdef&#39;</span><span class="p">,</span>
+          <span class="s1">&#39;subdir/renamed.txt,bcde2345&#39;</span><span class="p">].</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;\n&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;3456cdef.bck&#39;</span><span class="o">:</span> <span class="s1">&#39;gamma.png content&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;abcd1234.bck&#39;</span><span class="o">:</span> <span class="s1">&#39;alpha content&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;bcde2345.bck&#39;</span><span class="o">:</span> <span class="s1">&#39;beta.txt became subdir/renamed.txt&#39;</span>
+      <span class="p">}</span>
+    <span class="p">})</span>
+  <span class="p">})</span>
+
+  <span class="nx">afterEach</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">mock</span><span class="p">.</span><span class="nx">restore</span><span class="p">()</span>
+  <span class="p">})</span>
+
+<span class="p">})</span>
+</code></pre></div>
 
 <!-- continue -->
-<p><span i="Mocha!beforeEach">Mocha</span> automatically calls <code>beforeEach</code> before running each tests,
-and <span i="Mocha!afterEach"><code>afterEach</code></span> after each tests completes
-(which is yet another <span i="protocol!for unit testing">protocol</span>).
+<p><span class="indexref" key="Mocha!beforeEach" markdown="1">Mocha</span> automatically calls <code>beforeEach</code> before running each tests,
+and <span class="indexref" key="Mocha!afterEach" markdown="1"><code>afterEach</code></span> after each tests completes
+(which is yet another <span class="indexref" key="protocol!for unit testing" markdown="1">protocol</span>).
 All of the tests stay exactly the same,
 and since <code>mock-fs</code> replaces the functions in the standard <code>fs</code> library with its own,
 nothing in our application needs to change either.</p>
 <p>We are finally ready to write the program that actually backs up files:</p>
-<div class="include" file="backup.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">fs</span> <span class="kr">from</span> <span class="s1">&#39;fs-extra-promise&#39;</span>
+
+<span class="k">import</span> <span class="nx">hashExisting</span> <span class="kr">from</span> <span class="s1">&#39;./hash-existing-async.js&#39;</span>
+<span class="k">import</span> <span class="nx">findNew</span> <span class="kr">from</span> <span class="s1">&#39;./check-existing-files.js&#39;</span>
+
+<span class="kd">const</span> <span class="nx">backup</span> <span class="o">=</span> <span class="k">async</span> <span class="p">(</span><span class="nx">src</span><span class="p">,</span> <span class="nx">dst</span><span class="p">,</span> <span class="nx">timestamp</span> <span class="o">=</span> <span class="kc">null</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">timestamp</span> <span class="o">===</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">timestamp</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">((</span><span class="ow">new</span> <span class="nb">Date</span><span class="p">()).</span><span class="nx">getTime</span><span class="p">()</span> <span class="o">/</span> <span class="mf">1000</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="nx">timestamp</span> <span class="o">=</span> <span class="nb">String</span><span class="p">(</span><span class="nx">timestamp</span><span class="p">).</span><span class="nx">padStart</span><span class="p">(</span><span class="mf">10</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">)</span>
+
+  <span class="kd">const</span> <span class="nx">existing</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">hashExisting</span><span class="p">(</span><span class="nx">src</span><span class="p">)</span>
+  <span class="kd">const</span> <span class="nx">needToCopy</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">findNew</span><span class="p">(</span><span class="nx">dst</span><span class="p">,</span> <span class="nx">existing</span><span class="p">)</span>
+  <span class="k">await</span> <span class="nx">copyFiles</span><span class="p">(</span><span class="nx">dst</span><span class="p">,</span> <span class="nx">needToCopy</span><span class="p">)</span>
+  <span class="k">await</span> <span class="nx">saveManifest</span><span class="p">(</span><span class="nx">dst</span><span class="p">,</span> <span class="nx">timestamp</span><span class="p">,</span> <span class="nx">existing</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">copyFiles</span> <span class="o">=</span> <span class="k">async</span> <span class="p">(</span><span class="nx">dst</span><span class="p">,</span> <span class="nx">needToCopy</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">promises</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">needToCopy</span><span class="p">).</span><span class="nx">map</span><span class="p">(</span><span class="nx">hash</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">srcPath</span> <span class="o">=</span> <span class="nx">needToCopy</span><span class="p">[</span><span class="nx">hash</span><span class="p">]</span>
+    <span class="kd">const</span> <span class="nx">dstPath</span> <span class="o">=</span> <span class="sb">`</span><span class="si">${</span><span class="nx">dst</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">hash</span><span class="si">}</span><span class="sb">.bck`</span>
+    <span class="nx">fs</span><span class="p">.</span><span class="nx">copyFileAsync</span><span class="p">(</span><span class="nx">srcPath</span><span class="p">,</span> <span class="nx">dstPath</span><span class="p">)</span>
+  <span class="p">})</span>
+  <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">promises</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">saveManifest</span> <span class="o">=</span> <span class="k">async</span> <span class="p">(</span><span class="nx">dst</span><span class="p">,</span> <span class="nx">timestamp</span><span class="p">,</span> <span class="nx">pathHash</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">pathHash</span> <span class="o">=</span> <span class="nx">pathHash</span><span class="p">.</span><span class="nx">sort</span><span class="p">()</span>
+  <span class="kd">const</span> <span class="nx">content</span> <span class="o">=</span> <span class="nx">pathHash</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span>
+    <span class="p">([</span><span class="nx">path</span><span class="p">,</span> <span class="nx">hash</span><span class="p">])</span> <span class="p">=&gt;</span> <span class="sb">`</span><span class="si">${</span><span class="nx">path</span><span class="si">}</span><span class="sb">,</span><span class="si">${</span><span class="nx">hash</span><span class="si">}</span><span class="sb">`</span><span class="p">).</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;\n&#39;</span><span class="p">)</span>
+  <span class="kd">const</span> <span class="nx">manifest</span> <span class="o">=</span> <span class="sb">`</span><span class="si">${</span><span class="nx">dst</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">timestamp</span><span class="si">}</span><span class="sb">.csv`</span>
+  <span class="nx">fs</span><span class="p">.</span><span class="nx">writeFileAsync</span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span> <span class="nx">content</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">backup</span>
+</code></pre></div>
 
 <p>The tests for this are more complicated than tests we have written previously
 because we want to check with actual file hashes.
 Let's set up some fixtures to run tests on:</p>
-<div class="include" file="test/test-backup.js" keep="fixtures" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">backup</span> <span class="kr">from</span> <span class="s1">&#39;../backup.js&#39;</span>
+
+<span class="kd">const</span> <span class="nx">hashString</span> <span class="o">=</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">hasher</span> <span class="o">=</span> <span class="nx">crypto</span><span class="p">.</span><span class="nx">createHash</span><span class="p">(</span><span class="s1">&#39;sha1&#39;</span><span class="p">).</span><span class="nx">setEncoding</span><span class="p">(</span><span class="s1">&#39;hex&#39;</span><span class="p">)</span>
+  <span class="nx">hasher</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+  <span class="nx">hasher</span><span class="p">.</span><span class="nx">end</span><span class="p">()</span>
+  <span class="k">return</span> <span class="nx">hasher</span><span class="p">.</span><span class="nx">read</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">Contents</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">aaa</span><span class="o">:</span> <span class="s1">&#39;AAA&#39;</span><span class="p">,</span>
+  <span class="nx">bbb</span><span class="o">:</span> <span class="s1">&#39;BBB&#39;</span><span class="p">,</span>
+  <span class="nx">ccc</span><span class="o">:</span> <span class="s1">&#39;CCC&#39;</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">Hashes</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">Contents</span><span class="p">).</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">obj</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">obj</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">hashString</span><span class="p">(</span><span class="nx">Contents</span><span class="p">[</span><span class="nx">key</span><span class="p">])</span>
+  <span class="k">return</span> <span class="nx">obj</span>
+<span class="p">},</span> <span class="p">{})</span>
+
+<span class="kd">const</span> <span class="nx">Fixture</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">source</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s1">&#39;alpha.txt&#39;</span><span class="o">:</span> <span class="nx">Contents</span><span class="p">.</span><span class="nx">aaa</span><span class="p">,</span>
+    <span class="s1">&#39;beta.txt&#39;</span><span class="o">:</span> <span class="nx">Contents</span><span class="p">.</span><span class="nx">bbb</span><span class="p">,</span>
+    <span class="nx">gamma</span><span class="o">:</span> <span class="p">{</span>
+      <span class="s1">&#39;delta.txt&#39;</span><span class="o">:</span> <span class="nx">Contents</span><span class="p">.</span><span class="nx">ccc</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nx">backup</span><span class="o">:</span> <span class="p">{}</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">InitialBackups</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">Hashes</span><span class="p">).</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">set</span><span class="p">,</span> <span class="nx">filename</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">set</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="sb">`backup/</span><span class="si">${</span><span class="nx">Hashes</span><span class="p">[</span><span class="nx">filename</span><span class="p">]</span><span class="si">}</span><span class="sb">.bck`</span><span class="p">)</span>
+  <span class="k">return</span> <span class="nx">set</span>
+<span class="p">},</span> <span class="ow">new</span> <span class="nb">Set</span><span class="p">())</span>
+</code></pre></div>
 
 <!-- continue -->
 <p>and then run some tests:</p>
-<div class="include" file="test/test-backup.js" keep="tests" />
-<div class="include" file="test-backup.out" />
+<div class="codehilite"><pre><span></span><code><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;check entire backup process&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">beforeEach</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">mock</span><span class="p">(</span><span class="nx">Fixture</span><span class="p">)</span>
+  <span class="p">})</span>
+
+  <span class="nx">afterEach</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">mock</span><span class="p">.</span><span class="nx">restore</span><span class="p">()</span>
+  <span class="p">})</span>
+
+  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;creates an initial CSV manifest&#39;</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="k">await</span> <span class="nx">backup</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">,</span> <span class="s1">&#39;backup&#39;</span><span class="p">,</span> <span class="mf">0</span><span class="p">)</span>
+
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">((</span><span class="k">await</span> <span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*&#39;</span><span class="p">)).</span><span class="nx">length</span><span class="p">,</span> <span class="mf">4</span><span class="p">,</span>
+      <span class="s1">&#39;Expected 4 files&#39;</span><span class="p">)</span>
+
+    <span class="kd">const</span> <span class="nx">actualBackups</span> <span class="o">=</span> <span class="ow">new</span> <span class="nb">Set</span><span class="p">(</span><span class="k">await</span> <span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*.bck&#39;</span><span class="p">))</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">actualBackups</span><span class="p">,</span> <span class="nx">InitialBackups</span><span class="p">,</span>
+      <span class="s1">&#39;Expected 3 backup files&#39;</span><span class="p">)</span>
+
+    <span class="kd">const</span> <span class="nx">actualManifests</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*.csv&#39;</span><span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">actualManifests</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;backup/0000000000.csv&#39;</span><span class="p">],</span>
+      <span class="s1">&#39;Expected one manifest&#39;</span><span class="p">)</span>
+  <span class="p">})</span>
+
+  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;does not duplicate files unnecessarily&#39;</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="k">await</span> <span class="nx">backup</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">,</span> <span class="s1">&#39;backup&#39;</span><span class="p">,</span> <span class="mf">0</span><span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">((</span><span class="k">await</span> <span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*&#39;</span><span class="p">)).</span><span class="nx">length</span><span class="p">,</span> <span class="mf">4</span><span class="p">,</span>
+      <span class="s1">&#39;Expected 4 files after first backup&#39;</span><span class="p">)</span>
+
+    <span class="k">await</span> <span class="nx">backup</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">,</span> <span class="s1">&#39;backup&#39;</span><span class="p">,</span> <span class="mf">1</span><span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">((</span><span class="k">await</span> <span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*&#39;</span><span class="p">)).</span><span class="nx">length</span><span class="p">,</span> <span class="mf">5</span><span class="p">,</span>
+      <span class="s1">&#39;Expected 5 files after second backup&#39;</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="nx">actualBackups</span> <span class="o">=</span> <span class="ow">new</span> <span class="nb">Set</span><span class="p">(</span><span class="k">await</span> <span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*.bck&#39;</span><span class="p">))</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">actualBackups</span><span class="p">,</span> <span class="nx">InitialBackups</span><span class="p">,</span>
+      <span class="s1">&#39;Expected 3 backup files after second backup&#39;</span><span class="p">)</span>
+
+    <span class="kd">const</span> <span class="nx">actualManifests</span> <span class="o">=</span> <span class="p">(</span><span class="k">await</span> <span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*.csv&#39;</span><span class="p">)).</span><span class="nx">sort</span><span class="p">()</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">actualManifests</span><span class="p">,</span>
+      <span class="p">[</span><span class="s1">&#39;backup/0000000000.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;backup/0000000001.csv&#39;</span><span class="p">],</span>
+      <span class="s1">&#39;Expected two manifests&#39;</span><span class="p">)</span>
+  <span class="p">})</span>
+
+  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;adds a file as needed&#39;</span><span class="p">,</span> <span class="k">async</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="k">await</span> <span class="nx">backup</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">,</span> <span class="s1">&#39;backup&#39;</span><span class="p">,</span> <span class="mf">0</span><span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">((</span><span class="k">await</span> <span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*&#39;</span><span class="p">)).</span><span class="nx">length</span><span class="p">,</span> <span class="mf">4</span><span class="p">,</span>
+      <span class="s1">&#39;Expected 4 files after first backup&#39;</span><span class="p">)</span>
+
+    <span class="k">await</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">writeFileAsync</span><span class="p">(</span><span class="s1">&#39;source/newfile.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;NNN&#39;</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="nx">hashOfNewFile</span> <span class="o">=</span> <span class="nx">hashString</span><span class="p">(</span><span class="s1">&#39;NNN&#39;</span><span class="p">)</span>
+
+    <span class="k">await</span> <span class="nx">backup</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">,</span> <span class="s1">&#39;backup&#39;</span><span class="p">,</span> <span class="mf">1</span><span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">((</span><span class="k">await</span> <span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*&#39;</span><span class="p">)).</span><span class="nx">length</span><span class="p">,</span> <span class="mf">6</span><span class="p">,</span>
+      <span class="s1">&#39;Expected 6 files after second backup&#39;</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="nx">expected</span> <span class="o">=</span> <span class="ow">new</span> <span class="nb">Set</span><span class="p">(</span><span class="nx">InitialBackups</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="sb">`backup/</span><span class="si">${</span><span class="nx">hashOfNewFile</span><span class="si">}</span><span class="sb">.bck`</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="nx">actualBackups</span> <span class="o">=</span> <span class="ow">new</span> <span class="nb">Set</span><span class="p">(</span><span class="k">await</span> <span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*.bck&#39;</span><span class="p">))</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">actualBackups</span><span class="p">,</span> <span class="nx">expected</span><span class="p">,</span>
+      <span class="s1">&#39;Expected 4 backup files after second backup&#39;</span><span class="p">)</span>
+
+    <span class="kd">const</span> <span class="nx">actualManifests</span> <span class="o">=</span> <span class="p">(</span><span class="k">await</span> <span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*.csv&#39;</span><span class="p">)).</span><span class="nx">sort</span><span class="p">()</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">actualManifests</span><span class="p">,</span>
+      <span class="p">[</span><span class="s1">&#39;backup/0000000000.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;backup/0000000001.csv&#39;</span><span class="p">],</span>
+      <span class="s1">&#39;Expected two manifests&#39;</span><span class="p">)</span>
+  <span class="p">})</span>
+<span class="p">})</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="o">&gt;</span><span class="w"> </span><span class="n">stjs</span><span class="mf">@1.0.0</span><span class="w"> </span><span class="n">test</span><span class="w"></span>
+<span class="o">&gt;</span><span class="w"> </span><span class="n">mocha</span><span class="w"> </span><span class="o">*/</span><span class="n">test</span><span class="o">/</span><span class="n">test</span><span class="o">-*</span><span class="p">.</span><span class="n">js</span><span class="w"> </span><span class="s">&quot;-g&quot;</span><span class="w"> </span><span class="s">&quot;check entire backup process&quot;</span><span class="w"></span>
+
+
+
+<span class="w">  </span><span class="n">check</span><span class="w"> </span><span class="n">entire</span><span class="w"> </span><span class="n">backup</span><span class="w"> </span><span class="n">process</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">creates</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">initial</span><span class="w"> </span><span class="n">CSV</span><span class="w"> </span><span class="n">manifest</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">does</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">duplicate</span><span class="w"> </span><span class="n">files</span><span class="w"> </span><span class="n">unnecessarily</span><span class="w"></span>
+<span class="w">    </span><span class="err">✓</span><span class="w"> </span><span class="n">adds</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">needed</span><span class="w"></span>
+
+
+<span class="w">  </span><span class="mi">3</span><span class="w"> </span><span class="n">passing</span><span class="w"> </span><span class="p">(</span><span class="mi">18</span><span class="n">ms</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
 
 <blockquote>
 <h3>Design for test</h3>
 <p>One of the best ways---maybe <em>the</em> best way---to evaluate software design
-is by thinking about <span i="testability!as design criterion; software design!testability">testability</span> <cite>Feathers2004</cite>.
+is by thinking about <span class="indexref" key="testability!as design criterion;software design!testability" markdown="1">testability</span> [<a href="../bibliography/#Feathers2004">Feathers2004</a>].
 We were able to use a mock filesystem instead of a real one
 because the filesystem has a well-defined API
 that is provided to us in a single library,
@@ -353,7 +798,7 @@ Why doesn't this solve the time of check/time of use race condition mentioned ea
 <li>
 <p>Write another program called <code>migrate.js</code> that converts a set of manifests
     from CSV to JSON.
-    (The program's name comes from the term <span g="data_migration">data migration</span>.)</p>
+    (The program's name comes from the term <a class="glossref" href="../glossary/#data_migration" markdown="1">data migration</a>.)</p>
 </li>
 <li>
 <p>Modify <code>backup.js</code> programs so that each manifest stores the user name of the person who created it

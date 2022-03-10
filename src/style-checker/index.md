@@ -46,7 +46,7 @@ ASTs can be quite complex---for example,
 the JSON representation of the AST for a single constant declaration
 is <span class="linecount" file="parse-single-const.out"/> lines long:
 
-<div class="include" pat="parse-single-const.*" fill="js slice.out" />
+[% excerpt pat="parse-single-const.*" fill="js slice.out" %]
 
 Acorn's output is in [% i "Esprima format" %][Esprima][esprima] format[% /i %]
 (so-called because it was originally defined by a tool with that name).
@@ -55,7 +55,7 @@ but we can usually figure out most of what we need by inspection.
 For example,
 here is the output for a <span class="linecount" file="parse-const-func.js"/>-line program:
 
-<div class="include" pat="parse-const-func.*" fill="js slice.out" />
+[% excerpt pat="parse-const-func.*" fill="js slice.out" %]
 
 <!-- continue -->
 Yes, it really is almost 500 lines long…
@@ -79,7 +79,7 @@ and report them all at the end
 
 [% figure slug="style-checker-walk-tree" img="figures/walk-tree.svg" alt="Walking a tree" caption="Walking a tree to perform an operation at each node." %]
 
-<div class="include" pat="walk-ast.*" fill="js out" />
+[% excerpt pat="walk-ast.*" fill="js out" %]
 
 > ### There's more than one way to do it
 >
@@ -130,11 +130,11 @@ and then append this node to it.
 This "create storage space on demand" pattern
 is widely used but doesn't have a well-known name.
 
-<div class="include" file="check-name-lengths.js" keep="applyCheck" />
+[% excerpt file="check-name-lengths.js" keep="applyCheck" %]
 
 We can now put a call to `applyCheck` inside the handler for `Identifier`:
 
-<div class="include" file="check-name-lengths.js" keep="main" />
+[% excerpt file="check-name-lengths.js" keep="main" %]
 
 <!-- continue -->
 We can't just use `applyCheck` as the handler for `Identifier`
@@ -145,7 +145,7 @@ to the already-written code that is going to call it.
 
 The output for the same sample program as before is:
 
-<div class="include" file="check-name-lengths.out" />
+[% excerpt file="check-name-lengths.out" %]
 
 <!-- continue -->
 The exercises will ask why the parameter `x` doesn't show up
@@ -183,16 +183,16 @@ we can also look them up by asking for `object[name]`
 in the same way that we would look up any other property of any other object.
 Our completed class looks like this:
 
-<div class="include" file="walker-class.js" keep="walker" />
+[% excerpt file="walker-class.js" keep="walker" %]
 
 The code we need to use it is:
 
-<div class="include" file="walker-class.js" omit="walker" />
+[% excerpt file="walker-class.js" omit="walker" %]
 
 <!-- continue -->
 and its output is:
 
-<div class="include" file="walker-class.out" />
+[% excerpt file="walker-class.out" %]
 
 We think this approach to implementing the Visitor pattern is easier to understand and extend
 than one that relies on callbacks,
@@ -220,7 +220,7 @@ If we declare a function using `function *` (with an asterisk) instead of `funct
 then we can use the `yield` keyword to return a value and suspend processing to be resumed later.
 The result of `yield` is a two-part structure with a value and a flag showing whether or not processing is done:
 
-<div class="include" pat="generator-example.*" fill="js out" />
+[% excerpt pat="generator-example.*" fill="js out" %]
 
 <!-- continue -->
 A generator function doesn't actually generate anything;
@@ -231,33 +231,33 @@ This gives us a way to have several generators in play at the same time.
 As another example,
 this generator takes a string and produces its vowels one by one:
 
-<div class="include" pat="generator-vowels-while.*" fill="js out" />
+[% excerpt pat="generator-vowels-while.*" fill="js out" %]
 
 Instead of a `while` loop it is much more common to use `for...of`,
 which knows how to work with generators:
 
-<div class="include" file="generator-vowels-for.js" keep="loop" />
+[% excerpt file="generator-vowels-for.js" keep="loop" %]
 
 Finally,
 just as `function *` says "this function is a generator",
 `yield *` says "yield the values from a nested generator one by one".
 We can use it to walk irregular structures like nested arrays:
 
-<div class="include" file="generator-tree.js" />
+[% excerpt file="generator-tree.js" %]
 
 Let's use generators to count the number of expressions of various types in a program.
 The generator function that visits each node is:
 
-<div class="include" file="generator-count.js" keep="generator" />
+[% excerpt file="generator-count.js" keep="generator" %]
 
 <!-- continue -->
 and the program that uses it is:
 
-<div class="include" file="generator-count.js" keep="main" />
+[% excerpt file="generator-count.js" keep="main" %]
 
 When we run it with our usual test program as input, we get:
 
-<div class="include" file="generator-count.out" />
+[% excerpt file="generator-count.out" %]
 
 Generators are a clean solution to many hard problems,
 but we find it more difficult to check variable identifiers using generators
@@ -279,27 +279,27 @@ that we lost track of what was defined where.)
 To create a table of method definitions,
 we first need to find the ancestors of the last class in the hierarchy:
 
-<div class="include" file="find-ancestors.js" omit="skip" />
+[% excerpt file="find-ancestors.js" omit="skip" %]
 
 Finding class definitions is a straightforward extension of what we have already done:
 
-<div class="include" file="find-ancestors.js" keep="findClassDef" />
+[% excerpt file="find-ancestors.js" keep="findClassDef" %]
 
 To test this code, we start with the last of these three short files:
 
-<div class="include" pat="*.js" fill="upper middle lower" />
-<div class="include" file="run-find-ancestors.out" />
+[% excerpt pat="*.js" fill="upper middle lower" %]
+[% excerpt file="run-find-ancestors.out" %]
 
 Good: we can recover the [% i "chain of inheritance" %]chain of inheritance[% /i %].
 Finding method definitions is also straightforward:
 
-<div class="include" file="find-methods.js" />
+[% excerpt file="find-methods.js" %]
 
 And finally,
 we can print a [% i "Markdown" %][% g markdown %]Markdown[% /g %][% /i %]-formatted table
 showing which methods are defined in which class:
 
-<div class="include" file="run-find-methods.raw.out" />
+[% excerpt file="run-find-methods.raw.out" %]
 
 <!-- continue -->
 which renders as:
@@ -367,7 +367,7 @@ that exports a class derived from `Walker` called `Check`
 that implements the checks the user wants.
 The other command-line arguments must be the names of JavaScript source files to be checked:
 
-<div class="include" file="x-across-files/sniff.sh"/>
+[% excerpt file="x-across-files/sniff.sh" %]
 
 ### Finding assertions {.exercise}
 

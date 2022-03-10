@@ -25,7 +25,7 @@ The special comments in our source files contain two fields:
 the text to put in the displayed version
 and file to include when loading:
 
-<div class="include" file="interpolation-example.js" />
+[% excerpt file="interpolation-example.js" %]
 
 We got this to work,
 but decided to use a different approach in this book.
@@ -73,7 +73,7 @@ which takes a string as input and executes it as if it were part of the program
 To see `eval` in action,
 let's evaluate an expression:
 
-<div class="include" pat="eval-two-plus-two.*" fill="js out" />
+[% excerpt pat="eval-two-plus-two.*" fill="js out" %]
 
 <!-- continue -->
 Notice that the input to `eval` is *not* `2 + 2`,
@@ -90,7 +90,7 @@ and immediately runs the result.
 We can make the example a little more interesting
 by constructing the string dynamically:
 
-<div class="include" pat="eval-loop.*" fill="js out" />
+[% excerpt pat="eval-loop.*" fill="js out" %]
 
 <!-- continue -->
 The first time the loop runs the string is `'x + 1'`;
@@ -108,37 +108,37 @@ but as the output shows,
 just as variables created inside a function
 only exist during a call to that function:
 
-<div class="include" pat="eval-local-vars.*" fill="js out" />
+[% excerpt pat="eval-local-vars.*" fill="js out" %]
 
 However,
 `eval` can modify variables defined outside the text being evaluated
 in the same way that a function can modify global variables:
 
-<div class="include" pat="eval-global-vars.*" fill="js out" />
+[% excerpt pat="eval-global-vars.*" fill="js out" %]
 
 <!-- continue -->
 This means that
 if the text we give to `eval` modifies a structure that is defined outside the text,
 that change outlives the call to `eval`:
 
-<div class="include" pat="eval-global-structure.*" fill="js out" />
+[% excerpt pat="eval-global-structure.*" fill="js out" %]
 
 The examples so far have all evaluated strings embedded in the program itself,
 but `eval` doesn't care where its input comes from.
 Let's move the code that does the modifying into `to-be-loaded.js`:
 
-<div class="include" file="to-be-loaded.js" />
+[% excerpt file="to-be-loaded.js" %]
 
 <!-- continue -->
 This doesn't work on its own because `Seen` isn't defined:
 
-<div class="include" file="to-be-loaded.out" />
+[% excerpt file="to-be-loaded.out" %]
 
 <!-- continue -->
 But if we read the file and `eval` the text *after* defining `Seen`,
 it does what we want:
 
-<div class="include" pat="does-the-loading.*" fill="js sh out" />
+[% excerpt pat="does-the-loading.*" fill="js sh out" %]
 
 ## How can we manage files? {#file-interpolator-manage}
 
@@ -162,7 +162,7 @@ using the file path as a lookup key.
 
 We can write a simple cache in just a few lines of code:
 
-<div class="include" file="need-simple.js" />
+[% excerpt file="need-simple.js" %]
 
 Since we are using `eval`, though,
 we can't rely on `export` to make things available to the rest of the program.
@@ -173,7 +173,7 @@ Since a variable name on its own evaluates to the variable's value,
 we can create a function and then use its name
 to "export" it from the evaluated file:
 
-<div class="include" file="import-simple.js" />
+[% excerpt file="import-simple.js" %]
 
 To test our program,
 we load the implementation of the cache using `import`,
@@ -181,7 +181,7 @@ then use it to load and evaluate another file.
 This example expects that "other file" to define a function,
 which we call in order to show that everything is working:
 
-<div class="include" pat="test-simple.*" fill="js sh" />
+[% excerpt pat="test-simple.*" fill="js sh" %]
 
 ## How can we find files? {#file-interpolator-find}
 
@@ -224,7 +224,7 @@ Since the cache is responsible for finding files,
 it should also handle the search path.
 The outline of the class stays the same:
 
-<div class="include" file="need-path.js" omit="skip" />
+[% excerpt file="need-path.js" omit="skip" %]
 
 To get the search path,
 we look for the [% i "shell variable (for storing search path)" "search path!shell variable" %][% g shell_variable %]shell variable[% /g %][% /i %] `NEED_PATH`.
@@ -232,23 +232,23 @@ we look for the [% i "shell variable (for storing search path)" "search path!she
 If `NEED_PATH` exists,
 we split it on colons to create a list of directories:
 
-<div class="include" file="need-path.js" keep="search" />
+[% excerpt file="need-path.js" keep="search" %]
 
 When we need to find a file we first check to see if the path is local.
 If it's not,
 we try the directories in the search path in order:
 
-<div class="include" file="need-path.js" keep="search" />
+[% excerpt file="need-path.js" keep="search" %]
 
 To test this,
 we put the file to import in a subdirectory called `modules`:
 
-<div class="include" file="modules/imported-left.js" />
+[% excerpt file="modules/imported-left.js" %]
 
 <!-- continue -->
 and then put the file doing the importing in the current directory:
 
-<div class="include" file="test-import-left.js" />
+[% excerpt file="test-import-left.js" %]
 
 We now need to set the variable `NEED_PATH`.
 There are many ways to do this in shell;
@@ -264,16 +264,16 @@ right before the command (on the same line).
 Here's the shell command that runs our test case
 using `$PWD` to get the current working directory:
 
-<div class="include" pat="test-import-left.*" fill="sh out" />
+[% excerpt pat="test-import-left.*" fill="sh out" %]
 
 Now let's create a second importable file in the `modules` directory:
 
-<div class="include" file="modules/imported-right.js" />
+[% excerpt file="modules/imported-right.js" %]
 
 <!-- continue -->
 and load that twice to check that caching works:
 
-<div class="include" pat="test-import-right.*" fill="js out" />
+[% excerpt pat="test-import-right.*" fill="js out" %]
 
 ## How can we interpolate pieces of code? {#file-interpolator-interpolate}
 
@@ -281,25 +281,25 @@ Interpolating files is straightforward once we have this machinery in place.
 We modify `Cache.find` to return a directory and a file path,
 then add an `interpolate` method to replace special comments:
 
-<div class="include" file="caching.js" />
+[% excerpt file="caching.js" %]
 
 We can now have a file like this:
 
-<div class="include" file="import-interpolate.js" />
+[% excerpt file="import-interpolate.js" %]
 
 <!-- continue -->
 and subfiles like this:
 
-<div class="include" file="import-interpolate-topmethod.js" />
+[% excerpt file="import-interpolate-topmethod.js" %]
 
 <!-- continue -->
 and this:
 
-<div class="include" file="import-interpolate-bottommethod.js" />
+[% excerpt file="import-interpolate-bottommethod.js" %]
 
 Let's test it:
 
-<div class="include" pat="test-import-interpolate.*" fill="sh out" />
+[% excerpt pat="test-import-interpolate.*" fill="sh out" %]
 
 When this program runs, its [% i "lifecycle!of file interpolation" %]lifecycle[% /i %] is:
 

@@ -90,7 +90,7 @@ Our build manager must:
 
 We will store our rules in YAML files like this:
 
-<div class="include" file="three-simple-rules.yml" />
+[% excerpt file="three-simple-rules.yml" %]
 
 <!-- continue -->
 We could equally well have used JSON,
@@ -103,7 +103,7 @@ so we start by writing a simple [% i "software design!driver" %][% g driver %]dr
 creates an object of whatever class that file exports,
 and runs the `.build` method of that object with the rest of the command-line parameters:
 
-<div class="include" file="driver.js" />
+[% excerpt file="driver.js" %]
 
 <!-- continue -->
 We use the `import` function to dynamically load files containing in <a section="unit-test"/> as well.
@@ -124,7 +124,7 @@ Just as we built a generic [% i "Visitor pattern" "design pattern!Visitor" %]`Vi
 we can build a generic base class for our build manager that does these steps in this order
 without actually implementing any of them:
 
-<div class="include" file="skeleton-builder.js" />
+[% excerpt file="skeleton-builder.js" %]
 
 This is an example of
 the [% i "Template Method pattern" "design pattern!Template Method" %][% g template_method_pattern %]Template Method[% /g %][% /i %] design pattern:
@@ -141,7 +141,7 @@ but to make the evolving code easier to follow we will write them them one by on
 The `loadConfig` method loads the configuration file
 as the builder object is being constructed:
 
-<div class="include" file="config-loader.js" />
+[% excerpt file="config-loader.js" %]
 
 <!-- continue -->
 The first line does the loading;
@@ -167,22 +167,22 @@ Two features of `graphlib` that took us a while to figure out are that:
 including one to check for cycles,
 so we might as well write that method at this point as well:
 
-<div class="include" file="graph-creator.js" />
+[% excerpt file="graph-creator.js" %]
 
 We can now create something that displays our configuration when it runs
 but does nothing else:
 
-<div class="include" file="display-only.js" />
+[% excerpt file="display-only.js" %]
 
 If we run this with our three simple rules as input,
 it shows the graph with `v` and `w` keys to represent the ends of the links:
 
-<div class="include" pat="display-only.*" fill="sh out" />
+[% excerpt pat="display-only.*" fill="sh out" %]
 
 Let's write a quick test to make sure the cycle detector works as intended:
 
-<div class="include" file="circular-rules.yml" />
-<div class="include" pat="check-cycles.*" fill="sh out" />
+[% excerpt file="circular-rules.yml" %]
+[% excerpt pat="check-cycles.*" fill="sh out" %]
 
 ## How can we specify that a file is out of date? {#build-manager-timestamp}
 
@@ -201,12 +201,12 @@ we will use the timestamp approach here.
 And instead of using a mock filesystem as we did in <a section="file-backup"/>,
 we will simply load another configuration file that specifies fake timestamps for files:
 
-<div class="include" file="add-timestamps.yml" />
+[% excerpt file="add-timestamps.yml" %]
 
 Since we want to associate those timestamps with files,
 we add a step to `buildGraph` to read the timestamp file and add information to the graph's nodes:
 
-<div class="include" file="add-timestamps.js" />
+[% excerpt file="add-timestamps.js" %]
 
 > ### Not quite what we were expecting
 >
@@ -223,7 +223,7 @@ we add a step to `buildGraph` to read the timestamp file and add information to 
 Before we move on,
 let's make sure that adding timestamps works as we want:
 
-<div class="include" pat="add-timestamps.*" fill="sh out" />
+[% excerpt pat="add-timestamps.*" fill="sh out" %]
 
 ## How can we update out-of-date files? {#build-manager-update}
 
@@ -239,7 +239,7 @@ so we advance our fictional clock by one for each build.
 Using `graphlib.alg.topsort` to create the topological order,
 we get this:
 
-<div class="include" file="update-timestamps.js" />
+[% excerpt file="update-timestamps.js" %]
 
 The `run` method:
 
@@ -257,7 +257,7 @@ we see if any of its dependencies currently have timestamps greater than or equa
 When we run this,
 it seems to do the right thing:
 
-<div class="include" pat="update-timestamps.*" fill="sh out" />
+[% excerpt pat="update-timestamps.*" fill="sh out" %]
 
 ## How can we add generic build rules? {#build-manager-generic}
 
@@ -294,12 +294,12 @@ and `@DEP[1]`, `@DEP[2]`, and so on for specific dependencies
 
 Our variable expander looks like this:
 
-<div class="include" file="variable-expander.js" />
+[% excerpt file="variable-expander.js" %]
 
 The first thing we do is test that it works when there *aren't* any variables to expand
 by running it on the same example we used previously:
 
-<div class="include" file="variable-expander.out" />
+[% excerpt file="variable-expander.out" %]
 
 <!-- continue -->
 This is perhaps the most important reason to create tests:
@@ -310,17 +310,17 @@ That gives us a firm base to build on as we debug the new code.
 Now we need to add [% i "pattern rule (in build)" "build!pattern rule" %][% g pattern_rule %]pattern rules[% /g %][% /i %].
 Our first attempt at a rules file looks like this:
 
-<div class="include" file="pattern-rules.yml" />
+[% excerpt file="pattern-rules.yml" %]
 
 <!-- continue -->
 and our first attempt at reading it extracts rules before expanding variables:
 
-<div class="include" file="pattern-user-attempt.js" />
+[% excerpt file="pattern-user-attempt.js" %]
 
 However,
 that doesn't work:
 
-<div class="include" file="pattern-user-attempt.out" />
+[% excerpt file="pattern-user-attempt.out" %]
 
 <!-- continue -->
 The problem is that our simple graph loader creates nodes for dependencies even if they aren't targets.
@@ -347,18 +347,18 @@ While we're here,
 we will enable timestamps as an optional field in the rules for testing purposes
 rather than having them in a separate file:
 
-<div class="include" file="pattern-user-read.js" />
+[% excerpt file="pattern-user-read.js" %]
 
 Before we try to run this,
 let's add methods to show the state of our two internal data structures:
 
-<div class="include" pat="pattern-user-show.*" fill="js sh out" />
+[% excerpt pat="pattern-user-show.*" fill="js sh out" %]
 
 The output seems to be right,
 so let's try expanding rules *after* building the graph and rules
 but *before* expanding variables:
 
-<div class="include" pat="pattern-user-run.*" fill="js out" />
+[% excerpt pat="pattern-user-run.*" fill="js out" %]
 
 ## What should we do next? {#build-manager-next}
 

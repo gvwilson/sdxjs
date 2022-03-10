@@ -76,7 +76,7 @@ let's build a row-major table with some number of columns.
 To keep it simple,
 we will repeat the values 0, 1, and 2 to fill the table.
 
-<div class="include" file="build.js" keep="build-rows" />
+[% excerpt file="build.js" keep="build-rows" %]
 
 Next,
 we write `filter` and `select` for tables laid out this way.
@@ -89,14 +89,14 @@ since it is [% i "recycling data" %]recycling[% /i %] rows,
 while selecting should be relatively slow because we have to construct a new set of arrays
 (<a figure="data-table-row-ops"/>).
 
-<div class="include" file="table-performance.js" keep="operate-rows" />
+[% excerpt file="table-performance.js" keep="operate-rows" %]
 
 [% figure slug="data-table-row-ops" img="figures/row-ops.svg" alt="Row-major operations" caption="Operations on row-major data tables." %]
 
 Now let's do the same for column-major storage.
 Building the object that holds the columns is straightforward:
 
-<div class="include" file="build.js" keep="build-cols" />
+[% excerpt file="build.js" keep="build-cols" %]
 
 Filtering is more complex because the values in each row are scattered across several arrays,
 but selecting is just a matter of recycling the arrays we want in the new table.
@@ -105,7 +105,7 @@ since only the references to the columns need to be copied,
 but filtering will be relatively slow since we are constructing multiple new arrays
 (<a figure="data-table-col-ops"/>).
 
-<div class="include" file="table-performance.js" keep="operate-cols" />
+[% excerpt file="table-performance.js" keep="operate-cols" %]
 
 [% figure slug="data-table-col-ops" img="figures/col-ops.svg" alt="Column-major operations" caption="Operations on column-major data tables." %]
 
@@ -136,7 +136,7 @@ our balance should be based on data from whatever application we intend to suppo
 
 Our performance measurement program looks like this:
 
-<div class="include" file="table-performance.js" keep="main" />
+[% excerpt file="table-performance.js" keep="main" %]
 
 The functions that actually do the measurements
 use the [`microtime`][microtime] library to get microsecond level timing
@@ -147,21 +147,21 @@ to see how much memory [Node][nodejs] is using while the program runs,
 but that may be affected by [% g garbage_collection %]garbage collection[% /g %]
 and a host of other factors outside our control.
 
-<div class="include" file="table-performance.js" keep="measure" />
+[% excerpt file="table-performance.js" keep="measure" %]
 
 Let's run our program for a table with 100 rows and 3 columns and a 3:1 ratio of filter to select:
 
-<div class="include" pat="table-performance-100-03-03.*" fill="sh out" />
+[% excerpt pat="table-performance-100-03-03.*" fill="sh out" %]
 
 <!-- continue -->
 What if we increase the table size to 10,000 rows by 30 columns with the same 3:1 filter/select ratio?
 
-<div class="include" file="table-performance-10000-30-03.out" />
+[% excerpt file="table-performance-10000-30-03.out" %]
 
 <!-- continue -->
 And if we keep the table size the same but use a 10:1 filter/select ratio?
 
-<div class="include" file="table-performance-10000-30-10.out" />
+[% excerpt file="table-performance-10000-30-10.out" %]
 
 <div class="table" id="data-table-performance" caption="Relative performance of operations on row-major and column-major data tables.">
 value|100-03-03|10000-30-03|10000-30-10
@@ -194,7 +194,7 @@ Two simple text-based schemes are row-oriented and column-oriented [% g json %]J
 just printing the data structures we have.
 Let's run the 10,000×30 test:
 
-<div class="include" file="storage-performance-10000-30.out" />
+[% excerpt file="storage-performance-10000-30.out" %]
 
 The time needed for the row-major version is almost ten times greater than
 that needed for the column-major version;
@@ -206,8 +206,8 @@ then a packed version of row-major storage ought to be faster.
 We save the column headers once,
 then copy the data values into an array of arrays and save that:
 
-<div class="include" file="packed-rows.js" keep="packed" />
-<div class="include" file="packed-rows-10000-30.out" />
+[% excerpt file="packed-rows.js" keep="packed" %]
+[% excerpt file="packed-rows-10000-30.out" %]
 
 These results show that changing layout for storage
 is faster than turning the data structure we have into a string.
@@ -246,8 +246,8 @@ To store a column-major table we will fill an `ArrayBuffer` with:
 
 1.  The numbers themselves.
 
-<div class="include" file="packed-cols.js" keep="binary" />
-<div class="include" file="packed-cols-10000-30.out" />
+[% excerpt file="packed-cols.js" keep="binary" %]
+[% excerpt file="packed-cols-10000-30.out" %]
 
 Packing the data table saves time
 because copying bits is faster than turning numbers into characters,

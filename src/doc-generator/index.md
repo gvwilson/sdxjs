@@ -21,16 +21,16 @@ giving it an array to fill in.
 For the moment we won't bother to assign the [% i "abstract syntax tree" %]AST[% /i %] produced by parsing to a variable
 because we are just interested in the comments:
 
-<div class="include" file="extract-comments.js" />
+[% excerpt file="extract-comments.js" %]
 
-<div class="include" pat="two-kinds-of-comment.*" fill="js out" />
+[% excerpt pat="two-kinds-of-comment.*" fill="js out" %]
 
 There is more information here than we need,
 so let's slim down the JSON that we extract:
 
-<div class="include" file="extract-comments-subset.js" />
+[% excerpt file="extract-comments-subset.js" %]
 
-<div class="include" pat="two-kinds-of-comment-subset.*" fill="sh out" />
+[% excerpt pat="two-kinds-of-comment-subset.*" fill="sh out" %]
 
 [% figure slug="doc-generator-comments" img="figures/comments.svg" alt="Line and block comments" caption="How line comments and block comments are distinguished and represented." %]
 
@@ -39,33 +39,33 @@ Acorn distinguishes two kinds of comments (<a figure="doc-generator-comments"/>)
 if one line comment occurs immediately after another,
 Acorn reports two comments:
 
-<div class="include" pat="multi-line-double-slash-comment.*" fill="js sh out" />
+[% excerpt pat="multi-line-double-slash-comment.*" fill="js sh out" %]
 
 [% i "block comment" "comment!block" %][% g block_comment %]Block comments[% /g %][% /i %],
 on the other hand,
 can span any number of lines.
 We don't need to prefix each line with `*` but most people do for readability:
 
-<div class="include" pat="multi-line-slash-star-comment.*" fill="js sh out" />
+[% excerpt pat="multi-line-slash-star-comment.*" fill="js sh out" %]
 
 By convention,
 we use block comments that start with `/**` for documentation.
 The first two characters are recognized by the parser as "start of comment",
 so the first character in the extracted text is `*`:
 
-<div class="include" pat="doc-comment.*" fill="js out" />
+[% excerpt pat="doc-comment.*" fill="js out" %]
 
 ## What input will we try to handle? {#doc-generator-input}
 
 We will use [% i "Markdown" %][Markdown][markdown][% /i %] for formatting our documentation.
 The [% i "doc comment" "comment!doc" %][% g doc_comment %]doc comments[% /g %][% /i %] for function definitions look like this:
 
-<div class="include" file="example-plain.js" />
+[% excerpt file="example-plain.js" %]
 
 <!-- continue -->
 while the ones for class definitions look like this:
 
-<div class="include" file="util-plain.js" />
+[% excerpt file="util-plain.js" %]
 
 The doc comments are unpleasant at the moment:
 they repeat the function and method names from the code,
@@ -83,25 +83,25 @@ The main program gets all the doc comments from all of the input files,
 converts the Markdown to HTML,
 and displays that:
 
-<div class="include" file="process-plain.js" keep="main" />
+[% excerpt file="process-plain.js" keep="main" %]
 
 To get all the comments
 we extract comments from all the files,
 remove the leading `*` characters (which aren't part of the documentation),
 and then join the results after stripping off extraneous blanks:
 
-<div class="include" file="process-plain.js" keep="getAllComments" />
+[% excerpt file="process-plain.js" keep="getAllComments" %]
 
 Extracting the comments from a single file is done as before:
 
-<div class="include" file="process-plain.js" keep="extractComments" />
+[% excerpt file="process-plain.js" keep="extractComments" %]
 
 <!-- continue -->
 and removing the prefix `*` characters is a matter of splitting the text into lines,
 removing the leading spaces and asterisks,
 and putting the lines back together:
 
-<div class="include" file="process-plain.js" keep="removePrefix" />
+[% excerpt file="process-plain.js" keep="removePrefix" %]
 
 One thing that isn't in this file (because we're going to use it in later versions)
 is the function `slugify`.
@@ -112,13 +112,13 @@ Our `slugify` function strips unnecessary characters out of a title,
 adds hyphens,
 and generally makes it something you might see in a URL:
 
-<div class="include" file="slugify.js" />
+[% excerpt file="slugify.js" %]
 
 Let's run this generator and see what it produces
 (<a figure="doc-generator-process-plain"/> and <a figure="doc-generator-mapping"/>):
 
-<div class="include" file="process-plain.sh" />
-<div class="include" file="process-plain.html" />
+[% excerpt file="process-plain.sh" %]
+[% excerpt file="process-plain.html" %]
 
 [% figure slug="doc-generator-process-plain" img="figures/process-plain.svg" alt="Output of documentation generator" caption="The page produced by the documentation generator." %]
 
@@ -146,7 +146,7 @@ we can extract the name of the function or method
 from the node on the line immediately following the doc comment.
 This allows us to write much tidier comments:
 
-<div class="include" file="find-following-input.js" />
+[% excerpt file="find-following-input.js" %]
 
 To extract and display information from nodes immediately following doc comments
 we must find all the block comments,
@@ -159,17 +159,17 @@ The main program finds the comments as usual,
 creates a set containing the line numbers we are looking for,
 then searches for the nodes we want:
 
-<div class="include" file="find-following.js" keep="main" />
+[% excerpt file="find-following.js" keep="main" %]
 
 The recursive search is straightforward as well---we delete line numbers from the target set
 and add nodes to the [% i "Accumulator pattern" "design pattern!Accumulator" %][% g accumulator %]accumulator[% /g %][% /i %] as we find matches:
 
-<div class="include" file="find-following.js" keep="findFollowing" />
+[% excerpt file="find-following.js" keep="findFollowing" %]
 
 Finally,
 we use a function called `condense` to get the name we want out of the AST we have:
 
-<div class="include" file="find-following.js" keep="condense" />
+[% excerpt file="find-following.js" keep="condense" %]
 
 <!-- continue -->
 We need this because we get a different structure with:
@@ -189,12 +189,12 @@ function name() {
 
 When we run this on our test case we get:
 
-<div class="include" file="find-following.out" />
+[% excerpt file="find-following.out" %]
 
 We can use this to create better output (<a figure="doc-generator-fill-in-headers"/>):
 
-<div class="include" file="fill-in-headers.js" />
-<div class="include" file="fill-in-headers.html" />
+[% excerpt file="fill-in-headers.js" %]
+[% excerpt file="fill-in-headers.html" %]
 
 [% figure slug="doc-generator-fill-in-headers" img="figures/fill-in-headers.svg" alt="Filling in headers" caption="Filling in headers when generating documentation." %]
 

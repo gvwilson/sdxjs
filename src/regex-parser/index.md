@@ -69,7 +69,7 @@ We can translate these rules almost directly into code
 to create a list of objects whose keys are `kind` and `loc` (short for location),
 with the extra key `value` for literal values:
 
-<div class="include" file="tokenizer-collapse.js" omit="combine" />
+[% excerpt file="tokenizer-collapse.js" omit="combine" %]
 
 The helper function `combineOrPush` does exactly what its name says.
 If the thing most recently added to the list of tokens isn't a literal,
@@ -77,11 +77,11 @@ the new character becomes a new token;
 otherwise,
 we append the new character to the literal we're building:
 
-<div class="include" file="tokenizer-collapse.js" keep="combine" />
+[% excerpt file="tokenizer-collapse.js" keep="combine" %]
 
 We can try this out with a three-line test program:
 
-<div class="include" pat="tokenizer-collapse-example.*" fill="js out" />
+[% excerpt pat="tokenizer-collapse-example.*" fill="js out" %]
 
 This simple tokenizer is readable, efficient, and wrong.
 The problem is that the expression `/ab*/` means "a single `a` followed by zero or more `b`".
@@ -95,15 +95,15 @@ The solution is to treat each regular character as its own literal in this stage
 and then combine things later.
 Doing this lets us get rid of the nested `if` for handling `^` and `$` as well:
 
-<div class="include" file="tokenizer.js" />
+[% excerpt file="tokenizer.js" %]
 
 Software isn't done until it's tested,
 so let's build some [% i "Mocha" %][Mocha][mocha][% /i %] tests for our tokenizer.
 The listing below shows a few of these
 along with the output for the full set:
 
-<div class="include" file="test/test-tokenizer.js" omit="omit" />
-<div class="include" file="tokenizer-test.out" />
+[% excerpt file="test/test-tokenizer.js" omit="omit" %]
+[% excerpt file="tokenizer-test.out" %]
 
 ## How can we turn a list of tokens into a tree? {#regex-parser-tree}
 
@@ -166,31 +166,31 @@ Again, this automatically handles patterns like `/(ab)|c*|(de)/`.
 It's time to turn these ideas into code.
 The main structure of our parser is:
 
-<div class="include" file="parser.js" omit="skip" />
+[% excerpt file="parser.js" omit="skip" %]
 
 We handle tokens case by case
 (with a few assertions to check that patterns are [% g well_formed %]well formed[% /g %]):
 
-<div class="include" file="parser.js" keep="handle" />
+[% excerpt file="parser.js" keep="handle" %]
 
 When we find the `)` that marks the end of a group,
 we take items from the end of the output list
 until we find the matching start
 and use them to create a group:
 
-<div class="include" file="parser.js" keep="groupend" />
+[% excerpt file="parser.js" keep="groupend" %]
 
 Finally,
 when we have finished with the input,
 we go through the output list one last time to fill in the right side of `Alt`s:
 
-<div class="include" file="parser.js" keep="compress" />
+[% excerpt file="parser.js" keep="compress" %]
 
 Once again,
 it's not done until we've tested it:
 
-<div class="include" file="test/test-parser.js" omit="omit" />
-<div class="include" file="parser-test.out" />
+[% excerpt file="test/test-parser.js" omit="omit" %]
+[% excerpt file="parser-test.out" %]
 
 While our final parser is less than 90 lines of code,
 it is doing a lot of complex things.

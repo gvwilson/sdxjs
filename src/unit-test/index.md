@@ -62,7 +62,7 @@ Any other kind of assertion indicates that the test itself contains an error.
 To start,
 let's use a handful of [% g global_variable %]global variables[% /g %] to record tests and their results:
 
-<div class="include" file="dry-run.js" keep="state" />
+[% excerpt file="dry-run.js" keep="state" %]
 
 We don't run tests immediately
 because we want to wrap each one in our own [% i "exception!handler" %][% g exception_handler %]exception handler[% /g %][% /i %].
@@ -70,7 +70,7 @@ Instead,
 the function `hopeThat` saves a descriptive message and a callback function that implements a test
 in the `HopeTest` array.
 
-<div class="include" file="dry-run.js" keep="save" />
+[% excerpt file="dry-run.js" keep="save" %]
 
 > ### Independence
 >
@@ -84,7 +84,7 @@ in the `HopeTest` array.
 Finally,
 the function `main` runs all registered tests:
 
-<div class="include" file="dry-run.js" keep="main" />
+[% excerpt file="dry-run.js" keep="main" %]
 
 <!-- continue -->
 If a test completes without an exception, it passes.
@@ -97,8 +97,8 @@ After all tests are run,
 
 Let's try it out:
 
-<div class="include" file="dry-run.js" keep="use" />
-<div class="include" file="dry-run.out" />
+[% excerpt file="dry-run.js" keep="use" %]
+[% excerpt file="dry-run.out" %]
 
 This simple "framework" does what it's supposed to, but:
 
@@ -130,7 +130,7 @@ we can just construct more instances of the class.
 
 The file `hope.js` defines the class and exports one instance of it:
 
-<div class="include" file="hope.js" keep="report" />
+[% excerpt file="hope.js" keep="report" %]
 
 This strategy relies on two things:
 
@@ -154,7 +154,7 @@ our `Hope` class can report results as both a terse one-line summary and as a de
 It can also provide the titles and results of individual tests
 so that if someone wants to format them in a different way (e.g., as HTML) they can do so:
 
-<div class="include" file="hope.js" keep="report" />
+[% excerpt file="hope.js" keep="report" %]
 
 > ### Who's calling?
 >
@@ -180,7 +180,7 @@ A couple of `import` statements to get `assert` and `hope`
 and then one function call per test
 is about as simple as we can make the tests themselves:
 
-<div class="include" file="test-add.js" />
+[% excerpt file="test-add.js" %]
 
 But that just defines the tests---how will we find them so that we can run them?
 One option is to require people to `import` each of the files containing tests
@@ -214,7 +214,7 @@ As before,
 loading files executes the code they contain,
 which registers tests as a side effect:
 
-<div class="include" file="pray.js" omit="options" />
+[% excerpt file="pray.js" omit="options" %]
 
 By default,
 this program finds all files below the current working directory
@@ -243,7 +243,7 @@ and creates an object with flags as keys and values associated with them.
 Our [% i "test runner" "unit test!test runner" %][% g test_runner %]test runner[% /g %][% /i %] is now complete,
 so we can try it out with some files containing tests that pass, fail, and contain errors:
 
-<div class="include" pat="pray.*" fill="sh out" />
+[% excerpt pat="pray.*" fill="sh out" %]
 
 > ### Infinity is allowed
 >

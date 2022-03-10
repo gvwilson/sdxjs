@@ -22,10 +22,10 @@
 
 <p>We have written many small programs in the previous two chapters,
 but haven't really tested any of them.
-That's OK for <span g="exploratory_programming" i="exploratory programming">exploratory programming</span>,
+That's OK for <span class="indexref" key="exploratory programming" markdown="1"><a class="glossref" href="../glossary/#exploratory_programming" markdown="1">exploratory programming</a></span>,
 but if our software is going to be used instead of just read,
 we should try to make sure it works.</p>
-<p>A tool for writing and running <span g="unit_test" i="unit test!requirements for">unit tests</span> is a good first step.
+<p>A tool for writing and running <span class="indexref" key="unit test!requirements for" markdown="1"><a class="glossref" href="../glossary/#unit_test" markdown="1">unit tests</a></span> is a good first step.
 Such a tool should:</p>
 <ul>
 <li>find files containing tests;</li>
@@ -34,29 +34,29 @@ Such a tool should:</p>
 <li>capture their results; and</li>
 <li>report each test's result and a summary of those results.</li>
 </ul>
-<p>Our design is inspired by tools like <span i="Mocha"><a href="https://mochajs.org/">Mocha</a></span> and <span i="Jest"><a href="https://jestjs.io/">Jest</a></span>,
+<p>Our design is inspired by tools like <span class="indexref" key="Mocha" markdown="1"><a href="https://mochajs.org/">Mocha</a></span> and <span class="indexref" key="Jest" markdown="1"><a href="https://jestjs.io/">Jest</a></span>,
 which were in turn inspired by tools built for other languages
-from the 1980s onward <cite>Meszaros2007,Tudose2020</cite>.</p>
+from the 1980s onward [<a href="../bibliography/#Meszaros2007">Meszaros2007</a>, <a href="../bibliography/#Tudose2020">Tudose2020</a>].</p>
 <h2 id="unit-test-structure">How should we structure unit testing?</h2>
 <p>As in other unit testing frameworks,
 each test will be a function of zero arguments
 so that the framework can run them all in the same way.
-Each test will create a <span g="fixture" i="fixture (in unit test); unit test!fixture">fixture</span> to be tested
-and use <span g="assertion" i="assertion!in unit test">assertions</span>
-to compare the <span g="actual_result" i="actual result (in unit test); unit test!actual result">actual result</span>
-against the <span g="expected_result" i="expected result (in unit test); unit test!expected result">expected result</span>.
+Each test will create a <span class="indexref" key="fixture (in unit test);unit test!fixture" markdown="1"><a class="glossref" href="../glossary/#fixture" markdown="1">fixture</a></span> to be tested
+and use <span class="indexref" key="assertion!in unit test" markdown="1"><a class="glossref" href="../glossary/#assertion" markdown="1">assertions</a></span>
+to compare the <span class="indexref" key="actual result (in unit test);unit test!actual result" markdown="1"><a class="glossref" href="../glossary/#actual_result" markdown="1">actual result</a></span>
+against the <span class="indexref" key="expected result (in unit test);unit test!expected result" markdown="1"><a class="glossref" href="../glossary/#expected_result" markdown="1">expected result</a></span>.
 The outcome can be exactly one of:</p>
 <ul>
 <li>
-<p><span g="pass_test" i="pass (in unit test); unit test!pass">Pass</span>:
-    the <span g="test_subject" i="test subject (in unit test); unit test!test subject">test subject</span> works as expected.</p>
+<p><span class="indexref" key="pass (in unit test);unit test!pass" markdown="1"><a class="glossref" href="../glossary/#pass_test" markdown="1">Pass</a></span>:
+    the <span class="indexref" key="test subject (in unit test);unit test!test subject" markdown="1"><a class="glossref" href="../glossary/#test_subject" markdown="1">test subject</a></span> works as expected.</p>
 </li>
 <li>
-<p><span g="fail_test" i="fail (in unit test); unit test!fail">Fail</span>:
+<p><span class="indexref" key="fail (in unit test);unit test!fail" markdown="1"><a class="glossref" href="../glossary/#fail_test" markdown="1">Fail</a></span>:
     something is wrong with the test subject.</p>
 </li>
 <li>
-<p><span g="error_test" i="error (in unit test); unit test!error">Error</span>:
+<p><span class="indexref" key="error (in unit test);unit test!error" markdown="1"><a class="glossref" href="../glossary/#error_test" markdown="1">Error</a></span>:
     something wrong in the test itself,
     which means we don't know whether the test subject is working properly or not.</p>
 </li>
@@ -64,29 +64,38 @@ The outcome can be exactly one of:</p>
 <p>To make this work,
 we need some way to distinguish failing tests from broken ones.
 Our solution relies on the fact that exceptions are objects
-and that a program can use <span g="introspection" i="introspection!in unit testing">introspection</span>
+and that a program can use <span class="indexref" key="introspection!in unit testing" markdown="1"><a class="glossref" href="../glossary/#introspection" markdown="1">introspection</a></span>
 to determine the class of an object.
-If a test <span g="throw_exception" i="exception!throw">throws an exception</span> whose class is <code>assert.AssertionError</code>,
+If a test <span class="indexref" key="exception!throw" markdown="1"><a class="glossref" href="../glossary/#throw_exception" markdown="1">throws an exception</a></span> whose class is <code>assert.AssertionError</code>,
 then we will assume the exception came from
 one of the assertions we put in the test as a check
 (<a figure="unit-test-mental-model"/>).
 Any other kind of assertion indicates that the test itself contains an error.</p>
 <figure id="unit-test-mental-model">
-  <img src="figures/mental-model.svg" alt="Mental model of unit testing" />
-  <figcaption>Running tests that can pass, fail, or contain errors.</figcaption>
+  <img src="./figures/mental-model.svg" alt="Mental model of unit testing" />
+  <figcaption markdown="1">Figure 4.1: Running tests that can pass, fail, or contain errors.</figcaption>
 </figure>
 
 <h2 id="unit-test-design">How can we separate registration, execution, and reporting?</h2>
 <p>To start,
-let's use a handful of <span g="global_variable">global variables</span> to record tests and their results:</p>
-<div class="include" file="dry-run.js" keep="state" />
+let's use a handful of <a class="glossref" href="../glossary/#global_variable" markdown="1">global variables</a> to record tests and their results:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// State of tests.</span>
+<span class="kd">const</span> <span class="nx">HopeTests</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="kd">let</span> <span class="nx">HopePass</span> <span class="o">=</span> <span class="mf">0</span>
+<span class="kd">let</span> <span class="nx">HopeFail</span> <span class="o">=</span> <span class="mf">0</span>
+<span class="kd">let</span> <span class="nx">HopeError</span> <span class="o">=</span> <span class="mf">0</span>
+</code></pre></div>
 
 <p>We don't run tests immediately
-because we want to wrap each one in our own <span g="exception_handler" i="exception!handler">exception handler</span>.
+because we want to wrap each one in our own <span class="indexref" key="exception!handler" markdown="1"><a class="glossref" href="../glossary/#exception_handler" markdown="1">exception handler</a></span>.
 Instead,
 the function <code>hopeThat</code> saves a descriptive message and a callback function that implements a test
 in the <code>HopeTest</code> array.</p>
-<div class="include" file="dry-run.js" keep="save" />
+<div class="codehilite"><pre><span></span><code><span class="c1">// Record a single test for running later.</span>
+<span class="kd">const</span> <span class="nx">hopeThat</span> <span class="o">=</span> <span class="p">(</span><span class="nx">message</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">HopeTests</span><span class="p">.</span><span class="nx">push</span><span class="p">([</span><span class="nx">message</span><span class="p">,</span> <span class="nx">callback</span><span class="p">])</span>
+<span class="p">}</span>
+</code></pre></div>
 
 <blockquote>
 <h3>Independence</h3>
@@ -99,7 +108,26 @@ doesn't affect the result of a later one.</p>
 </blockquote>
 <p>Finally,
 the function <code>main</code> runs all registered tests:</p>
-<div class="include" file="dry-run.js" keep="main" />
+<div class="codehilite"><pre><span></span><code><span class="c1">// Run all of the tests that have been asked for and report summary.</span>
+<span class="kd">const</span> <span class="nx">main</span> <span class="o">=</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">HopeTests</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(([</span><span class="nx">message</span><span class="p">,</span> <span class="nx">test</span><span class="p">])</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="k">try</span> <span class="p">{</span>
+      <span class="nx">test</span><span class="p">()</span>
+      <span class="nx">HopePass</span> <span class="o">+=</span> <span class="mf">1</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">e</span> <span class="ow">instanceof</span> <span class="nx">assert</span><span class="p">.</span><span class="nx">AssertionError</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">HopeFail</span> <span class="o">+=</span> <span class="mf">1</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">HopeError</span> <span class="o">+=</span> <span class="mf">1</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">})</span>
+
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`pass </span><span class="si">${</span><span class="nx">HopePass</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`fail </span><span class="si">${</span><span class="nx">HopeFail</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`error </span><span class="si">${</span><span class="nx">HopeError</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
 
 <!-- continue -->
 <p>If a test completes without an exception, it passes.
@@ -110,8 +138,33 @@ it's an error.
 After all tests are run,
 <code>main</code> reports the number of results of each kind.</p>
 <p>Let's try it out:</p>
-<div class="include" file="dry-run.js" keep="use" />
-<div class="include" file="dry-run.out" />
+<div class="codehilite"><pre><span></span><code><span class="c1">// Something to test (doesn&#39;t handle zero properly).</span>
+<span class="kd">const</span> <span class="nx">sign</span> <span class="o">=</span> <span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">value</span> <span class="o">&lt;</span> <span class="mf">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mf">1</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="mf">1</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// These two should pass.</span>
+<span class="nx">hopeThat</span><span class="p">(</span><span class="s1">&#39;Sign of negative is -1&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="nx">assert</span><span class="p">(</span><span class="nx">sign</span><span class="p">(</span><span class="o">-</span><span class="mf">3</span><span class="p">)</span> <span class="o">===</span> <span class="o">-</span><span class="mf">1</span><span class="p">))</span>
+<span class="nx">hopeThat</span><span class="p">(</span><span class="s1">&#39;Sign of positive is 1&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="nx">assert</span><span class="p">(</span><span class="nx">sign</span><span class="p">(</span><span class="mf">19</span><span class="p">)</span> <span class="o">===</span> <span class="mf">1</span><span class="p">))</span>
+
+<span class="c1">// This one should fail.</span>
+<span class="nx">hopeThat</span><span class="p">(</span><span class="s1">&#39;Sign of zero is 0&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="nx">assert</span><span class="p">(</span><span class="nx">sign</span><span class="p">(</span><span class="mf">0</span><span class="p">)</span> <span class="o">===</span> <span class="mf">0</span><span class="p">))</span>
+
+<span class="c1">// This one is an error.</span>
+<span class="nx">hopeThat</span><span class="p">(</span><span class="s1">&#39;Sign misspelled is error&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="nx">assert</span><span class="p">(</span><span class="nx">sgn</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span> <span class="o">===</span> <span class="mf">1</span><span class="p">))</span> <span class="c1">// eslint-disable-line</span>
+
+<span class="c1">// Call the main driver.</span>
+<span class="nx">main</span><span class="p">()</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>pass 2
+fail 1
+error 1
+</code></pre></div>
 
 <p>This simple "framework" does what it's supposed to, but:</p>
 <ol>
@@ -128,7 +181,7 @@ After all tests are run,
 <li>
 <p>We don't have a way to test things that are supposed to raise <code>AssertionError</code>.
     Putting assertions into code to check that it is behaving correctly
-    is called <span g="defensive_programming">defensive programming</span>;
+    is called <a class="glossref" href="../glossary/#defensive_programming" markdown="1">defensive programming</a>;
     it's a good practice,
     but we should make sure those assertions are failing when they're supposed to,
     just as we should test our smoke detectors every once in a while.</p>
@@ -137,15 +190,40 @@ After all tests are run,
 <h2 id="unit-test-registration">How should we structure test registration?</h2>
 <p>The next version of our testing tool solves the first two problems in the original
 by putting the testing machinery in a class.
-It uses the <span g="singleton_pattern" i="Singleton pattern; design pattern!Singleton">Singleton</span> <span g="design_pattern">design pattern</span>
-to ensure that only one object of that class is ever created <cite>Osmani2017</cite>.
+It uses the <span class="indexref" key="Singleton pattern;design pattern!Singleton" markdown="1"><a class="glossref" href="../glossary/#singleton_pattern" markdown="1">Singleton</a></span> <a class="glossref" href="../glossary/#design_pattern" markdown="1">design pattern</a>
+to ensure that only one object of that class is ever created [<a href="../bibliography/#Osmani2017">Osmani2017</a>].
 Singletons are a way to manage global variables that belong together
 like the ones we're using to record tests and their results.
 As an extra benefit,
 if we decide later that we need several copies of those variables,
 we can just construct more instances of the class.</p>
 <p>The file <code>hope.js</code> defines the class and exports one instance of it:</p>
-<div class="include" file="hope.js" keep="report" />
+<div class="codehilite"><pre><span></span><code>  <span class="nx">terse</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">cases</span><span class="p">()</span>
+      <span class="p">.</span><span class="nx">map</span><span class="p">(([</span><span class="nx">title</span><span class="p">,</span> <span class="nx">results</span><span class="p">])</span> <span class="p">=&gt;</span> <span class="sb">`</span><span class="si">${</span><span class="nx">title</span><span class="si">}</span><span class="sb">: </span><span class="si">${</span><span class="nx">results</span><span class="p">.</span><span class="nx">length</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="nx">verbose</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nx">report</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="kd">let</span> <span class="nx">prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="p">[</span><span class="nx">title</span><span class="p">,</span> <span class="nx">results</span><span class="p">]</span> <span class="k">of</span> <span class="k">this</span><span class="p">.</span><span class="nx">cases</span><span class="p">())</span> <span class="p">{</span>
+      <span class="nx">report</span> <span class="o">+=</span> <span class="sb">`</span><span class="si">${</span><span class="nx">prefix</span><span class="si">}${</span><span class="nx">title</span><span class="si">}</span><span class="sb">:`</span>
+      <span class="nx">prefix</span> <span class="o">=</span> <span class="s1">&#39;\n&#39;</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">r</span> <span class="k">of</span> <span class="nx">results</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">report</span> <span class="o">+=</span> <span class="sb">`</span><span class="si">${</span><span class="nx">prefix</span><span class="si">}</span><span class="sb">  </span><span class="si">${</span><span class="nx">r</span><span class="si">}</span><span class="sb">`</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">report</span>
+  <span class="p">}</span>
+
+  <span class="nx">cases</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">[</span>
+      <span class="p">[</span><span class="s1">&#39;passes&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">passes</span><span class="p">],</span>
+      <span class="p">[</span><span class="s1">&#39;fails&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">fails</span><span class="p">],</span>
+      <span class="p">[</span><span class="s1">&#39;errors&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">errors</span><span class="p">]]</span>
+  <span class="p">}</span>
+</code></pre></div>
 
 <p>This strategy relies on two things:</p>
 <ol>
@@ -154,7 +232,7 @@ we can just construct more instances of the class.</p>
     which means that it runs <code>new Hope()</code> and exports the newly-created object.</p>
 </li>
 <li>
-<p>Node <span g="caching" i="cache!modules; require!caching modules">caches</span> modules
+<p>Node <span class="indexref" key="cache!modules;require!caching modules" markdown="1"><a class="glossref" href="../glossary/#caching" markdown="1">caches</a></span> modules
     so that a given module is only loaded once
     no matter how many times it is imported.
     This ensures that <code>new Hope()</code> really is only called once.</p>
@@ -165,19 +243,44 @@ it can call <code>Hope.test</code> to record a test for later execution
 and <code>Hope.run</code> to execute all of the tests registered up until that point
 (<a figure="unit-test-hope-structure"/>).</p>
 <figure id="unit-test-hope-structure">
-  <img src="figures/hope-structure.svg" alt="Recording and running tests" />
-  <figcaption>Creating a singleton, recording tests, and running them.</figcaption>
+  <img src="./figures/hope-structure.svg" alt="Recording and running tests" />
+  <figcaption markdown="1">Figure 4.2: Creating a singleton, recording tests, and running them.</figcaption>
 </figure>
 
 <p>Finally,
 our <code>Hope</code> class can report results as both a terse one-line summary and as a detailed listing.
 It can also provide the titles and results of individual tests
 so that if someone wants to format them in a different way (e.g., as HTML) they can do so:</p>
-<div class="include" file="hope.js" keep="report" />
+<div class="codehilite"><pre><span></span><code>  <span class="nx">terse</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">cases</span><span class="p">()</span>
+      <span class="p">.</span><span class="nx">map</span><span class="p">(([</span><span class="nx">title</span><span class="p">,</span> <span class="nx">results</span><span class="p">])</span> <span class="p">=&gt;</span> <span class="sb">`</span><span class="si">${</span><span class="nx">title</span><span class="si">}</span><span class="sb">: </span><span class="si">${</span><span class="nx">results</span><span class="p">.</span><span class="nx">length</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="nx">verbose</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nx">report</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="kd">let</span> <span class="nx">prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="p">[</span><span class="nx">title</span><span class="p">,</span> <span class="nx">results</span><span class="p">]</span> <span class="k">of</span> <span class="k">this</span><span class="p">.</span><span class="nx">cases</span><span class="p">())</span> <span class="p">{</span>
+      <span class="nx">report</span> <span class="o">+=</span> <span class="sb">`</span><span class="si">${</span><span class="nx">prefix</span><span class="si">}${</span><span class="nx">title</span><span class="si">}</span><span class="sb">:`</span>
+      <span class="nx">prefix</span> <span class="o">=</span> <span class="s1">&#39;\n&#39;</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">r</span> <span class="k">of</span> <span class="nx">results</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">report</span> <span class="o">+=</span> <span class="sb">`</span><span class="si">${</span><span class="nx">prefix</span><span class="si">}</span><span class="sb">  </span><span class="si">${</span><span class="nx">r</span><span class="si">}</span><span class="sb">`</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">report</span>
+  <span class="p">}</span>
+
+  <span class="nx">cases</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">[</span>
+      <span class="p">[</span><span class="s1">&#39;passes&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">passes</span><span class="p">],</span>
+      <span class="p">[</span><span class="s1">&#39;fails&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">fails</span><span class="p">],</span>
+      <span class="p">[</span><span class="s1">&#39;errors&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">errors</span><span class="p">]]</span>
+  <span class="p">}</span>
+</code></pre></div>
 
 <blockquote>
 <h3>Who's calling?</h3>
-<p><code>Hope.test</code> uses the <span i="caller module"><a href="https://www.npmjs.com/package/caller"><code>caller</code></a></span> module
+<p><code>Hope.test</code> uses the <span class="indexref" key="caller module" markdown="1"><a href="https://www.npmjs.com/package/caller"><code>caller</code></a></span> module
 to get the name of the function that is registering a test.
 Reporting the test's name helps the user figure out where to start debugging;
 getting it via introspection
@@ -197,7 +300,11 @@ we have to make it as painless as possible.
 A couple of <code>import</code> statements to get <code>assert</code> and <code>hope</code>
 and then one function call per test
 is about as simple as we can make the tests themselves:</p>
-<div class="include" file="test-add.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">assert</span> <span class="kr">from</span> <span class="s1">&#39;assert&#39;</span>
+<span class="k">import</span> <span class="nx">hope</span> <span class="kr">from</span> <span class="s1">&#39;./hope.js&#39;</span>
+
+<span class="nx">hope</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="s1">&#39;Sum of 1 and 2&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="nx">assert</span><span class="p">((</span><span class="mf">1</span> <span class="o">+</span> <span class="mf">2</span><span class="p">)</span> <span class="o">===</span> <span class="mf">3</span><span class="p">))</span>
+</code></pre></div>
 
 <p>But that just defines the tests---how will we find them so that we can run them?
 One option is to require people to <code>import</code> each of the files containing tests
@@ -216,18 +323,39 @@ into another file:</p>
 <!-- continue -->
 <p>Here,
 <code>all-the-tests.js</code> imports other files so that they will register tests
-as a <span g="side_effect" i="side effect!for module registration">side effect</span> via calls to <code>hope.test</code>
+as a <span class="indexref" key="side effect!for module registration" markdown="1"><a class="glossref" href="../glossary/#side_effect" markdown="1">side effect</a></span> via calls to <code>hope.test</code>
 and then calls <code>Hope.run</code> to execute them.
 It works,
 but sooner or later (probably sooner) someone will forget to import one of the test files.</p>
-<p>A better strategy is to load test files <span g="dynamic_loading" i="dynamic loading">dynamically</span>.
+<p>A better strategy is to load test files <span class="indexref" key="dynamic loading" markdown="1"><a class="glossref" href="../glossary/#dynamic_loading" markdown="1">dynamically</a></span>.
 While <code>import</code> is usually written as a statement,
 it can also be used as an <code>async</code> function
 that takes a path as a parameter and loads the corresponding file.
 As before,
 loading files executes the code they contain,
 which registers tests as a side effect:</p>
-<div class="include" file="pray.js" omit="options" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">minimist</span> <span class="kr">from</span> <span class="s1">&#39;minimist&#39;</span>
+<span class="k">import</span> <span class="nx">glob</span> <span class="kr">from</span> <span class="s1">&#39;glob&#39;</span>
+<span class="k">import</span> <span class="nx">hope</span> <span class="kr">from</span> <span class="s1">&#39;./hope.js&#39;</span>
+
+<span class="kd">const</span> <span class="nx">main</span> <span class="o">=</span> <span class="k">async</span> <span class="p">(</span><span class="nx">args</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">options</span> <span class="o">=</span> <span class="nx">parse</span><span class="p">(</span><span class="nx">args</span><span class="p">)</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">filenames</span><span class="p">.</span><span class="nx">length</span> <span class="o">===</span> <span class="mf">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">options</span><span class="p">.</span><span class="nx">filenames</span> <span class="o">=</span> <span class="nx">glob</span><span class="p">.</span><span class="nx">sync</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">options</span><span class="p">.</span><span class="nx">root</span><span class="si">}</span><span class="sb">/**/test-*.js`</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">f</span> <span class="k">of</span> <span class="nx">options</span><span class="p">.</span><span class="nx">filenames</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">await</span> <span class="k">import</span><span class="p">(</span><span class="nx">f</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="nx">hope</span><span class="p">.</span><span class="nx">run</span><span class="p">()</span>
+  <span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">output</span> <span class="o">===</span> <span class="s1">&#39;terse&#39;</span><span class="p">)</span>
+    <span class="o">?</span> <span class="nx">hope</span><span class="p">.</span><span class="nx">terse</span><span class="p">()</span>
+    <span class="o">:</span> <span class="nx">hope</span><span class="p">.</span><span class="nx">verbose</span><span class="p">()</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span>
+<span class="p">}</span>
+
+
+<span class="nx">main</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">2</span><span class="p">))</span>
+</code></pre></div>
 
 <p>By default,
 this program finds all files below the current working directory
@@ -251,9 +379,20 @@ associated with the special key <code>_</code> (a single underscore),
 we have to write <code>pray.js -v -- something.js</code>.
 The double dash is a common Unix convention for signalling the end of parameters.</p>
 </blockquote>
-<p>Our <span g="test_runner" i="test runner; unit test!test runner">test runner</span> is now complete,
+<p>Our <span class="indexref" key="test runner;unit test!test runner" markdown="1"><a class="glossref" href="../glossary/#test_runner" markdown="1">test runner</a></span> is now complete,
 so we can try it out with some files containing tests that pass, fail, and contain errors:</p>
-<div class="include" pat="pray.*" fill="sh out" />
+<div class="codehilite"><pre><span></span><code>node pray.js -v
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>passes:
+  /u/stjs/unit-test/test-add.js::Sum of 1 and 2
+  /u/stjs/unit-test/test-sub.js::Difference of 1 and 2
+fails:
+  /u/stjs/unit-test/test-div.js::Quotient of 1 and 0
+  /u/stjs/unit-test/test-mul.js::Product of 1 and 2
+errors:
+  /u/stjs/unit-test/test-missing.js::Sum of x and 0
+</code></pre></div>
 
 <blockquote>
 <h3>Infinity is allowed</h3>
@@ -268,7 +407,7 @@ rather than an arithmetic error.</p>
 is a common pattern in many programming languages.
 Control flow goes back and forth between the framework and the module being loaded
 as this happens
-so we must specify the <span g="lifecycle" i="lifecycle!of unit test; unit test!lifecycle">lifecycle</span> of the loaded modules quite carefully.
+so we must specify the <span class="indexref" key="lifecycle!of unit test;unit test!lifecycle" markdown="1"><a class="glossref" href="../glossary/#lifecycle" markdown="1">lifecycle</a></span> of the loaded modules quite carefully.
 <a figure="unit-test-lifecycle"/> illustrates what span
 when a pair of files <code>test-add.js</code> and <code>test-sub.js</code> are loaded by our framework:</p>
 <ol>
@@ -286,8 +425,8 @@ when a pair of files <code>test-add.js</code> and <code>test-sub.js</code> are l
      then get a report from the <code>Hope</code> singleton and display it.</li>
 </ol>
 <figure id="unit-test-lifecycle">
-  <img src="figures/lifecycle.svg" alt="Unit testing lifecycle" />
-  <figcaption>Lifecycle of dynamically-discovered unit tests.</figcaption>
+  <img src="./figures/lifecycle.svg" alt="Unit testing lifecycle" />
+  <figcaption markdown="1">Figure 4.3: Lifecycle of dynamically-discovered unit tests.</figcaption>
 </figure>
 
 <h2 id="unit-test-exercises">Exercises</h2>
@@ -318,8 +457,8 @@ so that it records and reports the execution times for tests.</p>
 ```</p>
 </li>
 <li>
-<p>Modify the function again so that it checks the <span g="relative_error">relative error</span>
-    instead of the <span g="absolute_error">absolute error</span>.
+<p>Modify the function again so that it checks the <a class="glossref" href="../glossary/#relative_error" markdown="1">relative error</a>
+    instead of the <a class="glossref" href="../glossary/#absolute_error" markdown="1">absolute error</a>.
     (The relative error is the absolute value of the difference between the actual and expected value,
     divided by the absolute value.)</p>
 </li>

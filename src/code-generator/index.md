@@ -53,16 +53,16 @@ Let's start by creating functions with a varying number of parameters
 that run to completion or throw an exception,
 then run them to make sure they do what we want:
 
-<div class="include" file="replace-func.js" keep="original" />
+[% excerpt file="replace-func.js" keep="original" %]
 
 We can now write a function that takes a function as an input
 and creates a new function that handles all of the errors in the original function:
 
-<div class="include" file="replace-func.js" keep="replace" />
+[% excerpt file="replace-func.js" keep="replace" %]
 
 Let's try it out:
 
-<div class="include" file="replace-func.out" />
+[% excerpt file="replace-func.out" %]
 
 This is an example of the [% i "Decorator pattern" "design pattern!Decorator" %][% g decorator_pattern %]Decorator[% /g %][% /i %] design pattern.
 A decorator is a function whose job is to modify the behavior of other functions
@@ -95,7 +95,7 @@ To start,
 let's look at the AST for a simple function definition,
 which is <span class="linecount" file="func-def.out"/> lines of pretty-printed JSON:
 
-<div class="include" pat="func-def.*" fill="js out" />
+[% excerpt pat="func-def.*" fill="js out" %]
 
 After inspecting a few nodes,
 we can try to create some of our own and turn them into code.
@@ -103,7 +103,7 @@ Here,
 for example,
 we have the JSON representation of the expression `40+2`:
 
-<div class="include" pat="one-plus-two.*" fill="js out" />
+[% excerpt pat="one-plus-two.*" fill="js out" %]
 
 ## How can we count how often functions are executed? {#code-generator-count}
 
@@ -114,17 +114,17 @@ we won't accidentally clobber a variable in the user's program with the same nam
 but hopefully it makes that less likely.)
 Our test case is:
 
-<div class="include" file="multi-func-counter.js" keep="test" />
+[% excerpt file="multi-func-counter.js" keep="test" %]
 
 <!-- continue -->
 and the main function of our program is:
 
-<div class="include" file="multi-func-counter.js" keep="main" />
+[% excerpt file="multi-func-counter.js" keep="main" %]
 
 To insert a count we call `insertCounter`
 to record the function's name and modify the node:
 
-<div class="include" file="multi-func-counter.js" keep="insert" />
+[% excerpt file="multi-func-counter.js" keep="insert" %]
 
 <!-- continue -->
 Notice how we don't try to build the nodes by hand,
@@ -138,12 +138,12 @@ our program will do the right thing automatically.
 Finally,
 we need to add a couple of [% i "helper function" %]helper functions[% /i %]:
 
-<div class="include" file="multi-func-counter.js" keep="admin" />
+[% excerpt file="multi-func-counter.js" keep="admin" %]
 
 <!-- continue -->
 and run it to make sure it all works:
 
-<div class="include" file="multi-func-counter.out" />
+[% excerpt file="multi-func-counter.out" %]
 
 > ### Too simple to be safe
 >
@@ -167,26 +167,26 @@ As before,
 we find the nodes of interest and decorate them,
 then stitch the result together with a bit of bookkeeping:
 
-<div class="include" file="time-func.js" keep="timeFunc" />
+[% excerpt file="time-func.js" keep="timeFunc" %]
 
 Gathering nodes is straightforward:
 
-<div class="include" file="time-func.js" keep="gatherNodes" />
+[% excerpt file="time-func.js" keep="gatherNodes" %]
 
 <!-- continue -->
 as is wrapping the function definition:
 
-<div class="include" file="time-func.js" keep="wrapFuncDef" />
+[% excerpt file="time-func.js" keep="wrapFuncDef" %]
 
 The only big difference is how we make the wrapper function.
 We create it with a placeholder for the original function
 so that we have a spot in the AST to insert the actual code:
 
-<div class="include" file="time-func.js" keep="timeFunc" />
+[% excerpt file="time-func.js" keep="timeFunc" %]
 
 Let's run one last test:
 
-<div class="include" file="test-time-func.out" />
+[% excerpt file="test-time-func.out" %]
 
 Source-to-source translation is widely used in JavaScript:
 tools like [% i "Babel" %][Babel][babel][% /i %] use it to transform modern features like `async` and `await`
