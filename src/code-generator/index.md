@@ -6,7 +6,7 @@ lede: "Modifying code to track coverage and execution times"
 
 We've been writing tests since <a section="unit-test"/>,
 but how much of our code do they actually check?
-One way to find out is to use a <span g="code_coverage" i="code coverage">code coverage</span> tool
+One way to find out is to use a [% i "code coverage" %][% g code_coverage %]code coverage[% /g %][% /i %] tool
 like <span i="Istanbul">[Istanbul][istanbul]</span>
 that watches a program while it executes
 and keeps track of which lines have run and which haven't.
@@ -64,7 +64,7 @@ Let's try it out:
 
 <div class="include" file="replace-func.out" />
 
-This is an example of the <span g="decorator_pattern" i="Decorator pattern; design pattern!Decorator">Decorator</span> design pattern.
+This is an example of the [% i "Decorator pattern" "design pattern!Decorator" %][% g decorator_pattern %]Decorator[% /g %][% /i %] design pattern.
 A decorator is a function whose job is to modify the behavior of other functions
 in some general ways.
 Decorators are built in to some languages (like <span i="Python">[Python][python]</span>),
@@ -148,13 +148,13 @@ and run it to make sure it all works:
 > ### Too simple to be safe
 >
 > Our simple approach to naming counters doesn't work if functions can have the same names,
-> which they can if we use modules or <span g="nested_function" i="nested function; function!nested">nested functions</span>.
+> which they can if we use modules or [% i "nested function" "function!nested" %][% g nested_function %]nested functions[% /g %][% /i %].
 > One way to solve this would be to manufacture a label from the function's name
 > and the line number in the source code;
 > another would be to keep track of which functions are nested within which
 > and concatenate their names to produce a unique key.
 > Problems like this are why people say that naming things
-> is one of the <span g="two_hard_problems" i="two hard problems in computer science">two hard problems</span> in computer science.
+> is one of the [% i "two hard problems in computer science" %][% g two_hard_problems %]two hard problems[% /g %][% /i %] in computer science.
 
 ## How can we time function execution? {#code-generator-time}
 
@@ -194,7 +194,7 @@ tools like <span i="Babel">[Babel][babel]</span> use it to transform modern feat
 into code that older browsers can understand.
 The technique is so powerful that it is built into languages like Scheme,
 which allow programmers to add new syntax to the language
-by defining <span g="macro" i="macro">macros</span>.
+by defining [% i "macro" %][% g macro %]macros[% /g %][% /i %].
 Depending on how carefully they are used,
 macros can make programs elegant, incomprehensible, or both.
 

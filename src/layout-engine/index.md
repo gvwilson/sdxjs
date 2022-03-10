@@ -8,7 +8,7 @@ You might be reading this as an HTML page,
 an e-book (which is basically the same thing),
 or on the printed page.
 In all three cases,
-a <span g="layout_engine" i="layout engine">layout engine</span> took some text and some layout instructions
+a [% i "layout engine" %][% g layout_engine %]layout engine[% /g %][% /i %] took some text and some layout instructions
 and decided where to put each character and image.
 We will build a small layout engine in this chapter
 based on <span i="Brubeck, Matt">[Matt Brubeck's][brubeck-matt]</span> [tutorial][browser-tutorial]
@@ -71,7 +71,7 @@ Given such a tree,
 we can calculate the width and height of each cell every time we need to.
 This is simple but inefficient:
 we could calculate both width and height at the same time
-and <span g="cache" i="cache!calculated values">cache</span> those values to avoid recalculation,
+and [% i "cache!calculated values" %][% g cache %]cache[% /g %][% /i %] those values to avoid recalculation,
 but we called this "easy mode" for a reason.
 
 As simple as it is,
@@ -155,7 +155,7 @@ while its children will be 'b', 'c', and so on.
 
 To teach each kind of cell how to render itself,
 we have to derive a new class from each of the ones we have
-and give the new class a `render` method with the same <span g="signature" i="signature!of function; function signature">signature</span>:
+and give the new class a `render` method with the same [% i "signature!of function" "function signature" %][% g signature %]signature[% /g %][% /i %]:
 
 <div class="include" file="rendered.js" />
 
@@ -179,7 +179,7 @@ The fact that we find our own tests difficult to understand
 is a sign that we should do more testing.
 It would be very easy for us to get a wrong result
 and convince ourselves that it was actually correct;
-<span g="confirmation_bias" i="confirmation bias">confirmation bias</span> of this kind
+[% i "confirmation bias" %][% g confirmation_bias %]confirmation bias[% /g %][% /i %] of this kind
 is very common in software development.
 
 ## How can we wrap elements to fit? {#layout-engine-fit}
@@ -238,7 +238,7 @@ and write some new ones to test the functionality we've added:
 > ### The Liskov Substitution Principle
 >
 > We are able to re-use tests like this because of
-> the <span g="liskov_substitution_principle" i="Liskov Substitution Principle; software design!Liskov Substitution Principle">Liskov Substitution Principle</span>,
+> the [% i "Liskov Substitution Principle" "software design!Liskov Substitution Principle" %][% g liskov_substitution_principle %]Liskov Substitution Principle[% /g %][% /i %],
 > which states that
 > it should be possible to replace objects in a program
 > with objects of derived classes
@@ -250,7 +250,7 @@ and write some new ones to test the functionality we've added:
 > its output must be a subset of what the old code produced
 > so that whatever is downstream from it won't be surprised.
 > Thinking in these terms leads to a methodology called
-> <span g="design_by_contract" i="design by contract; software design!design by contract">design by contract</span>.
+> [% i "design by contract" "software design!design by contract" %][% g design_by_contract %]design by contract[% /g %][% /i %].
 
 ## What subset of CSS will we support? {#layout-engine-css}
 
@@ -297,7 +297,7 @@ We keep track of which rules take precedence over which through the simple exped
 
 <div class="include" file="micro-css.js" keep="css" />
 
-An ID rule's <span g="query_selector" i="query selector">query selector</span> is written as `#name`
+An ID rule's [% i "query selector" %][% g query_selector %]query selector[% /g %][% /i %] is written as `#name`
 and matches HTML like `<tag id="name">...</tag>` (where `tag` is `row` or `col`):
 
 <div class="include" file="micro-css.js" keep="id" />

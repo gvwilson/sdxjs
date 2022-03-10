@@ -19,30 +19,30 @@ and all the values in a column have the same type
 (<a figure="data-table-conceptual"/>).
 Data tables appear over and over again in programming,
 from spreadsheets and databases
-to the <span g="data_frame" i="data frame">data frames</span> in
+to the [% i "data frame" %][% g data_frame %]data frames[% /g %][% /i %] in
 <span i="R">R's</span> <span i="tidyverse">[tidyverse][tidyverse]</span> packages,
 <span i="Python">[Python's][python]</span> <span i="Pandas">[Pandas][pandas]</span> library,
 or the <span i="DataForge">[DataForge][data-forge]</span> library for JavaScript <cite>Davis2018</cite>.
 
 [% figure slug="data-table-conceptual" img="figures/conceptual.svg" alt="Data table structure" caption="The structure of a data table." %]
 
-The key operations on data tables are those provided by <span g="sql" i="SQL">SQL</span>:
+The key operations on data tables are those provided by [% i "SQL" %][% g sql %]SQL[% /g %][% /i %]:
 filter, select, summarize, and join.
 These can be implemented in about five hundred lines of code,
 but their performance depends on how the data table is stored.
 
 ## How can we implement data tables? {#data-table-implement}
 
-One way to store a table is <span g="row_major" i="row-major storage order; storage order!row-major">row-major</span> order,
+One way to store a table is [% i "row-major storage order" "storage order!row-major" %][% g row_major %]row-major[% /g %][% /i %] order,
 in which the values in each row are stored together in memory.
-This is sometimes also called <span g="heterogeneous" i="heterogeneous storage; storage!heterogeneous">heterogeneous</span> storage
+This is sometimes also called [% i "heterogeneous storage" "storage!heterogeneous" %][% g heterogeneous %]heterogeneous[% /g %][% /i %] storage
 because each "unit" of storage can contain values of different types.
 We can implement this design in JavaScript using an array of objects,
 each of which has the same keys
 (<a figure="data-table-storage-order"/>).
 
-Another option is <span g="column_major" i="column-major storage order; storage order!column-major">column-major</span>
-or <span g="homogeneous" i="homogeneous storage; storage!homogeneous">homogeneous</span> order,
+Another option is [% i "column-major storage order" "storage order!column-major" %][% g column_major %]column-major[% /g %][% /i %]
+or [% i "homogeneous storage" "storage!homogeneous" %][% g homogeneous %]homogeneous[% /g %][% /i %] order,
 in which all the values in a column are stored together.
 In JavaScript,
 this could be implemented using an object
@@ -64,7 +64,7 @@ the ratio of filters to selects may determine which is "best".
 
 > ### Immutability
 >
-> All of our implementations will treat each data table as <span g="immutable" i="immutable data">immutable</span>:
+> All of our implementations will treat each data table as [% i "immutable data" %][% g immutable %]immutable[% /g %][% /i %]:
 > once we have created it,
 > we will not modify its contents.
 > This doesn't actually have much impact on performance
@@ -124,7 +124,7 @@ but filtering will be relatively slow since we are constructing multiple new arr
 ## How can we test the performance of our implementations? {#data-table-profile}
 
 Now that we have our tables and operations,
-we can build a <span g="test_harness" i="test harness; experiments!test harness">test harness</span> to run those operations
+we can build a [% i "test harness" "experiments!test harness" %][% g test_harness %]test harness[% /g %][% /i %] to run those operations
 on data tables of varying sizes.
 We arbitrarily decide to keep half of the columns and one-third of the rows;
 these ratios will affect our decision about which is better,
@@ -218,7 +218,7 @@ but column-major storage is still the best approach.
 ## Does binary storage improve performance? {#data-table-binary}
 
 Let's try one more strategy for storing our tables.
-JavaScript stores values in <span g="tagged_data" i="tagged data structure">tagged</span> data structures:
+JavaScript stores values in [% i "tagged data structure" %][% g tagged_data %]tagged[% /g %][% /i %] data structures:
 some bits define the value's type
 while other bits store the value itself in a type-dependent way
 (<a figure="data-table-object-storage"/>).

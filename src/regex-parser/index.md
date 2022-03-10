@@ -7,7 +7,7 @@ lede: "Turning text into code"
 In <a section="pattern-matching"/> we created regular expressions by constructing objects.
 It takes a lot less typing to write them as strings as we did for HTML selectors,
 but if we're going to do that we need something to convert those strings to the required objects.
-In other words, we need to write a <span g="parser" i="parser">parser</span>.
+In other words, we need to write a [% i "parser" %][% g parser %]parser[% /g %][% /i %].
 
 <div class="table" id="regex-parser-grammar-codes" caption="Regular expression grammar.">
 | Meaning | Character |
@@ -49,7 +49,7 @@ the exercises will tackle the latter.
 
 ## How can we break text into tokens? {#regex-parser-tokenize}
 
-A <span g="token" i="token (in parsing)">token</span> is an atom of text,
+A [% i "token (in parsing)" %][% g token %]token[% /g %][% /i %] is an atom of text,
 such as the digits making up a number or the letters making up a variable name.
 In our grammar the tokens are the special characters `*`, `|`, `(`, `)`, `^`, and `$`,
 plus any sequence of one or more other characters (which count as one multi-letter token).
@@ -57,7 +57,7 @@ This classification guides the design of our parser:
 
 1.  If a character is special, create a token for it.
 
-1.  If it is a <span g="literal" i="literal (in parsing)">literal</span> then:
+1.  If it is a [% i "literal (in parsing)" %][% g literal %]literal[% /g %][% /i %] then:
     1.  combine it with the current literal if there is one, or
     1.  start a new literal.
 
@@ -197,7 +197,7 @@ it is doing a lot of complex things.
 Compared to parsers for things like JSON and YAML,
 though,
 it is still very simple.
-If we have more operators with different <span g="precedence" i="operator precedence!implementing">precedences</span>
+If we have more operators with different [% i "operator precedence!implementing" %][% g precedence %]precedences[% /g %][% /i %]
 we should switch to the <span i="shunting-yard algorithm; parser!shunting-yard algorithm">[shunting-yard algorithm][shunting-yard-algorithm]</span>,
 and if we need to handle a language like JavaScript we should explore tools like <span i="ANTLR">[ANTLR][antlr]</span>,
 which can generate a parser automatically given a description of the language to be parsed.
@@ -213,13 +213,13 @@ but at least they're broken the same way everywhere.
 > every formal language corresponds to a type of abstract machine and vice versa,
 > and that some languages (or machines) are more or less powerful than others.
 > For example,
-> every regular expression corresponds to a <span g="fsm" i="finite state machine!correspondence with regular expressions">finite state machine</span> (FSM)
+> every regular expression corresponds to a [% i "finite state machine!correspondence with regular expressions" %][% g fsm %]finite state machine[% /g %][% /i %] (FSM)
 > like the one in <a figure="regex-parser-finite-state-machine"/>.
 > As powerful as FSMs are,
 > they cannot match things like nested parentheses or HTML tags,
 > and <span i="sin!using regular expressions to parse HTML">[attempting to do so is a sin][stack-overflow-html-regex]</span>.
 > If you add a stack to the system you can process a much richer set of languages,
-> and if you add two stacks you have something equivalent to a <span g="turing_machine" i="Turing Machine">Turing Machine</span>
+> and if you add two stacks you have something equivalent to a [% i "Turing Machine" %][% g turing_machine %]Turing Machine[% /g %][% /i %]
 > that can do any conceivable computation.
 > <cite>Conery2021</cite> presents this idea and others for self-taught developers.
 

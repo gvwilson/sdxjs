@@ -6,11 +6,11 @@ lede: "Testing software piece by piece"
 
 We have written many small programs in the previous two chapters,
 but haven't really tested any of them.
-That's OK for <span g="exploratory_programming" i="exploratory programming">exploratory programming</span>,
+That's OK for [% i "exploratory programming" %][% g exploratory_programming %]exploratory programming[% /g %][% /i %],
 but if our software is going to be used instead of just read,
 we should try to make sure it works.
 
-A tool for writing and running <span g="unit_test" i="unit test!requirements for">unit tests</span> is a good first step.
+A tool for writing and running [% i "unit test!requirements for" %][% g unit_test %]unit tests[% /g %][% /i %] is a good first step.
 Such a tool should:
 
 -   find files containing tests;
@@ -28,28 +28,28 @@ from the 1980s onward <cite>Meszaros2007,Tudose2020</cite>.
 As in other unit testing frameworks,
 each test will be a function of zero arguments
 so that the framework can run them all in the same way.
-Each test will create a <span g="fixture" i="fixture (in unit test); unit test!fixture">fixture</span> to be tested
-and use <span g="assertion" i="assertion!in unit test">assertions</span>
-to compare the <span g="actual_result" i="actual result (in unit test); unit test!actual result">actual result</span>
-against the <span g="expected_result" i="expected result (in unit test); unit test!expected result">expected result</span>.
+Each test will create a [% i "fixture (in unit test)" "unit test!fixture" %][% g fixture %]fixture[% /g %][% /i %] to be tested
+and use [% i "assertion!in unit test" %][% g assertion %]assertions[% /g %][% /i %]
+to compare the [% i "actual result (in unit test)" "unit test!actual result" %][% g actual_result %]actual result[% /g %][% /i %]
+against the [% i "expected result (in unit test)" "unit test!expected result" %][% g expected_result %]expected result[% /g %][% /i %].
 The outcome can be exactly one of:
 
--   <span g="pass_test" i="pass (in unit test); unit test!pass">Pass</span>:
-    the <span g="test_subject" i="test subject (in unit test); unit test!test subject">test subject</span> works as expected.
+-   [% i "pass (in unit test)" "unit test!pass" %][% g pass_test %]Pass[% /g %][% /i %]:
+    the [% i "test subject (in unit test)" "unit test!test subject" %][% g test_subject %]test subject[% /g %][% /i %] works as expected.
 
--   <span g="fail_test" i="fail (in unit test); unit test!fail">Fail</span>:
+-   [% i "fail (in unit test)" "unit test!fail" %][% g fail_test %]Fail[% /g %][% /i %]:
     something is wrong with the test subject.
 
--   <span g="error_test" i="error (in unit test); unit test!error">Error</span>:
+-   [% i "error (in unit test)" "unit test!error" %][% g error_test %]Error[% /g %][% /i %]:
     something wrong in the test itself,
     which means we don't know whether the test subject is working properly or not.
 
 To make this work,
 we need some way to distinguish failing tests from broken ones.
 Our solution relies on the fact that exceptions are objects
-and that a program can use <span g="introspection" i="introspection!in unit testing">introspection</span>
+and that a program can use [% i "introspection!in unit testing" %][% g introspection %]introspection[% /g %][% /i %]
 to determine the class of an object.
-If a test <span g="throw_exception" i="exception!throw">throws an exception</span> whose class is `assert.AssertionError`,
+If a test [% i "exception!throw" %][% g throw_exception %]throws an exception[% /g %][% /i %] whose class is `assert.AssertionError`,
 then we will assume the exception came from
 one of the assertions we put in the test as a check
 (<a figure="unit-test-mental-model"/>).
@@ -65,7 +65,7 @@ let's use a handful of <span g="global_variable">global variables</span> to reco
 <div class="include" file="dry-run.js" keep="state" />
 
 We don't run tests immediately
-because we want to wrap each one in our own <span g="exception_handler" i="exception!handler">exception handler</span>.
+because we want to wrap each one in our own [% i "exception!handler" %][% g exception_handler %]exception handler[% /g %][% /i %].
 Instead,
 the function `hopeThat` saves a descriptive message and a callback function that implements a test
 in the `HopeTest` array.
@@ -120,7 +120,7 @@ This simple "framework" does what it's supposed to, but:
 
 The next version of our testing tool solves the first two problems in the original
 by putting the testing machinery in a class.
-It uses the <span g="singleton_pattern" i="Singleton pattern; design pattern!Singleton">Singleton</span> <span g="design_pattern">design pattern</span>
+It uses the [% i "Singleton pattern" "design pattern!Singleton" %][% g singleton_pattern %]Singleton[% /g %][% /i %] <span g="design_pattern">design pattern</span>
 to ensure that only one object of that class is ever created <cite>Osmani2017</cite>.
 Singletons are a way to manage global variables that belong together
 like the ones we're using to record tests and their results.
@@ -137,7 +137,7 @@ This strategy relies on two things:
 1.  [Node][nodejs] executes the code in a JavaScript module as it loads it,
     which means that it runs `new Hope()` and exports the newly-created object.
 
-1.  Node <span g="caching" i="cache!modules; require!caching modules">caches</span> modules
+1.  Node [% i "cache!modules" "require!caching modules" %][% g caching %]caches[% /g %][% /i %] modules
     so that a given module is only loaded once
     no matter how many times it is imported.
     This ensures that `new Hope()` really is only called once.
@@ -201,12 +201,12 @@ Hope.run()
 <!-- continue -->
 Here,
 `all-the-tests.js` imports other files so that they will register tests
-as a <span g="side_effect" i="side effect!for module registration">side effect</span> via calls to `hope.test`
+as a [% i "side effect!for module registration" %][% g side_effect %]side effect[% /g %][% /i %] via calls to `hope.test`
 and then calls `Hope.run` to execute them.
 It works,
 but sooner or later (probably sooner) someone will forget to import one of the test files.
 
-A better strategy is to load test files <span g="dynamic_loading" i="dynamic loading">dynamically</span>.
+A better strategy is to load test files [% i "dynamic loading" %][% g dynamic_loading %]dynamically[% /g %][% /i %].
 While `import` is usually written as a statement,
 it can also be used as an `async` function
 that takes a path as a parameter and loads the corresponding file.
@@ -240,7 +240,7 @@ and creates an object with flags as keys and values associated with them.
 > we have to write `pray.js -v -- something.js`.
 > The double dash is a common Unix convention for signalling the end of parameters.
 
-Our <span g="test_runner" i="test runner; unit test!test runner">test runner</span> is now complete,
+Our [% i "test runner" "unit test!test runner" %][% g test_runner %]test runner[% /g %][% /i %] is now complete,
 so we can try it out with some files containing tests that pass, fail, and contain errors:
 
 <div class="include" pat="pray.*" fill="sh out" />
@@ -261,7 +261,7 @@ Loading modules dynamically so that they can register something for us to call l
 is a common pattern in many programming languages.
 Control flow goes back and forth between the framework and the module being loaded
 as this happens
-so we must specify the <span g="lifecycle" i="lifecycle!of unit test; unit test!lifecycle">lifecycle</span> of the loaded modules quite carefully.
+so we must specify the [% i "lifecycle!of unit test" "unit test!lifecycle" %][% g lifecycle %]lifecycle[% /g %][% /i %] of the loaded modules quite carefully.
 <a figure="unit-test-lifecycle"/> illustrates what span
 when a pair of files `test-add.js` and `test-sub.js` are loaded by our framework:
 

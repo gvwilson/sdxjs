@@ -7,7 +7,7 @@ lede: "Using promises to manage delayed computation"
 Callbacks work,
 but they are hard to read and debug,
 which means they only "work" in a limited sense.
-JavaScript's developers added <span g="promise" i="promise!as alternative to callback">promises</span> to the language in 2015
+JavaScript's developers added [% i "promise!as alternative to callback" %][% g promise %]promises[% /g %][% /i %] to the language in 2015
 to make callbacks easier to write and understand,
 and more recently they added the keywords `async` and `await` as well
 to make asynchronous programming easier still.
@@ -19,7 +19,7 @@ and we encourage you to read that as well.
 
 ## How can we manage asynchronous execution? {#async-programming-manage}
 
-JavaScript is built around an <span g="event_loop" i="event loop; execution!event loop">event loop</span>.
+JavaScript is built around an [% i "event loop" "execution!event loop" %][% g event_loop %]event loop[% /g %][% /i %].
 Every task is represented by an entry in a queue;
 the event loop repeatedly takes a task from the front of the queue,
 runs it,
@@ -54,7 +54,7 @@ then adds it to the run queue.
 > ### Why zero arguments?
 >
 > `setTimeout`'s requirement that callback functions take no arguments
-> is another example of a <span g="protocol" i="protocol!API as; API!as protocol">protocol</span>.
+> is another example of a [% i "protocol!API as" "API!as protocol" %][% g protocol %]protocol[% /g %][% /i %].
 > One way to think about it is that protocols allow old code to use new code:
 > whoever wrote `setTimeout` couldn't know what specific tasks we want to delay,
 > so they specified a way to wrap up any task at all.
@@ -76,7 +76,7 @@ but any other tasks that are waiting have a chance to run as well:
 
 <!-- continue -->
 We can use this trick to build a generic
-<span g="non_blocking_execution" i="execution!non-blocking; non-blocking execution">non-blocking function</span>
+[% i "execution!non-blocking" "non-blocking execution" %][% g non_blocking_execution %]non-blocking function[% /g %][% /i %]
 that takes a callback defining a task
 and switches tasks if any others are available:
 
@@ -128,12 +128,12 @@ and what to do if it doesn't (i.e., how to handle errors).
 <span i="promise!then">`then`</span> to enable more actions
 and <span i="promise!catch">`catch`</span> to handle errors.
 To simplify things just a little bit,
-we will allow users to <span g="method_chaining" i="method chaining">chain</span> as many `then`s as they want,
+we will allow users to [% i "method chaining" %][% g method_chaining %]chain[% /g %][% /i %] as many `then`s as they want,
 but only allow one `catch`.
 
 ### Fluent interfaces
 
-A <span g="fluent_interface" i="fluent interface; programming style!fluent interface">fluent interface</span>
+A [% i "fluent interface" "programming style!fluent interface" %][% g fluent_interface %]fluent interface[% /g %][% /i %]
 is a style of object-oriented programming
 in which the methods of an object return `this`
 so that method calls can be chained together.
@@ -179,7 +179,7 @@ the `Pledge` gives us a value by calling the `resolve` callback.
 We pass this value to the first `then`,
 pass the result of that `then` to the second one,
 and so on.
-If any of them fail and throw an <span g="exception" i="exception!in promise">exception</span>,
+If any of them fail and throw an [% i "exception!in promise" %][% g exception %]exception[% /g %][% /i %],
 we pass that exception to the error handler.
 Putting it all together,
 the whole class looks like this:
@@ -286,8 +286,8 @@ Our first step is to count the lines in a single file:
 
 > ### Character encoding
 >
-> A <span g="character_encoding" i="character encoding">character encoding</span> specifies how characters are stored as bytes.
-> The most widely used is <span g="utf_8" i="UTF-8; character encoding!UTF-8">UTF-8</span>,
+> A [% i "character encoding" %][% g character_encoding %]character encoding[% /g %][% /i %] specifies how characters are stored as bytes.
+> The most widely used is [% i "UTF-8" "character encoding!UTF-8" %][% g utf_8 %]UTF-8[% /g %][% /i %],
 > which stores characters common in Western European languages in a single byte
 > and uses multi-byte sequences for other symbols.
 > If we don't specify a character encoding,

@@ -35,13 +35,13 @@ so let's slim down the JSON that we extract:
 [% figure slug="doc-generator-comments" img="figures/comments.svg" alt="Line and block comments" caption="How line comments and block comments are distinguished and represented." %]
 
 Acorn distinguishes two kinds of comments (<a figure="doc-generator-comments"/>).
-<span g="line_comment" i="line comment; comment!line">Line comments</span> cannot span multiple lines;
+[% i "line comment" "comment!line" %][% g line_comment %]Line comments[% /g %][% /i %] cannot span multiple lines;
 if one line comment occurs immediately after another,
 Acorn reports two comments:
 
 <div class="include" pat="multi-line-double-slash-comment.*" fill="js sh out" />
 
-<span g="block_comment" i="block comment; comment!block">Block comments</span>,
+[% i "block comment" "comment!block" %][% g block_comment %]Block comments[% /g %][% /i %],
 on the other hand,
 can span any number of lines.
 We don't need to prefix each line with `*` but most people do for readability:
@@ -58,7 +58,7 @@ so the first character in the extracted text is `*`:
 ## What input will we try to handle? {#doc-generator-input}
 
 We will use <span i="Markdown">[Markdown][markdown]</span> for formatting our documentation.
-The <span g="doc_comment" i="doc comment; comment!doc">doc comments</span> for function definitions look like this:
+The [% i "doc comment" "comment!doc" %][% g doc_comment %]doc comments[% /g %][% /i %] for function definitions look like this:
 
 <div class="include" file="example-plain.js" />
 
@@ -105,7 +105,7 @@ and putting the lines back together:
 
 One thing that isn't in this file (because we're going to use it in later versions)
 is the function `slugify`.
-A <span g="slug" i="slug (unique identifier)">slug</span> is a short string that identifies a header or a web page;
+A [% i "slug (unique identifier)" %][% g slug %]slug[% /g %][% /i %] is a short string that identifies a header or a web page;
 the name comes from the era of newspapers,
 where a slug was a short name used to identify an article while it was in production.
 Our `slugify` function strips unnecessary characters out of a title,
@@ -162,7 +162,7 @@ then searches for the nodes we want:
 <div class="include" file="find-following.js" keep="main" />
 
 The recursive search is straightforward as well---we delete line numbers from the target set
-and add nodes to the <span g="accumulator" i="Accumulator pattern; design pattern!Accumulator">accumulator</span> as we find matches:
+and add nodes to the [% i "Accumulator pattern" "design pattern!Accumulator" %][% g accumulator %]accumulator[% /g %][% /i %] as we find matches:
 
 <div class="include" file="find-following.js" keep="findFollowing" />
 

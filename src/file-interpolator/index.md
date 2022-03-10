@@ -8,14 +8,14 @@ Many of the examples in these lessons are too long
 to show comfortably in one block of code on a printed page,
 so we needed a way to break them up.
 As an experiment,
-we wrote a custom <span g="loader" i="module loader">module loader</span>
+we wrote a custom [% i "module loader" %][% g loader %]module loader[% /g %][% /i %]
 that reads a source file containing specially-formatted comments
 and then reads and inserts the files specified in those comments
 before running the code
 (<a figure="file-interpolator-conceptual"/>).
 Modern programming languages don't work this way,
 but <span i="C">C</span> and <span i="C++">C++</span> do this
-with <span g="header_file" i="header file!in C and C++">header files</span>,
+with [% i "header file!in C and C++" %][% g header_file %]header files[% /g %][% /i %],
 and <span i="static site generator!header file; header file!static site generator">static site generators</span>
 (<a section="page-templates"/>) do this to share fragments of HTML.
 
@@ -66,7 +66,7 @@ which takes a string as input and executes it as if it were part of the program
 > it could email our bookmark list to villains all over the world,
 > erase our hard drive,
 > or do anything else that code can do (which is pretty much anything).
-> Browsers do their best to run code in a <span g="sandbox" i="sandbox (for safe execution)">sandbox</span> for safety,
+> Browsers do their best to run code in a [% i "sandbox (for safe execution)" %][% g sandbox %]sandbox[% /g %][% /i %] for safety,
 > but Node doesn't,
 > so it's up to us to be (very) careful.
 
@@ -194,7 +194,7 @@ so we need a way specify where to look for files that are being included.
 One option is to use relative paths,
 but another option is to give our program
 a list of directories to look in.
-This is called a <span g="search_path" i="search path">search path</span>,
+This is called a [% i "search path" %][% g search_path %]search path[% /g %][% /i %],
 and many programs use them,
 including Node itself.
 By convention,
@@ -227,7 +227,7 @@ The outline of the class stays the same:
 <div class="include" file="need-path.js" omit="skip" />
 
 To get the search path,
-we look for the <span g="shell_variable" i="shell variable (for storing search path); search path!shell variable">shell variable</span> `NEED_PATH`.
+we look for the [% i "shell variable (for storing search path)" "search path!shell variable" %][% g shell_variable %]shell variable[% /g %][% /i %] `NEED_PATH`.
 (Writing shell variables' names in upper case is another convention.)
 If `NEED_PATH` exists,
 we split it on colons to create a list of directories:
@@ -353,7 +353,7 @@ this system doesn't automatically update the description of the code:
 if we write, "It does X,"
 then modify the code to do Y,
 our lesson can be inconsistent.
-<span g="literate_programming" i="literate programming">Literate programming</span> was invented
+[% i "literate programming" %][% g literate_programming %]Literate programming[% /g %][% /i %] was invented
 to try to prevent this from happening,
 but it never really caught on---unfortunately,
 most programming systems that describe themselves as "literate" these days

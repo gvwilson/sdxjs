@@ -14,13 +14,13 @@ and automatically re-translate all of them.
 
 Choosing what actions to take based on how files depend on one another is a common pattern.
 For example,
-programs in <span g="compiled_language" i="compiled language; language!compiled">compiled languages</span>
+programs in [% i "compiled language" "language!compiled" %][% g compiled_language %]compiled languages[% /g %][% /i %]
 like <span i="C">C</span> and <span i="Java">Java</span>
 have to be translated into lower-level forms before they can run.
 In fact,
 there are usually two stages to the translation:
 compiling each source file into some intermediate form,
-and then <span g="link" i="linking (compiled language); compiled language!linking">linking</span> the compiled modules
+and then [% i "linking (compiled language)" "compiled language!linking" %][% g link %]linking[% /g %][% /i %] the compiled modules
 to each other and to libraries
 to create a runnable program
 (<a figure="build-manager-compiling"/>).
@@ -29,12 +29,12 @@ there's no need to recompile it before linking.
 
 [% figure slug="build-manager-compiling" img="figures/compiling.svg" alt="Compiling and linking" caption="Compiling source files and linking the resulting modules." %]
 
-A <span g="build_manager" i="build manager">build manager</span> takes a description of what depends on what,
+A [% i "build manager" %][% g build_manager %]build manager[% /g %][% /i %] takes a description of what depends on what,
 figures out which files are out of date,
 determines an order in which to rebuild things,
 and then executes any necessary steps.
 Originally created to manage compilation,
-they are also useful for programs written in <span g="interpreted_language" i="language!interpreted; interpreted language">interpreted languages</span>
+they are also useful for programs written in [% i "language!interpreted" "interpreted language" %][% g interpreted_language %]interpreted languages[% /g %][% /i %]
 like JavaScript
 when we want to bundle multiple modules into a single loadable file (<a section="module-bundler"/>)
 or re-create documentation from source code (<a section="doc-generator"/>).
@@ -47,21 +47,21 @@ and other systems discussed in <cite>Smith2011</cite>.
 The input to a build manager is a set of rules,
 each of which has:
 
--   a <span g="build_target" i="build target; target!build">target</span>, which is the file to be updated;
+-   a [% i "build target" "target!build" %][% g build_target %]target[% /g %][% /i %], which is the file to be updated;
 
--   some <span g="dependency" i="dependency (in build); build!dependency">dependencies</span>, which are the things that file depends on;
+-   some [% i "dependency (in build)" "build!dependency" %][% g dependency %]dependencies[% /g %][% /i %], which are the things that file depends on;
     and
 
--   a <span g="build_recipe" i="recipe (in build); build!recipe">recipe</span> that specifies how to update the target
+-   a [% i "recipe (in build)" "build!recipe" %][% g build_recipe %]recipe[% /g %][% /i %] that specifies how to update the target
     if it is out of date compared to its dependencies.
 
 The target of one rule can be a dependency of another rule,
-so the relationships between the files form a <span g="dag" i="directed acyclic graph (DAG); DAG">directed acyclic graph</span> or DAG
+so the relationships between the files form a [% i "directed acyclic graph (DAG)" "DAG" %][% g dag %]directed acyclic graph[% /g %][% /i %] or DAG
 (<a figure="build-manager-dependencies"/>).
 The graph is directed because "A depends on B" is a one-way relationship;
 it cannot contain cycles (or loops) because
 if something depends on itself we can never finish updating it.
-We say that a target is <span g="build_stale" i="stale (in build); build!stale">stale</span> if it is older than any of its dependencies.
+We say that a target is [% i "stale (in build)" "build!stale" %][% g build_stale %]stale[% /g %][% /i %] if it is older than any of its dependencies.
 When this happens,
 we use the recipes to bring it up to date.
 
@@ -80,7 +80,7 @@ Our build manager must:
 
 > ### Topological order
 >
-> A <span g="topological_order" i="topological order">topological ordering</span> of a graph
+> A [% i "topological order" %][% g topological_order %]topological ordering[% /g %][% /i %] of a graph
 > arranges the nodes so that every node comes after everything it depends on.
 > For example,
 > if A depends on both B and C,
@@ -99,7 +99,7 @@ rules have a nested structure,
 and CSV doesn't represent nesting particularly gracefully.
 
 We are going to create our build manager in stages,
-so we start by writing a simple <span g="driver" i="software design!driver">driver</span> that loads a JavaScript source file,
+so we start by writing a simple [% i "software design!driver" %][% g driver %]driver[% /g %][% /i %] that loads a JavaScript source file,
 creates an object of whatever class that file exports,
 and runs the `.build` method of that object with the rest of the command-line parameters:
 
@@ -127,7 +127,7 @@ without actually implementing any of them:
 <div class="include" file="skeleton-builder.js" />
 
 This is an example of
-the <span g="template_method_pattern" i="Template Method pattern; design pattern!Template Method">Template Method</span> design pattern:
+the [% i "Template Method pattern" "design pattern!Template Method" %][% g template_method_pattern %]Template Method[% /g %][% /i %] design pattern:
 the parent class defines the order of the steps
 and child classes fill them in
 (<a figure="build-manager-template-method"/>).
@@ -265,7 +265,7 @@ If our website has a hundred blog posts
 or a hundred pages of documentation about particular JavaScript files,
 we don't want to have to write a hundred nearly-identical recipes.
 Instead,
-we want to be able to write generic <span g="build_rule" i="build!rule; rule (in build)">build rules</span> that say,
+we want to be able to write generic [% i "build!rule" "rule (in build)" %][% g build_rule %]build rules[% /g %][% /i %] that say,
 "Build all things of this kind the same way."
 These generic rules need:
 
@@ -281,7 +281,7 @@ Once again,
 object-oriented programming helps us change only what we need to change,
 provided we divided our problem into sensible chunks in the first place.
 
-Make provides <span g="automatic_variable" i="automatic variable (in build); build!automatic variable">automatic variables</span>
+Make provides [% i "automatic variable (in build)" "build!automatic variable" %][% g automatic_variable %]automatic variables[% /g %][% /i %]
 with names like `$<` and `$@`
 to represent the parts of a rule.
 Our variables will be more readable:
@@ -307,7 +307,7 @@ they tell us right away if something we have added or changed
 has broken something that used to work.
 That gives us a firm base to build on as we debug the new code.
 
-Now we need to add <span g="pattern_rule" i="pattern rule (in build); build!pattern rule">pattern rules</span>.
+Now we need to add [% i "pattern rule (in build)" "build!pattern rule" %][% g pattern_rule %]pattern rules[% /g %][% /i %].
 Our first attempt at a rules file looks like this:
 
 <div class="include" file="pattern-rules.yml" />
@@ -335,7 +335,7 @@ we wind up tripping over the lack of a node for `%.in` before we get to extracti
 > Once we tracked down our bug,
 > though,
 > we added the assertion to ensure we didn't make the same mistake again,
-> and as <span g="runnable_documentation" i="runnable documentation (assertions as); assertion!as runnable documentation">runnable documentation</span>
+> and as [% i "runnable documentation (assertions as)" "assertion!as runnable documentation" %][% g runnable_documentation %]runnable documentation[% /g %][% /i %]
 > to tell the next programmer more about the code.
 > Regular code tells the computer what to do;
 > assertions with meaningful error messages tell the reader why.

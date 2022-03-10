@@ -9,7 +9,7 @@ and the best place to put that documentation is on the web.
 Writing and updating pages by hand is time-consuming and error-prone,
 particularly when many parts are the same,
 so most documentation sites use some kind of
-<span g="static_site_generator" i="static site generator">static site generator</span>
+[% i "static site generator" %][% g static_site_generator %]static site generator[% /g %][% /i %]
 to create web pages from templates.
 
 At the heart of every static site generator is a page templating system.
@@ -116,7 +116,7 @@ experience teaches us that if all our variables are global,
 all of our programs will be buggy.)
 
 The standard way to manage variables is to create a stack of lookup tables.
-Each <span g="stack_frame" i="stack frame">stack frame</span> is an object with names and values;
+Each [% i "stack frame" %][% g stack_frame %]stack frame[% /g %][% /i %] is an object with names and values;
 when we need to find a variable,
 we look through the stack frames in order to find the uppermost definition of that variable..
 
@@ -124,14 +124,14 @@ we look through the stack frames in order to find the uppermost definition of th
 >
 > Searching the stack <span i="call stack!stack frame; stack frame">frame</span> by frame
 > while the program is running
-> is called is <span g="dynamic_scoping" i="dynamic scoping; scoping!dynamic">dynamic scoping</span>,
+> is called is [% i "dynamic scoping" "scoping!dynamic" %][% g dynamic_scoping %]dynamic scoping[% /g %][% /i %],
 > since we find variables while the program is running.
 > In contrast,
-> most programming languages used <span g="lexical_scoping" i="lexical scoping; scoping!lexical">lexical scoping</span>,
+> most programming languages used [% i "lexical scoping" "scoping!lexical" %][% g lexical_scoping %]lexical scoping[% /g %][% /i %],
 > which figures out what a variable name refers to based on the structure of the program text.
 
 The values in a running program are sometimes called
-an <span g="environment" i="environment (to store variables); call stack!environment">environment</span>,
+an [% i "environment (to store variables)" "call stack!environment" %][% g environment %]environment[% /g %][% /i %],
 so we have named our stack-handling class `Env`.
 Its methods let us push and pop new stack frames
 and find a variable given its name;
@@ -147,7 +147,7 @@ if the variable can't be found,
 
 HTML pages have a nested structure,
 so we will process them using
-the <span g="visitor_pattern" i="Visitor pattern; design pattern!Visitor">Visitor</span> design pattern.
+the [% i "Visitor pattern" "design pattern!Visitor" %][% g visitor_pattern %]Visitor[% /g %][% /i %] design pattern.
 `Visitor`'s constructor takes the root node of the DOM tree as an argument and saves it.
 When we call `Visitor.walk` without a value,
 it starts recursing from that saved root;
@@ -220,7 +220,7 @@ Note that this expander is *not* a class,
 but instead an object with two functions stored under the keys `open` and `close`.
 We could use a class for each handler
 so that handlers can store any extra state they need,
-but <span g="bare_object" i="bare object; software design!bare object">bare objects</span> are common and useful in JavaScript
+but [% i "bare object" "software design!bare object" %][% g bare_object %]bare objects[% /g %][% /i %] are common and useful in JavaScript
 (though we will see below that we *should* have used classes).
 
 So much for constants; what about variables?

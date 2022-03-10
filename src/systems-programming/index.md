@@ -5,11 +5,11 @@ lede: "Using callbacks to manipulate files and directories"
 ---
 
 The biggest difference between JavaScript and most other programming languages
-is that many operations in JavaScript are <span g="asynchronous" i="asynchronous execution; execution!asynchronous">asynchronous</span>.
+is that many operations in JavaScript are [% i "asynchronous execution" "execution!asynchronous" %][% g asynchronous %]asynchronous[% /g %][% /i %].
 Its designers didn't want browsers to freeze while waiting for data to arrive or for users to click on things,
 so operations that might be slow are implemented by describing now what to do later.
 And since anything that touches the hard drive is slow from a processor's point of view,
-[Node][nodejs] implements <span g="filesystem" i="filesystem operations">filesystem</span> operations the same way.
+[Node][nodejs] implements [% i "filesystem operations" %][% g filesystem %]filesystem[% /g %][% /i %] operations the same way.
 
 > ### How slow is slow?
 >
@@ -29,7 +29,7 @@ And since anything that touches the hard drive is slow from a processor's point 
 | Physical system reboot | 5 min | 32,000 years |
 </div>
 
-Early JavaScript programs used <span g="callback" i="callback function">callback functions</span> to describe asynchronous operations,
+Early JavaScript programs used [% i "callback function" %][% g callback %]callback functions[% /g %][% /i %] to describe asynchronous operations,
 but as we're about to see,
 callbacks can be hard to understand even in small programs.
 In 2015,
@@ -72,7 +72,7 @@ we will take advantage of this in future chapters.
 Our little program uses the [`fs`][node-fs] library
 which contains functions to create directories, read or delete files, etc.
 (Its name is short for "filesystem".)
-We tell the program what to list using <span g="command_line_argument" i="command-line argument">command-line arguments</span>,
+We tell the program what to list using [% i "command-line argument" %][% g command_line_argument %]command-line arguments[% /g %][% /i %],
 which Node automatically stores in an array called <span i="process.argv">`process.argv`</span>.
 `process.argv[0]` is the name of the program used to run our code (in this case `node`),
 while `process.argv[1]` is the name of our program (in this case `list-dir-wrong.js`);
@@ -87,7 +87,7 @@ The program uses `for (const name of results)` to loop over the contents of that
 We could use `let` instead of `const`,
 but it's good practice to declare things as <span i="const declaration!advantages of">`const`</span> wherever possible
 so that anyone reading the program knows the variable isn't actually going to vary---doing
-this reduces the <span g="cognitive_load" i="cognitive load">cognitive load</span> on people reading the program.
+this reduces the [% i "cognitive load" %][% g cognitive_load %]cognitive load[% /g %][% /i %] on people reading the program.
 Finally,
 <span i="console.log">`console.log`</span> is JavaScript's equivalent of other languages' `print` command;
 its strange name comes from the fact that
@@ -121,7 +121,7 @@ so we need to explore those in order to make our program work.
 
 ## What is a callback function? {#systems-programming-callback}
 
-JavaScript uses a <span g="single_threaded" i="single-threaded execution; execution!single-threaded">single-threaded</span> programming model:
+JavaScript uses a [% i "single-threaded execution" "execution!single-threaded" %][% g single_threaded %]single-threaded[% /g %][% /i %] programming model:
 as the introduction to this lesson said,
 it splits operations like file I/O into "please do this" and "do this when data is available".
 `fs.readdir` is the first part,
@@ -130,7 +130,7 @@ but we need to write a function that specifies the second part.
 JavaScript saves a reference to this function
 and calls with a specific set of parameters when our data is ready
 (<a figure="systems-programming-callbacks"/>).
-Those parameters defined a standard <span g="protocol" i="protocol!API as; API!as protocol">protocol</span>
+Those parameters defined a standard [% i "protocol!API as" "API!as protocol" %][% g protocol %]protocol[% /g %][% /i %]
 for connecting to libraries,
 just like the USB standard allows us to plug hardware devices together.
 
@@ -183,7 +183,7 @@ Instead,
 since the callback is only used in one place,
 it is more <span g="idiomatic">idiomatic</span>
 to define it where it is needed
-as an <span g="anonymous_function" i="anonymous function; function!anonymous">anonymous function</span>.
+as an [% i "anonymous function" "function!anonymous" %][% g anonymous_function %]anonymous function[% /g %][% /i %].
 This makes it easier to see what's going to happen when the operation completes,
 though it means the order of execution is quite different from the order of reading
 (<a figure="systems-programming-anonymous-functions"/>).
@@ -215,7 +215,7 @@ we want to be able to write patterns like `*.js`.
 
 To find files that match patterns like that,
 we can use the [`glob`][node-glob] module.
-(To <span g="globbing" i="globbing">glob</span> (short for "global") is an old Unix term for matching a set of files by name.)
+(To [% i "globbing" %][% g globbing %]glob[% /g %][% /i %] (short for "global") is an old Unix term for matching a set of files by name.)
 The `glob` module provides a function that takes a pattern and a callback
 and does something with every filename that matched the pattern:
 
@@ -236,7 +236,7 @@ so most commands will leave them alone unless told to do otherwise.
 
 This program works,
 but we probably don't want to copy Emacs backup files whose names end with `~`.
-We can get rid of them by <span g="filter" i="globbing!filtering results">filtering</span> the list that `glob` returns:
+We can get rid of them by [% i "globbing!filtering results" %][% g filter %]filtering[% /g %][% /i %] the list that `glob` returns:
 
 <div class="include" pat="glob-get-then-filter-pedantic.*" fill="js slice.out" />
 
@@ -303,7 +303,7 @@ let's specify a source directory on the command line and include that in the pat
 <div class="include" file="glob-with-source-directory.js" />
 
 <!-- continue -->
-This program uses <span g="string_interpolation" i="string interpolation">string interpolation</span>
+This program uses [% i "string interpolation" %][% g string_interpolation %]string interpolation[% /g %][% /i %]
 to insert the value of `srcDir` into a string.
 The template string is written in back quotes,
 and JavaScript converts every expression written as `${expression}` to text.
@@ -321,7 +321,7 @@ we can construct the full output path by replacing the name of the source direct
 <div class="include" file="glob-with-dest-directory.js" />
 
 <!-- continue -->
-This program uses <span g="destructuring_assignment" i="destructuring assignment; assignment!destructuring">destructuring assignment</span>
+This program uses [% i "destructuring assignment" "assignment!destructuring" %][% g destructuring_assignment %]destructuring assignment[% /g %][% /i %]
 to create two variables at once
 by unpacking the elements of an array
 (<a figure="systems-programming-destructuring-assignment"/>).
@@ -355,7 +355,7 @@ that the authors of that module have figured out for us.
 > and the name of the particular output directory to create.
 > This was legal,
 > since every function creates
-> a new <span g="scope" i="scope!of variable definitions; variable definition!scope">scope</span>,
+> a new [% i "scope!of variable definitions" "variable definition!scope" %][% g scope %]scope[% /g %][% /i %],
 > but hard for people to understand.
 
 Our file copying program currently creates empty destination directories

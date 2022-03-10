@@ -35,7 +35,7 @@ It is based in part on [this tutorial][package-manager-tutorial] by <span i="Nis
 > What we are trying to do is find a version for each package
 > that makes the assertion "P is compatible with all its dependencies" true
 > for every package P.
-> The general-purpose tools for doing this are called <span g="sat_solver" i="satisfiability; SAT solver">SAT solvers</span>
+> The general-purpose tools for doing this are called [% i "satisfiability" "SAT solver" %][% g sat_solver %]SAT solvers[% /g %][% /i %]
 > because they determine whether there is some assignment of values
 > that satisfies the claim (i.e., makes it true).
 > Finding a solution can be extremely hard in the general case,
@@ -43,11 +43,11 @@ It is based in part on [this tutorial][package-manager-tutorial] by <span i="Nis
 
 ## What is semantic versioning? {#package-manager-semver}
 
-Most software projects use <span g="semantic_versioning" i="semantic versioning">semantic versioning</span> for software releases.
+Most software projects use [% i "semantic versioning" %][% g semantic_versioning %]semantic versioning[% /g %][% /i %] for software releases.
 Each version number consists of three integers X.Y.Z,
 where X is the major version,
 Y is the minor version,
-and Z is the <span g="patch" i="patch number; semantic versioning!patch number">patch</span> number.
+and Z is the [% i "patch number" "semantic versioning!patch number" %][% g patch %]patch[% /g %][% /i %] number.
 (The [full specification][semver-spec] allows for more fields,
 but we will ignore them in this tutorial.)
 
@@ -57,7 +57,7 @@ For example,
 if they add a required parameter to a function,
 then code built for the old version will fail or behave unpredictably with the new one.
 The minor version number is incremented when new functionality
-is <span g="backward_compatible" i="backward compatibility">backward-compatible</span>---i.e.,
+is [% i "backward compatibility" %][% g backward_compatible %]backward-compatible[% /g %][% /i %]---i.e.,
 it won't break any existing code---and the patch number is changed
 for backward-compatible bug fixes that don't add any new features.
 
@@ -163,7 +163,7 @@ to leave triples of legal combinations.
 We repeat this until all packages are included in our table.
 
 In the worst case this procedure will create
-a <span g="combinatorial_explosion" i="combinatorial explosion">combinatorial explosion</span> of possibilities.
+a [% i "combinatorial explosion" %][% g combinatorial_explosion %]combinatorial explosion[% /g %][% /i %] of possibilities.
 Smart algorithms will try to add packages to the mix
 in an order that minimize the number of new possibilities at each stage,
 or create pairs and then combine them to create pairs of pairs and so on.
@@ -174,7 +174,7 @@ but illustrates the key idea.
 
 To avoid messing around with parsers,
 our programs reads a JSON data structure describing the problem;
-a real package manager would read the <span g="manifest" i="manifest (of package); package manifest">manifests</span> of the packages in question
+a real package manager would read the [% i "manifest (of package)" "package manifest" %][% g manifest %]manifests[% /g %][% /i %] of the packages in question
 and construct a similar data structure.
 We will stick to single-digit version numbers for readability,
 and will use this as our first test case:
@@ -241,7 +241,7 @@ it turns out that 9 of the 17 exclusions are redundant rediscovery of a previous
 
 ## How can we do less work? {#package-manager-optimize}
 
-In order to make this more efficient we need to <span g="prune" i="prune (a search tree)">prune</span> the search tree
+In order to make this more efficient we need to [% i "prune (a search tree)" %][% g prune %]prune[% /g %][% /i %] the search tree
 as we go along
 (<a figure="package-manager-pruning"/>).
 After all,

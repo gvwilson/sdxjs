@@ -11,26 +11,26 @@ and return whatever that file exports.
 The key requirement for such a function is to avoid accidentally overwriting things:
 if we just `eval` some code and it happens to assign to a variable called `x`,
 anything called `x` already in our program might be overwritten.
-We therefore need a way to <span g="encapsulate" i="encapsulation; software design!encapsulation">encapsulate</span> the contents of what we're loading.
+We therefore need a way to [% i "encapsulation" "software design!encapsulation" %][% g encapsulate %]encapsulate[% /g %][% /i %] the contents of what we're loading.
 Our approach is based on <cite>Casciaro2020</cite>,
 which contains a lot of other useful information as well.
 
 ## How can we implement namespaces? {#module-loader-namespace}
 
-A <span g="namespace" i="namespace">namespace</span> is a collection of names in a program
+A [% i "namespace" %][% g namespace %]namespace[% /g %][% /i %] is a collection of names in a program
 that are isolated from other namespaces.
 Most modern languages provide namespaces as a built-in feature
 so that programmers don't accidentally step on each other's toes.
 JavaScript doesn't,
 so we have to implement them ourselves.
 
-We can do this using <span g="closure" i="closure">closures</span>.
+We can do this using [% i "closure" %][% g closure %]closures[% /g %][% /i %].
 Every function is a namespace:
 variables defined inside the function are distinct from variables defined outside it
 (<a figure="module-loader-closures"/>).
 If we create the variables we want to manage inside a function,
 then defined another function inside the first
-and return that <span g="inner_function" i="inner function; function!inner">inner function</span>,
+and return that [% i "inner function" "function!inner" %][% g inner_function %]inner function[% /g %][% /i %],
 that inner function will be the only thing with references to those variables.
 
 [% figure slug="module-loader-closures" img="figures/closures.svg" alt="How closures work" caption="Using closures to create private variables." %]
@@ -50,7 +50,7 @@ but can only be reached by the inner function:
 We could require every module to define a setup function like this for users to call,
 but thanks to `eval` we can wrap the file's contents in a function and call it automatically.
 To do this we will create something called
-an <span g="iife" i="immediately-invoked function expression">immediately-invoked function expression</span> (IIFE).
+an [% i "immediately-invoked function expression" %][% g iife %]immediately-invoked function expression[% /g %][% /i %] (IIFE).
 The syntax `() => {...}` defines a function.
 If we put the definition in parentheses and then put another pair of parentheses right after it:
 
@@ -104,17 +104,17 @@ and this short program to load the test and check its exports:
 ## Do we need to handle circular dependencies? {#module-loader-circular}
 
 What if the code we are loading loads other code?
-We can visualize the network of who requires whom as a <span g="directed_graph" i="directed graph">directed graph</span>:
+We can visualize the network of who requires whom as a [% i "directed graph" %][% g directed_graph %]directed graph[% /g %][% /i %]:
 if X requires Y,
 we draw an arrow from X to Y.
 Unlike the <span i="directed acyclic graph">directed *acyclic* graphs</span> we met in <a section="build-manager"/>,
 though,
 these graphs can contain cycles:
-we say a <span g="circular_dependency" i="circular dependency">circular dependency</span> exists
+we say a [% i "circular dependency" %][% g circular_dependency %]circular dependency[% /g %][% /i %] exists
 if X depends on Y and Y depends on X
 either directly or indirectly.
 This may seem nonsensical,
-but can easily arise with <span g="plugin_architecture" i="plugin architecture; software design!plugin architecture">plugin architectures</span>:
+but can easily arise with [% i "plugin architecture" "software design!plugin architecture" %][% g plugin_architecture %]plugin architectures[% /g %][% /i %]:
 the file containing the main program loads an extension,
 and that extension calls utility functions defined in the file containing the main program.
 
@@ -171,7 +171,7 @@ we will detect them and generate a sensible error message.
 > get everything into memory,
 > and then resolve dependencies.
 > We can't do this with `require`-based code
-> because someone might create an <span g="alias" i="alias!during import; import!alias">alias</span>
+> because someone might create an [% i "alias!during import" "import!alias" %][% g alias %]alias[% /g %][% /i %]
 > and call `require` through that
 > or `eval` a string that contains a `require` call.
 > (Of course, they can also do these things with the function version of `import`.)

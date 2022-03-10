@@ -5,7 +5,7 @@ lede: "Archiving files with directory structure"
 ---
 
 Now that we can test software we have something worth saving.
-A <span g="version_control_system" i="version control system">version control system</span>
+A [% i "version control system" %][% g version_control_system %]version control system[% /g %][% /i %]
 like <span i="Git; version control system!Git">[Git][git]</span>
 keeps track of changes to files
 so that we can recover old versions if we want to.
@@ -28,14 +28,14 @@ To avoid storing redundant copies of files,
 we need a way to tell when two files contain the same data.
 We can't rely on names because files can be renamed or moved over time;
 we could compare the files byte by byte,
-but a quicker way is to use a <span g="hash_function" i="hash function">hash function</span>
+but a quicker way is to use a [% i "hash function" %][% g hash_function %]hash function[% /g %][% /i %]
 that turns arbitrary data into a fixed-length string of bits
 (<a figure="file-backup-hash-function"/>).
 
 [% figure slug="file-backup-hash-function" img="figures/hash-function.svg" alt="Hash functions" caption="How hash functions speed up lookup." %]
 
-A hash function always produces the same <span g="hash_code" i="hash code">hash code</span> for a given input.
-A <span g="cryptographic_hash_function" i="cryptographic hash function; hash function!cryptographic">cryptographic hash function</span>
+A hash function always produces the same [% i "hash code" %][% g hash_code %]hash code[% /g %][% /i %] for a given input.
+A [% i "cryptographic hash function" "hash function!cryptographic" %][% g cryptographic_hash_function %]cryptographic hash function[% /g %][% /i %]
 has two extra properties:
 
 1.  The output depends on the entire input:
@@ -47,10 +47,10 @@ has two extra properties:
 
 It's easy to write a bad hash function,
 but very hard to write one that qualifies as cryptographic.
-We will therefore use a library to calculate 160-bit <span g="sha_1" i="hash code!SHA-1; SHA-1 hash code">SHA-1</span> hashes for our files.
+We will therefore use a library to calculate 160-bit [% i "hash code!SHA-1" "SHA-1 hash code" %][% g sha_1 %]SHA-1[% /g %][% /i %] hashes for our files.
 These are not random enough to keep data secret from a patient, well-funded attacker,
 but that's not what we're using them for:
-we just want hashes that are random to make <span g="collision" i="hash function!collision; collision (in hashing)">collision</span> extremely unlikely.
+we just want hashes that are random to make [% i "hash function!collision" "collision (in hashing)" %][% g collision %]collision[% /g %][% /i %] extremely unlikely.
 
 > ### The Birthday Problem
 >
@@ -93,7 +93,7 @@ it is more efficient to process the file as a <span g="stream">stream</span>:
 
 <!-- continue -->
 This kind of interface is called
-a <span g="streaming_api" i="streaming API; execution!streaming">streaming</span> <span g="api">API</span>
+a [% i "streaming API" "execution!streaming" %][% g streaming_api %]streaming[% /g %][% /i %] <span g="api">API</span>
 because it is designed to process a stream of data one chunk at a time
 rather than requiring all of the data to be in memory at once.
 Many applications use streams
@@ -104,7 +104,7 @@ this program asks the `fs` library to create a reading stream for a file
 and to <span g="pipe">pipe</span> the data from that stream to the hashing object
 (<a figure="file-backup-streaming"/>).
 It then tells the hashing object what to do when there is no more data
-by providing a <span g="handler" i="event handler!streaming API; streaming API!event handler">handler</span> for the "finish" event.
+by providing a [% i "event handler!streaming API" "streaming API!event handler" %][% g handler %]handler[% /g %][% /i %] for the "finish" event.
 This is called asynchronously:
 as the output shows,
 the main program ends before the task handling the end of data is scheduled and run.
@@ -197,8 +197,8 @@ and the `.csv` extension indicates that the file is formatted as <span g="csv">c
 >
 > We could try to avoid this problem by using a two-part naming scheme `ssssssss-a.csv`,
 > `ssssssss-b.csv`, and so on,
-> but this leads to a <span g="race_condition" i="race condition">race condition</span>
-> called <span g="toctou" i="race condition!time of check/time of use; time of check/time of use">time of check/time of use</span>.
+> but this leads to a [% i "race condition" %][% g race_condition %]race condition[% /g %][% /i %]
+> called [% i "race condition!time of check/time of use" "time of check/time of use" %][% g toctou %]time of check/time of use[% /g %][% /i %].
 > If two users run the backup tool at the same time,
 > they will both see that there isn't a file (yet) with the current timestamp,
 > so they will both try to create the first one.
@@ -244,7 +244,7 @@ that our tests will need to create directories and files before they run
 and then delete them afterward
 (so that they don't contaminate subsequent tests).
 
-A better approach is to use a <span g="mock_object" i="mock object!for testing; unit test!using mock object">mock object</span>
+A better approach is to use a [% i "mock object!for testing" "unit test!using mock object" %][% g mock_object %]mock object[% /g %][% /i %]
 instead of the real filesystem.
 A mock object has the same interface as the function, object, class, or library that it replaces,
 but is designed to be used solely for testing.

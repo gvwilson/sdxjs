@@ -9,7 +9,7 @@ but everyone agrees that the most important thing is to be <span i="coding style
 <cite>Binkley2012,Johnson2019</cite>.
 Since checking rules by hand is tedious,
 most programmers use tools to compare code against various rules and report any violations.
-Programs that do this are often called <span g="linter" i="linter; coding style!linter">linters</span>
+Programs that do this are often called [% i "linter" "coding style!linter" %][% g linter %]linters[% /g %][% /i %]
 in honor of an early one for <span i="C">C</span> named `lint`
 (because it looked for fluff in source code).
 
@@ -34,7 +34,7 @@ A parser for a simple language like arithmetic or JSON is relatively easy to wri
 A parser for a language as complex as JavaScript is much more work,
 so we will use one called <span i="Acorn">[Acorn][acorn]</span> instead.
 Acorn takes a string containing source code as input
-and produces an <span g="abstract_syntax_tree" i="abstract syntax tree">abstract syntax tree</span> (AST)
+and produces an [% i "abstract syntax tree" %][% g abstract_syntax_tree %]abstract syntax tree[% /g %][% /i %] (AST)
 whose nodes store information about what's in the program
 (<a figure="style-checker-parse-tree"/>).
 An AST is for a program what the <span i="Document Object Model">DOM</span> is for HTML:
@@ -63,7 +63,7 @@ Yes, it really is almost 500 lines long…
 ## How can we find things in an AST? {#style-checker-search}
 
 If we want to find functions, variables, or anything else in an AST
-we need to <span g="walk_tree" i="walk a tree">walk the tree</span>,
+we need to [% i "walk a tree" %][% g walk_tree %]walk the tree[% /g %][% /i %],
 i.e.,
 to visit each node in turn.
 The [`acorn-walk`][acorn-walk] library will do this for us
@@ -139,7 +139,7 @@ We can now put a call to `applyCheck` inside the handler for `Identifier`:
 <!-- continue -->
 We can't just use `applyCheck` as the handler for `Identifier`
 because `walk.simple` wouldn't know how to call it.
-This is a (very simple) example of the <span g="adapter_pattern" i="Adapter pattern; design pattern!Adapter">Adapter</span> design pattern:
+This is a (very simple) example of the [% i "Adapter pattern" "design pattern!Adapter" %][% g adapter_pattern %]Adapter[% /g %][% /i %] design pattern:
 we write a function or class to connect the code we want to call
 to the already-written code that is going to call it.
 
@@ -169,12 +169,12 @@ That simplifies the methods---one less parameter---but it does mean that
 anyone who wants to use our visitor has to derive a class,
 which is a bit more complicated than writing a function.
 This tradeoff is a sign that managing state is part of the problem's
-<span g="intrinsic_complexity" i="intrinsic complexity">intrinsic complexity</span>:
+[% i "intrinsic complexity" %][% g intrinsic_complexity %]intrinsic complexity[% /g %][% /i %]:
 we can move it around,
 but we can't get rid of it.
 
 The other difference between our visitor and `acorn-walk` is that
-our class uses <span g="dynamic_lookup" i="dynamic lookup">dynamic lookup</span>
+our class uses [% i "dynamic lookup" %][% g dynamic_lookup %]dynamic lookup[% /g %][% /i %]
 (a form of <span i="introspection!of methods">introspection</span>)
 to look up a method
 with the same name as the node type in the object.
@@ -205,7 +205,7 @@ we should implement it that way everywhere.
 ## How else could the AST walker work? {#style-checker-alternatives}
 
 A third approach to this problem uses
-the <span g="iterator_pattern" i="Iterator pattern; design pattern!Iterator">Iterator</span> design pattern.
+the [% i "Iterator pattern" "design pattern!Iterator" %][% g iterator_pattern %]Iterator[% /g %][% /i %] design pattern.
 Instead of taking the computation to the nodes as a visitor does,
 an iterator returns the elements of a complex structure one by one for processing
 (<a figure="style-checker-iterator"/>).
@@ -215,7 +215,7 @@ while the Iterator pattern turns everything into a `for` loop.
 [% figure slug="style-checker-iterator" img="figures/iterator.svg" alt="The Iterator pattern" caption="Finding nodes in the tree using the Iterator pattern." %]
 
 We can implement the Iterator pattern in JavaScript using
-<span g="generator_function" i="generator function; Iterator pattern!generator function">generator functions</span>.
+[% i "generator function" "Iterator pattern!generator function" %][% g generator_function %]generator functions[% /g %][% /i %].
 If we declare a function using `function *` (with an asterisk) instead of `function`
 then we can use the `yield` keyword to return a value and suspend processing to be resumed later.
 The result of `yield` is a two-part structure with a value and a flag showing whether or not processing is done:
@@ -296,7 +296,7 @@ Finding method definitions is also straightforward:
 <div class="include" file="find-methods.js" />
 
 And finally,
-we can print a <span g="markdown" i="Markdown">Markdown</span>-formatted table
+we can print a [% i "Markdown" %][% g markdown %]Markdown[% /g %][% /i %]-formatted table
 showing which methods are defined in which class:
 
 <div class="include" file="run-find-methods.raw.out" />

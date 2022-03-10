@@ -6,19 +6,19 @@ lede: "Using patterns to find things in data"
 
 We have been globbing to match filenames against patterns since <a section="systems-programming"/>.
 This lesson will explore how that works
-by building a simple version of the <span g="regular_expression" i="regular expression">regular expressions</span>
+by building a simple version of the [% i "regular expression" %][% g regular_expression %]regular expressions[% /g %][% /i %]
 used to match text in everything from editor and shell commands to web scrapers.
 Our approach is inspired by <span i="Kernighan, Brian">[Brian Kernighan's][kernighan-brian]</span> entry
 in <cite>Oram2007</cite>.
 
 Regular expressions have inspired pattern matching for many other kinds of data,
-such as <span g="query_selector" i="query selector (for HTML)">query selectors</span> for HTML.
+such as [% i "query selector (for HTML)" %][% g query_selector %]query selectors[% /g %][% /i %] for HTML.
 They are easier to understand and implement than patterns for matching text,
 so we will start by looking at them.
 
 ## How can we match query selectors? {#pattern-matching-selectors}
 
-Programs stores HTML pages in memory using a <span g="dom" i="DOM; Document Object Model">document object model</span> or DOM.
+Programs stores HTML pages in memory using a [% i "DOM" "Document Object Model" %][% g dom %]document object model[% /g %][% /i %] or DOM.
 Each element in the page,
 such as a heading and or paragraph,
 is a <span g="node">nodes</span>;
@@ -67,7 +67,7 @@ The `firstMatch` function handles three cases:
 1.  This node *doesn't* match the current selector,
     so we search the children one by one to see if there is a match further down.
 
-This algorithm is called <span g="depth_first" i="depth-first search; search!depth-first">depth-first search</span>:
+This algorithm is called [% i "depth-first search" "search!depth-first" %][% g depth_first %]depth-first search[% /g %][% /i %]:
 it explores one possible match to the end before considering any others.
 `firstMatch` relies on a helper function called `firstChildMatch`,
 which finds the first child of a node to match a set of selectors:
@@ -109,10 +109,10 @@ We will rewrite these tests using <span i="Mocha">[Mocha][mocha]</span> in the e
 >
 > We actually wrote our test cases *before* implementing the code to match query selectors
 > in order to give ourselves a goal to work toward.
-> Doing this is called <span g="tdd" i="test-driven development; TDD">test-driven development</span>, or TDD;
+> Doing this is called [% i "test-driven development" "TDD" %][% g tdd %]test-driven development[% /g %][% /i %], or TDD;
 > while research doesn't support the claim that
 > it makes programmers more productive <cite>Fucci2016,Fucci2017</cite>,
-> we find it helps prevent <span g="scope_creep" i="scope creep!when writing lessons">scope creep</span> when writing lessons.
+> we find it helps prevent [% i "scope creep!when writing lessons" %][% g scope_creep %]scope creep[% /g %][% /i %] when writing lessons.
 
 ## How can we implement a simple regular expression matcher? {#pattern-matching-re}
 
@@ -212,13 +212,13 @@ our code will fail with a meaningful reminder.
 
 > ### One interface to call them all
 >
-> Our design makes use of <span g="polymorphism" i="polymorphism (in software design); software design!polymorphism">polymorphism</span>,
+> Our design makes use of [% i "polymorphism (in software design)" "software design!polymorphism" %][% g polymorphism %]polymorphism[% /g %][% /i %],
 > which literally means "having multiple forms".
 > If a set of objects all have methods that can be called the same way,
 > then those objects can be used interchangeably;
 > putting it another way,
 > a program can use them without knowing exactly what they are.
-> Polymorphism reduces the <span g="coupling" i="coupling; software design!coupling">coupling</span> between different parts of our program,
+> Polymorphism reduces the [% i "coupling" "software design!coupling" %][% g coupling %]coupling[% /g %][% /i %] between different parts of our program,
 > which in turn makes it easier for those programs to evolve.
 
 We can now define empty versions of each matching class that all say "no match here"
@@ -253,8 +253,8 @@ all children have to match in order without gaps.
 But wait:
 suppose we have the pattern `/a*ab/`.
 This ought to match the text `"ab"`, but will it?
-The `/*/` is <span g="greedy_algorithm" i="greedy algorithm; algorithm!greedy">greedy</span>: it matches as much as it can
-(which is also called <span g="eager_matching" i="eager matching; matching!eager">eager matching</span>).
+The `/*/` is [% i "greedy algorithm" "algorithm!greedy" %][% g greedy_algorithm %]greedy[% /g %][% /i %]: it matches as much as it can
+(which is also called [% i "eager matching" "matching!eager" %][% g eager_matching %]eager matching[% /g %][% /i %]).
 As a result,
 `/a*/` will match the leading `"a"`, leaving nothing for the literal `/a/` to match
 (<a figure="pattern-matching-greedy-failure"/>).
@@ -314,14 +314,14 @@ if we want to add other kinds of matching,
 all we have to do is add more classes.
 That extensibility comes from the lack of centralized decision-making,
 which in turn comes from our use of polymorphism
-and the <span g="chain_of_responsibility_pattern" i="Chain of Responsibility pattern; design pattern!Chain of Responsibility">Chain of Responsibility</span> design pattern.
+and the [% i "Chain of Responsibility pattern" "design pattern!Chain of Responsibility" %][% g chain_of_responsibility_pattern %]Chain of Responsibility[% /g %][% /i %] design pattern.
 Each component does its part and asks something else to handle the remaining work;
 so long as each component takes the same inputs,
 we can put them together however we want.
 
 > ### The Open-Closed Principle
 >
-> The <span g="open_closed_principle" i="Open-Closed Principle; software design!Open-Closed Principle">Open-Closed Principle</span> states that
+> The [% i "Open-Closed Principle" "software design!Open-Closed Principle" %][% g open_closed_principle %]Open-Closed Principle[% /g %][% /i %] states that
 > software should be open for extension but closed for modification,
 > i.e., that it should be possible to extend functionality
 > without having to rewrite existing code.

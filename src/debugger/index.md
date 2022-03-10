@@ -66,7 +66,7 @@ The other operations are similar to these.
 ## How can we make a tracing debugger? {#debugger-tracing}
 
 The next thing we need in our debugger is
-a <span g="source_map" i="source map; debugger!source map">source map</span> that keeps track of
+a [% i "source map" "debugger!source map" %][% g source_map %]source map[% /g %][% /i %] that keeps track of
 where in the source file each instruction came from.
 Since JSON is a subset of JavaScript,
 we could get line numbers by parsing our programs with <span i="Acorn">[Acorn][acorn]</span>.

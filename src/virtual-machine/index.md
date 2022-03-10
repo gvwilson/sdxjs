@@ -6,9 +6,9 @@ lede: "Assembling and running low-level code"
 
 Computers don't execute JavaScript directly.
 Instead,
-each processor has its own <span g="instruction_set" i="instruction set">instruction set</span>,
+each processor has its own [% i "instruction set" %][% g instruction_set %]instruction set[% /g %][% /i %],
 and a compiler translates high-level languages into those instructions.
-Compilers often use an intermediate representation called <span g="assembly_code" i="assembly code">assembly code</span>
+Compilers often use an intermediate representation called [% i "assembly code" %][% g assembly_code %]assembly code[% /g %][% /i %]
 that gives instructions human-readable names instead of numbers.
 To understand more about how JavaScript actually runs
 we will simulate a very simple processor with a little bit of memory.
@@ -20,18 +20,18 @@ using a processor almost as simple as ours.
 
 ## What is the architecture of our virtual machine? {#virtual-machine-arch}
 
-Our <span g="virtual_machine" i="virtual machine">virtual machine</span> has three parts,
+Our [% i "virtual machine" %][% g virtual_machine %]virtual machine[% /g %][% /i %] has three parts,
 which are shown in <a figure="virtual-machine-architecture"/>
 for a program made up of 110 instructions:
 
-1.  An <span g="instruction_pointer" i="instruction pointer">instruction pointer</span> (IP)
+1.  An [% i "instruction pointer" %][% g instruction_pointer %]instruction pointer[% /g %][% /i %] (IP)
     that holds the memory address of the next instruction to execute.
     It is automatically initialized to point at address 0,
     which is where every program must start.
-    This rule is part of the <span g="abi" i="Application Binary Interface">Application Binary Interface</span> (ABI)
+    This rule is part of the [% i "Application Binary Interface" %][% g abi %]Application Binary Interface[% /g %][% /i %] (ABI)
     for our virtual machine.
 
-1.  Four <span g="register" i="register (in computer)">registers</span> named R0 to R4 that instructions can access directly.
+1.  Four [% i "register (in computer)" %][% g register %]registers[% /g %][% /i %] named R0 to R4 that instructions can access directly.
     There are no memory-to-memory operations in our VM:
     everything  happens in or through registers.
 
@@ -42,7 +42,7 @@ for a program made up of 110 instructions:
 [% figure slug="virtual-machine-architecture" img="figures/architecture.svg" alt="Virtual machine architecture" caption="Architecture of the virtual machine." %]
 
 The instructions for our VM are 3 bytes long.
-The <span g="op_code" i="op code; virtual machine!op code">op code</span> fits into one byte,
+The [% i "op code" "virtual machine!op code" %][% g op_code %]op code[% /g %][% /i %] fits into one byte,
 and each instruction may optionally include one or two single-byte operands.
 Each operand is a register identifier,
 a constant,
@@ -101,7 +101,7 @@ we copy those numbers into memory and reset the instruction pointer and register
 In order to handle the next instruction,
 the VM gets the value in memory that the instruction pointer currently refers to
 and moves the instruction pointer on by one address.
-It then uses <span g="bitwise_operation" i="bitwise operation">bitwise operations</span>
+It then uses [% i "bitwise operation" %][% g bitwise_operation %]bitwise operations[% /g %][% /i %]
 to extract the op code and operands from the instruction
 (<a figure="virtual-machine-unpacking"/>):
 
@@ -148,7 +148,7 @@ as is jumping to a fixed address if the value in a register is zero:
 We could figure out numerical op codes by hand,
 and in fact that's what [the first programmers][eniac-programmers] did.
 However,
-it is much easier to use an <span g="assembler" i="assembler">assembler</span>,
+it is much easier to use an [% i "assembler" %][% g assembler %]assembler[% /g %][% /i %],
 which is just a small compiler for a language that very closely represents actual machine instructions.
 
 Each command in our assembly languages matches an instruction in the VM.
@@ -162,7 +162,7 @@ Its numeric representation is:
 <div class="include" file="print-r1.mx" />
 
 One thing the assembly language has that the instruction set doesn't
-is <span g="label_address" i="label (on address)">labels on addresses</span>.
+is [% i "label (on address)" %][% g label_address %]labels on addresses[% /g %][% /i %].
 The label `loop` doesn't take up any space;
 instead,
 it tells the assembler to give the address of the next instruction a name

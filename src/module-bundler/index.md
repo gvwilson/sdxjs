@@ -11,7 +11,7 @@ One of those things was a way to turn a set of easy-to-edit source files
 into a single easy-to-load file
 so that browsers could get what they needed with one request.
 
-A <span g="module_bundler" i="module bundler">module bundler</span> finds all the files that an application depends on
+A [% i "module bundler" %][% g module_bundler %]module bundler[% /g %][% /i %] finds all the files that an application depends on
 and combines them into a single loadable file
 (<a figure="module-bundler-bundling"/>).
 This file is much more efficient to load:
@@ -22,7 +22,7 @@ so that the application has at least a chance of being able to run.
 
 [% figure slug="module-bundler-bundling" img="figures/bundling.svg" alt="Bundling modules" caption="Combining multiple modules into one." %]
 
-Bundling requires an <span g="entry_point" i="entry point (of module); module!entry point">entry point</span>,
+Bundling requires an [% i "entry point (of module)" "module!entry point" %][% g entry_point %]entry point[% /g %][% /i %],
 i.e.,
 a place to start searching for dependencies.
 Given that,
@@ -129,7 +129,7 @@ The code to do this is relatively straightforward given what we know about <span
 > we highly recommend <cite>Petzold2008</cite>.
 
 To get all of the dependencies a bundle needs
-we need to find the <span g="transitive_closure" i="transitive closure">transitive closure</span> of the entry point's dependencies,
+we need to find the [% i "transitive closure" %][% g transitive_closure %]transitive closure[% /g %][% /i %] of the entry point's dependencies,
 i.e.,
 the requirements of the requirements and so on recursively.
 Our algorithm for doing this uses two sets:
