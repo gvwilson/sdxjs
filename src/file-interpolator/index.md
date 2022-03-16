@@ -12,12 +12,12 @@ we wrote a custom [% i "module loader" %][% g loader %]module loader[% /g %][% /
 that reads a source file containing specially-formatted comments
 and then reads and inserts the files specified in those comments
 before running the code
-(<a figure="file-interpolator-conceptual"/>).
+([% f file-interpolator-conceptual %]).
 Modern programming languages don't work this way,
 but [% i "C" %]C[% /i %] and [% i "C++" %]C++[% /i %] do this
 with [% i "header file!in C and C++" %][% g header_file %]header files[% /g %][% /i %],
 and [% i "static site generator!header file" "header file!static site generator" %]static site generators[% /i %]
-(<a section="page-templates"/>) do this to share fragments of HTML.
+([% x page-templates %]) do this to share fragments of HTML.
 
 [% figure slug="file-interpolator-conceptual" img="figures/conceptual.svg" alt="Using file inclusions" caption="Including fragments of code to create runnable programs." %]
 
@@ -32,7 +32,7 @@ but decided to use a different approach in this book.
 The stumbling block was that the style-checking tool [% i "ESLint" %][ESLint][eslint][% /i %]
 didn't know what to make of our inclusions,
 so we would either have to modify it or build a style checker of our own.
-(We will actually do that in <a section="style-checker"/>,
+(We will actually do that in [% x style-checker %],
 but we won't go nearly as far as ESLint.)
 
 Despite being a dead end,
@@ -54,7 +54,7 @@ translates it into runnable instructions,
 and runs those instructions.
 We can do the second and third steps whenever we want using a function called `eval`,
 which takes a string as input and executes it as if it were part of the program
-(<a figure="file-interpolator-eval"/>).
+([% f file-interpolator-eval %]).
 
 [% figure slug="file-interpolator-eval" img="figures/eval.svg" alt="How eval works" caption="`eval` vs. normal translation and execution." %]
 
@@ -148,10 +148,10 @@ but we would like to avoid re-reading things unnecessarily
 in large systems or when there might be network delays.
 The usual approach is to create a [% i "cache!of loaded files" %]cache[% /i %]
 using the [% i "Singleton pattern" "design pattern!Singleton" %]Singleton pattern[% /i %]
-that we first met in <a section="unit-test"/>.
+that we first met in [% x unit-test %].
 Whenever we want to read a file,
 we check to see if it's already in the cache
-(<a figure="file-interpolator-cache"/>).
+([% f file-interpolator-cache %]).
 If it is,
 we use that copy;
 if not,
@@ -205,7 +205,7 @@ we look for it locally;
 if not,
 we go through the directories in the search path in order
 until we find a file with a matching name
-(<a figure="file-interpolator-search-path"/>).
+([% f file-interpolator-search-path %]).
 
 [% figure slug="file-interpolator-search-path" img="figures/search-path.svg" alt="Implementing a search path" caption="Using a colon-separated list of directories as a search path." %]
 

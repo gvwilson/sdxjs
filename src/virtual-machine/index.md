@@ -21,7 +21,7 @@ using a processor almost as simple as ours.
 ## What is the architecture of our virtual machine? {#virtual-machine-arch}
 
 Our [% i "virtual machine" %][% g virtual_machine %]virtual machine[% /g %][% /i %] has three parts,
-which are shown in <a figure="virtual-machine-architecture"/>
+which are shown in [% f virtual-machine-architecture %]
 for a program made up of 110 instructions:
 
 1.  An [% i "instruction pointer" %][% g instruction_pointer %]instruction pointer[% /g %][% /i %] (IP)
@@ -56,7 +56,7 @@ where `r` indicates a register identifier,
 `c` indicates a constant,
 and `a` indicates an address.
 
-<div class="table" id="virtual-machine-op-codes" caption="Virtual machine op codes.">
+<div class="table" id="virtual-machine-op-codes" caption="Virtual machine op codes." markdown="1">
 | Instruction | Code | Format | Action              | Example      | Equivalent                |
 | ----------- | ---- | ------ | ------------------- | ------------ | ------------------------- |
 |  `hlt`      |    1 | `--`   | Halt program        | `hlt`        | `process.exit(0)`         |
@@ -103,7 +103,7 @@ the VM gets the value in memory that the instruction pointer currently refers to
 and moves the instruction pointer on by one address.
 It then uses [% i "bitwise operation" %][% g bitwise_operation %]bitwise operations[% /g %][% /i %]
 to extract the op code and operands from the instruction
-(<a figure="virtual-machine-unpacking"/>):
+([% f virtual-machine-unpacking %]):
 
 [% excerpt file="vm-base.js" keep="fetch" %]
 
@@ -169,14 +169,14 @@ it tells the assembler to give the address of the next instruction a name
 so that we can refer to that address as `@loop` in jump instructions.
 For example,
 this program prints the numbers from 0 to 2
-(<a figure="virtual-machine-count-up"/>):
+([% f virtual-machine-count-up %]):
 
 [% excerpt pat="count-up.*" fill="as mx" %]
 
 [% figure slug="virtual-machine-count-up" img="figures/count-up.svg" alt="Counting from 0 to 2" caption="Flowchart of assembly language program to count up from 0 to 2." %]
 
 Let's trace this program's execution
-(<a figure="virtual-machine-trace-counter"/>):
+([% f virtual-machine-trace-counter %]):
 
 1.  R0 holds the current loop index.
 1.  R1 holds the loop's upper bound (in this case 3).
@@ -239,7 +239,7 @@ but we do need a way to create arrays and refer to them.
 We will allocate storage for arrays at the end of the program
 by using `.data` on a line of its own to mark the start of the data section
 and then `label: number` to give a region a name and allocate some storage space
-(<a figure="virtual-machine-storage-allocation"/>).
+([% f virtual-machine-storage-allocation %]).
 
 [% figure slug="virtual-machine-storage-allocation" img="figures/storage-allocation.svg" alt="Storage allocation" caption="Allocating storage for arrays in the virtual machine." %]
 

@@ -17,7 +17,7 @@ And since anything that touches the hard drive is slow from a processor's point 
 > to show how long it takes a computer to do different things
 > if we imagine that one CPU cycle is equivalent to one second.
 
-<div class="table" id="systems-programming-times" caption="Computer operation times at human scale.">
+<div class="table" id="systems-programming-times" caption="Computer operation times at human scale." markdown="1">
 | Operation | Actual Time | Would Be… |
 | --------- | ----------- | --------- |
 | 1 CPU cycle | 0.3 nsec | 1 sec |
@@ -38,7 +38,7 @@ to make callbacks easier to manage,
 and more recently they have added new keywords called `async` and `await` to make it easier still.
 We need to understand all three layers in order to debug things when they go wrong,
 so this chapter explores callbacks,
-while <a section="async-programming"/> shows how promises and `async`/`await` work.
+while [% x async-programming %] shows how promises and `async`/`await` work.
 This chapter also shows how to read and write files and directories with Node's standard libraries,
 because we're going to be doing that a lot.
 
@@ -77,7 +77,7 @@ which Node automatically stores in an array called [% i "process.argv" %]`proces
 `process.argv[0]` is the name of the program used to run our code (in this case `node`),
 while `process.argv[1]` is the name of our program (in this case `list-dir-wrong.js`);
 the rest of `process.argv` holds whatever arguments we gave at the command line when we ran the program,
-so `process.argv[2]` is the first argument after the name of our program (<a figure="systems-programming-process-argv"/>):
+so `process.argv[2]` is the first argument after the name of our program ([% f systems-programming-process-argv %]):
 
 [% figure slug="systems-programming-process-argv" img="figures/process-argv.svg" alt="Command-line arguments in `process.argv`" caption="How Node stores command-line arguments in <code>process.argv</code>." %]
 
@@ -129,7 +129,7 @@ but we need to write a function that specifies the second part.
 
 JavaScript saves a reference to this function
 and calls with a specific set of parameters when our data is ready
-(<a figure="systems-programming-callbacks"/>).
+([% f systems-programming-callbacks %]).
 Those parameters defined a standard [% i "protocol!API as" "API!as protocol" %][% g protocol %]protocol[% /g %][% /i %]
 for connecting to libraries,
 just like the USB standard allows us to plug hardware devices together.
@@ -155,7 +155,7 @@ as an argument:
 
 Nothing that follows will make sense if we don't understand
 the order in which Node executes the statements in this program
-(<a figure="systems-programming-execution-order"/>):
+([% f systems-programming-execution-order %]):
 
 1.  Execute the first line to load the `fs` library.
 
@@ -186,7 +186,7 @@ to define it where it is needed
 as an [% i "anonymous function" "function!anonymous" %][% g anonymous_function %]anonymous function[% /g %][% /i %].
 This makes it easier to see what's going to happen when the operation completes,
 though it means the order of execution is quite different from the order of reading
-(<a figure="systems-programming-anonymous-functions"/>).
+([% f systems-programming-anonymous-functions %]).
 Using an anonymous function gives us the final version of our program:
 
 [% excerpt file="list-dir-function-anonymous.js" %]
@@ -223,7 +223,7 @@ and does something with every filename that matched the pattern:
 
 The leading `**` means "recurse into subdirectories",
 while `*.*` means "any characters followed by '.' followed by any characters"
-(<a figure="systems-programming-globbing"/>).
+([% f systems-programming-globbing %]).
 Names that don't match `*.*` won't be included,
 and by default,
 neither are names that start with a '.' character.
@@ -242,7 +242,7 @@ We can get rid of them by [% i "globbing!filtering results" %][% g filter %]filt
 
 [% i "Array.filter" %]`Array.filter`[% /i %] creates a new array
 containing all the items of the original array that pass a test
-(<a figure="systems-programming-array-filter"/>).
+([% f systems-programming-array-filter %]).
 The test is specified as a callback function
 that `Array.filter` calls once once for each item.
 This function must return a [% g boolean %]Boolean[% /g %]
@@ -324,7 +324,7 @@ we can construct the full output path by replacing the name of the source direct
 This program uses [% i "destructuring assignment" "assignment!destructuring" %][% g destructuring_assignment %]destructuring assignment[% /g %][% /i %]
 to create two variables at once
 by unpacking the elements of an array
-(<a figure="systems-programming-destructuring-assignment"/>).
+([% f systems-programming-destructuring-assignment %]).
 It only works if the array contains the enough elements,
 i.e.,
 if both a source and destination are given on the command line;
@@ -365,7 +365,7 @@ Let's use `fs.copy` to do that:
 [% excerpt file="copy-file-unfiltered.js" %]
 
 The program now has three levels of callback
-(<a figure="systems-programming-triple-callback"/>):
+([% f systems-programming-triple-callback %]):
 
 1.  When `glob` has data, do things and then call `ensureDir`.
 
@@ -397,7 +397,7 @@ Here's the final version of our file copying program:
 <!-- continue -->
 It works,
 but four levels of asynchronous callbacks is hard for humans to understand.
-<a section="async-programming"/> will introduce a pair of tools
+[% x async-programming %] will introduce a pair of tools
 that make code like this easier to read.
 
 ## Exercises {#systems-programming-exercises}

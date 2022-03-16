@@ -29,7 +29,7 @@ into a single easy-to-load file
 so that browsers could get what they needed with one request.</p>
 <p>A <span class="indexref" key="module bundler" markdown="1"><a class="glossref" href="../glossary/#module_bundler" markdown="1">module bundler</a></span> finds all the files that an application depends on
 and combines them into a single loadable file
-(<a figure="module-bundler-bundling"/>).
+(<a class="figref" href="../module-bundler/#module-bundler-bundling">Figure 17.1</a>).
 This file is much more efficient to load:
 it's the same number of bytes but just one network request.
 (See <a table="systems-programming-times"/> for a reminder of why this is important.)
@@ -104,7 +104,7 @@ This kind of confusion is common when building programming tools;
 we hope that splitting terminology as we have will help.</p>
 </blockquote>
 <p>Our third test case has multiple inclusions in multiple directories
-and is shown in <a figure="module-bundler-complicated"/>:</p>
+and is shown in <a class="figref" href="../module-bundler/#module-bundler-complicated">Figure 17.2</a>:</p>
 <ul>
 <li><code>./main</code> requires all four of the files below.</li>
 <li><code>./top-left</code> doesn't require anything.</li>
@@ -148,7 +148,7 @@ bottomRight from main
 </code></pre></div>
 
 <p>We do not handle circular dependencies
-because <code>require</code> itself doesn't (<a section="module-loader"/>).</p>
+because <code>require</code> itself doesn't (<a href="../module-loader/">Chapter 13</a>).</p>
 <h2 id="module-bundler-find">How can we find dependencies?</h2>
 <p>To get all the dependencies for one source file,
 we parse it and extract all of the calls to <code>require</code>.
@@ -216,7 +216,7 @@ Our algorithm for doing this uses two sets:
 which contains the things we haven't looked at yet,
 and <code>seen</code>,
 which contains the things we have
-(<a figure="module-bundler-transitive-closure"/>).
+(<a class="figref" href="../module-bundler/#module-bundler-transitive-closure">Figure 17.3</a>).
 <code>pending</code> initially contains the entry point file and <code>seen</code> is initially empty.
 We keep taking items from <code>pending</code> until it is empty.
 If the current thing is already in <code>seen</code> we do nothing;
@@ -228,7 +228,7 @@ otherwise we get its dependencies and add them to either <code>seen</code> or <c
 
 <p>Finding dependencies is complicated by the fact that we can load something under different names,
 such as <code>./subdir/bottom-left</code> from <code>main</code> but <code>./bottom-left</code> from <code>./subdir/bottom-right</code>.
-As with the module loader in <a section="module-loader"/>,
+As with the module loader in <a href="../module-loader/">Chapter 13</a>,
 we use absolute paths as unique identifiers.
 Our code is also complicated by the fact that JavaScript's <code>Set</code> class doesn't have an equivalent of <code>Array.pop</code>,
 so we will actually maintain the "set" of pending items as a list.
@@ -283,15 +283,15 @@ we might not know what it's after.
 The fix is to modify transitive closure to construct and return a two-level structure.
 The primary keys are the absolute paths to the files being required,
 while sub-keys are the paths they refer to when loading things
-(<a figure="module-bundler-structure"/>).</p>
+(<a class="figref" href="../module-bundler/#module-bundler-structure">Figure 17.4</a>).</p>
 <figure id="module-bundler-structure">
   <img src="./figures/structure.svg" alt="Data structure for modules" />
   <figcaption markdown="1">Figure 17.4: Data structure used to map names to absolute paths.</figcaption>
 </figure>
 
 <p>Adding this takes our transitive closure code from
-<span class="linecount" file="transitive-closure-only.js"/> lines
-to <span class="linecount" file="transitive-closure.js"/> lines:</p>
+23 lines
+to 29 lines:</p>
 <div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">path</span> <span class="kr">from</span> <span class="s1">&#39;path&#39;</span>
 
 <span class="k">import</span> <span class="nx">getRequires</span> <span class="kr">from</span> <span class="s1">&#39;./get-requires.js&#39;</span>
@@ -368,7 +368,7 @@ that will remain a dream.</p>
 <h2 id="module-bundler-combine">How can we safely combine several files into one?</h2>
 <p>We now need to combine the files we have found into one
 while keeping each in its own namespace.
-We do this using the same method we used in <a section="module-loader"/>:
+We do this using the same method we used in <a href="../module-loader/">Chapter 13</a>:
 wrap the source code in an <span class="indexref" key="immediately-invoked function expression" markdown="1">IIFE</span>,
 giving that IIFE a <code>module</code> object to fill in
 and an implementation of <code>require</code> to resolve dependencies <em>within the bundle</em>.
@@ -447,7 +447,7 @@ the code in <code>HEAD</code> creates a function of no arguments
 while the code in <code>TAIL</code> returns the lookup table from that function.
 In between,
 <code>combineFiles</code> adds an entry to the lookup table for each file
-(<a figure="module-bundler-head-tail"/>).</p>
+(<a class="figref" href="../module-bundler/#module-bundler-head-tail">Figure 17.5</a>).</p>
 <figure id="module-bundler-head-tail">
   <img src="./figures/head-tail.svg" alt="Assembling runnable code" />
   <figcaption markdown="1">Figure 17.5: Assembling fragments and modules to create a bundle.</figcaption>
@@ -528,7 +528,7 @@ and the two lookup tables described above.
 Those two tables can't be global variables because of possible name collisions:
 no matter what we call them,
 the user might have given a variable the same name.</p>
-<p>As in <a section="module-loader"/> we solve this problem using closures.
+<p>As in <a href="../module-loader/">Chapter 13</a> we solve this problem using closures.
 The result is probably the most difficult code in this book to understand
 because of its many levels of abstraction.
 First, we write a function that takes the two tables as arguments
@@ -536,7 +536,7 @@ and returns a function that takes an absolute path identifying this module.
 When that function is called,
 it creates and returns a function that takes a local path inside a module and returns the exports.
 Each of these wrapping layers remembers more information for us
-(<a figure="module-bundler-returning-functions"/>),
+(<a class="figref" href="../module-bundler/#module-bundler-returning-functions">Figure 17.6</a>),
 but we won't pretend that it's easy to trace.</p>
 <figure id="module-bundler-returning-functions">
   <img src="./figures/returning-functions.svg" alt="Functions returning functions returning functions" />
@@ -612,7 +612,7 @@ Putting it all together we have:</p>
 because we have to distinguish what is being printed in the output versus what is being executed right now
 and because of the levels of nesting needed to capture variables safely.
 Getting this right took much more time per line of finished code than anything we have seen so far
-except the promises in <a section="async-programming"/>.
+except the promises in <a href="../async-programming/">Chapter 3</a>.
 However,
 it is all <span class="indexref" key="intrinsic complexity" markdown="1">intrinsic complexity</span>:
 anything that does what <code>require</code> does is going to be equally convoluted.</p>
@@ -752,7 +752,7 @@ bottomRight from main
 
 <h2 id="module-bundler-exercises">Exercises</h2>
 <h3 class="exercise">Using test-driven development</h3>
-<p>Suppose we wanted to compress the files being stored by the file backup system in <a section="file-backup"/>
+<p>Suppose we wanted to compress the files being stored by the file backup system in <a href="../file-backup/">Chapter 5</a>
 instead of copying them as-is.
 What tests would you write before adding this feature in order to ensure that it worked correctly
 once it was implemented?</p>

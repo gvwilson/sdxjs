@@ -22,7 +22,7 @@ which is that source code is just another kind of data.
 
 > ### Don't define your own style
 >
-> Just as the world doesn't need more file format (<a section="regex-parser"/>)
+> Just as the world doesn't need more file format ([% x regex-parser %])
 > it also doesn't need more programming styles,
 > or more arguments among programmers about whether there should be spaces before curly braces or not.
 > [% i "Standard JS" %][Standard JS][standard-js][% /i %] may not do everything exactly the way you want,
@@ -36,7 +36,7 @@ so we will use one called [% i "Acorn" %][Acorn][acorn][% /i %] instead.
 Acorn takes a string containing source code as input
 and produces an [% i "abstract syntax tree" %][% g abstract_syntax_tree %]abstract syntax tree[% /g %][% /i %] (AST)
 whose nodes store information about what's in the program
-(<a figure="style-checker-parse-tree"/>).
+([% f style-checker-parse-tree %]).
 An AST is for a program what the [% i "Document Object Model" %]DOM[% /i %] is for HTML:
 an in-memory representation that is easy for software to inspect and manipulate.
 
@@ -44,7 +44,7 @@ an in-memory representation that is easy for software to inspect and manipulate.
 
 ASTs can be quite complex---for example,
 the JSON representation of the AST for a single constant declaration
-is <span class="linecount" file="parse-single-const.out"/> lines long:
+is [% linecount parse-single-const.out %] lines long:
 
 [% excerpt pat="parse-single-const.*" fill="js slice.out" %]
 
@@ -53,7 +53,7 @@ Acorn's output is in [% i "Esprima format" %][Esprima][esprima] format[% /i %]
 The format's specification is very detailed,
 but we can usually figure out most of what we need by inspection.
 For example,
-here is the output for a <span class="linecount" file="parse-const-func.js"/>-line program:
+here is the output for a [% linecount parse-const-func.js %]-line program:
 
 [% excerpt pat="parse-const-func.*" fill="js slice.out" %]
 
@@ -67,7 +67,7 @@ we need to [% i "walk a tree" %][% g walk_tree %]walk the tree[% /g %][% /i %],
 i.e.,
 to visit each node in turn.
 The [`acorn-walk`][acorn-walk] library will do this for us
-using the [% i "Visitor pattern" "design pattern!Visitor" %]Visitor design pattern[% /i %] we first saw in <a section="page-templates"/>
+using the [% i "Visitor pattern" "design pattern!Visitor" %]Visitor design pattern[% /i %] we first saw in [% x page-templates %]
 If we provide a function to act on nodes of type `Identifier`,
 `acorn-walk` will call that function each time it finds an identifier.
 We can use other options to say that we want to record the locations of nodes (i.e., their line numbers)
@@ -75,7 +75,7 @@ and to collect comments in an array called `onComment`.
 Our function can do whatever we want;
 for demonstration purposes we will add nodes to an array called `state`
 and report them all at the end
-(<a figure="style-checker-walk-tree"/>).
+([% f style-checker-walk-tree %]).
 
 [% figure slug="style-checker-walk-tree" img="figures/walk-tree.svg" alt="Walking a tree" caption="Walking a tree to perform an operation at each node." %]
 
@@ -208,7 +208,7 @@ A third approach to this problem uses
 the [% i "Iterator pattern" "design pattern!Iterator" %][% g iterator_pattern %]Iterator[% /g %][% /i %] design pattern.
 Instead of taking the computation to the nodes as a visitor does,
 an iterator returns the elements of a complex structure one by one for processing
-(<a figure="style-checker-iterator"/>).
+([% f style-checker-iterator %]).
 One way to think about it is that the Visitor pattern encapsulates recursion,
 while the Iterator pattern turns everything into a `for` loop.
 
@@ -313,7 +313,7 @@ which renders as:
 
 This may seem rather pointless for our toy example,
 but it proves its worth when we are looking at something like
-the virtual machine we will build in <a section="virtual-machine"/>,
+the virtual machine we will build in [% x virtual-machine %],
 which has a more complex method definition table:
 
 | method | DebuggerBase | DebuggerInteractive | DebuggerTest | DebuggerExit |

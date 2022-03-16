@@ -52,7 +52,7 @@ to determine the class of an object.
 If a test [% i "exception!throw" %][% g throw_exception %]throws an exception[% /g %][% /i %] whose class is `assert.AssertionError`,
 then we will assume the exception came from
 one of the assertions we put in the test as a check
-(<a figure="unit-test-mental-model"/>).
+([% f unit-test-mental-model %]).
 Any other kind of assertion indicates that the test itself contains an error.
 
 [% figure slug="unit-test-mental-model" img="figures/mental-model.svg" alt="Mental model of unit testing" caption="Running tests that can pass, fail, or contain errors." %]
@@ -145,7 +145,7 @@ This strategy relies on two things:
 Once a program has imported `hope`,
 it can call `Hope.test` to record a test for later execution
 and `Hope.run` to execute all of the tests registered up until that point
-(<a figure="unit-test-hope-structure"/>).
+([% f unit-test-hope-structure %]).
 
 [% figure slug="unit-test-hope-structure" img="figures/hope-structure.svg" alt="Recording and running tests" caption="Creating a singleton, recording tests, and running them." %]
 
@@ -262,7 +262,7 @@ is a common pattern in many programming languages.
 Control flow goes back and forth between the framework and the module being loaded
 as this happens
 so we must specify the [% i "lifecycle!of unit test" "unit test!lifecycle" %][% g lifecycle %]lifecycle[% /g %][% /i %] of the loaded modules quite carefully.
-<a figure="unit-test-lifecycle"/> illustrates what span
+[% f unit-test-lifecycle %] illustrates what happens
 when a pair of files `test-add.js` and `test-sub.js` are loaded by our framework:
 
 1.  `pray` loads `hope.js`.

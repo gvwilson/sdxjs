@@ -27,7 +27,7 @@ and adds any new tasks that it creates to the back of the queue to run later.
 Only one task runs at a time;
 each has its own [% g call_stack %]call stack[% /g %],
 but objects can be shared between tasks
-(<a figure="async-programming-event-loop"/>).
+([% f async-programming-event-loop %]).
 
 [% figure slug="async-programming-event-loop" img="figures/event-loop.svg" alt="The event loop" caption="Using an event loop to manage concurrent tasks." %]
 
@@ -62,7 +62,7 @@ then adds it to the run queue.
 As the listing below shows,
 the original task can generate many new tasks before it completes,
 and those tasks can run in a different order than the order in which they were created
-(<a figure="async-programming-set-timeout"/>).
+([% f async-programming-set-timeout %]).
 
 [% excerpt pat="callbacks-with-timeouts.*" fill="js out" %]
 
@@ -113,7 +113,7 @@ and its job is to do whatever we want to do after the delay.
 The argument to `then` is yet another callback function;
 it will get the value passed to `resolve`,
 which is how the first part of the action communicates with the second
-(<a figure="async-programming-resolve"/>).
+([% f async-programming-resolve %]).
 
 [% figure slug="async-programming-resolve" img="figures/resolve.svg" alt="How promises resolve" caption="Order of operations when a promise resolves." %]
 
@@ -247,7 +247,7 @@ This is a signal that Node is delaying the execution of the code in the `then` h
 A very common pattern is to return another promise from inside `then`
 so that the next `then` is called on the returned promise,
 not on the original promise
-(<a figure="async-programming-chained"/>).
+([% f async-programming-chained %]).
 This is another way to implement a fluent interface:
 if a method of one object returns a second object,
 we can call a method of the second object immediately.
@@ -312,7 +312,7 @@ we want to display the names of the files whose lines we're counting along with 
 To do this our `then` must return two values.
 We could put them in an array,
 but it's better practice to construct a temporary object with named fields
-(<a figure="async-programming-temporary-named-fields"/>).
+([% f async-programming-temporary-named-fields %]).
 This approach allows us to add or rearrange fields without breaking code
 and also serves as a bit of documentation.
 With this change
@@ -322,7 +322,7 @@ our line-counting program becomes:
 
 [% figure slug="async-programming-temporary-named-fields" img="figures/temporary-named-fields.svg" alt="Temporary objects with named fields" caption="Creating temporary objects with named fields to carry values forward." %]
 
-As in <a section="systems-programming"/>,
+As in [% x systems-programming %],
 this works until we run into a directory whose name name matches `*.*`,
 which we do when counting the lines in the contents of `node_modules`.
 The solution once again is to use `stat` to check if something is a file or not
@@ -361,7 +361,7 @@ This short program uses both keywords to print the first ten characters of a fil
 >
 > When Node sees `await` and `async`
 > it silently [% i "promise!automatic creation of" %]converts[% /i %] the code to use promises with `then`, `resolve`, and `reject`;
-> we will see how this works in <a section="code-generator"/>.
+> we will see how this works in [% x code-generator %].
 > In order to provide a context for this transformation
 > we must put `await` inside a function that is declared to be `async`:
 > we can't simply write `await fs.statAsync(...)` at the top level of our program
@@ -398,7 +398,7 @@ First,
 if we return a promise that fails without using `await`,
 then our main function will finish running before the error occurs,
 and our `try`/`catch` doesn't help us
-(<a figure="async-programming-handling-errors"/>):
+([% f async-programming-handling-errors %]):
 
 [% excerpt pat="return-immediately.*" fill="js out" %]
 
@@ -411,7 +411,7 @@ so we can use `.then` and `.catch` to handle it as before:
 
 [% excerpt pat="assign-immediately.*" fill="js out" %]
 
-If instead we <span i="[% i "exception!with await" %]">`return await`[% /i %],
+If instead we [% i "exception!with await" %]`return await`[% /i %],
 the function waits until the promise runs before returning.
 The promise is turned into an exception because it failed,
 and since we're inside the scope of our `try`/`catch` block,

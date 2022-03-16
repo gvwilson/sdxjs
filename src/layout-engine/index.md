@@ -27,7 +27,7 @@ and then draw the result as text on the screen.
 > The [% i "coordinate system" %]coordinate systems[% /i %] for screens put (0, 0) in the upper left corner instead of the lower left.
 > X increases to the right as usual,
 > but Y increases as we go down, rather than up
-> (<a figure="layout-engine-coordinate-system"/>).
+> ([% f layout-engine-coordinate-system %]).
 > This convention is a holdover from the days of teletype terminals
 > that printed lines on rolls of paper;
 > as [% i "Hoye, Mike" %][Mike Hoye][hoye-mike][% /i %] has [repeatedly observed][punching-holes],
@@ -48,7 +48,7 @@ A block has a fixed width and height:
 A row arranges one or more cells horizontally;
 its width is the sum of the widths of its children,
 while its height is the height of its tallest child
-(<a figure="layout-engine-sizing"/>):
+([% f layout-engine-sizing %]):
 
 [% excerpt file="easy-mode.js" keep="row" %]
 
@@ -95,7 +95,7 @@ we get its height
 and then calculate its lower edge as y1 = y0 + height.
 We then place the first child's lower-left corner at (x0, y1),
 the second child's at (x0 + width0, y1), and so on
-(<a figure="layout-engine-layout"/>).
+([% f layout-engine-layout %]).
 Similarly,
 if the cell is a column
 we place the first child at (x0, y0),
@@ -135,7 +135,7 @@ and then having each block draw itself in the right place.
 If we do this starting at the root of the tree,
 child blocks will overwrite the markings made by their parents,
 which will automatically produce the right appearance
-(<a figure="layout-engine-draw-over"/>).
+([% f layout-engine-draw-over %]).
 (A more sophisticated version of this called [% g z_buffering %]z-buffering[% /g %]
 keeps track of the visual depth of each pixel
 in order to draw things in three dimensions.)
@@ -211,7 +211,7 @@ the class representing columns needs a new method:
 Rows do all the hard work.
 Each original row is replaced with a new row that contains a single column with one or more rows,
 each of which is one "line" of wrapped cells
-(<a figure="layout-engine-wrap"/>).
+([% f layout-engine-wrap %]).
 This replacement is unnecessary when everything will fit on a single row,
 but it's easiest to write the code that does it every time;
 we will look at making this more efficient in the exercises.
@@ -271,7 +271,7 @@ these three classes are just over 40 lines of code:
 [% excerpt file="micro-dom.js" omit="erase" %]
 
 We will use regular expressions to parse HTML
-(though as we explained in <a section="regex-parser"/>,
+(though as we explained in [% x regex-parser %],
 [this is a sin][stack-overflow-html-regex]).
 The main body of our parser is:
 
@@ -350,7 +350,7 @@ We will explore these possibilities in the exercises.
 > ### Where it all started
 >
 > This chapter's topic was one of the seeds from which this entire book grew
-> (the other being debuggers discussed in <a section="debugger"/>).
+> (the other being debuggers discussed in [% x debugger %]).
 > After struggling with [% i "CSS!struggles with" %]CSS[% /i %] for several years,
 > [% i "Wilson, Greg" %][Greg Wilson][wilson-greg][% /i %] began wondering whether it really had to be so complicated.
 > That question led to others,

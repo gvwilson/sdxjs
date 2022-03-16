@@ -13,7 +13,7 @@ and the package may specify a version or range of versions for each dependency.
 
 Downloading files requires some web programming that is out of scope for this book,
 while installing those files in the right places
-uses the systems programming skills of <a section="systems-programming"/>.
+uses the systems programming skills of [% x systems-programming %].
 The piece we are missing is a way to figure out exactly what versions of different packages to install
 in order to create a consistent setup.
 If packages A and B require different versions of C,
@@ -81,7 +81,7 @@ is compatible with the range specified in its second.
 
 Imagine that each package we need is represented as an axis on a multi-dimensional grid,
 with its versions as the tick marks
-(<a figure="package-manager-allowable"/>).
+([% f package-manager-allowable %]).
 Each point on the grid is a possible combination of package versions.
 We can block out regions of this grid using the constraints on the package versions;
 whatever points are left when we're done represent legal combinations.
@@ -116,7 +116,7 @@ we would need to add rules for resolving ties.
 > If you want to reproduce someone else's setup for debugging purposes,
 > you should install what is described in the latter file.
 
-<div class="table" id="package-manager-example-dependencies" caption="Example package dependencies.">
+<div class="table" id="package-manager-example-dependencies" caption="Example package dependencies." markdown="1">
 | Package | Requires |
 | ------- | -------- |
 | X/1     | Y/1-2    |
@@ -131,7 +131,7 @@ we would need to add rules for resolving ties.
 | Z/3     |          |
 </div>
 
-<div class="table" id="package-manager-example-result" caption="Result for example package dependencies.">
+<div class="table" id="package-manager-example-result" caption="Result for example package dependencies." markdown="1">
 |   X |   Y |   Z | Excluded  |
 | --- | --- | --- | --------- |
 |   1 |   1 |   1 | Y/1 - Z/1 |
@@ -216,7 +216,7 @@ If we sort the output by the case that caught the exclusion
 it turns out that 9 of the 17 exclusions are redundant rediscovery of a previously-known problem
 <a table="package-manager-exclusions"/>.
 
-<div class="table" id="package-manager-exclusions" caption="Package exclusions.">
+<div class="table" id="package-manager-exclusions" caption="Package exclusions." markdown="1">
 | Excluded  |   X |   Y |   Z |
 | --------  | --- | --- | --- |
 | X/1 - Y/3 |   1 |   3 |   1 |
@@ -243,7 +243,7 @@ it turns out that 9 of the 17 exclusions are redundant rediscovery of a previous
 
 In order to make this more efficient we need to [% i "prune (a search tree)" %][% g prune %]prune[% /g %][% /i %] the search tree
 as we go along
-(<a figure="package-manager-pruning"/>).
+([% f package-manager-pruning %]).
 After all,
 if we know that X and Y are incompatible,
 there is no need to check Z as well.
@@ -305,7 +305,7 @@ Remember that `2.1` is greater than `1.99`.
 
 ### Parsing semantic versions {.exercise}
 
-Using the techniques of <a section="regex-parser"/>,
+Using the techniques of [% x regex-parser %],
 write a parser for a subset of the [semantic versioning specification][semver-spec].
 
 ### Using scoring functions {.exercise}

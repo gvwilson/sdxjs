@@ -4,7 +4,7 @@ title: "Pattern Matching"
 lede: "Using patterns to find things in data"
 ---
 
-We have been globbing to match filenames against patterns since <a section="systems-programming"/>.
+We have been globbing to match filenames against patterns since [% x systems-programming %].
 This lesson will explore how that works
 by building a simple version of the [% i "regular expression" %][% g regular_expression %]regular expressions[% /g %][% /i %]
 used to match text in everything from editor and shell commands to web scrapers.
@@ -23,14 +23,14 @@ Each element in the page,
 such as a heading and or paragraph,
 is a [% g node %]nodes[% /g %];
 the [% g child_tree %]children[% /g %] of a node are the elements it contains
-(<a figure="pattern-matching-dom-tree"/>).
+([% f pattern-matching-dom-tree %]).
 
 [% figure slug="pattern-matching-dom-tree" img="figures/dom-tree.svg" alt="The Document Object Model" caption="Representing an HTML document as a tree." %]
 
 The first step is to define the patterns we want to support
 (<a table="pattern-matching-supported"/>).
 
-<div class="table" id="pattern-matching-supported" caption="Supported patterns.">
+<div class="table" id="pattern-matching-supported" caption="Supported patterns." markdown="1">
 | Meaning | Selector |
 | ------- | -------- |
 | Element with tag `"elt"` | `elt`    |
@@ -45,7 +45,7 @@ To find elements in a page that match it,
 our `select` function breaks the query into pieces
 and uses `firstMatch` to search recursively down the document tree
 until all the selectors in the query string have matched or no matches have been found
-(<a figure="pattern-matching-query-selectors"/>).
+([% f pattern-matching-query-selectors %]).
 
 [% figure slug="pattern-matching-query-selectors" img="figures/query-selectors.svg" alt="Matching query selectors" caption="Matching a simple set of query selectors." %]
 
@@ -125,7 +125,7 @@ we see if the the pattern will match further along.
 Our matcher will initially handle just the five cases shown in
 <a table="pattern-matching-cases"/>.
 
-<div class="table" id="pattern-matching-cases" caption="Pattern matching cases.">
+<div class="table" id="pattern-matching-cases" caption="Pattern matching cases." markdown="1">
 | Meaning | Character |
 | ------- | --------- |
 | Any literal character *c* | *c* |
@@ -186,7 +186,7 @@ Each matching object has a method that takes the target string and the index to 
 Its output is the index to continue matching at
 or `undefined` indicating that matching failed.
 We can then combine these objects to match complex patterns
-(<a figure="pattern-matching-regex-objects"/>).
+([% f pattern-matching-regex-objects %]).
 
 [% figure slug="pattern-matching-regex-objects" img="figures/regex-objects.svg" alt="Implementing regex with objects" caption="Using nested objects to match regular expressions." %]
 
@@ -257,14 +257,14 @@ The `/*/` is [% i "greedy algorithm" "algorithm!greedy" %][% g greedy_algorithm 
 (which is also called [% i "eager matching" "matching!eager" %][% g eager_matching %]eager matching[% /g %][% /i %]).
 As a result,
 `/a*/` will match the leading `"a"`, leaving nothing for the literal `/a/` to match
-(<a figure="pattern-matching-greedy-failure"/>).
+([% f pattern-matching-greedy-failure %]).
 Our current implementation doesn't give us a way to try other possible matches when this happens.
 
 [% figure slug="pattern-matching-greedy-failure" img="figures/greedy-failure.svg" alt="Overly-greedy matching fails" caption="Why overly-greedy matching doesn't work." %]
 
 Let's re-think our design
 and have each matcher take its own arguments and a `rest` parameter containing the rest of the matchers
-(<a figure="pattern-matching-rest"/>).
+([% f pattern-matching-rest %]).
 (We will provide a default of `null` in the creation function
 so we don't have to type `null` over and over again.)
 Each matcher will try each of its possibilities and then see if the rest will also match.
@@ -325,7 +325,7 @@ we can put them together however we want.
 > software should be open for extension but closed for modification,
 > i.e., that it should be possible to extend functionality
 > without having to rewrite existing code.
-> As we said in <a section="async-programming"/>,
+> As we said in [% x async-programming %],
 > this allows old code to use new code,
 > but only if our design permits the kinds of extensions people are going to want to make.
 > Since we can't anticipate everything,

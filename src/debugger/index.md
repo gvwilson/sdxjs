@@ -5,26 +5,26 @@ lede: "Using programs to run programs"
 ---
 We have finally come to one of the topics that sparked this book:
 how does a [% i "debugger" %]debugger[% /i %] work?
-(The other was layout engines, discussed in <a section="layout-engine"/>.)
+(The other was layout engines, discussed in [% x layout-engine %].)
 Debuggers are as much a part of good programmers' lives as version control
 but are taught far less often
 (in part, we believe, because it's harder to create homework questions for them).
 In this chapter we will build a simple single-stepping debugger;
 in doing so,
-we will show one way to test interactive applications (<a section="unit-test"/>).
+we will show one way to test interactive applications ([% x unit-test %]).
 
 ## What is our starting point? {#debugger-start}
 
-We would like to debug a higher-level language than the [% i "assembly code" %]assembly code[% /i %] of <a section="virtual-machine"/>,
+We would like to debug a higher-level language than the [% i "assembly code" %]assembly code[% /i %] of [% x virtual-machine %],
 but we don't want to have to write a parser
-or wrestle with the [% i "abstract syntax tree" %]ASTs[% /i %] of <a section="style-checker"/>.
+or wrestle with the [% i "abstract syntax tree" %]ASTs[% /i %] of [% x style-checker %].
 As a compromise,
 we will represent programs as JSON data structures
 whose element have the form `[command ...args]`:
 
 [% excerpt file="filter-base.json" %]
 
-Our [% i "virtual machine" %]virtual machine[% /i %] is structured like the one in <a section="virtual-machine"/>.
+Our [% i "virtual machine" %]virtual machine[% /i %] is structured like the one in [% x virtual-machine %].
 A real system would parse a program to create JSON,
 then translate JSON into assembly code,
 then assemble that to create machine instructions.
@@ -107,7 +107,7 @@ and the operation being performed:
 [% excerpt file="vm-callback.js" %]
 
 We also modify the VM's constructor to record the debugger and give it a reference to the virtual machine
-(<a figure="debugger-initialization"/>).
+([% f debugger-initialization %]).
 We have to [% i "mutual references" %]connect the two objects explicitly[% /i %]
 because each one needs a reference to the other,
 but one of them has to be created first.
@@ -216,7 +216,7 @@ Like many tools over the past thirty years,
 our approach is based on a program called [% i "Expect" %][Expect][expect][% /i %].
 Our library replaces the input and output functions of the application being tested with callbacks,
 then provides input when asked and checks output when it is given
-(<a figure="debugger-test-interact"/>).
+([% f debugger-test-interact %]).
 
 [% figure slug="debugger-test-interact" img="figures/test-interact.svg" alt="Testing interactive application" caption="Replacing input and output to test interactive applications." %]
 
@@ -363,7 +363,7 @@ that halt the program whenever the value of a variable changes.
 ### Translating JSON to assembler {.exercise}
 
 Write a tool that translates the JSON program representation
-into the assembly code of <a section="virtual-machine"/>.
+into the assembly code of [% x virtual-machine %].
 To simplify things,
 increase the number of registers so that
 there is always storage for intermediate results

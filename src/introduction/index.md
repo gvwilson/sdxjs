@@ -22,7 +22,7 @@ All of the written material in this project can be freely reused
 under the terms of the [Creative Commons - Attribution - NonCommercial license][cc-by-nc],
 while all of the software is made available under the terms of
 the [Hippocratic License][hippocratic-license];
-see <a section="license"/> for details.
+see [% x license %] for details.
 
 *All proceeds from this project will go to support the [Red Door Family Shelter][red-door].*
 
@@ -73,7 +73,7 @@ This book can be read on its own or as a companion to *[Building Software Togeth
 which is a guide for students who are about to embark on their first large software project in a team.
 If you are looking for a project to do in a course,
 adding a tool to those covered here would be fun as well as educational.
-Please see <a section="conclusion"/> for more details.
+Please see [% x conclusion %] for more details.
 
 ## What tools and ideas do we cover? {#introduction-contents}
 
@@ -82,7 +82,7 @@ This volume focuses on a few that individual developers use while writing softwa
 we hope future volumes
 will explore those used in the applications that programmers build.
 
-<a section="glossary"/> defines the terms we introduce in these lessons,
+[% x glossary %] defines the terms we introduce in these lessons,
 which in turn define the scope of our lessons:
 
 -   How to process a program like any other piece of text.
@@ -195,12 +195,12 @@ while the software is made available under the Hippocratic License.  The first
 allows you to use and remix this material for non-commercial purposes, as-is or
 in adapted form, provided you cite its original source; the second allows you to
 use and remix the software on this site provided you do not violate
-international agreements governing human rights. Please see <a section="license"/>
+international agreements governing human rights. Please see [% x license %]
 for details.
 
 If you would like to improve what we have or add new material, please see the
-Code of Conduct in <a section="conduct"/> and the contributor guidelines in
-<a section="contributing"/>.  If you have questions or would like to use this material in
+Code of Conduct in [% x conduct %] and the contributor guidelines in
+[% x contributing %].  If you have questions or would like to use this material in
 a course, please file an issue in
 this site's GitHub repository <!-- FIXME -->
 or send us email. <!-- FIXME -->

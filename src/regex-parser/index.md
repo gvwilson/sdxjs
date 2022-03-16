@@ -4,12 +4,12 @@ title: "Parsing Expressions"
 lede: "Turning text into code"
 ---
 
-In <a section="pattern-matching"/> we created regular expressions by constructing objects.
+In [% x pattern-matching %] we created regular expressions by constructing objects.
 It takes a lot less typing to write them as strings as we did for HTML selectors,
 but if we're going to do that we need something to convert those strings to the required objects.
 In other words, we need to write a [% i "parser" %][% g parser %]parser[% /g %][% /i %].
 
-<div class="table" id="regex-parser-grammar-codes" caption="Regular expression grammar.">
+<div class="table" id="regex-parser-grammar-codes" caption="Regular expression grammar." markdown="1">
 | Meaning | Character |
 | ------- | --------- |
 | Any literal character *c* | *c* |
@@ -29,8 +29,8 @@ we should be able to parse `/^(a|b|$)*z$/` as
 and "end of text".
 (We write regular expressions inside slashes to distinguish them from strings.)
 To keep things simple,
-we will create a tree of objects (<a figure="regex-parser-expression-tree"/>)
-rather than instances of the regular expression classes from <a section="pattern-matching"/>;
+we will create a tree of objects ([% f regex-parser-expression-tree %])
+rather than instances of the regular expression classes from [% x pattern-matching %];
 the exercises will tackle the latter.
 
 [% figure slug="regex-parser-expression-tree" img="figures/expression-tree.svg" alt="Expression tree for regular expression" caption="Representing the result of parsing a regular expression as an tree." %]
@@ -145,7 +145,7 @@ but the [% i "parser!check-and-combine" %]check-and-combine strategy[% /i %] wil
 
 A better (i.e., correct) solution is
 to leave some partially-completed tokens in the output and [% i "parser!post-hoc compression strategy" %]compress[% /i %] them later
-(<a figure="regex-parser-mechanics"/>).
+([% f regex-parser-mechanics %]).
 If our input is the pattern `/a|b/`, we can:
 
 1.  Append a `Lit` token for `a`.
@@ -214,7 +214,7 @@ but at least they're broken the same way everywhere.
 > and that some languages (or machines) are more or less powerful than others.
 > For example,
 > every regular expression corresponds to a [% i "finite state machine!correspondence with regular expressions" %][% g fsm %]finite state machine[% /g %][% /i %] (FSM)
-> like the one in <a figure="regex-parser-finite-state-machine"/>.
+> like the one in [% f regex-parser-finite-state-machine %].
 > As powerful as FSMs are,
 > they cannot match things like nested parentheses or HTML tags,
 > and [% i "sin!using regular expressions to parse HTML" %][attempting to do so is a sin][stack-overflow-html-regex][% /i %].

@@ -10,7 +10,7 @@ Tools that extract specially-formatted comments from code and turn them into doc
 have been around since at least the 1980s;
 many are used for JavaScript,
 including [% i "JSDoc" %][JSDoc][jsdoc][% /i %] and [% i "ESDoc" %][ESDoc][esdoc][% /i %].
-This chapter will use what we learned in <a section="code-generator"/> about parsing source code
+This chapter will use what we learned in [% x code-generator %] about parsing source code
 to build a simple documentation generator of our own.
 
 ## How can we extract documentation comments? {#doc-generator-extract}
@@ -34,7 +34,7 @@ so let's slim down the JSON that we extract:
 
 [% figure slug="doc-generator-comments" img="figures/comments.svg" alt="Line and block comments" caption="How line comments and block comments are distinguished and represented." %]
 
-Acorn distinguishes two kinds of comments (<a figure="doc-generator-comments"/>).
+Acorn distinguishes two kinds of comments ([% f doc-generator-comments %]).
 [% i "line comment" "comment!line" %][% g line_comment %]Line comments[% /g %][% /i %] cannot span multiple lines;
 if one line comment occurs immediately after another,
 Acorn reports two comments:
@@ -115,7 +115,7 @@ and generally makes it something you might see in a URL:
 [% excerpt file="slugify.js" %]
 
 Let's run this generator and see what it produces
-(<a figure="doc-generator-process-plain"/> and <a figure="doc-generator-mapping"/>):
+([% f doc-generator-process-plain %] and [% f doc-generator-mapping %]):
 
 [% excerpt file="process-plain.sh" %]
 [% excerpt file="process-plain.html" %]
@@ -191,7 +191,7 @@ When we run this on our test case we get:
 
 [% excerpt file="find-following.out" %]
 
-We can use this to create better output (<a figure="doc-generator-fill-in-headers"/>):
+We can use this to create better output ([% f doc-generator-fill-in-headers %]):
 
 [% excerpt file="fill-in-headers.js" %]
 [% excerpt file="fill-in-headers.html" %]

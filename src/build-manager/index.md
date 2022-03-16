@@ -4,7 +4,7 @@ title: "Build Manager"
 lede: "Updating files that depend on other files"
 ---
 
-Suppose we are using a page templating system to create a website (<a section="page-templates"/>).
+Suppose we are using a page templating system to create a website ([% x page-templates %]).
 If we a change a single page our tool should translate it,
 but shouldn't waste time translating others.
 If we change a template,
@@ -23,7 +23,7 @@ compiling each source file into some intermediate form,
 and then [% i "linking (compiled language)" "compiled language!linking" %][% g link %]linking[% /g %][% /i %] the compiled modules
 to each other and to libraries
 to create a runnable program
-(<a figure="build-manager-compiling"/>).
+([% f build-manager-compiling %]).
 If a source file hasn't changed,
 there's no need to recompile it before linking.
 
@@ -36,8 +36,8 @@ and then executes any necessary steps.
 Originally created to manage compilation,
 they are also useful for programs written in [% i "language!interpreted" "interpreted language" %][% g interpreted_language %]interpreted languages[% /g %][% /i %]
 like JavaScript
-when we want to bundle multiple modules into a single loadable file (<a section="module-bundler"/>)
-or re-create documentation from source code (<a section="doc-generator"/>).
+when we want to bundle multiple modules into a single loadable file ([% x module-bundler %])
+or re-create documentation from source code ([% x doc-generator %]).
 In this chapter we will create a simple build manager
 based on [% i "Make" %][Make][gnu-make][% /i %], [% i "Bajel" %][Bajel][bajel][% /i %], [% i "Jake" %][Jake][jake][% /i %],
 and other systems discussed in [% b Smith2011 %].
@@ -57,7 +57,7 @@ each of which has:
 
 The target of one rule can be a dependency of another rule,
 so the relationships between the files form a [% i "directed acyclic graph (DAG)" "DAG" %][% g dag %]directed acyclic graph[% /g %][% /i %] or DAG
-(<a figure="build-manager-dependencies"/>).
+([% f build-manager-dependencies %]).
 The graph is directed because "A depends on B" is a one-way relationship;
 it cannot contain cycles (or loops) because
 if something depends on itself we can never finish updating it.
@@ -106,7 +106,7 @@ and runs the `.build` method of that object with the rest of the command-line pa
 [% excerpt file="driver.js" %]
 
 <!-- continue -->
-We use the `import` function to dynamically load files containing in <a section="unit-test"/> as well.
+We use the `import` function to dynamically load files containing in [% x unit-test %] as well.
 It only saves us a few lines of code in this case,
 but we will use this idea of a general-purpose driver for larger programs in future chapters.
 
@@ -120,7 +120,7 @@ each version of our build manager must be a class that satisfies two requirement
 The `build` method must create a graph from the configuration file,
 check that it does not contain any [% g cycle %]cycles[% /g %],
 and then run whatever commands are needed to update stale targets.
-Just as we built a generic [% i "Visitor pattern" "design pattern!Visitor" %]`Visitor`[% /i %] class in <a section="page-templates"/>,
+Just as we built a generic [% i "Visitor pattern" "design pattern!Visitor" %]`Visitor`[% /i %] class in [% x page-templates %],
 we can build a generic base class for our build manager that does these steps in this order
 without actually implementing any of them:
 
@@ -130,7 +130,7 @@ This is an example of
 the [% i "Template Method pattern" "design pattern!Template Method" %][% g template_method_pattern %]Template Method[% /g %][% /i %] design pattern:
 the parent class defines the order of the steps
 and child classes fill them in
-(<a figure="build-manager-template-method"/>).
+([% f build-manager-template-method %]).
 This design pattern ensures that every child does the same things in the same order,
 even if the details of *how* vary from case to case.
 
@@ -148,7 +148,7 @@ The first line does the loading;
 the rest of the method checks that the rules are at least superficially plausible.
 We need these checks because YAML is a generic file format
 that doesn't know anything about the extra requirements of our rules.
-And as we first saw in <a section="async-programming"/>,
+And as we first saw in [% x async-programming %],
 we have to specify that the character encoding of our file is UTF-8
 so that JavaScript knows how to convert bytes into text.
 
@@ -196,9 +196,9 @@ and the operating system may only report file update times to the nearest millis
 
 More modern build systems store a [% i "hash code!in build" "build!hash code" %]hash[% /i %] of each file's contents
 and compare the current hash to the stored one to see if the file has changed.
-Since we already looked at hashing in <a section="file-backup"/>,
+Since we already looked at hashing in [% x file-backup %],
 we will use the timestamp approach here.
-And instead of using a mock filesystem as we did in <a section="file-backup"/>,
+And instead of using a mock filesystem as we did in [% x file-backup %],
 we will simply load another configuration file that specifies fake timestamps for files:
 
 [% excerpt file="add-timestamps.yml" %]
@@ -288,7 +288,7 @@ Our variables will be more readable:
 we will use `@TARGET` for the target,
 `@DEPENDENCIES` for the dependencies (in order),
 and `@DEP[1]`, `@DEP[2]`, and so on for specific dependencies
-(<a figure="build-manager-pattern-rules"/>).
+([% f build-manager-pattern-rules %]).
 
 [% figure slug="build-manager-pattern-rules" img="figures/pattern-rules.svg" alt="Pattern rules" caption="Turning patterns rules into runnable commands." %]
 

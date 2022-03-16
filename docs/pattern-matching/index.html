@@ -21,7 +21,7 @@
 </div>
 
     <main>
-<p>We have been globbing to match filenames against patterns since <a section="systems-programming"/>.
+<p>We have been globbing to match filenames against patterns since <a href="../systems-programming/">Chapter 2</a>.
 This lesson will explore how that works
 by building a simple version of the <span class="indexref" key="regular expression" markdown="1"><a class="glossref" href="../glossary/#regular_expression" markdown="1">regular expressions</a></span>
 used to match text in everything from editor and shell commands to web scrapers.
@@ -37,7 +37,7 @@ Each element in the page,
 such as a heading and or paragraph,
 is a <a class="glossref" href="../glossary/#node" markdown="1">nodes</a>;
 the <a class="glossref" href="../glossary/#child_tree" markdown="1">children</a> of a node are the elements it contains
-(<a figure="pattern-matching-dom-tree"/>).</p>
+(<a class="figref" href="../pattern-matching/#pattern-matching-dom-tree">Figure 7.1</a>).</p>
 <figure id="pattern-matching-dom-tree">
   <img src="./figures/dom-tree.svg" alt="The Document Object Model" />
   <figcaption markdown="1">Figure 7.1: Representing an HTML document as a tree.</figcaption>
@@ -45,22 +45,40 @@ the <a class="glossref" href="../glossary/#child_tree" markdown="1">children</a>
 
 <p>The first step is to define the patterns we want to support
 (<a table="pattern-matching-supported"/>).</p>
-<div class="table" id="pattern-matching-supported" caption="Supported patterns.">
-| Meaning | Selector |
-| ------- | -------- |
-| Element with tag `"elt"` | `elt`    |
-| Element with `class="cls"` | `.cls`   |
-| Element with `id="ident"` | `#ident`   |
-| `child` element inside a `parent` element | `parent child` |
+<div class="table"><table id="pattern-matching-supported"><caption>Table 7.1: Supported patterns.</caption>
+<thead>
+<tr>
+<th>Meaning</th>
+<th>Selector</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Element with tag <code>"elt"</code></td>
+<td><code>elt</code></td>
+</tr>
+<tr>
+<td>Element with <code>class="cls"</code></td>
+<td><code>.cls</code></td>
+</tr>
+<tr>
+<td>Element with <code>id="ident"</code></td>
+<td><code>#ident</code></td>
+</tr>
+<tr>
+<td><code>child</code> element inside a <code>parent</code> element</td>
+<td><code>parent child</code></td>
+</tr>
+</tbody>
+</table>
 </div>
-
 <p>According to this grammar,
 <code>blockquote#important p.highlight</code> is a highlighted paragraph inside the blockquote whose ID is <code>"important"</code>.
 To find elements in a page that match it,
 our <code>select</code> function breaks the query into pieces
 and uses <code>firstMatch</code> to search recursively down the document tree
 until all the selectors in the query string have matched or no matches have been found
-(<a figure="pattern-matching-query-selectors"/>).</p>
+(<a class="figref" href="../pattern-matching/#pattern-matching-query-selectors">Figure 7.2</a>).</p>
 <figure id="pattern-matching-query-selectors">
   <img src="./figures/query-selectors.svg" alt="Matching query selectors" />
   <figcaption markdown="1">Figure 7.2: Matching a simple set of query selectors.</figcaption>
@@ -262,16 +280,37 @@ otherwise,
 we see if the the pattern will match further along.
 Our matcher will initially handle just the five cases shown in
 <a table="pattern-matching-cases"/>.</p>
-<div class="table" id="pattern-matching-cases" caption="Pattern matching cases.">
-| Meaning | Character |
-| ------- | --------- |
-| Any literal character *c* | *c* |
-| Any single character | . |
-| Beginning of input | ^ |
-| End of input | $ |
-| Zero or more of the previous character | * |
+<div class="table"><table id="pattern-matching-cases"><caption>Table 7.2: Pattern matching cases.</caption>
+<thead>
+<tr>
+<th>Meaning</th>
+<th>Character</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Any literal character <em>c</em></td>
+<td><em>c</em></td>
+</tr>
+<tr>
+<td>Any single character</td>
+<td>.</td>
+</tr>
+<tr>
+<td>Beginning of input</td>
+<td>^</td>
+</tr>
+<tr>
+<td>End of input</td>
+<td>$</td>
+</tr>
+<tr>
+<td>Zero or more of the previous character</td>
+<td>*</td>
+</tr>
+</tbody>
+</table>
 </div>
-
 <!-- continue -->
 <p>These five cases are a small subset of what JavaScript provides,
 but as <span class="indexref" key="Kernighan, Brian" markdown="1">Kernighan</span> wrote,
@@ -406,7 +445,7 @@ so recycling the matchers will make our programs more efficient.</p>
 Its output is the index to continue matching at
 or <code>undefined</code> indicating that matching failed.
 We can then combine these objects to match complex patterns
-(<a figure="pattern-matching-regex-objects"/>).</p>
+(<a class="figref" href="../pattern-matching/#pattern-matching-regex-objects">Figure 7.3</a>).</p>
 <figure id="pattern-matching-regex-objects">
   <img src="./figures/regex-objects.svg" alt="Implementing regex with objects" />
   <figcaption markdown="1">Figure 7.3: Using nested objects to match regular expressions.</figcaption>
@@ -604,7 +643,7 @@ The <code>/*/</code> is <span class="indexref" key="greedy algorithm;algorithm!g
 (which is also called <span class="indexref" key="eager matching;matching!eager" markdown="1"><a class="glossref" href="../glossary/#eager_matching" markdown="1">eager matching</a></span>).
 As a result,
 <code>/a*/</code> will match the leading <code>"a"</code>, leaving nothing for the literal <code>/a/</code> to match
-(<a figure="pattern-matching-greedy-failure"/>).
+(<a class="figref" href="../pattern-matching/#pattern-matching-greedy-failure">Figure 7.4</a>).
 Our current implementation doesn't give us a way to try other possible matches when this happens.</p>
 <figure id="pattern-matching-greedy-failure">
   <img src="./figures/greedy-failure.svg" alt="Overly-greedy matching fails" />
@@ -613,7 +652,7 @@ Our current implementation doesn't give us a way to try other possible matches w
 
 <p>Let's re-think our design
 and have each matcher take its own arguments and a <code>rest</code> parameter containing the rest of the matchers
-(<a figure="pattern-matching-rest"/>).
+(<a class="figref" href="../pattern-matching/#pattern-matching-rest">Figure 7.5</a>).
 (We will provide a default of <code>null</code> in the creation function
 so we don't have to type <code>null</code> over and over again.)
 Each matcher will try each of its possibilities and then see if the rest will also match.</p>
@@ -851,7 +890,7 @@ we can put them together however we want.</p>
 software should be open for extension but closed for modification,
 i.e., that it should be possible to extend functionality
 without having to rewrite existing code.
-As we said in <a section="async-programming"/>,
+As we said in <a href="../async-programming/">Chapter 3</a>,
 this allows old code to use new code,
 but only if our design permits the kinds of extensions people are going to want to make.
 Since we can't anticipate everything,

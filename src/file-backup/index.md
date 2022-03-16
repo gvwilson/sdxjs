@@ -30,7 +30,7 @@ We can't rely on names because files can be renamed or moved over time;
 we could compare the files byte by byte,
 but a quicker way is to use a [% i "hash function" %][% g hash_function %]hash function[% /g %][% /i %]
 that turns arbitrary data into a fixed-length string of bits
-(<a figure="file-backup-hash-function"/>).
+([% f file-backup-hash-function %]).
 
 [% figure slug="file-backup-hash-function" img="figures/hash-function.svg" alt="Hash functions" caption="How hash functions speed up lookup." %]
 
@@ -102,7 +102,7 @@ so that programs don't have to read entire (possibly large) files into memory.
 To start,
 this program asks the `fs` library to create a reading stream for a file
 and to [% g pipe %]pipe[% /g %] the data from that stream to the hashing object
-(<a figure="file-backup-streaming"/>).
+([% f file-backup-streaming %]).
 It then tells the hashing object what to do when there is no more data
 by providing a [% i "event handler!streaming API" "streaming API!event handler" %][% g handler %]handler[% /g %][% /i %] for the "finish" event.
 This is called asynchronously:
@@ -126,11 +126,11 @@ while the filenames tell us what each file's contents were called when the snaps
 (since files can be moved or renamed).
 To restore a particular snapshot,
 all we have to do is copy the saved `.bck` files back to where they were
-(<a figure="file-backup-storage"/>).
+([% f file-backup-storage %]).
 
 [% figure slug="file-backup-storage" img="figures/storage.svg" alt="Backup file storage" caption="Organization of backup file storage." %]
 
-We can build the tools we need to do this uses promises (<a section="async-programming"/>).
+We can build the tools we need to do this uses promises ([% x async-programming %]).
 The main function creates a promise that uses the asynchronous version of `glob` to find files
 and then:
 
@@ -250,7 +250,7 @@ A mock object has the same interface as the function, object, class, or library 
 but is designed to be used solely for testing.
 Node's [`mock-fs`][node-mock-fs] library provides the same functions as the `fs` library,
 but stores everything in memory
-(<a figure="file-backup-mock-fs"/>).
+([% f file-backup-mock-fs %]).
 This prevents our tests from accidentally disturbing the filesystem,
 and also makes tests much faster
 (since in-memory operations are thousands of times faster than operations that touch the disk).

@@ -4,7 +4,7 @@ title: "Code Generator"
 lede: "Modifying code to track coverage and execution times"
 ---
 
-We've been writing tests since <a section="unit-test"/>,
+We've been writing tests since [% x unit-test %],
 but how much of our code do they actually check?
 One way to find out is to use a [% i "code coverage" %][% g code_coverage %]code coverage[% /g %][% /i %] tool
 like [% i "Istanbul" %][Istanbul][istanbul][% /i %]
@@ -39,7 +39,7 @@ The first thing we need is a way to wrap up an arbitrary function call.
 If we declare a function in JavaScript with a parameter like `...args`,
 all of the "extra" arguments in the call that don't line up with regular parameters
 are stuffed into the variable `args`
-(<a figure="code-generator-spread"/>).
+([% f code-generator-spread %]).
 We can also call a function by putting values in a variable
 and using `func(...var)` to [% i "spread!function arguments" %]spread[% /i %] those values out.
 There's nothing special about the names `args` and `vars`:
@@ -93,7 +93,7 @@ modify the AST,
 and then use a library called [% i "Escodegen" %][Escodegen][escodegen][% /i %] to turn the AST back into JavaScript.
 To start,
 let's look at the AST for a simple function definition,
-which is <span class="linecount" file="func-def.out"/> lines of pretty-printed JSON:
+which is [% linecount func-def.out %] lines of pretty-printed JSON:
 
 [% excerpt pat="func-def.*" fill="js out" %]
 
@@ -190,7 +190,7 @@ Let's run one last test:
 
 Source-to-source translation is widely used in JavaScript:
 tools like [% i "Babel" %][Babel][babel][% /i %] use it to transform modern features like `async` and `await`
-(<a section="async-programming"/>)
+([% x async-programming %])
 into code that older browsers can understand.
 The technique is so powerful that it is built into languages like Scheme,
 which allow programmers to add new syntax to the language

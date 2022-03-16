@@ -4,7 +4,7 @@ title: "Module Loader"
 lede: "Loading source files as modules"
 ---
 
-<a section="file-interpolator"/> showed how to use `eval` to load code dynamically.
+[% x file-interpolator %] showed how to use `eval` to load code dynamically.
 We can use this to build our own version of JavaScript's `require` function.
 Our function will take the name of a source file as an argument
 and return whatever that file exports.
@@ -27,7 +27,7 @@ so we have to implement them ourselves.
 We can do this using [% i "closure" %][% g closure %]closures[% /g %][% /i %].
 Every function is a namespace:
 variables defined inside the function are distinct from variables defined outside it
-(<a figure="module-loader-closures"/>).
+([% f module-loader-closures %]).
 If we create the variables we want to manage inside a function,
 then defined another function inside the first
 and return that [% i "inner function" "function!inner" %][% g inner_function %]inner function[% /g %][% /i %],
@@ -91,7 +91,7 @@ we call the object we pass in `result` in `loadModule`.
 
 [% figure slug="module-loader-iife" img="figures/iife.svg" alt="Implementing modules with IIFEs" caption="Using IIFEs to encapsulate modules and get their exports." %]
 
-<a figure="module-loader-iife"/> shows the structure of our loader so far.
+[% f module-loader-iife %] shows the structure of our loader so far.
 We can use this code as a test:
 
 [% excerpt file="small-module.js" %]
@@ -107,7 +107,7 @@ What if the code we are loading loads other code?
 We can visualize the network of who requires whom as a [% i "directed graph" %][% g directed_graph %]directed graph[% /g %][% /i %]:
 if X requires Y,
 we draw an arrow from X to Y.
-Unlike the [% i "directed acyclic graph" %]directed *acyclic* graphs[% /i %] we met in <a section="build-manager"/>,
+Unlike the [% i "directed acyclic graph" %]directed *acyclic* graphs[% /i %] we met in [% x build-manager %],
 though,
 these graphs can contain cycles:
 we say a [% i "circular dependency" %][% g circular_dependency %]circular dependency[% /g %][% /i %] exists
@@ -121,7 +121,7 @@ and that extension calls utility functions defined in the file containing the ma
 Most compiled languages can handle circular dependencies easily:
 they compile each module into low-level instructions,
 then link those to resolve dependencies before running anything
-(<a figure="module-loader-circularity"/>).
+([% f module-loader-circularity %]).
 But interpreted languages usually run code as they're loading it,
 so if X is in the process of loading Y and Y tries to call X,
 X may not (fully) exist yet.
@@ -183,7 +183,7 @@ modules do need to be able to load other modules.
 To enable this,
 we need to provide the module with a function called `require`
 that it can call as it's loading.
-As in <a section="file-interpolator"/>,
+As in [% x file-interpolator %],
 this function checks a [% i "cache!of loaded files" %]cache[% /i %]
 to see if the file being asked for has already been loaded.
 If not, it loads it and saves it;
@@ -208,7 +208,7 @@ a function is just another kind of object in JavaScript;
 every function gets several properties automatically,
 and we can always add more.)
 Since we're using the built-in `Map` class as a cache,
-the entire implementation of `need` is just <span class="linecount" file="need.js"/> lines long:
+the entire implementation of `need` is just [% linecount need.js %] lines long:
 
 [% excerpt file="need.js" %]
 

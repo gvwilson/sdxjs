@@ -33,18 +33,53 @@ And since anything that touches the hard drive is slow from a processor's point 
 to show how long it takes a computer to do different things
 if we imagine that one CPU cycle is equivalent to one second.</p>
 </blockquote>
-<div class="table" id="systems-programming-times" caption="Computer operation times at human scale.">
-| Operation | Actual Time | Would Be… |
-| --------- | ----------- | --------- |
-| 1 CPU cycle | 0.3 nsec | 1 sec |
-| Main memory access | 120 nsec | 6 min |
-| Solid-state disk I/O | 50-150 μsec | 2-6 days |
-| Rotational disk I/O | 1-10 msec | 1-12 months |
-| Internet: San Francisco to New York | 40 msec | 4 years |
-| Internet: San Francisco to Australia | 183 msec | 19 years |
-| Physical system reboot | 5 min | 32,000 years |
+<div class="table"><table id="systems-programming-times"><caption>Table 2.1: Computer operation times at human scale.</caption>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Actual Time</th>
+<th>Would Be…</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 CPU cycle</td>
+<td>0.3 nsec</td>
+<td>1 sec</td>
+</tr>
+<tr>
+<td>Main memory access</td>
+<td>120 nsec</td>
+<td>6 min</td>
+</tr>
+<tr>
+<td>Solid-state disk I/O</td>
+<td>50-150 μsec</td>
+<td>2-6 days</td>
+</tr>
+<tr>
+<td>Rotational disk I/O</td>
+<td>1-10 msec</td>
+<td>1-12 months</td>
+</tr>
+<tr>
+<td>Internet: San Francisco to New York</td>
+<td>40 msec</td>
+<td>4 years</td>
+</tr>
+<tr>
+<td>Internet: San Francisco to Australia</td>
+<td>183 msec</td>
+<td>19 years</td>
+</tr>
+<tr>
+<td>Physical system reboot</td>
+<td>5 min</td>
+<td>32,000 years</td>
+</tr>
+</tbody>
+</table>
 </div>
-
 <p>Early JavaScript programs used <span class="indexref" key="callback function" markdown="1"><a class="glossref" href="../glossary/#callback" markdown="1">callback functions</a></span> to describe asynchronous operations,
 but as we're about to see,
 callbacks can be hard to understand even in small programs.
@@ -54,7 +89,7 @@ to make callbacks easier to manage,
 and more recently they have added new keywords called <code>async</code> and <code>await</code> to make it easier still.
 We need to understand all three layers in order to debug things when they go wrong,
 so this chapter explores callbacks,
-while <a section="async-programming"/> shows how promises and <code>async</code>/<code>await</code> work.
+while <a href="../async-programming/">Chapter 3</a> shows how promises and <code>async</code>/<code>await</code> work.
 This chapter also shows how to read and write files and directories with Node's standard libraries,
 because we're going to be doing that a lot.</p>
 <h2 id="systems-programming-ls">How can we list a directory?</h2>
@@ -96,7 +131,7 @@ which Node automatically stores in an array called <span class="indexref" key="p
 <code>process.argv[0]</code> is the name of the program used to run our code (in this case <code>node</code>),
 while <code>process.argv[1]</code> is the name of our program (in this case <code>list-dir-wrong.js</code>);
 the rest of <code>process.argv</code> holds whatever arguments we gave at the command line when we ran the program,
-so <code>process.argv[2]</code> is the first argument after the name of our program (<a figure="systems-programming-process-argv"/>):</p>
+so <code>process.argv[2]</code> is the first argument after the name of our program (<a class="figref" href="../systems-programming/#systems-programming-process-argv">Figure 2.1</a>):</p>
 <figure id="systems-programming-process-argv">
   <img src="./figures/process-argv.svg" alt="Command-line arguments in `process.argv`" />
   <figcaption markdown="1">Figure 2.1: How Node stores command-line arguments in <code>process.argv</code>.</figcaption>
@@ -162,7 +197,7 @@ it splits operations like file I/O into "please do this" and "do this when data 
 but we need to write a function that specifies the second part.</p>
 <p>JavaScript saves a reference to this function
 and calls with a specific set of parameters when our data is ready
-(<a figure="systems-programming-callbacks"/>).
+(<a class="figref" href="../systems-programming/#systems-programming-callbacks">Figure 2.2</a>).
 Those parameters defined a standard <span class="indexref" key="protocol!API as;API!as protocol" markdown="1"><a class="glossref" href="../glossary/#protocol" markdown="1">protocol</a></span>
 for connecting to libraries,
 just like the USB standard allows us to plug hardware devices together.</p>
@@ -218,7 +253,7 @@ x-where-is-node.md
 
 <p>Nothing that follows will make sense if we don't understand
 the order in which Node executes the statements in this program
-(<a figure="systems-programming-execution-order"/>):</p>
+(<a class="figref" href="../systems-programming/#systems-programming-execution-order">Figure 2.3</a>):</p>
 <ol>
 <li>
 <p>Execute the first line to load the <code>fs</code> library.</p>
@@ -259,7 +294,7 @@ to define it where it is needed
 as an <span class="indexref" key="anonymous function;function!anonymous" markdown="1"><a class="glossref" href="../glossary/#anonymous_function" markdown="1">anonymous function</a></span>.
 This makes it easier to see what's going to happen when the operation completes,
 though it means the order of execution is quite different from the order of reading
-(<a figure="systems-programming-anonymous-functions"/>).
+(<a class="figref" href="../systems-programming/#systems-programming-anonymous-functions">Figure 2.4</a>).
 Using an anonymous function gives us the final version of our program:</p>
 <div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">fs</span> <span class="kr">from</span> <span class="s1">&#39;fs&#39;</span>
 
@@ -331,7 +366,7 @@ x-where-is-node.md
 
 <p>The leading <code>**</code> means "recurse into subdirectories",
 while <code>*.*</code> means "any characters followed by '.' followed by any characters"
-(<a figure="systems-programming-globbing"/>).
+(<a class="figref" href="../systems-programming/#systems-programming-globbing">Figure 2.5</a>).
 Names that don't match <code>*.*</code> won't be included,
 and by default,
 neither are names that start with a '.' character.
@@ -376,7 +411,7 @@ x-where-is-node.md
 
 <p><span class="indexref" key="Array.filter" markdown="1"><code>Array.filter</code></span> creates a new array
 containing all the items of the original array that pass a test
-(<a figure="systems-programming-array-filter"/>).
+(<a class="figref" href="../systems-programming/#systems-programming-array-filter">Figure 2.6</a>).
 The test is specified as a callback function
 that <code>Array.filter</code> calls once once for each item.
 This function must return a <a class="glossref" href="../glossary/#boolean" markdown="1">Boolean</a>
@@ -506,7 +541,7 @@ we can construct the full output path by replacing the name of the source direct
 <p>This program uses <span class="indexref" key="destructuring assignment;assignment!destructuring" markdown="1"><a class="glossref" href="../glossary/#destructuring_assignment" markdown="1">destructuring assignment</a></span>
 to create two variables at once
 by unpacking the elements of an array
-(<a figure="systems-programming-destructuring-assignment"/>).
+(<a class="figref" href="../systems-programming/#systems-programming-destructuring-assignment">Figure 2.7</a>).
 It only works if the array contains the enough elements,
 i.e.,
 if both a source and destination are given on the command line;
@@ -594,7 +629,7 @@ Let's use <code>fs.copy</code> to do that:</p>
 </code></pre></div>
 
 <p>The program now has three levels of callback
-(<a figure="systems-programming-triple-callback"/>):</p>
+(<a class="figref" href="../systems-programming/#systems-programming-triple-callback">Figure 2.8</a>):</p>
 <ol>
 <li>
 <p>When <code>glob</code> has data, do things and then call <code>ensureDir</code>.</p>
@@ -675,7 +710,7 @@ and since the status of something in the filesystem can be very complex,
 <!-- continue -->
 <p>It works,
 but four levels of asynchronous callbacks is hard for humans to understand.
-<a section="async-programming"/> will introduce a pair of tools
+<a href="../async-programming/">Chapter 3</a> will introduce a pair of tools
 that make code like this easier to read.</p>
 <h2 id="systems-programming-exercises">Exercises</h2>
 <h3 class="exercise">Where is Node?</h3>

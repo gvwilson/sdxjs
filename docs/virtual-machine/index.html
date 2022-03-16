@@ -36,7 +36,7 @@ which asks you to solve puzzles of increasing difficulty
 using a processor almost as simple as ours.</p>
 <h2 id="virtual-machine-arch">What is the architecture of our virtual machine?</h2>
 <p>Our <span class="indexref" key="virtual machine" markdown="1"><a class="glossref" href="../glossary/#virtual_machine" markdown="1">virtual machine</a></span> has three parts,
-which are shown in <a figure="virtual-machine-architecture"/>
+which are shown in <a class="figref" href="../virtual-machine/#virtual-machine-architecture">Figure 19.1</a>
 for a program made up of 110 instructions:</p>
 <ol>
 <li>
@@ -77,22 +77,109 @@ to indicate instruction format,
 where <code>r</code> indicates a register identifier,
 <code>c</code> indicates a constant,
 and <code>a</code> indicates an address.</p>
-<div class="table" id="virtual-machine-op-codes" caption="Virtual machine op codes.">
-| Instruction | Code | Format | Action              | Example      | Equivalent                |
-| ----------- | ---- | ------ | ------------------- | ------------ | ------------------------- |
-|  `hlt`      |    1 | `--`   | Halt program        | `hlt`        | `process.exit(0)`         |
-|  `ldc`      |    2 | `rc`   | Load immediate      | `ldc R0 123` | `R0 := 123`               |
-|  `ldr`      |    3 | `rr`   | Load register       | `ldr R0 R1`  | `R0 := RAM[R1]`           |
-|  `cpy`      |    4 | `rr`   | Copy register       | `cpy R0 R1`  | `R0 := R1`                |
-|  `str`      |    5 | `rr`   | Store register      | `str R0 R1`  | `RAM[R1] := R0`           |
-|  `add`      |    6 | `rr`   | Add                 | `add R0 R1`  | `R0 := R0 + R1`           |
-|  `sub`      |    7 | `rr`   | Subtract            | `sub R0 R1`  | `R0 := R0 - R1`           |
-|  `beq`      |    8 | `ra`   | Branch if equal     | `beq R0 123` | `if (R0 === 0) PC := 123` |
-|  `bne`      |    9 | `ra`   | Branch if not equal | `bne R0 123` | `if (R0 !== 0) PC := 123` |
-|  `prr`      |   10 | `r-`   | Print register      | `prr R0`     | `console.log(R0)`         |
-|  `prm`      |   11 | `r-`   | Print memory        | `prm R0`     | `console.log(RAM[R0])`    |
+<div class="table"><table id="virtual-machine-op-codes"><caption>Table 19.1: Virtual machine op codes.</caption>
+<thead>
+<tr>
+<th>Instruction</th>
+<th>Code</th>
+<th>Format</th>
+<th>Action</th>
+<th>Example</th>
+<th>Equivalent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hlt</code></td>
+<td>1</td>
+<td><code>--</code></td>
+<td>Halt program</td>
+<td><code>hlt</code></td>
+<td><code>process.exit(0)</code></td>
+</tr>
+<tr>
+<td><code>ldc</code></td>
+<td>2</td>
+<td><code>rc</code></td>
+<td>Load immediate</td>
+<td><code>ldc R0 123</code></td>
+<td><code>R0 := 123</code></td>
+</tr>
+<tr>
+<td><code>ldr</code></td>
+<td>3</td>
+<td><code>rr</code></td>
+<td>Load register</td>
+<td><code>ldr R0 R1</code></td>
+<td><code>R0 := RAM[R1]</code></td>
+</tr>
+<tr>
+<td><code>cpy</code></td>
+<td>4</td>
+<td><code>rr</code></td>
+<td>Copy register</td>
+<td><code>cpy R0 R1</code></td>
+<td><code>R0 := R1</code></td>
+</tr>
+<tr>
+<td><code>str</code></td>
+<td>5</td>
+<td><code>rr</code></td>
+<td>Store register</td>
+<td><code>str R0 R1</code></td>
+<td><code>RAM[R1] := R0</code></td>
+</tr>
+<tr>
+<td><code>add</code></td>
+<td>6</td>
+<td><code>rr</code></td>
+<td>Add</td>
+<td><code>add R0 R1</code></td>
+<td><code>R0 := R0 + R1</code></td>
+</tr>
+<tr>
+<td><code>sub</code></td>
+<td>7</td>
+<td><code>rr</code></td>
+<td>Subtract</td>
+<td><code>sub R0 R1</code></td>
+<td><code>R0 := R0 - R1</code></td>
+</tr>
+<tr>
+<td><code>beq</code></td>
+<td>8</td>
+<td><code>ra</code></td>
+<td>Branch if equal</td>
+<td><code>beq R0 123</code></td>
+<td><code>if (R0 === 0) PC := 123</code></td>
+</tr>
+<tr>
+<td><code>bne</code></td>
+<td>9</td>
+<td><code>ra</code></td>
+<td>Branch if not equal</td>
+<td><code>bne R0 123</code></td>
+<td><code>if (R0 !== 0) PC := 123</code></td>
+</tr>
+<tr>
+<td><code>prr</code></td>
+<td>10</td>
+<td><code>r-</code></td>
+<td>Print register</td>
+<td><code>prr R0</code></td>
+<td><code>console.log(R0)</code></td>
+</tr>
+<tr>
+<td><code>prm</code></td>
+<td>11</td>
+<td><code>r-</code></td>
+<td>Print memory</td>
+<td><code>prm R0</code></td>
+<td><code>console.log(RAM[R0])</code></td>
+</tr>
+</tbody>
+</table>
 </div>
-
 <p>We put our VM's architectural details in a file
 that can be shared by other components:</p>
 <div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">OPS</span> <span class="o">=</span> <span class="p">{</span>
@@ -184,7 +271,7 @@ the VM gets the value in memory that the instruction pointer currently refers to
 and moves the instruction pointer on by one address.
 It then uses <span class="indexref" key="bitwise operation" markdown="1"><a class="glossref" href="../glossary/#bitwise_operation" markdown="1">bitwise operations</a></span>
 to extract the op code and operands from the instruction
-(<a figure="virtual-machine-unpacking"/>):</p>
+(<a class="figref" href="../virtual-machine/#virtual-machine-unpacking">Figure 19.2</a>):</p>
 <div class="codehilite"><pre><span></span><code>  <span class="nx">fetch</span> <span class="p">()</span> <span class="p">{</span>
     <span class="nx">assert</span><span class="p">((</span><span class="mf">0</span> <span class="o">&lt;=</span> <span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span> <span class="o">&lt;</span> <span class="nx">RAM_LEN</span><span class="p">),</span>
       <span class="sb">`Program counter </span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="si">}</span><span class="sb"> out of range 0..</span><span class="si">${</span><span class="nx">RAM_LEN</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
@@ -321,7 +408,7 @@ it tells the assembler to give the address of the next instruction a name
 so that we can refer to that address as <code>@loop</code> in jump instructions.
 For example,
 this program prints the numbers from 0 to 2
-(<a figure="virtual-machine-count-up"/>):</p>
+(<a class="figref" href="../virtual-machine/#virtual-machine-count-up">Figure 19.3</a>):</p>
 <div class="codehilite"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="nx">Count</span><span class="w"> </span><span class="nx">up</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="mi">3</span><span class="p">.</span><span class="w"></span>
 <span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R0</span><span class="o">:</span><span class="w"> </span><span class="nx">loop</span><span class="w"> </span><span class="nx">index</span><span class="p">.</span><span class="w"></span>
 <span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R1</span><span class="o">:</span><span class="w"> </span><span class="nx">loop</span><span class="w"> </span><span class="nx">limit</span><span class="p">.</span><span class="w"></span>
@@ -354,7 +441,7 @@ this program prints the numbers from 0 to 2
 </figure>
 
 <p>Let's trace this program's execution
-(<a figure="virtual-machine-trace-counter"/>):</p>
+(<a class="figref" href="../virtual-machine/#virtual-machine-trace-counter">Figure 19.4</a>):</p>
 <ol>
 <li>R0 holds the current loop index.</li>
 <li>R1 holds the loop's upper bound (in this case 3).</li>
@@ -543,7 +630,7 @@ but we do need a way to create arrays and refer to them.</p>
 <p>We will allocate storage for arrays at the end of the program
 by using <code>.data</code> on a line of its own to mark the start of the data section
 and then <code>label: number</code> to give a region a name and allocate some storage space
-(<a figure="virtual-machine-storage-allocation"/>).</p>
+(<a class="figref" href="../virtual-machine/#virtual-machine-storage-allocation">Figure 19.5</a>).</p>
 <figure id="virtual-machine-storage-allocation">
   <img src="./figures/storage-allocation.svg" alt="Storage allocation" />
   <figcaption markdown="1">Figure 19.5: Allocating storage for arrays in the virtual machine.</figcaption>

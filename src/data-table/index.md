@@ -4,7 +4,7 @@ title: "Data Tables"
 lede: "Storing and manipulating tables efficiently"
 ---
 
-<a section="systems-programming"/> said that
+[% x systems-programming %] said that
 operations in memory are thousands of times faster than operations that touch the filesystem,
 but what about different in-memory operations---how do they compare with each other?
 Putting it another way,
@@ -16,7 +16,7 @@ we will take a look several ways to implement data tables
 with one or more named columns and zero or more rows.
 Each row has one value for each column,
 and all the values in a column have the same type
-(<a figure="data-table-conceptual"/>).
+([% f data-table-conceptual %]).
 Data tables appear over and over again in programming,
 from spreadsheets and databases
 to the [% i "data frame" %][% g data_frame %]data frames[% /g %][% /i %] in
@@ -39,7 +39,7 @@ This is sometimes also called [% i "heterogeneous storage" "storage!heterogeneou
 because each "unit" of storage can contain values of different types.
 We can implement this design in JavaScript using an array of objects,
 each of which has the same keys
-(<a figure="data-table-storage-order"/>).
+([% f data-table-storage-order %]).
 
 Another option is [% i "column-major storage order" "storage order!column-major" %][% g column_major %]column-major[% /g %][% /i %]
 or [% i "homogeneous storage" "storage!homogeneous" %][% g homogeneous %]homogeneous[% /g %][% /i %] order,
@@ -87,7 +87,7 @@ we provide a list of the keys that identify the columns we want to keep.
 We expect filtering to be relatively fast,
 since it is [% i "recycling data" %]recycling[% /i %] rows,
 while selecting should be relatively slow because we have to construct a new set of arrays
-(<a figure="data-table-row-ops"/>).
+([% f data-table-row-ops %]).
 
 [% excerpt file="table-performance.js" keep="operate-rows" %]
 
@@ -103,7 +103,7 @@ but selecting is just a matter of recycling the arrays we want in the new table.
 We expect selecting to be relatively fast,
 since only the references to the columns need to be copied,
 but filtering will be relatively slow since we are constructing multiple new arrays
-(<a figure="data-table-col-ops"/>).
+([% f data-table-col-ops %]).
 
 [% excerpt file="table-performance.js" keep="operate-cols" %]
 
@@ -163,7 +163,7 @@ And if we keep the table size the same but use a 10:1 filter/select ratio?
 
 [% excerpt file="table-performance-10000-30-10.out" %]
 
-<div class="table" id="data-table-performance" caption="Relative performance of operations on row-major and column-major data tables.">
+<div class="table" id="data-table-performance" caption="Relative performance of operations on row-major and column-major data tables." markdown="1">
 value|100-03-03|10000-30-03|10000-30-10
 :---|---:|---:|---:
 nRows|100|10000|10000
@@ -221,7 +221,7 @@ Let's try one more strategy for storing our tables.
 JavaScript stores values in [% i "tagged data structure" %][% g tagged_data %]tagged[% /g %][% /i %] data structures:
 some bits define the value's type
 while other bits store the value itself in a type-dependent way
-(<a figure="data-table-object-storage"/>).
+([% f data-table-object-storage %]).
 
 [% figure slug="data-table-object-storage" img="figures/object-storage.svg" alt="JavaScript object storage" caption="How JavaScript uses tagged data structures to store objects." %]
 
@@ -231,7 +231,7 @@ JavaScript has an [% i "ArrayBuffer" %]`ArrayBuffer`[% /i %] class for exactly t
 It stores any value we want as a set of bits;
 we then access those bits through a view that presents the data as a particular type,
 such as Boolean (one byte per value) or number (64 bits per number).
-As <a figure="data-table-packed-storage"/> shows,
+As [% f data-table-packed-storage %] shows,
 we can mix different types of data in a single `ArrayBuffer`,
 but it's up to us to keep track of which bytes belong to which values.
 
