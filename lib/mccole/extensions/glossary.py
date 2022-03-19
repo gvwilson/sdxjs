@@ -18,8 +18,8 @@ import re
 
 import ivy
 import shortcodes
-import util
 import yaml
+import util
 
 # Regex to extract internal cross-references from bodies of definitions.
 INTERNAL_REF = re.compile(r"\]\(#(.+?)\)")

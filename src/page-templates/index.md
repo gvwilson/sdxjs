@@ -9,24 +9,24 @@ and the best place to put that documentation is on the web.
 Writing and updating pages by hand is time-consuming and error-prone,
 particularly when many parts are the same,
 so most documentation sites use some kind of
-<span g="static_site_generator" i="static site generator">static site generator</span>
+[% i "static site generator" %][% g static_site_generator %]static site generator[% /g %][% /i %]
 to create web pages from templates.
 
 At the heart of every static site generator is a page templating system.
 Thousands of these have been written in the last thirty years
 in every popular programming language
-(and one language, <span i="PHP">[PHP][php]</span>, was created for this purpose).
+(and one language, [% i "PHP" %][PHP][php][% /i %], was created for this purpose).
 Most of these systems use one of three designs
-(<a figure="page-templates-options"/>):
+([% f page-templates-options %]):
 
 1.  Mix commands in a language such as JavaScript with the HTML or Markdown
     using some kind of marker to indicate which parts are commands
     and which parts are to be taken as-is.
-    This approach is taken by <span i="EJS">[EJS][ejs]</span>,
+    This approach is taken by [% i "EJS" %][EJS][ejs][% /i %],
     which we used to write these lessons.
 
-2.  Create a mini-language with its own commands like <span i="Jekyll">[Jekyll][jekyll]</span>
-    (which is used by <span i="GitHub Pages">[GitHub Pages][github-pages]</span>).
+2.  Create a mini-language with its own commands like [% i "Jekyll" %][Jekyll][jekyll][% /i %]
+    (which is used by [% i "GitHub Pages" %][GitHub Pages][github-pages][% /i %]).
     Mini-languages are appealing because they are smaller and safer than general-purpose languages,
     but experience shows that they eventually grow
     most of the features of a general-purpose language.
@@ -38,14 +38,11 @@ Most of these systems use one of three designs
     but since pages are valid HTML,
     it eliminates the need for a special parser.
 
-<figure id="page-templates-options">
-  <img src="figures/options.svg" alt="Three options for page templates" />
-  <figcaption>Three different ways to implement page templating.</figcaption>
-</figure>
+[% figure slug="page-templates-options" img="figures/options.svg" alt="Three options for page templates" caption="Three different ways to implement page templating." %]
 
 In this chapter we will build a simple page templating system using the third strategy.
 We will process each page independently by parsing the HTML
-and walking the <span i="DOM">DOM</span> to find nodes with special attributes.
+and walking the [% i "DOM" %]DOM[% /i %] to find nodes with special attributes.
 Our program will execute the instructions in those nodes
 to do the equivalent of loops and if/else statements;
 other nodes will be copied as-is to create text.
@@ -56,7 +53,7 @@ Let's start by deciding what "done" looks like.
 Suppose we want to turn an array of strings into an HTML list.
 Our page will look like this:
 
-<div class="include" file="input-loop.html" />
+[% excerpt file="input-loop.html" %]
 
 <!-- continue -->
 The attribute `z-loop` tells the tool to repeat the contents of that node;
@@ -66,7 +63,7 @@ The attribute `z-var` tells the tool to fill in the node with the value of the v
 When our tool processes this page,
 the output will be standard HTML without any traces of how it was created:
 
-<div class="include" file="output-loop.html" />
+[% excerpt file="output-loop.html" %]
 
 > ### Human-readable vs. machine-readable
 >
@@ -90,7 +87,7 @@ the output will be standard HTML without any traces of how it was created:
 > but we have decided to err on the side of minimal typing.
 > And note that strictly speaking,
 > we should call our attributes `data-something` instead of `z-something`
-> to conform with <span i="HTML5 specification">[the HTML5 specification][html5-data-attributes]</span>,
+> to conform with [% i "HTML5 specification" %][the HTML5 specification][html5-data-attributes][% /i %],
 > but by the time we're finished processing our templates,
 > there shouldn't be any `z-*` attributes left to confuse a browser.
 
@@ -104,7 +101,7 @@ or from some mix of the two;
 for the moment,
 we will just pass them into the expansion function as an object:
 
-<div class="include" file="example-call.js" />
+[% excerpt file="example-call.js" %]
 
 ## How can we keep track of values? {#page-templates-values}
 
@@ -119,60 +116,54 @@ experience teaches us that if all our variables are global,
 all of our programs will be buggy.)
 
 The standard way to manage variables is to create a stack of lookup tables.
-Each <span g="stack_frame" i="stack frame">stack frame</span> is an object with names and values;
+Each [% i "stack frame" %][% g stack_frame %]stack frame[% /g %][% /i %] is an object with names and values;
 when we need to find a variable,
 we look through the stack frames in order to find the uppermost definition of that variable..
 
 > ### Scoping rules
 >
-> Searching the stack <span i="call stack!stack frame; stack frame">frame</span> by frame
+> Searching the stack [% i "call stack!stack frame" "stack frame" %]frame[% /i %] by frame
 > while the program is running
-> is called is <span g="dynamic_scoping" i="dynamic scoping; scoping!dynamic">dynamic scoping</span>,
+> is called is [% i "dynamic scoping" "scoping!dynamic" %][% g dynamic_scoping %]dynamic scoping[% /g %][% /i %],
 > since we find variables while the program is running.
 > In contrast,
-> most programming languages used <span g="lexical_scoping" i="lexical scoping; scoping!lexical">lexical scoping</span>,
+> most programming languages used [% i "lexical scoping" "scoping!lexical" %][% g lexical_scoping %]lexical scoping[% /g %][% /i %],
 > which figures out what a variable name refers to based on the structure of the program text.
 
 The values in a running program are sometimes called
-an <span g="environment" i="environment (to store variables); call stack!environment">environment</span>,
+an [% i "environment (to store variables)" "call stack!environment" %][% g environment %]environment[% /g %][% /i %],
 so we have named our stack-handling class `Env`.
 Its methods let us push and pop new stack frames
 and find a variable given its name;
 if the variable can't be found,
 `Env.find` returns `undefined` instead of throwing an exception
-(<a figure="page-templates-stack"/>).
+([% f page-templates-stack %]).
 
-<div class="include" file="env.js" />
+[% excerpt file="env.js" %]
 
-<figure id="page-templates-stack">
-  <img src="figures/stack.svg" alt="Variable stack" />
-  <figcaption>Using a stack to manage variables.</figcaption>
-</figure>
+[% figure slug="page-templates-stack" img="figures/stack.svg" alt="Variable stack" caption="Using a stack to manage variables." %]
 
 ## How do we handle nodes? {#page-templates-nodes}
 
 HTML pages have a nested structure,
 so we will process them using
-the <span g="visitor_pattern" i="Visitor pattern; design pattern!Visitor">Visitor</span> design pattern.
+the [% i "Visitor pattern" "design pattern!Visitor" %][% g visitor_pattern %]Visitor[% /g %][% /i %] design pattern.
 `Visitor`'s constructor takes the root node of the DOM tree as an argument and saves it.
 When we call `Visitor.walk` without a value,
 it starts recursing from that saved root;
 if `.walk` is given a value (as it is during recursive calls),
 it uses that instead.
 
-<div class="include" file="visitor.js" />
+[% excerpt file="visitor.js" %]
 
 <!-- continue -->
 `Visitor` defines two methods called `open` and `close` that are called
 when we first arrive at a node and when we are finished with it
-(<a figure="page-templates-visitor"/>).
+([% f page-templates-visitor %]).
 The default implementations of these methods throw exceptions
 to remind the creators of derived classes to implement their own versions.
 
-<figure id="page-templates-visitor">
-  <img src="figures/visitor.svg" alt="The Visitor pattern" />
-  <figcaption>Using the Visitor pattern to evaluate a page template.</figcaption>
-</figure>
+[% figure slug="page-templates-visitor" img="figures/visitor.svg" alt="The Visitor pattern" caption="Using the Visitor pattern to evaluate a page template." %]
 
 The `Expander` class is specialization of `Visitor`
 that uses an `Env` to keep track of variables.
@@ -187,17 +178,17 @@ uses them to process each type of node:
 
 1.  Otherwise, open or close a regular tag.
 
-<div class="include" file="expander.js" omit="skip" />
+[% excerpt file="expander.js" omit="skip" %]
 
 Checking to see if there is a handler for a particular node
 and getting that handler are straightforward---we just
 look at the node's attributes:
 
-<div class="include" file="expander.js" keep="handlers" />
+[% excerpt file="expander.js" keep="handlers" %]
 
 Finally, we need a few helper methods to show tags and generate output:
 
-<div class="include" file="expander.js" keep="helpers" />
+[% excerpt file="expander.js" keep="helpers" %]
 
 <!-- continue -->
 Notice that this class adds strings to an array and joins them all right at the end
@@ -212,7 +203,7 @@ we have built a lot of infrastructure but haven't actually processed any special
 To do that,
 let's write a handler that copies a constant number into the output:
 
-<div class="include" file="z-num.js" />
+[% excerpt file="z-num.js" %]
 
 <!-- continue -->
 When we enter a node like `<span z-num="123"/>`
@@ -229,12 +220,12 @@ Note that this expander is *not* a class,
 but instead an object with two functions stored under the keys `open` and `close`.
 We could use a class for each handler
 so that handlers can store any extra state they need,
-but <span g="bare_object" i="bare object; software design!bare object">bare objects</span> are common and useful in JavaScript
+but [% i "bare object" "software design!bare object" %][% g bare_object %]bare objects[% /g %][% /i %] are common and useful in JavaScript
 (though we will see below that we *should* have used classes).
 
 So much for constants; what about variables?
 
-<div class="include" file="z-var.js" />
+[% excerpt file="z-var.js" %]
 
 <!-- continue -->
 This code is almost the same as the previous example.
@@ -248,60 +239,48 @@ we can build a program that loads variable definitions from a JSON file,
 reads an HTML template,
 and does the expansion:
 
-<div class="include" file="template.js" />
+[% excerpt file="template.js" %]
 
 We added new variables for our test cases one by one
 as we were writing this chapter.
 To avoid repeating text repeatedly,
 we show the entire set once:
 
-<div class="include" file="vars.json" />
+[% excerpt file="vars.json" %]
 
 Our first test:
-is static text copied over as-is (<a figure="page-templates-output-static-text"/>)?
+is static text copied over as-is ([% f page-templates-output-static-text %])?
 
-<div class="include" file="input-static-text.html" />
-<div class="include" file="static-text.sh" />
-<div class="include" file="output-static-text.html" />
+[% excerpt file="input-static-text.html" %]
+[% excerpt file="static-text.sh" %]
+[% excerpt file="output-static-text.html" %]
 
-<figure id="page-templates-output-static-text">
-  <img src="figures/output-static-text.svg" alt="Generating static text" />
-  <figcaption>Static text generated by page templates.</figcaption>
-</figure>
+[% figure slug="page-templates-output-static-text" img="figures/output-static-text.svg" alt="Generating static text" caption="Static text generated by page templates." %]
 
 Good.
-Now, does the expander handle constants (<a figure="page-templates-output-single-constant"/>)?
+Now, does the expander handle constants ([% f page-templates-output-single-constant %])?
 
-<div class="include" file="input-single-constant.html" />
-<div class="include" file="output-single-constant.html" />
+[% excerpt file="input-single-constant.html" %]
+[% excerpt file="output-single-constant.html" %]
 
-<figure id="page-templates-output-single-constant">
-  <img src="figures/output-single-constant.svg" alt="Generating a single constant" />
-  <figcaption>A single constant generated by page templates.</figcaption>
-</figure>
+[% figure slug="page-templates-output-single-constant" img="figures/output-single-constant.svg" alt="Generating a single constant" caption="A single constant generated by page templates." %]
 
-What about a single variable (<a figure="page-templates-output-single-variable"/>)?
+What about a single variable ([% f page-templates-output-single-variable %])?
 
-<div class="include" file="input-single-variable.html" />
-<div class="include" file="output-single-variable.html" />
+[% excerpt file="input-single-variable.html" %]
+[% excerpt file="output-single-variable.html" %]
 
-<figure id="page-templates-output-single-variable">
-  <img src="figures/output-single-variable.svg" alt="Generating a single variable" />
-  <figcaption>A single variable generated by page templates.</figcaption>
-</figure>
+[% figure slug="page-templates-output-single-variable" img="figures/output-single-variable.svg" alt="Generating a single variable" caption="A single variable generated by page templates." %]
 
 What about a page containing multiple variables?
 There's no reason it should fail if the single-variable case works,
 but we should still check---again,
-software isn't done until it has been tested (<a figure="page-templates-output-multiple-variables"/>).
+software isn't done until it has been tested ([% f page-templates-output-multiple-variables %]).
 
-<div class="include" file="input-multiple-variables.html" />
-<div class="include" file="output-multiple-variables.html" />
+[% excerpt file="input-multiple-variables.html" %]
+[% excerpt file="output-multiple-variables.html" %]
 
-<figure id="page-templates-output-multiple-variables">
-  <img src="figures/output-multiple-variables.svg" alt="Generating multiple variables" />
-  <figcaption>Multiple variables generated by page templates.</figcaption>
-</figure>
+[% figure slug="page-templates-output-multiple-variables" img="figures/output-multiple-variables.svg" alt="Generating multiple variables" caption="Multiple variables generated by page templates." %]
 
 ## How can we implement control flow? {#page-templates-flow}
 
@@ -312,17 +291,14 @@ implementing a conditional is as simple as looking up a variable
 (which we know how to do)
 and then expanding the node if the value is true:
 
-<div class="include" file="z-if.js" />
+[% excerpt file="z-if.js" %]
 
-Let's test it (<a figure="page-templates-output-conditional"/>):
+Let's test it ([% f page-templates-output-conditional %]):
 
-<div class="include" file="input-conditional.html" />
-<div class="include" file="output-conditional.html" />
+[% excerpt file="input-conditional.html" %]
+[% excerpt file="output-conditional.html" %]
 
-<figure id="page-templates-output-conditional">
-  <img src="figures/output-conditional.svg" alt="Generating conditional text" />
-  <figcaption>Conditional text generated by page templates.</figcaption>
-</figure>
+[% figure slug="page-templates-output-conditional" img="figures/output-conditional.svg" alt="Generating conditional text" caption="Conditional text generated by page templates." %]
 
 > ### Spot the bug
 >
@@ -348,18 +324,15 @@ That "something" is:
 
 1.  Pop the stack frame to get rid of the temporary variable.
 
-<div class="include" file="z-loop.js" />
+[% excerpt file="z-loop.js" %]
 
 Once again,
-it's not done until we test it (<a figure="page-templates-output-loop"/>):
+it's not done until we test it ([% f page-templates-output-loop %]):
 
-<div class="include" file="input-loop.html" />
-<div class="include" file="output-loop.html" />
+[% excerpt file="input-loop.html" %]
+[% excerpt file="output-loop.html" %]
 
-<figure id="page-templates-output-loop">
-  <img src="figures/output-loop.svg" alt="Generating text with a loop" />
-  <figcaption>Repeated text generated with a loop by page templates.</figcaption>
-</figure>
+[% figure slug="page-templates-output-loop" img="figures/output-loop.svg" alt="Generating text with a loop" caption="Repeated text generated with a loop by page templates." %]
 
 Notice how we create the new stack frame using:
 
@@ -419,7 +392,7 @@ is so much clumsier than typing `width+1` that people wouldn't use it
 unless they had no other choice---but the basic design is there.
 
 We didn't invent any of this from scratch,
-any more than we invented the parsing algorithm of <a section="regex-parser"/>.
+any more than we invented the parsing algorithm of [% x regex-parser %].
 Instead,
 we did what you are doing now:
 we read what other programmers had written
@@ -427,7 +400,7 @@ and tried to make sense of the key ideas.
 
 The problem is that "making sense" depends on who we are.
 When we use a low-level language,
-we incur the <span i="cognitive load">cognitive load</span> of assembling micro-steps into something more meaningful.
+we incur the [% i "cognitive load" %]cognitive load[% /i %] of assembling micro-steps into something more meaningful.
 When we use a high-level language,
 on the other hand,
 we incur a similar load translating functions of functions of functions
@@ -437,7 +410,7 @@ into actual operations on actual data.
 More experienced programmers are more capable at both ends of the curve,
 but that's not the only thing that changes.
 If a novice's comprehension curve looks like the one on the left
-of <a figure="page-templates-comprehension"/>,
+of [% f page-templates-comprehension %],
 then an expert's looks like the one on the right.
 Experts don't just understand more at all levels of abstraction;
 their *preferred* level has also shifted
@@ -446,10 +419,7 @@ is actually more readable than the medieval expression
 "the side of the square whose area is the sum of the areas of the two squares
 whose sides are given by the first part and the second part".
 
-<figure id="page-templates-comprehension">
-  <img src="figures/comprehension.svg" alt="Comprehension curves" />
-  <figcaption>Novice and expert comprehension curves.</figcaption>
-</figure>
+[% figure slug="page-templates-comprehension" img="figures/comprehension.svg" alt="Comprehension curves" caption="Novice and expert comprehension curves." %]
 
 One implication of this is that for any given task,
 the software that is quickest for a novice to comprehend

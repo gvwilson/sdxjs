@@ -50,7 +50,11 @@ def _toc_1_part(kind, label):
     entries = [
         e for e in headings.values() if (len(e.number) == 1) and (e.fileslug in entries)
     ]
-    entries.sort(key=lambda x: x.number)
+
+    def _sort_key(k):
+        return k.number[0].zfill(3) if k.number[0].isdigit() else k.number[0]
+
+    entries.sort(key=_sort_key)
     items = [f'<li><a href="@root/{e.fileslug}/">{e.title}</a></li>' for e in entries]
     return f'<ol class="toc" type="{label}">\n' + "\n".join(items) + "\n</ol>"
 

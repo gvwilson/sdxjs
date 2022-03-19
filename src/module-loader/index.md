@@ -4,56 +4,53 @@ title: "Module Loader"
 lede: "Loading source files as modules"
 ---
 
-<a section="file-interpolator"/> showed how to use `eval` to load code dynamically.
+[% x file-interpolator %] showed how to use `eval` to load code dynamically.
 We can use this to build our own version of JavaScript's `require` function.
 Our function will take the name of a source file as an argument
 and return whatever that file exports.
 The key requirement for such a function is to avoid accidentally overwriting things:
 if we just `eval` some code and it happens to assign to a variable called `x`,
 anything called `x` already in our program might be overwritten.
-We therefore need a way to <span g="encapsulate" i="encapsulation; software design!encapsulation">encapsulate</span> the contents of what we're loading.
-Our approach is based on <cite>Casciaro2020</cite>,
+We therefore need a way to [% i "encapsulation" "software design!encapsulation" %][% g encapsulate %]encapsulate[% /g %][% /i %] the contents of what we're loading.
+Our approach is based on [% b Casciaro2020 %],
 which contains a lot of other useful information as well.
 
 ## How can we implement namespaces? {#module-loader-namespace}
 
-A <span g="namespace" i="namespace">namespace</span> is a collection of names in a program
+A [% i "namespace" %][% g namespace %]namespace[% /g %][% /i %] is a collection of names in a program
 that are isolated from other namespaces.
 Most modern languages provide namespaces as a built-in feature
 so that programmers don't accidentally step on each other's toes.
 JavaScript doesn't,
 so we have to implement them ourselves.
 
-We can do this using <span g="closure" i="closure">closures</span>.
+We can do this using [% i "closure" %][% g closure %]closures[% /g %][% /i %].
 Every function is a namespace:
 variables defined inside the function are distinct from variables defined outside it
-(<a figure="module-loader-closures"/>).
+([% f module-loader-closures %]).
 If we create the variables we want to manage inside a function,
 then defined another function inside the first
-and return that <span g="inner_function" i="inner function; function!inner">inner function</span>,
+and return that [% i "inner function" "function!inner" %][% g inner_function %]inner function[% /g %][% /i %],
 that inner function will be the only thing with references to those variables.
 
-<figure id="module-loader-closures">
-  <img src="figures/closures.svg" alt="How closures work" />
-  <figcaption>Using closures to create private variables.</figcaption>
-</figure>
+[% figure slug="module-loader-closures" img="figures/closures.svg" alt="How closures work" caption="Using closures to create private variables." %]
 
 For example,
 let's create a function that always appends the same string to its argument:
 
-<div class="include" file="manual-namespacing.js" />
+[% excerpt file="manual-namespacing.js" %]
 
 <!-- continue -->
 When we run it,
 the value that was assigned to the parameter `suffix` still exists
 but can only be reached by the inner function:
 
-<div class="include" file="manual-namespacing.out" />
+[% excerpt file="manual-namespacing.out" %]
 
 We could require every module to define a setup function like this for users to call,
 but thanks to `eval` we can wrap the file's contents in a function and call it automatically.
 To do this we will create something called
-an <span g="iife" i="immediately-invoked function expression">immediately-invoked function expression</span> (IIFE).
+an [% i "immediately-invoked function expression" %][% g iife %]immediately-invoked function expression[% /g %][% /i %] (IIFE).
 The syntax `() => {...}` defines a function.
 If we put the definition in parentheses and then put another pair of parentheses right after it:
 
@@ -65,7 +62,7 @@ If we put the definition in parentheses and then put another pair of parentheses
 we have code that defines a function of no arguments and immediately calls it.
 We can use this trick to achieve the same effect as the previous example in one step:
 
-<div class="include" pat="automatic-namespacing.*" fill="js out" />
+[% excerpt pat="automatic-namespacing.*" fill="js out" %]
 
 > ### Unconfusing the parser
 >
@@ -90,84 +87,78 @@ the parameter to the function we build and `eval` must be called `module` so tha
 For clarity,
 we call the object we pass in `result` in `loadModule`.
 
-<div class="include" file="load-module-only.js" />
+[% excerpt file="load-module-only.js" %]
 
-<figure id="module-loader-iife">
-  <img src="figures/iife.svg" alt="Implementing modules with IIFEs" />
-  <figcaption>Using IIFEs to encapsulate modules and get their exports.</figcaption>
-</figure>
+[% figure slug="module-loader-iife" img="figures/iife.svg" alt="Implementing modules with IIFEs" caption="Using IIFEs to encapsulate modules and get their exports." %]
 
-<a figure="module-loader-iife"/> shows the structure of our loader so far.
+[% f module-loader-iife %] shows the structure of our loader so far.
 We can use this code as a test:
 
-<div class="include" file="small-module.js" />
+[% excerpt file="small-module.js" %]
 
 <!-- continue -->
 and this short program to load the test and check its exports:
 
-<div class="include" pat="test-load-module-only.*" fill="js sh out" />
+[% excerpt pat="test-load-module-only.*" fill="js sh out" %]
 
 ## Do we need to handle circular dependencies? {#module-loader-circular}
 
 What if the code we are loading loads other code?
-We can visualize the network of who requires whom as a <span g="directed_graph" i="directed graph">directed graph</span>:
+We can visualize the network of who requires whom as a [% i "directed graph" %][% g directed_graph %]directed graph[% /g %][% /i %]:
 if X requires Y,
 we draw an arrow from X to Y.
-Unlike the <span i="directed acyclic graph">directed *acyclic* graphs</span> we met in <a section="build-manager"/>,
+Unlike the [% i "directed acyclic graph" %]directed *acyclic* graphs[% /i %] we met in [% x build-manager %],
 though,
 these graphs can contain cycles:
-we say a <span g="circular_dependency" i="circular dependency">circular dependency</span> exists
+we say a [% i "circular dependency" %][% g circular_dependency %]circular dependency[% /g %][% /i %] exists
 if X depends on Y and Y depends on X
 either directly or indirectly.
 This may seem nonsensical,
-but can easily arise with <span g="plugin_architecture" i="plugin architecture; software design!plugin architecture">plugin architectures</span>:
+but can easily arise with [% i "plugin architecture" "software design!plugin architecture" %][% g plugin_architecture %]plugin architectures[% /g %][% /i %]:
 the file containing the main program loads an extension,
 and that extension calls utility functions defined in the file containing the main program.
 
 Most compiled languages can handle circular dependencies easily:
 they compile each module into low-level instructions,
 then link those to resolve dependencies before running anything
-(<a figure="module-loader-circularity"/>).
+([% f module-loader-circularity %]).
 But interpreted languages usually run code as they're loading it,
 so if X is in the process of loading Y and Y tries to call X,
 X may not (fully) exist yet.
 
-<figure id="module-loader-circularity">
-  <img src="figures/circularity.svg" alt="Circularity test case" />
-  <figcaption>Testing circular imports.</figcaption>
-</figure>
+[% figure slug="module-loader-circularity" img="figures/circularity.svg" alt="Circularity test case" caption="Testing circular imports." %]
 
-Circular dependencies work in <span i="Python">[Python][python]</span>,
+Circular dependencies work in [% i "Python" %][Python][python][% /i %],
 but only sort of.
 Let's create two files called `major.py` and `minor.py`:
 
-<div class="include" file="checking/major.py" />
-<div class="include" file="checking/minor.py" />
+[% excerpt file="checking/major.py" %]
+[% excerpt file="checking/minor.py" %]
 
 Loading fails when we run `major.py` from the command line:
 
-<div class="include" file="checking/py-command-line.out" />
+[% excerpt file="checking/py-command-line.out" %]
 
 <!-- continue -->
 but works in the interactive interpreter:
 
-<div class="include" file="checking/py-interactive.out" />
+[% excerpt file="checking/py-interactive.out" %]
 
 The equivalent test in JavaScript also has two files:
 
-<div class="include" file="checking/major.js" />
-<div class="include" file="checking/minor.js" />
+[% excerpt file="checking/major.js" %]
+[% excerpt file="checking/minor.js" %]
 
 <!-- continue -->
 It fails on the command line:
 
-<div class="include" file="checking/js-command-line.out" />
+[% excerpt file="checking/js-command-line.out" %]
 
 <!-- continue -->
 and also fails in the interactive interpreter
 (which is more consistent):
 
-<div class="include" file="checking/js-interactive.out" />
+[% excerpt file="checking/js-interactive.out" %]
 
 We therefore won't try to handle circular dependencies.
 However,
@@ -180,7 +171,7 @@ we will detect them and generate a sensible error message.
 > get everything into memory,
 > and then resolve dependencies.
 > We can't do this with `require`-based code
-> because someone might create an <span g="alias" i="alias!during import; import!alias">alias</span>
+> because someone might create an [% i "alias!during import" "import!alias" %][% g alias %]alias[% /g %][% /i %]
 > and call `require` through that
 > or `eval` a string that contains a `require` call.
 > (Of course, they can also do these things with the function version of `import`.)
@@ -192,8 +183,8 @@ modules do need to be able to load other modules.
 To enable this,
 we need to provide the module with a function called `require`
 that it can call as it's loading.
-As in <a section="file-interpolator"/>,
-this function checks a <span i="cache!of loaded files">cache</span>
+As in [% x file-interpolator %],
+this function checks a [% i "cache!of loaded files" %]cache[% /i %]
 to see if the file being asked for has already been loaded.
 If not, it loads it and saves it;
 either way, it returns the result.
@@ -205,7 +196,7 @@ suppose that `major.js` loads `subdir/first.js` and `subdir/second.js`.
 When `subdir/second.js` loads `./first.js`,
 our system needs to realize that it already has that file
 even though the path looks different.
-We will use <span g="absolute_path">absolute paths</span> as cache keys
+We will use [% g absolute_path %]absolute paths[% /g %] as cache keys
 so that every file has a unique, predictable key.
 
 To reduce confusion,
@@ -217,27 +208,27 @@ a function is just another kind of object in JavaScript;
 every function gets several properties automatically,
 and we can always add more.)
 Since we're using the built-in `Map` class as a cache,
-the entire implementation of `need` is just <span class="linecount" file="need.js"/> lines long:
+the entire implementation of `need` is just [% linecount need.js %] lines long:
 
-<div class="include" file="need.js" />
+[% excerpt file="need.js" %]
 
 We now need to modify `loadModule` to take our function `need` as a parameter.
 (Again, we'll have our modules call `need('something.js')` instead of `require('something')` for clarity.)
 Let's test it with the same small module that doesn't need anything else to make sure we haven't broken anything:
 
-<div class="include" pat="test-need-small-module.*" fill="js out" />
+[% excerpt pat="test-need-small-module.*" fill="js out" %]
 
 What if we test it with a module that *does* load something else?
 
-<div class="include" file="large-module.js" />
-<div class="include" pat="test-need-large-module.*" fill="js out" />
+[% excerpt file="large-module.js" %]
+[% excerpt pat="test-need-large-module.*" fill="js out" %]
 
 This doesn't work because `import` only works at the top level of a program,
 not inside a function.
 Our system can therefore only run loaded modules by `need`ing them:
 
-<div class="include" file="large-needless.js" />
-<div class="include" pat="test-need-large-needless.*" fill="js out" />
+[% excerpt file="large-needless.js" %]
+[% excerpt pat="test-need-large-needless.*" fill="js out" %]
 
 > ### "It's so deep it's meaningless"
 >
@@ -330,19 +321,19 @@ rather than using `module.exports`.
 
 Suppose that `main.js` contains this:
 
-<div class="include" file="x-refactoring-circularity/main.js"/>
+[% excerpt file="x-refactoring-circularity/main.js" %]
 
 <!-- continue -->
 and `plugin.js` contains this:
 
-<div class="include" file="x-refactoring-circularity/plugin.js"/>
+[% excerpt file="x-refactoring-circularity/plugin.js" %]
 
 <!-- continue -->
 Refactor this code so that it works correctly while still using `require` rather than `import`.
 
 ### An LRU cache {.exercise}
 
-A <span g="lru_cache">Least Recently Used (LRU) cache</span>
+A [% g lru_cache %]Least Recently Used (LRU) cache[% /g %]
 reduces access time while limiting the amount of memory used
 by keeping track of the N items that have been used most recently.
 For example,

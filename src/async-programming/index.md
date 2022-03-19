@@ -7,45 +7,42 @@ lede: "Using promises to manage delayed computation"
 Callbacks work,
 but they are hard to read and debug,
 which means they only "work" in a limited sense.
-JavaScript's developers added <span g="promise" i="promise!as alternative to callback">promises</span> to the language in 2015
+JavaScript's developers added [% i "promise!as alternative to callback" %][% g promise %]promises[% /g %][% /i %] to the language in 2015
 to make callbacks easier to write and understand,
 and more recently they added the keywords `async` and `await` as well
 to make asynchronous programming easier still.
 To show how these work,
-we will create a <span g="class">class</span> of our own called `Pledge`
+we will create a [% g class %]class[% /g %] of our own called `Pledge`
 that provides the same core features as promises.
-Our explanation was inspired by <span i="Huffine, Trey">[Trey Huffine's][huffine-trey]</span> [tutorial][huffine-promises],
+Our explanation was inspired by [% i "Huffine, Trey" %][Trey Huffine's][huffine-trey][% /i %] [tutorial][huffine-promises],
 and we encourage you to read that as well.
 
 ## How can we manage asynchronous execution? {#async-programming-manage}
 
-JavaScript is built around an <span g="event_loop" i="event loop; execution!event loop">event loop</span>.
+JavaScript is built around an [% i "event loop" "execution!event loop" %][% g event_loop %]event loop[% /g %][% /i %].
 Every task is represented by an entry in a queue;
 the event loop repeatedly takes a task from the front of the queue,
 runs it,
 and adds any new tasks that it creates to the back of the queue to run later.
 Only one task runs at a time;
-each has its own <span g="call_stack">call stack</span>,
+each has its own [% g call_stack %]call stack[% /g %],
 but objects can be shared between tasks
-(<a figure="async-programming-event-loop"/>).
+([% f async-programming-event-loop %]).
 
-<figure id="async-programming-event-loop">
-  <img src="figures/event-loop.svg" alt="The event loop" />
-  <figcaption>Using an event loop to manage concurrent tasks.</figcaption>
-</figure>
+[% figure slug="async-programming-event-loop" img="figures/event-loop.svg" alt="The event loop" caption="Using an event loop to manage concurrent tasks." %]
 
 Most tasks execute all the code available in the order it is written.
 For example,
-this one-line program uses <span i="Array.forEach">`Array.forEach`</span>
+this one-line program uses [% i "Array.forEach" %]`Array.forEach`[% /i %]
 to print each element of an array in turn:
 
-<div class="include" pat="not-callbacks-alone.*" fill="js out" />
+[% excerpt pat="not-callbacks-alone.*" fill="js out" %]
 
 However,
 a handful of special built-in functions make [Node][nodejs] switch tasks
 or add new tasks to the run queue.
 For example,
-<span i="setTimeout">`setTimeout`</span> tells Node to run a callback function
+[% i "setTimeout" %]`setTimeout`[% /i %] tells Node to run a callback function
 after a certain number of milliseconds have passed.
 Its first argument is a callback function that takes no arguments,
 and its second is the delay.
@@ -57,7 +54,7 @@ then adds it to the run queue.
 > ### Why zero arguments?
 >
 > `setTimeout`'s requirement that callback functions take no arguments
-> is another example of a <span g="protocol" i="protocol!API as; API!as protocol">protocol</span>.
+> is another example of a [% i "protocol!API as" "API!as protocol" %][% g protocol %]protocol[% /g %][% /i %].
 > One way to think about it is that protocols allow old code to use new code:
 > whoever wrote `setTimeout` couldn't know what specific tasks we want to delay,
 > so they specified a way to wrap up any task at all.
@@ -65,47 +62,44 @@ then adds it to the run queue.
 As the listing below shows,
 the original task can generate many new tasks before it completes,
 and those tasks can run in a different order than the order in which they were created
-(<a figure="async-programming-set-timeout"/>).
+([% f async-programming-set-timeout %]).
 
-<div class="include" pat="callbacks-with-timeouts.*" fill="js out" />
+[% excerpt pat="callbacks-with-timeouts.*" fill="js out" %]
 
-<figure id="async-programming-set-timeout">
-  <img src="figures/set-timeout.svg" alt="Setting a timeout" />
-  <figcaption>Using <code>setTimeout</code> to delay operations.</figcaption>
-</figure>
+[% figure slug="async-programming-set-timeout" img="figures/set-timeout.svg" alt="Setting a timeout" caption="Using `setTimeout` to delay operations." %]
 
 If we give `setTimeout` a delay of zero milliseconds,
 the new task can be run right away,
 but any other tasks that are waiting have a chance to run as well:
 
-<div class="include" pat="callbacks-with-zero-timeouts.*" fill="js out" />
+[% excerpt pat="callbacks-with-zero-timeouts.*" fill="js out" %]
 
 <!-- continue -->
 We can use this trick to build a generic
-<span g="non_blocking_execution" i="execution!non-blocking; non-blocking execution">non-blocking function</span>
+[% i "execution!non-blocking" "non-blocking execution" %][% g non_blocking_execution %]non-blocking function[% /g %][% /i %]
 that takes a callback defining a task
 and switches tasks if any others are available:
 
-<div class="include" pat="non-blocking.*" fill="js out" />
+[% excerpt pat="non-blocking.*" fill="js out" %]
 
-Node's built-in function <span i="setImmediate">`setImmediate`</span>
+Node's built-in function [% i "setImmediate" %]`setImmediate`[% /i %]
 does exactly what our `nonBlocking` function does:
 Node also has `process.nextTick`,
 which doesn't do quite the same thing---we'll explore the differences in the exercises.
 
-<div class="include" pat="set-immediate.*" fill="js out" />
+[% excerpt pat="set-immediate.*" fill="js out" %]
 
 ## How do promises work? {#async-programming-promises}
 
-Before we start building our own <span i="promise!behavior">promises</span>,
+Before we start building our own [% i "promise!behavior" %]promises[% /i %],
 let's look at how we want them to work:
 
-<div class="include" pat="use-pledge-motivation.*" fill="js out" />
+[% excerpt pat="use-pledge-motivation.*" fill="js out" %]
 
 This short program creates a new `Pledge`
 with a callback that takes two other callbacks as arguments:
-<span i="promise!resolve; resolve promise">`resolve`</span> (which will run when everything worked)
-and <span i="promise!reject; reject promise">`reject`</span> (which will run when something went wrong).
+[% i "promise!resolve" "resolve promise" %]`resolve`[% /i %] (which will run when everything worked)
+and [% i "promise!reject" "reject promise" %]`reject`[% /i %] (which will run when something went wrong).
 The top-level callback does the first part of what we want to do,
 i.e.,
 whatever we want to run before we expect a delay;
@@ -114,35 +108,32 @@ Once this task resumes,
 we call the `resolve` callback to trigger whatever is supposed to happen after the delay.
 
 Now look at the line with `then`.
-This is a <span g="method">method</span> of the `Pledge` object we just created,
+This is a [% g method %]method[% /g %] of the `Pledge` object we just created,
 and its job is to do whatever we want to do after the delay.
 The argument to `then` is yet another callback function;
 it will get the value passed to `resolve`,
 which is how the first part of the action communicates with the second
-(<a figure="async-programming-resolve"/>).
+([% f async-programming-resolve %]).
 
-<figure id="async-programming-resolve">
-  <img src="figures/resolve.svg" alt="How promises resolve" />
-  <figcaption>Order of operations when a promise resolves.</figcaption>
-</figure>
+[% figure slug="async-programming-resolve" img="figures/resolve.svg" alt="How promises resolve" caption="Order of operations when a promise resolves." %]
 
 In order to make this work,
-`Pledge`'s <span g="constructor">constructor</span> must take a single function called `action`.
+`Pledge`'s [% g constructor %]constructor[% /g %] must take a single function called `action`.
 This function must take take two callbacks as arguments:
 what to do if the action completes successfully
 and what to do if it doesn't (i.e., how to handle errors).
 `Pledge` will provide these callbacks to the action at the right times.
 
 `Pledge` also needs two methods:
-<span i="promise!then">`then`</span> to enable more actions
-and <span i="promise!catch">`catch`</span> to handle errors.
+[% i "promise!then" %]`then`[% /i %] to enable more actions
+and [% i "promise!catch" %]`catch`[% /i %] to handle errors.
 To simplify things just a little bit,
-we will allow users to <span g="method_chaining" i="method chaining">chain</span> as many `then`s as they want,
+we will allow users to [% i "method chaining" %][% g method_chaining %]chain[% /g %][% /i %] as many `then`s as they want,
 but only allow one `catch`.
 
 ### Fluent interfaces
 
-A <span g="fluent_interface" i="fluent interface; programming style!fluent interface">fluent interface</span>
+A [% i "fluent interface" "programming style!fluent interface" %][% g fluent_interface %]fluent interface[% /g %][% /i %]
 is a style of object-oriented programming
 in which the methods of an object return `this`
 so that method calls can be chained together.
@@ -188,16 +179,16 @@ the `Pledge` gives us a value by calling the `resolve` callback.
 We pass this value to the first `then`,
 pass the result of that `then` to the second one,
 and so on.
-If any of them fail and throw an <span g="exception" i="exception!in promise">exception</span>,
+If any of them fail and throw an [% i "exception!in promise" %][% g exception %]exception[% /g %][% /i %],
 we pass that exception to the error handler.
 Putting it all together,
 the whole class looks like this:
 
-<div class="include" file="pledge.js" />
+[% excerpt file="pledge.js" %]
 
 > ### Binding `this`
 >
-> `Pledge`'s constructor makes two calls to a special function called <span i="bind method to object">`bind`</span>.
+> `Pledge`'s constructor makes two calls to a special function called [% i "bind method to object" %]`bind`[% /i %].
 > When we create an object `obj` and call a method `meth`,
 > JavaScript sets the special variable `this` to `obj` inside `meth`.
 > If we use a method as a callback,
@@ -209,7 +200,7 @@ the whole class looks like this:
 
 Let's create a `Pledge` and return a value:
 
-<div class="include" pat="use-pledge-return.*" fill="js out" />
+[% excerpt pat="use-pledge-return.*" fill="js out" %]
 
 <!-- continue -->
 Why didn't this work?
@@ -227,7 +218,7 @@ Why didn't this work?
 
 This example shows how we can chain actions together:
 
-<div class="include" pat="use-pledge-chained.*" fill="js out" />
+[% excerpt pat="use-pledge-chained.*" fill="js out" %]
 
 <!-- continue -->
 Notice that inside each `then` we *do* use `return`
@@ -240,13 +231,13 @@ Finally,
 in this example we explicitly signal a problem by calling `reject`
 to make sure our error handling does what it's supposed to:
 
-<div class="include" pat="use-pledge-reject.*" fill="js out" />
+[% excerpt pat="use-pledge-reject.*" fill="js out" %]
 
 ## How are real promises different? {#async-programming-real}
 
 Let's rewrite our chained pledge with built-in promises:
 
-<div class="include" pat="use-promise-chained.*" fill="js out" />
+[% excerpt pat="use-promise-chained.*" fill="js out" %]
 
 It looks almost the same,
 but if we read the output carefully
@@ -256,17 +247,14 @@ This is a signal that Node is delaying the execution of the code in the `then` h
 A very common pattern is to return another promise from inside `then`
 so that the next `then` is called on the returned promise,
 not on the original promise
-(<a figure="async-programming-chained"/>).
+([% f async-programming-chained %]).
 This is another way to implement a fluent interface:
 if a method of one object returns a second object,
 we can call a method of the second object immediately.
 
-<div class="include" pat="promise-example.*" fill="js out" />
+[% excerpt pat="promise-example.*" fill="js out" %]
 
-<figure id="async-programming-chained">
-  <img src="figures/chained.svg" alt="Chained promises" />
-  <figcaption>Chaining promises to make asynchronous operations depend on each other.</figcaption>
-</figure>
+[% figure slug="async-programming-chained" img="figures/chained.svg" alt="Chained promises" caption="Chaining promises to make asynchronous operations depend on each other." %]
 
 We therefore have three rules for chaining promises:
 
@@ -278,7 +266,7 @@ We therefore have three rules for chaining promises:
 1.  Finally,
     if we want to use a library function that relies on callbacks,
     we have to convert it to use promises.
-    Doing this is called <span g="promisification">promisification</span>
+    Doing this is called [% g promisification %]promisification[% /g %]
     (because programmers will rarely pass up an opportunity add a bit of jargon to the world),
     and most functions in the Node have already been promisified.
 
@@ -294,12 +282,12 @@ so we will rely on it for file operations.
 
 Our first step is to count the lines in a single file:
 
-<div class="include" pat="count-lines-single-file.*" fill="js sh out" />
+[% excerpt pat="count-lines-single-file.*" fill="js sh out" %]
 
 > ### Character encoding
 >
-> A <span g="character_encoding" i="character encoding">character encoding</span> specifies how characters are stored as bytes.
-> The most widely used is <span g="utf_8" i="UTF-8; character encoding!UTF-8">UTF-8</span>,
+> A [% i "character encoding" %][% g character_encoding %]character encoding[% /g %][% /i %] specifies how characters are stored as bytes.
+> The most widely used is [% i "UTF-8" "character encoding!UTF-8" %][% g utf_8 %]UTF-8[% /g %][% /i %],
 > which stores characters common in Western European languages in a single byte
 > and uses multi-byte sequences for other symbols.
 > If we don't specify a character encoding,
@@ -312,32 +300,29 @@ We can use `glob-promise` to delay handling the output of `glob`,
 but we need some way to create a separate task to count the lines in each file
 and to wait until those line counts are available before exiting our program.
 
-The tool we want is <span i="Promise.all">`Promise.all`</span>,
+The tool we want is [% i "Promise.all" %]`Promise.all`[% /i %],
 which waits until all of the promises in an array have completed.
 To make our program a little more readable,
 we will put the creation of the promise for each file in a separate function:
 
-<div class="include" pat="count-lines-globbed-files.*" fill="js sh slice.out" />
+[% excerpt pat="count-lines-globbed-files.*" fill="js sh slice.out" %]
 
 However,
 we want to display the names of the files whose lines we're counting along with the counts.
 To do this our `then` must return two values.
 We could put them in an array,
 but it's better practice to construct a temporary object with named fields
-(<a figure="async-programming-temporary-named-fields"/>).
+([% f async-programming-temporary-named-fields %]).
 This approach allows us to add or rearrange fields without breaking code
 and also serves as a bit of documentation.
 With this change
 our line-counting program becomes:
 
-<div class="include" file="count-lines-print-filenames.js" />
+[% excerpt file="count-lines-print-filenames.js" %]
 
-<figure id="async-programming-temporary-named-fields">
-  <img src="figures/temporary-named-fields.svg" alt="Temporary objects with named fields" />
-  <figcaption>Creating temporary objects with named fields to carry values forward.</figcaption>
-</figure>
+[% figure slug="async-programming-temporary-named-fields" img="figures/temporary-named-fields.svg" alt="Temporary objects with named fields" caption="Creating temporary objects with named fields to carry values forward." %]
 
-As in <a section="systems-programming"/>,
+As in [% x systems-programming %],
 this works until we run into a directory whose name name matches `*.*`,
 which we do when counting the lines in the contents of `node_modules`.
 The solution once again is to use `stat` to check if something is a file or not
@@ -345,7 +330,7 @@ before trying to read it.
 And since `stat` returns an object that doesn't include the file's name,
 we create another temporary object to pass information down the chain of `then`s.
 
-<div class="include" pat="count-lines-with-stat.*" fill="js sh slice.out" />
+[% excerpt pat="count-lines-with-stat.*" fill="js sh slice.out" %]
 
 <!-- continue -->
 This code is complex, but much simpler than it would be if we were using callbacks.
@@ -364,19 +349,19 @@ This code is complex, but much simpler than it would be if we were using callbac
 
 Promises eliminate the deep nesting associated with callbacks of callbacks,
 but they are still hard to follow.
-The latest versions of JavaScript provide two new keywords <span i="async keyword">`async`</span> and <span i="await keyword">`await`</span>
+The latest versions of JavaScript provide two new keywords [% i "async keyword" %]`async`[% /i %] and [% i "await keyword" %]`await`[% /i %]
 to flatten code further.
 `async` means "this function implicitly returns a promise",
 while `await` means "wait for a promise to resolve".
 This short program uses both keywords to print the first ten characters of a file:
 
-<div class="include" pat="await-fs.*" fill="js out" />
+[% excerpt pat="await-fs.*" fill="js out" %]
 
 > ### Translating code
 >
 > When Node sees `await` and `async`
-> it silently <span i="promise!automatic creation of">converts</span> the code to use promises with `then`, `resolve`, and `reject`;
-> we will see how this works in <a section="code-generator"/>.
+> it silently [% i "promise!automatic creation of" %]converts[% /i %] the code to use promises with `then`, `resolve`, and `reject`;
+> we will see how this works in [% x code-generator %].
 > In order to provide a context for this transformation
 > we must put `await` inside a function that is declared to be `async`:
 > we can't simply write `await fs.statAsync(...)` at the top level of our program
@@ -392,7 +377,7 @@ we modify the two helper functions to look like they're waiting for results and 
 They actually wrap their results in promises and return those,
 but Node now takes care of that for us:
 
-<div class="include" file="count-lines-with-stat-async.js" keep="recycle" />
+[% excerpt file="count-lines-with-stat-async.js" keep="recycle" %]
 
 Next,
 we modify `main` to wait for things to complete.
@@ -400,7 +385,7 @@ We must still use `Promise.all` to handle the promises
 that are counting lines for individual files,
 but the result is less cluttered than our previous version.
 
-<div class="include" file="count-lines-with-stat-async.js" keep="main" />
+[% excerpt file="count-lines-with-stat-async.js" keep="main" %]
 
 ## How can we handle errors with asynchronous code? {#async-programming-errors}
 
@@ -413,29 +398,26 @@ First,
 if we return a promise that fails without using `await`,
 then our main function will finish running before the error occurs,
 and our `try`/`catch` doesn't help us
-(<a figure="async-programming-handling-errors"/>):
+([% f async-programming-handling-errors %]):
 
-<div class="include" pat="return-immediately.*" fill="js out" />
+[% excerpt pat="return-immediately.*" fill="js out" %]
 
-<figure id="async-programming-handling-errors">
-  <img src="figures/handling-errors.svg" alt="Handling asynchronous errors" />
-  <figcaption>Wrong and right ways to handle errors in asynchronous code.</figcaption>
-</figure>
+[% figure slug="async-programming-handling-errors" img="figures/handling-errors.svg" alt="Handling asynchronous errors" caption="Wrong and right ways to handle errors in asynchronous code." %]
 
 One solution to this problem is to be consistent and always return something.
 Because the function is declared `async`,
 the `Error` in the code below is automatically wrapped in a promise
 so we can use `.then` and `.catch` to handle it as before:
 
-<div class="include" pat="assign-immediately.*" fill="js out" />
+[% excerpt pat="assign-immediately.*" fill="js out" %]
 
-If instead we <span i="<span i="exception!with await">">`return await`</span>,
+If instead we [% i "exception!with await" %]`return await`[% /i %],
 the function waits until the promise runs before returning.
 The promise is turned into an exception because it failed,
 and since we're inside the scope of our `try`/`catch` block,
 everything works as we want:
 
-<div class="include" pat="return-await.*" fill="js out" />
+[% excerpt pat="return-await.*" fill="js out" %]
 
 <!-- continue -->
 We prefer the second approach,
@@ -476,12 +458,12 @@ Hint: try each snippet of code interactively in the Node interpreter and as a co
 
 Suppose we create a promise that deliberately fails and then add two error handlers:
 
-<div class="include" file="x-multiple-catch/example.js"/>
+[% excerpt file="x-multiple-catch/example.js" %]
 
 <!-- continue -->
 When the code is run it produces:
 
-<div class="include" file="x-multiple-catch/example.txt"/>
+[% excerpt file="x-multiple-catch/example.txt" %]
 
 1.  Trace the order of operations: what is created and executed when?
 2.  What happens if we run these same lines interactively?
@@ -492,12 +474,12 @@ When the code is run it produces:
 Suppose we create a promise that deliberately fails
 and attach both `then` and `catch` to it:
 
-<div class="include" file="x-catch-then/example.js"/>
+[% excerpt file="x-catch-then/example.js" %]
 
 <!-- continue -->
 When the code is run it produces:
 
-<div class="include" file="x-catch-then/example.txt"/>
+[% excerpt file="x-catch-then/example.txt" %]
 
 1.  Trace the order of execution.
 2.  Why is `undefined` printed at the end?
@@ -638,7 +620,7 @@ Suppose we want are loading a YAML configuration file
 using the promisified version of the `fs` library.
 In what order do the print statements in this test program appear and why?
 
-<div class="include" file="x-trace-load/example.js"/>
+[% excerpt file="x-trace-load/example.js" %]
 
 ### Any and all {.exercise}
 

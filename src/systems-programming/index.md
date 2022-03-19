@@ -5,19 +5,19 @@ lede: "Using callbacks to manipulate files and directories"
 ---
 
 The biggest difference between JavaScript and most other programming languages
-is that many operations in JavaScript are <span g="asynchronous" i="asynchronous execution; execution!asynchronous">asynchronous</span>.
+is that many operations in JavaScript are [% i "asynchronous execution" "execution!asynchronous" %][% g asynchronous %]asynchronous[% /g %][% /i %].
 Its designers didn't want browsers to freeze while waiting for data to arrive or for users to click on things,
 so operations that might be slow are implemented by describing now what to do later.
 And since anything that touches the hard drive is slow from a processor's point of view,
-[Node][nodejs] implements <span g="filesystem" i="filesystem operations">filesystem</span> operations the same way.
+[Node][nodejs] implements [% i "filesystem operations" %][% g filesystem %]filesystem[% /g %][% /i %] operations the same way.
 
 > ### How slow is slow?
 >
-> <cite>Gregg2020</cite> used the analogy in <a table="systems-programming-times"/>
+> [% b Gregg2020 %] used the analogy in <a table="systems-programming-times"/>
 > to show how long it takes a computer to do different things
 > if we imagine that one CPU cycle is equivalent to one second.
 
-<div class="table" id="systems-programming-times" caption="Computer operation times at human scale.">
+<div class="table" id="systems-programming-times" caption="Computer operation times at human scale." markdown="1">
 | Operation | Actual Time | Would Be… |
 | --------- | ----------- | --------- |
 | 1 CPU cycle | 0.3 nsec | 1 sec |
@@ -29,7 +29,7 @@ And since anything that touches the hard drive is slow from a processor's point 
 | Physical system reboot | 5 min | 32,000 years |
 </div>
 
-Early JavaScript programs used <span g="callback" i="callback function">callback functions</span> to describe asynchronous operations,
+Early JavaScript programs used [% i "callback function" %][% g callback %]callback functions[% /g %][% /i %] to describe asynchronous operations,
 but as we're about to see,
 callbacks can be hard to understand even in small programs.
 In 2015,
@@ -38,20 +38,20 @@ to make callbacks easier to manage,
 and more recently they have added new keywords called `async` and `await` to make it easier still.
 We need to understand all three layers in order to debug things when they go wrong,
 so this chapter explores callbacks,
-while <a section="async-programming"/> shows how promises and `async`/`await` work.
+while [% x async-programming %] shows how promises and `async`/`await` work.
 This chapter also shows how to read and write files and directories with Node's standard libraries,
 because we're going to be doing that a lot.
 
 ## How can we list a directory? {#systems-programming-ls}
 
 To start,
-let's try listing the contents of a directory the way we would in <span i="Python">[Python][python]</span>
-or <span i="Java">[Java][java]</span>:
+let's try listing the contents of a directory the way we would in [% i "Python" %][Python][python][% /i %]
+or [% i "Java" %][Java][java][% /i %]:
 
-<div class="include" file="list-dir-wrong.js" />
+[% excerpt file="list-dir-wrong.js" %]
 
 <!-- continue -->
-We use <span i="import module"><code>import <em>module</em> from 'source'</code></span> to load the library <code><em>source</em></code>
+We use [% i "import module" %]<code>import <em>module</em> from 'source'</code>[% /i %] to load the library <code><em>source</em></code>
 and assign its contents to <code><em>module</em></code>.
 After that,
 we can refer to things in the library using <code><em>module.component</em></code>
@@ -63,7 +63,7 @@ we will take advantage of this in future chapters.
 > ### `require` versus `import`
 >
 > In 2015, a new version of JavaScript called ES6 introduced
-> the keyword <span i="import vs. require; require vs. import">`import`</span> for importing modules.
+> the keyword [% i "import vs. require" "require vs. import" %]`import`[% /i %] for importing modules.
 > It improves on the older `require` function in several ways,
 > but Node still uses `require` by default.
 > To tell it to use `import`,
@@ -72,34 +72,31 @@ we will take advantage of this in future chapters.
 Our little program uses the [`fs`][node-fs] library
 which contains functions to create directories, read or delete files, etc.
 (Its name is short for "filesystem".)
-We tell the program what to list using <span g="command_line_argument" i="command-line argument">command-line arguments</span>,
-which Node automatically stores in an array called <span i="process.argv">`process.argv`</span>.
+We tell the program what to list using [% i "command-line argument" %][% g command_line_argument %]command-line arguments[% /g %][% /i %],
+which Node automatically stores in an array called [% i "process.argv" %]`process.argv`[% /i %].
 `process.argv[0]` is the name of the program used to run our code (in this case `node`),
 while `process.argv[1]` is the name of our program (in this case `list-dir-wrong.js`);
 the rest of `process.argv` holds whatever arguments we gave at the command line when we ran the program,
-so `process.argv[2]` is the first argument after the name of our program (<a figure="systems-programming-process-argv"/>):
+so `process.argv[2]` is the first argument after the name of our program ([% f systems-programming-process-argv %]):
 
-<figure id="systems-programming-process-argv">
-  <img src="figures/process-argv.svg" alt="Command-line arguments in `process.argv`" />
-  <figcaption>How Node stores command-line arguments in <code>process.argv</code>.</figcaption>
-</figure>
+[% figure slug="systems-programming-process-argv" img="figures/process-argv.svg" alt="Command-line arguments in `process.argv`" caption="How Node stores command-line arguments in <code>process.argv</code>." %]
 
 If we run this program with the name of a directory as its argument,
 `fs.readdir` returns the names of the things in that directory as an array of strings.
 The program uses `for (const name of results)` to loop over the contents of that array.
 We could use `let` instead of `const`,
-but it's good practice to declare things as <span i="const declaration!advantages of">`const`</span> wherever possible
+but it's good practice to declare things as [% i "const declaration!advantages of" %]`const`[% /i %] wherever possible
 so that anyone reading the program knows the variable isn't actually going to vary---doing
-this reduces the <span g="cognitive_load" i="cognitive load">cognitive load</span> on people reading the program.
+this reduces the [% i "cognitive load" %][% g cognitive_load %]cognitive load[% /g %][% /i %] on people reading the program.
 Finally,
-<span i="console.log">`console.log`</span> is JavaScript's equivalent of other languages' `print` command;
+[% i "console.log" %]`console.log`[% /i %] is JavaScript's equivalent of other languages' `print` command;
 its strange name comes from the fact that
-its original purpose was to create <span g="log_message">log messages</span> in the browser <span g="console">console</span>.
+its original purpose was to create [% g log_message %]log messages[% /g %] in the browser [% g console %]console[% /g %].
 
 Unfortunately,
 our program doesn't work:
 
-<div class="include" pat="list-dir-wrong.*" fill="sh out" />
+[% excerpt pat="list-dir-wrong.*" fill="sh out" %]
 
 <!-- continue -->
 The error message comes from something we didn't write whose source we would struggle to read.
@@ -124,7 +121,7 @@ so we need to explore those in order to make our program work.
 
 ## What is a callback function? {#systems-programming-callback}
 
-JavaScript uses a <span g="single_threaded" i="single-threaded execution; execution!single-threaded">single-threaded</span> programming model:
+JavaScript uses a [% i "single-threaded execution" "execution!single-threaded" %][% g single_threaded %]single-threaded[% /g %][% /i %] programming model:
 as the introduction to this lesson said,
 it splits operations like file I/O into "please do this" and "do this when data is available".
 `fs.readdir` is the first part,
@@ -132,36 +129,33 @@ but we need to write a function that specifies the second part.
 
 JavaScript saves a reference to this function
 and calls with a specific set of parameters when our data is ready
-(<a figure="systems-programming-callbacks"/>).
-Those parameters defined a standard <span g="protocol" i="protocol!API as; API!as protocol">protocol</span>
+([% f systems-programming-callbacks %]).
+Those parameters defined a standard [% i "protocol!API as" "API!as protocol" %][% g protocol %]protocol[% /g %][% /i %]
 for connecting to libraries,
 just like the USB standard allows us to plug hardware devices together.
 
-<figure id="systems-programming-callbacks">
-  <img src="figures/callbacks.svg" alt="Running callbacks" />
-  <figcaption>How JavaScript runs callback functions.</figcaption>
-</figure>
+[% figure slug="systems-programming-callbacks" img="figures/callbacks.svg" alt="Running callbacks" caption="How JavaScript runs callback functions." %]
 
 This corrected program gives `fs.readdir` a callback function called `listContents`:
 
-<div class="include" file="list-dir-function-defined.js" />
+[% excerpt file="list-dir-function-defined.js" %]
 
 <!-- continue -->
-<span i="callback function!conventions for">Node callbacks</span>
+[% i "callback function!conventions for" %]Node callbacks[% /i %]
 always get an error (if there is any) as their first argument
 and the result of a successful function call as their second.
 The function can tell the difference by checking to see if the error argument is `null`.
 If it is, the function lists the directory's contents with `console.log`,
 otherwise, it uses `console.error` to display the error message.
-Let's run the program with the <span g="current_working_directory">current working directory</span>
+Let's run the program with the [% g current_working_directory %]current working directory[% /g %]
 (written as '.')
 as an argument:
 
-<div class="include" pat="list-dir-function-defined.*" fill="sh slice.out" />
+[% excerpt pat="list-dir-function-defined.*" fill="sh slice.out" %]
 
 Nothing that follows will make sense if we don't understand
 the order in which Node executes the statements in this program
-(<a figure="systems-programming-execution-order"/>):
+([% f systems-programming-execution-order %]):
 
 1.  Execute the first line to load the `fs` library.
 
@@ -179,10 +173,7 @@ the order in which Node executes the statements in this program
 
 1.  Run the callback function, which prints the directory listing.
 
-<figure id="systems-programming-execution-order">
-  <img src="figures/execution-order.svg" alt="Callback execution order" />
-  <figcaption>When JavaScript runs callback functions.</figcaption>
-</figure>
+[% figure slug="systems-programming-execution-order" img="figures/execution-order.svg" alt="Callback execution order" caption="When JavaScript runs callback functions." %]
 
 ## What are anonymous functions? {#systems-programming-anonymous}
 
@@ -190,25 +181,22 @@ Most JavaScript programmers wouldn't define the function `listContents`
 and then pass it as a callback.
 Instead,
 since the callback is only used in one place,
-it is more <span g="idiomatic">idiomatic</span>
+it is more [% g idiomatic %]idiomatic[% /g %]
 to define it where it is needed
-as an <span g="anonymous_function" i="anonymous function; function!anonymous">anonymous function</span>.
+as an [% i "anonymous function" "function!anonymous" %][% g anonymous_function %]anonymous function[% /g %][% /i %].
 This makes it easier to see what's going to happen when the operation completes,
 though it means the order of execution is quite different from the order of reading
-(<a figure="systems-programming-anonymous-functions"/>).
+([% f systems-programming-anonymous-functions %]).
 Using an anonymous function gives us the final version of our program:
 
-<div class="include" file="list-dir-function-anonymous.js" />
+[% excerpt file="list-dir-function-anonymous.js" %]
 
-<figure id="systems-programming-anonymous-functions">
-  <img src="figures/anonymous-functions.svg" alt="Anonymous functions as callbacks" />
-  <figcaption>How and when JavaScript creates and runs anonymous callback functions.</figcaption>
-</figure>
+[% figure slug="systems-programming-anonymous-functions" img="figures/anonymous-functions.svg" alt="Anonymous functions as callbacks" caption="How and when JavaScript creates and runs anonymous callback functions." %]
 
 > ### Functions are data
 >
 > As we noted above,
-> a function is just <span i="code!as data">another kind of data</span>.
+> a function is just [% i "code!as data" %]another kind of data[% /i %].
 > Instead of being made up of numbers, characters, or pixels, it is made up of instructions,
 > but these are stored in memory like anything else.
 > Defining a function on the fly is no different from defining an array in-place using `[1, 3, 5]`,
@@ -227,15 +215,15 @@ we want to be able to write patterns like `*.js`.
 
 To find files that match patterns like that,
 we can use the [`glob`][node-glob] module.
-(To <span g="globbing" i="globbing">glob</span> (short for "global") is an old Unix term for matching a set of files by name.)
+(To [% i "globbing" %][% g globbing %]glob[% /g %][% /i %] (short for "global") is an old Unix term for matching a set of files by name.)
 The `glob` module provides a function that takes a pattern and a callback
 and does something with every filename that matched the pattern:
 
-<div class="include" pat="glob-all-files.*" fill="js slice.out" />
+[% excerpt pat="glob-all-files.*" fill="js slice.out" %]
 
 The leading `**` means "recurse into subdirectories",
 while `*.*` means "any characters followed by '.' followed by any characters"
-(<a figure="systems-programming-globbing"/>).
+([% f systems-programming-globbing %]).
 Names that don't match `*.*` won't be included,
 and by default,
 neither are names that start with a '.' character.
@@ -244,37 +232,31 @@ files and directories whose names have a leading '.'
 usually contain configuration information for various programs,
 so most commands will leave them alone unless told to do otherwise.
 
-<figure id="systems-programming-globbing">
-  <img src="figures/globbing.svg" alt="Matching filenames with `glob`" />
-  <figcaption>Using <code>glob</code> patterns to match filenames.</figcaption>
-</figure>
+[% figure slug="systems-programming-globbing" img="figures/globbing.svg" alt="Matching filenames with `glob`" caption="Using `glob` patterns to match filenames." %]
 
 This program works,
 but we probably don't want to copy Emacs backup files whose names end with `~`.
-We can get rid of them by <span g="filter" i="globbing!filtering results">filtering</span> the list that `glob` returns:
+We can get rid of them by [% i "globbing!filtering results" %][% g filter %]filtering[% /g %][% /i %] the list that `glob` returns:
 
-<div class="include" pat="glob-get-then-filter-pedantic.*" fill="js slice.out" />
+[% excerpt pat="glob-get-then-filter-pedantic.*" fill="js slice.out" %]
 
-<span i="Array.filter">`Array.filter`</span> creates a new array
+[% i "Array.filter" %]`Array.filter`[% /i %] creates a new array
 containing all the items of the original array that pass a test
-(<a figure="systems-programming-array-filter"/>).
+([% f systems-programming-array-filter %]).
 The test is specified as a callback function
 that `Array.filter` calls once once for each item.
-This function must return a <span g="boolean">Boolean</span>
+This function must return a [% g boolean %]Boolean[% /g %]
 that tells `Array.filter` whether to keep the item in the new array or not.
 `Array.filter` does not modify the original array,
 so we can filter our original list of filenames several times if we want to.
 
-<figure id="systems-programming-array-filter">
-  <img src="figures/array-filter.svg" alt="Using `Array.filter`" />
-  <figcaption>Selecting array elements using <code>Array.filter</code>.</figcaption>
-</figure>
+[% figure slug="systems-programming-array-filter" img="figures/array-filter.svg" alt="Using `Array.filter`" caption="Selecting array elements using `Array.filter`." %]
 
 We can make our globbing program more idiomatic by
 removing the parentheses around the single parameter
 and writing just the expression we want the function to return:
 
-<div class="include" file="glob-get-then-filter-idiomatic.js" />
+[% excerpt file="glob-get-then-filter-idiomatic.js" %]
 
 However,
 it turns out that `glob` will filter for us.
@@ -288,7 +270,7 @@ a function can take a single object full of settings.
 If we use this,
 our program becomes:
 
-<div class="include" file="glob-filter-with-options.js" />
+[% excerpt file="glob-filter-with-options.js" %]
 
 <!-- continue -->
 Notice that we don't quote the key in the `options` object.
@@ -318,10 +300,10 @@ or equivalently "contains only letters, digits, and the underscore".
 To finish off our globbing program,
 let's specify a source directory on the command line and include that in the pattern:
 
-<div class="include" file="glob-with-source-directory.js" />
+[% excerpt file="glob-with-source-directory.js" %]
 
 <!-- continue -->
-This program uses <span g="string_interpolation" i="string interpolation">string interpolation</span>
+This program uses [% i "string interpolation" %][% g string_interpolation %]string interpolation[% /g %][% /i %]
 to insert the value of `srcDir` into a string.
 The template string is written in back quotes,
 and JavaScript converts every expression written as `${expression}` to text.
@@ -332,39 +314,36 @@ but most programmers find interpolation easier to read.
 ## How can we copy a set of files? {#systems-programming-copy}
 
 If we want to copy a set of files instead of just listing them
-we need a way to create the <span g="path">paths</span> of the files we are going to create.
+we need a way to create the [% g path %]paths[% /g %] of the files we are going to create.
 If our program takes a second argument that specifies the desired output directory,
 we can construct the full output path by replacing the name of the source directory with that path:
 
-<div class="include" file="glob-with-dest-directory.js" />
+[% excerpt file="glob-with-dest-directory.js" %]
 
 <!-- continue -->
-This program uses <span g="destructuring_assignment" i="destructuring assignment; assignment!destructuring">destructuring assignment</span>
+This program uses [% i "destructuring assignment" "assignment!destructuring" %][% g destructuring_assignment %]destructuring assignment[% /g %][% /i %]
 to create two variables at once
 by unpacking the elements of an array
-(<a figure="systems-programming-destructuring-assignment"/>).
+([% f systems-programming-destructuring-assignment %]).
 It only works if the array contains the enough elements,
 i.e.,
 if both a source and destination are given on the command line;
 we'll add a check for that in the exercises.
 
-<figure id="systems-programming-destructuring-assignment">
-  <img src="figures/destructuring-assignment.svg" alt="Matching values with destructuring assignment" />
-  <figcaption>Assigning many values at once by destructuring.</figcaption>
-</figure>
+[% figure slug="systems-programming-destructuring-assignment" img="figures/destructuring-assignment.svg" alt="Matching values with destructuring assignment" caption="Assigning many values at once by destructuring." %]
 
 A more serious problem is that
 this program only works if the destination directory already exists:
 `fs` and equivalent libraries in other languages usually won't create directories for us automatically.
 The need to do this comes up so often that there is a function called `ensureDir` to do it:
 
-<div class="include" file="glob-ensure-output-directory.js" />
+[% excerpt file="glob-ensure-output-directory.js" %]
 
 Notice that we import from `fs-extra` instead of `fs`;
 the [`fs-extra`][node-fs-extra] module provides some useful utilities on top of `fs`.
 We also use [`path`][node-path] to manipulate pathnames
 rather than concatenating or interpolating strings
-because there are a lot of tricky <span g="edge_case">edge cases</span> in pathnames
+because there are a lot of tricky [% g edge_case %]edge cases[% /g %] in pathnames
 that the authors of that module have figured out for us.
 
 > ### Using distinct names
@@ -376,17 +355,17 @@ that the authors of that module have figured out for us.
 > and the name of the particular output directory to create.
 > This was legal,
 > since every function creates
-> a new <span g="scope" i="scope!of variable definitions; variable definition!scope">scope</span>,
+> a new [% i "scope!of variable definitions" "variable definition!scope" %][% g scope %]scope[% /g %][% /i %],
 > but hard for people to understand.
 
 Our file copying program currently creates empty destination directories
 but doesn't actually copy any files.
 Let's use `fs.copy` to do that:
 
-<div class="include" file="copy-file-unfiltered.js" />
+[% excerpt file="copy-file-unfiltered.js" %]
 
 The program now has three levels of callback
-(<a figure="systems-programming-triple-callback"/>):
+([% f systems-programming-triple-callback %]):
 
 1.  When `glob` has data, do things and then call `ensureDir`.
 
@@ -394,16 +373,13 @@ The program now has three levels of callback
 
 1.  When `copy` finishes, check the error status.
 
-<figure id="systems-programming-triple-callback">
-  <img src="figures/triple-callback.svg" alt="Three levels of callback" />
-  <figcaption>Three levels of callback in the running example.</figcaption>
-</figure>
+[% figure slug="systems-programming-triple-callback" img="figures/triple-callback.svg" alt="Three levels of callback" caption="Three levels of callback in the running example." %]
 
 Our program looks like it should work,
 but if we try to copy everything in the directory containing these lessons
 we get an error message:
 
-<div class="include" pat="copy-file-unfiltered.*" fill="sh out" />
+[% excerpt pat="copy-file-unfiltered.*" fill="sh out" %]
 
 The problem is that `node_modules/fs.stat` and `node_modules/fs.walk` match our globbing expression,
 but are directories rather than files.
@@ -412,16 +388,16 @@ we must use `fs.stat` to get the properties of the thing whose name `glob` has g
 and then check if it's a file.
 The name "stat" is short for "status",
 and since the status of something in the filesystem can be very complex,
-<span i="fs.stat">`fs.stat`</span> returns [an object with methods that can answer common questions][node-fs-stats].
+[% i "fs.stat" %]`fs.stat`[% /i %] returns [an object with methods that can answer common questions][node-fs-stats].
 
 Here's the final version of our file copying program:
 
-<div class="include" file="copy-file-filtered.js" />
+[% excerpt file="copy-file-filtered.js" %]
 
 <!-- continue -->
 It works,
 but four levels of asynchronous callbacks is hard for humans to understand.
-<a section="async-programming"/> will introduce a pair of tools
+[% x async-programming %] will introduce a pair of tools
 that make code like this easier to read.
 
 ## Exercises {#systems-programming-exercises}
@@ -434,13 +410,13 @@ Write a program called `wherenode.js` that prints the full path to the version o
 
 In what order does the program below print messages?
 
-<div class="include" file="x-trace-callback/trace.js"/>
+[% excerpt file="x-trace-callback/trace.js" %]
 
 ### Tracing anonymous callbacks {.exercise}
 
 In what order does the program below print messages?
 
-<div class="include" file="x-trace-anonymous/trace.js"/>
+[% excerpt file="x-trace-anonymous/trace.js" %]
 
 ### Checking arguments {.exercise}
 
@@ -474,13 +450,13 @@ Note: you can compare strings in JavaScript using `<`, `>=`, and other operators
 so that (for example) `person.personal > 'P'` is `true`
 if someone's personal name starts with a letter that comes after 'P' in the alphabet.
 
-<div class="include" pat="x-array-filter/filter.*" fill="js txt"/>
+[% excerpt pat="x-array-filter/filter.*" fill="js txt" %]
 
 ### String interpolation {.exercise}
 
 Fill in the code below so that it prints the message shown.
 
-<div class="include" pat="x-string-interpolation/interpolate.*" fill="js txt"/>
+[% excerpt pat="x-string-interpolation/interpolate.*" fill="js txt" %]
 
 ### Destructuring assignment {.exercise}
 
@@ -508,7 +484,7 @@ total 506
 
 Write a program called `rename` that takes three or more command-line arguments:
 
-1.  A <span g="filename_extension">filename extension</span> to match.
+1.  A [% g filename_extension %]filename extension[% /g %] to match.
 2.  An extension to replace it with.
 3.  The names of one or more existing files.
 

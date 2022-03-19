@@ -11,40 +11,76 @@
   </head>
   <body class="page">
     <div class="centered title">
-      
-      <h2><a href="../">Software Design by Example</a></h2>
-      <h1>Chapter 2: Systems Programming</h1>
-      
-      <p>
-        <img class="page-logo" src="../files/codebender.svg" alt="logo" />
-      </p>
-    </div>
+  
+  <h2><a href="../">Software Design by Example</a></h2>
+  <h1 id="systems-programming">Chapter 2: Systems Programming</h1>
+  
+  <p>
+    <img class="page-logo" src="../files/codebender.svg" alt="logo" />
+  </p>
+</div>
 
+    <main>
 <p>The biggest difference between JavaScript and most other programming languages
-is that many operations in JavaScript are <span g="asynchronous" i="asynchronous execution; execution!asynchronous">asynchronous</span>.
+is that many operations in JavaScript are <span class="indexref" key="asynchronous execution;execution!asynchronous" markdown="1"><a class="glossref" href="../glossary/#asynchronous" markdown="1">asynchronous</a></span>.
 Its designers didn't want browsers to freeze while waiting for data to arrive or for users to click on things,
 so operations that might be slow are implemented by describing now what to do later.
 And since anything that touches the hard drive is slow from a processor's point of view,
-<a href="https://nodejs.org/en/">Node</a> implements <span g="filesystem" i="filesystem operations">filesystem</span> operations the same way.</p>
+<a href="https://nodejs.org/en/">Node</a> implements <span class="indexref" key="filesystem operations" markdown="1"><a class="glossref" href="../glossary/#filesystem" markdown="1">filesystem</a></span> operations the same way.</p>
 <blockquote>
 <h3>How slow is slow?</h3>
-<p><cite>Gregg2020</cite> used the analogy in <a table="systems-programming-times"/>
+<p>[<a href="../bibliography/#Gregg2020">Gregg2020</a>] used the analogy in <a table="systems-programming-times"/>
 to show how long it takes a computer to do different things
 if we imagine that one CPU cycle is equivalent to one second.</p>
 </blockquote>
-<div class="table" id="systems-programming-times" caption="Computer operation times at human scale.">
-| Operation | Actual Time | Would Be… |
-| --------- | ----------- | --------- |
-| 1 CPU cycle | 0.3 nsec | 1 sec |
-| Main memory access | 120 nsec | 6 min |
-| Solid-state disk I/O | 50-150 μsec | 2-6 days |
-| Rotational disk I/O | 1-10 msec | 1-12 months |
-| Internet: San Francisco to New York | 40 msec | 4 years |
-| Internet: San Francisco to Australia | 183 msec | 19 years |
-| Physical system reboot | 5 min | 32,000 years |
+<div class="table"><table id="systems-programming-times"><caption>Table 2.1: Computer operation times at human scale.</caption>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Actual Time</th>
+<th>Would Be…</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 CPU cycle</td>
+<td>0.3 nsec</td>
+<td>1 sec</td>
+</tr>
+<tr>
+<td>Main memory access</td>
+<td>120 nsec</td>
+<td>6 min</td>
+</tr>
+<tr>
+<td>Solid-state disk I/O</td>
+<td>50-150 μsec</td>
+<td>2-6 days</td>
+</tr>
+<tr>
+<td>Rotational disk I/O</td>
+<td>1-10 msec</td>
+<td>1-12 months</td>
+</tr>
+<tr>
+<td>Internet: San Francisco to New York</td>
+<td>40 msec</td>
+<td>4 years</td>
+</tr>
+<tr>
+<td>Internet: San Francisco to Australia</td>
+<td>183 msec</td>
+<td>19 years</td>
+</tr>
+<tr>
+<td>Physical system reboot</td>
+<td>5 min</td>
+<td>32,000 years</td>
+</tr>
+</tbody>
+</table>
 </div>
-
-<p>Early JavaScript programs used <span g="callback" i="callback function">callback functions</span> to describe asynchronous operations,
+<p>Early JavaScript programs used <span class="indexref" key="callback function" markdown="1"><a class="glossref" href="../glossary/#callback" markdown="1">callback functions</a></span> to describe asynchronous operations,
 but as we're about to see,
 callbacks can be hard to understand even in small programs.
 In 2015,
@@ -53,17 +89,24 @@ to make callbacks easier to manage,
 and more recently they have added new keywords called <code>async</code> and <code>await</code> to make it easier still.
 We need to understand all three layers in order to debug things when they go wrong,
 so this chapter explores callbacks,
-while <a section="async-programming"/> shows how promises and <code>async</code>/<code>await</code> work.
+while <a href="../async-programming/">Chapter 3</a> shows how promises and <code>async</code>/<code>await</code> work.
 This chapter also shows how to read and write files and directories with Node's standard libraries,
 because we're going to be doing that a lot.</p>
 <h2 id="systems-programming-ls">How can we list a directory?</h2>
 <p>To start,
-let's try listing the contents of a directory the way we would in <span i="Python"><a href="https://www.python.org/">Python</a></span>
-or <span i="Java"><a href="https://en.wikipedia.org/wiki/Java_(programming_language)">Java</a></span>:</p>
-<div class="include" file="list-dir-wrong.js" />
+let's try listing the contents of a directory the way we would in <span class="indexref" key="Python" markdown="1"><a href="https://www.python.org/">Python</a></span>
+or <span class="indexref" key="Java" markdown="1"><a href="https://en.wikipedia.org/wiki/Java_(programming_language)">Java</a></span>:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">fs</span> <span class="kr">from</span> <span class="s1">&#39;fs&#39;</span>
+
+<span class="kd">const</span> <span class="nx">srcDir</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span>
+<span class="kd">const</span> <span class="nx">results</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readdir</span><span class="p">(</span><span class="nx">srcDir</span><span class="p">)</span>
+<span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">name</span> <span class="k">of</span> <span class="nx">results</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
 
 <!-- continue -->
-<p>We use <span i="import module"><code>import <em>module</em> from 'source'</code></span> to load the library <code><em>source</em></code>
+<p>We use <span class="indexref" key="import module" markdown="1"><code>import <em>module</em> from 'source'</code></span> to load the library <code><em>source</em></code>
 and assign its contents to <code><em>module</em></code>.
 After that,
 we can refer to things in the library using <code><em>module.component</em></code>
@@ -74,7 +117,7 @@ we will take advantage of this in future chapters.</p>
 <blockquote>
 <h3><code>require</code> versus <code>import</code></h3>
 <p>In 2015, a new version of JavaScript called ES6 introduced
-the keyword <span i="import vs. require; require vs. import"><code>import</code></span> for importing modules.
+the keyword <span class="indexref" key="import vs. require;require vs. import" markdown="1"><code>import</code></span> for importing modules.
 It improves on the older <code>require</code> function in several ways,
 but Node still uses <code>require</code> by default.
 To tell it to use <code>import</code>,
@@ -83,31 +126,48 @@ we have added <code>"type": "module"</code> at the top level of our Node <code>p
 <p>Our little program uses the <a href="https://nodejs.org/api/fs.html"><code>fs</code></a> library
 which contains functions to create directories, read or delete files, etc.
 (Its name is short for "filesystem".)
-We tell the program what to list using <span g="command_line_argument" i="command-line argument">command-line arguments</span>,
-which Node automatically stores in an array called <span i="process.argv"><code>process.argv</code></span>.
+We tell the program what to list using <span class="indexref" key="command-line argument" markdown="1"><a class="glossref" href="../glossary/#command_line_argument" markdown="1">command-line arguments</a></span>,
+which Node automatically stores in an array called <span class="indexref" key="process.argv" markdown="1"><code>process.argv</code></span>.
 <code>process.argv[0]</code> is the name of the program used to run our code (in this case <code>node</code>),
 while <code>process.argv[1]</code> is the name of our program (in this case <code>list-dir-wrong.js</code>);
 the rest of <code>process.argv</code> holds whatever arguments we gave at the command line when we ran the program,
-so <code>process.argv[2]</code> is the first argument after the name of our program (<a figure="systems-programming-process-argv"/>):</p>
+so <code>process.argv[2]</code> is the first argument after the name of our program (<a class="figref" href="../systems-programming/#systems-programming-process-argv">Figure 2.1</a>):</p>
 <figure id="systems-programming-process-argv">
-  <img src="figures/process-argv.svg" alt="Command-line arguments in `process.argv`" />
-  <figcaption>How Node stores command-line arguments in <code>process.argv</code>.</figcaption>
+  <img src="./figures/process-argv.svg" alt="Command-line arguments in `process.argv`" />
+  <figcaption markdown="1">Figure 2.1: How Node stores command-line arguments in <code>process.argv</code>.</figcaption>
 </figure>
 
 <p>If we run this program with the name of a directory as its argument,
 <code>fs.readdir</code> returns the names of the things in that directory as an array of strings.
 The program uses <code>for (const name of results)</code> to loop over the contents of that array.
 We could use <code>let</code> instead of <code>const</code>,
-but it's good practice to declare things as <span i="const declaration!advantages of"><code>const</code></span> wherever possible
+but it's good practice to declare things as <span class="indexref" key="const declaration!advantages of" markdown="1"><code>const</code></span> wherever possible
 so that anyone reading the program knows the variable isn't actually going to vary---doing
-this reduces the <span g="cognitive_load" i="cognitive load">cognitive load</span> on people reading the program.
+this reduces the <span class="indexref" key="cognitive load" markdown="1"><a class="glossref" href="../glossary/#cognitive_load" markdown="1">cognitive load</a></span> on people reading the program.
 Finally,
-<span i="console.log"><code>console.log</code></span> is JavaScript's equivalent of other languages' <code>print</code> command;
+<span class="indexref" key="console.log" markdown="1"><code>console.log</code></span> is JavaScript's equivalent of other languages' <code>print</code> command;
 its strange name comes from the fact that
-its original purpose was to create <span g="log_message">log messages</span> in the browser <span g="console">console</span>.</p>
+its original purpose was to create <a class="glossref" href="../glossary/#log_message" markdown="1">log messages</a> in the browser <a class="glossref" href="../glossary/#console" markdown="1">console</a>.</p>
 <p>Unfortunately,
 our program doesn't work:</p>
-<div class="include" pat="list-dir-wrong.*" fill="sh out" />
+<div class="codehilite"><pre><span></span><code>node list-dir-wrong.js .
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="n">node</span><span class="p">:</span><span class="n">internal</span><span class="o">/</span><span class="n">process</span><span class="o">/</span><span class="n">esm_loader</span><span class="p">:</span><span class="mi">74</span>
+    <span class="n">internalBinding</span><span class="p">(</span><span class="s1">&#39;errors&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">triggerUncaughtException</span><span class="p">(</span>
+                              <span class="o">^</span>
+
+<span class="ne">TypeError</span> <span class="p">[</span><span class="n">ERR_INVALID_CALLBACK</span><span class="p">]:</span> <span class="n">Callback</span> <span class="n">must</span> <span class="n">be</span> <span class="n">a</span> <span class="n">function</span><span class="o">.</span> <span class="n">Received</span> \
+<span class="n">undefined</span>
+    <span class="n">at</span> <span class="n">makeCallback</span> <span class="p">(</span><span class="n">node</span><span class="p">:</span><span class="n">fs</span><span class="p">:</span><span class="mi">181</span><span class="p">:</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">Object</span><span class="o">.</span><span class="n">readdir</span> <span class="p">(</span><span class="n">node</span><span class="p">:</span><span class="n">fs</span><span class="p">:</span><span class="mi">1030</span><span class="p">:</span><span class="mi">14</span><span class="p">)</span>
+    <span class="n">at</span> <span class="o">/</span><span class="n">u</span><span class="o">/</span><span class="n">stjs</span><span class="o">/</span><span class="n">systems</span><span class="o">-</span><span class="n">programming</span><span class="o">/</span><span class="nb">list</span><span class="o">-</span><span class="nb">dir</span><span class="o">-</span><span class="n">wrong</span><span class="o">.</span><span class="n">js</span><span class="p">:</span><span class="mi">4</span><span class="p">:</span><span class="mi">20</span>
+    <span class="n">at</span> <span class="n">ModuleJob</span><span class="o">.</span><span class="n">run</span> <span class="p">(</span><span class="n">node</span><span class="p">:</span><span class="n">internal</span><span class="o">/</span><span class="n">modules</span><span class="o">/</span><span class="n">esm</span><span class="o">/</span><span class="n">module_job</span><span class="p">:</span><span class="mi">154</span><span class="p">:</span><span class="mi">23</span><span class="p">)</span>
+    <span class="n">at</span> <span class="k">async</span> <span class="n">Loader</span><span class="o">.</span><span class="kn">import</span> <span class="p">(</span><span class="n">node</span><span class="p">:</span><span class="n">internal</span><span class="o">/</span><span class="n">modules</span><span class="o">/</span><span class="n">esm</span><span class="o">/</span><span class="n">loader</span><span class="p">:</span><span class="mi">177</span><span class="p">:</span><span class="mi">24</span><span class="p">)</span>
+    <span class="n">at</span> <span class="k">async</span> <span class="n">Object</span><span class="o">.</span><span class="n">loadESM</span> <span class="p">(</span><span class="n">node</span><span class="p">:</span><span class="n">internal</span><span class="o">/</span><span class="n">process</span><span class="o">/</span><span class="n">esm_loader</span><span class="p">:</span><span class="mi">68</span><span class="p">:</span><span class="mi">5</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">code</span><span class="p">:</span> <span class="s1">&#39;ERR_INVALID_CALLBACK&#39;</span>
+<span class="p">}</span>
+</code></pre></div>
 
 <!-- continue -->
 <p>The error message comes from something we didn't write whose source we would struggle to read.
@@ -130,40 +190,70 @@ so we need to explore those in order to make our program work.</p>
 <p>--- variously attributed</p>
 </blockquote>
 <h2 id="systems-programming-callback">What is a callback function?</h2>
-<p>JavaScript uses a <span g="single_threaded" i="single-threaded execution; execution!single-threaded">single-threaded</span> programming model:
+<p>JavaScript uses a <span class="indexref" key="single-threaded execution;execution!single-threaded" markdown="1"><a class="glossref" href="../glossary/#single_threaded" markdown="1">single-threaded</a></span> programming model:
 as the introduction to this lesson said,
 it splits operations like file I/O into "please do this" and "do this when data is available".
 <code>fs.readdir</code> is the first part,
 but we need to write a function that specifies the second part.</p>
 <p>JavaScript saves a reference to this function
 and calls with a specific set of parameters when our data is ready
-(<a figure="systems-programming-callbacks"/>).
-Those parameters defined a standard <span g="protocol" i="protocol!API as; API!as protocol">protocol</span>
+(<a class="figref" href="../systems-programming/#systems-programming-callbacks">Figure 2.2</a>).
+Those parameters defined a standard <span class="indexref" key="protocol!API as;API!as protocol" markdown="1"><a class="glossref" href="../glossary/#protocol" markdown="1">protocol</a></span>
 for connecting to libraries,
 just like the USB standard allows us to plug hardware devices together.</p>
 <figure id="systems-programming-callbacks">
-  <img src="figures/callbacks.svg" alt="Running callbacks" />
-  <figcaption>How JavaScript runs callback functions.</figcaption>
+  <img src="./figures/callbacks.svg" alt="Running callbacks" />
+  <figcaption markdown="1">Figure 2.2: How JavaScript runs callback functions.</figcaption>
 </figure>
 
 <p>This corrected program gives <code>fs.readdir</code> a callback function called <code>listContents</code>:</p>
-<div class="include" file="list-dir-function-defined.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">fs</span> <span class="kr">from</span> <span class="s1">&#39;fs&#39;</span>
+
+<span class="kd">const</span> <span class="nx">listContents</span> <span class="o">=</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">files</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;running callback&#39;</span><span class="p">)</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">name</span> <span class="k">of</span> <span class="nx">files</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">srcDir</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span>
+<span class="nx">fs</span><span class="p">.</span><span class="nx">readdir</span><span class="p">(</span><span class="nx">srcDir</span><span class="p">,</span> <span class="nx">listContents</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;last line of program&#39;</span><span class="p">)</span>
+</code></pre></div>
 
 <!-- continue -->
-<p><span i="callback function!conventions for">Node callbacks</span>
+<p><span class="indexref" key="callback function!conventions for" markdown="1">Node callbacks</span>
 always get an error (if there is any) as their first argument
 and the result of a successful function call as their second.
 The function can tell the difference by checking to see if the error argument is <code>null</code>.
 If it is, the function lists the directory's contents with <code>console.log</code>,
 otherwise, it uses <code>console.error</code> to display the error message.
-Let's run the program with the <span g="current_working_directory">current working directory</span>
+Let's run the program with the <a class="glossref" href="../glossary/#current_working_directory" markdown="1">current working directory</a>
 (written as '.')
 as an argument:</p>
-<div class="include" pat="list-dir-function-defined.*" fill="sh slice.out" />
+<div class="codehilite"><pre><span></span><code>node list-dir-function-defined.js .
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>last line of program
+running callback
+Makefile
+copy-file-filtered.js
+copy-file-unfiltered.js
+...
+x-trace-anonymous
+x-trace-anonymous.md
+x-trace-callback
+x-trace-callback.md
+x-where-is-node.md
+</code></pre></div>
 
 <p>Nothing that follows will make sense if we don't understand
 the order in which Node executes the statements in this program
-(<a figure="systems-programming-execution-order"/>):</p>
+(<a class="figref" href="../systems-programming/#systems-programming-execution-order">Figure 2.3</a>):</p>
 <ol>
 <li>
 <p>Execute the first line to load the <code>fs</code> library.</p>
@@ -190,8 +280,8 @@ the order in which Node executes the statements in this program
 </li>
 </ol>
 <figure id="systems-programming-execution-order">
-  <img src="figures/execution-order.svg" alt="Callback execution order" />
-  <figcaption>When JavaScript runs callback functions.</figcaption>
+  <img src="./figures/execution-order.svg" alt="Callback execution order" />
+  <figcaption markdown="1">Figure 2.3: When JavaScript runs callback functions.</figcaption>
 </figure>
 
 <h2 id="systems-programming-anonymous">What are anonymous functions?</h2>
@@ -199,24 +289,36 @@ the order in which Node executes the statements in this program
 and then pass it as a callback.
 Instead,
 since the callback is only used in one place,
-it is more <span g="idiomatic">idiomatic</span>
+it is more <a class="glossref" href="../glossary/#idiomatic" markdown="1">idiomatic</a>
 to define it where it is needed
-as an <span g="anonymous_function" i="anonymous function; function!anonymous">anonymous function</span>.
+as an <span class="indexref" key="anonymous function;function!anonymous" markdown="1"><a class="glossref" href="../glossary/#anonymous_function" markdown="1">anonymous function</a></span>.
 This makes it easier to see what's going to happen when the operation completes,
 though it means the order of execution is quite different from the order of reading
-(<a figure="systems-programming-anonymous-functions"/>).
+(<a class="figref" href="../systems-programming/#systems-programming-anonymous-functions">Figure 2.4</a>).
 Using an anonymous function gives us the final version of our program:</p>
-<div class="include" file="list-dir-function-anonymous.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">fs</span> <span class="kr">from</span> <span class="s1">&#39;fs&#39;</span>
+
+<span class="kd">const</span> <span class="nx">srcDir</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span>
+<span class="nx">fs</span><span class="p">.</span><span class="nx">readdir</span><span class="p">(</span><span class="nx">srcDir</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">files</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">name</span> <span class="k">of</span> <span class="nx">files</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div>
 
 <figure id="systems-programming-anonymous-functions">
-  <img src="figures/anonymous-functions.svg" alt="Anonymous functions as callbacks" />
-  <figcaption>How and when JavaScript creates and runs anonymous callback functions.</figcaption>
+  <img src="./figures/anonymous-functions.svg" alt="Anonymous functions as callbacks" />
+  <figcaption markdown="1">Figure 2.4: How and when JavaScript creates and runs anonymous callback functions.</figcaption>
 </figure>
 
 <blockquote>
 <h3>Functions are data</h3>
 <p>As we noted above,
-a function is just <span i="code!as data">another kind of data</span>.
+a function is just <span class="indexref" key="code!as data" markdown="1">another kind of data</span>.
 Instead of being made up of numbers, characters, or pixels, it is made up of instructions,
 but these are stored in memory like anything else.
 Defining a function on the fly is no different from defining an array in-place using <code>[1, 3, 5]</code>,
@@ -233,14 +335,38 @@ instead,
 we want to be able to write patterns like <code>*.js</code>.</p>
 <p>To find files that match patterns like that,
 we can use the <a href="https://www.npmjs.com/package/glob"><code>glob</code></a> module.
-(To <span g="globbing" i="globbing">glob</span> (short for "global") is an old Unix term for matching a set of files by name.)
+(To <span class="indexref" key="globbing" markdown="1"><a class="glossref" href="../glossary/#globbing" markdown="1">glob</a></span> (short for "global") is an old Unix term for matching a set of files by name.)
 The <code>glob</code> module provides a function that takes a pattern and a callback
 and does something with every filename that matched the pattern:</p>
-<div class="include" pat="glob-all-files.*" fill="js slice.out" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">glob</span> <span class="kr">from</span> <span class="s1">&#39;glob&#39;</span>
+
+<span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;**/*.*&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">files</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">filename</span> <span class="k">of</span> <span class="nx">files</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>copy-file-filtered.js
+copy-file-unfiltered.js
+copy-file-unfiltered.out
+copy-file-unfiltered.sh
+copy-file-unfiltered.txt
+...
+x-trace-anonymous.md
+x-trace-anonymous/trace.js
+x-trace-callback.md
+x-trace-callback/trace.js
+x-where-is-node.md
+</code></pre></div>
 
 <p>The leading <code>**</code> means "recurse into subdirectories",
 while <code>*.*</code> means "any characters followed by '.' followed by any characters"
-(<a figure="systems-programming-globbing"/>).
+(<a class="figref" href="../systems-programming/#systems-programming-globbing">Figure 2.5</a>).
 Names that don't match <code>*.*</code> won't be included,
 and by default,
 neither are names that start with a '.' character.
@@ -249,33 +375,70 @@ files and directories whose names have a leading '.'
 usually contain configuration information for various programs,
 so most commands will leave them alone unless told to do otherwise.</p>
 <figure id="systems-programming-globbing">
-  <img src="figures/globbing.svg" alt="Matching filenames with `glob`" />
-  <figcaption>Using <code>glob</code> patterns to match filenames.</figcaption>
+  <img src="./figures/globbing.svg" alt="Matching filenames with `glob`" />
+  <figcaption markdown="1">Figure 2.5: Using `glob` patterns to match filenames.</figcaption>
 </figure>
 
 <p>This program works,
 but we probably don't want to copy Emacs backup files whose names end with <code>~</code>.
-We can get rid of them by <span g="filter" i="globbing!filtering results">filtering</span> the list that <code>glob</code> returns:</p>
-<div class="include" pat="glob-get-then-filter-pedantic.*" fill="js slice.out" />
+We can get rid of them by <span class="indexref" key="globbing!filtering results" markdown="1"><a class="glossref" href="../glossary/#filter" markdown="1">filtering</a></span> the list that <code>glob</code> returns:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">glob</span> <span class="kr">from</span> <span class="s1">&#39;glob&#39;</span>
 
-<p><span i="Array.filter"><code>Array.filter</code></span> creates a new array
+<span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;**/*.*&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">files</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">files</span> <span class="o">=</span> <span class="nx">files</span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">f</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span> <span class="k">return</span> <span class="o">!</span><span class="nx">f</span><span class="p">.</span><span class="nx">endsWith</span><span class="p">(</span><span class="s1">&#39;~&#39;</span><span class="p">)</span> <span class="p">})</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">filename</span> <span class="k">of</span> <span class="nx">files</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>copy-file-filtered.js
+copy-file-unfiltered.js
+copy-file-unfiltered.out
+copy-file-unfiltered.sh
+copy-file-unfiltered.txt
+...
+x-trace-anonymous.md
+x-trace-anonymous/trace.js
+x-trace-callback.md
+x-trace-callback/trace.js
+x-where-is-node.md
+</code></pre></div>
+
+<p><span class="indexref" key="Array.filter" markdown="1"><code>Array.filter</code></span> creates a new array
 containing all the items of the original array that pass a test
-(<a figure="systems-programming-array-filter"/>).
+(<a class="figref" href="../systems-programming/#systems-programming-array-filter">Figure 2.6</a>).
 The test is specified as a callback function
 that <code>Array.filter</code> calls once once for each item.
-This function must return a <span g="boolean">Boolean</span>
+This function must return a <a class="glossref" href="../glossary/#boolean" markdown="1">Boolean</a>
 that tells <code>Array.filter</code> whether to keep the item in the new array or not.
 <code>Array.filter</code> does not modify the original array,
 so we can filter our original list of filenames several times if we want to.</p>
 <figure id="systems-programming-array-filter">
-  <img src="figures/array-filter.svg" alt="Using `Array.filter`" />
-  <figcaption>Selecting array elements using <code>Array.filter</code>.</figcaption>
+  <img src="./figures/array-filter.svg" alt="Using `Array.filter`" />
+  <figcaption markdown="1">Figure 2.6: Selecting array elements using `Array.filter`.</figcaption>
 </figure>
 
 <p>We can make our globbing program more idiomatic by
 removing the parentheses around the single parameter
 and writing just the expression we want the function to return:</p>
-<div class="include" file="glob-get-then-filter-idiomatic.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">glob</span> <span class="kr">from</span> <span class="s1">&#39;glob&#39;</span>
+
+<span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;**/*.*&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">files</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">files</span> <span class="o">=</span> <span class="nx">files</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">f</span> <span class="p">=&gt;</span> <span class="o">!</span><span class="nx">f</span><span class="p">.</span><span class="nx">endsWith</span><span class="p">(</span><span class="s1">&#39;~&#39;</span><span class="p">))</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">filename</span> <span class="k">of</span> <span class="nx">files</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div>
 
 <p>However,
 it turns out that <code>glob</code> will filter for us.
@@ -287,7 +450,18 @@ rather than accepting a large number of rarely-used parameters,
 a function can take a single object full of settings.</p>
 <p>If we use this,
 our program becomes:</p>
-<div class="include" file="glob-filter-with-options.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">glob</span> <span class="kr">from</span> <span class="s1">&#39;glob&#39;</span>
+
+<span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;**/*.*&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">ignore</span><span class="o">:</span> <span class="s1">&#39;*~&#39;</span> <span class="p">},</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">files</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">filename</span> <span class="k">of</span> <span class="nx">files</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div>
 
 <!-- continue -->
 <p>Notice that we don't quote the key in the <code>options</code> object.
@@ -319,10 +493,23 @@ This shows:</p>
 </blockquote>
 <p>To finish off our globbing program,
 let's specify a source directory on the command line and include that in the pattern:</p>
-<div class="include" file="glob-with-source-directory.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">glob</span> <span class="kr">from</span> <span class="s1">&#39;glob&#39;</span>
+
+<span class="kd">const</span> <span class="nx">srcDir</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span>
+
+<span class="nx">glob</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">srcDir</span><span class="si">}</span><span class="sb">/**/*.*`</span><span class="p">,</span> <span class="p">{</span> <span class="nx">ignore</span><span class="o">:</span> <span class="s1">&#39;*~&#39;</span> <span class="p">},</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">files</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">filename</span> <span class="k">of</span> <span class="nx">files</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div>
 
 <!-- continue -->
-<p>This program uses <span g="string_interpolation" i="string interpolation">string interpolation</span>
+<p>This program uses <span class="indexref" key="string interpolation" markdown="1"><a class="glossref" href="../glossary/#string_interpolation" markdown="1">string interpolation</a></span>
 to insert the value of <code>srcDir</code> into a string.
 The template string is written in back quotes,
 and JavaScript converts every expression written as <code>${expression}</code> to text.
@@ -331,36 +518,71 @@ We could create the pattern by concatenating strings using
 but most programmers find interpolation easier to read.</p>
 <h2 id="systems-programming-copy">How can we copy a set of files?</h2>
 <p>If we want to copy a set of files instead of just listing them
-we need a way to create the <span g="path">paths</span> of the files we are going to create.
+we need a way to create the <a class="glossref" href="../glossary/#path" markdown="1">paths</a> of the files we are going to create.
 If our program takes a second argument that specifies the desired output directory,
 we can construct the full output path by replacing the name of the source directory with that path:</p>
-<div class="include" file="glob-with-dest-directory.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">glob</span> <span class="kr">from</span> <span class="s1">&#39;glob&#39;</span>
+
+<span class="kd">const</span> <span class="p">[</span><span class="nx">srcDir</span><span class="p">,</span> <span class="nx">dstDir</span><span class="p">]</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">2</span><span class="p">)</span>
+
+<span class="nx">glob</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">srcDir</span><span class="si">}</span><span class="sb">/**/*.*`</span><span class="p">,</span> <span class="p">{</span> <span class="nx">ignore</span><span class="o">:</span> <span class="s1">&#39;*~&#39;</span> <span class="p">},</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">files</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">srcName</span> <span class="k">of</span> <span class="nx">files</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">const</span> <span class="nx">dstName</span> <span class="o">=</span> <span class="nx">srcName</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="nx">srcDir</span><span class="p">,</span> <span class="nx">dstDir</span><span class="p">)</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">srcName</span><span class="p">,</span> <span class="nx">dstName</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div>
 
 <!-- continue -->
-<p>This program uses <span g="destructuring_assignment" i="destructuring assignment; assignment!destructuring">destructuring assignment</span>
+<p>This program uses <span class="indexref" key="destructuring assignment;assignment!destructuring" markdown="1"><a class="glossref" href="../glossary/#destructuring_assignment" markdown="1">destructuring assignment</a></span>
 to create two variables at once
 by unpacking the elements of an array
-(<a figure="systems-programming-destructuring-assignment"/>).
+(<a class="figref" href="../systems-programming/#systems-programming-destructuring-assignment">Figure 2.7</a>).
 It only works if the array contains the enough elements,
 i.e.,
 if both a source and destination are given on the command line;
 we'll add a check for that in the exercises.</p>
 <figure id="systems-programming-destructuring-assignment">
-  <img src="figures/destructuring-assignment.svg" alt="Matching values with destructuring assignment" />
-  <figcaption>Assigning many values at once by destructuring.</figcaption>
+  <img src="./figures/destructuring-assignment.svg" alt="Matching values with destructuring assignment" />
+  <figcaption markdown="1">Figure 2.7: Assigning many values at once by destructuring.</figcaption>
 </figure>
 
 <p>A more serious problem is that
 this program only works if the destination directory already exists:
 <code>fs</code> and equivalent libraries in other languages usually won't create directories for us automatically.
 The need to do this comes up so often that there is a function called <code>ensureDir</code> to do it:</p>
-<div class="include" file="glob-ensure-output-directory.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">glob</span> <span class="kr">from</span> <span class="s1">&#39;glob&#39;</span>
+<span class="k">import</span> <span class="nx">fs</span> <span class="kr">from</span> <span class="s1">&#39;fs-extra&#39;</span>
+<span class="k">import</span> <span class="nx">path</span> <span class="kr">from</span> <span class="s1">&#39;path&#39;</span>
+
+<span class="kd">const</span> <span class="p">[</span><span class="nx">srcRoot</span><span class="p">,</span> <span class="nx">dstRoot</span><span class="p">]</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">2</span><span class="p">)</span>
+
+<span class="nx">glob</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">srcRoot</span><span class="si">}</span><span class="sb">/**/*.*`</span><span class="p">,</span> <span class="p">{</span> <span class="nx">ignore</span><span class="o">:</span> <span class="s1">&#39;*~&#39;</span> <span class="p">},</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">files</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">srcName</span> <span class="k">of</span> <span class="nx">files</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">const</span> <span class="nx">dstName</span> <span class="o">=</span> <span class="nx">srcName</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="nx">srcRoot</span><span class="p">,</span> <span class="nx">dstRoot</span><span class="p">)</span>
+      <span class="kd">const</span> <span class="nx">dstDir</span> <span class="o">=</span> <span class="nx">path</span><span class="p">.</span><span class="nx">dirname</span><span class="p">(</span><span class="nx">dstName</span><span class="p">)</span>
+      <span class="nx">fs</span><span class="p">.</span><span class="nx">ensureDir</span><span class="p">(</span><span class="nx">dstDir</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+        <span class="p">}</span>
+      <span class="p">})</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div>
 
 <p>Notice that we import from <code>fs-extra</code> instead of <code>fs</code>;
 the <a href="https://www.npmjs.com/package/fs-extra"><code>fs-extra</code></a> module provides some useful utilities on top of <code>fs</code>.
 We also use <a href="https://nodejs.org/api/path.html"><code>path</code></a> to manipulate pathnames
 rather than concatenating or interpolating strings
-because there are a lot of tricky <span g="edge_case">edge cases</span> in pathnames
+because there are a lot of tricky <a class="glossref" href="../glossary/#edge_case" markdown="1">edge cases</a> in pathnames
 that the authors of that module have figured out for us.</p>
 <blockquote>
 <h3>Using distinct names</h3>
@@ -371,16 +593,43 @@ the name of the top-level destination directory (from the command line)
 and the name of the particular output directory to create.
 This was legal,
 since every function creates
-a new <span g="scope" i="scope!of variable definitions; variable definition!scope">scope</span>,
+a new <span class="indexref" key="scope!of variable definitions;variable definition!scope" markdown="1"><a class="glossref" href="../glossary/#scope" markdown="1">scope</a></span>,
 but hard for people to understand.</p>
 </blockquote>
 <p>Our file copying program currently creates empty destination directories
 but doesn't actually copy any files.
 Let's use <code>fs.copy</code> to do that:</p>
-<div class="include" file="copy-file-unfiltered.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">glob</span> <span class="kr">from</span> <span class="s1">&#39;glob&#39;</span>
+<span class="k">import</span> <span class="nx">fs</span> <span class="kr">from</span> <span class="s1">&#39;fs-extra&#39;</span>
+<span class="k">import</span> <span class="nx">path</span> <span class="kr">from</span> <span class="s1">&#39;path&#39;</span>
+
+<span class="kd">const</span> <span class="p">[</span><span class="nx">srcRoot</span><span class="p">,</span> <span class="nx">dstRoot</span><span class="p">]</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">2</span><span class="p">)</span>
+
+<span class="nx">glob</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">srcRoot</span><span class="si">}</span><span class="sb">/**/*.*`</span><span class="p">,</span> <span class="p">{</span> <span class="nx">ignore</span><span class="o">:</span> <span class="s1">&#39;*~&#39;</span> <span class="p">},</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">files</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">srcName</span> <span class="k">of</span> <span class="nx">files</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">const</span> <span class="nx">dstName</span> <span class="o">=</span> <span class="nx">srcName</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="nx">srcRoot</span><span class="p">,</span> <span class="nx">dstRoot</span><span class="p">)</span>
+      <span class="kd">const</span> <span class="nx">dstDir</span> <span class="o">=</span> <span class="nx">path</span><span class="p">.</span><span class="nx">dirname</span><span class="p">(</span><span class="nx">dstName</span><span class="p">)</span>
+      <span class="nx">fs</span><span class="p">.</span><span class="nx">ensureDir</span><span class="p">(</span><span class="nx">dstDir</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="nx">fs</span><span class="p">.</span><span class="nx">copy</span><span class="p">(</span><span class="nx">srcName</span><span class="p">,</span> <span class="nx">dstName</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+              <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+            <span class="p">}</span>
+          <span class="p">})</span>
+        <span class="p">}</span>
+      <span class="p">})</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div>
 
 <p>The program now has three levels of callback
-(<a figure="systems-programming-triple-callback"/>):</p>
+(<a class="figref" href="../systems-programming/#systems-programming-triple-callback">Figure 2.8</a>):</p>
 <ol>
 <li>
 <p>When <code>glob</code> has data, do things and then call <code>ensureDir</code>.</p>
@@ -393,14 +642,26 @@ Let's use <code>fs.copy</code> to do that:</p>
 </li>
 </ol>
 <figure id="systems-programming-triple-callback">
-  <img src="figures/triple-callback.svg" alt="Three levels of callback" />
-  <figcaption>Three levels of callback in the running example.</figcaption>
+  <img src="./figures/triple-callback.svg" alt="Three levels of callback" />
+  <figcaption markdown="1">Figure 2.8: Three levels of callback in the running example.</figcaption>
 </figure>
 
 <p>Our program looks like it should work,
 but if we try to copy everything in the directory containing these lessons
 we get an error message:</p>
-<div class="include" pat="copy-file-unfiltered.*" fill="sh out" />
+<div class="codehilite"><pre><span></span><code>rm -rf /tmp/out
+mkdir /tmp/out
+node copy-file-unfiltered.js ../node_modules /tmp/out <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span> <span class="p">|</span> head -n <span class="m">6</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="o">[</span><span class="n">Error: ENOENT: no such file or directory, chmod \</span>
+<span class="n">&#39;/tmp/out/@nodelib/fs.stat/README.md&#39;</span><span class="o">]</span><span class="w"> </span><span class="err">{</span><span class="w"></span>
+<span class="w">  </span><span class="nl">errno</span><span class="p">:</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nl">code</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;ENOENT&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nl">syscall</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;chmod&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="k">path</span><span class="err">:</span><span class="w"> </span><span class="s1">&#39;/tmp/out/@nodelib/fs.stat/README.md&#39;</span><span class="w"></span>
+<span class="err">}</span><span class="w"></span>
+</code></pre></div>
 
 <p>The problem is that <code>node_modules/fs.stat</code> and <code>node_modules/fs.walk</code> match our globbing expression,
 but are directories rather than files.
@@ -409,25 +670,85 @@ we must use <code>fs.stat</code> to get the properties of the thing whose name <
 and then check if it's a file.
 The name "stat" is short for "status",
 and since the status of something in the filesystem can be very complex,
-<span i="fs.stat"><code>fs.stat</code></span> returns <a href="https://nodejs.org/api/fs.html#fs_class_fs_stats">an object with methods that can answer common questions</a>.</p>
+<span class="indexref" key="fs.stat" markdown="1"><code>fs.stat</code></span> returns <a href="https://nodejs.org/api/fs.html#fs_class_fs_stats">an object with methods that can answer common questions</a>.</p>
 <p>Here's the final version of our file copying program:</p>
-<div class="include" file="copy-file-filtered.js" />
+<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">glob</span> <span class="kr">from</span> <span class="s1">&#39;glob&#39;</span>
+<span class="k">import</span> <span class="nx">fs</span> <span class="kr">from</span> <span class="s1">&#39;fs-extra&#39;</span>
+<span class="k">import</span> <span class="nx">path</span> <span class="kr">from</span> <span class="s1">&#39;path&#39;</span>
+
+<span class="kd">const</span> <span class="p">[</span><span class="nx">srcRoot</span><span class="p">,</span> <span class="nx">dstRoot</span><span class="p">]</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">2</span><span class="p">)</span>
+
+<span class="nx">glob</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">srcRoot</span><span class="si">}</span><span class="sb">/**/*.*`</span><span class="p">,</span> <span class="p">{</span> <span class="nx">ignore</span><span class="o">:</span> <span class="s1">&#39;*~&#39;</span> <span class="p">},</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">files</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">srcName</span> <span class="k">of</span> <span class="nx">files</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">fs</span><span class="p">.</span><span class="nx">stat</span><span class="p">(</span><span class="nx">srcName</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">stats</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">stats</span><span class="p">.</span><span class="nx">isFile</span><span class="p">())</span> <span class="p">{</span>
+          <span class="kd">const</span> <span class="nx">dstName</span> <span class="o">=</span> <span class="nx">srcName</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="nx">srcRoot</span><span class="p">,</span> <span class="nx">dstRoot</span><span class="p">)</span>
+          <span class="kd">const</span> <span class="nx">dstDir</span> <span class="o">=</span> <span class="nx">path</span><span class="p">.</span><span class="nx">dirname</span><span class="p">(</span><span class="nx">dstName</span><span class="p">)</span>
+          <span class="nx">fs</span><span class="p">.</span><span class="nx">ensureDir</span><span class="p">(</span><span class="nx">dstDir</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+              <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+              <span class="nx">fs</span><span class="p">.</span><span class="nx">copy</span><span class="p">(</span><span class="nx">srcName</span><span class="p">,</span> <span class="nx">dstName</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+                  <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+                <span class="p">}</span>
+              <span class="p">})</span>
+            <span class="p">}</span>
+          <span class="p">})</span>
+        <span class="p">}</span>
+      <span class="p">})</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div>
 
 <!-- continue -->
 <p>It works,
 but four levels of asynchronous callbacks is hard for humans to understand.
-<a section="async-programming"/> will introduce a pair of tools
+<a href="../async-programming/">Chapter 3</a> will introduce a pair of tools
 that make code like this easier to read.</p>
 <h2 id="systems-programming-exercises">Exercises</h2>
 <h3 class="exercise">Where is Node?</h3>
 <p>Write a program called <code>wherenode.js</code> that prints the full path to the version of Node is is run with.</p>
 <h3 class="exercise">Tracing callbacks</h3>
 <p>In what order does the program below print messages?</p>
-<div class="include" file="x-trace-callback/trace.js"/>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">red</span> <span class="o">=</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;RED&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">green</span> <span class="o">=</span> <span class="p">(</span><span class="nx">func</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;GREEN&#39;</span><span class="p">)</span>
+  <span class="nx">func</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">blue</span> <span class="o">=</span> <span class="p">(</span><span class="nx">left</span><span class="p">,</span> <span class="nx">right</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;BLUE&#39;</span><span class="p">)</span>
+  <span class="nx">left</span><span class="p">(</span><span class="nx">right</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nx">blue</span><span class="p">(</span><span class="nx">green</span><span class="p">,</span> <span class="nx">red</span><span class="p">)</span>
+</code></pre></div>
 
 <h3 class="exercise">Tracing anonymous callbacks</h3>
 <p>In what order does the program below print messages?</p>
-<div class="include" file="x-trace-anonymous/trace.js"/>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">blue</span> <span class="o">=</span> <span class="p">(</span><span class="nx">left</span><span class="p">,</span> <span class="nx">right</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;BLUE&#39;</span><span class="p">)</span>
+  <span class="nx">left</span><span class="p">(</span><span class="nx">right</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nx">blue</span><span class="p">(</span>
+  <span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;GREEN&#39;</span><span class="p">)</span>
+    <span class="nx">callback</span><span class="p">()</span>
+  <span class="p">},</span>
+  <span class="p">()</span> <span class="p">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;RED&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
 
 <h3 class="exercise">Checking arguments</h3>
 <p>Modify the file copying program to check that it has been given the right number of command-line arguments
@@ -459,11 +780,46 @@ Modify it so that:</p>
 Note: you can compare strings in JavaScript using <code>&lt;</code>, <code>&gt;=</code>, and other operators,
 so that (for example) <code>person.personal &gt; 'P'</code> is <code>true</code>
 if someone's personal name starts with a letter that comes after 'P' in the alphabet.</p>
-<div class="include" pat="x-array-filter/filter.*" fill="js txt"/>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">people</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="p">{</span> <span class="nx">personal</span><span class="o">:</span> <span class="s1">&#39;Jean&#39;</span><span class="p">,</span> <span class="nx">family</span><span class="o">:</span> <span class="s1">&#39;Jennings&#39;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">personal</span><span class="o">:</span> <span class="s1">&#39;Marlyn&#39;</span><span class="p">,</span> <span class="nx">family</span><span class="o">:</span> <span class="s1">&#39;Wescoff&#39;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">personal</span><span class="o">:</span> <span class="s1">&#39;Ruth&#39;</span><span class="p">,</span> <span class="nx">family</span><span class="o">:</span> <span class="s1">&#39;Lichterman&#39;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">personal</span><span class="o">:</span> <span class="s1">&#39;Betty&#39;</span><span class="p">,</span> <span class="nx">family</span><span class="o">:</span> <span class="s1">&#39;Snyder&#39;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">personal</span><span class="o">:</span> <span class="s1">&#39;Frances&#39;</span><span class="p">,</span> <span class="nx">family</span><span class="o">:</span> <span class="s1">&#39;Bilas&#39;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">personal</span><span class="o">:</span> <span class="s1">&#39;Kay&#39;</span><span class="p">,</span> <span class="nx">family</span><span class="o">:</span> <span class="s1">&#39;McNulty&#39;</span> <span class="p">}</span>
+<span class="p">]</span>
+
+<span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">people</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">____</span> <span class="p">=&gt;</span> <span class="nx">____</span><span class="p">)</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>[
+  { personal: &#39;Jean&#39;, family: &#39;Jennings&#39; },
+  { personal: &#39;Ruth&#39;, family: &#39;Lichterman&#39; },
+  { personal: &#39;Frances&#39;, family: &#39;Bilas&#39; }
+]
+</code></pre></div>
 
 <h3 class="exercise">String interpolation</h3>
 <p>Fill in the code below so that it prints the message shown.</p>
-<div class="include" pat="x-string-interpolation/interpolate.*" fill="js txt"/>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">people</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="p">{</span> <span class="nx">personal</span><span class="o">:</span> <span class="s1">&#39;Christine&#39;</span><span class="p">,</span> <span class="nx">family</span><span class="o">:</span> <span class="s1">&#39;Darden&#39;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">personal</span><span class="o">:</span> <span class="s1">&#39;Mary&#39;</span><span class="p">,</span> <span class="nx">family</span><span class="o">:</span> <span class="s1">&#39;Jackson&#39;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">personal</span><span class="o">:</span> <span class="s1">&#39;Katherine&#39;</span><span class="p">,</span> <span class="nx">family</span><span class="o">:</span> <span class="s1">&#39;Johnson&#39;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">personal</span><span class="o">:</span> <span class="s1">&#39;Dorothy&#39;</span><span class="p">,</span> <span class="nx">family</span><span class="o">:</span> <span class="s1">&#39;Vaughan&#39;</span> <span class="p">}</span>
+<span class="p">]</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">person</span> <span class="k">of</span> <span class="nx">people</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`$____, $____`</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>Darden, Christine
+Jackson, Mary
+Johnson, Katherine
+Vaughan, Dorothy
+</code></pre></div>
 
 <h3 class="exercise">Destructuring assignment</h3>
 <p>What is assigned to each named variable in each statement below?</p>
@@ -486,7 +842,7 @@ total 506
 <h3 class="exercise">Renaming files</h3>
 <p>Write a program called <code>rename</code> that takes three or more command-line arguments:</p>
 <ol>
-<li>A <span g="filename_extension">filename extension</span> to match.</li>
+<li>A <a class="glossref" href="../glossary/#filename_extension" markdown="1">filename extension</a> to match.</li>
 <li>An extension to replace it with.</li>
 <li>The names of one or more existing files.</li>
 </ol>
@@ -502,9 +858,9 @@ The command:</p>
 <!-- continue -->
 <p>will rename <code>a.txt</code> to <code>a.bck</code>,
 but will <em>not</em> rename <code>b.txt</code> because <code>b.bck</code> already exists.</p>
-
+    </main>
+  <div class="centered footer">
   <hr/>
-<div class="centered">
   <table class="plain footer">
     <tr>
       

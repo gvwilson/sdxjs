@@ -75,6 +75,13 @@ def get_config(part):
     return mccole.get(part, None)
 
 
+def inclusion_filepath(inclusions, node, file):
+    """Make path to included file."""
+    src, dst = make_copy_paths(node, file)
+    inclusions[src] = dst
+    return src
+
+
 def make_config(part, filler=None):
     """Make McCole configuration subsection.
 

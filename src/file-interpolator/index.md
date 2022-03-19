@@ -8,34 +8,31 @@ Many of the examples in these lessons are too long
 to show comfortably in one block of code on a printed page,
 so we needed a way to break them up.
 As an experiment,
-we wrote a custom <span g="loader" i="module loader">module loader</span>
+we wrote a custom [% i "module loader" %][% g loader %]module loader[% /g %][% /i %]
 that reads a source file containing specially-formatted comments
 and then reads and inserts the files specified in those comments
 before running the code
-(<a figure="file-interpolator-conceptual"/>).
+([% f file-interpolator-conceptual %]).
 Modern programming languages don't work this way,
-but <span i="C">C</span> and <span i="C++">C++</span> do this
-with <span g="header_file" i="header file!in C and C++">header files</span>,
-and <span i="static site generator!header file; header file!static site generator">static site generators</span>
-(<a section="page-templates"/>) do this to share fragments of HTML.
+but [% i "C" %]C[% /i %] and [% i "C++" %]C++[% /i %] do this
+with [% i "header file!in C and C++" %][% g header_file %]header files[% /g %][% /i %],
+and [% i "static site generator!header file" "header file!static site generator" %]static site generators[% /i %]
+([% x page-templates %]) do this to share fragments of HTML.
 
-<figure id="file-interpolator-conceptual">
-  <img src="figures/conceptual.svg" alt="Using file inclusions" />
-  <figcaption>Including fragments of code to create runnable programs.</figcaption>
-</figure>
+[% figure slug="file-interpolator-conceptual" img="figures/conceptual.svg" alt="Using file inclusions" caption="Including fragments of code to create runnable programs." %]
 
 The special comments in our source files contain two fields:
 the text to put in the displayed version
 and file to include when loading:
 
-<div class="include" file="interpolation-example.js" />
+[% excerpt file="interpolation-example.js" %]
 
 We got this to work,
 but decided to use a different approach in this book.
-The stumbling block was that the style-checking tool <span i="ESLint">[ESLint][eslint]</span>
+The stumbling block was that the style-checking tool [% i "ESLint" %][ESLint][eslint][% /i %]
 didn't know what to make of our inclusions,
 so we would either have to modify it or build a style checker of our own.
-(We will actually do that in <a section="style-checker"/>,
+(We will actually do that in [% x style-checker %],
 but we won't go nearly as far as ESLint.)
 
 Despite being a dead end,
@@ -57,29 +54,26 @@ translates it into runnable instructions,
 and runs those instructions.
 We can do the second and third steps whenever we want using a function called `eval`,
 which takes a string as input and executes it as if it were part of the program
-(<a figure="file-interpolator-eval"/>).
+([% f file-interpolator-eval %]).
 
-<figure id="file-interpolator-eval">
-  <img src="figures/eval.svg" alt="How eval works" />
-  <figcaption><code>eval</code> vs. normal translation and execution.</figcaption>
-</figure>
+[% figure slug="file-interpolator-eval" img="figures/eval.svg" alt="How eval works" caption="`eval` vs. normal translation and execution." %]
 
 > ### This is not a good idea
 >
-> <span i="eval!insecurity of">`eval`</span> is a security risk:
+> [% i "eval!insecurity of" %]`eval`[% /i %] is a security risk:
 > arbitrary code can do arbitrary things,
 > so if we take a string typed in by a user and execute it without any checks
 > it could email our bookmark list to villains all over the world,
 > erase our hard drive,
 > or do anything else that code can do (which is pretty much anything).
-> Browsers do their best to run code in a <span g="sandbox" i="sandbox (for safe execution)">sandbox</span> for safety,
+> Browsers do their best to run code in a [% i "sandbox (for safe execution)" %][% g sandbox %]sandbox[% /g %][% /i %] for safety,
 > but Node doesn't,
 > so it's up to us to be (very) careful.
 
 To see `eval` in action,
 let's evaluate an expression:
 
-<div class="include" pat="eval-two-plus-two.*" fill="js out" />
+[% excerpt pat="eval-two-plus-two.*" fill="js out" %]
 
 <!-- continue -->
 Notice that the input to `eval` is *not* `2 + 2`,
@@ -96,7 +90,7 @@ and immediately runs the result.
 We can make the example a little more interesting
 by constructing the string dynamically:
 
-<div class="include" pat="eval-loop.*" fill="js out" />
+[% excerpt pat="eval-loop.*" fill="js out" %]
 
 <!-- continue -->
 The first time the loop runs the string is `'x + 1'`;
@@ -114,37 +108,37 @@ but as the output shows,
 just as variables created inside a function
 only exist during a call to that function:
 
-<div class="include" pat="eval-local-vars.*" fill="js out" />
+[% excerpt pat="eval-local-vars.*" fill="js out" %]
 
 However,
 `eval` can modify variables defined outside the text being evaluated
 in the same way that a function can modify global variables:
 
-<div class="include" pat="eval-global-vars.*" fill="js out" />
+[% excerpt pat="eval-global-vars.*" fill="js out" %]
 
 <!-- continue -->
 This means that
 if the text we give to `eval` modifies a structure that is defined outside the text,
 that change outlives the call to `eval`:
 
-<div class="include" pat="eval-global-structure.*" fill="js out" />
+[% excerpt pat="eval-global-structure.*" fill="js out" %]
 
 The examples so far have all evaluated strings embedded in the program itself,
 but `eval` doesn't care where its input comes from.
 Let's move the code that does the modifying into `to-be-loaded.js`:
 
-<div class="include" file="to-be-loaded.js" />
+[% excerpt file="to-be-loaded.js" %]
 
 <!-- continue -->
 This doesn't work on its own because `Seen` isn't defined:
 
-<div class="include" file="to-be-loaded.out" />
+[% excerpt file="to-be-loaded.out" %]
 
 <!-- continue -->
 But if we read the file and `eval` the text *after* defining `Seen`,
 it does what we want:
 
-<div class="include" pat="does-the-loading.*" fill="js sh out" />
+[% excerpt pat="does-the-loading.*" fill="js sh out" %]
 
 ## How can we manage files? {#file-interpolator-manage}
 
@@ -152,26 +146,23 @@ The source files in this book are small enough
 that we don't have to worry about reading them repeatedly,
 but we would like to avoid re-reading things unnecessarily
 in large systems or when there might be network delays.
-The usual approach is to create a <span i="cache!of loaded files">cache</span>
-using the <span i="Singleton pattern; design pattern!Singleton">Singleton pattern</span>
-that we first met in <a section="unit-test"/>.
+The usual approach is to create a [% i "cache!of loaded files" %]cache[% /i %]
+using the [% i "Singleton pattern" "design pattern!Singleton" %]Singleton pattern[% /i %]
+that we first met in [% x unit-test %].
 Whenever we want to read a file,
 we check to see if it's already in the cache
-(<a figure="file-interpolator-cache"/>).
+([% f file-interpolator-cache %]).
 If it is,
 we use that copy;
 if not,
 we read it and add it to the cache
 using the file path as a lookup key.
 
-<figure id="file-interpolator-cache">
-  <img src="figures/cache.svg" alt="Implementing a cache as a singleton" />
-  <figcaption>Using the Singleton pattern to implement a cache of loaded files.</figcaption>
-</figure>
+[% figure slug="file-interpolator-cache" img="figures/cache.svg" alt="Implementing a cache as a singleton" caption="Using the Singleton pattern to implement a cache of loaded files." %]
 
 We can write a simple cache in just a few lines of code:
 
-<div class="include" file="need-simple.js" />
+[% excerpt file="need-simple.js" %]
 
 Since we are using `eval`, though,
 we can't rely on `export` to make things available to the rest of the program.
@@ -182,7 +173,7 @@ Since a variable name on its own evaluates to the variable's value,
 we can create a function and then use its name
 to "export" it from the evaluated file:
 
-<div class="include" file="import-simple.js" />
+[% excerpt file="import-simple.js" %]
 
 To test our program,
 we load the implementation of the cache using `import`,
@@ -190,7 +181,7 @@ then use it to load and evaluate another file.
 This example expects that "other file" to define a function,
 which we call in order to show that everything is working:
 
-<div class="include" pat="test-simple.*" fill="js sh" />
+[% excerpt pat="test-simple.*" fill="js sh" %]
 
 ## How can we find files? {#file-interpolator-find}
 
@@ -203,7 +194,7 @@ so we need a way specify where to look for files that are being included.
 One option is to use relative paths,
 but another option is to give our program
 a list of directories to look in.
-This is called a <span g="search_path" i="search path">search path</span>,
+This is called a [% i "search path" %][% g search_path %]search path[% /g %][% /i %],
 and many programs use them,
 including Node itself.
 By convention,
@@ -214,12 +205,9 @@ we look for it locally;
 if not,
 we go through the directories in the search path in order
 until we find a file with a matching name
-(<a figure="file-interpolator-search-path"/>).
+([% f file-interpolator-search-path %]).
 
-<figure id="file-interpolator-search-path">
-  <img src="figures/search-path.svg" alt="Implementing a search path" />
-  <figcaption>Using a colon-separated list of directories as a search path.</figcaption>
-</figure>
+[% figure slug="file-interpolator-search-path" img="figures/search-path.svg" alt="Implementing a search path" caption="Using a colon-separated list of directories as a search path." %]
 
 > ### That's just how it is
 >
@@ -236,31 +224,31 @@ Since the cache is responsible for finding files,
 it should also handle the search path.
 The outline of the class stays the same:
 
-<div class="include" file="need-path.js" omit="skip" />
+[% excerpt file="need-path.js" omit="skip" %]
 
 To get the search path,
-we look for the <span g="shell_variable" i="shell variable (for storing search path); search path!shell variable">shell variable</span> `NEED_PATH`.
+we look for the [% i "shell variable (for storing search path)" "search path!shell variable" %][% g shell_variable %]shell variable[% /g %][% /i %] `NEED_PATH`.
 (Writing shell variables' names in upper case is another convention.)
 If `NEED_PATH` exists,
 we split it on colons to create a list of directories:
 
-<div class="include" file="need-path.js" keep="search" />
+[% excerpt file="need-path.js" keep="search" %]
 
 When we need to find a file we first check to see if the path is local.
 If it's not,
 we try the directories in the search path in order:
 
-<div class="include" file="need-path.js" keep="search" />
+[% excerpt file="need-path.js" keep="search" %]
 
 To test this,
 we put the file to import in a subdirectory called `modules`:
 
-<div class="include" file="modules/imported-left.js" />
+[% excerpt file="modules/imported-left.js" %]
 
 <!-- continue -->
 and then put the file doing the importing in the current directory:
 
-<div class="include" file="test-import-left.js" />
+[% excerpt file="test-import-left.js" %]
 
 We now need to set the variable `NEED_PATH`.
 There are many ways to do this in shell;
@@ -276,16 +264,16 @@ right before the command (on the same line).
 Here's the shell command that runs our test case
 using `$PWD` to get the current working directory:
 
-<div class="include" pat="test-import-left.*" fill="sh out" />
+[% excerpt pat="test-import-left.*" fill="sh out" %]
 
 Now let's create a second importable file in the `modules` directory:
 
-<div class="include" file="modules/imported-right.js" />
+[% excerpt file="modules/imported-right.js" %]
 
 <!-- continue -->
 and load that twice to check that caching works:
 
-<div class="include" pat="test-import-right.*" fill="js out" />
+[% excerpt pat="test-import-right.*" fill="js out" %]
 
 ## How can we interpolate pieces of code? {#file-interpolator-interpolate}
 
@@ -293,27 +281,27 @@ Interpolating files is straightforward once we have this machinery in place.
 We modify `Cache.find` to return a directory and a file path,
 then add an `interpolate` method to replace special comments:
 
-<div class="include" file="caching.js" />
+[% excerpt file="caching.js" %]
 
 We can now have a file like this:
 
-<div class="include" file="import-interpolate.js" />
+[% excerpt file="import-interpolate.js" %]
 
 <!-- continue -->
 and subfiles like this:
 
-<div class="include" file="import-interpolate-topmethod.js" />
+[% excerpt file="import-interpolate-topmethod.js" %]
 
 <!-- continue -->
 and this:
 
-<div class="include" file="import-interpolate-bottommethod.js" />
+[% excerpt file="import-interpolate-bottommethod.js" %]
 
 Let's test it:
 
-<div class="include" pat="test-import-interpolate.*" fill="sh out" />
+[% excerpt pat="test-import-interpolate.*" fill="sh out" %]
 
-When this program runs, its <span i="lifecycle!of file interpolation">lifecycle</span> is:
+When this program runs, its [% i "lifecycle!of file interpolation" %]lifecycle[% /i %] is:
 
 1.  Node starts to run `test-import-interpolate.js`.
 1.  It sees the `import` of need-interpolate` so it reads and evaluates that code.
@@ -365,11 +353,11 @@ this system doesn't automatically update the description of the code:
 if we write, "It does X,"
 then modify the code to do Y,
 our lesson can be inconsistent.
-<span g="literate_programming" i="literate programming">Literate programming</span> was invented
+[% i "literate programming" %][% g literate_programming %]Literate programming[% /g %][% /i %] was invented
 to try to prevent this from happening,
 but it never really caught on---unfortunately,
 most programming systems that describe themselves as "literate" these days
-only implement part of <span i="Knuth, Donald">[Donald Knuth's][knuth-donald]</span> original vision.
+only implement part of [% i "Knuth, Donald" %][Donald Knuth's][knuth-donald][% /i %] original vision.
 
 ## Exercises {#file-interpolator-exercises}
 

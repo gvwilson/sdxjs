@@ -171,6 +171,13 @@ def _make_html(filepath, file, kind, lines):
     return f"```{kind}\n{body}\n```"
 
 
+def _omit_lines(filepath, lines, key):
+    """Remove lines between markers."""
+    start, stop = _find_markers(lines, key)
+    if (start is None) or (stop is None):
+        util.fail(f"Failed to match inclusion 'omit' key {key} in {filepath}")
+    return lines[:start] + lines[stop + 1 :]  # noqa e203
+
 def _inclusion_filepath(inclusions, node, file):
     """Make path to included file."""
     src, dst = util.make_copy_paths(node, file)
@@ -178,9 +185,3 @@ def _inclusion_filepath(inclusions, node, file):
     return src
 
 
-def _omit_lines(filepath, lines, key):
-    """Remove lines between markers."""
-    start, stop = _find_markers(lines, key)
-    if (start is None) or (stop is None):
-        util.fail(f"Failed to match inclusion 'omit' key {key} in {filepath}")
-    return lines[:start] + lines[stop + 1 :]  # noqa e203
