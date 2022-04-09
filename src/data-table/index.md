@@ -175,7 +175,7 @@ colFilterTime|137|4529|4380
 colSelectTime|48|104|90
 </div>
 
-The results in <a table="data-table-performance"/> show that column-major storage is better.
+The results in [% t data-table-performance %] show that column-major storage is better.
 It uses less memory (presumably because column labels aren't duplicated once per row)
 and the time required to construct new objects when doing select with row-major storage
 outweighs cost of appending to arrays when doing filter with column-major storage.

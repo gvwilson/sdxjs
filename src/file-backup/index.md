@@ -20,7 +20,7 @@ In this chapter we will build a tool for doing both tasks.
 It won't do everything Git does:
 in particular, it won't let us create and merge branches.
 If you would like to know how that works,
-please see [% i "Cook, Mary Rose" %][Mary Rose Cook][cook-mary-rose][% /i %]'s excellent [Gitlet][gitlet] project.
+please see [% i "Cook, Mary Rose" %][Mary Rose Cook's][cook-mary-rose][% /i %] excellent [Gitlet][gitlet] project.
 
 ## How can we uniquely identify files? {#file-backup-unique}
 

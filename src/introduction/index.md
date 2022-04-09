@@ -14,7 +14,7 @@ and browser layout engines
 both to demystify them
 and to give some insights into how experienced programmers think.
 We draw inspiration from [% b Brown2011 Brown2012 Brown2016 %],
-[Mary Rose Cook][cook-mary-rose]'s [Gitlet][gitlet],
+[Mary Rose Cook's][cook-mary-rose] [Gitlet][gitlet],
 and the books that introduced the Unix philosophy to an entire generation of programmers
 [% b Kernighan1979 Kernighan1981 Kernighan1983 Kernighan1988 %].
 

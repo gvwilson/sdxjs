@@ -28,7 +28,7 @@ the [% g child_tree %]children[% /g %] of a node are the elements it contains
 [% figure slug="pattern-matching-dom-tree" img="figures/dom-tree.svg" alt="The Document Object Model" caption="Representing an HTML document as a tree." %]
 
 The first step is to define the patterns we want to support
-(<a table="pattern-matching-supported"/>).
+([% t pattern-matching-supported %]).
 
 <div class="table" id="pattern-matching-supported" caption="Supported patterns." markdown="1">
 | Meaning | Selector |
@@ -123,7 +123,7 @@ we see if the rest of the pattern matches what's left;
 otherwise,
 we see if the the pattern will match further along.
 Our matcher will initially handle just the five cases shown in
-<a table="pattern-matching-cases"/>.
+[% t pattern-matching-cases %].
 
 <div class="table" id="pattern-matching-cases" caption="Pattern matching cases." markdown="1">
 | Meaning | Character |

@@ -89,14 +89,14 @@ whatever points are left when we're done represent legal combinations.
 [% figure slug="package-manager-allowable" img="figures/allowable.svg" alt="Allowable versions" caption="Finding allowable combinations of package versions." %]
 
 For example,
-suppose we have the set of requirements shown in <a table="package-manager-example-dependencies"/>.
+suppose we have the set of requirements shown in [% t package-manager-example-dependencies %].
 There are 18 possible configurations
 (2 for X × 3 for Y × 3 for Z)
 but 16 are excluded by various incompatibilities.
 Of the two remaining possibilities,
 X/2 + Y/3 + Z/3 is strictly greater than X/2 + Y/2 + Z/2,
 so we would probably choose the former
-(<a table="package-manager-example-result"/>).
+([% t package-manager-example-result %]).
 if we wound up with A/1 + B/2 versus A/2 + B/1,
 we would need to add rules for resolving ties.
 
@@ -154,7 +154,7 @@ we would need to add rules for resolving ties.
 |   2 |   3 |   3 | X/2 - Z/3 |
 </div>
 
-To construct <a table="package-manager-example-dependencies"/>
+To construct [% t package-manager-example-dependencies %]
 we find the [% i "transitive closure" %]transitive closure[% /i %] of all packages plus all of their dependencies.
 We then pick two packages and create a list of their valid pairs.
 Choosing a third package,
@@ -214,7 +214,7 @@ This works,
 but it is doing a lot of unnecessary work.
 If we sort the output by the case that caught the exclusion
 it turns out that 9 of the 17 exclusions are redundant rediscovery of a previously-known problem
-<a table="package-manager-exclusions"/>.
+[% t package-manager-exclusions %].
 
 <div class="table" id="package-manager-exclusions" caption="Package exclusions." markdown="1">
 | Excluded  |   X |   Y |   Z |

@@ -55,7 +55,7 @@ def section_ref(pargs, kwargs, node):
     label = util.make_label("part", heading.number)
     anchor = f"#{slug}" if (len(heading.number) > 1) else ""
 
-    return f'<a href="@root/{heading.fileslug}/{anchor}">{label}</a>'
+    return f'<a class="crossref" href="@root/{heading.fileslug}/{anchor}">{label}</a>'
 
 
 @ivy.events.register(ivy.events.Event.INIT)

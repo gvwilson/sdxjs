@@ -20,7 +20,7 @@ In other words, we need to write a [% i "parser" %][% g parser %]parser[% /g %][
 | Grouping | (…) |
 </div>
 
-<a table="regex-parser-grammar-codes"/> shows the grammar we will handle.
+[% t regex-parser-grammar-codes %] shows the grammar we will handle.
 When we are done
 we should be able to parse `/^(a|b|$)*z$/` as
 "start of text",

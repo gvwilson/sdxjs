@@ -55,7 +55,7 @@ def _toc_1_part(kind, label):
         return k.number[0].zfill(3) if k.number[0].isdigit() else k.number[0]
 
     entries.sort(key=_sort_key)
-    items = [f'<li><a href="@root/{e.fileslug}/">{e.title}</a></li>' for e in entries]
+    items = [f'<li><a class="crossref" href="@root/{e.fileslug}/">{e.title}</a></li>' for e in entries]
     return f'<ol class="toc" type="{label}">\n' + "\n".join(items) + "\n</ol>"
 
 
@@ -69,5 +69,5 @@ def _toc_2(node):
         if (e.fileslug == fileslug) and (len(e.number) == 2)
     ]
     entries.sort(key=lambda x: x.number)
-    items = [f'<li><a href="#{e.slug}">{e.title}</a></li>' for e in entries]
+    items = [f'<li><a class="crossref" href="#{e.slug}">{e.title}</a></li>' for e in entries]
     return '<ol class="toc">\n' + "\n".join(items) + "\n</ol>"

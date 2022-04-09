@@ -33,7 +33,7 @@ def links_table(pargs, kwargs, node):
     links = util.get_config("links")
 
     links = "\n".join(
-        f'<tr><td>{entry["title"]}</td><td><a href="{entry["url"]}">{entry["url"]}</a></td></tr>'
+        f'<tr><td>{entry["title"]}</td><td><a class="linkref" href="{entry["url"]}">{entry["url"]}</a></td></tr>'
         for entry in links
     )
     title = "<tr><th>Link</th><th>URL</th></tr>"

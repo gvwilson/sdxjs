@@ -50,7 +50,7 @@ or an address
 (which is just a constant that identifies a location in memory);
 since constants have to fit in one byte,
 the largest number we can represent directly is 256.
-<a table="virtual-machine-op-codes"/> uses the letters `r`, `c`, and `a`
+[% t virtual-machine-op-codes %] uses the letters `r`, `c`, and `a`
 to indicate instruction format,
 where `r` indicates a register identifier,
 `c` indicates a constant,

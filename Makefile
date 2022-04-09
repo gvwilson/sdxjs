@@ -22,7 +22,6 @@ serve:
 .PHONY: single-page
 single-page:
 	python bin/single-html.py docs/index.html > ./docs/all.html
-	python bin/single-markdown.py src config.py > ./all.md
 
 ## ----
 

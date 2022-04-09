@@ -13,7 +13,7 @@ And since anything that touches the hard drive is slow from a processor's point 
 
 > ### How slow is slow?
 >
-> [% b Gregg2020 %] used the analogy in <a table="systems-programming-times"/>
+> [% b Gregg2020 %] used the analogy in [% t systems-programming-times %]
 > to show how long it takes a computer to do different things
 > if we imagine that one CPU cycle is equivalent to one second.
 

@@ -29,7 +29,7 @@ def bib_ref(pargs, kwargs, node):
     citations = util.make_config("citations")
     citations |= set(pargs)
 
-    keys = [f'<a href="@root/bibliography/#{k}">{k}</a>' for k in pargs]
+    keys = [f'<a class="bibref" href="@root/bibliography/#{k}">{k}</a>' for k in pargs]
     return f"[{', '.join(keys)}]"
 
 

@@ -73,7 +73,7 @@ def _make_links(slugs):
     triples = list(zip(slugs, paths, titles))
     major = util.make_major()
     triples.sort(key=lambda x: str(major[x[0]]))
-    result = ", ".join(f'<a href="{path}">{title}</a>' for (_, path, title) in triples)
+    result = ", ".join(f'<a class="linkref" href="{path}">{title}</a>' for (_, path, title) in triples)
     return result
 
 

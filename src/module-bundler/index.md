@@ -11,12 +11,13 @@ One of those things was a way to turn a set of easy-to-edit source files
 into a single easy-to-load file
 so that browsers could get what they needed with one request.
 
-A [% i "module bundler" %][% g module_bundler %]module bundler[% /g %][% /i %] finds all the files that an application depends on
+A [% i "module bundler" %][% g module_bundler %]module bundler[% /g %][% /i %]
+finds all the files that an application depends on
 and combines them into a single loadable file
 ([% f module-bundler-bundling %]).
 This file is much more efficient to load:
 it's the same number of bytes but just one network request.
-(See <a table="systems-programming-times"/> for a reminder of why this is important.)
+(See [% t systems-programming-times %] for a reminder of why this is important.)
 Bundling files also tests that dependencies actually resolve
 so that the application has at least a chance of being able to run.
 
