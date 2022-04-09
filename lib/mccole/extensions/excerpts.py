@@ -178,10 +178,9 @@ def _omit_lines(filepath, lines, key):
         util.fail(f"Failed to match inclusion 'omit' key {key} in {filepath}")
     return lines[:start] + lines[stop + 1 :]  # noqa e203
 
+
 def _inclusion_filepath(inclusions, node, file):
     """Make path to included file."""
     src, dst = util.make_copy_paths(node, file)
     inclusions[src] = dst
     return src
-
-
