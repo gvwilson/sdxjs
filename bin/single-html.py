@@ -39,7 +39,15 @@ def get(path, slug):
     patch_chapter_refs(main)
     patch_glossary(main)
     patch_images(main, slug)
+    patch_bib_refs(main)
     return f"{title}\n{main}\n"
+
+
+def patch_bib_refs(main):
+    b = "../bibliography/"
+    for node in main.select("a.bibref"):
+        if node.attrs["href"].startswith(b):
+            node.attrs["href"] = node.attrs["href"].replace(b, "")
 
 
 def patch_chapter_refs(main):
