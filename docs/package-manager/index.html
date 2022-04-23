@@ -318,22 +318,21 @@ a real package manager would read the <span class="indexref" key="manifest (of p
 and construct a similar data structure.
 We will stick to single-digit version numbers for readability,
 and will use this as our first test case:</p>
-<div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;X&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;1&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;Y&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">]</span><span class="w"></span>
-<span class="w">    </span><span class="p">},</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;2&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;Y&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;2&quot;</span><span class="p">]</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">  </span><span class="p">},</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;Y&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;1&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;2&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-</code></pre></div>
-
+<pre><code class="language-json">{
+  &quot;X&quot;: {
+    &quot;1&quot;: {
+      &quot;Y&quot;: [&quot;1&quot;]
+    },
+    &quot;2&quot;: {
+      &quot;Y&quot;: [&quot;2&quot;]
+    }
+  },
+  &quot;Y&quot;: {
+    &quot;1&quot;: {},
+    &quot;2&quot;: {}
+  }
+}
+</code></pre>
 <blockquote>
 <h3>Comments</h3>
 <p>If you ever design a data format,
@@ -346,68 +345,63 @@ but JSON and CSV don't.</p>
 we add each package to our active list in turn and look for violations.
 If there aren't any more packages to add and we haven't found a violation,
 then what we have must be a legal configuration.</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">configStr</span> <span class="kr">from</span> <span class="s1">&#39;./config-str.js&#39;</span>
+<pre><code class="language-js">import configStr from './config-str.js'
 
-<span class="kd">const</span> <span class="nx">sweep</span> <span class="o">=</span> <span class="p">(</span><span class="nx">manifest</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="nx">names</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">manifest</span><span class="p">)</span>
-  <span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="p">[]</span>
-  <span class="nx">recurse</span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span> <span class="nx">names</span><span class="p">,</span> <span class="p">{},</span> <span class="nx">result</span><span class="p">)</span>
-<span class="p">}</span>
+const sweep = (manifest) =&gt; {
+  const names = Object.keys(manifest)
+  const result = []
+  recurse(manifest, names, {}, result)
+}
 
-<span class="kd">const</span> <span class="nx">recurse</span> <span class="o">=</span> <span class="p">(</span><span class="nx">manifest</span><span class="p">,</span> <span class="nx">names</span><span class="p">,</span> <span class="nx">config</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">names</span><span class="p">.</span><span class="nx">length</span> <span class="o">===</span> <span class="mf">0</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">allows</span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span> <span class="nx">config</span><span class="p">))</span> <span class="p">{</span>
-      <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span> <span class="p">...</span><span class="nx">config</span> <span class="p">})</span>
-    <span class="p">}</span>
-  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="nx">next</span> <span class="o">=</span> <span class="nx">names</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span>
-    <span class="kd">const</span> <span class="nx">rest</span> <span class="o">=</span> <span class="nx">names</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">version</span> <span class="ow">in</span> <span class="nx">manifest</span><span class="p">[</span><span class="nx">next</span><span class="p">])</span> <span class="p">{</span>
-      <span class="nx">config</span><span class="p">[</span><span class="nx">next</span><span class="p">]</span> <span class="o">=</span> <span class="nx">version</span>
-      <span class="nx">recurse</span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span> <span class="nx">rest</span><span class="p">,</span> <span class="nx">config</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+const recurse = (manifest, names, config, result) =&gt; {
+  if (names.length === 0) {
+    if (allows(manifest, config)) {
+      result.push({ ...config })
+    }
+  } else {
+    const next = names[0]
+    const rest = names.slice(1)
+    for (const version in manifest[next]) {
+      config[next] = version
+      recurse(manifest, rest, config, result)
+    }
+  }
+}
 
 
-<span class="k">export</span> <span class="k">default</span> <span class="nx">sweep</span>
-</code></pre></div>
-
+export default sweep
+</code></pre>
 <p>The simplest way to find configurations is to sweep over all possibilities.
 For debugging purposes,
 our function prints possibilities as it goes:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">allows</span> <span class="o">=</span> <span class="p">(</span><span class="nx">manifest</span><span class="p">,</span> <span class="nx">config</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="p">[</span><span class="nx">leftN</span><span class="p">,</span> <span class="nx">leftV</span><span class="p">]</span> <span class="k">of</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">entries</span><span class="p">(</span><span class="nx">config</span><span class="p">))</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="nx">requirements</span> <span class="o">=</span> <span class="nx">manifest</span><span class="p">[</span><span class="nx">leftN</span><span class="p">][</span><span class="nx">leftV</span><span class="p">]</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="p">[</span><span class="nx">rightN</span><span class="p">,</span> <span class="nx">rightVAll</span><span class="p">]</span> <span class="k">of</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">entries</span><span class="p">(</span><span class="nx">requirements</span><span class="p">))</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">rightVAll</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="nx">config</span><span class="p">[</span><span class="nx">rightN</span><span class="p">]))</span> <span class="p">{</span>
-        <span class="kd">const</span> <span class="nx">title</span> <span class="o">=</span> <span class="nx">configStr</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
-        <span class="kd">const</span> <span class="nx">missing</span> <span class="o">=</span> <span class="nx">config</span><span class="p">[</span><span class="nx">rightN</span><span class="p">]</span>
-        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">title</span><span class="si">}</span><span class="sb"> @ </span><span class="si">${</span><span class="nx">leftN</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">leftV</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">rightN</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">missing</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">false</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">configStr</span><span class="p">(</span><span class="nx">config</span><span class="p">))</span>
-  <span class="k">return</span> <span class="kc">true</span>
-<span class="p">}</span>
-</code></pre></div>
-
+<pre><code class="language-js">const allows = (manifest, config) =&gt; {
+  for (const [leftN, leftV] of Object.entries(config)) {
+    const requirements = manifest[leftN][leftV]
+    for (const [rightN, rightVAll] of Object.entries(requirements)) {
+      if (!rightVAll.includes(config[rightN])) {
+        const title = configStr(config)
+        const missing = config[rightN]
+        console.log(`${title} @ ${leftN}/${leftV} ${rightN}/${missing}`)
+        return false
+      }
+    }
+  }
+  console.log(configStr(config))
+  return true
+}
+</code></pre>
 <p>If we run this program on the two-package example shown earlier we get this output:</p>
-<div class="codehilite"><pre><span></span><code>node driver.js ./sweep.js double-chained.json
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code>{X:1 Y:1}
+<pre><code class="language-sh">node driver.js ./sweep.js double-chained.json
+</code></pre>
+<pre><code class="language-out">{X:1 Y:1}
 {X:1 Y:2} @ X/1 Y/2
 {X:2 Y:1} @ X/2 Y/1
 {X:2 Y:2}
-</code></pre></div>
-
+</code></pre>
 <p>When we run it on our triple-package example we get this:</p>
-<div class="codehilite"><pre><span></span><code>node driver.js ./sweep.js triple.json
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code>{X:1 Y:1 Z:1} @ Y/1 Z/1
+<pre><code class="language-sh">node driver.js ./sweep.js triple.json
+</code></pre>
+<pre><code class="language-out">{X:1 Y:1 Z:1} @ Y/1 Z/1
 {X:1 Y:1 Z:2} @ X/1 Z/2
 {X:1 Y:1 Z:3} @ X/1 Z/3
 {X:1 Y:2 Z:1} @ Y/2 Z/1
@@ -425,8 +419,7 @@ our function prints possibilities as it goes:</p>
 {X:2 Y:3 Z:1} @ Y/3 Z/1
 {X:2 Y:3 Z:2} @ Y/3 Z/2
 {X:2 Y:3 Z:3} @ X/2 Z/3
-</code></pre></div>
-
+</code></pre>
 <p>This works,
 but it is doing a lot of unnecessary work.
 If we sort the output by the case that caught the exclusion
@@ -567,66 +560,64 @@ there is no need to check Z as well.</p>
 
 <p>This version of the program collects possible solutions and displays them at the end.
 It only keeps checking a partial solution if what it has found so far looks good:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">configStr</span> <span class="kr">from</span> <span class="s1">&#39;./config-str.js&#39;</span>
+<pre><code class="language-js">import configStr from './config-str.js'
 
-<span class="kd">const</span> <span class="nx">prune</span> <span class="o">=</span> <span class="p">(</span><span class="nx">manifest</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="nx">names</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">manifest</span><span class="p">)</span>
-  <span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="p">[]</span>
-  <span class="nx">recurse</span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span> <span class="nx">names</span><span class="p">,</span> <span class="p">{},</span> <span class="nx">result</span><span class="p">)</span>
-  <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">config</span> <span class="k">of</span> <span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">configStr</span><span class="p">(</span><span class="nx">config</span><span class="p">))</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+const prune = (manifest) =&gt; {
+  const names = Object.keys(manifest)
+  const result = []
+  recurse(manifest, names, {}, result)
+  for (const config of result) {
+    console.log(configStr(config))
+  }
+}
 
-<span class="kd">const</span> <span class="nx">recurse</span> <span class="o">=</span> <span class="p">(</span><span class="nx">manifest</span><span class="p">,</span> <span class="nx">names</span><span class="p">,</span> <span class="nx">config</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">names</span><span class="p">.</span><span class="nx">length</span> <span class="o">===</span> <span class="mf">0</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span> <span class="p">...</span><span class="nx">config</span> <span class="p">})</span>
-  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="nx">next</span> <span class="o">=</span> <span class="nx">names</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span>
-    <span class="kd">const</span> <span class="nx">rest</span> <span class="o">=</span> <span class="nx">names</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">version</span> <span class="ow">in</span> <span class="nx">manifest</span><span class="p">[</span><span class="nx">next</span><span class="p">])</span> <span class="p">{</span>
-      <span class="nx">config</span><span class="p">[</span><span class="nx">next</span><span class="p">]</span> <span class="o">=</span> <span class="nx">version</span>
-      <span class="k">if</span> <span class="p">(</span><span class="nx">compatible</span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span> <span class="nx">config</span><span class="p">))</span> <span class="p">{</span>
-        <span class="nx">recurse</span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span> <span class="nx">rest</span><span class="p">,</span> <span class="nx">config</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span>
-      <span class="p">}</span>
-      <span class="ow">delete</span> <span class="nx">config</span><span class="p">[</span><span class="nx">next</span><span class="p">]</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+const recurse = (manifest, names, config, result) =&gt; {
+  if (names.length === 0) {
+    result.push({ ...config })
+  } else {
+    const next = names[0]
+    const rest = names.slice(1)
+    for (const version in manifest[next]) {
+      config[next] = version
+      if (compatible(manifest, config)) {
+        recurse(manifest, rest, config, result)
+      }
+      delete config[next]
+    }
+  }
+}
 
 
-<span class="kd">const</span> <span class="nx">report</span> <span class="o">=</span> <span class="p">(</span><span class="nx">config</span><span class="p">,</span> <span class="nx">leftN</span><span class="p">,</span> <span class="nx">leftV</span><span class="p">,</span> <span class="nx">rightN</span><span class="p">,</span> <span class="nx">rightV</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="nx">title</span> <span class="o">=</span> <span class="nx">configStr</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">title</span><span class="si">}</span><span class="sb"> @ </span><span class="si">${</span><span class="nx">leftN</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">leftV</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">rightN</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">rightV</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
-<span class="p">}</span>
+const report = (config, leftN, leftV, rightN, rightV) =&gt; {
+  const title = configStr(config)
+  console.log(`${title} @ ${leftN}/${leftV} ${rightN}/${rightV}`)
+}
 
-<span class="k">export</span> <span class="k">default</span> <span class="nx">prune</span>
-</code></pre></div>
-
+export default prune
+</code></pre>
 <p>The <code>compatible</code> function checks to see if adding something will leave us with a consistent configuration:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">compatible</span> <span class="o">=</span> <span class="p">(</span><span class="nx">manifest</span><span class="p">,</span> <span class="nx">config</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="p">[</span><span class="nx">leftN</span><span class="p">,</span> <span class="nx">leftV</span><span class="p">]</span> <span class="k">of</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">entries</span><span class="p">(</span><span class="nx">config</span><span class="p">))</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="nx">leftR</span> <span class="o">=</span> <span class="nx">manifest</span><span class="p">[</span><span class="nx">leftN</span><span class="p">][</span><span class="nx">leftV</span><span class="p">]</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="p">[</span><span class="nx">rightN</span><span class="p">,</span> <span class="nx">rightV</span><span class="p">]</span> <span class="k">of</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">entries</span><span class="p">(</span><span class="nx">config</span><span class="p">))</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">((</span><span class="nx">rightN</span> <span class="ow">in</span> <span class="nx">leftR</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="o">!</span><span class="nx">leftR</span><span class="p">[</span><span class="nx">rightN</span><span class="p">].</span><span class="nx">includes</span><span class="p">(</span><span class="nx">rightV</span><span class="p">)))</span> <span class="p">{</span>
-        <span class="nx">report</span><span class="p">(</span><span class="nx">config</span><span class="p">,</span> <span class="nx">leftN</span><span class="p">,</span> <span class="nx">leftV</span><span class="p">,</span> <span class="nx">rightN</span><span class="p">,</span> <span class="nx">rightV</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">false</span>
-      <span class="p">}</span>
-      <span class="kd">const</span> <span class="nx">rightR</span> <span class="o">=</span> <span class="nx">manifest</span><span class="p">[</span><span class="nx">rightN</span><span class="p">][</span><span class="nx">rightV</span><span class="p">]</span>
-      <span class="k">if</span> <span class="p">((</span><span class="nx">leftN</span> <span class="ow">in</span> <span class="nx">rightR</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="o">!</span><span class="nx">rightR</span><span class="p">[</span><span class="nx">leftN</span><span class="p">].</span><span class="nx">includes</span><span class="p">(</span><span class="nx">leftV</span><span class="p">)))</span> <span class="p">{</span>
-        <span class="nx">report</span><span class="p">(</span><span class="nx">config</span><span class="p">,</span> <span class="nx">leftN</span><span class="p">,</span> <span class="nx">leftV</span><span class="p">,</span> <span class="nx">rightN</span><span class="p">,</span> <span class="nx">rightV</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">false</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-  <span class="k">return</span> <span class="kc">true</span>
-<span class="p">}</span>
-</code></pre></div>
-
+<pre><code class="language-js">const compatible = (manifest, config) =&gt; {
+  for (const [leftN, leftV] of Object.entries(config)) {
+    const leftR = manifest[leftN][leftV]
+    for (const [rightN, rightV] of Object.entries(config)) {
+      if ((rightN in leftR) &amp;&amp; (!leftR[rightN].includes(rightV))) {
+        report(config, leftN, leftV, rightN, rightV)
+        return false
+      }
+      const rightR = manifest[rightN][rightV]
+      if ((leftN in rightR) &amp;&amp; (!rightR[leftN].includes(leftV))) {
+        report(config, leftN, leftV, rightN, rightV)
+        return false
+      }
+    }
+  }
+  return true
+}
+</code></pre>
 <p>Checking as we go gets us from 18 complete solutions to 11.
 One is workable
 and two are incomplete---they represent 6 possible complete solutions that we didn't need to finish:</p>
-<div class="codehilite"><pre><span></span><code>{X:1 Y:1 Z:1} @ Y/1 Z/1
+<pre><code class="language-out">{X:1 Y:1 Z:1} @ Y/1 Z/1
 {X:1 Y:1 Z:2} @ X/1 Z/2
 {X:1 Y:1 Z:3} @ X/1 Z/3
 {X:1 Y:2 Z:1} @ Y/2 Z/1
@@ -640,70 +631,68 @@ and two are incomplete---they represent 6 possible complete solutions that we di
 {X:2 Y:3 Z:2} @ Y/3 Z/2
 {X:2 Y:3 Z:3} @ X/2 Z/3
 {X:2 Y:2 Z:2}
-</code></pre></div>
-
+</code></pre>
 <p>Another way to look at the work is the number of steps in the search.
 The full search had 18×3 = 54 steps.
 Pruning leaves us with (12×3) + (2×2) = 40 steps
 so we have eliminated roughly 1/4 of the work.</p>
 <p>What if we searched in the reverse order?</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">configStr</span> <span class="kr">from</span> <span class="s1">&#39;./config-str.js&#39;</span>
+<pre><code class="language-js">import configStr from './config-str.js'
 
-<span class="c1">// [reverse]</span>
-<span class="kd">const</span> <span class="nx">reverse</span> <span class="o">=</span> <span class="p">(</span><span class="nx">manifest</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="nx">names</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">manifest</span><span class="p">)</span>
-  <span class="nx">names</span><span class="p">.</span><span class="nx">reverse</span><span class="p">()</span>
-  <span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="p">[]</span>
-  <span class="nx">recurse</span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span> <span class="nx">names</span><span class="p">,</span> <span class="p">{},</span> <span class="nx">result</span><span class="p">)</span>
-  <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">config</span> <span class="k">of</span> <span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">configStr</span><span class="p">(</span><span class="nx">config</span><span class="p">))</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-<span class="c1">// [/reverse]</span>
+// [reverse]
+const reverse = (manifest) =&gt; {
+  const names = Object.keys(manifest)
+  names.reverse()
+  const result = []
+  recurse(manifest, names, {}, result)
+  for (const config of result) {
+    console.log(configStr(config))
+  }
+}
+// [/reverse]
 
-<span class="kd">const</span> <span class="nx">recurse</span> <span class="o">=</span> <span class="p">(</span><span class="nx">manifest</span><span class="p">,</span> <span class="nx">names</span><span class="p">,</span> <span class="nx">config</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">names</span><span class="p">.</span><span class="nx">length</span> <span class="o">===</span> <span class="mf">0</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span> <span class="p">...</span><span class="nx">config</span> <span class="p">})</span>
-  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="nx">next</span> <span class="o">=</span> <span class="nx">names</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span>
-    <span class="kd">const</span> <span class="nx">rest</span> <span class="o">=</span> <span class="nx">names</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">version</span> <span class="ow">in</span> <span class="nx">manifest</span><span class="p">[</span><span class="nx">next</span><span class="p">])</span> <span class="p">{</span>
-      <span class="nx">config</span><span class="p">[</span><span class="nx">next</span><span class="p">]</span> <span class="o">=</span> <span class="nx">version</span>
-      <span class="k">if</span> <span class="p">(</span><span class="nx">compatible</span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span> <span class="nx">config</span><span class="p">))</span> <span class="p">{</span>
-        <span class="nx">recurse</span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span> <span class="nx">rest</span><span class="p">,</span> <span class="nx">config</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span>
-      <span class="p">}</span>
-      <span class="ow">delete</span> <span class="nx">config</span><span class="p">[</span><span class="nx">next</span><span class="p">]</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+const recurse = (manifest, names, config, result) =&gt; {
+  if (names.length === 0) {
+    result.push({ ...config })
+  } else {
+    const next = names[0]
+    const rest = names.slice(1)
+    for (const version in manifest[next]) {
+      config[next] = version
+      if (compatible(manifest, config)) {
+        recurse(manifest, rest, config, result)
+      }
+      delete config[next]
+    }
+  }
+}
 
-<span class="kd">const</span> <span class="nx">compatible</span> <span class="o">=</span> <span class="p">(</span><span class="nx">manifest</span><span class="p">,</span> <span class="nx">config</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="p">[</span><span class="nx">leftN</span><span class="p">,</span> <span class="nx">leftV</span><span class="p">]</span> <span class="k">of</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">entries</span><span class="p">(</span><span class="nx">config</span><span class="p">))</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="nx">leftR</span> <span class="o">=</span> <span class="nx">manifest</span><span class="p">[</span><span class="nx">leftN</span><span class="p">][</span><span class="nx">leftV</span><span class="p">]</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="p">[</span><span class="nx">rightN</span><span class="p">,</span> <span class="nx">rightV</span><span class="p">]</span> <span class="k">of</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">entries</span><span class="p">(</span><span class="nx">config</span><span class="p">))</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">((</span><span class="nx">rightN</span> <span class="ow">in</span> <span class="nx">leftR</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="o">!</span><span class="nx">leftR</span><span class="p">[</span><span class="nx">rightN</span><span class="p">].</span><span class="nx">includes</span><span class="p">(</span><span class="nx">rightV</span><span class="p">)))</span> <span class="p">{</span>
-        <span class="nx">report</span><span class="p">(</span><span class="nx">config</span><span class="p">,</span> <span class="nx">leftN</span><span class="p">,</span> <span class="nx">leftV</span><span class="p">,</span> <span class="nx">rightN</span><span class="p">,</span> <span class="nx">rightV</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">false</span>
-      <span class="p">}</span>
-      <span class="kd">const</span> <span class="nx">rightR</span> <span class="o">=</span> <span class="nx">manifest</span><span class="p">[</span><span class="nx">rightN</span><span class="p">][</span><span class="nx">rightV</span><span class="p">]</span>
-      <span class="k">if</span> <span class="p">((</span><span class="nx">leftN</span> <span class="ow">in</span> <span class="nx">rightR</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="o">!</span><span class="nx">rightR</span><span class="p">[</span><span class="nx">leftN</span><span class="p">].</span><span class="nx">includes</span><span class="p">(</span><span class="nx">leftV</span><span class="p">)))</span> <span class="p">{</span>
-        <span class="nx">report</span><span class="p">(</span><span class="nx">config</span><span class="p">,</span> <span class="nx">leftN</span><span class="p">,</span> <span class="nx">leftV</span><span class="p">,</span> <span class="nx">rightN</span><span class="p">,</span> <span class="nx">rightV</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">false</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-  <span class="k">return</span> <span class="kc">true</span>
-<span class="p">}</span>
+const compatible = (manifest, config) =&gt; {
+  for (const [leftN, leftV] of Object.entries(config)) {
+    const leftR = manifest[leftN][leftV]
+    for (const [rightN, rightV] of Object.entries(config)) {
+      if ((rightN in leftR) &amp;&amp; (!leftR[rightN].includes(rightV))) {
+        report(config, leftN, leftV, rightN, rightV)
+        return false
+      }
+      const rightR = manifest[rightN][rightV]
+      if ((leftN in rightR) &amp;&amp; (!rightR[leftN].includes(leftV))) {
+        report(config, leftN, leftV, rightN, rightV)
+        return false
+      }
+    }
+  }
+  return true
+}
 
-<span class="kd">const</span> <span class="nx">report</span> <span class="o">=</span> <span class="p">(</span><span class="nx">config</span><span class="p">,</span> <span class="nx">leftN</span><span class="p">,</span> <span class="nx">leftV</span><span class="p">,</span> <span class="nx">rightN</span><span class="p">,</span> <span class="nx">rightV</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="nx">title</span> <span class="o">=</span> <span class="nx">configStr</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">title</span><span class="si">}</span><span class="sb"> @ </span><span class="si">${</span><span class="nx">leftN</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">leftV</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">rightN</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">rightV</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
-<span class="p">}</span>
+const report = (config, leftN, leftV, rightN, rightV) =&gt; {
+  const title = configStr(config)
+  console.log(`${title} @ ${leftN}/${leftV} ${rightN}/${rightV}`)
+}
 
-<span class="k">export</span> <span class="k">default</span> <span class="nx">reverse</span>
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code>{Z:1 Y:1} @ Z/1 Y/1
+export default reverse
+</code></pre>
+<pre><code class="language-out">{Z:1 Y:1} @ Z/1 Y/1
 {Z:1 Y:2} @ Z/1 Y/2
 {Z:1 Y:3} @ Z/1 Y/3
 {Z:2 Y:1 X:1} @ Z/2 X/1
@@ -716,8 +705,7 @@ so we have eliminated roughly 1/4 of the work.</p>
 {Z:3 Y:3 X:1} @ Z/3 X/1
 {Z:3 Y:3 X:2} @ Z/3 X/2
 {Z:2 Y:2 X:2}
-</code></pre></div>
-
+</code></pre>
 <p>Now we have (8×3) + (5×2) = 34 steps,
 i.e.,
 we have eliminated roughly 1/3 of the work.
@@ -751,17 +739,16 @@ is to create a <a class="glossref" href="../glossary/#scoring_function" markdown
 that measures how good or bad a particular combination is.
 For example,
 a function could measure the "distance" between two versions as:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">score</span> <span class="p">(</span><span class="nx">X</span><span class="p">,</span> <span class="nx">Y</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">X</span><span class="p">.</span><span class="nx">major</span> <span class="o">!==</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">major</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="mf">100</span> <span class="o">*</span> <span class="nx">abs</span><span class="p">(</span><span class="nx">X</span><span class="p">.</span><span class="nx">major</span> <span class="o">-</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">major</span><span class="p">)</span>
-  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">X</span><span class="p">.</span><span class="nx">minor</span> <span class="o">!==</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">minor</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="mf">10</span> <span class="o">*</span> <span class="nx">abs</span><span class="p">(</span><span class="nx">X</span><span class="p">.</span><span class="nx">minor</span> <span class="o">-</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">minor</span><span class="p">)</span>
-  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">abs</span><span class="p">(</span><span class="nx">X</span><span class="p">.</span><span class="nx">patch</span> <span class="o">-</span> <span class="nx">Y</span><span class="p">.</span><span class="nx">patch</span><span class="p">)</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div>
-
+<pre><code class="language-js">const score (X, Y) =&gt; {
+  if (X.major !== Y.major) {
+    return 100 * abs(X.major - Y.major)
+  } else if (X.minor !== Y.minor) {
+    return 10 * abs(X.minor - Y.minor)
+  } else {
+    return abs(X.patch - Y.patch)
+  }
+}
+</code></pre>
 <ol>
 <li>
 <p>Implement a working version of this function

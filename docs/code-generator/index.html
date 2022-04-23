@@ -68,60 +68,58 @@ and forward them to another function.
 Let's start by creating functions with a varying number of parameters
 that run to completion or throw an exception,
 then run them to make sure they do what we want:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">let</span> <span class="nx">zero</span> <span class="o">=</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;zero&#39;</span><span class="p">)</span>
+<pre><code class="language-js">let zero = () =&gt; console.log('zero')
 
-<span class="kd">let</span> <span class="nx">one</span> <span class="o">=</span> <span class="p">(</span><span class="nx">first</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`one(</span><span class="si">${</span><span class="nx">first</span><span class="si">}</span><span class="sb">)`</span><span class="p">)</span>
+let one = (first) =&gt; console.log(`one(${first})`)
 
-<span class="kd">let</span> <span class="nx">two</span> <span class="o">=</span> <span class="p">(</span><span class="nx">first</span><span class="p">,</span> <span class="nx">second</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`two(</span><span class="si">${</span><span class="nx">first</span><span class="si">}</span><span class="sb">, </span><span class="si">${</span><span class="nx">second</span><span class="si">}</span><span class="sb">)`</span><span class="p">)</span>
+let two = (first, second) =&gt; console.log(`two(${first}, ${second})`)
 
-<span class="kd">let</span> <span class="nx">error</span> <span class="o">=</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">)</span>
-  <span class="k">throw</span> <span class="ow">new</span> <span class="ne">Error</span><span class="p">(</span><span class="s1">&#39;from error&#39;</span><span class="p">)</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;should not reach this&#39;</span><span class="p">)</span> <span class="c1">// eslint-disable-line</span>
-<span class="p">}</span>
+let error = () =&gt; {
+  console.log('error')
+  throw new Error('from error')
+  console.log('should not reach this') // eslint-disable-line
+}
 
-<span class="kd">const</span> <span class="nx">runAll</span> <span class="o">=</span> <span class="p">(</span><span class="nx">title</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">title</span><span class="p">)</span>
-  <span class="nx">zero</span><span class="p">()</span>
-  <span class="nx">one</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
-  <span class="nx">two</span><span class="p">(</span><span class="mf">1</span><span class="p">,</span> <span class="mf">2</span><span class="p">)</span>
-  <span class="k">try</span> <span class="p">{</span>
-    <span class="nx">error</span><span class="p">()</span>
-  <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`caught </span><span class="si">${</span><span class="nx">error</span><span class="si">}</span><span class="sb"> as expected`</span><span class="p">)</span>
-  <span class="p">}</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">()</span>
-<span class="p">}</span>
+const runAll = (title) =&gt; {
+  console.log(title)
+  zero()
+  one(1)
+  two(1, 2)
+  try {
+    error()
+  } catch (error) {
+    console.log(`caught ${error} as expected`)
+  }
+  console.log()
+}
 
-<span class="nx">runAll</span><span class="p">(</span><span class="s1">&#39;first time&#39;</span><span class="p">)</span>
-</code></pre></div>
-
+runAll('first time')
+</code></pre>
 <p>We can now write a function that takes a function as an input
 and creates a new function that handles all of the errors in the original function:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">replace</span> <span class="o">=</span> <span class="p">(</span><span class="nx">func</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="p">(...</span><span class="nx">args</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;before&#39;</span><span class="p">)</span>
-    <span class="k">try</span> <span class="p">{</span>
-      <span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">func</span><span class="p">(...</span><span class="nx">args</span><span class="p">)</span>
-      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;after&#39;</span><span class="p">)</span>
-      <span class="k">return</span> <span class="nx">result</span>
-    <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
-      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">)</span>
-      <span class="k">throw</span> <span class="nx">error</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+<pre><code class="language-js">const replace = (func) =&gt; {
+  return (...args) =&gt; {
+    console.log('before')
+    try {
+      const result = func(...args)
+      console.log('after')
+      return result
+    } catch (error) {
+      console.log('error')
+      throw error
+    }
+  }
+}
 
-<span class="nx">zero</span> <span class="o">=</span> <span class="nx">replace</span><span class="p">(</span><span class="nx">zero</span><span class="p">)</span>
-<span class="nx">one</span> <span class="o">=</span> <span class="nx">replace</span><span class="p">(</span><span class="nx">one</span><span class="p">)</span>
-<span class="nx">two</span> <span class="o">=</span> <span class="nx">replace</span><span class="p">(</span><span class="nx">two</span><span class="p">)</span>
-<span class="nx">error</span> <span class="o">=</span> <span class="nx">replace</span><span class="p">(</span><span class="nx">error</span><span class="p">)</span>
+zero = replace(zero)
+one = replace(one)
+two = replace(two)
+error = replace(error)
 
-<span class="nx">runAll</span><span class="p">(</span><span class="s1">&#39;second time&#39;</span><span class="p">)</span>
-</code></pre></div>
-
+runAll('second time')
+</code></pre>
 <p>Let's try it out:</p>
-<div class="codehilite"><pre><span></span><code>first time
+<pre><code class="language-out">first time
 zero
 one(1)
 two(1, 2)
@@ -142,8 +140,7 @@ before
 error
 error
 caught Error: from error as expected
-</code></pre></div>
-
+</code></pre>
 <p>This is an example of the <span class="indexref" key="Decorator pattern;design pattern!Decorator" markdown="1"><a class="glossref" href="../glossary/#decorator_pattern" markdown="1">Decorator</a></span> design pattern.
 A decorator is a function whose job is to modify the behavior of other functions
 in some general ways.
@@ -171,112 +168,108 @@ and then use a library called <span class="indexref" key="Escodegen" markdown="1
 To start,
 let's look at the AST for a simple function definition,
 which is 75 lines of pretty-printed JSON:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">acorn</span> <span class="kr">from</span> <span class="s1">&#39;acorn&#39;</span>
+<pre><code class="language-js">import acorn from 'acorn'
 
-<span class="kd">const</span> <span class="nx">text</span> <span class="o">=</span> <span class="sb">`const func = (param) =&gt; {</span>
-<span class="sb">  return param + 1</span>
-<span class="sb">}`</span>
+const text = `const func = (param) =&gt; {
+  return param + 1
+}`
 
-<span class="kd">const</span> <span class="nx">ast</span> <span class="o">=</span> <span class="nx">acorn</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span> <span class="p">{</span> <span class="nx">sourceType</span><span class="o">:</span> <span class="s1">&#39;module&#39;</span> <span class="p">})</span>
-<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">ast</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="mf">2</span><span class="p">))</span>
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Program&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="s2">&quot;start&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="s2">&quot;end&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">46</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="s2">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">    </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;VariableDeclaration&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="s2">&quot;start&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="s2">&quot;end&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">46</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="s2">&quot;declarations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">        </span><span class="p">{</span><span class="w"></span>
-<span class="w">          </span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;VariableDeclarator&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="s2">&quot;start&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="s2">&quot;end&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">46</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="s2">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Identifier&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="s2">&quot;start&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="s2">&quot;end&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;func&quot;</span><span class="w"></span>
-<span class="w">          </span><span class="p">},</span><span class="w"></span>
-<span class="w">          </span><span class="s2">&quot;init&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ArrowFunctionExpression&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="s2">&quot;start&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="s2">&quot;end&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">46</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="s2">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">null</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="s2">&quot;expression&quot;</span><span class="p">:</span><span class="w"> </span><span class="bp">false</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="s2">&quot;generator&quot;</span><span class="p">:</span><span class="w"> </span><span class="bp">false</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="s2">&quot;async&quot;</span><span class="p">:</span><span class="w"> </span><span class="bp">false</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="s2">&quot;params&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">              </span><span class="p">{</span><span class="w"></span>
-<span class="w">                </span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Identifier&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                </span><span class="s2">&quot;start&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">14</span><span class="p">,</span><span class="w"></span>
-<span class="w">                </span><span class="s2">&quot;end&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">19</span><span class="p">,</span><span class="w"></span>
-<span class="w">                </span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;param&quot;</span><span class="w"></span>
-<span class="w">              </span><span class="p">}</span><span class="w"></span>
-<span class="w">            </span><span class="p">],</span><span class="w"></span>
-<span class="w">            </span><span class="s2">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">              </span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;BlockStatement&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">              </span><span class="s2">&quot;start&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">24</span><span class="p">,</span><span class="w"></span>
-<span class="w">              </span><span class="s2">&quot;end&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">46</span><span class="p">,</span><span class="w"></span>
-<span class="w">              </span><span class="s2">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">                </span><span class="p">{</span><span class="w"></span>
-<span class="w">                  </span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ReturnStatement&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                  </span><span class="s2">&quot;start&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">28</span><span class="p">,</span><span class="w"></span>
-<span class="w">                  </span><span class="s2">&quot;end&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">44</span><span class="p">,</span><span class="w"></span>
-<span class="w">                  </span><span class="s2">&quot;argument&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                    </span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;BinaryExpression&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                    </span><span class="s2">&quot;start&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">35</span><span class="p">,</span><span class="w"></span>
-<span class="w">                    </span><span class="s2">&quot;end&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">44</span><span class="p">,</span><span class="w"></span>
-<span class="w">                    </span><span class="s2">&quot;left&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                      </span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Identifier&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                      </span><span class="s2">&quot;start&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">35</span><span class="p">,</span><span class="w"></span>
-<span class="w">                      </span><span class="s2">&quot;end&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="p">,</span><span class="w"></span>
-<span class="w">                      </span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;param&quot;</span><span class="w"></span>
-<span class="w">                    </span><span class="p">},</span><span class="w"></span>
-<span class="w">                    </span><span class="s2">&quot;operator&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;+&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                    </span><span class="s2">&quot;right&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                      </span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Literal&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                      </span><span class="s2">&quot;start&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">43</span><span class="p">,</span><span class="w"></span>
-<span class="w">                      </span><span class="s2">&quot;end&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">44</span><span class="p">,</span><span class="w"></span>
-<span class="w">                      </span><span class="s2">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
-<span class="w">                      </span><span class="s2">&quot;raw&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1&quot;</span><span class="w"></span>
-<span class="w">                    </span><span class="p">}</span><span class="w"></span>
-<span class="w">                  </span><span class="p">}</span><span class="w"></span>
-<span class="w">                </span><span class="p">}</span><span class="w"></span>
-<span class="w">              </span><span class="p">]</span><span class="w"></span>
-<span class="w">            </span><span class="p">}</span><span class="w"></span>
-<span class="w">          </span><span class="p">}</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"></span>
-<span class="w">      </span><span class="p">],</span><span class="w"></span>
-<span class="w">      </span><span class="s2">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;const&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">  </span><span class="p">],</span><span class="w"></span>
-<span class="w">  </span><span class="s2">&quot;sourceType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;module&quot;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-</code></pre></div>
-
+const ast = acorn.parse(text, { sourceType: 'module' })
+console.log(JSON.stringify(ast, null, 2))
+</code></pre>
+<pre><code class="language-out">{
+  &quot;type&quot;: &quot;Program&quot;,
+  &quot;start&quot;: 0,
+  &quot;end&quot;: 46,
+  &quot;body&quot;: [
+    {
+      &quot;type&quot;: &quot;VariableDeclaration&quot;,
+      &quot;start&quot;: 0,
+      &quot;end&quot;: 46,
+      &quot;declarations&quot;: [
+        {
+          &quot;type&quot;: &quot;VariableDeclarator&quot;,
+          &quot;start&quot;: 6,
+          &quot;end&quot;: 46,
+          &quot;id&quot;: {
+            &quot;type&quot;: &quot;Identifier&quot;,
+            &quot;start&quot;: 6,
+            &quot;end&quot;: 10,
+            &quot;name&quot;: &quot;func&quot;
+          },
+          &quot;init&quot;: {
+            &quot;type&quot;: &quot;ArrowFunctionExpression&quot;,
+            &quot;start&quot;: 13,
+            &quot;end&quot;: 46,
+            &quot;id&quot;: null,
+            &quot;expression&quot;: false,
+            &quot;generator&quot;: false,
+            &quot;async&quot;: false,
+            &quot;params&quot;: [
+              {
+                &quot;type&quot;: &quot;Identifier&quot;,
+                &quot;start&quot;: 14,
+                &quot;end&quot;: 19,
+                &quot;name&quot;: &quot;param&quot;
+              }
+            ],
+            &quot;body&quot;: {
+              &quot;type&quot;: &quot;BlockStatement&quot;,
+              &quot;start&quot;: 24,
+              &quot;end&quot;: 46,
+              &quot;body&quot;: [
+                {
+                  &quot;type&quot;: &quot;ReturnStatement&quot;,
+                  &quot;start&quot;: 28,
+                  &quot;end&quot;: 44,
+                  &quot;argument&quot;: {
+                    &quot;type&quot;: &quot;BinaryExpression&quot;,
+                    &quot;start&quot;: 35,
+                    &quot;end&quot;: 44,
+                    &quot;left&quot;: {
+                      &quot;type&quot;: &quot;Identifier&quot;,
+                      &quot;start&quot;: 35,
+                      &quot;end&quot;: 40,
+                      &quot;name&quot;: &quot;param&quot;
+                    },
+                    &quot;operator&quot;: &quot;+&quot;,
+                    &quot;right&quot;: {
+                      &quot;type&quot;: &quot;Literal&quot;,
+                      &quot;start&quot;: 43,
+                      &quot;end&quot;: 44,
+                      &quot;value&quot;: 1,
+                      &quot;raw&quot;: &quot;1&quot;
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
+      &quot;kind&quot;: &quot;const&quot;
+    }
+  ],
+  &quot;sourceType&quot;: &quot;module&quot;
+}
+</code></pre>
 <p>After inspecting a few nodes,
 we can try to create some of our own and turn them into code.
 Here,
 for example,
 we have the JSON representation of the expression <code>40+2</code>:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">escodegen</span> <span class="kr">from</span> <span class="s1">&#39;escodegen&#39;</span>
+<pre><code class="language-js">import escodegen from 'escodegen'
 
-<span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">escodegen</span><span class="p">.</span><span class="nx">generate</span><span class="p">({</span>
-  <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;BinaryExpression&#39;</span><span class="p">,</span>
-  <span class="nx">operator</span><span class="o">:</span> <span class="s1">&#39;+&#39;</span><span class="p">,</span>
-  <span class="nx">left</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;Literal&#39;</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="mf">40</span> <span class="p">},</span>
-  <span class="nx">right</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;Literal&#39;</span><span class="p">,</span> <span class="nx">value</span><span class="o">:</span> <span class="mf">2</span> <span class="p">}</span>
-<span class="p">})</span>
-<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span>
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code><span class="mf">40</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">2</span><span class="w"></span>
-</code></pre></div>
-
+const result = escodegen.generate({
+  type: 'BinaryExpression',
+  operator: '+',
+  left: { type: 'Literal', value: 40 },
+  right: { type: 'Literal', value: 2 }
+})
+console.log(result)
+</code></pre>
+<pre><code class="language-out">40 + 2
+</code></pre>
 <h2 id="code-generator-count">How can we count how often functions are executed?</h2>
 <p>Our tool will find all the function declaration nodes in the program
 and insert a node to increment an entry in a global variable called <code>__counters</code>.
@@ -284,54 +277,51 @@ and insert a node to increment an entry in a global variable called <code>__coun
 we won't accidentally clobber a variable in the user's program with the same name,
 but hopefully it makes that less likely.)
 Our test case is:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">TEXT</span> <span class="o">=</span> <span class="sb">`</span>
-<span class="sb">const funcOuter = (param) =&gt; {</span>
-<span class="sb">  return param + 1</span>
-<span class="sb">}</span>
-<span class="sb">const funcInner = (param) =&gt; {</span>
-<span class="sb">  return param + 1</span>
-<span class="sb">}</span>
-<span class="sb">for (const i of [1, 3, 5]) {</span>
-<span class="sb">  funcOuter(funcInner(i) + funcInner(i))</span>
-<span class="sb">}</span>
-<span class="sb">`</span>
-</code></pre></div>
-
+<pre><code class="language-js">const TEXT = `
+const funcOuter = (param) =&gt; {
+  return param + 1
+}
+const funcInner = (param) =&gt; {
+  return param + 1
+}
+for (const i of [1, 3, 5]) {
+  funcOuter(funcInner(i) + funcInner(i))
+}
+`
+</code></pre>
 <!-- continue -->
 <p>and the main function of our program is:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">main</span> <span class="o">=</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="nx">ast</span> <span class="o">=</span> <span class="nx">acorn</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">TEXT</span><span class="p">,</span> <span class="p">{</span> <span class="nx">sourceType</span><span class="o">:</span> <span class="s1">&#39;module&#39;</span> <span class="p">})</span>
+<pre><code class="language-js">const main = () =&gt; {
+  const ast = acorn.parse(TEXT, { sourceType: 'module' })
 
-  <span class="kd">const</span> <span class="nx">allNodes</span> <span class="o">=</span> <span class="p">[]</span>
-  <span class="nx">walk</span><span class="p">.</span><span class="nx">simple</span><span class="p">(</span><span class="nx">ast</span><span class="p">,</span> <span class="p">{</span>
-    <span class="nx">VariableDeclarator</span><span class="o">:</span> <span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="nx">state</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">init</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">init</span><span class="p">.</span><span class="nx">type</span> <span class="o">===</span> <span class="s1">&#39;ArrowFunctionExpression&#39;</span><span class="p">))</span> <span class="p">{</span>
-        <span class="nx">state</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">node</span><span class="p">)</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-  <span class="p">},</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">allNodes</span><span class="p">)</span>
+  const allNodes = []
+  walk.simple(ast, {
+    VariableDeclarator: (node, state) =&gt; {
+      if (node.init &amp;&amp; (node.init.type === 'ArrowFunctionExpression')) {
+        state.push(node)
+      }
+    }
+  }, null, allNodes)
 
-  <span class="kd">const</span> <span class="nx">names</span> <span class="o">=</span> <span class="p">{}</span>
-  <span class="nx">allNodes</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">node</span> <span class="p">=&gt;</span> <span class="nx">insertCounter</span><span class="p">(</span><span class="nx">names</span><span class="p">,</span> <span class="nx">node</span><span class="p">))</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">initializeCounters</span><span class="p">(</span><span class="nx">names</span><span class="p">))</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">escodegen</span><span class="p">.</span><span class="nx">generate</span><span class="p">(</span><span class="nx">ast</span><span class="p">))</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">reportCounters</span><span class="p">())</span>
-<span class="p">}</span>
-</code></pre></div>
-
+  const names = {}
+  allNodes.forEach(node =&gt; insertCounter(names, node))
+  console.log(initializeCounters(names))
+  console.log(escodegen.generate(ast))
+  console.log(reportCounters())
+}
+</code></pre>
 <p>To insert a count we call <code>insertCounter</code>
 to record the function's name and modify the node:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">insertCounter</span> <span class="o">=</span> <span class="p">(</span><span class="nx">names</span><span class="p">,</span> <span class="nx">node</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="nx">name</span> <span class="o">=</span> <span class="nx">node</span><span class="p">.</span><span class="nx">id</span><span class="p">.</span><span class="nx">name</span>
-  <span class="nx">names</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0</span>
+<pre><code class="language-js">const insertCounter = (names, node) =&gt; {
+  const name = node.id.name
+  names[name] = 0
 
-  <span class="kd">const</span> <span class="nx">body</span> <span class="o">=</span> <span class="nx">node</span><span class="p">.</span><span class="nx">init</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">body</span>
-  <span class="kd">const</span> <span class="nx">increment</span> <span class="o">=</span>
-    <span class="nx">acorn</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="sb">`__counters[&#39;</span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">&#39;] += 1`</span><span class="p">,</span> <span class="p">{</span> <span class="nx">sourceType</span><span class="o">:</span> <span class="s1">&#39;module&#39;</span> <span class="p">})</span>
-  <span class="nx">body</span><span class="p">.</span><span class="nx">unshift</span><span class="p">(</span><span class="nx">increment</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></div>
-
+  const body = node.init.body.body
+  const increment =
+    acorn.parse(`__counters['${name}'] += 1`, { sourceType: 'module' })
+  body.unshift(increment)
+}
+</code></pre>
 <!-- continue -->
 <p>Notice how we don't try to build the nodes by hand,
 but instead construct the string we need,
@@ -342,40 +332,38 @@ and also ensures that if a newer version of Acorn decides to generate a differen
 our program will do the right thing automatically.</p>
 <p>Finally,
 we need to add a couple of <span class="indexref" key="helper function" markdown="1">helper functions</span>:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">initializeCounters</span> <span class="o">=</span> <span class="p">(</span><span class="nx">names</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="nx">body</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">names</span><span class="p">).</span><span class="nx">map</span><span class="p">(</span><span class="nx">n</span> <span class="p">=&gt;</span> <span class="sb">`&#39;</span><span class="si">${</span><span class="nx">n</span><span class="si">}</span><span class="sb">&#39;: 0`</span><span class="p">).</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;,\n&#39;</span><span class="p">)</span>
-  <span class="k">return</span> <span class="s1">&#39;const __counters = {\n&#39;</span> <span class="o">+</span> <span class="nx">body</span> <span class="o">+</span> <span class="s1">&#39;\n}&#39;</span>
-<span class="p">}</span>
+<pre><code class="language-js">const initializeCounters = (names) =&gt; {
+  const body = Object.keys(names).map(n =&gt; `'${n}': 0`).join(',\n')
+  return 'const __counters = {\n' + body + '\n}'
+}
 
-<span class="kd">const</span> <span class="nx">reportCounters</span> <span class="o">=</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="s1">&#39;console.log(__counters)&#39;</span>
-<span class="p">}</span>
-</code></pre></div>
-
+const reportCounters = () =&gt; {
+  return 'console.log(__counters)'
+}
+</code></pre>
 <!-- continue -->
 <p>and run it to make sure it all works:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">const</span><span class="w"> </span><span class="n">__counters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="s1">&#39;funcOuter&#39;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"></span>
-<span class="s1">&#39;funcInner&#39;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-<span class="k">const</span><span class="w"> </span><span class="n">funcOuter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">param</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">__counters</span><span class="p">[</span><span class="s1">&#39;funcOuter&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">param</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
-<span class="k">const</span><span class="w"> </span><span class="n">funcInner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">param</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">__counters</span><span class="p">[</span><span class="s1">&#39;funcInner&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">param</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
-<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">        </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="mi">3</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="mi">5</span><span class="w"></span>
-<span class="w">    </span><span class="p">])</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">funcOuter</span><span class="p">(</span><span class="n">funcInner</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">funcInner</span><span class="p">(</span><span class="n">i</span><span class="p">));</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-<span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">__counters</span><span class="p">)</span><span class="w"></span>
-</code></pre></div>
-
+<pre><code class="language-out">const __counters = {
+'funcOuter': 0,
+'funcInner': 0
+}
+const funcOuter = param =&gt; {
+        __counters['funcOuter'] += 1;
+    return param + 1;
+};
+const funcInner = param =&gt; {
+        __counters['funcInner'] += 1;
+    return param + 1;
+};
+for (const i of [
+        1,
+        3,
+        5
+    ]) {
+    funcOuter(funcInner(i) + funcInner(i));
+}
+console.log(__counters)
+</code></pre>
 <blockquote>
 <h3>Too simple to be safe</h3>
 <p>Our simple approach to naming counters doesn't work if functions can have the same names,
@@ -396,107 +384,102 @@ by wrapping them up in code that records the start and end time of each call.
 As before,
 we find the nodes of interest and decorate them,
 then stitch the result together with a bit of bookkeeping:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">timeFunc</span> <span class="o">=</span> <span class="p">(</span><span class="nx">text</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="nx">ast</span> <span class="o">=</span> <span class="nx">acorn</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span> <span class="p">{</span> <span class="nx">sourceType</span><span class="o">:</span> <span class="s1">&#39;module&#39;</span> <span class="p">})</span>
-  <span class="kd">const</span> <span class="nx">allNodes</span> <span class="o">=</span> <span class="nx">gatherNodes</span><span class="p">(</span><span class="nx">ast</span><span class="p">)</span>
-  <span class="nx">allNodes</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">node</span> <span class="p">=&gt;</span> <span class="nx">wrapFuncDef</span><span class="p">(</span><span class="nx">node</span><span class="p">))</span>
-  <span class="k">return</span> <span class="p">[</span>
-    <span class="nx">initializeCounters</span><span class="p">(</span><span class="nx">allNodes</span><span class="p">),</span>
-    <span class="nx">escodegen</span><span class="p">.</span><span class="nx">generate</span><span class="p">(</span><span class="nx">ast</span><span class="p">),</span>
-    <span class="nx">reportCounters</span><span class="p">()</span>
-  <span class="p">].</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;\n&#39;</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></div>
-
+<pre><code class="language-js">const timeFunc = (text) =&gt; {
+  const ast = acorn.parse(text, { sourceType: 'module' })
+  const allNodes = gatherNodes(ast)
+  allNodes.forEach(node =&gt; wrapFuncDef(node))
+  return [
+    initializeCounters(allNodes),
+    escodegen.generate(ast),
+    reportCounters()
+  ].join('\n')
+}
+</code></pre>
 <p>Gathering nodes is straightforward:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">gatherNodes</span> <span class="o">=</span> <span class="p">(</span><span class="nx">ast</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="nx">allNodes</span> <span class="o">=</span> <span class="p">[]</span>
-  <span class="nx">walk</span><span class="p">.</span><span class="nx">simple</span><span class="p">(</span><span class="nx">ast</span><span class="p">,</span> <span class="p">{</span>
-    <span class="nx">VariableDeclarator</span><span class="o">:</span> <span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="nx">state</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">init</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">init</span><span class="p">.</span><span class="nx">type</span> <span class="o">===</span> <span class="s1">&#39;ArrowFunctionExpression&#39;</span><span class="p">))</span> <span class="p">{</span>
-        <span class="nx">state</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">node</span><span class="p">)</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-  <span class="p">},</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">allNodes</span><span class="p">)</span>
-  <span class="k">return</span> <span class="nx">allNodes</span>
-<span class="p">}</span>
-</code></pre></div>
-
+<pre><code class="language-js">const gatherNodes = (ast) =&gt; {
+  const allNodes = []
+  walk.simple(ast, {
+    VariableDeclarator: (node, state) =&gt; {
+      if (node.init &amp;&amp; (node.init.type === 'ArrowFunctionExpression')) {
+        state.push(node)
+      }
+    }
+  }, null, allNodes)
+  return allNodes
+}
+</code></pre>
 <!-- continue -->
 <p>as is wrapping the function definition:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">wrapFuncDef</span> <span class="o">=</span> <span class="p">(</span><span class="nx">originalAst</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="nx">name</span> <span class="o">=</span> <span class="nx">originalAst</span><span class="p">.</span><span class="nx">id</span><span class="p">.</span><span class="nx">name</span>
-  <span class="kd">const</span> <span class="nx">wrapperAst</span> <span class="o">=</span> <span class="nx">makeWrapperAst</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span>
-  <span class="nx">wrapperAst</span><span class="p">.</span><span class="nx">init</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">body</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">declarations</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">init</span> <span class="o">=</span> <span class="nx">originalAst</span><span class="p">.</span><span class="nx">init</span>
-  <span class="nx">originalAst</span><span class="p">.</span><span class="nx">init</span> <span class="o">=</span> <span class="nx">wrapperAst</span><span class="p">.</span><span class="nx">init</span>
-<span class="p">}</span>
-</code></pre></div>
-
+<pre><code class="language-js">const wrapFuncDef = (originalAst) =&gt; {
+  const name = originalAst.id.name
+  const wrapperAst = makeWrapperAst(name)
+  wrapperAst.init.body.body[0].declarations[0].init = originalAst.init
+  originalAst.init = wrapperAst.init
+}
+</code></pre>
 <p>The only big difference is how we make the wrapper function.
 We create it with a placeholder for the original function
 so that we have a spot in the AST to insert the actual code:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">timeFunc</span> <span class="o">=</span> <span class="p">(</span><span class="nx">text</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="nx">ast</span> <span class="o">=</span> <span class="nx">acorn</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span> <span class="p">{</span> <span class="nx">sourceType</span><span class="o">:</span> <span class="s1">&#39;module&#39;</span> <span class="p">})</span>
-  <span class="kd">const</span> <span class="nx">allNodes</span> <span class="o">=</span> <span class="nx">gatherNodes</span><span class="p">(</span><span class="nx">ast</span><span class="p">)</span>
-  <span class="nx">allNodes</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">node</span> <span class="p">=&gt;</span> <span class="nx">wrapFuncDef</span><span class="p">(</span><span class="nx">node</span><span class="p">))</span>
-  <span class="k">return</span> <span class="p">[</span>
-    <span class="nx">initializeCounters</span><span class="p">(</span><span class="nx">allNodes</span><span class="p">),</span>
-    <span class="nx">escodegen</span><span class="p">.</span><span class="nx">generate</span><span class="p">(</span><span class="nx">ast</span><span class="p">),</span>
-    <span class="nx">reportCounters</span><span class="p">()</span>
-  <span class="p">].</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;\n&#39;</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></div>
-
+<pre><code class="language-js">const timeFunc = (text) =&gt; {
+  const ast = acorn.parse(text, { sourceType: 'module' })
+  const allNodes = gatherNodes(ast)
+  allNodes.forEach(node =&gt; wrapFuncDef(node))
+  return [
+    initializeCounters(allNodes),
+    escodegen.generate(ast),
+    reportCounters()
+  ].join('\n')
+}
+</code></pre>
 <p>Let's run one last test:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">const</span><span class="w"> </span><span class="n">__counters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="s1">&#39;assignment&#39;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"></span>
-<span class="s1">&#39;readFile&#39;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-<span class="k">const</span><span class="w"> </span><span class="n">assignment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">...</span><span class="n">originalArgs</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">originalFunc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">range</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">let</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">let</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nb">range</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="p">};</span><span class="w"></span>
-<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">startTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Date</span><span class="o">.</span><span class="n">now</span><span class="p">();</span><span class="w"></span>
-<span class="w">    </span><span class="n">try</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">originalFunc</span><span class="p">(</span><span class="o">...</span><span class="n">originalArgs</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">endTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Date</span><span class="o">.</span><span class="n">now</span><span class="p">();</span><span class="w"></span>
-<span class="w">        </span><span class="n">__counters</span><span class="p">[</span><span class="s1">&#39;assignment&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">endTime</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">startTime</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">catch</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">endTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Date</span><span class="o">.</span><span class="n">now</span><span class="p">();</span><span class="w"></span>
-<span class="w">        </span><span class="n">__counters</span><span class="p">[</span><span class="s1">&#39;assignment&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">endTime</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">startTime</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="n">throw</span><span class="w"> </span><span class="n">error</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
-<span class="k">const</span><span class="w"> </span><span class="n">readFile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">...</span><span class="n">originalArgs</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">originalFunc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nb">range</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">let</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nb">range</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="n">fs</span><span class="o">.</span><span class="n">readFileSync</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;utf-8&#39;</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="p">};</span><span class="w"></span>
-<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">startTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Date</span><span class="o">.</span><span class="n">now</span><span class="p">();</span><span class="w"></span>
-<span class="w">    </span><span class="n">try</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">originalFunc</span><span class="p">(</span><span class="o">...</span><span class="n">originalArgs</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">endTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Date</span><span class="o">.</span><span class="n">now</span><span class="p">();</span><span class="w"></span>
-<span class="w">        </span><span class="n">__counters</span><span class="p">[</span><span class="s1">&#39;readFile&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">endTime</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">startTime</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">catch</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">endTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Date</span><span class="o">.</span><span class="n">now</span><span class="p">();</span><span class="w"></span>
-<span class="w">        </span><span class="n">__counters</span><span class="p">[</span><span class="s1">&#39;readFile&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">endTime</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">startTime</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="n">throw</span><span class="w"> </span><span class="n">error</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
-<span class="k">const</span><span class="w"> </span><span class="n">numLoops</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100000</span><span class="p">;</span><span class="w"></span>
-<span class="n">assignment</span><span class="p">(</span><span class="n">numLoops</span><span class="p">);</span><span class="w"></span>
-<span class="n">readFile</span><span class="p">(</span><span class="n">numLoops</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;index.md&#39;</span><span class="p">);</span><span class="w"></span>
-<span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">__counters</span><span class="p">)</span><span class="w"></span>
-<span class="n">OUTPUT</span><span class="w"></span>
-<span class="p">{</span><span class="w"> </span><span class="n">assignment</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">readFile</span><span class="p">:</span><span class="w"> </span><span class="mi">3879</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
-</code></pre></div>
-
+<pre><code class="language-out">const __counters = {
+'assignment': 0,
+'readFile': 0
+}
+const assignment = (...originalArgs) =&gt; {
+    const originalFunc = range =&gt; {
+        let j = 0;
+        for (let i = 0; i &lt; range; i += 1) {
+            j = i;
+        }
+    };
+    const startTime = Date.now();
+    try {
+        const result = originalFunc(...originalArgs);
+        const endTime = Date.now();
+        __counters['assignment'] += endTime - startTime;
+        return result;
+    } catch (error) {
+        const endTime = Date.now();
+        __counters['assignment'] += endTime - startTime;
+        throw error;
+    }
+};
+const readFile = (...originalArgs) =&gt; {
+    const originalFunc = (range, filename) =&gt; {
+        for (let i = 0; i &lt; range; i += 1) {
+            fs.readFileSync(filename, 'utf-8');
+        }
+    };
+    const startTime = Date.now();
+    try {
+        const result = originalFunc(...originalArgs);
+        const endTime = Date.now();
+        __counters['readFile'] += endTime - startTime;
+        return result;
+    } catch (error) {
+        const endTime = Date.now();
+        __counters['readFile'] += endTime - startTime;
+        throw error;
+    }
+};
+const numLoops = 100000;
+assignment(numLoops);
+readFile(numLoops, 'index.md');
+console.log(__counters)
+OUTPUT
+{ assignment: 1, readFile: 3879 }
+</code></pre>
 <p>Source-to-source translation is widely used in JavaScript:
 tools like <span class="indexref" key="Babel" markdown="1"><a href="https://babeljs.io/">Babel</a></span> use it to transform modern features like <code>async</code> and <code>await</code>
 (<a class="crossref" href="../async-programming/">Chapter 3</a>)
@@ -511,24 +494,20 @@ macros can make programs elegant, incomprehensible, or both.</p>
 <p>Write a tool that uses <a href="https://github.com/estools/escodegen/">Escodegen</a>
 to translate simple expressions written in JSON into runnable JavaScript.
 For example, the tool should translate:</p>
-<div class="codehilite"><pre><span></span><code><span class="p">[</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="mf">3</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="mf">5</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">]]</span>
-</code></pre></div>
-
+<pre><code class="language-js">['+', 3, ['*', 5, 'a']]
+</code></pre>
 <!-- continue -->
 <p>into:</p>
-<div class="codehilite"><pre><span></span><code><span class="mf">3</span> <span class="o">+</span> <span class="p">(</span><span class="mf">5</span> <span class="o">*</span> <span class="nx">a</span><span class="p">)</span>
-</code></pre></div>
-
+<pre><code class="language-js">3 + (5 * a)
+</code></pre>
 <h3 class="exercise">JavaScript to HTML</h3>
 <p>Write a function that takes nested JavaScript function calls for generating HTML like this:</p>
-<div class="codehilite"><pre><span></span><code><span class="nx">div</span><span class="p">(</span><span class="nx">h1</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">),</span> <span class="nx">p</span><span class="p">(</span><span class="s1">&#39;explanation&#39;</span><span class="p">))</span>
-</code></pre></div>
-
+<pre><code class="language-js">div(h1('title'), p('explanation'))
+</code></pre>
 <!-- continue -->
 <p>and turns them into HTML like this:</p>
-<div class="codehilite"><pre><span></span><code><span class="nt">&lt;div&gt;&lt;h1&gt;</span>title<span class="nt">&lt;/h1&gt;&lt;p&gt;</span>explanation<span class="nt">&lt;/p&gt;&lt;/div&gt;</span>
-</code></pre></div>
-
+<pre><code>&lt;div&gt;&lt;h1&gt;title&lt;/h1&gt;&lt;p&gt;explanation&lt;/p&gt;&lt;/div&gt;
+</code></pre>
 <h3 class="exercise">Handling modules</h3>
 <p>Modify the code that counts the number of times a function is called
 to handle functions with the same name from different modules.</p>
@@ -588,10 +567,9 @@ as well as functions declared using <code>=&gt;</code>.</p>
 <h3 class="exercise">Two-dimensional arrays</h3>
 <p>The function <code>make2D</code> takes a row length and one or more values
 and creates a two-dimensional array from those values:</p>
-<div class="codehilite"><pre><span></span><code><span class="nx">make2D</span><span class="p">(</span><span class="mf">2</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">)</span>
-<span class="c1">// produces [[&#39;a&#39;, &#39;b&#39;], [&#39;c&#39;, &#39;d&#39;]]</span>
-</code></pre></div>
-
+<pre><code class="language-js">make2D(2, 'a', 'b', 'c', 'd')
+// produces [['a', 'b'], ['c', 'd']]
+</code></pre>
 <!-- continue -->
 <p>Write a function that searches code to find calls to <code>make2D</code>
 and replaces them with inline arrays-of-arrays.
@@ -602,35 +580,32 @@ i.e., it does <em>not</em> have to handle <code>make2D(N, 'a', 'b')</code>.</p>
 and replaces them with calls to <code>import</code>.
 This function only needs to work for the simplest case;
 for example, if the input is:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">name</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;module&#39;</span><span class="p">)</span>
-</code></pre></div>
-
+<pre><code class="language-js">const name = require('module')
+</code></pre>
 <!-- continue -->
 <p>then the output is:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">name</span> <span class="kr">from</span> <span class="s1">&#39;module&#39;</span>
-</code></pre></div>
-
+<pre><code class="language-js">import name from 'module'
+</code></pre>
 <h3 class="exercise">Removing empty constructors</h3>
 <p>Write a function that removes empty constructors from class definitions.
 For example, if the input is:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">class</span> <span class="nx">Example</span> <span class="p">{</span>
-  <span class="kr">constructor</span> <span class="p">()</span> <span class="p">{</span>
-  <span class="p">}</span>
+<pre><code class="language-js">class Example {
+  constructor () {
+  }
 
-  <span class="nx">someMethod</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;some method&#39;</span><span class="p">)</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div>
-
+  someMethod () {
+    console.log('some method')
+  }
+}
+</code></pre>
 <!-- continue -->
 <p>then the output should be:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">class</span> <span class="nx">Example</span> <span class="p">{</span>
-  <span class="nx">someMethod</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;some method&#39;</span><span class="p">)</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div>
+<pre><code class="language-js">class Example {
+  someMethod () {
+    console.log('some method')
+  }
+}
+</code></pre>
     </main>
   <div class="centered footer">
   <hr/>

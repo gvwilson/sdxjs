@@ -73,36 +73,34 @@ other nodes will be copied as-is to create text.</p>
 <p>Let's start by deciding what "done" looks like.
 Suppose we want to turn an array of strings into an HTML list.
 Our page will look like this:</p>
-<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Expect three items<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">ul</span> <span class="na">z-loop</span><span class="o">=</span><span class="s">&quot;item:names&quot;</span><span class="p">&gt;</span>
-      <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">span</span> <span class="na">z-var</span><span class="o">=</span><span class="s">&quot;item&quot;</span><span class="p">/&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
-    <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
-  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></div>
-
+<pre><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;Expect three items&lt;/p&gt;
+    &lt;ul z-loop=&quot;item:names&quot;&gt;
+      &lt;li&gt;&lt;span z-var=&quot;item&quot;/&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
 <!-- continue -->
 <p>The attribute <code>z-loop</code> tells the tool to repeat the contents of that node;
 the loop variable and the collection being looped over are separated by a colon.
 The attribute <code>z-var</code> tells the tool to fill in the node with the value of the variable.</p>
 <p>When our tool processes this page,
 the output will be standard HTML without any traces of how it was created:</p>
-<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">body</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-size: 200%; margin-left: 0.5em&quot;</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Expect three items<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
-      <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">span</span><span class="p">&gt;</span>Johnson<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+<pre><code class="language-html">&lt;html&gt;
+  &lt;body style=&quot;font-size: 200%; margin-left: 0.5em&quot;&gt;
+    &lt;p&gt;Expect three items&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;span&gt;Johnson&lt;/span&gt;&lt;/li&gt;
 
-      <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">span</span><span class="p">&gt;</span>Vaughan<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+      &lt;li&gt;&lt;span&gt;Vaughan&lt;/span&gt;&lt;/li&gt;
 
-      <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">span</span><span class="p">&gt;</span>Jackson<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
-    <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
-  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></div>
-
+      &lt;li&gt;&lt;span&gt;Jackson&lt;/span&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
 <blockquote>
 <h3>Human-readable vs. machine-readable</h3>
 <p>The introduction said that mini-languages for page templating
@@ -135,15 +133,14 @@ from a YAML header in the file itself,
 or from some mix of the two;
 for the moment,
 we will just pass them into the expansion function as an object:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">variables</span> <span class="o">=</span> <span class="p">{</span>
-  <span class="nx">names</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;Johnson&#39;</span><span class="p">,</span> <span class="s1">&#39;Vaughan&#39;</span><span class="p">,</span> <span class="s1">&#39;Jackson&#39;</span><span class="p">]</span>
-<span class="p">}</span>
-<span class="kd">const</span> <span class="nx">dom</span> <span class="o">=</span> <span class="nx">readHtml</span><span class="p">(</span><span class="s1">&#39;template.html&#39;</span><span class="p">)</span> <span class="c1">// eslint-disable-line</span>
-<span class="kd">const</span> <span class="nx">expander</span> <span class="o">=</span> <span class="ow">new</span> <span class="nx">Expander</span><span class="p">(</span><span class="nx">dom</span><span class="p">,</span> <span class="nx">variables</span><span class="p">)</span> <span class="c1">// eslint-disable-line</span>
-<span class="nx">expander</span><span class="p">.</span><span class="nx">walk</span><span class="p">()</span>
-<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">expander</span><span class="p">.</span><span class="nx">result</span><span class="p">)</span>
-</code></pre></div>
-
+<pre><code class="language-js">const variables = {
+  names: ['Johnson', 'Vaughan', 'Jackson']
+}
+const dom = readHtml('template.html') // eslint-disable-line
+const expander = new Expander(dom, variables) // eslint-disable-line
+expander.walk()
+console.log(expander.result)
+</code></pre>
 <h2 id="page-templates-values">How can we keep track of values?</h2>
 <p>Speaking of variables,
 we need a way to keep track of their current values;
@@ -176,37 +173,36 @@ and find a variable given its name;
 if the variable can't be found,
 <code>Env.find</code> returns <code>undefined</code> instead of throwing an exception
 (<a class="figref" href="../page-templates/#page-templates-stack">Figure 9.2</a>).</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">class</span> <span class="nx">Env</span> <span class="p">{</span>
-  <span class="kr">constructor</span> <span class="p">(</span><span class="nx">initial</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">stack</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nb">Object</span><span class="p">.</span><span class="nx">assign</span><span class="p">({},</span> <span class="nx">initial</span><span class="p">))</span>
-  <span class="p">}</span>
+<pre><code class="language-js">class Env {
+  constructor (initial) {
+    this.stack = []
+    this.push(Object.assign({}, initial))
+  }
 
-  <span class="nx">push</span> <span class="p">(</span><span class="nx">frame</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">stack</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">frame</span><span class="p">)</span>
-  <span class="p">}</span>
+  push (frame) {
+    this.stack.push(frame)
+  }
 
-  <span class="nx">pop</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">stack</span><span class="p">.</span><span class="nx">pop</span><span class="p">()</span>
-  <span class="p">}</span>
+  pop () {
+    this.stack.pop()
+  }
 
-  <span class="nx">find</span> <span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">stack</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mf">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mf">0</span><span class="p">;</span> <span class="nx">i</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="nx">name</span> <span class="ow">in</span> <span class="k">this</span><span class="p">.</span><span class="nx">stack</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">stack</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="nx">name</span><span class="p">]</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="kc">undefined</span>
-  <span class="p">}</span>
+  find (name) {
+    for (let i = this.stack.length - 1; i &gt;= 0; i--) {
+      if (name in this.stack[i]) {
+        return this.stack[i][name]
+      }
+    }
+    return undefined
+  }
 
-  <span class="nx">toString</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">stack</span><span class="p">)</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+  toString () {
+    return JSON.stringify(this.stack)
+  }
+}
 
-<span class="k">export</span> <span class="k">default</span> <span class="nx">Env</span>
-</code></pre></div>
-
+export default Env
+</code></pre>
 <figure id="page-templates-stack">
   <img src="./figures/stack.svg" alt="Variable stack" />
   <figcaption markdown="1">Figure 9.2: Using a stack to manage variables.</figcaption>
@@ -221,39 +217,38 @@ When we call <code>Visitor.walk</code> without a value,
 it starts recursing from that saved root;
 if <code>.walk</code> is given a value (as it is during recursive calls),
 it uses that instead.</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">assert</span> <span class="kr">from</span> <span class="s1">&#39;assert&#39;</span>
+<pre><code class="language-js">import assert from 'assert'
 
-<span class="kd">class</span> <span class="nx">Visitor</span> <span class="p">{</span>
-  <span class="kr">constructor</span> <span class="p">(</span><span class="nx">root</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">root</span> <span class="o">=</span> <span class="nx">root</span>
-  <span class="p">}</span>
+class Visitor {
+  constructor (root) {
+    this.root = root
+  }
 
-  <span class="nx">walk</span> <span class="p">(</span><span class="nx">node</span> <span class="o">=</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">node</span> <span class="o">===</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
-      <span class="nx">node</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">root</span>
-    <span class="p">}</span>
-    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="nx">node</span><span class="p">))</span> <span class="p">{</span>
-      <span class="nx">node</span><span class="p">.</span><span class="nx">children</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">child</span> <span class="p">=&gt;</span> <span class="p">{</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">walk</span><span class="p">(</span><span class="nx">child</span><span class="p">)</span>
-      <span class="p">})</span>
-    <span class="p">}</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">close</span><span class="p">(</span><span class="nx">node</span><span class="p">)</span>
-  <span class="p">}</span>
+  walk (node = null) {
+    if (node === null) {
+      node = this.root
+    }
+    if (this.open(node)) {
+      node.children.forEach(child =&gt; {
+        this.walk(child)
+      })
+    }
+    this.close(node)
+  }
 
-  <span class="nx">open</span> <span class="p">(</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">assert</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span>
-      <span class="s1">&#39;Must implemented &quot;open&quot;&#39;</span><span class="p">)</span>
-  <span class="p">}</span>
+  open (node) {
+    assert(false,
+      'Must implemented &quot;open&quot;')
+  }
 
-  <span class="nx">close</span> <span class="p">(</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">assert</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span>
-      <span class="s1">&#39;Must implemented &quot;close&quot;&#39;</span><span class="p">)</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+  close (node) {
+    assert(false,
+      'Must implemented &quot;close&quot;')
+  }
+}
 
-<span class="k">export</span> <span class="k">default</span> <span class="nx">Visitor</span>
-</code></pre></div>
-
+export default Visitor
+</code></pre>
 <!-- continue -->
 <p><code>Visitor</code> defines two methods called <code>open</code> and <code>close</code> that are called
 when we first arrive at a node and when we are finished with it
@@ -282,108 +277,105 @@ uses them to process each type of node:</p>
 <p>Otherwise, open or close a regular tag.</p>
 </li>
 </ol>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">assert</span> <span class="kr">from</span> <span class="s1">&#39;assert&#39;</span>
+<pre><code class="language-js">import assert from 'assert'
 
-<span class="k">import</span> <span class="nx">Visitor</span> <span class="kr">from</span> <span class="s1">&#39;./visitor.js&#39;</span>
-<span class="k">import</span> <span class="nx">Env</span> <span class="kr">from</span> <span class="s1">&#39;./env.js&#39;</span>
+import Visitor from './visitor.js'
+import Env from './env.js'
 
-<span class="k">import</span> <span class="nx">z_if</span> <span class="kr">from</span> <span class="s1">&#39;./z-if.js&#39;</span>
-<span class="k">import</span> <span class="nx">z_loop</span> <span class="kr">from</span> <span class="s1">&#39;./z-loop.js&#39;</span>
-<span class="k">import</span> <span class="nx">z_num</span> <span class="kr">from</span> <span class="s1">&#39;./z-num.js&#39;</span>
-<span class="k">import</span> <span class="nx">z_var</span> <span class="kr">from</span> <span class="s1">&#39;./z-var.js&#39;</span>
+import z_if from './z-if.js'
+import z_loop from './z-loop.js'
+import z_num from './z-num.js'
+import z_var from './z-var.js'
 
-<span class="kd">const</span> <span class="nx">HANDLERS</span> <span class="o">=</span> <span class="p">{</span>
-  <span class="s1">&#39;z-if&#39;</span><span class="o">:</span> <span class="nx">z_if</span><span class="p">,</span>
-  <span class="s1">&#39;z-loop&#39;</span><span class="o">:</span> <span class="nx">z_loop</span><span class="p">,</span>
-  <span class="s1">&#39;z-num&#39;</span><span class="o">:</span> <span class="nx">z_num</span><span class="p">,</span>
-  <span class="s1">&#39;z-var&#39;</span><span class="o">:</span> <span class="nx">z_var</span>
-<span class="p">}</span>
+const HANDLERS = {
+  'z-if': z_if,
+  'z-loop': z_loop,
+  'z-num': z_num,
+  'z-var': z_var
+}
 
-<span class="kd">class</span> <span class="nx">Expander</span> <span class="k">extends</span> <span class="nx">Visitor</span> <span class="p">{</span>
-  <span class="kr">constructor</span> <span class="p">(</span><span class="nx">root</span><span class="p">,</span> <span class="nx">vars</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">super</span><span class="p">(</span><span class="nx">root</span><span class="p">)</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">env</span> <span class="o">=</span> <span class="ow">new</span> <span class="nx">Env</span><span class="p">(</span><span class="nx">vars</span><span class="p">)</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">handlers</span> <span class="o">=</span> <span class="nx">HANDLERS</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">result</span> <span class="o">=</span> <span class="p">[]</span>
-  <span class="p">}</span>
+class Expander extends Visitor {
+  constructor (root, vars) {
+    super(root)
+    this.env = new Env(vars)
+    this.handlers = HANDLERS
+    this.result = []
+  }
 
-  <span class="nx">open</span> <span class="p">(</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">type</span> <span class="o">===</span> <span class="s1">&#39;text&#39;</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">this</span><span class="p">.</span><span class="nx">output</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">data</span><span class="p">)</span>
-      <span class="k">return</span> <span class="kc">false</span>
-    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">hasHandler</span><span class="p">(</span><span class="nx">node</span><span class="p">))</span> <span class="p">{</span>
-      <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">getHandler</span><span class="p">(</span><span class="nx">node</span><span class="p">).</span><span class="nx">open</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">node</span><span class="p">)</span>
-    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-      <span class="k">this</span><span class="p">.</span><span class="nx">showTag</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
-      <span class="k">return</span> <span class="kc">true</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
+  open (node) {
+    if (node.type === 'text') {
+      this.output(node.data)
+      return false
+    } else if (this.hasHandler(node)) {
+      return this.getHandler(node).open(this, node)
+    } else {
+      this.showTag(node, false)
+      return true
+    }
+  }
 
-  <span class="nx">close</span> <span class="p">(</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">type</span> <span class="o">===</span> <span class="s1">&#39;text&#39;</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">return</span>
-    <span class="p">}</span>
-    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">hasHandler</span><span class="p">(</span><span class="nx">node</span><span class="p">))</span> <span class="p">{</span>
-      <span class="k">this</span><span class="p">.</span><span class="nx">getHandler</span><span class="p">(</span><span class="nx">node</span><span class="p">).</span><span class="nx">close</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">node</span><span class="p">)</span>
-    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-      <span class="k">this</span><span class="p">.</span><span class="nx">showTag</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
+  close (node) {
+    if (node.type === 'text') {
+      return
+    }
+    if (this.hasHandler(node)) {
+      this.getHandler(node).close(this, node)
+    } else {
+      this.showTag(node, true)
+    }
+  }
 
-<span class="p">}</span>
+}
 
-<span class="k">export</span> <span class="k">default</span> <span class="nx">Expander</span>
-</code></pre></div>
-
+export default Expander
+</code></pre>
 <p>Checking to see if there is a handler for a particular node
 and getting that handler are straightforward---we just
 look at the node's attributes:</p>
-<div class="codehilite"><pre><span></span><code>  <span class="nx">hasHandler</span> <span class="p">(</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">name</span> <span class="ow">in</span> <span class="nx">node</span><span class="p">.</span><span class="nx">attribs</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="nx">name</span> <span class="ow">in</span> <span class="k">this</span><span class="p">.</span><span class="nx">handlers</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="kc">true</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="kc">false</span>
-  <span class="p">}</span>
+<pre><code class="language-js">  hasHandler (node) {
+    for (const name in node.attribs) {
+      if (name in this.handlers) {
+        return true
+      }
+    }
+    return false
+  }
 
-  <span class="nx">getHandler</span> <span class="p">(</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="nx">possible</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">attribs</span><span class="p">)</span>
-      <span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">name</span> <span class="p">=&gt;</span> <span class="nx">name</span> <span class="ow">in</span> <span class="k">this</span><span class="p">.</span><span class="nx">handlers</span><span class="p">)</span>
-    <span class="nx">assert</span><span class="p">(</span><span class="nx">possible</span><span class="p">.</span><span class="nx">length</span> <span class="o">===</span> <span class="mf">1</span><span class="p">,</span>
-      <span class="s1">&#39;Should be exactly one handler&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">handlers</span><span class="p">[</span><span class="nx">possible</span><span class="p">[</span><span class="mf">0</span><span class="p">]]</span>
-  <span class="p">}</span>
-</code></pre></div>
-
+  getHandler (node) {
+    const possible = Object.keys(node.attribs)
+      .filter(name =&gt; name in this.handlers)
+    assert(possible.length === 1,
+      'Should be exactly one handler')
+    return this.handlers[possible[0]]
+  }
+</code></pre>
 <p>Finally, we need a few helper methods to show tags and generate output:</p>
-<div class="codehilite"><pre><span></span><code>  <span class="nx">showTag</span> <span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="nx">closing</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">closing</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">this</span><span class="p">.</span><span class="nx">output</span><span class="p">(</span><span class="sb">`&lt;/</span><span class="si">${</span><span class="nx">node</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="sb">&gt;`</span><span class="p">)</span>
-      <span class="k">return</span>
-    <span class="p">}</span>
+<pre><code class="language-js">  showTag (node, closing) {
+    if (closing) {
+      this.output(`&lt;/${node.name}&gt;`)
+      return
+    }
 
-    <span class="k">this</span><span class="p">.</span><span class="nx">output</span><span class="p">(</span><span class="sb">`&lt;</span><span class="si">${</span><span class="nx">node</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">name</span> <span class="o">===</span> <span class="s1">&#39;body&#39;</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">this</span><span class="p">.</span><span class="nx">output</span><span class="p">(</span><span class="s1">&#39; style=&quot;font-size: 200%; margin-left: 0.5em&quot;&#39;</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">name</span> <span class="ow">in</span> <span class="nx">node</span><span class="p">.</span><span class="nx">attribs</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">name</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s1">&#39;z-&#39;</span><span class="p">))</span> <span class="p">{</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">output</span><span class="p">(</span><span class="sb">` </span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">=&quot;</span><span class="si">${</span><span class="nx">node</span><span class="p">.</span><span class="nx">attribs</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span><span class="si">}</span><span class="sb">&quot;`</span><span class="p">)</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">output</span><span class="p">(</span><span class="s1">&#39;&gt;&#39;</span><span class="p">)</span>
-  <span class="p">}</span>
+    this.output(`&lt;${node.name}`)
+    if (node.name === 'body') {
+      this.output(' style=&quot;font-size: 200%; margin-left: 0.5em&quot;')
+    }
+    for (const name in node.attribs) {
+      if (!name.startsWith('z-')) {
+        this.output(` ${name}=&quot;${node.attribs[name]}&quot;`)
+      }
+    }
+    this.output('&gt;')
+  }
 
-  <span class="nx">output</span> <span class="p">(</span><span class="nx">text</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">((</span><span class="nx">text</span> <span class="o">===</span> <span class="kc">undefined</span><span class="p">)</span> <span class="o">?</span> <span class="s1">&#39;UNDEF&#39;</span> <span class="o">:</span> <span class="nx">text</span><span class="p">)</span>
-  <span class="p">}</span>
+  output (text) {
+    this.result.push((text === undefined) ? 'UNDEF' : text)
+  }
 
-  <span class="nx">getResult</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">result</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-  <span class="p">}</span>
-</code></pre></div>
-
+  getResult () {
+    return this.result.join('')
+  }
+</code></pre>
 <!-- continue -->
 <p>Notice that this class adds strings to an array and joins them all right at the end
 rather than concatenating strings repeatedly.
@@ -394,18 +386,17 @@ since each string in the array corresponds to a single method call.</p>
 we have built a lot of infrastructure but haven't actually processed any special nodes.
 To do that,
 let's write a handler that copies a constant number into the output:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
-  <span class="nx">open</span><span class="o">:</span> <span class="p">(</span><span class="nx">expander</span><span class="p">,</span> <span class="nx">node</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-    <span class="nx">expander</span><span class="p">.</span><span class="nx">showTag</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
-    <span class="nx">expander</span><span class="p">.</span><span class="nx">output</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">attribs</span><span class="p">[</span><span class="s1">&#39;z-num&#39;</span><span class="p">])</span>
-  <span class="p">},</span>
+<pre><code class="language-js">export default {
+  open: (expander, node) =&gt; {
+    expander.showTag(node, false)
+    expander.output(node.attribs['z-num'])
+  },
 
-  <span class="nx">close</span><span class="o">:</span> <span class="p">(</span><span class="nx">expander</span><span class="p">,</span> <span class="nx">node</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-    <span class="nx">expander</span><span class="p">.</span><span class="nx">showTag</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div>
-
+  close: (expander, node) =&gt; {
+    expander.showTag(node, true)
+  }
+}
+</code></pre>
 <!-- continue -->
 <p>When we enter a node like <code>&lt;span z-num="123"/&gt;</code>
 this handler asks the expander to show an opening tag
@@ -423,18 +414,17 @@ so that handlers can store any extra state they need,
 but <span class="indexref" key="bare object;software design!bare object" markdown="1"><a class="glossref" href="../glossary/#bare_object" markdown="1">bare objects</a></span> are common and useful in JavaScript
 (though we will see below that we <em>should</em> have used classes).</p>
 <p>So much for constants; what about variables?</p>
-<div class="codehilite"><pre><span></span><code><span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
-  <span class="nx">open</span><span class="o">:</span> <span class="p">(</span><span class="nx">expander</span><span class="p">,</span> <span class="nx">node</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-    <span class="nx">expander</span><span class="p">.</span><span class="nx">showTag</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
-    <span class="nx">expander</span><span class="p">.</span><span class="nx">output</span><span class="p">(</span><span class="nx">expander</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">attribs</span><span class="p">[</span><span class="s1">&#39;z-var&#39;</span><span class="p">]))</span>
-  <span class="p">},</span>
+<pre><code class="language-js">export default {
+  open: (expander, node) =&gt; {
+    expander.showTag(node, false)
+    expander.output(expander.env.find(node.attribs['z-var']))
+  },
 
-  <span class="nx">close</span><span class="o">:</span> <span class="p">(</span><span class="nx">expander</span><span class="p">,</span> <span class="nx">node</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-    <span class="nx">expander</span><span class="p">.</span><span class="nx">showTag</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div>
-
+  close: (expander, node) =&gt; {
+    expander.showTag(node, true)
+  }
+}
+</code></pre>
 <!-- continue -->
 <p>This code is almost the same as the previous example.
 The only difference is that instead of copying the attribute's value
@@ -445,75 +435,70 @@ To find out,
 we can build a program that loads variable definitions from a JSON file,
 reads an HTML template,
 and does the expansion:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">fs</span> <span class="kr">from</span> <span class="s1">&#39;fs&#39;</span>
-<span class="k">import</span> <span class="nx">htmlparser2</span> <span class="kr">from</span> <span class="s1">&#39;htmlparser2&#39;</span>
+<pre><code class="language-js">import fs from 'fs'
+import htmlparser2 from 'htmlparser2'
 
-<span class="k">import</span> <span class="nx">Expander</span> <span class="kr">from</span> <span class="s1">&#39;./expander.js&#39;</span>
+import Expander from './expander.js'
 
-<span class="kd">const</span> <span class="nx">main</span> <span class="o">=</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="nx">vars</span> <span class="o">=</span> <span class="nx">readJSON</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">])</span>
-  <span class="kd">const</span> <span class="nx">doc</span> <span class="o">=</span> <span class="nx">readHtml</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">3</span><span class="p">])</span>
-  <span class="kd">const</span> <span class="nx">expander</span> <span class="o">=</span> <span class="ow">new</span> <span class="nx">Expander</span><span class="p">(</span><span class="nx">doc</span><span class="p">,</span> <span class="nx">vars</span><span class="p">)</span>
-  <span class="nx">expander</span><span class="p">.</span><span class="nx">walk</span><span class="p">()</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">expander</span><span class="p">.</span><span class="nx">getResult</span><span class="p">())</span>
-<span class="p">}</span>
+const main = () =&gt; {
+  const vars = readJSON(process.argv[2])
+  const doc = readHtml(process.argv[3])
+  const expander = new Expander(doc, vars)
+  expander.walk()
+  console.log(expander.getResult())
+}
 
-<span class="kd">const</span> <span class="nx">readJSON</span> <span class="o">=</span> <span class="p">(</span><span class="nx">filename</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="nx">text</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">filename</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
-  <span class="k">return</span> <span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">text</span><span class="p">)</span>
-<span class="p">}</span>
+const readJSON = (filename) =&gt; {
+  const text = fs.readFileSync(filename, 'utf-8')
+  return JSON.parse(text)
+}
 
-<span class="kd">const</span> <span class="nx">readHtml</span> <span class="o">=</span> <span class="p">(</span><span class="nx">filename</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="nx">text</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">filename</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
-  <span class="k">return</span> <span class="nx">htmlparser2</span><span class="p">.</span><span class="nx">parseDOM</span><span class="p">(</span><span class="nx">text</span><span class="p">)[</span><span class="mf">0</span><span class="p">]</span>
-<span class="p">}</span>
+const readHtml = (filename) =&gt; {
+  const text = fs.readFileSync(filename, 'utf-8')
+  return htmlparser2.parseDOM(text)[0]
+}
 
-<span class="nx">main</span><span class="p">()</span>
-</code></pre></div>
-
+main()
+</code></pre>
 <p>We added new variables for our test cases one by one
 as we were writing this chapter.
 To avoid repeating text repeatedly,
 we show the entire set once:</p>
-<div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;firstVariable&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;firstValue&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;secondVariable&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;secondValue&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;variableName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;variableValue&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;showThis&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;doNotShowThis&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;names&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Johnson&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Vaughan&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Jackson&quot;</span><span class="p">]</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-</code></pre></div>
-
+<pre><code class="language-json">{
+  &quot;firstVariable&quot;: &quot;firstValue&quot;,
+  &quot;secondVariable&quot;: &quot;secondValue&quot;,
+  &quot;variableName&quot;: &quot;variableValue&quot;,
+  &quot;showThis&quot;: true,
+  &quot;doNotShowThis&quot;: false,
+  &quot;names&quot;: [&quot;Johnson&quot;, &quot;Vaughan&quot;, &quot;Jackson&quot;]
+}
+</code></pre>
 <p>Our first test:
 is static text copied over as-is (<a class="figref" href="../page-templates/#page-templates-output-static-text">Figure 9.4</a>)?</p>
-<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Static Text<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>This page has:<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
-      <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>static<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
-      <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>text<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
-    <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
-  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code>node template.js vars.json input-static-text.html
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">body</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-size: 200%; margin-left: 0.5em&quot;</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Static Text<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>This page has:<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
-      <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>static<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
-      <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>text<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
-    <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
-  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></div>
-
+<pre><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Static Text&lt;/h1&gt;
+    &lt;p&gt;This page has:&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;static&lt;/li&gt;
+      &lt;li&gt;text&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<pre><code class="language-sh">node template.js vars.json input-static-text.html
+</code></pre>
+<pre><code class="language-html">&lt;html&gt;
+  &lt;body style=&quot;font-size: 200%; margin-left: 0.5em&quot;&gt;
+    &lt;h1&gt;Static Text&lt;/h1&gt;
+    &lt;p&gt;This page has:&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;static&lt;/li&gt;
+      &lt;li&gt;text&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
 <figure id="page-templates-output-static-text">
   <img src="./figures/output-static-text.svg" alt="Generating static text" />
   <figcaption markdown="1">Figure 9.4: Static text generated by page templates.</figcaption>
@@ -521,40 +506,36 @@ is static text copied over as-is (<a class="figref" href="../page-templates/#pag
 
 <p>Good.
 Now, does the expander handle constants (<a class="figref" href="../page-templates/#page-templates-output-single-constant">Figure 9.5</a>)?</p>
-<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;&lt;</span><span class="nt">span</span> <span class="na">z-num</span><span class="o">=</span><span class="s">&quot;123&quot;</span><span class="p">/&gt;&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">body</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-size: 200%; margin-left: 0.5em&quot;</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;&lt;</span><span class="nt">span</span><span class="p">&gt;</span>123<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></div>
-
+<pre><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;&lt;span z-num=&quot;123&quot;/&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<pre><code class="language-html">&lt;html&gt;
+  &lt;body style=&quot;font-size: 200%; margin-left: 0.5em&quot;&gt;
+    &lt;p&gt;&lt;span&gt;123&lt;/span&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
 <figure id="page-templates-output-single-constant">
   <img src="./figures/output-single-constant.svg" alt="Generating a single constant" />
   <figcaption markdown="1">Figure 9.5: A single constant generated by page templates.</figcaption>
 </figure>
 
 <p>What about a single variable (<a class="figref" href="../page-templates/#page-templates-output-single-variable">Figure 9.6</a>)?</p>
-<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;&lt;</span><span class="nt">span</span> <span class="na">z-var</span><span class="o">=</span><span class="s">&quot;variableName&quot;</span><span class="p">/&gt;&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">body</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-size: 200%; margin-left: 0.5em&quot;</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;&lt;</span><span class="nt">span</span><span class="p">&gt;</span>variableValue<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></div>
-
+<pre><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;&lt;span z-var=&quot;variableName&quot;/&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<pre><code class="language-html">&lt;html&gt;
+  &lt;body style=&quot;font-size: 200%; margin-left: 0.5em&quot;&gt;
+    &lt;p&gt;&lt;span&gt;variableValue&lt;/span&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
 <figure id="page-templates-output-single-variable">
   <img src="./figures/output-single-variable.svg" alt="Generating a single variable" />
   <figcaption markdown="1">Figure 9.6: A single variable generated by page templates.</figcaption>
@@ -564,22 +545,20 @@ Now, does the expander handle constants (<a class="figref" href="../page-templat
 There's no reason it should fail if the single-variable case works,
 but we should still check---again,
 software isn't done until it has been tested (<a class="figref" href="../page-templates/#page-templates-output-multiple-variables">Figure 9.7</a>).</p>
-<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;&lt;</span><span class="nt">span</span> <span class="na">z-var</span><span class="o">=</span><span class="s">&quot;firstVariable&quot;</span> <span class="p">/&gt;&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;&lt;</span><span class="nt">span</span> <span class="na">z-var</span><span class="o">=</span><span class="s">&quot;secondVariable&quot;</span> <span class="p">/&gt;&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">body</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-size: 200%; margin-left: 0.5em&quot;</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;&lt;</span><span class="nt">span</span><span class="p">&gt;</span>firstValue<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;&lt;</span><span class="nt">span</span><span class="p">&gt;</span>secondValue<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></div>
-
+<pre><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;&lt;span z-var=&quot;firstVariable&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;span z-var=&quot;secondVariable&quot; /&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<pre><code class="language-html">&lt;html&gt;
+  &lt;body style=&quot;font-size: 200%; margin-left: 0.5em&quot;&gt;
+    &lt;p&gt;&lt;span&gt;firstValue&lt;/span&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;span&gt;secondValue&lt;/span&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
 <figure id="page-templates-output-multiple-variables">
   <img src="./figures/output-multiple-variables.svg" alt="Generating multiple variables" />
   <figcaption markdown="1">Figure 9.7: Multiple variables generated by page templates.</figcaption>
@@ -592,40 +571,37 @@ Since we don't support Boolean expressions like <code>and</code> and <code>or</c
 implementing a conditional is as simple as looking up a variable
 (which we know how to do)
 and then expanding the node if the value is true:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
-  <span class="nx">open</span><span class="o">:</span> <span class="p">(</span><span class="nx">expander</span><span class="p">,</span> <span class="nx">node</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="nx">doRest</span> <span class="o">=</span> <span class="nx">expander</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">attribs</span><span class="p">[</span><span class="s1">&#39;z-if&#39;</span><span class="p">])</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">doRest</span><span class="p">)</span> <span class="p">{</span>
-      <span class="nx">expander</span><span class="p">.</span><span class="nx">showTag</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="nx">doRest</span>
-  <span class="p">},</span>
+<pre><code class="language-js">export default {
+  open: (expander, node) =&gt; {
+    const doRest = expander.env.find(node.attribs['z-if'])
+    if (doRest) {
+      expander.showTag(node, false)
+    }
+    return doRest
+  },
 
-  <span class="nx">close</span><span class="o">:</span> <span class="p">(</span><span class="nx">expander</span><span class="p">,</span> <span class="nx">node</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">expander</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">attribs</span><span class="p">[</span><span class="s1">&#39;z-if&#39;</span><span class="p">]))</span> <span class="p">{</span>
-      <span class="nx">expander</span><span class="p">.</span><span class="nx">showTag</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div>
-
+  close: (expander, node) =&gt; {
+    if (expander.env.find(node.attribs['z-if'])) {
+      expander.showTag(node, true)
+    }
+  }
+}
+</code></pre>
 <p>Let's test it (<a class="figref" href="../page-templates/#page-templates-output-conditional">Figure 9.8</a>):</p>
-<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">p</span> <span class="na">z-if</span><span class="o">=</span><span class="s">&quot;showThis&quot;</span><span class="p">&gt;</span>This should be shown.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">p</span> <span class="na">z-if</span><span class="o">=</span><span class="s">&quot;doNotShowThis&quot;</span><span class="p">&gt;</span>This should <span class="p">&lt;</span><span class="nt">em</span><span class="p">&gt;</span>not<span class="p">&lt;/</span><span class="nt">em</span><span class="p">&gt;</span> be shown.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></div>
+<pre><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p z-if=&quot;showThis&quot;&gt;This should be shown.&lt;/p&gt;
+    &lt;p z-if=&quot;doNotShowThis&quot;&gt;This should &lt;em&gt;not&lt;/em&gt; be shown.&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<pre><code class="language-html">&lt;html&gt;
+  &lt;body style=&quot;font-size: 200%; margin-left: 0.5em&quot;&gt;
+    &lt;p&gt;This should be shown.&lt;/p&gt;
 
-<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">body</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-size: 200%; margin-left: 0.5em&quot;</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>This should be shown.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-
-  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></div>
-
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
 <figure id="page-templates-output-conditional">
   <img src="./figures/output-conditional.svg" alt="Generating conditional text" />
   <figcaption markdown="1">Figure 9.8: Conditional text generated by page templates.</figcaption>
@@ -659,74 +635,68 @@ That "something" is:</p>
 <p>Pop the stack frame to get rid of the temporary variable.</p>
 </li>
 </ol>
-<div class="codehilite"><pre><span></span><code><span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
-  <span class="nx">open</span><span class="o">:</span> <span class="p">(</span><span class="nx">expander</span><span class="p">,</span> <span class="nx">node</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="p">[</span><span class="nx">indexName</span><span class="p">,</span> <span class="nx">targetName</span><span class="p">]</span> <span class="o">=</span> <span class="nx">node</span><span class="p">.</span><span class="nx">attribs</span><span class="p">[</span><span class="s1">&#39;z-loop&#39;</span><span class="p">].</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
-    <span class="ow">delete</span> <span class="nx">node</span><span class="p">.</span><span class="nx">attribs</span><span class="p">[</span><span class="s1">&#39;z-loop&#39;</span><span class="p">]</span>
-    <span class="nx">expander</span><span class="p">.</span><span class="nx">showTag</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
-    <span class="kd">const</span> <span class="nx">target</span> <span class="o">=</span> <span class="nx">expander</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">targetName</span><span class="p">)</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">index</span> <span class="k">of</span> <span class="nx">target</span><span class="p">)</span> <span class="p">{</span>
-      <span class="nx">expander</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span> <span class="p">[</span><span class="nx">indexName</span><span class="p">]</span><span class="o">:</span> <span class="nx">index</span> <span class="p">})</span>
-      <span class="nx">node</span><span class="p">.</span><span class="nx">children</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">child</span> <span class="p">=&gt;</span> <span class="nx">expander</span><span class="p">.</span><span class="nx">walk</span><span class="p">(</span><span class="nx">child</span><span class="p">))</span>
-      <span class="nx">expander</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">pop</span><span class="p">()</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="kc">false</span>
-  <span class="p">},</span>
+<pre><code class="language-js">export default {
+  open: (expander, node) =&gt; {
+    const [indexName, targetName] = node.attribs['z-loop'].split(':')
+    delete node.attribs['z-loop']
+    expander.showTag(node, false)
+    const target = expander.env.find(targetName)
+    for (const index of target) {
+      expander.env.push({ [indexName]: index })
+      node.children.forEach(child =&gt; expander.walk(child))
+      expander.env.pop()
+    }
+    return false
+  },
 
-  <span class="nx">close</span><span class="o">:</span> <span class="p">(</span><span class="nx">expander</span><span class="p">,</span> <span class="nx">node</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-    <span class="nx">expander</span><span class="p">.</span><span class="nx">showTag</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div>
-
+  close: (expander, node) =&gt; {
+    expander.showTag(node, true)
+  }
+}
+</code></pre>
 <p>Once again,
 it's not done until we test it (<a class="figref" href="../page-templates/#page-templates-output-loop">Figure 9.9</a>):</p>
-<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Expect three items<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">ul</span> <span class="na">z-loop</span><span class="o">=</span><span class="s">&quot;item:names&quot;</span><span class="p">&gt;</span>
-      <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">span</span> <span class="na">z-var</span><span class="o">=</span><span class="s">&quot;item&quot;</span><span class="p">/&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
-    <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
-  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></div>
+<pre><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;Expect three items&lt;/p&gt;
+    &lt;ul z-loop=&quot;item:names&quot;&gt;
+      &lt;li&gt;&lt;span z-var=&quot;item&quot;/&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<pre><code class="language-html">&lt;html&gt;
+  &lt;body style=&quot;font-size: 200%; margin-left: 0.5em&quot;&gt;
+    &lt;p&gt;Expect three items&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;span&gt;Johnson&lt;/span&gt;&lt;/li&gt;
 
-<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">body</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;font-size: 200%; margin-left: 0.5em&quot;</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Expect three items<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
-      <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">span</span><span class="p">&gt;</span>Johnson<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+      &lt;li&gt;&lt;span&gt;Vaughan&lt;/span&gt;&lt;/li&gt;
 
-      <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">span</span><span class="p">&gt;</span>Vaughan<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
-
-      <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">span</span><span class="p">&gt;</span>Jackson<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
-    <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
-  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></div>
-
+      &lt;li&gt;&lt;span&gt;Jackson&lt;/span&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
 <figure id="page-templates-output-loop">
   <img src="./figures/output-loop.svg" alt="Generating text with a loop" />
   <figcaption markdown="1">Figure 9.9: Repeated text generated with a loop by page templates.</figcaption>
 </figure>
 
 <p>Notice how we create the new stack frame using:</p>
-<div class="codehilite"><pre><span></span><code><span class="p">{</span> <span class="p">[</span><span class="nx">indexName</span><span class="p">]</span><span class="o">:</span> <span class="nx">index</span> <span class="p">}</span>
-</code></pre></div>
-
+<pre><code class="language-js">{ [indexName]: index }
+</code></pre>
 <!-- continue -->
 <p>This is an ugly but useful trick.
 We can't write:</p>
-<div class="codehilite"><pre><span></span><code><span class="p">{</span> <span class="nx">indexName</span><span class="o">:</span> <span class="nx">index</span> <span class="p">}</span>
-</code></pre></div>
-
+<pre><code class="language-js">{ indexName: index }
+</code></pre>
 <!-- continue -->
 <p>because that would create an object with the string <code>indexName</code> as a key,
 rather than one with the value of the variable <code>indexName</code> as its key.
 We can't do this either:</p>
-<div class="codehilite"><pre><span></span><code><span class="p">{</span> <span class="sb">`</span><span class="si">${</span><span class="nx">indexName</span><span class="si">}</span><span class="sb">`</span><span class="o">:</span> <span class="nx">index</span> <span class="p">}</span>
-</code></pre></div>
-
+<pre><code class="language-js">{ `${indexName}`: index }
+</code></pre>
 <!-- continue -->
 <p>though it seems like we should be able to.
 Instead,
@@ -734,11 +704,10 @@ we create an array containing the string we want.
 Since JavaScript automatically converts arrays to strings
 by concatenating their elements when it needs to,
 our expression is a quick way to get the same effect as:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">temp</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="nx">temp</span><span class="p">[</span><span class="nx">indexName</span><span class="p">]</span> <span class="o">=</span> <span class="nx">index</span>
-<span class="nx">expander</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">temp</span><span class="p">)</span>
-</code></pre></div>
-
+<pre><code class="language-js">const temp = {}
+temp[indexName] = index
+expander.env.push(temp)
+</code></pre>
 <!-- continue -->
 <p>Those three lines <em>are</em> much easier to understand, though,
 so we should probably have been less clever.</p>
@@ -746,9 +715,8 @@ so we should probably have been less clever.</p>
 <p>We have just implemented a simple programming language.
 It can't do arithmetic,
 but if we wanted to add tags like:</p>
-<div class="codehilite"><pre><span></span><code><span class="o">&lt;</span><span class="nx">span</span> <span class="nx">z</span><span class="o">-</span><span class="nx">math</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="o">&gt;&lt;</span><span class="nx">span</span> <span class="nx">z</span><span class="o">-</span><span class="kd">var</span><span class="o">=</span><span class="s2">&quot;width&quot;</span><span class="o">/&gt;&lt;</span><span class="nx">span</span> <span class="nx">z</span><span class="o">-</span><span class="nx">num</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="c1">//&gt;</span>
-</code></pre></div>
-
+<pre><code class="language-js">&lt;span z-math=&quot;+&quot;&gt;&lt;span z-var=&quot;width&quot;/&gt;&lt;span z-num=&quot;1&quot;//&gt;
+</code></pre>
 <!-- continue -->
 <p>we could.
 It's unlikely anyone would use the result---typing all of that
@@ -790,19 +758,17 @@ will almost certainly be different from the software that
 an expert can understand most quickly.
 In an ideal world our tools would automatically re-represent programs at different levels,
 so that with a click of a button we could view our code as either:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">const</span><span class="w"> </span><span class="n">hosts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">links</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">a</span><span class="o">.</span><span class="n">href</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="w"></span>
-</code></pre></div>
-
+<pre><code>const hosts = links.map(a =&gt; a.href.split(':')[1].split('/')[0]).unique()
+</code></pre>
 <p>or:</p>
-<div class="codehilite"><pre><span></span><code><span class="n">hosts</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="nf">for </span><span class="p">(</span><span class="n">each</span> <span class="n">a</span> <span class="n">in</span> <span class="n">links</span><span class="p">)</span> <span class="n">do</span>
-  <span class="n">temp</span> <span class="o">&lt;-</span> <span class="nf">attr</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="s">&#39;href&#39;</span><span class="p">)</span><span class="nf">.split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)[</span><span class="m">1</span><span class="p">]</span><span class="nf">.split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[</span><span class="m">0</span><span class="p">]</span>
-  <span class="nf">if </span><span class="p">(</span><span class="nf">not </span><span class="p">(</span><span class="n">temp</span> <span class="n">in</span> <span class="n">hosts</span><span class="p">))</span> <span class="n">do</span>
-    <span class="nf">hosts.append</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
-  <span class="n">end</span>
-<span class="n">end</span>
-</code></pre></div>
-
+<pre><code>hosts = []
+for (each a in links) do
+  temp &lt;- attr(a, 'href').split(':')[1].split('/')[0]
+  if (not (temp in hosts)) do
+    hosts.append(temp)
+  end
+end
+</code></pre>
 <p>just as we could change the colors used for syntax highlighting
 or the depth to which loop bodies are indented.
 But today's tools don't do that,
@@ -838,34 +804,32 @@ without interpreting or expanding any contained directives.
 <p>Add a directive <code>&lt;div z-snippet="variable"&gt;…&lt;/div&gt;</code> that saves some text in a variable
 so that it can be displayed later.
 For example:</p>
-<div class="codehilite"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">z-snippet</span><span class="o">=</span><span class="s">&quot;prefix&quot;</span><span class="p">&gt;&lt;</span><span class="nt">strong</span><span class="p">&gt;</span>Important:<span class="p">&lt;/</span><span class="nt">strong</span><span class="p">&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Expect three items<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
-      <span class="p">&lt;</span><span class="nt">li</span> <span class="na">z-loop</span><span class="o">=</span><span class="s">&quot;item:names&quot;</span><span class="p">&gt;</span>
-        <span class="p">&lt;</span><span class="nt">span</span> <span class="na">z-var</span><span class="o">=</span><span class="s">&quot;prefix&quot;</span><span class="p">&gt;&lt;</span><span class="nt">span</span> <span class="na">z-var</span><span class="o">=</span><span class="s">&quot;item&quot;</span><span class="p">/&gt;</span>
-      <span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
-    <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
-  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></div>
-
+<pre><code class="language-html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;div z-snippet=&quot;prefix&quot;&gt;&lt;strong&gt;Important:&lt;/strong&gt;&lt;/div&gt;
+    &lt;p&gt;Expect three items&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li z-loop=&quot;item:names&quot;&gt;
+        &lt;span z-var=&quot;prefix&quot;&gt;&lt;span z-var=&quot;item&quot;/&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
 <!-- continue -->
 <p>would printed the word "Important:" in bold before each item in the list.</p>
 <h3 class="exercise">YAML headers</h3>
 <p>Modify the template expander to handle variables defined in a YAML header in the page being processed.
 For example, if the page is:</p>
-<div class="codehilite"><pre><span></span><code>---
+<pre><code class="language-html">---
 name: &quot;Dorothy Johnson Vaughan&quot;
 ---
-<span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;&lt;</span><span class="nt">span</span> <span class="na">z-var</span><span class="o">=</span><span class="s">&quot;name&quot;</span><span class="p">/&gt;&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></div>
-
+&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;&lt;span z-var=&quot;name&quot;/&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
 <!-- continue -->
 <p>will create a paragraph containing the given name.</p>
 <h3 class="exercise">Expanding all files</h3>

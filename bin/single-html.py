@@ -34,13 +34,19 @@ def main():
 def get(path, slug):
     with open(path, "r") as reader:
         soup = BeautifulSoup(reader.read(), "html.parser")
-    title = soup.find("h1")
+
     main = soup.find("main")
+    main.name = "section"
+    main["class"] = "new-chapter"
     patch_chapter_refs(main)
     patch_glossary(main)
     patch_images(main, slug)
     patch_bib_refs(main)
-    return f"{title}\n{main}\n"
+
+    title = soup.find("h1")
+    main.insert(0, title)
+
+    return str(main)
 
 
 def patch_bib_refs(main):

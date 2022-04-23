@@ -182,37 +182,36 @@ and <code>a</code> indicates an address.</p>
 </div>
 <p>We put our VM's architectural details in a file
 that can be shared by other components:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">OPS</span> <span class="o">=</span> <span class="p">{</span>
-  <span class="nx">hlt</span><span class="o">:</span> <span class="p">{</span> <span class="nx">code</span><span class="o">:</span>  <span class="mf">1</span><span class="p">,</span> <span class="nx">fmt</span><span class="o">:</span> <span class="s1">&#39;--&#39;</span> <span class="p">},</span> <span class="c1">// Halt program</span>
-  <span class="nx">ldc</span><span class="o">:</span> <span class="p">{</span> <span class="nx">code</span><span class="o">:</span>  <span class="mf">2</span><span class="p">,</span> <span class="nx">fmt</span><span class="o">:</span> <span class="s1">&#39;rv&#39;</span> <span class="p">},</span> <span class="c1">// Load immediate</span>
-  <span class="nx">ldr</span><span class="o">:</span> <span class="p">{</span> <span class="nx">code</span><span class="o">:</span>  <span class="mf">3</span><span class="p">,</span> <span class="nx">fmt</span><span class="o">:</span> <span class="s1">&#39;rr&#39;</span> <span class="p">},</span> <span class="c1">// Load register</span>
-  <span class="nx">cpy</span><span class="o">:</span> <span class="p">{</span> <span class="nx">code</span><span class="o">:</span>  <span class="mf">4</span><span class="p">,</span> <span class="nx">fmt</span><span class="o">:</span> <span class="s1">&#39;rr&#39;</span> <span class="p">},</span> <span class="c1">// Copy register</span>
-  <span class="nx">str</span><span class="o">:</span> <span class="p">{</span> <span class="nx">code</span><span class="o">:</span>  <span class="mf">5</span><span class="p">,</span> <span class="nx">fmt</span><span class="o">:</span> <span class="s1">&#39;rr&#39;</span> <span class="p">},</span> <span class="c1">// Store register</span>
-  <span class="nx">add</span><span class="o">:</span> <span class="p">{</span> <span class="nx">code</span><span class="o">:</span>  <span class="mf">6</span><span class="p">,</span> <span class="nx">fmt</span><span class="o">:</span> <span class="s1">&#39;rr&#39;</span> <span class="p">},</span> <span class="c1">// Add</span>
-  <span class="nx">sub</span><span class="o">:</span> <span class="p">{</span> <span class="nx">code</span><span class="o">:</span>  <span class="mf">7</span><span class="p">,</span> <span class="nx">fmt</span><span class="o">:</span> <span class="s1">&#39;rr&#39;</span> <span class="p">},</span> <span class="c1">// Subtract</span>
-  <span class="nx">beq</span><span class="o">:</span> <span class="p">{</span> <span class="nx">code</span><span class="o">:</span>  <span class="mf">8</span><span class="p">,</span> <span class="nx">fmt</span><span class="o">:</span> <span class="s1">&#39;rv&#39;</span> <span class="p">},</span> <span class="c1">// Branch if equal</span>
-  <span class="nx">bne</span><span class="o">:</span> <span class="p">{</span> <span class="nx">code</span><span class="o">:</span>  <span class="mf">9</span><span class="p">,</span> <span class="nx">fmt</span><span class="o">:</span> <span class="s1">&#39;rv&#39;</span> <span class="p">},</span> <span class="c1">// Branch if not equal</span>
-  <span class="nx">prr</span><span class="o">:</span> <span class="p">{</span> <span class="nx">code</span><span class="o">:</span> <span class="mf">10</span><span class="p">,</span> <span class="nx">fmt</span><span class="o">:</span> <span class="s1">&#39;r-&#39;</span> <span class="p">},</span> <span class="c1">// Print register</span>
-  <span class="nx">prm</span><span class="o">:</span> <span class="p">{</span> <span class="nx">code</span><span class="o">:</span> <span class="mf">11</span><span class="p">,</span> <span class="nx">fmt</span><span class="o">:</span> <span class="s1">&#39;r-&#39;</span> <span class="p">}</span>  <span class="c1">// Print memory</span>
-<span class="p">}</span>
+<pre><code class="language-js">const OPS = {
+  hlt: { code:  1, fmt: '--' }, // Halt program
+  ldc: { code:  2, fmt: 'rv' }, // Load immediate
+  ldr: { code:  3, fmt: 'rr' }, // Load register
+  cpy: { code:  4, fmt: 'rr' }, // Copy register
+  str: { code:  5, fmt: 'rr' }, // Store register
+  add: { code:  6, fmt: 'rr' }, // Add
+  sub: { code:  7, fmt: 'rr' }, // Subtract
+  beq: { code:  8, fmt: 'rv' }, // Branch if equal
+  bne: { code:  9, fmt: 'rv' }, // Branch if not equal
+  prr: { code: 10, fmt: 'r-' }, // Print register
+  prm: { code: 11, fmt: 'r-' }  // Print memory
+}
 
-<span class="kd">const</span> <span class="nx">OP_MASK</span> <span class="o">=</span> <span class="mh">0xFF</span> <span class="c1">// select a single byte</span>
-<span class="kd">const</span> <span class="nx">OP_SHIFT</span> <span class="o">=</span> <span class="mf">8</span>   <span class="c1">// shift up by one byte</span>
-<span class="kd">const</span> <span class="nx">OP_WIDTH</span> <span class="o">=</span> <span class="mf">6</span>   <span class="c1">// op width in characters when printing</span>
+const OP_MASK = 0xFF // select a single byte
+const OP_SHIFT = 8   // shift up by one byte
+const OP_WIDTH = 6   // op width in characters when printing
 
-<span class="kd">const</span> <span class="nx">NUM_REG</span> <span class="o">=</span> <span class="mf">4</span>    <span class="c1">// number of registers</span>
-<span class="kd">const</span> <span class="nx">RAM_LEN</span> <span class="o">=</span> <span class="mf">256</span>  <span class="c1">// number of words in RAM</span>
+const NUM_REG = 4    // number of registers
+const RAM_LEN = 256  // number of words in RAM
 
-<span class="k">export</span> <span class="p">{</span>
-  <span class="nx">OPS</span><span class="p">,</span>
-  <span class="nx">OP_MASK</span><span class="p">,</span>
-  <span class="nx">OP_SHIFT</span><span class="p">,</span>
-  <span class="nx">OP_WIDTH</span><span class="p">,</span>
-  <span class="nx">NUM_REG</span><span class="p">,</span>
-  <span class="nx">RAM_LEN</span>
-<span class="p">}</span>
-</code></pre></div>
-
+export {
+  OPS,
+  OP_MASK,
+  OP_SHIFT,
+  OP_WIDTH,
+  NUM_REG,
+  RAM_LEN
+}
+</code></pre>
 <!-- continue -->
 <p>While there isn't a name for this design pattern,
 putting all the constants that define a system in one file
@@ -223,69 +222,66 @@ makes them easier to find as well as ensuring consistency.</p>
 we will split a class that would normally be written in one piece into several parts for exposition.
 We start by defining a class with an instruction pointer, some registers, and some memory
 along with a prompt for output:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">assert</span> <span class="kr">from</span> <span class="s1">&#39;assert&#39;</span>
+<pre><code class="language-js">import assert from 'assert'
 
-<span class="k">import</span> <span class="p">{</span>
-  <span class="nx">OP_MASK</span><span class="p">,</span>
-  <span class="nx">OP_SHIFT</span><span class="p">,</span>
-  <span class="nx">NUM_REG</span><span class="p">,</span>
-  <span class="nx">RAM_LEN</span>
-<span class="p">}</span> <span class="kr">from</span> <span class="s1">&#39;./architecture.js&#39;</span>
+import {
+  OP_MASK,
+  OP_SHIFT,
+  NUM_REG,
+  RAM_LEN
+} from './architecture.js'
 
-<span class="kd">const</span> <span class="nx">COLUMNS</span> <span class="o">=</span> <span class="mf">4</span>
-<span class="kd">const</span> <span class="nx">DIGITS</span> <span class="o">=</span> <span class="mf">8</span>
+const COLUMNS = 4
+const DIGITS = 8
 
-<span class="kd">class</span> <span class="nx">VirtualMachineBase</span> <span class="p">{</span>
-  <span class="kr">constructor</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">ip</span> <span class="o">=</span> <span class="mf">0</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">reg</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">NUM_REG</span><span class="p">)</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">ram</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">RAM_LEN</span><span class="p">)</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">prompt</span> <span class="o">=</span> <span class="s1">&#39;&gt;&gt;&#39;</span>
-  <span class="p">}</span>
+class VirtualMachineBase {
+  constructor () {
+    this.ip = 0
+    this.reg = Array(NUM_REG)
+    this.ram = Array(RAM_LEN)
+    this.prompt = '&gt;&gt;'
+  }
 
-<span class="p">}</span>
+}
 
-<span class="k">export</span> <span class="k">default</span> <span class="nx">VirtualMachineBase</span>
-</code></pre></div>
-
+export default VirtualMachineBase
+</code></pre>
 <p>A program is just an array of numbers representing instructions.
 To load one,
 we copy those numbers into memory and reset the instruction pointer and registers:</p>
-<div class="codehilite"><pre><span></span><code>  <span class="nx">initialize</span> <span class="p">(</span><span class="nx">program</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">assert</span><span class="p">(</span><span class="nx">program</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;=</span> <span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span>
-      <span class="s1">&#39;Program is too long for memory&#39;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mf">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="mf">1</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">program</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="nx">program</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
-      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">ip</span> <span class="o">=</span> <span class="mf">0</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">.</span><span class="nx">fill</span><span class="p">(</span><span class="mf">0</span><span class="p">)</span>
-  <span class="p">}</span>
-</code></pre></div>
-
+<pre><code class="language-js">  initialize (program) {
+    assert(program.length &lt;= this.ram.length,
+      'Program is too long for memory')
+    for (let i = 0; i &lt; this.ram.length; i += 1) {
+      if (i &lt; program.length) {
+        this.ram[i] = program[i]
+      } else {
+        this.ram[i] = 0
+      }
+    }
+    this.ip = 0
+    this.reg.fill(0)
+  }
+</code></pre>
 <p>In order to handle the next instruction,
 the VM gets the value in memory that the instruction pointer currently refers to
 and moves the instruction pointer on by one address.
 It then uses <span class="indexref" key="bitwise operation" markdown="1"><a class="glossref" href="../glossary/#bitwise_operation" markdown="1">bitwise operations</a></span>
 to extract the op code and operands from the instruction
 (<a class="figref" href="../virtual-machine/#virtual-machine-unpacking">Figure 19.2</a>):</p>
-<div class="codehilite"><pre><span></span><code>  <span class="nx">fetch</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="nx">assert</span><span class="p">((</span><span class="mf">0</span> <span class="o">&lt;=</span> <span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span> <span class="o">&lt;</span> <span class="nx">RAM_LEN</span><span class="p">),</span>
-      <span class="sb">`Program counter </span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="si">}</span><span class="sb"> out of range 0..</span><span class="si">${</span><span class="nx">RAM_LEN</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
-    <span class="kd">let</span> <span class="nx">instruction</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">[</span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="p">]</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">ip</span> <span class="o">+=</span> <span class="mf">1</span>
-    <span class="kd">const</span> <span class="nx">op</span> <span class="o">=</span> <span class="nx">instruction</span> <span class="o">&amp;</span> <span class="nx">OP_MASK</span>
-    <span class="nx">instruction</span> <span class="o">&gt;&gt;=</span> <span class="nx">OP_SHIFT</span>
-    <span class="kd">const</span> <span class="nx">arg0</span> <span class="o">=</span> <span class="nx">instruction</span> <span class="o">&amp;</span> <span class="nx">OP_MASK</span>
-    <span class="nx">instruction</span> <span class="o">&gt;&gt;=</span> <span class="nx">OP_SHIFT</span>
-    <span class="kd">const</span> <span class="nx">arg1</span> <span class="o">=</span> <span class="nx">instruction</span> <span class="o">&amp;</span> <span class="nx">OP_MASK</span>
-    <span class="k">return</span> <span class="p">[</span><span class="nx">op</span><span class="p">,</span> <span class="nx">arg0</span><span class="p">,</span> <span class="nx">arg1</span><span class="p">]</span>
-  <span class="p">}</span>
-</code></pre></div>
-
+<pre><code class="language-js">  fetch () {
+    assert((0 &lt;= this.ip) &amp;&amp; (this.ip &lt; RAM_LEN),
+      `Program counter ${this.ip} out of range 0..${RAM_LEN}`)
+    let instruction = this.ram[this.ip]
+    this.ip += 1
+    const op = instruction &amp; OP_MASK
+    instruction &gt;&gt;= OP_SHIFT
+    const arg0 = instruction &amp; OP_MASK
+    instruction &gt;&gt;= OP_SHIFT
+    const arg1 = instruction &amp; OP_MASK
+    return [op, arg0, arg1]
+  }
+</code></pre>
 <figure id="virtual-machine-unpacking">
   <img src="./figures/unpacking.svg" alt="Unpacking instructions" />
   <figcaption markdown="1">Figure 19.2: Using bitwise operations to unpack instructions.</figcaption>
@@ -302,85 +298,81 @@ to detect illegal instructions and out-of-bound memory addresses.</p>
 <p>The next step is to extend our base class with one that has a <code>run</code> method.
 As its name suggests,
 this runs the program by fetching instructions and executing them until told to stop:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">assert</span> <span class="kr">from</span> <span class="s1">&#39;assert&#39;</span>
+<pre><code class="language-js">import assert from 'assert'
 
-<span class="k">import</span> <span class="p">{</span>
-  <span class="nx">OPS</span>
-<span class="p">}</span> <span class="kr">from</span> <span class="s1">&#39;./architecture.js&#39;</span>
+import {
+  OPS
+} from './architecture.js'
 
-<span class="k">import</span> <span class="nx">VirtualMachineBase</span> <span class="kr">from</span> <span class="s1">&#39;./vm-base.js&#39;</span>
+import VirtualMachineBase from './vm-base.js'
 
-<span class="kd">class</span> <span class="nx">VirtualMachine</span> <span class="k">extends</span> <span class="nx">VirtualMachineBase</span> <span class="p">{</span>
-  <span class="nx">run</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="kd">let</span> <span class="nx">running</span> <span class="o">=</span> <span class="kc">true</span>
-    <span class="k">while</span> <span class="p">(</span><span class="nx">running</span><span class="p">)</span> <span class="p">{</span>
-      <span class="kd">const</span> <span class="p">[</span><span class="nx">op</span><span class="p">,</span> <span class="nx">arg0</span><span class="p">,</span> <span class="nx">arg1</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">fetch</span><span class="p">()</span>
-      <span class="k">switch</span> <span class="p">(</span><span class="nx">op</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">case</span> <span class="nx">OPS</span><span class="p">.</span><span class="nx">hlt</span><span class="p">.</span><span class="nx">code</span><span class="o">:</span>
-          <span class="nx">running</span> <span class="o">=</span> <span class="kc">false</span>
-          <span class="k">break</span>
+class VirtualMachine extends VirtualMachineBase {
+  run () {
+    let running = true
+    while (running) {
+      const [op, arg0, arg1] = this.fetch()
+      switch (op) {
+        case OPS.hlt.code:
+          running = false
+          break
 
-        <span class="k">case</span> <span class="nx">OPS</span><span class="p">.</span><span class="nx">ldc</span><span class="p">.</span><span class="nx">code</span><span class="o">:</span>
-          <span class="k">this</span><span class="p">.</span><span class="nx">assertIsRegister</span><span class="p">(</span><span class="nx">arg0</span><span class="p">,</span> <span class="nx">op</span><span class="p">)</span>
-          <span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg0</span><span class="p">]</span> <span class="o">=</span> <span class="nx">arg1</span>
-          <span class="k">break</span>
+        case OPS.ldc.code:
+          this.assertIsRegister(arg0, op)
+          this.reg[arg0] = arg1
+          break
 
 
-        <span class="k">default</span><span class="o">:</span>
-          <span class="nx">assert</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span> <span class="sb">`Unknown op </span><span class="si">${</span><span class="nx">op</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
-          <span class="k">break</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
+        default:
+          assert(false, `Unknown op ${op}`)
+          break
+      }
+    }
+  }
 
-  <span class="nx">assertIsRegister</span> <span class="p">(</span><span class="nx">reg</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">assert</span><span class="p">((</span><span class="mf">0</span> <span class="o">&lt;=</span> <span class="nx">reg</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">reg</span> <span class="o">&lt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">.</span><span class="nx">length</span><span class="p">),</span>
-      <span class="sb">`Invalid register </span><span class="si">${</span><span class="nx">reg</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
-  <span class="p">}</span>
+  assertIsRegister (reg) {
+    assert((0 &lt;= reg) &amp;&amp; (reg &lt; this.reg.length),
+      `Invalid register ${reg}`)
+  }
 
-  <span class="nx">assertIsAddress</span> <span class="p">(</span><span class="nx">addr</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">assert</span><span class="p">((</span><span class="mf">0</span> <span class="o">&lt;=</span> <span class="nx">addr</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">addr</span> <span class="o">&lt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">.</span><span class="nx">length</span><span class="p">),</span>
-      <span class="sb">`Invalid register </span><span class="si">${</span><span class="nx">addr</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+  assertIsAddress (addr) {
+    assert((0 &lt;= addr) &amp;&amp; (addr &lt; this.ram.length),
+      `Invalid register ${addr}`)
+  }
+}
 
-<span class="k">export</span> <span class="k">default</span> <span class="nx">VirtualMachine</span>
-</code></pre></div>
-
+export default VirtualMachine
+</code></pre>
 <p>Some instructions are very similar to others,
 so we will only look at three here.
 The first stores the value of one register in the address held by another register:</p>
-<div class="codehilite"><pre><span></span><code>        <span class="k">case</span> <span class="nx">OPS</span><span class="p">.</span><span class="nx">str</span><span class="p">.</span><span class="nx">code</span><span class="o">:</span>
-          <span class="k">this</span><span class="p">.</span><span class="nx">assertIsRegister</span><span class="p">(</span><span class="nx">arg0</span><span class="p">,</span> <span class="nx">op</span><span class="p">)</span>
-          <span class="k">this</span><span class="p">.</span><span class="nx">assertIsRegister</span><span class="p">(</span><span class="nx">arg1</span><span class="p">,</span> <span class="nx">op</span><span class="p">)</span>
-          <span class="k">this</span><span class="p">.</span><span class="nx">assertIsAddress</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg1</span><span class="p">],</span> <span class="nx">op</span><span class="p">)</span>
-          <span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">[</span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg1</span><span class="p">]]</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg0</span><span class="p">]</span>
-          <span class="k">break</span>
-</code></pre></div>
-
+<pre><code class="language-js">        case OPS.str.code:
+          this.assertIsRegister(arg0, op)
+          this.assertIsRegister(arg1, op)
+          this.assertIsAddress(this.reg[arg1], op)
+          this.ram[this.reg[arg1]] = this.reg[arg0]
+          break
+</code></pre>
 <!-- continue -->
 <p>The first three lines check that the operation is legal;
 the fourth one uses the value in one register as an address,
 which is why it has nested array indexing.</p>
 <p>Adding the value in one register to the value in another register is simpler:</p>
-<div class="codehilite"><pre><span></span><code>        <span class="k">case</span> <span class="nx">OPS</span><span class="p">.</span><span class="nx">add</span><span class="p">.</span><span class="nx">code</span><span class="o">:</span>
-          <span class="k">this</span><span class="p">.</span><span class="nx">assertIsRegister</span><span class="p">(</span><span class="nx">arg0</span><span class="p">,</span> <span class="nx">op</span><span class="p">)</span>
-          <span class="k">this</span><span class="p">.</span><span class="nx">assertIsRegister</span><span class="p">(</span><span class="nx">arg1</span><span class="p">,</span> <span class="nx">op</span><span class="p">)</span>
-          <span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg0</span><span class="p">]</span> <span class="o">+=</span> <span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg1</span><span class="p">]</span>
-          <span class="k">break</span>
-</code></pre></div>
-
+<pre><code class="language-js">        case OPS.add.code:
+          this.assertIsRegister(arg0, op)
+          this.assertIsRegister(arg1, op)
+          this.reg[arg0] += this.reg[arg1]
+          break
+</code></pre>
 <!-- continue -->
 <p>as is jumping to a fixed address if the value in a register is zero:</p>
-<div class="codehilite"><pre><span></span><code>        <span class="k">case</span> <span class="nx">OPS</span><span class="p">.</span><span class="nx">beq</span><span class="p">.</span><span class="nx">code</span><span class="o">:</span>
-          <span class="k">this</span><span class="p">.</span><span class="nx">assertIsRegister</span><span class="p">(</span><span class="nx">arg0</span><span class="p">,</span> <span class="nx">op</span><span class="p">)</span>
-          <span class="k">this</span><span class="p">.</span><span class="nx">assertIsAddress</span><span class="p">(</span><span class="nx">arg1</span><span class="p">,</span> <span class="nx">op</span><span class="p">)</span>
-          <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg0</span><span class="p">]</span> <span class="o">===</span> <span class="mf">0</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">this</span><span class="p">.</span><span class="nx">ip</span> <span class="o">=</span> <span class="nx">arg1</span>
-          <span class="p">}</span>
-          <span class="k">break</span>
-</code></pre></div>
-
+<pre><code class="language-js">        case OPS.beq.code:
+          this.assertIsRegister(arg0, op)
+          this.assertIsAddress(arg1, op)
+          if (this.reg[arg0] === 0) {
+            this.ip = arg1
+          }
+          break
+</code></pre>
 <h2 id="virtual-machine-assembly">What do assembly programs look like?</h2>
 <p>We could figure out numerical op codes by hand,
 and in fact that's what <a href="http://eniacprogrammers.org/">the first programmers</a> did.
@@ -389,17 +381,15 @@ it is much easier to use an <span class="indexref" key="assembler" markdown="1">
 which is just a small compiler for a language that very closely represents actual machine instructions.</p>
 <p>Each command in our assembly languages matches an instruction in the VM.
 Here's an assembly language program to print the value stored in R1 and then halt:</p>
-<div class="codehilite"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="nx">Print</span><span class="w"> </span><span class="nx">initial</span><span class="w"> </span><span class="nx">contents</span><span class="w"> </span><span class="nx">of</span><span class="w"> </span><span class="nx">R1</span><span class="p">.</span><span class="w"></span>
-<span class="nx">prr</span><span class="w"> </span><span class="nx">R1</span><span class="w"></span>
-<span class="nx">hlt</span><span class="w"></span>
-</code></pre></div>
-
+<pre><code class="language-as"># Print initial contents of R1.
+prr R1
+hlt
+</code></pre>
 <!-- continue -->
 <p>Its numeric representation is:</p>
-<div class="codehilite"><pre><span></span><code><span class="mf">00010</span><span class="n">a</span><span class="w"></span>
-<span class="mf">000001</span><span class="w"></span>
-</code></pre></div>
-
+<pre><code class="language-mx">00010a
+000001
+</code></pre>
 <p>One thing the assembly language has that the instruction set doesn't
 is <span class="indexref" key="label (on address)" markdown="1"><a class="glossref" href="../glossary/#label_address" markdown="1">labels on addresses</a></span>.
 The label <code>loop</code> doesn't take up any space;
@@ -409,32 +399,30 @@ so that we can refer to that address as <code>@loop</code> in jump instructions.
 For example,
 this program prints the numbers from 0 to 2
 (<a class="figref" href="../virtual-machine/#virtual-machine-count-up">Figure 19.3</a>):</p>
-<div class="codehilite"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="nx">Count</span><span class="w"> </span><span class="nx">up</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="mi">3</span><span class="p">.</span><span class="w"></span>
-<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R0</span><span class="o">:</span><span class="w"> </span><span class="nx">loop</span><span class="w"> </span><span class="nx">index</span><span class="p">.</span><span class="w"></span>
-<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R1</span><span class="o">:</span><span class="w"> </span><span class="nx">loop</span><span class="w"> </span><span class="nx">limit</span><span class="p">.</span><span class="w"></span>
-<span class="nx">ldc</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
-<span class="nx">ldc</span><span class="w"> </span><span class="nx">R1</span><span class="w"> </span><span class="mi">3</span><span class="w"></span>
-<span class="nx">loop</span><span class="o">:</span><span class="w"></span>
-<span class="nx">prr</span><span class="w"> </span><span class="nx">R0</span><span class="w"></span>
-<span class="nx">ldc</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="nx">add</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="nx">R2</span><span class="w"></span>
-<span class="nx">cpy</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="nx">R1</span><span class="w"></span>
-<span class="nx">sub</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="nx">R0</span><span class="w"></span>
-<span class="nx">bne</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="err">@</span><span class="nx">loop</span><span class="w"></span>
-<span class="nx">hlt</span><span class="w"></span>
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code><span class="mf">000002</span><span class="w"></span>
-<span class="mf">030102</span><span class="w"></span>
-<span class="mf">00000</span><span class="n">a</span><span class="w"></span>
-<span class="mf">010202</span><span class="w"></span>
-<span class="mf">020006</span><span class="w"></span>
-<span class="mf">010204</span><span class="w"></span>
-<span class="mf">000207</span><span class="w"></span>
-<span class="mf">020209</span><span class="w"></span>
-<span class="mf">000001</span><span class="w"></span>
-</code></pre></div>
-
+<pre><code class="language-as"># Count up to 3.
+# - R0: loop index.
+# - R1: loop limit.
+ldc R0 0
+ldc R1 3
+loop:
+prr R0
+ldc R2 1
+add R0 R2
+cpy R2 R1
+sub R2 R0
+bne R2 @loop
+hlt
+</code></pre>
+<pre><code class="language-mx">000002
+030102
+00000a
+010202
+020006
+010204
+000207
+020209
+000001
+</code></pre>
 <figure id="virtual-machine-count-up">
   <img src="./figures/count-up.svg" alt="Counting from 0 to 2" />
   <figcaption markdown="1">Figure 19.3: Flowchart of assembly language program to count up from 0 to 2.</figcaption>
@@ -461,154 +449,148 @@ this program prints the numbers from 0 to 2
 The main method gets interesting lines,
 finds the addresses of labels,
 and turns each remaining line into an instruction:</p>
-<div class="codehilite"><pre><span></span><code>  <span class="nx">assemble</span> <span class="p">(</span><span class="nx">lines</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">lines</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">cleanLines</span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span>
-    <span class="kd">const</span> <span class="nx">labels</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">findLabels</span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span>
-    <span class="kd">const</span> <span class="nx">instructions</span> <span class="o">=</span> <span class="nx">lines</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">line</span> <span class="p">=&gt;</span> <span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">isLabel</span><span class="p">(</span><span class="nx">line</span><span class="p">))</span>
-    <span class="kd">const</span> <span class="nx">compiled</span> <span class="o">=</span> <span class="nx">instructions</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">instr</span> <span class="p">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">compile</span><span class="p">(</span><span class="nx">instr</span><span class="p">,</span> <span class="nx">labels</span><span class="p">))</span>
-    <span class="kd">const</span> <span class="nx">program</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">instructionsToText</span><span class="p">(</span><span class="nx">compiled</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nx">program</span>
-  <span class="p">}</span>
+<pre><code class="language-js">  assemble (lines) {
+    lines = this.cleanLines(lines)
+    const labels = this.findLabels(lines)
+    const instructions = lines.filter(line =&gt; !this.isLabel(line))
+    const compiled = instructions.map(instr =&gt; this.compile(instr, labels))
+    const program = this.instructionsToText(compiled)
+    return program
+  }
 
-  <span class="nx">cleanLines</span> <span class="p">(</span><span class="nx">lines</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">lines</span>
-      <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">line</span> <span class="p">=&gt;</span> <span class="nx">line</span><span class="p">.</span><span class="nx">trim</span><span class="p">())</span>
-      <span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">line</span> <span class="p">=&gt;</span> <span class="nx">line</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mf">0</span><span class="p">)</span>
-      <span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">line</span> <span class="p">=&gt;</span> <span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">isComment</span><span class="p">(</span><span class="nx">line</span><span class="p">))</span>
-  <span class="p">}</span>
+  cleanLines (lines) {
+    return lines
+      .map(line =&gt; line.trim())
+      .filter(line =&gt; line.length &gt; 0)
+      .filter(line =&gt; !this.isComment(line))
+  }
 
-  <span class="nx">isComment</span> <span class="p">(</span><span class="nx">line</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">line</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span>
-  <span class="p">}</span>
-</code></pre></div>
-
+  isComment (line) {
+    return line.startsWith('#')
+  }
+</code></pre>
 <p>To find labels,
 we go through the lines one by one
 and either save the label <em>or</em> increment the current address
 (because labels don't take up space):</p>
-<div class="codehilite"><pre><span></span><code>  <span class="nx">findLabels</span> <span class="p">(</span><span class="nx">lines</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="kd">let</span> <span class="nx">index</span> <span class="o">=</span> <span class="mf">0</span>
-    <span class="nx">lines</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">line</span> <span class="p">=&gt;</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">isLabel</span><span class="p">(</span><span class="nx">line</span><span class="p">))</span> <span class="p">{</span>
-        <span class="kd">const</span> <span class="nx">label</span> <span class="o">=</span> <span class="nx">line</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1</span><span class="p">)</span>
-        <span class="nx">assert</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nx">label</span> <span class="ow">in</span> <span class="nx">result</span><span class="p">),</span>
-          <span class="sb">`Duplicate label </span><span class="si">${</span><span class="nx">label</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
-        <span class="nx">result</span><span class="p">[</span><span class="nx">label</span><span class="p">]</span> <span class="o">=</span> <span class="nx">index</span>
-      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="nx">index</span> <span class="o">+=</span> <span class="mf">1</span>
-      <span class="p">}</span>
-    <span class="p">})</span>
-    <span class="k">return</span> <span class="nx">result</span>
-  <span class="p">}</span>
+<pre><code class="language-js">  findLabels (lines) {
+    const result = {}
+    let index = 0
+    lines.forEach(line =&gt; {
+      if (this.isLabel(line)) {
+        const label = line.slice(0, -1)
+        assert(!(label in result),
+          `Duplicate label ${label}`)
+        result[label] = index
+      } else {
+        index += 1
+      }
+    })
+    return result
+  }
 
-  <span class="nx">isLabel</span> <span class="p">(</span><span class="nx">line</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">line</span><span class="p">.</span><span class="nx">endsWith</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
-  <span class="p">}</span>
-</code></pre></div>
-
+  isLabel (line) {
+    return line.endsWith(':')
+  }
+</code></pre>
 <p>To compile a single instruction we break the line into tokens,
 look up the format for the operands,
 and pack them into a single value:</p>
-<div class="codehilite"><pre><span></span><code>  <span class="nx">compile</span> <span class="p">(</span><span class="nx">instruction</span><span class="p">,</span> <span class="nx">labels</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="p">[</span><span class="nx">op</span><span class="p">,</span> <span class="p">...</span><span class="nx">args</span><span class="p">]</span> <span class="o">=</span> <span class="nx">instruction</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="sr">/\s+/</span><span class="p">)</span>
-    <span class="nx">assert</span><span class="p">(</span><span class="nx">op</span> <span class="ow">in</span> <span class="nx">OPS</span><span class="p">,</span>
-      <span class="sb">`Unknown operation &quot;</span><span class="si">${</span><span class="nx">op</span><span class="si">}</span><span class="sb">&quot;`</span><span class="p">)</span>
-    <span class="kd">let</span> <span class="nx">result</span> <span class="o">=</span> <span class="mf">0</span>
-    <span class="k">switch</span> <span class="p">(</span><span class="nx">OPS</span><span class="p">[</span><span class="nx">op</span><span class="p">].</span><span class="nx">fmt</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">case</span> <span class="s1">&#39;--&#39;</span><span class="o">:</span>
-        <span class="nx">result</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">combine</span><span class="p">(</span>
-          <span class="nx">OPS</span><span class="p">[</span><span class="nx">op</span><span class="p">].</span><span class="nx">code</span>
-        <span class="p">)</span>
-        <span class="k">break</span>
-      <span class="k">case</span> <span class="s1">&#39;r-&#39;</span><span class="o">:</span>
-        <span class="nx">result</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">combine</span><span class="p">(</span>
-          <span class="k">this</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mf">0</span><span class="p">]),</span>
-          <span class="nx">OPS</span><span class="p">[</span><span class="nx">op</span><span class="p">].</span><span class="nx">code</span>
-        <span class="p">)</span>
-        <span class="k">break</span>
-      <span class="k">case</span> <span class="s1">&#39;rr&#39;</span><span class="o">:</span>
-        <span class="nx">result</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">combine</span><span class="p">(</span>
-          <span class="k">this</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mf">1</span><span class="p">]),</span>
-          <span class="k">this</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mf">0</span><span class="p">]),</span>
-          <span class="nx">OPS</span><span class="p">[</span><span class="nx">op</span><span class="p">].</span><span class="nx">code</span>
-        <span class="p">)</span>
-        <span class="k">break</span>
-      <span class="k">case</span> <span class="s1">&#39;rv&#39;</span><span class="o">:</span>
-        <span class="nx">result</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">combine</span><span class="p">(</span>
-          <span class="k">this</span><span class="p">.</span><span class="nx">value</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mf">1</span><span class="p">],</span> <span class="nx">labels</span><span class="p">),</span>
-          <span class="k">this</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mf">0</span><span class="p">]),</span>
-          <span class="nx">OPS</span><span class="p">[</span><span class="nx">op</span><span class="p">].</span><span class="nx">code</span>
-        <span class="p">)</span>
-        <span class="k">break</span>
-      <span class="k">default</span><span class="o">:</span>
-        <span class="nx">assert</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span>
-          <span class="sb">`Unknown instruction format </span><span class="si">${</span><span class="nx">OPS</span><span class="p">[</span><span class="nx">op</span><span class="p">].</span><span class="nx">fmt</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="nx">result</span>
-  <span class="p">}</span>
-</code></pre></div>
-
+<pre><code class="language-js">  compile (instruction, labels) {
+    const [op, ...args] = instruction.split(/\s+/)
+    assert(op in OPS,
+      `Unknown operation &quot;${op}&quot;`)
+    let result = 0
+    switch (OPS[op].fmt) {
+      case '--':
+        result = this.combine(
+          OPS[op].code
+        )
+        break
+      case 'r-':
+        result = this.combine(
+          this.register(args[0]),
+          OPS[op].code
+        )
+        break
+      case 'rr':
+        result = this.combine(
+          this.register(args[1]),
+          this.register(args[0]),
+          OPS[op].code
+        )
+        break
+      case 'rv':
+        result = this.combine(
+          this.value(args[1], labels),
+          this.register(args[0]),
+          OPS[op].code
+        )
+        break
+      default:
+        assert(false,
+          `Unknown instruction format ${OPS[op].fmt}`)
+    }
+    return result
+  }
+</code></pre>
 <p>Combining op codes and operands into a single value
 is the reverse of the unpacking done by the virtual machine:</p>
-<div class="codehilite"><pre><span></span><code>  <span class="nx">combine</span> <span class="p">(...</span><span class="nx">args</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">assert</span><span class="p">(</span><span class="nx">args</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mf">0</span><span class="p">,</span>
-      <span class="s1">&#39;Cannot combine no arguments&#39;</span><span class="p">)</span>
-    <span class="kd">let</span> <span class="nx">result</span> <span class="o">=</span> <span class="mf">0</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">a</span> <span class="k">of</span> <span class="nx">args</span><span class="p">)</span> <span class="p">{</span>
-      <span class="nx">result</span> <span class="o">&lt;&lt;=</span> <span class="nx">OP_SHIFT</span>
-      <span class="nx">result</span> <span class="o">|=</span> <span class="nx">a</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="nx">result</span>
-  <span class="p">}</span>
-</code></pre></div>
-
+<pre><code class="language-js">  combine (...args) {
+    assert(args.length &gt; 0,
+      'Cannot combine no arguments')
+    let result = 0
+    for (const a of args) {
+      result &lt;&lt;= OP_SHIFT
+      result |= a
+    }
+    return result
+  }
+</code></pre>
 <p>Finally, we need few utility functions:</p>
-<div class="codehilite"><pre><span></span><code>  <span class="nx">instructionsToText</span> <span class="p">(</span><span class="nx">program</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">program</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">op</span> <span class="p">=&gt;</span> <span class="nx">op</span><span class="p">.</span><span class="nx">toString</span><span class="p">(</span><span class="mf">16</span><span class="p">).</span><span class="nx">padStart</span><span class="p">(</span><span class="nx">OP_WIDTH</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">))</span>
-  <span class="p">}</span>
+<pre><code class="language-js">  instructionsToText (program) {
+    return program.map(op =&gt; op.toString(16).padStart(OP_WIDTH, '0'))
+  }
 
-  <span class="nx">register</span> <span class="p">(</span><span class="nx">token</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">assert</span><span class="p">(</span><span class="nx">token</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span> <span class="o">===</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span>
-      <span class="sb">`Register &quot;</span><span class="si">${</span><span class="nx">token</span><span class="si">}</span><span class="sb">&quot; does not start with &#39;R&#39;`</span><span class="p">)</span>
-    <span class="kd">const</span> <span class="nx">r</span> <span class="o">=</span> <span class="nb">parseInt</span><span class="p">(</span><span class="nx">token</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">1</span><span class="p">))</span>
-    <span class="nx">assert</span><span class="p">((</span><span class="mf">0</span> <span class="o">&lt;=</span> <span class="nx">r</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">r</span> <span class="o">&lt;</span> <span class="nx">NUM_REG</span><span class="p">),</span>
-      <span class="sb">`Illegal register </span><span class="si">${</span><span class="nx">token</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nx">r</span>
-  <span class="p">}</span>
+  register (token) {
+    assert(token[0] === 'R',
+      `Register &quot;${token}&quot; does not start with 'R'`)
+    const r = parseInt(token.slice(1))
+    assert((0 &lt;= r) &amp;&amp; (r &lt; NUM_REG),
+      `Illegal register ${token}`)
+    return r
+  }
 
-  <span class="nx">value</span> <span class="p">(</span><span class="nx">token</span><span class="p">,</span> <span class="nx">labels</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">token</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span> <span class="o">!==</span> <span class="s1">&#39;@&#39;</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">return</span> <span class="nb">parseInt</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="kd">const</span> <span class="nx">labelName</span> <span class="o">=</span> <span class="nx">token</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
-    <span class="nx">assert</span><span class="p">(</span><span class="nx">labelName</span> <span class="ow">in</span> <span class="nx">labels</span><span class="p">,</span>
-      <span class="sb">`Unknown label &quot;</span><span class="si">${</span><span class="nx">token</span><span class="si">}</span><span class="sb">&quot;`</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nx">labels</span><span class="p">[</span><span class="nx">labelName</span><span class="p">]</span>
-  <span class="p">}</span>
-</code></pre></div>
-
+  value (token, labels) {
+    if (token[0] !== '@') {
+      return parseInt(token)
+    }
+    const labelName = token.slice(1)
+    assert(labelName in labels,
+      `Unknown label &quot;${token}&quot;`)
+    return labels[labelName]
+  }
+</code></pre>
 <p>Let's try assembling a program and display its output,
 the registers,
 and the interesting contents of memory.
 As a test,
 this program counts up to three:</p>
-<div class="codehilite"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="nx">Count</span><span class="w"> </span><span class="nx">up</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="mi">3</span><span class="p">.</span><span class="w"></span>
-<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R0</span><span class="o">:</span><span class="w"> </span><span class="nx">loop</span><span class="w"> </span><span class="nx">index</span><span class="p">.</span><span class="w"></span>
-<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R1</span><span class="o">:</span><span class="w"> </span><span class="nx">loop</span><span class="w"> </span><span class="nx">limit</span><span class="p">.</span><span class="w"></span>
-<span class="nx">ldc</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
-<span class="nx">ldc</span><span class="w"> </span><span class="nx">R1</span><span class="w"> </span><span class="mi">3</span><span class="w"></span>
-<span class="nx">loop</span><span class="o">:</span><span class="w"></span>
-<span class="nx">prr</span><span class="w"> </span><span class="nx">R0</span><span class="w"></span>
-<span class="nx">ldc</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="nx">add</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="nx">R2</span><span class="w"></span>
-<span class="nx">cpy</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="nx">R1</span><span class="w"></span>
-<span class="nx">sub</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="nx">R0</span><span class="w"></span>
-<span class="nx">bne</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="err">@</span><span class="nx">loop</span><span class="w"></span>
-<span class="nx">hlt</span><span class="w"></span>
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code>&gt;&gt; 0
+<pre><code class="language-as"># Count up to 3.
+# - R0: loop index.
+# - R1: loop limit.
+ldc R0 0
+ldc R1 3
+loop:
+prr R0
+ldc R2 1
+add R0 R2
+cpy R2 R1
+sub R2 R0
+bne R2 @loop
+hlt
+</code></pre>
+<pre><code class="language-out">&gt;&gt; 0
 &gt;&gt; 1
 &gt;&gt; 2
 R0 = 3
@@ -618,8 +600,7 @@ R3 = 0
 0:   00000002  00030102  0000000a  00010202
 4:   00020006  00010204  00000207  00020209
 8:   00000001  00000000  00000000  00000000
-</code></pre></div>
-
+</code></pre>
 <h2 id="virtual-machine-data">How can we store data?</h2>
 <p>It is tedious to write interesting programs when each value needs a unique name.
 We can do a lot more once we have collections like <span class="indexref" key="array!implementation of" markdown="1">arrays</span>,
@@ -639,74 +620,70 @@ and then <code>label: number</code> to give a region a name and allocate some st
 <p>This enhancement only requires a few changes to the assembler.
 First,
 we need to split the lines into instructions and data allocations:</p>
-<div class="codehilite"><pre><span></span><code>  <span class="nx">assemble</span> <span class="p">(</span><span class="nx">lines</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">lines</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">cleanLines</span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span>
-    <span class="kd">const</span> <span class="p">[</span><span class="nx">toCompile</span><span class="p">,</span> <span class="nx">toAllocate</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">splitAllocations</span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span>
-    <span class="kd">const</span> <span class="nx">labels</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">findLabels</span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span>
-    <span class="kd">const</span> <span class="nx">instructions</span> <span class="o">=</span> <span class="nx">toCompile</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">line</span> <span class="p">=&gt;</span> <span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">isLabel</span><span class="p">(</span><span class="nx">line</span><span class="p">))</span>
-    <span class="kd">const</span> <span class="nx">baseOfData</span> <span class="o">=</span> <span class="nx">instructions</span><span class="p">.</span><span class="nx">length</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">addAllocations</span><span class="p">(</span><span class="nx">baseOfData</span><span class="p">,</span> <span class="nx">labels</span><span class="p">,</span> <span class="nx">toAllocate</span><span class="p">)</span>
-    <span class="kd">const</span> <span class="nx">compiled</span> <span class="o">=</span> <span class="nx">instructions</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">instr</span> <span class="p">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">compile</span><span class="p">(</span><span class="nx">instr</span><span class="p">,</span> <span class="nx">labels</span><span class="p">))</span>
-    <span class="kd">const</span> <span class="nx">program</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">instructionsToText</span><span class="p">(</span><span class="nx">compiled</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nx">program</span>
-  <span class="p">}</span>
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code>  <span class="nx">splitAllocations</span> <span class="p">(</span><span class="nx">lines</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="nx">split</span> <span class="o">=</span> <span class="nx">lines</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">DIVIDER</span><span class="p">)</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">split</span> <span class="o">===</span> <span class="o">-</span><span class="mf">1</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">return</span> <span class="p">[</span><span class="nx">lines</span><span class="p">,</span> <span class="p">[]]</span>
-    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-      <span class="k">return</span> <span class="p">[</span><span class="nx">lines</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span> <span class="nx">split</span><span class="p">),</span> <span class="nx">lines</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="nx">split</span> <span class="o">+</span> <span class="mf">1</span><span class="p">)]</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-</code></pre></div>
-
+<pre><code class="language-js">  assemble (lines) {
+    lines = this.cleanLines(lines)
+    const [toCompile, toAllocate] = this.splitAllocations(lines)
+    const labels = this.findLabels(lines)
+    const instructions = toCompile.filter(line =&gt; !this.isLabel(line))
+    const baseOfData = instructions.length
+    this.addAllocations(baseOfData, labels, toAllocate)
+    const compiled = instructions.map(instr =&gt; this.compile(instr, labels))
+    const program = this.instructionsToText(compiled)
+    return program
+  }
+</code></pre>
+<pre><code class="language-js">  splitAllocations (lines) {
+    const split = lines.indexOf(DIVIDER)
+    if (split === -1) {
+      return [lines, []]
+    } else {
+      return [lines.slice(0, split), lines.slice(split + 1)]
+    }
+  }
+</code></pre>
 <p>Second,
 we need to figure out where each allocation lies and create a label accordingly:</p>
-<div class="codehilite"><pre><span></span><code>  <span class="nx">addAllocations</span> <span class="p">(</span><span class="nx">baseOfData</span><span class="p">,</span> <span class="nx">labels</span><span class="p">,</span> <span class="nx">toAllocate</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">toAllocate</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">alloc</span> <span class="p">=&gt;</span> <span class="p">{</span>
-      <span class="kd">const</span> <span class="nx">fields</span> <span class="o">=</span> <span class="nx">alloc</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">).</span><span class="nx">map</span><span class="p">(</span><span class="nx">a</span> <span class="p">=&gt;</span> <span class="nx">a</span><span class="p">.</span><span class="nx">trim</span><span class="p">())</span>
-      <span class="nx">assert</span><span class="p">(</span><span class="nx">fields</span><span class="p">.</span><span class="nx">length</span> <span class="o">===</span> <span class="mf">2</span><span class="p">,</span>
-        <span class="sb">`Invalid allocation directive &quot;</span><span class="si">${</span><span class="nx">alloc</span><span class="si">}</span><span class="sb">&quot;`</span><span class="p">)</span>
-      <span class="kd">const</span> <span class="p">[</span><span class="nx">label</span><span class="p">,</span> <span class="nx">numWordsText</span><span class="p">]</span> <span class="o">=</span> <span class="nx">fields</span>
-      <span class="nx">assert</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nx">label</span> <span class="ow">in</span> <span class="nx">labels</span><span class="p">),</span>
-        <span class="sb">`Duplicate label &quot;</span><span class="si">${</span><span class="nx">label</span><span class="si">}</span><span class="sb">&quot; in data allocation`</span><span class="p">)</span>
-      <span class="kd">const</span> <span class="nx">numWords</span> <span class="o">=</span> <span class="nb">parseInt</span><span class="p">(</span><span class="nx">numWordsText</span><span class="p">)</span>
-      <span class="nx">assert</span><span class="p">((</span><span class="nx">baseOfData</span> <span class="o">+</span> <span class="nx">numWords</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nx">RAM_LEN</span><span class="p">,</span>
-        <span class="sb">`Allocation &quot;</span><span class="si">${</span><span class="nx">label</span><span class="si">}</span><span class="sb">&quot; requires too much memory`</span><span class="p">)</span>
-      <span class="nx">labels</span><span class="p">[</span><span class="nx">label</span><span class="p">]</span> <span class="o">=</span> <span class="nx">baseOfData</span>
-      <span class="nx">baseOfData</span> <span class="o">+=</span> <span class="nx">numWords</span>
-    <span class="p">})</span>
-  <span class="p">}</span>
-</code></pre></div>
-
+<pre><code class="language-js">  addAllocations (baseOfData, labels, toAllocate) {
+    toAllocate.forEach(alloc =&gt; {
+      const fields = alloc.split(':').map(a =&gt; a.trim())
+      assert(fields.length === 2,
+        `Invalid allocation directive &quot;${alloc}&quot;`)
+      const [label, numWordsText] = fields
+      assert(!(label in labels),
+        `Duplicate label &quot;${label}&quot; in data allocation`)
+      const numWords = parseInt(numWordsText)
+      assert((baseOfData + numWords) &lt; RAM_LEN,
+        `Allocation &quot;${label}&quot; requires too much memory`)
+      labels[label] = baseOfData
+      baseOfData += numWords
+    })
+  }
+</code></pre>
 <p>And that's it:
 no other changes are needed to either compilation or execution.
 To test it,
 let's fill an array with the numbers from 0 to 3:</p>
-<div class="codehilite"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="nx">Count</span><span class="w"> </span><span class="nx">up</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="mi">3</span><span class="p">.</span><span class="w"></span>
-<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R0</span><span class="o">:</span><span class="w"> </span><span class="nx">loop</span><span class="w"> </span><span class="nx">index</span><span class="p">.</span><span class="w"></span>
-<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R1</span><span class="o">:</span><span class="w"> </span><span class="nx">loop</span><span class="w"> </span><span class="nx">limit</span><span class="p">.</span><span class="w"></span>
-<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R2</span><span class="o">:</span><span class="w"> </span><span class="nx">array</span><span class="w"> </span><span class="nx">index</span><span class="p">.</span><span class="w"></span>
-<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R3</span><span class="o">:</span><span class="w"> </span><span class="nx">temporary</span><span class="p">.</span><span class="w"></span>
-<span class="nx">ldc</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
-<span class="nx">ldc</span><span class="w"> </span><span class="nx">R1</span><span class="w"> </span><span class="mi">3</span><span class="w"></span>
-<span class="nx">ldc</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="err">@</span><span class="nx">array</span><span class="w"></span>
-<span class="nx">loop</span><span class="o">:</span><span class="w"></span>
-<span class="nx">str</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="nx">R2</span><span class="w"></span>
-<span class="nx">ldc</span><span class="w"> </span><span class="nx">R3</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="nx">add</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="nx">R3</span><span class="w"></span>
-<span class="nx">add</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="nx">R3</span><span class="w"></span>
-<span class="nx">cpy</span><span class="w"> </span><span class="nx">R3</span><span class="w"> </span><span class="nx">R1</span><span class="w"></span>
-<span class="nx">sub</span><span class="w"> </span><span class="nx">R3</span><span class="w"> </span><span class="nx">R0</span><span class="w"></span>
-<span class="nx">bne</span><span class="w"> </span><span class="nx">R3</span><span class="w"> </span><span class="err">@</span><span class="nx">loop</span><span class="w"></span>
-<span class="nx">hlt</span><span class="w"></span>
-<span class="p">.</span><span class="nx">data</span><span class="w"></span>
-<span class="nx">array</span><span class="o">:</span><span class="w"> </span><span class="mi">10</span><span class="w"></span>
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code>R0 = 3
+<pre><code class="language-as"># Count up to 3.
+# - R0: loop index.
+# - R1: loop limit.
+# - R2: array index.
+# - R3: temporary.
+ldc R0 0
+ldc R1 3
+ldc R2 @array
+loop:
+str R0 R2
+ldc R3 1
+add R0 R3
+add R2 R3
+cpy R3 R1
+sub R3 R0
+bne R3 @loop
+hlt
+.data
+array: 10
+</code></pre>
+<pre><code class="language-out">R0 = 3
 R1 = 3
 R2 = 14
 R3 = 0
@@ -714,8 +691,7 @@ R3 = 0
 4:   00010302  00030006  00030206  00010304
 8:   00000307  00030309  00000001  00000000
 c:   00000001  00000002  00000000  00000000
-</code></pre></div>
-
+</code></pre>
 <blockquote>
 <h3>How does it actually work?</h3>
 <p>Our VM is just another program.

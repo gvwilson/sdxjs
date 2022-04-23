@@ -115,7 +115,7 @@ then (B, C, A) and (C, B, A) are both valid topological orders of the graph.</p>
 </blockquote>
 <h2 id="build-manager-start">Where should we start?</h2>
 <p>We will store our rules in YAML files like this:</p>
-<div class="codehilite"><pre><span></span><code>- target: A
+<pre><code class="language-yml">- target: A
   depends:
   - B
   - C
@@ -129,8 +129,7 @@ then (B, C, A) and (C, B, A) are both valid topological orders of the graph.</p>
 - target: C
   depends: []
   recipes: []
-</code></pre></div>
-
+</code></pre>
 <!-- continue -->
 <p>We could equally well have used JSON,
 but it wouldn't have made sense to use CSV:
@@ -140,19 +139,18 @@ and CSV doesn't represent nesting particularly gracefully.</p>
 so we start by writing a simple <span class="indexref" key="software design!driver" markdown="1"><a class="glossref" href="../glossary/#driver" markdown="1">driver</a></span> that loads a JavaScript source file,
 creates an object of whatever class that file exports,
 and runs the <code>.build</code> method of that object with the rest of the command-line parameters:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">main</span> <span class="o">=</span> <span class="k">async</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="nx">BuilderClass</span> <span class="o">=</span> <span class="p">(</span><span class="k">await</span> <span class="k">import</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">])).</span><span class="k">default</span>
-  <span class="kd">const</span> <span class="nx">builder</span> <span class="o">=</span> <span class="ow">new</span> <span class="nx">BuilderClass</span><span class="p">(...</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">3</span><span class="p">))</span>
-  <span class="k">try</span> <span class="p">{</span>
-    <span class="nx">builder</span><span class="p">.</span><span class="nx">build</span><span class="p">()</span>
-  <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Build failed:&#39;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+<pre><code class="language-js">const main = async () =&gt; {
+  const BuilderClass = (await import(process.argv[2])).default
+  const builder = new BuilderClass(...process.argv.slice(3))
+  try {
+    builder.build()
+  } catch (err) {
+    console.error('Build failed:', err)
+  }
+}
 
-<span class="nx">main</span><span class="p">()</span>
-</code></pre></div>
-
+main()
+</code></pre>
 <!-- continue -->
 <p>We use the <code>import</code> function to dynamically load files containing in <a class="crossref" href="../unit-test/">Chapter 4</a> as well.
 It only saves us a few lines of code in this case,
@@ -173,40 +171,39 @@ and then run whatever commands are needed to update stale targets.
 Just as we built a generic <span class="indexref" key="Visitor pattern;design pattern!Visitor" markdown="1"><code>Visitor</code></span> class in <a class="crossref" href="../page-templates/">Chapter 9</a>,
 we can build a generic base class for our build manager that does these steps in this order
 without actually implementing any of them:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">assert</span> <span class="kr">from</span> <span class="s1">&#39;assert&#39;</span>
+<pre><code class="language-js">import assert from 'assert'
 
-<span class="kd">class</span> <span class="nx">SkeletonBuilder</span> <span class="p">{</span>
-  <span class="kr">constructor</span> <span class="p">(</span><span class="nx">configFile</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">configFile</span> <span class="o">=</span> <span class="nx">configFile</span>
-  <span class="p">}</span>
+class SkeletonBuilder {
+  constructor (configFile) {
+    this.configFile = configFile
+  }
 
-  <span class="nx">build</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">loadConfig</span><span class="p">()</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">buildGraph</span><span class="p">()</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">checkCycles</span><span class="p">()</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">run</span><span class="p">()</span>
-  <span class="p">}</span>
+  build () {
+    this.loadConfig()
+    this.buildGraph()
+    this.checkCycles()
+    this.run()
+  }
 
-  <span class="nx">loadConfig</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="nx">assert</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span> <span class="s1">&#39;not implemented&#39;</span><span class="p">)</span>
-  <span class="p">}</span>
+  loadConfig () {
+    assert(false, 'not implemented')
+  }
 
-  <span class="nx">buildGraph</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="nx">assert</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span> <span class="s1">&#39;not implemented&#39;</span><span class="p">)</span>
-  <span class="p">}</span>
+  buildGraph () {
+    assert(false, 'not implemented')
+  }
 
-  <span class="nx">checkCycles</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="nx">assert</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span> <span class="s1">&#39;not implemented&#39;</span><span class="p">)</span>
-  <span class="p">}</span>
+  checkCycles () {
+    assert(false, 'not implemented')
+  }
 
-  <span class="nx">run</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="nx">assert</span><span class="p">.</span><span class="nx">fail</span><span class="p">(</span><span class="s1">&#39;run method not implemented&#39;</span><span class="p">)</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+  run () {
+    assert.fail('run method not implemented')
+  }
+}
 
-<span class="k">export</span> <span class="k">default</span> <span class="nx">SkeletonBuilder</span>
-</code></pre></div>
-
+export default SkeletonBuilder
+</code></pre>
 <p>This is an example of
 the <span class="indexref" key="Template Method pattern;design pattern!Template Method" markdown="1"><a class="glossref" href="../glossary/#template_method_pattern" markdown="1">Template Method</a></span> design pattern:
 the parent class defines the order of the steps
@@ -223,39 +220,38 @@ even if the details of <em>how</em> vary from case to case.</p>
 but to make the evolving code easier to follow we will write them them one by one.
 The <code>loadConfig</code> method loads the configuration file
 as the builder object is being constructed:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">assert</span> <span class="kr">from</span> <span class="s1">&#39;assert&#39;</span>
-<span class="k">import</span> <span class="nx">fs</span> <span class="kr">from</span> <span class="s1">&#39;fs&#39;</span>
-<span class="k">import</span> <span class="nx">yaml</span> <span class="kr">from</span> <span class="s1">&#39;js-yaml&#39;</span>
+<pre><code class="language-js">import assert from 'assert'
+import fs from 'fs'
+import yaml from 'js-yaml'
 
-<span class="k">import</span> <span class="nx">SkeletonBuilder</span> <span class="kr">from</span> <span class="s1">&#39;./skeleton-builder.js&#39;</span>
+import SkeletonBuilder from './skeleton-builder.js'
 
-<span class="kd">class</span> <span class="nx">ConfigLoader</span> <span class="k">extends</span> <span class="nx">SkeletonBuilder</span> <span class="p">{</span>
-  <span class="nx">loadConfig</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">config</span> <span class="o">=</span> <span class="nx">yaml</span><span class="p">.</span><span class="nx">safeLoad</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">configFile</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+class ConfigLoader extends SkeletonBuilder {
+  loadConfig () {
+    this.config = yaml.safeLoad(fs.readFileSync(this.configFile, 'utf-8'))
 
-    <span class="nx">assert</span><span class="p">(</span><span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">config</span><span class="p">),</span>
-      <span class="s1">&#39;Configuration must be array&#39;</span><span class="p">)</span>
+    assert(Array.isArray(this.config),
+      'Configuration must be array')
 
-    <span class="k">this</span><span class="p">.</span><span class="nx">config</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">rule</span> <span class="p">=&gt;</span> <span class="p">{</span>
-      <span class="nx">assert</span><span class="p">((</span><span class="s1">&#39;target&#39;</span> <span class="ow">in</span> <span class="nx">rule</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="ow">typeof</span> <span class="nx">rule</span><span class="p">.</span><span class="nx">target</span> <span class="o">===</span> <span class="s1">&#39;string&#39;</span><span class="p">),</span>
-        <span class="sb">`Rule </span><span class="si">${</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">rule</span><span class="p">)</span><span class="si">}</span><span class="sb"> does not string as &#39;target&#39;`</span><span class="p">)</span>
+    this.config.forEach(rule =&gt; {
+      assert(('target' in rule) &amp;&amp; (typeof rule.target === 'string'),
+        `Rule ${JSON.stringify(rule)} does not string as 'target'`)
 
-      <span class="nx">assert</span><span class="p">((</span><span class="s1">&#39;depends&#39;</span> <span class="ow">in</span> <span class="nx">rule</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
-        <span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">rule</span><span class="p">.</span><span class="nx">depends</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
-        <span class="nx">rule</span><span class="p">.</span><span class="nx">depends</span><span class="p">.</span><span class="nx">every</span><span class="p">(</span><span class="nx">dep</span> <span class="p">=&gt;</span> <span class="p">(</span><span class="ow">typeof</span> <span class="nx">dep</span> <span class="o">===</span> <span class="s1">&#39;string&#39;</span><span class="p">)),</span>
-        <span class="sb">`Bad &#39;depends&#39; for rule </span><span class="si">${</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">rule</span><span class="p">)</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+      assert(('depends' in rule) &amp;&amp;
+        Array.isArray(rule.depends) &amp;&amp;
+        rule.depends.every(dep =&gt; (typeof dep === 'string')),
+        `Bad 'depends' for rule ${JSON.stringify(rule)}`)
 
-      <span class="nx">assert</span><span class="p">((</span><span class="s1">&#39;recipes&#39;</span> <span class="ow">in</span> <span class="nx">rule</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
-        <span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">rule</span><span class="p">.</span><span class="nx">recipes</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
-        <span class="nx">rule</span><span class="p">.</span><span class="nx">recipes</span><span class="p">.</span><span class="nx">every</span><span class="p">(</span><span class="nx">recipe</span> <span class="p">=&gt;</span> <span class="p">(</span><span class="ow">typeof</span> <span class="nx">recipe</span> <span class="o">===</span> <span class="s1">&#39;string&#39;</span><span class="p">)),</span>
-        <span class="sb">`Bad &#39;recipes&#39; for rule </span><span class="si">${</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">rule</span><span class="p">)</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
-    <span class="p">})</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+      assert(('recipes' in rule) &amp;&amp;
+        Array.isArray(rule.recipes) &amp;&amp;
+        rule.recipes.every(recipe =&gt; (typeof recipe === 'string')),
+        `Bad 'recipes' for rule ${JSON.stringify(rule)}`)
+    })
+  }
+}
 
-<span class="k">export</span> <span class="k">default</span> <span class="nx">ConfigLoader</span>
-</code></pre></div>
-
+export default ConfigLoader
+</code></pre>
 <!-- continue -->
 <p>The first line does the loading;
 the rest of the method checks that the rules are at least superficially plausible.
@@ -281,71 +277,67 @@ Two features of <code>graphlib</code> that took us a while to figure out are tha
 <p><code>graphlib</code> provides implementations of some common graph algorithms,
 including one to check for cycles,
 so we might as well write that method at this point as well:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">assert</span> <span class="kr">from</span> <span class="s1">&#39;assert&#39;</span>
-<span class="k">import</span> <span class="nx">graphlib</span> <span class="kr">from</span> <span class="s1">&#39;@dagrejs/graphlib&#39;</span>
+<pre><code class="language-js">import assert from 'assert'
+import graphlib from '@dagrejs/graphlib'
 
-<span class="k">import</span> <span class="nx">ConfigLoader</span> <span class="kr">from</span> <span class="s1">&#39;./config-loader.js&#39;</span>
+import ConfigLoader from './config-loader.js'
 
-<span class="kd">class</span> <span class="nx">GraphCreator</span> <span class="k">extends</span> <span class="nx">ConfigLoader</span> <span class="p">{</span>
-  <span class="nx">buildGraph</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">graph</span> <span class="o">=</span> <span class="ow">new</span> <span class="nx">graphlib</span><span class="p">.</span><span class="nx">Graph</span><span class="p">()</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">config</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">rule</span> <span class="p">=&gt;</span> <span class="p">{</span>
-      <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">setNode</span><span class="p">(</span><span class="nx">rule</span><span class="p">.</span><span class="nx">target</span><span class="p">,</span> <span class="p">{</span>
-        <span class="nx">recipes</span><span class="o">:</span> <span class="nx">rule</span><span class="p">.</span><span class="nx">recipes</span>
-      <span class="p">})</span>
-      <span class="nx">rule</span><span class="p">.</span><span class="nx">depends</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">dep</span> <span class="p">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">setEdge</span><span class="p">(</span><span class="nx">dep</span><span class="p">,</span> <span class="nx">rule</span><span class="p">.</span><span class="nx">target</span><span class="p">))</span>
-    <span class="p">})</span>
-  <span class="p">}</span>
+class GraphCreator extends ConfigLoader {
+  buildGraph () {
+    this.graph = new graphlib.Graph()
+    this.config.forEach(rule =&gt; {
+      this.graph.setNode(rule.target, {
+        recipes: rule.recipes
+      })
+      rule.depends.forEach(dep =&gt; this.graph.setEdge(dep, rule.target))
+    })
+  }
 
-  <span class="nx">checkCycles</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="nx">cycles</span> <span class="o">=</span> <span class="nx">graphlib</span><span class="p">.</span><span class="nx">alg</span><span class="p">.</span><span class="nx">findCycles</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">)</span>
-    <span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">(</span><span class="nx">cycles</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span> <span class="mf">0</span><span class="p">,</span>
-      <span class="sb">`Dependency graph contains cycles </span><span class="si">${</span><span class="nx">cycles</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+  checkCycles () {
+    const cycles = graphlib.alg.findCycles(this.graph)
+    assert.strictEqual(cycles.length, 0,
+      `Dependency graph contains cycles ${cycles}`)
+  }
+}
 
-<span class="k">export</span> <span class="k">default</span> <span class="nx">GraphCreator</span>
-</code></pre></div>
-
+export default GraphCreator
+</code></pre>
 <p>We can now create something that displays our configuration when it runs
 but does nothing else:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">graphlib</span> <span class="kr">from</span> <span class="s1">&#39;@dagrejs/graphlib&#39;</span>
+<pre><code class="language-js">import graphlib from '@dagrejs/graphlib'
 
-<span class="k">import</span> <span class="nx">GraphCreator</span> <span class="kr">from</span> <span class="s1">&#39;./graph-creator.js&#39;</span>
+import GraphCreator from './graph-creator.js'
 
-<span class="kd">class</span> <span class="nx">DisplayOnly</span> <span class="k">extends</span> <span class="nx">GraphCreator</span> <span class="p">{</span>
-  <span class="nx">run</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Graph&#39;</span><span class="p">)</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">graphlib</span><span class="p">.</span><span class="nx">json</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">))</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Sorted&#39;</span><span class="p">)</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">graphlib</span><span class="p">.</span><span class="nx">alg</span><span class="p">.</span><span class="nx">topsort</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">))</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+class DisplayOnly extends GraphCreator {
+  run () {
+    console.log('Graph')
+    console.log(graphlib.json.write(this.graph))
+    console.log('Sorted')
+    console.log(graphlib.alg.topsort(this.graph))
+  }
+}
 
-<span class="k">export</span> <span class="k">default</span> <span class="nx">DisplayOnly</span>
-</code></pre></div>
-
+export default DisplayOnly
+</code></pre>
 <p>If we run this with our three simple rules as input,
 it shows the graph with <code>v</code> and <code>w</code> keys to represent the ends of the links:</p>
-<div class="codehilite"><pre><span></span><code>node driver.js ./display-only.js three-simple-rules.yml
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code><span class="n">Graph</span><span class="w"></span>
-<span class="err">{</span><span class="w"></span>
-<span class="w">  </span><span class="nl">options</span><span class="p">:</span><span class="w"> </span><span class="err">{</span><span class="w"> </span><span class="nl">directed</span><span class="p">:</span><span class="w"> </span><span class="k">true</span><span class="p">,</span><span class="w"> </span><span class="nl">multigraph</span><span class="p">:</span><span class="w"> </span><span class="k">false</span><span class="p">,</span><span class="w"> </span><span class="nl">compound</span><span class="p">:</span><span class="w"> </span><span class="k">false</span><span class="w"> </span><span class="err">}</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nl">nodes</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n"></span>
-<span class="n">    { v: &#39;A&#39;, value: [Object</span><span class="o">]</span><span class="w"> </span><span class="err">}</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="err">{</span><span class="w"> </span><span class="nl">v</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;B&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="err">:</span><span class="w"> </span><span class="o">[</span><span class="n">Object</span><span class="o">]</span><span class="w"> </span><span class="err">}</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="err">{</span><span class="w"> </span><span class="nl">v</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;C&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="err">:</span><span class="w"> </span><span class="o">[</span><span class="n">Object</span><span class="o">]</span><span class="w"> </span><span class="err">}</span><span class="w"></span>
-<span class="w">  </span><span class="err">]</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nl">edges</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n"> { v: &#39;B&#39;, w: &#39;A&#39; }, { v: &#39;C&#39;, w: &#39;A&#39; }, { v: &#39;C&#39;, w: &#39;B&#39; } </span><span class="o">]</span><span class="w"></span>
-<span class="err">}</span><span class="w"></span>
-<span class="n">Sorted</span><span class="w"></span>
-<span class="o">[</span><span class="n"> &#39;C&#39;, &#39;B&#39;, &#39;A&#39; </span><span class="o">]</span><span class="w"></span>
-</code></pre></div>
-
+<pre><code class="language-sh">node driver.js ./display-only.js three-simple-rules.yml
+</code></pre>
+<pre><code class="language-out">Graph
+{
+  options: { directed: true, multigraph: false, compound: false },
+  nodes: [
+    { v: 'A', value: [Object] },
+    { v: 'B', value: [Object] },
+    { v: 'C', value: [Object] }
+  ],
+  edges: [ { v: 'B', w: 'A' }, { v: 'C', w: 'A' }, { v: 'C', w: 'B' } ]
+}
+Sorted
+[ 'C', 'B', 'A' ]
+</code></pre>
 <p>Let's write a quick test to make sure the cycle detector works as intended:</p>
-<div class="codehilite"><pre><span></span><code>- target: A
+<pre><code class="language-yml">- target: A
   depends:
   - B
   recipes:
@@ -355,26 +347,23 @@ it shows the graph with <code>v</code> and <code>w</code> keys to represent the 
   - A
   recipes:
   - &quot;update B from A&quot;
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code>node driver.js ./display-only.js circular-rules.yml
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code><span class="n">Build</span><span class="w"> </span><span class="nl">failed</span><span class="p">:</span><span class="w"> </span><span class="n">AssertionError</span><span class="w"> </span><span class="o">[</span><span class="n">ERR_ASSERTION</span><span class="o">]</span><span class="err">:</span><span class="w"> </span><span class="n">Dependency</span><span class="w"> </span><span class="n">graph</span><span class="w"> </span><span class="k">contains</span><span class="w"> </span><span class="err">\</span><span class="w"></span>
-<span class="w"> </span><span class="n">cycles</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="n">A</span><span class="w"></span>
-<span class="w">    </span><span class="k">at</span><span class="w"> </span><span class="n">DisplayOnly</span><span class="p">.</span><span class="n">checkCycles</span><span class="w"> </span><span class="err">\</span><span class="w"></span>
-<span class="w">     </span><span class="p">(</span><span class="o">/</span><span class="n">u</span><span class="o">/</span><span class="n">stjs</span><span class="o">/</span><span class="n">build</span><span class="o">-</span><span class="n">manager</span><span class="o">/</span><span class="n">graph</span><span class="o">-</span><span class="n">creator</span><span class="p">.</span><span class="nl">js</span><span class="p">:</span><span class="mi">19</span><span class="err">:</span><span class="mi">12</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">at</span><span class="w"> </span><span class="n">DisplayOnly</span><span class="p">.</span><span class="n">build</span><span class="w"> </span><span class="err">\</span><span class="w"></span>
-<span class="w">     </span><span class="p">(</span><span class="o">/</span><span class="n">u</span><span class="o">/</span><span class="n">stjs</span><span class="o">/</span><span class="n">build</span><span class="o">-</span><span class="n">manager</span><span class="o">/</span><span class="n">skeleton</span><span class="o">-</span><span class="n">builder</span><span class="p">.</span><span class="nl">js</span><span class="p">:</span><span class="mi">11</span><span class="err">:</span><span class="mi">10</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">at</span><span class="w"> </span><span class="n">main</span><span class="w"> </span><span class="p">(</span><span class="o">/</span><span class="n">u</span><span class="o">/</span><span class="n">stjs</span><span class="o">/</span><span class="n">build</span><span class="o">-</span><span class="n">manager</span><span class="o">/</span><span class="n">driver</span><span class="p">.</span><span class="nl">js</span><span class="p">:</span><span class="mi">5</span><span class="err">:</span><span class="mi">13</span><span class="p">)</span><span class="w"> </span><span class="err">{</span><span class="w"></span>
-<span class="w">  </span><span class="nl">generatedMessage</span><span class="p">:</span><span class="w"> </span><span class="k">false</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nl">code</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;ERR_ASSERTION&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nl">actual</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nl">expected</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nl">operator</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;strictEqual&#39;</span><span class="w"></span>
-<span class="err">}</span><span class="w"></span>
-</code></pre></div>
-
+</code></pre>
+<pre><code class="language-sh">node driver.js ./display-only.js circular-rules.yml
+</code></pre>
+<pre><code class="language-out">Build failed: AssertionError [ERR_ASSERTION]: Dependency graph contains \
+ cycles B,A
+    at DisplayOnly.checkCycles \
+     (/u/stjs/build-manager/graph-creator.js:19:12)
+    at DisplayOnly.build \
+     (/u/stjs/build-manager/skeleton-builder.js:11:10)
+    at main (/u/stjs/build-manager/driver.js:5:13) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual'
+}
+</code></pre>
 <h2 id="build-manager-timestamp">How can we specify that a file is out of date?</h2>
 <p>The next step is to figure out which files are out of date.
 Make does this by comparing the <span class="indexref" key="timestamp!in build;build!timestamp" markdown="1">timestamps</span> of the files in question,
@@ -389,54 +378,52 @@ Since we already looked at hashing in <a class="crossref" href="../file-backup/"
 we will use the timestamp approach here.
 And instead of using a mock filesystem as we did in <a class="crossref" href="../file-backup/">Chapter 5</a>,
 we will simply load another configuration file that specifies fake timestamps for files:</p>
-<div class="codehilite"><pre><span></span><code><span class="n">A</span><span class="o">:</span><span class="w"> </span><span class="mi">2</span><span class="w"></span>
-<span class="n">B</span><span class="o">:</span><span class="w"> </span><span class="mi">5</span><span class="w"></span>
-<span class="n">C</span><span class="o">:</span><span class="w"> </span><span class="mi">8</span><span class="w"></span>
-</code></pre></div>
-
+<pre><code class="language-yml">A: 2
+B: 5
+C: 8
+</code></pre>
 <p>Since we want to associate those timestamps with files,
 we add a step to <code>buildGraph</code> to read the timestamp file and add information to the graph's nodes:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">assert</span> <span class="kr">from</span> <span class="s1">&#39;assert&#39;</span>
-<span class="k">import</span> <span class="nx">fs</span> <span class="kr">from</span> <span class="s1">&#39;fs&#39;</span>
-<span class="k">import</span> <span class="nx">yaml</span> <span class="kr">from</span> <span class="s1">&#39;js-yaml&#39;</span>
+<pre><code class="language-js">import assert from 'assert'
+import fs from 'fs'
+import yaml from 'js-yaml'
 
-<span class="k">import</span> <span class="nx">GraphCreator</span> <span class="kr">from</span> <span class="s1">&#39;./graph-creator.js&#39;</span>
+import GraphCreator from './graph-creator.js'
 
-<span class="kd">class</span> <span class="nx">AddTimestamps</span> <span class="k">extends</span> <span class="nx">GraphCreator</span> <span class="p">{</span>
-  <span class="kr">constructor</span> <span class="p">(</span><span class="nx">configFile</span><span class="p">,</span> <span class="nx">timesFile</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">super</span><span class="p">(</span><span class="nx">configFile</span><span class="p">)</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">timesFile</span> <span class="o">=</span> <span class="nx">timesFile</span>
-  <span class="p">}</span>
+class AddTimestamps extends GraphCreator {
+  constructor (configFile, timesFile) {
+    super(configFile)
+    this.timesFile = timesFile
+  }
 
-  <span class="nx">buildGraph</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="k">super</span><span class="p">.</span><span class="nx">buildGraph</span><span class="p">()</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">addTimestamps</span><span class="p">()</span>
-  <span class="p">}</span>
+  buildGraph () {
+    super.buildGraph()
+    this.addTimestamps()
+  }
 
-  <span class="nx">addTimestamps</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="nx">times</span> <span class="o">=</span> <span class="nx">yaml</span><span class="p">.</span><span class="nx">safeLoad</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">timesFile</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">node</span> <span class="k">of</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">times</span><span class="p">))</span> <span class="p">{</span>
-      <span class="nx">assert</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">hasNode</span><span class="p">(</span><span class="nx">node</span><span class="p">),</span>
-             <span class="sb">`Graph does not have node </span><span class="si">${</span><span class="nx">node</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
-      <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">node</span><span class="p">).</span><span class="nx">timestamp</span> <span class="o">=</span> <span class="nx">times</span><span class="p">[</span><span class="nx">node</span><span class="p">]</span>
-    <span class="p">}</span>
-    <span class="kd">const</span> <span class="nx">missing</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">nodes</span><span class="p">().</span><span class="nx">filter</span><span class="p">(</span>
-      <span class="nx">n</span> <span class="p">=&gt;</span> <span class="o">!</span><span class="p">(</span><span class="s1">&#39;timestamp&#39;</span> <span class="ow">in</span> <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">n</span><span class="p">))</span>
-    <span class="p">)</span>
-    <span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">(</span><span class="nx">missing</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span> <span class="mf">0</span><span class="p">,</span>
-      <span class="sb">`Timestamp missing for node(s) </span><span class="si">${</span><span class="nx">missing</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
-  <span class="p">}</span>
+  addTimestamps () {
+    const times = yaml.safeLoad(fs.readFileSync(this.timesFile, 'utf-8'))
+    for (const node of Object.keys(times)) {
+      assert(this.graph.hasNode(node),
+             `Graph does not have node ${node}`)
+      this.graph.node(node).timestamp = times[node]
+    }
+    const missing = this.graph.nodes().filter(
+      n =&gt; !('timestamp' in this.graph.node(n))
+    )
+    assert.strictEqual(missing.length, 0,
+      `Timestamp missing for node(s) ${missing}`)
+  }
 
-  <span class="nx">run</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">nodes</span><span class="p">().</span><span class="nx">map</span><span class="p">(</span>
-      <span class="nx">n</span> <span class="p">=&gt;</span> <span class="sb">`</span><span class="si">${</span><span class="nx">n</span><span class="si">}</span><span class="sb">: </span><span class="si">${</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">n</span><span class="p">))</span><span class="si">}</span><span class="sb">`</span>
-    <span class="p">))</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+  run () {
+    console.log(this.graph.nodes().map(
+      n =&gt; `${n}: ${JSON.stringify(this.graph.node(n))}`
+    ))
+  }
+}
 
-<span class="k">export</span> <span class="k">default</span> <span class="nx">AddTimestamps</span>
-</code></pre></div>
-
+export default AddTimestamps
+</code></pre>
 <blockquote>
 <h3>Not quite what we were expecting</h3>
 <p>The steps defined in <code>SkeletonBuilder.build</code> don't change when we do this,
@@ -451,16 +438,14 @@ We will reflect on this in the last section of this chapter.</p>
 </blockquote>
 <p>Before we move on,
 let's make sure that adding timestamps works as we want:</p>
-<div class="codehilite"><pre><span></span><code>node driver.js ./add-timestamps.js three-simple-rules.yml add-timestamps.yml
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code>[
-  &#39;A: {&quot;recipes&quot;:[&quot;update A from B and C&quot;],&quot;timestamp&quot;:2}&#39;,
-  &#39;B: {&quot;recipes&quot;:[&quot;update B from C&quot;],&quot;timestamp&quot;:5}&#39;,
-  &#39;C: {&quot;recipes&quot;:[],&quot;timestamp&quot;:8}&#39;
+<pre><code class="language-sh">node driver.js ./add-timestamps.js three-simple-rules.yml add-timestamps.yml
+</code></pre>
+<pre><code class="language-out">[
+  'A: {&quot;recipes&quot;:[&quot;update A from B and C&quot;],&quot;timestamp&quot;:2}',
+  'B: {&quot;recipes&quot;:[&quot;update B from C&quot;],&quot;timestamp&quot;:5}',
+  'C: {&quot;recipes&quot;:[],&quot;timestamp&quot;:8}'
 ]
-</code></pre></div>
-
+</code></pre>
 <h2 id="build-manager-update">How can we update out-of-date files?</h2>
 <p>To figure out which recipes to execute and in which order,
 we set the pretended current time to the latest time of any file,
@@ -472,40 +457,39 @@ to trigger an update of anything that depends on it.</p>
 so we advance our fictional clock by one for each build.
 Using <code>graphlib.alg.topsort</code> to create the topological order,
 we get this:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">graphlib</span> <span class="kr">from</span> <span class="s1">&#39;@dagrejs/graphlib&#39;</span>
+<pre><code class="language-js">import graphlib from '@dagrejs/graphlib'
 
-<span class="k">import</span> <span class="nx">AddTimestamps</span> <span class="kr">from</span> <span class="s1">&#39;./add-timestamps.js&#39;</span>
+import AddTimestamps from './add-timestamps.js'
 
-<span class="kd">class</span> <span class="nx">UpdateOnTimestamps</span> <span class="k">extends</span> <span class="nx">AddTimestamps</span> <span class="p">{</span>
-  <span class="nx">run</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="nx">sorted</span> <span class="o">=</span> <span class="nx">graphlib</span><span class="p">.</span><span class="nx">alg</span><span class="p">.</span><span class="nx">topsort</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">)</span>
-    <span class="kd">const</span> <span class="nx">startTime</span> <span class="o">=</span> <span class="mf">1</span> <span class="o">+</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(...</span><span class="nx">sorted</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span>
-      <span class="nx">n</span> <span class="p">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">n</span><span class="p">).</span><span class="nx">timestamp</span><span class="p">))</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">startTime</span><span class="si">}</span><span class="sb">: START`</span><span class="p">)</span>
-    <span class="kd">const</span> <span class="nx">endTime</span> <span class="o">=</span> <span class="nx">sorted</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">currTime</span><span class="p">,</span> <span class="nx">node</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">isStale</span><span class="p">(</span><span class="nx">node</span><span class="p">))</span> <span class="p">{</span>
-        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">currTime</span><span class="si">}</span><span class="sb">: </span><span class="si">${</span><span class="nx">node</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">node</span><span class="p">).</span><span class="nx">recipes</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span>
-          <span class="nx">a</span> <span class="p">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`    </span><span class="si">${</span><span class="nx">a</span><span class="si">}</span><span class="sb">`</span><span class="p">))</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">node</span><span class="p">).</span><span class="nx">timestamp</span> <span class="o">=</span> <span class="nx">currTime</span>
-        <span class="nx">currTime</span> <span class="o">+=</span> <span class="mf">1</span>
-      <span class="p">}</span>
-      <span class="k">return</span> <span class="nx">currTime</span>
-    <span class="p">},</span> <span class="nx">startTime</span><span class="p">)</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">endTime</span><span class="si">}</span><span class="sb">: END`</span><span class="p">)</span>
-  <span class="p">}</span>
+class UpdateOnTimestamps extends AddTimestamps {
+  run () {
+    const sorted = graphlib.alg.topsort(this.graph)
+    const startTime = 1 + Math.max(...sorted.map(
+      n =&gt; this.graph.node(n).timestamp))
+    console.log(`${startTime}: START`)
+    const endTime = sorted.reduce((currTime, node) =&gt; {
+      if (this.isStale(node)) {
+        console.log(`${currTime}: ${node}`)
+        this.graph.node(node).recipes.forEach(
+          a =&gt; console.log(`    ${a}`))
+        this.graph.node(node).timestamp = currTime
+        currTime += 1
+      }
+      return currTime
+    }, startTime)
+    console.log(`${endTime}: END`)
+  }
 
-  <span class="nx">isStale</span> <span class="p">(</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">predecessors</span><span class="p">(</span><span class="nx">node</span><span class="p">).</span><span class="nx">some</span><span class="p">(</span>
-      <span class="nx">other</span> <span class="p">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">other</span><span class="p">).</span><span class="nx">timestamp</span> <span class="o">&gt;=</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">node</span><span class="p">).</span><span class="nx">timestamp</span>
-    <span class="p">)</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+  isStale (node) {
+    return this.graph.predecessors(node).some(
+      other =&gt; this.graph.node(other).timestamp &gt;=
+        this.graph.node(node).timestamp
+    )
+  }
+}
 
-<span class="k">export</span> <span class="k">default</span> <span class="nx">UpdateOnTimestamps</span>
-</code></pre></div>
-
+export default UpdateOnTimestamps
+</code></pre>
 <p>The <code>run</code> method:</p>
 <ol>
 <li>
@@ -525,17 +509,15 @@ we get this:</p>
 we see if any of its dependencies currently have timestamps greater than or equal to its.
 When we run this,
 it seems to do the right thing:</p>
-<div class="codehilite"><pre><span></span><code>node driver.js ./update-timestamps.js three-simple-rules.yml add-timestamps.yml
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code><span class="mi">9</span><span class="o">:</span><span class="w"> </span><span class="n">START</span><span class="w"></span>
-<span class="mi">9</span><span class="o">:</span><span class="w"> </span><span class="n">B</span><span class="w"></span>
-<span class="w">    </span><span class="n">update</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">C</span><span class="w"></span>
-<span class="mi">10</span><span class="o">:</span><span class="w"> </span><span class="n">A</span><span class="w"></span>
-<span class="w">    </span><span class="n">update</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">C</span><span class="w"></span>
-<span class="mi">11</span><span class="o">:</span><span class="w"> </span><span class="n">END</span><span class="w"></span>
-</code></pre></div>
-
+<pre><code class="language-sh">node driver.js ./update-timestamps.js three-simple-rules.yml add-timestamps.yml
+</code></pre>
+<pre><code class="language-out">9: START
+9: B
+    update B from C
+10: A
+    update A from B and C
+11: END
+</code></pre>
 <h2 id="build-manager-generic">How can we add generic build rules?</h2>
 <p>If our website has a hundred blog posts
 or a hundred pages of documentation about particular JavaScript files,
@@ -574,49 +556,47 @@ and <code>@DEP[1]</code>, <code>@DEP[2]</code>, and so on for specific dependenc
 </figure>
 
 <p>Our variable expander looks like this:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">UpdateOnTimestamps</span> <span class="kr">from</span> <span class="s1">&#39;./update-timestamps.js&#39;</span>
+<pre><code class="language-js">import UpdateOnTimestamps from './update-timestamps.js'
 
-<span class="kd">class</span> <span class="nx">VariableExpander</span> <span class="k">extends</span> <span class="nx">UpdateOnTimestamps</span> <span class="p">{</span>
-  <span class="nx">buildGraph</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="k">super</span><span class="p">.</span><span class="nx">buildGraph</span><span class="p">()</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">expandVariables</span><span class="p">()</span>
-  <span class="p">}</span>
+class VariableExpander extends UpdateOnTimestamps {
+  buildGraph () {
+    super.buildGraph()
+    this.expandVariables()
+  }
 
-  <span class="nx">expandVariables</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">nodes</span><span class="p">().</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">target</span> <span class="p">=&gt;</span> <span class="p">{</span>
-      <span class="k">try</span> <span class="p">{</span>
-        <span class="kd">const</span> <span class="nx">dependencies</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">predecessors</span><span class="p">(</span><span class="nx">target</span><span class="p">)</span>
-        <span class="kd">const</span> <span class="nx">recipes</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">target</span><span class="p">).</span><span class="nx">recipes</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">target</span><span class="p">).</span><span class="nx">recipes</span> <span class="o">=</span> <span class="nx">recipes</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">act</span> <span class="p">=&gt;</span> <span class="p">{</span>
-          <span class="nx">act</span> <span class="o">=</span> <span class="nx">act</span>
-            <span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="s1">&#39;@TARGET&#39;</span><span class="p">,</span> <span class="nx">target</span><span class="p">)</span>
-            <span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="s1">&#39;@DEPENDENCIES&#39;</span><span class="p">,</span> <span class="nx">dependencies</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">))</span>
-          <span class="nx">dependencies</span><span class="p">.</span><span class="nx">forEach</span><span class="p">((</span><span class="nx">dep</span><span class="p">,</span> <span class="nx">i</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-            <span class="nx">act</span> <span class="o">=</span> <span class="nx">act</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sb">`@DEP[</span><span class="si">${</span><span class="nx">i</span><span class="si">}</span><span class="sb">]`</span><span class="p">,</span> <span class="nx">dependencies</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span>
-          <span class="p">})</span>
-          <span class="k">return</span> <span class="nx">act</span>
-        <span class="p">})</span>
-      <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="sb">`Cannot find </span><span class="si">${</span><span class="nx">target</span><span class="si">}</span><span class="sb"> in graph`</span><span class="p">)</span>
-        <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
-      <span class="p">}</span>
-    <span class="p">})</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+  expandVariables () {
+    this.graph.nodes().forEach(target =&gt; {
+      try {
+        const dependencies = this.graph.predecessors(target)
+        const recipes = this.graph.node(target).recipes
+        this.graph.node(target).recipes = recipes.map(act =&gt; {
+          act = act
+            .replace('@TARGET', target)
+            .replace('@DEPENDENCIES', dependencies.join(' '))
+          dependencies.forEach((dep, i) =&gt; {
+            act = act.replace(`@DEP[${i}]`, dependencies[i])
+          })
+          return act
+        })
+      } catch (error) {
+        console.error(`Cannot find ${target} in graph`)
+        process.exit(1)
+      }
+    })
+  }
+}
 
-<span class="k">export</span> <span class="k">default</span> <span class="nx">VariableExpander</span>
-</code></pre></div>
-
+export default VariableExpander
+</code></pre>
 <p>The first thing we do is test that it works when there <em>aren't</em> any variables to expand
 by running it on the same example we used previously:</p>
-<div class="codehilite"><pre><span></span><code><span class="mi">9</span><span class="o">:</span><span class="w"> </span><span class="n">START</span><span class="w"></span>
-<span class="mi">9</span><span class="o">:</span><span class="w"> </span><span class="n">B</span><span class="w"></span>
-<span class="w">    </span><span class="n">update</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">C</span><span class="w"></span>
-<span class="mi">10</span><span class="o">:</span><span class="w"> </span><span class="n">A</span><span class="w"></span>
-<span class="w">    </span><span class="n">update</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">C</span><span class="w"></span>
-<span class="mi">11</span><span class="o">:</span><span class="w"> </span><span class="n">END</span><span class="w"></span>
-</code></pre></div>
-
+<pre><code class="language-out">9: START
+9: B
+    update B from C
+10: A
+    update A from B C
+11: END
+</code></pre>
 <!-- continue -->
 <p>This is perhaps the most important reason to create tests:
 they tell us right away if something we have added or changed
@@ -624,81 +604,78 @@ has broken something that used to work.
 That gives us a firm base to build on as we debug the new code.</p>
 <p>Now we need to add <span class="indexref" key="pattern rule (in build);build!pattern rule" markdown="1"><a class="glossref" href="../glossary/#pattern_rule" markdown="1">pattern rules</a></span>.
 Our first attempt at a rules file looks like this:</p>
-<div class="codehilite"><pre><span></span><code><span class="o">-</span><span class="w"> </span><span class="nl">target</span><span class="p">:</span><span class="w"> </span><span class="nf">left</span><span class="p">.</span><span class="k">out</span><span class="w"></span>
-<span class="w">  </span><span class="nl">depends</span><span class="p">:</span><span class="w"> </span><span class="err">[]</span><span class="w"></span>
-<span class="w">  </span><span class="nl">recipes</span><span class="p">:</span><span class="w"> </span><span class="err">[]</span><span class="w"></span>
-<span class="w">  </span><span class="nc">timestamp</span><span class="err">:</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="o">-</span><span class="w"> </span><span class="nl">target</span><span class="p">:</span><span class="w"> </span><span class="nf">left</span><span class="p">.</span><span class="ow">in</span><span class="w"></span>
-<span class="w">  </span><span class="nl">depends</span><span class="p">:</span><span class="w"> </span><span class="err">[]</span><span class="w"></span>
-<span class="w">  </span><span class="nl">recipes</span><span class="p">:</span><span class="w"> </span><span class="err">[]</span><span class="w"></span>
-<span class="w">  </span><span class="nc">timestamp</span><span class="err">:</span><span class="w"> </span><span class="mi">2</span><span class="w"></span>
-<span class="o">-</span><span class="w"> </span><span class="nl">target</span><span class="p">:</span><span class="w"> </span><span class="nf">right</span><span class="p">.</span><span class="k">out</span><span class="w"></span>
-<span class="w">  </span><span class="nl">depends</span><span class="p">:</span><span class="w"> </span><span class="err">[]</span><span class="w"></span>
-<span class="w">  </span><span class="nl">recipes</span><span class="p">:</span><span class="w"> </span><span class="err">[]</span><span class="w"></span>
-<span class="w">  </span><span class="nc">timestamp</span><span class="err">:</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="o">-</span><span class="w"> </span><span class="nl">target</span><span class="p">:</span><span class="w"> </span><span class="nf">right</span><span class="p">.</span><span class="ow">in</span><span class="w"></span>
-<span class="w">  </span><span class="nl">depends</span><span class="p">:</span><span class="w"> </span><span class="err">[]</span><span class="w"></span>
-<span class="w">  </span><span class="nl">recipes</span><span class="p">:</span><span class="w"> </span><span class="err">[]</span><span class="w"></span>
-<span class="w">  </span><span class="nc">timestamp</span><span class="err">:</span><span class="w"> </span><span class="mi">3</span><span class="w"></span>
-<span class="o">-</span><span class="w"> </span><span class="nl">target</span><span class="p">:</span><span class="w"> </span><span class="ss">&quot;%.out&quot;</span><span class="w"></span>
-<span class="w">  </span><span class="nl">depends</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="ss">&quot;%.in&quot;</span><span class="w"></span>
-<span class="w">  </span><span class="nl">recipes</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="ss">&quot;update @TARGET from @DEPENDENCIES&quot;</span><span class="w"></span>
-</code></pre></div>
-
+<pre><code class="language-yml">- target: left.out
+  depends: []
+  recipes: []
+  timestamp: 1
+- target: left.in
+  depends: []
+  recipes: []
+  timestamp: 2
+- target: right.out
+  depends: []
+  recipes: []
+  timestamp: 1
+- target: right.in
+  depends: []
+  recipes: []
+  timestamp: 3
+- target: &quot;%.out&quot;
+  depends:
+  - &quot;%.in&quot;
+  recipes:
+  - &quot;update @TARGET from @DEPENDENCIES&quot;
+</code></pre>
 <!-- continue -->
 <p>and our first attempt at reading it extracts rules before expanding variables:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">VariableExpander</span> <span class="kr">from</span> <span class="s1">&#39;./variable-expander.js&#39;</span>
+<pre><code class="language-js">import VariableExpander from './variable-expander.js'
 
-<span class="kd">class</span> <span class="nx">PatternUserAttempt</span> <span class="k">extends</span> <span class="nx">VariableExpander</span> <span class="p">{</span>
-  <span class="nx">buildGraph</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="k">super</span><span class="p">.</span><span class="nx">buildGraph</span><span class="p">()</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">extractRules</span><span class="p">()</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">expandVariables</span><span class="p">()</span>
-  <span class="p">}</span>
+class PatternUserAttempt extends VariableExpander {
+  buildGraph () {
+    super.buildGraph()
+    this.extractRules()
+    this.expandVariables()
+  }
 
-  <span class="nx">extractRules</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">rules</span> <span class="o">=</span> <span class="ow">new</span> <span class="nb">Map</span><span class="p">()</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">nodes</span><span class="p">().</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">target</span> <span class="p">=&gt;</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="nx">target</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s1">&#39;%&#39;</span><span class="p">))</span> <span class="p">{</span>
-        <span class="kd">const</span> <span class="nx">data</span> <span class="o">=</span> <span class="p">{</span>
-          <span class="nx">recipes</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">target</span><span class="p">).</span><span class="nx">recipes</span>
-        <span class="p">}</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">rules</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">target</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span>
-      <span class="p">}</span>
-    <span class="p">})</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">rules</span><span class="p">.</span><span class="nx">forEach</span><span class="p">((</span><span class="nx">value</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-      <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">removeNode</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span>
-    <span class="p">})</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+  extractRules () {
+    this.rules = new Map()
+    this.graph.nodes().forEach(target =&gt; {
+      if (target.includes('%')) {
+        const data = {
+          recipes: this.graph.node(target).recipes
+        }
+        this.rules.set(target, data)
+      }
+    })
+    this.rules.forEach((value, key) =&gt; {
+      this.graph.removeNode(key)
+    })
+  }
+}
 
-<span class="k">export</span> <span class="k">default</span> <span class="nx">PatternUserAttempt</span>
-</code></pre></div>
-
+export default PatternUserAttempt
+</code></pre>
 <p>However,
 that doesn't work:</p>
-<div class="codehilite"><pre><span></span><code><span class="n">Build</span><span class="w"> </span><span class="nl">failed</span><span class="p">:</span><span class="w"> </span><span class="n">AssertionError</span><span class="w"> </span><span class="o">[</span><span class="n">ERR_ASSERTION</span><span class="o">]</span><span class="err">:</span><span class="w"> </span><span class="n">Graph</span><span class="w"> </span><span class="n">does</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">have</span><span class="w"> </span><span class="n">node</span><span class="w"> </span><span class="n">A</span><span class="w"></span>
-<span class="w">    </span><span class="k">at</span><span class="w"> </span><span class="n">PatternUserAttempt</span><span class="p">.</span><span class="n">addTimestamps</span><span class="w"> </span><span class="err">\</span><span class="w"></span>
-<span class="w">    </span><span class="p">(</span><span class="o">/</span><span class="n">u</span><span class="o">/</span><span class="n">stjs</span><span class="o">/</span><span class="n">build</span><span class="o">-</span><span class="n">manager</span><span class="o">/</span><span class="k">add</span><span class="o">-</span><span class="n">timestamps</span><span class="p">.</span><span class="nl">js</span><span class="p">:</span><span class="mi">21</span><span class="err">:</span><span class="mi">7</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">at</span><span class="w"> </span><span class="n">PatternUserAttempt</span><span class="p">.</span><span class="n">buildGraph</span><span class="w"> </span><span class="err">\</span><span class="w"></span>
-<span class="w">    </span><span class="p">(</span><span class="o">/</span><span class="n">u</span><span class="o">/</span><span class="n">stjs</span><span class="o">/</span><span class="n">build</span><span class="o">-</span><span class="n">manager</span><span class="o">/</span><span class="k">add</span><span class="o">-</span><span class="n">timestamps</span><span class="p">.</span><span class="nl">js</span><span class="p">:</span><span class="mi">15</span><span class="err">:</span><span class="mi">10</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">at</span><span class="w"> </span><span class="n">PatternUserAttempt</span><span class="p">.</span><span class="n">buildGraph</span><span class="w"> </span><span class="err">\</span><span class="w"></span>
-<span class="w">    </span><span class="p">(</span><span class="o">/</span><span class="n">u</span><span class="o">/</span><span class="n">stjs</span><span class="o">/</span><span class="n">build</span><span class="o">-</span><span class="n">manager</span><span class="o">/</span><span class="k">variable</span><span class="o">-</span><span class="n">expander</span><span class="p">.</span><span class="nl">js</span><span class="p">:</span><span class="mi">5</span><span class="err">:</span><span class="mi">11</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">at</span><span class="w"> </span><span class="n">PatternUserAttempt</span><span class="p">.</span><span class="n">buildGraph</span><span class="w"> </span><span class="err">\</span><span class="w"></span>
-<span class="w">    </span><span class="p">(</span><span class="o">/</span><span class="n">u</span><span class="o">/</span><span class="n">stjs</span><span class="o">/</span><span class="n">build</span><span class="o">-</span><span class="n">manager</span><span class="o">/</span><span class="n">pattern</span><span class="o">-</span><span class="k">user</span><span class="o">-</span><span class="n">attempt</span><span class="p">.</span><span class="nl">js</span><span class="p">:</span><span class="mi">5</span><span class="err">:</span><span class="mi">11</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">at</span><span class="w"> </span><span class="n">PatternUserAttempt</span><span class="p">.</span><span class="n">build</span><span class="w"> </span><span class="err">\</span><span class="w"></span>
-<span class="w">    </span><span class="p">(</span><span class="o">/</span><span class="n">u</span><span class="o">/</span><span class="n">stjs</span><span class="o">/</span><span class="n">build</span><span class="o">-</span><span class="n">manager</span><span class="o">/</span><span class="n">skeleton</span><span class="o">-</span><span class="n">builder</span><span class="p">.</span><span class="nl">js</span><span class="p">:</span><span class="mi">10</span><span class="err">:</span><span class="mi">10</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">at</span><span class="w"> </span><span class="n">main</span><span class="w"> </span><span class="p">(</span><span class="o">/</span><span class="n">u</span><span class="o">/</span><span class="n">stjs</span><span class="o">/</span><span class="n">build</span><span class="o">-</span><span class="n">manager</span><span class="o">/</span><span class="n">driver</span><span class="p">.</span><span class="nl">js</span><span class="p">:</span><span class="mi">5</span><span class="err">:</span><span class="mi">13</span><span class="p">)</span><span class="w"> </span><span class="err">{</span><span class="w"></span>
-<span class="w">  </span><span class="nl">generatedMessage</span><span class="p">:</span><span class="w"> </span><span class="k">false</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nl">code</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;ERR_ASSERTION&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nl">actual</span><span class="p">:</span><span class="w"> </span><span class="k">false</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nl">expected</span><span class="p">:</span><span class="w"> </span><span class="k">true</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nl">operator</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;==&#39;</span><span class="w"></span>
-<span class="err">}</span><span class="w"></span>
-</code></pre></div>
-
+<pre><code class="language-out">Build failed: AssertionError [ERR_ASSERTION]: Graph does not have node A
+    at PatternUserAttempt.addTimestamps \
+    (/u/stjs/build-manager/add-timestamps.js:21:7)
+    at PatternUserAttempt.buildGraph \
+    (/u/stjs/build-manager/add-timestamps.js:15:10)
+    at PatternUserAttempt.buildGraph \
+    (/u/stjs/build-manager/variable-expander.js:5:11)
+    at PatternUserAttempt.buildGraph \
+    (/u/stjs/build-manager/pattern-user-attempt.js:5:11)
+    at PatternUserAttempt.build \
+    (/u/stjs/build-manager/skeleton-builder.js:10:10)
+    at main (/u/stjs/build-manager/driver.js:5:13) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '=='
+}
+</code></pre>
 <!-- continue -->
 <p>The problem is that our simple graph loader creates nodes for dependencies even if they aren't targets.
 As a result,
@@ -722,191 +699,185 @@ we can tell the two apart by checking if the rule's dependencies include <code>%
 While we're here,
 we will enable timestamps as an optional field in the rules for testing purposes
 rather than having them in a separate file:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">assert</span> <span class="kr">from</span> <span class="s1">&#39;assert&#39;</span>
-<span class="k">import</span> <span class="nx">graphlib</span> <span class="kr">from</span> <span class="s1">&#39;@dagrejs/graphlib&#39;</span>
+<pre><code class="language-js">import assert from 'assert'
+import graphlib from '@dagrejs/graphlib'
 
-<span class="k">import</span> <span class="nx">VariableExpander</span> <span class="kr">from</span> <span class="s1">&#39;./variable-expander.js&#39;</span>
+import VariableExpander from './variable-expander.js'
 
-<span class="kd">class</span> <span class="nx">PatternUserRead</span> <span class="k">extends</span> <span class="nx">VariableExpander</span> <span class="p">{</span>
-  <span class="nx">buildGraph</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">buildGraphAndRules</span><span class="p">()</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">expandVariables</span><span class="p">()</span>
-  <span class="p">}</span>
+class PatternUserRead extends VariableExpander {
+  buildGraph () {
+    this.buildGraphAndRules()
+    this.expandVariables()
+  }
 
-  <span class="nx">buildGraphAndRules</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">graph</span> <span class="o">=</span> <span class="ow">new</span> <span class="nx">graphlib</span><span class="p">.</span><span class="nx">Graph</span><span class="p">()</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">rules</span> <span class="o">=</span> <span class="ow">new</span> <span class="nb">Map</span><span class="p">()</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">config</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">rule</span> <span class="p">=&gt;</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="nx">rule</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s1">&#39;%&#39;</span><span class="p">))</span> <span class="p">{</span>
-        <span class="kd">const</span> <span class="nx">data</span> <span class="o">=</span> <span class="p">{</span>
-          <span class="nx">recipes</span><span class="o">:</span> <span class="nx">rule</span><span class="p">.</span><span class="nx">recipes</span><span class="p">,</span>
-          <span class="nx">depends</span><span class="o">:</span> <span class="nx">rule</span><span class="p">.</span><span class="nx">depends</span>
-        <span class="p">}</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">rules</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">rule</span><span class="p">.</span><span class="nx">target</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span>
-      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="kd">const</span> <span class="nx">timestamp</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;timestamp&#39;</span> <span class="ow">in</span> <span class="nx">rule</span><span class="p">)</span>
-          <span class="o">?</span> <span class="nx">rule</span><span class="p">.</span><span class="nx">timestamp</span>
-          <span class="o">:</span> <span class="kc">null</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">setNode</span><span class="p">(</span><span class="nx">rule</span><span class="p">.</span><span class="nx">target</span><span class="p">,</span> <span class="p">{</span>
-          <span class="nx">recipes</span><span class="o">:</span> <span class="nx">rule</span><span class="p">.</span><span class="nx">recipes</span><span class="p">,</span>
-          <span class="nx">timestamp</span><span class="o">:</span> <span class="nx">timestamp</span>
-        <span class="p">})</span>
-        <span class="nx">rule</span><span class="p">.</span><span class="nx">depends</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">dep</span> <span class="p">=&gt;</span> <span class="p">{</span>
-          <span class="nx">assert</span><span class="p">(</span><span class="o">!</span><span class="nx">dep</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s1">&#39;%&#39;</span><span class="p">),</span>
-            <span class="s1">&#39;Cannot have &quot;%&quot; in a non-pattern rule&#39;</span><span class="p">)</span>
-          <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">setEdge</span><span class="p">(</span><span class="nx">dep</span><span class="p">,</span> <span class="nx">rule</span><span class="p">.</span><span class="nx">target</span><span class="p">)</span>
-        <span class="p">})</span>
-      <span class="p">}</span>
-    <span class="p">})</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+  buildGraphAndRules () {
+    this.graph = new graphlib.Graph()
+    this.rules = new Map()
+    this.config.forEach(rule =&gt; {
+      if (rule.target.includes('%')) {
+        const data = {
+          recipes: rule.recipes,
+          depends: rule.depends
+        }
+        this.rules.set(rule.target, data)
+      } else {
+        const timestamp = ('timestamp' in rule)
+          ? rule.timestamp
+          : null
+        this.graph.setNode(rule.target, {
+          recipes: rule.recipes,
+          timestamp: timestamp
+        })
+        rule.depends.forEach(dep =&gt; {
+          assert(!dep.includes('%'),
+            'Cannot have &quot;%&quot; in a non-pattern rule')
+          this.graph.setEdge(dep, rule.target)
+        })
+      }
+    })
+  }
+}
 
-<span class="k">export</span> <span class="k">default</span> <span class="nx">PatternUserRead</span>
-</code></pre></div>
-
+export default PatternUserRead
+</code></pre>
 <p>Before we try to run this,
 let's add methods to show the state of our two internal data structures:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">graphlib</span> <span class="kr">from</span> <span class="s1">&#39;@dagrejs/graphlib&#39;</span>
+<pre><code class="language-js">import graphlib from '@dagrejs/graphlib'
 
-<span class="k">import</span> <span class="nx">PatternUserRead</span> <span class="kr">from</span> <span class="s1">&#39;./pattern-user-read.js&#39;</span>
+import PatternUserRead from './pattern-user-read.js'
 
-<span class="kd">class</span> <span class="nx">PatternUserShow</span> <span class="k">extends</span> <span class="nx">PatternUserRead</span> <span class="p">{</span>
-  <span class="nx">run</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">toJSON</span><span class="p">(),</span> <span class="kc">null</span><span class="p">,</span> <span class="mf">2</span><span class="p">))</span>
-  <span class="p">}</span>
+class PatternUserShow extends PatternUserRead {
+  run () {
+    console.log(JSON.stringify(this.toJSON(), null, 2))
+  }
 
-  <span class="nx">toJSON</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="p">{</span>
-      <span class="nx">graph</span><span class="o">:</span> <span class="nx">graphlib</span><span class="p">.</span><span class="nx">json</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">),</span>
-      <span class="nx">rules</span><span class="o">:</span> <span class="nb">Array</span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">rules</span><span class="p">.</span><span class="nx">keys</span><span class="p">()).</span><span class="nx">map</span><span class="p">(</span><span class="nx">key</span> <span class="p">=&gt;</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="p">{</span> <span class="nx">k</span><span class="o">:</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">v</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">rules</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span> <span class="p">}</span>
-      <span class="p">})</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+  toJSON () {
+    return {
+      graph: graphlib.json.write(this.graph),
+      rules: Array.from(this.rules.keys()).map(key =&gt; {
+        return { k: key, v: this.rules.get(key) }
+      })
+    }
+  }
+}
 
-<span class="k">export</span> <span class="k">default</span> <span class="nx">PatternUserShow</span>
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code>node driver.js ./pattern-user-show.js pattern-rules.yml
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code><span class="err">{</span><span class="w"></span>
-<span class="w">  </span><span class="ss">&quot;graph&quot;</span><span class="err">:</span><span class="w"> </span><span class="err">{</span><span class="w"></span>
-<span class="w">    </span><span class="ss">&quot;options&quot;</span><span class="err">:</span><span class="w"> </span><span class="err">{</span><span class="w"></span>
-<span class="w">      </span><span class="ss">&quot;directed&quot;</span><span class="err">:</span><span class="w"> </span><span class="k">true</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="ss">&quot;multigraph&quot;</span><span class="err">:</span><span class="w"> </span><span class="k">false</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="ss">&quot;compound&quot;</span><span class="err">:</span><span class="w"> </span><span class="k">false</span><span class="w"></span>
-<span class="w">    </span><span class="err">}</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="ss">&quot;nodes&quot;</span><span class="err">:</span><span class="w"> </span><span class="o">[</span><span class="n"></span>
-<span class="n">      {</span>
-<span class="n">        &quot;v&quot;: &quot;left.out&quot;,</span>
-<span class="n">        &quot;value&quot;: {</span>
-<span class="n">          &quot;recipes&quot;: [</span><span class="o">]</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="ss">&quot;timestamp&quot;</span><span class="err">:</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="w">        </span><span class="err">}</span><span class="w"></span>
-<span class="w">      </span><span class="err">}</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="err">{</span><span class="w"></span>
-<span class="w">        </span><span class="ss">&quot;v&quot;</span><span class="err">:</span><span class="w"> </span><span class="ss">&quot;left.in&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="ss">&quot;value&quot;</span><span class="err">:</span><span class="w"> </span><span class="err">{</span><span class="w"></span>
-<span class="w">          </span><span class="ss">&quot;recipes&quot;</span><span class="err">:</span><span class="w"> </span><span class="err">[]</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="ss">&quot;timestamp&quot;</span><span class="err">:</span><span class="w"> </span><span class="mi">2</span><span class="w"></span>
-<span class="w">        </span><span class="err">}</span><span class="w"></span>
-<span class="w">      </span><span class="err">}</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="err">{</span><span class="w"></span>
-<span class="w">        </span><span class="ss">&quot;v&quot;</span><span class="err">:</span><span class="w"> </span><span class="ss">&quot;right.out&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="ss">&quot;value&quot;</span><span class="err">:</span><span class="w"> </span><span class="err">{</span><span class="w"></span>
-<span class="w">          </span><span class="ss">&quot;recipes&quot;</span><span class="err">:</span><span class="w"> </span><span class="err">[]</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="ss">&quot;timestamp&quot;</span><span class="err">:</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="w">        </span><span class="err">}</span><span class="w"></span>
-<span class="w">      </span><span class="err">}</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="err">{</span><span class="w"></span>
-<span class="w">        </span><span class="ss">&quot;v&quot;</span><span class="err">:</span><span class="w"> </span><span class="ss">&quot;right.in&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="ss">&quot;value&quot;</span><span class="err">:</span><span class="w"> </span><span class="err">{</span><span class="w"></span>
-<span class="w">          </span><span class="ss">&quot;recipes&quot;</span><span class="err">:</span><span class="w"> </span><span class="err">[]</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="ss">&quot;timestamp&quot;</span><span class="err">:</span><span class="w"> </span><span class="mi">3</span><span class="w"></span>
-<span class="w">        </span><span class="err">}</span><span class="w"></span>
-<span class="w">      </span><span class="err">}</span><span class="w"></span>
-<span class="w">    </span><span class="err">]</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="ss">&quot;edges&quot;</span><span class="err">:</span><span class="w"> </span><span class="err">[]</span><span class="w"></span>
-<span class="w">  </span><span class="err">}</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="ss">&quot;rules&quot;</span><span class="err">:</span><span class="w"> </span><span class="o">[</span><span class="n"></span>
-<span class="n">    {</span>
-<span class="n">      &quot;k&quot;: &quot;%.out&quot;,</span>
-<span class="n">      &quot;v&quot;: {</span>
-<span class="n">        &quot;recipes&quot;: [</span>
-<span class="n">          &quot;update @TARGET from @DEPENDENCIES&quot;</span>
-<span class="n">        </span><span class="o">]</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="ss">&quot;depends&quot;</span><span class="err">:</span><span class="w"> </span><span class="o">[</span><span class="n"></span>
-<span class="n">          &quot;%.in&quot;</span>
-<span class="n">        </span><span class="o">]</span><span class="w"></span>
-<span class="w">      </span><span class="err">}</span><span class="w"></span>
-<span class="w">    </span><span class="err">}</span><span class="w"></span>
-<span class="w">  </span><span class="err">]</span><span class="w"></span>
-<span class="err">}</span><span class="w"></span>
-</code></pre></div>
-
+export default PatternUserShow
+</code></pre>
+<pre><code class="language-sh">node driver.js ./pattern-user-show.js pattern-rules.yml
+</code></pre>
+<pre><code class="language-out">{
+  &quot;graph&quot;: {
+    &quot;options&quot;: {
+      &quot;directed&quot;: true,
+      &quot;multigraph&quot;: false,
+      &quot;compound&quot;: false
+    },
+    &quot;nodes&quot;: [
+      {
+        &quot;v&quot;: &quot;left.out&quot;,
+        &quot;value&quot;: {
+          &quot;recipes&quot;: [],
+          &quot;timestamp&quot;: 1
+        }
+      },
+      {
+        &quot;v&quot;: &quot;left.in&quot;,
+        &quot;value&quot;: {
+          &quot;recipes&quot;: [],
+          &quot;timestamp&quot;: 2
+        }
+      },
+      {
+        &quot;v&quot;: &quot;right.out&quot;,
+        &quot;value&quot;: {
+          &quot;recipes&quot;: [],
+          &quot;timestamp&quot;: 1
+        }
+      },
+      {
+        &quot;v&quot;: &quot;right.in&quot;,
+        &quot;value&quot;: {
+          &quot;recipes&quot;: [],
+          &quot;timestamp&quot;: 3
+        }
+      }
+    ],
+    &quot;edges&quot;: []
+  },
+  &quot;rules&quot;: [
+    {
+      &quot;k&quot;: &quot;%.out&quot;,
+      &quot;v&quot;: {
+        &quot;recipes&quot;: [
+          &quot;update @TARGET from @DEPENDENCIES&quot;
+        ],
+        &quot;depends&quot;: [
+          &quot;%.in&quot;
+        ]
+      }
+    }
+  ]
+}
+</code></pre>
 <p>The output seems to be right,
 so let's try expanding rules <em>after</em> building the graph and rules
 but <em>before</em> expanding variables:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span> <span class="nx">PatternUserRead</span> <span class="kr">from</span> <span class="s1">&#39;./pattern-user-read.js&#39;</span>
+<pre><code class="language-js">import PatternUserRead from './pattern-user-read.js'
 
-<span class="kd">class</span> <span class="nx">PatternUserRun</span> <span class="k">extends</span> <span class="nx">PatternUserRead</span> <span class="p">{</span>
-  <span class="nx">buildGraph</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">buildGraphAndRules</span><span class="p">()</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">expandAllRules</span><span class="p">()</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">expandVariables</span><span class="p">()</span>
-  <span class="p">}</span>
+class PatternUserRun extends PatternUserRead {
+  buildGraph () {
+    this.buildGraphAndRules()
+    this.expandAllRules()
+    this.expandVariables()
+  }
 
-  <span class="nx">expandAllRules</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">nodes</span><span class="p">().</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">target</span> <span class="p">=&gt;</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">predecessors</span><span class="p">(</span><span class="nx">target</span><span class="p">).</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mf">0</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span>
-      <span class="p">}</span>
-      <span class="kd">const</span> <span class="nx">data</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">target</span><span class="p">)</span>
-      <span class="k">if</span> <span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">recipes</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mf">0</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span>
-      <span class="p">}</span>
-      <span class="kd">const</span> <span class="nx">rule</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">findRule</span><span class="p">(</span><span class="nx">target</span><span class="p">)</span>
-      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">rule</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span>
-      <span class="p">}</span>
-      <span class="k">this</span><span class="p">.</span><span class="nx">expandRule</span><span class="p">(</span><span class="nx">target</span><span class="p">,</span> <span class="nx">rule</span><span class="p">)</span>
-    <span class="p">})</span>
-  <span class="p">}</span>
+  expandAllRules () {
+    this.graph.nodes().forEach(target =&gt; {
+      if (this.graph.predecessors(target).length &gt; 0) {
+        return
+      }
+      const data = this.graph.node(target)
+      if (data.recipes.length &gt; 0) {
+        return
+      }
+      const rule = this.findRule(target)
+      if (!rule) {
+        return
+      }
+      this.expandRule(target, rule)
+    })
+  }
 
-  <span class="nx">findRule</span> <span class="p">(</span><span class="nx">target</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="nx">pattern</span> <span class="o">=</span> <span class="sb">`%.</span><span class="si">${</span><span class="nx">target</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mf">1</span><span class="p">]</span><span class="si">}</span><span class="sb">`</span>
-    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">rules</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">pattern</span><span class="p">)</span>
-      <span class="o">?</span> <span class="k">this</span><span class="p">.</span><span class="nx">rules</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">pattern</span><span class="p">)</span>
-      <span class="o">:</span> <span class="kc">null</span>
-  <span class="p">}</span>
+  findRule (target) {
+    const pattern = `%.${target.split('.')[1]}`
+    return this.rules.has(pattern)
+      ? this.rules.get(pattern)
+      : null
+  }
 
-  <span class="nx">expandRule</span> <span class="p">(</span><span class="nx">target</span><span class="p">,</span> <span class="nx">rule</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="nx">stem</span> <span class="o">=</span> <span class="nx">target</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mf">0</span><span class="p">]</span>
-    <span class="nx">rule</span><span class="p">.</span><span class="nx">depends</span>
-      <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">dep</span> <span class="p">=&gt;</span> <span class="nx">dep</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="nx">stem</span><span class="p">))</span>
-      <span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">dep</span> <span class="p">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">setEdge</span><span class="p">(</span><span class="nx">dep</span><span class="p">,</span> <span class="nx">target</span><span class="p">))</span>
-    <span class="kd">const</span> <span class="nx">recipes</span> <span class="o">=</span> <span class="nx">rule</span><span class="p">.</span><span class="nx">recipes</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">act</span> <span class="p">=&gt;</span> <span class="nx">act</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="nx">stem</span><span class="p">))</span>
-    <span class="kd">const</span> <span class="nx">timestamp</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">target</span><span class="p">).</span><span class="nx">timestamp</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">setNode</span><span class="p">(</span><span class="nx">target</span><span class="p">,</span> <span class="p">{</span>
-      <span class="nx">recipes</span><span class="o">:</span> <span class="nx">recipes</span><span class="p">,</span>
-      <span class="nx">timestamp</span><span class="o">:</span> <span class="nx">timestamp</span>
-    <span class="p">})</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+  expandRule (target, rule) {
+    const stem = target.split('.')[0]
+    rule.depends
+      .map(dep =&gt; dep.replace('%', stem))
+      .forEach(dep =&gt; this.graph.setEdge(dep, target))
+    const recipes = rule.recipes.map(act =&gt; act.replace('%', stem))
+    const timestamp = this.graph.node(target).timestamp
+    this.graph.setNode(target, {
+      recipes: recipes,
+      timestamp: timestamp
+    })
+  }
+}
 
-<span class="k">export</span> <span class="k">default</span> <span class="nx">PatternUserRun</span>
-</code></pre></div>
-
-<div class="codehilite"><pre><span></span><code><span class="mi">4</span><span class="o">:</span><span class="w"> </span><span class="n">START</span><span class="w"></span>
-<span class="mi">4</span><span class="o">:</span><span class="w"> </span><span class="n">left</span><span class="o">.</span><span class="na">out</span><span class="w"></span>
-<span class="w">    </span><span class="n">update</span><span class="w"> </span><span class="n">left</span><span class="o">.</span><span class="na">out</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">left</span><span class="o">.</span><span class="na">in</span><span class="w"></span>
-<span class="mi">5</span><span class="o">:</span><span class="w"> </span><span class="n">right</span><span class="o">.</span><span class="na">out</span><span class="w"></span>
-<span class="w">    </span><span class="n">update</span><span class="w"> </span><span class="n">right</span><span class="o">.</span><span class="na">out</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">right</span><span class="o">.</span><span class="na">in</span><span class="w"></span>
-<span class="mi">6</span><span class="o">:</span><span class="w"> </span><span class="n">END</span><span class="w"></span>
-</code></pre></div>
-
+export default PatternUserRun
+</code></pre>
+<pre><code class="language-out">4: START
+4: left.out
+    update left.out from left.in
+5: right.out
+    update right.out from right.in
+6: END
+</code></pre>
 <h2 id="build-manager-next">What should we do next?</h2>
 <p>We have added a lot of steps to our original template method,
 which makes it a bit of a stretch to claim that the overall operation hasn't changed.
@@ -939,9 +910,8 @@ For example,
 the output should display things like, "'update A' because A older than B".</p>
 <h3 class="exercise">Change directories</h3>
 <p>Modify the build manager so that:</p>
-<div class="codehilite"><pre><span></span><code>node build.js -C some/sub/directory rules.yml timestamps.yml
-</code></pre></div>
-
+<pre><code class="language-sh">node build.js -C some/sub/directory rules.yml timestamps.yml
+</code></pre>
 <!-- continue -->
 <p>runs the build in the specified directory rather than the current directory.</p>
 <h3 class="exercise">Merge files</h3>
@@ -970,35 +940,31 @@ all of the commands it might execute if asked to rebuild everything.</p>
 </ol>
 <h3 class="exercise">Define filesets</h3>
 <p>Modify the build manager so that users can define sets of files:</p>
-<div class="codehilite"><pre><span></span><code><span class="n">fileset</span><span class="o">:</span><span class="w"></span>
-<span class="w">  </span><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="n">everything</span><span class="w"></span>
-<span class="w">  </span><span class="n">contains</span><span class="o">:</span><span class="w"></span>
-<span class="w">    </span><span class="o">-</span><span class="w"> </span><span class="n">X</span><span class="w"></span>
-<span class="w">    </span><span class="o">-</span><span class="w"> </span><span class="n">Y</span><span class="w"></span>
-<span class="w">    </span><span class="o">-</span><span class="w"> </span><span class="n">Z</span><span class="w"></span>
-</code></pre></div>
-
+<pre><code class="language-yml">fileset:
+  name: everything
+  contains:
+    - X
+    - Y
+    - Z
+</code></pre>
 <!-- continue -->
 <p>and then refer to them later:</p>
-<div class="codehilite"><pre><span></span><code><span class="o">-</span><span class="w"> </span><span class="nl">target</span><span class="p">:</span><span class="w"> </span><span class="n">P</span><span class="w"></span>
-<span class="w">  </span><span class="nl">depends</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="nv">@everything</span><span class="w"></span>
-</code></pre></div>
-
+<pre><code class="language-yml">- target: P
+  depends:
+  - @everything
+</code></pre>
 <h3 class="exercise">Globbing</h3>
 <p>Modify the build manager so that it can dynamically construct a set of files:</p>
-<div class="codehilite"><pre><span></span><code><span class="n">glob</span><span class="o">:</span><span class="w"></span>
-<span class="w">  </span><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="n">allAvailableInputs</span><span class="w"></span>
-<span class="w">  </span><span class="n">pattern</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;./*.in&quot;</span><span class="w"></span>
-</code></pre></div>
-
+<pre><code class="language-yml">glob:
+  name: allAvailableInputs
+  pattern: &quot;./*.in&quot;
+</code></pre>
 <!-- continue -->
 <p>and then refer to them later:</p>
-<div class="codehilite"><pre><span></span><code><span class="o">-</span><span class="w"> </span><span class="nl">target</span><span class="p">:</span><span class="w"> </span><span class="n">P</span><span class="w"></span>
-<span class="w">  </span><span class="nl">depends</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="nv">@allAvailableInputs</span><span class="w"></span>
-</code></pre></div>
-
+<pre><code class="language-yml">- target: P
+  depends:
+  - @allAvailableInputs
+</code></pre>
 <h3 class="exercise">Use hashes</h3>
 <ol>
 <li>
