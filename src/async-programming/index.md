@@ -357,18 +357,20 @@ This short program uses both keywords to print the first ten characters of a fil
 
 [% excerpt pat="await-fs.*" fill="js out" %]
 
-> ### Translating code
->
-> When Node sees `await` and `async`
-> it silently [% i "promise!automatic creation of" %]converts[% /i %] the code to use promises with `then`, `resolve`, and `reject`;
-> we will see how this works in [% x code-generator %].
-> In order to provide a context for this transformation
-> we must put `await` inside a function that is declared to be `async`:
-> we can't simply write `await fs.statAsync(...)` at the top level of our program
-> outside a function.
-> This requirement is occasionally annoying,
-> but since we should be putting our code in functions anyway
-> it's hard to complain.
+<blockquote class="break-before" markdown="1">
+### Translating code
+
+When Node sees `await` and `async`
+it silently [% i "promise!automatic creation of" %]converts[% /i %] the code to use promises with `then`, `resolve`, and `reject`;
+we will see how this works in [% x code-generator %].
+In order to provide a context for this transformation
+we must put `await` inside a function that is declared to be `async`:
+we can't simply write `await fs.statAsync(...)` at the top level of our program
+outside a function.
+This requirement is occasionally annoying,
+but since we should be putting our code in functions anyway
+it's hard to complain.
+</blockquote>
 
 To see how much cleaner our code is with `await` and `async`,
 let's rewrite our line counting program to use them.

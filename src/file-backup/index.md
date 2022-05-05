@@ -286,16 +286,18 @@ and then run some tests:
 [% excerpt file="test/test-backup.js" keep="tests" %]
 [% excerpt file="test-backup.out" %]
 
-> ### Design for test
->
-> One of the best ways---maybe *the* best way---to evaluate software design
-> is by thinking about [% i "testability!as design criterion" "software design!testability" %]testability[% /i %] [% b Feathers2004 %].
-> We were able to use a mock filesystem instead of a real one
-> because the filesystem has a well-defined API
-> that is provided to us in a single library,
-> so replacing it is a matter of changing one thing in one place.
-> If you have to change several parts of your code in order to test it,
-> the code is telling you to consolidate those parts into one component.
+<blockquote class="break-before" markdown="1">
+### Design for test
+
+One of the best ways---maybe *the* best way---to evaluate software design
+is by thinking about [% i "testability!as design criterion" "software design!testability" %]testability[% /i %] [% b Feathers2004 %].
+We were able to use a mock filesystem instead of a real one
+because the filesystem has a well-defined API
+that is provided to us in a single library,
+so replacing it is a matter of changing one thing in one place.
+If you have to change several parts of your code in order to test it,
+the code is telling you to consolidate those parts into one component.
+</blockquote>
 
 ## Exercises {#file-backup-exercises}
 

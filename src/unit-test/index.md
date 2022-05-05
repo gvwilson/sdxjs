@@ -406,7 +406,7 @@ then the function `createFixtures` will be called
 exactly once before each test in that file.
 Add a similar way to register a teardown function with `hope.teardown`.
 
-### Multiple tests {.exercise}
+### Multiple tests {.exercise .break-before}
 
 Add a method `hope.multiTest` that allows users to specify
 multiple test cases for a function at once.
