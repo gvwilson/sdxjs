@@ -107,8 +107,8 @@ for (const thing in collection) {
 }
 ```
 
-<!-- continue -->
 and Unix shell commands like this:
+{: .continue}
 
 ```sh
 for filename in *.dat
@@ -117,8 +117,8 @@ do
 done
 ```
 
-<!-- continue -->
 Data and output are shown in italics:
+{: .continue}
 
 ```txt
 Package,Releases

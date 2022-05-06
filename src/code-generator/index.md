@@ -116,8 +116,8 @@ Our test case is:
 
 [% excerpt file="multi-func-counter.js" keep="test" %]
 
-<!-- continue -->
 and the main function of our program is:
+{: .continue}
 
 [% excerpt file="multi-func-counter.js" keep="main" %]
 
@@ -126,7 +126,6 @@ to record the function's name and modify the node:
 
 [% excerpt file="multi-func-counter.js" keep="insert" %]
 
-<!-- continue -->
 Notice how we don't try to build the nodes by hand,
 but instead construct the string we need,
 use [% i "Acorn" %]Acorn[% /i %] to parse that,
@@ -134,14 +133,15 @@ and use the result.
 Doing this saves us from embedding multiple lines of JSON in our program
 and also ensures that if a newer version of Acorn decides to generate a different AST,
 our program will do the right thing automatically.
+{: .continue}
 
 Finally,
 we need to add a couple of [% i "helper function" %]helper functions[% /i %]:
 
 [% excerpt file="multi-func-counter.js" keep="admin" %]
 
-<!-- continue -->
 and run it to make sure it all works:
+{: .continue}
 
 [% excerpt file="multi-func-counter.out" %]
 
@@ -173,8 +173,8 @@ Gathering nodes is straightforward:
 
 [% excerpt file="time-func.js" keep="gatherNodes" %]
 
-<!-- continue -->
 as is wrapping the function definition:
+{: .continue}
 
 [% excerpt file="time-func.js" keep="wrapFuncDef" %]
 
@@ -210,8 +210,8 @@ For example, the tool should translate:
 ['+', 3, ['*', 5, 'a']]
 ```
 
-<!-- continue -->
 into:
+{: .continue}
 
 ```js
 3 + (5 * a)
@@ -225,8 +225,8 @@ Write a function that takes nested JavaScript function calls for generating HTML
 div(h1('title'), p('explanation'))
 ```
 
-<!-- continue -->
 and turns them into HTML like this:
+{: .continue}
 
 ```
 <div><h1>title</h1><p>explanation</p></div>
@@ -292,11 +292,11 @@ make2D(2, 'a', 'b', 'c', 'd')
 // produces [['a', 'b'], ['c', 'd']]
 ```
 
-<!-- continue -->
 Write a function that searches code to find calls to `make2D`
 and replaces them with inline arrays-of-arrays.
 This function only has to work for calls with a fixed row length,
 i.e., it does *not* have to handle `make2D(N, 'a', 'b')`.
+{: .continue}
 
 ### From require to import {: .exercise}
 
@@ -309,8 +309,8 @@ for example, if the input is:
 const name = require('module')
 ```
 
-<!-- continue -->
 then the output is:
+{: .continue}
 
 ```js
 import name from 'module'
@@ -332,8 +332,8 @@ class Example {
 }
 ```
 
-<!-- continue -->
 then the output should be:
+{: .continue}
 
 ```js
 class Example {

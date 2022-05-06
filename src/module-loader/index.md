@@ -40,10 +40,10 @@ let's create a function that always appends the same string to its argument:
 
 [% excerpt file="manual-namespacing.js" %]
 
-<!-- continue -->
 When we run it,
 the value that was assigned to the parameter `suffix` still exists
 but can only be reached by the inner function:
+{: .continue}
 
 [% excerpt file="manual-namespacing.out" %]
 
@@ -58,9 +58,9 @@ If we put the definition in parentheses and then put another pair of parentheses
 (() => {...})()
 ```
 
-<!-- continue -->
 we have code that defines a function of no arguments and immediately calls it.
 We can use this trick to achieve the same effect as the previous example in one step:
+{: .continue}
 
 [% excerpt pat="automatic-namespacing.*" fill="js out" %]
 
@@ -73,9 +73,9 @@ We can use this trick to achieve the same effect as the previous example in one 
 > () => {...}()
 > ```
 >
-> <!-- continue -->
 > then JavaScript interprets it as a function definition followed by an empty expression
 > rather than an immediate call to the function just defined.
+{: .continue}
 
 ## How can we load a module? {: #module-loader-load}
 
@@ -96,8 +96,8 @@ We can use this code as a test:
 
 [% excerpt file="small-module.js" %]
 
-<!-- continue -->
 and this short program to load the test and check its exports:
+{: .continue}
 
 [% excerpt pat="test-load-module-only.*" fill="js sh out" %]
 
@@ -139,8 +139,8 @@ Loading fails when we run `major.py` from the command line:
 
 [% excerpt file="checking/py-command-line.out" %]
 
-<!-- continue -->
 but works in the interactive interpreter:
+{: .continue}
 
 [% excerpt file="checking/py-interactive.out" %]
 
@@ -149,14 +149,14 @@ The equivalent test in JavaScript also has two files:
 [% excerpt file="checking/major.js" %]
 [% excerpt file="checking/minor.js" %]
 
-<!-- continue -->
 It fails on the command line:
+{: .continue}
 
 [% excerpt file="checking/js-command-line.out" %]
 
-<!-- continue -->
 and also fails in the interactive interpreter
 (which is more consistent):
+{: .continue}
 
 [% excerpt file="checking/js-interactive.out" %]
 
@@ -263,8 +263,8 @@ console.log(`left ${left()`)
 console.log(`right ${right()`)
 ```
 
-<!-- continue -->
 must produce:
+{: .continue}
 
 ```txt
 left 0
@@ -323,13 +323,13 @@ Suppose that `main.js` contains this:
 
 [% excerpt file="x-refactoring-circularity/main.js" %]
 
-<!-- continue -->
 and `plugin.js` contains this:
+{: .continue}
 
 [% excerpt file="x-refactoring-circularity/plugin.js" %]
 
-<!-- continue -->
 Refactor this code so that it works correctly while still using `require` rather than `import`.
+{: .continue}
 
 ### An LRU cache {: .exercise .break-before}
 

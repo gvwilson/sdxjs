@@ -3,5 +3,5 @@ title: "Bibliography"
 template: page
 ---
 
-[% bibliography %]
+[% bibliography breaks="Gregg2020" %]
 

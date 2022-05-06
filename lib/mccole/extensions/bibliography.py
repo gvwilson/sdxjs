@@ -45,9 +45,13 @@ def bibliography(pargs, kwargs, node):
     html = find_plugin("pybtex.backends", "html")()
     style = find_plugin("pybtex.style.formatting", bib_style)()
 
+    # Handle breaks.
+    breaks = set(x.strip() for x in kwargs.get("breaks", "").split(","))
+
     # Format a single bibliography entry.
     def _format(key, body):
-        return f'<dt id="{key}">{key}</dt>\n<dd>{body}</dd>'
+        b = f' class="break-before"' if key in breaks else ""
+        return f'<dt id="{key}"{b}>{key}</dt>\n<dd>{body}</dd>'
 
     # Load and save bibliography.
     bib = parse_file(bib_filename)

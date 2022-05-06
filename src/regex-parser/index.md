@@ -277,8 +277,8 @@ right: "right value"
 third: 3
 ```
 
-<!-- continue -->
 then the output will be:
+{: .continue}
 
 ```js
 [

@@ -75,7 +75,6 @@ let's evaluate an expression:
 
 [% excerpt pat="eval-two-plus-two.*" fill="js out" %]
 
-<!-- continue -->
 Notice that the input to `eval` is *not* `2 + 2`,
 but rather a string containing the digit 2,
 a space,
@@ -86,19 +85,20 @@ When we call `eval`,
 it translates this string
 using exactly the same parser that Node uses for our program
 and immediately runs the result.
+{: .continue}
 
 We can make the example a little more interesting
 by constructing the string dynamically:
 
 [% excerpt pat="eval-loop.*" fill="js out" %]
 
-<!-- continue -->
 The first time the loop runs the string is `'x + 1'`;
 since there's a variable called `x` in scope,
 `eval` does the addition and we print the result.
 The same thing happens for the variables `y` and `z`,
 but we get an error when we try to evaluate the string `'oops + 1'`
 because there is no variable in scope called `oops`.
+{: .continue}
 
 `eval` can use whatever variables are in scope when it's called,
 but what happens to any variables it defines?
@@ -116,10 +116,10 @@ in the same way that a function can modify global variables:
 
 [% excerpt pat="eval-global-vars.*" fill="js out" %]
 
-<!-- continue -->
 This means that
 if the text we give to `eval` modifies a structure that is defined outside the text,
 that change outlives the call to `eval`:
+{: .continue}
 
 [% excerpt pat="eval-global-structure.*" fill="js out" %]
 
@@ -129,14 +129,14 @@ Let's move the code that does the modifying into `to-be-loaded.js`:
 
 [% excerpt file="to-be-loaded.js" %]
 
-<!-- continue -->
 This doesn't work on its own because `Seen` isn't defined:
+{: .continue}
 
 [% excerpt file="to-be-loaded.out" %]
 
-<!-- continue -->
 But if we read the file and `eval` the text *after* defining `Seen`,
 it does what we want:
+{: .continue}
 
 [% excerpt pat="does-the-loading.*" fill="js sh out" %]
 
@@ -245,8 +245,8 @@ we put the file to import in a subdirectory called `modules`:
 
 [% excerpt file="modules/imported-left.js" %]
 
-<!-- continue -->
 and then put the file doing the importing in the current directory:
+{: .continue}
 
 [% excerpt file="test-import-left.js" %]
 
@@ -259,10 +259,10 @@ the simplest is to write it as:
 NAME=value command
 ```
 
-<!-- continue -->
 right before the command (on the same line).
 Here's the shell command that runs our test case
 using `$PWD` to get the current working directory:
+{: .continue}
 
 [% excerpt pat="test-import-left.*" fill="sh out" %]
 
@@ -270,8 +270,8 @@ Now let's create a second importable file in the `modules` directory:
 
 [% excerpt file="modules/imported-right.js" %]
 
-<!-- continue -->
 and load that twice to check that caching works:
+{: .continue}
 
 [% excerpt pat="test-import-right.*" fill="js out" %]
 
@@ -287,13 +287,13 @@ We can now have a file like this:
 
 [% excerpt file="import-interpolate.js" %]
 
-<!-- continue -->
 and subfiles like this:
+{: .continue}
 
 [% excerpt file="import-interpolate-topmethod.js" %]
 
-<!-- continue -->
 and this:
+{: .continue}
 
 [% excerpt file="import-interpolate-bottommethod.js" %]
 
@@ -370,8 +370,8 @@ only implement part of [% i "Knuth, Donald" %][Donald Knuth's][knuth-donald][% /
 
 3.  Write tests for this using [`mock-fs`][node-mock-fs].
 
-<!-- continue -->
 Please be careful doing this exercise.
+{: .continue}
 
 ### Loading functions {: .exercise}
 
@@ -383,8 +383,8 @@ halve: (x) => x / 2
 array: (x) => Array(x).fill(0)
 ```
 
-<!-- continue -->
 and returns an object containing callable functions.
+{: .continue}
 
 ### Registering functions {: .exercise}
 
@@ -398,8 +398,8 @@ const double = (x) => {
 EXPORTS.append(double)
 ```
 
-<!-- continue -->
 and returns a list containing all the loaded functions.
+{: .continue}
 
 ### Indenting inclusions {: .exercise}
 
@@ -416,16 +416,16 @@ const withLogging = (args) => {
 withLogging
 ```
 
-<!-- continue -->
 and the included file is:
+{: .continue}
 
 ```js
 console.log('first message')
 console.log('second message')
 ```
 
-<!-- continue -->
 then the result will be:
+{: .continue}
 
 ```js
 const withLogging = (args) => {
@@ -436,8 +436,8 @@ const withLogging = (args) => {
 withLogging
 ```
 
-<!-- continue -->
 i.e., all lines of the inclusion will be indented to match the first.
+{: .continue}
 
 ### Interpolating from subdirectories {: .exercise}
 

@@ -74,8 +74,8 @@ which finds the first child of a node to match a set of selectors:
 
 [% excerpt file="simple-selectors.js" keep="firstChild" %]
 
-<!-- continue -->
 and on the function `matchHere` which compares a node against a selector:
+{: .continue}
 
 [% excerpt file="simple-selectors.js" keep="matchHere" %]
 
@@ -93,9 +93,9 @@ The function `main` loops over it to report whether each test passes or fails:
 
 [% excerpt file="simple-selectors-test.js" keep="main" %]
 
-<!-- continue -->
 `main` uses a helper function called `getText` to extract text from a node
 or return an error message if something has gone wrong:
+{: .continue}
 
 [% excerpt file="simple-selectors-test.js" keep="getText" %]
 
@@ -135,12 +135,12 @@ Our matcher will initially handle just the five cases shown in
 | Zero or more of the previous character | * |
 </div>
 
-<!-- continue -->
 These five cases are a small subset of what JavaScript provides,
 but as [% i "Kernighan, Brian" %]Kernighan[% /i %] wrote,
 "This is quite a useful class;
 in my own experience of using regular expressions on a day-to-day basis,
 it easily accounts for 95 percent of all instances."
+{: .continue}
 
 The top-level function that users call
 handles the special case of `^` at the start of a pattern
@@ -203,12 +203,12 @@ no matter what kind of matcher we have at the top level of our pattern.
 
 [% excerpt file="regex-initial/regex-base.js" %]
 
-<!-- continue -->
 The base class also defines a `_match` method (with a leading underscore)
 that other classes will fill in with actual matching code.
 The base implementation of this method throws an exception
 so that if we forget to provide `_match` in a [% g derived_class %]derived class[% /g %]
 our code will fail with a meaningful reminder.
+{: .continue}
 
 > ### One interface to call them all
 >
@@ -226,17 +226,17 @@ like this one for literal characters:
 
 [% excerpt file="regex-initial/regex-lit.js" %]
 
-<!-- continue -->
 Our tests now run, but most of them fail:
 "most" because we expect some tests not to match,
 so the test runner reports `true`.
+{: .continue}
 
 [% excerpt file="regex-initial.out" %]
 
-<!-- continue -->
 This output tells us how much work we have left to do:
 when all of these tests pass,
 we're finished.
+{: .continue}
 
 Let's implement a literal character string matcher first:
 
@@ -280,10 +280,10 @@ Here's how this works for matching a literal expression:
 
 [% excerpt file="regex-recursive/regex-lit.js" %]
 
-<!-- continue -->
 The `_match` method checks whether all of the pattern matches the target text starting at the current location.
 If so, it checks whether the rest of the overall pattern matches what's left.
 Matching the start `/^/` and end `/$/` anchors is just as straightforward:
+{: .continue}
 
 [% excerpt file="regex-recursive/regex-start.js" %]
 

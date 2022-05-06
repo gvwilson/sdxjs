@@ -35,20 +35,20 @@ and then running commands by looking up the command name's and calling that meth
 
 [% excerpt file="vm-base.js" omit="skip" %]
 
-<!-- continue -->
 Remember, functions and methods are just another kind of data,
 so if an object has a method called `"meth"`,
 the expression `this["meth"]` looks it up
 and `this["meth"](args)` calls it.
 If `"meth"` is stored in a variable called `name`,
 then `this[name](args)` will do exactly the same thing.
+{: .continue}
 
 The method in our VM that defines a new variable with an initial value looks like this:
 
 [% excerpt file="vm-base.js" keep="defV" %]
 
-<!-- continue -->
 while the one that adds two values looks like this:
+{: .continue}
 
 [% excerpt file="vm-base.js" keep="add" %]
 
@@ -56,8 +56,8 @@ Running a `while` loop is:
 
 [% excerpt file="vm-base.js" keep="loop" %]
 
-<!-- continue -->
 and checking that a variable name refers to an array is:
+{: .continue}
 
 [% excerpt file="vm-base.js" keep="checkArray" %]
 
@@ -168,9 +168,9 @@ The overall structure of the interactive debugger is:
 
 [% excerpt file="debugger-interactive.js" omit="skip" %]
 
-<!-- continue -->
 It interacts with users by lookup up a command and invoking the corresponding method,
 just as the VM does:
+{: .continue}
 
 [% excerpt file="debugger-interactive.js" keep="interact" %]
 
@@ -188,8 +188,8 @@ this method moves us to the next line:
 
 [% excerpt file="debugger-interactive.js" keep="next" %]
 
-<!-- continue -->
 while this one prints the value of a variable:
+{: .continue}
 
 [% excerpt file="debugger-interactive.js" keep="print" %]
 
@@ -204,9 +204,9 @@ so we take advantage of the fact that JavaScript ignores any extra arguments pas
 
 [% excerpt file="vm-interactive.js" %]
 
-<!-- continue -->
 This is sloppy, but it works;
 we will tidy it up in the exercises.
+{: .continue}
 
 ## How can we test an interactive application? {: #debugger-test}
 
@@ -220,8 +220,8 @@ then provides input when asked and checks output when it is given
 
 [% figure slug="debugger-test-interact" img="figures/test-interact.svg" alt="Testing interactive application" caption="Replacing input and output to test interactive applications." %]
 
-<!-- continue -->
 The results look like this:
+{: .continue}
 
 [% excerpt file="test/test-expect.js" keep="tests" %]
 
@@ -230,8 +230,8 @@ but it is hard to understand because it is so abstract:
 
 [% excerpt file="expect.js" %]
 
-<!-- continue -->
 Piece by piece:
+{: .continue}
 
 -   `subject` is the thing being tested.
 -   `start` is a callback to start the system running.
@@ -284,16 +284,16 @@ because we are only using it to get a typed object:
 
 [% excerpt file="halt-exception.js" %]
 
-<!-- continue -->
 Next,
 we modify the debugger to throw this exception when asked to exit:
+{: .continue}
 
 [% excerpt file="debugger-exit.js" %]
 
-<!-- continue -->
 And finally
 we modify the VM to finish cleanly if this exception is thrown,
 but re-throw any other kind of exception:
+{: .continue}
 
 [% excerpt file="vm-exit.js" %]
 

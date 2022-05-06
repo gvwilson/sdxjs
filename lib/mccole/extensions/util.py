@@ -49,11 +49,11 @@ MULTISPACE = re.compile(r"\s+", re.DOTALL)
 HEADING = re.compile(r"^(#+)(.+?)(\{:.*#([\w-]+).*\})?$", re.MULTILINE)
 
 # Regex to match table elements. (See `tables.py` for explanation.)
-TABLE = re.compile(r'<div\s+class="table\b[^"]*?"[^>]*?>')
+TABLE = re.compile(r'<div\s+class="table(\s+break-before)?"[^>]*?>')
 TABLE_CAPTION = re.compile(r'caption="(.+?)"')
 TABLE_ID = re.compile(r'id="(.+?)"')
 TABLE_DIV = re.compile(
-    r'<div\s+caption="(.+?)"\s+class="table"\s+id="(.+?)">\s*<table>', re.DOTALL
+    r'<div\s+caption="(.+?)"\s+class="(table(\s+break-before)?)"\s+id="(.+?)">\s*<table>', re.DOTALL
 )
 
 

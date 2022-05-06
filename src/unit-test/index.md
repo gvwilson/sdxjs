@@ -86,7 +86,6 @@ the function `main` runs all registered tests:
 
 [% excerpt file="dry-run.js" keep="main" %]
 
-<!-- continue -->
 If a test completes without an exception, it passes.
 If any of the `assert` calls inside the test raises an `AssertionError`,
 the test fails,
@@ -94,6 +93,7 @@ and if it raises any other exception,
 it's an error.
 After all tests are run,
 `main` reports the number of results of each kind.
+{: .continue}
 
 Let's try it out:
 
@@ -198,13 +198,13 @@ Hope.run()
 ...
 ```
 
-<!-- continue -->
 Here,
 `all-the-tests.js` imports other files so that they will register tests
 as a [% i "side effect!for module registration" %][% g side_effect %]side effect[% /g %][% /i %] via calls to `hope.test`
 and then calls `Hope.run` to execute them.
 It works,
 but sooner or later (probably sooner) someone will forget to import one of the test files.
+{: .continue}
 
 A better strategy is to load test files [% i "dynamic loading" %][% g dynamic_loading %]dynamically[% /g %][% /i %].
 While `import` is usually written as a statement,
@@ -366,19 +366,19 @@ const mockReadFileSync = (filename, encoding = 'utf-8') => {
 }
 ```
 
-<!-- continue -->
 and then modify it so that it throws an exception under our control.
 For example,
 if we define `MOCK_READ_FILE_CONTROL` like this:
+{: .continue}
 
 ```js
 const MOCK_READ_FILE_CONTROL = [false, false, true, false, true]
 ```
 
-<!-- continue -->
 then the third and fifth calls to `mockReadFileSync` throw an exception instead of reading data,
 as do any calls after the fifth.
 Write this function.
+{: .continue}
 
 ### Setup and teardown {: .exercise}
 
@@ -401,10 +401,10 @@ const createFixtures = () => {
 hope.setup(createFixtures)
 ```
 
-<!-- continue -->
 then the function `createFixtures` will be called
 exactly once before each test in that file.
 Add a similar way to register a teardown function with `hope.teardown`.
+{: .continue}
 
 ### Multiple tests {: .exercise .break-before}
 
@@ -420,8 +420,8 @@ hope.multiTest('check all of these`, functionToTest, [
 ])
 ```
 
-<!-- continue -->
 should be equivalent to this:
+{: .continue}
 
 ```js
 hope.test('check all of these 0',
@@ -453,7 +453,7 @@ so that:
 hope.test('delayed test', async () => {...})
 ```
 
-<!-- continue -->
 does the right thing.
 (Note that you can use `typeof` to determine whether the object given to `hope.test`
 is a function or a promise.)
+{: .continue}

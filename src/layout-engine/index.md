@@ -110,13 +110,13 @@ Our blocks are:
 
 [% excerpt file="placed.js" keep="block" %]
 
-<!-- continue -->
 while our columns are:
+{: .continue}
 
 [% excerpt file="placed.js" keep="col" %]
 
-<!-- continue -->
 and our rows are:
+{: .continue}
 
 [% excerpt file="placed.js" keep="row" %]
 
@@ -159,7 +159,6 @@ and give the new class a `render` method with the same [% i "signature!of functi
 
 [% excerpt file="rendered.js" %]
 
-<!-- continue -->
 These `render` methods do exactly the same thing,
 so we have each one call a shared function that does the actual work.
 If we were building a real layout engine,
@@ -168,19 +167,20 @@ then derive our `Block`, `Row`, and `Col` classes from that.
 In general,
 if two or more classes need to be able to do something,
 we should add a method to do that to their lowest common ancestor.
+{: .continue}
 
 Our simpler tests are a little easier to read once we have rendering in place,
 though we still had to draw things on paper to figure out our complex ones:
 
 [% excerpt file="test/test-rendered.js" keep="large" %]
 
-<!-- continue -->
 The fact that we find our own tests difficult to understand
 is a sign that we should do more testing.
 It would be very easy for us to get a wrong result
 and convince ourselves that it was actually correct;
 [% i "confirmation bias" %][% g confirmation_bias %]confirmation bias[% /g %][% /i %] of this kind
 is very common in software development.
+{: .continue}
 
 ## How can we wrap elements to fit? {: #layout-engine-fit}
 
@@ -223,9 +223,9 @@ and returns that fixed width when asked for its size:
 
 [% excerpt file="wrapped.js" keep="row" omit="wrap" %]
 
-<!-- continue -->
 Wrapping puts the row's children into buckets,
 then converts the buckets to a row of a column of rows:
+{: .continue}
 
 [% excerpt file="wrapped.js" keep="wrap" %]
 
@@ -277,13 +277,13 @@ The main body of our parser is:
 
 [% excerpt file="parse.js" omit="skip" %]
 
-<!-- continue -->
 while the two functions that do most of the work are:
+{: .continue}
 
 [% excerpt file="parse.js" keep="makenode" %]
 
-<!-- continue -->
 and:
+{: .continue}
 
 [% excerpt file="parse.js" keep="makeopening" %]
 
@@ -325,8 +325,8 @@ so we will write our rules as JSON:
 }
 ```
 
-<!-- continue -->
 and build a class that converts this representation to a set of objects:
+{: .continue}
 
 [% excerpt file="micro-css.js" keep="ruleset" %]
 
@@ -431,8 +431,8 @@ Modify the existing code so that:
 
 2.  When the node is rendered, that many blank spaces are added on all four sides of the contents.
 
-<!-- continue -->
 For example, the HTML `<row>text</row>` would render as:
+{: .continue}
 
 ```txt
 +------+
@@ -442,8 +442,8 @@ For example, the HTML `<row>text</row>` would render as:
 +------+
 ```
 
-<!-- continue -->
 where the lines show the outer border of the rendering.
+{: .continue}
 
 ### Drawing borders {: .exercise}
 
@@ -471,8 +471,8 @@ where the lines show the outer border of the rendering.
     <row><col>left</col><col>right</col></row>
     ```
 
-    <!-- continue -->
     is rendered as:
+{: .continue}
 
     ```txt
     +----+-----+

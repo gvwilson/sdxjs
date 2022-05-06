@@ -50,7 +50,6 @@ or [% i "Java" %][Java][java][% /i %]:
 
 [% excerpt file="list-dir-wrong.js" %]
 
-<!-- continue -->
 We use [% i "import module" %]<code>import <em>module</em> from 'source'</code>[% /i %] to load the library <code><em>source</em></code>
 and assign its contents to <code><em>module</em></code>.
 After that,
@@ -59,6 +58,7 @@ just as we refer to things in any other object.
 We can use whatever name we want for the module,
 which allows us to give short nicknames to libraries with long names;
 we will take advantage of this in future chapters.
+{: .continue}
 
 > ### `require` versus `import`
 >
@@ -98,12 +98,12 @@ our program doesn't work:
 
 [% excerpt pat="list-dir-wrong.*" fill="sh out" %]
 
-<!-- continue -->
 The error message comes from something we didn't write whose source we would struggle to read.
 If we look for the name of our file (`list-dir-wrong.js`)
 we see the error occurred on line 4;
 everything above that is inside `fs.readdir`,
 while everything below it is Node loading and running our program.
+{: .continue}
 
 The problem is that `fs.readdir` doesn't return anything.
 Instead,
@@ -140,7 +140,6 @@ This corrected program gives `fs.readdir` a callback function called `listConten
 
 [% excerpt file="list-dir-function-defined.js" %]
 
-<!-- continue -->
 [% i "callback function!conventions for" %]Node callbacks[% /i %]
 always get an error (if there is any) as their first argument
 and the result of a successful function call as their second.
@@ -150,6 +149,7 @@ otherwise, it uses `console.error` to display the error message.
 Let's run the program with the [% g current_working_directory %]current working directory[% /g %]
 (written as '.')
 as an argument:
+{: .continue}
 
 [% excerpt pat="list-dir-function-defined.*" fill="sh slice.out" %]
 
@@ -272,7 +272,6 @@ our program becomes:
 
 [% excerpt file="glob-filter-with-options.js" %]
 
-<!-- continue -->
 Notice that we don't quote the key in the `options` object.
 The keys in objects are almost always strings,
 and if a string is simple enough that it won't confuse the parser,
@@ -280,6 +279,7 @@ we don't need to put quotes around it.
 Here,
 "simple enough" means "looks like it could be a variable name",
 or equivalently "contains only letters, digits, and the underscore".
+{: .continue}
 
 > ### No one knows everything
 >
@@ -302,7 +302,6 @@ let's specify a source directory on the command line and include that in the pat
 
 [% excerpt file="glob-with-source-directory.js" %]
 
-<!-- continue -->
 This program uses [% i "string interpolation" %][% g string_interpolation %]string interpolation[% /g %][% /i %]
 to insert the value of `srcDir` into a string.
 The template string is written in back quotes,
@@ -310,6 +309,7 @@ and JavaScript converts every expression written as `${expression}` to text.
 We could create the pattern by concatenating strings using
 `srcDir + '/**/*.*'`,
 but most programmers find interpolation easier to read.
+{: .continue}
 
 ## How can we copy a set of files? {: #systems-programming-copy}
 
@@ -320,7 +320,6 @@ we can construct the full output path by replacing the name of the source direct
 
 [% excerpt file="glob-with-dest-directory.js" %]
 
-<!-- continue -->
 This program uses [% i "destructuring assignment" "assignment!destructuring" %][% g destructuring_assignment %]destructuring assignment[% /g %][% /i %]
 to create two variables at once
 by unpacking the elements of an array
@@ -329,6 +328,7 @@ It only works if the array contains the enough elements,
 i.e.,
 if both a source and destination are given on the command line;
 we'll add a check for that in the exercises.
+{: .continue}
 
 [% figure slug="systems-programming-destructuring-assignment" img="figures/destructuring-assignment.svg" alt="Matching values with destructuring assignment" caption="Assigning many values at once by destructuring." %]
 
@@ -394,11 +394,11 @@ Here's the final version of our file copying program:
 
 [% excerpt file="copy-file-filtered.js" %]
 
-<!-- continue -->
 It works,
 but four levels of asynchronous callbacks is hard for humans to understand.
 [% x async-programming %] will introduce a pair of tools
 that make code like this easier to read.
+{: .continue}
 
 ## Exercises {: #systems-programming-exercises}
 
@@ -499,6 +499,6 @@ The command:
 rename .txt .bck a.txt b.txt
 ```
 
-<!-- continue -->
 will rename `a.txt` to `a.bck`,
 but will *not* rename `b.txt` because `b.bck` already exists.
+{: .continue}

@@ -91,13 +91,13 @@ it is more efficient to process the file as a [% g stream %]stream[% /g %]:
 
 [% excerpt pat="hash-stream.*" fill="js sh out" %]
 
-<!-- continue -->
 This kind of interface is called
 a [% i "streaming API" "execution!streaming" %][% g streaming_api %]streaming[% /g %][% /i %] [% g api %]API[% /g %]
 because it is designed to process a stream of data one chunk at a time
 rather than requiring all of the data to be in memory at once.
 Many applications use streams
 so that programs don't have to read entire (possibly large) files into memory.
+{: .continue}
 
 To start,
 this program asks the `fs` library to create a reading stream for a file
@@ -142,13 +142,13 @@ and then:
 
 [% excerpt file="hash-existing-promise.js" keep="main" %]
 
-<!-- continue -->
 This function uses `Promise.all`
 to wait for the operations on all of the files in the list to complete
 before going on to the next step.
 A different design would combine stat, read, and hash into a single step
 so that each file would be handled independently
 and use one `Promise.all` at the end to bring them all together.
+{: .continue}
 
 The first two [% i "helper function" %]helper functions[% /i %] that `hashExisting` relies on
 wrap asynchronous operation in promises:
@@ -171,11 +171,11 @@ The same operations are easier to read when written using `async` and `await`:
 
 [% excerpt file="hash-existing-async.js" keep="main" %]
 
-<!-- continue -->
 This version creates and resolves exactly the same promises as the previous one,
 but those promises are created for us automatically by Node.
 To check that it works,
 let's run it for the same input files:
+{: .continue}
 
 [% excerpt pat="run-hash-existing-async.*" fill="js sh slice.out" %]
 
@@ -220,17 +220,17 @@ we add the line:
 "test": "mocha */test/test-*.js"
 ```
 
-<!-- continue -->
 in the `scripts` section of our project's `package.json` file
 so that when we run `npm run test`,
 Mocha looks for files in `test` sub-directories of the directories holding our lessons.
+{: .continue}
 
 Here are our first few tests:
 
 [% excerpt file="test/test-find.js" %]
 
-<!-- continue -->
 and here is Mocha's report:
+{: .continue}
 
 [% excerpt file="test-check-filesystem.out" %]
 
@@ -262,13 +262,13 @@ the files and what they should contain:
 
 [% excerpt file="test/test-find-mock.js" omit="tests" %]
 
-<!-- continue -->
 [% i "Mocha!beforeEach" %]Mocha[% /i %] automatically calls `beforeEach` before running each tests,
 and [% i "Mocha!afterEach" %]`afterEach`[% /i %] after each tests completes
 (which is yet another [% i "protocol!for unit testing" %]protocol[% /i %]).
 All of the tests stay exactly the same,
 and since `mock-fs` replaces the functions in the standard `fs` library with its own,
 nothing in our application needs to change either.
+{: .continue}
 
 We are finally ready to write the program that actually backs up files:
 
@@ -280,8 +280,8 @@ Let's set up some fixtures to run tests on:
 
 [% excerpt file="test/test-backup.js" keep="fixtures" %]
 
-<!-- continue -->
 and then run some tests:
+{: .continue}
 
 [% excerpt file="test/test-backup.js" keep="tests" %]
 [% excerpt file="test-backup.out" %]

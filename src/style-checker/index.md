@@ -57,8 +57,8 @@ here is the output for a [% linecount parse-const-func.js %]-line program:
 
 [% excerpt pat="parse-const-func.*" fill="js slice.out" %]
 
-<!-- continue -->
 Yes, it really is almost 500 lines long…
+{: .continue}
 
 ## How can we find things in an AST? {: #style-checker-search}
 
@@ -136,21 +136,21 @@ We can now put a call to `applyCheck` inside the handler for `Identifier`:
 
 [% excerpt file="check-name-lengths.js" keep="main" %]
 
-<!-- continue -->
 We can't just use `applyCheck` as the handler for `Identifier`
 because `walk.simple` wouldn't know how to call it.
 This is a (very simple) example of the [% i "Adapter pattern" "design pattern!Adapter" %][% g adapter_pattern %]Adapter[% /g %][% /i %] design pattern:
 we write a function or class to connect the code we want to call
 to the already-written code that is going to call it.
+{: .continue}
 
 The output for the same sample program as before is:
 
 [% excerpt file="check-name-lengths.out" %]
 
-<!-- continue -->
 The exercises will ask why the parameter `x` doesn't show up
 as a violation of our rule
 that variables' names must be at least four characters long.
+{: .continue}
 
 ## How does the AST walker work? {: #style-checker-walker}
 
@@ -189,8 +189,8 @@ The code we need to use it is:
 
 [% excerpt file="walker-class.js" omit="walker" %]
 
-<!-- continue -->
 and its output is:
+{: .continue}
 
 [% excerpt file="walker-class.out" %]
 
@@ -222,11 +222,11 @@ The result of `yield` is a two-part structure with a value and a flag showing wh
 
 [% excerpt pat="generator-example.*" fill="js out" %]
 
-<!-- continue -->
 A generator function doesn't actually generate anything;
 instead,
 it creates an object that we can then ask for values repeatedly.
 This gives us a way to have several generators in play at the same time.
+{: .continue}
 
 As another example,
 this generator takes a string and produces its vowels one by one:
@@ -250,8 +250,8 @@ The generator function that visits each node is:
 
 [% excerpt file="generator-count.js" keep="generator" %]
 
-<!-- continue -->
 and the program that uses it is:
+{: .continue}
 
 [% excerpt file="generator-count.js" keep="main" %]
 
@@ -301,8 +301,8 @@ showing which methods are defined in which class:
 
 [% excerpt file="run-find-methods.raw.out" %]
 
-<!-- continue -->
 which renders as:
+{: .continue}
 
 | method | Upper | Middle | Lower |
 | ---- | ---- | ---- | ---- |

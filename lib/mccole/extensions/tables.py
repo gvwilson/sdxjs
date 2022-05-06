@@ -85,10 +85,11 @@ def table_caption(text, node):
 
     def _replace(match):
         caption = match.group(1)
-        slug = match.group(2)
+        cls = match.group(2)
+        slug = match.group(4)
         table = util.get_config("tables")[slug]
         label = util.make_label("table", table.number)
-        return f'<div class="table"><table id="{slug}"><caption>{label}: {caption}</caption>'
+        return f'<div class="{cls}"><table id="{slug}"><caption>{label}: {caption}</caption>'
 
     return util.TABLE_DIV.sub(_replace, text)
 

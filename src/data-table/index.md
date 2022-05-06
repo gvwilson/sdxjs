@@ -153,13 +153,13 @@ Let's run our program for a table with 100 rows and 3 columns and a 3:1 ratio of
 
 [% excerpt pat="table-performance-100-03-03.*" fill="sh out" %]
 
-<!-- continue -->
 What if we increase the table size to 10,000 rows by 30 columns with the same 3:1 filter/select ratio?
+{: .continue}
 
 [% excerpt file="table-performance-10000-30-03.out" %]
 
-<!-- continue -->
 And if we keep the table size the same but use a 10:1 filter/select ratio?
+{: .continue}
 
 [% excerpt file="table-performance-10000-30-10.out" %]
 
@@ -302,8 +302,8 @@ if the two tables are:
 | B   | b1   |
 | C   | c1   |
 
-<!-- continue -->
 and:
+{: .continue}
 
 | Key | Right |
 | --- | ----- |
@@ -311,8 +311,8 @@ and:
 | A   | a3    |
 | B   | b2    |
 
-<!-- continue -->
 then the join is:
+{: .continue}
 
 | Key | Left | Right |
 | --- | ---- | ----- |
@@ -338,8 +338,8 @@ For example, suppose the tables are:
 | B   | b1   |
 | C   | c1   |
 
-<!-- continue -->
 and:
+{: .continue}
 
 | Key | Right |
 | --- | ----- |
@@ -353,17 +353,17 @@ The first step is to create a `Map` showing where each key is found in the first
 {A: [0], B: [1], C: [2]}
 ```
 
-<!-- continue -->
 The second step is to create a similar `Map` for the second table:
+{: .continue}
 
 ```js
 {A: [0, 1], B: [2]}
 ```
 
-<!-- continue -->
 We can then loop over the keys in one of the maps,
 look up values in the second map,
 and construct all of the matches.
+{: .continue}
 
 Write a function that joins two tables this way.
 Is it faster or slower than using a double loop?

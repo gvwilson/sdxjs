@@ -49,13 +49,13 @@ The main file is:
 
 [% excerpt file="simple/main.js" %]
 
-<!-- continue -->
 and the required file is:
+{: .continue}
 
 [% excerpt file="simple/main.js" %]
 
-<!-- continue -->
 The output we expect is:
+{: .continue}
 
 [% excerpt file="expected-simple.out" %]
 
@@ -81,14 +81,14 @@ and is shown in [% f module-bundler-complicated %]:
 
 [% figure slug="module-bundler-complicated" img="figures/complicated.svg" alt="Module bundler dependencies" caption="Dependencies in large module bundler test case." %]
 
-<!-- continue -->
 The main program is:
+{: .continue}
 
 [% excerpt file="full/main.js" %]
 
-<!-- continue -->
 and the other four files use `require` and `module.exports` to get what they need.
 The output we expect is:
+{: .continue}
 
 [% excerpt file="expected-full.out" %]
 
@@ -175,7 +175,6 @@ to [% linecount transitive-closure.js %] lines:
 [% excerpt file="transitive-closure.js" %]
 [% excerpt pat="test-transitive-closure.*" fill="js sh out" %]
 
-<!-- continue -->
 The real cost, though, is the extra complexity of the data structure:
 it took a couple of tries to get it right,
 and it will be harder for the next person to understand than the original.
@@ -184,6 +183,7 @@ if we could draw diagrams directly in our source code,
 but as long as we insist that our programs be stored in a punchcard-compatible format
 (i.e., as lines of text),
 that will remain a dream.
+{: .continue}
 
 ## How can we safely combine several files into one? {: #module-bundler-combine}
 
@@ -197,13 +197,13 @@ For example, suppose we have this file:
 
 [% excerpt file="sanity-check-unwrapped.js" %]
 
-<!-- continue -->
 The wrapped version will look like this:
+{: .continue}
 
 [% excerpt file="sanity-check-wrapped.js" %]
 
-<!-- continue -->
 And we can test it like this:
+{: .continue}
 
 [% excerpt pat="sanity-check-test.*" fill="js out" %]
 
@@ -229,8 +229,8 @@ We can test that this works in our two-file case:
 [% excerpt file="test-combine-files.js" %]
 [% excerpt file="test-combine-files-simple.js" %]
 
-<!-- continue -->
 and then load the result and call `initialize`:
+{: .continue}
 
 [% excerpt file="show-combine-files-simple.out" %]
 
@@ -303,9 +303,9 @@ First, we create the bundled file:
 [% excerpt file="test-create-bundle-single.sh" %]
 [% excerpt file="bundle-single.js" %]
 
-<!-- continue -->
 and then we run it:
 {: .break-before}
+{: .continue}
 
 [% excerpt file="test-bundle-single.out" %]
 
@@ -316,8 +316,8 @@ The two-file case with `main` and `other` works:
 [% excerpt file="bundle-simple.js" %]
 [% excerpt file="test-bundle-simple.out" %]
 
-<!-- continue -->
 and so does our most complicated test with `main` and four other files:
+{: .continue}
 
 [% excerpt file="test-bundle-full.out" %]
 

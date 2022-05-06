@@ -62,8 +62,8 @@ The [% i "doc comment" "comment!doc" %][% g doc_comment %]doc comments[% /g %][%
 
 [% excerpt file="example-plain.js" %]
 
-<!-- continue -->
 while the ones for class definitions look like this:
+{: .continue}
 
 [% excerpt file="util-plain.js" %]
 
@@ -96,10 +96,10 @@ Extracting the comments from a single file is done as before:
 
 [% excerpt file="process-plain.js" keep="extractComments" %]
 
-<!-- continue -->
 and removing the prefix `*` characters is a matter of splitting the text into lines,
 removing the leading spaces and asterisks,
 and putting the lines back together:
+{: .continue}
 
 [% excerpt file="process-plain.js" keep="removePrefix" %]
 
@@ -171,17 +171,17 @@ we use a function called `condense` to get the name we want out of the AST we ha
 
 [% excerpt file="find-following.js" keep="condense" %]
 
-<!-- continue -->
 We need this because we get a different structure with:
+{: .continue}
 
 ```js
 const name = function() => {
 }
 ```
 
-<!-- continue -->
 than we get with:
 {: .break-before}
+{: .continue}
 
 ```js
 function name() {
@@ -280,8 +280,8 @@ function process(
 }
 ```
 
-<!-- continue -->
 Modify the documentation generator to handle this.
+{: .continue}
 
 ### Tests as documentation {: .exercise}
 
@@ -294,8 +294,8 @@ Write a tool that:
 2.  Extracts the code and output from those blocks comments
     and turns them into assertions.
 
-<!-- continue -->
 For example, given this input:
+{: .continue}
 
 ```js
 const findIncreasing = (values) => {
@@ -312,8 +312,8 @@ const findIncreasing = (values) => {
 }
 ```
 
-<!-- continue -->
 the tool would produce:
+{: .continue}
 
 ```js
 assert.deepStrictEqual(findIncreasing([]), [])

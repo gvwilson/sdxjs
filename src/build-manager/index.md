@@ -92,11 +92,11 @@ We will store our rules in YAML files like this:
 
 [% excerpt file="three-simple-rules.yml" %]
 
-<!-- continue -->
 We could equally well have used JSON,
 but it wouldn't have made sense to use CSV:
 rules have a nested structure,
 and CSV doesn't represent nesting particularly gracefully.
+{: .continue}
 
 We are going to create our build manager in stages,
 so we start by writing a simple [% i "software design!driver" %][% g driver %]driver[% /g %][% /i %] that loads a JavaScript source file,
@@ -105,10 +105,10 @@ and runs the `.build` method of that object with the rest of the command-line pa
 
 [% excerpt file="driver.js" %]
 
-<!-- continue -->
 We use the `import` function to dynamically load files containing in [% x unit-test %] as well.
 It only saves us a few lines of code in this case,
 but we will use this idea of a general-purpose driver for larger programs in future chapters.
+{: .continue}
 
 To work with our driver,
 each version of our build manager must be a class that satisfies two requirements:
@@ -143,7 +143,6 @@ as the builder object is being constructed:
 
 [% excerpt file="config-loader.js" %]
 
-<!-- continue -->
 The first line does the loading;
 the rest of the method checks that the rules are at least superficially plausible.
 We need these checks because YAML is a generic file format
@@ -151,6 +150,7 @@ that doesn't know anything about the extra requirements of our rules.
 And as we first saw in [% x async-programming %],
 we have to specify that the character encoding of our file is UTF-8
 so that JavaScript knows how to convert bytes into text.
+{: .continue}
 
 The next step is to turn the configuration into a graph in memory.
 We use the [`graphlib`][graphlib] module to manage nodes and links
@@ -301,19 +301,19 @@ by running it on the same example we used previously:
 
 [% excerpt file="variable-expander.out" %]
 
-<!-- continue -->
 This is perhaps the most important reason to create tests:
 they tell us right away if something we have added or changed
 has broken something that used to work.
 That gives us a firm base to build on as we debug the new code.
+{: .continue}
 
 Now we need to add [% i "pattern rule (in build)" "build!pattern rule" %][% g pattern_rule %]pattern rules[% /g %][% /i %].
 Our first attempt at a rules file looks like this:
 
 [% excerpt file="pattern-rules.yml" %]
 
-<!-- continue -->
 and our first attempt at reading it extracts rules before expanding variables:
+{: .continue}
 
 [% excerpt file="pattern-user-attempt.js" %]
 
@@ -322,10 +322,10 @@ that doesn't work:
 
 [% excerpt file="pattern-user-attempt.out" %]
 
-<!-- continue -->
 The problem is that our simple graph loader creates nodes for dependencies even if they aren't targets.
 As a result,
 we wind up tripping over the lack of a node for `%.in` before we get to extracting rules.
+{: .continue}
 
 > ### Errors become assertions
 >
@@ -401,8 +401,8 @@ Modify the build manager so that:
 node build.js -C some/sub/directory rules.yml timestamps.yml
 ```
 
-<!-- continue -->
 runs the build in the specified directory rather than the current directory.
+{: .continue}
 
 ### Merge files {: .exercise}
 
@@ -441,8 +441,8 @@ fileset:
     - Z
 ```
 
-<!-- continue -->
 and then refer to them later:
+{: .continue}
 
 ```yml
 - target: P
@@ -460,8 +460,8 @@ glob:
   pattern: "./*.in"
 ```
 
-<!-- continue -->
 and then refer to them later:
+{: .continue}
 
 ```yml
 - target: P

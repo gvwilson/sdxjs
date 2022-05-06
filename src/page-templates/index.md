@@ -55,10 +55,10 @@ Our page will look like this:
 
 [% excerpt file="input-loop.html" %]
 
-<!-- continue -->
 The attribute `z-loop` tells the tool to repeat the contents of that node;
 the loop variable and the collection being looped over are separated by a colon.
 The attribute `z-var` tells the tool to fill in the node with the value of the variable.
+{: .continue}
 
 When our tool processes this page,
 the output will be standard HTML without any traces of how it was created:
@@ -83,13 +83,13 @@ the output will be standard HTML without any traces of how it was created:
 > <ul z-loop="names" z-loop-var="item">
 > ```
 >
-> <!-- continue -->
 > but we have decided to err on the side of minimal typing.
 > And note that strictly speaking,
 > we should call our attributes `data-something` instead of `z-something`
 > to conform with [% i "HTML5 specification" %][the HTML5 specification][html5-data-attributes][% /i %],
 > but by the time we're finished processing our templates,
 > there shouldn't be any `z-*` attributes left to confuse a browser.
+{: .continue}
 
 The next step is to define the API for filling in templates.
 Our tool needs the template itself,
@@ -156,12 +156,12 @@ it uses that instead.
 
 [% excerpt file="visitor.js" %]
 
-<!-- continue -->
 `Visitor` defines two methods called `open` and `close` that are called
 when we first arrive at a node and when we are finished with it
 ([% f page-templates-visitor %]).
 The default implementations of these methods throw exceptions
 to remind the creators of derived classes to implement their own versions.
+{: .continue}
 
 [% figure slug="page-templates-visitor" img="figures/visitor.svg" alt="The Visitor pattern" caption="Using the Visitor pattern to evaluate a page template." %]
 
@@ -190,11 +190,11 @@ Finally, we need a few helper methods to show tags and generate output:
 
 [% excerpt file="expander.js" keep="helpers" %]
 
-<!-- continue -->
 Notice that this class adds strings to an array and joins them all right at the end
 rather than concatenating strings repeatedly.
 Doing this is more efficient and also helps with debugging,
 since each string in the array corresponds to a single method call.
+{: .continue}
 
 ## How do we implement node handlers? {: #page-templates-handlers}
 
@@ -205,7 +205,6 @@ let's write a handler that copies a constant number into the output:
 
 [% excerpt file="z-num.js" %]
 
-<!-- continue -->
 When we enter a node like `<span z-num="123"/>`
 this handler asks the expander to show an opening tag
 followed by the value of the `z-num` attribute.
@@ -215,6 +214,7 @@ The handler doesn't know whether things are printed immediately,
 added to an output list,
 or something else;
 it just knows that whoever called it implements the low-level operations it needs.
+{: .continue}
 
 Note that this expander is *not* a class,
 but instead an object with two functions stored under the keys `open` and `close`.
@@ -227,11 +227,11 @@ So much for constants; what about variables?
 
 [% excerpt file="z-var.js" %]
 
-<!-- continue -->
 This code is almost the same as the previous example.
 The only difference is that instead of copying the attribute's value
 directly to the output,
 we use it as a key to look up a value in the environment.
+{: .continue}
 
 These two pairs of handlers look plausible, but do they work?
 To find out,
@@ -342,30 +342,30 @@ Notice how we create the new stack frame using:
 { [indexName]: index }
 ```
 
-<!-- continue -->
 This is an ugly but useful trick.
 We can't write:
+{: .continue}
 
 ```js
 { indexName: index }
 ```
 
-<!-- continue -->
 because that would create an object with the string `indexName` as a key,
 rather than one with the value of the variable `indexName` as its key.
 We can't do this either:
+{: .continue}
 
 ```js
 { `${indexName}`: index }
 ```
 
-<!-- continue -->
 though it seems like we should be able to.
 Instead,
 we create an array containing the string we want.
 Since JavaScript automatically converts arrays to strings
 by concatenating their elements when it needs to,
 our expression is a quick way to get the same effect as:
+{: .continue}
 
 ```js
 const temp = {}
@@ -373,9 +373,9 @@ temp[indexName] = index
 expander.env.push(temp)
 ```
 
-<!-- continue -->
 Those three lines *are* much easier to understand, though,
 so we should probably have been less clever.
+{: .continue}
 
 ## How did we know how to do all of this? {: #page-templates-learning}
 
@@ -387,11 +387,11 @@ but if we wanted to add tags like:
 <span z-math="+"><span z-var="width"/><span z-num="1"//>
 ```
 
-<!-- continue -->
 we could.
 It's unlikely anyone would use the result---typing all of that
 is so much clumsier than typing `width+1` that people wouldn't use it
 unless they had no other choice---but the basic design is there.
+{: .continue}
 
 We didn't invent any of this from scratch,
 any more than we invented the parsing algorithm of [% x regex-parser %].
@@ -504,8 +504,8 @@ For example:
 </html>
 ```
 
-<!-- continue -->
 would printed the word "Important:" in bold before each item in the list.
+{: .continue}
 
 ### YAML headers {: .exercise}
 
@@ -523,8 +523,8 @@ name: "Dorothy Johnson Vaughan"
 </html>
 ```
 
-<!-- continue -->
 will create a paragraph containing the given name.
+{: .continue}
 
 ### Expanding all files {: .exercise}
 

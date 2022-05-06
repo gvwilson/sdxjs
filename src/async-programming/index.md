@@ -74,11 +74,11 @@ but any other tasks that are waiting have a chance to run as well:
 
 [% excerpt pat="callbacks-with-zero-timeouts.*" fill="js out" %]
 
-<!-- continue -->
 We can use this trick to build a generic
 [% i "execution!non-blocking" "non-blocking execution" %][% g non_blocking_execution %]non-blocking function[% /g %][% /i %]
 that takes a callback defining a task
 and switches tasks if any others are available:
+{: .continue}
 
 [% excerpt pat="non-blocking.*" fill="js out" %]
 
@@ -155,16 +155,16 @@ class Fluent {
 }
 ```
 
-<!-- continue -->
 then we can write:
+{: .continue}
 
 ```js
   const f = new Fluent()
   f.first('hello').second('and', 'goodbye')
 ```
 
-<!-- continue -->
 or even
+{: .continue}
 
 ```js
   (new Fluent()).first('hello').second('and', 'goodbye')
@@ -202,8 +202,8 @@ Let's create a `Pledge` and return a value:
 
 [% excerpt pat="use-pledge-return.*" fill="js out" %]
 
-<!-- continue -->
 Why didn't this work?
+{: .continue}
 
 1.  We can't use `return` with pledges
     because the call stack of the task that created the pledge is gone
@@ -220,12 +220,12 @@ This example shows how we can chain actions together:
 
 [% excerpt pat="use-pledge-chained.*" fill="js out" %]
 
-<!-- continue -->
 Notice that inside each `then` we *do* use `return`
 because these clauses all run in a single task.
 As we will see in the next section,
 the full implementation of `Promise` allows us to run both normal code
 and delayed tasks inside `then` handlers.
+{: .continue}
 
 Finally,
 in this example we explicitly signal a problem by calling `reject`
@@ -332,8 +332,8 @@ we create another temporary object to pass information down the chain of `then`s
 
 [% excerpt pat="count-lines-with-stat.*" fill="js sh slice.out" %]
 
-<!-- continue -->
 This code is complex, but much simpler than it would be if we were using callbacks.
+{: .continue}
 
 > ### Lining things up
 >
@@ -421,10 +421,10 @@ everything works as we want:
 
 [% excerpt pat="return-await.*" fill="js out" %]
 
-<!-- continue -->
 We prefer the second approach,
 but whichever you choose,
 please be consistent.
+{: .continue}
 
 ## Exercises {: #async-programming-exercises}
 
@@ -462,8 +462,8 @@ Suppose we create a promise that deliberately fails and then add two error handl
 
 [% excerpt file="x-multiple-catch/example.js" %]
 
-<!-- continue -->
 When the code is run it produces:
+{: .continue}
 
 [% excerpt file="x-multiple-catch/example.txt" %]
 
@@ -478,8 +478,8 @@ and attach both `then` and `catch` to it:
 
 [% excerpt file="x-catch-then/example.js" %]
 
-<!-- continue -->
 When the code is run it produces:
+{: .continue}
 
 [% excerpt file="x-catch-then/example.txt" %]
 
@@ -497,15 +497,15 @@ so that:
 node head.js 5 first.txt second.txt third.txt
 ```
 
-<!-- continue -->
 prints the first 5 lines of each of the three files and:
+{: .continue}
 
 ```sh
 node tail.js 5 first.txt second.txt third.txt
 ```
 
-<!-- continue -->
 prints the last five lines of each file.
+{: .continue}
 
 ### Histogram of line counts {: .exercise}
 
@@ -520,8 +520,8 @@ if we run:
 node lh.js promises/*.*
 ```
 
-<!-- continue -->
 the output might be:
+{: .continue}
 
 | Length | Number of Files |
 | ------ | --------------- |
@@ -551,8 +551,8 @@ For example:
 node match.js Toronto first.txt second.txt third.txt
 ```
 
-<!-- continue -->
 would print all of the lines from the three files that contain the word "Toronto".
+{: .continue}
 
 ### Find lines in all files {: .exercise}
 
@@ -564,8 +564,8 @@ For example:
 node in-all.js first.txt second.txt third.txt
 ```
 
-<!-- continue -->
 will print those lines that occur in all three files.
+{: .continue}
 
 ### Find differences between two files {: .exercise}
 
@@ -583,8 +583,8 @@ some
 people
 ```
 
-<!-- continue -->
 and `right.txt` contains:
+{: .continue}
 
 ```txt
 write
@@ -592,15 +592,15 @@ some
 code
 ```
 
-<!-- continue -->
 then:
+{: .continue}
 
 ```sh
 node file-diff.js left.txt right.txt
 ```
 
-<!-- continue -->
 would print:
+{: .continue}
 
 ```txt
 2 code
@@ -609,10 +609,10 @@ would print:
 2 write
 ```
 
-<!-- continue -->
 where `1`, `2`, and `*` show whether lines are in only the first or second file
 or are in both.
 Note that the order of the lines in the file doesn't matter.
+{: .continue}
 
 Hint: you may want to use the `Set` class to store lines.
 

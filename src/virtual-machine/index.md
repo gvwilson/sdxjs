@@ -77,11 +77,11 @@ that can be shared by other components:
 
 [% excerpt file="architecture.js" %]
 
-<!-- continue -->
 While there isn't a name for this design pattern,
 putting all the constants that define a system in one file
 instead of scattering them across multiple files
 makes them easier to find as well as ensuring consistency.
+{: .continue}
 
 ## How can we execute these instructions? {: #virtual-machine-execute}
 
@@ -129,17 +129,17 @@ The first stores the value of one register in the address held by another regist
 
 [% excerpt file="vm.js" keep="op_str" %]
 
-<!-- continue -->
 The first three lines check that the operation is legal;
 the fourth one uses the value in one register as an address,
 which is why it has nested array indexing.
+{: .continue}
 
 Adding the value in one register to the value in another register is simpler:
 
 [% excerpt file="vm.js" keep="op_add" %]
 
-<!-- continue -->
 as is jumping to a fixed address if the value in a register is zero:
+{: .continue}
 
 [% excerpt file="vm.js" keep="op_beq" %]
 
@@ -156,8 +156,8 @@ Here's an assembly language program to print the value stored in R1 and then hal
 
 [% excerpt file="print-r1.as" %]
 
-<!-- continue -->
 Its numeric representation is:
+{: .continue}
 
 [% excerpt file="print-r1.mx" %]
 
@@ -288,8 +288,8 @@ Write an assembly language program that starts with:
 -   the length of the array N in the next word
 -   N values immediately thereafter
 
-<!-- continue -->
 and reverses the array in place.
+{: .continue}
 
 ### Increment and decrement {: .exercise}
 
