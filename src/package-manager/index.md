@@ -131,7 +131,7 @@ we would need to add rules for resolving ties.
 | Z/3     |          |
 </div>
 
-<div class="table" id="package-manager-example-result" caption="Result for example package dependencies." markdown="1">
+<div class="table break-before" id="package-manager-example-result" caption="Result for example package dependencies." markdown="1">
 |   X |   Y |   Z | Excluded  |
 | --- | --- | --- | --------- |
 |   1 |   1 |   1 | Y/1 - Z/1 |
@@ -239,7 +239,7 @@ it turns out that 9 of the 17 exclusions are redundant rediscovery of a previous
 |           |   2 |   2 |   2 |
 </div>
 
-## How can we do less work? {: #package-manager-optimize}
+## How can we do less work? {: #package-manager-optimize .break-before}
 
 In order to make this more efficient we need to [% i "prune (a search tree)" %][% g prune %]prune[% /g %][% /i %] the search tree
 as we go along

@@ -46,10 +46,10 @@ CONFIGURATIONS = {
 MULTISPACE = re.compile(r"\s+", re.DOTALL)
 
 # Regex to match a Markdown heading with optional attributes.
-HEADING = re.compile(r"^(#+)\s*(.+?)(\{:\s*#(.+\b)\})?$", re.MULTILINE)
+HEADING = re.compile(r"^(#+)(.+?)(\{:.*#([\w-]+).*\})?$", re.MULTILINE)
 
 # Regex to match table elements. (See `tables.py` for explanation.)
-TABLE = re.compile(r'<div[^>]+class="table\b[^"]*"[^>]*?>')
+TABLE = re.compile(r'<div\s+class="table\b[^"]*?"[^>]*?>')
 TABLE_CAPTION = re.compile(r'caption="(.+?)"')
 TABLE_ID = re.compile(r'id="(.+?)"')
 TABLE_DIV = re.compile(

@@ -305,6 +305,7 @@ First, we create the bundled file:
 
 <!-- continue -->
 and then we run it:
+{: .break-before}
 
 [% excerpt file="test-bundle-single.out" %]
 
@@ -374,7 +375,7 @@ that makes sure every cross-reference resolves correctly.
 Trace the execution of every function called
 when the `main` function in the full bundle is called.
 
-### Making bundles more readable {: .exercise}
+### Making bundles more readable {: .exercise .break-before}
 
 Modify the bundle creator to make its output more readable,
 e.g.,

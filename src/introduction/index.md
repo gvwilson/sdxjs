@@ -202,8 +202,7 @@ If you would like to improve what we have or add new material, please see the
 Code of Conduct in [% x conduct %] and the contributor guidelines in
 [% x contributing %].  If you have questions or would like to use this material in
 a course, please file an issue in
-this site's GitHub repository <!-- FIXME -->
-or send us email. <!-- FIXME -->
+this site's GitHub repository or send us email.
 
 ## Who helped us and inspired us? {: #introduction-help}
 

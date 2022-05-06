@@ -16,9 +16,6 @@ out_dir = "docs"
 # GitHub repository.
 github = "https://github.com/software-tools-books/stjs/"
 
-# Published domain.
-domain = "stjs.tech"
-
 # Site logo.
 logo = "files/codebender.svg"
 
@@ -82,3 +79,6 @@ footer = [
     ("@root/links/", "Links"),
     (github, "GitHub"),
 ]
+
+# Debugging hook.
+debug = True

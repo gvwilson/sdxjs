@@ -56,7 +56,7 @@ where `r` indicates a register identifier,
 `c` indicates a constant,
 and `a` indicates an address.
 
-<div class="table" id="virtual-machine-op-codes" caption="Virtual machine op codes." markdown="1">
+<div class="table break-before" id="virtual-machine-op-codes" caption="Virtual machine op codes." markdown="1">
 | Instruction | Code | Format | Action              | Example      | Equivalent                |
 | ----------- | ---- | ------ | ------------------- | ------------ | ------------------------- |
 |  `hlt`      |    1 | `--`   | Halt program        | `hlt`        | `process.exit(0)`         |
@@ -335,7 +335,7 @@ The C programming language stored character strings as non-zero bytes terminated
 4.  Using these instructions,
     write a subroutine that evaluates `2x+1` for every value in an array.
 
-### Disassembling instructions {: .exercise}
+### Disassembling instructions {: .exercise .break-before}
 
 A [% g disassembler %]disassembler[% /g %] turns machine instructions into assembly code.
 Write a disassembler for the instruction set used by our virtual machine.

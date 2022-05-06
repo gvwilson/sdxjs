@@ -181,6 +181,7 @@ const name = function() => {
 
 <!-- continue -->
 than we get with:
+{: .break-before}
 
 ```js
 function name() {

@@ -41,6 +41,10 @@ class Heading:
     slug: str = ""
     number: tuple = ()
 
+    def __str__(self):
+        """Printable representation."""
+        return f"({'.'.join(self.number)}) {self.slug}: [{self.title}]"
+
 
 @shortcodes.register("x")
 def section_ref(pargs, kwargs, node):
@@ -70,6 +74,14 @@ def collect():
     ivy.nodes.root().walk(_modify_headings)
 
 
+@ivy.events.register(ivy.events.Event.EXIT)
+def check():
+    if not ivy.site.config.get("debug", False):
+        return
+    headings = util.get_config("headings")
+    util.report("headings", [str(h) for h in headings.values()])
+
+
 def _process_headings(node, major, headings):
     # Home page is untitled.
     if node.slug not in major:
@@ -83,9 +95,11 @@ def _process_headings(node, major, headings):
     headings[node.slug] = [Heading(node.slug, 1, title, node.slug)]
 
     # Collect depth, text, and slug from each heading.
+    def _strip(s):
+        return s.strip() if (s is not None) else s
     headings[node.slug].extend(
         [
-            Heading(node.slug, len(m.group(1)), m.group(2), m.group(4))
+            Heading(node.slug, len(m.group(1)), m.group(2).strip(), _strip(m.group(4)))
             for m in util.HEADING.finditer(node.text)
         ]
     )

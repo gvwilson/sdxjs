@@ -331,7 +331,7 @@ and `plugin.js` contains this:
 <!-- continue -->
 Refactor this code so that it works correctly while still using `require` rather than `import`.
 
-### An LRU cache {: .exercise}
+### An LRU cache {: .exercise .break-before}
 
 A [% g lru_cache %]Least Recently Used (LRU) cache[% /g %]
 reduces access time while limiting the amount of memory used

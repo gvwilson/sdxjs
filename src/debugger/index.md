@@ -360,7 +360,7 @@ Modify the virtual machine and debugger to use this pattern.
 Modify the debugger and virtual machine to implement [% g watchpoint %]watchpoints[% /g %]
 that halt the program whenever the value of a variable changes.
 
-### Translating JSON to assembler {: .exercise}
+### Translating JSON to assembler {: .exercise .break-before}
 
 Write a tool that translates the JSON program representation
 into the assembly code of [% x virtual-machine %].
