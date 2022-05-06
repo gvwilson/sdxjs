@@ -31,7 +31,7 @@ filter, select, summarize, and join.
 These can be implemented in about five hundred lines of code,
 but their performance depends on how the data table is stored.
 
-## How can we implement data tables? {#data-table-implement}
+## How can we implement data tables? {: #data-table-implement}
 
 One way to store a table is [% i "row-major storage order" "storage order!row-major" %][% g row_major %]row-major[% /g %][% /i %] order,
 in which the values in each row are stored together in memory.
@@ -121,7 +121,7 @@ but filtering will be relatively slow since we are constructing multiple new arr
 > and passing that to the same filtering function we used for the row-major implementation,
 > but that extra work would bias the performance comparison in row-major's favor.
 
-## How can we test the performance of our implementations? {#data-table-profile}
+## How can we test the performance of our implementations? {: #data-table-profile}
 
 Now that we have our tables and operations,
 we can build a [% i "test harness" "experiments!test harness" %][% g test_harness %]test harness[% /g %][% /i %] to run those operations
@@ -163,7 +163,7 @@ And if we keep the table size the same but use a 10:1 filter/select ratio?
 
 [% excerpt file="table-performance-10000-30-10.out" %]
 
-<div class="table" id="data-table-performance" caption="Relative performance of operations on row-major and column-major data tables." markdown="1">
+<div class="table break-before" id="data-table-performance" caption="Relative performance of operations on row-major and column-major data tables." markdown="1">
 value|100-03-03|10000-30-03|10000-30-10
 :---|---:|---:|---:
 nRows|100|10000|10000
@@ -183,7 +183,7 @@ Unfortunately,
 the code for column-major storage is a little more complicated to write,
 which is a cost that doesn't show up in experiments.
 
-## What is the most efficient way to save a table? {#data-table-save}
+## What is the most efficient way to save a table? {: #data-table-save}
 
 Data is valuable,
 so we are going to store data tables in files of some kind.
@@ -215,7 +215,7 @@ Again,
 we assume this is because copying data takes less time than turning labels into strings over and over,
 but column-major storage is still the best approach.
 
-## Does binary storage improve performance? {#data-table-binary}
+## Does binary storage improve performance? {: #data-table-binary}
 
 Let's try one more strategy for storing our tables.
 JavaScript stores values in [% i "tagged data structure" %][% g tagged_data %]tagged[% /g %][% /i %] data structures:
@@ -269,15 +269,15 @@ the result of our experiment depends on the test cases we choose.
 > or to improve the performance of CPUs [% b Patterson2017 %];
 > a few simple experiments like these can sometimes save weeks or months of effort.
 
-## Exercises {#data-table-exercises}
+## Exercises {: #data-table-exercises}
 
-### Varying filter behavior {.exercise}
+### Varying filter behavior {: .exercise}
 
 How does our decision about which storage format is better change
 if we keep 1% of rows when filtering instead of one third?
 What if we keep 90% of rows?
 
-### Filtering by strings {.exercise}
+### Filtering by strings {: .exercise}
 
 Modify the comparison of filter and select to work with tables
 that contain columns of strings instead of columns of numbers
@@ -290,7 +290,7 @@ and then filter by:
 -   strings starting with a specific character, and
 -   strings that contain a specific character
 
-### Join performance {.exercise}
+### Join performance {: .exercise}
 
 A join combines data from two tables based on matching keys.
 For example,
@@ -324,7 +324,7 @@ Write a test to compare the performance of row-wise vs. column-wise storage
 when joining two tables based on matching numeric keys.
 Does the answer depend on the fraction of keys that match?
 
-### Join optimization {.exercise}
+### Join optimization {: .exercise}
 
 The simplest way to [% g join %]join[% /g %] two tables is
 to look for matching keys using a double loop.
@@ -369,7 +369,7 @@ Write a function that joins two tables this way.
 Is it faster or slower than using a double loop?
 How does the answer depend on the number of keys and the fraction that match?
 
-### Flipping storage {.exercise}
+### Flipping storage {: .exercise}
 
 Our tests showed that storing row-oriented tables as JSON
 is much slower than storing column-oriented tables.
@@ -377,7 +377,7 @@ Write a test to determine whether converting a row-oriented table to a column-or
 and then saving the latter
 is faster than saving the row-oriented table directly.
 
-### Sparse storage {.exercise}
+### Sparse storage {: .exercise}
 
 A [% g sparse_matrix %]sparse matrix[% /g %] is one in which most of the values are zero.
 Instead of storing them all,
@@ -398,12 +398,12 @@ and the other 95% are zero,
 then compare the memory requirements and performance of filter and select for this implementation
 versus those of row-wise and column-wise storage.
 
-### Loading time {.exercise}
+### Loading time {: .exercise}
 
 Modify the programs in this section to measure the time required to convert a data table from JSON or binary form
 back to a data structure.
 
-### Saving fixed-width strings {.exercise}
+### Saving fixed-width strings {: .exercise}
 
 To improve performance,
 databases often store [% g fixed_width_string %]fixed-width[% /g %] strings,
@@ -421,7 +421,7 @@ and [% g pad_string %]pad[% /g %] strings that are shorter than that.
     This function should remove the padding
     so that strings shorter than the fixed width are restored to their original form.
 
-### Saving variable-width strings {.exercise}
+### Saving variable-width strings {: .exercise}
 
 [% g fixed_width_string %]Fixed-width[% /g %] storage is inefficient for large blocks of text
 such as contracts, novels, and resumés,
@@ -436,7 +436,7 @@ An alternative way to store these in binary is to save each entry as a (length, 
 
 3.  Write tests with Mocha to confirm that your functions work correctly.
 
-### ASCII storage {.exercise}
+### ASCII storage {: .exercise}
 
 The original ASCII standard specified
 a 7-bit [% g character_encoding %]character encoding[% /g %] for letters commonly used in English,

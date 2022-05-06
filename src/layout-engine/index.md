@@ -35,7 +35,7 @@ and then draw the result as text on the screen.
 
 [% figure slug="layout-engine-coordinate-system" img="figures/coordinate-system.svg" alt="Coordinate system" caption="Coordinate system with (0, 0) in the upper left corner." %]
 
-## How can we size rows and columns? {#layout-engine-size}
+## How can we size rows and columns? {: #layout-engine-size}
 
 Let's start on [% g easy_mode %]easy mode[% /g %]
 without margins, padding, line-wrapping, or other complications.
@@ -82,7 +82,7 @@ before trying to build anything more complicated:
 [% excerpt file="test/test-easy-mode.js" %]
 [% excerpt file="test-easy-mode.out" %]
 
-## How can we position rows and columns? {#layout-engine-position}
+## How can we position rows and columns? {: #layout-engine-position}
 
 Now that we know how big each cell is
 we can figure out where to put it.
@@ -126,7 +126,7 @@ we write and run some tests to check that everything is doing what it's supposed
 [% excerpt file="test/test-placed.js" omit="large" %]
 [% excerpt file="test-placed.out" %]
 
-## How can we render elements? {#layout-engine-render}
+## How can we render elements? {: #layout-engine-render}
 
 We drew the blocks on a piece of graph paper
 in order to figure out the expected answers for the tests shown above.
@@ -182,7 +182,7 @@ and convince ourselves that it was actually correct;
 [% i "confirmation bias" %][% g confirmation_bias %]confirmation bias[% /g %][% /i %] of this kind
 is very common in software development.
 
-## How can we wrap elements to fit? {#layout-engine-fit}
+## How can we wrap elements to fit? {: #layout-engine-fit}
 
 One of the biggest differences between a browser and a printed page
 is that the text in the browser wraps itself automatically as the window is resized.
@@ -252,7 +252,7 @@ and write some new ones to test the functionality we've added:
 > Thinking in these terms leads to a methodology called
 > [% i "design by contract" "software design!design by contract" %][% g design_by_contract %]design by contract[% /g %][% /i %].
 
-## What subset of CSS will we support? {#layout-engine-css}
+## What subset of CSS will we support? {: #layout-engine-css}
 
 It's finally time to style pages that contain text.
 Our final subset of HTML has rows, columns, and text blocks as before.
@@ -358,9 +358,9 @@ We will explore these possibilities in the exercises.
 > The moral is,
 > be careful what you ask.
 
-## Exercises {#layout-engine-exercises}
+## Exercises {: #layout-engine-exercises}
 
-### Refactoring the node classes {.exercise}
+### Refactoring the node classes {: .exercise}
 
 Refactor the classes used to represent blocks, rows, and columns so that:
 
@@ -368,7 +368,7 @@ Refactor the classes used to represent blocks, rows, and columns so that:
 
 2.  All common behavior is defined in that parent (if only with placeholder methods).
 
-### Handling rule conflicts {.exercise}
+### Handling rule conflicts {: .exercise}
 
 Modify the rule lookup mechanism so that if two conflicting rules are defined,
 the one that is defined second takes precedence.
@@ -376,7 +376,7 @@ For example,
 if there are two definitions for `row.bold`,
 whichever comes last in the JSON representation of the CSS wins.
 
-### Handling arbitrary tags {.exercise}
+### Handling arbitrary tags {: .exercise}
 
 Modify the existing code to handle arbitrary HTML elements.
 
@@ -385,20 +385,20 @@ Modify the existing code to handle arbitrary HTML elements.
 2.  Instead of separate classes for rows and columns,
     there should be one class `Node` whose `tag` attribute identifies its type.
 
-### Recycling nodes {.exercise}
+### Recycling nodes {: .exercise}
 
 Modify the wrapping code so that new rows and columns are only created if needed.
 For example,
 if a row of width 10 contains a text node with the string "fits",
 a new row and column are *not* inserted.
 
-### Rendering a clear background {.exercise}
+### Rendering a clear background {: .exercise}
 
 Modify the rendering code so that only the text in block nodes is shown,
 i.e.,
 so that the empty space in rows and columns is rendered as spaces.
 
-### Clipping text {.exercise}
+### Clipping text {: .exercise}
 
 1.  Modify the wrapping and rendering so that
     if a block of text is too wide for the available space
@@ -410,12 +410,12 @@ so that the empty space in rows and columns is rendered as spaces.
 2.  Extend your solution to break lines on spaces as needed
     in order to avoid clipping.
 
-### Bidirectional rendering {.exercise}
+### Bidirectional rendering {: .exercise}
 
 Modify the existing software to do either left-to-right or right-to-left rendering
 upon request.
 
-### Equal sizing {.exercise}
+### Equal sizing {: .exercise}
 
 Modify the existing code to support elastic columns,
 i.e.,
@@ -423,7 +423,7 @@ so that all of the columns in a row are automatically sized to have the same wid
 If the number of columns does not divide evenly into the width of the row,
 allocate the extra space as equally as possible from left to right.
 
-### Padding elements {.exercise}
+### Padding elements {: .exercise}
 
 Modify the existing code so that:
 
@@ -445,7 +445,7 @@ For example, the HTML `<row>text</row>` would render as:
 <!-- continue -->
 where the lines show the outer border of the rendering.
 
-### Drawing borders {.exercise}
+### Drawing borders {: .exercise}
 
 1.  Modify the existing code so that elements may specify `border: true` or `border: false`
     (with the latter being the default).

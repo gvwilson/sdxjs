@@ -23,7 +23,7 @@ Our design is inspired by tools like [% i "Mocha" %][Mocha][mocha][% /i %] and [
 which were in turn inspired by tools built for other languages
 from the 1980s onward [% b Meszaros2007 Tudose2020 %].
 
-## How should we structure unit testing? {#unit-test-structure}
+## How should we structure unit testing? {: #unit-test-structure}
 
 As in other unit testing frameworks,
 each test will be a function of zero arguments
@@ -57,7 +57,7 @@ Any other kind of assertion indicates that the test itself contains an error.
 
 [% figure slug="unit-test-mental-model" img="figures/mental-model.svg" alt="Mental model of unit testing" caption="Running tests that can pass, fail, or contain errors." %]
 
-## How can we separate registration, execution, and reporting? {#unit-test-design}
+## How can we separate registration, execution, and reporting? {: #unit-test-design}
 
 To start,
 let's use a handful of [% g global_variable %]global variables[% /g %] to record tests and their results:
@@ -116,7 +116,7 @@ This simple "framework" does what it's supposed to, but:
     but we should make sure those assertions are failing when they're supposed to,
     just as we should test our smoke detectors every once in a while.
 
-## How should we structure test registration? {#unit-test-registration}
+## How should we structure test registration? {: #unit-test-registration}
 
 The next version of our testing tool solves the first two problems in the original
 by putting the testing machinery in a class.
@@ -171,7 +171,7 @@ so that if someone wants to format them in a different way (e.g., as HTML) they 
 > and will then lose time trying to figure out why `test_this` is failing
 > when the failure is actually in `test_that`.
 
-## How can we build a command-line interface for testing? {#unit-test-cli}
+## How can we build a command-line interface for testing? {: #unit-test-cli}
 
 Most programmers don't enjoy writing tests,
 so if we want them to do it,
@@ -280,18 +280,18 @@ when a pair of files `test-add.js` and `test-sub.js` are loaded by our framework
 
 [% figure slug="unit-test-lifecycle" img="figures/lifecycle.svg" alt="Unit testing lifecycle" caption="Lifecycle of dynamically-discovered unit tests." %]
 
-## Exercises {#unit-test-exercises}
+## Exercises {: #unit-test-exercises}
 
-### Asynchronous globbing {.exercise}
+### Asynchronous globbing {: .exercise}
 
 Modify `pray.js` to use the asynchronous version of `glob` rather than `glob.sync`.
 
-### Timing tests {.exercise}
+### Timing tests {: .exercise}
 
 Install the [`microtime`][microtime] package and then modify the `dry-run.js` example
 so that it records and reports the execution times for tests.
 
-### Approximately equal {.exercise}
+### Approximately equal {: .exercise}
 
 1.  Write a function `assertApproxEqual` that does nothing if two values are within a certain tolerance of each other
     but throws an exception if they are not:
@@ -315,7 +315,7 @@ so that it records and reports the execution times for tests.
     (The relative error is the absolute value of the difference between the actual and expected value,
     divided by the absolute value.)
 
-### Rectangle overlay {.exercise}
+### Rectangle overlay {: .exercise}
 
 A windowing application represents rectangles using objects with four values:
 `x` and `y` are the coordinates of the lower-left corner,
@@ -333,12 +333,12 @@ and the screen's size is `WIDTH`x`HEIGHT`.
 3.  Do you tests assume that two rectangles that touch on an edge overlap or not?
     What about two rectangles that only touch at a single corner?
 
-### Selecting tests {.exercise}
+### Selecting tests {: .exercise}
 
 Modify `pray.js` so that if the user provides `-s pattern` or `--select pattern`
 then the program only runs tests in files that contain the string `pattern` in their name.
 
-### Tagging tests {.exercise}
+### Tagging tests {: .exercise}
 
 Modify `hope.js` so that users can optionally provide an array of strings to tag tests:
 
@@ -351,7 +351,7 @@ hope.test('Difference of 1 and 2',
 Then modify `pray.js` so that if users specify either `-t tagName` or `--tag tagName`
 only tests with that tag are run.
 
-### Mock objects {.exercise}
+### Mock objects {: .exercise}
 
 A mock object is a simplified replacement for part of a program
 whose behavior is easier to control and predict than the thing it is replacing.
@@ -380,7 +380,7 @@ then the third and fifth calls to `mockReadFileSync` throw an exception instead 
 as do any calls after the fifth.
 Write this function.
 
-### Setup and teardown {.exercise}
+### Setup and teardown {: .exercise}
 
 Testing frameworks often allow programmers to specify a `setup` function
 that is to be run before each test
@@ -406,7 +406,7 @@ then the function `createFixtures` will be called
 exactly once before each test in that file.
 Add a similar way to register a teardown function with `hope.teardown`.
 
-### Multiple tests {.exercise .break-before}
+### Multiple tests {: .exercise .break-before}
 
 Add a method `hope.multiTest` that allows users to specify
 multiple test cases for a function at once.
@@ -435,7 +435,7 @@ hope.test('check all of these 2',
 )
 ```
 
-### Assertions for sets and maps {.exercise}
+### Assertions for sets and maps {: .exercise}
 
 1.  Write functions `assertSetEqual` and `assertMapEqual`
     that check whether two instances of `Set` or two instances of `Map` are equal.
@@ -444,7 +444,7 @@ hope.test('check all of these 2',
     that checks whether two arrays have the same elements,
     even if those elements are in different orders.
 
-### Testing promises {.exercise}
+### Testing promises {: .exercise}
 
 Modify the unit testing framework to handle `async` functions,
 so that:

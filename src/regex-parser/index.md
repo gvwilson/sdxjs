@@ -47,7 +47,7 @@ the exercises will tackle the latter.
 > or something else that already has an acronym
 > rather than inventing a format of your own.
 
-## How can we break text into tokens? {#regex-parser-tokenize}
+## How can we break text into tokens? {: #regex-parser-tokenize}
 
 A [% i "token (in parsing)" %][% g token %]token[% /g %][% /i %] is an atom of text,
 such as the digits making up a number or the letters making up a variable name.
@@ -105,7 +105,7 @@ along with the output for the full set:
 [% excerpt file="test/test-tokenizer.js" omit="omit" %]
 [% excerpt file="tokenizer-test.out" %]
 
-## How can we turn a list of tokens into a tree? {#regex-parser-tree}
+## How can we turn a list of tokens into a tree? {: #regex-parser-tree}
 
 We now have a list of tokens,
 but we need a tree that captures the nesting introduced by parentheses
@@ -225,34 +225,34 @@ but at least they're broken the same way everywhere.
 
 [% figure slug="regex-parser-finite-state-machine" img="figures/finite-state-machine.svg" alt="Finite state machine" caption="A finite state machine equivalent to a regular expression." %]
 
-## Exercises {#regex-parser-exercises}
+## Exercises {: #regex-parser-exercises}
 
-### Create objects {.exercise}
+### Create objects {: .exercise}
 
 Modify the parser to return instances of classes derived from `RegexBase`.
 
-### Escape characters {.exercise}
+### Escape characters {: .exercise}
 
 Modify the parser to handle escape characters,
 so that (for example) `\*` is interpreted as "a literal '*' character"
 and `\\` is interpreted as "a literal backslash".
 
-### Lazy matching {.exercise}
+### Lazy matching {: .exercise}
 
 Modify the parser so that `*?` is interpreted as a single token
 meaning "lazy match zero or more".
 
-### Character sets {.exercise}
+### Character sets {: .exercise}
 
 Modify the parser so that expressions like `[xyz]` are interpreted to mean
 "match any one of the characters 'x', 'y', or 'z'".
 
-### Back reference {.exercise}
+### Back reference {: .exercise}
 
 Modify the tokenizer so that it recognizes `\1`, `\2`, and so on to mean "back reference".
 The number may contain any number of digits.
 
-### Named groups {.exercise}
+### Named groups {: .exercise}
 
 1.  Modify the tokenizer to recognize named groups.
     For example, the named group `/(?<triple>aaa)/`
@@ -261,7 +261,7 @@ The number may contain any number of digits.
 2.  Write Mocha tests for your modified tokenizer.
     Does it handle nested named groups?
 
-### Object streams {.exercise}
+### Object streams {: .exercise}
 
 Write a parser that turns files of key-value pairs separated by blank lines into objects.
 For example, if the input is:
@@ -291,7 +291,7 @@ then the output will be:
 Keys are always upper- and lower-case characters;
 values may be strings in double quotes or unquoted numbers.
 
-### Tokenize HTML {.exercise}
+### Tokenize HTML {: .exercise}
 
 1.  Write a tokenizer for a subset of HTML that consists of:
 
@@ -303,7 +303,7 @@ values may be strings in double quotes or unquoted numbers.
 
 3.  Write Mocha tests for your tokenizer.
 
-### The Shunting Yard Algorithm {.exercise}
+### The Shunting Yard Algorithm {: .exercise}
 
 1.  Use the [shunting-yard algorithm][shunting-yard-algorithm]
     to implement a tokenizer for a simple subset of arithmetic that includes:
@@ -314,7 +314,7 @@ values may be strings in double quotes or unquoted numbers.
 
 2.  Write Mocha tests for your tokenizer.
 
-### Handling errors {.exercise}
+### Handling errors {: .exercise}
 
 1.  What does the regular expression tokenizer do
     with expressions that contain unmatched opening parentheses like `/a(b/`?

@@ -13,7 +13,7 @@ In this chapter we will build a simple single-stepping debugger;
 in doing so,
 we will show one way to test interactive applications ([% x unit-test %]).
 
-## What is our starting point? {#debugger-start}
+## What is our starting point? {: #debugger-start}
 
 We would like to debug a higher-level language than the [% i "assembly code" %]assembly code[% /i %] of [% x virtual-machine %],
 but we don't want to have to write a parser
@@ -63,7 +63,7 @@ and checking that a variable name refers to an array is:
 
 The other operations are similar to these.
 
-## How can we make a tracing debugger? {#debugger-tracing}
+## How can we make a tracing debugger? {: #debugger-tracing}
 
 The next thing we need in our debugger is
 a [% i "source map" "debugger!source map" %][% g source_map %]source map[% /g %][% /i %] that keeps track of
@@ -130,7 +130,7 @@ Let's try it on a program that adds the numbers in an array:
 [% excerpt file="sum-source-map.json" %]
 [% excerpt file="sum-source-map-trace.out" %]
 
-## How can we make the debugger interactive? {#debugger-interactive}
+## How can we make the debugger interactive? {: #debugger-interactive}
 
 What we have built so far is an always-on `print` statement.
 To turn it into an interactive debugger,
@@ -208,7 +208,7 @@ so we take advantage of the fact that JavaScript ignores any extra arguments pas
 This is sloppy, but it works;
 we will tidy it up in the exercises.
 
-## How can we test an interactive application? {#debugger-test}
+## How can we test an interactive application? {: #debugger-test}
 
 How can we [% i "unit test!interactive application" %]test[% /i %] an interactive application like a debugger?
 The answer is, "By making it non-interactive."
@@ -302,47 +302,47 @@ we are finally able to test our interactive debugger:
 
 [% excerpt pat="test-exit.*" fill="sh out" %]
 
-## Exercises {#debugger-exercises}
+## Exercises {: #debugger-exercises}
 
-### Implementing tab completion {.exercise}
+### Implementing tab completion {: .exercise}
 
 Read the documentation for [`prompt-sync`][node-prompt-sync]
 and then implement [% g tab_completion %]tab completion[% /g %]
 for the debugger.
 
-### Modifying variables while running {.exercise}
+### Modifying variables while running {: .exercise}
 
 Add a `set` command that sets the value of a variable to a new value in a running program.
 How do you handle setting array elements?
 
-### Making output more readable {.exercise}
+### Making output more readable {: .exercise}
 
 Modify the tracing debugger so that
 the statements inside loops and conditionals are indented for easier reading.
 
-### Better loops {.exercise}
+### Better loops {: .exercise}
 
 Our solution for handling loops is sloppy; fix it.
 
-### Using a flag to continue execution {.exercise}
+### Using a flag to continue execution {: .exercise}
 
 Modify the debugger and virtual machine to use a "continue executing" flag
 rather than throwing an exception when execution should end.
 Which approach is easier to understand?
 Which will be easier to extend in future?
 
-### Numbering lines {.exercise}
+### Numbering lines {: .exercise}
 
 Write a tool that takes a JSON program representation *without* statement numbers
 and produces one that numbers all of the interesting statements for debugging purposes.
 Use whatever definition of "interesting" you think would be most useful.
 
-### Looping around again {.exercise}
+### Looping around again {: .exercise}
 
 Implement a "next loop iteration" command that runs the program
 until it reaches the current point in the next iteration of the current loop.
 
-### Looking up objects {.exercise}
+### Looking up objects {: .exercise}
 
 Rather than having some objects call `setXYZ` methods in other objects,
 it is common practice to use a lookup table for mutual dependencies:
@@ -355,12 +355,12 @@ it is common practice to use a lookup table for mutual dependencies:
 
 Modify the virtual machine and debugger to use this pattern.
 
-### Watching for variable changes {.exercise}
+### Watching for variable changes {: .exercise}
 
 Modify the debugger and virtual machine to implement [% g watchpoint %]watchpoints[% /g %]
 that halt the program whenever the value of a variable changes.
 
-### Translating JSON to assembler {.exercise}
+### Translating JSON to assembler {: .exercise}
 
 Write a tool that translates the JSON program representation
 into the assembly code of [% x virtual-machine %].

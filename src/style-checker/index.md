@@ -28,7 +28,7 @@ which is that source code is just another kind of data.
 > [% i "Standard JS" %][Standard JS][standard-js][% /i %] may not do everything exactly the way you want,
 > but adopting it increases the odds that other programmers will be able to read your code at first glance.
 
-## How can we parse JavaScript to create an AST? {#style-checker-ast}
+## How can we parse JavaScript to create an AST? {: #style-checker-ast}
 
 A parser for a simple language like arithmetic or JSON is relatively easy to write.
 A parser for a language as complex as JavaScript is much more work,
@@ -60,7 +60,7 @@ here is the output for a [% linecount parse-const-func.js %]-line program:
 <!-- continue -->
 Yes, it really is almost 500 lines long…
 
-## How can we find things in an AST? {#style-checker-search}
+## How can we find things in an AST? {: #style-checker-search}
 
 If we want to find functions, variables, or anything else in an AST
 we need to [% i "walk a tree" %][% g walk_tree %]walk the tree[% /g %][% /i %],
@@ -106,7 +106,7 @@ and report them all at the end
 > but as we will see below,
 > we can implement them in different ways.
 
-## How can we apply checks? {#style-checker-apply}
+## How can we apply checks? {: #style-checker-apply}
 
 We don't just want to collect nodes:
 we want to check their properties against a set of rules.
@@ -152,7 +152,7 @@ The exercises will ask why the parameter `x` doesn't show up
 as a violation of our rule
 that variables' names must be at least four characters long.
 
-## How does the AST walker work? {#style-checker-walker}
+## How does the AST walker work? {: #style-checker-walker}
 
 The AST walker uses the Visitor pattern,
 but how does it actually work?
@@ -202,7 +202,7 @@ the most important thing is consistency:
 if we implement Visitor using classes in one place,
 we should implement it that way everywhere.
 
-## How else could the AST walker work? {#style-checker-alternatives}
+## How else could the AST walker work? {: #style-checker-alternatives}
 
 A third approach to this problem uses
 the [% i "Iterator pattern" "design pattern!Iterator" %][% g iterator_pattern %]Iterator[% /g %][% /i %] design pattern.
@@ -268,7 +268,7 @@ this could be a reflection of what we're used to rather than anything intrinsic;
 as with coding style,
 the most important thing is to be consistent.
 
-## What other kinds of analysis can we do? {#style-checker-analysis}
+## What other kinds of analysis can we do? {: #style-checker-analysis}
 
 As one final example,
 consider the problem of keeping track of which methods are defined where
@@ -336,13 +336,13 @@ which has a more complex method definition table:
 | stop | . | X | . | . |
 | variables | . | X | . | . |
 
-## Exercises {#style-checker-exercises}
+## Exercises {: #style-checker-exercises}
 
-### Function length {.exercise}
+### Function length {: .exercise}
 
 Derive a class from `Walker` that reports the length in lines of each function defined in the code being checked.
 
-### Expression depth {.exercise}
+### Expression depth {: .exercise}
 
 Derive a class from `Walker` that reports how deep each top-level expression in the source code is.
 For example,
@@ -350,7 +350,7 @@ the depth of `1 + 2 * 3` is 2,
 while the depth of `max(1 + 2 + 3)` is 3
 (one level for the function call, one for the first addition, and one for the nested addition).
 
-### Downward and upward {.exercise}
+### Downward and upward {: .exercise}
 
 Modify `Walker` so that users can specify
 one action to take at a node on the way down the tree
@@ -358,7 +358,7 @@ and a separate action to take on the way up.
 (Hint: require users to specify `Nodename_downward` and/or `Nodename_upward` methods in their class,
 then use string concatenation to construct method names while traversing the tree.)
 
-### Aggregating across files {.exercise}
+### Aggregating across files {: .exercise}
 
 Create a command-line program called `sniff.js`
 that checks for style violations in any number of source files.
@@ -369,25 +369,25 @@ The other command-line arguments must be the names of JavaScript source files to
 
 [% excerpt file="x-across-files/sniff.sh" %]
 
-### Finding assertions {.exercise}
+### Finding assertions {: .exercise}
 
 Write a program `find-assertions.js` that finds all calls to `assert` or `assert.something`
 and prints the assertion message (if any).
 
-### Finding a missing parameter {.exercise}
+### Finding a missing parameter {: .exercise}
 
 1.  Why doesn't the parameter `x` show up as a rule violation
     in the example where we check name lengths?
 
 2.  Modify the example so that it does.
 
-### Finding nested indexes {.exercise}
+### Finding nested indexes {: .exercise}
 
 Write a tool that finds places where nested indexing is used,
 i.e.,
 where the program contains expression like `arr[table[i]]`.
 
-### Dynamic lookup {.exercise}
+### Dynamic lookup {: .exercise}
 
 1.  Write a function `dynamicExecution` that takes an object,
     the name of a method,
@@ -401,7 +401,7 @@ where the program contains expression like `arr[table[i]]`.
 
 2.  What *doesn't* this work for?
 
-### Generators and arrays {.exercise}
+### Generators and arrays {: .exercise}
 
 1.  Write a generator that takes a two-dimensional table represented as an array of arrays
     and returns the values in [% g column_major %]column-major[% /g %] order.
@@ -409,7 +409,7 @@ where the program contains expression like `arr[table[i]]`.
 2.  Write another generator that takes a similar table
     and returns the values in [% g row_major %]row-major[% /g %] order.
 
-### Generators and identifiers {.exercise}
+### Generators and identifiers {: .exercise}
 
 Rewrite the tool to check identifier lengths using a generator.
 

@@ -18,7 +18,7 @@ You may also enjoy [% i "Human Resource Machine" %][Human Resource Machine][huma
 which asks you to solve puzzles of increasing difficulty
 using a processor almost as simple as ours.
 
-## What is the architecture of our virtual machine? {#virtual-machine-arch}
+## What is the architecture of our virtual machine? {: #virtual-machine-arch}
 
 Our [% i "virtual machine" %][% g virtual_machine %]virtual machine[% /g %][% /i %] has three parts,
 which are shown in [% f virtual-machine-architecture %]
@@ -83,7 +83,7 @@ putting all the constants that define a system in one file
 instead of scattering them across multiple files
 makes them easier to find as well as ensuring consistency.
 
-## How can we execute these instructions? {#virtual-machine-execute}
+## How can we execute these instructions? {: #virtual-machine-execute}
 
 As in previous chapters,
 we will split a class that would normally be written in one piece into several parts for exposition.
@@ -143,7 +143,7 @@ as is jumping to a fixed address if the value in a register is zero:
 
 [% excerpt file="vm.js" keep="op_beq" %]
 
-## What do assembly programs look like? {#virtual-machine-assembly}
+## What do assembly programs look like? {: #virtual-machine-assembly}
 
 We could figure out numerical op codes by hand,
 and in fact that's what [the first programmers][eniac-programmers] did.
@@ -227,7 +227,7 @@ this program counts up to three:
 [% excerpt file="count-up.as" %]
 [% excerpt file="count-up-out.out" %]
 
-## How can we store data? {#virtual-machine-data}
+## How can we store data? {: #virtual-machine-data}
 
 It is tedious to write interesting programs when each value needs a unique name.
 We can do a lot more once we have collections like [% i "array!implementation of" %]arrays[% /i %],
@@ -273,14 +273,14 @@ let's fill an array with the numbers from 0 to 3:
 > and talk to the world,
 > [% b Patterson2017 %] has everything you want to know and more.
 
-## Exercises {#virtual-machine-exercises}
+## Exercises {: #virtual-machine-exercises}
 
-### Swapping values {.exercise}
+### Swapping values {: .exercise}
 
 Write an assembly language program that swaps the values in R1 and R2
 without affecting the values in other registers.
 
-### Reversing an array {.exercise}
+### Reversing an array {: .exercise}
 
 Write an assembly language program that starts with:
 
@@ -291,7 +291,7 @@ Write an assembly language program that starts with:
 <!-- continue -->
 and reverses the array in place.
 
-### Increment and decrement {.exercise}
+### Increment and decrement {: .exercise}
 
 1.  Add instructions `inc` and `dec` that add one to the value of a register
     and subtract one from the value of a register respectively.
@@ -300,7 +300,7 @@ and reverses the array in place.
     How much shorter do they make the programs?
     How much easier to read?
 
-### Using long addresses {.exercise}
+### Using long addresses {: .exercise}
 
 1.  Modify the virtual machine so that the `ldr` and `str` instructions
     contain 16-bit addresses rather than 8-bit addresses
@@ -308,7 +308,7 @@ and reverses the array in place.
 
 2.  How does this complicate instruction interpretation?
 
-### Operating on strings {.exercise}
+### Operating on strings {: .exercise}
 
 The C programming language stored character strings as non-zero bytes terminated by a byte containing zero.
 
@@ -321,7 +321,7 @@ The C programming language stored character strings as non-zero bytes terminated
 
 3.  What happens in each case if the terminator is missing?
 
-### Call and return {.exercise}
+### Call and return {: .exercise}
 
 1.  Add another register to the virtual machine called SP (for "stack pointer")
     that is automatically initialized to the *last* address in memory.
@@ -335,14 +335,14 @@ The C programming language stored character strings as non-zero bytes terminated
 4.  Using these instructions,
     write a subroutine that evaluates `2x+1` for every value in an array.
 
-### Disassembling instructions {.exercise}
+### Disassembling instructions {: .exercise}
 
 A [% g disassembler %]disassembler[% /g %] turns machine instructions into assembly code.
 Write a disassembler for the instruction set used by our virtual machine.
 (Since the labels for addresses are not stored in machine instructions,
 disassemblers typically generate labels like `@L001` and `@L002`.)
 
-### Linking multiple files {.exercise}
+### Linking multiple files {: .exercise}
 
 1.  Modify the assembler to handle `.include filename` directives.
 
@@ -350,7 +350,7 @@ disassemblers typically generate labels like `@L001` and `@L002`.)
     How does it prevent infinite includes
     (i.e., `A.as` includes `B.as` which includes `A.as` again)?
 
-### Providing system calls {.exercise}
+### Providing system calls {: .exercise}
 
 Modify the virtual machine so that developers can add "system calls" to it.
 
@@ -361,7 +361,7 @@ Modify the virtual machine so that developers can add "system calls" to it.
     It looks up the corresponding function and calls it with the values of R0-R3 as parameters
     and places the result in R0.
 
-### Unit testing {.exercise}
+### Unit testing {: .exercise}
 
 1.  Write unit tests for the assembler.
 

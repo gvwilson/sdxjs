@@ -42,7 +42,7 @@ while [% x async-programming %] shows how promises and `async`/`await` work.
 This chapter also shows how to read and write files and directories with Node's standard libraries,
 because we're going to be doing that a lot.
 
-## How can we list a directory? {#systems-programming-ls}
+## How can we list a directory? {: #systems-programming-ls}
 
 To start,
 let's try listing the contents of a directory the way we would in [% i "Python" %][Python][python][% /i %]
@@ -119,7 +119,7 @@ so we need to explore those in order to make our program work.
 >
 > --- variously attributed
 
-## What is a callback function? {#systems-programming-callback}
+## What is a callback function? {: #systems-programming-callback}
 
 JavaScript uses a [% i "single-threaded execution" "execution!single-threaded" %][% g single_threaded %]single-threaded[% /g %][% /i %] programming model:
 as the introduction to this lesson said,
@@ -175,7 +175,7 @@ the order in which Node executes the statements in this program
 
 [% figure slug="systems-programming-execution-order" img="figures/execution-order.svg" alt="Callback execution order" caption="When JavaScript runs callback functions." %]
 
-## What are anonymous functions? {#systems-programming-anonymous}
+## What are anonymous functions? {: #systems-programming-anonymous}
 
 Most JavaScript programmers wouldn't define the function `listContents`
 and then pass it as a callback.
@@ -203,7 +203,7 @@ Using an anonymous function gives us the final version of our program:
 > and passing a function as an argument to another function is no different from passing an array.
 > We are going to rely on this insight over and over again in the coming lessons.
 
-## How can we select a set of files? {#systems-programming-fileset}
+## How can we select a set of files? {: #systems-programming-fileset}
 
 Suppose we want to copy some files instead of listing a directory's contents.
 Depending on the situation
@@ -311,7 +311,7 @@ We could create the pattern by concatenating strings using
 `srcDir + '/**/*.*'`,
 but most programmers find interpolation easier to read.
 
-## How can we copy a set of files? {#systems-programming-copy}
+## How can we copy a set of files? {: #systems-programming-copy}
 
 If we want to copy a set of files instead of just listing them
 we need a way to create the [% g path %]paths[% /g %] of the files we are going to create.
@@ -400,30 +400,30 @@ but four levels of asynchronous callbacks is hard for humans to understand.
 [% x async-programming %] will introduce a pair of tools
 that make code like this easier to read.
 
-## Exercises {#systems-programming-exercises}
+## Exercises {: #systems-programming-exercises}
 
-### Where is Node? {.exercise}
+### Where is Node? {: .exercise}
 
 Write a program called `wherenode.js` that prints the full path to the version of Node is is run with.
 
-### Tracing callbacks {.exercise}
+### Tracing callbacks {: .exercise}
 
 In what order does the program below print messages?
 
 [% excerpt file="x-trace-callback/trace.js" %]
 
-### Tracing anonymous callbacks {.exercise}
+### Tracing anonymous callbacks {: .exercise}
 
 In what order does the program below print messages?
 
 [% excerpt file="x-trace-anonymous/trace.js" %]
 
-### Checking arguments {.exercise}
+### Checking arguments {: .exercise}
 
 Modify the file copying program to check that it has been given the right number of command-line arguments
 and to print a sensible error message (including a usage statement) if it hasn't.
 
-### Significant entries {.exercise}
+### Significant entries {: .exercise}
 
 `count-lines-histogram.js` displays many zeroes and gives no visual sense of how large entries are.
 Modify it so that:
@@ -434,7 +434,7 @@ Modify it so that:
 
 3.  If both flags are given the program prints an error message instead of running.
 
-### Glob patterns {.exercise}
+### Glob patterns {: .exercise}
 
 What filenames does each of the following glob patterns match?
 
@@ -443,7 +443,7 @@ What filenames does each of the following glob patterns match?
 -   `results.dat?`
 -   `./results.data`
 
-### Filtering arrays {.exercise}
+### Filtering arrays {: .exercise}
 
 Fill in the blank in the code below so that it runs correctly.
 Note: you can compare strings in JavaScript using `<`, `>=`, and other operators,
@@ -452,13 +452,13 @@ if someone's personal name starts with a letter that comes after 'P' in the alph
 
 [% excerpt pat="x-array-filter/filter.*" fill="js txt" %]
 
-### String interpolation {.exercise}
+### String interpolation {: .exercise}
 
 Fill in the code below so that it prints the message shown.
 
 [% excerpt pat="x-string-interpolation/interpolate.*" fill="js txt" %]
 
-### Destructuring assignment {.exercise}
+### Destructuring assignment {: .exercise}
 
 What is assigned to each named variable in each statement below?
 
@@ -469,7 +469,7 @@ What is assigned to each named variable in each statement below?
 1.  `const {left, right} = {left: 10, right: 30}`
 1.  `const {left, middle, right} = {left: 10, middle: 20, right: 30}`
 
-### Counting lines {.exercise}
+### Counting lines {: .exercise}
 
 Write a program called `lc` that counts and reports the number of lines in one or more files and the total number of lines,
 so that `lc a.txt b.txt` displays something like:
@@ -480,7 +480,7 @@ b.txt 31
 total 506
 ```
 
-### Renaming files {.exercise}
+### Renaming files {: .exercise}
 
 Write a program called `rename` that takes three or more command-line arguments:
 

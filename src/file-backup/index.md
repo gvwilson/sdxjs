@@ -22,7 +22,7 @@ in particular, it won't let us create and merge branches.
 If you would like to know how that works,
 please see [% i "Cook, Mary Rose" %][Mary Rose Cook's][cook-mary-rose][% /i %] excellent [Gitlet][gitlet] project.
 
-## How can we uniquely identify files? {#file-backup-unique}
+## How can we uniquely identify files? {: #file-backup-unique}
 
 To avoid storing redundant copies of files,
 we need a way to tell when two files contain the same data.
@@ -113,7 +113,7 @@ the `hash` object in our program does that for us.
 
 [% figure slug="file-backup-streaming" img="figures/streaming.svg" alt="Streaming file operations" caption="Processing files as streams of chunks." %]
 
-## How can we back up files? {#file-backup-backup}
+## How can we back up files? {: #file-backup-backup}
 
 Many files only change occasionally after they're created, or not at all.
 It would be wasteful for a version control system to make copies
@@ -179,7 +179,7 @@ let's run it for the same input files:
 
 [% excerpt pat="run-hash-existing-async.*" fill="js sh slice.out" %]
 
-## How can we track which files have already been backed up? {#file-backup-track}
+## How can we track which files have already been backed up? {: #file-backup-track}
 
 The second part of our backup tool keeps track of which files have and haven't been backed up already.
 It stores backups in a directory that contains backup files like `abcd1234.bck`
@@ -234,7 +234,7 @@ and here is Mocha's report:
 
 [% excerpt file="test-check-filesystem.out" %]
 
-## How can we test code that modifies files? {#file-backup-test}
+## How can we test code that modifies files? {: #file-backup-test}
 
 The final thing our tool needs to do
 is copy the files that need copying and create a new index file.
@@ -299,9 +299,9 @@ If you have to change several parts of your code in order to test it,
 the code is telling you to consolidate those parts into one component.
 </blockquote>
 
-## Exercises {#file-backup-exercises}
+## Exercises {: #file-backup-exercises}
 
-### Odds of collision {.exercise} {.exercise}
+### Odds of collision {: .exercise}
 
 If hashes were only 2 bits long,
 then the chances of collision with each successive file
@@ -319,20 +319,20 @@ A colleague of yours says this means that if we hash four files,
 there's only a 75% chance of any collision occurring.
 What are the actual odds?
 
-### Streaming I/O {.exercise} {.exercise}
+### Streaming I/O {: .exercise}
 
 Write a small program using `fs.createReadStream` and `fs.createWriteStream`
 that copies a file piece by piece
 instead of reading it into memory and then writing it out again.
 
-### Sequencing backups {.exercise} {.exercise}
+### Sequencing backups {: .exercise}
 
 Modify the backup program so that manifests are numbered sequentially
 as `00000001.csv`, `00000002.csv`, and so on
 rather than being timestamped.
 Why doesn't this solve the time of check/time of use race condition mentioned earlier.
 
-### JSON manifests {.exercise} {.exercise}
+### JSON manifests {: .exercise}
 
 1.  Modify `backup.js` so that it can save JSON manifests as well as CSV manifests
     based on a command-line flag.
@@ -345,7 +345,7 @@ Why doesn't this solve the time of check/time of use race condition mentioned ea
     along with file hashes,
     and then modify `migrate.js` to transform old files into the new format.
 
-### Mock hashes {.exercise} {.exercise}
+### Mock hashes {: .exercise}
 
 1.  Modify the file backup program so that it uses a function called `ourHash` to hash files.
 
@@ -355,7 +355,7 @@ Why doesn't this solve the time of check/time of use race condition mentioned ea
 
 How did you modify the main program so that the tests could control which hashing function is used?
 
-### Comparing manifests {.exercise} {.exercise}
+### Comparing manifests {: .exercise}
 
 Write a program `compare-manifests.js` that reads two manifest files and reports:
 
@@ -371,7 +371,7 @@ Write a program `compare-manifests.js` that reads two manifest files and reports
 -   Which files are in the second hash but neither their names nor their hashes are in the first
     (i.e., they have been added).
 
-### From one state to another {.exercise} {.exercise}
+### From one state to another {: .exercise}
 
 1.  Write a program called `from-to.js` that takes the name of a directory
     and the name of a manifest file
@@ -384,7 +384,7 @@ Write a program `compare-manifests.js` that reads two manifest files and reports
 
 2.  Write some tests for `from-to.js` using Mocha and `mock-fs`.
 
-### File history {.exercise} {.exercise}
+### File history {: .exercise}
 
 1.  Write a program called `file-history.js`
     that takes the name of a file as a command-line argument
@@ -393,7 +393,7 @@ Write a program `compare-manifests.js` that reads two manifest files and reports
 
 2.  Write tests for your program using Mocha and `mock-fs`.
 
-### Pre-commit hooks {.exercise} {.exercise}
+### Pre-commit hooks {: .exercise}
 
 Modify `backup.js` to load and run a function called `preCommit` from a file called `pre-commit.js`
 stored in the root directory of the files being backed up.

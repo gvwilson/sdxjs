@@ -16,7 +16,7 @@ such as [% i "query selector (for HTML)" %][% g query_selector %]query selectors
 They are easier to understand and implement than patterns for matching text,
 so we will start by looking at them.
 
-## How can we match query selectors? {#pattern-matching-selectors}
+## How can we match query selectors? {: #pattern-matching-selectors}
 
 Programs stores HTML pages in memory using a [% i "DOM" "Document Object Model" %][% g dom %]document object model[% /g %][% /i %] or DOM.
 Each element in the page,
@@ -114,7 +114,7 @@ We will rewrite these tests using [% i "Mocha" %][Mocha][mocha][% /i %] in the e
 > it makes programmers more productive [% b Fucci2016 Fucci2017 %],
 > we find it helps prevent [% i "scope creep!when writing lessons" %][% g scope_creep %]scope creep[% /g %][% /i %] when writing lessons.
 
-## How can we implement a simple regular expression matcher? {#pattern-matching-re}
+## How can we implement a simple regular expression matcher? {: #pattern-matching-re}
 
 Matching regular expressions against text relies on the same recursive strategy
 as matching query selectors against nodes in an HTML page.
@@ -167,7 +167,7 @@ Our design is also hard to extend:
 handling parentheses in patterns like `/a(bc)*d/` will require major changes.
 We need to explore a different approach.
 
-## How can we implement an extensible matcher? {#pattern-matching-extensible}
+## How can we implement an extensible matcher? {: #pattern-matching-extensible}
 
 Instead of packing all of our code into one long function,
 we can implement each kind of match as separate function.
@@ -333,58 +333,58 @@ we can put them together however we want.
 > As [% b Brand1995 %] said of buildings,
 > the things we make learn how to do things better as we use them.
 
-## Exercises {#pattern-matching-exercises}
+## Exercises {: #pattern-matching-exercises}
 
-### Split once {.exercise} {.exercise}
+### Split once {: .exercise}
 
 Modify the query selector code so that selectors like `div#id` and `div.class` are only split into pieces once
 rather than being re-split each time `matchHere` is called.
 
-### Find and fix the error {.exercise} {.exercise}
+### Find and fix the error {: .exercise}
 
 The first regular expression matcher contains an error:
 the pattern `'a*ab'` should match the string `'aab'` but doesn't.
 Figure out why it fails and fix it.
 
-### Unit tests {.exercise} {.exercise}
+### Unit tests {: .exercise}
 
 Rewrite the tests for selectors and regular expressions to use Mocha.
 
-### Find all with query selectors {.exercise} {.exercise}
+### Find all with query selectors {: .exercise}
 
 Modify the query selector so that it returns *all* matches, not just the first one.
 
-### Select based on attributes {.exercise} {.exercise}
+### Select based on attributes {: .exercise}
 
 Modify the query selector to handle `[attribute="value"]` selectors,
 so that (for example) `div[align=center]` returns all `div` elements
 whose `align` attribute has the value `"center"`.
 
-### Child selectors {.exercise} {.exercise}
+### Child selectors {: .exercise}
 
 The expression `parent > child` selects all nodes of type `child`
 that are immediate children of nodes of type `parent`---for example,
 `div > p` selects all paragraphs that are immediate children of `div` elements.
 Modify `simple-selectors.js` to handle this kind of matching.
 
-### Find all with regular expressions {.exercise} {.exercise}
+### Find all with regular expressions {: .exercise}
 
 Modify the regular expression matcher to return *all* matches rather than just the first one.
 
-### Find one or more with regular expressions {.exercise} {.exercise}
+### Find one or more with regular expressions {: .exercise}
 
 Extend the regular expression matcher to support `+`, meaning "one or more".
 
-### Match sets of characters {.exercise} {.exercise}
+### Match sets of characters {: .exercise}
 
 Add a new regular expression matching class that matches any character from a set,
 so that `Charset('aeiou')` matches any lower-case vowel.
 
-### Make repetition more efficient {.exercise} {.exercise}
+### Make repetition more efficient {: .exercise}
 
 Rewrite `RegexAny` so that it does not repeatedly re-match text.
 
-### Lazy matching {.exercise} {.exercise}
+### Lazy matching {: .exercise}
 
 The regular expressions we have seen so far are [% g eager_matching %]eager[% /g %]:
 they match as much as they can, as early as they can.
@@ -398,7 +398,7 @@ but a lazy match will only match the first letter
 (because `/b*/` can match no letters at all).
 Implement lazy matching for the `*` operator.
 
-### Optional matching {.exercise} {.exercise}
+### Optional matching {: .exercise}
 
 The `?` operator means "optional",
 so that `/a?/` matches either zero or one occurrences of the letter 'a'.

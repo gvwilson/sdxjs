@@ -17,7 +17,7 @@ that provides the same core features as promises.
 Our explanation was inspired by [% i "Huffine, Trey" %][Trey Huffine's][huffine-trey][% /i %] [tutorial][huffine-promises],
 and we encourage you to read that as well.
 
-## How can we manage asynchronous execution? {#async-programming-manage}
+## How can we manage asynchronous execution? {: #async-programming-manage}
 
 JavaScript is built around an [% i "event loop" "execution!event loop" %][% g event_loop %]event loop[% /g %][% /i %].
 Every task is represented by an entry in a queue;
@@ -89,7 +89,7 @@ which doesn't do quite the same thing---we'll explore the differences in the exe
 
 [% excerpt pat="set-immediate.*" fill="js out" %]
 
-## How do promises work? {#async-programming-promises}
+## How do promises work? {: #async-programming-promises}
 
 Before we start building our own [% i "promise!behavior" %]promises[% /i %],
 let's look at how we want them to work:
@@ -233,7 +233,7 @@ to make sure our error handling does what it's supposed to:
 
 [% excerpt pat="use-pledge-reject.*" fill="js out" %]
 
-## How are real promises different? {#async-programming-real}
+## How are real promises different? {: #async-programming-real}
 
 Let's rewrite our chained pledge with built-in promises:
 
@@ -270,7 +270,7 @@ We therefore have three rules for chaining promises:
     (because programmers will rarely pass up an opportunity add a bit of jargon to the world),
     and most functions in the Node have already been promisified.
 
-## How can we build tools with promises? {#async-programming-tools}
+## How can we build tools with promises? {: #async-programming-tools}
 
 Promises may seem more complex than callbacks right now,
 but that's because we're looking at how they work rather than at how to use them.
@@ -345,7 +345,7 @@ This code is complex, but much simpler than it would be if we were using callbac
 > but also because it signals that the value associated with the key `filename`
 > is exactly the value of the variable with the same name.
 
-## How can we make this more readable? {#async-programming-readable}
+## How can we make this more readable? {: #async-programming-readable}
 
 Promises eliminate the deep nesting associated with callbacks of callbacks,
 but they are still hard to follow.
@@ -389,7 +389,7 @@ but the result is less cluttered than our previous version.
 
 [% excerpt file="count-lines-with-stat-async.js" keep="main" %]
 
-## How can we handle errors with asynchronous code? {#async-programming-errors}
+## How can we handle errors with asynchronous code? {: #async-programming-errors}
 
 We created several intermediate variables in the line-counting program to make the steps clearer.
 Doing this also helps with error handling:
@@ -426,14 +426,14 @@ We prefer the second approach,
 but whichever you choose,
 please be consistent.
 
-## Exercises {#async-programming-exercises}
+## Exercises {: #async-programming-exercises}
 
-### Immediate versus next tick {.exercise}
+### Immediate versus next tick {: .exercise}
 
 What is the difference between `setImmediate` and `process.nextTick`?
 When would you use each one?
 
-### Tracing promise execution {.exercise}
+### Tracing promise execution {: .exercise}
 
 1.  What does this code print and why?
 
@@ -456,7 +456,7 @@ When would you use each one?
 
 Hint: try each snippet of code interactively in the Node interpreter and as a command-line script.
 
-### Multiple catches {.exercise}
+### Multiple catches {: .exercise}
 
 Suppose we create a promise that deliberately fails and then add two error handlers:
 
@@ -471,7 +471,7 @@ When the code is run it produces:
 2.  What happens if we run these same lines interactively?
     Why do we see something different than what we see when we run this file from the command line?
 
-### Then after catch {.exercise}
+### Then after catch {: .exercise}
 
 Suppose we create a promise that deliberately fails
 and attach both `then` and `catch` to it:
@@ -486,7 +486,7 @@ When the code is run it produces:
 1.  Trace the order of execution.
 2.  Why is `undefined` printed at the end?
 
-### Head and tail {.exercise}
+### Head and tail {: .exercise}
 
 The Unix `head` command shows the first few lines of one or more files,
 while the `tail` command shows the last few.
@@ -507,7 +507,7 @@ node tail.js 5 first.txt second.txt third.txt
 <!-- continue -->
 prints the last five lines of each file.
 
-### Histogram of line counts {.exercise}
+### Histogram of line counts {: .exercise}
 
 Extend `count-lines-with-stat-async.js` to create a program `lh.js`
 that prints two columns of output:
@@ -541,7 +541,7 @@ the output might be:
 |     38 |               1 |
 |    171 |               1 |
 
-### Select matching lines {.exercise}
+### Select matching lines {: .exercise}
 
 Using `async` and `await,
 write a program called `match.js` that finds and prints lines containing a given string.
@@ -554,7 +554,7 @@ node match.js Toronto first.txt second.txt third.txt
 <!-- continue -->
 would print all of the lines from the three files that contain the word "Toronto".
 
-### Find lines in all files {.exercise}
+### Find lines in all files {: .exercise}
 
 Using `async` and `await`,
 write a program called `in-all.js` that finds and prints lines found in all of its input files.
@@ -567,7 +567,7 @@ node in-all.js first.txt second.txt third.txt
 <!-- continue -->
 will print those lines that occur in all three files.
 
-### Find differences between two files {.exercise}
+### Find differences between two files {: .exercise}
 
 Using `async` and `await`,
 write a program called `file-diff.js`
@@ -616,7 +616,7 @@ Note that the order of the lines in the file doesn't matter.
 
 Hint: you may want to use the `Set` class to store lines.
 
-### Trace file loading {.exercise}
+### Trace file loading {: .exercise}
 
 Suppose we want are loading a YAML configuration file
 using the promisified version of the `fs` library.
@@ -624,7 +624,7 @@ In what order do the print statements in this test program appear and why?
 
 [% excerpt file="x-trace-load/example.js" %]
 
-### Any and all {.exercise}
+### Any and all {: .exercise}
 
 1.  Add a method `Pledge.any` that takes an array of pledges
     and as soon as one of the pledges in the array resolves,

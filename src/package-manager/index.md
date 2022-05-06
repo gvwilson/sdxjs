@@ -41,7 +41,7 @@ It is based in part on [this tutorial][package-manager-tutorial] by [% i "Nison,
 > Finding a solution can be extremely hard in the general case,
 > so most SAT solvers use heuristics to try to reduce the work.
 
-## What is semantic versioning? {#package-manager-semver}
+## What is semantic versioning? {: #package-manager-semver}
 
 Most software projects use [% i "semantic versioning" %][% g semantic_versioning %]semantic versioning[% /g %][% /i %] for software releases.
 Each version number consists of three integers X.Y.Z,
@@ -77,7 +77,7 @@ so we will rely on the [`semver`][node-semver] module.
 while `semver.satisfies('2.2', '1.0 - 3.1')` checks that its first argument
 is compatible with the range specified in its second.
 
-## How can we find a consistent set of packages? {#package-manager-consistent}
+## How can we find a consistent set of packages? {: #package-manager-consistent}
 
 Imagine that each package we need is represented as an axis on a multi-dimensional grid,
 with its versions as the tick marks
@@ -170,7 +170,7 @@ or create pairs and then combine them to create pairs of pairs and so on.
 Our algorithm will be simpler (and therefore slower),
 but illustrates the key idea.
 
-## How can we satisfy constraints? {#package-manager-constraints}
+## How can we satisfy constraints? {: #package-manager-constraints}
 
 To avoid messing around with parsers,
 our programs reads a JSON data structure describing the problem;
@@ -239,7 +239,7 @@ it turns out that 9 of the 17 exclusions are redundant rediscovery of a previous
 |           |   2 |   2 |   2 |
 </div>
 
-## How can we do less work? {#package-manager-optimize}
+## How can we do less work? {: #package-manager-optimize}
 
 In order to make this more efficient we need to [% i "prune (a search tree)" %][% g prune %]prune[% /g %][% /i %] the search tree
 as we go along
@@ -295,20 +295,20 @@ but most give better performance in most cases.
 > and most ideas turn out to be dead ends,
 > but even small improvements in fundamental tools can have a profound impact.
 
-## Exercises {#package-manager-exercises}
+## Exercises {: #package-manager-exercises}
 
-### Comparing semantic versions {.exercise}
+### Comparing semantic versions {: .exercise}
 
 Write a function that takes an array of semantic version specifiers
 and sorts them in ascending order.
 Remember that `2.1` is greater than `1.99`.
 
-### Parsing semantic versions {.exercise}
+### Parsing semantic versions {: .exercise}
 
 Using the techniques of [% x regex-parser %],
 write a parser for a subset of the [semantic versioning specification][semver-spec].
 
-### Using scoring functions {.exercise}
+### Using scoring functions {: .exercise}
 
 Many different combinations of package versions can be mutually compatible.
 One way to decide which actual combination to install
@@ -336,11 +336,11 @@ const score (X, Y) => {
 
 2.  Explain why this doesn't actually solve the original problem.
 
-### Using full semantic versions {.exercise}
+### Using full semantic versions {: .exercise}
 
 Modify the constraint solver to use full semantic versions instead of single digits.
 
-### Regular releases {.exercise}
+### Regular releases {: .exercise}
 
 Some packages release new versions on a regular cycle,
 e.g.,
@@ -353,11 +353,11 @@ and so on.
 
 2.  How does it make it more difficult?
 
-### Writing unit tests {.exercise}
+### Writing unit tests {: .exercise}
 
 Write unit tests for the constraint solver using Mocha.
 
-### Generating test fixtures {.exercise}
+### Generating test fixtures {: .exercise}
 
 Write a function that creates fixtures for testing the constraint solver:
 
@@ -376,18 +376,18 @@ Write a function that creates fixtures for testing the constraint solver:
     When this is done,
     it adds constraints so that the valid configuration from the previous step is included.
 
-### Searching least first {.exercise}
+### Searching least first {: .exercise}
 
 Rewrite the constraint solver so that it searches packages
 by looking at those with the fewest available versions first.
 Does this reduce the amount of work done for the small examples in this chapter?
 Does it reduce the amount of work done for larger examples?
 
-### Using generators {.exercise}
+### Using generators {: .exercise}
 
 Rewrite the constraint solver to use generators.
 
-### Using exclusions {.exercise}
+### Using exclusions {: .exercise}
 
 1.  Modify the constraint solver so that
     it uses a list of package exclusions instead of a list of package requirements,

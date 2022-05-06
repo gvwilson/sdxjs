@@ -33,7 +33,7 @@ and then turning the AST back into code.
 > a poorly-implemented parser for a subset of JavaScript that no-one else understands.
 > Using a full-blown parser and working with the AST is almost always less work.
 
-## How can we replace a function with another function? {#code-generator-replace}
+## How can we replace a function with another function? {: #code-generator-replace}
 
 The first thing we need is a way to wrap up an arbitrary function call.
 If we declare a function in JavaScript with a parameter like `...args`,
@@ -70,7 +70,7 @@ in some general ways.
 Decorators are built in to some languages (like [% i "Python" %][Python][python][% /i %]),
 and we can add them in most others as we have done here.
 
-## How can we generate JavaScript? {#code-generator-generate}
+## How can we generate JavaScript? {: #code-generator-generate}
 
 We could use a decorator to replace every function in our program
 with one that keeps track of whether or not it was called,
@@ -105,7 +105,7 @@ we have the JSON representation of the expression `40+2`:
 
 [% excerpt pat="one-plus-two.*" fill="js out" %]
 
-## How can we count how often functions are executed? {#code-generator-count}
+## How can we count how often functions are executed? {: #code-generator-count}
 
 Our tool will find all the function declaration nodes in the program
 and insert a node to increment an entry in a global variable called `__counters`.
@@ -156,7 +156,7 @@ and run it to make sure it all works:
 > Problems like this are why people say that naming things
 > is one of the [% i "two hard problems in computer science" %][% g two_hard_problems %]two hard problems[% /g %][% /i %] in computer science.
 
-## How can we time function execution? {#code-generator-time}
+## How can we time function execution? {: #code-generator-time}
 
 Now that we have a way to insert code into functions
 we can use it to do many other things.
@@ -198,9 +198,9 @@ by defining [% i "macro" %][% g macro %]macros[% /g %][% /i %].
 Depending on how carefully they are used,
 macros can make programs elegant, incomprehensible, or both.
 
-## Exercises {#code-generator-exercises}
+## Exercises {: #code-generator-exercises}
 
-### JSON to JavaScript {.exercise}
+### JSON to JavaScript {: .exercise}
 
 Write a tool that uses [Escodegen][escodegen]
 to translate simple expressions written in JSON into runnable JavaScript.
@@ -217,7 +217,7 @@ into:
 3 + (5 * a)
 ```
 
-### JavaScript to HTML {.exercise}
+### JavaScript to HTML {: .exercise}
 
 Write a function that takes nested JavaScript function calls for generating HTML like this:
 
@@ -232,12 +232,12 @@ and turns them into HTML like this:
 <div><h1>title</h1><p>explanation</p></div>
 ```
 
-### Handling modules {.exercise}
+### Handling modules {: .exercise}
 
 Modify the code that counts the number of times a function is called
 to handle functions with the same name from different modules.
 
-### Tracking calls {.exercise}
+### Tracking calls {: .exercise}
 
 Write a decorator that takes a function as its argument
 and returns a new function that behaves exactly the same way
@@ -250,12 +250,12 @@ except that it keeps track of who called it.
     it adds a record to an array to record its name and the name at the top of the stack
     (i.e., the most-recently-called decorated function).
 
-### Counting classical function definitions {.exercise}
+### Counting classical function definitions {: .exercise}
 
 Modify the code generator to handle functions declared with the `function` keyword
 as well as functions declared using `=>`.
 
-### Recording input file size {.exercise}
+### Recording input file size {: .exercise}
 
 1.  Write a program that replaces all calls to `fs.readFileSync`
     with calls to `readFileSyncCount`.
@@ -268,7 +268,7 @@ as well as functions declared using `=>`.
 
 4.  Write tests for these functions using Mocha and `mock-fs`.
 
-### Checking argument types {.exercise}
+### Checking argument types {: .exercise}
 
 Write a tool that modifies functions to check the types of their arguments at run-time.
 
@@ -282,7 +282,7 @@ Write a tool that modifies functions to check the types of their arguments at ru
 3.  On subsequent calls, it checks that the argument types match those of the first call
     and throws an exception if they do not.
 
-### Two-dimensional arrays {.exercise}
+### Two-dimensional arrays {: .exercise}
 
 The function `make2D` takes a row length and one or more values
 and creates a two-dimensional array from those values:
@@ -298,7 +298,7 @@ and replaces them with inline arrays-of-arrays.
 This function only has to work for calls with a fixed row length,
 i.e., it does *not* have to handle `make2D(N, 'a', 'b')`.
 
-### From require to import {.exercise}
+### From require to import {: .exercise}
 
 Write a function that searches code for simple calls to `require`
 and replaces them with calls to `import`.
@@ -316,7 +316,7 @@ then the output is:
 import name from 'module'
 ```
 
-### Removing empty constructors {.exercise}
+### Removing empty constructors {: .exercise}
 
 Write a function that removes empty constructors from class definitions.
 For example, if the input is:

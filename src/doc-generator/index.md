@@ -13,7 +13,7 @@ including [% i "JSDoc" %][JSDoc][jsdoc][% /i %] and [% i "ESDoc" %][ESDoc][esdoc
 This chapter will use what we learned in [% x code-generator %] about parsing source code
 to build a simple documentation generator of our own.
 
-## How can we extract documentation comments? {#doc-generator-extract}
+## How can we extract documentation comments? {: #doc-generator-extract}
 
 We will use [% i "Acorn" %][Acorn][acorn][% /i %] once again to parse our source files.
 This time we will use the parser's `onComment` option,
@@ -55,7 +55,7 @@ so the first character in the extracted text is `*`:
 
 [% excerpt pat="doc-comment.*" fill="js out" %]
 
-## What input will we try to handle? {#doc-generator-input}
+## What input will we try to handle? {: #doc-generator-input}
 
 We will use [% i "Markdown" %][Markdown][markdown][% /i %] for formatting our documentation.
 The [% i "doc comment" "comment!doc" %][% g doc_comment %]doc comments[% /g %][% /i %] for function definitions look like this:
@@ -136,7 +136,7 @@ However,
 anything that is written twice will eventually be wrong in one place or another,
 so our first priority is to remove duplication.
 
-## How can we avoid duplicating names? {#doc-generator-dup}
+## How can we avoid duplicating names? {: #doc-generator-dup}
 
 If a comment is the first thing in a file,
 we want to use it as title text;
@@ -216,52 +216,52 @@ We can use this to create better output ([% f doc-generator-fill-in-headers %]):
 > as the mathematician [% i "Whitehead, Alfred North" %]Alfred North Whitehead[% /i %] once wrote,
 > "Civilization advances by extending the number of important operations which we can perform without thinking about them."
 
-## Exercises {#doc-generator-exercises}
+## Exercises {: #doc-generator-exercises}
 
-### Building an index {.exercise}
+### Building an index {: .exercise}
 
 Modify the documentation generator to produce an alphabetical index of all classes and methods found.
 Index entries should be hyperlinks to the documentation for the corresponding item.
 
-### Documenting exceptions {.exercise}
+### Documenting exceptions {: .exercise}
 
 Extend the documentation generator to allow people to document the exceptions that a function throws.
 
-### Deprecation warning {.exercise}
+### Deprecation warning {: .exercise}
 
 Add a feature to the documentation generator
 to allow authors to mark functions and methods as [% g deprecation %]deprecation[% /g %]
 (i.e., to indicate that while they still exist,
 they should not be used because they are being phased out).
 
-### Usage examples {.exercise}
+### Usage examples {: .exercise}
 
 Enhance the documentation generator so that
 if a horizontal rule `---` appears in a documentation comment,
 the text following is typeset as usage example.
 (A doc comment may contain several usage examples.)
 
-### Unit testing {.exercise}
+### Unit testing {: .exercise}
 
 Write unit tests for the documentation generator using Mocha.
 
-### Summarizing functions {.exercise}
+### Summarizing functions {: .exercise}
 
 Modify the documentation generator so that line comments inside a function that use `//*`
 are formatted as a bullet list in the documentation for that function.
 
-### Cross referencing {.exercise}
+### Cross referencing {: .exercise}
 
 Modify the documentation generator so that
 the documentation for one class or function
 can include Markdown links to other classes or functions.
 
-### Data types {.exercise}
+### Data types {: .exercise}
 
 Modify the documentation generator to allow authors to define new data types
 in the same way as [JSDoc][jsdoc].
 
-### Inline parameter documentation {.exercise}
+### Inline parameter documentation {: .exercise}
 
 Some documentation generators put the documentation for a parameter
 on the same line as the parameter:
@@ -282,7 +282,7 @@ function process(
 <!-- continue -->
 Modify the documentation generator to handle this.
 
-### Tests as documentation {.exercise}
+### Tests as documentation {: .exercise}
 
 The [doctest][doctest] library for Python
 allows programmers to embed unit tests as documentation in their programs.

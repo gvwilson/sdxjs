@@ -15,7 +15,7 @@ We therefore need a way to [% i "encapsulation" "software design!encapsulation" 
 Our approach is based on [% b Casciaro2020 %],
 which contains a lot of other useful information as well.
 
-## How can we implement namespaces? {#module-loader-namespace}
+## How can we implement namespaces? {: #module-loader-namespace}
 
 A [% i "namespace" %][% g namespace %]namespace[% /g %][% /i %] is a collection of names in a program
 that are isolated from other namespaces.
@@ -77,7 +77,7 @@ We can use this trick to achieve the same effect as the previous example in one 
 > then JavaScript interprets it as a function definition followed by an empty expression
 > rather than an immediate call to the function just defined.
 
-## How can we load a module? {#module-loader-load}
+## How can we load a module? {: #module-loader-load}
 
 We want the module we are loading to export names by assigning to `module.exports` just as `require` does,
 so we need to provide an object called `module` and create a IIFE.
@@ -101,7 +101,7 @@ and this short program to load the test and check its exports:
 
 [% excerpt pat="test-load-module-only.*" fill="js sh out" %]
 
-## Do we need to handle circular dependencies? {#module-loader-circular}
+## Do we need to handle circular dependencies? {: #module-loader-circular}
 
 What if the code we are loading loads other code?
 We can visualize the network of who requires whom as a [% i "directed graph" %][% g directed_graph %]directed graph[% /g %][% /i %]:
@@ -176,7 +176,7 @@ we will detect them and generate a sensible error message.
 > or `eval` a string that contains a `require` call.
 > (Of course, they can also do these things with the function version of `import`.)
 
-## How can a module load another module? {#module-loader-subload}
+## How can a module load another module? {: #module-loader-subload}
 
 While we're not going to handle circular dependencies,
 modules do need to be able to load other modules.
@@ -246,9 +246,9 @@ Our system can therefore only run loaded modules by `need`ing them:
 > but a lot of the difficulty is irreducible,
 > so don't feel bad if it takes you a while to wrap your head around it.
 
-## Exercises {#module-loader-exercises}
+## Exercises {: #module-loader-exercises}
 
-### Counting with closures {.exercise}
+### Counting with closures {: .exercise}
 
 Write a function `makeCounter` that returns a function
 that produces the next integer in sequence starting from zero each time it is called.
@@ -273,17 +273,17 @@ left 1
 right `
 ```
 
-### Objects and namespaces {.exercise}
+### Objects and namespaces {: .exercise}
 
 A JavaScript object stores key-value pairs,
 and the keys in one object are separate from the keys in another.
 Why doesn't this provide the same level of safety as a closure?
 
-### Testing module loading {.exercise}
+### Testing module loading {: .exercise}
 
 Write tests for `need.js` using Mocha and `mock-fs`.
 
-### Using `module` as a name {.exercise}
+### Using `module` as a name {: .exercise}
 
 What happens if we define the variable `module` in `loadModule`
 so that it is in scope when `eval` is called
@@ -299,25 +299,25 @@ const loadModule = (filename) => {
 }
 ```
 
-### Implementing a search path {.exercise}
+### Implementing a search path {: .exercise}
 
 Add a search path to `need.js` so that if a module isn't found locally,
 it will be looked for in each directory in the search path in order.
 
-### Using a setup function {.exercise}
+### Using a setup function {: .exercise}
 
 Rewrite the module loader so that every module has a function called `setup`
 that must be called after loading it to create its exports
 rather than using `module.exports`.
 
-### Handling errors while loading {.exercise}
+### Handling errors while loading {: .exercise}
 
 1.  Modify `need.js` so that it does something graceful
     if an exception is thrown while a module is being loaded.
 
 2.  Write unit tests for this using Mocha.
 
-### Refactoring circularity {.exercise}
+### Refactoring circularity {: .exercise}
 
 Suppose that `main.js` contains this:
 
@@ -331,7 +331,7 @@ and `plugin.js` contains this:
 <!-- continue -->
 Refactor this code so that it works correctly while still using `require` rather than `import`.
 
-### An LRU cache {.exercise}
+### An LRU cache {: .exercise}
 
 A [% g lru_cache %]Least Recently Used (LRU) cache[% /g %]
 reduces access time while limiting the amount of memory used
@@ -358,7 +358,7 @@ the cache's contents will be as shown in the second column:
     is determined by their combined size
     rather than by the number of files.
 
-### Make functions safe for renaming {.exercise}
+### Make functions safe for renaming {: .exercise}
 
 Our implementation of `need` implemented the cache as a property of the function itself.
 

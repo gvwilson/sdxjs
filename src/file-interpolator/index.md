@@ -41,7 +41,7 @@ how JavaScript turns source code into something it can execute.
 We need to be able to do this in the next couple of chapters,
 so we might as well tackle it now.
 
-## How can we evaluate JavaScript dynamically? {#file-interpolator-dynamic}
+## How can we evaluate JavaScript dynamically? {: #file-interpolator-dynamic}
 
 We want to display files as they are on the web and in print,
 but interpolate the files referenced in special comments
@@ -140,7 +140,7 @@ it does what we want:
 
 [% excerpt pat="does-the-loading.*" fill="js sh out" %]
 
-## How can we manage files? {#file-interpolator-manage}
+## How can we manage files? {: #file-interpolator-manage}
 
 The source files in this book are small enough
 that we don't have to worry about reading them repeatedly,
@@ -183,7 +183,7 @@ which we call in order to show that everything is working:
 
 [% excerpt pat="test-simple.*" fill="js sh" %]
 
-## How can we find files? {#file-interpolator-find}
+## How can we find files? {: #file-interpolator-find}
 
 Each of the files included in our examples is in the same directory as the file including it,
 but in C/C++ or a page templating system
@@ -275,7 +275,7 @@ and load that twice to check that caching works:
 
 [% excerpt pat="test-import-right.*" fill="js out" %]
 
-## How can we interpolate pieces of code? {#file-interpolator-interpolate}
+## How can we interpolate pieces of code? {: #file-interpolator-interpolate}
 
 Interpolating files is straightforward once we have this machinery in place.
 We modify `Cache.find` to return a directory and a file path,
@@ -323,7 +323,7 @@ No piece of software exists in isolation;
 when we evaluate a design,
 we always have to ask how it fits into everything else we have.
 
-## What did we do instead? {#file-interpolator-instead}
+## What did we do instead? {: #file-interpolator-instead}
 
 Rather than interpolating file fragments,
 we extract or erase parts of regular JavaScript files
@@ -359,9 +359,9 @@ but it never really caught on---unfortunately,
 most programming systems that describe themselves as "literate" these days
 only implement part of [% i "Knuth, Donald" %][Donald Knuth's][knuth-donald][% /i %] original vision.
 
-## Exercises {#file-interpolator-exercises}
+## Exercises {: #file-interpolator-exercises}
 
-### Security concerns {.exercise}
+### Security concerns {: .exercise}
 
 1.  Write a function `loadAndRun` that reads a file, evaluates it, and returns the result.
 
@@ -373,7 +373,7 @@ only implement part of [% i "Knuth, Donald" %][Donald Knuth's][knuth-donald][% /
 <!-- continue -->
 Please be careful doing this exercise.
 
-### Loading functions {.exercise}
+### Loading functions {: .exercise}
 
 Write a function that reads a file containing single-argument functions like this:
 
@@ -386,7 +386,7 @@ array: (x) => Array(x).fill(0)
 <!-- continue -->
 and returns an object containing callable functions.
 
-### Registering functions {.exercise}
+### Registering functions {: .exercise}
 
 Write a function that loads one or more files containing function definitions like this:
 
@@ -401,7 +401,7 @@ EXPORTS.append(double)
 <!-- continue -->
 and returns a list containing all the loaded functions.
 
-### Indenting inclusions {.exercise}
+### Indenting inclusions {: .exercise}
 
 Modify the file inclusion system
 so that inclusions are indented by the same amount as the including comment.
@@ -439,11 +439,11 @@ withLogging
 <!-- continue -->
 i.e., all lines of the inclusion will be indented to match the first.
 
-### Interpolating from subdirectories {.exercise}
+### Interpolating from subdirectories {: .exercise}
 
 Modify the file interpolator so that snippets can be included from sub-directories using relative paths.
 
-### Recursive search for inclusions {.exercise}
+### Recursive search for inclusions {: .exercise}
 
 1.  Modify the file interpolator so that it searches recursively
     through all subdirectories of the directories on the search path
@@ -451,27 +451,27 @@ Modify the file interpolator so that snippets can be included from sub-directori
 
 2.  Explain why this is a bad idea.
 
-### Defining variables {.exercise}
+### Defining variables {: .exercise}
 
 Modify the file inclusion system so that users can pass in a `Map` containing name-value pairs
 and have these interpolated into the text of the files being loaded.
 To interpolate a value,
 the included file must use `@@name@@`.
 
-### Specifying markers {.exercise}
+### Specifying markers {: .exercise}
 
 Modify the file inclusion system so that the user can override the inclusion comment markers.
 For example, the user should be able to specify that `/*!` and `!*/` be used to mark inclusions.
 (This is often used in tutorials that need to show the inclusion markers without them being interpreted.)
 
-### Recursive inclusions {.exercise}
+### Recursive inclusions {: .exercise}
 
 Modify the file interpolator to support recursive includes,
 i.e.,
 to handle inclusion markers in files that are being included.
 Be sure to check for the case of infinite includes.
 
-### Slicing files {.exercise}
+### Slicing files {: .exercise}
 
 Write a function that reads a JavaScript source file
 containing specially-formatted comments like the ones shown below

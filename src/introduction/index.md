@@ -26,7 +26,7 @@ see [% x license %] for details.
 
 *All proceeds from this project will go to support the [Red Door Family Shelter][red-door].*
 
-## Who is our audience? {#introduction-audience}
+## Who is our audience? {: #introduction-audience}
 
 Every lesson should be written with specific learners in mind.
 These three [personas][t3-personas] describe ours:
@@ -75,7 +75,7 @@ If you are looking for a project to do in a course,
 adding a tool to those covered here would be fun as well as educational.
 Please see [% x conclusion %] for more details.
 
-## What tools and ideas do we cover? {#introduction-contents}
+## What tools and ideas do we cover? {: #introduction-contents}
 
 Programmers have invented [a lot of tools][programming-tools] to make their lives easier.
 This volume focuses on a few that individual developers use while writing software;
@@ -97,7 +97,7 @@ which in turn define the scope of our lessons:
 
 -   How to find and run code modules on the fly.
 
-## How are these lessons laid out? {#introduction-layout}
+## How are these lessons laid out? {: #introduction-layout}
 
 We display JavaScript source code like this:
 
@@ -144,7 +144,7 @@ but people don't use `objectName{}` for objects or `arrayName[]` for arrays,
 and the empty parentheses makes it hard to tell
 whether we're talking about "the function itself" or "a call to the function with no parameters".
 
-## How did we get here? {#introduction-history}
+## How did we get here? {: #introduction-history}
 
 In the early 2000s,
 the [% i "University of Toronto" %]University of Toronto[% /i %] asked [% i "Wilson, Greg" %][Greg Wilson][wilson-greg][% /i %]
@@ -187,7 +187,7 @@ Most of the programs are less than 60 lines long and the longest is less than 20
 we believe each chapter can be covered in class in 1-2 hours,
 while the exercises range in difficulty from a few minutes to a couple of days.
 
-## How can people use and contribute to this material? {#introduction-use}
+## How can people use and contribute to this material? {: #introduction-use}
 
 All of the written material on this site is made available under the Creative
 Commons - Attribution - NonCommercial 4.0 International license (CC-BY-NC-4.0),
@@ -205,7 +205,7 @@ a course, please file an issue in
 this site's GitHub repository <!-- FIXME -->
 or send us email. <!-- FIXME -->
 
-## Who helped us and inspired us? {#introduction-help}
+## Who helped us and inspired us? {: #introduction-help}
 
 This book is dedicated to [% i "Kernighan, Brian" %][Brian Kernighan][kernighan-brian][% /i %],
 who taught us all how to write about software.

@@ -32,7 +32,7 @@ combines them into one file,
 and ensures they can find each other correctly once loaded.
 The sections below go through these steps one by one.
 
-## What will we use as test cases? {#module-bundler-tests}
+## What will we use as test cases? {: #module-bundler-tests}
 
 The simplest test case is a single file that doesn't require anything else:
 if this doesn't work,
@@ -95,7 +95,7 @@ The output we expect is:
 We do not handle circular dependencies
 because `require` itself doesn't ([% x module-loader %]).
 
-## How can we find dependencies? {#module-bundler-find}
+## How can we find dependencies? {: #module-bundler-find}
 
 To get all the dependencies for one source file,
 we parse it and extract all of the calls to `require`.
@@ -185,7 +185,7 @@ but as long as we insist that our programs be stored in a punchcard-compatible f
 (i.e., as lines of text),
 that will remain a dream.
 
-## How can we safely combine several files into one? {#module-bundler-combine}
+## How can we safely combine several files into one? {: #module-bundler-combine}
 
 We now need to combine the files we have found into one
 while keeping each in its own namespace.
@@ -234,7 +234,7 @@ and then load the result and call `initialize`:
 
 [% excerpt file="show-combine-files-simple.out" %]
 
-## How can files access each other? {#module-bundler-access}
+## How can files access each other? {: #module-bundler-access}
 
 The code we have built so far has not created our exports;
 instead,
@@ -320,48 +320,48 @@ and so does our most complicated test with `main` and four other files:
 
 [% excerpt file="test-bundle-full.out" %]
 
-## Exercises {#module-bundler-exercises}
+## Exercises {: #module-bundler-exercises}
 
-### Using test-driven development {.exercise}
+### Using test-driven development {: .exercise}
 
 Suppose we wanted to compress the files being stored by the file backup system in [% x file-backup %]
 instead of copying them as-is.
 What tests would you write before adding this feature in order to ensure that it worked correctly
 once it was implemented?
 
-### Finding `import` dependencies {.exercise}
+### Finding `import` dependencies {: .exercise}
 
 Modify the dependency finder to work with `import` statements instead of `require` calls.
 
-### Track files using hashes {.exercise}
+### Track files using hashes {: .exercise}
 
 Modify the dependency finder to track files by hashing them instead of relying on paths,
 so that if exactly the same file is being required from two locations,
 only one copy is loaded.
 
-### Using asynchronous file operations {.exercise}
+### Using asynchronous file operations {: .exercise}
 
 Modify the dependency finder to use `async` and `await` instead of synchronous file operations.
 
-### Unit testing transitive closure {.exercise}
+### Unit testing transitive closure {: .exercise}
 
 Write unit tests for the tool that finds the transitive closure of files' requirements
 using Mocha and `mock-fs`.
 (Rather than parsing JavaScript files in the mock filesystem,
 have each file contain only a list of the names of the files it depends on.)
 
-### Exporting multiple functions {.exercise}
+### Exporting multiple functions {: .exercise}
 
 Create test cases for the module bundler in which files export more than one function
 and fix any bugs in the module bundler that they uncover.
 
-### Checking integrity {.exercise}
+### Checking integrity {: .exercise}
 
 Write a function that checks the integrity of the data structure returned by the transitive closure routine,
 i.e.,
 that makes sure every cross-reference resolves correctly.
 
-### Logging module loading {.exercise}
+### Logging module loading {: .exercise}
 
 1.  Write a function called `logLoad` that takes a module name as an argument
     and prints a message using `console.error` saying that the module has been loaded.
@@ -369,12 +369,12 @@ that makes sure every cross-reference resolves correctly.
 2.  Modify the bundle generator to insert calls to this function
     to report when modules are actually loaded.
 
-### Tracing execution {.exercise}
+### Tracing execution {: .exercise}
 
 Trace the execution of every function called
 when the `main` function in the full bundle is called.
 
-### Making bundles more readable {.exercise}
+### Making bundles more readable {: .exercise}
 
 Modify the bundle creator to make its output more readable,
 e.g.,

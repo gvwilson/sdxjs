@@ -42,7 +42,7 @@ In this chapter we will create a simple build manager
 based on [% i "Make" %][Make][gnu-make][% /i %], [% i "Bajel" %][Bajel][bajel][% /i %], [% i "Jake" %][Jake][jake][% /i %],
 and other systems discussed in [% b Smith2011 %].
 
-## What's in a build manager? {#build-manager-contents}
+## What's in a build manager? {: #build-manager-contents}
 
 The input to a build manager is a set of rules,
 each of which has:
@@ -86,7 +86,7 @@ Our build manager must:
 > if A depends on both B and C,
 > then (B, C, A) and (C, B, A) are both valid topological orders of the graph.
 
-## Where should we start? {#build-manager-start}
+## Where should we start? {: #build-manager-start}
 
 We will store our rules in YAML files like this:
 
@@ -184,7 +184,7 @@ Let's write a quick test to make sure the cycle detector works as intended:
 [% excerpt file="circular-rules.yml" %]
 [% excerpt pat="check-cycles.*" fill="sh out" %]
 
-## How can we specify that a file is out of date? {#build-manager-timestamp}
+## How can we specify that a file is out of date? {: #build-manager-timestamp}
 
 The next step is to figure out which files are out of date.
 Make does this by comparing the [% i "timestamp!in build" "build!timestamp" %]timestamps[% /i %] of the files in question,
@@ -225,7 +225,7 @@ let's make sure that adding timestamps works as we want:
 
 [% excerpt pat="add-timestamps.*" fill="sh out" %]
 
-## How can we update out-of-date files? {#build-manager-update}
+## How can we update out-of-date files? {: #build-manager-update}
 
 To figure out which recipes to execute and in which order,
 we set the pretended current time to the latest time of any file,
@@ -259,7 +259,7 @@ it seems to do the right thing:
 
 [% excerpt pat="update-timestamps.*" fill="sh out" %]
 
-## How can we add generic build rules? {#build-manager-generic}
+## How can we add generic build rules? {: #build-manager-generic .break-before}
 
 If our website has a hundred blog posts
 or a hundred pages of documentation about particular JavaScript files,
@@ -360,7 +360,7 @@ but *before* expanding variables:
 
 [% excerpt pat="pattern-user-run.*" fill="js out" %]
 
-## What should we do next? {#build-manager-next}
+## What should we do next? {: #build-manager-next}
 
 We have added a lot of steps to our original template method,
 which makes it a bit of a stretch to claim that the overall operation hasn't changed.
@@ -378,22 +378,22 @@ we always learn about our problem as we try to capture it in code,
 and if we know enough to anticipate 100% of the issues that are going to come up,
 it's time to put what we've learned in a library for future use.
 
-## Exercises {#build-manager-exercises}
+## Exercises {: #build-manager-exercises}
 
-### Handle failure {.exercise}
+### Handle failure {: .exercise}
 
 1.  Modify the build manager to accommodate build steps that fail.
 
 2.  Write Mocha tests to check that this change works correctly.
 
-### Dry run {.exercise}
+### Dry run {: .exercise}
 
 Add an option to the build manager to show what commands would be executed and why
 if a build were actually run.
 For example,
 the output should display things like, "'update A' because A older than B".
 
-### Change directories {.exercise}
+### Change directories {: .exercise}
 
 Modify the build manager so that:
 
@@ -404,18 +404,18 @@ node build.js -C some/sub/directory rules.yml timestamps.yml
 <!-- continue -->
 runs the build in the specified directory rather than the current directory.
 
-### Merge files {.exercise}
+### Merge files {: .exercise}
 
 Modify the build manager so that it can read multiple configuration files
 and execute their combines rules.
 
-### Show recipes {.exercise}
+### Show recipes {: .exercise}
 
 Add a method to build manager to display all unique recipes,
 i.e.,
 all of the commands it might execute if asked to rebuild everything.
 
-### Conditional execution {.exercise}
+### Conditional execution {: .exercise}
 
 Modify the build manager so that:
 
@@ -428,7 +428,7 @@ Modify the build manager so that:
 
 4.  Write Mocha tests to check that this works correctly.
 
-### Define filesets {.exercise}
+### Define filesets {: .exercise}
 
 Modify the build manager so that users can define sets of files:
 
@@ -450,7 +450,7 @@ and then refer to them later:
   - @everything
 ```
 
-### Globbing {.exercise}
+### Globbing {: .exercise}
 
 Modify the build manager so that it can dynamically construct a set of files:
 
@@ -469,7 +469,7 @@ and then refer to them later:
   - @allAvailableInputs
 ```
 
-### Use hashes {.exercise}
+### Use hashes {: .exercise}
 
 1.  Write a program called `build-init.js` that calculates a hash
     for every file mentioned in the build configuration
@@ -480,7 +480,7 @@ and then refer to them later:
     in order to determine what is out of date,
     and to update `build-hash.json` each time it runs.
 
-### Auxiliary functions {.exercise}
+### Auxiliary functions {: .exercise}
 
 1.  Modify the builder manager so that it takes an extra argument `auxiliaries`
     containing zero or more named functions:
