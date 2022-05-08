@@ -321,7 +321,7 @@ and so does our most complicated test with `main` and four other files:
 
 [% excerpt file="test-bundle-full.out" %]
 
-## Exercises {: #module-bundler-exercises}
+## Exercises {: #module-bundler-exercises .break-before}
 
 ### Using test-driven development {: .exercise}
 

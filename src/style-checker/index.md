@@ -336,7 +336,7 @@ which has a more complex method definition table:
 | stop | . | X | . | . |
 | variables | . | X | . | . |
 
-## Exercises {: #style-checker-exercises}
+## Exercises {: #style-checker-exercises .break-before}
 
 ### Function length {: .exercise}
 

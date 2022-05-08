@@ -452,7 +452,7 @@ But today's tools don't do that,
 and I suspect that any IDE smart enough to translate between comprehension levels automatically
 would also be smart enough to write the code without our help.
 
-## Exercises {: #page-templates-exercises}
+## Exercises {: #page-templates-exercises .break-before}
 
 ### Tracing execution {: .exercise}
 

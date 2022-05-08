@@ -359,7 +359,7 @@ but it never really caught on---unfortunately,
 most programming systems that describe themselves as "literate" these days
 only implement part of [% i "Knuth, Donald" %][Donald Knuth's][knuth-donald][% /i %] original vision.
 
-## Exercises {: #file-interpolator-exercises}
+## Exercises {: #file-interpolator-exercises .break-before}
 
 ### Security concerns {: .exercise}
 

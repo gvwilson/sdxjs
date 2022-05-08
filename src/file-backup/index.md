@@ -299,7 +299,7 @@ If you have to change several parts of your code in order to test it,
 the code is telling you to consolidate those parts into one component.
 </blockquote>
 
-## Exercises {: #file-backup-exercises}
+## Exercises {: #file-backup-exercises .break-before}
 
 ### Odds of collision {: .exercise}
 

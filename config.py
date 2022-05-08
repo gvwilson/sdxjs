@@ -81,4 +81,4 @@ footer = [
 ]
 
 # Debugging hook.
-debug = True
+debug = False

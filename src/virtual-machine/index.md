@@ -273,7 +273,7 @@ let's fill an array with the numbers from 0 to 3:
 > and talk to the world,
 > [% b Patterson2017 %] has everything you want to know and more.
 
-## Exercises {: #virtual-machine-exercises}
+## Exercises {: #virtual-machine-exercises .break-before}
 
 ### Swapping values {: .exercise}
 

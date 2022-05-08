@@ -33,11 +33,10 @@ def links_table(pargs, kwargs, node):
     links = util.get_config("links")
 
     links = "\n".join(
-        f'<tr><td>{entry["title"]}</td><td><a class="linkref" href="{entry["url"]}">{entry["url"]}</a></td></tr>'
+        f'<li>{entry["title"]}: <a class="linkref" href="{entry["url"]}">{entry["url"]}</a></li>'
         for entry in links
     )
-    title = "<tr><th>Link</th><th>URL</th></tr>"
-    return f'<table class="links-table">\n{title}\n{links}\n</table>'
+    return f'<ul class="links-list">\n{links}\n</ul>'
 
 
 @ivy.events.register(ivy.events.Event.INIT)

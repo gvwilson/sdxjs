@@ -225,7 +225,7 @@ but at least they're broken the same way everywhere.
 
 [% figure slug="regex-parser-finite-state-machine" img="figures/finite-state-machine.svg" alt="Finite state machine" caption="A finite state machine equivalent to a regular expression." %]
 
-## Exercises {: #regex-parser-exercises}
+## Exercises {: #regex-parser-exercises .break-before}
 
 ### Create objects {: .exercise}
 

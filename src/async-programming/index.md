@@ -426,7 +426,7 @@ but whichever you choose,
 please be consistent.
 {: .continue}
 
-## Exercises {: #async-programming-exercises}
+## Exercises {: #async-programming-exercises .break-before}
 
 ### Immediate versus next tick {: .exercise}
 

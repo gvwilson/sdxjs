@@ -217,7 +217,7 @@ We can use this to create better output ([% f doc-generator-fill-in-headers %]):
 > as the mathematician [% i "Whitehead, Alfred North" %]Alfred North Whitehead[% /i %] once wrote,
 > "Civilization advances by extending the number of important operations which we can perform without thinking about them."
 
-## Exercises {: #doc-generator-exercises}
+## Exercises {: #doc-generator-exercises .break-before}
 
 ### Building an index {: .exercise}
 

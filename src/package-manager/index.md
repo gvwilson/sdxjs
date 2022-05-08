@@ -295,7 +295,7 @@ but most give better performance in most cases.
 > and most ideas turn out to be dead ends,
 > but even small improvements in fundamental tools can have a profound impact.
 
-## Exercises {: #package-manager-exercises}
+## Exercises {: #package-manager-exercises .break-before}
 
 ### Comparing semantic versions {: .exercise}
 

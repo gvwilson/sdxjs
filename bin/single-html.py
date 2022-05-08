@@ -109,6 +109,13 @@ def patch_glossary(content):
     for node in content.select("a.glossref"):
         if node.attrs["href"].startswith(g):
             node.attrs["href"] = node.attrs["href"].replace(g, "")
+    for node in content.select("span.glosskey"):
+        if "break-before" in node.attrs["class"]:
+            node.attrs["class"] = [c for c in node.attrs["class"] if c != "break-before"]
+            if "class" in node.parent.attrs:
+                node.parent.attrs["class"].append("break-before")
+            else:
+                node.parent.attrs["class"] = ["break-before"]
 
 
 def patch_images(content, slug):

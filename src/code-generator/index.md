@@ -198,7 +198,7 @@ by defining [% i "macro" %][% g macro %]macros[% /g %][% /i %].
 Depending on how carefully they are used,
 macros can make programs elegant, incomprehensible, or both.
 
-## Exercises {: #code-generator-exercises}
+## Exercises {: #code-generator-exercises .break-before}
 
 ### JSON to JavaScript {: .exercise}
 

@@ -83,7 +83,8 @@ def check():
 
 def _as_markdown(lookup, lang, entry):
     """Convert a single glossary entry to Markdown."""
-    first = f'<span class="glosskey" id="{entry["key"]}">{entry[lang]["term"]}</span>'
+    b = " break-before" if ("break" in entry) else ""
+    first = f'<span class="glosskey{b}" id="{entry["key"]}">{entry[lang]["term"]}</span>'
 
     if "acronym" in entry[lang]:
         first += f" ({entry[lang]['acronym']})"

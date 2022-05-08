@@ -358,7 +358,7 @@ We will explore these possibilities in the exercises.
 > The moral is,
 > be careful what you ask.
 
-## Exercises {: #layout-engine-exercises}
+## Exercises {: #layout-engine-exercises .break-before}
 
 ### Refactoring the node classes {: .exercise}
 

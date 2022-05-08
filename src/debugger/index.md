@@ -302,7 +302,7 @@ we are finally able to test our interactive debugger:
 
 [% excerpt pat="test-exit.*" fill="sh out" %]
 
-## Exercises {: #debugger-exercises}
+## Exercises {: #debugger-exercises .break-before}
 
 ### Implementing tab completion {: .exercise}
 
