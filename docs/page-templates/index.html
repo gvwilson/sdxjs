@@ -26,12 +26,12 @@ and the best place to put that documentation is on the web.
 Writing and updating pages by hand is time-consuming and error-prone,
 particularly when many parts are the same,
 so most documentation sites use some kind of
-<span class="indexref" key="static site generator" markdown="1"><a class="glossref" href="../glossary/#static_site_generator" markdown="1">static site generator</a></span>
+<span class="indexentry" index-key="static site generator" markdown="1"><a class="glossref" href="../glossary/#static_site_generator" markdown="1">static site generator</a></span>
 to create web pages from templates.</p>
 <p>At the heart of every static site generator is a page templating system.
 Thousands of these have been written in the last thirty years
 in every popular programming language
-(and one language, <span class="indexref" key="PHP" markdown="1"><a href="https://www.php.net/">PHP</a></span>, was created for this purpose).
+(and one language, <span class="indexentry" index-key="PHP" markdown="1"><a href="https://www.php.net/">PHP</a></span>, was created for this purpose).
 Most of these systems use one of three designs
 (<a class="figref" href="../page-templates/#page-templates-options">Figure 9.1</a>):</p>
 <ol>
@@ -39,12 +39,12 @@ Most of these systems use one of three designs
 <p>Mix commands in a language such as JavaScript with the HTML or Markdown
     using some kind of marker to indicate which parts are commands
     and which parts are to be taken as-is.
-    This approach is taken by <span class="indexref" key="EJS" markdown="1"><a href="https://ejs.co/">EJS</a></span>,
+    This approach is taken by <span class="indexentry" index-key="EJS" markdown="1"><a href="https://ejs.co/">EJS</a></span>,
     which we used to write these lessons.</p>
 </li>
 <li>
-<p>Create a mini-language with its own commands like <span class="indexref" key="Jekyll" markdown="1"><a href="https://jekyllrb.com/">Jekyll</a></span>
-    (which is used by <span class="indexref" key="GitHub Pages" markdown="1"><a href="https://pages.github.com/">GitHub Pages</a></span>).
+<p>Create a mini-language with its own commands like <span class="indexentry" index-key="Jekyll" markdown="1"><a href="https://jekyllrb.com/">Jekyll</a></span>
+    (which is used by <span class="indexentry" index-key="GitHub Pages" markdown="1"><a href="https://pages.github.com/">GitHub Pages</a></span>).
     Mini-languages are appealing because they are smaller and safer than general-purpose languages,
     but experience shows that they eventually grow
     most of the features of a general-purpose language.
@@ -65,7 +65,7 @@ Most of these systems use one of three designs
 
 <p>In this chapter we will build a simple page templating system using the third strategy.
 We will process each page independently by parsing the HTML
-and walking the <span class="indexref" key="DOM" markdown="1">DOM</span> to find nodes with special attributes.
+and walking the <span class="indexentry" index-key="DOM" markdown="1">DOM</span> to find nodes with special attributes.
 Our program will execute the instructions in those nodes
 to do the equivalent of loops and if/else statements;
 other nodes will be copied as-is to create text.</p>
@@ -118,7 +118,7 @@ We could instead require people to use two attributes, as in:</p>
 <p class="continue">but we have decided to err on the side of minimal typing.
 And note that strictly speaking,
 we should call our attributes <code>data-something</code> instead of <code>z-something</code>
-to conform with <span class="indexref" key="HTML5 specification" markdown="1"><a href="https://developer.mozilla.org/en-US/docs/Learn/HTML/Howto/Use_data_attributes">the HTML5 specification</a></span>,
+to conform with <span class="indexentry" index-key="HTML5 specification" markdown="1"><a href="https://developer.mozilla.org/en-US/docs/Learn/HTML/Howto/Use_data_attributes">the HTML5 specification</a></span>,
 but by the time we're finished processing our templates,
 there shouldn't be any <code>z-*</code> attributes left to confuse a browser.</p>
 </blockquote>
@@ -150,21 +150,21 @@ don't conflict with ones used outside it.
 experience teaches us that if all our variables are global,
 all of our programs will be buggy.)</p>
 <p>The standard way to manage variables is to create a stack of lookup tables.
-Each <span class="indexref" key="stack frame" markdown="1"><a class="glossref" href="../glossary/#stack_frame" markdown="1">stack frame</a></span> is an object with names and values;
+Each <span class="indexentry" index-key="stack frame" markdown="1"><a class="glossref" href="../glossary/#stack_frame" markdown="1">stack frame</a></span> is an object with names and values;
 when we need to find a variable,
 we look through the stack frames in order to find the uppermost definition of that variable..</p>
 <blockquote>
 <h3>Scoping rules</h3>
-<p>Searching the stack <span class="indexref" key="call stack!stack frame;stack frame" markdown="1">frame</span> by frame
+<p>Searching the stack <span class="indexentry" index-key="call stack!stack frame;stack frame" markdown="1">frame</span> by frame
 while the program is running
-is called is <span class="indexref" key="dynamic scoping;scoping!dynamic" markdown="1"><a class="glossref" href="../glossary/#dynamic_scoping" markdown="1">dynamic scoping</a></span>,
+is called is <span class="indexentry" index-key="dynamic scoping;scoping!dynamic" markdown="1"><a class="glossref" href="../glossary/#dynamic_scoping" markdown="1">dynamic scoping</a></span>,
 since we find variables while the program is running.
 In contrast,
-most programming languages used <span class="indexref" key="lexical scoping;scoping!lexical" markdown="1"><a class="glossref" href="../glossary/#lexical_scoping" markdown="1">lexical scoping</a></span>,
+most programming languages used <span class="indexentry" index-key="lexical scoping;scoping!lexical" markdown="1"><a class="glossref" href="../glossary/#lexical_scoping" markdown="1">lexical scoping</a></span>,
 which figures out what a variable name refers to based on the structure of the program text.</p>
 </blockquote>
 <p>The values in a running program are sometimes called
-an <span class="indexref" key="environment (to store variables);call stack!environment" markdown="1"><a class="glossref" href="../glossary/#environment" markdown="1">environment</a></span>,
+an <span class="indexentry" index-key="environment (to store variables);call stack!environment" markdown="1"><a class="glossref" href="../glossary/#environment" markdown="1">environment</a></span>,
 so we have named our stack-handling class <code>Env</code>.
 Its methods let us push and pop new stack frames
 and find a variable given its name;
@@ -209,7 +209,7 @@ export default Env
 <h2 id="page-templates-nodes">Section 9.3:  How do we handle nodes?</h2>
 <p>HTML pages have a nested structure,
 so we will process them using
-the <span class="indexref" key="Visitor pattern;design pattern!Visitor" markdown="1"><a class="glossref" href="../glossary/#visitor_pattern" markdown="1">Visitor</a></span> design pattern.
+the <span class="indexentry" index-key="Visitor pattern;design pattern!Visitor" markdown="1"><a class="glossref" href="../glossary/#visitor_pattern" markdown="1">Visitor</a></span> design pattern.
 <code>Visitor</code>'s constructor takes the root node of the DOM tree as an argument and saves it.
 When we call <code>Visitor.walk</code> without a value,
 it starts recursing from that saved root;
@@ -406,7 +406,7 @@ it just knows that whoever called it implements the low-level operations it need
 but instead an object with two functions stored under the keys <code>open</code> and <code>close</code>.
 We could use a class for each handler
 so that handlers can store any extra state they need,
-but <span class="indexref" key="bare object;software design!bare object" markdown="1"><a class="glossref" href="../glossary/#bare_object" markdown="1">bare objects</a></span> are common and useful in JavaScript
+but <span class="indexentry" index-key="bare object;software design!bare object" markdown="1"><a class="glossref" href="../glossary/#bare_object" markdown="1">bare objects</a></span> are common and useful in JavaScript
 (though we will see below that we <em>should</em> have used classes).</p>
 <p>So much for constants; what about variables?</p>
 <pre><code class="language-js">export default {
@@ -719,7 +719,7 @@ we read what other programmers had written
 and tried to make sense of the key ideas.</p>
 <p>The problem is that "making sense" depends on who we are.
 When we use a low-level language,
-we incur the <span class="indexref" key="cognitive load" markdown="1">cognitive load</span> of assembling micro-steps into something more meaningful.
+we incur the <span class="indexentry" index-key="cognitive load" markdown="1">cognitive load</span> of assembling micro-steps into something more meaningful.
 When we use a high-level language,
 on the other hand,
 we incur a similar load translating functions of functions of functions

@@ -24,17 +24,17 @@
 <p>Callbacks work,
 but they are hard to read and debug,
 which means they only "work" in a limited sense.
-JavaScript's developers added <span class="indexref" key="promise!as alternative to callback" markdown="1"><a class="glossref" href="../glossary/#promise" markdown="1">promises</a></span> to the language in 2015
+JavaScript's developers added <span class="indexentry" index-key="promise!as alternative to callback" markdown="1"><a class="glossref" href="../glossary/#promise" markdown="1">promises</a></span> to the language in 2015
 to make callbacks easier to write and understand,
 and more recently they added the keywords <code>async</code> and <code>await</code> as well
 to make asynchronous programming easier still.
 To show how these work,
 we will create a <a class="glossref" href="../glossary/#class" markdown="1">class</a> of our own called <code>Pledge</code>
 that provides the same core features as promises.
-Our explanation was inspired by <span class="indexref" key="Huffine, Trey" markdown="1"><a href="https://medium.com/@treyhuffine">Trey Huffine's</a></span> <a href="https://levelup.gitconnected.com/understand-javascript-promises-by-building-a-promise-from-scratch-84c0fd855720">tutorial</a>,
+Our explanation was inspired by <span class="indexentry" index-key="Huffine, Trey" markdown="1"><a href="https://medium.com/@treyhuffine">Trey Huffine's</a></span> <a href="https://levelup.gitconnected.com/understand-javascript-promises-by-building-a-promise-from-scratch-84c0fd855720">tutorial</a>,
 and we encourage you to read that as well.</p>
 <h2 id="async-programming-manage">Section 3.1:  How can we manage asynchronous execution?</h2>
-<p>JavaScript is built around an <span class="indexref" key="event loop;execution!event loop" markdown="1"><a class="glossref" href="../glossary/#event_loop" markdown="1">event loop</a></span>.
+<p>JavaScript is built around an <span class="indexentry" index-key="event loop;execution!event loop" markdown="1"><a class="glossref" href="../glossary/#event_loop" markdown="1">event loop</a></span>.
 Every task is represented by an entry in a queue;
 the event loop repeatedly takes a task from the front of the queue,
 runs it,
@@ -50,7 +50,7 @@ but objects can be shared between tasks
 
 <p>Most tasks execute all the code available in the order it is written.
 For example,
-this one-line program uses <span class="indexref" key="Array.forEach" markdown="1"><code>Array.forEach</code></span>
+this one-line program uses <span class="indexentry" index-key="Array.forEach" markdown="1"><code>Array.forEach</code></span>
 to print each element of an array in turn:</p>
 <pre><code class="language-js">[1000, 1500, 500].forEach(t =&gt; console.log(t))
 </code></pre>
@@ -62,7 +62,7 @@ to print each element of an array in turn:</p>
 a handful of special built-in functions make <a href="https://nodejs.org/en/">Node</a> switch tasks
 or add new tasks to the run queue.
 For example,
-<span class="indexref" key="setTimeout" markdown="1"><code>setTimeout</code></span> tells Node to run a callback function
+<span class="indexentry" index-key="setTimeout" markdown="1"><code>setTimeout</code></span> tells Node to run a callback function
 after a certain number of milliseconds have passed.
 Its first argument is a callback function that takes no arguments,
 and its second is the delay.
@@ -73,7 +73,7 @@ then adds it to the run queue.
 <blockquote>
 <h3>Why zero arguments?</h3>
 <p><code>setTimeout</code>'s requirement that callback functions take no arguments
-is another example of a <span class="indexref" key="protocol!API as;API!as protocol" markdown="1"><a class="glossref" href="../glossary/#protocol" markdown="1">protocol</a></span>.
+is another example of a <span class="indexentry" index-key="protocol!API as;API!as protocol" markdown="1"><a class="glossref" href="../glossary/#protocol" markdown="1">protocol</a></span>.
 One way to think about it is that protocols allow old code to use new code:
 whoever wrote <code>setTimeout</code> couldn't know what specific tasks we want to delay,
 so they specified a way to wrap up any task at all.</p>
@@ -115,7 +115,7 @@ inside timer handler for 1500
 inside timer handler for 500
 </code></pre>
 <p class="continue">We can use this trick to build a generic
-<span class="indexref" key="execution!non-blocking;non-blocking execution" markdown="1"><a class="glossref" href="../glossary/#non_blocking_execution" markdown="1">non-blocking function</a></span>
+<span class="indexentry" index-key="execution!non-blocking;non-blocking execution" markdown="1"><a class="glossref" href="../glossary/#non_blocking_execution" markdown="1">non-blocking function</a></span>
 that takes a callback defining a task
 and switches tasks if any others are available:</p>
 <pre><code class="language-js">const nonBlocking = (callback) =&gt; {
@@ -134,7 +134,7 @@ inside timer handler for 1000
 inside timer handler for 1500
 inside timer handler for 500
 </code></pre>
-<p>Node's built-in function <span class="indexref" key="setImmediate" markdown="1"><code>setImmediate</code></span>
+<p>Node's built-in function <span class="indexentry" index-key="setImmediate" markdown="1"><code>setImmediate</code></span>
 does exactly what our <code>nonBlocking</code> function does:
 Node also has <code>process.nextTick</code>,
 which doesn't do quite the same thing---we'll explore the differences in the exercises.</p>
@@ -151,7 +151,7 @@ inside immediate handler for 1500
 inside immediate handler for 500
 </code></pre>
 <h2 id="async-programming-promises">Section 3.2:  How do promises work?</h2>
-<p>Before we start building our own <span class="indexref" key="promise!behavior" markdown="1">promises</span>,
+<p>Before we start building our own <span class="indexentry" index-key="promise!behavior" markdown="1">promises</span>,
 let's look at how we want them to work:</p>
 <pre><code class="language-js">import Pledge from './pledge.js'
 
@@ -172,8 +172,8 @@ in 'then' with &quot;this is the result&quot;
 </code></pre>
 <p>This short program creates a new <code>Pledge</code>
 with a callback that takes two other callbacks as arguments:
-<span class="indexref" key="promise!resolve;resolve promise" markdown="1"><code>resolve</code></span> (which will run when everything worked)
-and <span class="indexref" key="promise!reject;reject promise" markdown="1"><code>reject</code></span> (which will run when something went wrong).
+<span class="indexentry" index-key="promise!resolve;resolve promise" markdown="1"><code>resolve</code></span> (which will run when everything worked)
+and <span class="indexentry" index-key="promise!reject;reject promise" markdown="1"><code>reject</code></span> (which will run when something went wrong).
 The top-level callback does the first part of what we want to do,
 i.e.,
 whatever we want to run before we expect a delay;
@@ -199,13 +199,13 @@ what to do if the action completes successfully
 and what to do if it doesn't (i.e., how to handle errors).
 <code>Pledge</code> will provide these callbacks to the action at the right times.</p>
 <p><code>Pledge</code> also needs two methods:
-<span class="indexref" key="promise!then" markdown="1"><code>then</code></span> to enable more actions
-and <span class="indexref" key="promise!catch" markdown="1"><code>catch</code></span> to handle errors.
+<span class="indexentry" index-key="promise!then" markdown="1"><code>then</code></span> to enable more actions
+and <span class="indexentry" index-key="promise!catch" markdown="1"><code>catch</code></span> to handle errors.
 To simplify things just a little bit,
-we will allow users to <span class="indexref" key="method chaining" markdown="1"><a class="glossref" href="../glossary/#method_chaining" markdown="1">chain</a></span> as many <code>then</code>s as they want,
+we will allow users to <span class="indexentry" index-key="method chaining" markdown="1"><a class="glossref" href="../glossary/#method_chaining" markdown="1">chain</a></span> as many <code>then</code>s as they want,
 but only allow one <code>catch</code>.</p>
 <h3>Fluent interfaces</h3>
-<p>A <span class="indexref" key="fluent interface;programming style!fluent interface" markdown="1"><a class="glossref" href="../glossary/#fluent_interface" markdown="1">fluent interface</a></span>
+<p>A <span class="indexentry" index-key="fluent interface;programming style!fluent interface" markdown="1"><a class="glossref" href="../glossary/#fluent_interface" markdown="1">fluent interface</a></span>
 is a style of object-oriented programming
 in which the methods of an object return <code>this</code>
 so that method calls can be chained together.
@@ -239,7 +239,7 @@ the <code>Pledge</code> gives us a value by calling the <code>resolve</code> cal
 We pass this value to the first <code>then</code>,
 pass the result of that <code>then</code> to the second one,
 and so on.
-If any of them fail and throw an <span class="indexref" key="exception!in promise" markdown="1"><a class="glossref" href="../glossary/#exception" markdown="1">exception</a></span>,
+If any of them fail and throw an <span class="indexentry" index-key="exception!in promise" markdown="1"><a class="glossref" href="../glossary/#exception" markdown="1">exception</a></span>,
 we pass that exception to the error handler.
 Putting it all together,
 the whole class looks like this:</p>
@@ -281,7 +281,7 @@ export default Pledge
 </code></pre>
 <blockquote>
 <h3>Binding <code>this</code></h3>
-<p><code>Pledge</code>'s constructor makes two calls to a special function called <span class="indexref" key="bind method to object" markdown="1"><code>bind</code></span>.
+<p><code>Pledge</code>'s constructor makes two calls to a special function called <span class="indexentry" index-key="bind method to object" markdown="1"><code>bind</code></span>.
 When we create an object <code>obj</code> and call a method <code>meth</code>,
 JavaScript sets the special variable <code>this</code> to <code>obj</code> inside <code>meth</code>.
 If we use a method as a callback,
@@ -484,8 +484,8 @@ fs.readFileAsync(filename, { encoding: 'utf-8' })
 </code></pre>
 <blockquote>
 <h3>Character encoding</h3>
-<p>A <span class="indexref" key="character encoding" markdown="1"><a class="glossref" href="../glossary/#character_encoding" markdown="1">character encoding</a></span> specifies how characters are stored as bytes.
-The most widely used is <span class="indexref" key="UTF-8;character encoding!UTF-8" markdown="1"><a class="glossref" href="../glossary/#utf_8" markdown="1">UTF-8</a></span>,
+<p>A <span class="indexentry" index-key="character encoding" markdown="1"><a class="glossref" href="../glossary/#character_encoding" markdown="1">character encoding</a></span> specifies how characters are stored as bytes.
+The most widely used is <span class="indexentry" index-key="UTF-8;character encoding!UTF-8" markdown="1"><a class="glossref" href="../glossary/#utf_8" markdown="1">UTF-8</a></span>,
 which stores characters common in Western European languages in a single byte
 and uses multi-byte sequences for other symbols.
 If we don't specify a character encoding,
@@ -497,7 +497,7 @@ and Node tells us we can't.</p>
 We can use <code>glob-promise</code> to delay handling the output of <code>glob</code>,
 but we need some way to create a separate task to count the lines in each file
 and to wait until those line counts are available before exiting our program.</p>
-<p>The tool we want is <span class="indexref" key="Promise.all" markdown="1"><code>Promise.all</code></span>,
+<p>The tool we want is <span class="indexentry" index-key="Promise.all" markdown="1"><code>Promise.all</code></span>,
 which waits until all of the promises in an array have completed.
 To make our program a little more readable,
 we will put the creation of the promise for each file in a separate function:</p>
@@ -647,7 +647,7 @@ is exactly the value of the variable with the same name.</p>
 <h2 id="async-programming-readable">Section 3.5:  How can we make this more readable?</h2>
 <p>Promises eliminate the deep nesting associated with callbacks of callbacks,
 but they are still hard to follow.
-The latest versions of JavaScript provide two new keywords <span class="indexref" key="async keyword" markdown="1"><code>async</code></span> and <span class="indexref" key="await keyword" markdown="1"><code>await</code></span>
+The latest versions of JavaScript provide two new keywords <span class="indexentry" index-key="async keyword" markdown="1"><code>async</code></span> and <span class="indexentry" index-key="await keyword" markdown="1"><code>await</code></span>
 to flatten code further.
 <code>async</code> means "this function implicitly returns a promise",
 while <code>await</code> means "wait for a promise to resolve".
@@ -673,7 +673,7 @@ outside, final result is &quot;Begin at t&quot;
 <blockquote class="break-before">
 <h3>Translating code</h3>
 <p>When Node sees <code>await</code> and <code>async</code>
-it silently <span class="indexref" key="promise!automatic creation of" markdown="1">converts</span> the code to use promises with <code>then</code>, <code>resolve</code>, and <code>reject</code>;
+it silently <span class="indexentry" index-key="promise!automatic creation of" markdown="1">converts</span> the code to use promises with <code>then</code>, <code>resolve</code>, and <code>reject</code>;
 we will see how this works in <a class="crossref" href="../code-generator/">Chapter 15</a>.
 In order to provide a context for this transformation
 we must put <code>await</code> inside a function that is declared to be <code>async</code>:
@@ -770,7 +770,7 @@ result.catch(err =&gt; console.log(`caller caught ${err}`))
 </code></pre>
 <pre><code class="language-out">caller caught Error: deliberate
 </code></pre>
-<p>If instead we <span class="indexref" key="exception!with await" markdown="1"><code>return await</code></span>,
+<p>If instead we <span class="indexentry" index-key="exception!with await" markdown="1"><code>return await</code></span>,
 the function waits until the promise runs before returning.
 The promise is turned into an exception because it failed,
 and since we're inside the scope of our <code>try</code>/<code>catch</code> block,

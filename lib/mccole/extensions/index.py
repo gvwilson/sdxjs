@@ -29,7 +29,7 @@ def index_ref(pargs, kwargs, node, content):
 
     # Format.
     joined = ";".join(pargs)
-    return f'<span class="indexref" key="{joined}" markdown="1">{content}</span>'
+    return f'<span class="indexentry" index-key="{joined}" markdown="1">{content}</span>'
 
 
 @shortcodes.register("index")
@@ -46,22 +46,23 @@ def make_index(pargs, kwargs, node):
     keys.sort(key=lambda x: tuple(y.lower() for y in x))
     for current in keys:
         occurrences = content[current]
-        links = _make_links(occurrences)
         if len(current) == 1:
-            result.append(f"<li>{current[0]}: {links}</li>")
+            links = _make_links(current[0], occurrences)
+            result.append(f'<li>{current[0]}: {links}</li>')
             previous = current[0]
         elif len(current) != 2:
             util.fail(f"Internal error in index key '{current}' found in {occurrences}")
         else:
             if current[0] != previous:
                 result.append(f"<li>{current[0]}</li>")
-            result.append(f"<li>…{current[1]}: {links}</li>")
+            links = _make_links(current[1], occurrences)
+            result.append(f'<li>…{current[1]}: {links}</li>')
     result.append("</ul>")
 
     return "\n".join(result)
 
 
-def _make_links(slugs):
+def _make_links(term, slugs):
     """Turn a set of node slugs into links."""
     # Too early in cycle.
     if not (headings := util.get_config("headings")):
@@ -73,7 +74,10 @@ def _make_links(slugs):
     triples = list(zip(slugs, paths, titles))
     major = util.make_major()
     triples.sort(key=lambda x: str(major[x[0]]))
-    result = ", ".join(f'<a class="linkref" href="{path}">{title}</a>' for (_, path, title) in triples)
+    result = ", ".join(
+        f'<a class="indexref" index-ref="{term}" href="{path}">{title}</a>'
+        for (slug, path, title) in triples
+    )
     return result
 
 

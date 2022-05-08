@@ -30,13 +30,13 @@ the tool should realize that every page in the site is potentially affected
 and automatically re-translate all of them.</p>
 <p>Choosing what actions to take based on how files depend on one another is a common pattern.
 For example,
-programs in <span class="indexref" key="compiled language;language!compiled" markdown="1"><a class="glossref" href="../glossary/#compiled_language" markdown="1">compiled languages</a></span>
-like <span class="indexref" key="C" markdown="1">C</span> and <span class="indexref" key="Java" markdown="1">Java</span>
+programs in <span class="indexentry" index-key="compiled language;language!compiled" markdown="1"><a class="glossref" href="../glossary/#compiled_language" markdown="1">compiled languages</a></span>
+like <span class="indexentry" index-key="C" markdown="1">C</span> and <span class="indexentry" index-key="Java" markdown="1">Java</span>
 have to be translated into lower-level forms before they can run.
 In fact,
 there are usually two stages to the translation:
 compiling each source file into some intermediate form,
-and then <span class="indexref" key="linking (compiled language);compiled language!linking" markdown="1"><a class="glossref" href="../glossary/#link" markdown="1">linking</a></span> the compiled modules
+and then <span class="indexentry" index-key="linking (compiled language);compiled language!linking" markdown="1"><a class="glossref" href="../glossary/#link" markdown="1">linking</a></span> the compiled modules
 to each other and to libraries
 to create a runnable program
 (<a class="figref" href="../build-manager/#build-manager-compiling">Figure 10.1</a>).
@@ -47,41 +47,41 @@ there's no need to recompile it before linking.</p>
   <figcaption markdown="1">Figure 10.1: Compiling source files and linking the resulting modules.</figcaption>
 </figure>
 
-<p>A <span class="indexref" key="build manager" markdown="1"><a class="glossref" href="../glossary/#build_manager" markdown="1">build manager</a></span> takes a description of what depends on what,
+<p>A <span class="indexentry" index-key="build manager" markdown="1"><a class="glossref" href="../glossary/#build_manager" markdown="1">build manager</a></span> takes a description of what depends on what,
 figures out which files are out of date,
 determines an order in which to rebuild things,
 and then executes any necessary steps.
 Originally created to manage compilation,
-they are also useful for programs written in <span class="indexref" key="language!interpreted;interpreted language" markdown="1"><a class="glossref" href="../glossary/#interpreted_language" markdown="1">interpreted languages</a></span>
+they are also useful for programs written in <span class="indexentry" index-key="language!interpreted;interpreted language" markdown="1"><a class="glossref" href="../glossary/#interpreted_language" markdown="1">interpreted languages</a></span>
 like JavaScript
 when we want to bundle multiple modules into a single loadable file (<a class="crossref" href="../module-bundler/">Chapter 17</a>)
 or re-create documentation from source code (<a class="crossref" href="../doc-generator/">Chapter 16</a>).
 In this chapter we will create a simple build manager
-based on <span class="indexref" key="Make" markdown="1"><a href="https://www.gnu.org/software/make/">Make</a></span>, <span class="indexref" key="Bajel" markdown="1"><a href="https://www.npmjs.com/package/bajel">Bajel</a></span>, <span class="indexref" key="Jake" markdown="1"><a href="https://jakejs.com/">Jake</a></span>,
+based on <span class="indexentry" index-key="Make" markdown="1"><a href="https://www.gnu.org/software/make/">Make</a></span>, <span class="indexentry" index-key="Bajel" markdown="1"><a href="https://www.npmjs.com/package/bajel">Bajel</a></span>, <span class="indexentry" index-key="Jake" markdown="1"><a href="https://jakejs.com/">Jake</a></span>,
 and other systems discussed in [<a class="bibref" href="../bibliography/#Smith2011">Smith2011</a>].</p>
 <h2 id="build-manager-contents">Section 10.1:  What's in a build manager?</h2>
 <p>The input to a build manager is a set of rules,
 each of which has:</p>
 <ul>
 <li>
-<p>a <span class="indexref" key="build target;target!build" markdown="1"><a class="glossref" href="../glossary/#build_target" markdown="1">target</a></span>, which is the file to be updated;</p>
+<p>a <span class="indexentry" index-key="build target;target!build" markdown="1"><a class="glossref" href="../glossary/#build_target" markdown="1">target</a></span>, which is the file to be updated;</p>
 </li>
 <li>
-<p>some <span class="indexref" key="dependency (in build);build!dependency" markdown="1"><a class="glossref" href="../glossary/#dependency" markdown="1">dependencies</a></span>, which are the things that file depends on;
+<p>some <span class="indexentry" index-key="dependency (in build);build!dependency" markdown="1"><a class="glossref" href="../glossary/#dependency" markdown="1">dependencies</a></span>, which are the things that file depends on;
     and</p>
 </li>
 <li>
-<p>a <span class="indexref" key="recipe (in build);build!recipe" markdown="1"><a class="glossref" href="../glossary/#build_recipe" markdown="1">recipe</a></span> that specifies how to update the target
+<p>a <span class="indexentry" index-key="recipe (in build);build!recipe" markdown="1"><a class="glossref" href="../glossary/#build_recipe" markdown="1">recipe</a></span> that specifies how to update the target
     if it is out of date compared to its dependencies.</p>
 </li>
 </ul>
 <p>The target of one rule can be a dependency of another rule,
-so the relationships between the files form a <span class="indexref" key="directed acyclic graph (DAG);DAG" markdown="1"><a class="glossref" href="../glossary/#dag" markdown="1">directed acyclic graph</a></span> or DAG
+so the relationships between the files form a <span class="indexentry" index-key="directed acyclic graph (DAG);DAG" markdown="1"><a class="glossref" href="../glossary/#dag" markdown="1">directed acyclic graph</a></span> or DAG
 (<a class="figref" href="../build-manager/#build-manager-dependencies">Figure 10.2</a>).
 The graph is directed because "A depends on B" is a one-way relationship;
 it cannot contain cycles (or loops) because
 if something depends on itself we can never finish updating it.
-We say that a target is <span class="indexref" key="stale (in build);build!stale" markdown="1"><a class="glossref" href="../glossary/#build_stale" markdown="1">stale</a></span> if it is older than any of its dependencies.
+We say that a target is <span class="indexentry" index-key="stale (in build);build!stale" markdown="1"><a class="glossref" href="../glossary/#build_stale" markdown="1">stale</a></span> if it is older than any of its dependencies.
 When this happens,
 we use the recipes to bring it up to date.</p>
 <figure id="build-manager-dependencies">
@@ -107,7 +107,7 @@ we use the recipes to bring it up to date.</p>
 </ol>
 <blockquote>
 <h3>Topological order</h3>
-<p>A <span class="indexref" key="topological order" markdown="1"><a class="glossref" href="../glossary/#topological_order" markdown="1">topological ordering</a></span> of a graph
+<p>A <span class="indexentry" index-key="topological order" markdown="1"><a class="glossref" href="../glossary/#topological_order" markdown="1">topological ordering</a></span> of a graph
 arranges the nodes so that every node comes after everything it depends on.
 For example,
 if A depends on both B and C,
@@ -135,7 +135,7 @@ but it wouldn't have made sense to use CSV:
 rules have a nested structure,
 and CSV doesn't represent nesting particularly gracefully.</p>
 <p>We are going to create our build manager in stages,
-so we start by writing a simple <span class="indexref" key="software design!driver" markdown="1"><a class="glossref" href="../glossary/#driver" markdown="1">driver</a></span> that loads a JavaScript source file,
+so we start by writing a simple <span class="indexentry" index-key="software design!driver" markdown="1"><a class="glossref" href="../glossary/#driver" markdown="1">driver</a></span> that loads a JavaScript source file,
 creates an object of whatever class that file exports,
 and runs the <code>.build</code> method of that object with the rest of the command-line parameters:</p>
 <pre><code class="language-js">const main = async () =&gt; {
@@ -166,7 +166,7 @@ each version of our build manager must be a class that satisfies two requirement
 <p>The <code>build</code> method must create a graph from the configuration file,
 check that it does not contain any <a class="glossref" href="../glossary/#cycle" markdown="1">cycles</a>,
 and then run whatever commands are needed to update stale targets.
-Just as we built a generic <span class="indexref" key="Visitor pattern;design pattern!Visitor" markdown="1"><code>Visitor</code></span> class in <a class="crossref" href="../page-templates/">Chapter 9</a>,
+Just as we built a generic <span class="indexentry" index-key="Visitor pattern;design pattern!Visitor" markdown="1"><code>Visitor</code></span> class in <a class="crossref" href="../page-templates/">Chapter 9</a>,
 we can build a generic base class for our build manager that does these steps in this order
 without actually implementing any of them:</p>
 <pre><code class="language-js">import assert from 'assert'
@@ -203,7 +203,7 @@ class SkeletonBuilder {
 export default SkeletonBuilder
 </code></pre>
 <p>This is an example of
-the <span class="indexref" key="Template Method pattern;design pattern!Template Method" markdown="1"><a class="glossref" href="../glossary/#template_method_pattern" markdown="1">Template Method</a></span> design pattern:
+the <span class="indexentry" index-key="Template Method pattern;design pattern!Template Method" markdown="1"><a class="glossref" href="../glossary/#template_method_pattern" markdown="1">Template Method</a></span> design pattern:
 the parent class defines the order of the steps
 and child classes fill them in
 (<a class="figref" href="../build-manager/#build-manager-template-method">Figure 10.3</a>).
@@ -363,13 +363,13 @@ Sorted
 </code></pre>
 <h2 id="build-manager-timestamp">Section 10.3:  How can we specify that a file is out of date?</h2>
 <p>The next step is to figure out which files are out of date.
-Make does this by comparing the <span class="indexref" key="timestamp!in build;build!timestamp" markdown="1">timestamps</span> of the files in question,
+Make does this by comparing the <span class="indexentry" index-key="timestamp!in build;build!timestamp" markdown="1">timestamps</span> of the files in question,
 but this isn't always reliable:
-<span class="indexref" key="clock synchronization (in build);build!clock synchronization" markdown="1">computers' clocks may be slightly out of sync</span>,
+<span class="indexentry" index-key="clock synchronization (in build);build!clock synchronization" markdown="1">computers' clocks may be slightly out of sync</span>,
 which can produce a wrong answer on a networked filesystem,
 and the operating system may only report file update times to the nearest millisecond
 (which seemed very short in 1970 but seems very long today).</p>
-<p>More modern build systems store a <span class="indexref" key="hash code!in build;build!hash code" markdown="1">hash</span> of each file's contents
+<p>More modern build systems store a <span class="indexentry" index-key="hash code!in build;build!hash code" markdown="1">hash</span> of each file's contents
 and compare the current hash to the stored one to see if the file has changed.
 Since we already looked at hashing in <a class="crossref" href="../file-backup/">Chapter 5</a>,
 we will use the timestamp approach here.
@@ -496,7 +496,7 @@ export default UpdateOnTimestamps
 <p>Sets the starting time to be one unit past the largest file time.</p>
 </li>
 <li>
-<p>Uses <span class="indexref" key="Array.reduce" markdown="1"><code>Array.reduce</code></span> to operate on each node (i.e., each file) in order.
+<p>Uses <span class="indexentry" index-key="Array.reduce" markdown="1"><code>Array.reduce</code></span> to operate on each node (i.e., each file) in order.
     If that file is stale,
     we print the steps we would run and then update the file's timestamp.
     We only advance the notional current time when we do an update.</p>
@@ -520,7 +520,7 @@ it seems to do the right thing:</p>
 or a hundred pages of documentation about particular JavaScript files,
 we don't want to have to write a hundred nearly-identical recipes.
 Instead,
-we want to be able to write generic <span class="indexref" key="build!rule;rule (in build)" markdown="1"><a class="glossref" href="../glossary/#build_rule" markdown="1">build rules</a></span> that say,
+we want to be able to write generic <span class="indexentry" index-key="build!rule;rule (in build)" markdown="1"><a class="glossref" href="../glossary/#build_rule" markdown="1">build rules</a></span> that say,
 "Build all things of this kind the same way."
 These generic rules need:</p>
 <ul>
@@ -539,7 +539,7 @@ These generic rules need:</p>
 Once again,
 object-oriented programming helps us change only what we need to change,
 provided we divided our problem into sensible chunks in the first place.</p>
-<p>Make provides <span class="indexref" key="automatic variable (in build);build!automatic variable" markdown="1"><a class="glossref" href="../glossary/#automatic_variable" markdown="1">automatic variables</a></span>
+<p>Make provides <span class="indexentry" index-key="automatic variable (in build);build!automatic variable" markdown="1"><a class="glossref" href="../glossary/#automatic_variable" markdown="1">automatic variables</a></span>
 with names like <code>$&lt;</code> and <code>$@</code>
 to represent the parts of a rule.
 Our variables will be more readable:
@@ -598,7 +598,7 @@ by running it on the same example we used previously:</p>
 they tell us right away if something we have added or changed
 has broken something that used to work.
 That gives us a firm base to build on as we debug the new code.</p>
-<p>Now we need to add <span class="indexref" key="pattern rule (in build);build!pattern rule" markdown="1"><a class="glossref" href="../glossary/#pattern_rule" markdown="1">pattern rules</a></span>.
+<p>Now we need to add <span class="indexentry" index-key="pattern rule (in build);build!pattern rule" markdown="1"><a class="glossref" href="../glossary/#pattern_rule" markdown="1">pattern rules</a></span>.
 Our first attempt at a rules file looks like this:</p>
 <pre><code class="language-yml">- target: left.out
   depends: []
@@ -682,7 +682,7 @@ that printed the error message shown above.
 Once we tracked down our bug,
 though,
 we added the assertion to ensure we didn't make the same mistake again,
-and as <span class="indexref" key="runnable documentation (assertions as);assertion!as runnable documentation" markdown="1"><a class="glossref" href="../glossary/#runnable_documentation" markdown="1">runnable documentation</a></span>
+and as <span class="indexentry" index-key="runnable documentation (assertions as);assertion!as runnable documentation" markdown="1"><a class="glossref" href="../glossary/#runnable_documentation" markdown="1">runnable documentation</a></span>
 to tell the next programmer more about the code.
 Regular code tells the computer what to do;
 assertions with meaningful error messages tell the reader why.</p>
@@ -882,7 +882,7 @@ to include those extra steps and provide do-nothing implementations.</p>
 when we wrote our template method.
 It typically takes a few child classes for this to settle down;
 if it never does,
-then <span class="indexref" key="Template Method pattern;design pattern!Template Method" markdown="1">Template Method</span> is probably the wrong pattern for our situation.
+then <span class="indexentry" index-key="Template Method pattern;design pattern!Template Method" markdown="1">Template Method</span> is probably the wrong pattern for our situation.
 Realizing this isn't a failure in initial design:
 we always learn about our problem as we try to capture it in code,
 and if we know enough to anticipate 100% of the issues that are going to come up,

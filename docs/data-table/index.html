@@ -26,7 +26,7 @@ operations in memory are thousands of times faster than operations that touch th
 but what about different in-memory operations---how do they compare with each other?
 Putting it another way,
 how can we tell which of several designs is going to be the most efficient?</p>
-<p>The best answer is to conduct some <span class="indexref" key="experiments" markdown="1">experiments</span>.
+<p>The best answer is to conduct some <span class="indexentry" index-key="experiments" markdown="1">experiments</span>.
 To see how to do this,
 we will take a look several ways to implement data tables
 with one or more named columns and zero or more rows.
@@ -35,29 +35,29 @@ and all the values in a column have the same type
 (<a class="figref" href="../data-table/#data-table-conceptual">Figure 6.1</a>).
 Data tables appear over and over again in programming,
 from spreadsheets and databases
-to the <span class="indexref" key="data frame" markdown="1"><a class="glossref" href="../glossary/#data_frame" markdown="1">data frames</a></span> in
-<span class="indexref" key="R" markdown="1">R's</span> <span class="indexref" key="tidyverse" markdown="1"><a href="https://www.tidyverse.org/">tidyverse</a></span> packages,
-<span class="indexref" key="Python" markdown="1"><a href="https://www.python.org/">Python's</a></span> <span class="indexref" key="Pandas" markdown="1"><a href="https://pandas.pydata.org/">Pandas</a></span> library,
-or the <span class="indexref" key="DataForge" markdown="1"><a href="http://www.data-forge-js.com/">DataForge</a></span> library for JavaScript [<a class="bibref" href="../bibliography/#Davis2018">Davis2018</a>].</p>
+to the <span class="indexentry" index-key="data frame" markdown="1"><a class="glossref" href="../glossary/#data_frame" markdown="1">data frames</a></span> in
+<span class="indexentry" index-key="R" markdown="1">R's</span> <span class="indexentry" index-key="tidyverse" markdown="1"><a href="https://www.tidyverse.org/">tidyverse</a></span> packages,
+<span class="indexentry" index-key="Python" markdown="1"><a href="https://www.python.org/">Python's</a></span> <span class="indexentry" index-key="Pandas" markdown="1"><a href="https://pandas.pydata.org/">Pandas</a></span> library,
+or the <span class="indexentry" index-key="DataForge" markdown="1"><a href="http://www.data-forge-js.com/">DataForge</a></span> library for JavaScript [<a class="bibref" href="../bibliography/#Davis2018">Davis2018</a>].</p>
 <figure id="data-table-conceptual">
   <img src="./figures/conceptual.svg" alt="Data table structure" />
   <figcaption markdown="1">Figure 6.1: The structure of a data table.</figcaption>
 </figure>
 
-<p>The key operations on data tables are those provided by <span class="indexref" key="SQL" markdown="1"><a class="glossref" href="../glossary/#sql" markdown="1">SQL</a></span>:
+<p>The key operations on data tables are those provided by <span class="indexentry" index-key="SQL" markdown="1"><a class="glossref" href="../glossary/#sql" markdown="1">SQL</a></span>:
 filter, select, summarize, and join.
 These can be implemented in about five hundred lines of code,
 but their performance depends on how the data table is stored.</p>
 <h2 id="data-table-implement">Section 6.1:  How can we implement data tables?</h2>
-<p>One way to store a table is <span class="indexref" key="row-major storage order;storage order!row-major" markdown="1"><a class="glossref" href="../glossary/#row_major" markdown="1">row-major</a></span> order,
+<p>One way to store a table is <span class="indexentry" index-key="row-major storage order;storage order!row-major" markdown="1"><a class="glossref" href="../glossary/#row_major" markdown="1">row-major</a></span> order,
 in which the values in each row are stored together in memory.
-This is sometimes also called <span class="indexref" key="heterogeneous storage;storage!heterogeneous" markdown="1"><a class="glossref" href="../glossary/#heterogeneous" markdown="1">heterogeneous</a></span> storage
+This is sometimes also called <span class="indexentry" index-key="heterogeneous storage;storage!heterogeneous" markdown="1"><a class="glossref" href="../glossary/#heterogeneous" markdown="1">heterogeneous</a></span> storage
 because each "unit" of storage can contain values of different types.
 We can implement this design in JavaScript using an array of objects,
 each of which has the same keys
 (<a class="figref" href="../data-table/#data-table-storage-order">Figure 6.2</a>).</p>
-<p>Another option is <span class="indexref" key="column-major storage order;storage order!column-major" markdown="1"><a class="glossref" href="../glossary/#column_major" markdown="1">column-major</a></span>
-or <span class="indexref" key="homogeneous storage;storage!homogeneous" markdown="1"><a class="glossref" href="../glossary/#homogeneous" markdown="1">homogeneous</a></span> order,
+<p>Another option is <span class="indexentry" index-key="column-major storage order;storage order!column-major" markdown="1"><a class="glossref" href="../glossary/#column_major" markdown="1">column-major</a></span>
+or <span class="indexentry" index-key="homogeneous storage;storage!homogeneous" markdown="1"><a class="glossref" href="../glossary/#homogeneous" markdown="1">homogeneous</a></span> order,
 in which all the values in a column are stored together.
 In JavaScript,
 this could be implemented using an object
@@ -80,7 +80,7 @@ if one strategy works better for filter and another for select,
 the ratio of filters to selects may determine which is "best".</p>
 <blockquote>
 <h3>Immutability</h3>
-<p>All of our implementations will treat each data table as <span class="indexref" key="immutable data" markdown="1"><a class="glossref" href="../glossary/#immutable" markdown="1">immutable</a></span>:
+<p>All of our implementations will treat each data table as <span class="indexentry" index-key="immutable data" markdown="1"><a class="glossref" href="../glossary/#immutable" markdown="1">immutable</a></span>:
 once we have created it,
 we will not modify its contents.
 This doesn't actually have much impact on performance
@@ -110,7 +110,7 @@ like the callback for <code>Array.filter</code>;
 for selecting columns,
 we provide a list of the keys that identify the columns we want to keep.
 We expect filtering to be relatively fast,
-since it is <span class="indexref" key="recycling data" markdown="1">recycling</span> rows,
+since it is <span class="indexentry" index-key="recycling data" markdown="1">recycling</span> rows,
 while selecting should be relatively slow because we have to construct a new set of arrays
 (<a class="figref" href="../data-table/#data-table-row-ops">Figure 6.3</a>).</p>
 <pre><code class="language-js">const rowFilter = (table, func) =&gt; {
@@ -194,7 +194,7 @@ but that extra work would bias the performance comparison in row-major's favor.<
 </blockquote>
 <h2 id="data-table-profile">Section 6.2:  How can we test the performance of our implementations?</h2>
 <p>Now that we have our tables and operations,
-we can build a <span class="indexref" key="test harness;experiments!test harness" markdown="1"><a class="glossref" href="../glossary/#test_harness" markdown="1">test harness</a></span> to run those operations
+we can build a <span class="indexentry" index-key="test harness;experiments!test harness" markdown="1"><a class="glossref" href="../glossary/#test_harness" markdown="1">test harness</a></span> to run those operations
 on data tables of varying sizes.
 We arbitrarily decide to keep half of the columns and one-third of the rows;
 these ratios will affect our decision about which is better,
@@ -427,7 +427,7 @@ we assume this is because copying data takes less time than turning labels into 
 but column-major storage is still the best approach.</p>
 <h2 id="data-table-binary">Section 6.4:  Does binary storage improve performance?</h2>
 <p>Let's try one more strategy for storing our tables.
-JavaScript stores values in <span class="indexref" key="tagged data structure" markdown="1"><a class="glossref" href="../glossary/#tagged_data" markdown="1">tagged</a></span> data structures:
+JavaScript stores values in <span class="indexentry" index-key="tagged data structure" markdown="1"><a class="glossref" href="../glossary/#tagged_data" markdown="1">tagged</a></span> data structures:
 some bits define the value's type
 while other bits store the value itself in a type-dependent way
 (<a class="figref" href="../data-table/#data-table-object-storage">Figure 6.5</a>).</p>
@@ -438,7 +438,7 @@ while other bits store the value itself in a type-dependent way
 
 <p>We can save space by keeping track of the types ourselves
 and just storing the bits that represent the values.
-JavaScript has an <span class="indexref" key="ArrayBuffer" markdown="1"><code>ArrayBuffer</code></span> class for exactly this purpose.
+JavaScript has an <span class="indexentry" index-key="ArrayBuffer" markdown="1"><code>ArrayBuffer</code></span> class for exactly this purpose.
 It stores any value we want as a set of bits;
 we then access those bits through a view that presents the data as a particular type,
 such as Boolean (one byte per value) or number (64 bits per number).
