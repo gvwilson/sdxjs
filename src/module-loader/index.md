@@ -89,9 +89,11 @@ we call the object we pass in `result` in `loadModule`.
 
 [% excerpt file="load-module-only.js" %]
 
-[% figure slug="module-loader-iife" img="figures/iife.svg" alt="Implementing modules with IIFEs" caption="Using IIFEs to encapsulate modules and get their exports." %]
+[% figure slug="module-loader-iife-a" img="figures/iife-a.svg" alt="Implementing modules with IIFEs (part 1)" caption="Using IIFEs to encapsulate modules and get their exports (part 1)." %]
 
-[% f module-loader-iife %] shows the structure of our loader so far.
+[% figure slug="module-loader-iife-b" img="figures/iife-b.svg" alt="Implementing modules with IIFEs (part 2)" caption="Using IIFEs to encapsulate modules and get their exports (part 2)." %]
+
+[% f module-loader-iife-a %] and [% f module-loader-iife-b %] show the structure of our loader so far.
 We can use this code as a test:
 
 [% excerpt file="small-module.js" %]

@@ -50,8 +50,8 @@ def bibliography(pargs, kwargs, node):
 
     # Format a single bibliography entry.
     def _format(key, body):
-        b = f' class="break-before"' if key in breaks else ""
-        return f'<dt id="{key}"{b}>{key}</dt>\n<dd>{body}</dd>'
+        b = " break-before" if key in breaks else ""
+        return f'<p id="{key}" class="continue{b}"><strong>[{key}]</strong> {body}</p>'
 
     # Load and save bibliography.
     bib = parse_file(bib_filename)
@@ -60,7 +60,7 @@ def bibliography(pargs, kwargs, node):
     # Generate HTML.
     formatted = style.format_bibliography(bib)
     entries = [_format(entry.key, entry.text.render(html)) for entry in formatted]
-    return '<dl class="bibliography">\n\n' + "\n\n".join(entries) + "\n\n</dl>"
+    return "\n\n".join(entries)
 
 
 @ivy.events.register(ivy.events.Event.EXIT)

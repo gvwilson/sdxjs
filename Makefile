@@ -12,6 +12,7 @@ commands:
 .PHONY: build
 build:
 	ivy build
+	python bin/single-html.py docs/index.html > ./docs/all.html
 
 ## serve: build site and run server
 .PHONY: serve

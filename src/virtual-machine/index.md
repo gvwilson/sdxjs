@@ -109,13 +109,15 @@ to extract the op code and operands from the instruction
 
 [% figure slug="virtual-machine-unpacking" img="figures/unpacking.svg" alt="Unpacking instructions" caption="Using bitwise operations to unpack instructions." %]
 
-> ### Semi-realistic
->
-> We always unpack two operands regardless of whether the instructions has them or not,
-> since this is what a hardware implementation would be.
-> We have also included assertions in our VM
-> to simulate the way that real hardware includes logic
-> to detect illegal instructions and out-of-bound memory addresses.
+<blockquote class="break-before" markdown="1">
+### Semi-realistic
+
+We always unpack two operands regardless of whether the instructions has them or not,
+since this is what a hardware implementation would be.
+We have also included assertions in our VM
+to simulate the way that real hardware includes logic
+to detect illegal instructions and out-of-bound memory addresses.
+</blockquote>
 
 The next step is to extend our base class with one that has a `run` method.
 As its name suggests,

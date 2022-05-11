@@ -15,7 +15,7 @@ HEADER = """\
 
   <!-- paged.js links -->
   <link rel="stylesheet" href=".pagedJS/css/book.css">
-  <link rel="stylesheet" href=".pagedJS/css/global/style2.css">
+  <link rel="stylesheet" href=".pagedJS/css/global/style.css">
 
   <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
   <script src="https://unpkg.com/css-tree@1.1.2/dist/csstree.min.js"></script>
