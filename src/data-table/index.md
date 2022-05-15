@@ -269,7 +269,8 @@ the result of our experiment depends on the test cases we choose.
 > or to improve the performance of CPUs [% b Patterson2017 %];
 > a few simple experiments like these can sometimes save weeks or months of effort.
 
-## Exercises {: #data-table-exercises .break-before}
+<div class="break-before"></div>
+## Exercises {: #data-table-exercises}
 
 ### Varying filter behavior {: .exercise}
 

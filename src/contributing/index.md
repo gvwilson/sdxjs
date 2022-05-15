@@ -4,7 +4,7 @@ template: page
 ---
 
 Contributions are very welcome:
-please go to [this project's GitHub repository][bst-repo]
+please go to [this project's GitHub repository][book-repo]
 to file an issue or submit a pull request.
 All contributors must abide by our [% i "Code of Conduct" %]Code of Conduct[% /i %].
 

@@ -14,7 +14,7 @@ subtitle = "A Tool-Based Introduction with JavaScript"
 out_dir = "docs"
 
 # GitHub repository.
-github = "https://github.com/software-tools-books/stjs/"
+repo = "https://github.com/software-tools-books/stjs/"
 
 # Site logo.
 logo = "files/codebender.svg"
@@ -77,7 +77,7 @@ footer = [
     ("@root/bibliography/", "Bibliography"),
     ("@root/glossary/", "Glossary"),
     ("@root/links/", "Links"),
-    (github, "GitHub"),
+    (repo, "GitHub"),
 ]
 
 # Debugging hook.

@@ -280,7 +280,8 @@ when a pair of files `test-add.js` and `test-sub.js` are loaded by our framework
 
 [% figure slug="unit-test-lifecycle" img="figures/lifecycle.svg" alt="Unit testing lifecycle" caption="Lifecycle of dynamically-discovered unit tests." %]
 
-## Exercises {: #unit-test-exercises .break-before}
+<div class="break-before"></div>
+## Exercises {: #unit-test-exercises}
 
 ### Asynchronous globbing {: .exercise}
 

@@ -239,7 +239,8 @@ it turns out that 9 of the 17 exclusions are redundant rediscovery of a previous
 |           |   2 |   2 |   2 |
 </div>
 
-## How can we do less work? {: #package-manager-optimize .break-before}
+<div class="break-before"></div>
+## How can we do less work? {: #package-manager-optimize}
 
 In order to make this more efficient we need to [% i "prune (a search tree)" %][% g prune %]prune[% /g %][% /i %] the search tree
 as we go along
@@ -295,7 +296,8 @@ but most give better performance in most cases.
 > and most ideas turn out to be dead ends,
 > but even small improvements in fundamental tools can have a profound impact.
 
-## Exercises {: #package-manager-exercises .break-before}
+<div class="break-before"></div>
+## Exercises {: #package-manager-exercises}
 
 ### Comparing semantic versions {: .exercise}
 

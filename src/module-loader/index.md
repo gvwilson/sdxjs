@@ -248,7 +248,8 @@ Our system can therefore only run loaded modules by `need`ing them:
 > but a lot of the difficulty is irreducible,
 > so don't feel bad if it takes you a while to wrap your head around it.
 
-## Exercises {: #module-loader-exercises .break-before}
+<div class="break-before"></div>
+## Exercises {: #module-loader-exercises}
 
 ### Counting with closures {: .exercise}
 

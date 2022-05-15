@@ -333,7 +333,8 @@ we can put them together however we want.
 > As [% b Brand1995 %] said of buildings,
 > the things we make learn how to do things better as we use them.
 
-## Exercises {: #pattern-matching-exercises .break-before}
+<div class="break-before"></div>
+## Exercises {: #pattern-matching-exercises}
 
 ### Split once {: .exercise}
 

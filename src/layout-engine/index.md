@@ -358,7 +358,8 @@ We will explore these possibilities in the exercises.
 > The moral is,
 > be careful what you ask.
 
-## Exercises {: #layout-engine-exercises .break-before}
+<div class="break-before"></div>
+## Exercises {: #layout-engine-exercises}
 
 ### Refactoring the node classes {: .exercise}
 

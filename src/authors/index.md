@@ -1,5 +1,5 @@
 ---
-title: "Authors"
+title: "Author"
 template: page
 ---
 

@@ -400,7 +400,8 @@ but four levels of asynchronous callbacks is hard for humans to understand.
 that make code like this easier to read.
 {: .continue}
 
-## Exercises {: #systems-programming-exercises .break-before}
+<div class="break-before"></div>
+## Exercises {: #systems-programming-exercises}
 
 ### Where is Node? {: .exercise}
 

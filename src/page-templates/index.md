@@ -47,7 +47,8 @@ Our program will execute the instructions in those nodes
 to do the equivalent of loops and if/else statements;
 other nodes will be copied as-is to create text.
 
-## What will our system look like? {: #page-templates-syntax .break-before}
+<div class="break-before"></div>
+## What will our system look like? {: #page-templates-syntax}
 
 Let's start by deciding what "done" looks like.
 Suppose we want to turn an array of strings into an HTML list.
@@ -452,7 +453,8 @@ But today's tools don't do that,
 and I suspect that any IDE smart enough to translate between comprehension levels automatically
 would also be smart enough to write the code without our help.
 
-## Exercises {: #page-templates-exercises .break-before}
+<div class="break-before"></div>
+## Exercises {: #page-templates-exercises}
 
 ### Tracing execution {: .exercise}
 
