@@ -75,9 +75,9 @@ def get_config(part):
     return mccole.get(part, None)
 
 
-def inclusion_filepath(inclusions, node, file):
+def inclusion_filepath(inclusions, node, filename):
     """Make path to included file."""
-    src, dst = make_copy_paths(node, file)
+    src, dst = make_copy_paths(node, filename)
     inclusions[src] = dst
     return src
 
@@ -94,8 +94,10 @@ def make_config(part, filler=None):
     return ivy.site.config.setdefault("mccole", {}).setdefault(part, filler)
 
 
-def make_copy_paths(node, filename):
+def make_copy_paths(node, filename, original=None, replacement=None):
     """Make source and destination paths for copying."""
+    if (original is not None) and filename.endswith(original):
+        filename = filename.replace(original, replacement)
     src = os.path.join(os.path.dirname(node.filepath), filename)
     dst = os.path.join(os.path.dirname(node.get_output_filepath()), filename)
     return src, dst

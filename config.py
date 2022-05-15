@@ -6,9 +6,10 @@ theme = "mccole"
 # Enable various Markdown extensions.
 markdown_settings = {"extensions": ["markdown.extensions.extra"]}
 
-# Site title.
+# Site title and author.
 title = "Software Design by Example"
 subtitle = "A Tool-Based Introduction with JavaScript"
+author = "Greg Wilson"
 
 # Output directory.
 out_dir = "docs"

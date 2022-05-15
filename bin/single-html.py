@@ -11,18 +11,18 @@ HEADER = """\
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <link rel="icon" type="image/x-icon" href="files/favicon.ico">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
 
   <!-- paged.js links -->
-  <link rel="stylesheet" href=".pagedJS/css/book.css">
-  <link rel="stylesheet" href=".pagedJS/css/global/style.css">
+  <link rel="stylesheet" href="pagedJS/css/book.css">
+  <link rel="stylesheet" href="pagedJS/css/global/style.css">
 
   <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
   <script src="https://unpkg.com/css-tree@1.1.2/dist/csstree.min.js"></script>
-  <script src=".pagedJS/js/imposition.js"></script>
-  <script src=".pagedJS/js/createToc.js"></script>
-  <script src=".pagedJS/js/reload-in-place.js"></script>
-  <script src=".pagedJS/js/bibref.js"></script>
+  <script src="pagedJS/js/imposition.js"></script>
+  <script src="pagedJS/js/createToc.js"></script>
+  <script src="pagedJS/js/reload-in-place.js"></script>
+  <script src="pagedJS/js/bibref.js"></script>
 
   <script>
     // Hook to generate the ToC

@@ -30,7 +30,8 @@ def bib_ref(pargs, kwargs, node):
     citations |= set(pargs)
 
     keys = [f'<a class="bibref" href="@root/bibliography/#{k}">{k}</a>' for k in pargs]
-    return f"[{', '.join(keys)}]"
+    keys = ", ".join(keys)
+    return f'<span class="citation">{keys}</span>'
 
 
 @shortcodes.register("bibliography")
@@ -60,7 +61,7 @@ def bibliography(pargs, kwargs, node):
     # Generate HTML.
     formatted = style.format_bibliography(bib)
     entries = [_format(entry.key, entry.text.render(html)) for entry in formatted]
-    return "\n\n".join(entries)
+    return '<div class="bibliography">\n' + "\n".join(entries) + "\n</div>\n"
 
 
 @ivy.events.register(ivy.events.Event.EXIT)

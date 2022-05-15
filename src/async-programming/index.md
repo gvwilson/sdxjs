@@ -131,7 +131,7 @@ To simplify things just a little bit,
 we will allow users to [% i "method chaining" %][% g method_chaining %]chain[% /g %][% /i %] as many `then`s as they want,
 but only allow one `catch`.
 
-### Fluent interfaces
+## How can we chain operations together? {: #async-programming-fluent}
 
 A [% i "fluent interface" "programming style!fluent interface" %][% g fluent_interface %]fluent interface[% /g %][% /i %]
 is a style of object-oriented programming

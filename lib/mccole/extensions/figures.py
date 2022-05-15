@@ -26,6 +26,7 @@ generates:
 -   `collect` extracts information about figures from source files.
 """
 
+import os
 import shutil
 from dataclasses import dataclass
 from textwrap import dedent
@@ -97,6 +98,10 @@ def copy_files():
     for fig in figures.values():
         src, dst = util.make_copy_paths(fig.node, fig.img)
         shutil.copy(src, dst)
+        if fig.img.endswith(".svg"):
+            src, dst = util.make_copy_paths(fig.node, fig.img, ".svg", ".pdf")
+            if os.path.exists(src):
+                shutil.copy(src, dst)
 
 
 @ivy.events.register(ivy.events.Event.INIT)

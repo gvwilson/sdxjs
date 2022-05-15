@@ -225,8 +225,8 @@ def convert(node, accum, doEscape):
         temp = ''.join(convert_children(node, [], doEscape))
         accum.append(r'\chapterlede{')
         accum.append(temp)
-
         accum.append('}')
+
     # h2 => section title
     elif node.name == 'h2':
         accum.append(r'\section{')

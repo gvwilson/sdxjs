@@ -91,15 +91,15 @@ def _as_markdown(lookup, lang, entry):
 
     body = util.MULTISPACE.sub(entry[lang]["def"], " ").rstrip()
 
-    if "ref" in entry[lang]:
+    if "ref" in entry:
         seealso = util.TRANSLATIONS[lang]["seealso"]
         try:
-            refs = [f"[{lookup[r]}](#{r})" for r in entry[lang]["ref"]]
+            refs = [f"[{lookup[r]}](#{r})" for r in entry["ref"]]
         except KeyError as exc:
             util.fail(f"Unknown glossary cross-ref key in {entry['key']}: {exc}")
-        body += f"<br/>{seealso}: {', '.join(refs)}."
+        body += f" {seealso} {', '.join(refs)}."
 
-    result = f"{first}\n:   {body}"
+    result = f"{first}: {body}\n"
     return result
 
 
