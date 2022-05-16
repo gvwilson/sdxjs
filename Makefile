@@ -12,24 +12,18 @@ commands:
 .PHONY: build
 build:
 	ivy build
-	echo '*.pdf' > docs/.gitignore
-	python bin/single-html.py docs/index.html > ./docs/all.html
 
 ## serve: build site and run server
 .PHONY: serve
 serve:
 	ivy watch
 
-## single-page: create single-page HTML
-.PHONY: single-page
-single-page:
-	python bin/single-html.py docs/index.html > ./docs/all.html
-
-
 ## latex: create LaTeX document.
 .PHONY: latex
 latex:
+	python bin/single-html.py docs/index.html > ./docs/all.html
 	python bin/tex.py --head data/head.tex --foot data/foot.tex < ./docs/all.html > docs/all.tex
+	echo '*.pdf' > docs/.gitignore
 	cp data/bibliography.bib docs/bibliography.bib
 
 ## pdf: create PDF document.

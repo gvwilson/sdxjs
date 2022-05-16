@@ -158,6 +158,11 @@ def handle(node, state, accum, doEscape):
     elif (node.name == "div") and has_class(node, "break-before"):
         children(node, state, accum, doEscape)
 
+
+    # <div class="pagebreak"> => force a LaTeX page break
+    elif (node.name == "div") and has_class(node, "pagebreak"):
+        accum.append("\n\\newpage\n")
+
     # <div class="table"> => pass through
     elif (node.name == "div") and has_class(node, "table"):
         children(node, state, accum, doEscape)
