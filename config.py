@@ -52,9 +52,9 @@ chapters = [
 ]
 appendices = [
     "license",
-    "bibliography",
     "conduct",
     "contributing",
+    "bibliography",
     "glossary",
     "links",
     "authors",

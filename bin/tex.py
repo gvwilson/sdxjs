@@ -140,9 +140,9 @@ def handle(node, state, accum, doEscape):
 
     # <blockquote> => callout (formatted as quotation)
     elif node.name == "blockquote":
-        accum.append("\\begin{quotation}\n")
+        accum.append("\\begin{callout}\n")
         children(node, state, accum, doEscape)
-        accum.append("\\end{quotation}\n")
+        accum.append("\\end{callout}\n")
 
     # <code> => inline typewriter text
     elif node.name == "code":
@@ -152,7 +152,7 @@ def handle(node, state, accum, doEscape):
 
     # <div class="bibliography"> => placeholder for bibliography
     elif (node.name == "div") and has_class(node, "bibliography"):
-        accum.append("\\printbibliography\n")
+        accum.append("\\printbibliography[heading=none]\n")
 
     # <div class="break-before"> => pass through
     elif (node.name == "div") and has_class(node, "break-before"):
@@ -192,18 +192,21 @@ def handle(node, state, accum, doEscape):
         title = "".join(children(node, state, [], doEscape))
         if ":" in title:
             title = title.split(":", 1)[1].strip()
-        accum.append(r"\section{")
-        accum.append(title)
         if node.has_attr("id"):
+            accum.append(r"\section{")
+            accum.append(title)
             accum.append(r"}\label{")
             accum.append(node["id"])
-        accum.append("}\n")
+            accum.append("}\n")
+        else:
+            accum.append(r"\section*{")
+            accum.append(title)
+            accum.append("}\n")
 
     # <h3> inside <blockquote> => callout title
     elif (node.name == "h3") and (node.parent.name == "blockquote"):
-        accum.append(r"\noindent")
         accum.append("\n")
-        accum.append(r"\textbf{")
+        accum.append(r"\subsubsection*{")
         children(node, state, accum, doEscape)
         accum.append("}\n")
 
@@ -247,7 +250,10 @@ def handle(node, state, accum, doEscape):
 
     # <section> => chapter (recurse only)
     elif node.name == "section":
-        children(node, state, accum, doEscape)
+        if node.h1["id"] == "contents":
+            accum.append("\\printindex\n")
+        else:
+            children(node, state, accum, doEscape)
 
     # <span class="citation"> => citations
     elif (node.name == "span") and has_class(node, "citation"):
@@ -286,10 +292,6 @@ def handle(node, state, accum, doEscape):
     # <th> => pass through
     elif node.name == "th":
         children(node, state, accum, doEscape)
-
-    # <ul class="indexlist"> => placeholder for index
-    elif (node.name == "ul") and has_class(node, "indexlist"):
-        accum.append("\\printindex\n")
 
     # <ul> => unordered list
     elif node.name == "ul":
@@ -345,7 +347,10 @@ def table(node, state, accum, doEscape):
 
     if label:
         caption = "".join(children(node.caption, state, [], True))
+        caption = caption.split(":")[1].strip()
         accum.append("\\begin{table}\n")
+    else:
+        accum.append("\n\\vspace{\\baselineskip}\n")
 
     accum.append(f"\\begin{{tabular}}{{{spec}}}\n")
     accum.append("\n".join(rows))
@@ -354,6 +359,8 @@ def table(node, state, accum, doEscape):
         accum.append(f"\\caption{{{caption}}}\n")
         accum.append(f"\\label{{{label}}}\n")
         accum.append("\\end{table}\n")
+    else:
+        accum.append("\n\\vspace{\\baselineskip}\n")
 
 
 def table_row(row, state, doEscape, tag):

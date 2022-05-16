@@ -37,6 +37,7 @@ latex:
 pdf:
 	cd docs && pdflatex all
 	cd docs && biber all
+	cd docs && makeindex all
 	cd docs && pdflatex all
 	cd docs && pdflatex all
 
