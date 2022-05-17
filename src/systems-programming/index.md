@@ -81,6 +81,8 @@ so `process.argv[2]` is the first argument after the name of our program ([% f s
 
 [% figure slug="systems-programming-process-argv" img="figures/process-argv.svg" alt="Command-line arguments in `process.argv`" caption="How Node stores command-line arguments in <code>process.argv</code>." %]
 
+<div class="pagebreak"></div>
+
 If we run this program with the name of a directory as its argument,
 `fs.readdir` returns the names of the things in that directory as an array of strings.
 The program uses `for (const name of results)` to loop over the contents of that array.

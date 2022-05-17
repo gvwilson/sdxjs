@@ -24,7 +24,7 @@ while all of the software is made available under the terms of
 the [Hippocratic License][hippocratic-license];
 see [% x license %] for details.
 
-*All proceeds from this project will go to support the [Red Door Family Shelter][red-door].*
+All proceeds from this project will go to support the [Red Door Family Shelter][red-door].
 
 ## Who is our audience? {: #introduction-audience}
 
@@ -83,7 +83,7 @@ we hope future volumes
 will explore those used in the applications that programmers build.
 
 [% x glossary %] defines the terms we introduce in these lessons,
-which in turn define the scope of our lessons:
+which in turn define their scope:
 
 -   How to process a program like any other piece of text.
 
@@ -96,6 +96,8 @@ which in turn define the scope of our lessons:
 -   How we can analyze programs' performance in order to make sensible design tradeoffs.
 
 -   How to find and run code modules on the fly.
+
+<div class="pagebreak"></div>
 
 ## How are these lessons laid out? {: #introduction-layout}
 
@@ -154,6 +156,8 @@ between them,
 the dozen textbooks he had purchased with the phrase "software architecture" in their titles
 devoted a total of less than 30 pages to describing the designs of actual systems.
 
+<div class="pagebreak"></div>
+
 Frustrated by that,
 he and [% i "Oram, Andy" %][Andy Oram][oram-andy][% /i %] persuaded some well-known programmers to contribute a chapter each
 to a collection called *Beautiful Code* [% b Oram2007 %],
@@ -201,13 +205,10 @@ for details.
 If you would like to improve what we have or add new material, please see the
 Code of Conduct in [% x conduct %] and the contributor guidelines in
 [% x contributing %].  If you have questions or would like to use this material in
-a course, please file an issue in
-this site's GitHub repository or send us email.
+a course, please file an issue in our GitHub repository or send us email.
 
-## Who helped us and inspired us? {: #introduction-help}
+## Who helped us? {: #introduction-help}
 
-This book is dedicated to [% i "Kernighan, Brian" %][Brian Kernighan][kernighan-brian][% /i %],
-who taught us all how to write about software.
 I am grateful to the creators of [Emacs][emacs],
 [ESLint][eslint],
 [Glosario][glosario],
@@ -218,7 +219,7 @@ I am grateful to the creators of [Emacs][emacs],
 [Standard JS][standard-js],
 [SVG Screenshot][svg-screenshot],
 [WAVE][webaim-wave],
-and all the other open source tools we used in creating these lessons:
+and all the other open source tools used in creating these lessons:
 if we all give a little,
 we all get a lot.
 I would also like to thank Darren McElligott and Evan Schultz
