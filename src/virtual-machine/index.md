@@ -31,7 +31,7 @@ for a program made up of 110 instructions:
     This rule is part of the [% i "Application Binary Interface" %][% g abi %]Application Binary Interface[% /g %][% /i %] (ABI)
     for our virtual machine.
 
-1.  Four [% i "register (in computer)" %][% g register %]registers[% /g %][% /i %] named R0 to R4 that instructions can access directly.
+1.  Four [% i "register (in computer)" %][% g register %]registers[% /g %][% /i %] named R0 to R3 that instructions can access directly.
     There are no memory-to-memory operations in our VM:
     everything  happens in or through registers.
 
