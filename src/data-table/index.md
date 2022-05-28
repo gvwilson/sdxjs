@@ -12,7 +12,7 @@ how can we tell which of several designs is going to be the most efficient?
 
 The best answer is to conduct some [% i "experiments" %]experiments[% /i %].
 To see how to do this,
-we will take a look several ways to implement data tables
+we will take a look at several ways to implement data tables
 with one or more named columns and zero or more rows.
 Each row has one value for each column,
 and all the values in a column have the same type

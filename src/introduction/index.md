@@ -69,9 +69,8 @@ Like these three personas, readers should be able to:
 -   Explain what a tree is and how to process one recursively.
     (This is the most complicated data structure and algorithm we *don't* explain.)
 
-This book can be read on its own or as a companion to *[Building Software Together][bst]*,
-which is a guide for students who are about to embark on their first large software project in a team.
-If you are looking for a project to do in a course,
+This book can be read on its own or used as a classroom resource.
+If you are looking for a project to do in a software design course,
 adding a tool to those covered here would be fun as well as educational.
 Please see [% x conclusion %] for more details.
 

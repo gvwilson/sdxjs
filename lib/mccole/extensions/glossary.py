@@ -49,7 +49,7 @@ def glossary(pargs, kwargs, node):
         return '<p class="warning">No language specified.</p>'
 
     with open(ivy.site.config["glossary"], "r") as reader:
-        glossary = yaml.safe_load(reader) or {}
+        glossary = yaml.safe_load(reader)
     lang = ivy.site.config["lang"]
 
     try:
