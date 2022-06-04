@@ -16,7 +16,7 @@ Su esencia es una forma de guardar archivos que:
 1.  almacena cualquier version particular de un archivo solo una vez,
     para no desperdiciar espacio en disco.
 
-En este capítulo, construirmores una herramienta para tareas.
+En este capítulo, construiremos una herramienta para tareas.
 No hará todo lo que Git hace:
 en particular, no nos permitirá crear y unir branches.
 --TODO: investigar cómo se denominan a las branches en la documentación original de Git
@@ -24,35 +24,35 @@ en particular, no nos permitirá crear y unir branches.
 Si desean saber cómo funciona aquello,
 porfavor vean [% i "Cook, Mary Rose" %][Mary Rose Cook's][cook-mary-rose][% /i %], un excelente [Gitlet][gitlet] proyecto.
 
-## How can we uniquely identify archivos? {: #archivo-backup-unique}
+## ¿Cómo podemos identificar unambiguamente archivos? {: #archivo-backup-unique}
 
-To avoid storing redundant copies of archivos,
-we need a way to tell when two archivos contain the same data.
-We can't rely on names because archivos can be renamed or moved over tiempo;
-we could compare the archivos byte by byte,
-but a quicker way is to use a [% i "hash function" %][% g hash_function %]hash function[% /g %][% /i %]
-that turns arbitrary data into a fixed-length string of bits
+Para evitar almacenar copias redundantes de archivos,
+necesitamos saber cuando dos archivos contienen los mismos datos.
+No podemos confiar en nombres porque los archivos pueden moverse o renombrarse con el tiempo;
+podríamos comparar los archivos byte por byte,
+pero una forma más rápida es  usar una [% i "hash_function" %][% g hash_function %]función hash[% /g %][% /i %]
+que convierte datos arbitrarios data en una cadena de bits de longitud fija. 
 ([% f archivo-backup-hash-function %]).
 
 [% figure slug="archivo-backup-hash-function" img="figures/hash-function.svg" alt="Hash functions" caption="How hash functions speed up lookup." %]
 
-A hash function always produces the same [% i "hash code" %][% g hash_code %]hash code[% /g %][% /i %] for a given input.
-A [% i "cryptographic hash function" "hash function!cryptographic" %][% g cryptographic_hash_function %]cryptographic hash function[% /g %][% /i %]
-has two extra properties:
+Una función hash  simpre  produce el mismo [% i "hash code" %][% g hash_code %] código hash[% /g %][% /i %] para una entrada dada.
+Una [% i "cryptographic hash function" "hash function!cryptographic" %][% g cryptographic_hash_function %] función hash criptográfica [% /g %][% /i %]
+tiene dos propiedades extra :
 
-1.  The output depends on the entire input:
-    changing even a single byte results en a different hash code.
+1.  La salida depende de la entrada entera:
+    cambiar un solo byte resulta en un código hash diferente.
 
-1.  The outputs look like random numbers:
-    they are unpredictable y evenly distributed
-    (i.e., the odds of getting any specific hash code are the same)
+1.  Las salidaslucen como números aleatorios:
+    son impredecibles y distribuidos uniformemente
+    (i.e., la posibilidades de lograr un  código  hash específico son las mismas)
 
-It's easy to write a bad hash function,
-but very hard to write one that qualifies as cryptographic.
-We will therefore use a library to calculate 160-bit [% i "hash code!SHA-1" "SHA-1 hash code" %][% g sha_1 %]SHA-1[% /g %][% /i %] hashes for our archivos.
-These are not random enough to keep data secret from a patient, well-funded attacker,
-but that's not what we're using them for:
-we just want hashes that are random to make [% i "hash function!collision" "collision (en hashing)" %][% g collision %]collision[% /g %][% /i %] extremely unlikely.
+Es fácil escribir una mala función hash,
+pero muy difícil escribir una que califica como criptográfica.
+Usaremos por lo tanto una librería para calcular para calcular hashes  [% i "hash code!SHA-1" "SHA-1 hash code" %][% g sha_1 %]SHA-1[% /g %][% /i %] de 160 bits para nuestros archivos.
+Estos no son lo suficientemente aleatorios como para mantener privados los datos  de un paciente respecto de un attacker con recursos,
+pero eso no es para lo que los estmamos usando:
+solo queremos hashes que sean aleatorios para que [% i "hash function!collision" "collision (en hashing)" %][% g collision %] la colisión[% /g %][% /i %] sea extremadamente improbable.
 
 > ### The Birthday Problem
 >
