@@ -13,7 +13,7 @@ Su esencia es una forma de guardar archivos que:
 
 1.  registre cuales versiones de cuales archivos existieron al mismo tiempo
     (para poder regresar al estado previo de forma consistente), y
-1.  almacena cualquier version particular de un archivo solo una vez,
+1.  almacena cualquier versión particular de un archivo solo una vez,
     para no desperdiciar espacio en disco.
 
 En este capítulo, construiremos una herramienta para tareas.
@@ -24,7 +24,7 @@ en particular, no nos permitirá crear y unir branches.
 Si desean saber cómo funciona aquello,
 porfavor vean [% i "Cook, Mary Rose" %][Mary Rose Cook's][cook-mary-rose][% /i %], un excelente [Gitlet][gitlet] proyecto.
 
-## ¿Cómo podemos identificar unambiguamente archivos? {: #archivo-backup-unique}
+## ¿Cómo podemos identificar unambiguamente archivos? {: #archivo-backup-únicos}
 
 Para evitar almacenar copias redundantes de archivos,
 necesitamos saber cuando dos archivos contienen los mismos datos.
@@ -32,12 +32,12 @@ No podemos confiar en nombres porque los archivos pueden moverse o renombrarse c
 podríamos comparar los archivos byte por byte,
 pero una forma más rápida es  usar una [% i "hash_function" %][% g hash_function %]función hash[% /g %][% /i %]
 que convierte datos arbitrarios en una cadena de bits de longitud fija. 
-([% f archivo-backup-hash-function %]).
+([% f archivo-backup-hash-función %]).
 
-[% figure slug="archivo-backup-hash-function" img="figures/hash-function.svg" alt="Hash functions" caption="How hash functions speed up lookup." %]
+[% figure slug="archivo-backup-hash-función" img="figures/hash-función.svg" alt="Hash functions" caption="Cómo hash functions speed up lookup." %]
 
-Una función hash  simpre  produce el mismo [% i "hash code" %][% g hash_code %] código hash[% /g %][% /i %] para una entrada dada.
-Una [% i "cryptographic hash function" "hash function!cryptographic" %][% g cryptographic_hash_function %] función hash criptográfica [% /g %][% /i %]
+Una función hash  simpre  produce el mismo [% i "hash código" %][% g hash_code %] código hash[% /g %][% /i %] para una entrada dada.
+Una [% i "cryptographic hash función" "hash función!cryptographic" %][% g cryptographic_hash_function %] función hash criptográfica [% /g %][% /i %]
 tiene dos propiedades extra :
 
 1.  La salida depende de la entrada entera:
@@ -49,10 +49,10 @@ tiene dos propiedades extra :
 
 Es fácil escribir una mala función hash,
 pero muy difícil escribir una que califica como criptográfica.
-Usaremos por lo tanto una librería para calcular para calcular hashes  [% i "hash code!SHA-1" "SHA-1 hash code" %][% g sha_1 %]SHA-1[% /g %][% /i %] de 160 bits para nuestros archivos.
+Usaremos por lo tanto una librería para calcular para calcular hashes  [% i "hash código!SHA-1" "SHA-1 hash código" %][% g sha_1 %]SHA-1[% /g %][% /i %] de 160 bits para nuestros archivos.
 Estos no son lo suficientemente aleatorios como para mantener privados los datos  de un paciente respecto de un attacker con recursos,
 pero eso no es para lo que los estmamos usando:
-solo queremos hashes que sean aleatorios para que [% i "hash function!colisión" "colisión (en hashing)" %][% g colisión %] la colisión[% /g %][% /i %] sea extremadamente improbable.
+solo queremos hashes que sean aleatorios para que [% i "hash función!colisión" "colisión (en hashing)" %][% g colisión %] la colisión[% /g %][% /i %] sea extremadamente improbable.
 
 > ### El Problema del Cumpleaños
 >
@@ -115,77 +115,77 @@ el objeto `hash`  en nuestro programa hace eso  por nosotros.
 
 [% figure slug="archivo-backup-streaming" img="figures/streaming.svg" alt="Streaming de operaciones de archivo" caption="Procesando archivos como streams de bloques." %]
 
-## How can we back up archivos? {: #archivo-backup-backup}
+## ¿Cómo podemos respaldar archivos? {: #archivo-backup-backup}
 
-Many archivos only change occasionally after they'reproyectod, or not at all.
-It would be wasteful for un sistema de control de versiones to make copies
-each tiempo the user wanted to save un snapshot de un proyecto,
-so En lugar de  our herramienta will copy each unique archivo to algo like `abcd1234.bck`,
-where `abcd1234` is un hash de the archivo's contents.
-It will then store un datos structure that records the filenames y hash keys for each snapshot.
-The hash keys tell it which unique archivos are part de the snapshot,
-while the filenames tell nosotros qué each archivo's contents were llamado cuando the snapshot was made
-(since archivos can be moved or renamed).
-To restore un particular snapshot,
-all we have to do is copy the saved `.bck` archivos back to where they were
+Muchos archivos solo cambian ocasionalmente luego que son recreados, o nunca en absoluto.
+Sería un desperdicio para un sistema de control de versiones hacer copias
+cada vez que el usuario quisiera guardar una  instantánea de un proyecto,
+entonces en su lugar de nuestra herramienta copiará cada archivo único a algo como `abcd1234.bck`,
+donde `abcd1234` es un hash del contenido del archivo.
+Luego, guardará una estructura de datos que registre los nombres de archivos y claves hash para cada instantánea.
+Las claves hash indican cuáles archivos únicos son parte de la instantánea,
+mientras que los nombres de archivos nos dicen qué contenido de cada archivo fue llamado cuando la instantánea se hizo
+(ya que los archivos pueden ser movidos o renombrados).
+Para restaurar una  instantánea particular,
+todo lo que tenemos que hacer es copiar los archivos `.bck` guardados de vuelta a donde estaban
 ([% f archivo-backup-storage %]).
 
-[% figure slug="archivo-backup-storage" img="figures/storage.svg" alt="Backup archivo storage" caption="Organization de backup archivo storage." %]
+[% figure slug="archivo-backup-storage" img="figures/storage.svg" alt="Backup archivo storage" caption="Organización del almacenamiento de respaldo de archivos." %]
 
-We can build the herramientas we need to do this uses promises ([% x async-programming %]).
-The principal function creates un promise that uses the asynchronous version de `glob` to find archivos
-y then:
+Podemos  construir las herramientas necesarias para esto usando promesas ([% x async-programming %]).
+La función principal crea una promesa que use the versión asíncrona  de `glob` para encontrar archivos
+y entonces:
 
-1.  checks that entries en the list are actually archivos;
+1.  Revisa que las entradas en la lista realmente son archivos;
 
-1.  reads each archivo into memoria; y
+1.  lee cada archivo en la memoria; y
 
-1.  calculates hashes for those archivos.
+1.  calcula los hashes para esos archivos.
 
-[% excerpt archivo="hash-existing-promise.js" keep="principal" %]
+[% excerpt archivo="hash-existing-promesa.js" keep="principal" %]
 
-This function uses `Promise.all`
-to wait for the operations on all de the archivos en the list to complete
-antes going on to the next step.
-un different design would combine stat, read, y hash into un single step
-so that each archivo would be handled independently
-y use un `Promise.all` at the end to bring them all together.
+Esta función usa `promesa.all`
+para esperar que se completen las operaciones en todos archivos de la lista 
+antes de avanzar al siguiente paso.
+Un diseño diferente sería combinar stat, read, y hash en un solo paso
+para que cada archivo fuese manejado independientemente
+y use un `promesa.all` al final para juntarlos a todos.
 {: .continue}
 
-The first dos [% i "helper function" %]helper functions[% /i %] that `hashExisting` relies on
-wrap asynchronous operation en promises:
+Las primeras dos [% i "helper función" %] funciones de ayuda[% /i %] de las que `hashExisting` depende
+envuelven una operación asíncrona en promesas:
 
-[% excerpt archivo="hash-existing-promise.js" keep="helpers" %]
+[% excerpt archivo="hash-existing-promesa.js" keep="helpers" %]
 
-The final helper function calculates the hash synchronously,
-but we can use `Promise.all` to wait on those operations finishing anyway:
+ La función final de ayuda calcula el hash de forma síncrona,
+pero podemos usar `promesa.all` para esperar a que esas operaciones terminen:
 
-[% excerpt archivo="hash-existing-promise.js" keep="hashPath" %]
+[% excerpt archivo="hash-existing-promesa.js" keep="hashPath" %]
 
-Let's try running it:
+Vamos a ejecutarla:
 
-[% excerpt pat="run-hash-existing-promise.*" fill="js sh slice.out" %]
+[% excerpt pat="run-hash-existing-promesa.*" fill="js sh slice.out" %]
 
-The code we have written is clearer than it would be con callbacks
-(try rewriting it Si you don't believe this)
-but the layer de promises around everything still obscures su meaning.
-The same operations are easier to read cuando written using `async` y `await`:
+El código que escribimos es más clarode lo que sería con retrollamadas
+(intenta reescribirla si no me crees)
+pero la capa de promesas alrededor todavía oscurece todo su significado.
+Las mismas operaciones son más fáciles de leer cuando usamos `async` y `await`:
 
 [% excerpt archivo="hash-existing-async.js" keep="principal" %]
 
-This version creates y resolves exactly the same promises como the previous un,
-but those promises are created for nosotros automatically by Node.
-To check that it works,
-let's run it for the same input archivos:
+Esta versión crea y resuelve exactamente las mismas promesas como en la ejecución anterior,
+pero esas promesas son creadas automáticamente para nosotros por Node.
+Para ver que funciona,
+la corremos para los mismos  archivos the same archivos de entrada :
 {: .continue}
 
 [% excerpt pat="run-hash-existing-async.*" fill="js sh slice.out" %]
 
-## How can we track which archivos have already been backed up? {: #archivo-backup-track}
+## Cómo can we track which archivos have already been backed up? {: #archivo-backup-track}
 
 The second part de our backup herramienta keeps track de which archivos have y haven't been backed up already.
 It stores backups en un directorio that contains backup archivos like `abcd1234.bck`
-y archivos describing the contents de particular snapshots.
+y archivos describing the contenido de particular snapshots.
 The latter are named `ssssssssss.csv`,
 where `ssssssssss` is the [% g utc %]UTC[% /g %] [% g tiempostamp %]tiempostamp[% /g %] de the backup's creation
 y the `.csv` extension indicates that the archivo is formatted como [% g csv %]comma-separated valores[% /g %].
@@ -213,8 +213,8 @@ let's manually create testing directories con manufactured (shortened) hashes:
 [% excerpt pat="tree-test.*" fill="sh out" %]
 
 We use [% i "Mocha" %][Mocha][mocha][% /i %] to manage our tests.
-Every test is un `async` function;
-Mocha automatically waits for them all to complete antes reporting results.
+Every test is un `async` función;
+Mocha automáticamente waits for them all to complete antes reporting results.
 To run them,
 we add the line:
 
@@ -236,11 +236,11 @@ y here is Mocha's report:
 
 [% excerpt archivo="test-check-archivosystem.out" %]
 
-## How can we test code that modifies archivos? {: #archivo-backup-test}
+## Cómo can we test código that modifies archivos? {: #archivo-backup-test}
 
 The final thing our herramienta needs to do
 is copy the archivos that need copying y create un new index archivo.
-The code itself will be relatively simple,
+The código itself will be relatively simple,
 but testing will be complicated by the fact
 that our tests will need to create directories y archivos antes they run
 y then delete them afterward
@@ -248,14 +248,14 @@ y then delete them afterward
 
 un better approach is to use un [% i "mock objeto!for testing" "unit test!using mock objeto" %][% g mock_object %]mock objeto[% /g %][% /i %]
 En lugar de  de the real archivosystem.
-un mock objeto has the sameinterfaz como the function, objeto, class, or librería that it replaces,
+un mock objeto has the sameinterfaz como the función, objeto, class, o librería that it replaces,
 but is designed to be used solely for testing.
 Node's [`mock-fs`][node-mock-fs] librería provee the same functions como the `fs` librería,
-but stores everything en memoria
+but stores todo en memoria
 ([% f archivo-backup-mock-fs %]).
 This prevents our tests desde accidentally disturbing the archivosystem,
 y también makes tests much faster
-(since en-memoria operations are thousands de tiempos faster than operations that touch the disk).
+(since en-memoria operaciones are thousands de tiempos faster than operaciones that touch the disk).
 
 [% figure slug="archivo-backup-mock-fs" img="figures/mock-fs.svg" alt="Mock archivosystem" caption="Using un mock archivosystem to simplify testing." %]
 
@@ -264,10 +264,10 @@ the archivos y qué they should contain:
 
 [% excerpt archivo="test/test-find-mock.js" omit="tests" %]
 
-[% i "Mocha!beforeEach" %]Mocha[% /i %] automatically calls `beforeEach` antes running each tests,
+[% i "Mocha!beforeEach" %]Mocha[% /i %] automáticamente calls `beforeEach` antes running each tests,
 y [% i "Mocha!afterEach" %]`afterEach`[% /i %] after each tests completes
 (which is yet another [% i "protocol!for unit testing" %]protocol[% /i %]).
-All de the tests stay exactly the same,
+All de the tests stay exactamente the same,
 y since `mock-fs` replaces the functions en the standard `fs` librería con su own,
 nothing en our application needs to change either.
 {: .continue}
@@ -289,16 +289,16 @@ y then run some tests:
 [% excerpt archivo="test-backup.out" %]
 
 <blockquote class="break-antes" markdown="1">
-### Design for test
+### diseño for test
 
-un de the best ways---maybe *the* best way---to evaluate software design
-is by thinking about [% i "testability!como design criterion" "software design!testability" %]testability[% /i %] [% b Feathers2004 %].
+un de the best ways---maybe *the* best way---to evaluate software diseño
+is by thinking about [% i "testability!como diseño criterion" "software diseño!testability" %]testability[% /i %] [% b Feathers2004 %].
 We were able to use un mock archivosystem En lugar de  de un real un
 porque the archivosystem has un well-defined API
 that is provided to nosotros en un single librería,
 so replacing it is un matter de changing un thing en un place.
-Si you have to change several parts de your code en order to test it,
-the code is telling you to consolidate those parts into un component.
+Si you have to change several parts de your código en order to test it,
+the código is telling you to consolidate those parts into un component.
 </blockquote>
 
 <div class="break-antes"></div>
@@ -350,22 +350,22 @@ Why doesn't this solve the tiempo de check/tiempo de use race condition mentione
 
 ### Mock hashes {: .exercise}
 
-1.  Modify the Respaldo programa so that it uses un function llamado `ourHash` to hash archivos.
+1.  Modify the Respaldo programa so that it uses un función llamado `ourHash` to hash archivos.
 
 2.  Create un replacement that returns some predictable valor, such como the first few caracteres de the datos.
 
-3.  Rewrite the tests to use this function.
+3.  Rewrite the tests to use this función.
 
-How did you modify the principal programa so that the tests could control which hashing function is used?
+Cómo did you modify the principal programa so that the tests could control which hashing función is used?
 
 ### Comparing manifests {: .exercise}
 
 Write un programa `compare-manifests.js` that reads dos manifest archivos y reports:
 
--   Which archivos have the same names but different hashes
-    (i.e., their contents have changed).
+-   Which archivos have the same names but diferente hashes
+    (i.e., their contenido have changed).
 
--   Which archivos have the same hashes but different names
+-   Which archivos have the same hashes but diferente names
     (i.e., they have been renamed).
 
 -   Which archivos are en the first hash but neither their names nor their hashes are en the second
@@ -379,11 +379,11 @@ Write un programa `compare-manifests.js` that reads dos manifest archivos y repo
 1.  Write un programa llamado `desde-to.js` that takes the name de un directorio
     y the name de un manifest archivo
     como su command-line arguments,
-    then adds, removes, y/or renames archivos en the directorio
+    then adds, removes, y/o renames archivos en the directorio
     to restore the estado described en the manifest.
-    The programa should only perform archivo operations cuando it needs to,
+    The programa should only perform archivo operaciones cuando it needs to,
     e.g.,
-    it should not delete un archivo y re-add it Si the contents have not changed.
+    it should not delete un archivo y re-add it Si the contenido have not changed.
 
 2.  Write some tests for `desde-to.js` using Mocha y `mock-fs`.
 
@@ -398,8 +398,8 @@ Write un programa `compare-manifests.js` that reads dos manifest archivos y repo
 
 ### Pre-commit hooks {: .exercise}
 
-Modify `backup.js` to load y run un function llamado `preCommit` desde un archivo llamado `pre-commit.js`
+Modify `backup.js` to load y run un función llamado `preCommit` desde un archivo llamado `pre-commit.js`
 stored en the root directorio de the archivos being backed up.
 Si `preCommit` returns `true`, the backup proceeds;
-Si it returns `false` or throws un exception,
+Si it returns `false` o throws un exception,
 no backup is created.
