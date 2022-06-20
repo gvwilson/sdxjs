@@ -57,7 +57,6 @@ appendices = [
     "bibliography",
     "glossary",
     "links",
-    "authors",
     "contents",
 ]
 

@@ -20,7 +20,7 @@ serve:
 ## latex: create LaTeX document.
 .PHONY: latex
 latex:
-	python bin/single-html.py ${SITE}/index.html > ${SITE}/all.html
+	python bin/single.py ${SITE}/index.html > ${SITE}/all.html
 	python bin/tex.py --head data/head.tex --foot data/foot.tex < ${SITE}/all.html > ${SITE}/${STEM}.tex
 	cp data/bibliography.bib ${SITE}/bibliography.bib
 

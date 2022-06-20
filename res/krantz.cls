@@ -299,20 +299,35 @@
 %%%%%  \hoffset-5pt
 %%%%  \voffset45pt
 %%%%\let\normaltextheight\textheight
-\textheight = 45pc
-  %\advance\textheight by \topskip
-\addtolength\textheight{3pt}
-  \textwidth 28pc
-\addtolength\textwidth{.5pt}
+
+  \textheight = 51pc
+%  \advance\textheight by \topskip
+  \textwidth 33pc
   \topmargin0in
-  \oddsidemargin1.1875in
-  \evensidemargin1.1875in
-  \htrim.7365in
-  \vtrimtop1.068in
-  \vtrimbot1.068in
-  \hoffset-15pt
-  \voffset39pt
+  \oddsidemargin.5in
+  \evensidemargin.5in
+  \htrim.75in
+  \vtrimtop.8607in
+  \vtrimbot1.027in
+  \hoffset-.1in
+  \voffset-.15in%.04in
 \let\normaltextheight\textheight
+
+
+%%\textheight = 45pc
+%%  %\advance\textheight by \topskip
+%%\addtolength\textheight{3pt}
+%%  \textwidth 28pc
+%%\addtolength\textwidth{.5pt}
+%%  \topmargin0in
+%%  \oddsidemargin1.1875in
+%%  \evensidemargin1.1875in
+%%  \htrim.7365in
+%%  \vtrimtop1.068in
+%%  \vtrimbot1.068in
+%%  \hoffset-15pt
+%%  \voffset39pt
+%%\let\normaltextheight\textheight
 
   \fi
 \fi
@@ -374,8 +389,8 @@
 \if@twoside
 \def\ps@headings{%
       \let\@oddfoot\@empty\let\@evenfoot\@empty
-      \def\@evenhead{{\PageNumFont\thepage}\hfil\slshape{\RunningHeadFont\leftmark}}%
-      \def\@oddhead{{\RunningHeadFont\rightmark}\hfil{\PageNumFont\thepage}}%
+      \def\@evenhead{\top@cornermarks{\PageNumFont\thepage}\hfil\slshape{\RunningHeadFont\leftmark}}%
+      \def\@oddhead{\top@cornermarks{\RunningHeadFont\rightmark}\hfil{\PageNumFont\thepage}}%
       \let\@mkboth\markboth
     \def\chaptermark##1{%
       \markboth {{%
