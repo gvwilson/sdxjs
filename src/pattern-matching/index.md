@@ -190,7 +190,7 @@ We can then combine these objects to match complex patterns
 
 [% figure slug="pattern-matching-regex-objects" img="figures/regex-objects.svg" alt="Implementing regex with objects" caption="Using nested objects to match regular expressions." %]
 
-The first step in implementing this is is to write test cases,
+The first step in implementing this is to write test cases,
 which forces us to define the syntax we are going to support:
 
 [% excerpt file="regex-initial/regex-complete.js" %]
