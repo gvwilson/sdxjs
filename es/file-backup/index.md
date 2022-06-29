@@ -22,9 +22,9 @@ en particular, no nos permitirá crear y unir branches.
 --TODO: investigar cómo se denominan un las branches en la documentación original de Git
 
 Si desean saber cómo funciona aquello,
-porfavor vean [% i "Cook, Mary Rose" %][Mary Rose Cook's][cook-mary-rose][% /i %], un excelente [Gitlet][gitlet] proyecto.
+por favor vean [% i "Cook, Mary Rose" %][Mary Rose Cook's][cook-mary-rose][% /i %], un excelente [Gitlet][gitlet] proyecto.
 
-## ¿Cómo podemos identificar unambiguamente archivos? {: #archivo-respaldo-únicos}
+## ¿Cómo podemos identificar inequívocamente archivos? {: #archivo-respaldo-únicos}
 
 Para evitar almacenar copias redundantes de archivos,
 necesitamos saber cuando dos archivos contienen los mismos datos.
@@ -34,24 +34,24 @@ pero una forma más rápida es  usar una [% i "hash_function" %][% g hash_functi
 que convierte datos arbitrarios en una cadena de bits de longitud fija. 
 ([% f archivo-respaldo-hash-función %]).
 
-[% figure slug="archivo-respaldo-hash-función" img="figures/hash-función.svg" alt="Hash funciones" caption="Cómo hash funciones speed up lookup." %]
+[% figure slug="archivo-respaldo-hash-función" img="figures/hash-función.svg" alt="Hash funciones" caption="Cómo hash funciones acelera   la búsqueda." %]
 
-Una función hash  simpre  produce el mismo [% i "hash código" %][% g hash_code %] código hash[% /g %][% /i %] para una entrada dada.
+Una función hash  siempre  produce el mismo [% i "hash código" %][% g hash_code %] código hash[% /g %][% /i %] para una entrada dada.
 Una [% i "cryptographic hash función" "hash función!cryptographic" %][% g cryptographic_hash_function %] función hash criptográfica [% /g %][% /i %]
 tiene dos propiedades extra :
 
 1.  La salida depende de la entrada entera:
     cambiar un solo byte resulta en un código hash diferente.
 
-1.  Las salidaslucen como números aleatorios:
+1.  Las salidas lucen como números aleatorios:
     son impredecibles y distribuidos uniformemente
     (i.e., la posibilidades de lograr un  código  hash específico son las mismas)
 
 Es fácil escribir una mala función hash,
 pero muy difícil escribir una que califica como criptográfica.
 Usaremos por lo tanto una librería para calcular para calcular hashes  [% i "hash código!SHA-1" "SHA-1 hash código" %][% g sha_1 %]SHA-1[% /g %][% /i %] de 160 bits para nuestros archivos.
-Estos no son lo suficientemente aleatorios como para mantener privados los datos  de un paciente respecto de un attacker con recursos,
-pero eso no es para lo que los estmamos usando:
+Estos no son lo suficientemente aleatorios como para mantener privados los datos  de un paciente respecto de un atacante con recursos,
+pero eso no es para lo que los estamos usando:
 solo queremos hashes que sean aleatorios para que [% i "hash función!colisión" "colisión (en hashing)" %][% g colisión %] la colisión[% /g %][% /i %] sea extremadamente improbable.
 
 > ### El Problema del Cumpleaños
@@ -59,7 +59,7 @@ solo queremos hashes que sean aleatorios para que [% i "hash función!colisión"
 > Las probabilidades de que dos personas compartan cumpleaños son 1/365 (ignorando el 29 de Febrero).
 > Las probabilidades de que *no lo compartan* son por lo tanto 364/365.
 > Cuando agregamos una tercer persona,
-> Las probabilidades de que no compartar cumpleaños con cualquiera de las oitras dos personas son 363/365,
+> Las probabilidades de que no compartan cumpleaños con cualquiera de las otras dos personas son 363/365,
 > así que las probabilidades totales de que nadie comparta un cumpleaños son (365/365)×(364/365)×(363/365).
 > Si seguimos calculando, hay un chance de 50%  que dos personas compartan cumpleaños en un grupo de solo 23 personas,
 > y un chance de 99.9%  en 70 personas.
@@ -69,17 +69,17 @@ solo queremos hashes que sean aleatorios para que [% i "hash función!colisión"
 > y tras revisar [Wikipedia][wikipedia-cumpleaños-Problema]
 > y hacer algunos cálculos con [% i "Wolfram Alpha" %][Wolfram Alpha][wolfram-alpha][% /i %],
 > calculamos que necesitaríamos tener aproximadamente \\(10^{24}\\) archivos
-> para tener have un chance de un colisión del 50% .
+> para tener   un chance de un colisión del 50% .
 > Estamos dispuestos a tomar ese riesgo…
 
 El módulo [`crypto`][node-crypto] de [Node][nodejs]  provee herramientas para crear un hash SHA-1 .
 Para usarlo,
-creamos un objeto que lleva la cuenta de estado actual  de los  the cálculos de hashing,
+creamos un objeto que lleva la cuenta de estado actual  de los    cálculos de hashing,
 le decimos como queremos codificar (o representar) el valor hash ,
 y entonces le pasamos algunos bytes.
 Cuando terminamos,
 llamamos su método `.end` 
-y entonces usamos su método `.read` para obtenerel resultado final:
+y entonces usamos su método `.read` para obtener el resultado final:
 
 [% excerpt pat="hash-text.*" fill="js sh out" %]
 
@@ -93,7 +93,7 @@ es más eficiente procesar el archivo como un [% g stream %]stream[% /g %]:
 
 [% excerpt pat="hash-stream.*" fill="js sh out" %]
 
-Este tipo deinterfaz se llama
+Este tipo de interfaz se llama
 una API [% i "Transmisión API" "execution!Transmisión" %][% g streaming_api %] de Transmisión[% /g %][% /i %] [% g api %]API[% /g %]
 porque está diseñada para procesar un stream de datos un bloque a la vez
 en lugar de requerir todos los datos en memoria de una.
@@ -133,7 +133,7 @@ todo lo que tenemos que hacer es copiar los archivos `.bck` guardados de vuelta 
 [% figure slug="archivo-respaldo-storage" img="figures/storage.svg" alt="respaldo archivo storage" caption="Organización del almacenamiento de respaldo de archivos." %]
 
 Podemos  construir las herramientas necesarias para esto usando promesas ([% x async-programming %]).
-La función principal crea una promesa que use the versión asíncrona  de `glob` para encontrar archivos
+La función principal crea una promesa que use la versión asíncrona  de `glob` para encontrar archivos
 y entonces:
 
 1.  Revisa que las entradas en la lista realmente son archivos;
@@ -166,7 +166,7 @@ Vamos a ejecutarla:
 
 [% excerpt pat="run-hash-existing-promesa.*" fill="js sh slice.out" %]
 
-El código que escribimos es más clarode lo que sería con retrollamadas
+El código que escribimos es más claro de lo que sería con retro-llamadas
 (intenta reescribirla si no me crees)
 pero la capa de promesas alrededor todavía oscurece todo su significado.
 Las mismas operaciones son más fáciles de leer cuando usamos `async` y `await`:
@@ -176,7 +176,7 @@ Las mismas operaciones son más fáciles de leer cuando usamos `async` y `await`
 Esta versión crea y resuelve exactamente las mismas promesas como en la ejecución anterior,
 pero esas promesas son creadas automáticamente para nosotros por Node.
 Para ver que funciona,
-la corremos para los mismos  archivos the same archivos de entrada :
+la corremos para los mismos archivos de entrada :
 {: .continue}
 
 [% excerpt pat="run-hash-existing-async.*" fill="js sh slice.out" %]
@@ -188,7 +188,7 @@ Almacena los respaldos en un directorio que contiene archivos respaldo como `abc
 y archivos describiendo el contenido de instantáneas particulares.
 Estas últimas se llaman `ssssssssss.csv`,
 donde  `ssssssssss` es la [% g utc %]UTC[% /g %] [% g tiempostamp %]marca temporal[% /g %]  de creación del respaldo
-y la  extension `.csv` indica que el archivo está formateado como [% g csv %]valores separados por comas [% /g %].
+y la  extensión `.csv` indica que el archivo está formateado como [% g csv %]valores separados por comas [% /g %].
 (Podríamos guardar estos archivos como [% g json %]JSON[% /g %], pero CSV es más fácil de leer para las personas).
 
 > ### hora de revisión/hora de uso
@@ -200,7 +200,7 @@ y la  extension `.csv` indica que el archivo está formateado como [% g csv %]va
 > Podríamos tratar de evitar este problema usando un esquema de nomenclatura bi-partita `ssssssss-un.csv`,
 > `ssssssss-b.csv`, y así,
 > pero esto lleva a una [% i "condición de carrera" %][% g race_condition %]condición de carrera[% /g %][% /i %]
-> llamada [% i "condición de carrera!tiempo de check/tiempo de use" "tiempo de check/tiempo de use" %][% g toctou %] hora de revisión/hora de uso[% /g %][% /i %].
+> llamada [% i "condición de carrera!tiempo de revisar/tiempo de use" "tiempo de revisar/tiempo de use" %][% g toctou %] hora de revisión/hora de uso[% /g %][% /i %].
 > Si dos usuarios ejecutan la herramienta de respaldo al mismo tiempo,
 > ambos verán que no hay un archivo (aún) con la marca temporal actual,
 > entonces ambos lo crearán la primera vez.
