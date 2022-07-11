@@ -5,8 +5,8 @@ lede: "Guardando archivos con estructura de directorio"
 ---
 
 Ahora que podemos probar software, tenemos algo que guardar.
-Un [% i "sistema de control de versiones" %][% g version_control_system %]sistema de control de versiones[% /g %][% /i %]
-como [% i "Git" "sistema de control de versiones!Git" %][Git][git][% /i %]
+Un [% i "version control system" %][% g version_control_system %]sistema de control de versiones[% /g %][% /i %]
+como [% i "Git" "version control system!Git" %][Git][git][% /i %]
 lleva la cuenta de cambios a archivos
 para poder recuperar versiones anteriores si lo deseamos.
 Su esencia es una forma de guardar archivos que:
@@ -22,7 +22,7 @@ en particular, no nos permitirá crear y unir branches.
 --TODO: investigar cómo se denominan un las branches en la documentación original de Git
 
 Si desean saber cómo funciona aquello,
-por favor vean [% i "Cook, Mary Rose" %][Mary Rose Cook's][cook-mary-rose][% /i %], un excelente [Gitlet][gitlet] proyecto.
+por favor vean [% i "Cook, Mary Rose" %][Mary Rose Cook's][cook-mary-rose][% /i %], un excelente proyecto [Gitlet][gitlet].
 
 ## ¿Cómo podemos identificar inequívocamente archivos? {: #archivo-respaldo-únicos}
 
@@ -32,12 +32,12 @@ No podemos confiar en nombres porque los archivos pueden moverse o renombrarse c
 podríamos comparar los archivos byte por byte,
 pero una forma más rápida es  usar una [% i "hash_function" %][% g hash_function %]función hash[% /g %][% /i %]
 que convierte datos arbitrarios en una cadena de bits de longitud fija. 
-([% f archivo-respaldo-hash-función %]).
+([% f file-backup-hash-function %]).
 
-[% figure slug="archivo-respaldo-hash-función" img="figures/hash-función.svg" alt="Hash funciones" caption="Cómo hash funciones acelera   la búsqueda." %]
+[% figure slug="file-backup-hash-function" img="figures/hash-function.svg" alt="Hash functions" caption="Cómo hash funciones acelera la búsqueda." %]
 
-Una función hash  siempre  produce el mismo [% i "hash código" %][% g hash_code %] código hash[% /g %][% /i %] para una entrada dada.
-Una [% i "cryptographic hash función" "hash función!cryptographic" %][% g cryptographic_hash_function %] función hash criptográfica [% /g %][% /i %]
+Una función hash  siempre  produce el mismo [% i "hash code" %][% g hash_code %] código hash[% /g %][% /i %] para una entrada dada.
+Una [% i "cryptographic hash function" "hash function!cryptographic" %][% g cryptographic_hash_function %] función hash criptográfica [% /g %][% /i %]
 tiene dos propiedades extra :
 
 1.  La salida depende de la entrada entera:
@@ -49,10 +49,10 @@ tiene dos propiedades extra :
 
 Es fácil escribir una mala función hash,
 pero muy difícil escribir una que califica como criptográfica.
-Usaremos por lo tanto una librería para calcular para calcular hashes  [% i "hash código!SHA-1" "SHA-1 hash código" %][% g sha_1 %]SHA-1[% /g %][% /i %] de 160 bits para nuestros archivos.
+Usaremos por lo tanto una librería para calcular para calcular hashes  [% i "hash code!SHA-1" "SHA-1 hash code" %][% g sha_1 %]SHA-1[% /g %][% /i %] de 160 bits para nuestros archivos.
 Estos no son lo suficientemente aleatorios como para mantener privados los datos  de un paciente respecto de un atacante con recursos,
 pero eso no es para lo que los estamos usando:
-solo queremos hashes que sean aleatorios para que [% i "hash función!colisión" "colisión (en hashing)" %][% g colisión %] la colisión[% /g %][% /i %] sea extremadamente improbable.
+solo queremos hashes que sean aleatorios para que [% i "hash function!collision" "collision (in hashing)" %][% g collision %] la colisión[% /g %][% /i %] sea extremadamente improbable.
 
 > ### El Problema del Cumpleaños
 >
@@ -66,13 +66,13 @@ solo queremos hashes que sean aleatorios para que [% i "hash función!colisión"
 >
 > Podemos usar el mismo cómputo para calcular cuantos archivos necesitamos hashear antes que haya una probabilidad del 50% de una colisión.
 > En lugar de  365 usamos \\(2^{160}\\) (el número de valores con longitud de 160 bits),
-> y tras revisar [Wikipedia][wikipedia-cumpleaños-Problema]
+> y tras revisar [Wikipedia][wikipedia-birthday-problem]
 > y hacer algunos cálculos con [% i "Wolfram Alpha" %][Wolfram Alpha][wolfram-alpha][% /i %],
 > calculamos que necesitaríamos tener aproximadamente \\(10^{24}\\) archivos
 > para tener   un chance de un colisión del 50% .
 > Estamos dispuestos a tomar ese riesgo…
 
-El módulo [`crypto`][node-crypto] de [Node][nodejs]  provee herramientas para crear un hash SHA-1 .
+El módulo [`crypto`][node-crypto] de [Node][nodejs]  provee herramientas para crear un hash SHA-1.
 Para usarlo,
 creamos un objeto que lleva la cuenta de estado actual  de los    cálculos de hashing,
 le decimos como queremos codificar (o representar) el valor hash ,
@@ -94,7 +94,7 @@ es más eficiente procesar el archivo como un [% g stream %]stream[% /g %]:
 [% excerpt pat="hash-stream.*" fill="js sh out" %]
 
 Este tipo de interfaz se llama
-una API [% i "Transmisión API" "execution!Transmisión" %][% g streaming_api %] de Transmisión[% /g %][% /i %] [% g api %]API[% /g %]
+API [% i "streaming API" "execution!streaming" %][% g streaming_api %] de Transmisión[% /g %][% /i %] [% g api %]API[% /g %]
 porque está diseñada para procesar un stream de datos un bloque a la vez
 en lugar de requerir todos los datos en memoria de una.
 Muchas aplicaciones usan streams
@@ -106,14 +106,14 @@ este programa pide a la librería `fs`  crear un  stream de lectura para un arch
 y  [% g pipe %]entubar[% /g %] los datos desde ese stream al objeto hashing 
 ([% f archivo-respaldo-Transmisión %]).
 Luego, dice al  objeto hashing qué hacer cuando no hay más datos
-proveyendo un [% i "event handler!Transmisión API" "Transmisión API!event handler" %][% g handler %]detector[% /g %][% /i %] para el evento "finish" .
+proveyendo un [% i "event handler!streaming API" "streaming API!event handler" %][% g handler %]detector[% /g %][% /i %] para el evento "finish" .
 Esto es llamado de forma asíncrona:
 como la salida muestra,
 el programa principal termina antes que la tarea que maneja los datos sea agendada y ejecutada.
 La mayoría de programas también proveen un detector para que eventos de "datos"  hagan algo con cada bloque de datos que va llegando;
 el objeto `hash`  en nuestro programa hace eso  por nosotros.
 
-[% figure slug="archivo-respaldo-Transmisión" img="figures/Transmisión.svg" alt="Transmisión de operaciones de archivo" caption="Procesando archivos como streams de bloques." %]
+[% figure slug="file-backup-streaming" img="figures/streaming.svg" alt="Transmisión de operaciones de archivo" caption="Procesando archivos como streams de bloques." %]
 
 ## ¿Cómo podemos respaldar archivos? {: #archivo-respaldo-respaldo}
 
@@ -128,9 +128,9 @@ mientras que los nombres de archivos nos dicen qué contenido de cada archivo fu
 (ya que los archivos pueden ser movidos o renombrados).
 Para restaurar una  instantánea particular,
 todo lo que tenemos que hacer es copiar los archivos `.bck` guardados de vuelta a donde estaban
-([% f archivo-respaldo-storage %]).
+([% f file-backup-storage %]).
 
-[% figure slug="archivo-respaldo-storage" img="figures/storage.svg" alt="respaldo archivo storage" caption="Organización del almacenamiento de respaldo de archivos." %]
+[% figure slug="file-backup-storage" img="figures/storage.svg" alt="Backup file  storage" caption="Organización del almacenamiento de archivos de respaldo." %]
 
 Podemos  construir las herramientas necesarias para esto usando promesas ([% x async-programming %]).
 La función principal crea una promesa que use la versión asíncrona  de `glob` para encontrar archivos
@@ -142,7 +142,7 @@ y entonces:
 
 1.  calcula los hashes para esos archivos.
 
-[% excerpt archivo="hash-existing-promesa.js" keep="principal" %]
+[% excerpt archivo="hash-existing-promise.js" keep="main" %]
 
 Esta función usa `promesa.all`
 para esperar que se completen las operaciones en todos archivos de la lista 
@@ -152,26 +152,26 @@ para que cada archivo fuese manejado independientemente
 y use un `promesa.all` al final para juntarlos a todos.
 {: .continue}
 
-Las primeras dos [% i "helper función" %] funciones de ayuda[% /i %] de las que `hashExisting` depende
+Las primeras dos [% i "helper function" %] funciones de ayuda[% /i %] de las que `hashExisting` depende
 envuelven una operación asíncrona en promesas:
 
-[% excerpt archivo="hash-existing-promesa.js" keep="helpers" %]
+[% excerpt archivo="hash-existing-promise.js" keep="helpers" %]
 
  La función final de ayuda calcula el hash de forma síncrona,
 pero podemos usar `promesa.all` para esperar a que esas operaciones terminen:
 
-[% excerpt archivo="hash-existing-promesa.js" keep="hashPath" %]
+[% excerpt archivo="hash-existing-promise.js" keep="hashPath" %]
 
 Vamos a ejecutarla:
 
-[% excerpt pat="run-hash-existing-promesa.*" fill="js sh slice.out" %]
+[% excerpt pat="run-hash-existing-promise.*" fill="js sh slice.out" %]
 
 El código que escribimos es más claro de lo que sería con retro-llamadas
 (intenta reescribirla si no me crees)
 pero la capa de promesas alrededor todavía oscurece todo su significado.
 Las mismas operaciones son más fáciles de leer cuando usamos `async` y `await`:
 
-[% excerpt archivo="hash-existing-async.js" keep="principal" %]
+[% excerpt archivo="hash-existing-async.js" keep="main" %]
 
 Esta versión crea y resuelve exactamente las mismas promesas como en la ejecución anterior,
 pero esas promesas son creadas automáticamente para nosotros por Node.
@@ -187,7 +187,7 @@ La segunda parte de nuestro herramienta de respaldo lleva registro de cuales arc
 Almacena los respaldos en un directorio que contiene archivos respaldo como `abcd1234.bck`
 y archivos describiendo el contenido de instantáneas particulares.
 Estas últimas se llaman `ssssssssss.csv`,
-donde  `ssssssssss` es la [% g utc %]UTC[% /g %] [% g tiempostamp %]marca temporal[% /g %]  de creación del respaldo
+donde  `ssssssssss` es la [% g utc %]UTC[% /g %] [% g timestamp %]marca temporal[% /g %]  de creación del respaldo
 y la  extensión `.csv` indica que el archivo está formateado como [% g csv %]valores separados por comas [% /g %].
 (Podríamos guardar estos archivos como [% g json %]JSON[% /g %], pero CSV es más fácil de leer para las personas).
 
@@ -199,20 +199,20 @@ y la  extensión `.csv` indica que el archivo está formateado como [% g csv %]v
 >
 > Podríamos tratar de evitar este problema usando un esquema de nomenclatura bi-partita `ssssssss-un.csv`,
 > `ssssssss-b.csv`, y así,
-> pero esto lleva a una [% i "condición de carrera" %][% g race_condition %]condición de carrera[% /g %][% /i %]
-> llamada [% i "condición de carrera!tiempo de revisar/tiempo de use" "tiempo de revisar/tiempo de use" %][% g toctou %] hora de revisión/hora de uso[% /g %][% /i %].
+> pero esto lleva a una [% i "race condition" %][% g race_condition %]condición de carrera[% /g %][% /i %]
+> llamada [% i "race condition!time of check/time of use" "time of check/time of use" %][% g toctou %] hora de revisión/hora de uso[% /g %][% /i %].
 > Si dos usuarios ejecutan la herramienta de respaldo al mismo tiempo,
 > ambos verán que no hay un archivo (aún) con la marca temporal actual,
 > entonces ambos lo crearán la primera vez.
 
-[% excerpt archivo="check-existing-archivos.js" %]
+[% excerpt archivo="check-existing-files.js" %]
 
 Para probar nuestro programa
 creamos manualmente directorios de prueba con hashes (cortos) manufacturados  :
 
 [% excerpt pat="tree-test.*" fill="sh out" %]
 
-Usamos [% i "Mocha" %][Mocha][mocha][% /i %] para gestionar nuestros pruebas.
+Usamos [% i "Mocha" %][Mocha][mocha][% /i %] para gestionar nuestras pruebas.
 Cada test es una  función `async`;
 Mocha automáticamente espera que se completen todos antes de reportar resultados.
 Para correrlos,
@@ -220,7 +220,7 @@ agregamos la línea:
 
 ```js
 "test": "mocha */test/test-*.js"
-```proyecto
+```
 
 en la sección `scripts`  del archivo `package.json`  en nuestro proyecto
 así que cuando llamamos `npm run test`,
@@ -234,7 +234,7 @@ Aquí están algunas de nuestras pruebas:
 y este es el reporte de Mocha:
 {: .continue}
 
-[% excerpt archivo="test-check-sistema de archivos.out" %]
+[% excerpt archivo="test-check-filesystem.out" %]
 
 ## ¿Cómo podemos probar código que modifica archivos? {: #archivo-respaldo-test}
 
@@ -246,27 +246,27 @@ nuestras pruebas necesitarán crear directorios y archivos antes de correr
 y luego borrarlos
 (para que no contaminen pruebas posteriores).
 
-un mejor plan es usar un [% i "objeto simulado!for testing" "unit test!using objeto simulado" %][% g mock_object %]objeto simulado[% /g %][% /i %]
+un mejor plan es usar un [% i "mock object!for testing" "unit test!using mock object" %][% g mock_object %]objeto simulado[% /g %][% /i %]
 en lugar del sistema de archivos real .
 Un objeto simulado tiene la misma  interfaz que la función, objeto, clase, o librería que reemplaza,
 pero está diseñado solo para usarse durante pruebas.
 La librería de Node [`mock-fs`][node-mock-fs]  provee las mismas funciones como la librería `fs`,
 pero almacena todo en memoria
-([% f archivo-respaldo-mock-fs %]).
+([% f file-backup-mock-fs %]).
 Esto evita que nuestras pruebas accidentalmente alteren the sistema de archivos,
 y también hace más rápidas las pruebas
 (porque las operaciones en-memoria son miles de veces más rápidas que las  operaciones en disco).
 
-[% figure slug="archivo-respaldo-mock-fs" img="figures/mock-fs.svg" alt="simulación del sistema de archivos" caption="Usando un simulado del sistema de archivos para simplificar las pruebas." %]
+[% figure slug="file-backup-mock-fs" img="figures/mock-fs.svg" alt="simulación del sistema de archivos" caption="Usando un simulado del sistema de archivos para simplificar las pruebas." %]
 
 Podemos crear un simulaod del sistema de archivos al dar a la librería una descripción en JSON  de
 los archivos y qué debieran contener:
 
-[% excerpt archivo="test/test-find-mock.js" omit="pruebas" %]
+[% excerpt file="test/test-find-mock.js" omit="tests" %]
 
 [% i "Mocha!beforeEach" %]Mocha[% /i %] automáticamente llama a `beforeEach` antes de correr cada prueba,
 y [% i "Mocha!afterEach" %]`afterEach`[% /i %] luego que cada prueba termina
-(el cual is otro [% i "protocol!for unit testing" %]protocolo[% /i %]).
+(el cual es otro [% i "protocol!for unit testing" %]protocolo[% /i %]).
 Todas las pruebas quedan exactamente igual,
 y ya que `mock-fs` reemplaza las funciones en la  librería standard `fs` con sus propias,
 nada en nuestra aplicación necesita cambiar.
@@ -274,7 +274,7 @@ nada en nuestra aplicación necesita cambiar.
 
 Finalmente, estamos listos para escribir el programa que efectivamente respalda archivos:
 
-[% excerpt archivo="backup.js" %]
+[% excerpt file="backup.js" %]
 
 Las pruebas para esto son más complicadas que las pruebas que hemos escrito antes
 porque queremoves revisar con los hashes reales del archivo.
@@ -288,11 +288,11 @@ y luego correr unas pruebas:
 [% excerpt archivo="test/test-backup.js" keep="pruebas" %]
 [% excerpt archivo="test-respaldo.out" %]
 
-<blockquote class="break-antes" markdown="1">
-### diseñar para probar
+<blockquote class="break-before" markdown="1">
+### Diseñar para probar
 
 Una de las mejores formas---quizá *la* mejor forma--- de evaluar un diseño de software 
-es pensar en la [% i "testabilidad!como criterio de diseño " "software diseño!testabilidad" %]testabilidad[% /i %] [% b Feathers2004 %].
+es pensar en la [% i "testability!as design criterion" "software design !testability" %]testabilidad[% /i %] [% b Feathers2004 %].
 Pudimos usar un simulado del sistema de archivos En lugar de  de uno real
 porque el sistema de archivos tiene una API bien definida
 que noes dada a nosotros en una sola librería,
@@ -301,8 +301,8 @@ Si tienes que cambiar varias partes de tu código para poder probar algo,
 el código está diciendote que necesitas consolidar esas partes en un componente.
 </blockquote>
 
-<div class="break-antes"></div>
-## Ejercicios {: #archivo-respaldo-exercises}
+<div class="break-before"></div>
+## Ejercicios {: #file-backup-exercises}
 
 ### Posibilidades de colisión {: .exercise}
 
@@ -360,7 +360,7 @@ en lugar de marcarlos con hora y fecha.
 
 ### Comparando manifiestos {: .exercise}
 
-Escribe un programa `compare-manifiestos.js` que lea dos  archivos de manifiesto  y reporte:
+Escribe un programa `compare-manifests.js` que lea dos  archivos de manifiesto  y reporte:
 
 -   cuales archivos tienen el mismo nombre pero diferentes hashes
     (i.e., su contenido ha cambiado).
@@ -385,11 +385,11 @@ Escribe un programa `compare-manifiestos.js` que lea dos  archivos de manifiesto
     e.g.,
     no debierar borrar un archivo y re-agregarlo si el contenido no cambió.
 
-2.  Escribir algunas pruebas para `desde-to.js` con  Mocha y `mock-fs`.
+2.  Escribir algunas pruebas para `from-to.js` con  Mocha y `mock-fs`.
 
 ### Historia de archivo {: .exercise}
 
-1.  Escribir un programa llamado `archivo-history.js`
+1.  Escribir un programa llamado `file-history.js`
     que use el nombre de un archivo desde la línea de comandos 
     y muestre su historia
     rastreando en el tiempo mediante los  manifiestos disponibles.
