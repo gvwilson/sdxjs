@@ -16,7 +16,7 @@ for more information about what we assume you already know.
     under the terms of the [Creative Commons - Attribution license](https://stjs.tech/license/#writing),
     while all of the software is made available under the terms of the [Hippocratic License](https://stjs.tech/license/#software).
 
--   All proceeds from sales will go to supported the [Red Door Family Shelter](https://www.reddoorshelter.ca/) in Toronto.
+-   All proceeds from sales will go to support the [Red Door Family Shelter](https://www.reddoorshelter.ca/) in Toronto.
 
 -   Please see [the contributors' guide](https://stjs.tech/contributing/)
     and our [Code of Conduct](https://stjs.tech/conduct/)
@@ -96,16 +96,15 @@ The title has been changed to better reflect its content and intention.
     and so on.
     If you are interested, please [get in touch](mailto:gvwilson@third-bit.com).
 
--   **Why are you using your own formatting tool?**
+-   **Why are you using your own formatting tools?**
     Believe me, I've tried the alternatives.
     Static site generators like Jekyll, Pelican, and Hugo don't support numbered cross-references,
-    so I've built several pre-processors to collect that information;
-    by the time that's done,
-    taking full control over the formatting pipeline actually reduces complexity.
-    Meanwhile, tools like Bookdown and Jupyter Book have complex tech stacks:
+    while tools like Bookdown and Jupyter Book have complex tech stacks:
     figuring out whether a problem is in the source document,
     a Pandoc template,
     a LaTeX template,
     or somewhere else entirely is very frustrating.
-    [McCole](https://gvwilson.github.io/mccole/) doesn't do nearly as much as those tools,
-    but its lack of features makes it easier to use.
+    [Ivy](http://www.dmulholl.com/docs/ivy/main/),
+    [BeautifulSoup](https://beautiful-soup-4.readthedocs.io/en/latest/),
+    and 700 lines of Python aren't ideal,
+    but they've proven to be less painful than the alternatives.

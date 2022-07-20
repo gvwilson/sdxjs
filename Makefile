@@ -1,6 +1,5 @@
 SITE=./docs
-LANGUAGE=en
-PORT=4000
+STEM=wilson-sdxjs
 
 .DEFAULT: commands
 
@@ -21,19 +20,18 @@ serve:
 ## latex: create LaTeX document.
 .PHONY: latex
 latex:
-	python bin/single-html.py docs/index.html > ./docs/all.html
-	python bin/tex.py --head data/head.tex --foot data/foot.tex < ./docs/all.html > docs/all.tex
-	echo '*.pdf' > docs/.gitignore
-	cp data/bibliography.bib docs/bibliography.bib
+	python bin/single.py ${SITE}/index.html > ${SITE}/all.html
+	python bin/tex.py --head data/head.tex --foot data/foot.tex < ${SITE}/all.html > ${SITE}/${STEM}.tex
+	cp data/bibliography.bib ${SITE}/bibliography.bib
 
 ## pdf: create PDF document.
 .PHONY: pdf
 pdf:
-	cd docs && pdflatex all
-	cd docs && biber all
-	cd docs && makeindex all
-	cd docs && pdflatex all
-	cd docs && pdflatex all
+	cd ${SITE} && pdflatex ${STEM}
+	cd ${SITE} && biber ${STEM}
+	cd ${SITE} && makeindex ${STEM}
+	cd ${SITE} && pdflatex ${STEM}
+	cd ${SITE} && pdflatex ${STEM}
 
 ## ----
 
