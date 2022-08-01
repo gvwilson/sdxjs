@@ -73,7 +73,7 @@ en el arreglo `HopeTest` .
 
 > ### Independence
 >
-> Ya que estamos agregando pruebas a un arrenglo,
+> Ya que estamos agregando pruebas a un arreglo,
 > serán ejecutados en el order que son registrados,
 > pero no debemos confiarnos.
 > Cada prueba unitaria debe trabajar independiente de otras
@@ -115,19 +115,19 @@ Este simple "framework" hace lo que se espera, pero:
     pero debemos asegurarnos que esas aserciones  fallen cuando deban hacerlo,
     igual que revisamos nuestros detectores de incendio de vez en cuando.
 
-## How should we structure test registration? {: #unit-test-registration}
+## ¿Cómo debemos estructurar el registro de pruebas? {: #unit-test-registration}
 
-The next version of our testing tool solves the first two problems in the original
-by putting the testing machinery in a class.
-It uses the [% i "Singleton pattern" "design pattern!Singleton" %][% g singleton_pattern %]Singleton[% /g %][% /i %] [% g design_pattern %]design pattern[% /g %]
-to ensure that only one object of that class is ever created [% b Osmani2017 %].
-Singletons are a way to manage global variables that belong together
-like the ones we're using to record tests y their results.
-As an extra benefit,
-if we decide later that we need several copies of those variables,
-we can just construct more instances of the class.
+La siguiente versión de nuestra herramienta de pruebas resuelve los primeros dos problemas en el original
+colocando la maquinaria de pruebas en una clase.
+Usa el [% g design_pattern %]patrón de diseño[% /g %] [% i "Singleton pattern" "design pattern!Singleton" %][% g singleton_pattern %]Singleton[% /g %][% /i %] 
+para asegurar que solo un objeto de esa clase sea creado a la vez[% b Osmani2017 %].
+Los Singletons son una foirma de gestionar variables globales que están relacionadas
+como las que usamos para registrar las pruebas y sus resultados.
+Como beneficio extra,
+si decidimos luego que necesitamos varias copias de esas variables,
+solo necesitamos crear más instancias de esa clase.
 
-The file `hope.js` defines the class y exports one instance of it:
+El archivo `hope.js` define la clase y exporta una instancia de ella:
 
 [% excerpt file="hope.js" keep="report" %]
 
@@ -284,7 +284,7 @@ when a pair of files `test-add.js` y `test-sub.js` are loaded by our framework:
 
 ### Asynchronous globbing {: .exercise}
 
-Modify `pray.js` to use the asynchronous version of `glob` rather than `glob.sync`.
+Modify `pray.js` to use the asynchronous versión of `glob` rather than `glob.sync`.
 
 ### Timing tests {: .exercise}
 
