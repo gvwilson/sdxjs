@@ -130,7 +130,7 @@ all we have to do is copy the saved `.bck` files back to where they were
 
 [% figure slug="file-backup-storage" img="figures/storage.svg" alt="Backup file storage" caption="Organization of backup file storage." %]
 
-We can build the tools we need to do this uses promises ([% x async-programming %]).
+We can build the tools we need to do this using promises ([% x async-programming %]).
 The main function creates a promise that uses the asynchronous version of `glob` to find files
 and then:
 

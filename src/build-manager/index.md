@@ -409,7 +409,7 @@ runs the build in the specified directory rather than the current directory.
 ### Merge files {: .exercise}
 
 Modify the build manager so that it can read multiple configuration files
-and execute their combines rules.
+and execute their combined rules.
 
 ### Show recipes {: .exercise}
 
