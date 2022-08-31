@@ -153,7 +153,7 @@ por si alguien quiere formatearlas en una manera diferente (e.g., como HTML) pue
 
 [% excerpt file="hope.js" keep="report" %]
 
-> ### Quién's está llamando?
+> ### ¿Quién está llamando?
 >
 > `Hope.test` usa el módulo [% i "caller module" %][`caller`][caller][% /i %] 
 >  para recibir el nombre de la función que está registrando una prueba.
@@ -205,7 +205,7 @@ pero antes o después (quizá antes) alguien olvidará importar uno de los archi
 
 Una mejor estrategia es cargar los archivos de prueba [% i "dynamic loading" %][% g dynamic_loading %]dinámicamente[% /g %][% /i %].
 Mientras que  `import` se escribe usualmente como una  declaración,
-también puede usarse como uñas función `async` 
+también puede usarse como una función `async` 
 que tome una ruta como parámetro y cargue el archivo correspondiente.
 Igual que antes,
 cargar archivos ejecuta el código que contienen
@@ -280,7 +280,7 @@ cuando un par de archivos `test-add.js` y `test-sub.js` son cargados por nuestro
 <div class="break-antes"></div>
 ## Ejercicios {: #unit-test-exercises}
 
-### Englobando Asíncrono  {: .exercise}
+### Englobado Asíncrono  {: .exercise}
 
 Modificar `pray.js` para usar la versión asíncrona de `glob` en lugar de `glob.sync`.
 
@@ -342,7 +342,7 @@ entonces el programa solo ejecuten pruebas en archivos con la cadena `patrón` e
 Modificar `hope.js`  para que usuarios puedan proveer opcionalmente un arreglo de cadenas para etiquetar tests:
 
 ```js
-hope.test('Difference of 1 y 2',
+hope.test('Difference of 1 and 2',
           () => assert((1 - 2) === -1),
           ['math', 'fast'])
 ```
@@ -361,6 +361,8 @@ escribimos una función alrededor de  `fs.readFileSync`:
 
 ```js
 const mockReadFileSync = (filename, encoding = 'utf-8') => {Tagging
+  return fs.readFileSync(filename, encoding)
+}
 ```
 
 y luego la modificamos para que arroje una excepción bajo nuestro control.
