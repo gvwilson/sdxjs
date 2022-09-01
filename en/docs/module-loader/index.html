@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<link rel="icon" type="image/x-icon" href="../files/favicon.ico">
+<link rel="stylesheet" href="../mccole.css">
+<link rel="stylesheet" href="../codehilite-tango.css">
+
+    <title>Software Design by Example: Module Loader</title>
+  </head>
+  <body class="page">
+    <div class="centered title">
+  
+  <h2><a href="../">Software Design by Example</a></h2>
+  <h1 id="module-loader">Chapter 13: Module Loader</h1>
+  
+  <p>
+    <img class="page-logo" src="../files/codebender.svg" alt="logo" />
+  </p>
+</div>
+
+    <main>
+<p><a class="crossref" href="../file-interpolator/">Chapter 12</a> showed how to use <code>eval</code> to load code dynamically.
+We can use this to build our own version of JavaScript's <code>require</code> function.
+Our function will take the name of a source file as an argument
+and return whatever that file exports.
+The key requirement for such a function is to avoid accidentally overwriting things:
+if we just <code>eval</code> some code and it happens to assign to a variable called <code>x</code>,
+anything called <code>x</code> already in our program might be overwritten.
+We therefore need a way to <span class="indexentry" index-key="encapsulation;software design!encapsulation" markdown="1"><a class="glossref" href="../glossary/#encapsulate" markdown="1">encapsulate</a></span> the contents of what we're loading.
+Our approach is based on <span class="citation"><a class="bibref" href="../bibliography/#Casciaro2020">Casciaro2020</a></span>,
+which contains a lot of other useful information as well.</p>
+<h2 id="module-loader-namespace">Section 13.1:  How can we implement namespaces?</h2>
+<p>A <span class="indexentry" index-key="namespace" markdown="1"><a class="glossref" href="../glossary/#namespace" markdown="1">namespace</a></span> is a collection of names in a program
+that are isolated from other namespaces.
+Most modern languages provide namespaces as a built-in feature
+so that programmers don't accidentally step on each other's toes.
+JavaScript doesn't,
+so we have to implement them ourselves.</p>
+<p>We can do this using <span class="indexentry" index-key="closure" markdown="1"><a class="glossref" href="../glossary/#closure" markdown="1">closures</a></span>.
+Every function is a namespace:
+variables defined inside the function are distinct from variables defined outside it
+(<a class="figref" href="../module-loader/#module-loader-closures">Figure 13.1</a>).
+If we create the variables we want to manage inside a function,
+then defined another function inside the first
+and return that <span class="indexentry" index-key="inner function;function!inner" markdown="1"><a class="glossref" href="../glossary/#inner_function" markdown="1">inner function</a></span>,
+that inner function will be the only thing with references to those variables.</p>
+<figure id="module-loader-closures">
+  <img src="./figures/closures.svg" alt="How closures work" />
+  <figcaption markdown="1">Figure 13.1: Using closures to create private variables.</figcaption>
+</figure>
+
+<p>For example,
+let's create a function that always appends the same string to its argument:</p>
+<pre><code class="language-js">const createAppender = (suffix) =&gt; {
+  const appender = (text) =&gt; {
+    return text + suffix
+  }
+  return appender
+}
+
+const exampleFunction = createAppender(' and that')
+console.log(exampleFunction('this'))
+console.log('suffix is', suffix)
+</code></pre>
+<p class="continue">When we run it,
+the value that was assigned to the parameter <code>suffix</code> still exists
+but can only be reached by the inner function:</p>
+<pre><code class="language-out">this and that
+/u/stjs/module-loader/manual-namespacing.js:10
+console.log('suffix is', suffix)
+                         ^
+
+ReferenceError: suffix is not defined
+    at /u/stjs/module-loader/manual-namespacing.js:10:26
+    at ModuleJob.run (internal/modules/esm/module_job.js:152:23)
+    at async Loader.import (internal/modules/esm/loader.js:166:24)
+    at async Object.loadESM (internal/process/esm_loader.js:68:5)
+</code></pre>
+<p>We could require every module to define a setup function like this for users to call,
+but thanks to <code>eval</code> we can wrap the file's contents in a function and call it automatically.
+To do this we will create something called
+an <span class="indexentry" index-key="immediately-invoked function expression" markdown="1"><a class="glossref" href="../glossary/#iife" markdown="1">immediately-invoked function expression</a></span> (IIFE).
+The syntax <code>() =&gt; {...}</code> defines a function.
+If we put the definition in parentheses and then put another pair of parentheses right after it:</p>
+<pre><code class="language-js">(() =&gt; {...})()
+</code></pre>
+<p class="continue">we have code that defines a function of no arguments and immediately calls it.
+We can use this trick to achieve the same effect as the previous example in one step:</p>
+<pre><code class="language-js">const contents = (() =&gt; {
+  const privateValue = 'private value' // eslint-disable-line
+  const publicValue = 'public value'
+  return { publicValue }
+})()
+
+console.log(`contents.publicValue is ${contents.publicValue}`)
+console.log(`contents.privateValue is ${contents.privateValue}`)
+</code></pre>
+<pre><code class="language-out">contents.publicValue is public value
+contents.privateValue is undefined
+</code></pre>
+<blockquote>
+<h3>Unconfusing the parser</h3>
+<p>The extra parentheses around the original definition force the parser to evaluate things in the right order;
+if we write:</p>
+<p><code>js
+() =&gt; {...}()</code></p>
+<p class="continue">then JavaScript interprets it as a function definition followed by an empty expression
+rather than an immediate call to the function just defined.</p>
+</blockquote>
+<h2 id="module-loader-load">Section 13.2:  How can we load a module?</h2>
+<p>We want the module we are loading to export names by assigning to <code>module.exports</code> just as <code>require</code> does,
+so we need to provide an object called <code>module</code> and create a IIFE.
+(We will handle the problem of the module loading other modules later.)
+Our <code>loadModule</code> function takes a filename and returns a newly-created module object;
+the parameter to the function we build and <code>eval</code> must be called <code>module</code> so that we can assign to <code>module.exports</code>.
+For clarity,
+we call the object we pass in <code>result</code> in <code>loadModule</code>.</p>
+<pre><code class="language-js">import fs from 'fs'
+
+const loadModule = (filename) =&gt; {
+  const source = fs.readFileSync(filename, 'utf-8')
+  const result = {}
+  const fullText = `((module) =&gt; {${source}})(result)`
+  console.log(`full text for eval:\n${fullText}\n`)
+  eval(fullText)
+  return result.exports
+}
+
+export default loadModule
+</code></pre>
+<figure id="module-loader-iife-a">
+  <img src="./figures/iife-a.svg" alt="Implementing modules with IIFEs (part 1)" />
+  <figcaption markdown="1">Figure 13.2: Using IIFEs to encapsulate modules and get their exports (part 1).</figcaption>
+</figure>
+
+<figure id="module-loader-iife-b">
+  <img src="./figures/iife-b.svg" alt="Implementing modules with IIFEs (part 2)" />
+  <figcaption markdown="1">Figure 13.3: Using IIFEs to encapsulate modules and get their exports (part 2).</figcaption>
+</figure>
+
+<p><a class="figref" href="../module-loader/#module-loader-iife-a">Figure 13.2</a> and <a class="figref" href="../module-loader/#module-loader-iife-b">Figure 13.3</a> show the structure of our loader so far.
+We can use this code as a test:</p>
+<pre><code class="language-js">const publicValue = 'public value'
+
+const privateValue = 'private value'
+
+const publicFunction = (caller) =&gt; {
+  return `publicFunction called from ${caller}`
+}
+
+module.exports = { publicValue, publicFunction }
+</code></pre>
+<p class="continue">and this short program to load the test and check its exports:</p>
+<pre><code class="language-js">import loadModule from './load-module-only.js'
+
+const result = loadModule(process.argv[2])
+console.log(`result.publicValue is ${result.publicValue}`)
+console.log(`result.privateValue is ${result.privateValue}`)
+console.log(result.publicFunction('main'))
+</code></pre>
+<pre><code class="language-sh">node test-load-module-only.js small-module.js
+</code></pre>
+<pre><code class="language-out">full text for eval:
+((module) =&gt; {const publicValue = 'public value'
+
+const privateValue = 'private value'
+
+const publicFunction = (caller) =&gt; {
+  return `publicFunction called from ${caller}`
+}
+
+module.exports = { publicValue, publicFunction }
+})(result)
+
+result.publicValue is public value
+result.privateValue is undefined
+publicFunction called from main
+</code></pre>
+<h2 id="module-loader-circular">Section 13.3:  Do we need to handle circular dependencies?</h2>
+<p>What if the code we are loading loads other code?
+We can visualize the network of who requires whom as a <span class="indexentry" index-key="directed graph" markdown="1"><a class="glossref" href="../glossary/#directed_graph" markdown="1">directed graph</a></span>:
+if X requires Y,
+we draw an arrow from X to Y.
+Unlike the <span class="indexentry" index-key="directed acyclic graph" markdown="1">directed <em>acyclic</em> graphs</span> we met in <a class="crossref" href="../build-manager/">Chapter 10</a>,
+though,
+these graphs can contain cycles:
+we say a <span class="indexentry" index-key="circular dependency" markdown="1"><a class="glossref" href="../glossary/#circular_dependency" markdown="1">circular dependency</a></span> exists
+if X depends on Y and Y depends on X
+either directly or indirectly.
+This may seem nonsensical,
+but can easily arise with <span class="indexentry" index-key="plugin architecture;software design!plugin architecture" markdown="1"><a class="glossref" href="../glossary/#plugin_architecture" markdown="1">plugin architectures</a></span>:
+the file containing the main program loads an extension,
+and that extension calls utility functions defined in the file containing the main program.</p>
+<p>Most compiled languages can handle circular dependencies easily:
+they compile each module into low-level instructions,
+then link those to resolve dependencies before running anything
+(<a class="figref" href="../module-loader/#module-loader-circularity">Figure 13.4</a>).
+But interpreted languages usually run code as they're loading it,
+so if X is in the process of loading Y and Y tries to call X,
+X may not (fully) exist yet.</p>
+<figure id="module-loader-circularity">
+  <img src="./figures/circularity.svg" alt="Circularity test case" />
+  <figcaption markdown="1">Figure 13.4: Testing circular imports.</figcaption>
+</figure>
+
+<p>Circular dependencies work in <span class="indexentry" index-key="Python" markdown="1"><a href="https://www.python.org/">Python</a></span>,
+but only sort of.
+Let's create two files called <code>major.py</code> and <code>minor.py</code>:</p>
+<pre><code class="language-py"># major.py
+
+import minor
+
+def top():
+    print(&quot;top&quot;)
+    minor.middle()
+
+def bottom():
+    print(&quot;bottom&quot;)
+
+top()
+</code></pre>
+<pre><code class="language-py"># minor.py
+
+import major
+
+def middle():
+    print(&quot;middle&quot;)
+    major.bottom()
+</code></pre>
+<p>Loading fails when we run <code>major.py</code> from the command line:</p>
+<pre><code class="language-out">top
+Traceback (most recent call last):
+  File &quot;major.py&quot;, line 3, in &lt;module&gt;
+    import minor
+  File &quot;/u/stjs/module-loader/checking/minor.py&quot;, line 3, in &lt;module&gt;
+    import major
+  File &quot;/u/stjs/module-loader/checking/major.py&quot;, line 12, in &lt;module&gt;
+    top()
+  File &quot;/u/stjs/module-loader/checking/major.py&quot;, line 7, in top
+    minor.middle()
+AttributeError: module 'minor' has no attribute 'middle'
+</code></pre>
+<p class="continue">but works in the interactive interpreter:</p>
+<pre><code class="language-out">$ python
+&gt;&gt;&gt; import major
+top
+middle
+bottom
+</code></pre>
+<p>The equivalent test in JavaScript also has two files:</p>
+<pre><code class="language-js">// major.js
+const { middle } = require('./minor')
+
+const top = () =&gt; {
+  console.log('top')
+  middle()
+}
+
+const bottom = () =&gt; {
+  console.log('bottom')
+}
+
+top()
+
+module.exports = { top, bottom }
+</code></pre>
+<pre><code class="language-js">// minor.js
+const { bottom } = require('./major')
+
+const middle = () =&gt; {
+  console.log('middle')
+  bottom()
+}
+
+module.exports = { middle }
+</code></pre>
+<p class="continue">It fails on the command line:</p>
+<pre><code class="language-out">top
+middle
+/u/stjs/module-loader/checking/minor.js:6
+  bottom()
+  ^
+
+TypeError: bottom is not a function
+    at middle (/u/stjs/module-loader/checking/minor.js:6:3)
+    at top (/u/stjs/module-loader/checking/major.js:6:3)
+    at Object.&lt;anonymous&gt; (/u/stjs/module-loader/checking/major.js:13:1)
+    at Module._compile (internal/modules/cjs/loader.js:1063:30)
+    at Object.Module._extensions..js \
+ (internal/modules/cjs/loader.js:1092:10)
+    at Module.load (internal/modules/cjs/loader.js:928:32)
+    at Function.Module._load (internal/modules/cjs/loader.js:769:14)
+    at Function.executeUserEntryPoint [as runMain] \
+ (internal/modules/run_main.js:72:12)
+    at internal/main/run_main_module.js:17:47
+</code></pre>
+<p class="continue">and also fails in the interactive interpreter
+(which is more consistent):</p>
+<pre><code class="language-out">$ node
+&gt; require('./major')
+top
+middle
+/u/stjs/module-loader/checking/minor.js:6
+  bottom()
+  ^
+
+TypeError: bottom is not a function
+    at middle (/u/stjs/module-loader/checking/minor.js:6:3)
+    at top (/u/stjs/module-loader/checking/major.js:6:3)
+    at Object.&lt;anonymous&gt; (/u/stjs/module-loader/checking/major.js:13:1)
+    at Module._compile (internal/modules/cjs/loader.js:1063:30)
+    at Object.Module._extensions..js \
+ (internal/modules/cjs/loader.js:1092:10)
+    at Module.load (internal/modules/cjs/loader.js:928:32)
+    at Function.Module._load (internal/modules/cjs/loader.js:769:14)
+    at Module.require (internal/modules/cjs/loader.js:952:19)
+    at require (internal/modules/cjs/helpers.js:88:18)
+    at [stdin]:1:1
+</code></pre>
+<p>We therefore won't try to handle circular dependencies.
+However,
+we will detect them and generate a sensible error message.</p>
+<blockquote>
+<h3><code>import</code> vs. <code>require</code></h3>
+<p>Circular dependencies work JavaScript's <code>import</code> syntax
+because we can analyze files to determine what needs what,
+get everything into memory,
+and then resolve dependencies.
+We can't do this with <code>require</code>-based code
+because someone might create an <span class="indexentry" index-key="alias!during import;import!alias" markdown="1"><a class="glossref" href="../glossary/#alias" markdown="1">alias</a></span>
+and call <code>require</code> through that
+or <code>eval</code> a string that contains a <code>require</code> call.
+(Of course, they can also do these things with the function version of <code>import</code>.)</p>
+</blockquote>
+<h2 id="module-loader-subload">Section 13.4:  How can a module load another module?</h2>
+<p>While we're not going to handle circular dependencies,
+modules do need to be able to load other modules.
+To enable this,
+we need to provide the module with a function called <code>require</code>
+that it can call as it's loading.
+As in <a class="crossref" href="../file-interpolator/">Chapter 12</a>,
+this function checks a <span class="indexentry" index-key="cache!of loaded files" markdown="1">cache</span>
+to see if the file being asked for has already been loaded.
+If not, it loads it and saves it;
+either way, it returns the result.</p>
+<p>Our cache needs to be careful about how it identifies files
+so that it can detect duplicates loading attempts that use different names.
+For example,
+suppose that <code>major.js</code> loads <code>subdir/first.js</code> and <code>subdir/second.js</code>.
+When <code>subdir/second.js</code> loads <code>./first.js</code>,
+our system needs to realize that it already has that file
+even though the path looks different.
+We will use <a class="glossref" href="../glossary/#absolute_path" markdown="1">absolute paths</a> as cache keys
+so that every file has a unique, predictable key.</p>
+<p>To reduce confusion,
+we will call our function <code>need</code> instead of <code>require</code>.
+In order to make the cache available to modules while they're loading,
+we will make it a property of <code>need</code>.
+(Remember,
+a function is just another kind of object in JavaScript;
+every function gets several properties automatically,
+and we can always add more.)
+Since we're using the built-in <code>Map</code> class as a cache,
+the entire implementation of <code>need</code> is just 15 lines long:</p>
+<pre><code class="language-js">import path from 'path'
+
+import loadModule from './load-module.js'
+
+const need = (name) =&gt; {
+  const absPath = path.resolve(name)
+  if (!need.cache.has(absPath)) {
+    const contents = loadModule(absPath, need)
+    need.cache.set(absPath, contents)
+  }
+  return need.cache.get(absPath)
+}
+need.cache = new Map()
+
+export default need
+</code></pre>
+<p>We now need to modify <code>loadModule</code> to take our function <code>need</code> as a parameter.
+(Again, we'll have our modules call <code>need('something.js')</code> instead of <code>require('something')</code> for clarity.)
+Let's test it with the same small module that doesn't need anything else to make sure we haven't broken anything:</p>
+<pre><code class="language-js">import need from './need.js'
+
+const small = need('small-module.js')
+console.log(`small.publicValue is ${small.publicValue}`)
+console.log(`small.privateValue is ${small.privateValue}`)
+console.log(small.publicFunction('main'))
+</code></pre>
+<pre><code class="language-out">full text for eval:
+((module, need) =&gt; {
+const publicValue = 'public value'
+
+const privateValue = 'private value'
+
+const publicFunction = (caller) =&gt; {
+  return `publicFunction called from ${caller}`
+}
+
+module.exports = { publicValue, publicFunction }
+
+})(result, need)
+
+small.publicValue is public value
+small.privateValue is undefined
+publicFunction called from main
+</code></pre>
+<p>What if we test it with a module that <em>does</em> load something else?</p>
+<pre><code class="language-js">import need from './need'
+
+const small = need('small-module.js')
+
+const large = (caller) =&gt; {
+  console.log(`large from ${caller}`)
+  small.publicFunction(`${caller} to large`)
+}
+
+export default large
+</code></pre>
+<pre><code class="language-js">import need from './need.js'
+
+const large = need('large-module.js')
+console.log(large.large('main'))
+</code></pre>
+<pre><code class="language-out">full text for eval:
+((module, need) =&gt; {
+import need from './need'
+
+const small = need('small-module.js')
+
+const large = (caller) =&gt; {
+  console.log(`large from ${caller}`)
+  small.publicFunction(`${caller} to large`)
+}
+
+export default large
+
+})(result, need)
+
+undefined:2
+import need from './need'
+^^^^^^
+
+SyntaxError: Cannot use import statement outside a module
+    at loadModule (/u/stjs/module-loader/load-module.js:8:8)
+    at need (/u/stjs/module-loader/need.js:8:22)
+    at /u/stjs/module-loader/test-need-large-module.js:3:15
+    at ModuleJob.run (internal/modules/esm/module_job.js:152:23)
+    at async Loader.import (internal/modules/esm/loader.js:166:24)
+    at async Object.loadESM (internal/process/esm_loader.js:68:5)
+</code></pre>
+<p>This doesn't work because <code>import</code> only works at the top level of a program,
+not inside a function.
+Our system can therefore only run loaded modules by <code>need</code>ing them:</p>
+<pre><code class="language-js">const small = need('small-module.js')
+
+const large = (caller) =&gt; {
+  return small.publicFunction(`large called from ${caller}`)
+}
+
+module.exports = large
+</code></pre>
+<pre><code class="language-js">import need from './need.js'
+
+const large = need('large-needless.js')
+console.log(large('main'))
+</code></pre>
+<pre><code class="language-out">full text for eval:
+((module, need) =&gt; {
+const small = need('small-module.js')
+
+const large = (caller) =&gt; {
+  return small.publicFunction(`large called from ${caller}`)
+}
+
+module.exports = large
+
+})(result, need)
+
+full text for eval:
+((module, need) =&gt; {
+const publicValue = 'public value'
+
+const privateValue = 'private value'
+
+const publicFunction = (caller) =&gt; {
+  return `publicFunction called from ${caller}`
+}
+
+module.exports = { publicValue, publicFunction }
+
+})(result, need)
+
+publicFunction called from large called from main
+</code></pre>
+<blockquote>
+<h3>"It's so deep it's meaningless"</h3>
+<p>The programs we have written in this chapter are harder to understand
+than most of the programs in earlier chapters
+because they are so abstract.
+Reading through them,
+it's easy to get the feeling that everything is happening somewhere else.
+Programmers' tools are often like this:
+there's always a risk of confusing the thing in the program
+with the thing the program is working on.
+Drawing pictures of data structures can help,
+and so can practicing with closures
+(which are one of the most powerful ideas in programming),
+but a lot of the difficulty is irreducible,
+so don't feel bad if it takes you a while to wrap your head around it.</p>
+</blockquote>
+<div class="break-before"></div>
+<h2 id="module-loader-exercises">Section 13.5:  Exercises</h2>
+<h3 class="exercise">Counting with closures</h3>
+<p>Write a function <code>makeCounter</code> that returns a function
+that produces the next integer in sequence starting from zero each time it is called.
+Each function returned by <code>makeCounter</code> must count independently, so:</p>
+<pre><code class="language-js">left = makeCounter()
+right = makeCounter()
+console.log(`left ${left()`)
+console.log(`right ${right()`)
+console.log(`left ${left()`)
+console.log(`right ${right()`)
+</code></pre>
+<p class="continue">must produce:</p>
+<pre><code class="language-txt">left 0
+right 0
+left 1
+right `
+</code></pre>
+<h3 class="exercise">Objects and namespaces</h3>
+<p>A JavaScript object stores key-value pairs,
+and the keys in one object are separate from the keys in another.
+Why doesn't this provide the same level of safety as a closure?</p>
+<h3 class="exercise">Testing module loading</h3>
+<p>Write tests for <code>need.js</code> using Mocha and <code>mock-fs</code>.</p>
+<h3 class="exercise">Using <code>module</code> as a name</h3>
+<p>What happens if we define the variable <code>module</code> in <code>loadModule</code>
+so that it is in scope when <code>eval</code> is called
+rather than creating a variable called <code>result</code> and passing that in:</p>
+<pre><code class="language-js">const loadModule = (filename) =&gt; {
+  const source = fs.readFileSync(filename, 'utf-8')
+  const module = {}
+  const fullText = `(() =&gt; {${source}})()`
+  eval(fullText)
+  return module.exports
+}
+</code></pre>
+<h3 class="exercise">Implementing a search path</h3>
+<p>Add a search path to <code>need.js</code> so that if a module isn't found locally,
+it will be looked for in each directory in the search path in order.</p>
+<h3 class="exercise">Using a setup function</h3>
+<p>Rewrite the module loader so that every module has a function called <code>setup</code>
+that must be called after loading it to create its exports
+rather than using <code>module.exports</code>.</p>
+<h3 class="exercise">Handling errors while loading</h3>
+<ol>
+<li>
+<p>Modify <code>need.js</code> so that it does something graceful
+    if an exception is thrown while a module is being loaded.</p>
+</li>
+<li>
+<p>Write unit tests for this using Mocha.</p>
+</li>
+</ol>
+<h3 class="exercise">Refactoring circularity</h3>
+<p>Suppose that <code>main.js</code> contains this:</p>
+<pre><code class="language-js">const PLUGINS = []
+
+const plugin = require('./plugin')
+
+const main = () =&gt; {
+  PLUGINS.forEach(p =&gt; p())
+}
+
+const loadPlugin = (plugin) =&gt; {
+  PLUGINS.push(plugin)
+}
+
+module.exports = {
+  main,
+  loadPlugin
+}
+</code></pre>
+<p class="continue">and <code>plugin.js</code> contains this:</p>
+<pre><code class="language-js">const { loadPlugin } = require('./main')
+
+const printMessage = () =&gt; {
+  console.log('running plugin')
+}
+
+loadPlugin(printMessage)
+</code></pre>
+<p class="continue">Refactor this code so that it works correctly while still using <code>require</code> rather than <code>import</code>.</p>
+<h3 class="exercise break-before">An LRU cache</h3>
+<p>A <a class="glossref" href="../glossary/#lru_cache" markdown="1">Least Recently Used (LRU) cache</a>
+reduces access time while limiting the amount of memory used
+by keeping track of the N items that have been used most recently.
+For example,
+if the cache size is 3 and objects are accessed in the order shown in the first column,
+the cache's contents will be as shown in the second column:</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Action</th>
+<th>Cache After Access</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>read A</td>
+<td>[A]</td>
+</tr>
+<tr>
+<td>A</td>
+<td>get A from cache</td>
+<td>[A]</td>
+</tr>
+<tr>
+<td>B</td>
+<td>read B</td>
+<td>[B, A]</td>
+</tr>
+<tr>
+<td>A</td>
+<td>get A from cache</td>
+<td>[A, B]</td>
+</tr>
+<tr>
+<td>C</td>
+<td>read C</td>
+<td>[C, A, B]</td>
+</tr>
+<tr>
+<td>D</td>
+<td>read D</td>
+<td>[D, C, A]</td>
+</tr>
+<tr>
+<td>B</td>
+<td>read B</td>
+<td>[B, D, C]</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>
+<p>Implement a function <code>cachedRead</code> that takes the number of entries in the cache as an argument
+    and returns a function that uses an LRU cache
+    to either read files or return cached copies.</p>
+</li>
+<li>
+<p>Modify <code>cachedRead</code> so that the number of items in the cache
+    is determined by their combined size
+    rather than by the number of files.</p>
+</li>
+</ol>
+<h3 class="exercise">Make functions safe for renaming</h3>
+<p>Our implementation of <code>need</code> implemented the cache as a property of the function itself.</p>
+<ol>
+<li>
+<p>How can this go wrong?
+    (Hint: thing about aliases.)</p>
+</li>
+<li>
+<p>Modify the implementation to solve this problem using a closure.</p>
+</li>
+</ol>
+    </main>
+  <div class="centered footer">
+  <hr/>
+  <table class="plain footer">
+    <tr>
+      
+      <td><a href="../license/">License</a></td>
+      
+      <td><a href="../conduct/">Code of Conduct</a></td>
+      
+      <td><a href="../bibliography/">Bibliography</a></td>
+      
+      <td><a href="../glossary/">Glossary</a></td>
+      
+      <td><a href="../links/">Links</a></td>
+      
+      <td><a href="https://github.com/software-tools-books/stjs/">GitHub</a></td>
+      
+    </tr>
+  </table>
+</div>
+
+  </body>
+</html>
