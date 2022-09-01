@@ -28,27 +28,8 @@ lang = "es"
 
 # Chapter and appendix slugs in order.
 chapters = [
-    "introduction",
-    "systems-programming",
-    "async-programming",
     "unit-test",
     "file-backup",
-    "data-table",
-    "pattern-matching",
-    "regex-parser",
-    "page-templates",
-    "build-manager",
-    "layout-engine",
-    "file-interpolator",
-    "module-loader",
-    "style-checker",
-    "code-generator",
-    "doc-generator",
-    "module-bundler",
-    "package-manager",
-    "virtual-machine",
-    "debugger",
-    "conclusion",
 ]
 appendices = [
     "license",

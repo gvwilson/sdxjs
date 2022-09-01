@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<link rel="icon" type="image/x-icon" href="../files/favicon.ico">
+<link rel="stylesheet" href="../mccole.css">
+<link rel="stylesheet" href="../codehilite-tango.css">
+
+    <title>Software Design by Example: Pruebas Unitarias</title>
+  </head>
+  <body class="page">
+    <div class="centered title">
+  
+  <h2><a href="../">Software Design by Example</a></h2>
+  <h1 id="unit-test">Capítulo 1: Pruebas Unitarias</h1>
+  
+  <p>
+    <img class="page-logo" src="../files/codebender.svg" alt="logo" />
+  </p>
+</div>
+
+    <main>
+<p>Hemos escrito muchos programitas en los dos capítulos anteriores,
+pero de hecho no hemos probado ninguno de ellos.
+Eso está bien para <span class="indexentry" index-key="exploratory programming" markdown="1"><a class="glossref" href="../glossary/#exploratory_programming" markdown="1">programación exploratoria</a></span>,
+pero si nuestro software se va a usar en lugar de solo leerlo, debemos asegurarnos que funcione.</p>
+<p>Una herramienta para escribir  y ejecutar <span class="indexentry" index-key="unit test!requirements for" markdown="1"><a class="glossref" href="../glossary/#unit_test" markdown="1">pruebas unitarias</a></span> es un buen primer paso.
+Esta herramienta debe:</p>
+<ul>
+<li>encontrar los archivos que contienen pruebas;</li>
+<li>encontrar las pruebas en esos archivos;</li>
+<li>ejecutar las pruebas;</li>
+<li>capturar los resultados; y</li>
+<li>reportar cada resultado y un resumen de esos resultados.</li>
+</ul>
+<p>Nuestro diseño está inspirado en herramientas como <span class="indexentry" index-key="Mocha" markdown="1"><a href="https://mochajs.org/">Mocha</a></span> y <span class="indexentry" index-key="Jest" markdown="1"><a href="https://jestjs.io/">Jest</a></span>,
+los que a su vez están inspirados por herramientas hechas para otros lenguajes 
+desde los 1980s <span class="citation"><a class="bibref" href="../bibliography/#Meszaros2007">Meszaros2007</a>, <a class="bibref" href="../bibliography/#Tudose2020">Tudose2020</a></span>.</p>
+<h2 id="unit-test-structure">Sección 1.1:  ¿Cómo debemos estructurar las pruebas unitarias?</h2>
+<p>Como en los otros frameworks de Pruebas Unitarias,
+cada prueba será una función de cero argumentos
+ya que el framework puede correrlos todos de la misma manera.
+Cada prueba creará una <span class="indexentry" index-key="fixture (in unit test);unit test!fixture" markdown="1"><a class="glossref" href="../glossary/#fixture" markdown="1">fixture</a></span> a ser probada
+y usar <span class="indexentry" index-key="assertion!in unit test" markdown="1"><a class="glossref" href="../glossary/#assertion" markdown="1">aserciones</a></span>
+para comparar el <span class="indexentry" index-key="actual result (in unit test);unit test!actual result" markdown="1"><a class="glossref" href="../glossary/#actual_result" markdown="1">resultado actual</a></span>
+contra el <span class="indexentry" index-key="expected result (in unit test);unit test!expected result" markdown="1"><a class="glossref" href="../glossary/#expected_result" markdown="1">resultado esperado</a></span>.
+El resultado puede ser exactamente uno de:</p>
+<ul>
+<li>
+<p><span class="indexentry" index-key="pass (in unit test);unit test!pass" markdown="1"><a class="glossref" href="../glossary/#pass_test" markdown="1">Pase</a></span>:
+    el <span class="indexentry" index-key="test subject (in unit test);unit test!test subject" markdown="1"><a class="glossref" href="../glossary/#test_subject" markdown="1">sujeto de prueba</a></span> funciona según lo esperado.</p>
+</li>
+<li>
+<p><span class="indexentry" index-key="fail (in unit test);unit test!fail" markdown="1"><a class="glossref" href="../glossary/#fail_test" markdown="1">Falla</a></span>:
+    algo falla con el sujeto de prueba.</p>
+</li>
+<li>
+<p><span class="indexentry" index-key="error (in unit test);unit test!error" markdown="1"><a class="glossref" href="../glossary/#error_test" markdown="1">Error</a></span>:
+    algo está mal con la prueba en sí,
+    lo que significa que no sabemos si el sujeto de prueba funciona correctamente o no.</p>
+</li>
+</ul>
+<p>Para que esto sirva,
+necesitamos distinguir las pruebas fallidas de las erróneas.
+Nuestra solución descansa en el hecho que las excepciones son objetos
+y que un programa puede usar <span class="indexentry" index-key="introspection!in Pruebas Unitarias" markdown="1"><a class="glossref" href="../glossary/#introspection" markdown="1">introspección</a></span>
+para determinar la clase de un objeto.
+si una prueba <span class="indexentry" index-key="excepción!throw" markdown="1"><a class="glossref" href="../glossary/#throw_exception" markdown="1">arroja una excepción</a></span> cuya clase es <code>assert.AssertionError</code>,
+entonces asumiremos que la excepción vino de
+una de las aserciones que pusimos en la prueba como un chequeo
+(<a class="figref" href="../unit-test/#unit-test-mental-model">Figura 1.1</a>).
+Cualquier otro tipo  de aserción indica que la prueba en sí tiene un error.</p>
+<figure id="unit-test-mental-model">
+  <img src="./figures/mental-model.svg" alt="Modelo mental de Pruebas Unitarias" />
+  <figcaption markdown="1">Figura 1.1: Ejecutando pruebas que pasen, fallen, o contengan errores.</figcaption>
+</figure>
+
+<h2 id="unit-test-design">Sección 1.2:  ¿Cómo podemos separar registro, ejecución, y reporteo?</h2>
+<p>Para empezar,
+vamos a usar unas cuantas <a class="glossref" href="../glossary/#global_variable" markdown="1">variables global</a> para registrar las pruebas  y sus resultados:</p>
+<pre><code class="language-js">// State of tests.
+const HopeTests = []
+let HopePass = 0
+let HopeFail = 0
+let HopeError = 0
+</code></pre>
+<p>No ejecutamos pruebas inmediatamente
+porque queremos envolver cada una en nuestro propio <span class="indexentry" index-key="excepción!handler" markdown="1"><a class="glossref" href="../glossary/#exception_handler" markdown="1">manejador de excepciones</a></span>.
+En su lugar,
+la función <code>hopeThat</code> guarda un mensaje descriptivo y una función de retro-llamada que implemente una prueba
+en el arreglo <code>HopeTest</code> .</p>
+<pre><code class="language-js">// Record a single test for running later.
+const hopeThat = (message, callback) =&gt; {
+  HopeTests.push([message, callback])
+}
+</code></pre>
+<blockquote>
+<h3>Independencia</h3>
+<p>Ya que estamos agregando pruebas a un arreglo,
+serán ejecutados en el orden que son registrados,
+pero no debemos confiarnos.
+Cada prueba unitaria debe trabajar independiente de otras
+para que en caso de error o falla en una prueba anterior
+no afecte el resultado de una posterior.</p>
+</blockquote>
+<p>Finalmente,
+la función <code>main</code> corre todas las pruebas registradas:</p>
+<pre><code class="language-js">// Run all of the tests that have been asked for and report summary.
+const main = () =&gt; {
+  HopeTests.forEach(([message, test]) =&gt; {
+    try {
+      test()
+      HopePass += 1
+    } catch (e) {
+      if (e instanceof assert.AssertionError) {
+        HopeFail += 1
+      } else {
+        HopeError += 1
+      }
+    }
+  })
+
+  console.log(`pass ${HopePass}`)
+  console.log(`fail ${HopeFail}`)
+  console.log(`error ${HopeError}`)
+}
+</code></pre>
+<p class="continue">Si una prueba termina sin excepción, entonces pasa.
+Si una de las llamadas a <code>assert</code> dentro de la prueba crea un <code>AssertionError</code>,
+la prueba falla,
+y si genera otra excepción,
+es un error.
+Luego que corren todas las pruebas,
+<code>main</code> reporta el  número de resultados de cada tipo.</p>
+<p>Vamos a probar:</p>
+<pre><code class="language-js">// Something to test (doesn't handle zero properly).
+const sign = (value) =&gt; {
+  if (value &lt; 0) {
+    return -1
+  } else {
+    return 1
+  }
+}
+
+// These two should pass.
+hopeThat('Sign of negative is -1', () =&gt; assert(sign(-3) === -1))
+hopeThat('Sign of positive is 1', () =&gt; assert(sign(19) === 1))
+
+// This one should fail.
+hopeThat('Sign of zero is 0', () =&gt; assert(sign(0) === 0))
+
+// This one is an error.
+hopeThat('Sign misspelled is error', () =&gt; assert(sgn(1) === 1)) // eslint-disable-line
+
+// Call the main driver.
+main()
+</code></pre>
+<pre><code class="language-out">pass 2
+fail 1
+error 1
+</code></pre>
+<p>Este simple "framework" hace lo que se espera, pero:</p>
+<ol>
+<li>
+<p>No nos dice cuáles pruebas pasaron o fallaron.</p>
+</li>
+<li>
+<p>Esas  variables globales deben concentrarse de algún modo
+    para dejar en claro que están relacionadas.</p>
+</li>
+<li>
+<p>No descubre pruebas por sí solo.</p>
+</li>
+<li>
+<p>No tenemos forma de probar cosas que se supone generen <code>AssertionError</code>.
+    A colocar aserciones dentro del código para revisar que se comporta correctamente
+    se le llama <a class="glossref" href="../glossary/#defensive_programming" markdown="1">programación defensiva</a>;
+    es una buena práctica,
+    pero debemos asegurarnos que esas aserciones  fallen cuando deban hacerlo,
+    igual que revisamos nuestros detectores de incendio de vez en cuando.</p>
+</li>
+</ol>
+<h2 id="unit-test-registration">Sección 1.3:  ¿Cómo debemos estructurar el registro de pruebas?</h2>
+<p>La siguiente versión de nuestra herramienta de pruebas resuelve los primeros dos problemas en el original
+colocando la maquinaria de pruebas en una clase.
+Usa el <a class="glossref" href="../glossary/#design_pattern" markdown="1">patrón de diseño</a> <span class="indexentry" index-key="Singleton patrón;design patrón!Singleton" markdown="1"><a class="glossref" href="../glossary/#singleton_pattern" markdown="1">Singleton</a></span> 
+para asegurar que solo un objeto de esa clase sea creado a la vez<span class="citation"><a class="bibref" href="../bibliography/#Osmani2017">Osmani2017</a></span>.
+Los Singletons son una forma de gestionar variables globales que están relacionadas
+como las que usamos para registrar las pruebas y sus resultados.
+Como beneficio extra,
+si decidimos luego que necesitamos varias copias de esas variables,
+solo necesitamos crear más instancias de esa clase.</p>
+<p>El archivo <code>hope.js</code> define la clase y exporta una instancia de ella:</p>
+<pre><code class="language-js">  terse () {
+    return this.cases()
+      .map(([title, results]) =&gt; `${title}: ${results.length}`)
+      .join(' ')
+  }
+
+  verbose () {
+    let report = ''
+    let prefix = ''
+    for (const [title, results] of this.cases()) {
+      report += `${prefix}${title}:`
+      prefix = '\n'
+      for (const r of results) {
+        report += `${prefix}  ${r}`
+      }
+    }
+    return report
+  }
+
+  cases () {
+    return [
+      ['passes', this.passes],
+      ['fails', this.fails],
+      ['errors', this.errors]]
+  }
+</code></pre>
+<p>Esta estrategia asume dos cosas:</p>
+<ol>
+<li>
+<p><a href="https://nodejs.org/en/">Node</a> ejecuta el código en un módulo JavaScript en cuanto lo carga,
+    lo que implica que corre <code>new Hope()</code> y exporta el objeto recién creado.</p>
+</li>
+<li>
+<p>Los módulos se guardan en el <span class="indexentry" index-key="cache!modules;require!caching modules" markdown="1"><a class="glossref" href="../glossary/#caching" markdown="1">cache</a></span> en Node
+    para que un módulo dado solo cargue una vez
+    sin importar cuántas veces se importa.
+    Esto asegura que <code>new Hope()</code> en verdad se llama una sola vez.</p>
+</li>
+</ol>
+<p>Una vez que un programa ha importado <code>hope</code>,
+puede llamar a <code>Hope.test</code> para registrar una prueba para una ejecución posterior
+y <code>Hope.run</code> para ejecutar todas las pruebas registradas hasta ese punto </p>
+<figure id="unit-test-hope-structure">
+  <img src="./figures/hope-structure.svg" alt="Recording y running tests" />
+  <figcaption markdown="1">Figura 1.2: Creando un singleton, grabando pruebas, y corriéndolas.</figcaption>
+</figure>
+
+<p>Finalmente,
+nuestra clase <code>Hope</code> puede reportar resultados como un resumen terso de  una-linea  y como un listado detallado.
+Puede además proveer los títulos y resultados de pruebas individuales
+por si alguien quiere formatearlas en una manera diferente (e.g., como HTML) puedan hacerlo:</p>
+<pre><code class="language-js">  terse () {
+    return this.cases()
+      .map(([title, results]) =&gt; `${title}: ${results.length}`)
+      .join(' ')
+  }
+
+  verbose () {
+    let report = ''
+    let prefix = ''
+    for (const [title, results] of this.cases()) {
+      report += `${prefix}${title}:`
+      prefix = '\n'
+      for (const r of results) {
+        report += `${prefix}  ${r}`
+      }
+    }
+    return report
+  }
+
+  cases () {
+    return [
+      ['passes', this.passes],
+      ['fails', this.fails],
+      ['errors', this.errors]]
+  }
+</code></pre>
+<blockquote>
+<h3>¿Quién está llamando?</h3>
+<p><code>Hope.test</code> usa el módulo <span class="indexentry" index-key="caller module" markdown="1"><a href="https://www.npmjs.com/package/caller"><code>caller</code></a></span> 
+ para recibir el nombre de la función que está registrando una prueba.
+Reportar el nombre de la prueba ayuda al usuario a entender por donde iniciar depurando;
+recibirlo vía introspección
+en lugar de pedir al usuario pasar el nombre de la función como texto
+reduciendo la escritura
+y garantizando que el reporte sea exacto.
+Los programadores a menudo copiarán, pegarán y modificarán pruebas;
+antes o después (quizá antes), olvidarán modificar
+el nombre de la función copiada y pegada que se pasa a <code>Hope.test</code>
+y perderán tiempo intentando entender por qué <code>test_this</code> está fallando
+cuando la falla de hecho está en <code>test_that</code>.</p>
+</blockquote>
+<h2 id="unit-test-cli">Sección 1.4:  ¿Cómo podemos crear una interfaz de línea de comandos para pruebas?</h2>
+<p>La mayoría de los programadores no gozan escribiendo pruebas,
+así que si queremos que lo hagan,
+tiene que ser lo menos doloroso posible.
+Un par de sentencias <code>import</code> para tener  <code>assert</code> y <code>hope</code>
+y luego una llamada a función por prueba
+es lo más simple que podemos hacer las pruebas mismas:</p>
+<pre><code class="language-js">import assert from 'assert'
+import hope from './hope.js'
+
+hope.test('Sum of 1 and 2', () =&gt; assert((1 + 2) === 3))
+</code></pre>
+<p>Pero eso solo define las pruebas ---¿Cómo las encontraremos para ejecutarlas?
+Una opción es pedirle a la gente que use <code>import</code> en cada uno de los archivos con pruebas
+dentro de otro archivo:</p>
+<pre><code class="language-js">// all-the-tests.js
+
+import './test-add.js'
+import './test-sub.js'
+import './test-mul.js'
+import './test-div.js'
+
+Hope.run()
+...
+</code></pre>
+<p class="continue">Aquí,
+<code>all-the-tests.js</code> importa otros archivos para que registren las pruebas
+como un <span class="indexentry" index-key="side effect!for module registration" markdown="1"><a class="glossref" href="../glossary/#side_effect" markdown="1">efecto colateral</a></span> vía las llamadas a <code>hope.test</code>
+y luego llame a <code>Hope.run</code> para ejecutarlas.
+Funciona,
+pero antes o después (quizá antes) alguien olvidará importar uno de los archivos de pruebas.</p>
+<p>Una mejor estrategia es cargar los archivos de prueba <span class="indexentry" index-key="dynamic loading" markdown="1"><a class="glossref" href="../glossary/#dynamic_loading" markdown="1">dinámicamente</a></span>.
+Mientras que  <code>import</code> se escribe usualmente como una  declaración,
+también puede usarse como una función <code>async</code> 
+que tome una ruta como parámetro y cargue el archivo correspondiente.
+Igual que antes,
+cargar archivos ejecuta el código que contienen
+lo que registra las pruebas como efecto secundario:</p>
+<pre><code class="language-js">import minimist from 'minimist'
+import glob from 'glob'
+import hope from './hope.js'
+
+const main = async (args) =&gt; {
+  const options = parse(args)
+  if (options.filenames.length === 0) {
+    options.filenames = glob.sync(`${options.root}/**/test-*.js`)
+  }
+  for (const f of options.filenames) {
+    await import(f)
+  }
+  hope.run()
+  const result = (options.output === 'terse')
+    ? hope.terse()
+    : hope.verbose()
+  console.log(result)
+}
+
+
+main(process.argv.slice(2))
+</code></pre>
+<p>Por defecto,
+este programa encuentra todos los archivos anidados en el directorio actual
+cuyos nombres coinciden con el patrón <code>test-*.js</code>
+y usa una salida tersa.
+Ya que podemos querer revisar los archivos en otra ubicación,
+o pedir un resultado detallado,
+el programa necesita manejar argumentos desde la línea de comandos.</p>
+<p>El módulo <a href="https://www.npmjs.com/package/minimist"><code>minimist</code></a> hace esto
+de una manera que es consistente con las convenciones en Unix.
+Dados los argumentos desde la línea de comandos  <em>después</em>  del nombre del programa 
+(i.e., desde <code>process.argv[2]</code> en adelante),
+parece que patrones como <code>-x something</code>
+y crea un objeto con opciones como claves y valores asociados a ellas.</p>
+<blockquote>
+<h3>Nombres  de archivos en <code>minimist</code></h3>
+<p>Si usamos una línea de comandos como <code>pray.js -v something.js</code>,
+entonces <code>something.js</code> se convierte en el valor de<code>-v</code>.
+Para indicar que queremos agregar <code>something.js</code> a la lista de nombres de archivo restantes
+asociados con la clave especial <code>_</code> (un solo guión bajo),
+tenemos que escribir <code>pray.js -v -- something.js</code>.
+el doble guión es una convención común en Unix  para señalar el fin de los parámetros.</p>
+</blockquote>
+<p>Nuestro <span class="indexentry" index-key="test runner;unit test!test runner" markdown="1"><a class="glossref" href="../glossary/#test_runner" markdown="1"> ejecutor de pruebas</a></span> ahora está completo,
+así que podemos probarlo con algunos archivos con pruebas que pasen, fallen, y contengan errores:</p>
+<pre><code class="language-sh">node pray.js -v
+</code></pre>
+<pre><code class="language-out">passes:
+  /u/stjs/unit-test/test-add.js::Sum of 1 and 2
+  /u/stjs/unit-test/test-sub.js::Difference of 1 and 2
+fails:
+  /u/stjs/unit-test/test-div.js::Quotient of 1 and 0
+  /u/stjs/unit-test/test-mul.js::Product of 1 and 2
+errors:
+  /u/stjs/unit-test/test-missing.js::Sum of x and 0
+</code></pre>
+<blockquote>
+<h3>El Infinito está permitido</h3>
+<p><code>test-div.js</code> contiene la linea:</p>
+<p><code>js
+hope.test('Quotient of 1 y 0', () =&gt; assert((1 / 0) === 0))</code></p>
+<p>Esta prueba cuenta como una falla en lugar de un error
+porque cree que el resultado de dividir entre cero es el valor especial  <code>Infinity</code>
+en lugar de un error aritmético.</p>
+</blockquote>
+<p>Cargar módulos dinámicamente para que puedan registrar algo por nosotros para llamar más tarde 
+es un patrón común en muchos lenguajes de programación.
+El flujo de control va y viene entre el framework y el módulo siendo cargado
+conforme esto ocurre
+así que necesitamos especificar el <span class="indexentry" index-key="lifecycle!of unit test;unit test!lifecycle" markdown="1"><a class="glossref" href="../glossary/#lifecycle" markdown="1">ciclo vital</a></span> de los módulos cargados con mucho cuidado.
+<a class="figref" href="../unit-test/#unit-test-lifecycle">Figura 1.3</a> ilustra lo que pasa
+cuando un par de archivos <code>test-add.js</code> y <code>test-sub.js</code> son cargados por nuestro framework:</p>
+<ol>
+<li><code>pray</code> carga <code>hope.js</code>.</li>
+<li>cargando <code>hope.js</code> crea una sola instancia de la clase <code>Hope</code>.</li>
+<li><code>pray</code> usa <code>glob</code> para encontrar archivos con pruebas.</li>
+<li><code>pray</code> carga <code>test-add.js</code> usando <code>import</code> como función.</li>
+<li>Cuando <code>test-add.js</code> corre, carga  <code>hope.js</code>.
+    Ya que <code>hope.js</code> se ha cargado, esto no crea una nueva instancia de <code>Hope</code>.</li>
+<li><code>test-add.js</code> usa <code>hope.test</code> para registrar una prueba (la cual aún no se ejecuta).</li>
+<li><code>pray</code> entonces carga <code>test-sub.js</code>…</li>
+<li>… el cual  carga <code>Hope</code>…</li>
+<li>… y luego  registra una prueba.</li>
+<li><code>pray</code> puede pedir a la instancia única de  <code>Hope</code> que ejecute todas las pruebas,
+     luego recibe un reporte desde el singleton de <code>Hope</code>  y lo muestra.</li>
+</ol>
+<figure id="unit-test-lifecycle">
+  <img src="./figures/lifecycle.svg" alt="Pruebas Unitarias lifecycle" />
+  <figcaption markdown="1">Figura 1.3: Ciclo vital de pruebas unitarias descubiertas dinámicamente.</figcaption>
+</figure>
+
+<div class="break-antes"></div>
+<h2 id="unit-test-exercises">Sección 1.5:  Ejercicios</h2>
+<h3 class="exercise">Englobado Asíncrono</h3>
+<p>Modificar <code>pray.js</code> para usar la versión asíncrona de <code>glob</code> en lugar de <code>glob.sync</code>.</p>
+<h3 class="exercise">Cronometrando las pruebas</h3>
+<p>Instalar el paquete  <a href="https://www.npmjs.com/package/microtime"><code>microtime</code></a> y luego modificar el ejemplo <code>dry-run.js</code> 
+para que registre y reporte el tiempo de ejecución de las pruebas.</p>
+<h3 class="exercise">Aproximadamente igual</h3>
+<ol>
+<li>
+<p>Escribir una función <code>assertApproxEqual</code> que no haga algo si dos valores están dentro de cierta tolerancia entre sí
+    pero arroja una excepción en caso contrario:</p>
+<pre><code>// throws exception
+assertApproxEqual(1.0, 2.0, 0.01, 'Values are too far apart')
+
+// does not throw
+assertApproxEqual(1.0, 2.0, 10.0, 'Large margin of error')
+</code></pre>
+</li>
+<li>
+<p>Modificar la función para usar una tolerancia por defecto si ninguna se especifica:</p>
+<pre><code>// throws excepción
+assertApproxEqual(1.0, 2.0, 'Values are too far apart')
+
+// does not throw
+assertApproxEqual(1.0, 2.0, 'Large margin of error', 10.0)
+</code></pre>
+</li>
+<li>
+<p>Modificar la función  de nuevo para que revise el <a class="glossref" href="../glossary/#relative_error" markdown="1">error relativo</a>
+    en lugar del <a class="glossref" href="../glossary/#absolute_error" markdown="1">error absoluto</a>.
+    (el error relativo es el valor absoluto  de la diferencia entre el valor actual y el esperado,
+    dividido entre el valor absoluto.)</p>
+</li>
+</ol>
+<h3 class="exercise">Cubierta rectangular</h3>
+<p>Una aplicación de ventanas representa rectángulos usando objetos con cuatro valores:
+<code>x</code> e <code>y</code> son las coordenadas de la esquina inferior izquierda,
+mientras que <code>w</code> y <code>h</code> son el ancho y la  altura.
+Todos los valores son positivos:
+la esquina inferior izquierda de la pantalla está en  <code>(0, 0)</code>
+y el tamaño de la misma es  <code>WIDTH</code>x<code>HEIGHT</code>.</p>
+<ol>
+<li>
+<p>Escribir pruebas para verificar si un si un objeto representa un rectángulo válido.</p>
+</li>
+<li>
+<p>La función <code>overlay(a, b)</code> toma dos rectángulos y retorna o
+    un nuevo rectángulo representando la región donde se superponen, o <code>null</code> si no se  superponen.
+    Escribir pruebas para verificar que <code>overlay</code> funcione correctamente.</p>
+</li>
+<li>
+<p>¿Tus  pruebas asumen que dos rectángulos se tocan en el límite de una superposición, o no?
+    ¿ Qué ocurren si dos rectángulos solo coinciden un una sola esquina?</p>
+</li>
+</ol>
+<h3 class="exercise">Seleccionando pruebas</h3>
+<p>Modificar <code>pray.js</code>  para que si el usuario provee <code>-s patrón</code> o <code>--select patrón</code>,
+entonces el programa solo ejecuten pruebas en archivos con la cadena <code>patrón</code> en el nombre.</p>
+<h3 class="exercise">Etiquetando pruebas</h3>
+<p>Modificar <code>hope.js</code>  para que usuarios puedan proveer opcionalmente un arreglo de cadenas para etiquetar tests:</p>
+<pre><code class="language-js">hope.test('Difference of 1 and 2',
+          () =&gt; assert((1 - 2) === -1),
+          ['math', 'fast'])
+</code></pre>
+<p>Luego, modificar <code>pray.js</code> para que que si usuarios especifican  <code>-t tagName</code> o <code>--tag tagName</code>,
+solo las pruebas con esa etiqueta se ejecuten.</p>
+<h3 class="exercise">Maquetar objetos</h3>
+<p>Un objeto maqueta es un reemplazo simplificado  de una parte de un programa
+cuyo comportamiento es más fácil de controlar y predecir que aquello que está reemplazando.
+Por ejemplo,
+podemos querer probar que nuestro programa haga  lo correcto   si ocurre un error mientras lee un archivo.
+Para esto,
+escribimos una función alrededor de  <code>fs.readFileSync</code>:</p>
+<pre><code class="language-js">const mockReadFileSync = (filename, encoding = 'utf-8') =&gt; {Tagging
+  return fs.readFileSync(filename, encoding)
+}
+</code></pre>
+<p class="continue">y luego la modificamos para que arroje una excepción bajo nuestro control.
+Por ejemplo,
+si definimos <code>MOCK_READ_FILE_CONTROL</code> así:</p>
+<pre><code class="language-js">const MOCK_READ_FILE_CONTROL = [false, false, true, false, true]
+</code></pre>
+<p class="continue">entonces la tercera y quinta llamada a <code>mockReadFileSync</code> arrojan una excepción en vez de leer datos,
+igual que toda llamada luego de la quinta.
+Escribir esta función.</p>
+<h3 class="exercise">Configuración y teardown</h3>
+<p>Los frameworks de pruebas a menudo permiten a los programadores especificar una función <code>setup</code> 
+que se ejecuta antes de cada prueba
+y una función <code>teardown</code> 
+que se ejecuta después de cada prueba.
+(<code>setup</code> usualmente re-crea fixtures de prueba complicadas,
+mientras que las funciones <code>teardown</code> a veces son necesarias para limpiar tras ejecutar pruebas,
+e.g., para cerrar conexiones a la base de datos, o borrar archivos temporales.)</p>
+<p>Modificar el framework de pruebas en este capítulo para que si un 
+archivo de pruebas contiene algo como esto:</p>
+<pre><code class="language-js">const createFixtures = () =&gt; {
+  ...do something...
+}
+
+hope.setup(createFixtures)
+</code></pre>
+<p class="continue">entonces la función <code>createFixtures</code> sea llamada
+exactamente una vez antes de cada prueba en ese archivo.
+Agregar una forma similar para registrar una función teardown con <code>hope.teardown</code>.</p>
+<h3 class="exercise break-antes">Pruebas Múltiples</h3>
+<p>Agregar un método <code>hope.multiTest</code> que permita a los usuarios especificar
+múltiple casos de prueba para una función a la vez.
+Por ejemplo, esto:</p>
+<pre><code class="language-js">hope.multiTest('check all of these`, functionToTest, [
+  [['arg1a', 'arg1b'], 'result1'],
+  [['arg2a', 'arg2b'], 'result2'],
+  [['arg3a', 'arg3b'], 'result3']
+])
+</code></pre>
+<p class="continue">debe ser equivalente a esto:</p>
+<pre><code class="language-js">hope.test('check all of these 0',
+  () =&gt; assert(functionToTest('arg1a', 'arg1b') === 'result1')
+)
+hope.test('check all of these 1',
+  () =&gt; assert(functionToTest('arg2a', 'arg2b') === 'result2')
+)
+hope.test('check all of these 2',
+  () =&gt; assert(functionToTest('arg3a', 'arg3b') === 'result3')
+)
+</code></pre>
+<h3 class="exercise">Aserciones para sets y maps</h3>
+<ol>
+<li>
+<p>Escribir funciones <code>assertSetEqual</code> y <code>assertMapEqual</code>
+    que revisen si dos instancias de <code>Set</code> o dos instancias de <code>Map</code> son iguales.</p>
+</li>
+<li>
+<p>Escribir una función <code>assertArraySame</code>
+    que verifique si dos arreglos tienen los mismos elementos,
+    aún si esos están en diferente orden.</p>
+</li>
+</ol>
+<h3 class="exercise">Probando promesas</h3>
+<p>Modificar el framework de pruebas unitarias  para manejar  funciones <code>async</code>,
+para  que:</p>
+<pre><code class="language-js">hope.test('delayed test', async () =&gt; {...})
+</code></pre>
+<p class="continue">haga lo correcto.
+(Nótese que pueden usar <code>typeof</code> para determinar si un objeto dado a <code>hope.test</code>
+es una función o una promesa.)</p>
+    </main>
+  <div class="centered footer">
+  <hr/>
+  <table class="plain footer">
+    <tr>
+      
+      <td><a href="../license/">License</a></td>
+      
+      <td><a href="../conduct/">Code of Conduct</a></td>
+      
+      <td><a href="../bibliography/">Bibliography</a></td>
+      
+      <td><a href="../glossary/">Glossary</a></td>
+      
+      <td><a href="../links/">Links</a></td>
+      
+      <td><a href="https://github.com/software-tools-books/stjs/">GitHub</a></td>
+      
+    </tr>
+  </table>
+</div>
+
+  </body>
+</html>
