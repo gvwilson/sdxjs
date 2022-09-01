@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<link rel="icon" type="image/x-icon" href="../files/favicon.ico">
+<link rel="stylesheet" href="../mccole.css">
+<link rel="stylesheet" href="../codehilite-tango.css">
+
+    <title>Software Design by Example: File Interpolator</title>
+  </head>
+  <body class="page">
+    <div class="centered title">
+  
+  <h2><a href="../">Software Design by Example</a></h2>
+  <h1 id="file-interpolator">Chapter 12: File Interpolator</h1>
+  
+  <p>
+    <img class="page-logo" src="../files/codebender.svg" alt="logo" />
+  </p>
+</div>
+
+    <main>
+<p>Many of the examples in these lessons are too long
+to show comfortably in one block of code on a printed page,
+so we needed a way to break them up.
+As an experiment,
+we wrote a custom <span class="indexentry" index-key="module loader" markdown="1"><a class="glossref" href="../glossary/#loader" markdown="1">module loader</a></span>
+that reads a source file containing specially-formatted comments
+and then reads and inserts the files specified in those comments
+before running the code
+(<a class="figref" href="../file-interpolator/#file-interpolator-conceptual">Figure 12.1</a>).
+Modern programming languages don't work this way,
+but <span class="indexentry" index-key="C" markdown="1">C</span> and <span class="indexentry" index-key="C++" markdown="1">C++</span> do this
+with <span class="indexentry" index-key="header file!in C and C++" markdown="1"><a class="glossref" href="../glossary/#header_file" markdown="1">header files</a></span>,
+and <span class="indexentry" index-key="static site generator!header file;header file!static site generator" markdown="1">static site generators</span>
+(<a class="crossref" href="../page-templates/">Chapter 9</a>) do this to share fragments of HTML.</p>
+<figure id="file-interpolator-conceptual">
+  <img src="./figures/conceptual.svg" alt="Using file inclusions" />
+  <figcaption markdown="1">Figure 12.1: Including fragments of code to create runnable programs.</figcaption>
+</figure>
+
+<p>The special comments in our source files contain two fields:
+the text to put in the displayed version
+and file to include when loading:</p>
+<pre><code class="language-js">/* eslint-disable */
+class Something {
+  /*+ constructor + constructor.js +*/
+
+  /*+ a long method + long_method.js +*/
+
+  /*+ another method + another_method.js +*/
+}
+</code></pre>
+<p>We got this to work,
+but decided to use a different approach in this book.
+The stumbling block was that the style-checking tool <span class="indexentry" index-key="ESLint" markdown="1"><a href="https://eslint.org/">ESLint</a></span>
+didn't know what to make of our inclusions,
+so we would either have to modify it or build a style checker of our own.
+(We will actually do that in <a class="crossref" href="../style-checker/">Chapter 14</a>,
+but we won't go nearly as far as ESLint.)</p>
+<p>Despite being a dead end,
+the inclusion tool is a good way to show
+how JavaScript turns source code into something it can execute.
+We need to be able to do this in the next couple of chapters,
+so we might as well tackle it now.</p>
+<h2 id="file-interpolator-dynamic">Section 12.1:  How can we evaluate JavaScript dynamically?</h2>
+<p>We want to display files as they are on the web and in print,
+but interpolate the files referenced in special comments
+when we load things with <code>import</code>.
+To do this,
+we need to understand the lifecycle of a JavaScript program.
+When we ask for a file,
+<a href="https://nodejs.org/en/">Node</a> reads the text,
+translates it into runnable instructions,
+and runs those instructions.
+We can do the second and third steps whenever we want using a function called <code>eval</code>,
+which takes a string as input and executes it as if it were part of the program
+(<a class="figref" href="../file-interpolator/#file-interpolator-eval">Figure 12.2</a>).</p>
+<figure id="file-interpolator-eval">
+  <img src="./figures/eval.svg" alt="How eval works" />
+  <figcaption markdown="1">Figure 12.2: `eval` vs. normal translation and execution.</figcaption>
+</figure>
+
+<blockquote>
+<h3>This is not a good idea</h3>
+<p><span class="indexentry" index-key="eval!insecurity of" markdown="1"><code>eval</code></span> is a security risk:
+arbitrary code can do arbitrary things,
+so if we take a string typed in by a user and execute it without any checks
+it could email our bookmark list to villains all over the world,
+erase our hard drive,
+or do anything else that code can do (which is pretty much anything).
+Browsers do their best to run code in a <span class="indexentry" index-key="sandbox (for safe execution)" markdown="1"><a class="glossref" href="../glossary/#sandbox" markdown="1">sandbox</a></span> for safety,
+but Node doesn't,
+so it's up to us to be (very) careful.</p>
+</blockquote>
+<p>To see <code>eval</code> in action,
+let's evaluate an expression:</p>
+<pre><code class="language-js">/* eslint-disable no-eval */
+console.log(eval('2 + 2'))
+</code></pre>
+<pre><code class="language-out">4
+</code></pre>
+<p class="continue">Notice that the input to <code>eval</code> is <em>not</em> <code>2 + 2</code>,
+but rather a string containing the digit 2,
+a space,
+a plus sign,
+another space,
+and another 2.
+When we call <code>eval</code>,
+it translates this string
+using exactly the same parser that Node uses for our program
+and immediately runs the result.</p>
+<p>We can make the example a little more interesting
+by constructing the string dynamically:</p>
+<pre><code class="language-js">/* eslint-disable no-eval */
+const x = 1 // eslint-disable-line
+const y = 3 // eslint-disable-line
+const z = 5 // eslint-disable-line
+for (const name of ['x', 'y', 'z', 'oops']) {
+  const expr = `${name} + 1`
+  console.log(name, '+ 1 =', eval(expr))
+}
+</code></pre>
+<pre><code class="language-out">x + 1 = 2
+y + 1 = 4
+z + 1 = 6
+undefined:1
+oops + 1
+^
+
+ReferenceError: oops is not defined
+    at eval (eval at &lt;anonymous&gt; \
+    (/u/stjs/file-interpolator/eval-loop.js:7:30), &lt;anonymous&gt;:1:1)
+    at /u/stjs/file-interpolator/eval-loop.js:7:30
+    at ModuleJob.run (internal/modules/esm/module_job.js:152:23)
+    at async Loader.import (internal/modules/esm/loader.js:166:24)
+    at async Object.loadESM (internal/process/esm_loader.js:68:5)
+</code></pre>
+<p class="continue">The first time the loop runs the string is <code>'x + 1'</code>;
+since there's a variable called <code>x</code> in scope,
+<code>eval</code> does the addition and we print the result.
+The same thing happens for the variables <code>y</code> and <code>z</code>,
+but we get an error when we try to evaluate the string <code>'oops + 1'</code>
+because there is no variable in scope called <code>oops</code>.</p>
+<p><code>eval</code> can use whatever variables are in scope when it's called,
+but what happens to any variables it defines?
+This example creates a variable called <code>x</code> and runs <code>console.log</code> to display it,
+but as the output shows,
+<code>x</code> is local to the <code>eval</code> call
+just as variables created inside a function
+only exist during a call to that function:</p>
+<pre><code class="language-js">/* eslint-disable no-eval */
+const code = `
+  const x = 'hello'
+  console.log('x in eval is', x)
+`
+
+eval(code)
+console.log('typeof x after eval', typeof x)
+</code></pre>
+<pre><code class="language-out">x in eval is hello
+typeof x after eval undefined
+</code></pre>
+<p>However,
+<code>eval</code> can modify variables defined outside the text being evaluated
+in the same way that a function can modify global variables:</p>
+<pre><code class="language-js">/* eslint-disable no-eval */
+let x = 'original' // eslint-disable-line
+eval('x = &quot;modified&quot;')
+console.log('x after eval is', x)
+</code></pre>
+<pre><code class="language-out">x after eval is modified
+</code></pre>
+<p class="continue">This means that
+if the text we give to <code>eval</code> modifies a structure that is defined outside the text,
+that change outlives the call to <code>eval</code>:</p>
+<pre><code class="language-js">/* eslint-disable no-eval */
+const seen = {}
+
+for (const name of ['x', 'y', 'z']) {
+  const expr = `seen[&quot;${name}&quot;] = &quot;${name.toUpperCase()}&quot;`
+  eval(expr)
+}
+
+console.log(seen)
+</code></pre>
+<pre><code class="language-out">{ x: 'X', y: 'Y', z: 'Z' }
+</code></pre>
+<p>The examples so far have all evaluated strings embedded in the program itself,
+but <code>eval</code> doesn't care where its input comes from.
+Let's move the code that does the modifying into <code>to-be-loaded.js</code>:</p>
+<pre><code class="language-js">/* eslint-disable */
+// Modify a global structure defined by whoever loads us.
+Seen.from_loaded_file = 'from loaded file'
+</code></pre>
+<p class="continue">This doesn't work on its own because <code>Seen</code> isn't defined:</p>
+<pre><code class="language-out">/u/stjs/file-interpolator/to-be-loaded.js:3
+Seen.from_loaded_file = 'from loaded file'
+^
+
+ReferenceError: Seen is not defined
+    at /u/stjs/file-interpolator/to-be-loaded.js:3:1
+    at ModuleJob.run (internal/modules/esm/module_job.js:152:23)
+    at async Loader.import (internal/modules/esm/loader.js:166:24)
+    at async Object.loadESM (internal/process/esm_loader.js:68:5)
+</code></pre>
+<p class="continue">But if we read the file and <code>eval</code> the text <em>after</em> defining <code>Seen</code>,
+it does what we want:</p>
+<pre><code class="language-js">/* eslint-disable no-eval */
+import fs from 'fs'
+
+const Seen = {}
+
+const filename = process.argv[2]
+const content = fs.readFileSync(filename, 'utf-8')
+console.log('before eval, Seen is', Seen)
+eval(content)
+console.log('after eval, Seen is', Seen)
+</code></pre>
+<pre><code class="language-sh">node does-the-loading.js to-be-loaded.js
+</code></pre>
+<pre><code class="language-out">before eval, Seen is {}
+after eval, Seen is { from_loaded_file: 'from loaded file' }
+</code></pre>
+<h2 id="file-interpolator-manage">Section 12.2:  How can we manage files?</h2>
+<p>The source files in this book are small enough
+that we don't have to worry about reading them repeatedly,
+but we would like to avoid re-reading things unnecessarily
+in large systems or when there might be network delays.
+The usual approach is to create a <span class="indexentry" index-key="cache!of loaded files" markdown="1">cache</span>
+using the <span class="indexentry" index-key="Singleton pattern;design pattern!Singleton" markdown="1">Singleton pattern</span>
+that we first met in <a class="crossref" href="../unit-test/">Chapter 4</a>.
+Whenever we want to read a file,
+we check to see if it's already in the cache
+(<a class="figref" href="../file-interpolator/#file-interpolator-cache">Figure 12.3</a>).
+If it is,
+we use that copy;
+if not,
+we read it and add it to the cache
+using the file path as a lookup key.</p>
+<figure id="file-interpolator-cache">
+  <img src="./figures/cache.svg" alt="Implementing a cache as a singleton" />
+  <figcaption markdown="1">Figure 12.3: Using the Singleton pattern to implement a cache of loaded files.</figcaption>
+</figure>
+
+<p>We can write a simple cache in just a few lines of code:</p>
+<pre><code class="language-js">/* eslint-disable no-eval */
+import fs from 'fs'
+
+class Cache {
+  constructor () {
+    this.loaded = new Map()
+  }
+
+  need (name) {
+    if (this.loaded.has(name)) {
+      console.log(`returning cached value for ${name}`)
+      return this.loaded.get(name)
+    }
+    console.log(`loading ${name}`)
+    const content = fs.readFileSync(name, 'utf-8')
+    const result = eval(content)
+    this.loaded.set(name, result)
+    return result
+  }
+}
+
+const cache = new Cache()
+
+export default (name) =&gt; {
+  return cache.need(name)
+}
+</code></pre>
+<p>Since we are using <code>eval</code>, though,
+we can't rely on <code>export</code> to make things available to the rest of the program.
+Instead,
+we rely on the fact that the result of an <code>eval</code> call is the value of
+the last expression evaluated.
+Since a variable name on its own evaluates to the variable's value,
+we can create a function and then use its name
+to "export" it from the evaluated file:</p>
+<pre><code class="language-js">/* eslint-disable */
+// Define.
+const report = (message) =&gt; {
+  console.log(`report in import-01.js with message &quot;${message}&quot;`)
+}
+
+// Export.
+report
+</code></pre>
+<p>To test our program,
+we load the implementation of the cache using <code>import</code>,
+then use it to load and evaluate another file.
+This example expects that "other file" to define a function,
+which we call in order to show that everything is working:</p>
+<pre><code class="language-js">import need from './need-simple.js'
+
+const imported = need('./import-simple.js')
+imported('called from test-simple.js')
+</code></pre>
+<pre><code class="language-sh">node test-simple.js
+</code></pre>
+<h2 id="file-interpolator-find">Section 12.3:  How can we find files?</h2>
+<p>Each of the files included in our examples is in the same directory as the file including it,
+but in C/C++ or a page templating system
+we might include a particular file in several different places.
+We don't want to have to put all of our files in a single directory,
+so we need a way specify where to look for files that are being included.</p>
+<p>One option is to use relative paths,
+but another option is to give our program
+a list of directories to look in.
+This is called a <span class="indexentry" index-key="search path" markdown="1"><a class="glossref" href="../glossary/#search_path" markdown="1">search path</a></span>,
+and many programs use them,
+including Node itself.
+By convention,
+a search path is written as a colon-separated list of directories on Unix
+or using semi-colons on Windows.
+If the path to an included starts with <code>./</code>,
+we look for it locally;
+if not,
+we go through the directories in the search path in order
+until we find a file with a matching name
+(<a class="figref" href="../file-interpolator/#file-interpolator-search-path">Figure 12.4</a>).</p>
+<figure id="file-interpolator-search-path">
+  <img src="./figures/search-path.svg" alt="Implementing a search path" />
+  <figcaption markdown="1">Figure 12.4: Using a colon-separated list of directories as a search path.</figcaption>
+</figure>
+
+<blockquote>
+<h3>That's just how it is</h3>
+<p>The rules about search paths in the paragraph above are a convention:
+somebody did it this way years ago
+and (almost) everyone has imitated it since.
+We could implement search paths some other way,
+but as with configuration file formats,
+variable naming conventions,
+and many other things,
+the last thing the world needs is more innovation.</p>
+</blockquote>
+<p>Since the cache is responsible for finding files,
+it should also handle the search path.
+The outline of the class stays the same:</p>
+<pre><code class="language-js">/* eslint-disable no-eval */
+import fs from 'fs'
+import path from 'path'
+
+class Cache {
+  constructor () {
+    this.loaded = new Map()
+    this.constructSearchPath()
+  }
+
+  need (fileSpec) {
+    if (this.loaded.has(fileSpec)) {
+      console.log(`returning cached value for ${fileSpec}`)
+      return this.loaded.get(fileSpec)
+    }
+    console.log(`loading value for ${fileSpec}`)
+    const filePath = this.find(fileSpec)
+    const content = fs.readFileSync(filePath, 'utf-8')
+    const result = eval(content)
+    this.loaded.set(fileSpec, result)
+    return result
+  }
+
+}
+
+const cache = new Cache()
+
+export default (fileSpec) =&gt; {
+  return cache.need(fileSpec)
+}
+</code></pre>
+<p>To get the search path,
+we look for the <span class="indexentry" index-key="shell variable (for storing search path);search path!shell variable" markdown="1"><a class="glossref" href="../glossary/#shell_variable" markdown="1">shell variable</a></span> <code>NEED_PATH</code>.
+(Writing shell variables' names in upper case is another convention.)
+If <code>NEED_PATH</code> exists,
+we split it on colons to create a list of directories:</p>
+<pre><code class="language-js">  constructSearchPath () {
+    this.searchPath = []
+    if ('NEED_PATH' in process.env) {
+      this.searchPath = process.env.NEED_PATH
+        .split(':')
+        .filter(x =&gt; x.length &gt; 0)
+    }
+  }
+</code></pre>
+<p>When we need to find a file we first check to see if the path is local.
+If it's not,
+we try the directories in the search path in order:</p>
+<pre><code class="language-js">  constructSearchPath () {
+    this.searchPath = []
+    if ('NEED_PATH' in process.env) {
+      this.searchPath = process.env.NEED_PATH
+        .split(':')
+        .filter(x =&gt; x.length &gt; 0)
+    }
+  }
+</code></pre>
+<p>To test this,
+we put the file to import in a subdirectory called <code>modules</code>:</p>
+<pre><code class="language-js">/* eslint-disable */
+// Define.
+const report = (message) =&gt; {
+  console.log(`in LEFT with message &quot;${message}&quot;`)
+}
+
+// Export.
+report
+</code></pre>
+<p class="continue">and then put the file doing the importing in the current directory:</p>
+<pre><code class="language-js">import need from './need-path.js'
+const imported = need('imported-left.js')
+imported('called from test-import-left.js')
+</code></pre>
+<p>We now need to set the variable <code>NEED_PATH</code>.
+There are many ways to do this in shell;
+if we only need the variable to exist for a single command,
+the simplest is to write it as:</p>
+<pre><code class="language-shell">NAME=value command
+</code></pre>
+<p class="continue">right before the command (on the same line).
+Here's the shell command that runs our test case
+using <code>$PWD</code> to get the current working directory:</p>
+<pre><code class="language-sh">NEED_PATH=$PWD/modules/ node test-import-left.js
+</code></pre>
+<pre><code class="language-out">loading value for imported-left.js
+trying /u/stjs/file-interpolator/modules/imported-left.js for \
+imported-left.js
+in LEFT with message &quot;called from test-import-left.js&quot;
+</code></pre>
+<p>Now let's create a second importable file in the <code>modules</code> directory:</p>
+<pre><code class="language-js">/* eslint-disable */
+// Define.
+const report = (message) =&gt; {
+  console.log(`in RIGHT with message &quot;${message}&quot;`)
+}
+
+// Export.
+report
+</code></pre>
+<p class="continue">and load that twice to check that caching works:</p>
+<pre><code class="language-js">import need from './need-path.js'
+
+const imported = need('imported-right.js')
+imported('called from test-import-right.js')
+
+const alsoImported = need('imported-right.js')
+alsoImported('called from test-import-right.js')
+</code></pre>
+<pre><code class="language-out">loading value for imported-right.js
+trying /u/stjs/file-interpolator/modules/imported-right.js for \
+imported-right.js
+in RIGHT with message &quot;called from test-import-right.js&quot;
+returning cached value for imported-right.js
+in RIGHT with message &quot;called from test-import-right.js&quot;
+</code></pre>
+<h2 id="file-interpolator-interpolate">Section 12.4:  How can we interpolate pieces of code?</h2>
+<p>Interpolating files is straightforward once we have this machinery in place.
+We modify <code>Cache.find</code> to return a directory and a file path,
+then add an <code>interpolate</code> method to replace special comments:</p>
+<pre><code class="language-js">/* eslint-disable */
+class Cache {
+  // ...
+  interpolate (fileDir, outer) {
+    return outer.replace(Cache.INTERPOLATE_PAT,
+                         (match, comment, filename) =&gt; {
+      filename = filename.trim()
+      const filePath = path.join(fileDir, filename)
+      if (!fs.existsSync(filePath)) {
+        throw new Error(`Cannot find ${filePath}`)
+      }
+      const inner = fs.readFileSync(filePath, 'utf-8')
+      return inner
+    })
+  }
+  // ...
+}
+Cache.INTERPOLATE_PAT = /\/\*\+(.+?)\+(.+?)\+\*\//g
+</code></pre>
+<p>We can now have a file like this:</p>
+<pre><code class="language-js">/* eslint-disable */
+class Example {
+  constructor (msg) {
+    this.constructorMessage = msg
+  }
+  /*+ top method + import-interpolate-topmethod.js +*/
+  /*+ bottom method + import-interpolate-bottommethod.js +*/
+}
+
+Example
+</code></pre>
+<p class="continue">and subfiles like this:</p>
+<pre><code class="language-js">/* eslint-disable */
+topMethod (msg) {
+  this.bottomMethod(`(topMethod ${msg})`)
+}
+</code></pre>
+<p class="continue">and this:</p>
+<pre><code class="language-js">/* eslint-disable */
+bottomMethod (msg) {
+  console.log(`(bottomMethod ${msg})`)
+}
+</code></pre>
+<p>Let's test it:</p>
+<pre><code class="language-sh">node test-import-interpolate.js
+</code></pre>
+<pre><code class="language-out">(bottomMethod (topMethod called from test-import-interpolate.js))
+</code></pre>
+<p>When this program runs, its <span class="indexentry" index-key="lifecycle!of file interpolation" markdown="1">lifecycle</span> is:</p>
+<ol>
+<li>Node starts to run <code>test-import-interpolate.js</code>.</li>
+<li>It sees the <code>import</code> of need-interpolate` so it reads and evaluates that code.</li>
+<li>Doing this creates a singleton cache object.</li>
+<li>The program then calls <code>need('./import-interpolate.js')</code>.</li>
+<li>This checks the cache: nope, nothing there.</li>
+<li>So it loads <code>import-interpolate.js</code>.</li>
+<li>It finds two specially-formatted comments in the text…</li>
+<li>…so it loads the file described by each one and inserts the text in place of the comment.</li>
+<li>Now that it has the complete text, it calls <code>eval</code>…</li>
+<li>…and stores the result of <code>eval</code> (which is a class) in the cache.</li>
+<li>It also returns that class.</li>
+<li>We then create an instance of that class and call its method.</li>
+</ol>
+<p>This works,
+but as we said in the introduction we decided not to use it
+because it didn't play well with other tools.
+No piece of software exists in isolation;
+when we evaluate a design,
+we always have to ask how it fits into everything else we have.</p>
+<h2 id="file-interpolator-instead">Section 12.5:  What did we do instead?</h2>
+<p>Rather than interpolating file fragments,
+we extract or erase parts of regular JavaScript files
+based on specially-formatted comments
+like the <code>&lt;fragment&gt;...&lt;/fragment&gt;</code> pair shown below.</p>
+<pre><code class="language-js">class Example {
+  constructor (name) {
+    this.name = name
+  }
+
+  // &lt;fragment&gt;
+  fragment (message) {
+    console.log(`${name}: ${message}`)
+  }
+  // &lt;/fragment&gt;
+}
+</code></pre>
+<p>The code that selects the part of the file we want to display
+is part of our page templating system.
+It re-extracts code for display every time the web version of this site is built,
+which ensures that we always shows what's in the current version of our examples.
+However,
+this system doesn't automatically update the description of the code:
+if we write, "It does X,"
+then modify the code to do Y,
+our lesson can be inconsistent.
+<span class="indexentry" index-key="literate programming" markdown="1"><a class="glossref" href="../glossary/#literate_programming" markdown="1">Literate programming</a></span> was invented
+to try to prevent this from happening,
+but it never really caught on---unfortunately,
+most programming systems that describe themselves as "literate" these days
+only implement part of <span class="indexentry" index-key="Knuth, Donald" markdown="1"><a href="https://www-cs-faculty.stanford.edu/~knuth/">Donald Knuth's</a></span> original vision.</p>
+<div class="break-before"></div>
+<h2 id="file-interpolator-exercises">Section 12.6:  Exercises</h2>
+<h3 class="exercise">Security concerns</h3>
+<ol>
+<li>
+<p>Write a function <code>loadAndRun</code> that reads a file, evaluates it, and returns the result.</p>
+</li>
+<li>
+<p>Create a file <code>trust-me.js</code> that prints "nothing happening here" when it is evaluated,
+    but also deletes everything in the directory called <code>target</code>.</p>
+</li>
+<li>
+<p>Write tests for this using <a href="https://www.npmjs.com/package/mock-fs"><code>mock-fs</code></a>.</p>
+</li>
+</ol>
+<p class="continue">Please be careful doing this exercise.</p>
+<h3 class="exercise">Loading functions</h3>
+<p>Write a function that reads a file containing single-argument functions like this:</p>
+<pre><code class="language-js">addOne: (x) =&gt; x + 1
+halve: (x) =&gt; x / 2
+array: (x) =&gt; Array(x).fill(0)
+</code></pre>
+<p class="continue">and returns an object containing callable functions.</p>
+<h3 class="exercise">Registering functions</h3>
+<p>Write a function that loads one or more files containing function definitions like this:</p>
+<pre><code class="language-js">const double = (x) =&gt; {
+  return 2 * x
+}
+
+EXPORTS.append(double)
+</code></pre>
+<p class="continue">and returns a list containing all the loaded functions.</p>
+<h3 class="exercise">Indenting inclusions</h3>
+<p>Modify the file inclusion system
+so that inclusions are indented by the same amount as the including comment.
+For example,
+if the including file is:</p>
+<pre><code class="language-js">const withLogging = (args) =&gt; {
+  /*+ logging call + logging.js +*/
+}
+
+withLogging
+</code></pre>
+<p class="continue">and the included file is:</p>
+<pre><code class="language-js">console.log('first message')
+console.log('second message')
+</code></pre>
+<p class="continue">then the result will be:</p>
+<pre><code class="language-js">const withLogging = (args) =&gt; {
+  console.log('first message')
+  console.log('second message')
+}
+
+withLogging
+</code></pre>
+<p class="continue">i.e., all lines of the inclusion will be indented to match the first.</p>
+<h3 class="exercise">Interpolating from subdirectories</h3>
+<p>Modify the file interpolator so that snippets can be included from sub-directories using relative paths.</p>
+<h3 class="exercise">Recursive search for inclusions</h3>
+<ol>
+<li>
+<p>Modify the file interpolator so that it searches recursively
+    through all subdirectories of the directories on the search path
+    to find inclusions.</p>
+</li>
+<li>
+<p>Explain why this is a bad idea.</p>
+</li>
+</ol>
+<h3 class="exercise">Defining variables</h3>
+<p>Modify the file inclusion system so that users can pass in a <code>Map</code> containing name-value pairs
+and have these interpolated into the text of the files being loaded.
+To interpolate a value,
+the included file must use <code>@@name@@</code>.</p>
+<h3 class="exercise">Specifying markers</h3>
+<p>Modify the file inclusion system so that the user can override the inclusion comment markers.
+For example, the user should be able to specify that <code>/*!</code> and <code>!*/</code> be used to mark inclusions.
+(This is often used in tutorials that need to show the inclusion markers without them being interpreted.)</p>
+<h3 class="exercise">Recursive inclusions</h3>
+<p>Modify the file interpolator to support recursive includes,
+i.e.,
+to handle inclusion markers in files that are being included.
+Be sure to check for the case of infinite includes.</p>
+<h3 class="exercise">Slicing files</h3>
+<p>Write a function that reads a JavaScript source file
+containing specially-formatted comments like the ones shown below
+and extracts the indicated section.</p>
+<pre><code class="language-js">const toBeLeftOut = (args) =&gt; {
+  console.log('this should not appear')
+}
+
+// &lt;keepThis&gt;
+const toBeKept = (args) =&gt; {
+  console.log('only this function should appear')
+}
+// &lt;/keepThis&gt;
+</code></pre>
+<p>Users should be able to specify any tag they want,
+and if that tag occurs multiple times,
+all of the sections marked with that tag should be kept.
+(This is the approach we took for this book instead of file interpolation.)</p>
+    </main>
+  <div class="centered footer">
+  <hr/>
+  <table class="plain footer">
+    <tr>
+      
+      <td><a href="../license/">License</a></td>
+      
+      <td><a href="../conduct/">Code of Conduct</a></td>
+      
+      <td><a href="../bibliography/">Bibliography</a></td>
+      
+      <td><a href="../glossary/">Glossary</a></td>
+      
+      <td><a href="../links/">Links</a></td>
+      
+      <td><a href="https://github.com/software-tools-books/stjs/">GitHub</a></td>
+      
+    </tr>
+  </table>
+</div>
+
+  </body>
+</html>

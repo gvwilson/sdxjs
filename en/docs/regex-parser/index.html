@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<link rel="icon" type="image/x-icon" href="../files/favicon.ico">
+<link rel="stylesheet" href="../mccole.css">
+<link rel="stylesheet" href="../codehilite-tango.css">
+
+    <title>Software Design by Example: Parsing Expressions</title>
+  </head>
+  <body class="page">
+    <div class="centered title">
+  
+  <h2><a href="../">Software Design by Example</a></h2>
+  <h1 id="regex-parser">Chapter 8: Parsing Expressions</h1>
+  
+  <p>
+    <img class="page-logo" src="../files/codebender.svg" alt="logo" />
+  </p>
+</div>
+
+    <main>
+<p>In <a class="crossref" href="../pattern-matching/">Chapter 7</a> we created regular expressions by constructing objects.
+It takes a lot less typing to write them as strings as we did for HTML selectors,
+but if we're going to do that we need something to convert those strings to the required objects.
+In other words, we need to write a <span class="indexentry" index-key="parser" markdown="1"><a class="glossref" href="../glossary/#parser" markdown="1">parser</a></span>.</p>
+<div class="table"><table id="regex-parser-grammar-codes"><caption>Table 8.1: Regular expression grammar.</caption>
+<thead>
+<tr>
+<th>Meaning</th>
+<th>Character</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Any literal character <em>c</em></td>
+<td><em>c</em></td>
+</tr>
+<tr>
+<td>Beginning of input</td>
+<td>^</td>
+</tr>
+<tr>
+<td>End of input</td>
+<td>$</td>
+</tr>
+<tr>
+<td>Zero or more of the previous thing</td>
+<td>*</td>
+</tr>
+<tr>
+<td>Either/or</td>
+<td>|</td>
+</tr>
+<tr>
+<td>Grouping</td>
+<td>(…)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><a class="tblref" href="../regex-parser/#regex-parser-grammar-codes">Table 8.1</a> shows the grammar we will handle.
+When we are done
+we should be able to parse <code>/^(a|b|$)*z$/</code> as
+"start of text",
+"any number of 'a', 'b', or '$'",
+"a single 'z',
+and "end of text".
+(We write regular expressions inside slashes to distinguish them from strings.)
+To keep things simple,
+we will create a tree of objects (<a class="figref" href="../regex-parser/#regex-parser-expression-tree">Figure 8.1</a>)
+rather than instances of the regular expression classes from <a class="crossref" href="../pattern-matching/">Chapter 7</a>;
+the exercises will tackle the latter.</p>
+<figure id="regex-parser-expression-tree">
+  <img src="./figures/expression-tree.svg" alt="Expression tree for regular expression" />
+  <figcaption markdown="1">Figure 8.1: Representing the result of parsing a regular expression as an tree.</figcaption>
+</figure>
+
+<blockquote>
+<h3>Please don't write parsers</h3>
+<p>Languages that are comfortable for people to read are usually difficult for computers to understand
+and vice versa,
+so we need parsers to translate human-friendly notation into computer-friendly representations.
+However,
+<span class="indexentry" index-key="parser!reasons not to write" markdown="1">the world doesn't need more file formats</span>;
+if you need a configuration file or lookup table,
+please use CSV, JSON, <a class="glossref" href="../glossary/#yaml" markdown="1">YAML</a>,
+or something else that already has an acronym
+rather than inventing a format of your own.</p>
+</blockquote>
+<h2 id="regex-parser-tokenize">Section 8.1:  How can we break text into tokens?</h2>
+<p>A <span class="indexentry" index-key="token (in parsing)" markdown="1"><a class="glossref" href="../glossary/#token" markdown="1">token</a></span> is an atom of text,
+such as the digits making up a number or the letters making up a variable name.
+In our grammar the tokens are the special characters <code>*</code>, <code>|</code>, <code>(</code>, <code>)</code>, <code>^</code>, and <code>$</code>,
+plus any sequence of one or more other characters (which count as one multi-letter token).
+This classification guides the design of our parser:</p>
+<ol>
+<li>
+<p>If a character is special, create a token for it.</p>
+</li>
+<li>
+<p>If it is a <span class="indexentry" index-key="literal (in parsing)" markdown="1"><a class="glossref" href="../glossary/#literal" markdown="1">literal</a></span> then:</p>
+<ol>
+<li>combine it with the current literal if there is one, or</li>
+<li>start a new literal.</li>
+</ol>
+</li>
+<li>
+<p>Since <code>^</code> and <code>$</code> are either special or regular depending on position,
+    we must treat them as separate tokens or as part of a literal
+    based on where they appear.</p>
+</li>
+</ol>
+<p>We can translate these rules almost directly into code
+to create a list of objects whose keys are <code>kind</code> and <code>loc</code> (short for location),
+with the extra key <code>value</code> for literal values:</p>
+<pre><code class="language-js">const SIMPLE = {
+  '*': 'Any',
+  '|': 'Alt',
+  '(': 'GroupStart',
+  ')': 'GroupEnd'
+}
+
+const tokenize = (text) =&gt; {
+  const result = []
+  for (let i = 0; i &lt; text.length; i += 1) {
+    const c = text[i]
+    if (c in SIMPLE) {
+      result.push({ kind: SIMPLE[c], loc: i })
+    } else if (c === '^') {
+      if (i === 0) {
+        result.push({ kind: 'Start', loc: i })
+      } else {
+        combineOrPush(result, c, i)
+      }
+    } else if (c === '$') {
+      if (i === (text.length - 1)) {
+        result.push({ kind: 'End', loc: i })
+      } else {
+        combineOrPush(result, c, i)
+      }
+    } else {
+      combineOrPush(result, c, i)
+    }
+  }
+
+  return result
+}
+
+
+export default tokenize
+</code></pre>
+<p>The helper function <code>combineOrPush</code> does exactly what its name says.
+If the thing most recently added to the list of tokens isn't a literal,
+the new character becomes a new token;
+otherwise,
+we append the new character to the literal we're building:</p>
+<pre><code class="language-js">const combineOrPush = (soFar, character, location) =&gt; {
+  const topIndex = soFar.length - 1
+  if ((soFar.length === 0) || (soFar[topIndex].token !== 'Lit')) {
+    soFar.push({ kind: 'Lit', value: character, loc: location })
+  } else {
+    soFar[topIndex].value += character
+  }
+}
+</code></pre>
+<p>We can try this out with a three-line test program:</p>
+<pre><code class="language-js">import tokenize from './tokenizer-collapse.js'
+
+const test = '^a^b*'
+const result = tokenize(test)
+console.log(JSON.stringify(result, null, 2))
+</code></pre>
+<pre><code class="language-out">[
+  {
+    &quot;kind&quot;: &quot;Start&quot;,
+    &quot;loc&quot;: 0
+  },
+  {
+    &quot;kind&quot;: &quot;Lit&quot;,
+    &quot;value&quot;: &quot;a&quot;,
+    &quot;loc&quot;: 1
+  },
+  {
+    &quot;kind&quot;: &quot;Lit&quot;,
+    &quot;value&quot;: &quot;^&quot;,
+    &quot;loc&quot;: 2
+  },
+  {
+    &quot;kind&quot;: &quot;Lit&quot;,
+    &quot;value&quot;: &quot;b&quot;,
+    &quot;loc&quot;: 3
+  },
+  {
+    &quot;kind&quot;: &quot;Any&quot;,
+    &quot;loc&quot;: 4
+  }
+]
+</code></pre>
+<p>This simple tokenizer is readable, efficient, and wrong.
+The problem is that the expression <code>/ab*/</code> means "a single <code>a</code> followed by zero or more <code>b</code>".
+If we combine the <code>a</code> and <code>b</code> as we read them,
+though,
+we wind up with "zero or more repetitions of <code>ab</code>".
+(Don't feel bad if you didn't spot this:
+we didn't notice the problem until we were implementing the next step.)</p>
+<p>The solution is to treat each regular character as its own literal in this stage
+and then combine things later.
+Doing this lets us get rid of the nested <code>if</code> for handling <code>^</code> and <code>$</code> as well:</p>
+<pre><code class="language-js">const SIMPLE = {
+  '*': 'Any',
+  '|': 'Alt',
+  '(': 'GroupStart',
+  ')': 'GroupEnd'
+}
+
+const tokenize = (text) =&gt; {
+  const result = []
+  for (let i = 0; i &lt; text.length; i += 1) {
+    const c = text[i]
+    if (c in SIMPLE) {
+      result.push({ kind: SIMPLE[c], loc: i })
+    } else if ((c === '^') &amp;&amp; (i === 0)) {
+      result.push({ kind: 'Start', loc: i })
+    } else if ((c === '$') &amp;&amp; (i === (text.length - 1))) {
+      result.push({ kind: 'End', loc: i })
+    } else {
+      result.push({ kind: 'Lit', loc: i, value: c })
+    }
+  }
+
+  return result
+}
+
+export default tokenize
+</code></pre>
+<p>Software isn't done until it's tested,
+so let's build some <span class="indexentry" index-key="Mocha" markdown="1"><a href="https://mochajs.org/">Mocha</a></span> tests for our tokenizer.
+The listing below shows a few of these
+along with the output for the full set:</p>
+<pre><code class="language-js">import assert from 'assert'
+
+import tokenize from '../tokenizer.js'
+
+describe('tokenizes correctly', async () =&gt; {
+  it('tokenizes a single character', () =&gt; {
+    assert.deepStrictEqual(tokenize('a'), [
+      { kind: 'Lit', value: 'a', loc: 0 }
+    ])
+  })
+
+  it('tokenizes a sequence of characters', () =&gt; {
+    assert.deepStrictEqual(tokenize('ab'), [
+      { kind: 'Lit', value: 'a', loc: 0 },
+      { kind: 'Lit', value: 'b', loc: 1 }
+    ])
+  })
+
+  it('tokenizes start anchor alone', () =&gt; {
+    assert.deepStrictEqual(tokenize('^'), [
+      { kind: 'Start', loc: 0 }
+    ])
+  })
+
+  it('tokenizes start anchor followed by characters', () =&gt; {
+    assert.deepStrictEqual(tokenize('^a'), [
+      { kind: 'Start', loc: 0 },
+      { kind: 'Lit', value: 'a', loc: 1 }
+    ])
+  })
+
+  it('tokenizes a complex expression', () =&gt; {
+    assert.deepStrictEqual(tokenize('^a*(bcd|e^)*f$gh$'), [
+      { kind: 'Start', loc: 0 },
+      { kind: 'Lit', loc: 1, value: 'a' },
+      { kind: 'Any', loc: 2 },
+      { kind: 'GroupStart', loc: 3 },
+      { kind: 'Lit', loc: 4, value: 'b' },
+      { kind: 'Lit', loc: 5, value: 'c' },
+      { kind: 'Lit', loc: 6, value: 'd' },
+      { kind: 'Alt', loc: 7 },
+      { kind: 'Lit', loc: 8, value: 'e' },
+      { kind: 'Lit', loc: 9, value: '^' },
+      { kind: 'GroupEnd', loc: 10 },
+      { kind: 'Any', loc: 11 },
+      { kind: 'Lit', loc: 12, value: 'f' },
+      { kind: 'Lit', loc: 13, value: '$' },
+      { kind: 'Lit', loc: 14, value: 'g' },
+      { kind: 'Lit', loc: 15, value: 'h' },
+      { kind: 'End', loc: 16 }
+    ])
+  })
+})
+</code></pre>
+<pre><code class="language-out">
+&gt; stjs@1.0.0 test /u/stjs
+&gt; mocha */test/test-*.js &quot;-g&quot; &quot;tokenizes correctly&quot;
+
+
+
+  tokenizes correctly
+    ✓ tokenizes a single character
+    ✓ tokenizes a sequence of characters
+    ✓ tokenizes start anchor alone
+    ✓ tokenizes start anchor followed by characters
+    ✓ tokenizes circumflex not at start
+    ✓ tokenizes start anchor alone
+    ✓ tokenizes end anchor preceded by characters
+    ✓ tokenizes dollar sign not at end
+    ✓ tokenizes repetition alone
+    ✓ tokenizes repetition in string
+    ✓ tokenizes repetition at end of string
+    ✓ tokenizes alternation alone
+    ✓ tokenizes alternation in string
+    ✓ tokenizes alternation at start of string
+    ✓ tokenizes the start of a group alone
+    ✓ tokenizes the start of a group in a string
+    ✓ tokenizes the end of a group alone
+    ✓ tokenizes the end of a group at the end of a string
+    ✓ tokenizes a complex expression
+
+
+  19 passing (12ms)
+</code></pre>
+<h2 id="regex-parser-tree">Section 8.2:  How can we turn a list of tokens into a tree?</h2>
+<p>We now have a list of tokens,
+but we need a tree that captures the nesting introduced by parentheses
+and the way that <code>*</code> applies to whatever comes before it.
+Let's trace a few cases in order to see how to build this tree:</p>
+<ol>
+<li>
+<p>If the regular expression is <code>/a/</code>, we create a <code>Lit</code> token for the letter <code>a</code>
+    (where "create" means "append to the output list").</p>
+</li>
+<li>
+<p>What if the regular expression is <code>/a*/</code>?
+    We first create a <code>Lit</code> token for the <code>a</code> and append it to the output list.
+    When we see the <code>*</code>,
+    we take that <code>Lit</code> token off the tail of the output list
+    and replace it with an <code>Any</code> token that has the <code>Lit</code> token as its child.</p>
+</li>
+<li>
+<p>Our next thought experiment is <code>/(ab)/</code>.
+    We don't know how long the group is going to be when we see the <code>(</code>,
+    so we put the parenthesis onto the output as a marker.
+    We then add the <code>Lit</code> tokens for the <code>a</code> and <code>b</code>
+    until we see the <code>)</code>,
+    at which point we pull tokens off the end of the output list
+    until we get back to the <code>(</code> marker.
+    When we find it,
+    we put everything we have temporarily collected into a <code>Group</code> token and append it to the output list.
+    This algorithm automatically handles <code>/(a*)/</code> and <code>/(a(b*)c)/</code>.</p>
+</li>
+<li>
+<p>What about <code>/a|b/</code>?
+    We append a <code>Lit</code> token for <code>a</code>, get the <code>|</code> and---and we're stuck,
+    because we don't yet have the next token we need to finish building the <code>Alt</code>.</p>
+</li>
+</ol>
+<p>One way to solve this problem is to check to see if the thing on the top of the stack is waiting to combine
+each time we append a new token.
+However,
+this doesn't handle <code>/a|b*/</code> properly.
+The pattern is supposed to mean "one <code>a</code> or any number of <code>b</code>",
+but the <span class="indexentry" index-key="parser!check-and-combine" markdown="1">check-and-combine strategy</span> will turn it into the equivalent of <code>/(a|b)*/</code>.</p>
+<p>A better (i.e., correct) solution is
+to leave some partially-completed tokens in the output and <span class="indexentry" index-key="parser!post-hoc compression strategy" markdown="1">compress</span> them later
+(<a class="figref" href="../regex-parser/#regex-parser-mechanics">Figure 8.2</a>).
+If our input is the pattern <code>/a|b/</code>, we can:</p>
+<ol>
+<li>
+<p>Append a <code>Lit</code> token for <code>a</code>.</p>
+</li>
+<li>
+<p>When we see <code>|</code>,
+    make that <code>Lit</code> token the left child of the <code>Alt</code>
+    and append that without filling in the right child.</p>
+</li>
+<li>
+<p>Append the <code>Lit</code> token for <code>b</code>.</p>
+</li>
+<li>
+<p>After all tokens have been handled,
+    look for partially-completed <code>Alt</code> tokens and make whatever comes after them their right child.</p>
+</li>
+</ol>
+<p>Again, this automatically handles patterns like <code>/(ab)|c*|(de)/</code>.</p>
+<figure id="regex-parser-mechanics">
+  <img src="./figures/mechanics.svg" alt="Mechanics of combining tokens" />
+  <figcaption markdown="1">Figure 8.2: Mechanics of combining tokens while parsing regular expressions.</figcaption>
+</figure>
+
+<p>It's time to turn these ideas into code.
+The main structure of our parser is:</p>
+<pre><code class="language-js">import assert from 'assert'
+
+import tokenize from './tokenizer.js'
+
+const parse = (text) =&gt; {
+  const result = []
+  const allTokens = tokenize(text)
+  for (let i = 0; i &lt; allTokens.length; i += 1) {
+    const token = allTokens[i]
+    const last = i === allTokens.length - 1
+    handle(result, token, last)
+  }
+  return compress(result)
+}
+
+
+export default parse
+</code></pre>
+<p>We handle tokens case by case
+(with a few assertions to check that patterns are <a class="glossref" href="../glossary/#well_formed" markdown="1">well formed</a>):</p>
+<pre><code class="language-js">const handle = (result, token, last) =&gt; {
+  if (token.kind === 'Lit') {
+    result.push(token)
+  } else if (token.kind === 'Start') {
+    assert(result.length === 0,
+      'Should not have start token after other tokens')
+    result.push(token)
+  } else if (token.kind === 'End') {
+    assert(last,
+      'Should not have end token before other tokens')
+    result.push(token)
+  } else if (token.kind === 'GroupStart') {
+    result.push(token)
+  } else if (token.kind === 'GroupEnd') {
+    result.push(groupEnd(result, token))
+  } else if (token.kind === 'Any') {
+    assert(result.length &gt; 0,
+      `No operand for '*' (location ${token.loc})`)
+    token.child = result.pop()
+    result.push(token)
+  } else if (token.kind === 'Alt') {
+    assert(result.length &gt; 0,
+      `No operand for '*' (location ${token.loc})`)
+    token.left = result.pop()
+    token.right = null
+    result.push(token)
+  } else {
+    assert(false, 'UNIMPLEMENTED')
+  }
+}
+</code></pre>
+<p>When we find the <code>)</code> that marks the end of a group,
+we take items from the end of the output list
+until we find the matching start
+and use them to create a group:</p>
+<pre><code class="language-js">const groupEnd = (result, token) =&gt; {
+  const group = {
+    kind: 'Group',
+    loc: null,
+    end: token.loc,
+    children: []
+  }
+  while (true) {
+    assert(result.length &gt; 0,
+           `Unmatched end parenthesis (location ${token.loc})`)
+    const child = result.pop()
+    if (child.kind === 'GroupStart') {
+      group.loc = child.loc
+      break
+    }
+    group.children.unshift(child)
+  }
+  return group
+}
+</code></pre>
+<p>Finally,
+when we have finished with the input,
+we go through the output list one last time to fill in the right side of <code>Alt</code>s:</p>
+<pre><code class="language-js">const compress = (raw) =&gt; {
+  const cooked = []
+  while (raw.length &gt; 0) {
+    const token = raw.pop()
+    if (token.kind === 'Alt') {
+      assert(cooked.length &gt; 0,
+             `No right operand for alt (location ${token.loc})`)
+      token.right = cooked.shift()
+    }
+    cooked.unshift(token)
+  }
+  return cooked
+}
+</code></pre>
+<p>Once again,
+it's not done until we've tested it:</p>
+<pre><code class="language-js">import assert from 'assert'
+
+import parse from '../parser.js'
+
+describe('parses correctly', async () =&gt; {
+  it('parses the empty string', () =&gt; {
+    assert.deepStrictEqual(parse(''), [])
+  })
+
+  it('parses a single literal', () =&gt; {
+    assert.deepStrictEqual(parse('a'), [
+      { kind: 'Lit', loc: 0, value: 'a' }
+    ])
+  })
+
+  it('parses multiple literals', () =&gt; {
+    assert.deepStrictEqual(parse('ab'), [
+      { kind: 'Lit', loc: 0, value: 'a' },
+      { kind: 'Lit', loc: 1, value: 'b' }
+    ])
+  })
+
+
+  it('parses alt of groups', () =&gt; {
+    assert.deepStrictEqual(parse('a|(bc)'), [
+      {
+        kind: 'Alt',
+        loc: 1,
+        left: { kind: 'Lit', loc: 0, value: 'a' },
+        right: {
+          kind: 'Group',
+          loc: 2,
+          end: 5,
+          children: [
+            { kind: 'Lit', loc: 3, value: 'b' },
+            { kind: 'Lit', loc: 4, value: 'c' }
+          ]
+        }
+      }
+    ])
+  })
+})
+</code></pre>
+<pre><code class="language-out">
+&gt; stjs@1.0.0 test /u/stjs
+&gt; mocha */test/test-*.js &quot;-g&quot; &quot;parses correctly&quot;
+
+
+
+  parses correctly
+    ✓ parses the empty string
+    ✓ parses a single literal
+    ✓ parses multiple literals
+    ✓ parses start anchors
+    ✓ handles circumflex not at start
+    ✓ parses end anchors
+    ✓ parses circumflex not at start
+    ✓ parses empty groups
+    ✓ parses groups containing characters
+    ✓ parses two groups containing characters
+    ✓ parses any
+    ✓ parses any of group
+    ✓ parses alt
+    ✓ parses alt of any
+    ✓ parses alt of groups
+
+
+  15 passing (11ms)
+</code></pre>
+<p>While our final parser is less than 90 lines of code,
+it is doing a lot of complex things.
+Compared to parsers for things like JSON and YAML,
+though,
+it is still very simple.
+If we have more operators with different <span class="indexentry" index-key="operator precedence!implementing" markdown="1"><a class="glossref" href="../glossary/#precedence" markdown="1">precedences</a></span>
+we should switch to the <span class="indexentry" index-key="shunting-yard algorithm;parser!shunting-yard algorithm" markdown="1"><a href="https://en.wikipedia.org/wiki/Shunting-yard_algorithm">shunting-yard algorithm</a></span>,
+and if we need to handle a language like JavaScript we should explore tools like <span class="indexentry" index-key="ANTLR" markdown="1"><a href="https://www.antlr.org/">ANTLR</a></span>,
+which can generate a parser automatically given a description of the language to be parsed.
+As we said at the start,
+though,
+if our design requires us to write a parser we should try to come up with a better design.
+CSV, JSON, YAML, and other formats <a href="https://third-bit.com/2015/06/11/why-we-cant-have-nice-things/">have their quirks</a>,
+but at least they're broken the same way everywhere.</p>
+<blockquote>
+<h3>The limits of computing</h3>
+<p>One of the most important theoretical results in computer science is that
+every formal language corresponds to a type of abstract machine and vice versa,
+and that some languages (or machines) are more or less powerful than others.
+For example,
+every regular expression corresponds to a <span class="indexentry" index-key="finite state machine!correspondence with regular expressions" markdown="1"><a class="glossref" href="../glossary/#fsm" markdown="1">finite state machine</a></span> (FSM)
+like the one in <a class="figref" href="../regex-parser/#regex-parser-finite-state-machine">Figure 8.3</a>.
+As powerful as FSMs are,
+they cannot match things like nested parentheses or HTML tags,
+and <span class="indexentry" index-key="sin!using regular expressions to parse HTML" markdown="1"><a href="https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454">attempting to do so is a sin</a></span>.
+If you add a stack to the system you can process a much richer set of languages,
+and if you add two stacks you have something equivalent to a <span class="indexentry" index-key="Turing Machine" markdown="1"><a class="glossref" href="../glossary/#turing_machine" markdown="1">Turing Machine</a></span>
+that can do any conceivable computation.
+<span class="citation"><a class="bibref" href="../bibliography/#Conery2021">Conery2021</a></span> presents this idea and others for self-taught developers.</p>
+</blockquote>
+<figure id="regex-parser-finite-state-machine">
+  <img src="./figures/finite-state-machine.svg" alt="Finite state machine" />
+  <figcaption markdown="1">Figure 8.3: A finite state machine equivalent to a regular expression.</figcaption>
+</figure>
+
+<div class="break-before"></div>
+<h2 id="regex-parser-exercises">Section 8.3:  Exercises</h2>
+<h3 class="exercise">Create objects</h3>
+<p>Modify the parser to return instances of classes derived from <code>RegexBase</code>.</p>
+<h3 class="exercise">Escape characters</h3>
+<p>Modify the parser to handle escape characters,
+so that (for example) <code>\*</code> is interpreted as "a literal '*' character"
+and <code>\\</code> is interpreted as "a literal backslash".</p>
+<h3 class="exercise">Lazy matching</h3>
+<p>Modify the parser so that <code>*?</code> is interpreted as a single token
+meaning "lazy match zero or more".</p>
+<h3 class="exercise">Character sets</h3>
+<p>Modify the parser so that expressions like <code>[xyz]</code> are interpreted to mean
+"match any one of the characters 'x', 'y', or 'z'".</p>
+<h3 class="exercise">Back reference</h3>
+<p>Modify the tokenizer so that it recognizes <code>\1</code>, <code>\2</code>, and so on to mean "back reference".
+The number may contain any number of digits.</p>
+<h3 class="exercise">Named groups</h3>
+<ol>
+<li>
+<p>Modify the tokenizer to recognize named groups.
+    For example, the named group <code>/(?&lt;triple&gt;aaa)/</code>
+    would create a named group called <code>triple</code> that matches exactly three consecutive occurrences of 'a'.</p>
+</li>
+<li>
+<p>Write Mocha tests for your modified tokenizer.
+    Does it handle nested named groups?</p>
+</li>
+</ol>
+<h3 class="exercise">Object streams</h3>
+<p>Write a parser that turns files of key-value pairs separated by blank lines into objects.
+For example, if the input is:</p>
+<pre><code class="language-txt">left: &quot;left value&quot;
+first: 1
+
+middle: &quot;middle value&quot;
+second: 2
+
+right: &quot;right value&quot;
+third: 3
+</code></pre>
+<p class="continue">then the output will be:</p>
+<pre><code class="language-js">[
+  {left: &quot;left value&quot;, first: 1},
+  {middle: &quot;middle value&quot;, second: 2},
+  {right: &quot;right value&quot;, third: 3}
+]
+</code></pre>
+<p>Keys are always upper- and lower-case characters;
+values may be strings in double quotes or unquoted numbers.</p>
+<h3 class="exercise">Tokenize HTML</h3>
+<ol>
+<li>
+<p>Write a tokenizer for a subset of HTML that consists of:</p>
+<ul>
+<li>Opening tags without attributes, such as <code>&lt;div&gt;</code> and <code>&lt;p&gt;</code></li>
+<li>Closing tags, such as <code>&lt;/p&gt;</code> and <code>&lt;/div&gt;</code></li>
+<li>Plain text between tags that does <em>not</em> contain '&lt;' or '&gt;' characters</li>
+</ul>
+</li>
+<li>
+<p>Modify the tokenizer to handle <code>key="value"</code> attributes in opening tags.</p>
+</li>
+<li>
+<p>Write Mocha tests for your tokenizer.</p>
+</li>
+</ol>
+<h3 class="exercise">The Shunting Yard Algorithm</h3>
+<ol>
+<li>
+<p>Use the <a href="https://en.wikipedia.org/wiki/Shunting-yard_algorithm">shunting-yard algorithm</a>
+    to implement a tokenizer for a simple subset of arithmetic that includes:</p>
+<ul>
+<li>single-letter variable names</li>
+<li>single-digit numbers</li>
+<li>the <code>+</code>, <code>*</code>, and <code>^</code> operators, where <code>+</code> has the lowest precedence and <code>^</code> has the highest</li>
+</ul>
+</li>
+<li>
+<p>Write Mocha tests for your tokenizer.</p>
+</li>
+</ol>
+<h3 class="exercise">Handling errors</h3>
+<ol>
+<li>
+<p>What does the regular expression tokenizer do
+    with expressions that contain unmatched opening parentheses like <code>/a(b/</code>?
+    What about expressions that contain unmatched closing parentheses like <code>/ab)/</code>?</p>
+</li>
+<li>
+<p>Modify it so it produces a more useful error message.</p>
+</li>
+</ol>
+    </main>
+  <div class="centered footer">
+  <hr/>
+  <table class="plain footer">
+    <tr>
+      
+      <td><a href="../license/">License</a></td>
+      
+      <td><a href="../conduct/">Code of Conduct</a></td>
+      
+      <td><a href="../bibliography/">Bibliography</a></td>
+      
+      <td><a href="../glossary/">Glossary</a></td>
+      
+      <td><a href="../links/">Links</a></td>
+      
+      <td><a href="https://github.com/software-tools-books/stjs/">GitHub</a></td>
+      
+    </tr>
+  </table>
+</div>
+
+  </body>
+</html>
