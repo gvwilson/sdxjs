@@ -1,0 +1,1 @@
+node pray.js -v
