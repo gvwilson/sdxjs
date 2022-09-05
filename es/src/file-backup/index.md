@@ -285,8 +285,8 @@ Vamos a usar algunas fixtures para ejecutar las pruebas:
 y luego correr unas pruebas:
 {: .continue}
 
-[% excerpt file="test/test-backup.js" keep="pruebas" %]
-[% excerpt file="test-respaldo.out" %]
+[% excerpt file="test/test-backup.js" keep="tests" %]
+[% excerpt file="test-backup.out" %]
 
 <blockquote class="break-before" markdown="1">
 ### Diseñar para probar
