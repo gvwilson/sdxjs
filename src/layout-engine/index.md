@@ -24,7 +24,8 @@ and then draw the result as text on the screen.
 
 > ### Upside down
 >
-> The [% i "coordinate system" %]coordinate systems[% /i %] for screens put (0, 0) in the upper left corner instead of the lower left.
+> The [% i "coordinate system" %]coordinate systems[% /i %] for screens
+> puts (0, 0) in the upper left corner instead of the lower left.
 > X increases to the right as usual,
 > but Y increases as we go down, rather than up
 > ([% f layout-engine-coordinate-system %]).

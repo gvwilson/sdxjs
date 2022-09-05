@@ -43,7 +43,7 @@ has two extra properties:
 
 1.  The outputs look like random numbers:
     they are unpredictable and evenly distributed
-    (i.e., the odds of getting any specific hash code are the same)
+    (i.e., the odds of getting any specific hash code are the same).
 
 It's easy to write a bad hash function,
 but very hard to write one that qualifies as cryptographic.
