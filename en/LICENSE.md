@@ -1,6 +1,3 @@
----
----
-
 # License
 
 All of the written material on this site is made available under the Creative

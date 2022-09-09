@@ -1,48 +1,47 @@
 ---
-template: page
 title: "Virtual Machine"
 lede: "Assembling and running low-level code"
 ---
 
 Computers don't execute JavaScript directly.
 Instead,
-each processor has its own [% i "instruction set" %][% g instruction_set %]instruction set[% /g %][% /i %],
+each processor has its own [%i "instruction set" %][%g instruction_set "instruction set" %][%/i%],
 and a compiler translates high-level languages into those instructions.
-Compilers often use an intermediate representation called [% i "assembly code" %][% g assembly_code %]assembly code[% /g %][% /i %]
+Compilers often use an intermediate representation called [%i "assembly code" %][%g assembly_code "assembly code" %][%/i%]
 that gives instructions human-readable names instead of numbers.
 To understand more about how JavaScript actually runs
 we will simulate a very simple processor with a little bit of memory.
 If you want to dive deeper,
-have a look at [% i "Nystrom, Bob" %][Bob Nystrom's][nystrom-bob][% /i %] *[Crafting Interpreters][crafting-interpreters]*.
-You may also enjoy [% i "Human Resource Machine" %][Human Resource Machine][human-resource-machine][% /i %],
+have a look at [%i "Nystrom, Bob" %][Bob Nystrom's][nystrom-bob][%/i%] *[Crafting Interpreters][crafting-interpreters]*.
+You may also enjoy [%i "Human Resource Machine" %][Human Resource Machine][human-resource-machine][%/i%],
 which asks you to solve puzzles of increasing difficulty
 using a processor almost as simple as ours.
 
 ## What is the architecture of our virtual machine? {: #virtual-machine-arch}
 
-Our [% i "virtual machine" %][% g virtual_machine %]virtual machine[% /g %][% /i %] has three parts,
-which are shown in [% f virtual-machine-architecture %]
+Our [%i "virtual machine" %][%g virtual_machine "virtual machine" %][%/i%] has three parts,
+which are shown in [%f virtual-machine-architecture %]
 for a program made up of 110 instructions:
 
-1.  An [% i "instruction pointer" %][% g instruction_pointer %]instruction pointer[% /g %][% /i %] (IP)
+1.  An [%i "instruction pointer" %][%g instruction_pointer "instruction pointer" %][%/i%] (IP)
     that holds the memory address of the next instruction to execute.
     It is automatically initialized to point at address 0,
     which is where every program must start.
-    This rule is part of the [% i "Application Binary Interface" %][% g abi %]Application Binary Interface[% /g %][% /i %] (ABI)
+    This rule is part of the [%i "Application Binary Interface" %][%g abi "Application Binary Interface" %][%/i%] (ABI)
     for our virtual machine.
 
-1.  Four [% i "register (in computer)" %][% g register %]registers[% /g %][% /i %] named R0 to R3 that instructions can access directly.
+1.  Four [%i "register (in computer)" %][%g register "registers" %][%/i%] named R0 to R3 that instructions can access directly.
     There are no memory-to-memory operations in our VM:
     everything  happens in or through registers.
 
-1.  256 [% g word_memory %]words[% /g %] of memory, each of which can store a single value.
+1.  256 [%g word_memory "words" %] of memory, each of which can store a single value.
     Both the program and its data live in this single block of memory;
     we chose the size 256 so that each address will fit in a single byte.
 
-[% figure slug="virtual-machine-architecture" img="figures/architecture.svg" alt="Virtual machine architecture" caption="Architecture of the virtual machine." %]
+[% figure slug="virtual-machine-architecture" img="architecture.svg" alt="Virtual machine architecture" caption="Architecture of the virtual machine." %]
 
 The instructions for our VM are 3 bytes long.
-The [% i "op code" "virtual machine!op code" %][% g op_code %]op code[% /g %][% /i %] fits into one byte,
+The [%i "op code" "virtual machine!op code" %][%g op_code "op code" %][%/i%] fits into one byte,
 and each instruction may optionally include one or two single-byte operands.
 Each operand is a register identifier,
 a constant,
@@ -50,7 +49,7 @@ or an address
 (which is just a constant that identifies a location in memory);
 since constants have to fit in one byte,
 the largest number we can represent directly is 256.
-[% t virtual-machine-op-codes %] uses the letters `r`, `c`, and `a`
+[%t virtual-machine-op-codes %] uses the letters `r`, `c`, and `a`
 to indicate instruction format,
 where `r` indicates a register identifier,
 `c` indicates a constant,
@@ -75,7 +74,7 @@ and `a` indicates an address.
 We put our VM's architectural details in a file
 that can be shared by other components:
 
-[% excerpt file="architecture.js" %]
+[% inc file="architecture.js" %]
 
 While there isn't a name for this design pattern,
 putting all the constants that define a system in one file
@@ -90,24 +89,24 @@ we will split a class that would normally be written in one piece into several p
 We start by defining a class with an instruction pointer, some registers, and some memory
 along with a prompt for output:
 
-[% excerpt file="vm-base.js" omit="skip" %]
+[% inc file="vm-base.js" omit="skip" %]
 
 A program is just an array of numbers representing instructions.
 To load one,
 we copy those numbers into memory and reset the instruction pointer and registers:
 
-[% excerpt file="vm-base.js" keep="initialize" %]
+[% inc file="vm-base.js" keep="initialize" %]
 
 In order to handle the next instruction,
 the VM gets the value in memory that the instruction pointer currently refers to
 and moves the instruction pointer on by one address.
-It then uses [% i "bitwise operation" %][% g bitwise_operation %]bitwise operations[% /g %][% /i %]
+It then uses [%i "bitwise operation" %][%g bitwise_operation "bitwise operations" %][%/i%]
 to extract the op code and operands from the instruction
-([% f virtual-machine-unpacking %]):
+([%f virtual-machine-unpacking %]):
 
-[% excerpt file="vm-base.js" keep="fetch" %]
+[% inc file="vm-base.js" keep="fetch" %]
 
-[% figure slug="virtual-machine-unpacking" img="figures/unpacking.svg" alt="Unpacking instructions" caption="Using bitwise operations to unpack instructions." %]
+[% figure slug="virtual-machine-unpacking" img="unpacking.svg" alt="Unpacking instructions" caption="Using bitwise operations to unpack instructions." %]
 
 <blockquote class="break-before" markdown="1">
 ### Semi-realistic
@@ -123,13 +122,13 @@ The next step is to extend our base class with one that has a `run` method.
 As its name suggests,
 this runs the program by fetching instructions and executing them until told to stop:
 
-[% excerpt file="vm.js" omit="skip" %]
+[% inc file="vm.js" omit="skip" %]
 
 Some instructions are very similar to others,
 so we will only look at three here.
 The first stores the value of one register in the address held by another register:
 
-[% excerpt file="vm.js" keep="op_str" %]
+[% inc file="vm.js" keep="op_str" %]
 
 The first three lines check that the operation is legal;
 the fourth one uses the value in one register as an address,
@@ -138,47 +137,47 @@ which is why it has nested array indexing.
 
 Adding the value in one register to the value in another register is simpler:
 
-[% excerpt file="vm.js" keep="op_add" %]
+[% inc file="vm.js" keep="op_add" %]
 
 as is jumping to a fixed address if the value in a register is zero:
 {: .continue}
 
-[% excerpt file="vm.js" keep="op_beq" %]
+[% inc file="vm.js" keep="op_beq" %]
 
 ## What do assembly programs look like? {: #virtual-machine-assembly}
 
 We could figure out numerical op codes by hand,
 and in fact that's what [the first programmers][eniac-programmers] did.
 However,
-it is much easier to use an [% i "assembler" %][% g assembler %]assembler[% /g %][% /i %],
+it is much easier to use an [%i "assembler" %][%g assembler "assembler" %][%/i%],
 which is just a small compiler for a language that very closely represents actual machine instructions.
 
 Each command in our assembly languages matches an instruction in the VM.
 Here's an assembly language program to print the value stored in R1 and then halt:
 
-[% excerpt file="print-r1.as" %]
+[% inc file="print-r1.as" %]
 
 Its numeric representation is:
 {: .continue}
 
-[% excerpt file="print-r1.mx" %]
+[% inc file="print-r1.mx" %]
 
 One thing the assembly language has that the instruction set doesn't
-is [% i "label (on address)" %][% g label_address %]labels on addresses[% /g %][% /i %].
+is [%i "label (on address)" %][%g label_address "labels on addresses" %][%/i%].
 The label `loop` doesn't take up any space;
 instead,
 it tells the assembler to give the address of the next instruction a name
 so that we can refer to that address as `@loop` in jump instructions.
 For example,
 this program prints the numbers from 0 to 2
-([% f virtual-machine-count-up %]):
+([%f virtual-machine-count-up %]):
 
-[% excerpt pat="count-up.*" fill="as mx" %]
+[% inc pat="count-up.*" fill="as mx" %]
 
-[% figure slug="virtual-machine-count-up" img="figures/count-up.svg" alt="Counting from 0 to 2" caption="Flowchart of assembly language program to count up from 0 to 2." %]
+[% figure slug="virtual-machine-count-up" img="count-up.svg" alt="Counting from 0 to 2" caption="Flowchart of assembly language program to count up from 0 to 2." %]
 
 Let's trace this program's execution
-([% f virtual-machine-trace-counter %]):
+([%f virtual-machine-trace-counter %]):
 
 1.  R0 holds the current loop index.
 1.  R1 holds the loop's upper bound (in this case 3).
@@ -189,36 +188,36 @@ Let's trace this program's execution
     which takes three instructions.
 1.  If the program *doesn't* jump back, it halts.
 
-[% figure slug="virtual-machine-trace-counter" img="figures/trace-counter.svg" alt="Trace counting program" caption="Tracing registers and memory values for a simple counting program." %]
+[% figure slug="virtual-machine-trace-counter" img="trace-counter.svg" alt="Trace counting program" caption="Tracing registers and memory values for a simple counting program." %]
 
 The implementation of the assembler mirrors the simplicity of assembly language.
 The main method gets interesting lines,
 finds the addresses of labels,
 and turns each remaining line into an instruction:
 
-[% excerpt file="assembler.js" keep="assemble" %]
+[% inc file="assembler.js" keep="assemble" %]
 
 To find labels,
 we go through the lines one by one
 and either save the label *or* increment the current address
 (because labels don't take up space):
 
-[% excerpt file="assembler.js" keep="find-labels" %]
+[% inc file="assembler.js" keep="find-labels" %]
 
 To compile a single instruction we break the line into tokens,
 look up the format for the operands,
 and pack them into a single value:
 
-[% excerpt file="assembler.js" keep="compile" %]
+[% inc file="assembler.js" keep="compile" %]
 
 Combining op codes and operands into a single value
 is the reverse of the unpacking done by the virtual machine:
 
-[% excerpt file="assembler.js" keep="combine" %]
+[% inc file="assembler.js" keep="combine" %]
 
 Finally, we need few utility functions:
 
-[% excerpt file="assembler.js" keep="utilities" %]
+[% inc file="assembler.js" keep="utilities" %]
 
 Let's try assembling a program and display its output,
 the registers,
@@ -226,13 +225,13 @@ and the interesting contents of memory.
 As a test,
 this program counts up to three:
 
-[% excerpt file="count-up.as" %]
-[% excerpt file="count-up-out.out" %]
+[% inc file="count-up.as" %]
+[% inc file="count-up-out.out" %]
 
 ## How can we store data? {: #virtual-machine-data}
 
 It is tedious to write interesting programs when each value needs a unique name.
-We can do a lot more once we have collections like [% i "array!implementation of" %]arrays[% /i %],
+We can do a lot more once we have collections like [%i "array!implementation of" %]arrays[%/i%],
 so let's add those to our assembler.
 We don't have to make any changes to the virtual machine,
 which doesn't care if we think of a bunch of numbers as individuals or elements of an array,
@@ -241,30 +240,30 @@ but we do need a way to create arrays and refer to them.
 We will allocate storage for arrays at the end of the program
 by using `.data` on a line of its own to mark the start of the data section
 and then `label: number` to give a region a name and allocate some storage space
-([% f virtual-machine-storage-allocation %]).
+([%f virtual-machine-storage-allocation %]).
 
-[% figure slug="virtual-machine-storage-allocation" img="figures/storage-allocation.svg" alt="Storage allocation" caption="Allocating storage for arrays in the virtual machine." %]
+[% figure slug="virtual-machine-storage-allocation" img="storage-allocation.svg" alt="Storage allocation" caption="Allocating storage for arrays in the virtual machine." %]
 
 This enhancement only requires a few changes to the assembler.
 First,
 we need to split the lines into instructions and data allocations:
 
-[% excerpt file="allocate-data.js" keep="assemble" %]
+[% inc file="allocate-data.js" keep="assemble" %]
 
-[% excerpt file="allocate-data.js" keep="split-allocations" %]
+[% inc file="allocate-data.js" keep="split-allocations" %]
 
 Second,
 we need to figure out where each allocation lies and create a label accordingly:
 
-[% excerpt file="allocate-data.js" keep="add-allocations" %]
+[% inc file="allocate-data.js" keep="add-allocations" %]
 
 And that's it:
 no other changes are needed to either compilation or execution.
 To test it,
 let's fill an array with the numbers from 0 to 3:
 
-[% excerpt file="fill-array.as" %]
-[% excerpt file="fill-array-out.out" %]
+[% inc file="fill-array.as" %]
+[% inc file="fill-array-out.out" %]
 
 > ### How does it actually work?
 >
@@ -273,7 +272,7 @@ let's fill an array with the numbers from 0 to 3:
 > and how electrical circuits are able to do arithmetic,
 > make decisions,
 > and talk to the world,
-> [% b Patterson2017 %] has everything you want to know and more.
+> [%b Patterson2017 %] has everything you want to know and more.
 
 <div class="break-before"></div>
 ## Exercises {: #virtual-machine-exercises}
@@ -340,7 +339,7 @@ The C programming language stored character strings as non-zero bytes terminated
 
 ### Disassembling instructions {: .exercise .break-before}
 
-A [% g disassembler %]disassembler[% /g %] turns machine instructions into assembly code.
+A [%g disassembler "disassembler" %] turns machine instructions into assembly code.
 Write a disassembler for the instruction set used by our virtual machine.
 (Since the labels for addresses are not stored in machine instructions,
 disassemblers typically generate labels like `@L001` and `@L002`.)

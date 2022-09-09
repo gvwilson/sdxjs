@@ -1,5 +1,4 @@
 ---
-template: page
 ---
 
 The best way to learn design is to study examples [% b Schon1984 Petre2016 %],
@@ -23,8 +22,6 @@ the [Hippocratic License][hippocratic-license];
 see <a section="license"/> for details.
 All proceeds from this project will go to support the
 [Red Door Family Shelter][red-door].
-
-[% contents 1 %]
 
 > **[Greg Wilson][wilson-greg]** has worked in industry and academia for 35 years,
 > and is the author, co-author, or editor of several books,

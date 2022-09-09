@@ -1,11 +1,10 @@
 ---
-template: page
 title: "Package Manager"
 lede: "Getting and installing packages"
 ---
 
 There is no point building software if you can't install it.
-Inspired by the [% i "Comprehensive TeX Archive Network" %]Comprehensive TeX Archive Network[% /i %] [CTAN][ctan],
+Inspired by the [%i "Comprehensive TeX Archive Network" %]Comprehensive TeX Archive Network[%/i%] [CTAN][ctan],
 most languages now have an online archive from which developers can download packages.
 Each package typically has a name and one or more version(s);
 each version may have a list of dependencies,
@@ -13,7 +12,7 @@ and the package may specify a version or range of versions for each dependency.
 
 Downloading files requires some web programming that is out of scope for this book,
 while installing those files in the right places
-uses the systems programming skills of [% x systems-programming %].
+uses the systems programming skills of [%x systems-programming %].
 The piece we are missing is a way to figure out exactly what versions of different packages to install
 in order to create a consistent setup.
 If packages A and B require different versions of C,
@@ -28,14 +27,14 @@ the disk space wouldn't be much of an obstacle,
 but loading dozens of copies of the same package into the browser
 would slow applications down.
 This chapter therefore explores how to find a workable installation or prove that there isn't one.
-It is based in part on [this tutorial][package-manager-tutorial] by [% i "Nison, Maël" %][Maël Nison][nison-mael][% /i %].
+It is based in part on [this tutorial][package-manager-tutorial] by [%i "Nison, Maël" %][Maël Nison][nison-mael][%/i%].
 
 > ### Satisfiability
 >
 > What we are trying to do is find a version for each package
 > that makes the assertion "P is compatible with all its dependencies" true
 > for every package P.
-> The general-purpose tools for doing this are called [% i "satisfiability" "SAT solver" %][% g sat_solver %]SAT solvers[% /g %][% /i %]
+> The general-purpose tools for doing this are called [%i "satisfiability" "SAT solver" %][%g sat_solver "SAT solvers" %][%/i%]
 > because they determine whether there is some assignment of values
 > that satisfies the claim (i.e., makes it true).
 > Finding a solution can be extremely hard in the general case,
@@ -43,11 +42,11 @@ It is based in part on [this tutorial][package-manager-tutorial] by [% i "Nison,
 
 ## What is semantic versioning? {: #package-manager-semver}
 
-Most software projects use [% i "semantic versioning" %][% g semantic_versioning %]semantic versioning[% /g %][% /i %] for software releases.
+Most software projects use [%i "semantic versioning" %][%g semantic_versioning "semantic versioning" %][%/i%] for software releases.
 Each version number consists of three integers X.Y.Z,
 where X is the major version,
 Y is the minor version,
-and Z is the [% i "patch number" "semantic versioning!patch number" %][% g patch %]patch[% /g %][% /i %] number.
+and Z is the [%i "patch number" "semantic versioning!patch number" %][%g patch "patch" %][%/i%] number.
 (The [full specification][semver-spec] allows for more fields,
 but we will ignore them in this tutorial.)
 
@@ -57,7 +56,7 @@ For example,
 if they add a required parameter to a function,
 then code built for the old version will fail or behave unpredictably with the new one.
 The minor version number is incremented when new functionality
-is [% i "backward compatibility" %][% g backward_compatible %]backward-compatible[% /g %][% /i %]---i.e.,
+is [%i "backward compatibility" %][%g backward_compatible "backward-compatible" %][%/i%]---i.e.,
 it won't break any existing code---and the patch number is changed
 for backward-compatible bug fixes that don't add any new features.
 
@@ -81,22 +80,22 @@ is compatible with the range specified in its second.
 
 Imagine that each package we need is represented as an axis on a multi-dimensional grid,
 with its versions as the tick marks
-([% f package-manager-allowable %]).
+([%f package-manager-allowable %]).
 Each point on the grid is a possible combination of package versions.
 We can block out regions of this grid using the constraints on the package versions;
 whatever points are left when we're done represent legal combinations.
 
-[% figure slug="package-manager-allowable" img="figures/allowable.svg" alt="Allowable versions" caption="Finding allowable combinations of package versions." %]
+[% figure slug="package-manager-allowable" img="allowable.svg" alt="Allowable versions" caption="Finding allowable combinations of package versions." %]
 
 For example,
-suppose we have the set of requirements shown in [% t package-manager-example-dependencies %].
+suppose we have the set of requirements shown in [%t package-manager-example-dependencies %].
 There are 18 possible configurations
 (2 for X × 3 for Y × 3 for Z)
 but 16 are excluded by various incompatibilities.
 Of the two remaining possibilities,
 X/2 + Y/3 + Z/3 is strictly greater than X/2 + Y/2 + Z/2,
 so we would probably choose the former
-([% t package-manager-example-result %]).
+([%t package-manager-example-result %]).
 if we wound up with A/1 + B/2 versus A/2 + B/1,
 we would need to add rules for resolving ties.
 
@@ -105,7 +104,7 @@ we would need to add rules for resolving ties.
 > No matter what kind of software you build,
 > a given set of inputs should always produce the same output;
 > if they don't,
-> testing is much more difficult (or impossible) [% b Taschuk2017 %].
+> testing is much more difficult (or impossible) [%b Taschuk2017 %].
 > There may not be a strong reason to prefer one mutually-compatible set of packages over another,
 > but a package manager should still resolve the ambiguity the same way every time.
 > It may not be what everyone wants,
@@ -154,8 +153,8 @@ we would need to add rules for resolving ties.
 |   2 |   3 |   3 | X/2 - Z/3 |
 </div>
 
-To construct [% t package-manager-example-dependencies %]
-we find the [% i "transitive closure" %]transitive closure[% /i %] of all packages plus all of their dependencies.
+To construct [%t package-manager-example-dependencies %]
+we find the [%i "transitive closure" %]transitive closure[%/i%] of all packages plus all of their dependencies.
 We then pick two packages and create a list of their valid pairs.
 Choosing a third package,
 we cross off pairs that can't be satisfied
@@ -163,7 +162,7 @@ to leave triples of legal combinations.
 We repeat this until all packages are included in our table.
 
 In the worst case this procedure will create
-a [% i "combinatorial explosion" %][% g combinatorial_explosion %]combinatorial explosion[% /g %][% /i %] of possibilities.
+a [%i "combinatorial explosion" %][%g combinatorial_explosion "combinatorial explosion" %][%/i%] of possibilities.
 Smart algorithms will try to add packages to the mix
 in an order that minimize the number of new possibilities at each stage,
 or create pairs and then combine them to create pairs of pairs and so on.
@@ -174,12 +173,12 @@ but illustrates the key idea.
 
 To avoid messing around with parsers,
 our programs reads a JSON data structure describing the problem;
-a real package manager would read the [% i "manifest (of package)" "package manifest" %][% g manifest %]manifests[% /g %][% /i %] of the packages in question
+a real package manager would read the [%i "manifest (of package)" "package manifest" %][%g manifest "manifests" %][%/i%] of the packages in question
 and construct a similar data structure.
 We will stick to single-digit version numbers for readability,
 and will use this as our first test case:
 
-[% excerpt file="double-chained.json" %]
+[% inc file="double-chained.json" %]
 
 > ### Comments
 >
@@ -194,27 +193,27 @@ we add each package to our active list in turn and look for violations.
 If there aren't any more packages to add and we haven't found a violation,
 then what we have must be a legal configuration.
 
-[% excerpt file="sweep.js" omit="allows" %]
+[% inc file="sweep.js" omit="allows" %]
 
 The simplest way to find configurations is to sweep over all possibilities.
 For debugging purposes,
 our function prints possibilities as it goes:
 
-[% excerpt file="sweep.js" keep="allows" %]
+[% inc file="sweep.js" keep="allows" %]
 
 If we run this program on the two-package example shown earlier we get this output:
 
-[% excerpt pat="sweep-double-chained.*" fill="sh out" %]
+[% inc pat="sweep-double-chained.*" fill="sh out" %]
 
 When we run it on our triple-package example we get this:
 
-[% excerpt pat="sweep-triple.*" fill="sh out" %]
+[% inc pat="sweep-triple.*" fill="sh out" %]
 
 This works,
 but it is doing a lot of unnecessary work.
 If we sort the output by the case that caught the exclusion
 it turns out that 9 of the 17 exclusions are redundant rediscovery of a previously-known problem
-[% t package-manager-exclusions %].
+[%t package-manager-exclusions %].
 
 <div class="table" id="package-manager-exclusions" caption="Package exclusions." markdown="1">
 | Excluded  |   X |   Y |   Z |
@@ -242,29 +241,29 @@ it turns out that 9 of the 17 exclusions are redundant rediscovery of a previous
 <div class="break-before"></div>
 ## How can we do less work? {: #package-manager-optimize}
 
-In order to make this more efficient we need to [% i "prune (a search tree)" %][% g prune %]prune[% /g %][% /i %] the search tree
+In order to make this more efficient we need to [%i "prune (a search tree)" %][%g prune "prune" %][%/i%] the search tree
 as we go along
-([% f package-manager-pruning %]).
+([%f package-manager-pruning %]).
 After all,
 if we know that X and Y are incompatible,
 there is no need to check Z as well.
 
-[% figure slug="package-manager-pruning" img="figures/pruning.svg" alt="Pruning the search tree" caption="Pruning options in the search tree to reduce work." %]
+[% figure slug="package-manager-pruning" img="pruning.svg" alt="Pruning the search tree" caption="Pruning options in the search tree to reduce work." %]
 
 This version of the program collects possible solutions and displays them at the end.
 It only keeps checking a partial solution if what it has found so far looks good:
 
-[% excerpt file="prune.js" omit="compatible" %]
+[% inc file="prune.js" omit="compatible" %]
 
 The `compatible` function checks to see if adding something will leave us with a consistent configuration:
 
-[% excerpt file="prune.js" keep="compatible" %]
+[% inc file="prune.js" keep="compatible" %]
 
 Checking as we go gets us from 18 complete solutions to 11.
 One is workable
 and two are incomplete---they represent 6 possible complete solutions that we didn't need to finish:
 
-[% excerpt file="prune-triple.out" %]
+[% inc file="prune-triple.out" %]
 
 Another way to look at the work is the number of steps in the search.
 The full search had 18×3 = 54 steps.
@@ -273,9 +272,9 @@ so we have eliminated roughly 1/4 of the work.
 
 What if we searched in the reverse order?
 
-[% excerpt file="reverse.js" %]
+[% inc file="reverse.js" %]
 
-[% excerpt file="reverse-triple.out" %]
+[% inc file="reverse-triple.out" %]
 
 Now we have (8×3) + (5×2) = 34 steps,
 i.e.,
@@ -283,13 +282,13 @@ we have eliminated roughly 1/3 of the work.
 That may not seem like a big difference,
 but if we go five levels deep at the same rate
 it cuts the work in half.
-There are lots of [% g heuristic %]heuristics[% /g %] for searching trees;
+There are lots of [%g heuristic "heuristics" %] for searching trees;
 none are guaranteed to give better performance in every case,
 but most give better performance in most cases.
 
 > ### What research is for
 >
-> [% i "SAT solver" %]SAT solvers[% /i %] are like regular expression libraries and random number generators:
+> [%i "SAT solver" %]SAT solvers[%/i%] are like regular expression libraries and random number generators:
 > it is the work of many lifetimes to create ones that are both fast and correct.
 > A lot of computer science researchers devote their careers to highly-specialized topics like this.
 > The debates often seem esoteric to outsiders,
@@ -307,14 +306,14 @@ Remember that `2.1` is greater than `1.99`.
 
 ### Parsing semantic versions {: .exercise}
 
-Using the techniques of [% x regex-parser %],
+Using the techniques of [%x regex-parser %],
 write a parser for a subset of the [semantic versioning specification][semver-spec].
 
 ### Using scoring functions {: .exercise}
 
 Many different combinations of package versions can be mutually compatible.
 One way to decide which actual combination to install
-is to create a [% g scoring_function %]scoring function[% /g %]
+is to create a [%g scoring_function "scoring function" %]
 that measures how good or bad a particular combination is.
 For example,
 a function could measure the "distance" between two versions as:
@@ -367,7 +366,7 @@ Write a function that creates fixtures for testing the constraint solver:
     and whose values are integers indicating the number of versions of that package
     to include in the test set,
     such as `{'left': 3, 'middle': 2, 'right': 15}`.
-    Its second argument is a [% g seed %]seed[% /g %] for random number generation.
+    Its second argument is a [%g seed "seed" %] for random number generation.
 
 2.  It generates one valid configuration,
     such as `{'left': 2, 'middle': 2, 'right': 9}`.

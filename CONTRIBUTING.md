@@ -1,17 +1,16 @@
----
----
-
 # Contributing
 
-All contributors must abide by our <span i="Code of Conduct">Code of Conduct</span>.
+Contributions are very welcome;
+please contact us by email or by filing an issue on this site.
+All contributors must abide by our Code of Conduct.
 
 ## Making Decisions
 
-This project uses [Martha's Rules][marthas-rules] <cite>Minahan1986</cite> for consensus decision making:
+This project uses [Martha's Rules][marthas-rules] for consensus decision making:
 
 1.  Before each meeting, anyone who wishes may sponsor a proposal by filing an
-    issue in the GitHub repository tagged "proposal".  Proposals must be filed
-    at least 24 hours before a meeting in order to be considered at that
+    issue in the GitHub repository tagged "proposal".  People must file proposals
+    at least 24 hours before a meeting in order for them to be considered at that
     meeting, and must include:
     -   a one-line summary (the subject line of the issue)
     -   the full text of the proposal
@@ -28,13 +27,12 @@ This project uses [Martha's Rules][marthas-rules] <cite>Minahan1986</cite> for c
     item to the group.
 
 4.  After the sponsor presents the proposal, a "sense" vote is cast for the
-    proposal prior to any discussion:
+    proposal before any discussion:
     -   Who likes the proposal?
     -   Who can live with the proposal?
     -   Who is uncomfortable with the proposal?
 
-5.  If all of the group likes or can live with the proposal, it passes
-    immediately.
+5.  If everyone likes or can live with the proposal, it passes immediately.
 
 6.  If most of the group is uncomfortable with the proposal, it is postponed for
     further rework by the sponsor.
@@ -47,100 +45,244 @@ This project uses [Martha's Rules][marthas-rules] <cite>Minahan1986</cite> for c
     "yes" the proposal is implemented.  Otherwise, the proposal is returned to
     the sponsor for further work.
 
-## What We're Looking For
-
-We would welcome
-translations of this book into other programming languages,
-or into other human languages.
-We would also be grateful for chapters on other tools, such as:
-
--   An accessibility checking tool like <span i="WebAIM WAVE">[WAVE][webaim-wave]</span>
-    (which we have used while building this site)?
-
--   Formal verification tools
-    like <span i="Alloy; formal verification!Alloy">[Alloy][alloy]</span> <cite>Jackson2016</cite>
-    and <span i="TLA+; formal verification!TLA+">[TLA+][tla+]</span> work <cite>Wayne2018</cite>.
-
--   <span i="code completion">[Intelligent code completion][intelligent-code-completion]</span>.
-
--   <span i="fuzz testing">[Fuzzing][fuzzing]</span> and
-    <span i="delta debugging">[delta debugging][delta-debugging]</span> <cite>Zeller2009</cite>.
-
--   How relational databases work
-    ([this tutorial][db-tutorial] could serve as a starting point).
-
--   How to create [an HTTP server][500-lines-server] from the socket layer up.
-
--   A text editor using [termit][termit] or [kilo][kilo] as a starting point.
-    (Turns out that "undo" is a lot harder to build than most people realize.)
-
--   A very simple version of [React][react-tutorials] and <span i="Redux">[Redux][redux]</span>.
-
--   <span i="OAuth">[OAuth][oauth]</span> for single sign-on.
-
--   A text-mode browser like [Lynx][lynx].
-
--   A collaborative text editor like [Etherpad][etherpad]
-    (the synchronization algorithm is _hard_).
-
--   An in-browser testing tool like [Cypress][cypress].
-
--   A package repository that's resistant to DoS attacks.
-
--   A distributed logging and monitoring tool.
-
 ## Formatting
 
-This site uses [McCole][mccole]	for formatting. Please see its documentation for
-formatting guidelines. In brief:
+This material uses [Ivy][ivy] with some custom extensions.
+Run `make` in the root directory to get a list of available commands.
+Some of these rely on scripts in the `./bin/` directory.
 
--   McCole uses [CommonMark][commonmark] with extensions.
-    (In our defense, *everyone* adds extensions…)
+### Chapters and Appendices
 
--   Chapter titles go in the `mccole.yml` configuration file,
-    *not* in the chapter itself.
+1.  Each chapter or appendix has a unique slug such as `topic`.
+    Its text lives in <code>./src/<em>topic</em>/index.md</code>,
+    and there is an entry for it in the `chapters` or `appendices` list in `./config.py`
+    (which control ordering).
 
--   All level-2 section headings should have an ID.
+1.  Each `index.md` file starts with a YAML header in triple dashes.
+    This header must include the key `title:` with the page's title.
 
--   Figures are created using:
-    ```
-    <figure id="short-figure">
-      <img src="figures/short.svg" alt="Short caption" />
-      <figcaption>Long version of short caption.</figcaption>
-    </figure>
-    ```
+1.  Each section within a page must use a heading like this:
 
--   Tables are created using:
-    ```
-    <div class="table" id="short-table" cap="Short table caption.">
-    | Left | Right |
-    | ---- | ----- |
-    | 123  | 456   |
+    ```markdown
+    ## Some Title {: #topic-sometitle}
     ```
 
--   Use `<a section="label"/>` to reference a section,
-    `<a figure="label"/>` to reference a figure,
-    and `<a table="label"/>` to reference a figure.
+    This creates an `h2`-level heading with the HTML ID `topic-sometitle`.
+    Use the page's slug instead of `topic` and a single unhyphenated work
+    in place of `sometitle`.
 
--   Use `<cite>Key1,Key2</cite>` for bibliographic citations.
-    Bibliography entries go in `_data/bibliography.bib`.
+1.  To create a cross-reference to a chapter or appendix write:
 
--   Use `<span g="gloss_key">text</span>` to reference the glossary.
-    The glossary is in `_data/glossary.yml` in [Glosario][glosario]
-    format.
-
--   Use `<span i="index term">text</span>` for index entries.
-
--   If a term is both a glossary entry and an index entry,
-    use `<span g="gloss_key" i="index term">text</span>`;
-    the `g` must come before the `i` attribute.
-
--   Use a blockquote with a level-3 heading to create a callout:
-    ```
-    > ### Callout Title
-    >
-    > This is a paragraph.
+    ```markdown
+    [% x topic %]
     ```
 
--   Use `[text][key]` for external links, which are defined
-    in `_data/links.yml`.
+    where `topic` is the slug of the chapter being referred to.
+    This shortcode is converted to `Chapter N` or `Appendix N` as appropriate.
+    Please only refer to chapters or appendices, not to sections.
+
+### External Links
+
+1.  The table of external links lives in `./info/links.yml`.
+    Please add entries as needed.
+
+1.  To refer to an external link write:
+
+    ```markdown
+    [body text][link_key]
+    ```
+
+Please do *not* add links directly with `[text](http://some.url)`:
+keeping the links in `./info/links.yml` ensures consistency
+and makes it easier to create a table of external links.
+
+### Code Inclusions
+
+1.  To include an entire file as a code sample write:
+
+    ```markdown
+    [% inc file="some_name.py" %]
+    ```
+
+    The file must be in or below the directory containing the Markdown file.
+
+1.  To include only part of a file write:
+
+    ```markdown
+    [% inc file="some_name.py" keep="some_key" %]
+    ```
+
+    and put matching tags in the file like this:
+
+    ```markdown
+    # [some_key]
+    …lines of code…
+    # [/some_key]
+    ```
+
+1.  To include several files (such as a program and its output) write:
+
+    ```markdown
+    [% inc pat="some_stem.*" fill="py out" %]
+    ```
+
+    This includes `some_stem.py` and `some_stem.out` in that order.
+
+### Figures
+
+1.  Put the image file in the same directory as the chapter or appendix
+    and use this to include it:
+
+    ```markdown
+    [% figure
+       slug="topic-someword"
+       img="filename.svg"
+       caption="Short sentence-case caption."
+       alt="Long text describing the figure for the benefit of visually impaired readers."
+    %]
+    ```
+
+1.  To refer to a figure write:
+
+    ```markdown
+    [% f topic-someword %]
+    ```
+
+    This is converted to `Figure N.K`.
+
+1.  Use [diagrams.net][diagrams] to create SVG diagrams
+    using the "sketch" style and a 12-point Comic Sans font.
+
+1.  Avoid screenshots if at all possible:
+    making them display correctly in print is difficult.
+
+### Tables
+
+The Markdown processor used by [Ivy][ivy] doesn't support attributes on tables,
+so we must do something a bit clumsy.
+
+1.  To create a table write:
+
+    ```markdown
+    <div class="table" id="topic-someword" caption="Short sentence-case caption." markdown="1">
+    | Left | Middle | Right |
+    | ---- | ------ | ----- |
+    | blue | orange | green |
+    | mars | saturn | venus |
+    </div>
+    ```
+
+1.  To refer to a table write:
+
+    ```markdown
+    [% t topic-someword %]
+    ```
+
+    This is converted to `Table N.K`.
+
+### Bibliography
+
+1.  The BibTeX bibliography lives in `./info/bibliography.bib`.
+    Please add entries as needed;
+    you may find <https://doi2bib.org> useful for creating entries.
+    Please format keys as `Author1234`,
+    where `Author` is the first author's family name
+    and `1234` is the year of publication.
+    (Use `Author1234a`, `Author1234b`, etc. to resolve conflicts.)
+
+1.  To cite bibliography entries write:
+
+    ```markdown
+    [% b key1 key2 key3 %]
+    ```
+
+### Glossary
+
+Please do not worry about adding entries for now;
+we will fill in the glossary during the final editing pass.
+
+1.  The glossary lives in `./info/glossary.yml` and uses [Glosario][glosario] format.
+
+1.  To cite glossary entries write:
+
+    ```markdown
+    [% g some_key "text for document" %]
+    ```
+
+### Index
+
+Please do not worry about adding entries for now;
+we will fill in the index during the final editing pass.
+
+1.  To create a simple index entry write:
+
+    ```markdown
+    [% i "index text" %]body text[% /i %]
+    ```
+
+1.  Separate multiple index entries with semi-colons:
+
+    ```markdown
+    [% i "first; second; third" %]body text[% /i %]
+    ```
+
+1.  Create sub-entries using `!`:
+
+    ```markdown
+    [% i "major!minor" %]body text[% /i %]
+    ```
+
+### Minor Formatting
+
+1.  To continue a paragraph after a code sample write:
+
+    ```
+    text of paragraph
+    which can span multiple lines
+    {: .continue}
+    ```
+
+    This has no effect on the appearance of the HTML,
+    but prevents an unwanted paragraph indent in the PDF version.
+
+1.  To create a callout box, use:
+
+    ```
+    <div class="callout" markdown="1">
+
+    ### Title of callout
+
+    text of callout
+
+    </div>
+    ```
+
+    Use "Sentence case" for the callout's title,
+    and please put blank lines before and after the opening and closing `<div>` markers.
+    You *must* include `markdown="1"` in the opening `<div>` tag
+    to ensure that Markdown inside the callout is processed.
+
+    Note: earlier versions of this template used `blockquote` rather than `div` callouts.
+    Please only use the former for actual quotations.
+
+## Building the PDF
+
+We use LaTeX to build the PDF version of this book.
+Please don't worry about this for now,
+but if you want to see what the print version will look like
+you will need to install this packages:
+
+-   `babel-english`
+-   `babel-greek`
+-   `cbfonts`
+-   `enumitem`
+-   `greek-fontenc`
+-   `keystroke`
+-   `listings`
+-   `textgreek`
+-   `tocbibind`
+
+[diagrams]: https://www.diagrams.net/
+[glosario]: https://glosario.carpentries.org/
+[ivy]: https://www.dmulholl.com/docs/ivy/dev/
+[marthas-rules]: https://journals.sagepub.com/doi/10.1177/088610998600100206

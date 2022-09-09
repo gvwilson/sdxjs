@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="../../../favicon.ico">
+  <link rel="stylesheet" href="../../../mccole.css">
+  <link rel="stylesheet" href="../../../tango.css">
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']]
+      }
+    };
+  </script>
+  <script
+    type="text/javascript"
+    id="MathJax-script"
+    async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+  <title>Software Design by Example</title>
+</head>
+
+  <body>
+    <div class="row">
+      <div class="column">
+        <p>
+  <img src="../../../logo.svg" alt="site logo" width="10%" />
+  <a href="../../../">Software Design by Example</a>
+</p>
+<ol class="toc-chapter">
+  
+  <li>
+    <a href="../../../introduction/">
+      Introduction
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../systems-programming/">
+      Systems Programming
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../async-programming/">
+      Asynchronous Programming
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../unit-test/">
+      Unit Testing
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../file-backup/">
+      File Backup
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../data-table/">
+      Data Tables
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../pattern-matching/">
+      Pattern Matching
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../regex-parser/">
+      Parsing Expressions
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../page-templates/">
+      Page Templates
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../build-manager/">
+      Build Manager
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../layout-engine/">
+      Layout Engine
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../file-interpolator/">
+      File Interpolator
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../module-loader/">
+      Module Loader
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../style-checker/">
+      Style Checker
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../code-generator/">
+      Code Generator
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../doc-generator/">
+      Documentation Generator
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../module-bundler/">
+      Module Bundler
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../package-manager/">
+      Package Manager
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../virtual-machine/">
+      Virtual Machine
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../debugger/">
+      Debugger
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../conclusion/">
+      Conclusion
+    </a>
+  </li>
+  
+</ol>
+<ol class="toc-appendix">
+  
+  <li>
+    <a href="../../../license/">
+      License
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../conduct/">
+      Code of Conduct
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../contributing/">
+      Contributing
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../bibliography/">
+      Bibliography
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../glossary/">
+      Glossary
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../links/">
+      Links
+    </a>
+  </li>
+  
+  <li>
+    <a href="../../../contents/">
+      Index
+    </a>
+  </li>
+  
+</ol>
+
+      </div>
+      <div id="printable" class="column bordered">
+        <main>
+	  
+  <h1>Software Design by Example</h1>
+  <h2><em>a tool-based introduction with JavaScript</em></h2>
+
+
+          
+
+	  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+          import assert from 'assert'
+
+import tokenize from '../tokenizer.js'
+
+describe('tokenizes correctly', async () => {
+  it('tokenizes a single character', () => {
+    assert.deepStrictEqual(tokenize('a'), [
+      { kind: 'Lit', value: 'a', loc: 0 }
+    ])
+  })
+
+  it('tokenizes a sequence of characters', () => {
+    assert.deepStrictEqual(tokenize('ab'), [
+      { kind: 'Lit', value: 'a', loc: 0 },
+      { kind: 'Lit', value: 'b', loc: 1 }
+    ])
+  })
+
+  it('tokenizes start anchor alone', () => {
+    assert.deepStrictEqual(tokenize('^'), [
+      { kind: 'Start', loc: 0 }
+    ])
+  })
+
+  it('tokenizes start anchor followed by characters', () => {
+    assert.deepStrictEqual(tokenize('^a'), [
+      { kind: 'Start', loc: 0 },
+      { kind: 'Lit', value: 'a', loc: 1 }
+    ])
+  })
+
+  // [omit]
+  it('tokenizes circumflex not at start', () => {
+    assert.deepStrictEqual(tokenize('a^b'), [
+      { kind: 'Lit', value: 'a', loc: 0 },
+      { kind: 'Lit', value: '^', loc: 1 },
+      { kind: 'Lit', value: 'b', loc: 2 }
+    ])
+  })
+
+  it('tokenizes start anchor alone', () => {
+    assert.deepStrictEqual(tokenize('$'), [
+      { kind: 'End', loc: 0 }
+    ])
+  })
+
+  it('tokenizes end anchor preceded by characters', () => {
+    assert.deepStrictEqual(tokenize('a$'), [
+      { kind: 'Lit', value: 'a', loc: 0 },
+      { kind: 'End', loc: 1 }
+    ])
+  })
+
+  it('tokenizes dollar sign not at end', () => {
+    assert.deepStrictEqual(tokenize('a$b'), [
+      { kind: 'Lit', value: 'a', loc: 0 },
+      { kind: 'Lit', value: '$', loc: 1 },
+      { kind: 'Lit', value: 'b', loc: 2 }
+    ])
+  })
+
+  it('tokenizes repetition alone', () => {
+    assert.deepStrictEqual(tokenize('*'), [
+      { kind: 'Any', loc: 0 }
+    ])
+  })
+
+  it('tokenizes repetition in string', () => {
+    assert.deepStrictEqual(tokenize('a*b'), [
+      { kind: 'Lit', value: 'a', loc: 0 },
+      { kind: 'Any', loc: 1 },
+      { kind: 'Lit', value: 'b', loc: 2 }
+    ])
+  })
+
+  it('tokenizes repetition at end of string', () => {
+    assert.deepStrictEqual(tokenize('a*'), [
+      { kind: 'Lit', value: 'a', loc: 0 },
+      { kind: 'Any', loc: 1 }
+    ])
+  })
+
+  it('tokenizes alternation alone', () => {
+    assert.deepStrictEqual(tokenize('|'), [
+      { kind: 'Alt', loc: 0 }
+    ])
+  })
+
+  it('tokenizes alternation in string', () => {
+    assert.deepStrictEqual(tokenize('a|b'), [
+      { kind: 'Lit', value: 'a', loc: 0 },
+      { kind: 'Alt', loc: 1 },
+      { kind: 'Lit', value: 'b', loc: 2 }
+    ])
+  })
+
+  it('tokenizes alternation at start of string', () => {
+    assert.deepStrictEqual(tokenize('|a'), [
+      { kind: 'Alt', loc: 0 },
+      { kind: 'Lit', value: 'a', loc: 1 }
+    ])
+  })
+
+  it('tokenizes the start of a group alone', () => {
+    assert.deepStrictEqual(tokenize('('), [
+      { kind: 'GroupStart', loc: 0 }
+    ])
+  })
+
+  it('tokenizes the start of a group in a string', () => {
+    assert.deepStrictEqual(tokenize('a(b'), [
+      { kind: 'Lit', value: 'a', loc: 0 },
+      { kind: 'GroupStart', loc: 1 },
+      { kind: 'Lit', value: 'b', loc: 2 }
+    ])
+  })
+
+  it('tokenizes the end of a group alone', () => {
+    assert.deepStrictEqual(tokenize(')'), [
+      { kind: 'GroupEnd', loc: 0 }
+    ])
+  })
+
+  it('tokenizes the end of a group at the end of a string', () => {
+    assert.deepStrictEqual(tokenize('a)'), [
+      { kind: 'Lit', value: 'a', loc: 0 },
+      { kind: 'GroupEnd', loc: 1 }
+    ])
+  })
+
+  // [/omit]
+  it('tokenizes a complex expression', () => {
+    assert.deepStrictEqual(tokenize('^a*(bcd|e^)*f$gh$'), [
+      { kind: 'Start', loc: 0 },
+      { kind: 'Lit', loc: 1, value: 'a' },
+      { kind: 'Any', loc: 2 },
+      { kind: 'GroupStart', loc: 3 },
+      { kind: 'Lit', loc: 4, value: 'b' },
+      { kind: 'Lit', loc: 5, value: 'c' },
+      { kind: 'Lit', loc: 6, value: 'd' },
+      { kind: 'Alt', loc: 7 },
+      { kind: 'Lit', loc: 8, value: 'e' },
+      { kind: 'Lit', loc: 9, value: '^' },
+      { kind: 'GroupEnd', loc: 10 },
+      { kind: 'Any', loc: 11 },
+      { kind: 'Lit', loc: 12, value: 'f' },
+      { kind: 'Lit', loc: 13, value: '$' },
+      { kind: 'Lit', loc: 14, value: 'g' },
+      { kind: 'Lit', loc: 15, value: 'h' },
+      { kind: 'End', loc: 16 }
+    ])
+  })
+})
+
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

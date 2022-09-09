@@ -1,13 +1,12 @@
 ---
-template: page
 title: "Code Generator"
 lede: "Modifying code to track coverage and execution times"
 ---
 
-We've been writing tests since [% x unit-test %],
+We've been writing tests since [%x unit-test %],
 but how much of our code do they actually check?
-One way to find out is to use a [% i "code coverage" %][% g code_coverage %]code coverage[% /g %][% /i %] tool
-like [% i "Istanbul" %][Istanbul][istanbul][% /i %]
+One way to find out is to use a [%i "code coverage" %][%g code_coverage "code coverage" %][%/i%] tool
+like [%i "Istanbul" %][Istanbul][istanbul][%/i%]
 that watches a program while it executes
 and keeps track of which lines have run and which haven't.
 Making sure that each line is tested at least once doesn't guarantee that the code is bug-free,
@@ -16,8 +15,8 @@ but any code that *isn't* run shouldn't be trusted.
 Our code coverage tool will keep track of which functions have and haven't been called.
 Rather than rewriting [Node][nodejs] to keep track of this for us,
 we will modify the functions themselves
-by parsing the code with [% i "Acorn" %][Acorn][acorn][% /i %],
-inserting the instructions we need into the [% i "abstract syntax tree" %]AST[% /i %],
+by parsing the code with [%i "Acorn" %][Acorn][acorn][%/i%],
+inserting the instructions we need into the [%i "abstract syntax tree" %]AST[%/i%],
 and then turning the AST back into code.
 
 > ### Simple usually isn't
@@ -39,13 +38,13 @@ The first thing we need is a way to wrap up an arbitrary function call.
 If we declare a function in JavaScript with a parameter like `...args`,
 all of the "extra" arguments in the call that don't line up with regular parameters
 are stuffed into the variable `args`
-([% f code-generator-spread %]).
+([%f code-generator-spread %]).
 We can also call a function by putting values in a variable
-and using `func(...var)` to [% i "spread!function arguments" %]spread[% /i %] those values out.
+and using `func(...var)` to [%i "spread!function arguments" %]spread[%/i%] those values out.
 There's nothing special about the names `args` and `vars`:
 what matters is the ellipsis `...`
 
-[% figure slug="code-generator-spread" img="figures/spread.svg" alt="Spreading parameters" caption="Using ...args to capture and spread parameters." %]
+[% figure slug="code-generator-spread" img="spread.svg" alt="Spreading parameters" caption="Using ...args to capture and spread parameters." %]
 
 We can use `...args` to capture all of the arguments to a function call
 and forward them to another function.
@@ -53,21 +52,21 @@ Let's start by creating functions with a varying number of parameters
 that run to completion or throw an exception,
 then run them to make sure they do what we want:
 
-[% excerpt file="replace-func.js" keep="original" %]
+[% inc file="replace-func.js" keep="original" %]
 
 We can now write a function that takes a function as an input
 and creates a new function that handles all of the errors in the original function:
 
-[% excerpt file="replace-func.js" keep="replace" %]
+[% inc file="replace-func.js" keep="replace" %]
 
 Let's try it out:
 
-[% excerpt file="replace-func.out" %]
+[% inc file="replace-func.out" %]
 
-This is an example of the [% i "Decorator pattern" "design pattern!Decorator" %][% g decorator_pattern %]Decorator[% /g %][% /i %] design pattern.
+This is an example of the [%i "Decorator pattern" "design pattern!Decorator" %][%g decorator_pattern "Decorator" %][%/i%] design pattern.
 A decorator is a function whose job is to modify the behavior of other functions
 in some general ways.
-Decorators are built in to some languages (like [% i "Python" %][Python][python][% /i %]),
+Decorators are built in to some languages (like [%i "Python" %][Python][python][%/i%]),
 and we can add them in most others as we have done here.
 
 ## How can we generate JavaScript? {: #code-generator-generate}
@@ -83,19 +82,19 @@ and for that we need to parse and generate code.
 > A third way to achieve what we want is
 > to let the system turn code into runnable instructions
 > and then modify those instructions.
-> This approach is often used in compiled languages like [% i "Java" %][Java][java][% /i %],
-> where the [% g byte_code %]byte code[% /g %] produced by the [% g compiler %]compiler[% /g %] is saved in files
+> This approach is often used in compiled languages like [%i "Java" %][Java][java][%/i%],
+> where the [%g byte_code "byte code" %] produced by the [%g compiler "compiler" %] is saved in files
 > in order to be run.
 > We can't do this here because Node compiles and runs code in a single step.
 
 Our tool will parse the JavaScript with Acorn to create an AST,
 modify the AST,
-and then use a library called [% i "Escodegen" %][Escodegen][escodegen][% /i %] to turn the AST back into JavaScript.
+and then use a library called [%i "Escodegen" %][Escodegen][escodegen][%/i%] to turn the AST back into JavaScript.
 To start,
 let's look at the AST for a simple function definition,
 which is [% linecount func-def.out %] lines of pretty-printed JSON:
 
-[% excerpt pat="func-def.*" fill="js out" %]
+[% inc pat="func-def.*" fill="js out" %]
 
 After inspecting a few nodes,
 we can try to create some of our own and turn them into code.
@@ -103,7 +102,7 @@ Here,
 for example,
 we have the JSON representation of the expression `40+2`:
 
-[% excerpt pat="one-plus-two.*" fill="js out" %]
+[% inc pat="one-plus-two.*" fill="js out" %]
 
 ## How can we count how often functions are executed? {: #code-generator-count}
 
@@ -114,21 +113,21 @@ we won't accidentally clobber a variable in the user's program with the same nam
 but hopefully it makes that less likely.)
 Our test case is:
 
-[% excerpt file="multi-func-counter.js" keep="test" %]
+[% inc file="multi-func-counter.js" keep="test" %]
 
 and the main function of our program is:
 {: .continue}
 
-[% excerpt file="multi-func-counter.js" keep="main" %]
+[% inc file="multi-func-counter.js" keep="main" %]
 
 To insert a count we call `insertCounter`
 to record the function's name and modify the node:
 
-[% excerpt file="multi-func-counter.js" keep="insert" %]
+[% inc file="multi-func-counter.js" keep="insert" %]
 
 Notice how we don't try to build the nodes by hand,
 but instead construct the string we need,
-use [% i "Acorn" %]Acorn[% /i %] to parse that,
+use [%i "Acorn" %]Acorn[%/i%] to parse that,
 and use the result.
 Doing this saves us from embedding multiple lines of JSON in our program
 and also ensures that if a newer version of Acorn decides to generate a different AST,
@@ -136,25 +135,25 @@ our program will do the right thing automatically.
 {: .continue}
 
 Finally,
-we need to add a couple of [% i "helper function" %]helper functions[% /i %]:
+we need to add a couple of [%i "helper function" %]helper functions[%/i%]:
 
-[% excerpt file="multi-func-counter.js" keep="admin" %]
+[% inc file="multi-func-counter.js" keep="admin" %]
 
 and run it to make sure it all works:
 {: .continue}
 
-[% excerpt file="multi-func-counter.out" %]
+[% inc file="multi-func-counter.out" %]
 
 > ### Too simple to be safe
 >
 > Our simple approach to naming counters doesn't work if functions can have the same names,
-> which they can if we use modules or [% i "nested function" "function!nested" %][% g nested_function %]nested functions[% /g %][% /i %].
+> which they can if we use modules or [%i "nested function" "function!nested" %][%g nested_function "nested functions" %][%/i%].
 > One way to solve this would be to manufacture a label from the function's name
 > and the line number in the source code;
 > another would be to keep track of which functions are nested within which
 > and concatenate their names to produce a unique key.
 > Problems like this are why people say that naming things
-> is one of the [% i "two hard problems in computer science" %][% g two_hard_problems %]two hard problems[% /g %][% /i %] in computer science.
+> is one of the [%i "two hard problems in computer science" %][%g two_hard_problems "two hard problems" %][%/i%] in computer science.
 
 ## How can we time function execution? {: #code-generator-time}
 
@@ -167,34 +166,34 @@ As before,
 we find the nodes of interest and decorate them,
 then stitch the result together with a bit of bookkeeping:
 
-[% excerpt file="time-func.js" keep="timeFunc" %]
+[% inc file="time-func.js" keep="timeFunc" %]
 
 Gathering nodes is straightforward:
 
-[% excerpt file="time-func.js" keep="gatherNodes" %]
+[% inc file="time-func.js" keep="gatherNodes" %]
 
 as is wrapping the function definition:
 {: .continue}
 
-[% excerpt file="time-func.js" keep="wrapFuncDef" %]
+[% inc file="time-func.js" keep="wrapFuncDef" %]
 
 The only big difference is how we make the wrapper function.
 We create it with a placeholder for the original function
 so that we have a spot in the AST to insert the actual code:
 
-[% excerpt file="time-func.js" keep="timeFunc" %]
+[% inc file="time-func.js" keep="timeFunc" %]
 
 Let's run one last test:
 
-[% excerpt file="test-time-func.out" %]
+[% inc file="test-time-func.out" %]
 
 Source-to-source translation is widely used in JavaScript:
-tools like [% i "Babel" %][Babel][babel][% /i %] use it to transform modern features like `async` and `await`
-([% x async-programming %])
+tools like [%i "Babel" %][Babel][babel][%/i%] use it to transform modern features like `async` and `await`
+([%x async-programming %])
 into code that older browsers can understand.
 The technique is so powerful that it is built into languages like Scheme,
 which allow programmers to add new syntax to the language
-by defining [% i "macro" %][% g macro %]macros[% /g %][% /i %].
+by defining [%i "macro" %][%g macro "macros" %][%/i%].
 Depending on how carefully they are used,
 macros can make programs elegant, incomprehensible, or both.
 

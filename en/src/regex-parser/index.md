@@ -1,13 +1,12 @@
 ---
-template: page
 title: "Parsing Expressions"
 lede: "Turning text into code"
 ---
 
-In [% x pattern-matching %] we created regular expressions by constructing objects.
+In [%x pattern-matching %] we created regular expressions by constructing objects.
 It takes a lot less typing to write them as strings as we did for HTML selectors,
 but if we're going to do that we need something to convert those strings to the required objects.
-In other words, we need to write a [% i "parser" %][% g parser %]parser[% /g %][% /i %].
+In other words, we need to write a [%i "parser" %][%g parser "parser" %][%/i%].
 
 <div class="table" id="regex-parser-grammar-codes" caption="Regular expression grammar." markdown="1">
 | Meaning | Character |
@@ -20,7 +19,7 @@ In other words, we need to write a [% i "parser" %][% g parser %]parser[% /g %][
 | Grouping | (…) |
 </div>
 
-[% t regex-parser-grammar-codes %] shows the grammar we will handle.
+[%t regex-parser-grammar-codes %] shows the grammar we will handle.
 When we are done
 we should be able to parse `/^(a|b|$)*z$/` as
 "start of text",
@@ -29,11 +28,11 @@ we should be able to parse `/^(a|b|$)*z$/` as
 and "end of text".
 (We write regular expressions inside slashes to distinguish them from strings.)
 To keep things simple,
-we will create a tree of objects ([% f regex-parser-expression-tree %])
-rather than instances of the regular expression classes from [% x pattern-matching %];
+we will create a tree of objects ([%f regex-parser-expression-tree %])
+rather than instances of the regular expression classes from [%x pattern-matching %];
 the exercises will tackle the latter.
 
-[% figure slug="regex-parser-expression-tree" img="figures/expression-tree.svg" alt="Expression tree for regular expression" caption="Representing the result of parsing a regular expression as an tree." %]
+[% figure slug="regex-parser-expression-tree" img="expression-tree.svg" alt="Expression tree for regular expression" caption="Representing the result of parsing a regular expression as an tree." %]
 
 > ### Please don't write parsers
 >
@@ -41,15 +40,15 @@ the exercises will tackle the latter.
 > and vice versa,
 > so we need parsers to translate human-friendly notation into computer-friendly representations.
 > However,
-> [% i "parser!reasons not to write" %]the world doesn't need more file formats[% /i %];
+> [%i "parser!reasons not to write" %]the world doesn't need more file formats[%/i%];
 > if you need a configuration file or lookup table,
-> please use CSV, JSON, [% g yaml %]YAML[% /g %],
+> please use CSV, JSON, [%g yaml "YAML" %],
 > or something else that already has an acronym
 > rather than inventing a format of your own.
 
 ## How can we break text into tokens? {: #regex-parser-tokenize}
 
-A [% i "token (in parsing)" %][% g token %]token[% /g %][% /i %] is an atom of text,
+A [%i "token (in parsing)" %][%g token "token" %][%/i%] is an atom of text,
 such as the digits making up a number or the letters making up a variable name.
 In our grammar the tokens are the special characters `*`, `|`, `(`, `)`, `^`, and `$`,
 plus any sequence of one or more other characters (which count as one multi-letter token).
@@ -57,7 +56,7 @@ This classification guides the design of our parser:
 
 1.  If a character is special, create a token for it.
 
-1.  If it is a [% i "literal (in parsing)" %][% g literal %]literal[% /g %][% /i %] then:
+1.  If it is a [%i "literal (in parsing)" %][%g literal "literal" %][%/i%] then:
     1.  combine it with the current literal if there is one, or
     1.  start a new literal.
 
@@ -69,7 +68,7 @@ We can translate these rules almost directly into code
 to create a list of objects whose keys are `kind` and `loc` (short for location),
 with the extra key `value` for literal values:
 
-[% excerpt file="tokenizer-collapse.js" omit="combine" %]
+[% inc file="tokenizer-collapse.js" omit="combine" %]
 
 The helper function `combineOrPush` does exactly what its name says.
 If the thing most recently added to the list of tokens isn't a literal,
@@ -77,11 +76,11 @@ the new character becomes a new token;
 otherwise,
 we append the new character to the literal we're building:
 
-[% excerpt file="tokenizer-collapse.js" keep="combine" %]
+[% inc file="tokenizer-collapse.js" keep="combine" %]
 
 We can try this out with a three-line test program:
 
-[% excerpt pat="tokenizer-collapse-example.*" fill="js out" %]
+[% inc pat="tokenizer-collapse-example.*" fill="js out" %]
 
 This simple tokenizer is readable, efficient, and wrong.
 The problem is that the expression `/ab*/` means "a single `a` followed by zero or more `b`".
@@ -95,15 +94,15 @@ The solution is to treat each regular character as its own literal in this stage
 and then combine things later.
 Doing this lets us get rid of the nested `if` for handling `^` and `$` as well:
 
-[% excerpt file="tokenizer.js" %]
+[% inc file="tokenizer.js" %]
 
 Software isn't done until it's tested,
-so let's build some [% i "Mocha" %][Mocha][mocha][% /i %] tests for our tokenizer.
+so let's build some [%i "Mocha" %][Mocha][mocha][%/i%] tests for our tokenizer.
 The listing below shows a few of these
 along with the output for the full set:
 
-[% excerpt file="test/test-tokenizer.js" omit="omit" %]
-[% excerpt file="tokenizer-test.out" %]
+[% inc file="test/test-tokenizer.js" omit="omit" %]
+[% inc file="tokenizer-test.out" %]
 
 ## How can we turn a list of tokens into a tree? {: #regex-parser-tree}
 
@@ -141,11 +140,11 @@ each time we append a new token.
 However,
 this doesn't handle `/a|b*/` properly.
 The pattern is supposed to mean "one `a` or any number of `b`",
-but the [% i "parser!check-and-combine" %]check-and-combine strategy[% /i %] will turn it into the equivalent of `/(a|b)*/`.
+but the [%i "parser!check-and-combine" %]check-and-combine strategy[%/i%] will turn it into the equivalent of `/(a|b)*/`.
 
 A better (i.e., correct) solution is
-to leave some partially-completed tokens in the output and [% i "parser!post-hoc compression strategy" %]compress[% /i %] them later
-([% f regex-parser-mechanics %]).
+to leave some partially-completed tokens in the output and [%i "parser!post-hoc compression strategy" %]compress[%/i%] them later
+([%f regex-parser-mechanics %]).
 If our input is the pattern `/a|b/`, we can:
 
 1.  Append a `Lit` token for `a`.
@@ -161,45 +160,45 @@ If our input is the pattern `/a|b/`, we can:
 
 Again, this automatically handles patterns like `/(ab)|c*|(de)/`.
 
-[% figure slug="regex-parser-mechanics" img="figures/mechanics.svg" alt="Mechanics of combining tokens" caption="Mechanics of combining tokens while parsing regular expressions." %]
+[% figure slug="regex-parser-mechanics" img="mechanics.svg" alt="Mechanics of combining tokens" caption="Mechanics of combining tokens while parsing regular expressions." %]
 
 It's time to turn these ideas into code.
 The main structure of our parser is:
 
-[% excerpt file="parser.js" omit="skip" %]
+[% inc file="parser.js" omit="skip" %]
 
 We handle tokens case by case
-(with a few assertions to check that patterns are [% g well_formed %]well formed[% /g %]):
+(with a few assertions to check that patterns are [%g well_formed "well formed" %]):
 
-[% excerpt file="parser.js" keep="handle" %]
+[% inc file="parser.js" keep="handle" %]
 
 When we find the `)` that marks the end of a group,
 we take items from the end of the output list
 until we find the matching start
 and use them to create a group:
 
-[% excerpt file="parser.js" keep="groupend" %]
+[% inc file="parser.js" keep="groupend" %]
 
 Finally,
 when we have finished with the input,
 we go through the output list one last time to fill in the right side of `Alt`s:
 
-[% excerpt file="parser.js" keep="compress" %]
+[% inc file="parser.js" keep="compress" %]
 
 Once again,
 it's not done until we've tested it:
 
-[% excerpt file="test/test-parser.js" omit="omit" %]
-[% excerpt file="parser-test.out" %]
+[% inc file="test/test-parser.js" omit="omit" %]
+[% inc file="parser-test.out" %]
 
 While our final parser is less than 90 lines of code,
 it is doing a lot of complex things.
 Compared to parsers for things like JSON and YAML,
 though,
 it is still very simple.
-If we have more operators with different [% i "operator precedence!implementing" %][% g precedence %]precedences[% /g %][% /i %]
-we should switch to the [% i "shunting-yard algorithm" "parser!shunting-yard algorithm" %][shunting-yard algorithm][shunting-yard-algorithm][% /i %],
-and if we need to handle a language like JavaScript we should explore tools like [% i "ANTLR" %][ANTLR][antlr][% /i %],
+If we have more operators with different [%i "operator precedence!implementing" %][%g precedence "precedences" %][%/i%]
+we should switch to the [%i "shunting-yard algorithm" "parser!shunting-yard algorithm" %][shunting-yard algorithm][shunting-yard-algorithm][%/i%],
+and if we need to handle a language like JavaScript we should explore tools like [%i "ANTLR" %][ANTLR][antlr][%/i%],
 which can generate a parser automatically given a description of the language to be parsed.
 As we said at the start,
 though,
@@ -213,17 +212,17 @@ but at least they're broken the same way everywhere.
 > every formal language corresponds to a type of abstract machine and vice versa,
 > and that some languages (or machines) are more or less powerful than others.
 > For example,
-> every regular expression corresponds to a [% i "finite state machine!correspondence with regular expressions" %][% g fsm %]finite state machine[% /g %][% /i %] (FSM)
-> like the one in [% f regex-parser-finite-state-machine %].
+> every regular expression corresponds to a [%i "finite state machine!correspondence with regular expressions" %][%g fsm "finite state machine" %][%/i%] (FSM)
+> like the one in [%f regex-parser-finite-state-machine %].
 > As powerful as FSMs are,
 > they cannot match things like nested parentheses or HTML tags,
-> and [% i "sin!using regular expressions to parse HTML" %][attempting to do so is a sin][stack-overflow-html-regex][% /i %].
+> and [%i "sin!using regular expressions to parse HTML" %][attempting to do so is a sin][stack-overflow-html-regex][%/i%].
 > If you add a stack to the system you can process a much richer set of languages,
-> and if you add two stacks you have something equivalent to a [% i "Turing Machine" %][% g turing_machine %]Turing Machine[% /g %][% /i %]
+> and if you add two stacks you have something equivalent to a [%i "Turing Machine" %][%g turing_machine "Turing Machine" %][%/i%]
 > that can do any conceivable computation.
-> [% b Conery2021 %] presents this idea and others for self-taught developers.
+> [%b Conery2021 %] presents this idea and others for self-taught developers.
 
-[% figure slug="regex-parser-finite-state-machine" img="figures/finite-state-machine.svg" alt="Finite state machine" caption="A finite state machine equivalent to a regular expression." %]
+[% figure slug="regex-parser-finite-state-machine" img="finite-state-machine.svg" alt="Finite state machine" caption="A finite state machine equivalent to a regular expression." %]
 
 <div class="break-before"></div>
 ## Exercises {: #regex-parser-exercises}

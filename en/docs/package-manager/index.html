@@ -1,34 +1,271 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-<link rel="icon" type="image/x-icon" href="../files/favicon.ico">
-<link rel="stylesheet" href="../mccole.css">
-<link rel="stylesheet" href="../codehilite-tango.css">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+  <link rel="stylesheet" href="../mccole.css">
+  <link rel="stylesheet" href="../tango.css">
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']]
+      }
+    };
+  </script>
+  <script
+    type="text/javascript"
+    id="MathJax-script"
+    async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+  <title>Software Design by Example: Package Manager</title>
+</head>
 
-    <title>Software Design by Example: Package Manager</title>
-  </head>
-  <body class="page">
-    <div class="centered title">
+  <body>
+    <div class="row">
+      <div class="column">
+        <p>
+  <img src="../logo.svg" alt="site logo" width="10%" />
+  <a href="../">Software Design by Example</a>
+</p>
+<ol class="toc-chapter">
   
-  <h2><a href="../">Software Design by Example</a></h2>
-  <h1 id="package-manager">Chapter 18: Package Manager</h1>
+  <li>
+    <a href="../introduction/">
+      Introduction
+    </a>
+  </li>
   
-  <p>
-    <img class="page-logo" src="../files/codebender.svg" alt="logo" />
+  <li>
+    <a href="../systems-programming/">
+      Systems Programming
+    </a>
+  </li>
+  
+  <li>
+    <a href="../async-programming/">
+      Asynchronous Programming
+    </a>
+  </li>
+  
+  <li>
+    <a href="../unit-test/">
+      Unit Testing
+    </a>
+  </li>
+  
+  <li>
+    <a href="../file-backup/">
+      File Backup
+    </a>
+  </li>
+  
+  <li>
+    <a href="../data-table/">
+      Data Tables
+    </a>
+  </li>
+  
+  <li>
+    <a href="../pattern-matching/">
+      Pattern Matching
+    </a>
+  </li>
+  
+  <li>
+    <a href="../regex-parser/">
+      Parsing Expressions
+    </a>
+  </li>
+  
+  <li>
+    <a href="../page-templates/">
+      Page Templates
+    </a>
+  </li>
+  
+  <li>
+    <a href="../build-manager/">
+      Build Manager
+    </a>
+  </li>
+  
+  <li>
+    <a href="../layout-engine/">
+      Layout Engine
+    </a>
+  </li>
+  
+  <li>
+    <a href="../file-interpolator/">
+      File Interpolator
+    </a>
+  </li>
+  
+  <li>
+    <a href="../module-loader/">
+      Module Loader
+    </a>
+  </li>
+  
+  <li>
+    <a href="../style-checker/">
+      Style Checker
+    </a>
+  </li>
+  
+  <li>
+    <a href="../code-generator/">
+      Code Generator
+    </a>
+  </li>
+  
+  <li>
+    <a href="../doc-generator/">
+      Documentation Generator
+    </a>
+  </li>
+  
+  <li>
+    <a href="../module-bundler/">
+      Module Bundler
+    </a>
+  </li>
+  
+  <li>
+    <a href="../package-manager/">
+      <strong>Package Manager</strong>
+    </a>
+  </li>
+  
+  <li>
+    <a href="../virtual-machine/">
+      Virtual Machine
+    </a>
+  </li>
+  
+  <li>
+    <a href="../debugger/">
+      Debugger
+    </a>
+  </li>
+  
+  <li>
+    <a href="../conclusion/">
+      Conclusion
+    </a>
+  </li>
+  
+</ol>
+<ol class="toc-appendix">
+  
+  <li>
+    <a href="../license/">
+      License
+    </a>
+  </li>
+  
+  <li>
+    <a href="../conduct/">
+      Code of Conduct
+    </a>
+  </li>
+  
+  <li>
+    <a href="../contributing/">
+      Contributing
+    </a>
+  </li>
+  
+  <li>
+    <a href="../bibliography/">
+      Bibliography
+    </a>
+  </li>
+  
+  <li>
+    <a href="../glossary/">
+      Glossary
+    </a>
+  </li>
+  
+  <li>
+    <a href="../links/">
+      Links
+    </a>
+  </li>
+  
+  <li>
+    <a href="../contents/">
+      Index
+    </a>
+  </li>
+  
+</ol>
+
+      </div>
+      <div id="printable" class="column bordered">
+        <main>
+	  
+  <h1>Chapter 18: Package Manager</h1>
+
+
+          
+
+	  
+  
+
+  
+
+  
+
+  
+
+  
+  <p class="definitions">
+    Terms defined:
+    <a class="gl-ref" href="../glossary/#backward_compatible" markdown="1">backward-compatible</a>, <a class="gl-ref" href="../glossary/#combinatorial_explosion" markdown="1">combinatorial explosion</a>, <a class="gl-ref" href="../glossary/#heuristic" markdown="1">heuristic</a>, <a class="gl-ref" href="../glossary/#manifest" markdown="1">manifest</a>, <a class="gl-ref" href="../glossary/#patch" markdown="1">patch</a>, <a class="gl-ref" href="../glossary/#prune" markdown="1">prune</a>, <a class="gl-ref" href="../glossary/#sat_solver" markdown="1">SAT solver</a>, <a class="gl-ref" href="../glossary/#scoring_function" markdown="1">scoring function</a>, <a class="gl-ref" href="../glossary/#seed" markdown="1">seed</a>, <a class="gl-ref" href="../glossary/#semantic_versioning" markdown="1">semantic versioning</a>
   </p>
-</div>
+  
 
-    <main>
-<p>There is no point building software if you can't install it.
-Inspired by the <span class="indexentry" index-key="Comprehensive TeX Archive Network" markdown="1">Comprehensive TeX Archive Network</span> <a href="https://www.ctan.org/">CTAN</a>,
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+          <p>There is no point building software if you can't install it.
+Inspired by the <span class="ix-entry" ix-key="Comprehensive TeX Archive Network" markdown="1">Comprehensive TeX Archive Network</span> <a href="https://www.ctan.org/">CTAN</a>,
 most languages now have an online archive from which developers can download packages.
 Each package typically has a name and one or more version(s);
 each version may have a list of dependencies,
 and the package may specify a version or range of versions for each dependency.</p>
 <p>Downloading files requires some web programming that is out of scope for this book,
 while installing those files in the right places
-uses the systems programming skills of <a class="crossref" href="../systems-programming/">Chapter 2</a>.
+uses the systems programming skills of <a class="x-ref" href="../systems-programming/">Chapter 2</a>.
 The piece we are missing is a way to figure out exactly what versions of different packages to install
 in order to create a consistent setup.
 If packages A and B require different versions of C,
@@ -42,24 +279,24 @@ the disk space wouldn't be much of an obstacle,
 but loading dozens of copies of the same package into the browser
 would slow applications down.
 This chapter therefore explores how to find a workable installation or prove that there isn't one.
-It is based in part on <a href="https://classic.yarnpkg.com/blog/2017/07/11/lets-dev-a-package-manager/">this tutorial</a> by <span class="indexentry" index-key="Nison, Maël" markdown="1"><a href="https://arcanis.github.io/">Maël Nison</a></span>.</p>
+It is based in part on <a href="https://classic.yarnpkg.com/blog/2017/07/11/lets-dev-a-package-manager/">this tutorial</a> by <span class="ix-entry" ix-key="Nison, Maël" markdown="1"><a href="https://arcanis.github.io/">Maël Nison</a></span>.</p>
 <blockquote>
 <h3>Satisfiability</h3>
 <p>What we are trying to do is find a version for each package
 that makes the assertion "P is compatible with all its dependencies" true
 for every package P.
-The general-purpose tools for doing this are called <span class="indexentry" index-key="satisfiability;SAT solver" markdown="1"><a class="glossref" href="../glossary/#sat_solver" markdown="1">SAT solvers</a></span>
+The general-purpose tools for doing this are called <span class="ix-entry" ix-key="satisfiability;SAT solver" markdown="1"><a class="gl-ref" href="../glossary/#sat_solver" markdown="1">SAT solvers</a></span>
 because they determine whether there is some assignment of values
 that satisfies the claim (i.e., makes it true).
 Finding a solution can be extremely hard in the general case,
 so most SAT solvers use heuristics to try to reduce the work.</p>
 </blockquote>
-<h2 id="package-manager-semver">Section 18.1:  What is semantic versioning?</h2>
-<p>Most software projects use <span class="indexentry" index-key="semantic versioning" markdown="1"><a class="glossref" href="../glossary/#semantic_versioning" markdown="1">semantic versioning</a></span> for software releases.
+<h2 id="package-manager-semver">Section 18.1: What is semantic versioning?</h2>
+<p>Most software projects use <span class="ix-entry" ix-key="semantic versioning" markdown="1"><a class="gl-ref" href="../glossary/#semantic_versioning" markdown="1">semantic versioning</a></span> for software releases.
 Each version number consists of three integers X.Y.Z,
 where X is the major version,
 Y is the minor version,
-and Z is the <span class="indexentry" index-key="patch number;semantic versioning!patch number" markdown="1"><a class="glossref" href="../glossary/#patch" markdown="1">patch</a></span> number.
+and Z is the <span class="ix-entry" ix-key="patch number;semantic versioning!patch number" markdown="1"><a class="gl-ref" href="../glossary/#patch" markdown="1">patch</a></span> number.
 (The <a href="https://semver.org/">full specification</a> allows for more fields,
 but we will ignore them in this tutorial.)</p>
 <p>A package's authors increment its major version number
@@ -68,7 +305,7 @@ For example,
 if they add a required parameter to a function,
 then code built for the old version will fail or behave unpredictably with the new one.
 The minor version number is incremented when new functionality
-is <span class="indexentry" index-key="backward compatibility" markdown="1"><a class="glossref" href="../glossary/#backward_compatible" markdown="1">backward-compatible</a></span>---i.e.,
+is <span class="ix-entry" ix-key="backward compatibility" markdown="1"><a class="gl-ref" href="../glossary/#backward_compatible" markdown="1">backward-compatible</a></span>---i.e.,
 it won't break any existing code---and the patch number is changed
 for backward-compatible bug fixes that don't add any new features.</p>
 <p>The notation for specifying a project's dependencies looks a lot like arithmetic:
@@ -85,27 +322,27 @@ so we will rely on the <a href="https://www.npmjs.com/package/semver"><code>semv
 <code>semver.valid('1.2.3')</code> checks that <code>1.2.3</code> is a valid version identifier,
 while <code>semver.satisfies('2.2', '1.0 - 3.1')</code> checks that its first argument
 is compatible with the range specified in its second.</p>
-<h2 id="package-manager-consistent">Section 18.2:  How can we find a consistent set of packages?</h2>
+<h2 id="package-manager-consistent">Section 18.2: How can we find a consistent set of packages?</h2>
 <p>Imagine that each package we need is represented as an axis on a multi-dimensional grid,
 with its versions as the tick marks
-(<a class="figref" href="../package-manager/#package-manager-allowable">Figure 18.1</a>).
+(<a class="fig-ref" href="../package-manager/#package-manager-allowable">Figure 18.1</a>).
 Each point on the grid is a possible combination of package versions.
 We can block out regions of this grid using the constraints on the package versions;
 whatever points are left when we're done represent legal combinations.</p>
 <figure id="package-manager-allowable">
-  <img src="./figures/allowable.svg" alt="Allowable versions" />
+  <img src="./allowable.svg" alt="Allowable versions"/>
   <figcaption markdown="1">Figure 18.1: Finding allowable combinations of package versions.</figcaption>
 </figure>
 
 <p>For example,
-suppose we have the set of requirements shown in <a class="tblref" href="../package-manager/#package-manager-example-dependencies">Table 18.1</a>.
+suppose we have the set of requirements shown in <a class="tbl-ref" href="../package-manager/#package-manager-example-dependencies">Table 18.1</a>.
 There are 18 possible configurations
 (2 for X × 3 for Y × 3 for Z)
 but 16 are excluded by various incompatibilities.
 Of the two remaining possibilities,
 X/2 + Y/3 + Z/3 is strictly greater than X/2 + Y/2 + Z/2,
 so we would probably choose the former
-(<a class="tblref" href="../package-manager/#package-manager-example-result">Table 18.2</a>).
+(<a class="tbl-ref" href="../package-manager/#package-manager-example-result">Table 18.2</a>).
 if we wound up with A/1 + B/2 versus A/2 + B/1,
 we would need to add rules for resolving ties.</p>
 <blockquote>
@@ -113,7 +350,7 @@ we would need to add rules for resolving ties.</p>
 <p>No matter what kind of software you build,
 a given set of inputs should always produce the same output;
 if they don't,
-testing is much more difficult (or impossible) <span class="citation"><a class="bibref" href="../bibliography/#Taschuk2017">Taschuk2017</a></span>.
+testing is much more difficult (or impossible) <span class="bib-ref">[<a class="bib-ref" href="../bibliography/#Taschuk2017">Taschuk2017</a>]</span>.
 There may not be a strong reason to prefer one mutually-compatible set of packages over another,
 but a package manager should still resolve the ambiguity the same way every time.
 It may not be what everyone wants,
@@ -296,42 +533,44 @@ you should install what is described in the latter file.</p>
 </tbody>
 </table>
 </div>
-<p>To construct <a class="tblref" href="../package-manager/#package-manager-example-dependencies">Table 18.1</a>
-we find the <span class="indexentry" index-key="transitive closure" markdown="1">transitive closure</span> of all packages plus all of their dependencies.
+<p>To construct <a class="tbl-ref" href="../package-manager/#package-manager-example-dependencies">Table 18.1</a>
+we find the <span class="ix-entry" ix-key="transitive closure" markdown="1">transitive closure</span> of all packages plus all of their dependencies.
 We then pick two packages and create a list of their valid pairs.
 Choosing a third package,
 we cross off pairs that can't be satisfied
 to leave triples of legal combinations.
 We repeat this until all packages are included in our table.</p>
 <p>In the worst case this procedure will create
-a <span class="indexentry" index-key="combinatorial explosion" markdown="1"><a class="glossref" href="../glossary/#combinatorial_explosion" markdown="1">combinatorial explosion</a></span> of possibilities.
+a <span class="ix-entry" ix-key="combinatorial explosion" markdown="1"><a class="gl-ref" href="../glossary/#combinatorial_explosion" markdown="1">combinatorial explosion</a></span> of possibilities.
 Smart algorithms will try to add packages to the mix
 in an order that minimize the number of new possibilities at each stage,
 or create pairs and then combine them to create pairs of pairs and so on.
 Our algorithm will be simpler (and therefore slower),
 but illustrates the key idea.</p>
-<h2 id="package-manager-constraints">Section 18.3:  How can we satisfy constraints?</h2>
+<h2 id="package-manager-constraints">Section 18.3: How can we satisfy constraints?</h2>
 <p>To avoid messing around with parsers,
 our programs reads a JSON data structure describing the problem;
-a real package manager would read the <span class="indexentry" index-key="manifest (of package);package manifest" markdown="1"><a class="glossref" href="../glossary/#manifest" markdown="1">manifests</a></span> of the packages in question
+a real package manager would read the <span class="ix-entry" ix-key="manifest (of package);package manifest" markdown="1"><a class="gl-ref" href="../glossary/#manifest" markdown="1">manifests</a></span> of the packages in question
 and construct a similar data structure.
 We will stick to single-digit version numbers for readability,
 and will use this as our first test case:</p>
-<pre><code class="language-json">{
-  &quot;X&quot;: {
-    &quot;1&quot;: {
-      &quot;Y&quot;: [&quot;1&quot;]
-    },
-    &quot;2&quot;: {
-      &quot;Y&quot;: [&quot;2&quot;]
-    }
-  },
-  &quot;Y&quot;: {
-    &quot;1&quot;: {},
-    &quot;2&quot;: {}
-  }
-}
-</code></pre>
+<div class="code-sample lang-json" title="double-chained.json">
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;X&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;1&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;Y&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="p">},</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;2&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;Y&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;2&quot;</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">},</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;Y&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;1&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;2&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</div>
 <blockquote>
 <h3>Comments</h3>
 <p>If you ever design a data format,
@@ -344,63 +583,74 @@ but JSON and CSV don't.</p>
 we add each package to our active list in turn and look for violations.
 If there aren't any more packages to add and we haven't found a violation,
 then what we have must be a legal configuration.</p>
-<pre><code class="language-js">import configStr from './config-str.js'
+<div class="code-sample lang-js" title="sweep.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">configStr</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./config-str.js&#39;</span><span class="w"></span>
 
-const sweep = (manifest) =&gt; {
-  const names = Object.keys(manifest)
-  const result = []
-  recurse(manifest, names, {}, result)
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">sweep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">manifest</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">manifest</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span><span class="w"></span>
+<span class="w">  </span><span class="nx">recurse</span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span><span class="w"> </span><span class="nx">names</span><span class="p">,</span><span class="w"> </span><span class="p">{},</span><span class="w"> </span><span class="nx">result</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const recurse = (manifest, names, config, result) =&gt; {
-  if (names.length === 0) {
-    if (allows(manifest, config)) {
-      result.push({ ...config })
-    }
-  } else {
-    const next = names[0]
-    const rest = names.slice(1)
-    for (const version in manifest[next]) {
-      config[next] = version
-      recurse(manifest, rest, config, result)
-    }
-  }
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">recurse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span><span class="w"> </span><span class="nx">names</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="p">,</span><span class="w"> </span><span class="nx">result</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">names</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">allows</span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span><span class="w"> </span><span class="p">...</span><span class="nx">config</span><span class="w"> </span><span class="p">})</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">names</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">rest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">names</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">version</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">manifest</span><span class="p">[</span><span class="nx">next</span><span class="p">])</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nx">config</span><span class="p">[</span><span class="nx">next</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">version</span><span class="w"></span>
+<span class="w">      </span><span class="nx">recurse</span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span><span class="w"> </span><span class="nx">rest</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="p">,</span><span class="w"> </span><span class="nx">result</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
 
-export default sweep
-</code></pre>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">sweep</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p>The simplest way to find configurations is to sweep over all possibilities.
 For debugging purposes,
 our function prints possibilities as it goes:</p>
-<pre><code class="language-js">const allows = (manifest, config) =&gt; {
-  for (const [leftN, leftV] of Object.entries(config)) {
-    const requirements = manifest[leftN][leftV]
-    for (const [rightN, rightVAll] of Object.entries(requirements)) {
-      if (!rightVAll.includes(config[rightN])) {
-        const title = configStr(config)
-        const missing = config[rightN]
-        console.log(`${title} @ ${leftN}/${leftV} ${rightN}/${missing}`)
-        return false
-      }
-    }
-  }
-  console.log(configStr(config))
-  return true
-}
-</code></pre>
+<div class="code-sample lang-js" title="sweep.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">allows</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">leftN</span><span class="p">,</span><span class="w"> </span><span class="nx">leftV</span><span class="p">]</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">entries</span><span class="p">(</span><span class="nx">config</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">requirements</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">manifest</span><span class="p">[</span><span class="nx">leftN</span><span class="p">][</span><span class="nx">leftV</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">rightN</span><span class="p">,</span><span class="w"> </span><span class="nx">rightVAll</span><span class="p">]</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">entries</span><span class="p">(</span><span class="nx">requirements</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">rightVAll</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="nx">config</span><span class="p">[</span><span class="nx">rightN</span><span class="p">]))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">configStr</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">missing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">config</span><span class="p">[</span><span class="nx">rightN</span><span class="p">]</span><span class="w"></span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">title</span><span class="si">}</span><span class="sb"> @ </span><span class="si">${</span><span class="nx">leftN</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">leftV</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">rightN</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">missing</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">configStr</span><span class="p">(</span><span class="nx">config</span><span class="p">))</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p>If we run this program on the two-package example shown earlier we get this output:</p>
-<pre><code class="language-sh">node driver.js ./sweep.js double-chained.json
-</code></pre>
-<pre><code class="language-out">{X:1 Y:1}
+<div class="code-sample lang-sh" title="sweep-double-chained.sh">
+<div class="highlight"><pre><span></span><code>node driver.js ./sweep.js double-chained.json
+</code></pre></div>
+</div>
+<div class="code-sample lang-out" title="sweep-double-chained.out">
+<div class="highlight"><pre><span></span><code>{X:1 Y:1}
 {X:1 Y:2} @ X/1 Y/2
 {X:2 Y:1} @ X/2 Y/1
 {X:2 Y:2}
-</code></pre>
+</code></pre></div>
+</div>
 <p>When we run it on our triple-package example we get this:</p>
-<pre><code class="language-sh">node driver.js ./sweep.js triple.json
-</code></pre>
-<pre><code class="language-out">{X:1 Y:1 Z:1} @ Y/1 Z/1
+<div class="code-sample lang-sh" title="sweep-triple.sh">
+<div class="highlight"><pre><span></span><code>node driver.js ./sweep.js triple.json
+</code></pre></div>
+</div>
+<div class="code-sample lang-out" title="sweep-triple.out">
+<div class="highlight"><pre><span></span><code>{X:1 Y:1 Z:1} @ Y/1 Z/1
 {X:1 Y:1 Z:2} @ X/1 Z/2
 {X:1 Y:1 Z:3} @ X/1 Z/3
 {X:1 Y:2 Z:1} @ Y/2 Z/1
@@ -418,12 +668,13 @@ our function prints possibilities as it goes:</p>
 {X:2 Y:3 Z:1} @ Y/3 Z/1
 {X:2 Y:3 Z:2} @ Y/3 Z/2
 {X:2 Y:3 Z:3} @ X/2 Z/3
-</code></pre>
+</code></pre></div>
+</div>
 <p>This works,
 but it is doing a lot of unnecessary work.
 If we sort the output by the case that caught the exclusion
 it turns out that 9 of the 17 exclusions are redundant rediscovery of a previously-known problem
-<a class="tblref" href="../package-manager/#package-manager-exclusions">Table 18.3</a>.</p>
+<a class="tbl-ref" href="../package-manager/#package-manager-exclusions">Table 18.3</a>.</p>
 <div class="table"><table id="package-manager-exclusions"><caption>Table 18.3: Package exclusions.</caption>
 <thead>
 <tr>
@@ -546,78 +797,83 @@ it turns out that 9 of the 17 exclusions are redundant rediscovery of a previous
 </table>
 </div>
 <div class="break-before"></div>
-<h2 id="package-manager-optimize">Section 18.4:  How can we do less work?</h2>
-<p>In order to make this more efficient we need to <span class="indexentry" index-key="prune (a search tree)" markdown="1"><a class="glossref" href="../glossary/#prune" markdown="1">prune</a></span> the search tree
+<h2 id="package-manager-optimize">Section 18.4: How can we do less work?</h2>
+<p>In order to make this more efficient we need to <span class="ix-entry" ix-key="prune (a search tree)" markdown="1"><a class="gl-ref" href="../glossary/#prune" markdown="1">prune</a></span> the search tree
 as we go along
-(<a class="figref" href="../package-manager/#package-manager-pruning">Figure 18.2</a>).
+(<a class="fig-ref" href="../package-manager/#package-manager-pruning">Figure 18.2</a>).
 After all,
 if we know that X and Y are incompatible,
 there is no need to check Z as well.</p>
 <figure id="package-manager-pruning">
-  <img src="./figures/pruning.svg" alt="Pruning the search tree" />
+  <img src="./pruning.svg" alt="Pruning the search tree"/>
   <figcaption markdown="1">Figure 18.2: Pruning options in the search tree to reduce work.</figcaption>
 </figure>
 
 <p>This version of the program collects possible solutions and displays them at the end.
 It only keeps checking a partial solution if what it has found so far looks good:</p>
-<pre><code class="language-js">import configStr from './config-str.js'
+<div class="code-sample lang-js" title="prune.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">configStr</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./config-str.js&#39;</span><span class="w"></span>
 
-const prune = (manifest) =&gt; {
-  const names = Object.keys(manifest)
-  const result = []
-  recurse(manifest, names, {}, result)
-  for (const config of result) {
-    console.log(configStr(config))
-  }
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">prune</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">manifest</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">manifest</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span><span class="w"></span>
+<span class="w">  </span><span class="nx">recurse</span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span><span class="w"> </span><span class="nx">names</span><span class="p">,</span><span class="w"> </span><span class="p">{},</span><span class="w"> </span><span class="nx">result</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">config</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">result</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">configStr</span><span class="p">(</span><span class="nx">config</span><span class="p">))</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const recurse = (manifest, names, config, result) =&gt; {
-  if (names.length === 0) {
-    result.push({ ...config })
-  } else {
-    const next = names[0]
-    const rest = names.slice(1)
-    for (const version in manifest[next]) {
-      config[next] = version
-      if (compatible(manifest, config)) {
-        recurse(manifest, rest, config, result)
-      }
-      delete config[next]
-    }
-  }
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">recurse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span><span class="w"> </span><span class="nx">names</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="p">,</span><span class="w"> </span><span class="nx">result</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">names</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span><span class="w"> </span><span class="p">...</span><span class="nx">config</span><span class="w"> </span><span class="p">})</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">names</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">rest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">names</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">version</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">manifest</span><span class="p">[</span><span class="nx">next</span><span class="p">])</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nx">config</span><span class="p">[</span><span class="nx">next</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">version</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">compatible</span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">recurse</span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span><span class="w"> </span><span class="nx">rest</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="p">,</span><span class="w"> </span><span class="nx">result</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">      </span><span class="ow">delete</span><span class="w"> </span><span class="nx">config</span><span class="p">[</span><span class="nx">next</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
 
-const report = (config, leftN, leftV, rightN, rightV) =&gt; {
-  const title = configStr(config)
-  console.log(`${title} @ ${leftN}/${leftV} ${rightN}/${rightV}`)
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">report</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">config</span><span class="p">,</span><span class="w"> </span><span class="nx">leftN</span><span class="p">,</span><span class="w"> </span><span class="nx">leftV</span><span class="p">,</span><span class="w"> </span><span class="nx">rightN</span><span class="p">,</span><span class="w"> </span><span class="nx">rightV</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">configStr</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">title</span><span class="si">}</span><span class="sb"> @ </span><span class="si">${</span><span class="nx">leftN</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">leftV</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">rightN</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">rightV</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-export default prune
-</code></pre>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">prune</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p>The <code>compatible</code> function checks to see if adding something will leave us with a consistent configuration:</p>
-<pre><code class="language-js">const compatible = (manifest, config) =&gt; {
-  for (const [leftN, leftV] of Object.entries(config)) {
-    const leftR = manifest[leftN][leftV]
-    for (const [rightN, rightV] of Object.entries(config)) {
-      if ((rightN in leftR) &amp;&amp; (!leftR[rightN].includes(rightV))) {
-        report(config, leftN, leftV, rightN, rightV)
-        return false
-      }
-      const rightR = manifest[rightN][rightV]
-      if ((leftN in rightR) &amp;&amp; (!rightR[leftN].includes(leftV))) {
-        report(config, leftN, leftV, rightN, rightV)
-        return false
-      }
-    }
-  }
-  return true
-}
-</code></pre>
+<div class="code-sample lang-js" title="prune.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">compatible</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">leftN</span><span class="p">,</span><span class="w"> </span><span class="nx">leftV</span><span class="p">]</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">entries</span><span class="p">(</span><span class="nx">config</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">leftR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">manifest</span><span class="p">[</span><span class="nx">leftN</span><span class="p">][</span><span class="nx">leftV</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">rightN</span><span class="p">,</span><span class="w"> </span><span class="nx">rightV</span><span class="p">]</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">entries</span><span class="p">(</span><span class="nx">config</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="nx">rightN</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">leftR</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">leftR</span><span class="p">[</span><span class="nx">rightN</span><span class="p">].</span><span class="nx">includes</span><span class="p">(</span><span class="nx">rightV</span><span class="p">)))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">report</span><span class="p">(</span><span class="nx">config</span><span class="p">,</span><span class="w"> </span><span class="nx">leftN</span><span class="p">,</span><span class="w"> </span><span class="nx">leftV</span><span class="p">,</span><span class="w"> </span><span class="nx">rightN</span><span class="p">,</span><span class="w"> </span><span class="nx">rightV</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">rightR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">manifest</span><span class="p">[</span><span class="nx">rightN</span><span class="p">][</span><span class="nx">rightV</span><span class="p">]</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="nx">leftN</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">rightR</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">rightR</span><span class="p">[</span><span class="nx">leftN</span><span class="p">].</span><span class="nx">includes</span><span class="p">(</span><span class="nx">leftV</span><span class="p">)))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">report</span><span class="p">(</span><span class="nx">config</span><span class="p">,</span><span class="w"> </span><span class="nx">leftN</span><span class="p">,</span><span class="w"> </span><span class="nx">leftV</span><span class="p">,</span><span class="w"> </span><span class="nx">rightN</span><span class="p">,</span><span class="w"> </span><span class="nx">rightV</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p>Checking as we go gets us from 18 complete solutions to 11.
 One is workable
 and two are incomplete---they represent 6 possible complete solutions that we didn't need to finish:</p>
-<pre><code class="language-out">{X:1 Y:1 Z:1} @ Y/1 Z/1
+<div class="code-sample lang-out" title="prune-triple.out">
+<div class="highlight"><pre><span></span><code>{X:1 Y:1 Z:1} @ Y/1 Z/1
 {X:1 Y:1 Z:2} @ X/1 Z/2
 {X:1 Y:1 Z:3} @ X/1 Z/3
 {X:1 Y:2 Z:1} @ Y/2 Z/1
@@ -631,68 +887,72 @@ and two are incomplete---they represent 6 possible complete solutions that we di
 {X:2 Y:3 Z:2} @ Y/3 Z/2
 {X:2 Y:3 Z:3} @ X/2 Z/3
 {X:2 Y:2 Z:2}
-</code></pre>
+</code></pre></div>
+</div>
 <p>Another way to look at the work is the number of steps in the search.
 The full search had 18×3 = 54 steps.
 Pruning leaves us with (12×3) + (2×2) = 40 steps
 so we have eliminated roughly 1/4 of the work.</p>
 <p>What if we searched in the reverse order?</p>
-<pre><code class="language-js">import configStr from './config-str.js'
+<div class="code-sample lang-js" title="reverse.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">configStr</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./config-str.js&#39;</span><span class="w"></span>
 
-// [reverse]
-const reverse = (manifest) =&gt; {
-  const names = Object.keys(manifest)
-  names.reverse()
-  const result = []
-  recurse(manifest, names, {}, result)
-  for (const config of result) {
-    console.log(configStr(config))
-  }
-}
-// [/reverse]
+<span class="c1">// [reverse]</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">reverse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">manifest</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">manifest</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="nx">names</span><span class="p">.</span><span class="nx">reverse</span><span class="p">()</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span><span class="w"></span>
+<span class="w">  </span><span class="nx">recurse</span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span><span class="w"> </span><span class="nx">names</span><span class="p">,</span><span class="w"> </span><span class="p">{},</span><span class="w"> </span><span class="nx">result</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">config</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">result</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">configStr</span><span class="p">(</span><span class="nx">config</span><span class="p">))</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="c1">// [/reverse]</span><span class="w"></span>
 
-const recurse = (manifest, names, config, result) =&gt; {
-  if (names.length === 0) {
-    result.push({ ...config })
-  } else {
-    const next = names[0]
-    const rest = names.slice(1)
-    for (const version in manifest[next]) {
-      config[next] = version
-      if (compatible(manifest, config)) {
-        recurse(manifest, rest, config, result)
-      }
-      delete config[next]
-    }
-  }
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">recurse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span><span class="w"> </span><span class="nx">names</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="p">,</span><span class="w"> </span><span class="nx">result</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">names</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span><span class="w"> </span><span class="p">...</span><span class="nx">config</span><span class="w"> </span><span class="p">})</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">names</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">rest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">names</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">version</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">manifest</span><span class="p">[</span><span class="nx">next</span><span class="p">])</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nx">config</span><span class="p">[</span><span class="nx">next</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">version</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">compatible</span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">recurse</span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span><span class="w"> </span><span class="nx">rest</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="p">,</span><span class="w"> </span><span class="nx">result</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">      </span><span class="ow">delete</span><span class="w"> </span><span class="nx">config</span><span class="p">[</span><span class="nx">next</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const compatible = (manifest, config) =&gt; {
-  for (const [leftN, leftV] of Object.entries(config)) {
-    const leftR = manifest[leftN][leftV]
-    for (const [rightN, rightV] of Object.entries(config)) {
-      if ((rightN in leftR) &amp;&amp; (!leftR[rightN].includes(rightV))) {
-        report(config, leftN, leftV, rightN, rightV)
-        return false
-      }
-      const rightR = manifest[rightN][rightV]
-      if ((leftN in rightR) &amp;&amp; (!rightR[leftN].includes(leftV))) {
-        report(config, leftN, leftV, rightN, rightV)
-        return false
-      }
-    }
-  }
-  return true
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">compatible</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">leftN</span><span class="p">,</span><span class="w"> </span><span class="nx">leftV</span><span class="p">]</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">entries</span><span class="p">(</span><span class="nx">config</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">leftR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">manifest</span><span class="p">[</span><span class="nx">leftN</span><span class="p">][</span><span class="nx">leftV</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">rightN</span><span class="p">,</span><span class="w"> </span><span class="nx">rightV</span><span class="p">]</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">entries</span><span class="p">(</span><span class="nx">config</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="nx">rightN</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">leftR</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">leftR</span><span class="p">[</span><span class="nx">rightN</span><span class="p">].</span><span class="nx">includes</span><span class="p">(</span><span class="nx">rightV</span><span class="p">)))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">report</span><span class="p">(</span><span class="nx">config</span><span class="p">,</span><span class="w"> </span><span class="nx">leftN</span><span class="p">,</span><span class="w"> </span><span class="nx">leftV</span><span class="p">,</span><span class="w"> </span><span class="nx">rightN</span><span class="p">,</span><span class="w"> </span><span class="nx">rightV</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">rightR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">manifest</span><span class="p">[</span><span class="nx">rightN</span><span class="p">][</span><span class="nx">rightV</span><span class="p">]</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="nx">leftN</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">rightR</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">rightR</span><span class="p">[</span><span class="nx">leftN</span><span class="p">].</span><span class="nx">includes</span><span class="p">(</span><span class="nx">leftV</span><span class="p">)))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">report</span><span class="p">(</span><span class="nx">config</span><span class="p">,</span><span class="w"> </span><span class="nx">leftN</span><span class="p">,</span><span class="w"> </span><span class="nx">leftV</span><span class="p">,</span><span class="w"> </span><span class="nx">rightN</span><span class="p">,</span><span class="w"> </span><span class="nx">rightV</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const report = (config, leftN, leftV, rightN, rightV) =&gt; {
-  const title = configStr(config)
-  console.log(`${title} @ ${leftN}/${leftV} ${rightN}/${rightV}`)
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">report</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">config</span><span class="p">,</span><span class="w"> </span><span class="nx">leftN</span><span class="p">,</span><span class="w"> </span><span class="nx">leftV</span><span class="p">,</span><span class="w"> </span><span class="nx">rightN</span><span class="p">,</span><span class="w"> </span><span class="nx">rightV</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">configStr</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">title</span><span class="si">}</span><span class="sb"> @ </span><span class="si">${</span><span class="nx">leftN</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">leftV</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">rightN</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">rightV</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-export default reverse
-</code></pre>
-<pre><code class="language-out">{Z:1 Y:1} @ Z/1 Y/1
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">reverse</span><span class="w"></span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-out" title="reverse-triple.out">
+<div class="highlight"><pre><span></span><code>{Z:1 Y:1} @ Z/1 Y/1
 {Z:1 Y:2} @ Z/1 Y/2
 {Z:1 Y:3} @ Z/1 Y/3
 {Z:2 Y:1 X:1} @ Z/2 X/1
@@ -705,19 +965,20 @@ export default reverse
 {Z:3 Y:3 X:1} @ Z/3 X/1
 {Z:3 Y:3 X:2} @ Z/3 X/2
 {Z:2 Y:2 X:2}
-</code></pre>
+</code></pre></div>
+</div>
 <p>Now we have (8×3) + (5×2) = 34 steps,
 i.e.,
 we have eliminated roughly 1/3 of the work.
 That may not seem like a big difference,
 but if we go five levels deep at the same rate
 it cuts the work in half.
-There are lots of <a class="glossref" href="../glossary/#heuristic" markdown="1">heuristics</a> for searching trees;
+There are lots of <a class="gl-ref" href="../glossary/#heuristic" markdown="1">heuristics</a> for searching trees;
 none are guaranteed to give better performance in every case,
 but most give better performance in most cases.</p>
 <blockquote>
 <h3>What research is for</h3>
-<p><span class="indexentry" index-key="SAT solver" markdown="1">SAT solvers</span> are like regular expression libraries and random number generators:
+<p><span class="ix-entry" ix-key="SAT solver" markdown="1">SAT solvers</span> are like regular expression libraries and random number generators:
 it is the work of many lifetimes to create ones that are both fast and correct.
 A lot of computer science researchers devote their careers to highly-specialized topics like this.
 The debates often seem esoteric to outsiders,
@@ -725,31 +986,31 @@ and most ideas turn out to be dead ends,
 but even small improvements in fundamental tools can have a profound impact.</p>
 </blockquote>
 <div class="break-before"></div>
-<h2 id="package-manager-exercises">Section 18.5:  Exercises</h2>
+<h2 id="package-manager-exercises">Section 18.5: Exercises</h2>
 <h3 class="exercise">Comparing semantic versions</h3>
 <p>Write a function that takes an array of semantic version specifiers
 and sorts them in ascending order.
 Remember that <code>2.1</code> is greater than <code>1.99</code>.</p>
 <h3 class="exercise">Parsing semantic versions</h3>
-<p>Using the techniques of <a class="crossref" href="../regex-parser/">Chapter 8</a>,
+<p>Using the techniques of <a class="x-ref" href="../regex-parser/">Chapter 8</a>,
 write a parser for a subset of the <a href="https://semver.org/">semantic versioning specification</a>.</p>
 <h3 class="exercise">Using scoring functions</h3>
 <p>Many different combinations of package versions can be mutually compatible.
 One way to decide which actual combination to install
-is to create a <a class="glossref" href="../glossary/#scoring_function" markdown="1">scoring function</a>
+is to create a <a class="gl-ref" href="../glossary/#scoring_function" markdown="1">scoring function</a>
 that measures how good or bad a particular combination is.
 For example,
 a function could measure the "distance" between two versions as:</p>
-<pre><code class="language-js">const score (X, Y) =&gt; {
-  if (X.major !== Y.major) {
-    return 100 * abs(X.major - Y.major)
-  } else if (X.minor !== Y.minor) {
-    return 10 * abs(X.minor - Y.minor)
-  } else {
-    return abs(X.patch - Y.patch)
-  }
-}
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">score</span><span class="w"> </span><span class="p">(</span><span class="nx">X</span><span class="p">,</span><span class="w"> </span><span class="nx">Y</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">X</span><span class="p">.</span><span class="nx">major</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="nx">Y</span><span class="p">.</span><span class="nx">major</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mf">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">abs</span><span class="p">(</span><span class="nx">X</span><span class="p">.</span><span class="nx">major</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">Y</span><span class="p">.</span><span class="nx">major</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">X</span><span class="p">.</span><span class="nx">minor</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="nx">Y</span><span class="p">.</span><span class="nx">minor</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mf">10</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">abs</span><span class="p">(</span><span class="nx">X</span><span class="p">.</span><span class="nx">minor</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">Y</span><span class="p">.</span><span class="nx">minor</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">abs</span><span class="p">(</span><span class="nx">X</span><span class="p">.</span><span class="nx">patch</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">Y</span><span class="p">.</span><span class="nx">patch</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
 <ol>
 <li>
 <p>Implement a working version of this function
@@ -788,7 +1049,7 @@ and so on.</p>
     and whose values are integers indicating the number of versions of that package
     to include in the test set,
     such as <code>{'left': 3, 'middle': 2, 'right': 15}</code>.
-    Its second argument is a <a class="glossref" href="../glossary/#seed" markdown="1">seed</a> for random number generation.</p>
+    Its second argument is a <a class="gl-ref" href="../glossary/#seed" markdown="1">seed</a> for random number generation.</p>
 </li>
 <li>
 <p>It generates one valid configuration,
@@ -823,27 +1084,8 @@ Does it reduce the amount of work done for larger examples?</p>
 <p>Explain why package managers aren't built this way.</p>
 </li>
 </ol>
-    </main>
-  <div class="centered footer">
-  <hr/>
-  <table class="plain footer">
-    <tr>
-      
-      <td><a href="../license/">License</a></td>
-      
-      <td><a href="../conduct/">Code of Conduct</a></td>
-      
-      <td><a href="../bibliography/">Bibliography</a></td>
-      
-      <td><a href="../glossary/">Glossary</a></td>
-      
-      <td><a href="../links/">Links</a></td>
-      
-      <td><a href="https://github.com/software-tools-books/stjs/">GitHub</a></td>
-      
-    </tr>
-  </table>
-</div>
-
+        </main>
+      </div>
+    </div>
   </body>
 </html>
