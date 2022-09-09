@@ -1,6 +1,5 @@
 ---
 title: "Module Bundler"
-lede: "Turning many files into one"
 ---
 
 [%i "JavaScript!hurried design of" %]JavaScript[%/i%] was designed in a hurry 25 years ago to make web pages interactive.

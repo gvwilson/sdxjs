@@ -31,10 +31,10 @@ def links_append():
 @shortcodes.register("links")
 def links_table(pargs, kwargs, node):
     """Create a table of links."""
-    if "links" not in ivy.site.config:
-        return '<p class="warning">NO LINKS</p>'
-    if (lang := ivy.site.config.get("lang", None)) is None:
-        return '<p class="warning">No language specified.</p>'
+    util.require("links" in ivy.site.config, "No links specified")
+
+    lang = ivy.site.config.get("lang", None)
+    util.require(lang is not None, "No language specified")
 
     links = _read_links()
     links.sort(key=lambda x: _link_key(x, lang))

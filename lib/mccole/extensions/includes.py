@@ -66,11 +66,11 @@ def copy_files():
 @shortcodes.register("linecount")
 def linecount(pargs, kwargs, node):
     """Count lines in an include file."""
-    # Error checking.
-    if kwargs:
-        util.fail(f"Badly-formatted linecount shortcode with {kwargs} in {node.filepath}")
+    util.require(
+        not kwargs,
+        f"Badly-formatted linecount shortcode with {kwargs} in {node.filepath}"
+    )
 
-    # Count lines.
     inclusions = util.make_config("inclusions")
     filepath = _inclusion_filepath(inclusions, node, pargs[0])
     with open(filepath, "r") as reader:
@@ -80,9 +80,10 @@ def linecount(pargs, kwargs, node):
 @shortcodes.register("inc")
 def include(pargs, kwargs, node):
     """Handle a file inclusion, possibly excerpting."""
-    # Error checking.
-    if pargs:
-        util.fail(f"Badly-formatted excerpt shortcode with {pargs} in {node.filepath}")
+    util.require(
+        not pargs,
+        f"Badly-formatted excerpt shortcode with {pargs} in {node.filepath}"
+    )
 
     # Handle by cases.
     inclusions = util.make_config("inclusions")
@@ -170,8 +171,10 @@ def _include_file(node, filepath, *filters):
 def _keep_lines(filepath, lines, key):
     """Select lines between markers."""
     start, stop = _find_markers(lines, key)
-    if (start is None) or (stop is None):
-        util.fail(f"Failed to match inclusion 'keep' key {key} in {filepath}")
+    util.require(
+        (start is not None) and (stop is not None),
+        f"Failed to match inclusion 'keep' key {key} in {filepath}"
+    )
     return lines[start + 1 : stop]  # noqa e203
 
 
@@ -186,8 +189,10 @@ def _make_html(name, kind, lines):
 def _omit_lines(filepath, lines, key):
     """Remove lines between markers."""
     start, stop = _find_markers(lines, key)
-    if (start is None) or (stop is None):
-        util.fail(f"Failed to match inclusion 'omit' key {key} in {filepath}")
+    util.require(
+        (start is not None) and (stop is not None),
+        f"Failed to match inclusion 'omit' key {key} in {filepath}"
+    )
     return lines[:start] + lines[stop + 1 :]  # noqa e203
 
 

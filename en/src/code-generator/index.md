@@ -1,6 +1,5 @@
 ---
 title: "Code Generator"
-lede: "Modifying code to track coverage and execution times"
 ---
 
 We've been writing tests since [%x unit-test %],

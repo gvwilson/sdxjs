@@ -1,6 +1,5 @@
 ---
 title: "Asynchronous Programming"
-lede: "Using promises to manage delayed computation"
 ---
 
 Callbacks work,

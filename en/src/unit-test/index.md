@@ -1,6 +1,5 @@
 ---
 title: "Unit Testing"
-lede: "Testing software piece by piece"
 ---
 
 We have written many small programs in the previous two chapters,

@@ -1,6 +1,5 @@
 ---
 title: "Page Templates"
-lede: "Generating HTML pages from templates"
 ---
 
 Every program needs documentation in order to be usable,

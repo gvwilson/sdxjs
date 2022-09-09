@@ -1,6 +1,5 @@
 ---
 title: "Debugger"
-lede: "Using programs to run programs"
 ---
 We have finally come to one of the topics that sparked this book:
 how does a [%i "debugger" %]debugger[%/i%] work?

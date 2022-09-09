@@ -1,6 +1,5 @@
 ---
 title: "Virtual Machine"
-lede: "Assembling and running low-level code"
 ---
 
 Computers don't execute JavaScript directly.

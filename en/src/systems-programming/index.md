@@ -1,6 +1,5 @@
 ---
 title: "Systems Programming"
-lede: "Using callbacks to manipulate files and directories"
 ---
 
 The biggest difference between JavaScript and most other programming languages

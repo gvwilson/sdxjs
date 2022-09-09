@@ -1,6 +1,5 @@
 ---
 title: "Data Tables"
-lede: "Storing and manipulating tables efficiently"
 ---
 
 [%x systems-programming %] said that

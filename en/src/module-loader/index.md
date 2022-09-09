@@ -1,6 +1,5 @@
 ---
 title: "Module Loader"
-lede: "Loading source files as modules"
 ---
 
 [%x file-interpolator %] showed how to use `eval` to load code dynamically.

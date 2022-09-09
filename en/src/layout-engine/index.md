@@ -1,6 +1,5 @@
 ---
 title: "Layout Engine"
-lede: "Figuring out what goes where in a web page"
 ---
 
 You might be reading this as an HTML page,

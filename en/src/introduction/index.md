@@ -1,6 +1,5 @@
 ---
 title: "Introduction"
-lede: "Who you are and where we're going"
 ---
 
 The best way to learn design is to study examples [%b Schon1984 Petre2016 %],

@@ -34,7 +34,7 @@ def figure_def(pargs, kwargs, node):
     allowed = {"slug", "img", "alt", "caption"}
     util.require(
         (not pargs) and allowed.issuperset(kwargs.keys()),
-        "Bad 'figure' shortcode",
+        f"Bad 'figure' shortcode {pargs} and {kwargs}",
     )
     slug = kwargs["slug"]
     img = kwargs["img"]

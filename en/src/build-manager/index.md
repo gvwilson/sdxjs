@@ -1,6 +1,5 @@
 ---
 title: "Build Manager"
-lede: "Updating files that depend on other files"
 ---
 
 Suppose we are using a page templating system to create a website ([%x page-templates %]).

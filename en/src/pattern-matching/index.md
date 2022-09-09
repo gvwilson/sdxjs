@@ -1,6 +1,5 @@
 ---
 title: "Pattern Matching"
-lede: "Using patterns to find things in data"
 ---
 
 We have been globbing to match filenames against patterns since [%x systems-programming %].

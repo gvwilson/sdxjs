@@ -1,6 +1,5 @@
 ---
 title: "File Interpolator"
-lede: "Managing source files that have been broken into pieces"
 ---
 
 Many of the examples in these lessons are too long

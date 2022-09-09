@@ -1,6 +1,5 @@
 ---
 title: "Conclusion"
-lede: "Where we have been and where you could go next"
 ---
 
 We have come a long way since we listed the contents of a directory in [%x systems-programming %].

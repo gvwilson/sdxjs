@@ -2,6 +2,7 @@
 
 import os
 import re
+import sys
 from pathlib import Path
 
 import ivy
@@ -43,13 +44,13 @@ TRANSLATIONS = {
     },
 }
 
-# Regex to match a Markdown heading with optional attributes.
+# Match a Markdown heading with optional attributes.
 HEADING = re.compile(r"^(#+)\s*(.+?)(\{:\s*#(.+\b)\})?$", re.MULTILINE)
 
-# Regex to turn multiple whitespace characters into a single space.
+# Used to turn multiple whitespace characters into a single space.
 MULTISPACE = re.compile(r"\s+", re.DOTALL)
 
-# Regex to match table elements. (See `tables.py` for explanation.)
+# Match table elements.
 TABLE = re.compile(r'<div\s+class="table(\s+break-before)?"[^>]*?>')
 TABLE_CAPTION = re.compile(r'caption="(.+?)"')
 TABLE_ID = re.compile(r'id="(.+?)"')
@@ -61,17 +62,17 @@ TABLE_DIV = re.compile(
 
 def fail(msg):
     """Fail unilaterally."""
+    print(msg, file=sys.stderr)
     raise AssertionError(msg)
 
 
 def get_config(part):
     """Get configuration subsection or `None`.
 
-    A result of `None` indicates that the request is being made
-    too early in the processing cycle.
+    A result of `None` indicates the request is being made too early
+    in the processing cycle.
     """
-    if part not in CONFIGURATIONS:
-        fail(f"Unknown configuration section '{part}'")
+    require(part in CONFIGURATIONS, f"Unknown configuration section '{part}'")
     mccole = ivy.site.config.setdefault("mccole", {})
     return mccole.get(part, None)
 
@@ -79,11 +80,10 @@ def get_config(part):
 def make_config(part, filler=None):
     """Make configuration subsection.
 
-    If `filler` is not `None`, it is used as the initial value.
+    If `filler` is provided, it is used as the initial value.
     Otherwise, the value from `CONFIGURATIONS` is used.
     """
-    if part not in CONFIGURATIONS:
-        fail(f"Unknown configuration section '{part}'")
+    require(part in CONFIGURATIONS, f"Unknown configuration section '{part}'")
     filler = filler if (filler is not None) else CONFIGURATIONS[part]
     return ivy.site.config.setdefault("mccole", {}).setdefault(part, filler)
 
@@ -149,7 +149,8 @@ def read_glossary(filename):
 
 def require(cond, msg):
     """Fail if condition untrue."""
-    assert cond, msg
+    if not cond:
+        fail(msg)
 
 
 def warn(title, items):

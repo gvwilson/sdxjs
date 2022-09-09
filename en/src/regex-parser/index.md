@@ -1,6 +1,5 @@
 ---
 title: "Parsing Expressions"
-lede: "Turning text into code"
 ---
 
 In [%x pattern-matching %] we created regular expressions by constructing objects.

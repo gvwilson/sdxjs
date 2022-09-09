@@ -1,6 +1,5 @@
 ---
 title: "Documentation Generator"
-lede: "Generating documentation from comments embedded in code"
 ---
 
 Many programmers believe they're more likely to write documentation and keep it up to date

@@ -1,6 +1,5 @@
 ---
 title: "Package Manager"
-lede: "Getting and installing packages"
 ---
 
 There is no point building software if you can't install it.

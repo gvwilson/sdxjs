@@ -1,6 +1,5 @@
 ---
 title: "File Backup"
-lede: "Archiving files with directory structure"
 ---
 
 Now that we can test software we have something worth saving.

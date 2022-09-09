@@ -1,6 +1,5 @@
 ---
 title: "Style Checker"
-lede: "Checking that code conforms to style guidelines"
 ---
 
 Programmers argue endlessly about the best way to format their programs,
