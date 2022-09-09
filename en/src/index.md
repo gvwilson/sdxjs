@@ -1,6 +1,3 @@
----
----
-
 The best way to learn design is to study examples [% b Schon1984 Petre2016 %],
 and some of the best examples of software design come from
 the tools programmers use in their own work.
@@ -22,13 +19,3 @@ the [Hippocratic License][hippocratic-license];
 see <a section="license"/> for details.
 All proceeds from this project will go to support the
 [Red Door Family Shelter][red-door].
-
-> **[Greg Wilson][wilson-greg]** has worked in industry and academia for 35 years,
-> and is the author, co-author, or editor of several books,
-> including *Beautiful Code*,
-> *[The Architecture of Open Source Applications][aosa]*,
-> *[JavaScript for Data Science][js4ds]*,
-> *[Teaching Tech Together][t3]*,
-> and *[Research Software Engineering with Python][py-rse]*.
-> He was the co-founder and first Executive Director of [Software Carpentry][carpentries]
-> and received ACM SIGSOFT's Influential Educator Award in 2020.
