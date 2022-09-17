@@ -263,40 +263,42 @@
   
 
 
-          <p>We have finally come to one of the topics that sparked this book:
+          <p>We have finally come to another of the topics that sparked this book:
 how does a <span class="ix-entry" ix-key="debugger" markdown="1">debugger</span> work?
-(The other was layout engines, discussed in <a class="x-ref" href="../layout-engine/">Chapter 11</a>.)
-Debuggers are as much a part of good programmers&rsquo; lives as version control
+Debuggers are as much a part of programmers&rsquo; lives as version control
 but are taught far less often
 (in part, we believe, because it&rsquo;s harder to create homework questions for them).
-In this chapter we will build a simple single-stepping debugger;
-in doing so,
-we will show one way to test interactive applications (<a class="x-ref" href="../unit-test/">Chapter 4</a>).</p>
+In this chapter we will build a simple single-stepping debugger
+and show one way to test interactive applications (<a class="x-ref" href="../unit-test/">Chapter 4</a>).</p>
 <h2 id="debugger-start">Section 20.1: What is our starting point?</h2>
 <p>We would like to debug a higher-level language than the <span class="ix-entry" ix-key="assembly code" markdown="1">assembly code</span> of <a class="x-ref" href="../virtual-machine/">Chapter 19</a>,
 but we don&rsquo;t want to have to write a parser
 or wrestle with the <span class="ix-entry" ix-key="abstract syntax tree" markdown="1">ASTs</span> of <a class="x-ref" href="../style-checker/">Chapter 14</a>.
 As a compromise,
 we will represent programs as JSON data structures
-whose element have the form <code>[command ...args]</code>:</p>
+whose elements have the form <code>[command ...args]</code>.
+If the JavaScript version of our program is:</p>
+<div class="code-sample lang-js" title="filter-base.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">3</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mf">5</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">3</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">]</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Array</span><span class="p">()</span><span class="w"></span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">largest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">a</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"></span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="w"></span>
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">length</span><span class="p">(</span><span class="nx">a</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">a</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nx">largest</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">b</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">a</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="nx">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="nx">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="w"></span>
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">length</span><span class="p">(</span><span class="nx">b</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span><span class="w"></span>
+<span class="w">  </span><span class="nx">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</div>
+<p class="continue">then the JSON representation is:</p>
 <div class="code-sample lang-json" title="filter-base.json">
-<div class="highlight"><pre><span></span><code><span class="c1">// const a = [-3, -5, -1, 0, -2, 1, 3, 1]</span><span class="w"></span>
-<span class="c1">// const b = Array()</span><span class="w"></span>
-<span class="c1">// let largest = a[0]</span><span class="w"></span>
-<span class="c1">// let i = 0</span><span class="w"></span>
-<span class="c1">// while (i &lt; length(a)) {</span><span class="w"></span>
-<span class="c1">//   if (a[i] &gt; largest) {</span><span class="w"></span>
-<span class="c1">//     b.push(a[i])</span><span class="w"></span>
-<span class="c1">//   }</span><span class="w"></span>
-<span class="c1">//   i += 1</span><span class="w"></span>
-<span class="c1">// }</span><span class="w"></span>
-<span class="c1">// i = 0</span><span class="w"></span>
-<span class="c1">// while (i &lt; length(b)) {</span><span class="w"></span>
-<span class="c1">//   console.log(b[i])</span><span class="w"></span>
-<span class="c1">//   i += 1</span><span class="w"></span>
-<span class="c1">// }</span><span class="w"></span>
-
-<span class="p">[</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="p">[</span><span class="w"></span>
 <span class="w">  </span><span class="p">[</span><span class="s2">&quot;defA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">-3</span><span class="p">,</span><span class="w"> </span><span class="mi">-5</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">-2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]],</span><span class="w"></span>
 <span class="w">  </span><span class="p">[</span><span class="s2">&quot;defA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]],</span><span class="w"></span>
 <span class="w">  </span><span class="p">[</span><span class="s2">&quot;defV&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;largest&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;getA&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]]],</span><span class="w"></span>
@@ -658,14 +660,13 @@ with the following set of commands:</p>
 </li>
 </ul>
 <p>When the virtual machine calls the debugger,
-the debugger first checks whether or not it is on a numbered line.
+the debugger first checks if it is on a numbered line.
 If it isn&rsquo;t,
 it hands control back to the VM.
 Otherwise,
-its action depends on our current state.
-If we are single-stepping or if this line is a breakpoint,
-Otherwise, it does nothing.</p>
-<p>The overall structure of the interactive debugger is:</p>
+if we are single-stepping or this line is a breakpoint,
+the debugger takes over.
+Its overall structure is:</p>
 <div class="code-sample lang-js" title="debugger-interactive.js">
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">prompt</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;prompt-sync&#39;</span><span class="w"></span>
 
@@ -805,7 +806,7 @@ we will tidy it up in the exercises.</p>
 <h2 id="debugger-test">Section 20.4: How can we test an interactive application?</h2>
 <p>How can we <span class="ix-entry" ix-key="unit test!interactive application" markdown="1">test</span> an interactive application like a debugger?
 The answer is, &ldquo;By making it non-interactive.&rdquo;
-Like many tools over the past thirty years,
+Like many tools over the past 30 years,
 our approach is based on a program called <span class="ix-entry" ix-key="Expect" markdown="1"><a href="https://en.wikipedia.org/wiki/Expect">Expect</a></span>.
 Our library replaces the input and output functions of the application being tested with callbacks,
 then provides input when asked and checks output when it is given
@@ -815,7 +816,7 @@ then provides input when asked and checks output when it is given
   <figcaption markdown="1">Figure 20.2: Replacing input and output to test interactive applications.</figcaption>
 </figure>
 
-<p class="continue">The results look like this:</p>
+<p>The results look like this:</p>
 <div class="code-sample lang-js" title="test-expect.js">
 <div class="highlight"><pre><span></span><code><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;interactive debugger&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;runs and prints&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">done</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -895,7 +896,7 @@ but it is hard to understand because it is so abstract:</p>
 <span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">Expect</span><span class="w"></span>
 </code></pre></div>
 </div>
-<p class="continue">Piece by piece:</p>
+<p class="continue">Piece-by-piece:</p>
 <ul>
 <li><code>subject</code> is the thing being tested.</li>
 <li><code>start</code> is a callback to start the system running.

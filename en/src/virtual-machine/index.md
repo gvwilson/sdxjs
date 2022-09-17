@@ -7,8 +7,8 @@ Instead,
 each processor has its own [%i "instruction set" %][%g instruction_set "instruction set" %][%/i%],
 and a compiler translates high-level languages into those instructions.
 Compilers often use an intermediate representation called [%i "assembly code" %][%g assembly_code "assembly code" %][%/i%]
-that gives instructions human-readable names instead of numbers.
-To understand more about how JavaScript actually runs
+that gives instructions names instead of numbers.
+To understand more about how JavaScript actually runs,
 we will simulate a very simple processor with a little bit of memory.
 If you want to dive deeper,
 have a look at [%i "Nystrom, Bob" %][Bob Nystrom's][nystrom-bob][%/i%] *[Crafting Interpreters][crafting-interpreters]*.
@@ -37,13 +37,6 @@ for a program made up of 110 instructions:
     Both the program and its data live in this single block of memory;
     we chose the size 256 so that each address will fit in a single byte.
 
-[% figure
-   slug="virtual-machine-architecture"
-   img="architecture.svg"
-   alt="Virtual machine architecture"
-   caption="Architecture of the virtual machine."
-%]
-
 The instructions for our VM are 3 bytes long.
 The [%i "op code" "virtual machine!op code" %][%g op_code "op code" %][%/i%] fits into one byte,
 and each instruction may optionally include one or two single-byte operands.
@@ -59,7 +52,15 @@ where `r` indicates a register identifier,
 `c` indicates a constant,
 and `a` indicates an address.
 
-<div class="table" id="virtual-machine-op-codes" caption="Virtual machine op codes." markdown="1">
+[% figure
+   cls="figure-here"
+   slug="virtual-machine-architecture"
+   img="architecture.svg"
+   alt="Virtual machine architecture"
+   caption="Architecture of the virtual machine."
+%]
+
+<div class="table table-here" id="virtual-machine-op-codes" caption="Virtual machine op codes." markdown="1">
 | Instruction | Code | Format | Action              | Example      | Equivalent                |
 | ----------- | ---- | ------ | ------------------- | ------------ | ------------------------- |
 |  `hlt`      |    1 | `--`   | Halt program        | `hlt`        | `process.exit(0)`         |
@@ -75,6 +76,7 @@ and `a` indicates an address.
 |  `prm`      |   11 | `r-`   | Print memory        | `prm R0`     | `console.log(RAM[R0])`    |
 </div>
 
+<div class="pagebreak"></div>
 We put our VM's architectural details in a file
 that can be shared by other components:
 
@@ -111,6 +113,7 @@ to extract the op code and operands from the instruction
 [% inc file="vm-base.js" keep="fetch" %]
 
 [% figure
+   cls="figure-here"
    slug="virtual-machine-unpacking"
    img="unpacking.svg"
    alt="Unpacking instructions"
@@ -213,6 +216,7 @@ The implementation of the assembler mirrors the simplicity of assembly language.
 The main method gets interesting lines,
 finds the addresses of labels,
 and turns each remaining line into an instruction:
+{: .continue}
 
 [% inc file="assembler.js" keep="assemble" %]
 
@@ -261,13 +265,6 @@ by using `.data` on a line of its own to mark the start of the data section
 and then `label: number` to give a region a name and allocate some storage space
 ([%f virtual-machine-storage-allocation %]).
 
-[% figure
-   slug="virtual-machine-storage-allocation"
-   img="storage-allocation.svg"
-   alt="Storage allocation"
-   caption="Allocating storage for arrays in the virtual machine."
-%]
-
 This enhancement only requires a few changes to the assembler.
 First,
 we need to split the lines into instructions and data allocations:
@@ -275,6 +272,14 @@ we need to split the lines into instructions and data allocations:
 [% inc file="allocate-data.js" keep="assemble" %]
 
 [% inc file="allocate-data.js" keep="split-allocations" %]
+
+[% figure
+   cls="figure-here"
+   slug="virtual-machine-storage-allocation"
+   img="storage-allocation.svg"
+   alt="Storage allocation"
+   caption="Allocating storage for arrays in the virtual machine."
+%]
 
 Second,
 we need to figure out where each allocation lies and create a label accordingly:

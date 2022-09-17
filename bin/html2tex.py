@@ -140,11 +140,11 @@ def handle(node, state, accum, doEscape):
             accum.append(escape(node["href"], True))
             accum.append("}")
 
-    # <blockquote> => callout (formatted as quotation)
+    # <blockquote> => quotation
     elif node_match(node, "blockquote"):
-        accum.append("\\begin{callout}\n")
+        accum.append("\\begin{quotation}\n")
         children(node, state, accum, doEscape)
-        accum.append("\\end{callout}\n")
+        accum.append("\\end{quotation}\n")
 
     # <code> => inline typewriter text
     elif node_match(node, "code"):

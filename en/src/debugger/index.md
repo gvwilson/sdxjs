@@ -1,15 +1,13 @@
 ---
 title: "Debugger"
 ---
-We have finally come to one of the topics that sparked this book:
+We have finally come to another of the topics that sparked this book:
 how does a [%i "debugger" %]debugger[%/i%] work?
-(The other was layout engines, discussed in [%x layout-engine %].)
-Debuggers are as much a part of good programmers' lives as version control
+Debuggers are as much a part of programmers' lives as version control
 but are taught far less often
 (in part, we believe, because it's harder to create homework questions for them).
-In this chapter we will build a simple single-stepping debugger;
-in doing so,
-we will show one way to test interactive applications ([%x unit-test %]).
+In this chapter we will build a simple single-stepping debugger
+and show one way to test interactive applications ([%x unit-test %]).
 
 ## What is our starting point? {: #debugger-start}
 
@@ -18,7 +16,13 @@ but we don't want to have to write a parser
 or wrestle with the [%i "abstract syntax tree" %]ASTs[%/i%] of [%x style-checker %].
 As a compromise,
 we will represent programs as JSON data structures
-whose element have the form `[command ...args]`:
+whose elements have the form `[command ...args]`.
+If the JavaScript version of our program is:
+
+[% inc file="filter-base.js" %]
+
+then the JSON representation is:
+{: .continue}
 
 [% inc file="filter-base.json" %]
 
@@ -159,15 +163,13 @@ with the following set of commands:
 -   `exit` to exit immediately.
 
 When the virtual machine calls the debugger,
-the debugger first checks whether or not it is on a numbered line.
+the debugger first checks if it is on a numbered line.
 If it isn't,
 it hands control back to the VM.
 Otherwise,
-its action depends on our current state.
-If we are single-stepping or if this line is a breakpoint,
-Otherwise, it does nothing.
-
-The overall structure of the interactive debugger is:
+if we are single-stepping or this line is a breakpoint,
+the debugger takes over.
+Its overall structure is:
 
 [% inc file="debugger-interactive.js" omit="skip" %]
 
@@ -215,7 +217,7 @@ we will tidy it up in the exercises.
 
 How can we [%i "unit test!interactive application" %]test[%/i%] an interactive application like a debugger?
 The answer is, "By making it non-interactive."
-Like many tools over the past thirty years,
+Like many tools over the past 30 years,
 our approach is based on a program called [%i "Expect" %][Expect][expect][%/i%].
 Our library replaces the input and output functions of the application being tested with callbacks,
 then provides input when asked and checks output when it is given
@@ -229,7 +231,6 @@ then provides input when asked and checks output when it is given
 %]
 
 The results look like this:
-{: .continue}
 
 [% inc file="test/test-expect.js" keep="tests" %]
 
@@ -238,7 +239,7 @@ but it is hard to understand because it is so abstract:
 
 [% inc file="expect.js" %]
 
-Piece by piece:
+Piece-by-piece:
 {: .continue}
 
 -   `subject` is the thing being tested.
