@@ -102,12 +102,12 @@ We display JavaScript source code like this:
 
 [% inc file="example.js" %]
 
-and Unix shell commands like this:
+Unix shell commands are shown like this:
 {: .continue}
 
 [% inc file="example.sh" %]
 
-Data and output are shown in italics:
+and data and output like this:
 {: .continue}
 
 [% inc file="example.out" %]

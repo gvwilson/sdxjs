@@ -288,9 +288,14 @@ def handle(node, state, accum, doEscape):
             title, body = node.contents[0], node.contents[1]
             assert title.name == "span", "Expected span as title node of pre"
 
+        # Are we switching display type based on language?
+        background = ""
+        if node_match(node.parent.parent, "div", "code-sample") and has_class(node.parent.parent, {"lang-out", "lang-txt"}):
+            background = r",backgroundcolor=\color{black!5}"
+
         # Build code.
         assert body.name == "code", "Expected code as body of pre"
-        accum.append(f"\\begin{{lstlisting}}[frame=single,frameround=tttt]\n")
+        accum.append(f"\\begin{{lstlisting}}[frame=single,frameround=tttt{background}]\n")
         children(body, state, accum, False)
         accum.append("\\end{lstlisting}\n")
 
