@@ -49,6 +49,7 @@ and walking the [%i "DOM" %]DOM[%/i%] to find nodes with special attributes.
 Our program will execute the instructions in those nodes
 to do the equivalent of loops and if/else statements;
 other nodes will be copied as-is to create text.
+{: .continue}
 
 ## What will our system look like? {: #page-templates-syntax}
 
@@ -125,7 +126,7 @@ we look through the stack frames in order to find the uppermost definition of th
 
 > ### Scoping rules
 >
-> Searching the stack [%i "call stack!stack frame" "stack frame" %]frame[%/i%] by frame
+> Searching the stack [%i "call stack!stack frame" "stack frame" %]frame[%/i%]-by-frame
 > while the program is running
 > is called is [%i "dynamic scoping" "scoping!dynamic" %][%g dynamic_scoping "dynamic scoping" %][%/i%],
 > since we find variables while the program is running.
@@ -254,7 +255,7 @@ and does the expansion:
 
 [% inc file="template.js" %]
 
-We added new variables for our test cases one by one
+We added new variables for our test cases one-by-one
 as we were writing this chapter.
 To avoid repeating text repeatedly,
 we show the entire set once:
@@ -341,15 +342,12 @@ Let's test it ([%f page-templates-output-conditional %]):
 <blockquote markdown="1">
 ### Spot the bug
 
-This implementation of `if` contains a subtle bug.
-The `open` and `close` functions both check the value of the control variable.
-If something inside the body of the `if` changes that value,
-the result could be an opening tag without a matching closing tag or vice versa.
-We haven't implemented an assignment operator,
-so right now there's no way for that to happen,
-but it's a plausible thing for us to add later,
-and tracking down a bug in old code that is revealed by new code
-is always a headache.
+The `open` and `close` functions for `if` both check the value of the control variable.
+If something inside the `if`'s body changes that value
+we could produce an opening tag without a matching closing tag.
+We haven't implemented assignment,
+so there's no way for that to happen now,
+but it could be a headache if we add it later.
 </blockquote>
 
 Finally we come to loops.
@@ -448,7 +446,7 @@ When we use a low-level language,
 we incur the [%i "cognitive load" %]cognitive load[%/i%] of assembling micro-steps into something more meaningful.
 When we use a high-level language,
 on the other hand,
-we incur a similar load translating functions of functions of functions
+we incur a similar load translating functions of functions (of functions…)
 (or meta-classes templated on object factories)
 into actual operations on actual data.
 
@@ -497,8 +495,9 @@ end
 just as we could change the colors used for syntax highlighting
 or the depth to which loop bodies are indented.
 But today's tools don't do that,
-and I suspect that any IDE smart enough to translate between comprehension levels automatically
+and I suspect that any tool smart enough to translate between comprehension levels automatically
 would also be smart enough to write the code without our help.
+{: .continue}
 
 ## Exercises {: #page-templates-exercises}
 

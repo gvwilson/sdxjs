@@ -1,4 +1,4 @@
-import UpdateOnTimestamps from './update-timestamps.js'
+import UpdateOnTimestamps from './update-stamps.js'
 
 class VariableExpander extends UpdateOnTimestamps {
   buildGraph () {

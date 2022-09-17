@@ -167,8 +167,8 @@ Our pretended screen is just an array of arrays of characters:
 
 We will use successive lower-case characters to show each block,
 i.e.,
-the root block will draw itself using 'a',
-while its children will be 'b', 'c', and so on.
+the root block will draw itself using the letter a,
+while its children will use b, c, and so on.
 
 [% inc file="render.js" keep="draw" %]
 
@@ -376,7 +376,7 @@ We will explore these possibilities in the exercises.
 > This chapter's topic was one of the seeds from which this entire book grew
 > (the other being debuggers discussed in [%x debugger %]).
 > After struggling with [%i "CSS!struggles with" %]CSS[%/i%] for several years,
-> [%i "Wilson, Greg" %][Greg Wilson][wilson-greg][%/i%] began wondering whether it really had to be so complicated.
+> I began wondering whether it really had to be so complicated.
 > That question led to others,
 > which eventually led to all of this.
 > The moral is,

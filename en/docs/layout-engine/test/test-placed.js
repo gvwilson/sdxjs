@@ -40,6 +40,7 @@ describe('places blocks', () => {
     )
   })
 
+  // [large]
   it('places a column of two blocks', async () => {
     const fixture = new Col(
       new Block(1, 1),
@@ -55,7 +56,6 @@ describe('places blocks', () => {
     )
   })
 
-  // [large]
   it('places a grid of rows of columns', async () => {
     const fixture = new Col(
       new Row(

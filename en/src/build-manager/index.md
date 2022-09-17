@@ -67,6 +67,7 @@ if something depends on itself we can never finish updating it.
 We say that a target is [%i "stale (in build)" "build!stale" %][%g build_stale "stale" %][%/i%] if it is older than any of its dependencies.
 When this happens,
 we use the recipes to bring it up to date.
+{: .continue}
 
 [% figure
    slug="build-manager-dependencies"
@@ -113,7 +114,7 @@ and runs the `.build` method of that object with the rest of the command-line pa
 
 [% inc file="driver.js" %]
 
-We use the `import` function to dynamically load files containing in [%x unit-test %] as well.
+We use the `import` function to dynamically load files in [%x unit-test %] as well.
 It only saves us a few lines of code in this case,
 but we will use this idea of a general-purpose driver for larger programs in future chapters.
 {: .continue}
@@ -131,6 +132,7 @@ and then run whatever commands are needed to update stale targets.
 Just as we built a generic [%i "Visitor pattern" "design pattern!Visitor" %]`Visitor`[%/i%] class in [%x page-templates %],
 we can build a generic base class for our build manager that does these steps in this order
 without actually implementing any of them:
+{: .continue}
 
 [% inc file="skeleton-builder.js" %]
 
@@ -149,8 +151,8 @@ even if the details of *how* vary from case to case.
    caption="The Template Method pattern in action."
 %]
 
-We would normally implement all of the methods required by the `build` method at the same time,
-but to make the evolving code easier to follow we will write them them one by one.
+We would normally implement all of the methods required by the `build` method at the same time;
+here, we will write them them one-by-one to make the evolving code easier to follow.
 The `loadConfig` method loads the configuration file
 as the builder object is being constructed:
 
@@ -179,6 +181,7 @@ Two features of `graphlib` that took us a while to figure out are that:
 `graphlib` provides implementations of some common graph algorithms,
 including one to check for cycles,
 so we might as well write that method at this point as well:
+{: .continue}
 
 [% inc file="graph-creator.js" %]
 
@@ -197,9 +200,9 @@ Let's write a quick test to make sure the cycle detector works as intended:
 [% inc file="circular-rules.yml" %]
 [% inc pat="check-cycles.*" fill="sh out" %]
 
-## How can we specify that a file is out of date? {: #build-manager-timestamp}
+## How can we specify that a file is out-of-date? {: #build-manager-timestamp}
 
-The next step is to figure out which files are out of date.
+The next step is to figure out which files are out-of-date.
 Make does this by comparing the [%i "timestamp!in build" "build!timestamp" %]timestamps[%/i%] of the files in question,
 but this isn't always reliable:
 [%i "clock synchronization (in build)" "build!clock synchronization" %]computers' clocks may be slightly out of sync[%/i%],
@@ -214,12 +217,12 @@ we will use the timestamp approach here.
 And instead of using a mock filesystem as we did in [%x file-backup %],
 we will simply load another configuration file that specifies fake timestamps for files:
 
-[% inc file="add-timestamps.yml" %]
+[% inc file="add-stamps.yml" %]
 
 Since we want to associate those timestamps with files,
 we add a step to `buildGraph` to read the timestamp file and add information to the graph's nodes:
 
-[% inc file="add-timestamps.js" %]
+[% inc file="add-stamps.js" %]
 
 > ### Not quite what we were expecting
 >
@@ -236,7 +239,7 @@ we add a step to `buildGraph` to read the timestamp file and add information to 
 Before we move on,
 let's make sure that adding timestamps works as we want:
 
-[% inc pat="add-timestamps.*" fill="sh out" %]
+[% inc pat="add-stamps.*" fill="sh out" %]
 
 ## How can we update out-of-date files? {: #build-manager-update}
 
@@ -252,25 +255,27 @@ so we advance our fictional clock by one for each build.
 Using `graphlib.alg.topsort` to create the topological order,
 we get this:
 
-[% inc file="update-timestamps.js" %]
+[% inc file="update-stamps.js" %]
 
 The `run` method:
 
-1.  Gets a sorted list of nodes.
+1.  gets a sorted list of nodes;
 
-1.  Sets the starting time to be one unit past the largest file time.
+1.  sets the starting time to be one unit past the largest file time;
+    and then
 
-1.  Uses [%i "Array.reduce" %]`Array.reduce`[%/i%] to operate on each node (i.e., each file) in order.
+1.  uses [%i "Array.reduce" %]`Array.reduce`[%/i%] to operate on each node (i.e., each file) in order.
     If that file is stale,
     we print the steps we would run and then update the file's timestamp.
     We only advance the notional current time when we do an update.
 
-In order to check if a file is stale,
-we see if any of its dependencies currently have timestamps greater than or equal to its.
+To check if a file is stale,
+we see if any of its dependencies currently have timestamps greater than or equal to its own.
 When we run this,
 it seems to do the right thing:
+{: .continue}
 
-[% inc pat="update-timestamps.*" fill="sh out" %]
+[% inc pat="update-stamps.*" fill="sh out" %]
 
 ## How can we add generic build rules? {: #build-manager-generic}
 
@@ -280,7 +285,7 @@ we don't want to have to write a hundred nearly-identical recipes.
 Instead,
 we want to be able to write generic [%i "build!rule" "rule (in build)" %][%g build_rule "build rules" %][%/i%] that say,
 "Build all things of this kind the same way."
-These generic rules need:
+These generic rules need to:
 
 -   a way to define a set of files;
 
@@ -293,15 +298,19 @@ We will achieve this by overriding `buildGraph` to replace variables in recipes 
 Once again,
 object-oriented programming helps us change only what we need to change,
 provided we divided our problem into sensible chunks in the first place.
+{: .continue}
 
 Make provides [%i "automatic variable (in build)" "build!automatic variable" %][%g automatic_variable "automatic variables" %][%/i%]
 with names like `$<` and `$@`
 to represent the parts of a rule.
-Our variables will be more readable:
+Ours will be more readable:
 we will use `@TARGET` for the target,
 `@DEPENDENCIES` for the dependencies (in order),
 and `@DEP[1]`, `@DEP[2]`, and so on for specific dependencies
 ([%f build-manager-pattern-rules %]).
+Our variable expander looks like this:
+
+[% inc file="variable-expander.js" %]
 
 [% figure
    slug="build-manager-pattern-rules"
@@ -309,10 +318,6 @@ and `@DEP[1]`, `@DEP[2]`, and so on for specific dependencies
    alt="Pattern rules"
    caption="Turning patterns rules into runnable commands."
 %]
-
-Our variable expander looks like this:
-
-[% inc file="variable-expander.js" %]
 
 The first thing we do is test that it works when there *aren't* any variables to expand
 by running it on the same example we used previously:
@@ -325,6 +330,7 @@ has broken something that used to work.
 That gives us a firm base to build on as we debug the new code.
 {: .continue}
 
+<div class="pagebreak"></div>
 Now we need to add [%i "pattern rule (in build)" "build!pattern rule" %][%g pattern_rule "pattern rules" %][%/i%].
 Our first attempt at a rules file looks like this:
 
@@ -347,7 +353,7 @@ we wind up tripping over the lack of a node for `%.in` before we get to extracti
 
 > ### Errors become assertions
 >
-> When we first wrote `add-timestamps.js`,
+> When we first wrote `add-stamps.js`,
 > it didn't contain the assertion
 > that printed the error message shown above.
 > Once we tracked down our bug,
@@ -391,7 +397,7 @@ when we wrote our template method.
 It typically takes a few child classes for this to settle down;
 if it never does,
 then [%i "Template Method pattern" "design pattern!Template Method" %]Template Method[%/i%] is probably the wrong pattern for our situation.
-Realizing this isn't a failure in initial design:
+This isn't a failure in initial design:
 we always learn about our problem as we try to capture it in code,
 and if we know enough to anticipate 100% of the issues that are going to come up,
 it's time to put what we've learned in a library for future use.

@@ -317,7 +317,7 @@ each of which has:</p>
     if it is out of date compared to its dependencies.</p>
 </li>
 </ul>
-<p>The target of one rule can be a dependency of another rule,
+<p class="continue">The target of one rule can be a dependency of another rule,
 so the relationships between the files form a <span class="ix-entry" ix-key="directed acyclic graph (DAG);DAG" markdown="1"><a class="gl-ref" href="../glossary/#dag" markdown="1">directed acyclic graph</a></span> or DAG
 (<a class="fig-ref" href="../build-manager/#build-manager-dependencies">Figure 10.2</a>).
 The graph is directed because &ldquo;A depends on B&rdquo; is a one-way relationship;
@@ -396,7 +396,7 @@ and runs the <code>.build</code> method of that object with the rest of the comm
 <span class="nx">main</span><span class="p">()</span><span class="w"></span>
 </code></pre></div>
 </div>
-<p class="continue">We use the <code>import</code> function to dynamically load files containing in <a class="x-ref" href="../unit-test/">Chapter 4</a> as well.
+<p class="continue">We use the <code>import</code> function to dynamically load files in <a class="x-ref" href="../unit-test/">Chapter 4</a> as well.
 It only saves us a few lines of code in this case,
 but we will use this idea of a general-purpose driver for larger programs in future chapters.</p>
 <p>To work with our driver,
@@ -409,7 +409,7 @@ each version of our build manager must be a class that satisfies two requirement
 <p>It must provide a <code>build</code> method that needs no arguments.</p>
 </li>
 </ol>
-<p>The <code>build</code> method must create a graph from the configuration file,
+<p class="continue">The <code>build</code> method must create a graph from the configuration file,
 check that it does not contain any <a class="gl-ref" href="../glossary/#cycle" markdown="1">cycles</a>,
 and then run whatever commands are needed to update stale targets.
 Just as we built a generic <span class="ix-entry" ix-key="Visitor pattern;design pattern!Visitor" markdown="1"><code>Visitor</code></span> class in <a class="x-ref" href="../page-templates/">Chapter 9</a>,
@@ -462,8 +462,8 @@ even if the details of <em>how</em> vary from case to case.</p>
   <figcaption markdown="1">Figure 10.3: The Template Method pattern in action.</figcaption>
 </figure>
 
-<p>We would normally implement all of the methods required by the <code>build</code> method at the same time,
-but to make the evolving code easier to follow we will write them them one by one.
+<p>We would normally implement all of the methods required by the <code>build</code> method at the same time;
+here, we will write them them one-by-one to make the evolving code easier to follow.
 The <code>loadConfig</code> method loads the configuration file
 as the builder object is being constructed:</p>
 <div class="code-sample lang-js" title="config-loader.js">
@@ -521,7 +521,7 @@ Two features of <code>graphlib</code> that took us a while to figure out are tha
 <p><code>setEdge</code> automatically adds nodes if they aren&rsquo;t already present.</p>
 </li>
 </ol>
-<p><code>graphlib</code> provides implementations of some common graph algorithms,
+<p class="continue"><code>graphlib</code> provides implementations of some common graph algorithms,
 including one to check for cycles,
 so we might as well write that method at this point as well:</p>
 <div class="code-sample lang-js" title="graph-creator.js">
@@ -625,8 +625,8 @@ Sorted
 }
 </code></pre></div>
 </div>
-<h2 id="build-manager-timestamp">Section 10.3: How can we specify that a file is out of date?</h2>
-<p>The next step is to figure out which files are out of date.
+<h2 id="build-manager-timestamp">Section 10.3: How can we specify that a file is out-of-date?</h2>
+<p>The next step is to figure out which files are out-of-date.
 Make does this by comparing the <span class="ix-entry" ix-key="timestamp!in build;build!timestamp" markdown="1">timestamps</span> of the files in question,
 but this isn&rsquo;t always reliable:
 <span class="ix-entry" ix-key="clock synchronization (in build);build!clock synchronization" markdown="1">computers&rsquo; clocks may be slightly out of sync</span>,
@@ -639,7 +639,7 @@ Since we already looked at hashing in <a class="x-ref" href="../file-backup/">Ch
 we will use the timestamp approach here.
 And instead of using a mock filesystem as we did in <a class="x-ref" href="../file-backup/">Chapter 5</a>,
 we will simply load another configuration file that specifies fake timestamps for files:</p>
-<div class="code-sample lang-yml" title="add-timestamps.yml">
+<div class="code-sample lang-yml" title="add-stamps.yml">
 <div class="highlight"><pre><span></span><code>A: 2
 B: 5
 C: 8
@@ -647,7 +647,7 @@ C: 8
 </div>
 <p>Since we want to associate those timestamps with files,
 we add a step to <code>buildGraph</code> to read the timestamp file and add information to the graph&rsquo;s nodes:</p>
-<div class="code-sample lang-js" title="add-timestamps.js">
+<div class="code-sample lang-js" title="add-stamps.js">
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">assert</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;assert&#39;</span><span class="w"></span>
 <span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;fs&#39;</span><span class="w"></span>
 <span class="k">import</span><span class="w"> </span><span class="nx">yaml</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;js-yaml&#39;</span><span class="w"></span>
@@ -703,11 +703,11 @@ We will reflect on this in the last section of this chapter.</p>
 </blockquote>
 <p>Before we move on,
 let&rsquo;s make sure that adding timestamps works as we want:</p>
-<div class="code-sample lang-sh" title="add-timestamps.sh">
-<div class="highlight"><pre><span></span><code>node driver.js ./add-timestamps.js three-simple-rules.yml add-timestamps.yml
+<div class="code-sample lang-sh" title="add-stamps.sh">
+<div class="highlight"><pre><span></span><code>node driver.js ./add-stamps.js three-simple-rules.yml add-stamps.yml
 </code></pre></div>
 </div>
-<div class="code-sample lang-out" title="add-timestamps.out">
+<div class="code-sample lang-out" title="add-stamps.out">
 <div class="highlight"><pre><span></span><code>[
   &#39;A: {&quot;recipes&quot;:[&quot;update A from B and C&quot;],&quot;timestamp&quot;:2}&#39;,
   &#39;B: {&quot;recipes&quot;:[&quot;update B from C&quot;],&quot;timestamp&quot;:5}&#39;,
@@ -726,10 +726,10 @@ to trigger an update of anything that depends on it.</p>
 so we advance our fictional clock by one for each build.
 Using <code>graphlib.alg.topsort</code> to create the topological order,
 we get this:</p>
-<div class="code-sample lang-js" title="update-timestamps.js">
+<div class="code-sample lang-js" title="update-stamps.js">
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">graphlib</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@dagrejs/graphlib&#39;</span><span class="w"></span>
 
-<span class="k">import</span><span class="w"> </span><span class="nx">AddTimestamps</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./add-timestamps.js&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">AddTimestamps</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./add-stamps.js&#39;</span><span class="w"></span>
 
 <span class="kd">class</span><span class="w"> </span><span class="nx">UpdateOnTimestamps</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">AddTimestamps</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="nx">run</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -764,27 +764,28 @@ we get this:</p>
 <p>The <code>run</code> method:</p>
 <ol>
 <li>
-<p>Gets a sorted list of nodes.</p>
+<p>gets a sorted list of nodes;</p>
 </li>
 <li>
-<p>Sets the starting time to be one unit past the largest file time.</p>
+<p>sets the starting time to be one unit past the largest file time;
+    and then</p>
 </li>
 <li>
-<p>Uses <span class="ix-entry" ix-key="Array.reduce" markdown="1"><code>Array.reduce</code></span> to operate on each node (i.e., each file) in order.
+<p>uses <span class="ix-entry" ix-key="Array.reduce" markdown="1"><code>Array.reduce</code></span> to operate on each node (i.e., each file) in order.
     If that file is stale,
     we print the steps we would run and then update the file&rsquo;s timestamp.
     We only advance the notional current time when we do an update.</p>
 </li>
 </ol>
-<p>In order to check if a file is stale,
-we see if any of its dependencies currently have timestamps greater than or equal to its.
+<p class="continue">To check if a file is stale,
+we see if any of its dependencies currently have timestamps greater than or equal to its own.
 When we run this,
 it seems to do the right thing:</p>
-<div class="code-sample lang-sh" title="update-timestamps.sh">
-<div class="highlight"><pre><span></span><code>node driver.js ./update-timestamps.js three-simple-rules.yml add-timestamps.yml
+<div class="code-sample lang-sh" title="update-stamps.sh">
+<div class="highlight"><pre><span></span><code>node driver.js ./update-stamps.js three-simple-rules.yml add-stamps.yml
 </code></pre></div>
 </div>
-<div class="code-sample lang-out" title="update-timestamps.out">
+<div class="code-sample lang-out" title="update-stamps.out">
 <div class="highlight"><pre><span></span><code>9: START
 9: B
     update B from C
@@ -800,7 +801,7 @@ we don&rsquo;t want to have to write a hundred nearly-identical recipes.
 Instead,
 we want to be able to write generic <span class="ix-entry" ix-key="build!rule;rule (in build)" markdown="1"><a class="gl-ref" href="../glossary/#build_rule" markdown="1">build rules</a></span> that say,
 &ldquo;Build all things of this kind the same way.&rdquo;
-These generic rules need:</p>
+These generic rules need to:</p>
 <ul>
 <li>
 <p>a way to define a set of files;</p>
@@ -813,26 +814,21 @@ These generic rules need:</p>
 <p>a way to fill in parts of that rule.</p>
 </li>
 </ul>
-<p>We will achieve this by overriding <code>buildGraph</code> to replace variables in recipes with values.
+<p class="continue">We will achieve this by overriding <code>buildGraph</code> to replace variables in recipes with values.
 Once again,
 object-oriented programming helps us change only what we need to change,
 provided we divided our problem into sensible chunks in the first place.</p>
 <p>Make provides <span class="ix-entry" ix-key="automatic variable (in build);build!automatic variable" markdown="1"><a class="gl-ref" href="../glossary/#automatic_variable" markdown="1">automatic variables</a></span>
 with names like <code>$&lt;</code> and <code>$@</code>
 to represent the parts of a rule.
-Our variables will be more readable:
+Ours will be more readable:
 we will use <code>@TARGET</code> for the target,
 <code>@DEPENDENCIES</code> for the dependencies (in order),
 and <code>@DEP[1]</code>, <code>@DEP[2]</code>, and so on for specific dependencies
-(<a class="fig-ref" href="../build-manager/#build-manager-pattern-rules">Figure 10.4</a>).</p>
-<figure id="build-manager-pattern-rules">
-  <img src="./pattern-rules.svg" alt="Pattern rules"/>
-  <figcaption markdown="1">Figure 10.4: Turning patterns rules into runnable commands.</figcaption>
-</figure>
-
-<p>Our variable expander looks like this:</p>
+(<a class="fig-ref" href="../build-manager/#build-manager-pattern-rules">Figure 10.4</a>).
+Our variable expander looks like this:</p>
 <div class="code-sample lang-js" title="variable-expander.js">
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">UpdateOnTimestamps</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./update-timestamps.js&#39;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">UpdateOnTimestamps</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./update-stamps.js&#39;</span><span class="w"></span>
 
 <span class="kd">class</span><span class="w"> </span><span class="nx">VariableExpander</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">UpdateOnTimestamps</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="nx">buildGraph</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -865,6 +861,11 @@ and <code>@DEP[1]</code>, <code>@DEP[2]</code>, and so on for specific dependenc
 <span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">VariableExpander</span><span class="w"></span>
 </code></pre></div>
 </div>
+<figure id="build-manager-pattern-rules">
+  <img src="./pattern-rules.svg" alt="Pattern rules"/>
+  <figcaption markdown="1">Figure 10.4: Turning patterns rules into runnable commands.</figcaption>
+</figure>
+
 <p>The first thing we do is test that it works when there <em>aren&rsquo;t</em> any variables to expand
 by running it on the same example we used previously:</p>
 <div class="code-sample lang-out" title="variable-expander.out">
@@ -880,6 +881,7 @@ by running it on the same example we used previously:</p>
 they tell us right away if something we have added or changed
 has broken something that used to work.
 That gives us a firm base to build on as we debug the new code.</p>
+<div class="pagebreak"></div>
 <p>Now we need to add <span class="ix-entry" ix-key="pattern rule (in build);build!pattern rule" markdown="1"><a class="gl-ref" href="../glossary/#pattern_rule" markdown="1">pattern rules</a></span>.
 Our first attempt at a rules file looks like this:</p>
 <div class="code-sample lang-yml" title="pattern-rules.yml">
@@ -941,9 +943,9 @@ that doesn&rsquo;t work:</p>
 <div class="code-sample lang-out" title="pattern-user-attempt.out">
 <div class="highlight"><pre><span></span><code>Build failed: AssertionError [ERR_ASSERTION]: Graph does not have node A
     at PatternUserAttempt.addTimestamps \
-    (/u/stjs/build-manager/add-timestamps.js:21:7)
+    (/u/stjs/build-manager/add-stamps.js:21:7)
     at PatternUserAttempt.buildGraph \
-    (/u/stjs/build-manager/add-timestamps.js:15:10)
+    (/u/stjs/build-manager/add-stamps.js:15:10)
     at PatternUserAttempt.buildGraph \
     (/u/stjs/build-manager/variable-expander.js:5:11)
     at PatternUserAttempt.buildGraph \
@@ -964,7 +966,7 @@ As a result,
 we wind up tripping over the lack of a node for <code>%.in</code> before we get to extracting rules.</p>
 <blockquote>
 <h3>Errors become assertions</h3>
-<p>When we first wrote <code>add-timestamps.js</code>,
+<p>When we first wrote <code>add-stamps.js</code>,
 it didn&rsquo;t contain the assertion
 that printed the error message shown above.
 Once we tracked down our bug,
@@ -1183,7 +1185,7 @@ when we wrote our template method.
 It typically takes a few child classes for this to settle down;
 if it never does,
 then <span class="ix-entry" ix-key="Template Method pattern;design pattern!Template Method" markdown="1">Template Method</span> is probably the wrong pattern for our situation.
-Realizing this isn&rsquo;t a failure in initial design:
+This isn&rsquo;t a failure in initial design:
 we always learn about our problem as we try to capture it in code,
 and if we know enough to anticipate 100% of the issues that are going to come up,
 it&rsquo;s time to put what we&rsquo;ve learned in a library for future use.</p>
