@@ -100,34 +100,17 @@ which in turn define their scope:
 
 We display JavaScript source code like this:
 
-```js
-for (const thing in collection) {
-  console.log(thing)
-}
-```
+[% inc file="example.js" %]
 
 and Unix shell commands like this:
 {: .continue}
 
-```sh
-for filename in *.dat
-do
-    cut -d , -f 10 $filename
-done
-```
+[% inc file="example.sh" %]
 
 Data and output are shown in italics:
 {: .continue}
 
-```txt
-Package,Releases
-0,1
-0-0,0
-0-0-1,1
-00print-lol,2
-00smalinux,0
-01changer,0
-```
+[% inc file="example.out" %]
 
 We occasionally wrap lines in source code in unnatural ways to make listings fit the printed page,
 and sometimes use `...` to show where lines have been omitted.
