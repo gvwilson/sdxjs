@@ -12,6 +12,7 @@ class Figure:
 
     node: ivy.nodes.Node = None
     fileslug: str = ""
+    cls: str = ""
     slug: str = ""
     img: str = ""
     alt: str = ""

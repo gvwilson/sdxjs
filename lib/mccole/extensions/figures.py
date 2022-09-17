@@ -31,11 +31,13 @@ def figure_ref(pargs, kwargs, node):
 @shortcodes.register("figure")
 def figure_def(pargs, kwargs, node):
     """Handle figure definition."""
-    allowed = {"slug", "img", "alt", "caption"}
+    allowed = {"cls", "slug", "img", "alt", "caption"}
     util.require(
         (not pargs) and allowed.issuperset(kwargs.keys()),
         f"Bad 'figure' shortcode {pargs} and {kwargs}",
     )
+    cls = kwargs.get("cls", None)
+    cls = f' class="figure-here"' if cls is not None else ""
     slug = kwargs["slug"]
     img = kwargs["img"]
     alt = util.markdownify(kwargs["alt"])
@@ -46,7 +48,7 @@ def figure_def(pargs, kwargs, node):
 
     return dedent(
         f"""\
-    <figure id="{slug}">
+    <figure id="{slug}"{cls}>
       <img src="./{img}" alt="{alt}"/>
       <figcaption markdown="1">{label}: {caption}</figcaption>
     </figure>

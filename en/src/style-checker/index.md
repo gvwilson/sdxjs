@@ -38,18 +38,19 @@ whose nodes store information about what's in the program
 An AST is for a program what the [%i "Document Object Model" %]DOM[%/i%] is for HTML:
 an in-memory representation that is easy for software to inspect and manipulate.
 
-[% figure
-   slug="style-checker-parse-tree"
-   img="parse-tree.svg"
-   alt="A small parse tree"
-   caption="The parse tree of a simple program."
-%]
-
 ASTs can be quite complex---for example,
 the JSON representation of the AST for a single constant declaration
 is [% linecount parse-single-const.out %] lines long:
 
 [% inc pat="parse-single-const.*" fill="js slice.out" %]
+
+[% figure
+   cls="figure-here"
+   slug="style-checker-parse-tree"
+   img="parse-tree.svg"
+   alt="A small parse tree"
+   caption="The parse tree of a simple program."
+%]
 
 Acorn's output is in [%i "Esprima format" %][Esprima][esprima] format[%/i%]
 (so-called because it was originally defined by a tool with that name).
@@ -80,13 +81,6 @@ for demonstration purposes we will add nodes to an array called `state`
 and report them all at the end
 ([%f style-checker-walk-tree %]).
 
-[% figure
-   slug="style-checker-walk-tree"
-   img="walk-tree.svg"
-   alt="Walking a tree"
-   caption="Walking a tree to perform an operation at each node."
-%]
-
 [% inc pat="walk-ast.*" fill="js out" %]
 
 > ### There's more than one way to do it
@@ -113,6 +107,15 @@ and report them all at the end
 > is going to need these four things,
 > but as we will see below,
 > we can implement them in different ways.
+> {: .continue}
+
+[% figure
+   cls="figure-here"
+   slug="style-checker-walk-tree"
+   img="walk-tree.svg"
+   alt="Walking a tree"
+   caption="Walking a tree to perform an operation at each node."
+%]
 
 ## How can we apply checks? {: #style-checker-apply}
 
@@ -123,7 +126,7 @@ passing it a function that checks just that rule.
 Another way---the one we'll use---is to write a [%i "software design!generic function" %]generic function[%/i%]
 that checks a rule and records any nodes that don't satisfy it,
 and then call that function once for each rule inside our `Identifier` handler.
-This may see like extra work,
+This may seem like extra work,
 but it ensures that all of our rule-checkers store their results in the same way,
 which in turn means that we can write one reporting function
 and be sure it will handle everything.
@@ -194,6 +197,7 @@ Our completed class looks like this:
 [% inc file="walker-class.js" keep="walker" %]
 
 The code we need to use it is:
+{: .continue}
 
 [% inc file="walker-class.js" omit="walker" %]
 
@@ -214,18 +218,11 @@ we should implement it that way everywhere.
 
 A third approach to this problem uses
 the [%i "Iterator pattern" "design pattern!Iterator" %][%g iterator_pattern "Iterator" %][%/i%] design pattern.
-Instead of taking the computation to the nodes as a visitor does,
-an iterator returns the elements of a complex structure one by one for processing
+Instead of taking the computation to the nodes,
+an iterator returns the elements of a structure for processing
 ([%f style-checker-iterator %]).
-One way to think about it is that the Visitor pattern encapsulates recursion,
-while the Iterator pattern turns everything into a `for` loop.
-
-[% figure
-   slug="style-checker-iterator"
-   img="iterator.svg"
-   alt="The Iterator pattern"
-   caption="Finding nodes in the tree using the Iterator pattern."
-%]
+One way to think about it is that Visitor encapsulates recursion,
+while Iterator turns everything into a loop.
 
 We can implement the Iterator pattern in JavaScript using
 [%i "generator function" "Iterator pattern!generator function" %][%g generator_function "generator functions" %][%/i%].
@@ -235,16 +232,24 @@ The result of `yield` is a two-part structure with a value and a flag showing wh
 
 [% inc pat="generator-example.*" fill="js out" %]
 
-A generator function doesn't actually generate anything;
-instead,
-it creates an object that we can then ask for values repeatedly.
-This gives us a way to have several generators in play at the same time.
-{: .continue}
+[% figure
+   cls="figure-here"
+   slug="style-checker-iterator"
+   img="iterator.svg"
+   alt="The Iterator pattern"
+   caption="Finding nodes in the tree using the Iterator pattern."
+%]
 
 As another example,
 this generator takes a string and produces its vowels one by one:
 
 [% inc pat="generator-vowels-while.*" fill="js out" %]
+
+A generator function doesn't actually generate anything;
+instead,
+it creates an object that we can then ask for values repeatedly.
+This gives us a way to have several generators in play at the same time.
+{: .continue}
 
 Instead of a `while` loop it is much more common to use `for...of`,
 which knows how to work with generators:
@@ -296,6 +301,7 @@ we first need to find the ancestors of the last class in the hierarchy:
 
 Finding class definitions is a straightforward extension of what we have already done:
 
+<div class="pagebreak"></div>
 [% inc file="find-ancestors.js" keep="findClassDef" %]
 
 To test this code, we start with the last of these three short files:

@@ -295,11 +295,6 @@ whose nodes store information about what&rsquo;s in the program
 (<a class="fig-ref" href="../style-checker/#style-checker-parse-tree">Figure 14.1</a>).
 An AST is for a program what the <span class="ix-entry" ix-key="Document Object Model" markdown="1">DOM</span> is for HTML:
 an in-memory representation that is easy for software to inspect and manipulate.</p>
-<figure id="style-checker-parse-tree">
-  <img src="./parse-tree.svg" alt="A small parse tree"/>
-  <figcaption markdown="1">Figure 14.1: The parse tree of a simple program.</figcaption>
-</figure>
-
 <p>ASTs can be quite complex&mdash;for example,
 the JSON representation of the AST for a single constant declaration
 is 84 lines long:</p>
@@ -334,6 +329,11 @@ is 84 lines long:</p>
 }
 </code></pre></div>
 </div>
+<figure id="style-checker-parse-tree" class="figure-here">
+  <img src="./parse-tree.svg" alt="A small parse tree"/>
+  <figcaption markdown="1">Figure 14.1: The parse tree of a simple program.</figcaption>
+</figure>
+
 <p>Acorn&rsquo;s output is in <span class="ix-entry" ix-key="Esprima format" markdown="1"><a href="https://esprima.org/">Esprima</a> format</span>
 (so-called because it was originally defined by a tool with that name).
 The format&rsquo;s specification is very detailed,
@@ -398,11 +398,6 @@ Our function can do whatever we want;
 for demonstration purposes we will add nodes to an array called <code>state</code>
 and report them all at the end
 (<a class="fig-ref" href="../style-checker/#style-checker-walk-tree">Figure 14.2</a>).</p>
-<figure id="style-checker-walk-tree">
-  <img src="./walk-tree.svg" alt="Walking a tree"/>
-  <figcaption markdown="1">Figure 14.2: Walking a tree to perform an operation at each node.</figcaption>
-</figure>
-
 <div class="code-sample lang-js" title="walk-ast.js">
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">acorn</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;acorn&#39;</span><span class="w"></span>
 <span class="k">import</span><span class="w"> </span><span class="nx">walk</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;acorn-walk&#39;</span><span class="w"></span>
@@ -478,11 +473,16 @@ comments on lines 1, 4, 10
     this argument acts as the Visitor&rsquo;s memory.</p>
 </li>
 </ol>
-<p>Any general-purpose implementation of the Visitor pattern
+<p class="continue">Any general-purpose implementation of the Visitor pattern
 is going to need these four things,
 but as we will see below,
 we can implement them in different ways.</p>
 </blockquote>
+<figure id="style-checker-walk-tree" class="figure-here">
+  <img src="./walk-tree.svg" alt="Walking a tree"/>
+  <figcaption markdown="1">Figure 14.2: Walking a tree to perform an operation at each node.</figcaption>
+</figure>
+
 <h2 id="style-checker-apply">Section 14.3: How can we apply checks?</h2>
 <p>We don&rsquo;t just want to collect nodes:
 we want to check their properties against a set of rules.
@@ -491,7 +491,7 @@ passing it a function that checks just that rule.
 Another way&mdash;the one we&rsquo;ll use&mdash;is to write a <span class="ix-entry" ix-key="software design!generic function" markdown="1">generic function</span>
 that checks a rule and records any nodes that don&rsquo;t satisfy it,
 and then call that function once for each rule inside our <code>Identifier</code> handler.
-This may see like extra work,
+This may seem like extra work,
 but it ensures that all of our rule-checkers store their results in the same way,
 which in turn means that we can write one reporting function
 and be sure it will handle everything.</p>
@@ -623,7 +623,7 @@ Our completed class looks like this:</p>
 <span class="p">}</span><span class="w"></span>
 </code></pre></div>
 </div>
-<p>The code we need to use it is:</p>
+<p class="continue">The code we need to use it is:</p>
 <div class="code-sample lang-js" title="walker-class.js">
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">acorn</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;acorn&#39;</span><span class="w"></span>
 
@@ -672,16 +672,11 @@ we should implement it that way everywhere.</p>
 <h2 id="style-checker-alternatives">Section 14.5: How else could the AST walker work?</h2>
 <p>A third approach to this problem uses
 the <span class="ix-entry" ix-key="Iterator pattern;design pattern!Iterator" markdown="1"><a class="gl-ref" href="../glossary/#iterator_pattern" markdown="1">Iterator</a></span> design pattern.
-Instead of taking the computation to the nodes as a visitor does,
-an iterator returns the elements of a complex structure one by one for processing
+Instead of taking the computation to the nodes,
+an iterator returns the elements of a structure for processing
 (<a class="fig-ref" href="../style-checker/#style-checker-iterator">Figure 14.3</a>).
-One way to think about it is that the Visitor pattern encapsulates recursion,
-while the Iterator pattern turns everything into a <code>for</code> loop.</p>
-<figure id="style-checker-iterator">
-  <img src="./iterator.svg" alt="The Iterator pattern"/>
-  <figcaption markdown="1">Figure 14.3: Finding nodes in the tree using the Iterator pattern.</figcaption>
-</figure>
-
+One way to think about it is that Visitor encapsulates recursion,
+while Iterator turns everything into a loop.</p>
 <p>We can implement the Iterator pattern in JavaScript using
 <span class="ix-entry" ix-key="generator function;Iterator pattern!generator function" markdown="1"><a class="gl-ref" href="../glossary/#generator_function" markdown="1">generator functions</a></span>.
 If we declare a function using <code>function *</code> (with an asterisk) instead of <code>function</code>
@@ -709,10 +704,11 @@ The result of <code>yield</code> is a two-part structure with a value and a flag
 { value: undefined, done: true }
 </code></pre></div>
 </div>
-<p class="continue">A generator function doesn&rsquo;t actually generate anything;
-instead,
-it creates an object that we can then ask for values repeatedly.
-This gives us a way to have several generators in play at the same time.</p>
+<figure id="style-checker-iterator" class="figure-here">
+  <img src="./iterator.svg" alt="The Iterator pattern"/>
+  <figcaption markdown="1">Figure 14.3: Finding nodes in the tree using the Iterator pattern.</figcaption>
+</figure>
+
 <p>As another example,
 this generator takes a string and produces its vowels one by one:</p>
 <div class="code-sample lang-js" title="generator-vowels-while.js">
@@ -740,6 +736,10 @@ a
 e
 </code></pre></div>
 </div>
+<p class="continue">A generator function doesn&rsquo;t actually generate anything;
+instead,
+it creates an object that we can then ask for values repeatedly.
+This gives us a way to have several generators in play at the same time.</p>
 <p>Instead of a <code>while</code> loop it is much more common to use <code>for...of</code>,
 which knows how to work with generators:</p>
 <div class="code-sample lang-js" title="generator-vowels-for.js">
@@ -861,6 +861,7 @@ we first need to find the ancestors of the last class in the hierarchy:</p>
 </code></pre></div>
 </div>
 <p>Finding class definitions is a straightforward extension of what we have already done:</p>
+<div class="pagebreak"></div>
 <div class="code-sample lang-js" title="find-ancestors.js">
 <div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">findClassDef</span><span class="w"> </span><span class="p">(</span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="nx">ast</span><span class="p">,</span><span class="w"> </span><span class="nx">className</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span><span class="w"></span>

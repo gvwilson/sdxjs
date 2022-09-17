@@ -32,6 +32,7 @@ and return that [%i "inner function" "function!inner" %][%g inner_function "inne
 that inner function will be the only thing with references to those variables.
 
 [% figure
+   cls="figure-here"
    slug="module-loader-closures"
    img="closures.svg"
    alt="How closures work"
@@ -85,7 +86,7 @@ We can use this trick to achieve the same effect as the previous example in one 
 We want the module we are loading to export names by assigning to `module.exports` just as `require` does,
 so we need to provide an object called `module` and create a IIFE.
 (We will handle the problem of the module loading other modules later.)
-Our `loadModule` function takes a filename and returns a newly-created module object;
+Our `loadModule` function takes a filename and returns a newly created module object;
 the parameter to the function we build and `eval` must be called `module` so that we can assign to `module.exports`.
 For clarity,
 we call the object we pass in `result` in `loadModule`.
@@ -202,7 +203,7 @@ While we're not going to handle circular dependencies,
 modules do need to be able to load other modules.
 To enable this,
 we need to provide the module with a function called `require`
-that it can call as it's loading.
+that it can call as it loads.
 As in [%x file-interpolator %],
 this function checks a [%i "cache!of loaded files" %]cache[%/i%]
 to see if the file being asked for has already been loaded.

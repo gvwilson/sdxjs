@@ -166,16 +166,17 @@ if not,
 we read it and add it to the cache
 using the file path as a lookup key.
 
+We can write a simple cache in just a few lines of code:
+
+[% inc file="need-simple.js" %]
+
 [% figure
+   cls="figure-here"
    slug="file-interpolator-cache"
    img="cache.svg"
    alt="Implementing a cache as a singleton"
    caption="Using the Singleton pattern to implement a cache of loaded files."
 %]
-
-We can write a simple cache in just a few lines of code:
-
-[% inc file="need-simple.js" %]
 
 Since we are using `eval`, though,
 we can't rely on `export` to make things available to the rest of the program.
@@ -213,7 +214,7 @@ including Node itself.
 By convention,
 a search path is written as a colon-separated list of directories on Unix
 or using semi-colons on Windows.
-If the path to an included starts with `./`,
+If the path to an included file starts with `./`,
 we look for it locally;
 if not,
 we go through the directories in the search path in order
@@ -340,6 +341,7 @@ because it didn't play well with other tools.
 No piece of software exists in isolation;
 when we evaluate a design,
 we always have to ask how it fits into everything else we have.
+{: .continue}
 
 ## What did we do instead? {: #file-interpolator-instead}
 
