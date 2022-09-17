@@ -2,12 +2,12 @@
 title: "File Backup"
 ---
 
-Now that we can test software we have something worth saving.
+Now that we can test software, we have something worth saving.
 A [%i "version control system" %][%g version_control_system "version control system" %][%/i%]
 like [%i "Git" "version control system!Git" %][Git][git][%/i%]
 keeps track of changes to files
 so that we can recover old versions if we want to.
-Its heart is a way to archive files that:
+Its core is a way to archive files that:
 
 1.  records which versions of which files existed at the same time
     (so that we can go back to a consistent previous state), and
@@ -25,7 +25,7 @@ please see [%i "Cook, Mary Rose" %][Mary Rose Cook's][cook-mary-rose][%/i%] exce
 To avoid storing redundant copies of files,
 we need a way to tell when two files contain the same data.
 We can't rely on names because files can be renamed or moved over time;
-we could compare the files byte by byte,
+we could compare the files byte-by-byte,
 but a quicker way is to use a [%i "hash function" %][%g hash_function "hash function" %][%/i%]
 that turns arbitrary data into a fixed-length string of bits
 ([%f file-backup-hash-function %]).
@@ -61,12 +61,12 @@ we just want hashes that are random to make [%i "hash function!collision" "colli
 > and a 99.9% chance with 70 people.
 >
 > We can use the same math to calculate how many files we need to hash before there's a 50% chance of a collision.
-> Instead of 365 we use \\(2^{160}\\) (the number of values that are 160 bits long),
+> Instead of 365, we use \\(2^{160}\\) (the number of values that are 160 bits long),
 > and after checking [Wikipedia][wikipedia-birthday-problem]
 > and doing a few calculations with [%i "Wolfram Alpha" %][Wolfram Alpha][wolfram-alpha][%/i%],
 > we calculate that we would need to have approximately \\(10^{24}\\) files
 > in order to have a 50% chance of a collision.
-> We're willing to take that risk…
+> We're willing to take that risk.
 
 [Node's][nodejs] [`crypto`][node-crypto] module provides tools to create a SHA-1 hash.
 To use them,
@@ -321,7 +321,7 @@ What are the actual odds?
 ### Streaming I/O {: .exercise}
 
 Write a small program using `fs.createReadStream` and `fs.createWriteStream`
-that copies a file piece by piece
+that copies a file piece-by-piece
 instead of reading it into memory and then writing it out again.
 
 ### Sequencing backups {: .exercise}
@@ -329,7 +329,7 @@ instead of reading it into memory and then writing it out again.
 Modify the backup program so that manifests are numbered sequentially
 as `00000001.csv`, `00000002.csv`, and so on
 rather than being timestamped.
-Why doesn't this solve the time of check/time of use race condition mentioned earlier.
+Why doesn't this solve the time of check/time of use race condition mentioned earlier?
 
 ### JSON manifests {: .exercise}
 
@@ -353,6 +353,7 @@ Why doesn't this solve the time of check/time of use race condition mentioned ea
 3.  Rewrite the tests to use this function.
 
 How did you modify the main program so that the tests could control which hashing function is used?
+{: .continue}
 
 ### Comparing manifests {: .exercise}
 
