@@ -30,7 +30,12 @@ so let's slim down the JSON that we extract:
 
 [% inc pat="two-kinds-of-comment-subset.*" fill="sh out" %]
 
-[% figure slug="doc-generator-comments" img="comments.svg" alt="Line and block comments" caption="How line comments and block comments are distinguished and represented." %]
+[% figure
+   slug="doc-generator-comments"
+   img="comments.svg"
+   alt="Line and block comments"
+   caption="How line comments and block comments are distinguished and represented."
+%]
 
 Acorn distinguishes two kinds of comments ([%f doc-generator-comments %]).
 [%i "line comment" "comment!line" %][%g line_comment "Line comments" %][%/i%] cannot span multiple lines;
@@ -118,9 +123,19 @@ Let's run this generator and see what it produces
 [% inc file="process-plain.sh" %]
 [% inc file="process-plain.html" %]
 
-[% figure slug="doc-generator-process-plain" img="process-plain.svg" alt="Output of documentation generator" caption="The page produced by the documentation generator." %]
+[% figure
+   slug="doc-generator-process-plain"
+   img="process-plain.svg"
+   alt="Output of documentation generator"
+   caption="The page produced by the documentation generator."
+%]
 
-[% figure slug="doc-generator-mapping" img="mapping.svg" alt="Mapping comments to documentation" caption="How comments in code map to documentation in HTML." %]
+[% figure
+   slug="doc-generator-mapping"
+   img="mapping.svg"
+   alt="Mapping comments to documentation"
+   caption="How comments in code map to documentation in HTML."
+%]
 
 It works,
 but there is a double `h1` header for each file (the filename and and the title comment),
@@ -178,7 +193,6 @@ const name = function() => {
 ```
 
 than we get with:
-{: .break-before}
 {: .continue}
 
 ```js
@@ -195,7 +209,12 @@ We can use this to create better output ([%f doc-generator-fill-in-headers %]):
 [% inc file="fill-in-headers.js" %]
 [% inc file="fill-in-headers.html" %]
 
-[% figure slug="doc-generator-fill-in-headers" img="fill-in-headers.svg" alt="Filling in headers" caption="Filling in headers when generating documentation." %]
+[% figure
+   slug="doc-generator-fill-in-headers"
+   img="fill-in-headers.svg"
+   alt="Filling in headers"
+   caption="Filling in headers when generating documentation."
+%]
 
 > ### Code is data
 >
@@ -215,7 +234,6 @@ We can use this to create better output ([%f doc-generator-fill-in-headers %]):
 > as the mathematician [%i "Whitehead, Alfred North" %]Alfred North Whitehead[%/i%] once wrote,
 > "Civilization advances by extending the number of important operations which we can perform without thinking about them."
 
-<div class="break-before"></div>
 ## Exercises {: #doc-generator-exercises}
 
 ### Building an index {: .exercise}

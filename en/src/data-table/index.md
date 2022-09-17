@@ -22,11 +22,16 @@ to the [%i "data frame" %][%g data_frame "data frames" %][%/i%] in
 [%i "Python" %][Python's][python][%/i%] [%i "Pandas" %][Pandas][pandas][%/i%] library,
 or the [%i "DataForge" %][DataForge][data-forge][%/i%] library for JavaScript [%b Davis2018 %].
 
-[% figure slug="data-table-conceptual" img="conceptual.svg" alt="Data table structure" caption="The structure of a data table." %]
+[% figure
+   slug="data-table-conceptual"
+   img="conceptual.svg"
+   alt="Data table structure"
+   caption="The structure of a data table."
+%]
 
 The key operations on data tables are those provided by [%i "SQL" %][%g sql "SQL" %][%/i%]:
 filter, select, summarize, and join.
-These can be implemented in about five hundred lines of code,
+These can be implemented in about 500 lines of code,
 but their performance depends on how the data table is stored.
 
 ## How can we implement data tables? {: #data-table-implement}
@@ -46,7 +51,12 @@ In JavaScript,
 this could be implemented using an object
 whose members are all arrays of the same length.
 
-[% figure slug="data-table-storage-order" img="storage-order.svg" alt="Row-major vs. column-major storage order" caption="Row-major storage vs. column-major storage for data tables." %]
+[% figure
+   slug="data-table-storage-order"
+   img="storage-order.svg"
+   alt="Row-major vs. column-major storage order"
+   caption="Row-major storage vs. column-major storage for data tables."
+%]
 
 To find out which is better
 we will construct one of each,
@@ -89,7 +99,12 @@ while selecting should be relatively slow because we have to construct a new set
 
 [% inc file="table-performance.js" keep="operate-rows" %]
 
-[% figure slug="data-table-row-ops" img="row-ops.svg" alt="Row-major operations" caption="Operations on row-major data tables." %]
+[% figure
+   slug="data-table-row-ops"
+   img="row-ops.svg"
+   alt="Row-major operations"
+   caption="Operations on row-major data tables."
+%]
 
 Now let's do the same for column-major storage.
 Building the object that holds the columns is straightforward:
@@ -105,7 +120,12 @@ but filtering will be relatively slow since we are constructing multiple new arr
 
 [% inc file="table-performance.js" keep="operate-cols" %]
 
-[% figure slug="data-table-col-ops" img="col-ops.svg" alt="Column-major operations" caption="Operations on column-major data tables." %]
+[% figure
+   slug="data-table-col-ops"
+   img="col-ops.svg"
+   alt="Column-major operations"
+   caption="Operations on column-major data tables."
+%]
 
 > ### Not quite polymorphic
 >
@@ -139,7 +159,7 @@ Our performance measurement program looks like this:
 The functions that actually do the measurements
 use the [`microtime`][microtime] library to get microsecond level timing
 because JavaScript's `Date` only gives us millisecond-level resolution.
-We use [`object-sizeof`][object-sizeof] to estimate memory how much memory our structures require;
+We use [`object-sizeof`][object-sizeof] to estimate how much memory our structures require;
 we also call `process.memoryUsage()` and look at the `heapUsed` value
 to see how much memory [Node][nodejs] is using while the program runs,
 but that may be affected by [%g garbage_collection "garbage collection" %]
@@ -161,7 +181,7 @@ And if we keep the table size the same but use a 10:1 filter/select ratio?
 
 [% inc file="table-performance-10000-30-10.out" %]
 
-<div class="table break-before" id="data-table-performance" caption="Relative performance of operations on row-major and column-major data tables." markdown="1">
+<div class="table" id="data-table-performance" caption="Relative performance of operations on row-major and column-major data tables." markdown="1">
 value|100-03-03|10000-30-03|10000-30-10
 :---|---:|---:|---:
 nRows|100|10000|10000
@@ -221,7 +241,12 @@ some bits define the value's type
 while other bits store the value itself in a type-dependent way
 ([%f data-table-object-storage %]).
 
-[% figure slug="data-table-object-storage" img="object-storage.svg" alt="JavaScript object storage" caption="How JavaScript uses tagged data structures to store objects." %]
+[% figure
+   slug="data-table-object-storage"
+   img="object-storage.svg"
+   alt="JavaScript object storage"
+   caption="How JavaScript uses tagged data structures to store objects."
+%]
 
 We can save space by keeping track of the types ourselves
 and just storing the bits that represent the values.
@@ -233,7 +258,12 @@ As [%f data-table-packed-storage %] shows,
 we can mix different types of data in a single `ArrayBuffer`,
 but it's up to us to keep track of which bytes belong to which values.
 
-[% figure slug="data-table-packed-storage" img="packed-storage.svg" alt="Packing objects for storage" caption="Storing object values as bits with lookup information." %]
+[% figure
+   slug="data-table-packed-storage"
+   img="packed-storage.svg"
+   alt="Packing objects for storage"
+   caption="Storing object values as bits with lookup information."
+%]
 
 To store a column-major table we will fill an `ArrayBuffer` with:
 
@@ -267,7 +297,6 @@ the result of our experiment depends on the test cases we choose.
 > or to improve the performance of CPUs [%b Patterson2017 %];
 > a few simple experiments like these can sometimes save weeks or months of effort.
 
-<div class="break-before"></div>
 ## Exercises {: #data-table-exercises}
 
 ### Varying filter behavior {: .exercise}
@@ -282,12 +311,12 @@ Modify the comparison of filter and select to work with tables
 that contain columns of strings instead of columns of numbers
 and see how that changes performance.
 For testing,
-creating random 4-letter strings using the characters A-Z
+create random 4-letter strings using the characters A-Z
 and then filter by:
 
 -   an exact match,
 -   strings starting with a specific character, and
--   strings that contain a specific character
+-   strings that contain a specific character.
 
 ### Join performance {: .exercise}
 
@@ -322,6 +351,7 @@ then the join is:
 Write a test to compare the performance of row-wise vs. column-wise storage
 when joining two tables based on matching numeric keys.
 Does the answer depend on the fraction of keys that match?
+{: .continue}
 
 ### Join optimization {: .exercise}
 
@@ -347,6 +377,7 @@ and:
 | B   | b2    |
 
 The first step is to create a `Map` showing where each key is found in the first table:
+{: .continue}
 
 ```js
 {A: [0], B: [1], C: [2]}

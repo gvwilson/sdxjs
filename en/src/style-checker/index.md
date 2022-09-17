@@ -38,7 +38,12 @@ whose nodes store information about what's in the program
 An AST is for a program what the [%i "Document Object Model" %]DOM[%/i%] is for HTML:
 an in-memory representation that is easy for software to inspect and manipulate.
 
-[% figure slug="style-checker-parse-tree" img="parse-tree.svg" alt="A small parse tree" caption="The parse tree of a simple program." %]
+[% figure
+   slug="style-checker-parse-tree"
+   img="parse-tree.svg"
+   alt="A small parse tree"
+   caption="The parse tree of a simple program."
+%]
 
 ASTs can be quite complex---for example,
 the JSON representation of the AST for a single constant declaration
@@ -75,7 +80,12 @@ for demonstration purposes we will add nodes to an array called `state`
 and report them all at the end
 ([%f style-checker-walk-tree %]).
 
-[% figure slug="style-checker-walk-tree" img="walk-tree.svg" alt="Walking a tree" caption="Walking a tree to perform an operation at each node." %]
+[% figure
+   slug="style-checker-walk-tree"
+   img="walk-tree.svg"
+   alt="Walking a tree"
+   caption="Walking a tree to perform an operation at each node."
+%]
 
 [% inc pat="walk-ast.*" fill="js out" %]
 
@@ -210,7 +220,12 @@ an iterator returns the elements of a complex structure one by one for processin
 One way to think about it is that the Visitor pattern encapsulates recursion,
 while the Iterator pattern turns everything into a `for` loop.
 
-[% figure slug="style-checker-iterator" img="iterator.svg" alt="The Iterator pattern" caption="Finding nodes in the tree using the Iterator pattern." %]
+[% figure
+   slug="style-checker-iterator"
+   img="iterator.svg"
+   alt="The Iterator pattern"
+   caption="Finding nodes in the tree using the Iterator pattern."
+%]
 
 We can implement the Iterator pattern in JavaScript using
 [%i "generator function" "Iterator pattern!generator function" %][%g generator_function "generator functions" %][%/i%].
@@ -334,7 +349,6 @@ which has a more complex method definition table:
 | stop | . | X | . | . |
 | variables | . | X | . | . |
 
-<div class="break-before"></div>
 ## Exercises {: #style-checker-exercises}
 
 ### Function length {: .exercise}

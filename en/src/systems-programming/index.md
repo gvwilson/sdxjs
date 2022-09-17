@@ -79,7 +79,12 @@ while `process.argv[1]` is the name of our program (in this case `list-dir-wrong
 The rest of `process.argv` holds whatever arguments we gave at the command line when we ran the program,
 so `process.argv[2]` is the first argument after the name of our program ([%f systems-programming-process-argv %]):
 
-[% figure slug="systems-programming-process-argv" img="process-argv.svg" alt="Command-line arguments in `process.argv`" caption="How Node stores command-line arguments in <code>process.argv</code>." %]
+[% figure
+   slug="systems-programming-process-argv"
+   img="process-argv.svg"
+   alt="Command-line arguments in `process.argv`"
+   caption="How Node stores command-line arguments in <code>process.argv</code>."
+%]
 
 <div class="pagebreak"></div>
 
@@ -138,7 +143,12 @@ Those parameters defined a standard [%i "protocol!API as" "API!as protocol" %][%
 for connecting to libraries,
 just like the USB standard allows us to plug hardware devices together.
 
-[% figure slug="systems-programming-callbacks" img="callbacks.svg" alt="Running callbacks" caption="How JavaScript runs callback functions." %]
+[% figure
+   slug="systems-programming-callbacks"
+   img="callbacks.svg"
+   alt="Running callbacks"
+   caption="How JavaScript runs callback functions."
+%]
 
 This corrected program gives `fs.readdir` a callback function called `listContents`:
 
@@ -177,7 +187,12 @@ the order in which Node executes the statements in this program
 
 1.  Run the callback function, which prints the directory listing.
 
-[% figure slug="systems-programming-execution-order" img="execution-order.svg" alt="Callback execution order" caption="When JavaScript runs callback functions." %]
+[% figure
+   slug="systems-programming-execution-order"
+   img="execution-order.svg"
+   alt="Callback execution order"
+   caption="When JavaScript runs callback functions."
+%]
 
 ## What are anonymous functions? {: #systems-programming-anonymous}
 
@@ -195,7 +210,12 @@ Using an anonymous function gives us the final version of our program:
 
 [% inc file="list-dir-function-anonymous.js" %]
 
-[% figure slug="systems-programming-anonymous-functions" img="anonymous-functions.svg" alt="Anonymous functions as callbacks" caption="How and when JavaScript creates and runs anonymous callback functions." %]
+[% figure
+   slug="systems-programming-anonymous-functions"
+   img="anonymous-functions.svg"
+   alt="Anonymous functions as callbacks"
+   caption="How and when JavaScript creates and runs anonymous callback functions."
+%]
 
 > ### Functions are data
 >
@@ -236,7 +256,12 @@ files and directories whose names have a leading '.'
 usually contain configuration information for various programs,
 so most commands will leave them alone unless told to do otherwise.
 
-[% figure slug="systems-programming-globbing" img="globbing.svg" alt="Matching filenames with `glob`" caption="Using `glob` patterns to match filenames." %]
+[% figure
+   slug="systems-programming-globbing"
+   img="globbing.svg"
+   alt="Matching filenames with `glob`"
+   caption="Using `glob` patterns to match filenames."
+%]
 
 This program works,
 but we probably don't want to copy Emacs backup files whose names end with a tilde.
@@ -256,7 +281,12 @@ that tells `Array.filter` whether to keep the item in the new array or not.
 `Array.filter` does not modify the original array,
 so we can filter our original list of filenames several times if we want to.
 
-[% figure slug="systems-programming-array-filter" img="array-filter.svg" alt="Using `Array.filter`" caption="Selecting array elements using `Array.filter`." %]
+[% figure
+   slug="systems-programming-array-filter"
+   img="array-filter.svg"
+   alt="Using `Array.filter`"
+   caption="Selecting array elements using `Array.filter`."
+%]
 
 We can make our globbing program more idiomatic by
 removing the parentheses around the single parameter
@@ -336,7 +366,12 @@ if both a source and destination are given on the command line;
 we'll add a check for that in the exercises.
 {: .continue}
 
-[% figure slug="systems-programming-destructuring-assignment" img="destructuring-assignment.svg" alt="Matching values with destructuring assignment" caption="Assigning many values at once by destructuring." %]
+[% figure
+   slug="systems-programming-destructuring-assignment"
+   img="destructuring-assignment.svg"
+   alt="Matching values with destructuring assignment"
+   caption="Assigning many values at once by destructuring."
+%]
 
 A more serious problem is that
 this program only works if the destination directory already exists:
@@ -379,7 +414,12 @@ The program now has three levels of callback
 
 1.  When `copy` finishes, check the error status.
 
-[% figure slug="systems-programming-triple-callback" img="triple-callback.svg" alt="Three levels of callback" caption="Three levels of callback in the running example." %]
+[% figure
+   slug="systems-programming-triple-callback"
+   img="triple-callback.svg"
+   alt="Three levels of callback"
+   caption="Three levels of callback in the running example."
+%]
 
 Our program looks like it should work,
 but if we try to copy everything in the directory containing these lessons
@@ -406,7 +446,6 @@ but four levels of asynchronous callbacks is hard for humans to understand.
 that make code like this easier to read.
 {: .continue}
 
-<div class="break-before"></div>
 ## Exercises {: #systems-programming-exercises}
 
 ### Where is Node? {: .exercise}

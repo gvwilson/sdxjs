@@ -32,7 +32,12 @@ and then draw the result as text on the screen.
 > as [%i "Hoye, Mike" %][Mike Hoye][hoye-mike][%/i%] has [repeatedly observed][punching-holes],
 > the past is all around us.
 
-[% figure slug="layout-engine-coordinate-system" img="coordinate-system.svg" alt="Coordinate system" caption="Coordinate system with (0, 0) in the upper left corner." %]
+[% figure
+   slug="layout-engine-coordinate-system"
+   img="coordinate-system.svg"
+   alt="Coordinate system"
+   caption="Coordinate system with (0, 0) in the upper left corner."
+%]
 
 ## How can we size rows and columns? {: #layout-engine-size}
 
@@ -51,7 +56,12 @@ while its height is the height of its tallest child
 
 [% inc file="easy-mode.js" keep="row" %]
 
-[% figure slug="layout-engine-sizing" img="sizing.svg" alt="Calculating sizes of fixed blocks" caption="Calculating sizes of blocks with fixed width and height." %]
+[% figure
+   slug="layout-engine-sizing"
+   img="sizing.svg"
+   alt="Calculating sizes of fixed blocks"
+   caption="Calculating sizes of blocks with fixed width and height."
+%]
 
 Finally,
 a column arranges one or more cells vertically;
@@ -101,7 +111,12 @@ we place the first child at (x0, y0),
 the next at (x0, y0 + height0),
 and so on.
 
-[% figure slug="layout-engine-layout" img="layout.svg" alt="Laying out rows and columns" caption="Laying out rows and columns of fixed-size blocks." %]
+[% figure
+   slug="layout-engine-layout"
+   img="layout.svg"
+   alt="Laying out rows and columns"
+   caption="Laying out rows and columns of fixed-size blocks."
+%]
 
 To save ourselves some testing we will derive the classes that know how to do layout
 from the classes we wrote before.
@@ -139,7 +154,12 @@ which will automatically produce the right appearance
 keeps track of the visual depth of each pixel
 in order to draw things in three dimensions.)
 
-[% figure slug="layout-engine-draw-over" img="draw-over.svg" alt="Children drawing over their parents" caption="Render blocks by drawing child nodes on top of parent nodes." %]
+[% figure
+   slug="layout-engine-draw-over"
+   img="draw-over.svg"
+   alt="Children drawing over their parents"
+   caption="Render blocks by drawing child nodes on top of parent nodes."
+%]
 
 Our pretended screen is just an array of arrays of characters:
 
@@ -215,7 +235,12 @@ This replacement is unnecessary when everything will fit on a single row,
 but it's easiest to write the code that does it every time;
 we will look at making this more efficient in the exercises.
 
-[% figure slug="layout-engine-wrap" img="wrap.svg" alt="Wrapping rows" caption="Wrapping rows by introducing a new row and column." %]
+[% figure
+   slug="layout-engine-wrap"
+   img="wrap.svg"
+   alt="Wrapping rows"
+   caption="Wrapping rows by introducing a new row and column."
+%]
 
 Our new wrappable row's constructor takes a fixed width followed by the children
 and returns that fixed width when asked for its size:
@@ -357,7 +382,6 @@ We will explore these possibilities in the exercises.
 > The moral is,
 > be careful what you ask.
 
-<div class="break-before"></div>
 ## Exercises {: #layout-engine-exercises}
 
 ### Refactoring the node classes {: .exercise}

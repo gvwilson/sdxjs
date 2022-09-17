@@ -155,10 +155,6 @@ def handle(node, state, accum, doEscape):
         children(node, state, accum, doEscape)
         accum.append("\n\n")
 
-    # <div class="break-before"> => pass through
-    elif node_match(node, "div", "break-before"):
-        children(node, state, accum, doEscape)
-
     # <div class="code-sample"> => pass through
     elif node_match(node, "div", "code-sample"):
         children(node, state, accum, doEscape)
@@ -403,6 +399,8 @@ def table(node, state, accum, doEscape):
     """Convert a table."""
     assert node.name == "table", "Node is not a table"
     label = node["id"] if node.has_attr("id") else None
+    position = node["class"] if node.has_attr("class") else None
+    position = "[h]" if position is not None else ""
 
     assert node.tbody, f"Table node does not have body {node}"
     rows = [table_row(row, state, doEscape, "td") for row in node.tbody.find_all("tr")]
@@ -421,7 +419,7 @@ def table(node, state, accum, doEscape):
     if label:
         caption = "".join(children(node.caption, state, [], True))
         caption = caption.split(":")[1].strip()
-        accum.append("\\begin{table}\n")
+        accum.append(f"\\begin{{table}}{position}\n")
     else:
         accum.append("\n\\vspace{\\baselineskip}\n")
 

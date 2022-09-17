@@ -43,7 +43,12 @@ and using `func(...var)` to [%i "spread!function arguments" %]spread[%/i%] those
 There's nothing special about the names `args` and `vars`:
 what matters is the ellipsis `...`
 
-[% figure slug="code-generator-spread" img="spread.svg" alt="Spreading parameters" caption="Using ...args to capture and spread parameters." %]
+[% figure
+   slug="code-generator-spread"
+   img="spread.svg"
+   alt="Spreading parameters"
+   caption="Using ...args to capture and spread parameters."
+%]
 
 We can use `...args` to capture all of the arguments to a function call
 and forward them to another function.
@@ -196,7 +201,6 @@ by defining [%i "macro" %][%g macro "macros" %][%/i%].
 Depending on how carefully they are used,
 macros can make programs elegant, incomprehensible, or both.
 
-<div class="break-before"></div>
 ## Exercises {: #code-generator-exercises}
 
 ### JSON to JavaScript {: .exercise}

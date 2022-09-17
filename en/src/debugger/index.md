@@ -112,7 +112,12 @@ but one of them has to be created first.
 "A gets B then B tells A about itself" is a common pattern;
 we will look at other ways to manage it in the exercises.
 
-[% figure slug="debugger-initialization" img="initialization.svg" alt="Initializing mutually-depending objects" caption="Two-step initialization of mutually-dependent objects." %]
+[% figure
+   slug="debugger-initialization"
+   img="initialization.svg"
+   alt="Initializing mutually-depending objects"
+   caption="Two-step initialization of mutually-dependent objects."
+%]
 
 To run the program,
 we create a debugger object and pass it to the VM's constructor:
@@ -216,7 +221,12 @@ Our library replaces the input and output functions of the application being tes
 then provides input when asked and checks output when it is given
 ([%f debugger-test-interact %]).
 
-[% figure slug="debugger-test-interact" img="test-interact.svg" alt="Testing interactive application" caption="Replacing input and output to test interactive applications." %]
+[% figure
+   slug="debugger-test-interact"
+   img="test-interact.svg"
+   alt="Testing interactive application"
+   caption="Replacing input and output to test interactive applications."
+%]
 
 The results look like this:
 {: .continue}
@@ -300,7 +310,6 @@ we are finally able to test our interactive debugger:
 
 [% inc pat="test-exit.*" fill="sh out" %]
 
-<div class="break-before"></div>
 ## Exercises {: #debugger-exercises}
 
 ### Implementing tab completion {: .exercise}
@@ -359,7 +368,7 @@ Modify the virtual machine and debugger to use this pattern.
 Modify the debugger and virtual machine to implement [%g watchpoint "watchpoints" %]
 that halt the program whenever the value of a variable changes.
 
-### Translating JSON to assembler {: .exercise .break-before}
+### Translating JSON to assembler {: .exercise}
 
 Write a tool that translates the JSON program representation
 into the assembly code of [%x virtual-machine %].

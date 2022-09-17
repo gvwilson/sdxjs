@@ -32,6 +32,13 @@ the [%g child_tree "children" %] of a node are the elements it contains
 
 The first step is to define the patterns we want to support
 ([%t pattern-matching-supported %]).
+According to this grammar,
+`blockquote#important p.highlight` is a highlighted paragraph inside the blockquote whose ID is `"important"`.
+To find elements in a page that match it,
+our `select` function breaks the query into pieces
+and uses `firstMatch` to search recursively down the document tree
+until all the selectors in the query string have matched or no matches have been found
+([%f pattern-matching-query-selectors %]).
 
 <div class="table" id="pattern-matching-supported" caption="Supported patterns." markdown="1">
 | Meaning | Selector |
@@ -41,14 +48,6 @@ The first step is to define the patterns we want to support
 | Element with `id="ident"` | `#ident`   |
 | `child` element inside a `parent` element | `parent child` |
 </div>
-
-According to this grammar,
-`blockquote#important p.highlight` is a highlighted paragraph inside the blockquote whose ID is `"important"`.
-To find elements in a page that match it,
-our `select` function breaks the query into pieces
-and uses `firstMatch` to search recursively down the document tree
-until all the selectors in the query string have matched or no matches have been found
-([%f pattern-matching-query-selectors %]).
 
 [% figure
    slug="pattern-matching-query-selectors"
@@ -132,8 +131,13 @@ otherwise,
 we see if the the pattern will match further along.
 Our matcher will initially handle just the five cases shown in
 [%t pattern-matching-cases %].
+These cases are a small subset of what JavaScript provides,
+but as [%i "Kernighan, Brian" %]Kernighan[%/i%] wrote,
+"This is quite a useful class;
+in my own experience of using regular expressions on a day-to-day basis,
+it easily accounts for 95 percent of all instances."
 
-<div class="table" id="pattern-matching-cases" caption="Pattern matching cases." markdown="1">
+<div class="table table-here" id="pattern-matching-cases" caption="Pattern matching cases." markdown="1">
 | Meaning | Character |
 | ------- | --------- |
 | Any literal character *c* | *c* |
@@ -142,13 +146,6 @@ Our matcher will initially handle just the five cases shown in
 | End of input | $ |
 | Zero or more of the previous character | * |
 </div>
-
-These five cases are a small subset of what JavaScript provides,
-but as [%i "Kernighan, Brian" %]Kernighan[%/i%] wrote,
-"This is quite a useful class;
-in my own experience of using regular expressions on a day-to-day basis,
-it easily accounts for 95 percent of all instances."
-{: .continue}
 
 The top-level function that users call
 handles the special case of `^` at the start of a pattern
@@ -196,7 +193,12 @@ or `undefined` indicating that matching failed.
 We can then combine these objects to match complex patterns
 ([%f pattern-matching-regex-objects %]).
 
-[% figure slug="pattern-matching-regex-objects" img="regex-objects.svg" alt="Implementing regex with objects" caption="Using nested objects to match regular expressions." %]
+[% figure
+   slug="pattern-matching-regex-objects"
+   img="regex-objects.svg"
+   alt="Implementing regex with objects"
+   caption="Using nested objects to match regular expressions."
+%]
 
 The first step in implementing this is to write test cases,
 which forces us to define the syntax we are going to support:
@@ -272,7 +274,7 @@ Our current implementation doesn't give us a way to try other possible matches w
    slug="pattern-matching-greedy-failure"
    img="greedy-failure.svg"
    alt="Overly-greedy matching fails"
-   caption="Why overly-greedy matching doesn't work."
+   caption="Why overly greedy matching doesn't work."
 %]
 
 Let's re-think our design
@@ -348,10 +350,10 @@ we can put them together however we want.
 > but only if our design permits the kinds of extensions people are going to want to make.
 > Since we can't anticipate everything,
 > it is normal to have to revise a design the first two or three times we try to extend it.
-> As [%b Brand1995 %] said of buildings,
-> the things we make learn how to do things better as we use them.
+> Looking at it another way,
+> the things we build learn how to do their jobs better
+> as we use them and improve them [%b Brand1995 %].
 
-<div class="break-before"></div>
 ## Exercises {: #pattern-matching-exercises}
 
 ### Split once {: .exercise}

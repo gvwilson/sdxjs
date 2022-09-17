@@ -7,7 +7,7 @@ It takes a lot less typing to write them as strings as we did for HTML selectors
 but if we're going to do that we need something to convert those strings to the required objects.
 In other words, we need to write a [%i "parser" %][%g parser "parser" %][%/i%].
 
-<div class="table" id="regex-parser-grammar-codes" caption="Regular expression grammar." markdown="1">
+<div class="table table-here" id="regex-parser-grammar-codes" caption="Regular expression grammar." markdown="1">
 | Meaning | Character |
 | ------- | --------- |
 | Any literal character *c* | *c* |
@@ -31,7 +31,12 @@ we will create a tree of objects ([%f regex-parser-expression-tree %])
 rather than instances of the regular expression classes from [%x pattern-matching %];
 the exercises will tackle the latter.
 
-[% figure slug="regex-parser-expression-tree" img="expression-tree.svg" alt="Expression tree for regular expression" caption="Representing the result of parsing a regular expression as an tree." %]
+[% figure
+   slug="regex-parser-expression-tree"
+   img="expression-tree.svg"
+   alt="Expression tree for regular expression"
+   caption="Representing the result of parsing a regular expression as an tree."
+%]
 
 > ### Please don't write parsers
 >
@@ -55,9 +60,9 @@ This classification guides the design of our parser:
 
 1.  If a character is special, create a token for it.
 
-1.  If it is a [%i "literal (in parsing)" %][%g literal "literal" %][%/i%] then:
-    1.  combine it with the current literal if there is one, or
-    1.  start a new literal.
+1.  If it is a [%i "literal (in parsing)" %][%g literal "literal" %][%/i%] then
+    combine it with the current literal if there is one
+    or start a new literal.
 
 1.  Since `^` and `$` are either special or regular depending on position,
     we must treat them as separate tokens or as part of a literal
@@ -134,12 +139,13 @@ Let's trace a few cases in order to see how to build this tree:
     We append a `Lit` token for `a`, get the `|` and---and we're stuck,
     because we don't yet have the next token we need to finish building the `Alt`.
 
-One way to solve this problem is to check to see if the thing on the top of the stack is waiting to combine
+One way to solve this problem is to check if the thing on the top of the stack is waiting to combine
 each time we append a new token.
 However,
 this doesn't handle `/a|b*/` properly.
 The pattern is supposed to mean "one `a` or any number of `b`",
 but the [%i "parser!check-and-combine" %]check-and-combine strategy[%/i%] will turn it into the equivalent of `/(a|b)*/`.
+{: .continue}
 
 A better (i.e., correct) solution is
 to leave some partially-completed tokens in the output and [%i "parser!post-hoc compression strategy" %]compress[%/i%] them later
@@ -158,15 +164,21 @@ If our input is the pattern `/a|b/`, we can:
     look for partially-completed `Alt` tokens and make whatever comes after them their right child.
 
 Again, this automatically handles patterns like `/(ab)|c*|(de)/`.
+{: .continue}
 
-[% figure slug="regex-parser-mechanics" img="mechanics.svg" alt="Mechanics of combining tokens" caption="Mechanics of combining tokens while parsing regular expressions." %]
+[% figure
+   slug="regex-parser-mechanics"
+   img="mechanics.svg"
+   alt="Mechanics of combining tokens"
+   caption="Mechanics of combining tokens while parsing regular expressions."
+%]
 
 It's time to turn these ideas into code.
 The main structure of our parser is:
 
 [% inc file="parser.js" omit="skip" %]
 
-We handle tokens case by case
+We handle tokens case-by-case
 (with a few assertions to check that patterns are [%g well_formed "well formed" %]):
 
 [% inc file="parser.js" keep="handle" %]
@@ -221,9 +233,13 @@ but at least they're broken the same way everywhere.
 > that can do any conceivable computation.
 > [%b Conery2021 %] presents this idea and others for self-taught developers.
 
-[% figure slug="regex-parser-finite-state-machine" img="finite-state-machine.svg" alt="Finite state machine" caption="A finite state machine equivalent to a regular expression." %]
+[% figure
+   slug="regex-parser-finite-state-machine"
+   img="finite-state-machine.svg"
+   alt="Finite state machine"
+   caption="A finite state machine equivalent to a regular expression."
+%]
 
-<div class="break-before"></div>
 ## Exercises {: #regex-parser-exercises}
 
 ### Create objects {: .exercise}
@@ -233,7 +249,7 @@ Modify the parser to return instances of classes derived from `RegexBase`.
 ### Escape characters {: .exercise}
 
 Modify the parser to handle escape characters,
-so that (for example) `\*` is interpreted as "a literal '*' character"
+so that (for example) `\*` is interpreted as "a literal asterisk"
 and `\\` is interpreted as "a literal backslash".
 
 ### Lazy matching {: .exercise}
@@ -244,7 +260,7 @@ meaning "lazy match zero or more".
 ### Character sets {: .exercise}
 
 Modify the parser so that expressions like `[xyz]` are interpreted to mean
-"match any one of the characters 'x', 'y', or 'z'".
+"match any one of the characters x, y, or z".
 
 ### Back reference {: .exercise}
 
@@ -302,7 +318,7 @@ values may be strings in double quotes or unquoted numbers.
 
 3.  Write Mocha tests for your tokenizer.
 
-### The Shunting Yard Algorithm {: .exercise}
+### The Shunting-Yard Algorithm {: .exercise}
 
 1.  Use the [shunting-yard algorithm][shunting-yard-algorithm]
     to implement a tokenizer for a simple subset of arithmetic that includes:

@@ -19,7 +19,12 @@ it's the same number of bytes but just one network request.
 Bundling files also tests that dependencies actually resolve
 so that the application has at least a chance of being able to run.
 
-[% figure slug="module-bundler-bundling" img="bundling.svg" alt="Bundling modules" caption="Combining multiple modules into one." %]
+[% figure
+   slug="module-bundler-bundling"
+   img="bundling.svg"
+   alt="Bundling modules"
+   caption="Combining multiple modules into one."
+%]
 
 Bundling requires an [%i "entry point (of module)" "module!entry point" %][%g entry_point "entry point" %][%/i%],
 i.e.,
@@ -77,7 +82,12 @@ and is shown in [%f module-bundler-complicated %]:
 -   `./subdir/bottom-left` also requires `top-left` and `bottom-right`.
 -   `./subdir/bottom-right` doesn't require anything.
 
-[% figure slug="module-bundler-complicated" img="complicated.svg" alt="Module bundler dependencies" caption="Dependencies in large module bundler test case." %]
+[% figure
+   slug="module-bundler-complicated"
+   img="complicated.svg"
+   alt="Module bundler dependencies"
+   caption="Dependencies in large module bundler test case."
+%]
 
 The main program is:
 {: .continue}
@@ -142,7 +152,12 @@ We keep taking items from `pending` until it is empty.
 If the current thing is already in `seen` we do nothing;
 otherwise we get its dependencies and add them to either `seen` or `pending`.
 
-[% figure slug="module-bundler-transitive-closure" img="transitive-closure.svg" alt="Implementing transitive closure" caption="Implementing transitive closure using two sets." %]
+[% figure
+   slug="module-bundler-transitive-closure"
+   img="transitive-closure.svg"
+   alt="Implementing transitive closure"
+   caption="Implementing transitive closure using two sets."
+%]
 
 Finding dependencies is complicated by the fact that we can load something under different names,
 such as `./subdir/bottom-left` from `main` but `./bottom-left` from `./subdir/bottom-right`.
@@ -164,7 +179,12 @@ The primary keys are the absolute paths to the files being required,
 while sub-keys are the paths they refer to when loading things
 ([%f module-bundler-structure %]).
 
-[% figure slug="module-bundler-structure" img="structure.svg" alt="Data structure for modules" caption="Data structure used to map names to absolute paths." %]
+[% figure
+   slug="module-bundler-structure"
+   img="structure.svg"
+   alt="Data structure for modules"
+   caption="Data structure used to map names to absolute paths."
+%]
 
 Adding this takes our transitive closure code from
 [% linecount transitive-closure-only.js %] lines
@@ -220,7 +240,12 @@ In between,
 `combineFiles` adds an entry to the lookup table for each file
 ([%f module-bundler-head-tail %]).
 
-[% figure slug="module-bundler-head-tail" img="head-tail.svg" alt="Assembling runnable code" caption="Assembling fragments and modules to create a bundle." %]
+[% figure
+   slug="module-bundler-head-tail"
+   img="head-tail.svg"
+   alt="Assembling runnable code"
+   caption="Assembling fragments and modules to create a bundle."
+%]
 
 We can test that this works in our two-file case:
 
@@ -275,7 +300,12 @@ Each of these wrapping layers remembers more information for us
 ([%f module-bundler-returning-functions %]),
 but we won't pretend that it's easy to trace.
 
-[% figure slug="module-bundler-returning-functions" img="returning-functions.svg" alt="Functions returning functions returning functions" caption="A function that returns functions that return functions." %]
+[% figure
+   slug="module-bundler-returning-functions"
+   img="returning-functions.svg"
+   alt="Functions returning functions returning functions"
+   caption="A function that returns functions that return functions."
+%]
 
 We also need a third structure:
 a cache for the modules we've already loaded.
@@ -302,7 +332,6 @@ First, we create the bundled file:
 [% inc file="bundle-single.js" %]
 
 and then we run it:
-{: .break-before}
 {: .continue}
 
 [% inc file="test-bundle-single.out" %]
@@ -319,7 +348,6 @@ and so does our most complicated test with `main` and four other files:
 
 [% inc file="test-bundle-full.out" %]
 
-<div class="break-before"></div>
 ## Exercises {: #module-bundler-exercises}
 
 ### Using test-driven development {: .exercise}
@@ -374,7 +402,7 @@ that makes sure every cross-reference resolves correctly.
 Trace the execution of every function called
 when the `main` function in the full bundle is called.
 
-### Making bundles more readable {: .exercise .break-before}
+### Making bundles more readable {: .exercise}
 
 Modify the bundle creator to make its output more readable,
 e.g.,

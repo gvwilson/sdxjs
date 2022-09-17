@@ -25,7 +25,12 @@ to create a runnable program
 If a source file hasn't changed,
 there's no need to recompile it before linking.
 
-[% figure slug="build-manager-compiling" img="compiling.svg" alt="Compiling and linking" caption="Compiling source files and linking the resulting modules." %]
+[% figure
+   slug="build-manager-compiling"
+   img="compiling.svg"
+   alt="Compiling and linking"
+   caption="Compiling source files and linking the resulting modules."
+%]
 
 A [%i "build manager" %][%g build_manager "build manager" %][%/i%] takes a description of what depends on what,
 figures out which files are out of date,
@@ -63,7 +68,12 @@ We say that a target is [%i "stale (in build)" "build!stale" %][%g build_stale "
 When this happens,
 we use the recipes to bring it up to date.
 
-[% figure slug="build-manager-dependencies" img="dependencies.svg" alt="Respecting dependencies" caption="How a build manager finds and respects dependencies." %]
+[% figure
+   slug="build-manager-dependencies"
+   img="dependencies.svg"
+   alt="Respecting dependencies"
+   caption="How a build manager finds and respects dependencies."
+%]
 
 Our build manager must:
 
@@ -132,7 +142,12 @@ and child classes fill them in
 This design pattern ensures that every child does the same things in the same order,
 even if the details of *how* vary from case to case.
 
-[% figure slug="build-manager-template-method" img="template-method.svg" alt="Template Method pattern" caption="The Template Method pattern in action." %]
+[% figure
+   slug="build-manager-template-method"
+   img="template-method.svg"
+   alt="Template Method pattern"
+   caption="The Template Method pattern in action."
+%]
 
 We would normally implement all of the methods required by the `build` method at the same time,
 but to make the evolving code easier to follow we will write them them one by one.
@@ -257,7 +272,6 @@ it seems to do the right thing:
 
 [% inc pat="update-timestamps.*" fill="sh out" %]
 
-<div class="break-before"></div>
 ## How can we add generic build rules? {: #build-manager-generic}
 
 If our website has a hundred blog posts
@@ -289,7 +303,12 @@ we will use `@TARGET` for the target,
 and `@DEP[1]`, `@DEP[2]`, and so on for specific dependencies
 ([%f build-manager-pattern-rules %]).
 
-[% figure slug="build-manager-pattern-rules" img="pattern-rules.svg" alt="Pattern rules" caption="Turning patterns rules into runnable commands." %]
+[% figure
+   slug="build-manager-pattern-rules"
+   img="pattern-rules.svg"
+   alt="Pattern rules"
+   caption="Turning patterns rules into runnable commands."
+%]
 
 Our variable expander looks like this:
 
@@ -377,7 +396,6 @@ we always learn about our problem as we try to capture it in code,
 and if we know enough to anticipate 100% of the issues that are going to come up,
 it's time to put what we've learned in a library for future use.
 
-<div class="break-before"></div>
 ## Exercises {: #build-manager-exercises}
 
 ### Handle failure {: .exercise}

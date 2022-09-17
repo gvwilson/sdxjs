@@ -27,7 +27,12 @@ each has its own [%g call_stack "call stack" %],
 but objects can be shared between tasks
 ([%f async-programming-event-loop %]).
 
-[% figure slug="async-programming-event-loop" img="event-loop.svg" alt="The event loop" caption="Using an event loop to manage concurrent tasks." %]
+[% figure
+   slug="async-programming-event-loop"
+   img="event-loop.svg"
+   alt="The event loop"
+   caption="Using an event loop to manage concurrent tasks."
+%]
 
 Most tasks execute all the code available in the order it is written.
 For example,
@@ -64,7 +69,12 @@ and those tasks can run in a different order than the order in which they were c
 
 [% inc pat="callbacks-with-timeouts.*" fill="js out" %]
 
-[% figure slug="async-programming-set-timeout" img="set-timeout.svg" alt="Setting a timeout" caption="Using `setTimeout` to delay operations." %]
+[% figure
+   slug="async-programming-set-timeout"
+   img="set-timeout.svg"
+   alt="Setting a timeout"
+   caption="Using `setTimeout` to delay operations."
+%]
 
 If we give `setTimeout` a delay of zero milliseconds,
 the new task can be run right away,
@@ -113,7 +123,12 @@ it will get the value passed to `resolve`,
 which is how the first part of the action communicates with the second
 ([%f async-programming-resolve %]).
 
-[% figure slug="async-programming-resolve" img="resolve.svg" alt="How promises resolve" caption="Order of operations when a promise resolves." %]
+[% figure
+   slug="async-programming-resolve"
+   img="resolve.svg"
+   alt="How promises resolve"
+   caption="Order of operations when a promise resolves."
+%]
 
 In order to make this work,
 `Pledge`'s [%g constructor "constructor" %] must take a single function called `action`.
@@ -252,7 +267,12 @@ we can call a method of the second object immediately.
 
 [% inc pat="promise-example.*" fill="js out" %]
 
-[% figure slug="async-programming-chained" img="chained.svg" alt="Chained promises" caption="Chaining promises to make asynchronous operations depend on each other." %]
+[% figure
+   slug="async-programming-chained"
+   img="chained.svg"
+   alt="Chained promises"
+   caption="Chaining promises to make asynchronous operations depend on each other."
+%]
 
 We therefore have three rules for chaining promises:
 
@@ -318,7 +338,12 @@ our line-counting program becomes:
 
 [% inc file="count-lines-print-filenames.js" %]
 
-[% figure slug="async-programming-temporary-named-fields" img="temporary-named-fields.svg" alt="Temporary objects with named fields" caption="Creating temporary objects with named fields to carry values forward." %]
+[% figure
+   slug="async-programming-temporary-named-fields"
+   img="temporary-named-fields.svg"
+   alt="Temporary objects with named fields"
+   caption="Creating temporary objects with named fields to carry values forward."
+%]
 
 As in [%x systems-programming %],
 this works until we run into a directory whose name name matches `*.*`,
@@ -355,7 +380,7 @@ This short program uses both keywords to print the first ten characters of a fil
 
 [% inc pat="await-fs.*" fill="js out" %]
 
-<blockquote class="break-before" markdown="1">
+<blockquote markdown="1">
 ### Translating code
 
 When Node sees `await` and `async`
@@ -402,7 +427,12 @@ and our `try`/`catch` doesn't help us
 
 [% inc pat="return-immediately.*" fill="js out" %]
 
-[% figure slug="async-programming-handling-errors" img="handling-errors.svg" alt="Handling asynchronous errors" caption="Wrong and right ways to handle errors in asynchronous code." %]
+[% figure
+   slug="async-programming-handling-errors"
+   img="handling-errors.svg"
+   alt="Handling asynchronous errors"
+   caption="Wrong and right ways to handle errors in asynchronous code."
+%]
 
 One solution to this problem is to be consistent and always return something.
 Because the function is declared `async`,
@@ -424,7 +454,6 @@ but whichever you choose,
 please be consistent.
 {: .continue}
 
-<div class="break-before"></div>
 ## Exercises {: #async-programming-exercises}
 
 ### Immediate versus next tick {: .exercise}

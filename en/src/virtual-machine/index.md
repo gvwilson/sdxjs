@@ -37,7 +37,12 @@ for a program made up of 110 instructions:
     Both the program and its data live in this single block of memory;
     we chose the size 256 so that each address will fit in a single byte.
 
-[% figure slug="virtual-machine-architecture" img="architecture.svg" alt="Virtual machine architecture" caption="Architecture of the virtual machine." %]
+[% figure
+   slug="virtual-machine-architecture"
+   img="architecture.svg"
+   alt="Virtual machine architecture"
+   caption="Architecture of the virtual machine."
+%]
 
 The instructions for our VM are 3 bytes long.
 The [%i "op code" "virtual machine!op code" %][%g op_code "op code" %][%/i%] fits into one byte,
@@ -54,7 +59,7 @@ where `r` indicates a register identifier,
 `c` indicates a constant,
 and `a` indicates an address.
 
-<div class="table break-before" id="virtual-machine-op-codes" caption="Virtual machine op codes." markdown="1">
+<div class="table" id="virtual-machine-op-codes" caption="Virtual machine op codes." markdown="1">
 | Instruction | Code | Format | Action              | Example      | Equivalent                |
 | ----------- | ---- | ------ | ------------------- | ------------ | ------------------------- |
 |  `hlt`      |    1 | `--`   | Halt program        | `hlt`        | `process.exit(0)`         |
@@ -105,9 +110,14 @@ to extract the op code and operands from the instruction
 
 [% inc file="vm-base.js" keep="fetch" %]
 
-[% figure slug="virtual-machine-unpacking" img="unpacking.svg" alt="Unpacking instructions" caption="Using bitwise operations to unpack instructions." %]
+[% figure
+   slug="virtual-machine-unpacking"
+   img="unpacking.svg"
+   alt="Unpacking instructions"
+   caption="Using bitwise operations to unpack instructions."
+%]
 
-<blockquote class="break-before" markdown="1">
+<blockquote markdown="1">
 ### Semi-realistic
 
 We always unpack two operands regardless of whether the instructions has them or not,
@@ -173,7 +183,12 @@ this program prints the numbers from 0 to 2
 
 [% inc pat="count-up.*" fill="as mx" %]
 
-[% figure slug="virtual-machine-count-up" img="count-up.svg" alt="Counting from 0 to 2" caption="Flowchart of assembly language program to count up from 0 to 2." %]
+[% figure
+   slug="virtual-machine-count-up"
+   img="count-up.svg"
+   alt="Counting from 0 to 2"
+   caption="Flowchart of assembly language program to count up from 0 to 2."
+%]
 
 Let's trace this program's execution
 ([%f virtual-machine-trace-counter %]):
@@ -187,7 +202,12 @@ Let's trace this program's execution
     which takes three instructions.
 1.  If the program *doesn't* jump back, it halts.
 
-[% figure slug="virtual-machine-trace-counter" img="trace-counter.svg" alt="Trace counting program" caption="Tracing registers and memory values for a simple counting program." %]
+[% figure
+   slug="virtual-machine-trace-counter"
+   img="trace-counter.svg"
+   alt="Trace counting program"
+   caption="Tracing registers and memory values for a simple counting program."
+%]
 
 The implementation of the assembler mirrors the simplicity of assembly language.
 The main method gets interesting lines,
@@ -241,7 +261,12 @@ by using `.data` on a line of its own to mark the start of the data section
 and then `label: number` to give a region a name and allocate some storage space
 ([%f virtual-machine-storage-allocation %]).
 
-[% figure slug="virtual-machine-storage-allocation" img="storage-allocation.svg" alt="Storage allocation" caption="Allocating storage for arrays in the virtual machine." %]
+[% figure
+   slug="virtual-machine-storage-allocation"
+   img="storage-allocation.svg"
+   alt="Storage allocation"
+   caption="Allocating storage for arrays in the virtual machine."
+%]
 
 This enhancement only requires a few changes to the assembler.
 First,
@@ -273,7 +298,6 @@ let's fill an array with the numbers from 0 to 3:
 > and talk to the world,
 > [%b Patterson2017 %] has everything you want to know and more.
 
-<div class="break-before"></div>
 ## Exercises {: #virtual-machine-exercises}
 
 ### Swapping values {: .exercise}
@@ -336,7 +360,7 @@ The C programming language stored character strings as non-zero bytes terminated
 4.  Using these instructions,
     write a subroutine that evaluates `2x+1` for every value in an array.
 
-### Disassembling instructions {: .exercise .break-before}
+### Disassembling instructions {: .exercise}
 
 A [%g disassembler "disassembler" %] turns machine instructions into assembly code.
 Write a disassembler for the instruction set used by our virtual machine.

@@ -53,7 +53,12 @@ one of the assertions we put in the test as a check
 ([%f unit-test-mental-model %]).
 Any other kind of assertion indicates that the test itself contains an error.
 
-[% figure slug="unit-test-mental-model" img="mental-model.svg" alt="Mental model of unit testing" caption="Running tests that can pass, fail, or contain errors." %]
+[% figure
+   slug="unit-test-mental-model"
+   img="mental-model.svg"
+   alt="Mental model of unit testing"
+   caption="Running tests that can pass, fail, or contain errors."
+%]
 
 ## How can we separate registration, execution, and reporting? {: #unit-test-design}
 
@@ -145,7 +150,12 @@ it can call `Hope.test` to record a test for later execution
 and `Hope.run` to execute all of the tests registered up until that point
 ([%f unit-test-hope-structure %]).
 
-[% figure slug="unit-test-hope-structure" img="hope-structure.svg" alt="Recording and running tests" caption="Creating a singleton, recording tests, and running them." %]
+[% figure
+   slug="unit-test-hope-structure"
+   img="hope-structure.svg"
+   alt="Recording and running tests"
+   caption="Creating a singleton, recording tests, and running them."
+%]
 
 <div class="pagebreak"></div>
 
@@ -278,9 +288,13 @@ when a pair of files `test-add.js` and `test-sub.js` are loaded by our framework
 10.  `pray` can now ask the unique instance of `Hope` to run all of the tests,
      then get a report from the `Hope` singleton and display it.
 
-[% figure slug="unit-test-lifecycle" img="lifecycle.svg" alt="Unit testing lifecycle" caption="Lifecycle of dynamically-discovered unit tests." %]
+[% figure
+   slug="unit-test-lifecycle"
+   img="lifecycle.svg"
+   alt="Unit testing lifecycle"
+   caption="Lifecycle of dynamically-discovered unit tests."
+%]
 
-<div class="break-before"></div>
 ## Exercises {: #unit-test-exercises}
 
 ### Asynchronous globbing {: .exercise}
@@ -407,7 +421,7 @@ exactly once before each test in that file.
 Add a similar way to register a teardown function with `hope.teardown`.
 {: .continue}
 
-### Multiple tests {: .exercise .break-before}
+### Multiple tests {: .exercise}
 
 Add a method `hope.multiTest` that allows users to specify
 multiple test cases for a function at once.

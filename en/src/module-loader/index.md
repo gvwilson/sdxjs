@@ -31,7 +31,12 @@ then defined another function inside the first
 and return that [%i "inner function" "function!inner" %][%g inner_function "inner function" %][%/i%],
 that inner function will be the only thing with references to those variables.
 
-[% figure slug="module-loader-closures" img="closures.svg" alt="How closures work" caption="Using closures to create private variables." %]
+[% figure
+   slug="module-loader-closures"
+   img="closures.svg"
+   alt="How closures work"
+   caption="Using closures to create private variables."
+%]
 
 For example,
 let's create a function that always appends the same string to its argument:
@@ -87,9 +92,19 @@ we call the object we pass in `result` in `loadModule`.
 
 [% inc file="load-module-only.js" %]
 
-[% figure slug="module-loader-iife-a" img="iife-a.svg" alt="Implementing modules with IIFEs (part 1)" caption="Using IIFEs to encapsulate modules and get their exports (part 1)." %]
+[% figure
+   slug="module-loader-iife-a"
+   img="iife-a.svg"
+   alt="Implementing modules with IIFEs (part 1)"
+   caption="Using IIFEs to encapsulate modules and get their exports (part 1)."
+%]
 
-[% figure slug="module-loader-iife-b" img="iife-b.svg" alt="Implementing modules with IIFEs (part 2)" caption="Using IIFEs to encapsulate modules and get their exports (part 2)." %]
+[% figure
+   slug="module-loader-iife-b"
+   img="iife-b.svg"
+   alt="Implementing modules with IIFEs (part 2)"
+   caption="Using IIFEs to encapsulate modules and get their exports (part 2)."
+%]
 
 [%f module-loader-iife-a %] and [%f module-loader-iife-b %] show the structure of our loader so far.
 We can use this code as a test:
@@ -126,7 +141,12 @@ But interpreted languages usually run code as they're loading it,
 so if X is in the process of loading Y and Y tries to call X,
 X may not (fully) exist yet.
 
-[% figure slug="module-loader-circularity" img="circularity.svg" alt="Circularity test case" caption="Testing circular imports." %]
+[% figure
+   slug="module-loader-circularity"
+   img="circularity.svg"
+   alt="Circularity test case"
+   caption="Testing circular imports."
+%]
 
 Circular dependencies work in [%i "Python" %][Python][python][%/i%],
 but only sort of.
@@ -246,7 +266,6 @@ Our system can therefore only run loaded modules by `need`ing them:
 > but a lot of the difficulty is irreducible,
 > so don't feel bad if it takes you a while to wrap your head around it.
 
-<div class="break-before"></div>
 ## Exercises {: #module-loader-exercises}
 
 ### Counting with closures {: .exercise}
@@ -332,7 +351,7 @@ and `plugin.js` contains this:
 Refactor this code so that it works correctly while still using `require` rather than `import`.
 {: .continue}
 
-### An LRU cache {: .exercise .break-before}
+### An LRU cache {: .exercise}
 
 A [%g lru_cache "Least Recently Used (LRU) cache" %]
 reduces access time while limiting the amount of memory used

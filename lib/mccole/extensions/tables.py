@@ -78,9 +78,14 @@ def table_caption(text, node):
 
 def _table_caption_replace(match):
     caption = util.markdownify(match.group(1))
-    cls = match.group(2)
+    cls = match.group(2).split()
+    util.require(cls[0] == "table", f"Bad class(es) for table {cls}")
     slug = match.group(4)
     table = util.get_config("tables")[slug]
     label = util.make_label("table", table.number)
     cap = f"<caption>{label}: {caption}</caption>"
-    return f'<div class="{cls}"><table id="{slug}">{cap}'
+    tbl_cls = ' class="table-here"' if "table-here" in cls else ""
+    result = f'<div class="table"><table id="{slug}"{tbl_cls}>{cap}'
+    if "pagebreak" in cls:
+        result = '<div class="pagebreak"></div>\n{result}'
+    return result

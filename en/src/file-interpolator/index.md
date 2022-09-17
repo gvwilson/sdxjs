@@ -17,7 +17,12 @@ with [%i "header file!in C and C++" %][%g header_file "header files" %][%/i%],
 and [%i "static site generator!header file" "header file!static site generator" %]static site generators[%/i%]
 ([%x page-templates %]) do this to share fragments of HTML.
 
-[% figure slug="file-interpolator-conceptual" img="conceptual.svg" alt="Using file inclusions" caption="Including fragments of code to create runnable programs." %]
+[% figure
+   slug="file-interpolator-conceptual"
+   img="conceptual.svg"
+   alt="Using file inclusions"
+   caption="Including fragments of code to create runnable programs."
+%]
 
 The special comments in our source files contain two fields:
 the text to put in the displayed version
@@ -54,7 +59,12 @@ We can do the second and third steps whenever we want using a function called `e
 which takes a string as input and executes it as if it were part of the program
 ([%f file-interpolator-eval %]).
 
-[% figure slug="file-interpolator-eval" img="eval.svg" alt="How eval works" caption="`eval` vs. normal translation and execution." %]
+[% figure
+   slug="file-interpolator-eval"
+   img="eval.svg"
+   alt="How eval works"
+   caption="`eval` vs. normal translation and execution."
+%]
 
 > ### This is not a good idea
 >
@@ -156,7 +166,12 @@ if not,
 we read it and add it to the cache
 using the file path as a lookup key.
 
-[% figure slug="file-interpolator-cache" img="cache.svg" alt="Implementing a cache as a singleton" caption="Using the Singleton pattern to implement a cache of loaded files." %]
+[% figure
+   slug="file-interpolator-cache"
+   img="cache.svg"
+   alt="Implementing a cache as a singleton"
+   caption="Using the Singleton pattern to implement a cache of loaded files."
+%]
 
 We can write a simple cache in just a few lines of code:
 
@@ -205,7 +220,12 @@ we go through the directories in the search path in order
 until we find a file with a matching name
 ([%f file-interpolator-search-path %]).
 
-[% figure slug="file-interpolator-search-path" img="search-path.svg" alt="Implementing a search path" caption="Using a colon-separated list of directories as a search path." %]
+[% figure
+   slug="file-interpolator-search-path"
+   img="search-path.svg"
+   alt="Implementing a search path"
+   caption="Using a colon-separated list of directories as a search path."
+%]
 
 > ### That's just how it is
 >
@@ -357,7 +377,6 @@ but it never really caught on---unfortunately,
 most programming systems that describe themselves as "literate" these days
 only implement part of [%i "Knuth, Donald" %][Donald Knuth's][knuth-donald][%/i%] original vision.
 
-<div class="break-before"></div>
 ## Exercises {: #file-interpolator-exercises}
 
 ### Security concerns {: .exercise}

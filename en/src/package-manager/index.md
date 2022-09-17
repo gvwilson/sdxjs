@@ -84,7 +84,12 @@ Each point on the grid is a possible combination of package versions.
 We can block out regions of this grid using the constraints on the package versions;
 whatever points are left when we're done represent legal combinations.
 
-[% figure slug="package-manager-allowable" img="allowable.svg" alt="Allowable versions" caption="Finding allowable combinations of package versions." %]
+[% figure
+   slug="package-manager-allowable"
+   img="allowable.svg"
+   alt="Allowable versions"
+   caption="Finding allowable combinations of package versions."
+%]
 
 For example,
 suppose we have the set of requirements shown in [%t package-manager-example-dependencies %].
@@ -129,7 +134,7 @@ we would need to add rules for resolving ties.
 | Z/3     |          |
 </div>
 
-<div class="table break-before" id="package-manager-example-result" caption="Result for example package dependencies." markdown="1">
+<div class="table" id="package-manager-example-result" caption="Result for example package dependencies." markdown="1">
 |   X |   Y |   Z | Excluded  |
 | --- | --- | --- | --------- |
 |   1 |   1 |   1 | Y/1 - Z/1 |
@@ -237,7 +242,6 @@ it turns out that 9 of the 17 exclusions are redundant rediscovery of a previous
 |           |   2 |   2 |   2 |
 </div>
 
-<div class="break-before"></div>
 ## How can we do less work? {: #package-manager-optimize}
 
 In order to make this more efficient we need to [%i "prune (a search tree)" %][%g prune "prune" %][%/i%] the search tree
@@ -247,7 +251,12 @@ After all,
 if we know that X and Y are incompatible,
 there is no need to check Z as well.
 
-[% figure slug="package-manager-pruning" img="pruning.svg" alt="Pruning the search tree" caption="Pruning options in the search tree to reduce work." %]
+[% figure
+   slug="package-manager-pruning"
+   img="pruning.svg"
+   alt="Pruning the search tree"
+   caption="Pruning options in the search tree to reduce work."
+%]
 
 This version of the program collects possible solutions and displays them at the end.
 It only keeps checking a partial solution if what it has found so far looks good:
@@ -294,7 +303,6 @@ but most give better performance in most cases.
 > and most ideas turn out to be dead ends,
 > but even small improvements in fundamental tools can have a profound impact.
 
-<div class="break-before"></div>
 ## Exercises {: #package-manager-exercises}
 
 ### Comparing semantic versions {: .exercise}
