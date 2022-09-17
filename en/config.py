@@ -109,6 +109,7 @@ exclude = [
     "*.csv",
     "*.gz",
     "*.ht",
+    "*.js",
     "*.json",
     "*.mk",
     "*.mx",
