@@ -69,31 +69,35 @@ the output will be standard HTML without any traces of how it was created:
 
 [% inc file="output-loop.html" %]
 
-> ### Human-readable vs. machine-readable
->
-> The introduction said that mini-languages for page templating
-> quickly start to accumulate extra features.
-> We have already started down that road
-> by putting the loop variable and loop target in a single attribute
-> and splitting that attribute to get them out.
-> Doing this makes loops easy for people to type,
-> but hides important information from standard HTML processing tools.
-> They can't know that this particular attribute of these particular elements
-> contains multiple values
-> or that those values should be extracted by splitting a string on a colon.
-> We could instead require people to use two attributes, as in:
->
-> ```html
-> <ul z-loop="names" z-loop-var="item">
-> ```
->
-> but we have decided to err on the side of minimal typing.
-> And note that strictly speaking,
-> we should call our attributes `data-something` instead of `z-something`
-> to conform with [%i "HTML5 specification" %][the HTML5 specification][html5-data-attributes][%/i%],
-> but by the time we're finished processing our templates,
-> there shouldn't be any `z-*` attributes left to confuse a browser.
+<div class="callout" markdown="1">
+
+### Human-readable vs. machine-readable
+
+The introduction said that mini-languages for page templating
+quickly start to accumulate extra features.
+We have already started down that road
+by putting the loop variable and loop target in a single attribute
+and splitting that attribute to get them out.
+Doing this makes loops easy for people to type,
+but hides important information from standard HTML processing tools.
+They can't know that this particular attribute of these particular elements
+contains multiple values
+or that those values should be extracted by splitting a string on a colon.
+We could instead require people to use two attributes, as in:
+
+```html
+<ul z-loop="names" z-loop-var="item">
+```
+
+but we have decided to err on the side of minimal typing.
+And note that strictly speaking,
+we should call our attributes `data-something` instead of `z-something`
+to conform with [%i "HTML5 specification" %][the HTML5 specification][html5-data-attributes][%/i%],
+but by the time we're finished processing our templates,
+there shouldn't be any `z-*` attributes left to confuse a browser.
 {: .continue}
+
+</div>
 
 The next step is to define the API for filling in templates.
 Our tool needs the template itself,
@@ -124,15 +128,19 @@ Each [%i "stack frame" %][%g stack_frame "stack frame" %][%/i%] is an object wit
 when we need to find a variable,
 we look through the stack frames in order to find the uppermost definition of that variable..
 
-> ### Scoping rules
->
-> Searching the stack [%i "call stack!stack frame" "stack frame" %]frame[%/i%]-by-frame
-> while the program is running
-> is called is [%i "dynamic scoping" "scoping!dynamic" %][%g dynamic_scoping "dynamic scoping" %][%/i%],
-> since we find variables while the program is running.
-> In contrast,
-> most programming languages used [%i "lexical scoping" "scoping!lexical" %][%g lexical_scoping "lexical scoping" %][%/i%],
-> which figures out what a variable name refers to based on the structure of the program text.
+<div class="callout" markdown="1">
+
+### Scoping rules
+
+Searching the stack [%i "call stack!stack frame" "stack frame" %]frame[%/i%]-by-frame
+while the program is running
+is called is [%i "dynamic scoping" "scoping!dynamic" %][%g dynamic_scoping "dynamic scoping" %][%/i%],
+since we find variables while the program is running.
+In contrast,
+most programming languages used [%i "lexical scoping" "scoping!lexical" %][%g lexical_scoping "lexical scoping" %][%/i%],
+which figures out what a variable name refers to based on the structure of the program text.
+
+</div>
 
 The values in a running program are sometimes called
 an [%i "environment (to store variables)" "call stack!environment" %][%g environment "environment" %][%/i%],

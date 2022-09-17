@@ -54,13 +54,17 @@ Node sets the callback aside for the requested length of time,
 then adds it to the run queue.
 (This means the task runs *at least* the specified number of milliseconds later).
 
-> ### Why zero arguments?
->
-> `setTimeout`'s requirement that callback functions take no arguments
-> is another example of a [%i "protocol!API as" "API!as protocol" %][%g protocol "protocol" %][%/i%].
-> One way to think about it is that protocols allow old code to use new code:
-> whoever wrote `setTimeout` couldn't know what specific tasks we want to delay,
-> so they specified a way to wrap up any task at all.
+<div class="callout" markdown="1">
+
+### Why zero arguments?
+
+`setTimeout`'s requirement that callback functions take no arguments
+is another example of a [%i "protocol!API as" "API!as protocol" %][%g protocol "protocol" %][%/i%].
+One way to think about it is that protocols allow old code to use new code:
+whoever wrote `setTimeout` couldn't know what specific tasks we want to delay,
+so they specified a way to wrap up any task at all.
+
+</div>
 
 As the listing below shows,
 the original task can generate many new tasks before it completes,
@@ -199,17 +203,21 @@ the whole class looks like this:
 
 [% inc file="pledge.js" %]
 
-> ### Binding `this`
->
-> `Pledge`'s constructor makes two calls to a special function called [%i "bind method to object" %]`bind`[%/i%].
-> When we create an object `obj` and call a method `meth`,
-> JavaScript sets the special variable `this` to `obj` inside `meth`.
-> If we use a method as a callback,
-> though,
-> `this` isn't automatically set to the correct object.
-> To convert the method to a plain old function with the right `this`,
-> we have to use `bind`.
-> [The documentation][bind-docs] has more details and examples.
+<div class="callout" markdown="1">
+
+### Binding `this`
+
+`Pledge`'s constructor makes two calls to a special function called [%i "bind method to object" %]`bind`[%/i%].
+When we create an object `obj` and call a method `meth`,
+JavaScript sets the special variable `this` to `obj` inside `meth`.
+If we use a method as a callback,
+though,
+`this` isn't automatically set to the correct object.
+To convert the method to a plain old function with the right `this`,
+we have to use `bind`.
+[The documentation][bind-docs] has more details and examples.
+
+</div>
 
 Let's create a `Pledge` and return a value:
 
@@ -302,16 +310,21 @@ Our first step is to count the lines in a single file:
 
 [% inc pat="count-lines-single-file.*" fill="js sh out" %]
 
-> ### Character encoding
->
-> A [%i "character encoding" %][%g character_encoding "character encoding" %][%/i%] specifies how characters are stored as bytes.
-> The most widely used is [%i "UTF-8" "character encoding!UTF-8" %][%g utf_8 "UTF-8" %][%/i%],
-> which stores characters common in Western European languages in a single byte
-> and uses multi-byte sequences for other symbols.
-> If we don't specify a character encoding,
-> `fs.readFileAsync` gives us an array of bytes rather than a string of characters.
-> We can tell we've made this mistake when we try to call a method of `String`
-> and Node tells us we can't.
+<div class="callout" markdown="1">
+
+### Character encoding
+
+A [%i "character encoding" %][%g character_encoding "character encoding" %][%/i%]
+specifies how characters are stored as bytes.
+The most widely used is [%i "UTF-8" "character encoding!UTF-8" %][%g utf_8 "UTF-8" %][%/i%],
+which stores characters common in Western European languages in a single byte
+and uses multi-byte sequences for other symbols.
+If we don't specify a character encoding,
+`fs.readFileAsync` gives us an array of bytes rather than a string of characters.
+We can tell we've made this mistake when we try to call a method of `String`
+and Node tells us we can't.
+
+</div>
 
 The next step is to count the lines in multiple files.
 We can use `glob-promise` to delay handling the output of `glob`,
@@ -358,15 +371,19 @@ we create another temporary object to pass information down the chain of `then`s
 This code is complex, but much simpler than it would be if we were using callbacks.
 {: .continue}
 
-> ### Lining things up
->
-> This code uses the expression `{filename, stats}`
-> to create an object whose keys are `filename` and `stats`,
-> and whose values are the values of the corresponding variables.
-> Doing this makes the code easier to read,
-> both because it's shorter
-> but also because it signals that the value associated with the key `filename`
-> is exactly the value of the variable with the same name.
+<div class="callout" markdown="1">
+
+### Lining things up
+
+This code uses the expression `{filename, stats}`
+to create an object whose keys are `filename` and `stats`,
+and whose values are the values of the corresponding variables.
+Doing this makes the code easier to read,
+both because it's shorter
+but also because it signals that the value associated with the key `filename`
+is exactly the value of the variable with the same name.
+
+</div>
 
 ## How can we make this more readable? {: #async-programming-readable}
 

@@ -157,6 +157,12 @@ def handle(node, state, accum, doEscape):
         children(node, state, accum, doEscape)
         accum.append("\n\n")
 
+    # <div class="callout"> => create a callout
+    elif node_match(node, "div", "callout"):
+        accum.append("\\begin{callout}\n")
+        children(node, state, accum, doEscape)
+        accum.append("\\end{callout}\n")
+
     # <div class="code-sample"> => pass through
     elif node_match(node, "div", "code-sample"):
         children(node, state, accum, doEscape)
@@ -232,8 +238,8 @@ def handle(node, state, accum, doEscape):
             accum.append(title)
             accum.append("}\n")
 
-    # <h3> inside <blockquote> => callout title
-    elif (node.name == "h3") and (node.parent.name == "blockquote"):
+    # <h3> inside <div class="callout"> => callout title
+    elif (node.name == "h3") and (node.parent.name == "div") and has_class(node.parent, "callout"):
         accum.append("\n")
         accum.append(r"\subsubsection*{")
         children(node, state, accum, doEscape)

@@ -87,13 +87,17 @@ Our build manager must:
 1.  Build those targets,
     making sure to build things *before* anything that depends on them is built.
 
-> ### Topological order
->
-> A [%i "topological order" %][%g topological_order "topological ordering" %][%/i%] of a graph
-> arranges the nodes so that every node comes after everything it depends on.
-> For example,
-> if A depends on both B and C,
-> then (B, C, A) and (C, B, A) are both valid topological orders of the graph.
+<div class="callout" markdown="1">
+
+### Topological order
+
+A [%i "topological order" %][%g topological_order "topological ordering" %][%/i%] of a graph
+arranges the nodes so that every node comes after everything it depends on.
+For example,
+if A depends on both B and C,
+then (B, C, A) and (C, B, A) are both valid topological orders of the graph.
+
+</div>
 
 ## Where should we start? {: #build-manager-start}
 
@@ -224,17 +228,20 @@ we add a step to `buildGraph` to read the timestamp file and add information to 
 
 [% inc file="add-stamps.js" %]
 
-> ### Not quite what we were expecting
->
-> The steps defined in `SkeletonBuilder.build` don't change when we do this,
-> so people reading the code don't have to change their mental model of what it does overall.
-> However,
-> if we had realized in advance that we were going to want to add timestamps from a file,
-> we would probably have added a step for that in the template method.
-> And if someone ever wants to inject a new step between building the graph and adding timestamps,
-> they will have to override `addTimestamps` and put their step at the top before calling `super.addTimestamps`,
-> which will make the code a lot harder to understand.
-> We will reflect on this in the last section of this chapter.
+<div class="callout" markdown="1">
+
+### Not quite what we were expecting
+
+The steps defined in `SkeletonBuilder.build` don't change when we do this,
+so people reading the code don't have to change their mental model of what it does overall.
+However,
+if we had realized in advance that we were going to want to add timestamps from a file,
+we would probably have added a step for that in the template method.
+And if someone ever wants to inject a new step between building the graph and adding timestamps,
+they will have to override `addTimestamps` and put their step at the top before calling `super.addTimestamps`,
+which will make the code a lot harder to understand.
+
+</div>
 
 Before we move on,
 let's make sure that adding timestamps works as we want:
@@ -351,18 +358,22 @@ As a result,
 we wind up tripping over the lack of a node for `%.in` before we get to extracting rules.
 {: .continue}
 
-> ### Errors become assertions
->
-> When we first wrote `add-stamps.js`,
-> it didn't contain the assertion
-> that printed the error message shown above.
-> Once we tracked down our bug,
-> though,
-> we added the assertion to ensure we didn't make the same mistake again,
-> and as [%i "runnable documentation (assertions as)" "assertion!as runnable documentation" %][%g runnable_documentation "runnable documentation" %][%/i%]
-> to tell the next programmer more about the code.
-> Regular code tells the computer what to do;
-> assertions with meaningful error messages tell the reader why.
+<div class="callout" markdown="1">
+
+### Errors become assertions
+
+When we first wrote `add-stamps.js`,
+it didn't contain the assertion
+that printed the error message shown above.
+Once we tracked down our bug,
+though,
+we added the assertion to ensure we didn't make the same mistake again,
+and as [%i "runnable documentation (assertions as)" "assertion!as runnable documentation" %][%g runnable_documentation "runnable documentation" %][%/i%]
+to tell the next programmer more about the code.
+Regular code tells the computer what to do;
+assertions with meaningful error messages tell the reader why.
+
+</div>
 
 We can fix our problem by rewriting the rule loader
 to separate pattern rules from simple rules;

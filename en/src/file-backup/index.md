@@ -55,23 +55,27 @@ These are not random enough to keep data secret from a patient, well-funded atta
 but that's not what we're using them for:
 we just want hashes that are random to make [%i "hash function!collision" "collision (in hashing)" %][%g collision "collision" %][%/i%] extremely unlikely.
 
-> ### The Birthday Problem
->
-> The odds that two people share a birthday are 1/365 (ignoring February 29).
-> The odds that they *don't* are therefore 364/365.
-> When we add a third person,
-> the odds that they don't share a birthday with either of the preceding two people are 363/365,
-> so the overall odds that nobody shares a birthday are (365/365)×(364/365)×(363/365).
-> If we keep calculating, there's a 50% chance of two people sharing a birthday in a group of just 23 people,
-> and a 99.9% chance with 70 people.
->
-> We can use the same math to calculate how many files we need to hash before there's a 50% chance of a collision.
-> Instead of 365, we use \\(2^{160}\\) (the number of values that are 160 bits long),
-> and after checking [Wikipedia][wikipedia-birthday-problem]
-> and doing a few calculations with [%i "Wolfram Alpha" %][Wolfram Alpha][wolfram-alpha][%/i%],
-> we calculate that we would need to have approximately \\(10^{24}\\) files
-> in order to have a 50% chance of a collision.
-> We're willing to take that risk.
+<div class="callout" markdown="1">
+
+### The Birthday Problem
+
+The odds that two people share a birthday are 1/365 (ignoring February 29).
+The odds that they *don't* are therefore 364/365.
+When we add a third person,
+the odds that they don't share a birthday with either of the preceding two people are 363/365,
+so the overall odds that nobody shares a birthday are (365/365)×(364/365)×(363/365).
+If we keep calculating, there's a 50% chance of two people sharing a birthday in a group of just 23 people,
+and a 99.9% chance with 70 people.
+
+We can use the same math to calculate how many files we need to hash before there's a 50% chance of a collision.
+Instead of 365, we use \\(2^{160}\\) (the number of values that are 160 bits long),
+and after checking [Wikipedia][wikipedia-birthday-problem]
+and doing a few calculations with [%i "Wolfram Alpha" %][Wolfram Alpha][wolfram-alpha][%/i%],
+we calculate that we would need to have approximately \\(10^{24}\\) files
+in order to have a 50% chance of a collision.
+We're willing to take that risk.
+
+</div>
 
 [Node's][nodejs] [`crypto`][node-crypto] module provides tools to create a SHA-1 hash.
 To use them,
@@ -202,19 +206,23 @@ where `ssssssssss` is the [%g utc "UTC" %] [%g timestamp "timestamp" %] of the b
 and the `.csv` extension indicates that the file is formatted as [%g csv "comma-separated values" %].
 (We could store these files as [%g json "JSON" %], but CSV is easier for people to read.)
 
-> ### Time of check/time of use
->
-> Our naming convention for index files will fail if we try to create more than one backup per second.
-> This might seem very unlikely,
-> but many faults and security holes are the result of programmers assuming things weren't going to happen.
->
-> We could try to avoid this problem by using a two-part naming scheme `ssssssss-a.csv`,
-> `ssssssss-b.csv`, and so on,
-> but this leads to a [%i "race condition" %][%g race_condition "race condition" %][%/i%]
-> called [%i "race condition!time of check/time of use" "time of check/time of use" %][%g toctou "time of check/time of use" %][%/i%].
-> If two users run the backup tool at the same time,
-> they will both see that there isn't a file (yet) with the current timestamp,
-> so they will both try to create the first one.
+<div class="callout" markdown="1">
+
+### Time of check/time of use
+
+Our naming convention for index files will fail if we try to create more than one backup per second.
+This might seem very unlikely,
+but many faults and security holes are the result of programmers assuming things weren't going to happen.
+
+We could try to avoid this problem by using a two-part naming scheme `ssssssss-a.csv`,
+`ssssssss-b.csv`, and so on,
+but this leads to a [%i "race condition" %][%g race_condition "race condition" %][%/i%]
+called [%i "race condition!time of check/time of use" "time of check/time of use" %][%g toctou "time of check/time of use" %][%/i%].
+If two users run the backup tool at the same time,
+they will both see that there isn't a file (yet) with the current timestamp,
+so they will both try to create the first one.
+
+</div>
 
 [% inc file="check-existing-files.js" %]
 
@@ -304,7 +312,8 @@ and then run some tests:
 [% inc file="test/test-backup.js" keep="tests" %]
 [% inc file="test-backup.out" %]
 
-<blockquote markdown="1">
+<div class="callout" markdown="1">
+
 ### Design for test
 
 One of the best ways---maybe *the* best way---to evaluate software design
@@ -315,7 +324,8 @@ that is provided to us in a single library,
 so replacing it is a matter of changing one thing in one place.
 If you have to change several parts of your code in order to test it,
 the code is telling you to consolidate those parts into one component.
-</blockquote>
+
+</div>
 
 ## Exercises {: #file-backup-exercises}
 

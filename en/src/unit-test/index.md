@@ -75,14 +75,18 @@ in the `HopeTest` array.
 
 [% inc file="dry-run.js" keep="save" %]
 
-> ### Independence
->
-> Because we're appending tests to an array,
-> they will be run in the order in which they are registered,
-> but we shouldn't rely on that.
-> Every unit test should work independently of every other
-> so that an error or failure in an early test
-> doesn't affect the result of a later one.
+<div class="callout" markdown="1">
+
+### Independence
+
+Because we're appending tests to an array,
+they will be run in the order in which they are registered,
+but we shouldn't rely on that.
+Every unit test should work independently of every other
+so that an error or failure in an early test
+doesn't affect the result of a later one.
+
+</div>
 
 Finally,
 the function `main` runs all registered tests:
@@ -166,20 +170,24 @@ so that if someone wants to format them in a different way (e.g., as HTML) they 
 
 [% inc file="hope.js" keep="report" %]
 
-> ### Who's calling?
->
-> `Hope.test` uses the [%i "caller module" %][`caller`][caller][%/i%] module
-> to get the name of the function that is registering a test.
-> Reporting the test's name helps the user figure out where to start debugging;
-> getting it via introspection
-> rather than requiring the user to pass the function's name as a string
-> reduces typing
-> and guarantees that what we report is accurate.
-> Programmers will often copy, paste, and modify tests;
-> sooner or later (probably sooner) they will forget to modify
-> the copy-and-pasted function name being passed into `Hope.test`
-> and will then lose time trying to figure out why `test_this` is failing
-> when the failure is actually in `test_that`.
+<div class="callout" markdown="1">
+
+### Who's calling?
+
+`Hope.test` uses the [%i "caller module" %][`caller`][caller][%/i%] module
+to get the name of the function that is registering a test.
+Reporting the test's name helps the user figure out where to start debugging;
+getting it via introspection
+rather than requiring the user to pass the function's name as a string
+reduces typing
+and guarantees that what we report is accurate.
+Programmers will often copy, paste, and modify tests;
+sooner or later (probably sooner) they will forget to modify
+the copy-and-pasted function name being passed into `Hope.test`
+and will then lose time trying to figure out why `test_this` is failing
+when the failure is actually in `test_that`.
+
+</div>
 
 ## How can we build a command-line interface for testing? {: #unit-test-cli}
 
@@ -241,31 +249,39 @@ Given command-line arguments *after* the program's name
 it looks for patterns like `-x something`
 and creates an object with flags as keys and values associated with them.
 
-> ### Filenames in `minimist`
->
-> If we use a command line like `pray.js -v something.js`,
-> then `something.js` becomes the value of `-v`.
-> To indicate that we want `something.js` added to the list of trailing filenames
-> associated with the special key `_` (a single underscore),
-> we have to write `pray.js -v -- something.js`.
-> The double dash is a common Unix convention for signalling the end of parameters.
+<div class="callout" markdown="1">
+
+### Filenames in `minimist`
+
+If we use a command line like `pray.js -v something.js`,
+then `something.js` becomes the value of `-v`.
+To indicate that we want `something.js` added to the list of trailing filenames
+associated with the special key `_` (a single underscore),
+we have to write `pray.js -v -- something.js`.
+The double dash is a common Unix convention for signalling the end of parameters.
+
+</div>
 
 Our [%i "test runner" "unit test!test runner" %][%g test_runner "test runner" %][%/i%] is now complete,
 so we can try it out with some files containing tests that pass, fail, and contain errors:
 
 [% inc pat="pray.*" fill="sh out" %]
 
-> ### Infinity is allowed
->
-> `test-div.js` contains the line:
->
-> ```js
-> hope.test('Quotient of 1 and 0', () => assert((1 / 0) === 0))
-> ```
->
-> This test counts as a failure rather than an error
-> because thinks the result of dividing by zero is the special value `Infinity`
-> rather than an arithmetic error.
+<div class="callout" markdown="1">
+
+### Infinity is allowed
+
+`test-div.js` contains the line:
+
+```js
+hope.test('Quotient of 1 and 0', () => assert((1 / 0) === 0))
+```
+
+This test counts as a failure rather than an error
+because thinks the result of dividing by zero is the special value `Infinity`
+rather than an arithmetic error.
+
+</div>
 
 Loading modules dynamically so that they can register something for us to call later
 is a common pattern in many programming languages.

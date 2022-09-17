@@ -18,18 +18,22 @@ by parsing the code with [%i "Acorn" %][Acorn][acorn][%/i%],
 inserting the instructions we need into the [%i "abstract syntax tree" %]AST[%/i%],
 and then turning the AST back into code.
 
-> ### Simple usually isn't
->
-> At first glance it would be a lot simpler
-> to use regular expressions to find every line that looks like the start of a function definition
-> and insert a line right after each one
-> to record the information we want.
-> Of course,
-> some people split function headers across several lines if they have lots of parameters,
-> and there might be things that look like function definitions embedded in comments or strings.
-> It doesn't take long before our simple solution turns into
-> a poorly-implemented parser for a subset of JavaScript that no-one else understands.
-> Using a full-blown parser and working with the AST is almost always less work.
+<div class="callout" markdown="1">
+
+### Simple usually isn't
+
+At first glance it would be a lot simpler
+to use regular expressions to find every line that looks like the start of a function definition
+and insert a line right after each one
+to record the information we want.
+Of course,
+some people split function headers across several lines if they have lots of parameters,
+and there might be things that look like function definitions embedded in comments or strings.
+It doesn't take long before our simple solution turns into
+a poorly-implemented parser for a subset of JavaScript that no-one else understands.
+Using a full-blown parser and working with the AST is almost always less work.
+
+</div>
 
 ## How can we replace a function with another function? {: #code-generator-replace}
 
@@ -82,15 +86,19 @@ but it would be tedious to apply the decorator to every one of our functions by 
 What we really want is a way to do this automatically for everything,
 and for that we need to parse and generate code.
 
-> ### Other ways to do it
->
-> A third way to achieve what we want is
-> to let the system turn code into runnable instructions
-> and then modify those instructions.
-> This approach is often used in compiled languages like [%i "Java" %][Java][java][%/i%],
-> where the [%g byte_code "byte code" %] produced by the [%g compiler "compiler" %] is saved in files
-> in order to be run.
-> We can't do this here because Node compiles and runs code in a single step.
+<div class="callout" markdown="1">
+
+### Other ways to do it
+
+A third way to achieve what we want is
+to let the system turn code into runnable instructions
+and then modify those instructions.
+This approach is often used in compiled languages like [%i "Java" %][Java][java][%/i%],
+where the [%g byte_code "byte code" %] produced by the [%g compiler "compiler" %] is saved in files
+in order to be run.
+We can't do this here because Node compiles and runs code in a single step.
+
+</div>
 
 Our tool will parse the JavaScript with Acorn to create an AST,
 modify the AST,
@@ -149,16 +157,20 @@ and run it to make sure it all works:
 
 [% inc file="multi-func-counter.out" %]
 
-> ### Too simple to be safe
->
-> Our simple approach to naming counters doesn't work if functions can have the same names,
-> which they can if we use modules or [%i "nested function" "function!nested" %][%g nested_function "nested functions" %][%/i%].
-> One way to solve this would be to manufacture a label from the function's name
-> and the line number in the source code;
-> another would be to keep track of which functions are nested within which
-> and concatenate their names to produce a unique key.
-> Problems like this are why people say that naming things
-> is one of the [%i "two hard problems in computer science" %][%g two_hard_problems "two hard problems" %][%/i%] in computer science.
+<div class="callout" markdown="1">
+
+### Too simple to be safe
+
+Our simple approach to naming counters doesn't work if functions can have the same names,
+which they can if we use modules or [%i "nested function" "function!nested" %][%g nested_function "nested functions" %][%/i%].
+One way to solve this would be to manufacture a label from the function's name
+and the line number in the source code;
+another would be to keep track of which functions are nested within which
+and concatenate their names to produce a unique key.
+Problems like this are why people say that naming things
+is one of the [%i "two hard problems in computer science" %][%g two_hard_problems "two hard problems" %][%/i%] in computer science.
+
+</div>
 
 ## How can we time function execution? {: #code-generator-time}
 

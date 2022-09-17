@@ -112,14 +112,18 @@ When we run our program it produces this result:
 
 We will rewrite these tests using [%i "Mocha" %][Mocha][mocha][%/i%] in the exercises.
 
-> ### Test then build
->
-> We actually wrote our test cases *before* implementing the code to match query selectors
-> in order to give ourselves a goal to work toward.
-> Doing this is called [%i "test-driven development" "TDD" %][%g tdd "test-driven development" %][%/i%], or TDD;
-> while research doesn't support the claim that
-> it makes programmers more productive [%b Fucci2016 Fucci2017 %],
-> we find it helps prevent [%i "scope creep!when writing lessons" %][%g scope_creep "scope creep" %][%/i%] when writing lessons.
+<div class="callout" markdown="1">
+
+### Test then build
+
+We actually wrote our test cases *before* implementing the code to match query selectors
+in order to give ourselves a goal to work toward.
+Doing this is called [%i "test-driven development" "TDD" %][%g tdd "test-driven development" %][%/i%], or TDD;
+while research doesn't support the claim that
+it makes programmers more productive [%b Fucci2016 Fucci2017 %],
+we find it helps prevent [%i "scope creep!when writing lessons" %][%g scope_creep "scope creep" %][%/i%] when writing lessons.
+
+</div>
 
 ## How can we implement a simple regular expression matcher? {: #pattern-matching-re}
 
@@ -220,16 +224,20 @@ so that if we forget to provide `_match` in a [%g derived_class "derived class" 
 our code will fail with a meaningful reminder.
 {: .continue}
 
-> ### One interface to call them all
->
-> Our design makes use of [%i "polymorphism (in software design)" "software design!polymorphism" %][%g polymorphism "polymorphism" %][%/i%],
-> which literally means "having multiple forms".
-> If a set of objects all have methods that can be called the same way,
-> then those objects can be used interchangeably;
-> putting it another way,
-> a program can use them without knowing exactly what they are.
-> Polymorphism reduces the [%i "coupling" "software design!coupling" %][%g coupling "coupling" %][%/i%] between different parts of our program,
-> which in turn makes it easier for those programs to evolve.
+<div class="callout" markdown="1">
+
+### One interface to call them all
+
+Our design makes use of [%i "polymorphism (in software design)" "software design!polymorphism" %][%g polymorphism "polymorphism" %][%/i%],
+which literally means "having multiple forms".
+If a set of objects all have methods that can be called the same way,
+then those objects can be used interchangeably;
+putting it another way,
+a program can use them without knowing exactly what they are.
+Polymorphism reduces the [%i "coupling" "software design!coupling" %][%g coupling "coupling" %][%/i%] between different parts of our program,
+which in turn makes it easier for those programs to evolve.
+
+</div>
 
 We can now define empty versions of each matching class that all say "no match here"
 like this one for literal characters:
@@ -339,20 +347,24 @@ Each component does its part and asks something else to handle the remaining wor
 so long as each component takes the same inputs,
 we can put them together however we want.
 
-> ### The Open-Closed Principle
->
-> The [%i "Open-Closed Principle" "software design!Open-Closed Principle" %][%g open_closed_principle "Open-Closed Principle" %][%/i%] states that
-> software should be open for extension but closed for modification,
-> i.e., that it should be possible to extend functionality
-> without having to rewrite existing code.
-> As we said in [%x async-programming %],
-> this allows old code to use new code,
-> but only if our design permits the kinds of extensions people are going to want to make.
-> Since we can't anticipate everything,
-> it is normal to have to revise a design the first two or three times we try to extend it.
-> Looking at it another way,
-> the things we build learn how to do their jobs better
-> as we use them and improve them [%b Brand1995 %].
+<div class="callout" markdown="1">
+
+### The Open-Closed Principle
+
+The [%i "Open-Closed Principle" "software design!Open-Closed Principle" %][%g open_closed_principle "Open-Closed Principle" %][%/i%] states that
+software should be open for extension but closed for modification,
+i.e., that it should be possible to extend functionality
+without having to rewrite existing code.
+As we said in [%x async-programming %],
+this allows old code to use new code,
+but only if our design permits the kinds of extensions people are going to want to make.
+Since we can't anticipate everything,
+it is normal to have to revise a design the first two or three times we try to extend it.
+Looking at it another way,
+the things we build learn how to do their jobs better
+as we use them and improve them [%b Brand1995 %].
+
+</div>
 
 ## Exercises {: #pattern-matching-exercises}
 

@@ -18,13 +18,17 @@ then go through that data structure and apply rules for each part of the program
 It will also introduce us to one of the key ideas of this book,
 which is that source code is just another kind of data.
 
-> ### Don't define your own style
->
-> Just as the world doesn't need more file format ([%x regex-parser %])
-> it also doesn't need more programming styles,
-> or more arguments among programmers about whether there should be spaces before curly braces or not.
-> [%i "Standard JS" %][Standard JS][standard-js][%/i%] may not do everything exactly the way you want,
-> but adopting it increases the odds that other programmers will be able to read your code at first glance.
+<div class="callout" markdown="1">
+
+### Don't define your own style
+
+Just as the world doesn't need more file format ([%x regex-parser %])
+it also doesn't need more programming styles,
+or more arguments among programmers about whether there should be spaces before curly braces or not.
+[%i "Standard JS" %][Standard JS][standard-js][%/i%] may not do everything exactly the way you want,
+but adopting it increases the odds that other programmers will be able to read your code at first glance.
+
+</div>
 
 ## How can we parse JavaScript to create an AST? {: #style-checker-ast}
 
@@ -83,31 +87,35 @@ and report them all at the end
 
 [% inc pat="walk-ast.*" fill="js out" %]
 
-> ### There's more than one way to do it
->
-> `walk.simple` takes four arguments:
->
-> 1.  The root node of the AST, which is used as the starting point.
->
-> 2.  An object containing callback functions for handling various kinds of nodes.
->
-> 3.  Another object that specifies what algorithm to use---we have set this to `null`
->     to use the default because
->     we don't particularly care about the order in which the nodes are processed.
->
-> 4.  Something we want passed in to each of the node handlers,
->     which in our case is the `state` array.
->     If our node handling functions don't require any extra data
->     from one call to the next
->     we can leave this out;
->     if we want to accumulate information across calls,
->     this argument acts as the Visitor's memory.
->
-> Any general-purpose implementation of the Visitor pattern
-> is going to need these four things,
-> but as we will see below,
-> we can implement them in different ways.
-> {: .continue}
+<div class="callout" markdown="1">
+
+### There's more than one way to do it
+
+`walk.simple` takes four arguments:
+
+1.  The root node of the AST, which is used as the starting point.
+
+2.  An object containing callback functions for handling various kinds of nodes.
+
+3.  Another object that specifies what algorithm to use---we have set this to `null`
+    to use the default because
+    we don't particularly care about the order in which the nodes are processed.
+
+4.  Something we want passed in to each of the node handlers,
+    which in our case is the `state` array.
+    If our node handling functions don't require any extra data
+    from one call to the next
+    we can leave this out;
+    if we want to accumulate information across calls,
+    this argument acts as the Visitor's memory.
+
+Any general-purpose implementation of the Visitor pattern
+is going to need these four things,
+but as we will see below,
+we can implement them in different ways.
+{: .continue}
+
+</div>
 
 [% figure
    cls="figure-here"

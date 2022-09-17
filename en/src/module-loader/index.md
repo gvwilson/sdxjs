@@ -68,18 +68,22 @@ We can use this trick to achieve the same effect as the previous example in one 
 
 [% inc pat="automatic-namespacing.*" fill="js out" %]
 
-> ### Unconfusing the parser
->
-> The extra parentheses around the original definition force the parser to evaluate things in the right order;
-> if we write:
->
-> ```js
-> () => {...}()
-> ```
->
-> then JavaScript interprets it as a function definition followed by an empty expression
-> rather than an immediate call to the function just defined.
+<div class="callout" markdown="1">
+
+### Unconfusing the parser
+
+The extra parentheses around the original definition force the parser to evaluate things in the right order;
+if we write:
+
+```js
+() => {...}()
+```
+
+then JavaScript interprets it as a function definition followed by an empty expression
+rather than an immediate call to the function just defined.
 {: .continue}
+
+</div>
 
 ## How can we load a module? {: #module-loader-load}
 
@@ -185,17 +189,21 @@ We therefore won't try to handle circular dependencies.
 However,
 we will detect them and generate a sensible error message.
 
-> ### `import` vs. `require`
->
-> Circular dependencies work JavaScript's `import` syntax
-> because we can analyze files to determine what needs what,
-> get everything into memory,
-> and then resolve dependencies.
-> We can't do this with `require`-based code
-> because someone might create an [%i "alias!during import" "import!alias" %][%g alias "alias" %][%/i%]
-> and call `require` through that
-> or `eval` a string that contains a `require` call.
-> (Of course, they can also do these things with the function version of `import`.)
+<div class="callout" markdown="1">
+
+### `import` vs. `require`
+
+Circular dependencies work JavaScript's `import` syntax
+because we can analyze files to determine what needs what,
+get everything into memory,
+and then resolve dependencies.
+We can't do this with `require`-based code
+because someone might create an [%i "alias!during import" "import!alias" %][%g alias "alias" %][%/i%]
+and call `require` through that
+or `eval` a string that contains a `require` call.
+(Of course, they can also do these things with the function version of `import`.)
+
+</div>
 
 ## How can a module load another module? {: #module-loader-subload}
 
@@ -251,21 +259,25 @@ Our system can therefore only run loaded modules by `need`ing them:
 [% inc file="large-needless.js" %]
 [% inc pat="test-need-large-needless.*" fill="js out" %]
 
-> ### "It's so deep it's meaningless"
->
-> The programs we have written in this chapter are harder to understand
-> than most of the programs in earlier chapters
-> because they are so abstract.
-> Reading through them,
-> it's easy to get the feeling that everything is happening somewhere else.
-> Programmers' tools are often like this:
-> there's always a risk of confusing the thing in the program
-> with the thing the program is working on.
-> Drawing pictures of data structures can help,
-> and so can practicing with closures
-> (which are one of the most powerful ideas in programming),
-> but a lot of the difficulty is irreducible,
-> so don't feel bad if it takes you a while to wrap your head around it.
+<div class="callout" markdown="1">
+
+### "It's so deep it's meaningless"
+
+The programs we have written in this chapter are harder to understand
+than most of the programs in earlier chapters
+because they are so abstract.
+Reading through them,
+it's easy to get the feeling that everything is happening somewhere else.
+Programmers' tools are often like this:
+there's always a risk of confusing the thing in the program
+with the thing the program is working on.
+Drawing pictures of data structures can help,
+and so can practicing with closures
+(which are one of the most powerful ideas in programming),
+but a lot of the difficulty is irreducible,
+so don't feel bad if it takes you a while to wrap your head around it.
+
+</div>
 
 ## Exercises {: #module-loader-exercises}
 

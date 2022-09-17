@@ -9,11 +9,15 @@ so operations that might be slow are implemented by describing now what to do la
 And since anything that touches the hard drive is slow from a processor's point of view,
 [Node][nodejs] implements [%i "filesystem operations" %][%g filesystem "filesystem" %][%/i%] operations the same way.
 
-> ### How slow is slow?
->
-> [%b Gregg2020 %] used the analogy in [%t systems-programming-times %]
-> to show how long it takes a computer to do different things
-> if we imagine that one CPU cycle is equivalent to one second.
+<div class="callout" markdown="1">
+
+### How slow is slow?
+
+[%b Gregg2020 %] used the analogy in [%t systems-programming-times %]
+to show how long it takes a computer to do different things
+if we imagine that one CPU cycle is equivalent to one second.
+
+</div>
 
 <div class="table" id="systems-programming-times" caption="Computer operation times at human scale." markdown="1">
 | Operation | Actual Time | Would Be… |
@@ -60,14 +64,18 @@ which allows us to give short nicknames to libraries with long names;
 we will take advantage of this in future chapters.
 {: .continue}
 
-> ### `require` versus `import`
->
-> In 2015, a new version of JavaScript called ES6 introduced
-> the keyword [%i "import vs. require" "require vs. import" %]`import`[%/i%] for importing modules.
-> It improves on the older `require` function in several ways,
-> but Node still uses `require` by default.
-> To tell it to use `import`,
-> we have added `"type": "module"` at the top level of our Node `package.json` file.
+<div class="callout" markdown="1">
+
+### `require` versus `import`
+
+In 2015, a new version of JavaScript called ES6 introduced
+the keyword [%i "import vs. require" "require vs. import" %]`import`[%/i%] for importing modules.
+It improves on the older `require` function in several ways,
+but Node still uses `require` by default.
+To tell it to use `import`,
+we have added `"type": "module"` at the top level of our Node `package.json` file.
+
+</div>
 
 Our little program uses the [`fs`][node-fs] library
 which contains functions to create directories, read or delete files, etc.
@@ -118,13 +126,18 @@ its documentation says that it needs a callback function
 that tells it what to do when data is available,
 so we need to explore those in order to make our program work.
 
-> ### A theorem
->
-> 1.  Every program contains at least one bug.
-> 2.  Every program can be made one line shorter.
-> 3.  Therefore, every program can be reduced to a single statement which is wrong.
->
-> --- variously attributed
+<div class="callout" markdown="1">
+
+### A theorem
+
+1.  Every program contains at least one bug.
+2.  Every program can be made one line shorter.
+3.  Therefore, every program can be reduced to a single statement which is wrong.
+
+— variously attributed
+{: .continue}
+
+</div>
 
 ## What is a callback function? {: #systems-programming-callback}
 
@@ -217,15 +230,19 @@ Using an anonymous function gives us the final version of our program:
    caption="How and when JavaScript creates and runs anonymous callback functions."
 %]
 
-> ### Functions are data
->
-> As we noted above,
-> a function is just [%i "code!as data" %]another kind of data[%/i%].
-> Instead of being made up of numbers, characters, or pixels, it is made up of instructions,
-> but these are stored in memory like anything else.
-> Defining a function on the fly is no different from defining an array in-place using `[1, 3, 5]`,
-> and passing a function as an argument to another function is no different from passing an array.
-> We are going to rely on this insight over and over again in the coming lessons.
+<div class="callout" markdown="1">
+
+### Functions are data
+
+As we noted above,
+a function is just [%i "code!as data" %]another kind of data[%/i%].
+Instead of being made up of numbers, characters, or pixels, it is made up of instructions,
+but these are stored in memory like anything else.
+Defining a function on the fly is no different from defining an array in-place using `[1, 3, 5]`,
+and passing a function as an argument to another function is no different from passing an array.
+We are going to rely on this insight over and over again in the coming lessons.
+
+</div>
 
 ## How can we select a set of files? {: #systems-programming-fileset}
 
@@ -317,21 +334,25 @@ Here,
 or equivalently "contains only letters, digits, and the underscore".
 {: .continue}
 
-> ### No one knows everything
->
-> We combined `glob.glob` and `Array.filter` in our functions for more than a year
-> before someone pointed out the `ignore` option for `glob.glob`.
-> This shows:
->
-> 1.  Life is short,
->     so most of us find a way to solve the problem in front of us
->     and re-use it rather than looking for something better.
->
-> 2.  Code reviews aren't just about finding bugs:
->     they are also the most effective way to transfer knowledge between programmers.
->     Even if someone is much more experienced than you,
->     there's a good chance you might have stumbled over a better way to do something
->     than the one they're using (see point #1 above).
+<div class="callout" markdown="1">
+
+### No one knows everything
+
+We combined `glob.glob` and `Array.filter` in our functions for more than a year
+before someone pointed out the `ignore` option for `glob.glob`.
+This shows:
+
+1.  Life is short,
+    so most of us find a way to solve the problem in front of us
+    and re-use it rather than looking for something better.
+
+2.  Code reviews aren't just about finding bugs:
+    they are also the most effective way to transfer knowledge between programmers.
+    Even if someone is much more experienced than you,
+    there's a good chance you might have stumbled over a better way to do something
+    than the one they're using (see point #1 above).
+
+</div>
 
 To finish off our globbing program,
 let's specify a source directory on the command line and include that in the pattern:
@@ -387,17 +408,21 @@ rather than concatenating or interpolating strings
 because there are a lot of tricky [%g edge_case "edge cases" %] in pathnames
 that the authors of that module have figured out for us.
 
-> ### Using distinct names
->
-> We are now calling our command-line arguments `srcRoot` and `dstRoot`
-> rather than `srcDir` and `dstDir`.
-> We originally used `dstDir` as both
-> the name of the top-level destination directory (from the command line)
-> and the name of the particular output directory to create.
-> This was legal,
-> since every function creates
-> a new [%i "scope!of variable definitions" "variable definition!scope" %][%g scope "scope" %][%/i%],
-> but hard for people to understand.
+<div class="callout" markdown="1">
+
+### Using distinct names
+
+We are now calling our command-line arguments `srcRoot` and `dstRoot`
+rather than `srcDir` and `dstDir`.
+We originally used `dstDir` as both
+the name of the top-level destination directory (from the command line)
+and the name of the particular output directory to create.
+This was legal,
+since every function creates
+a new [%i "scope!of variable definitions" "variable definition!scope" %][%g scope "scope" %][%/i%],
+but hard for people to understand.
+
+</div>
 
 Our file copying program currently creates empty destination directories
 but doesn't actually copy any files.

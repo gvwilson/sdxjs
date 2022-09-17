@@ -70,14 +70,18 @@ For example,
 if one strategy works better for filter and another for select,
 the ratio of filters to selects may determine which is "best".
 
-> ### Immutability
->
-> All of our implementations will treat each data table as [%i "immutable data" %][%g immutable "immutable" %][%/i%]:
-> once we have created it,
-> we will not modify its contents.
-> This doesn't actually have much impact on performance
-> an makes the programming easier and safer,
-> since shared data structures are a rich source of bugs.
+<div class="callout" markdown="1">
+
+### Immutability
+
+All of our implementations will treat each data table as [%i "immutable data" %][%g immutable "immutable" %][%/i%]:
+once we have created it,
+we will not modify its contents.
+This doesn't actually have much impact on performance
+an makes the programming easier and safer,
+since shared data structures are a rich source of bugs.
+
+</div>
 
 For our first experiment,
 let's build a row-major table with some number of columns.
@@ -127,17 +131,21 @@ but filtering will be relatively slow since we are constructing multiple new arr
    caption="Operations on column-major data tables."
 %]
 
-> ### Not quite polymorphic
->
-> Our tests would be simpler to write if the two versions of `filter` and `select`
-> took exactly the same parameters,
-> but the row-testing functions for `filter` are different
-> because of the differences in the ways the tables are stored.
-> We could force them to be the same by (for example)
-> packing the values for each row in the column-major implementation
-> into a temporary object
-> and passing that to the same filtering function we used for the row-major implementation,
-> but that extra work would bias the performance comparison in row-major's favor.
+<div class="callout" markdown="1">
+
+### Not quite polymorphic
+
+Our tests would be simpler to write if the two versions of `filter` and `select`
+took exactly the same parameters,
+but the row-testing functions for `filter` are different
+because of the differences in the ways the tables are stored.
+We could force them to be the same by (for example)
+packing the values for each row in the column-major implementation
+into a temporary object
+and passing that to the same filtering function we used for the row-major implementation,
+but that extra work would bias the performance comparison in row-major's favor.
+
+</div>
 
 ## How can we test the performance of our implementations? {: #data-table-profile}
 
@@ -287,15 +295,19 @@ If we had "real" numbers the storage benefit would probably be more pronounced;
 once again,
 the result of our experiment depends on the test cases we choose.
 
-> ### Engineering
->
-> If science is the use of the experimental method to investigate the world,
-> engineering is the use of the experimental method
-> to investigate and improve the things that people build.
-> Good software designers collect and analyze data all the time
-> to find out whether one website design works better than another [%b Kohavi2020 %]
-> or to improve the performance of CPUs [%b Patterson2017 %];
-> a few simple experiments like these can sometimes save weeks or months of effort.
+<div class="callout" markdown="1">
+
+### Engineering
+
+If science is the use of the experimental method to investigate the world,
+engineering is the use of the experimental method
+to investigate and improve the things that people build.
+Good software designers collect and analyze data all the time
+to find out whether one website design works better than another [%b Kohavi2020 %]
+or to improve the performance of CPUs [%b Patterson2017 %];
+a few simple experiments like these can sometimes save weeks or months of effort.
+
+</div>
 
 ## Exercises {: #data-table-exercises}
 

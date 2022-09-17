@@ -216,23 +216,27 @@ We can use this to create better output ([%f doc-generator-fill-in-headers %]):
    caption="Filling in headers when generating documentation."
 %]
 
-> ### Code is data
->
-> We haven't made this point explicitly in a while,
-> so we will repeat it here:
-> [%i "code!as data" %]code is just another kind of data[%/i%],
-> and we can process it just like we would process any other data.
-> Parsing code to produce an AST is no different from parsing HTML to produce DOM;
-> in both cases we are simply transforming a textual representation that's easy for people to author
-> into a data structure that's easy for a program to manipulate.
-> Pulling things out of that data to create a report
-> is no different from pulling numbers out of a hospital database to report monthly vaccination rates.
->
-> Treating code as data enables us to do routine programming tasks with a single command,
-> which in turn gives us more time to think about the tasks that we can't (yet) automate.
-> Doing this is the foundation of a tool-based approach to software engineering;
-> as the mathematician [%i "Whitehead, Alfred North" %]Alfred North Whitehead[%/i%] once wrote,
-> "Civilization advances by extending the number of important operations which we can perform without thinking about them."
+<div class="callout" markdown="1">
+
+### Code is data
+
+We haven't made this point explicitly in a while,
+so we will repeat it here:
+[%i "code!as data" %]code is just another kind of data[%/i%],
+and we can process it just like we would process any other data.
+Parsing code to produce an AST is no different from parsing HTML to produce DOM;
+in both cases we are simply transforming a textual representation that's easy for people to author
+into a data structure that's easy for a program to manipulate.
+Pulling things out of that data to create a report
+is no different from pulling numbers out of a hospital database to report monthly vaccination rates.
+
+Treating code as data enables us to do routine programming tasks with a single command,
+which in turn gives us more time to think about the tasks that we can't (yet) automate.
+Doing this is the foundation of a tool-based approach to software engineering;
+as the mathematician [%i "Whitehead, Alfred North" %]Alfred North Whitehead[%/i%] once wrote,
+"Civilization advances by extending the number of important operations which we can perform without thinking about them."
+
+</div>
 
 ## Exercises {: #doc-generator-exercises}
 

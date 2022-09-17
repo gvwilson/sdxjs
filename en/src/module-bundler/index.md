@@ -58,16 +58,20 @@ The output we expect is:
 
 [% inc file="expected-simple.out" %]
 
-> ### Why `require`?
->
-> Our tests cases use the old-style [%i "require vs. import" "import vs. require" %]`require`[%/i%] function
-> and assign things that are to be visible outside the module to `module.exports`
-> rather than using `import` and `export`.
-> We tried writing the chapter using the latter,
-> but kept stumbling over whether we were talking about `import` in Node's module loader
-> or the `import` we were building.
-> This kind of confusion is common when building programming tools;
-> we hope that splitting terminology as we have will help.
+<div class="callout" markdown="1">
+
+### Why `require`?
+
+Our tests cases use the old-style [%i "require vs. import" "import vs. require" %]`require`[%/i%] function
+and assign things that are to be visible outside the module to `module.exports`
+rather than using `import` and `export`.
+We tried writing the chapter using the latter,
+but kept stumbling over whether we were talking about `import` in Node's module loader
+or the `import` we were building.
+This kind of confusion is common when building programming tools;
+we hope that splitting terminology as we have will help.
+
+</div>
 
 Our third test case has multiple inclusions in multiple directories
 and is shown in [%f module-bundler-complicated %]:
@@ -108,30 +112,34 @@ The code to do this is relatively straightforward given what we know about [%i "
 [% inc file="get-requires.js" %]
 [% inc pat="test-get-requires.*" fill="js sh out" %]
 
-> ### An unsolvable problem
->
-> The dependency finder shown above gives the right answer for reasonable JavaScript programs,
-> but not all JavaScript is reasonable.
-> Suppose creates an alias for `require` and uses that to load other files:
->
-> ```js
-> const req = require
-> const weWillMissThis = req('./other-file')
-> ```
->
-> We could try to trace variable assignments to catch cases like these,
-> but someone could still fool us by writing this:
->
-> ```js
-> const clever = eval(`require`)
-> const weWillMissThisToo = clever('./other-file')
-> ```
->
-> *There is no general solution to this problem*
-> other than running the code to see what it does.
-> If you would like to understand why not,
-> and learn about a pivotal moment in the history of computing,
-> we highly recommend [%b Petzold2008 %].
+<div class="callout" markdown="1">
+
+### An unsolvable problem
+
+The dependency finder shown above gives the right answer for reasonable JavaScript programs,
+but not all JavaScript is reasonable.
+Suppose creates an alias for `require` and uses that to load other files:
+
+```js
+const req = require
+const weWillMissThis = req('./other-file')
+```
+
+We could try to trace variable assignments to catch cases like these,
+but someone could still fool us by writing this:
+
+```js
+const clever = eval(`require`)
+const weWillMissThisToo = clever('./other-file')
+```
+
+*There is no general solution to this problem*
+other than running the code to see what it does.
+If you would like to understand why not,
+and learn about a pivotal moment in the history of computing,
+we highly recommend [%b Petzold2008 %].
+
+</div>
 
 To get all of the dependencies a bundle needs
 we need to find the [%i "transitive closure" %][%g transitive_closure "transitive closure" %][%/i%] of the entry point's dependencies,

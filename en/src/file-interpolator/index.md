@@ -66,17 +66,21 @@ which takes a string as input and executes it as if it were part of the program
    caption="`eval` vs. normal translation and execution."
 %]
 
-> ### This is not a good idea
->
-> [%i "eval!insecurity of" %]`eval`[%/i%] is a security risk:
-> arbitrary code can do arbitrary things,
-> so if we take a string typed in by a user and execute it without any checks
-> it could email our bookmark list to villains all over the world,
-> erase our hard drive,
-> or do anything else that code can do (which is pretty much anything).
-> Browsers do their best to run code in a [%i "sandbox (for safe execution)" %][%g sandbox "sandbox" %][%/i%] for safety,
-> but Node doesn't,
-> so it's up to us to be (very) careful.
+<div class="callout" markdown="1">
+
+### This is not a good idea
+
+[%i "eval!insecurity of" %]`eval`[%/i%] is a security risk:
+arbitrary code can do arbitrary things,
+so if we take a string typed in by a user and execute it without any checks
+it could email our bookmark list to villains all over the world,
+erase our hard drive,
+or do anything else that code can do (which is pretty much anything).
+Browsers do their best to run code in a [%i "sandbox (for safe execution)" %][%g sandbox "sandbox" %][%/i%] for safety,
+but Node doesn't,
+so it's up to us to be (very) careful.
+
+</div>
 
 To see `eval` in action,
 let's evaluate an expression:
@@ -228,16 +232,20 @@ until we find a file with a matching name
    caption="Using a colon-separated list of directories as a search path."
 %]
 
-> ### That's just how it is
->
-> The rules about search paths in the paragraph above are a convention:
-> somebody did it this way years ago
-> and (almost) everyone has imitated it since.
-> We could implement search paths some other way,
-> but as with configuration file formats,
-> variable naming conventions,
-> and many other things,
-> the last thing the world needs is more innovation.
+<div class="callout" markdown="1">
+
+### That's just how it is
+
+The rules about search paths in the paragraph above are a convention:
+somebody did it this way years ago
+and (almost) everyone has imitated it since.
+We could implement search paths some other way,
+but as with configuration file formats,
+variable naming conventions,
+and many other things,
+the last thing the world needs is more innovation.
+
+</div>
 
 Since the cache is responsible for finding files,
 it should also handle the search path.

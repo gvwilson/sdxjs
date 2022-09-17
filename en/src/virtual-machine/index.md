@@ -120,7 +120,8 @@ to extract the op code and operands from the instruction
    caption="Using bitwise operations to unpack instructions."
 %]
 
-<blockquote markdown="1">
+<div class="callout" markdown="1">
+
 ### Semi-realistic
 
 We always unpack two operands regardless of whether the instructions has them or not,
@@ -128,7 +129,8 @@ since this is what a hardware implementation would be.
 We have also included assertions in our VM
 to simulate the way that real hardware includes logic
 to detect illegal instructions and out-of-bound memory addresses.
-</blockquote>
+
+</div>
 
 The next step is to extend our base class with one that has a `run` method.
 As its name suggests,
@@ -294,14 +296,18 @@ let's fill an array with the numbers from 0 to 3:
 [% inc file="fill-array.as" %]
 [% inc file="fill-array-out.out" %]
 
-> ### How does it actually work?
->
-> Our VM is just another program.
-> If you'd like to know what happens when instructions finally meet hardware,
-> and how electrical circuits are able to do arithmetic,
-> make decisions,
-> and talk to the world,
-> [%b Patterson2017 %] has everything you want to know and more.
+<div class="callout" markdown="1">
+
+### How does it actually work?
+
+Our VM is just another program.
+If you'd like to know what happens when instructions finally meet hardware,
+and how electrical circuits are able to do arithmetic,
+make decisions,
+and talk to the world,
+[%b Patterson2017 %] has everything you want to know and more.
+
+</div>
 
 ## Exercises {: #virtual-machine-exercises}
 

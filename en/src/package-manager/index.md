@@ -28,16 +28,20 @@ would slow applications down.
 This chapter therefore explores how to find a workable installation or prove that there isn't one.
 It is based in part on [this tutorial][package-manager-tutorial] by [%i "Nison, Maël" %][Maël Nison][nison-mael][%/i%].
 
-> ### Satisfiability
->
-> What we are trying to do is find a version for each package
-> that makes the assertion "P is compatible with all its dependencies" true
-> for every package P.
-> The general-purpose tools for doing this are called [%i "satisfiability" "SAT solver" %][%g sat_solver "SAT solvers" %][%/i%]
-> because they determine whether there is some assignment of values
-> that satisfies the claim (i.e., makes it true).
-> Finding a solution can be extremely hard in the general case,
-> so most SAT solvers use heuristics to try to reduce the work.
+<div class="callout" markdown="1">
+
+### Satisfiability
+
+What we are trying to do is find a version for each package
+that makes the assertion "P is compatible with all its dependencies" true
+for every package P.
+The general-purpose tools for doing this are called [%i "satisfiability" "SAT solver" %][%g sat_solver "SAT solvers" %][%/i%]
+because they determine whether there is some assignment of values
+that satisfies the claim (i.e., makes it true).
+Finding a solution can be extremely hard in the general case,
+so most SAT solvers use heuristics to try to reduce the work.
+
+</div>
 
 ## What is semantic versioning? {: #package-manager-semver}
 
@@ -103,21 +107,25 @@ so we would probably choose the former
 If we wound up with A/1 + B/2 versus A/2 + B/1,
 we would need to add rules for resolving ties.
 
-> ### Reproducibility
->
-> No matter what kind of software you build,
-> a given set of inputs should always produce the same output;
-> if they don't,
-> testing is much more difficult (or impossible) [%b Taschuk2017 %].
-> There may not be a strong reason to prefer one mutually-compatible set of packages over another,
-> but a package manager should still resolve the ambiguity the same way every time.
-> It may not be what everyone wants,
-> but at least they will be unhappy for the same reasons everywhere.
-> This is why NPM has both `package.json` and a `package-lock.json` files:
-> the former is written by the user and specifies what they *want*,
-> while the latter is created by the package manager and specifies exactly what they *got*.
-> If you want to reproduce someone else's setup for debugging purposes,
-> you should install what is described in the latter file.
+<div class="callout" markdown="1">
+
+### Reproducibility
+
+No matter what kind of software you build,
+a given set of inputs should always produce the same output;
+if they don't,
+testing is much more difficult (or impossible) [%b Taschuk2017 %].
+There may not be a strong reason to prefer one mutually-compatible set of packages over another,
+but a package manager should still resolve the ambiguity the same way every time.
+It may not be what everyone wants,
+but at least they will be unhappy for the same reasons everywhere.
+This is why NPM has both `package.json` and a `package-lock.json` files:
+the former is written by the user and specifies what they *want*,
+while the latter is created by the package manager and specifies exactly what they *got*.
+If you want to reproduce someone else's setup for debugging purposes,
+you should install what is described in the latter file.
+
+</div>
 
 <div class="table table-here" id="package-manager-example-dependencies" caption="Example package dependencies." markdown="1">
 | Package | Requires |
@@ -184,13 +192,17 @@ and will use this as our first test case:
 
 [% inc file="double-chained.json" %]
 
-> ### Comments
->
-> If you ever design a data format,
-> please include a standard way for people to add comments,
-> because they will always want to.
-> YAML has this,
-> but JSON and CSV don't.
+<div class="callout" markdown="1">
+
+### Comments
+
+If you ever design a data format,
+please include a standard way for people to add comments,
+because they will always want to.
+YAML has this,
+but JSON and CSV don't.
+
+</div>
 
 To check if a combination of specific versions of packages is compatible with a manifest,
 we add each package to our active list in turn and look for violations.
@@ -294,14 +306,18 @@ There are lots of [%g heuristic "heuristics" %] for searching trees;
 none are guaranteed to give better performance in every case,
 but most give better performance in most cases.
 
-> ### What research is for
->
-> [%i "SAT solver" %]SAT solvers[%/i%] are like regular expression libraries and random number generators:
-> it is the work of many lifetimes to create ones that are both fast and correct.
-> A lot of computer science researchers devote their careers to highly-specialized topics like this.
-> The debates often seem esoteric to outsiders,
-> and most ideas turn out to be dead ends,
-> but even small improvements in fundamental tools can have a profound impact.
+<div class="callout" markdown="1">
+
+### What research is for
+
+[%i "SAT solver" %]SAT solvers[%/i%] are like regular expression libraries and random number generators:
+it is the work of many lifetimes to create ones that are both fast and correct.
+A lot of computer science researchers devote their careers to highly-specialized topics like this.
+The debates often seem esoteric to outsiders,
+and most ideas turn out to be dead ends,
+but even small improvements in fundamental tools can have a profound impact.
+
+</div>
 
 ## Exercises {: #package-manager-exercises}
 

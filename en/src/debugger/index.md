@@ -87,16 +87,20 @@ we just modify `exec` to ignore the line number:
 
 [% inc file="vm-source-map.js" %]
 
-> ### It's not really cheating
->
-> We said that adding line numbers by hand was cheating,
-> but it isn't.
-> What we're actually doing is deferring a problem until we're sure we need to solve it.
-> If our approach is clumsy or fails outright because of some aspect of design we didn't foresee,
-> there will have been no point handling line numbers the "right" way.
-> A good rule for [%i "software design!deferring problems" %]software design[%/i%]
-> is to tackle the thing you're least sure about first,
-> using temporary code in place of what you think you'll eventually need.
+<div class="callout" markdown="1">
+
+### It's not really cheating
+
+We said that adding line numbers by hand was cheating,
+but it isn't.
+What we're actually doing is deferring a problem until we're sure we need to solve it.
+If our approach is clumsy or fails outright because of some aspect of design we didn't foresee,
+there will have been no point handling line numbers the "right" way.
+A good rule for [%i "software design!deferring problems" %]software design[%/i%]
+is to tackle the thing you're least sure about first,
+using temporary code in place of what you think you'll eventually need.
+
+</div>
 
 The next step is to modify the VM's `exec` method
 so that it executes a callback function for each significant operation
@@ -179,12 +183,16 @@ just as the VM does:
 
 [% inc file="debugger-interactive.js" keep="interact" %]
 
-> ### Learning as we go
->
-> We didn't originally put the input and output in methods that could be overridden,
-> but realized later we needed to do this to make the debugger testable.
-> Rather than coming back and rewriting this,
-> we have done it here.
+<div class="callout" markdown="1">
+
+### Learning as we go
+
+We didn't originally put the input and output in methods that could be overridden,
+but realized later we needed to do this to make the debugger testable.
+Rather than coming back and rewriting this,
+we have done it here.
+
+</div>
 
 With this structure in place,
 the command handlers are pretty straightforward.

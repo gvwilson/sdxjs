@@ -20,17 +20,21 @@ we will label each node in the DOM tree with the appropriate styles,
 walk that tree to figure out where each visible element belongs,
 and then draw the result as text on the screen.
 
-> ### Upside down
->
-> The [%i "coordinate system" %]coordinate systems[%/i%] for screens
-> puts (0, 0) in the upper left corner instead of the lower left.
-> X increases to the right as usual,
-> but Y increases as we go down, rather than up
-> ([%f layout-engine-coordinate-system %]).
-> This convention is a holdover from the days of teletype terminals
-> that printed lines on rolls of paper;
-> as [%i "Hoye, Mike" %][Mike Hoye][hoye-mike][%/i%] has [repeatedly observed][punching-holes],
-> the past is all around us.
+<div class="callout" markdown="1">
+
+### Upside down
+
+The [%i "coordinate system" %]coordinate systems[%/i%] for screens
+puts (0, 0) in the upper left corner instead of the lower left.
+X increases to the right as usual,
+but Y increases as we go down, rather than up
+([%f layout-engine-coordinate-system %]).
+This convention is a holdover from the days of teletype terminals
+that printed lines on rolls of paper;
+as [%i "Hoye, Mike" %][Mike Hoye][hoye-mike][%/i%] has [repeatedly observed][punching-holes],
+the past is all around us.
+
+</div>
 
 [% figure
    slug="layout-engine-coordinate-system"
@@ -259,22 +263,26 @@ and write some new ones to test the functionality we've added:
 [% inc file="test/test-wrapped.js" keep="example" %]
 [% inc file="test-wrapped.out" %]
 
-> ### The Liskov Substitution Principle
->
-> We are able to re-use tests like this because of
-> the [%i "Liskov Substitution Principle" "software design!Liskov Substitution Principle" %][%g liskov_substitution_principle "Liskov Substitution Principle" %][%/i%],
-> which states that
-> it should be possible to replace objects in a program
-> with objects of derived classes
-> without breaking anything.
-> In order to satisfy this principle,
-> new code must handle the same set of inputs as the old code,
-> though it may be able to process more inputs as well.
-> Conversely,
-> its output must be a subset of what the old code produced
-> so that whatever is downstream from it won't be surprised.
-> Thinking in these terms leads to a methodology called
-> [%i "design by contract" "software design!design by contract" %][%g design_by_contract "design by contract" %][%/i%].
+<div class="callout" markdown="1">
+
+### The Liskov Substitution Principle
+
+We are able to re-use tests like this because of
+the [%i "Liskov Substitution Principle" "software design!Liskov Substitution Principle" %][%g liskov_substitution_principle "Liskov Substitution Principle" %][%/i%],
+which states that
+it should be possible to replace objects in a program
+with objects of derived classes
+without breaking anything.
+In order to satisfy this principle,
+new code must handle the same set of inputs as the old code,
+though it may be able to process more inputs as well.
+Conversely,
+its output must be a subset of what the old code produced
+so that whatever is downstream from it won't be surprised.
+Thinking in these terms leads to a methodology called
+[%i "design by contract" "software design!design by contract" %][%g design_by_contract "design by contract" %][%/i%].
+
+</div>
 
 ## What subset of CSS will we support? {: #layout-engine-css}
 
@@ -371,16 +379,20 @@ flag it as an error,
 or make a choice based on the contents of the child nodes.
 We will explore these possibilities in the exercises.
 
-> ### Where it all started
->
-> This chapter's topic was one of the seeds from which this entire book grew
-> (the other being debuggers discussed in [%x debugger %]).
-> After struggling with [%i "CSS!struggles with" %]CSS[%/i%] for several years,
-> I began wondering whether it really had to be so complicated.
-> That question led to others,
-> which eventually led to all of this.
-> The moral is,
-> be careful what you ask.
+<div class="callout" markdown="1">
+
+### Where it all started
+
+This chapter's topic was one of the seeds from which this entire book grew
+(the other being debuggers discussed in [%x debugger %]).
+After struggling with [%i "CSS!struggles with" %]CSS[%/i%] for several years,
+I began wondering whether it really had to be so complicated.
+That question led to others,
+which eventually led to all of this.
+The moral is,
+be careful what you ask.
+
+</div>
 
 ## Exercises {: #layout-engine-exercises}
 

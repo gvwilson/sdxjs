@@ -38,17 +38,21 @@ the exercises will tackle the latter.
    caption="Representing the result of parsing a regular expression as an tree."
 %]
 
-> ### Please don't write parsers
->
-> Languages that are comfortable for people to read are usually difficult for computers to understand
-> and vice versa,
-> so we need parsers to translate human-friendly notation into computer-friendly representations.
-> However,
-> [%i "parser!reasons not to write" %]the world doesn't need more file formats[%/i%];
-> if you need a configuration file or lookup table,
-> please use CSV, JSON, [%g yaml "YAML" %],
-> or something else that already has an acronym
-> rather than inventing a format of your own.
+<div class="callout" markdown="1">
+
+### Please don't write parsers
+
+Languages that are comfortable for people to read are usually difficult for computers to understand
+and vice versa,
+so we need parsers to translate human-friendly notation into computer-friendly representations.
+However,
+[%i "parser!reasons not to write" %]the world doesn't need more file formats[%/i%];
+if you need a configuration file or lookup table,
+please use CSV, JSON, [%g yaml "YAML" %],
+or something else that already has an acronym
+rather than inventing a format of your own.
+
+</div>
 
 ## How can we break text into tokens? {: #regex-parser-tokenize}
 
@@ -217,21 +221,25 @@ if our design requires us to write a parser we should try to come up with a bett
 CSV, JSON, YAML, and other formats [have their quirks][third-bit-nice-things],
 but at least they're broken the same way everywhere.
 
-> ### The limits of computing
->
-> One of the most important theoretical results in computer science is that
-> every formal language corresponds to a type of abstract machine and vice versa,
-> and that some languages (or machines) are more or less powerful than others.
-> For example,
-> every regular expression corresponds to a [%i "finite state machine!correspondence with regular expressions" %][%g fsm "finite state machine" %][%/i%] (FSM)
-> like the one in [%f regex-parser-finite-state-machine %].
-> As powerful as FSMs are,
-> they cannot match things like nested parentheses or HTML tags,
-> and [%i "sin!using regular expressions to parse HTML" %][attempting to do so is a sin][stack-overflow-html-regex][%/i%].
-> If you add a stack to the system you can process a much richer set of languages,
-> and if you add two stacks you have something equivalent to a [%i "Turing Machine" %][%g turing_machine "Turing Machine" %][%/i%]
-> that can do any conceivable computation.
-> [%b Conery2021 %] presents this idea and others for self-taught developers.
+<div class="callout" markdown="1">
+
+### The limits of computing
+
+One of the most important theoretical results in computer science is that
+every formal language corresponds to a type of abstract machine and vice versa,
+and that some languages (or machines) are more or less powerful than others.
+For example,
+every regular expression corresponds to a [%i "finite state machine!correspondence with regular expressions" %][%g fsm "finite state machine" %][%/i%] (FSM)
+like the one in [%f regex-parser-finite-state-machine %].
+As powerful as FSMs are,
+they cannot match things like nested parentheses or HTML tags,
+and [%i "sin!using regular expressions to parse HTML" %][attempting to do so is a sin][stack-overflow-html-regex][%/i%].
+If you add a stack to the system you can process a much richer set of languages,
+and if you add two stacks you have something equivalent to a [%i "Turing Machine" %][%g turing_machine "Turing Machine" %][%/i%]
+that can do any conceivable computation.
+[%b Conery2021 %] presents this idea and others for self-taught developers.
+
+</div>
 
 [% figure
    slug="regex-parser-finite-state-machine"
