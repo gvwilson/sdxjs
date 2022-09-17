@@ -45,7 +45,6 @@ appendices = [
     "contributing",
     "bibliography",
     "glossary",
-    "links",
     "credits",
     "contents",
 ]
