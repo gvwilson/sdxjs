@@ -37,6 +37,7 @@ To make this work:
 """
 
 from pathlib import Path
+import re
 import shutil
 
 import ivy
@@ -161,6 +162,8 @@ def _include_file(node, filepath, *filters):
     try:
         with open(filepath, "r") as reader:
             lines = reader.readlines()
+            for f in STANDARD_FILTERS:
+                lines = f(lines)
             for f in filters:
                 lines = f(lines)
             return _make_html(Path(filepath).name, kind, lines)
@@ -201,3 +204,29 @@ def _inclusion_filepath(inclusions, node, file):
     src, dst = util.make_copy_paths(node, file)
     inclusions[src] = dst
     return src
+
+
+ESLINT_FULL_LINE = re.compile(r"^\s*//\s*eslint-")
+ESLINT_TRAILING = re.compile(r"\s*//\s*eslint-.+$")
+
+def _remove_eslint(lines):
+    """Remove eslint markers."""
+    lines = [ln for ln in lines if not ESLINT_FULL_LINE.match(ln)]
+    lines = [ESLINT_TRAILING.sub("", ln) for ln in lines]
+    return lines
+
+
+FLAKE8_FULL_LINE = re.compile(r"^\s*#\s*noqa")
+FLAKE8_TRAILING = re.compile(r"\s*#\s*noqa.+$")
+
+def _remove_flake8(lines):
+    """Remove flake8 markers."""
+    lines = [ln for ln in lines if not FLAKE8_FULL_LINE.match(ln)]
+    lines = [FLAKE8_TRAILING.sub("", ln) for ln in lines]
+    return lines
+
+
+STANDARD_FILTERS = [
+    _remove_eslint,
+    _remove_flake8
+]

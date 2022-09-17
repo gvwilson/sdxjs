@@ -1,4 +1,4 @@
-/* eslint-disable no-eval */
+// eslint-disable no-eval
 const x = 1 // eslint-disable-line
 const y = 3 // eslint-disable-line
 const z = 5 // eslint-disable-line

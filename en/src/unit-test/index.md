@@ -147,6 +147,8 @@ and `Hope.run` to execute all of the tests registered up until that point
 
 [% figure slug="unit-test-hope-structure" img="hope-structure.svg" alt="Recording and running tests" caption="Creating a singleton, recording tests, and running them." %]
 
+<div class="pagebreak"></div>
+
 Finally,
 our `Hope` class can report results as both a terse one-line summary and as a detailed listing.
 It can also provide the titles and results of individual tests

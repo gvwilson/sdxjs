@@ -1,4 +1,4 @@
-/* eslint-disable */
+// eslint-disable
 class Something {
   /*+ constructor + constructor.js +*/
 

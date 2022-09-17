@@ -496,7 +496,7 @@ so that:
 node head.js 5 first.txt second.txt third.txt
 ```
 
-prints the first 5 lines of each of the three files and:
+prints the first five lines of each of the three files and:
 {: .continue}
 
 ```sh
@@ -542,7 +542,7 @@ the output might be:
 
 ### Select matching lines {: .exercise}
 
-Using `async` and `await,
+Using `async` and `await`,
 write a program called `match.js` that finds and prints lines containing a given string.
 For example:
 
@@ -617,7 +617,7 @@ Hint: you may want to use the `Set` class to store lines.
 
 ### Trace file loading {: .exercise}
 
-Suppose we want are loading a YAML configuration file
+Suppose we are loading a YAML configuration file
 using the promisified version of the `fs` library.
 In what order do the print statements in this test program appear and why?
 

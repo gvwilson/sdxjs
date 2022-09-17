@@ -1,4 +1,4 @@
-/* eslint-disable no-eval */
+// eslint-disable no-eval
 import fs from 'fs'
 import path from 'path'
 
