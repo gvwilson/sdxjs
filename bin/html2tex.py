@@ -301,7 +301,7 @@ def handle(node, state, accum, doEscape):
 
     # <span class="gl-key"> => format glossary key
     elif node_match(node, "span", "gl-key"):
-        accum.append(r"\glosskey{")
+        accum.append(r"{\newline}\glosskey{")
         children(node, state, accum, doEscape)
         accum.append(r"}")
 
