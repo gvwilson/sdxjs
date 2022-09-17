@@ -1,5 +1,4 @@
 import path from 'path'
-
 import getRequires from './get-requires.js'
 
 const transitiveClosure = (entryPointPath) => {

@@ -1,8 +1,6 @@
 // [original]
 let zero = () => console.log('zero')
-
 let one = (first) => console.log(`one(${first})`)
-
 let two = (first, second) => console.log(`two(${first}, ${second})`)
 
 let error = () => {

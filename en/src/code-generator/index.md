@@ -56,6 +56,7 @@ Let's start by creating functions with a varying number of parameters
 that run to completion or throw an exception,
 then run them to make sure they do what we want:
 
+<div class="pagebreak"></div>
 [% inc file="replace-func.js" keep="original" %]
 
 We can now write a function that takes a function as an input

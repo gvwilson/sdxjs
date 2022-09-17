@@ -37,22 +37,18 @@ The sections below go through these steps one by one.
 
 ## What will we use as test cases? {: #module-bundler-tests}
 
-The simplest test case is a single file that doesn't require anything else:
-if this doesn't work,
-nothing will.
-Our test case and the expected output are:
+Our first test case is a single file that doesn't require anything:
 
 [% inc file="single/main.js" %]
 [% inc file="expected-single.out" %]
 
-In our second test case,
-`main.js` requires `other.js`,
-which doesn't require anything.
-The main file is:
+For our second test,
+`main.js` requires `other.js`:
+{: .continue}
 
 [% inc file="simple/main.js" %]
 
-and the required file is:
+and `other.js` doesn't require anything:
 {: .continue}
 
 [% inc file="simple/main.js" %]
@@ -288,6 +284,7 @@ and the two lookup tables described above.
 Those two tables can't be global variables because of possible name collisions:
 no matter what we call them,
 the user might have given a variable the same name.
+{: .continue}
 
 As in [%x module-loader %] we solve this problem using closures.
 The result is probably the most difficult code in this book to understand
@@ -322,7 +319,7 @@ However,
 it is all [%i "intrinsic complexity" %]intrinsic complexity[%/i%]:
 anything that does what `require` does is going to be equally convoluted.
 
-To prove that our code works
+To prove that our code works,
 we will look up the function `main` in the first file and call it.
 (If we were loading in the browser,
 we'd capture the exports in a variable for later use.)

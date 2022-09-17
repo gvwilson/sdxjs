@@ -88,7 +88,7 @@ and displays that:
 
 [% inc file="process-plain.js" keep="main" %]
 
-To get all the comments
+To get all the comments,
 we extract comments from all the files,
 remove the leading `*` characters (which aren't part of the documentation),
 and then join the results after stripping off extraneous blanks:
@@ -138,7 +138,7 @@ Let's run this generator and see what it produces
 %]
 
 It works,
-but there is a double `h1` header for each file (the filename and and the title comment),
+but there is a double `h1` header for each file (the filename and the title comment),
 the anchor IDs are hard to read,
 there are no cross-references,
 and so on.
