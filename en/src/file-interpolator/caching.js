@@ -1,4 +1,4 @@
-/* eslint-disable */
+// eslint-disable
 class Cache {
   // ...
   interpolate (fileDir, outer) {

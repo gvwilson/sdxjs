@@ -1,49 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-<link rel="icon" type="image/x-icon" href="../files/favicon.ico">
-<link rel="stylesheet" href="../mccole.css">
-<link rel="stylesheet" href="../codehilite-tango.css">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+  <link rel="stylesheet" href="../mccole.css">
+  <link rel="stylesheet" href="../tango.css">
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']]
+      }
+    };
+  </script>
+  <script
+    type="text/javascript"
+    id="MathJax-script"
+    async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+  <title>Software Design by Example: Pattern Matching</title>
+</head>
 
-    <title>Software Design by Example: Pattern Matching</title>
-  </head>
-  <body class="page">
-    <div class="centered title">
+  <body>
+    <div class="row">
+      <div class="column">
+        <p>
+  <img src="../logo.svg" alt="site logo" width="10%" />
+  <a href="../">Software Design by Example</a>
+</p>
+<ol class="toc-chapter">
   
-  <h2><a href="../">Software Design by Example</a></h2>
-  <h1 id="pattern-matching">Chapter 7: Pattern Matching</h1>
+  <li>
+    <a href="../introduction/">
+      Introduction
+    </a>
+  </li>
   
-  <p>
-    <img class="page-logo" src="../files/codebender.svg" alt="logo" />
+  <li>
+    <a href="../systems-programming/">
+      Systems Programming
+    </a>
+  </li>
+  
+  <li>
+    <a href="../async-programming/">
+      Asynchronous Programming
+    </a>
+  </li>
+  
+  <li>
+    <a href="../unit-test/">
+      Unit Testing
+    </a>
+  </li>
+  
+  <li>
+    <a href="../file-backup/">
+      File Backup
+    </a>
+  </li>
+  
+  <li>
+    <a href="../data-table/">
+      Data Tables
+    </a>
+  </li>
+  
+  <li>
+    <a href="../pattern-matching/">
+      <strong>Pattern Matching</strong>
+    </a>
+  </li>
+  
+  <li>
+    <a href="../regex-parser/">
+      Parsing Expressions
+    </a>
+  </li>
+  
+  <li>
+    <a href="../page-templates/">
+      Page Templates
+    </a>
+  </li>
+  
+  <li>
+    <a href="../build-manager/">
+      Build Manager
+    </a>
+  </li>
+  
+  <li>
+    <a href="../layout-engine/">
+      Layout Engine
+    </a>
+  </li>
+  
+  <li>
+    <a href="../file-interpolator/">
+      File Interpolator
+    </a>
+  </li>
+  
+  <li>
+    <a href="../module-loader/">
+      Module Loader
+    </a>
+  </li>
+  
+  <li>
+    <a href="../style-checker/">
+      Style Checker
+    </a>
+  </li>
+  
+  <li>
+    <a href="../code-generator/">
+      Code Generator
+    </a>
+  </li>
+  
+  <li>
+    <a href="../doc-generator/">
+      Documentation Generator
+    </a>
+  </li>
+  
+  <li>
+    <a href="../module-bundler/">
+      Module Bundler
+    </a>
+  </li>
+  
+  <li>
+    <a href="../package-manager/">
+      Package Manager
+    </a>
+  </li>
+  
+  <li>
+    <a href="../virtual-machine/">
+      Virtual Machine
+    </a>
+  </li>
+  
+  <li>
+    <a href="../debugger/">
+      Debugger
+    </a>
+  </li>
+  
+  <li>
+    <a href="../conclusion/">
+      Conclusion
+    </a>
+  </li>
+  
+</ol>
+<ol class="toc-appendix">
+  
+  <li>
+    <a href="../license/">
+      License
+    </a>
+  </li>
+  
+  <li>
+    <a href="../conduct/">
+      Code of Conduct
+    </a>
+  </li>
+  
+  <li>
+    <a href="../contributing/">
+      Contributing
+    </a>
+  </li>
+  
+  <li>
+    <a href="../bibliography/">
+      Bibliography
+    </a>
+  </li>
+  
+  <li>
+    <a href="../glossary/">
+      Glossary
+    </a>
+  </li>
+  
+  <li>
+    <a href="../credits/">
+      Credits
+    </a>
+  </li>
+  
+  <li>
+    <a href="../contents/">
+      Index
+    </a>
+  </li>
+  
+</ol>
+
+      </div>
+      <div id="printable" class="column bordered">
+        <main>
+	  
+  <h1>Chapter 7: Pattern Matching</h1>
+
+
+          
+
+	  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <p class="definitions">
+    Terms defined:
+    <a class="gl-ref" href="../glossary/#base_class" markdown="1">base class</a>, <a class="gl-ref" href="../glossary/#chain_of_responsibility_pattern" markdown="1">Chain of Responsibility pattern</a>, <a class="gl-ref" href="../glossary/#child_tree" markdown="1">child (in a tree)</a>, <a class="gl-ref" href="../glossary/#coupling" markdown="1">coupling</a>, <a class="gl-ref" href="../glossary/#depth_first" markdown="1">depth-first</a>, <a class="gl-ref" href="../glossary/#derived_class" markdown="1">derived class</a>, <a class="gl-ref" href="../glossary/#dom" markdown="1">Document Object Model</a>, <a class="gl-ref" href="../glossary/#eager_matching" markdown="1">eager matching</a>, <a class="gl-ref" href="../glossary/#greedy_algorithm" markdown="1">greedy algorithm</a>, <a class="gl-ref" href="../glossary/#lazy_matching" markdown="1">lazy matching</a>, <a class="gl-ref" href="../glossary/#node" markdown="1">node</a>, <a class="gl-ref" href="../glossary/#open_closed_principle" markdown="1">Open-Closed Principle</a>, <a class="gl-ref" href="../glossary/#polymorphism" markdown="1">polymorphism</a>, <a class="gl-ref" href="../glossary/#query_selector" markdown="1">query selector</a>, <a class="gl-ref" href="../glossary/#regular_expression" markdown="1">regular expression</a>, <a class="gl-ref" href="../glossary/#scope_creep" markdown="1">scope creep</a>, <a class="gl-ref" href="../glossary/#tdd" markdown="1">test-driven development</a>
   </p>
-</div>
+  
 
-    <main>
-<p>We have been globbing to match filenames against patterns since <a class="crossref" href="../systems-programming/">Chapter 2</a>.
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+          <p>We have been globbing to match filenames against patterns since <a class="x-ref" href="../systems-programming/">Chapter 2</a>.
 This lesson will explore how that works
-by building a simple version of the <span class="indexentry" index-key="regular expression" markdown="1"><a class="glossref" href="../glossary/#regular_expression" markdown="1">regular expressions</a></span>
+by building a simple version of the <span class="ix-entry" ix-key="regular expression" markdown="1"><a class="gl-ref" href="../glossary/#regular_expression" markdown="1">regular expressions</a></span>
 used to match text in everything from editor and shell commands to web scrapers.
-Our approach is inspired by <span class="indexentry" index-key="Kernighan, Brian" markdown="1"><a href="https://en.wikipedia.org/wiki/Brian_Kernighan">Brian Kernighan's</a></span> entry
-in <span class="citation"><a class="bibref" href="../bibliography/#Oram2007">Oram2007</a></span>.</p>
+Our approach is inspired by <span class="ix-entry" ix-key="Kernighan, Brian" markdown="1"><a href="https://en.wikipedia.org/wiki/Brian_Kernighan">Brian Kernighan&rsquo;s</a></span> entry
+in <span class="bib-ref">[<a class="bib-ref" href="../bibliography/#Oram2007">Oram2007</a>]</span>.</p>
 <p>Regular expressions have inspired pattern matching for many other kinds of data,
-such as <span class="indexentry" index-key="query selector (for HTML)" markdown="1"><a class="glossref" href="../glossary/#query_selector" markdown="1">query selectors</a></span> for HTML.
+such as <span class="ix-entry" ix-key="query selector (for HTML)" markdown="1"><a class="gl-ref" href="../glossary/#query_selector" markdown="1">query selectors</a></span> for HTML.
 They are easier to understand and implement than patterns for matching text,
 so we will start by looking at them.</p>
-<h2 id="pattern-matching-selectors">Section 7.1:  How can we match query selectors?</h2>
-<p>Programs stores HTML pages in memory using a <span class="indexentry" index-key="DOM;Document Object Model" markdown="1"><a class="glossref" href="../glossary/#dom" markdown="1">document object model</a></span> or DOM.
+<h2 id="pattern-matching-selectors">Section 7.1: How can we match query selectors?</h2>
+<p>Programs stores HTML pages in memory using a <span class="ix-entry" ix-key="DOM;Document Object Model" markdown="1"><a class="gl-ref" href="../glossary/#dom" markdown="1">document object model</a></span> or DOM.
 Each element in the page,
 such as a heading and or paragraph,
-is a <a class="glossref" href="../glossary/#node" markdown="1">nodes</a>;
-the <a class="glossref" href="../glossary/#child_tree" markdown="1">children</a> of a node are the elements it contains
-(<a class="figref" href="../pattern-matching/#pattern-matching-dom-tree">Figure 7.1</a>).</p>
+is a <a class="gl-ref" href="../glossary/#node" markdown="1">nodes</a>;
+the <a class="gl-ref" href="../glossary/#child_tree" markdown="1">children</a> of a node are the elements it contains
+(<a class="fig-ref" href="../pattern-matching/#pattern-matching-dom-tree">Figure 7.1</a>).</p>
 <figure id="pattern-matching-dom-tree">
-  <img src="./figures/dom-tree.svg" alt="The Document Object Model" />
+  <img src="./dom-tree.svg" alt="The Document Object Model"/>
   <figcaption markdown="1">Figure 7.1: Representing an HTML document as a tree.</figcaption>
 </figure>
 
 <p>The first step is to define the patterns we want to support
-(<a class="tblref" href="../pattern-matching/#pattern-matching-supported">Table 7.1</a>).</p>
+(<a class="tbl-ref" href="../pattern-matching/#pattern-matching-supported">Table 7.1</a>).
+According to this grammar,
+<code>blockquote#important p.highlight</code> is a highlighted paragraph inside the blockquote whose ID is <code>"important"</code>.
+To find elements in a page that match it,
+our <code>select</code> function breaks the query into pieces
+and uses <code>firstMatch</code> to search recursively down the document tree
+until all the selectors in the query string have matched or no matches have been found
+(<a class="fig-ref" href="../pattern-matching/#pattern-matching-query-selectors">Figure 7.2</a>).</p>
 <div class="table"><table id="pattern-matching-supported"><caption>Table 7.1: Supported patterns.</caption>
 <thead>
 <tr>
@@ -71,177 +315,183 @@ the <a class="glossref" href="../glossary/#child_tree" markdown="1">children</a>
 </tbody>
 </table>
 </div>
-<p>According to this grammar,
-<code>blockquote#important p.highlight</code> is a highlighted paragraph inside the blockquote whose ID is <code>"important"</code>.
-To find elements in a page that match it,
-our <code>select</code> function breaks the query into pieces
-and uses <code>firstMatch</code> to search recursively down the document tree
-until all the selectors in the query string have matched or no matches have been found
-(<a class="figref" href="../pattern-matching/#pattern-matching-query-selectors">Figure 7.2</a>).</p>
 <figure id="pattern-matching-query-selectors">
-  <img src="./figures/query-selectors.svg" alt="Matching query selectors" />
+  <img src="./query-selectors.svg" alt="Matching query selectors"/>
   <figcaption markdown="1">Figure 7.2: Matching a simple set of query selectors.</figcaption>
 </figure>
 
-<pre><code class="language-js">import assert from 'assert'
+<div class="code-sample lang-js" title="simple-selectors.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">assert</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;assert&#39;</span><span class="w"></span>
 
-const select = (root, selector) =&gt; {
-  const selectors = selector.split(' ').filter(s =&gt; s.length &gt; 0)
-  return firstMatch(root, selectors)
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">select</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">root</span><span class="p">,</span><span class="w"> </span><span class="nx">selector</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">selectors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">selector</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">).</span><span class="nx">filter</span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">firstMatch</span><span class="p">(</span><span class="nx">root</span><span class="p">,</span><span class="w"> </span><span class="nx">selectors</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const firstMatch = (node, selectors) =&gt; {
-  assert(selectors.length &gt; 0,
-    'Require selector(s)')
+<span class="kd">const</span><span class="w"> </span><span class="nx">firstMatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">,</span><span class="w"> </span><span class="nx">selectors</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">assert</span><span class="p">(</span><span class="nx">selectors</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="s1">&#39;Require selector(s)&#39;</span><span class="p">)</span><span class="w"></span>
 
-  // Not a tag.
-  if (node.type !== 'tag') {
-    return null
-  }
+<span class="w">  </span><span class="c1">// Not a tag.</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s1">&#39;tag&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-  // This node matches.
-  if (matchHere(node, selectors[0])) {
-    // This is the last selector, so matching worked.
-    if (selectors.length === 1) {
-      return node
-    }
+<span class="w">  </span><span class="c1">// This node matches.</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">matchHere</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span><span class="w"> </span><span class="nx">selectors</span><span class="p">[</span><span class="mf">0</span><span class="p">]))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// This is the last selector, so matching worked.</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">selectors</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">node</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    // Try to match remaining selectors.
-    return firstChildMatch(node, selectors.slice(1))
-  }
+<span class="w">    </span><span class="c1">// Try to match remaining selectors.</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">firstChildMatch</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span><span class="w"> </span><span class="nx">selectors</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">1</span><span class="p">))</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-  // This node doesn't match, so try further down.
-  return firstChildMatch(node, selectors)
-}
+<span class="w">  </span><span class="c1">// This node doesn&#39;t match, so try further down.</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">firstChildMatch</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span><span class="w"> </span><span class="nx">selectors</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
 
-export default select
-</code></pre>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">select</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p>The <code>firstMatch</code> function handles three cases:</p>
 <ol>
 <li>
-<p>This node isn't an element, i.e., it is plain text or a comment.
-    This can't match a selector, and these nodes don't have children,
+<p>This node isn&rsquo;t an element, i.e., it is plain text or a comment.
+    This can&rsquo;t match a selector, and these nodes don&rsquo;t have children,
     so the function returns <code>null</code> to indicate that matching has failed.</p>
 </li>
 <li>
 <p>This node matches the current selector.
-    If there aren't any selectors left then the whole pattern must have matched,
+    If there aren&rsquo;t any selectors left then the whole pattern must have matched,
     so the function returns this node as the match.
     If there <em>are</em> more selectors,
-    we try to match those that remain against this node's children
+    we try to match those that remain against this node&rsquo;s children
     and return whatever result that produces.</p>
 </li>
 <li>
-<p>This node <em>doesn't</em> match the current selector,
+<p>This node <em>doesn&rsquo;t</em> match the current selector,
     so we search the children one by one to see if there is a match further down.</p>
 </li>
 </ol>
-<p>This algorithm is called <span class="indexentry" index-key="depth-first search;search!depth-first" markdown="1"><a class="glossref" href="../glossary/#depth_first" markdown="1">depth-first search</a></span>:
+<p>This algorithm is called <span class="ix-entry" ix-key="depth-first search;search!depth-first" markdown="1"><a class="gl-ref" href="../glossary/#depth_first" markdown="1">depth-first search</a></span>:
 it explores one possible match to the end before considering any others.
 <code>firstMatch</code> relies on a helper function called <code>firstChildMatch</code>,
 which finds the first child of a node to match a set of selectors:</p>
-<pre><code class="language-js">const firstChildMatch = (node, selectors) =&gt; {
-  assert(node.type === 'tag',
-    `Should only try to match first child of tags, not ${node.type}`)
+<div class="code-sample lang-js" title="simple-selectors.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">firstChildMatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">,</span><span class="w"> </span><span class="nx">selectors</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">assert</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;tag&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="sb">`Should only try to match first child of tags, not </span><span class="si">${</span><span class="nx">node</span><span class="p">.</span><span class="nx">type</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span><span class="w"></span>
 
-  // First working match.
-  for (const child of node.children) {
-    const match = firstMatch(child, selectors)
-    if (match) {
-      return match
-    }
-  }
+<span class="w">  </span><span class="c1">// First working match.</span><span class="w"></span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">child</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">node</span><span class="p">.</span><span class="nx">children</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">match</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">firstMatch</span><span class="p">(</span><span class="nx">child</span><span class="p">,</span><span class="w"> </span><span class="nx">selectors</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">match</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">match</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-  // Nothing worked.
-  return null
-}
-</code></pre>
+<span class="w">  </span><span class="c1">// Nothing worked.</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p class="continue">and on the function <code>matchHere</code> which compares a node against a selector:</p>
-<pre><code class="language-js">const matchHere = (node, selector) =&gt; {
-  let name = null
-  let id = null
-  let cls = null
-  if (selector.includes('#')) {
-    [name, id] = selector.split('#')
-  } else if (selector.includes('.')) {
-    [name, cls] = selector.split('.')
-  } else {
-    name = selector
-  }
-  return (node.name === name) &amp;&amp;
-    ((id === null) || (node.attribs.id === id)) &amp;&amp;
-    ((cls === null) || (node.attribs.class === cls))
-}
-</code></pre>
+<div class="code-sample lang-js" title="simple-selectors.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">matchHere</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">,</span><span class="w"> </span><span class="nx">selector</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="w"></span>
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="w"></span>
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">cls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">selector</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="nx">name</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">selector</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">selector</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="nx">name</span><span class="p">,</span><span class="w"> </span><span class="nx">cls</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">selector</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">selector</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">name</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">name</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"></span>
+<span class="w">    </span><span class="p">((</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">attribs</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">id</span><span class="p">))</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"></span>
+<span class="w">    </span><span class="p">((</span><span class="nx">cls</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">attribs</span><span class="p">.</span><span class="kd">class</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">cls</span><span class="p">))</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p>This version of <code>matchHere</code> is simple but inefficient,
 since it breaks the selector into parts each time it is called
 rather than doing that once and re-using the results.
 We will build a more efficient version in the exercises,
-but let's try out the one we have.
+but let&rsquo;s try out the one we have.
 Our test cases are all in one piece of HTML:</p>
-<pre><code class="language-js">const HTML = `&lt;main&gt;
-  &lt;p&gt;text of first p&lt;/p&gt;
-  &lt;p id=&quot;id-01&quot;&gt;text of p#id-01&lt;/p&gt;
-  &lt;p id=&quot;id-02&quot;&gt;text of p#id-02&lt;/p&gt;
-  &lt;p class=&quot;class-03&quot;&gt;text of p.class-03&lt;/p&gt;
-  &lt;div&gt;
-    &lt;p&gt;text of div / p&lt;/p&gt;
-    &lt;p id=&quot;id-04&quot;&gt;text of div / p#id-04&lt;/p&gt;
-    &lt;p class=&quot;class-05&quot;&gt;text of div / p.class-05&lt;/p&gt;
-    &lt;p class=&quot;class-06&quot;&gt;should not be found&lt;/p&gt;
-  &lt;/div&gt;
-  &lt;div id=&quot;id-07&quot;&gt;
-    &lt;p&gt;text of div#id-07 / p&lt;/p&gt;
-    &lt;p class=&quot;class-06&quot;&gt;text of div#id-07 / p.class-06&lt;/p&gt;
-  &lt;/div&gt;
-&lt;/main&gt;`
-</code></pre>
+<div class="code-sample lang-js" title="simple-selectors-test.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">HTML</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`&lt;main&gt;</span>
+<span class="sb">  &lt;p&gt;text of first p&lt;/p&gt;</span>
+<span class="sb">  &lt;p id=&quot;id-01&quot;&gt;text of p#id-01&lt;/p&gt;</span>
+<span class="sb">  &lt;p id=&quot;id-02&quot;&gt;text of p#id-02&lt;/p&gt;</span>
+<span class="sb">  &lt;p class=&quot;class-03&quot;&gt;text of p.class-03&lt;/p&gt;</span>
+<span class="sb">  &lt;div&gt;</span>
+<span class="sb">    &lt;p&gt;text of div / p&lt;/p&gt;</span>
+<span class="sb">    &lt;p id=&quot;id-04&quot;&gt;text of div / p#id-04&lt;/p&gt;</span>
+<span class="sb">    &lt;p class=&quot;class-05&quot;&gt;text of div / p.class-05&lt;/p&gt;</span>
+<span class="sb">    &lt;p class=&quot;class-06&quot;&gt;should not be found&lt;/p&gt;</span>
+<span class="sb">  &lt;/div&gt;</span>
+<span class="sb">  &lt;div id=&quot;id-07&quot;&gt;</span>
+<span class="sb">    &lt;p&gt;text of div#id-07 / p&lt;/p&gt;</span>
+<span class="sb">    &lt;p class=&quot;class-06&quot;&gt;text of div#id-07 / p.class-06&lt;/p&gt;</span>
+<span class="sb">  &lt;/div&gt;</span>
+<span class="sb">&lt;/main&gt;`</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p>The program contains a table of queries and the expected matches.
 The function <code>main</code> loops over it to report whether each test passes or fails:</p>
-<pre><code class="language-js">const main = () =&gt; {
-  const doc = htmlparser2.parseDOM(HTML)[0]
-  const tests = [
-    ['p', 'text of first p'],
-    ['p#id-01', 'text of p#id-01'],
-    ['p#id-02', 'text of p#id-02'],
-    ['p.class-03', 'text of p.class-03'],
-    ['div p', 'text of div / p'],
-    ['div p#id-04', 'text of div / p#id-04'],
-    ['div p.class-05', 'text of div / p.class-05'],
-    ['div#id-07 p', 'text of div#id-07 / p'],
-    ['div#id-07 p.class-06', 'text of div#id-07 / p.class-06']
-  ]
-  tests.forEach(([selector, expected]) =&gt; {
-    const node = select(doc, selector)
-    const actual = getText(node)
-    const result = (actual === expected) ? 'pass' : 'fail'
-    console.log(`&quot;${selector}&quot;: ${result}`)
-  })
-}
+<div class="code-sample lang-js" title="simple-selectors-test.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">doc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">htmlparser2</span><span class="p">.</span><span class="nx">parseDOM</span><span class="p">(</span><span class="nx">HTML</span><span class="p">)[</span><span class="mf">0</span><span class="p">]</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">tests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;text of first p&#39;</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;p#id-01&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;text of p#id-01&#39;</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;p#id-02&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;text of p#id-02&#39;</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;p.class-03&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;text of p.class-03&#39;</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;div p&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;text of div / p&#39;</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;div p#id-04&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;text of div / p#id-04&#39;</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;div p.class-05&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;text of div / p.class-05&#39;</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;div#id-07 p&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;text of div#id-07 / p&#39;</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;div#id-07 p.class-06&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;text of div#id-07 / p.class-06&#39;</span><span class="p">]</span><span class="w"></span>
+<span class="w">  </span><span class="p">]</span><span class="w"></span>
+<span class="w">  </span><span class="nx">tests</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(([</span><span class="nx">selector</span><span class="p">,</span><span class="w"> </span><span class="nx">expected</span><span class="p">])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">select</span><span class="p">(</span><span class="nx">doc</span><span class="p">,</span><span class="w"> </span><span class="nx">selector</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actual</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getText</span><span class="p">(</span><span class="nx">node</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">actual</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">expected</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;pass&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;fail&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`&quot;</span><span class="si">${</span><span class="nx">selector</span><span class="si">}</span><span class="sb">&quot;: </span><span class="si">${</span><span class="nx">result</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-main()
-</code></pre>
+<span class="nx">main</span><span class="p">()</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p class="continue"><code>main</code> uses a helper function called <code>getText</code> to extract text from a node
 or return an error message if something has gone wrong:</p>
-<pre><code class="language-js">const getText = (node) =&gt; {
-  if (!node) {
-    return 'MISSING NODE'
-  }
-  if (!('children' in node)) {
-    return 'MISSING CHILDREN'
-  }
-  if (node.children.length !== 1) {
-    return 'WRONG NUMBER OF CHILDREN'
-  }
-  if (node.children[0].type !== 'text') {
-    return 'NOT TEXT'
-  }
-  return node.children[0].data
-}
-</code></pre>
+<div class="code-sample lang-js" title="simple-selectors-test.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">getText</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">node</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;MISSING NODE&#39;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="s1">&#39;children&#39;</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">node</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;MISSING CHILDREN&#39;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">children</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;WRONG NUMBER OF CHILDREN&#39;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">children</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">type</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s1">&#39;text&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;NOT TEXT&#39;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">node</span><span class="p">.</span><span class="nx">children</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">data</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p>When we run our program it produces this result:</p>
-<pre><code class="language-out">&quot;p&quot;: pass
+<div class="code-sample lang-out" title="simple-selectors-test.out">
+<div class="highlight"><pre><span></span><code>&quot;p&quot;: pass
 &quot;p#id-01&quot;: pass
 &quot;p#id-02&quot;: pass
 &quot;p.class-03&quot;: pass
@@ -250,27 +500,33 @@ or return an error message if something has gone wrong:</p>
 &quot;div p.class-05&quot;: pass
 &quot;div#id-07 p&quot;: pass
 &quot;div#id-07 p.class-06&quot;: pass
-</code></pre>
-<p>We will rewrite these tests using <span class="indexentry" index-key="Mocha" markdown="1"><a href="https://mochajs.org/">Mocha</a></span> in the exercises.</p>
-<blockquote>
+</code></pre></div>
+</div>
+<p>We will rewrite these tests using <span class="ix-entry" ix-key="Mocha" markdown="1"><a href="https://mochajs.org/">Mocha</a></span> in the exercises.</p>
+<div class="callout">
 <h3>Test then build</h3>
 <p>We actually wrote our test cases <em>before</em> implementing the code to match query selectors
 in order to give ourselves a goal to work toward.
-Doing this is called <span class="indexentry" index-key="test-driven development;TDD" markdown="1"><a class="glossref" href="../glossary/#tdd" markdown="1">test-driven development</a></span>, or TDD;
-while research doesn't support the claim that
-it makes programmers more productive <span class="citation"><a class="bibref" href="../bibliography/#Fucci2016">Fucci2016</a>, <a class="bibref" href="../bibliography/#Fucci2017">Fucci2017</a></span>,
-we find it helps prevent <span class="indexentry" index-key="scope creep!when writing lessons" markdown="1"><a class="glossref" href="../glossary/#scope_creep" markdown="1">scope creep</a></span> when writing lessons.</p>
-</blockquote>
-<h2 id="pattern-matching-re">Section 7.2:  How can we implement a simple regular expression matcher?</h2>
+Doing this is called <span class="ix-entry" ix-key="test-driven development;TDD" markdown="1"><a class="gl-ref" href="../glossary/#tdd" markdown="1">test-driven development</a></span>, or TDD;
+while research doesn&rsquo;t support the claim that
+it makes programmers more productive <span class="bib-ref">[<a class="bib-ref" href="../bibliography/#Fucci2016">Fucci2016</a>, <a class="bib-ref" href="../bibliography/#Fucci2017">Fucci2017</a>]</span>,
+we find it helps prevent <span class="ix-entry" ix-key="scope creep!when writing lessons" markdown="1"><a class="gl-ref" href="../glossary/#scope_creep" markdown="1">scope creep</a></span> when writing lessons.</p>
+</div>
+<h2 id="pattern-matching-re">Section 7.2: How can we implement a simple regular expression matcher?</h2>
 <p>Matching regular expressions against text relies on the same recursive strategy
 as matching query selectors against nodes in an HTML page.
 If the first element of the pattern matches where we are,
-we see if the rest of the pattern matches what's left;
+we see if the rest of the pattern matches what&rsquo;s left;
 otherwise,
 we see if the the pattern will match further along.
 Our matcher will initially handle just the five cases shown in
-<a class="tblref" href="../pattern-matching/#pattern-matching-cases">Table 7.2</a>.</p>
-<div class="table"><table id="pattern-matching-cases"><caption>Table 7.2: Pattern matching cases.</caption>
+<a class="tbl-ref" href="../pattern-matching/#pattern-matching-cases">Table 7.2</a>.
+These cases are a small subset of what JavaScript provides,
+but as <span class="ix-entry" ix-key="Kernighan, Brian" markdown="1">Kernighan</span> wrote,
+&ldquo;This is quite a useful class;
+in my own experience of using regular expressions on a day-to-day basis,
+it easily accounts for 95 percent of all instances.&rdquo;</p>
+<div class="table"><table id="pattern-matching-cases" class="table-here"><caption>Table 7.2: Pattern matching cases.</caption>
 <thead>
 <tr>
 <th>Meaning</th>
@@ -301,98 +557,100 @@ Our matcher will initially handle just the five cases shown in
 </tbody>
 </table>
 </div>
-<p class="continue">These five cases are a small subset of what JavaScript provides,
-but as <span class="indexentry" index-key="Kernighan, Brian" markdown="1">Kernighan</span> wrote,
-"This is quite a useful class;
-in my own experience of using regular expressions on a day-to-day basis,
-it easily accounts for 95 percent of all instances."</p>
 <p>The top-level function that users call
 handles the special case of <code>^</code> at the start of a pattern
 matching the start of the target string being searched.
 It then tries the pattern against each successive substring of the target string
 until it finds a match or runs out of characters:</p>
-<pre><code class="language-js">const match = (pattern, text) =&gt; {
-  // '^' at start of pattern matches start of text.
-  if (pattern[0] === '^') {
-    return matchHere(pattern, 1, text, 0)
-  }
+<div class="code-sample lang-js" title="simple-regex.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">match</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">pattern</span><span class="p">,</span><span class="w"> </span><span class="nx">text</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// &#39;^&#39; at start of pattern matches start of text.</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">pattern</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;^&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">matchHere</span><span class="p">(</span><span class="nx">pattern</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-  // Try all possible starting points for pattern.
-  let iText = 0
-  do {
-    if (matchHere(pattern, 0, text, iText)) {
-      return true
-    }
-    iText += 1
-  } while (iText &lt; text.length)
+<span class="w">  </span><span class="c1">// Try all possible starting points for pattern.</span><span class="w"></span>
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">iText</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="w"></span>
+<span class="w">  </span><span class="k">do</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">matchHere</span><span class="p">(</span><span class="nx">pattern</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">iText</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="nx">iText</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">iText</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">text</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span><span class="w"></span>
 
-  // Nothing worked.
-  return false
-}
-</code></pre>
+<span class="w">  </span><span class="c1">// Nothing worked.</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p><code>matchHere</code> does the matching and recursing:</p>
-<pre><code class="language-js">const matchHere = (pattern, iPattern, text, iText) =&gt; {
-  // There is no more pattern to match.
-  if (iPattern === pattern.length) {
-    return true
-  }
+<div class="code-sample lang-js" title="simple-regex.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">matchHere</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">pattern</span><span class="p">,</span><span class="w"> </span><span class="nx">iPattern</span><span class="p">,</span><span class="w"> </span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">iText</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// There is no more pattern to match.</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">iPattern</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">pattern</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-  // '$' at end of pattern matches end of text.
-  if ((iPattern === (pattern.length - 1)) &amp;&amp;
-      (pattern[iPattern] === '$') &amp;&amp;
-      (iText === text.length)) {
-    return true
-  }
+<span class="w">  </span><span class="c1">// &#39;$&#39; at end of pattern matches end of text.</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="nx">iPattern</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="p">(</span><span class="nx">pattern</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">))</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"></span>
+<span class="w">      </span><span class="p">(</span><span class="nx">pattern</span><span class="p">[</span><span class="nx">iPattern</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;$&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"></span>
+<span class="w">      </span><span class="p">(</span><span class="nx">iText</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">text</span><span class="p">.</span><span class="nx">length</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-  // '*' following current character means match many.
-  if (((pattern.length - iPattern) &gt; 1) &amp;&amp;
-      (pattern[iPattern + 1] === '*')) {
-    while ((iText &lt; text.length) &amp;&amp; (text[iText] === pattern[iPattern])) {
-      iText += 1
-    }
-    return matchHere(pattern, iPattern + 2, text, iText)
-  }
+<span class="w">  </span><span class="c1">// &#39;*&#39; following current character means match many.</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(((</span><span class="nx">pattern</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">iPattern</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"></span>
+<span class="w">      </span><span class="p">(</span><span class="nx">pattern</span><span class="p">[</span><span class="nx">iPattern</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="nx">iText</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">text</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="nx">text</span><span class="p">[</span><span class="nx">iText</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">pattern</span><span class="p">[</span><span class="nx">iPattern</span><span class="p">]))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nx">iText</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">matchHere</span><span class="p">(</span><span class="nx">pattern</span><span class="p">,</span><span class="w"> </span><span class="nx">iPattern</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">iText</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-  // Match a single character.
-  if ((pattern[iPattern] === '.') ||
-      (pattern[iPattern] === text[iText])) {
-    return matchHere(pattern, iPattern + 1, text, iText + 1)
-  }
+<span class="w">  </span><span class="c1">// Match a single character.</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="nx">pattern</span><span class="p">[</span><span class="nx">iPattern</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;.&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"></span>
+<span class="w">      </span><span class="p">(</span><span class="nx">pattern</span><span class="p">[</span><span class="nx">iPattern</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">text</span><span class="p">[</span><span class="nx">iText</span><span class="p">]))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">matchHere</span><span class="p">(</span><span class="nx">pattern</span><span class="p">,</span><span class="w"> </span><span class="nx">iPattern</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">iText</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-  // Nothing worked.
-  return false
-}
-</code></pre>
+<span class="w">  </span><span class="c1">// Nothing worked.</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p>Once again,
 we use a table of test cases and expected results to test it:</p>
-<pre><code class="language-js">const main = () =&gt; {
-  const tests = [
-    ['a', 'a', true],
-    ['b', 'a', false],
-    ['a', 'ab', true],
-    ['b', 'ab', true],
-    ['ab', 'ba', false],
-    ['^a', 'ab', true],
-    ['^b', 'ab', false],
-    ['a$', 'ab', false],
-    ['a$', 'ba', true],
-    ['a*', '', true],
-    ['a*', 'baac', true],
-    ['ab*c', 'ac', true],
-    ['ab*c', 'abc', true],
-    ['ab*c', 'abbbc', true],
-    ['ab*c', 'abxc', false]
-  ]
-  tests.forEach(([regexp, text, expected]) =&gt; {
-    const actual = match(regexp, text)
-    const result = (actual === expected) ? 'pass' : 'fail'
-    console.log(`&quot;${regexp}&quot; X &quot;${text}&quot;: ${result}`)
-  })
-}
+<div class="code-sample lang-js" title="simple-regex.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">tests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ba&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;^a&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;^b&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a$&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a$&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ba&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a*&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a*&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;baac&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab*c&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ac&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab*c&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;abc&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab*c&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;abbbc&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab*c&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;abxc&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">]</span><span class="w"></span>
+<span class="w">  </span><span class="p">]</span><span class="w"></span>
+<span class="w">  </span><span class="nx">tests</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(([</span><span class="nx">regexp</span><span class="p">,</span><span class="w"> </span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">expected</span><span class="p">])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actual</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">match</span><span class="p">(</span><span class="nx">regexp</span><span class="p">,</span><span class="w"> </span><span class="nx">text</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">actual</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">expected</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;pass&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;fail&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`&quot;</span><span class="si">${</span><span class="nx">regexp</span><span class="si">}</span><span class="sb">&quot; X &quot;</span><span class="si">${</span><span class="nx">text</span><span class="si">}</span><span class="sb">&quot;: </span><span class="si">${</span><span class="nx">result</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-main()
-</code></pre>
-<pre><code class="language-out">&quot;a&quot; X &quot;a&quot;: pass
+<span class="nx">main</span><span class="p">()</span><span class="w"></span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-out" title="simple-regex.out">
+<div class="highlight"><pre><span></span><code>&quot;a&quot; X &quot;a&quot;: pass
 &quot;b&quot; X &quot;a&quot;: pass
 &quot;a&quot; X &quot;ab&quot;: pass
 &quot;b&quot; X &quot;ab&quot;: pass
@@ -407,14 +665,15 @@ main()
 &quot;ab*c&quot; X &quot;abc&quot;: pass
 &quot;ab*c&quot; X &quot;abbbc&quot;: pass
 &quot;ab*c&quot; X &quot;abxc&quot;: pass
-</code></pre>
+</code></pre></div>
+</div>
 <p>This program seems to work,
 but it actually contains an error that we will correct in the exercises.
 (Think about what happens if we match the pattern <code>/a*ab/</code> against the string <code>'aab'</code>.)
 Our design is also hard to extend:
 handling parentheses in patterns like <code>/a(bc)*d/</code> will require major changes.
 We need to explore a different approach.</p>
-<h2 id="pattern-matching-extensible">Section 7.3:  How can we implement an extensible matcher?</h2>
+<h2 id="pattern-matching-extensible">Section 7.3: How can we implement an extensible matcher?</h2>
 <p>Instead of packing all of our code into one long function,
 we can implement each kind of match as separate function.
 Doing this makes it much easier to add more matchers:
@@ -430,115 +689,122 @@ so recycling the matchers will make our programs more efficient.</p>
 Its output is the index to continue matching at
 or <code>undefined</code> indicating that matching failed.
 We can then combine these objects to match complex patterns
-(<a class="figref" href="../pattern-matching/#pattern-matching-regex-objects">Figure 7.3</a>).</p>
+(<a class="fig-ref" href="../pattern-matching/#pattern-matching-regex-objects">Figure 7.3</a>).</p>
 <figure id="pattern-matching-regex-objects">
-  <img src="./figures/regex-objects.svg" alt="Implementing regex with objects" />
+  <img src="./regex-objects.svg" alt="Implementing regex with objects"/>
   <figcaption markdown="1">Figure 7.3: Using nested objects to match regular expressions.</figcaption>
 </figure>
 
 <p>The first step in implementing this is to write test cases,
 which forces us to define the syntax we are going to support:</p>
-<pre><code class="language-js">import Alt from './regex-alt.js'
-import Any from './regex-any.js'
-import End from './regex-end.js'
-import Lit from './regex-lit.js'
-import Seq from './regex-seq.js'
-import Start from './regex-start.js'
+<div class="code-sample lang-js" title="regex-complete.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">Alt</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./regex-alt.js&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">Any</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./regex-any.js&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">End</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./regex-end.js&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">Lit</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./regex-lit.js&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">Seq</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./regex-seq.js&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">Start</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./regex-start.js&#39;</span><span class="w"></span>
 
-const main = () =&gt; {
-  const tests = [
-    ['a', 'a', true, Lit('a')],
-    ['b', 'a', false, Lit('b')],
-    ['a', 'ab', true, Lit('a')],
-    ['b', 'ab', true, Lit('b')],
-    ['ab', 'ab', true, Seq(Lit('a'), Lit('b'))],
-    ['ba', 'ab', false, Seq(Lit('b'), Lit('a'))],
-    ['ab', 'ba', false, Lit('ab')],
-    ['^a', 'ab', true, Seq(Start(), Lit('a'))],
-    ['^b', 'ab', false, Seq(Start(), Lit('b'))],
-    ['a$', 'ab', false, Seq(Lit('a'), End())],
-    ['a$', 'ba', true, Seq(Lit('a'), End())],
-    ['a*', '', true, Any('a')],
-    ['a*', 'baac', true, Any('a')],
-    ['ab*c', 'ac', true, Seq(Lit('a'), Any('b'), Lit('c'))],
-    ['ab*c', 'abc', true, Seq(Lit('a'), Any('b'), Lit('c'))],
-    ['ab*c', 'abbbc', true, Seq(Lit('a'), Any('b'), Lit('c'))],
-    ['ab*c', 'abxc', false, Seq(Lit('a'), Any('b'), Lit('c'))],
-    ['ab|cd', 'xaby', true, Alt(Lit('ab'), Lit('cd'))],
-    ['ab|cd', 'acdc', true, Alt(Lit('ab'), Lit('cd'))],
-    ['a(b|c)d', 'xabdy', true,
-      Seq(Lit('a'), Alt(Lit('b'), Lit('c')), Lit('d'))],
-    ['a(b|c)d', 'xabady', false,
-      Seq(Lit('a'), Alt(Lit('b'), Lit('c')), Lit('d'))]
-  ]
-  tests.forEach(([pattern, text, expected, matcher]) =&gt; {
-    const actual = matcher.match(text)
-    const result = (actual === expected) ? 'pass' : 'fail'
-    console.log(`&quot;${pattern}&quot; X &quot;${text}&quot;: ${result}`)
-  })
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">tests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">)],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">)],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Seq</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ba&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nx">Seq</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ba&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;ab&#39;</span><span class="p">)],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;^a&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Seq</span><span class="p">(</span><span class="nx">Start</span><span class="p">(),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;^b&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nx">Seq</span><span class="p">(</span><span class="nx">Start</span><span class="p">(),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a$&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nx">Seq</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">End</span><span class="p">())],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a$&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ba&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Seq</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">End</span><span class="p">())],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a*&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Any</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a*&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;baac&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Any</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab*c&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ac&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Seq</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Any</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab*c&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;abc&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Seq</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Any</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab*c&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;abbbc&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Seq</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Any</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab*c&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;abxc&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nx">Seq</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Any</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab|cd&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;xaby&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Alt</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;ab&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;cd&#39;</span><span class="p">))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab|cd&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;acdc&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Alt</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;ab&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;cd&#39;</span><span class="p">))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a(b|c)d&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;xabdy&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nx">Seq</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Alt</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">)),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;d&#39;</span><span class="p">))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a(b|c)d&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;xabady&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nx">Seq</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Alt</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">)),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;d&#39;</span><span class="p">))]</span><span class="w"></span>
+<span class="w">  </span><span class="p">]</span><span class="w"></span>
+<span class="w">  </span><span class="nx">tests</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(([</span><span class="nx">pattern</span><span class="p">,</span><span class="w"> </span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">expected</span><span class="p">,</span><span class="w"> </span><span class="nx">matcher</span><span class="p">])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actual</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">matcher</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="nx">text</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">actual</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">expected</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;pass&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;fail&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`&quot;</span><span class="si">${</span><span class="nx">pattern</span><span class="si">}</span><span class="sb">&quot; X &quot;</span><span class="si">${</span><span class="nx">text</span><span class="si">}</span><span class="sb">&quot;: </span><span class="si">${</span><span class="nx">result</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-main()
-</code></pre>
+<span class="nx">main</span><span class="p">()</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p>Next,
-we define a <a class="glossref" href="../glossary/#base_class" markdown="1">base class</a> that all matchers will inherit from.
+we define a <a class="gl-ref" href="../glossary/#base_class" markdown="1">base class</a> that all matchers will inherit from.
 This class contains the <code>match</code> method that users will call
 so that we can start matching right away
 no matter what kind of matcher we have at the top level of our pattern.</p>
-<pre><code class="language-js">class RegexBase {
-  match (text) {
-    for (let i = 0; i &lt; text.length; i += 1) {
-      if (this._match(text, i)) {
-        return true
-      }
-    }
-    return false
-  }
+<div class="code-sample lang-js" title="regex-base.js">
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nx">RegexBase</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">match</span><span class="w"> </span><span class="p">(</span><span class="nx">text</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">text</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_match</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-  _match (text, start) {
-    throw new Error('derived classes must override &quot;_match&quot;')
-  }
-}
+<span class="w">  </span><span class="nx">_match</span><span class="w"> </span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">start</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s1">&#39;derived classes must override &quot;_match&quot;&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-export default RegexBase
-</code></pre>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">RegexBase</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p class="continue">The base class also defines a <code>_match</code> method (with a leading underscore)
 that other classes will fill in with actual matching code.
 The base implementation of this method throws an exception
-so that if we forget to provide <code>_match</code> in a <a class="glossref" href="../glossary/#derived_class" markdown="1">derived class</a>
+so that if we forget to provide <code>_match</code> in a <a class="gl-ref" href="../glossary/#derived_class" markdown="1">derived class</a>
 our code will fail with a meaningful reminder.</p>
-<blockquote>
+<div class="callout">
 <h3>One interface to call them all</h3>
-<p>Our design makes use of <span class="indexentry" index-key="polymorphism (in software design);software design!polymorphism" markdown="1"><a class="glossref" href="../glossary/#polymorphism" markdown="1">polymorphism</a></span>,
-which literally means "having multiple forms".
+<p>Our design makes use of <span class="ix-entry" ix-key="polymorphism (in software design);software design!polymorphism" markdown="1"><a class="gl-ref" href="../glossary/#polymorphism" markdown="1">polymorphism</a></span>,
+which literally means &ldquo;having multiple forms&rdquo;.
 If a set of objects all have methods that can be called the same way,
 then those objects can be used interchangeably;
 putting it another way,
 a program can use them without knowing exactly what they are.
-Polymorphism reduces the <span class="indexentry" index-key="coupling;software design!coupling" markdown="1"><a class="glossref" href="../glossary/#coupling" markdown="1">coupling</a></span> between different parts of our program,
+Polymorphism reduces the <span class="ix-entry" ix-key="coupling;software design!coupling" markdown="1"><a class="gl-ref" href="../glossary/#coupling" markdown="1">coupling</a></span> between different parts of our program,
 which in turn makes it easier for those programs to evolve.</p>
-</blockquote>
-<p>We can now define empty versions of each matching class that all say "no match here"
+</div>
+<p>We can now define empty versions of each matching class that all say &ldquo;no match here&rdquo;
 like this one for literal characters:</p>
-<pre><code class="language-js">import RegexBase from './regex-base.js'
+<div class="code-sample lang-js" title="regex-lit.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">RegexBase</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./regex-base.js&#39;</span><span class="w"></span>
 
-class RegexLit extends RegexBase {
-  constructor (chars) {
-    super()
-    this.chars = chars
-  }
+<span class="kd">class</span><span class="w"> </span><span class="nx">RegexLit</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">RegexBase</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kr">constructor</span><span class="w"> </span><span class="p">(</span><span class="nx">chars</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">super</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">chars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">chars</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-  _match (text, start) {
-    return undefined // FIXME
-  }
-}
+<span class="w">  </span><span class="nx">_match</span><span class="w"> </span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">start</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">undefined</span><span class="w"> </span><span class="c1">// FIXME</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-export default (chars) =&gt; new RegexLit(chars)
-</code></pre>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="p">(</span><span class="nx">chars</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">RegexLit</span><span class="p">(</span><span class="nx">chars</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p class="continue">Our tests now run, but most of them fail:
-"most" because we expect some tests not to match,
+&ldquo;most&rdquo; because we expect some tests not to match,
 so the test runner reports <code>true</code>.</p>
-<pre><code class="language-out">&quot;a&quot; X &quot;a&quot;: fail
+<div class="code-sample lang-out" title="regex-initial.out">
+<div class="highlight"><pre><span></span><code>&quot;a&quot; X &quot;a&quot;: fail
 &quot;b&quot; X &quot;a&quot;: pass
 &quot;a&quot; X &quot;ab&quot;: fail
 &quot;b&quot; X &quot;ab&quot;: fail
@@ -559,35 +825,39 @@ so the test runner reports <code>true</code>.</p>
 &quot;ab|cd&quot; X &quot;acdc&quot;: fail
 &quot;a(b|c)d&quot; X &quot;xabdy&quot;: fail
 &quot;a(b|c)d&quot; X &quot;xabady&quot;: pass
-</code></pre>
+</code></pre></div>
+</div>
 <p class="continue">This output tells us how much work we have left to do:
 when all of these tests pass,
-we're finished.</p>
-<p>Let's implement a literal character string matcher first:</p>
-<pre><code class="language-js">import RegexBase from './regex-base.js'
+we&rsquo;re finished.</p>
+<p>Let&rsquo;s implement a literal character string matcher first:</p>
+<div class="code-sample lang-js" title="regex-lit.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">RegexBase</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./regex-base.js&#39;</span><span class="w"></span>
 
-class RegexLit extends RegexBase {
-  constructor (chars) {
-    super()
-    this.chars = chars
-  }
+<span class="kd">class</span><span class="w"> </span><span class="nx">RegexLit</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">RegexBase</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kr">constructor</span><span class="w"> </span><span class="p">(</span><span class="nx">chars</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">super</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">chars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">chars</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-  _match (text, start) {
-    const nextIndex = start + this.chars.length
-    if (nextIndex &gt; text.length) {
-      return undefined
-    }
-    if (text.slice(start, nextIndex) !== this.chars) {
-      return undefined
-    }
-    return nextIndex
-  }
-}
+<span class="w">  </span><span class="nx">_match</span><span class="w"> </span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">start</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">nextIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">start</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">chars</span><span class="p">.</span><span class="nx">length</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">nextIndex</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nx">text</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="kc">undefined</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">text</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span><span class="w"> </span><span class="nx">nextIndex</span><span class="p">)</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">chars</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="kc">undefined</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">nextIndex</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-export default (chars) =&gt; new RegexLit(chars)
-</code></pre>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="p">(</span><span class="nx">chars</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">RegexLit</span><span class="p">(</span><span class="nx">chars</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p>Some tests now pass, others still fail as expected:</p>
-<pre><code class="language-out">&quot;a&quot; X &quot;a&quot;: pass
+<div class="code-sample lang-out" title="regex-beginning.out">
+<div class="highlight"><pre><span></span><code>&quot;a&quot; X &quot;a&quot;: pass
 &quot;b&quot; X &quot;a&quot;: pass
 &quot;a&quot; X &quot;ab&quot;: pass
 &quot;b&quot; X &quot;ab&quot;: pass
@@ -608,220 +878,234 @@ export default (chars) =&gt; new RegexLit(chars)
 &quot;ab|cd&quot; X &quot;acdc&quot;: fail
 &quot;a(b|c)d&quot; X &quot;xabdy&quot;: fail
 &quot;a(b|c)d&quot; X &quot;xabady&quot;: pass
-</code></pre>
+</code></pre></div>
+</div>
 <p>We will tackle <code>RegexSeq</code> next so that we can combine other matchers.
 This is why we have tests for <code>Seq(Lit('a'), Lit('b'))</code> and <code>Lit('ab')</code>:
 all children have to match in order without gaps.</p>
 <p>But wait:
 suppose we have the pattern <code>/a*ab/</code>.
 This ought to match the text <code>"ab"</code>, but will it?
-The <code>/*/</code> is <span class="indexentry" index-key="greedy algorithm;algorithm!greedy" markdown="1"><a class="glossref" href="../glossary/#greedy_algorithm" markdown="1">greedy</a></span>: it matches as much as it can
-(which is also called <span class="indexentry" index-key="eager matching;matching!eager" markdown="1"><a class="glossref" href="../glossary/#eager_matching" markdown="1">eager matching</a></span>).
+The <code>/*/</code> is <span class="ix-entry" ix-key="greedy algorithm;algorithm!greedy" markdown="1"><a class="gl-ref" href="../glossary/#greedy_algorithm" markdown="1">greedy</a></span>: it matches as much as it can
+(which is also called <span class="ix-entry" ix-key="eager matching;matching!eager" markdown="1"><a class="gl-ref" href="../glossary/#eager_matching" markdown="1">eager matching</a></span>).
 As a result,
 <code>/a*/</code> will match the leading <code>"a"</code>, leaving nothing for the literal <code>/a/</code> to match
-(<a class="figref" href="../pattern-matching/#pattern-matching-greedy-failure">Figure 7.4</a>).
-Our current implementation doesn't give us a way to try other possible matches when this happens.</p>
+(<a class="fig-ref" href="../pattern-matching/#pattern-matching-greedy-failure">Figure 7.4</a>).
+Our current implementation doesn&rsquo;t give us a way to try other possible matches when this happens.</p>
 <figure id="pattern-matching-greedy-failure">
-  <img src="./figures/greedy-failure.svg" alt="Overly-greedy matching fails" />
-  <figcaption markdown="1">Figure 7.4: Why overly-greedy matching doesn't work.</figcaption>
+  <img src="./greedy-failure.svg" alt="Overly-greedy matching fails"/>
+  <figcaption markdown="1">Figure 7.4: Why overly greedy matching doesn&rsquo;t work.</figcaption>
 </figure>
 
-<p>Let's re-think our design
+<p>Let&rsquo;s re-think our design
 and have each matcher take its own arguments and a <code>rest</code> parameter containing the rest of the matchers
-(<a class="figref" href="../pattern-matching/#pattern-matching-rest">Figure 7.5</a>).
+(<a class="fig-ref" href="../pattern-matching/#pattern-matching-rest">Figure 7.5</a>).
 (We will provide a default of <code>null</code> in the creation function
-so we don't have to type <code>null</code> over and over again.)
+so we don&rsquo;t have to type <code>null</code> over and over again.)
 Each matcher will try each of its possibilities and then see if the rest will also match.</p>
 <figure id="pattern-matching-rest">
-  <img src="./figures/rest.svg" alt="Matching the rest of the pattern" />
-  <figcaption markdown="1">Figure 7.5: Using </figcaption>
+  <img src="./rest.svg" alt="Matching the rest of the pattern"/>
+  <figcaption markdown="1">Figure 7.5: Using <code>rest</code> to match the remainder of a pattern.</figcaption>
 </figure>
 
 <p>This design means we can get rid of <code>RegexSeq</code>,
 but it does make our tests a little harder to read:</p>
-<pre><code class="language-js">import Alt from './regex-alt.js'
-import Any from './regex-any.js'
-import End from './regex-end.js'
-import Lit from './regex-lit.js'
-import Start from './regex-start.js'
+<div class="code-sample lang-js" title="regex-complete.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">Alt</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./regex-alt.js&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">Any</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./regex-any.js&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">End</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./regex-end.js&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">Lit</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./regex-lit.js&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">Start</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./regex-start.js&#39;</span><span class="w"></span>
 
-const main = () =&gt; {
-  const tests = [
-    ['a', 'a', true, Lit('a')],
-    ['b', 'a', false, Lit('b')],
-    ['a', 'ab', true, Lit('a')],
-    ['b', 'ab', true, Lit('b')],
-    ['ab', 'ab', true, Lit('a', Lit('b'))],
-    ['ba', 'ab', false, Lit('b', Lit('a'))],
-    ['ab', 'ba', false, Lit('ab')],
-    ['^a', 'ab', true, Start(Lit('a'))],
-    ['^b', 'ab', false, Start(Lit('b'))],
-    ['a$', 'ab', false, Lit('a', End())],
-    ['a$', 'ba', true, Lit('a', End())],
-    ['a*', '', true, Any(Lit('a'))],
-    ['a*', 'baac', true, Any(Lit('a'))],
-    ['ab*c', 'ac', true, Lit('a', Any(Lit('b'), Lit('c')))],
-    ['ab*c', 'abc', true, Lit('a', Any(Lit('b'), Lit('c')))],
-    ['ab*c', 'abbbc', true, Lit('a', Any(Lit('b'), Lit('c')))],
-    ['ab*c', 'abxc', false, Lit('a', Any(Lit('b'), Lit('c')))],
-    ['ab|cd', 'xaby', true, Alt(Lit('ab'), Lit('cd'))],
-    ['ab|cd', 'acdc', true, Alt(Lit('ab'), Lit('cd'))],
-    ['a(b|c)d', 'xabdy', true, Lit('a', Alt(Lit('b'), Lit('c'), Lit('d')))],
-    ['a(b|c)d', 'xabady', false, Lit('a', Alt(Lit('b'), Lit('c'), Lit('d')))]
-  ]
-  tests.forEach(([pattern, text, expected, matcher]) =&gt; {
-    const actual = matcher.match(text)
-    const result = (actual === expected) ? 'pass' : 'fail'
-    console.log(`&quot;${pattern}&quot; X &quot;${text}&quot;: ${result}`)
-  })
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">tests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">)],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">)],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ba&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ba&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;ab&#39;</span><span class="p">)],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;^a&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Start</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;^b&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nx">Start</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a$&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ab&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">End</span><span class="p">())],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a$&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ba&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">End</span><span class="p">())],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a*&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Any</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a*&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;baac&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Any</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab*c&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ac&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">Any</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">)))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab*c&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;abc&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">Any</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">)))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab*c&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;abbbc&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">Any</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">)))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab*c&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;abxc&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">Any</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">)))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab|cd&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;xaby&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Alt</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;ab&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;cd&#39;</span><span class="p">))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;ab|cd&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;acdc&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Alt</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;ab&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;cd&#39;</span><span class="p">))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a(b|c)d&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;xabdy&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">Alt</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;d&#39;</span><span class="p">)))],</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="s1">&#39;a(b|c)d&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;xabady&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">Alt</span><span class="p">(</span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">Lit</span><span class="p">(</span><span class="s1">&#39;d&#39;</span><span class="p">)))]</span><span class="w"></span>
+<span class="w">  </span><span class="p">]</span><span class="w"></span>
+<span class="w">  </span><span class="nx">tests</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(([</span><span class="nx">pattern</span><span class="p">,</span><span class="w"> </span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">expected</span><span class="p">,</span><span class="w"> </span><span class="nx">matcher</span><span class="p">])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actual</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">matcher</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="nx">text</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">actual</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">expected</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;pass&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;fail&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`&quot;</span><span class="si">${</span><span class="nx">pattern</span><span class="si">}</span><span class="sb">&quot; X &quot;</span><span class="si">${</span><span class="nx">text</span><span class="si">}</span><span class="sb">&quot;: </span><span class="si">${</span><span class="nx">result</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-main()
-</code></pre>
-<p>Here's how this works for matching a literal expression:</p>
-<pre><code class="language-js">import RegexBase from './regex-base.js'
+<span class="nx">main</span><span class="p">()</span><span class="w"></span>
+</code></pre></div>
+</div>
+<p>Here&rsquo;s how this works for matching a literal expression:</p>
+<div class="code-sample lang-js" title="regex-lit.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">RegexBase</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./regex-base.js&#39;</span><span class="w"></span>
 
-class RegexLit extends RegexBase {
-  constructor (chars, rest) {
-    super(rest)
-    this.chars = chars
-  }
+<span class="kd">class</span><span class="w"> </span><span class="nx">RegexLit</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">RegexBase</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kr">constructor</span><span class="w"> </span><span class="p">(</span><span class="nx">chars</span><span class="p">,</span><span class="w"> </span><span class="nx">rest</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">super</span><span class="p">(</span><span class="nx">rest</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">chars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">chars</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-  _match (text, start) {
-    const nextIndex = start + this.chars.length
-    if (nextIndex &gt; text.length) {
-      return undefined
-    }
-    if (text.slice(start, nextIndex) !== this.chars) {
-      return undefined
-    }
-    if (this.rest === null) {
-      return nextIndex
-    }
-    return this.rest._match(text, nextIndex)
-  }
-}
+<span class="w">  </span><span class="nx">_match</span><span class="w"> </span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">start</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">nextIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">start</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">chars</span><span class="p">.</span><span class="nx">length</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">nextIndex</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nx">text</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="kc">undefined</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">text</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span><span class="w"> </span><span class="nx">nextIndex</span><span class="p">)</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">chars</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="kc">undefined</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">rest</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">nextIndex</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">rest</span><span class="p">.</span><span class="nx">_match</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">nextIndex</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-export default (chars, rest = null) =&gt; new RegexLit(chars, rest)
-</code></pre>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="p">(</span><span class="nx">chars</span><span class="p">,</span><span class="w"> </span><span class="nx">rest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">RegexLit</span><span class="p">(</span><span class="nx">chars</span><span class="p">,</span><span class="w"> </span><span class="nx">rest</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p class="continue">The <code>_match</code> method checks whether all of the pattern matches the target text starting at the current location.
-If so, it checks whether the rest of the overall pattern matches what's left.
+If so, it checks whether the rest of the overall pattern matches what&rsquo;s left.
 Matching the start <code>/^/</code> and end <code>/$/</code> anchors is just as straightforward:</p>
-<pre><code class="language-js">import RegexBase from './regex-base.js'
+<div class="code-sample lang-js" title="regex-start.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">RegexBase</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./regex-base.js&#39;</span><span class="w"></span>
 
-class RegexStart extends RegexBase {
-  _match (text, start) {
-    if (start !== 0) {
-      return undefined
-    }
-    if (this.rest === null) {
-      return 0
-    }
-    return this.rest._match(text, start)
-  }
-}
+<span class="kd">class</span><span class="w"> </span><span class="nx">RegexStart</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">RegexBase</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">_match</span><span class="w"> </span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">start</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">start</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="kc">undefined</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">rest</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="mf">0</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">rest</span><span class="p">.</span><span class="nx">_match</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">start</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-export default (rest = null) =&gt; new RegexStart(rest)
-</code></pre>
-<pre><code class="language-js">import RegexBase from './regex-base.js'
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="p">(</span><span class="nx">rest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">RegexStart</span><span class="p">(</span><span class="nx">rest</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-js" title="regex-end.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">RegexBase</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./regex-base.js&#39;</span><span class="w"></span>
 
-class RegexEnd extends RegexBase {
-  _match (text, start) {
-    if (start !== text.length) {
-      return undefined
-    }
-    if (this.rest === null) {
-      return text.length
-    }
-    return this.rest._match(text, start)
-  }
-}
+<span class="kd">class</span><span class="w"> </span><span class="nx">RegexEnd</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">RegexBase</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">_match</span><span class="w"> </span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">start</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">start</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="nx">text</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="kc">undefined</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">rest</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">text</span><span class="p">.</span><span class="nx">length</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">rest</span><span class="p">.</span><span class="nx">_match</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">start</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-export default (rest = null) =&gt; new RegexEnd(rest)
-</code></pre>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="p">(</span><span class="nx">rest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">RegexEnd</span><span class="p">(</span><span class="nx">rest</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p>Matching either/or is done by trying the first pattern and the rest,
 and if that fails,
 trying the second pattern and the rest:</p>
-<pre><code class="language-js">import RegexBase from './regex-base.js'
+<div class="code-sample lang-js" title="regex-alt.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">RegexBase</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./regex-base.js&#39;</span><span class="w"></span>
 
-class RegexAlt extends RegexBase {
-  constructor (left, right, rest) {
-    super(rest)
-    this.left = left
-    this.right = right
-  }
+<span class="kd">class</span><span class="w"> </span><span class="nx">RegexAlt</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">RegexBase</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kr">constructor</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="p">,</span><span class="w"> </span><span class="nx">right</span><span class="p">,</span><span class="w"> </span><span class="nx">rest</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">super</span><span class="p">(</span><span class="nx">rest</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">left</span><span class="w"></span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">right</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-  _match (text, start) {
-    for (const pat of [this.left, this.right]) {
-      const afterPat = pat._match(text, start)
-      if (afterPat !== undefined) {
-        if (this.rest === null) {
-          return afterPat
-        }
-        const afterRest = this.rest._match(text, afterPat)
-        if (afterRest !== undefined) {
-          return afterRest
-        }
-      }
-    }
-    return undefined
-  }
-}
+<span class="w">  </span><span class="nx">_match</span><span class="w"> </span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">start</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">pat</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="p">[</span><span class="k">this</span><span class="p">.</span><span class="nx">left</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">right</span><span class="p">])</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">afterPat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">pat</span><span class="p">.</span><span class="nx">_match</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">start</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">afterPat</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="kc">undefined</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">rest</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">          </span><span class="k">return</span><span class="w"> </span><span class="nx">afterPat</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">afterRest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">rest</span><span class="p">.</span><span class="nx">_match</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">afterPat</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">afterRest</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="kc">undefined</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">          </span><span class="k">return</span><span class="w"> </span><span class="nx">afterRest</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">undefined</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const create = (left, right, rest = null) =&gt; {
-  return new RegexAlt(left, right, rest)
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">create</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="p">,</span><span class="w"> </span><span class="nx">right</span><span class="p">,</span><span class="w"> </span><span class="nx">rest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">RegexAlt</span><span class="p">(</span><span class="nx">left</span><span class="p">,</span><span class="w"> </span><span class="nx">right</span><span class="p">,</span><span class="w"> </span><span class="nx">rest</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-export default create
-</code></pre>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">create</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p>To match a repetition,
 we figure out the maximum number of matches that might be left,
 then count down until something succeeds.
 (We start with the maximum because matching is supposed to be greedy.)
 Each non-empty repetition matches at least one character,
 so the number of remaining characters is the maximum number of matches worth trying.</p>
-<pre><code class="language-js">import RegexBase from './regex-base.js'
+<div class="code-sample lang-js" title="regex-any.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">RegexBase</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./regex-base.js&#39;</span><span class="w"></span>
 
-class RegexAny extends RegexBase {
-  constructor (child, rest) {
-    super(rest)
-    this.child = child
-  }
+<span class="kd">class</span><span class="w"> </span><span class="nx">RegexAny</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">RegexBase</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kr">constructor</span><span class="w"> </span><span class="p">(</span><span class="nx">child</span><span class="p">,</span><span class="w"> </span><span class="nx">rest</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">super</span><span class="p">(</span><span class="nx">rest</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">child</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">child</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-  _match (text, start) {
-    const maxPossible = text.length - start
-    for (let num = maxPossible; num &gt;= 0; num -= 1) {
-      const afterMany = this._matchMany(text, start, num)
-      if (afterMany !== undefined) {
-        return afterMany
-      }
-    }
-    return undefined
-  }
+<span class="w">  </span><span class="nx">_match</span><span class="w"> </span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">start</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">maxPossible</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">text</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">start</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">num</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">maxPossible</span><span class="p">;</span><span class="w"> </span><span class="nx">num</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">num</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">afterMany</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">_matchMany</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">start</span><span class="p">,</span><span class="w"> </span><span class="nx">num</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">afterMany</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="kc">undefined</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">afterMany</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">undefined</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-  _matchMany (text, start, num) {
-    for (let i = 0; i &lt; num; i += 1) {
-      start = this.child._match(text, start)
-      if (start === undefined) {
-        return undefined
-      }
-    }
-    if (this.rest !== null) {
-      return this.rest._match(text, start)
-    }
-    return start
-  }
-}
+<span class="w">  </span><span class="nx">_matchMany</span><span class="w"> </span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">start</span><span class="p">,</span><span class="w"> </span><span class="nx">num</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">num</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nx">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">child</span><span class="p">.</span><span class="nx">_match</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">start</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">start</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="kc">undefined</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">undefined</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">rest</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">rest</span><span class="p">.</span><span class="nx">_match</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">start</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">start</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const create = (child, rest = null) =&gt; {
-  return new RegexAny(child, rest)
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">create</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">child</span><span class="p">,</span><span class="w"> </span><span class="nx">rest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">RegexAny</span><span class="p">(</span><span class="nx">child</span><span class="p">,</span><span class="w"> </span><span class="nx">rest</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-export default create
-</code></pre>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">create</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p>With these classes in place,
 our tests all pass:</p>
-<pre><code class="language-out">&quot;a&quot; X &quot;a&quot;: pass
+<div class="code-sample lang-out" title="regex-recursive.out">
+<div class="highlight"><pre><span></span><code>&quot;a&quot; X &quot;a&quot;: pass
 &quot;b&quot; X &quot;a&quot;: pass
 &quot;a&quot; X &quot;ab&quot;: pass
 &quot;b&quot; X &quot;ab&quot;: pass
@@ -842,38 +1126,39 @@ our tests all pass:</p>
 &quot;ab|cd&quot; X &quot;acdc&quot;: pass
 &quot;a(b|c)d&quot; X &quot;xabdy&quot;: pass
 &quot;a(b|c)d&quot; X &quot;xabady&quot;: pass
-</code></pre>
+</code></pre></div>
+</div>
 <p>The most important thing about this design is how extensible it is:
 if we want to add other kinds of matching,
 all we have to do is add more classes.
 That extensibility comes from the lack of centralized decision-making,
 which in turn comes from our use of polymorphism
-and the <span class="indexentry" index-key="Chain of Responsibility pattern;design pattern!Chain of Responsibility" markdown="1"><a class="glossref" href="../glossary/#chain_of_responsibility_pattern" markdown="1">Chain of Responsibility</a></span> design pattern.
+and the <span class="ix-entry" ix-key="Chain of Responsibility pattern;design pattern!Chain of Responsibility" markdown="1"><a class="gl-ref" href="../glossary/#chain_of_responsibility_pattern" markdown="1">Chain of Responsibility</a></span> design pattern.
 Each component does its part and asks something else to handle the remaining work;
 so long as each component takes the same inputs,
 we can put them together however we want.</p>
-<blockquote>
+<div class="callout">
 <h3>The Open-Closed Principle</h3>
-<p>The <span class="indexentry" index-key="Open-Closed Principle;software design!Open-Closed Principle" markdown="1"><a class="glossref" href="../glossary/#open_closed_principle" markdown="1">Open-Closed Principle</a></span> states that
+<p>The <span class="ix-entry" ix-key="Open-Closed Principle;software design!Open-Closed Principle" markdown="1"><a class="gl-ref" href="../glossary/#open_closed_principle" markdown="1">Open-Closed Principle</a></span> states that
 software should be open for extension but closed for modification,
 i.e., that it should be possible to extend functionality
 without having to rewrite existing code.
-As we said in <a class="crossref" href="../async-programming/">Chapter 3</a>,
+As we said in <a class="x-ref" href="../async-programming/">Chapter 3</a>,
 this allows old code to use new code,
 but only if our design permits the kinds of extensions people are going to want to make.
-Since we can't anticipate everything,
+Since we can&rsquo;t anticipate everything,
 it is normal to have to revise a design the first two or three times we try to extend it.
-As <span class="citation"><a class="bibref" href="../bibliography/#Brand1995">Brand1995</a></span> said of buildings,
-the things we make learn how to do things better as we use them.</p>
-</blockquote>
-<div class="break-before"></div>
-<h2 id="pattern-matching-exercises">Section 7.4:  Exercises</h2>
+Looking at it another way,
+the things we build learn how to do their jobs better
+as we use them and improve them <span class="bib-ref">[<a class="bib-ref" href="../bibliography/#Brand1995">Brand1995</a>]</span>.</p>
+</div>
+<h2 id="pattern-matching-exercises">Section 7.4: Exercises</h2>
 <h3 class="exercise">Split once</h3>
 <p>Modify the query selector code so that selectors like <code>div#id</code> and <code>div.class</code> are only split into pieces once
 rather than being re-split each time <code>matchHere</code> is called.</p>
 <h3 class="exercise">Find and fix the error</h3>
 <p>The first regular expression matcher contains an error:
-the pattern <code>'a*ab'</code> should match the string <code>'aab'</code> but doesn't.
+the pattern <code>'a*ab'</code> should match the string <code>'aab'</code> but doesn&rsquo;t.
 Figure out why it fails and fix it.</p>
 <h3 class="exercise">Unit tests</h3>
 <p>Rewrite the tests for selectors and regular expressions to use Mocha.</p>
@@ -885,55 +1170,36 @@ so that (for example) <code>div[align=center]</code> returns all <code>div</code
 whose <code>align</code> attribute has the value <code>"center"</code>.</p>
 <h3 class="exercise">Child selectors</h3>
 <p>The expression <code>parent &gt; child</code> selects all nodes of type <code>child</code>
-that are immediate children of nodes of type <code>parent</code>---for example,
+that are immediate children of nodes of type <code>parent</code>&mdash;for example,
 <code>div &gt; p</code> selects all paragraphs that are immediate children of <code>div</code> elements.
 Modify <code>simple-selectors.js</code> to handle this kind of matching.</p>
 <h3 class="exercise">Find all with regular expressions</h3>
 <p>Modify the regular expression matcher to return <em>all</em> matches rather than just the first one.</p>
 <h3 class="exercise">Find one or more with regular expressions</h3>
-<p>Extend the regular expression matcher to support <code>+</code>, meaning "one or more".</p>
+<p>Extend the regular expression matcher to support <code>+</code>, meaning &ldquo;one or more&rdquo;.</p>
 <h3 class="exercise">Match sets of characters</h3>
 <p>Add a new regular expression matching class that matches any character from a set,
 so that <code>Charset('aeiou')</code> matches any lower-case vowel.</p>
 <h3 class="exercise">Make repetition more efficient</h3>
 <p>Rewrite <code>RegexAny</code> so that it does not repeatedly re-match text.</p>
 <h3 class="exercise">Lazy matching</h3>
-<p>The regular expressions we have seen so far are <a class="glossref" href="../glossary/#eager_matching" markdown="1">eager</a>:
+<p>The regular expressions we have seen so far are <a class="gl-ref" href="../glossary/#eager_matching" markdown="1">eager</a>:
 they match as much as they can, as early as they can.
-An alternative is <a class="glossref" href="../glossary/#lazy_matching" markdown="1">lazy matching</a>,
+An alternative is <a class="gl-ref" href="../glossary/#lazy_matching" markdown="1">lazy matching</a>,
 in which expressions match as little as they need to.
 For example,
 given the string <code>"ab"</code>,
 an eager match with the expression <code>/ab*/</code> will match both letters
-(because <code>/b*/</code> matches a 'b' if one is available)
+(because <code>/b*/</code> matches a &lsquo;b&rsquo; if one is available)
 but a lazy match will only match the first letter
 (because <code>/b*/</code> can match no letters at all).
 Implement lazy matching for the <code>*</code> operator.</p>
 <h3 class="exercise">Optional matching</h3>
-<p>The <code>?</code> operator means "optional",
-so that <code>/a?/</code> matches either zero or one occurrences of the letter 'a'.
+<p>The <code>?</code> operator means &ldquo;optional&rdquo;,
+so that <code>/a?/</code> matches either zero or one occurrences of the letter &lsquo;a&rsquo;.
 Implement this operator.</p>
-    </main>
-  <div class="centered footer">
-  <hr/>
-  <table class="plain footer">
-    <tr>
-      
-      <td><a href="../license/">License</a></td>
-      
-      <td><a href="../conduct/">Code of Conduct</a></td>
-      
-      <td><a href="../bibliography/">Bibliography</a></td>
-      
-      <td><a href="../glossary/">Glossary</a></td>
-      
-      <td><a href="../links/">Links</a></td>
-      
-      <td><a href="https://github.com/software-tools-books/stjs/">GitHub</a></td>
-      
-    </tr>
-  </table>
-</div>
-
+        </main>
+      </div>
+    </div>
   </body>
 </html>

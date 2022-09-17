@@ -1,10 +1,8 @@
 ---
-template: page
 title: "Conclusion"
-lede: "Where we have been and where you could go next"
 ---
 
-We have come a long way since we listed the contents of a directory in [% x systems-programming %].
+We have come a long way since we listed the contents of a directory in [%x systems-programming %].
 Saving files in version control,
 making sure code meets style rules,
 debugging it and bundling it (hopefully in that order)---programmers do these things every day,
@@ -16,8 +14,8 @@ or translate it into another programming language,
 human language,
 or both,
 your help would be very welcome:
-please see the introduction in [% x introduction %]
-and the contributors' guide in [% x contributing %] for more information.
+please see the introduction in [%x introduction %]
+and the contributors' guide in [%x contributing %] for more information.
 
 > We shape our tools, and thereafter our tools shape us.
 >

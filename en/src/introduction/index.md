@@ -1,10 +1,8 @@
 ---
-template: page
 title: "Introduction"
-lede: "Who you are and where we're going"
 ---
 
-The best way to learn design is to study examples [% b Schon1984 Petre2016 %],
+The best way to learn design is to study examples [%b Schon1984 Petre2016 %],
 and some of the best examples of software design come from
 the tools programmers use in their own work.
 In these lessons we build small versions of things like file backup systems,
@@ -13,16 +11,16 @@ regular expression matchers,
 and browser layout engines
 both to demystify them
 and to give some insights into how experienced programmers think.
-We draw inspiration from [% b Brown2011 Brown2012 Brown2016 %],
+We draw inspiration from [%b Brown2011 Brown2012 Brown2016 %],
 [Mary Rose Cook's][cook-mary-rose] [Gitlet][gitlet],
 and the books that introduced the Unix philosophy to an entire generation of programmers
-[% b Kernighan1979 Kernighan1981 Kernighan1983 Kernighan1988 %].
+[%b Kernighan1979 Kernighan1981 Kernighan1983 Kernighan1988 %].
 
 All of the written material in this project can be freely reused
 under the terms of the [Creative Commons - Attribution - NonCommercial license][cc-by-nc],
 while all of the software is made available under the terms of
 the [Hippocratic License][hippocratic-license];
-see [% x license %] for details.
+see [%x license %] for details.
 
 All proceeds from this project will go to support the [Red Door Family Shelter][red-door].
 
@@ -72,7 +70,7 @@ Like these three personas, readers should be able to:
 This book can be read on its own or used as a classroom resource.
 If you are looking for a project to do in a software design course,
 adding a tool to those covered here would be fun as well as educational.
-Please see [% x conclusion %] for more details.
+Please see [%x conclusion %] for more details.
 
 ## What tools and ideas do we cover? {: #introduction-contents}
 
@@ -81,7 +79,7 @@ This volume focuses on a few that individual developers use while writing softwa
 we hope future volumes
 will explore those used in the applications that programmers build.
 
-[% x glossary %] defines the terms we introduce in these lessons,
+[%x glossary %] defines the terms we introduce in these lessons,
 which in turn define their scope:
 
 -   How to process a program like any other piece of text.
@@ -148,7 +146,7 @@ whether we're talking about "the function itself" or "a call to the function wit
 ## How did we get here? {: #introduction-history}
 
 In the early 2000s,
-the [% i "University of Toronto" %]University of Toronto[% /i %] asked [% i "Wilson, Greg" %][Greg Wilson][wilson-greg][% /i %]
+the [%i "University of Toronto" %]University of Toronto[%/i%] asked [%i "Wilson, Greg" %][Greg Wilson][wilson-greg][%/i%]
 to teach an undergraduate course on software architecture.
 After delivering the course three times he told the university they should cancel it:
 between them,
@@ -158,8 +156,8 @@ devoted a total of less than 30 pages to describing the designs of actual system
 <div class="pagebreak"></div>
 
 Frustrated by that,
-he and [% i "Oram, Andy" %][Andy Oram][oram-andy][% /i %] persuaded some well-known programmers to contribute a chapter each
-to a collection called *Beautiful Code* [% b Oram2007 %],
+he and [%i "Oram, Andy" %][Andy Oram][oram-andy][%/i%] persuaded some well-known programmers to contribute a chapter each
+to a collection called *Beautiful Code* [%b Oram2007 %],
 which went on to win the Jolt Award in 2007.
 Entries in the book described everything from figuring out whether three points are on a line
 to core components of Linux
@@ -168,9 +166,9 @@ but the breadth that made them fun to read
 also meant they weren't particularly useful for teaching.
 
 To fix that,
-Greg Wilson, [% i "Brown, Amy" %][Amy Brown][brown-amy][% /i %],
-[% i "Armstrong, Tavish" %][Tavish Armstrong][armstrong-tavish][% /i %],
-and [% i "DiBernardo, Mike" %][Mike DiBernardo][dibernardo-mike][% /i %]
+Greg Wilson, [%i "Brown, Amy" %][Amy Brown][brown-amy][%/i%],
+[%i "Armstrong, Tavish" %][Tavish Armstrong][armstrong-tavish][%/i%],
+and [%i "DiBernardo, Mike" %][Mike DiBernardo][dibernardo-mike][%/i%]
 edited a four-book series between 2011 and 2016 called *[The Architecture of Open Source Applications][aosa]*.
 In the first two volumes,
 the creators of fifty open source projects described their systems' designs;
@@ -198,12 +196,12 @@ while the software is made available under the Hippocratic License.  The first
 allows you to use and remix this material for non-commercial purposes, as-is or
 in adapted form, provided you cite its original source; the second allows you to
 use and remix the software on this site provided you do not violate
-international agreements governing human rights. Please see [% x license %]
+international agreements governing human rights. Please see [%x license %]
 for details.
 
 If you would like to improve what we have or add new material, please see the
-Code of Conduct in [% x conduct %] and the contributor guidelines in
-[% x contributing %].  If you have questions or would like to use this material in
+Code of Conduct in [%x conduct %] and the contributor guidelines in
+[%x contributing %].  If you have questions or would like to use this material in
 a course, please file an issue in our GitHub repository or send us email.
 
 ## Who helped us? {: #introduction-help}

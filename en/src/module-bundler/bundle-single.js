@@ -1,4 +1,4 @@
-/* eslint-disable */
+// eslint-disable
 const translate = {
   "/u/stjs/stjs/module-bundler/single/main.js": {}
 }

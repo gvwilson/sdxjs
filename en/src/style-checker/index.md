@@ -1,61 +1,69 @@
 ---
-template: page
 title: "Style Checker"
-lede: "Checking that code conforms to style guidelines"
 ---
 
 Programmers argue endlessly about the best way to format their programs,
-but everyone agrees that the most important thing is to be [% i "coding style!importance of consistency" %]consistent[% /i %]
-[% b Binkley2012 Johnson2019 %].
+but everyone agrees that the most important thing is to be [%i "coding style!importance of consistency" %]consistent[%/i%]
+[%b Binkley2012 Johnson2019 %].
 Since checking rules by hand is tedious,
 most programmers use tools to compare code against various rules and report any violations.
-Programs that do this are often called [% i "linter" "coding style!linter" %][% g linter %]linters[% /g %][% /i %]
-in honor of an early one for [% i "C" %]C[% /i %] named `lint`
+Programs that do this are often called [%i "linter" "coding style!linter" %][%g linter "linters" %][%/i%]
+in honor of an early one for [%i "C" %]C[%/i%] named `lint`
 (because it looked for fluff in source code).
 
-In this chapter we will build a simple linter of our own inspired by [% i "ESLint" %][ESLint][eslint][% /i %],
+In this chapter we will build a simple linter of our own inspired by [%i "ESLint" %][ESLint][eslint][%/i%],
 which we use to check the code in this book.
 Our tool will parse source code to create a data structure,
 then go through that data structure and apply rules for each part of the program.
 It will also introduce us to one of the key ideas of this book,
 which is that source code is just another kind of data.
 
-> ### Don't define your own style
->
-> Just as the world doesn't need more file format ([% x regex-parser %])
-> it also doesn't need more programming styles,
-> or more arguments among programmers about whether there should be spaces before curly braces or not.
-> [% i "Standard JS" %][Standard JS][standard-js][% /i %] may not do everything exactly the way you want,
-> but adopting it increases the odds that other programmers will be able to read your code at first glance.
+<div class="callout" markdown="1">
+
+### Don't define your own style
+
+Just as the world doesn't need more file format ([%x regex-parser %])
+it also doesn't need more programming styles,
+or more arguments among programmers about whether there should be spaces before curly braces or not.
+[%i "Standard JS" %][Standard JS][standard-js][%/i%] may not do everything exactly the way you want,
+but adopting it increases the odds that other programmers will be able to read your code at first glance.
+
+</div>
 
 ## How can we parse JavaScript to create an AST? {: #style-checker-ast}
 
 A parser for a simple language like arithmetic or JSON is relatively easy to write.
 A parser for a language as complex as JavaScript is much more work,
-so we will use one called [% i "Acorn" %][Acorn][acorn][% /i %] instead.
+so we will use one called [%i "Acorn" %][Acorn][acorn][%/i%] instead.
 Acorn takes a string containing source code as input
-and produces an [% i "abstract syntax tree" %][% g abstract_syntax_tree %]abstract syntax tree[% /g %][% /i %] (AST)
+and produces an [%i "abstract syntax tree" %][%g abstract_syntax_tree "abstract syntax tree" %][%/i%] (AST)
 whose nodes store information about what's in the program
-([% f style-checker-parse-tree %]).
-An AST is for a program what the [% i "Document Object Model" %]DOM[% /i %] is for HTML:
+([%f style-checker-parse-tree %]).
+An AST is for a program what the [%i "Document Object Model" %]DOM[%/i%] is for HTML:
 an in-memory representation that is easy for software to inspect and manipulate.
-
-[% figure slug="style-checker-parse-tree" img="figures/parse-tree.svg" alt="A small parse tree" caption="The parse tree of a simple program." %]
 
 ASTs can be quite complex---for example,
 the JSON representation of the AST for a single constant declaration
 is [% linecount parse-single-const.out %] lines long:
 
-[% excerpt pat="parse-single-const.*" fill="js slice.out" %]
+[% inc pat="parse-single-const.*" fill="js slice.out" %]
 
-Acorn's output is in [% i "Esprima format" %][Esprima][esprima] format[% /i %]
+[% figure
+   cls="figure-here"
+   slug="style-checker-parse-tree"
+   img="parse-tree.svg"
+   alt="A small parse tree"
+   caption="The parse tree of a simple program."
+%]
+
+Acorn's output is in [%i "Esprima format" %][Esprima][esprima] format[%/i%]
 (so-called because it was originally defined by a tool with that name).
 The format's specification is very detailed,
 but we can usually figure out most of what we need by inspection.
 For example,
 here is the output for a [% linecount parse-const-func.js %]-line program:
 
-[% excerpt pat="parse-const-func.*" fill="js slice.out" %]
+[% inc pat="parse-const-func.*" fill="js slice.out" %]
 
 Yes, it really is almost 500 lines long…
 {: .continue}
@@ -63,11 +71,11 @@ Yes, it really is almost 500 lines long…
 ## How can we find things in an AST? {: #style-checker-search}
 
 If we want to find functions, variables, or anything else in an AST
-we need to [% i "walk a tree" %][% g walk_tree %]walk the tree[% /g %][% /i %],
+we need to [%i "walk a tree" %][%g walk_tree "walk the tree" %][%/i%],
 i.e.,
 to visit each node in turn.
 The [`acorn-walk`][acorn-walk] library will do this for us
-using the [% i "Visitor pattern" "design pattern!Visitor" %]Visitor design pattern[% /i %] we first saw in [% x page-templates %]
+using the [%i "Visitor pattern" "design pattern!Visitor" %]Visitor design pattern[%/i%] we first saw in [%x page-templates %]
 If we provide a function to act on nodes of type `Identifier`,
 `acorn-walk` will call that function each time it finds an identifier.
 We can use other options to say that we want to record the locations of nodes (i.e., their line numbers)
@@ -75,36 +83,47 @@ and to collect comments in an array called `onComment`.
 Our function can do whatever we want;
 for demonstration purposes we will add nodes to an array called `state`
 and report them all at the end
-([% f style-checker-walk-tree %]).
+([%f style-checker-walk-tree %]).
 
-[% figure slug="style-checker-walk-tree" img="figures/walk-tree.svg" alt="Walking a tree" caption="Walking a tree to perform an operation at each node." %]
+[% inc pat="walk-ast.*" fill="js out" %]
 
-[% excerpt pat="walk-ast.*" fill="js out" %]
+<div class="callout" markdown="1">
 
-> ### There's more than one way to do it
->
-> `walk.simple` takes four arguments:
->
-> 1.  The root node of the AST, which is used as the starting point.
->
-> 2.  An object containing callback functions for handling various kinds of nodes.
->
-> 3.  Another object that specifies what algorithm to use---we have set this to `null`
->     to use the default because
->     we don't particularly care about the order in which the nodes are processed.
->
-> 4.  Something we want passed in to each of the node handlers,
->     which in our case is the `state` array.
->     If our node handling functions don't require any extra data
->     from one call to the next
->     we can leave this out;
->     if we want to accumulate information across calls,
->     this argument acts as the Visitor's memory.
->
-> Any general-purpose implementation of the Visitor pattern
-> is going to need these four things,
-> but as we will see below,
-> we can implement them in different ways.
+### There's more than one way to do it
+
+`walk.simple` takes four arguments:
+
+1.  The root node of the AST, which is used as the starting point.
+
+2.  An object containing callback functions for handling various kinds of nodes.
+
+3.  Another object that specifies what algorithm to use---we have set this to `null`
+    to use the default because
+    we don't particularly care about the order in which the nodes are processed.
+
+4.  Something we want passed in to each of the node handlers,
+    which in our case is the `state` array.
+    If our node handling functions don't require any extra data
+    from one call to the next
+    we can leave this out;
+    if we want to accumulate information across calls,
+    this argument acts as the Visitor's memory.
+
+Any general-purpose implementation of the Visitor pattern
+is going to need these four things,
+but as we will see below,
+we can implement them in different ways.
+{: .continue}
+
+</div>
+
+[% figure
+   cls="figure-here"
+   slug="style-checker-walk-tree"
+   img="walk-tree.svg"
+   alt="Walking a tree"
+   caption="Walking a tree to perform an operation at each node."
+%]
 
 ## How can we apply checks? {: #style-checker-apply}
 
@@ -112,10 +131,10 @@ We don't just want to collect nodes:
 we want to check their properties against a set of rules.
 One way to do this would be to call `walk.simple` once for each rule,
 passing it a function that checks just that rule.
-Another way---the one we'll use---is to write a [% i "software design!generic function" %]generic function[% /i %]
+Another way---the one we'll use---is to write a [%i "software design!generic function" %]generic function[%/i%]
 that checks a rule and records any nodes that don't satisfy it,
 and then call that function once for each rule inside our `Identifier` handler.
-This may see like extra work,
+This may seem like extra work,
 but it ensures that all of our rule-checkers store their results in the same way,
 which in turn means that we can write one reporting function
 and be sure it will handle everything.
@@ -130,22 +149,22 @@ and then append this node to it.
 This "create storage space on demand" pattern
 is widely used but doesn't have a well-known name.
 
-[% excerpt file="check-name-lengths.js" keep="applyCheck" %]
+[% inc file="check-name-lengths.js" keep="applyCheck" %]
 
 We can now put a call to `applyCheck` inside the handler for `Identifier`:
 
-[% excerpt file="check-name-lengths.js" keep="main" %]
+[% inc file="check-name-lengths.js" keep="main" %]
 
 We can't just use `applyCheck` as the handler for `Identifier`
 because `walk.simple` wouldn't know how to call it.
-This is a (very simple) example of the [% i "Adapter pattern" "design pattern!Adapter" %][% g adapter_pattern %]Adapter[% /g %][% /i %] design pattern:
+This is a (very simple) example of the [%i "Adapter pattern" "design pattern!Adapter" %][%g adapter_pattern "Adapter" %][%/i%] design pattern:
 we write a function or class to connect the code we want to call
 to the already-written code that is going to call it.
 {: .continue}
 
 The output for the same sample program as before is:
 
-[% excerpt file="check-name-lengths.out" %]
+[% inc file="check-name-lengths.out" %]
 
 The exercises will ask why the parameter `x` doesn't show up
 as a violation of our rule
@@ -169,13 +188,13 @@ That simplifies the methods---one less parameter---but it does mean that
 anyone who wants to use our visitor has to derive a class,
 which is a bit more complicated than writing a function.
 This tradeoff is a sign that managing state is part of the problem's
-[% i "intrinsic complexity" %][% g intrinsic_complexity %]intrinsic complexity[% /g %][% /i %]:
+[%i "intrinsic complexity" %][%g intrinsic_complexity "intrinsic complexity" %][%/i%]:
 we can move it around,
 but we can't get rid of it.
 
 The other difference between our visitor and `acorn-walk` is that
-our class uses [% i "dynamic lookup" %][% g dynamic_lookup %]dynamic lookup[% /g %][% /i %]
-(a form of [% i "introspection!of methods" %]introspection[% /i %])
+our class uses [%i "dynamic lookup" %][%g dynamic_lookup "dynamic lookup" %][%/i%]
+(a form of [%i "introspection!of methods" %]introspection[%/i%])
 to look up a method
 with the same name as the node type in the object.
 While we normally refer to a particular method of an object using `object.method`,
@@ -183,16 +202,17 @@ we can also look them up by asking for `object[name]`
 in the same way that we would look up any other property of any other object.
 Our completed class looks like this:
 
-[% excerpt file="walker-class.js" keep="walker" %]
+[% inc file="walker-class.js" keep="walker" %]
 
 The code we need to use it is:
+{: .continue}
 
-[% excerpt file="walker-class.js" omit="walker" %]
+[% inc file="walker-class.js" omit="walker" %]
 
 and its output is:
 {: .continue}
 
-[% excerpt file="walker-class.out" %]
+[% inc file="walker-class.out" %]
 
 We think this approach to implementing the Visitor pattern is easier to understand and extend
 than one that relies on callbacks,
@@ -205,22 +225,33 @@ we should implement it that way everywhere.
 ## How else could the AST walker work? {: #style-checker-alternatives}
 
 A third approach to this problem uses
-the [% i "Iterator pattern" "design pattern!Iterator" %][% g iterator_pattern %]Iterator[% /g %][% /i %] design pattern.
-Instead of taking the computation to the nodes as a visitor does,
-an iterator returns the elements of a complex structure one by one for processing
-([% f style-checker-iterator %]).
-One way to think about it is that the Visitor pattern encapsulates recursion,
-while the Iterator pattern turns everything into a `for` loop.
-
-[% figure slug="style-checker-iterator" img="figures/iterator.svg" alt="The Iterator pattern" caption="Finding nodes in the tree using the Iterator pattern." %]
+the [%i "Iterator pattern" "design pattern!Iterator" %][%g iterator_pattern "Iterator" %][%/i%] design pattern.
+Instead of taking the computation to the nodes,
+an iterator returns the elements of a structure for processing
+([%f style-checker-iterator %]).
+One way to think about it is that Visitor encapsulates recursion,
+while Iterator turns everything into a loop.
 
 We can implement the Iterator pattern in JavaScript using
-[% i "generator function" "Iterator pattern!generator function" %][% g generator_function %]generator functions[% /g %][% /i %].
+[%i "generator function" "Iterator pattern!generator function" %][%g generator_function "generator functions" %][%/i%].
 If we declare a function using `function *` (with an asterisk) instead of `function`
 then we can use the `yield` keyword to return a value and suspend processing to be resumed later.
 The result of `yield` is a two-part structure with a value and a flag showing whether or not processing is done:
 
-[% excerpt pat="generator-example.*" fill="js out" %]
+[% inc pat="generator-example.*" fill="js out" %]
+
+[% figure
+   cls="figure-here"
+   slug="style-checker-iterator"
+   img="iterator.svg"
+   alt="The Iterator pattern"
+   caption="Finding nodes in the tree using the Iterator pattern."
+%]
+
+As another example,
+this generator takes a string and produces its vowels one by one:
+
+[% inc pat="generator-vowels-while.*" fill="js out" %]
 
 A generator function doesn't actually generate anything;
 instead,
@@ -228,36 +259,31 @@ it creates an object that we can then ask for values repeatedly.
 This gives us a way to have several generators in play at the same time.
 {: .continue}
 
-As another example,
-this generator takes a string and produces its vowels one by one:
-
-[% excerpt pat="generator-vowels-while.*" fill="js out" %]
-
 Instead of a `while` loop it is much more common to use `for...of`,
 which knows how to work with generators:
 
-[% excerpt file="generator-vowels-for.js" keep="loop" %]
+[% inc file="generator-vowels-for.js" keep="loop" %]
 
 Finally,
 just as `function *` says "this function is a generator",
 `yield *` says "yield the values from a nested generator one by one".
 We can use it to walk irregular structures like nested arrays:
 
-[% excerpt file="generator-tree.js" %]
+[% inc file="generator-tree.js" %]
 
 Let's use generators to count the number of expressions of various types in a program.
 The generator function that visits each node is:
 
-[% excerpt file="generator-count.js" keep="generator" %]
+[% inc file="generator-count.js" keep="generator" %]
 
 and the program that uses it is:
 {: .continue}
 
-[% excerpt file="generator-count.js" keep="main" %]
+[% inc file="generator-count.js" keep="main" %]
 
 When we run it with our usual test program as input, we get:
 
-[% excerpt file="generator-count.out" %]
+[% inc file="generator-count.out" %]
 
 Generators are a clean solution to many hard problems,
 but we find it more difficult to check variable identifiers using generators
@@ -279,27 +305,28 @@ that we lost track of what was defined where.)
 To create a table of method definitions,
 we first need to find the ancestors of the last class in the hierarchy:
 
-[% excerpt file="find-ancestors.js" omit="skip" %]
+[% inc file="find-ancestors.js" omit="skip" %]
 
 Finding class definitions is a straightforward extension of what we have already done:
 
-[% excerpt file="find-ancestors.js" keep="findClassDef" %]
+<div class="pagebreak"></div>
+[% inc file="find-ancestors.js" keep="findClassDef" %]
 
 To test this code, we start with the last of these three short files:
 
-[% excerpt pat="*.js" fill="upper middle lower" %]
-[% excerpt file="run-find-ancestors.out" %]
+[% inc pat="*.js" fill="upper middle lower" %]
+[% inc file="run-find-ancestors.out" %]
 
-Good: we can recover the [% i "chain of inheritance" %]chain of inheritance[% /i %].
+Good: we can recover the [%i "chain of inheritance" %]chain of inheritance[%/i%].
 Finding method definitions is also straightforward:
 
-[% excerpt file="find-methods.js" %]
+[% inc file="find-methods.js" %]
 
 And finally,
-we can print a [% i "Markdown" %][% g markdown %]Markdown[% /g %][% /i %]-formatted table
+we can print a [%i "Markdown" %][%g markdown "Markdown" %][%/i%]-formatted table
 showing which methods are defined in which class:
 
-[% excerpt file="run-find-methods.raw.out" %]
+[% inc file="run-find-methods.raw.out" %]
 
 which renders as:
 {: .continue}
@@ -313,7 +340,7 @@ which renders as:
 
 This may seem rather pointless for our toy example,
 but it proves its worth when we are looking at something like
-the virtual machine we will build in [% x virtual-machine %],
+the virtual machine we will build in [%x virtual-machine %],
 which has a more complex method definition table:
 
 | method | DebuggerBase | DebuggerInteractive | DebuggerTest | DebuggerExit |
@@ -336,7 +363,6 @@ which has a more complex method definition table:
 | stop | . | X | . | . |
 | variables | . | X | . | . |
 
-<div class="break-before"></div>
 ## Exercises {: #style-checker-exercises}
 
 ### Function length {: .exercise}
@@ -368,7 +394,7 @@ that exports a class derived from `Walker` called `Check`
 that implements the checks the user wants.
 The other command-line arguments must be the names of JavaScript source files to be checked:
 
-[% excerpt file="x-across-files/sniff.sh" %]
+[% inc file="x-across-files/sniff.sh" %]
 
 ### Finding assertions {: .exercise}
 
@@ -405,10 +431,10 @@ where the program contains expression like `arr[table[i]]`.
 ### Generators and arrays {: .exercise}
 
 1.  Write a generator that takes a two-dimensional table represented as an array of arrays
-    and returns the values in [% g column_major %]column-major[% /g %] order.
+    and returns the values in [%g column_major "column-major" %] order.
 
 2.  Write another generator that takes a similar table
-    and returns the values in [% g row_major %]row-major[% /g %] order.
+    and returns the values in [%g row_major "row-major" %] order.
 
 ### Generators and identifiers {: .exercise}
 

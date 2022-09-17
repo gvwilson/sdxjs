@@ -1,21 +1,18 @@
 ---
-title: "Contributing"
-template: page
+title: Contributing
 ---
 
-Contributions are very welcome:
-please go to [this project's GitHub repository][book-repo]
-to file an issue or submit a pull request.
-All contributors must abide by our [% i "Code of Conduct" %]Code of Conduct[% /i %].
+Contributions are very welcome;
+please contact us by email or by filing an issue on this site.
+All contributors must abide by our Code of Conduct.
 
 ## Making Decisions
 
-This project uses [Martha's Rules][marthas-rules] [% b Minahan1986 %]
-or consensus decision making:
+This project uses [Martha's Rules][marthas-rules] for consensus decision making:
 
 1.  Before each meeting, anyone who wishes may sponsor a proposal by filing an
-    issue in the GitHub repository tagged "proposal".  Proposals must be filed
-    at least 24 hours before a meeting in order to be considered at that
+    issue in the GitHub repository tagged "proposal".  People must file proposals
+    at least 24 hours before a meeting in order for them to be considered at that
     meeting, and must include:
     -   a one-line summary (the subject line of the issue)
     -   the full text of the proposal
@@ -32,13 +29,12 @@ or consensus decision making:
     item to the group.
 
 4.  After the sponsor presents the proposal, a "sense" vote is cast for the
-    proposal prior to any discussion:
+    proposal before any discussion:
     -   Who likes the proposal?
     -   Who can live with the proposal?
     -   Who is uncomfortable with the proposal?
 
-5.  If all of the group likes or can live with the proposal, it passes
-    immediately.
+5.  If everyone likes or can live with the proposal, it passes immediately.
 
 6.  If most of the group is uncomfortable with the proposal, it is postponed for
     further rework by the sponsor.
@@ -50,3 +46,10 @@ or consensus decision making:
     we implement this decision over the stated objections?"  If a majority votes
     "yes" the proposal is implemented.  Otherwise, the proposal is returned to
     the sponsor for further work.
+
+## Formatting
+
+This material uses [Ivy][ivy] with some custom extensions.
+Run `make` in the root directory to get a list of available commands.
+Some of these rely on scripts in the `./bin/` directory.
+Please see our Git repository for up-to-date instructions.

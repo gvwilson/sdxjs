@@ -1,48 +1,51 @@
 ---
-template: page
 title: "Asynchronous Programming"
-lede: "Using promises to manage delayed computation"
 ---
 
 Callbacks work,
 but they are hard to read and debug,
 which means they only "work" in a limited sense.
-JavaScript's developers added [% i "promise!as alternative to callback" %][% g promise %]promises[% /g %][% /i %] to the language in 2015
+JavaScript's developers added [%i "promise!as alternative to callback" %][%g promise "promises" %][%/i%] to the language in 2015
 to make callbacks easier to write and understand,
 and more recently they added the keywords `async` and `await` as well
 to make asynchronous programming easier still.
 To show how these work,
-we will create a [% g class %]class[% /g %] of our own called `Pledge`
+we will create a [%g class "class" %] of our own called `Pledge`
 that provides the same core features as promises.
-Our explanation was inspired by [% i "Huffine, Trey" %][Trey Huffine's][huffine-trey][% /i %] [tutorial][huffine-promises],
+Our explanation was inspired by [%i "Huffine, Trey" %][Trey Huffine's][huffine-trey][%/i%] [tutorial][huffine-promises],
 and we encourage you to read that as well.
 
 ## How can we manage asynchronous execution? {: #async-programming-manage}
 
-JavaScript is built around an [% i "event loop" "execution!event loop" %][% g event_loop %]event loop[% /g %][% /i %].
+JavaScript is built around an [%i "event loop" "execution!event loop" %][%g event_loop "event loop" %][%/i%].
 Every task is represented by an entry in a queue;
 the event loop repeatedly takes a task from the front of the queue,
 runs it,
 and adds any new tasks that it creates to the back of the queue to run later.
 Only one task runs at a time;
-each has its own [% g call_stack %]call stack[% /g %],
+each has its own [%g call_stack "call stack" %],
 but objects can be shared between tasks
-([% f async-programming-event-loop %]).
+([%f async-programming-event-loop %]).
 
-[% figure slug="async-programming-event-loop" img="figures/event-loop.svg" alt="The event loop" caption="Using an event loop to manage concurrent tasks." %]
+[% figure
+   slug="async-programming-event-loop"
+   img="event-loop.svg"
+   alt="The event loop"
+   caption="Using an event loop to manage concurrent tasks."
+%]
 
 Most tasks execute all the code available in the order it is written.
 For example,
-this one-line program uses [% i "Array.forEach" %]`Array.forEach`[% /i %]
+this one-line program uses [%i "Array.forEach" %]`Array.forEach`[%/i%]
 to print each element of an array in turn:
 
-[% excerpt pat="not-callbacks-alone.*" fill="js out" %]
+[% inc pat="not-callbacks-alone.*" fill="js out" %]
 
 However,
 a handful of special built-in functions make [Node][nodejs] switch tasks
 or add new tasks to the run queue.
 For example,
-[% i "setTimeout" %]`setTimeout`[% /i %] tells Node to run a callback function
+[%i "setTimeout" %]`setTimeout`[%/i%] tells Node to run a callback function
 after a certain number of milliseconds have passed.
 Its first argument is a callback function that takes no arguments,
 and its second is the delay.
@@ -51,55 +54,64 @@ Node sets the callback aside for the requested length of time,
 then adds it to the run queue.
 (This means the task runs *at least* the specified number of milliseconds later).
 
-> ### Why zero arguments?
->
-> `setTimeout`'s requirement that callback functions take no arguments
-> is another example of a [% i "protocol!API as" "API!as protocol" %][% g protocol %]protocol[% /g %][% /i %].
-> One way to think about it is that protocols allow old code to use new code:
-> whoever wrote `setTimeout` couldn't know what specific tasks we want to delay,
-> so they specified a way to wrap up any task at all.
+<div class="callout" markdown="1">
+
+### Why zero arguments?
+
+`setTimeout`'s requirement that callback functions take no arguments
+is another example of a [%i "protocol!API as" "API!as protocol" %][%g protocol "protocol" %][%/i%].
+One way to think about it is that protocols allow old code to use new code:
+whoever wrote `setTimeout` couldn't know what specific tasks we want to delay,
+so they specified a way to wrap up any task at all.
+
+</div>
 
 As the listing below shows,
 the original task can generate many new tasks before it completes,
 and those tasks can run in a different order than the order in which they were created
-([% f async-programming-set-timeout %]).
+([%f async-programming-set-timeout %]).
 
-[% excerpt pat="callbacks-with-timeouts.*" fill="js out" %]
+[% inc pat="callbacks-with-timeouts.*" fill="js out" %]
 
-[% figure slug="async-programming-set-timeout" img="figures/set-timeout.svg" alt="Setting a timeout" caption="Using `setTimeout` to delay operations." %]
+[% figure
+   slug="async-programming-set-timeout"
+   img="set-timeout.svg"
+   alt="Setting a timeout"
+   caption="Using `setTimeout` to delay operations."
+%]
 
 If we give `setTimeout` a delay of zero milliseconds,
 the new task can be run right away,
 but any other tasks that are waiting have a chance to run as well:
 
-[% excerpt pat="callbacks-with-zero-timeouts.*" fill="js out" %]
+[% inc pat="callbacks-with-zero-timeouts.*" fill="js out" %]
 
 We can use this trick to build a generic
-[% i "execution!non-blocking" "non-blocking execution" %][% g non_blocking_execution %]non-blocking function[% /g %][% /i %]
+[%i "execution!non-blocking" "non-blocking execution" %][%g non_blocking_execution "non-blocking function" %][%/i%]
 that takes a callback defining a task
 and switches tasks if any others are available:
 {: .continue}
 
-[% excerpt pat="non-blocking.*" fill="js out" %]
+[% inc pat="non-blocking.*" fill="js out" %]
 
-Node's built-in function [% i "setImmediate" %]`setImmediate`[% /i %]
+Node's built-in function [%i "setImmediate" %]`setImmediate`[%/i%]
 does exactly what our `nonBlocking` function does:
 Node also has `process.nextTick`,
 which doesn't do quite the same thing---we'll explore the differences in the exercises.
 
-[% excerpt pat="set-immediate.*" fill="js out" %]
+[% inc pat="set-immediate.*" fill="js out" %]
 
 ## How do promises work? {: #async-programming-promises}
 
-Before we start building our own [% i "promise!behavior" %]promises[% /i %],
+Before we start building our own [%i "promise!behavior" %]promises[%/i%],
 let's look at how we want them to work:
 
-[% excerpt pat="use-pledge-motivation.*" fill="js out" %]
+[% inc pat="use-pledge-motivation.*" fill="js out" %]
 
 This short program creates a new `Pledge`
 with a callback that takes two other callbacks as arguments:
-[% i "promise!resolve" "resolve promise" %]`resolve`[% /i %] (which will run when everything worked)
-and [% i "promise!reject" "reject promise" %]`reject`[% /i %] (which will run when something went wrong).
+[%i "promise!resolve" "resolve promise" %]`resolve`[%/i%] (which will run when everything worked)
+and [%i "promise!reject" "reject promise" %]`reject`[%/i%] (which will run when something went wrong).
 The top-level callback does the first part of what we want to do,
 i.e.,
 whatever we want to run before we expect a delay;
@@ -108,32 +120,37 @@ Once this task resumes,
 we call the `resolve` callback to trigger whatever is supposed to happen after the delay.
 
 Now look at the line with `then`.
-This is a [% g method %]method[% /g %] of the `Pledge` object we just created,
+This is a [%g method "method" %] of the `Pledge` object we just created,
 and its job is to do whatever we want to do after the delay.
 The argument to `then` is yet another callback function;
 it will get the value passed to `resolve`,
 which is how the first part of the action communicates with the second
-([% f async-programming-resolve %]).
+([%f async-programming-resolve %]).
 
-[% figure slug="async-programming-resolve" img="figures/resolve.svg" alt="How promises resolve" caption="Order of operations when a promise resolves." %]
+[% figure
+   slug="async-programming-resolve"
+   img="resolve.svg"
+   alt="How promises resolve"
+   caption="Order of operations when a promise resolves."
+%]
 
 In order to make this work,
-`Pledge`'s [% g constructor %]constructor[% /g %] must take a single function called `action`.
+`Pledge`'s [%g constructor "constructor" %] must take a single function called `action`.
 This function must take take two callbacks as arguments:
 what to do if the action completes successfully
 and what to do if it doesn't (i.e., how to handle errors).
 `Pledge` will provide these callbacks to the action at the right times.
 
 `Pledge` also needs two methods:
-[% i "promise!then" %]`then`[% /i %] to enable more actions
-and [% i "promise!catch" %]`catch`[% /i %] to handle errors.
+[%i "promise!then" %]`then`[%/i%] to enable more actions
+and [%i "promise!catch" %]`catch`[%/i%] to handle errors.
 To simplify things just a little bit,
-we will allow users to [% i "method chaining" %][% g method_chaining %]chain[% /g %][% /i %] as many `then`s as they want,
+we will allow users to [%i "method chaining" %][%g method_chaining "chain" %][%/i%] as many `then`s as they want,
 but only allow one `catch`.
 
 ## How can we chain operations together? {: #async-programming-fluent}
 
-A [% i "fluent interface" "programming style!fluent interface" %][% g fluent_interface %]fluent interface[% /g %][% /i %]
+A [%i "fluent interface" "programming style!fluent interface" %][%g fluent_interface "fluent interface" %][%/i%]
 is a style of object-oriented programming
 in which the methods of an object return `this`
 so that method calls can be chained together.
@@ -179,28 +196,32 @@ the `Pledge` gives us a value by calling the `resolve` callback.
 We pass this value to the first `then`,
 pass the result of that `then` to the second one,
 and so on.
-If any of them fail and throw an [% i "exception!in promise" %][% g exception %]exception[% /g %][% /i %],
+If any of them fail and throw an [%i "exception!in promise" %][%g exception "exception" %][%/i%],
 we pass that exception to the error handler.
 Putting it all together,
 the whole class looks like this:
 
-[% excerpt file="pledge.js" %]
+[% inc file="pledge.js" %]
 
-> ### Binding `this`
->
-> `Pledge`'s constructor makes two calls to a special function called [% i "bind method to object" %]`bind`[% /i %].
-> When we create an object `obj` and call a method `meth`,
-> JavaScript sets the special variable `this` to `obj` inside `meth`.
-> If we use a method as a callback,
-> though,
-> `this` isn't automatically set to the correct object.
-> To convert the method to a plain old function with the right `this`,
-> we have to use `bind`.
-> [The documentation][bind-docs] has more details and examples.
+<div class="callout" markdown="1">
+
+### Binding `this`
+
+`Pledge`'s constructor makes two calls to a special function called [%i "bind method to object" %]`bind`[%/i%].
+When we create an object `obj` and call a method `meth`,
+JavaScript sets the special variable `this` to `obj` inside `meth`.
+If we use a method as a callback,
+though,
+`this` isn't automatically set to the correct object.
+To convert the method to a plain old function with the right `this`,
+we have to use `bind`.
+[The documentation][bind-docs] has more details and examples.
+
+</div>
 
 Let's create a `Pledge` and return a value:
 
-[% excerpt pat="use-pledge-return.*" fill="js out" %]
+[% inc pat="use-pledge-return.*" fill="js out" %]
 
 Why didn't this work?
 {: .continue}
@@ -218,7 +239,7 @@ Why didn't this work?
 
 This example shows how we can chain actions together:
 
-[% excerpt pat="use-pledge-chained.*" fill="js out" %]
+[% inc pat="use-pledge-chained.*" fill="js out" %]
 
 Notice that inside each `then` we *do* use `return`
 because these clauses all run in a single task.
@@ -231,13 +252,13 @@ Finally,
 in this example we explicitly signal a problem by calling `reject`
 to make sure our error handling does what it's supposed to:
 
-[% excerpt pat="use-pledge-reject.*" fill="js out" %]
+[% inc pat="use-pledge-reject.*" fill="js out" %]
 
 ## How are real promises different? {: #async-programming-real}
 
 Let's rewrite our chained pledge with built-in promises:
 
-[% excerpt pat="use-promise-chained.*" fill="js out" %]
+[% inc pat="use-promise-chained.*" fill="js out" %]
 
 It looks almost the same,
 but if we read the output carefully
@@ -247,14 +268,19 @@ This is a signal that Node is delaying the execution of the code in the `then` h
 A very common pattern is to return another promise from inside `then`
 so that the next `then` is called on the returned promise,
 not on the original promise
-([% f async-programming-chained %]).
+([%f async-programming-chained %]).
 This is another way to implement a fluent interface:
 if a method of one object returns a second object,
 we can call a method of the second object immediately.
 
-[% excerpt pat="promise-example.*" fill="js out" %]
+[% inc pat="promise-example.*" fill="js out" %]
 
-[% figure slug="async-programming-chained" img="figures/chained.svg" alt="Chained promises" caption="Chaining promises to make asynchronous operations depend on each other." %]
+[% figure
+   slug="async-programming-chained"
+   img="chained.svg"
+   alt="Chained promises"
+   caption="Chaining promises to make asynchronous operations depend on each other."
+%]
 
 We therefore have three rules for chaining promises:
 
@@ -266,7 +292,7 @@ We therefore have three rules for chaining promises:
 1.  Finally,
     if we want to use a library function that relies on callbacks,
     we have to convert it to use promises.
-    Doing this is called [% g promisification %]promisification[% /g %]
+    Doing this is called [%g promisification "promisification" %]
     (because programmers will rarely pass up an opportunity add a bit of jargon to the world),
     and most functions in the Node have already been promisified.
 
@@ -282,47 +308,57 @@ so we will rely on it for file operations.
 
 Our first step is to count the lines in a single file:
 
-[% excerpt pat="count-lines-single-file.*" fill="js sh out" %]
+[% inc pat="count-lines-single-file.*" fill="js sh out" %]
 
-> ### Character encoding
->
-> A [% i "character encoding" %][% g character_encoding %]character encoding[% /g %][% /i %] specifies how characters are stored as bytes.
-> The most widely used is [% i "UTF-8" "character encoding!UTF-8" %][% g utf_8 %]UTF-8[% /g %][% /i %],
-> which stores characters common in Western European languages in a single byte
-> and uses multi-byte sequences for other symbols.
-> If we don't specify a character encoding,
-> `fs.readFileAsync` gives us an array of bytes rather than a string of characters.
-> We can tell we've made this mistake when we try to call a method of `String`
-> and Node tells us we can't.
+<div class="callout" markdown="1">
+
+### Character encoding
+
+A [%i "character encoding" %][%g character_encoding "character encoding" %][%/i%]
+specifies how characters are stored as bytes.
+The most widely used is [%i "UTF-8" "character encoding!UTF-8" %][%g utf_8 "UTF-8" %][%/i%],
+which stores characters common in Western European languages in a single byte
+and uses multi-byte sequences for other symbols.
+If we don't specify a character encoding,
+`fs.readFileAsync` gives us an array of bytes rather than a string of characters.
+We can tell we've made this mistake when we try to call a method of `String`
+and Node tells us we can't.
+
+</div>
 
 The next step is to count the lines in multiple files.
 We can use `glob-promise` to delay handling the output of `glob`,
 but we need some way to create a separate task to count the lines in each file
 and to wait until those line counts are available before exiting our program.
 
-The tool we want is [% i "Promise.all" %]`Promise.all`[% /i %],
+The tool we want is [%i "Promise.all" %]`Promise.all`[%/i%],
 which waits until all of the promises in an array have completed.
 To make our program a little more readable,
 we will put the creation of the promise for each file in a separate function:
 
-[% excerpt pat="count-lines-globbed-files.*" fill="js sh slice.out" %]
+[% inc pat="count-lines-globbed-files.*" fill="js sh slice.out" %]
 
 However,
 we want to display the names of the files whose lines we're counting along with the counts.
 To do this our `then` must return two values.
 We could put them in an array,
 but it's better practice to construct a temporary object with named fields
-([% f async-programming-temporary-named-fields %]).
+([%f async-programming-temporary-named-fields %]).
 This approach allows us to add or rearrange fields without breaking code
 and also serves as a bit of documentation.
 With this change
 our line-counting program becomes:
 
-[% excerpt file="count-lines-print-filenames.js" %]
+[% inc file="count-lines-print-filenames.js" %]
 
-[% figure slug="async-programming-temporary-named-fields" img="figures/temporary-named-fields.svg" alt="Temporary objects with named fields" caption="Creating temporary objects with named fields to carry values forward." %]
+[% figure
+   slug="async-programming-temporary-named-fields"
+   img="temporary-named-fields.svg"
+   alt="Temporary objects with named fields"
+   caption="Creating temporary objects with named fields to carry values forward."
+%]
 
-As in [% x systems-programming %],
+As in [%x systems-programming %],
 this works until we run into a directory whose name name matches `*.*`,
 which we do when counting the lines in the contents of `node_modules`.
 The solution once again is to use `stat` to check if something is a file or not
@@ -330,39 +366,43 @@ before trying to read it.
 And since `stat` returns an object that doesn't include the file's name,
 we create another temporary object to pass information down the chain of `then`s.
 
-[% excerpt pat="count-lines-with-stat.*" fill="js sh slice.out" %]
+[% inc pat="count-lines-with-stat.*" fill="js sh slice.out" %]
 
 This code is complex, but much simpler than it would be if we were using callbacks.
 {: .continue}
 
-> ### Lining things up
->
-> This code uses the expression `{filename, stats}`
-> to create an object whose keys are `filename` and `stats`,
-> and whose values are the values of the corresponding variables.
-> Doing this makes the code easier to read,
-> both because it's shorter
-> but also because it signals that the value associated with the key `filename`
-> is exactly the value of the variable with the same name.
+<div class="callout" markdown="1">
+
+### Lining things up
+
+This code uses the expression `{filename, stats}`
+to create an object whose keys are `filename` and `stats`,
+and whose values are the values of the corresponding variables.
+Doing this makes the code easier to read,
+both because it's shorter
+but also because it signals that the value associated with the key `filename`
+is exactly the value of the variable with the same name.
+
+</div>
 
 ## How can we make this more readable? {: #async-programming-readable}
 
 Promises eliminate the deep nesting associated with callbacks of callbacks,
 but they are still hard to follow.
-The latest versions of JavaScript provide two new keywords [% i "async keyword" %]`async`[% /i %] and [% i "await keyword" %]`await`[% /i %]
+The latest versions of JavaScript provide two new keywords [%i "async keyword" %]`async`[%/i%] and [%i "await keyword" %]`await`[%/i%]
 to flatten code further.
 `async` means "this function implicitly returns a promise",
 while `await` means "wait for a promise to resolve".
 This short program uses both keywords to print the first ten characters of a file:
 
-[% excerpt pat="await-fs.*" fill="js out" %]
+[% inc pat="await-fs.*" fill="js out" %]
 
-<blockquote class="break-before" markdown="1">
+<blockquote markdown="1">
 ### Translating code
 
 When Node sees `await` and `async`
-it silently [% i "promise!automatic creation of" %]converts[% /i %] the code to use promises with `then`, `resolve`, and `reject`;
-we will see how this works in [% x code-generator %].
+it silently [%i "promise!automatic creation of" %]converts[%/i%] the code to use promises with `then`, `resolve`, and `reject`;
+we will see how this works in [%x code-generator %].
 In order to provide a context for this transformation
 we must put `await` inside a function that is declared to be `async`:
 we can't simply write `await fs.statAsync(...)` at the top level of our program
@@ -379,7 +419,7 @@ we modify the two helper functions to look like they're waiting for results and 
 They actually wrap their results in promises and return those,
 but Node now takes care of that for us:
 
-[% excerpt file="count-lines-with-stat-async.js" keep="recycle" %]
+[% inc file="count-lines-with-stat-async.js" keep="recycle" %]
 
 Next,
 we modify `main` to wait for things to complete.
@@ -387,7 +427,7 @@ We must still use `Promise.all` to handle the promises
 that are counting lines for individual files,
 but the result is less cluttered than our previous version.
 
-[% excerpt file="count-lines-with-stat-async.js" keep="main" %]
+[% inc file="count-lines-with-stat-async.js" keep="main" %]
 
 ## How can we handle errors with asynchronous code? {: #async-programming-errors}
 
@@ -400,33 +440,37 @@ First,
 if we return a promise that fails without using `await`,
 then our main function will finish running before the error occurs,
 and our `try`/`catch` doesn't help us
-([% f async-programming-handling-errors %]):
+([%f async-programming-handling-errors %]):
 
-[% excerpt pat="return-immediately.*" fill="js out" %]
+[% inc pat="return-immediately.*" fill="js out" %]
 
-[% figure slug="async-programming-handling-errors" img="figures/handling-errors.svg" alt="Handling asynchronous errors" caption="Wrong and right ways to handle errors in asynchronous code." %]
+[% figure
+   slug="async-programming-handling-errors"
+   img="handling-errors.svg"
+   alt="Handling asynchronous errors"
+   caption="Wrong and right ways to handle errors in asynchronous code."
+%]
 
 One solution to this problem is to be consistent and always return something.
 Because the function is declared `async`,
 the `Error` in the code below is automatically wrapped in a promise
 so we can use `.then` and `.catch` to handle it as before:
 
-[% excerpt pat="assign-immediately.*" fill="js out" %]
+[% inc pat="assign-immediately.*" fill="js out" %]
 
-If instead we [% i "exception!with await" %]`return await`[% /i %],
+If instead we [%i "exception!with await" %]`return await`[%/i%],
 the function waits until the promise runs before returning.
 The promise is turned into an exception because it failed,
 and since we're inside the scope of our `try`/`catch` block,
 everything works as we want:
 
-[% excerpt pat="return-await.*" fill="js out" %]
+[% inc pat="return-await.*" fill="js out" %]
 
 We prefer the second approach,
 but whichever you choose,
 please be consistent.
 {: .continue}
 
-<div class="break-before"></div>
 ## Exercises {: #async-programming-exercises}
 
 ### Immediate versus next tick {: .exercise}
@@ -461,12 +505,12 @@ Hint: try each snippet of code interactively in the Node interpreter and as a co
 
 Suppose we create a promise that deliberately fails and then add two error handlers:
 
-[% excerpt file="x-multiple-catch/example.js" %]
+[% inc file="x-multiple-catch/example.js" %]
 
 When the code is run it produces:
 {: .continue}
 
-[% excerpt file="x-multiple-catch/example.txt" %]
+[% inc file="x-multiple-catch/example.txt" %]
 
 1.  Trace the order of operations: what is created and executed when?
 2.  What happens if we run these same lines interactively?
@@ -477,12 +521,12 @@ When the code is run it produces:
 Suppose we create a promise that deliberately fails
 and attach both `then` and `catch` to it:
 
-[% excerpt file="x-catch-then/example.js" %]
+[% inc file="x-catch-then/example.js" %]
 
 When the code is run it produces:
 {: .continue}
 
-[% excerpt file="x-catch-then/example.txt" %]
+[% inc file="x-catch-then/example.txt" %]
 
 1.  Trace the order of execution.
 2.  Why is `undefined` printed at the end?
@@ -498,7 +542,7 @@ so that:
 node head.js 5 first.txt second.txt third.txt
 ```
 
-prints the first 5 lines of each of the three files and:
+prints the first five lines of each of the three files and:
 {: .continue}
 
 ```sh
@@ -544,7 +588,7 @@ the output might be:
 
 ### Select matching lines {: .exercise}
 
-Using `async` and `await,
+Using `async` and `await`,
 write a program called `match.js` that finds and prints lines containing a given string.
 For example:
 
@@ -619,11 +663,11 @@ Hint: you may want to use the `Set` class to store lines.
 
 ### Trace file loading {: .exercise}
 
-Suppose we want are loading a YAML configuration file
+Suppose we are loading a YAML configuration file
 using the promisified version of the `fs` library.
 In what order do the print statements in this test program appear and why?
 
-[% excerpt file="x-trace-load/example.js" %]
+[% inc file="x-trace-load/example.js" %]
 
 ### Any and all {: .exercise}
 

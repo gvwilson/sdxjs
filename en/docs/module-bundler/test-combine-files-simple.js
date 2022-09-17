@@ -1,4 +1,4 @@
-/* eslint-disable */
+// eslint-disable
 const initialize = (creators) => {
 
 // /u/stjs/stjs/module-bundler/simple/main.js

@@ -1,10 +1,29 @@
-"""McCole utility functions."""
+"""Utilities."""
 
 import os
 import re
 import sys
+from pathlib import Path
 
 import ivy
+import markdown
+import yaml
+
+# Configuration sections and their default values.
+# These are added to the config dynamically under the `mccole` key,
+# i.e., `"figures"` becomes `ivy.site.config["mccole"]["figures"]`.
+CONFIGURATIONS = {
+    "bibliography": set(),  # citations
+    "definitions": [],  # glossary definitions
+    "figures": {},  # numbered figures
+    "glossary": set(),  # glossary keys
+    "headings": {},  # number chapter, section, and appendix headings
+    "inclusions": {},  # included files
+    "index": {},  # index entries
+    "syllabus": [],  # syllabus entries
+    "tables": {},  # numbered tables
+    "titles": [],  # chapter/appendix titles
+}
 
 # Translations of multilingual terms.
 TRANSLATIONS = {
@@ -26,70 +45,46 @@ TRANSLATIONS = {
     },
 }
 
-# Configuration sections and their default values.
-# These are added to the config dynamically under the `mccole` key,
-# i.e., `"figures"` becomes `ivy.site.config["mccole"]["figures"]`.
-CONFIGURATIONS = {
-    "bibliography": set(),  # bibliography entries
-    "citations": set(),  # references to bibliography entries
-    "definitions": set(),  # glossary definitions
-    "figures": {},  # numbered figures
-    "glossary": [],  # full glossary
-    "headings": {},  # number chapter, section, and appendix headings
-    "inclusions": {},  # included files
-    "index": {},  # index entries
-    "links": [],  # links table entries
-    "tables": {},  # numbered tables
-}
+# Match a Markdown heading with optional attributes.
+HEADING = re.compile(r"^(#+)\s*(.+?)(\{:\s*#(.+\b)\})?$", re.MULTILINE)
 
-# Regex to turn multiple whitespace characters into a single space.
+# Used to turn multiple whitespace characters into a single space.
 MULTISPACE = re.compile(r"\s+", re.DOTALL)
 
-# Regex to match a Markdown heading with optional attributes.
-HEADING = re.compile(r"^(#+)(.+?)(\{:.*#([\w-]+).*\})?$", re.MULTILINE)
-
-# Regex to match table elements. (See `tables.py` for explanation.)
-TABLE = re.compile(r'<div\s+class="table(\s+break-before)?"[^>]*?>')
+# Match table elements.
+TABLE = re.compile(r'<div\s+class="table(\s+[^"]+)?"[^>]*?>')
 TABLE_CAPTION = re.compile(r'caption="(.+?)"')
 TABLE_ID = re.compile(r'id="(.+?)"')
 TABLE_DIV = re.compile(
-    r'<div\s+caption="(.+?)"\s+class="(table(\s+break-before)?)"\s+id="(.+?)">\s*<table>', re.DOTALL
+    r'<div\s+caption="(.+?)"\s+class="(table(\s+[^"]+)?)"\s+id="(.+?)">\s*<table>',
+    re.DOTALL,
 )
 
 
 def fail(msg):
-    """Stop processing with an error message."""
+    """Fail unilaterally."""
     print(msg, file=sys.stderr)
-    sys.exit(1)
+    raise AssertionError(msg)
 
 
 def get_config(part):
-    """Get McCole configuration subsection or `None`.
+    """Get configuration subsection or `None`.
 
-    A result of `None` indicates that the request is being made
-    too early in the processing cycle.
+    A result of `None` indicates the request is being made too early
+    in the processing cycle.
     """
-    if part not in CONFIGURATIONS:
-        fail(f"Unknown configuration section '{part}'")
+    require(part in CONFIGURATIONS, f"Unknown configuration section '{part}'")
     mccole = ivy.site.config.setdefault("mccole", {})
     return mccole.get(part, None)
 
 
-def inclusion_filepath(inclusions, node, filename):
-    """Make path to included file."""
-    src, dst = make_copy_paths(node, filename)
-    inclusions[src] = dst
-    return src
-
-
 def make_config(part, filler=None):
-    """Make McCole configuration subsection.
+    """Make configuration subsection.
 
-    If `filler` is not `None`, it is used as the initial value.
+    If `filler` is provided, it is used as the initial value.
     Otherwise, the value from `CONFIGURATIONS` is used.
     """
-    if part not in CONFIGURATIONS:
-        fail(f"Unknown configuration section '{part}'")
+    require(part in CONFIGURATIONS, f"Unknown configuration section '{part}'")
     filler = filler if (filler is not None) else CONFIGURATIONS[part]
     return ivy.site.config.setdefault("mccole", {}).setdefault(part, filler)
 
@@ -130,7 +125,10 @@ def make_major():
     This function relies on the configuration containing `"chapters"`
     and `"appendices"`, which must be lists of slugs.
     """
-    chapters = {slug: i + 1 for (i, slug) in enumerate(ivy.site.config["chapters"])}
+    chapters = {
+        slug: i+1
+        for (i, slug) in enumerate(ivy.site.config["chapters"])
+    }
     appendices = {
         slug: chr(ord("A") + i)
         for (i, slug) in enumerate(ivy.site.config["appendices"])
@@ -138,10 +136,41 @@ def make_major():
     return chapters | appendices
 
 
-def report(title, items):
-    """Report missing or superfluous items (if any)."""
+def markdownify(text, ext=None, strip=True):
+    """Convert to Markdown."""
+    extensions = ["markdown.extensions.extra", "markdown.extensions.smarty"]
+    if ext:
+        extensions = [ext, *extensions]
+    result = markdown.markdown(text, extensions=extensions)
+    if strip and result.startswith("<p>"):
+        result = result[3:-4]  # remove trailing '</p>' as well
+    return result
+
+
+def mccole():
+    """Get configuration section, creating if necessary."""
+    return ivy.site.config.setdefault("mccole", {})
+
+
+def read_glossary(filename):
+    """Load the glossary definitions."""
+    filename = Path(ivy.site.home(), filename)
+    with open(filename, "r") as reader:
+        return yaml.safe_load(reader) or {}
+
+
+def require(cond, msg):
+    """Fail if condition untrue."""
+    if not cond:
+        fail(msg)
+
+
+def warn(title, items):
+    """Warn about missing or unused items."""
+    if not ivy.site.config.get("warnings", False):
+        return
     if not items:
         return
     print(title)
-    for item in sorted(items):
-        print(f"- {item}")
+    for i in sorted(items):
+        print(f"-  {i}")

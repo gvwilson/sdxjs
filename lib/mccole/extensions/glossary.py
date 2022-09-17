@@ -1,105 +1,96 @@
-"""Create glossary and glossary references.
-
-Glossary data is stored in a [Glosario](https://glosario.carpentries.org/)-format
-file referenced by config["glossary"].
-
--   `glossary_ref` turns `[% g key %]some text[% /g %]` into a glossary reference.
-    (The generated HTML assumes that the glossary is in `@root/glossary/index.html`.)
-
--   `glossary` turns `[% glossary %]` into an HTML glossary.  It requires a
-    configuration key `config["lang"]`, and expects every glossary entry to have
-    a definition keyed by that language.
-
--   `check` checks that all glossary entries are defined and that all definitions
-    are referenced.
-"""
+"""Handle glossary references and glossary."""
 
 import re
 
 import ivy
 import shortcodes
-import yaml
+
 import util
 
 # Regex to extract internal cross-references from bodies of definitions.
 INTERNAL_REF = re.compile(r"\]\(#(.+?)\)")
 
 
-@shortcodes.register("g", "/g")
-def glossary_ref(pargs, kwargs, node, content):
-    """Handle [% g slug %]text[% /g %] glossary reference shortcodes."""
-    if len(pargs) != 1:
-        util.fail(f"Badly-formatted 'g' shortcode {pargs} in {node.filepath}")
-
-    definitions = util.make_config("definitions")
-    slug = pargs[0]
-    definitions.add(slug)
-
-    return (
-        f'<a class="glossref" href="@root/glossary/#{slug}" markdown="1">{content}</a>'
+@shortcodes.register("g")
+def glossary_ref(pargs, kwargs, node):
+    """Handle [% g slug "text" %] glossary reference shortcodes."""
+    util.require(
+        (len(pargs) == 2) and (not kwargs),
+        f"Bad 'g' shortcode {pargs} and {kwargs}"
     )
+    slug = pargs[0]
+    text = pargs[1]
+
+    used = util.make_config("glossary")
+    used.add(slug)
+    return _format_ref(slug, text)
 
 
 @shortcodes.register("glossary")
 def glossary(pargs, kwargs, node):
     """Convert glossary to Markdown."""
-    if "glossary" not in ivy.site.config:
-        return '<p class="warning">No glossary specified.</p>'
-    if "lang" not in ivy.site.config:
-        return '<p class="warning">No language specified.</p>'
+    util.require(
+        (not pargs) and (not kwargs),
+        f"Bad 'glossary' shortcode {pargs} and {kwargs}"
+    )
 
-    with open(ivy.site.config["glossary"], "r") as reader:
-        glossary = yaml.safe_load(reader)
-    lang = ivy.site.config["lang"]
+    filename = ivy.site.config.get("glossary", None)
+    util.require(filename is not None, "No glossary specified")
 
+    lang = ivy.site.config.get("lang", None)
+    util.require(lang is not None, "No language specified")
+
+    glossary = util.read_glossary(filename)
     try:
         glossary.sort(key=lambda x: x[lang]["term"].lower())
     except KeyError as exc:
-        util.fail(f"Glossary entry or entries missing key, term, or {lang}: {exc}.")
+        util.fail(f"Glossary entries missing key, term, or {lang}: {exc}.")
 
-    util.make_config("glossary", glossary)
-
-    lookup = {entry["key"]: entry[lang]["term"] for entry in glossary}
-    result = "\n\n".join(_as_markdown(lookup, lang, entry) for entry in glossary)
-    return result
+    markdown = [_as_markdown(glossary, lang, entry) for entry in glossary]
+    entries = "\n\n".join(markdown)
+    return f'<div class="glossary" markdown="1">\n{entries}\n</div>'
 
 
 @ivy.events.register(ivy.events.Event.EXIT)
 def check():
-    lang = ivy.site.config["lang"]
+    """Check that glossary entries are defined and used."""
+    filename = ivy.site.config.get("glossary", None)
+    util.require(filename is not None, "No glossary specified")
 
-    if (glossary := util.get_config("glossary")) is None:
+    lang = ivy.site.config.get("lang", None)
+    util.require(lang is not None, "No language defined for glossary")
+
+    glossary = util.read_glossary(filename)
+    defined = {entry["key"] for entry in glossary}
+
+    if (used := util.get_config("glossary")) is None:
         return
-    glossary_keys = {entry["key"] for entry in glossary}
+    used |= _internal_references(glossary, lang)
+    used |= _cross_references(glossary, lang)
 
-    if (definitions := util.get_config("definitions")) is None:
-        return
-    definitions |= _internal_references(glossary, lang)
-    definitions |= _cross_references(glossary, lang)
-
-    util.report("unknown glossary references", definitions - glossary_keys)
-    util.report("unused glossary entries", glossary_keys - definitions)
+    util.warn("unknown glossary references", used - defined)
+    util.warn("unused glossary entries", defined - used)
 
 
-def _as_markdown(lookup, lang, entry):
+def _as_markdown(glossary, lang, entry):
     """Convert a single glossary entry to Markdown."""
-    b = " break-before" if ("break" in entry) else ""
-    first = f'<span class="glosskey{b}" id="{entry["key"]}">{entry[lang]["term"]}</span>'
+    cls = 'class="gl-key"'
+    first = f'<span {cls} id="{entry["key"]}">{entry[lang]["term"]}</span>'
 
     if "acronym" in entry[lang]:
         first += f" ({entry[lang]['acronym']})"
 
     body = util.MULTISPACE.sub(entry[lang]["def"], " ").rstrip()
 
-    if "ref" in entry:
+    if "ref" in entry[lang]:
         seealso = util.TRANSLATIONS[lang]["seealso"]
         try:
-            refs = [f"[{lookup[r]}](#{r})" for r in entry["ref"]]
+            refs = [f"[{glossary[r]}](#{r})" for r in entry[lang]["ref"]]
         except KeyError as exc:
-            util.fail(f"Unknown glossary cross-ref key in {entry['key']}: {exc}")
-        body += f" {seealso} {', '.join(refs)}."
+            util.fail(f"Unknown glossary cross-ref in {entry['key']}: {exc}")
+        body += f"<br/>{seealso}: {', '.join(refs)}."
 
-    result = f"{first}: {body}\n"
+    result = f"{first}\n:   {body}"
     return result
 
 
@@ -109,6 +100,12 @@ def _cross_references(glossary, lang):
     for entry in glossary:
         result.update(entry.get("ref", []))
     return result
+
+
+def _format_ref(slug, text):
+    """Format a glossary reference."""
+    cls = 'class="gl-ref"'
+    return f'<a {cls} href="@root/glossary/#{slug}" markdown="1">{text}</a>'
 
 
 def _internal_references(glossary, lang):

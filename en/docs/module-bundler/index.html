@@ -1,46 +1,283 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-<link rel="icon" type="image/x-icon" href="../files/favicon.ico">
-<link rel="stylesheet" href="../mccole.css">
-<link rel="stylesheet" href="../codehilite-tango.css">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+  <link rel="stylesheet" href="../mccole.css">
+  <link rel="stylesheet" href="../tango.css">
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']]
+      }
+    };
+  </script>
+  <script
+    type="text/javascript"
+    id="MathJax-script"
+    async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+  <title>Software Design by Example: Module Bundler</title>
+</head>
 
-    <title>Software Design by Example: Module Bundler</title>
-  </head>
-  <body class="page">
-    <div class="centered title">
+  <body>
+    <div class="row">
+      <div class="column">
+        <p>
+  <img src="../logo.svg" alt="site logo" width="10%" />
+  <a href="../">Software Design by Example</a>
+</p>
+<ol class="toc-chapter">
   
-  <h2><a href="../">Software Design by Example</a></h2>
-  <h1 id="module-bundler">Chapter 17: Module Bundler</h1>
+  <li>
+    <a href="../introduction/">
+      Introduction
+    </a>
+  </li>
   
-  <p>
-    <img class="page-logo" src="../files/codebender.svg" alt="logo" />
+  <li>
+    <a href="../systems-programming/">
+      Systems Programming
+    </a>
+  </li>
+  
+  <li>
+    <a href="../async-programming/">
+      Asynchronous Programming
+    </a>
+  </li>
+  
+  <li>
+    <a href="../unit-test/">
+      Unit Testing
+    </a>
+  </li>
+  
+  <li>
+    <a href="../file-backup/">
+      File Backup
+    </a>
+  </li>
+  
+  <li>
+    <a href="../data-table/">
+      Data Tables
+    </a>
+  </li>
+  
+  <li>
+    <a href="../pattern-matching/">
+      Pattern Matching
+    </a>
+  </li>
+  
+  <li>
+    <a href="../regex-parser/">
+      Parsing Expressions
+    </a>
+  </li>
+  
+  <li>
+    <a href="../page-templates/">
+      Page Templates
+    </a>
+  </li>
+  
+  <li>
+    <a href="../build-manager/">
+      Build Manager
+    </a>
+  </li>
+  
+  <li>
+    <a href="../layout-engine/">
+      Layout Engine
+    </a>
+  </li>
+  
+  <li>
+    <a href="../file-interpolator/">
+      File Interpolator
+    </a>
+  </li>
+  
+  <li>
+    <a href="../module-loader/">
+      Module Loader
+    </a>
+  </li>
+  
+  <li>
+    <a href="../style-checker/">
+      Style Checker
+    </a>
+  </li>
+  
+  <li>
+    <a href="../code-generator/">
+      Code Generator
+    </a>
+  </li>
+  
+  <li>
+    <a href="../doc-generator/">
+      Documentation Generator
+    </a>
+  </li>
+  
+  <li>
+    <a href="../module-bundler/">
+      <strong>Module Bundler</strong>
+    </a>
+  </li>
+  
+  <li>
+    <a href="../package-manager/">
+      Package Manager
+    </a>
+  </li>
+  
+  <li>
+    <a href="../virtual-machine/">
+      Virtual Machine
+    </a>
+  </li>
+  
+  <li>
+    <a href="../debugger/">
+      Debugger
+    </a>
+  </li>
+  
+  <li>
+    <a href="../conclusion/">
+      Conclusion
+    </a>
+  </li>
+  
+</ol>
+<ol class="toc-appendix">
+  
+  <li>
+    <a href="../license/">
+      License
+    </a>
+  </li>
+  
+  <li>
+    <a href="../conduct/">
+      Code of Conduct
+    </a>
+  </li>
+  
+  <li>
+    <a href="../contributing/">
+      Contributing
+    </a>
+  </li>
+  
+  <li>
+    <a href="../bibliography/">
+      Bibliography
+    </a>
+  </li>
+  
+  <li>
+    <a href="../glossary/">
+      Glossary
+    </a>
+  </li>
+  
+  <li>
+    <a href="../credits/">
+      Credits
+    </a>
+  </li>
+  
+  <li>
+    <a href="../contents/">
+      Index
+    </a>
+  </li>
+  
+</ol>
+
+      </div>
+      <div id="printable" class="column bordered">
+        <main>
+	  
+  <h1>Chapter 17: Module Bundler</h1>
+
+
+          
+
+	  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <p class="definitions">
+    Terms defined:
+    <a class="gl-ref" href="../glossary/#entry_point" markdown="1">entry point</a>, <a class="gl-ref" href="../glossary/#module_bundler" markdown="1">module bundler</a>, <a class="gl-ref" href="../glossary/#transitive_closure" markdown="1">transitive closure</a>
   </p>
-</div>
+  
 
-    <main>
-<p><span class="indexentry" index-key="JavaScript!hurried design of" markdown="1">JavaScript</span> was designed in a hurry 25 years ago to make web pages interactive.
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+          <p><span class="ix-entry" ix-key="JavaScript!hurried design of" markdown="1">JavaScript</span> was designed in a hurry 25 years ago to make web pages interactive.
 Nobody realized it would become one of the most popular programming languages in the world,
-so it didn't include support for things that large programs need.
+so it didn&rsquo;t include support for things that large programs need.
 One of those things was a way to turn a set of easy-to-edit source files
 into a single easy-to-load file
 so that browsers could get what they needed with one request.</p>
-<p>A <span class="indexentry" index-key="module bundler" markdown="1"><a class="glossref" href="../glossary/#module_bundler" markdown="1">module bundler</a></span>
+<p>A <span class="ix-entry" ix-key="module bundler" markdown="1"><a class="gl-ref" href="../glossary/#module_bundler" markdown="1">module bundler</a></span>
 finds all the files that an application depends on
 and combines them into a single loadable file
-(<a class="figref" href="../module-bundler/#module-bundler-bundling">Figure 17.1</a>).
+(<a class="fig-ref" href="../module-bundler/#module-bundler-bundling">Figure 17.1</a>).
 This file is much more efficient to load:
-it's the same number of bytes but just one network request.
-(See <a class="tblref" href="../systems-programming/#systems-programming-times">Table 2.1</a> for a reminder of why this is important.)
+it&rsquo;s the same number of bytes but just one network request.
+(See <a class="tbl-ref" href="../systems-programming/#systems-programming-times">Table 2.1</a> for a reminder of why this is important.)
 Bundling files also tests that dependencies actually resolve
 so that the application has at least a chance of being able to run.</p>
 <figure id="module-bundler-bundling">
-  <img src="./figures/bundling.svg" alt="Bundling modules" />
+  <img src="./bundling.svg" alt="Bundling modules"/>
   <figcaption markdown="1">Figure 17.1: Combining multiple modules into one.</figcaption>
 </figure>
 
-<p>Bundling requires an <span class="indexentry" index-key="entry point (of module);module!entry point" markdown="1"><a class="glossref" href="../glossary/#entry_point" markdown="1">entry point</a></span>,
+<p>Bundling requires an <span class="ix-entry" ix-key="entry point (of module);module!entry point" markdown="1"><a class="gl-ref" href="../glossary/#entry_point" markdown="1">entry point</a></span>,
 i.e.,
 a place to start searching for dependencies.
 Given that,
@@ -48,269 +285,300 @@ it finds all dependencies,
 combines them into one file,
 and ensures they can find each other correctly once loaded.
 The sections below go through these steps one by one.</p>
-<h2 id="module-bundler-tests">Section 17.1:  What will we use as test cases?</h2>
-<p>The simplest test case is a single file that doesn't require anything else:
-if this doesn't work,
-nothing will.
-Our test case and the expected output are:</p>
-<pre><code class="language-js">const main = () =&gt; {
-  console.log('in main')
-}
+<h2 id="module-bundler-tests">Section 17.1: What will we use as test cases?</h2>
+<p>Our first test case is a single file that doesn&rsquo;t require anything:</p>
+<div class="code-sample lang-js" title="main.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;in main&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-module.exports = main
-</code></pre>
-<pre><code class="language-out">in main
-</code></pre>
-<p>In our second test case,
-<code>main.js</code> requires <code>other.js</code>,
-which doesn't require anything.
-The main file is:</p>
-<pre><code class="language-js">const other = require('./other')
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-out" title="expected-single.out">
+<div class="highlight"><pre><span></span><code>in main
+</code></pre></div>
+</div>
+<p class="continue">For our second test,
+<code>main.js</code> requires <code>other.js</code>:</p>
+<div class="code-sample lang-js" title="main.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">other</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./other&#39;</span><span class="p">)</span><span class="w"></span>
 
-const main = () =&gt; {
-  console.log(other('main'))
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">other</span><span class="p">(</span><span class="s1">&#39;main&#39;</span><span class="p">))</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-module.exports = main
-</code></pre>
-<p class="continue">and the required file is:</p>
-<pre><code class="language-js">const other = require('./other')
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
+</code></pre></div>
+</div>
+<p class="continue">and <code>other.js</code> doesn&rsquo;t require anything:</p>
+<div class="code-sample lang-js" title="main.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">other</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./other&#39;</span><span class="p">)</span><span class="w"></span>
 
-const main = () =&gt; {
-  console.log(other('main'))
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">other</span><span class="p">(</span><span class="s1">&#39;main&#39;</span><span class="p">))</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-module.exports = main
-</code></pre>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p class="continue">The output we expect is:</p>
-<pre><code class="language-out">other called from main
-</code></pre>
-<blockquote>
+<div class="code-sample lang-out" title="expected-simple.out">
+<div class="highlight"><pre><span></span><code>other called from main
+</code></pre></div>
+</div>
+<div class="callout">
 <h3>Why <code>require</code>?</h3>
-<p>Our tests cases use the old-style <span class="indexentry" index-key="require vs. import;import vs. require" markdown="1"><code>require</code></span> function
+<p>Our tests cases use the old-style <span class="ix-entry" ix-key="require vs. import;import vs. require" markdown="1"><code>require</code></span> function
 and assign things that are to be visible outside the module to <code>module.exports</code>
 rather than using <code>import</code> and <code>export</code>.
 We tried writing the chapter using the latter,
-but kept stumbling over whether we were talking about <code>import</code> in Node's module loader
+but kept stumbling over whether we were talking about <code>import</code> in Node&rsquo;s module loader
 or the <code>import</code> we were building.
 This kind of confusion is common when building programming tools;
 we hope that splitting terminology as we have will help.</p>
-</blockquote>
+</div>
 <p>Our third test case has multiple inclusions in multiple directories
-and is shown in <a class="figref" href="../module-bundler/#module-bundler-complicated">Figure 17.2</a>:</p>
+and is shown in <a class="fig-ref" href="../module-bundler/#module-bundler-complicated">Figure 17.2</a>:</p>
 <ul>
 <li><code>./main</code> requires all four of the files below.</li>
-<li><code>./top-left</code> doesn't require anything.</li>
+<li><code>./top-left</code> doesn&rsquo;t require anything.</li>
 <li><code>./top-right</code> requires <code>top-left</code> and <code>bottom-right</code>.</li>
 <li><code>./subdir/bottom-left</code> also requires <code>top-left</code> and <code>bottom-right</code>.</li>
-<li><code>./subdir/bottom-right</code> doesn't require anything.</li>
+<li><code>./subdir/bottom-right</code> doesn&rsquo;t require anything.</li>
 </ul>
 <figure id="module-bundler-complicated">
-  <img src="./figures/complicated.svg" alt="Module bundler dependencies" />
+  <img src="./complicated.svg" alt="Module bundler dependencies"/>
   <figcaption markdown="1">Figure 17.2: Dependencies in large module bundler test case.</figcaption>
 </figure>
 
 <p class="continue">The main program is:</p>
-<pre><code class="language-js">// main.js
+<div class="code-sample lang-js" title="main.js">
+<div class="highlight"><pre><span></span><code><span class="c1">// main.js</span><span class="w"></span>
 
-const topLeft = require('./top-left')
-const topRight = require('./top-right')
-const bottomLeft = require('./subdir/bottom-left')
-const bottomRight = require('./subdir/bottom-right')
+<span class="kd">const</span><span class="w"> </span><span class="nx">topLeft</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./top-left&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">topRight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./top-right&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">bottomLeft</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./subdir/bottom-left&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">bottomRight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./subdir/bottom-right&#39;</span><span class="p">)</span><span class="w"></span>
 
-const main = () =&gt; {
-  const functions = [topLeft, topRight, bottomLeft, bottomRight]
-  functions.forEach(func =&gt; {
-    console.log(`${func('main')}`)
-  })
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">functions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nx">topLeft</span><span class="p">,</span><span class="w"> </span><span class="nx">topRight</span><span class="p">,</span><span class="w"> </span><span class="nx">bottomLeft</span><span class="p">,</span><span class="w"> </span><span class="nx">bottomRight</span><span class="p">]</span><span class="w"></span>
+<span class="w">  </span><span class="nx">functions</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">func</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">func</span><span class="p">(</span><span class="s1">&#39;main&#39;</span><span class="p">)</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-module.exports = main
-</code></pre>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p class="continue">and the other four files use <code>require</code> and <code>module.exports</code> to get what they need.
 The output we expect is:</p>
-<pre><code class="language-out">topLeft from main
+<div class="code-sample lang-out" title="expected-full.out">
+<div class="highlight"><pre><span></span><code>topLeft from main
 topRight from main with topLeft from topRight and bottomRight from \
  topRight
 bottomLeft from main with topLeft from bottomLeft and bottomRight from \
  bottomLeft
 bottomRight from main
-</code></pre>
+</code></pre></div>
+</div>
 <p>We do not handle circular dependencies
-because <code>require</code> itself doesn't (<a class="crossref" href="../module-loader/">Chapter 13</a>).</p>
-<h2 id="module-bundler-find">Section 17.2:  How can we find dependencies?</h2>
+because <code>require</code> itself doesn&rsquo;t (<a class="x-ref" href="../module-loader/">Chapter 13</a>).</p>
+<h2 id="module-bundler-find">Section 17.2: How can we find dependencies?</h2>
 <p>To get all the dependencies for one source file,
 we parse it and extract all of the calls to <code>require</code>.
-The code to do this is relatively straightforward given what we know about <span class="indexentry" index-key="Acorn" markdown="1"><a href="https://github.com/acornjs/acorn">Acorn</a></span>:</p>
-<pre><code class="language-js">import acorn from 'acorn'
-import fs from 'fs'
-import walk from 'acorn-walk'
+The code to do this is relatively straightforward given what we know about <span class="ix-entry" ix-key="Acorn" markdown="1"><a href="https://github.com/acornjs/acorn">Acorn</a></span>:</p>
+<div class="code-sample lang-js" title="get-requires.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">acorn</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;acorn&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;fs&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">walk</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;acorn-walk&#39;</span><span class="w"></span>
 
-const getRequires = (filename) =&gt; {
-  const entryPointFile = filename
-  const text = fs.readFileSync(entryPointFile, 'utf-8')
-  const ast = acorn.parse(text)
-  const requires = []
-  walk.simple(ast, {
-    CallExpression: (node, state) =&gt; {
-      if ((node.callee.type === 'Identifier') &amp;&amp;
-          (node.callee.name === 'require')) {
-        state.push(node.arguments[0].value)
-      }
-    }
-  }, null, requires)
-  return requires
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">getRequires</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">entryPointFile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">filename</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">entryPointFile</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">ast</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">acorn</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">text</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">requires</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span><span class="w"></span>
+<span class="w">  </span><span class="nx">walk</span><span class="p">.</span><span class="nx">simple</span><span class="p">(</span><span class="nx">ast</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">CallExpression</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">,</span><span class="w"> </span><span class="nx">state</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="nx">node</span><span class="p">.</span><span class="nx">callee</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;Identifier&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"></span>
+<span class="w">          </span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">callee</span><span class="p">.</span><span class="nx">name</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;require&#39;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">state</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">arguments</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">value</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nx">requires</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">requires</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-export default getRequires
-</code></pre>
-<pre><code class="language-js">import getRequires from './get-requires.js'
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">getRequires</span><span class="w"></span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-js" title="test-get-requires.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">getRequires</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./get-requires.js&#39;</span><span class="w"></span>
 
-const result = getRequires(process.argv[2])
-console.log(result)
-</code></pre>
-<pre><code class="language-sh">node test-get-requires.js simple/main.js
-</code></pre>
-<pre><code class="language-out">[ './other' ]
-</code></pre>
-<blockquote>
+<span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getRequires</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">])</span><span class="w"></span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-sh" title="test-get-requires.sh">
+<div class="highlight"><pre><span></span><code>node test-get-requires.js simple/main.js
+</code></pre></div>
+</div>
+<div class="code-sample lang-out" title="test-get-requires.out">
+<div class="highlight"><pre><span></span><code>[ &#39;./other&#39; ]
+</code></pre></div>
+</div>
+<div class="callout">
 <h3>An unsolvable problem</h3>
 <p>The dependency finder shown above gives the right answer for reasonable JavaScript programs,
 but not all JavaScript is reasonable.
 Suppose creates an alias for <code>require</code> and uses that to load other files:</p>
-<p><code>js
-const req = require
-const weWillMissThis = req('./other-file')</code></p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">req</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">weWillMissThis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">req</span><span class="p">(</span><span class="s1">&#39;./other-file&#39;</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
 <p>We could try to trace variable assignments to catch cases like these,
 but someone could still fool us by writing this:</p>
-<p><code>js
-const clever = eval(`require`)
-const weWillMissThisToo = clever('./other-file')</code></p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">clever</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">eval</span><span class="p">(</span><span class="sb">`require`</span><span class="p">)</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">weWillMissThisToo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">clever</span><span class="p">(</span><span class="s1">&#39;./other-file&#39;</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
 <p><em>There is no general solution to this problem</em>
 other than running the code to see what it does.
 If you would like to understand why not,
 and learn about a pivotal moment in the history of computing,
-we highly recommend <span class="citation"><a class="bibref" href="../bibliography/#Petzold2008">Petzold2008</a></span>.</p>
-</blockquote>
+we highly recommend <span class="bib-ref">[<a class="bib-ref" href="../bibliography/#Petzold2008">Petzold2008</a>]</span>.</p>
+</div>
 <p>To get all of the dependencies a bundle needs
-we need to find the <span class="indexentry" index-key="transitive closure" markdown="1"><a class="glossref" href="../glossary/#transitive_closure" markdown="1">transitive closure</a></span> of the entry point's dependencies,
+we need to find the <span class="ix-entry" ix-key="transitive closure" markdown="1"><a class="gl-ref" href="../glossary/#transitive_closure" markdown="1">transitive closure</a></span> of the entry point&rsquo;s dependencies,
 i.e.,
 the requirements of the requirements and so on recursively.
 Our algorithm for doing this uses two sets:
 <code>pending</code>,
-which contains the things we haven't looked at yet,
+which contains the things we haven&rsquo;t looked at yet,
 and <code>seen</code>,
 which contains the things we have
-(<a class="figref" href="../module-bundler/#module-bundler-transitive-closure">Figure 17.3</a>).
+(<a class="fig-ref" href="../module-bundler/#module-bundler-transitive-closure">Figure 17.3</a>).
 <code>pending</code> initially contains the entry point file and <code>seen</code> is initially empty.
 We keep taking items from <code>pending</code> until it is empty.
 If the current thing is already in <code>seen</code> we do nothing;
 otherwise we get its dependencies and add them to either <code>seen</code> or <code>pending</code>.</p>
 <figure id="module-bundler-transitive-closure">
-  <img src="./figures/transitive-closure.svg" alt="Implementing transitive closure" />
+  <img src="./transitive-closure.svg" alt="Implementing transitive closure"/>
   <figcaption markdown="1">Figure 17.3: Implementing transitive closure using two sets.</figcaption>
 </figure>
 
 <p>Finding dependencies is complicated by the fact that we can load something under different names,
 such as <code>./subdir/bottom-left</code> from <code>main</code> but <code>./bottom-left</code> from <code>./subdir/bottom-right</code>.
-As with the module loader in <a class="crossref" href="../module-loader/">Chapter 13</a>,
+As with the module loader in <a class="x-ref" href="../module-loader/">Chapter 13</a>,
 we use absolute paths as unique identifiers.
-Our code is also complicated by the fact that JavaScript's <code>Set</code> class doesn't have an equivalent of <code>Array.pop</code>,
-so we will actually maintain the "set" of pending items as a list.
+Our code is also complicated by the fact that JavaScript&rsquo;s <code>Set</code> class doesn&rsquo;t have an equivalent of <code>Array.pop</code>,
+so we will actually maintain the &ldquo;set&rdquo; of pending items as a list.
 The resulting code is:</p>
-<pre><code class="language-js">import path from 'path'
+<div class="code-sample lang-js" title="transitive-closure-only.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">path</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;path&#39;</span><span class="w"></span>
 
-import getRequires from './get-requires.js'
+<span class="k">import</span><span class="w"> </span><span class="nx">getRequires</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./get-requires.js&#39;</span><span class="w"></span>
 
-const transitiveClosure = (entryPointPath) =&gt; {
-  const pending = [path.resolve(entryPointPath)]
-  const filenames = new Set()
-  while (pending.length &gt; 0) {
-    const candidate = path.resolve(pending.pop())
-    if (filenames.has(candidate)) {
-      continue
-    }
-    filenames.add(candidate)
-    const candidateDir = path.dirname(candidate)
-    getRequires(candidate)
-      .map(raw =&gt; path.resolve(path.join(candidateDir, `${raw}.js`)))
-      .filter(cooked =&gt; !filenames.has(cooked))
-      .forEach(cooked =&gt; pending.push(cooked))
-  }
-  return [...filenames]
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">transitiveClosure</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">entryPointPath</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">pending</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">entryPointPath</span><span class="p">)]</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">filenames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Set</span><span class="p">()</span><span class="w"></span>
+<span class="w">  </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">pending</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">candidate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">pending</span><span class="p">.</span><span class="nx">pop</span><span class="p">())</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">filenames</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">candidate</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">continue</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="nx">filenames</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">candidate</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">candidateDir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">path</span><span class="p">.</span><span class="nx">dirname</span><span class="p">(</span><span class="nx">candidate</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">getRequires</span><span class="p">(</span><span class="nx">candidate</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">raw</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">candidateDir</span><span class="p">,</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">raw</span><span class="si">}</span><span class="sb">.js`</span><span class="p">)))</span><span class="w"></span>
+<span class="w">      </span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">cooked</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="o">!</span><span class="nx">filenames</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">cooked</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">cooked</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">pending</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">cooked</span><span class="p">))</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">[...</span><span class="nx">filenames</span><span class="p">]</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-export default transitiveClosure
-</code></pre>
-<pre><code class="language-js">import transitiveClosure from './transitive-closure-only.js'
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">transitiveClosure</span><span class="w"></span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-js" title="test-transitive-closure-only.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">transitiveClosure</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./transitive-closure-only.js&#39;</span><span class="w"></span>
 
-const result = transitiveClosure(process.argv[2])
-console.log(JSON.stringify(result, null, 2))
-</code></pre>
-<pre><code class="language-sh">node test-transitive-closure-only.js full/main.js
-</code></pre>
-<pre><code class="language-out">[
+<span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">transitiveClosure</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">])</span><span class="w"></span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">result</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">))</span><span class="w"></span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-sh" title="test-transitive-closure-only.sh">
+<div class="highlight"><pre><span></span><code>node test-transitive-closure-only.js full/main.js
+</code></pre></div>
+</div>
+<div class="code-sample lang-out" title="test-transitive-closure-only.out">
+<div class="highlight"><pre><span></span><code>[
   &quot;/u/stjs/module-bundler/full/main.js&quot;,
   &quot;/u/stjs/module-bundler/full/subdir/bottom-right.js&quot;,
   &quot;/u/stjs/module-bundler/full/subdir/bottom-left.js&quot;,
   &quot;/u/stjs/module-bundler/full/top-left.js&quot;,
   &quot;/u/stjs/module-bundler/full/top-right.js&quot;
 ]
-</code></pre>
+</code></pre></div>
+</div>
 <p>This works,
-but it isn't keeping track of the mapping from required names within files to absolute paths,
+but it isn&rsquo;t keeping track of the mapping from required names within files to absolute paths,
 so when one of the files in our bundle tries to access something,
-we might not know what it's after.
+we might not know what it&rsquo;s after.
 The fix is to modify transitive closure to construct and return a two-level structure.
 The primary keys are the absolute paths to the files being required,
 while sub-keys are the paths they refer to when loading things
-(<a class="figref" href="../module-bundler/#module-bundler-structure">Figure 17.4</a>).</p>
+(<a class="fig-ref" href="../module-bundler/#module-bundler-structure">Figure 17.4</a>).</p>
 <figure id="module-bundler-structure">
-  <img src="./figures/structure.svg" alt="Data structure for modules" />
+  <img src="./structure.svg" alt="Data structure for modules"/>
   <figcaption markdown="1">Figure 17.4: Data structure used to map names to absolute paths.</figcaption>
 </figure>
 
 <p>Adding this takes our transitive closure code from
 23 lines
-to 29 lines:</p>
-<pre><code class="language-js">import path from 'path'
+to 28 lines:</p>
+<div class="code-sample lang-js" title="transitive-closure.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">path</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;path&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">getRequires</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./get-requires.js&#39;</span><span class="w"></span>
 
-import getRequires from './get-requires.js'
+<span class="kd">const</span><span class="w"> </span><span class="nx">transitiveClosure</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">entryPointPath</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">mapping</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">pending</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">entryPointPath</span><span class="p">)]</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">filenames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Set</span><span class="p">()</span><span class="w"></span>
+<span class="w">  </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">pending</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">candidate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">pending</span><span class="p">.</span><span class="nx">pop</span><span class="p">())</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">filenames</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">candidate</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">continue</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="nx">filenames</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">candidate</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">mapping</span><span class="p">[</span><span class="nx">candidate</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">candidateDir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">path</span><span class="p">.</span><span class="nx">dirname</span><span class="p">(</span><span class="nx">candidate</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">getRequires</span><span class="p">(</span><span class="nx">candidate</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">raw</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">mapping</span><span class="p">[</span><span class="nx">candidate</span><span class="p">][</span><span class="nx">raw</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">          </span><span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">candidateDir</span><span class="p">,</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">raw</span><span class="si">}</span><span class="sb">.js`</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">mapping</span><span class="p">[</span><span class="nx">candidate</span><span class="p">][</span><span class="nx">raw</span><span class="p">]</span><span class="w"></span>
+<span class="w">      </span><span class="p">})</span><span class="w"></span>
+<span class="w">      </span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">cooked</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">cooked</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">cooked</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">pending</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">cooked</span><span class="p">))</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">mapping</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const transitiveClosure = (entryPointPath) =&gt; {
-  const mapping = {}
-  const pending = [path.resolve(entryPointPath)]
-  const filenames = new Set()
-  while (pending.length &gt; 0) {
-    const candidate = path.resolve(pending.pop())
-    if (filenames.has(candidate)) {
-      continue
-    }
-    filenames.add(candidate)
-    mapping[candidate] = {}
-    const candidateDir = path.dirname(candidate)
-    getRequires(candidate)
-      .map(raw =&gt; {
-        mapping[candidate][raw] =
-          path.resolve(path.join(candidateDir, `${raw}.js`))
-        return mapping[candidate][raw]
-      })
-      .filter(cooked =&gt; cooked !== null)
-      .forEach(cooked =&gt; pending.push(cooked))
-  }
-  return mapping
-}
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">transitiveClosure</span><span class="w"></span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-js" title="test-transitive-closure.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">transitiveClosure</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./transitive-closure.js&#39;</span><span class="w"></span>
 
-export default transitiveClosure
-</code></pre>
-<pre><code class="language-js">import transitiveClosure from './transitive-closure.js'
-
-const result = transitiveClosure(process.argv[2])
-console.log(JSON.stringify(result, null, 2))
-</code></pre>
-<pre><code class="language-sh">node test-transitive-closure.js full/main.js
-</code></pre>
-<pre><code class="language-out">{
+<span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">transitiveClosure</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">])</span><span class="w"></span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">result</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">))</span><span class="w"></span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-sh" title="test-transitive-closure.sh">
+<div class="highlight"><pre><span></span><code>node test-transitive-closure.js full/main.js
+</code></pre></div>
+</div>
+<div class="code-sample lang-out" title="test-transitive-closure.out">
+<div class="highlight"><pre><span></span><code>{
   &quot;/u/stjs/module-bundler/full/main.js&quot;: {
     &quot;./top-left&quot;: &quot;/u/stjs/module-bundler/full/top-left.js&quot;,
     &quot;./top-right&quot;: &quot;/u/stjs/module-bundler/full/top-right.js&quot;,
@@ -332,7 +600,8 @@ console.log(JSON.stringify(result, null, 2))
     &quot;/u/stjs/module-bundler/full/subdir/bottom-right.js&quot;
   }
 }
-</code></pre>
+</code></pre></div>
+</div>
 <p class="continue">The real cost, though, is the extra complexity of the data structure:
 it took a couple of tries to get it right,
 and it will be harder for the next person to understand than the original.
@@ -341,126 +610,140 @@ if we could draw diagrams directly in our source code,
 but as long as we insist that our programs be stored in a punchcard-compatible format
 (i.e., as lines of text),
 that will remain a dream.</p>
-<h2 id="module-bundler-combine">Section 17.3:  How can we safely combine several files into one?</h2>
+<h2 id="module-bundler-combine">Section 17.3: How can we safely combine several files into one?</h2>
 <p>We now need to combine the files we have found into one
 while keeping each in its own namespace.
-We do this using the same method we used in <a class="crossref" href="../module-loader/">Chapter 13</a>:
-wrap the source code in an <span class="indexentry" index-key="immediately-invoked function expression" markdown="1">IIFE</span>,
+We do this using the same method we used in <a class="x-ref" href="../module-loader/">Chapter 13</a>:
+wrap the source code in an <span class="ix-entry" ix-key="immediately-invoked function expression" markdown="1">IIFE</span>,
 giving that IIFE a <code>module</code> object to fill in
 and an implementation of <code>require</code> to resolve dependencies <em>within the bundle</em>.
 For example, suppose we have this file:</p>
-<pre><code class="language-js">const main = () =&gt; {
-  console.log('in main')
-}
+<div class="code-sample lang-js" title="sanity-check-unwrapped.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;in main&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-module.exports = main
-</code></pre>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p class="continue">The wrapped version will look like this:</p>
-<pre><code class="language-js">const wrapper = (module, require) =&gt; { // eslint-disable-line
-  const main = () =&gt; {
-    console.log('in main')
-  }
+<div class="code-sample lang-js" title="sanity-check-wrapped.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">wrapper</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">module</span><span class="p">,</span><span class="w"> </span><span class="nx">require</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;in main&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-  module.exports = main
-}
-</code></pre>
+<span class="w">  </span><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p class="continue">And we can test it like this:</p>
-<pre><code class="language-js">const wrapper = (module, require) =&gt; {
-  const main = () =&gt; {
-    console.log('in main')
-  }
+<div class="code-sample lang-js" title="sanity-check-test.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">wrapper</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">module</span><span class="p">,</span><span class="w"> </span><span class="nx">require</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;in main&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-  module.exports = main
-}
+<span class="w">  </span><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const _require = (name) =&gt; null
-const temp = {}
-wrapper(temp, _require)
-temp.exports()
-</code></pre>
-<pre><code class="language-out">in main
-</code></pre>
+<span class="kd">const</span><span class="w"> </span><span class="nx">_require</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">name</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="kc">null</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">temp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="nx">wrapper</span><span class="p">(</span><span class="nx">temp</span><span class="p">,</span><span class="w"> </span><span class="nx">_require</span><span class="p">)</span><span class="w"></span>
+<span class="nx">temp</span><span class="p">.</span><span class="nx">exports</span><span class="p">()</span><span class="w"></span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-out" title="sanity-check-test.out">
+<div class="highlight"><pre><span></span><code>in main
+</code></pre></div>
+</div>
 <p>We need to do this for multiple files,
 so we will put these IIFEs in a lookup table
-that uses the files' absolute paths as its keys.
+that uses the files&rsquo; absolute paths as its keys.
 We will also wrap loading in a function
-so that we don't accidentally step on anyone else's toys:</p>
-<pre><code class="language-js">import fs from 'fs'
-import path from 'path'
+so that we don&rsquo;t accidentally step on anyone else&rsquo;s toys:</p>
+<div class="code-sample lang-js" title="combine-files.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;fs&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">path</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;path&#39;</span><span class="w"></span>
 
-const HEAD = `const initialize = (creators) =&gt; {
-`
+<span class="kd">const</span><span class="w"> </span><span class="nx">HEAD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`const initialize = (creators) =&gt; {</span>
+<span class="sb">`</span><span class="w"></span>
 
-const TAIL = `
-}
-`
+<span class="kd">const</span><span class="w"> </span><span class="nx">TAIL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`</span>
+<span class="sb">}</span>
+<span class="sb">`</span><span class="w"></span>
 
-const combineFiles = (allFilenames) =&gt; {
-  const body = allFilenames
-    .map(filename =&gt; {
-      const key = path.resolve(filename)
-      const source = fs.readFileSync(filename, 'utf-8')
-      const func = `(module, require) =&gt; {${source}}`
-      const entry = `creators.set('${key}',\n${func})`
-      return `// ${key}\n${entry}\n`
-    })
-    .join('\n')
-  const func = `${HEAD}\n${body}\n${TAIL}`
-  return func
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">combineFiles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">allFilenames</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">body</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">allFilenames</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">filename</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">func</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`(module, require) =&gt; {</span><span class="si">${</span><span class="nx">source</span><span class="si">}</span><span class="sb">}`</span><span class="w"></span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`creators.set(&#39;</span><span class="si">${</span><span class="nx">key</span><span class="si">}</span><span class="sb">&#39;,\n</span><span class="si">${</span><span class="nx">func</span><span class="si">}</span><span class="sb">)`</span><span class="w"></span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="sb">`// </span><span class="si">${</span><span class="nx">key</span><span class="si">}</span><span class="sb">\n</span><span class="si">${</span><span class="nx">entry</span><span class="si">}</span><span class="sb">\n`</span><span class="w"></span>
+<span class="w">    </span><span class="p">})</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;\n&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">func</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">HEAD</span><span class="si">}</span><span class="sb">\n</span><span class="si">${</span><span class="nx">body</span><span class="si">}</span><span class="sb">\n</span><span class="si">${</span><span class="nx">TAIL</span><span class="si">}</span><span class="sb">`</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">func</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-export default combineFiles
-</code></pre>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">combineFiles</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p>Breaking this down,
 the code in <code>HEAD</code> creates a function of no arguments
 while the code in <code>TAIL</code> returns the lookup table from that function.
 In between,
 <code>combineFiles</code> adds an entry to the lookup table for each file
-(<a class="figref" href="../module-bundler/#module-bundler-head-tail">Figure 17.5</a>).</p>
+(<a class="fig-ref" href="../module-bundler/#module-bundler-head-tail">Figure 17.5</a>).</p>
 <figure id="module-bundler-head-tail">
-  <img src="./figures/head-tail.svg" alt="Assembling runnable code" />
+  <img src="./head-tail.svg" alt="Assembling runnable code"/>
   <figcaption markdown="1">Figure 17.5: Assembling fragments and modules to create a bundle.</figcaption>
 </figure>
 
 <p>We can test that this works in our two-file case:</p>
-<pre><code class="language-js">import combineFiles from './combine-files.js'
+<div class="code-sample lang-js" title="test-combine-files.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">combineFiles</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./combine-files.js&#39;</span><span class="w"></span>
 
-console.log(combineFiles(process.argv.slice(2)))
-</code></pre>
-<pre><code class="language-js">/* eslint-disable */
-const initialize = (creators) =&gt; {
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">combineFiles</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">2</span><span class="p">)))</span><span class="w"></span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-js" title="test-combine-files-simple.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">initialize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">creators</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 
-// /u/stjs/stjs/module-bundler/simple/main.js
-creators.set('/u/stjs/stjs/module-bundler/simple/main.js',
-(module, require) =&gt; {const other = require('./other')
+<span class="c1">// /u/stjs/stjs/module-bundler/simple/main.js</span><span class="w"></span>
+<span class="nx">creators</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;/u/stjs/stjs/module-bundler/simple/main.js&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="p">(</span><span class="nx">module</span><span class="p">,</span><span class="w"> </span><span class="nx">require</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="kd">const</span><span class="w"> </span><span class="nx">other</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./other&#39;</span><span class="p">)</span><span class="w"></span>
 
-const main = () =&gt; {
-  console.log(other('main'))
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">other</span><span class="p">(</span><span class="s1">&#39;main&#39;</span><span class="p">))</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-module.exports = main
-})
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
+<span class="p">})</span><span class="w"></span>
 
-// /u/stjs/stjs/module-bundler/simple/other.js
-creators.set('/u/stjs/stjs/module-bundler/simple/other.js',
-(module, require) =&gt; {const other = (caller) =&gt; {
-  return `other called from ${caller}`
-}
+<span class="c1">// /u/stjs/stjs/module-bundler/simple/other.js</span><span class="w"></span>
+<span class="nx">creators</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;/u/stjs/stjs/module-bundler/simple/other.js&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="p">(</span><span class="nx">module</span><span class="p">,</span><span class="w"> </span><span class="nx">require</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="kd">const</span><span class="w"> </span><span class="nx">other</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">caller</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="sb">`other called from </span><span class="si">${</span><span class="nx">caller</span><span class="si">}</span><span class="sb">`</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-module.exports = other
-})
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">other</span><span class="w"></span>
+<span class="p">})</span><span class="w"></span>
 
 
-}
-
-</code></pre>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p class="continue">and then load the result and call <code>initialize</code>:</p>
-<pre><code class="language-out">Map(2) {
-  '/u/stjs/module-bundler/simple/main.js' =&gt; [Function (anonymous)],
-  '/u/stjs/module-bundler/simple/other.js' =&gt; [Function (anonymous)]
+<div class="code-sample lang-out" title="show-combine-files-simple.out">
+<div class="highlight"><pre><span></span><code>Map(2) {
+  &#39;/u/stjs/module-bundler/simple/main.js&#39; =&gt; [Function (anonymous)],
+  &#39;/u/stjs/module-bundler/simple/other.js&#39; =&gt; [Function (anonymous)]
 }
-</code></pre>
-<h2 id="module-bundler-access">Section 17.4:  How can files access each other?</h2>
+</code></pre></div>
+</div>
+<h2 id="module-bundler-access">Section 17.4: How can files access each other?</h2>
 <p>The code we have built so far has not created our exports;
 instead,
 it has build a lookup table of functions that can create what we asked for.
@@ -471,30 +754,30 @@ More specifically we have:</p>
     to functions that create the exports for those modules;</p>
 </li>
 <li>
-<p>a lookup table from the importer's absolute filename
+<p>a lookup table from the importer&rsquo;s absolute filename
     to pairs storing the name of the required file as it was written
-    and the required file's absolute filename;
+    and the required file&rsquo;s absolute filename;
     and</p>
 </li>
 <li>
 <p>an entry point.</p>
 </li>
 </ul>
-<p>To turn this into what we want,
+<p class="continue">To turn this into what we want,
 we must look up the function associated with the entry point and run it,
 giving it an empty module object and a <code>require</code> function that we will describe below,
 then get the <code>exports</code> it has added to that module object.
 Our replacement for <code>require</code> is only allowed to take one argument
-(because that's all that JavaScript's <code>require</code> takes).
+(because that&rsquo;s all that JavaScript&rsquo;s <code>require</code> takes).
 However,
 it actually needs four things:
-the argument to the user's <code>require</code> call,
+the argument to the user&rsquo;s <code>require</code> call,
 the absolute path of the file making the call,
 and the two lookup tables described above.
-Those two tables can't be global variables because of possible name collisions:
+Those two tables can&rsquo;t be global variables because of possible name collisions:
 no matter what we call them,
 the user might have given a variable the same name.</p>
-<p>As in <a class="crossref" href="../module-loader/">Chapter 13</a> we solve this problem using closures.
+<p>As in <a class="x-ref" href="../module-loader/">Chapter 13</a> we solve this problem using closures.
 The result is probably the most difficult code in this book to understand
 because of its many levels of abstraction.
 First, we write a function that takes the two tables as arguments
@@ -502,219 +785,226 @@ and returns a function that takes an absolute path identifying this module.
 When that function is called,
 it creates and returns a function that takes a local path inside a module and returns the exports.
 Each of these wrapping layers remembers more information for us
-(<a class="figref" href="../module-bundler/#module-bundler-returning-functions">Figure 17.6</a>),
-but we won't pretend that it's easy to trace.</p>
+(<a class="fig-ref" href="../module-bundler/#module-bundler-returning-functions">Figure 17.6</a>),
+but we won&rsquo;t pretend that it&rsquo;s easy to trace.</p>
 <figure id="module-bundler-returning-functions">
-  <img src="./figures/returning-functions.svg" alt="Functions returning functions returning functions" />
+  <img src="./returning-functions.svg" alt="Functions returning functions returning functions"/>
   <figcaption markdown="1">Figure 17.6: A function that returns functions that return functions.</figcaption>
 </figure>
 
 <p>We also need a third structure:
-a cache for the modules we've already loaded.
+a cache for the modules we&rsquo;ve already loaded.
 Putting it all together we have:</p>
-<pre><code class="language-js">import fs from 'fs'
-import path from 'path'
+<div class="code-sample lang-js" title="create-bundle.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;fs&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">path</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;path&#39;</span><span class="w"></span>
 
-import transitiveClosure from './transitive-closure.js'
+<span class="k">import</span><span class="w"> </span><span class="nx">transitiveClosure</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./transitive-closure.js&#39;</span><span class="w"></span>
 
-const HEAD = `const creators = new Map()
-const cache = new Map()
+<span class="kd">const</span><span class="w"> </span><span class="nx">HEAD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`const creators = new Map()</span>
+<span class="sb">const cache = new Map()</span>
 
-const makeRequire = (absPath) =&gt; {
-  return (localPath) =&gt; {
-    const actualKey = translate[absPath][localPath]
-    if (!cache.has(actualKey)) {
-      const m = {}
-      creators.get(actualKey)(m)
-      cache.set(actualKey, m.exports)
-    }
-    return cache.get(actualKey)
-  }
-}
+<span class="sb">const makeRequire = (absPath) =&gt; {</span>
+<span class="sb">  return (localPath) =&gt; {</span>
+<span class="sb">    const actualKey = translate[absPath][localPath]</span>
+<span class="sb">    if (!cache.has(actualKey)) {</span>
+<span class="sb">      const m = {}</span>
+<span class="sb">      creators.get(actualKey)(m)</span>
+<span class="sb">      cache.set(actualKey, m.exports)</span>
+<span class="sb">    }</span>
+<span class="sb">    return cache.get(actualKey)</span>
+<span class="sb">  }</span>
+<span class="sb">}</span>
 
-const initialize = (creators) =&gt; {
-`
+<span class="sb">const initialize = (creators) =&gt; {</span>
+<span class="sb">`</span><span class="w"></span>
 
-const TAIL = `
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">TAIL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`</span>
+<span class="sb">}</span>
 
-initialize(creators)
-`
+<span class="sb">initialize(creators)</span>
+<span class="sb">`</span><span class="w"></span>
 
-const makeProof = (entryPoint) =&gt; `
-const start = creators.get('${entryPoint}')
-const m = {}
-start(m)
-m.exports()
-`
+<span class="kd">const</span><span class="w"> </span><span class="nx">makeProof</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">entryPoint</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="sb">`</span>
+<span class="sb">const start = creators.get(&#39;</span><span class="si">${</span><span class="nx">entryPoint</span><span class="si">}</span><span class="sb">&#39;)</span>
+<span class="sb">const m = {}</span>
+<span class="sb">start(m)</span>
+<span class="sb">m.exports()</span>
+<span class="sb">`</span><span class="w"></span>
 
-const createBundle = (entryPoint) =&gt; {
-  entryPoint = path.resolve(entryPoint)
-  const table = transitiveClosure(entryPoint)
-  const translate = `const translate = ${JSON.stringify(table, null, 2)}`
-  const creators = Object.keys(table).map(filename =&gt; makeCreator(filename))
-  const proof = makeProof(entryPoint)
-  return [
-    translate,
-    HEAD,
-    ...creators,
-    TAIL,
-    proof
-  ].join('\n')
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">createBundle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">entryPoint</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">entryPoint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">entryPoint</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">transitiveClosure</span><span class="p">(</span><span class="nx">entryPoint</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">translate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`const translate = </span><span class="si">${</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">table</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">)</span><span class="si">}</span><span class="sb">`</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">creators</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">table</span><span class="p">).</span><span class="nx">map</span><span class="p">(</span><span class="nx">filename</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">makeCreator</span><span class="p">(</span><span class="nx">filename</span><span class="p">))</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">proof</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">makeProof</span><span class="p">(</span><span class="nx">entryPoint</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">    </span><span class="nx">translate</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nx">HEAD</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">...</span><span class="nx">creators</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nx">TAIL</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nx">proof</span><span class="w"></span>
+<span class="w">  </span><span class="p">].</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;\n&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const makeCreator = (filename) =&gt; {
-  const key = path.resolve(filename)
-  const source = fs.readFileSync(filename, 'utf-8')
-  const func = `(module, require = makeRequire('${key}')) =&gt;\n{${source}}`
-  const entry = `creators.set('${key}',\n${func})`
-  return `// ${key}\n${entry}\n`
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">makeCreator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">func</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`(module, require = makeRequire(&#39;</span><span class="si">${</span><span class="nx">key</span><span class="si">}</span><span class="sb">&#39;)) =&gt;\n{</span><span class="si">${</span><span class="nx">source</span><span class="si">}</span><span class="sb">}`</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`creators.set(&#39;</span><span class="si">${</span><span class="nx">key</span><span class="si">}</span><span class="sb">&#39;,\n</span><span class="si">${</span><span class="nx">func</span><span class="si">}</span><span class="sb">)`</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="sb">`// </span><span class="si">${</span><span class="nx">key</span><span class="si">}</span><span class="sb">\n</span><span class="si">${</span><span class="nx">entry</span><span class="si">}</span><span class="sb">\n`</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-export default createBundle
-</code></pre>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">createBundle</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p>This code is hard to read
 because we have to distinguish what is being printed in the output versus what is being executed right now
 and because of the levels of nesting needed to capture variables safely.
 Getting this right took much more time per line of finished code than anything we have seen so far
-except the promises in <a class="crossref" href="../async-programming/">Chapter 3</a>.
+except the promises in <a class="x-ref" href="../async-programming/">Chapter 3</a>.
 However,
-it is all <span class="indexentry" index-key="intrinsic complexity" markdown="1">intrinsic complexity</span>:
+it is all <span class="ix-entry" ix-key="intrinsic complexity" markdown="1">intrinsic complexity</span>:
 anything that does what <code>require</code> does is going to be equally convoluted.</p>
-<p>To prove that our code works
+<p>To prove that our code works,
 we will look up the function <code>main</code> in the first file and call it.
 (If we were loading in the browser,
-we'd capture the exports in a variable for later use.)
+we&rsquo;d capture the exports in a variable for later use.)
 First, we create the bundled file:</p>
-<pre><code class="language-sh">echo '/* eslint-disable */' &gt; bundle-single.js
+<div class="code-sample lang-sh" title="test-create-bundle-single.sh">
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="err">&#39;</span>
 node test-create-bundle.js single/main.js &gt;&gt; bundle-single.js
-</code></pre>
-<pre><code class="language-js">/* eslint-disable */
-const translate = {
-  &quot;/u/stjs/stjs/module-bundler/single/main.js&quot;: {}
-}
-const creators = new Map()
-const cache = new Map()
+</code></pre></div>
+</div>
+<div class="code-sample lang-js" title="bundle-single.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">translate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="s2">&quot;/u/stjs/stjs/module-bundler/single/main.js&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">creators</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Map</span><span class="p">()</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">cache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Map</span><span class="p">()</span><span class="w"></span>
 
-const makeRequire = (absPath) =&gt; {
-  return (localPath) =&gt; {
-    const actualKey = translate[absPath][localPath]
-    if (!cache.has(actualKey)) {
-      const m = {}
-      creators.get(actualKey)(m)
-      cache.set(actualKey, m.exports)
-    }
-    return cache.get(actualKey)
-  }
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">makeRequire</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">absPath</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="nx">localPath</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actualKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">translate</span><span class="p">[</span><span class="nx">absPath</span><span class="p">][</span><span class="nx">localPath</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">cache</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">actualKey</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="w">      </span><span class="nx">creators</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">actualKey</span><span class="p">)(</span><span class="nx">m</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="nx">cache</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">actualKey</span><span class="p">,</span><span class="w"> </span><span class="nx">m</span><span class="p">.</span><span class="nx">exports</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">cache</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">actualKey</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const initialize = (creators) =&gt; {
+<span class="kd">const</span><span class="w"> </span><span class="nx">initialize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">creators</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 
-// /u/stjs/stjs/module-bundler/single/main.js
-creators.set('/u/stjs/stjs/module-bundler/single/main.js',
-(module, require =
-makeRequire('/u/stjs/stjs/module-bundler/single/main.js')) =&gt;
-{const main = () =&gt; {
-  console.log('in main')
-}
+<span class="c1">// /u/stjs/stjs/module-bundler/single/main.js</span><span class="w"></span>
+<span class="nx">creators</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;/u/stjs/stjs/module-bundler/single/main.js&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="p">(</span><span class="nx">module</span><span class="p">,</span><span class="w"> </span><span class="nx">require</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="nx">makeRequire</span><span class="p">(</span><span class="s1">&#39;/u/stjs/stjs/module-bundler/single/main.js&#39;</span><span class="p">))</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"></span>
+<span class="p">{</span><span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;in main&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-module.exports = main
-})
-
-
-}
-
-initialize(creators)
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
+<span class="p">})</span><span class="w"></span>
 
 
-const start = creators.get('/u/stjs/stjs/module-bundler/single/main.js')
-const m = {}
-start(m)
-m.exports()
+<span class="p">}</span><span class="w"></span>
 
-</code></pre>
-<p class="continue">and then we run it:
-{: .break-before}</p>
-<pre><code class="language-out">
-n main
-</code></pre>
+<span class="nx">initialize</span><span class="p">(</span><span class="nx">creators</span><span class="p">)</span><span class="w"></span>
+
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">creators</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/u/stjs/stjs/module-bundler/single/main.js&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="nx">start</span><span class="p">(</span><span class="nx">m</span><span class="p">)</span><span class="w"></span>
+<span class="nx">m</span><span class="p">.</span><span class="nx">exports</span><span class="p">()</span><span class="w"></span>
+</code></pre></div>
+</div>
+<p class="continue">and then we run it:</p>
+<div class="code-sample lang-out" title="test-bundle-single.out">
+<div class="highlight"><pre><span></span><code>in main
+</code></pre></div>
+</div>
 <p>That was a lot of work to print one line,
 but what we have should work for other files.
 The two-file case with <code>main</code> and <code>other</code> works:</p>
-<pre><code class="language-js">/* eslint-disable */
-const translate = {
-  &quot;/u/stjs/stjs/module-bundler/simple/main.js&quot;: {
-    &quot;./other&quot;: &quot;/u/stjs/stjs/module-bundler/simple/other.js&quot;
-  },
-  &quot;/u/stjs/stjs/module-bundler/simple/other.js&quot;: {}
-}
-const creators = new Map()
-const cache = new Map()
+<div class="code-sample lang-js" title="bundle-simple.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">translate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="s2">&quot;/u/stjs/stjs/module-bundler/simple/main.js&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="s2">&quot;./other&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;/u/stjs/stjs/module-bundler/simple/other.js&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="p">},</span><span class="w"></span>
+<span class="w">  </span><span class="s2">&quot;/u/stjs/stjs/module-bundler/simple/other.js&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">creators</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Map</span><span class="p">()</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">cache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Map</span><span class="p">()</span><span class="w"></span>
 
-const makeRequire = (absPath) =&gt; {
-  return (localPath) =&gt; {
-    const actualKey = translate[absPath][localPath]
-    if (!cache.has(actualKey)) {
-      const m = {}
-      creators.get(actualKey)(m)
-      cache.set(actualKey, m.exports)
-    }
-    return cache.get(actualKey)
-  }
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">makeRequire</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">absPath</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="nx">localPath</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actualKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">translate</span><span class="p">[</span><span class="nx">absPath</span><span class="p">][</span><span class="nx">localPath</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">cache</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">actualKey</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="w">      </span><span class="nx">creators</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">actualKey</span><span class="p">)(</span><span class="nx">m</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="nx">cache</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">actualKey</span><span class="p">,</span><span class="w"> </span><span class="nx">m</span><span class="p">.</span><span class="nx">exports</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">cache</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">actualKey</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const initialize = (creators) =&gt; {
+<span class="kd">const</span><span class="w"> </span><span class="nx">initialize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">creators</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 
-// /u/stjs/stjs/module-bundler/simple/main.js
-creators.set('/u/stjs/stjs/module-bundler/simple/main.js',
-(module, require =
-makeRequire('/u/stjs/stjs/module-bundler/simple/main.js')) =&gt;
-{const other = require('./other')
+<span class="c1">// /u/stjs/stjs/module-bundler/simple/main.js</span><span class="w"></span>
+<span class="nx">creators</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;/u/stjs/stjs/module-bundler/simple/main.js&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="p">(</span><span class="nx">module</span><span class="p">,</span><span class="w"> </span><span class="nx">require</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="nx">makeRequire</span><span class="p">(</span><span class="s1">&#39;/u/stjs/stjs/module-bundler/simple/main.js&#39;</span><span class="p">))</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"></span>
+<span class="p">{</span><span class="kd">const</span><span class="w"> </span><span class="nx">other</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./other&#39;</span><span class="p">)</span><span class="w"></span>
 
-const main = () =&gt; {
-  console.log(other('main'))
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">other</span><span class="p">(</span><span class="s1">&#39;main&#39;</span><span class="p">))</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-module.exports = main
-})
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
+<span class="p">})</span><span class="w"></span>
 
-// /u/stjs/stjs/module-bundler/simple/other.js
-creators.set('/u/stjs/stjs/module-bundler/simple/other.js',
-(module, require =
-makeRequire('/u/stjs/stjs/module-bundler/simple/other.js')) =&gt;
-{const other = (caller) =&gt; {
-  return `other called from ${caller}`
-}
+<span class="c1">// /u/stjs/stjs/module-bundler/simple/other.js</span><span class="w"></span>
+<span class="nx">creators</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;/u/stjs/stjs/module-bundler/simple/other.js&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="p">(</span><span class="nx">module</span><span class="p">,</span><span class="w"> </span><span class="nx">require</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="nx">makeRequire</span><span class="p">(</span><span class="s1">&#39;/u/stjs/stjs/module-bundler/simple/other.js&#39;</span><span class="p">))</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"></span>
+<span class="p">{</span><span class="kd">const</span><span class="w"> </span><span class="nx">other</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">caller</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="sb">`other called from </span><span class="si">${</span><span class="nx">caller</span><span class="si">}</span><span class="sb">`</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-module.exports = other
-})
-
-
-}
-
-initialize(creators)
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">other</span><span class="w"></span>
+<span class="p">})</span><span class="w"></span>
 
 
-const start = creators.get('/u/stjs/stjs/module-bundler/simple/main.js')
-const m = {}
-start(m)
-m.exports()
+<span class="p">}</span><span class="w"></span>
 
-</code></pre>
-<pre><code class="language-out">other called from main
-</code></pre>
+<span class="nx">initialize</span><span class="p">(</span><span class="nx">creators</span><span class="p">)</span><span class="w"></span>
+
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">creators</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/u/stjs/stjs/module-bundler/simple/main.js&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="nx">start</span><span class="p">(</span><span class="nx">m</span><span class="p">)</span><span class="w"></span>
+<span class="nx">m</span><span class="p">.</span><span class="nx">exports</span><span class="p">()</span><span class="w"></span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-out" title="test-bundle-simple.out">
+<div class="highlight"><pre><span></span><code>other called from main
+</code></pre></div>
+</div>
 <p class="continue">and so does our most complicated test with <code>main</code> and four other files:</p>
-<pre><code class="language-out">topLeft from main
+<div class="code-sample lang-out" title="test-bundle-full.out">
+<div class="highlight"><pre><span></span><code>topLeft from main
 topRight from main with topLeft from topRight and bottomRight from \
 topRight
 bottomLeft from main with topLeft from bottomLeft and bottomRight from \
 bottomLeft
 bottomRight from main
-</code></pre>
-<div class="break-before"></div>
-<h2 id="module-bundler-exercises">Section 17.5:  Exercises</h2>
+</code></pre></div>
+</div>
+<h2 id="module-bundler-exercises">Section 17.5: Exercises</h2>
 <h3 class="exercise">Using test-driven development</h3>
-<p>Suppose we wanted to compress the files being stored by the file backup system in <a class="crossref" href="../file-backup/">Chapter 5</a>
+<p>Suppose we wanted to compress the files being stored by the file backup system in <a class="x-ref" href="../file-backup/">Chapter 5</a>
 instead of copying them as-is.
 What tests would you write before adding this feature in order to ensure that it worked correctly
 once it was implemented?</p>
@@ -727,7 +1017,7 @@ only one copy is loaded.</p>
 <h3 class="exercise">Using asynchronous file operations</h3>
 <p>Modify the dependency finder to use <code>async</code> and <code>await</code> instead of synchronous file operations.</p>
 <h3 class="exercise">Unit testing transitive closure</h3>
-<p>Write unit tests for the tool that finds the transitive closure of files' requirements
+<p>Write unit tests for the tool that finds the transitive closure of files&rsquo; requirements
 using Mocha and <code>mock-fs</code>.
 (Rather than parsing JavaScript files in the mock filesystem,
 have each file contain only a list of the names of the files it depends on.)</p>
@@ -752,33 +1042,14 @@ that makes sure every cross-reference resolves correctly.</p>
 <h3 class="exercise">Tracing execution</h3>
 <p>Trace the execution of every function called
 when the <code>main</code> function in the full bundle is called.</p>
-<h3 class="exercise break-before">Making bundles more readable</h3>
+<h3 class="exercise">Making bundles more readable</h3>
 <p>Modify the bundle creator to make its output more readable,
 e.g.,
 by adding comments and indentation.
 (This does not matter to the computer,
 but can help debugging.)</p>
-    </main>
-  <div class="centered footer">
-  <hr/>
-  <table class="plain footer">
-    <tr>
-      
-      <td><a href="../license/">License</a></td>
-      
-      <td><a href="../conduct/">Code of Conduct</a></td>
-      
-      <td><a href="../bibliography/">Bibliography</a></td>
-      
-      <td><a href="../glossary/">Glossary</a></td>
-      
-      <td><a href="../links/">Links</a></td>
-      
-      <td><a href="https://github.com/software-tools-books/stjs/">GitHub</a></td>
-      
-    </tr>
-  </table>
-</div>
-
+        </main>
+      </div>
+    </div>
   </body>
 </html>

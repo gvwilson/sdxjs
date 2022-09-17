@@ -1,16 +1,14 @@
 ---
-template: page
 title: "Unit Testing"
-lede: "Testing software piece by piece"
 ---
 
 We have written many small programs in the previous two chapters,
 but haven't really tested any of them.
-That's OK for [% i "exploratory programming" %][% g exploratory_programming %]exploratory programming[% /g %][% /i %],
+That's OK for [%i "exploratory programming" %][%g exploratory_programming "exploratory programming" %][%/i%],
 but if our software is going to be used instead of just read,
 we should try to make sure it works.
 
-A tool for writing and running [% i "unit test!requirements for" %][% g unit_test %]unit tests[% /g %][% /i %] is a good first step.
+A tool for writing and running [%i "unit test!requirements for" %][%g unit_test "unit tests" %][%/i%] is a good first step.
 Such a tool should:
 
 -   find files containing tests;
@@ -19,72 +17,81 @@ Such a tool should:
 -   capture their results; and
 -   report each test's result and a summary of those results.
 
-Our design is inspired by tools like [% i "Mocha" %][Mocha][mocha][% /i %] and [% i "Jest" %][Jest][jest][% /i %],
+Our design is inspired by tools like [%i "Mocha" %][Mocha][mocha][%/i%] and [%i "Jest" %][Jest][jest][%/i%],
 which were in turn inspired by tools built for other languages
-from the 1980s onward [% b Meszaros2007 Tudose2020 %].
+from the 1980s onward [%b Meszaros2007 Tudose2020 %].
 
 ## How should we structure unit testing? {: #unit-test-structure}
 
 As in other unit testing frameworks,
 each test will be a function of zero arguments
 so that the framework can run them all in the same way.
-Each test will create a [% i "fixture (in unit test)" "unit test!fixture" %][% g fixture %]fixture[% /g %][% /i %] to be tested
-and use [% i "assertion!in unit test" %][% g assertion %]assertions[% /g %][% /i %]
-to compare the [% i "actual result (in unit test)" "unit test!actual result" %][% g actual_result %]actual result[% /g %][% /i %]
-against the [% i "expected result (in unit test)" "unit test!expected result" %][% g expected_result %]expected result[% /g %][% /i %].
+Each test will create a [%i "fixture (in unit test)" "unit test!fixture" %][%g fixture "fixture" %][%/i%] to be tested
+and use [%i "assertion!in unit test" %][%g assertion "assertions" %][%/i%]
+to compare the [%i "actual result (in unit test)" "unit test!actual result" %][%g actual_result "actual result" %][%/i%]
+against the [%i "expected result (in unit test)" "unit test!expected result" %][%g expected_result "expected result" %][%/i%].
 The outcome can be exactly one of:
 
--   [% i "pass (in unit test)" "unit test!pass" %][% g pass_test %]Pass[% /g %][% /i %]:
-    the [% i "test subject (in unit test)" "unit test!test subject" %][% g test_subject %]test subject[% /g %][% /i %] works as expected.
+-   [%i "pass (in unit test)" "unit test!pass" %][%g pass_test "Pass" %][%/i%]:
+    the [%i "test subject (in unit test)" "unit test!test subject" %][%g test_subject "test subject" %][%/i%] works as expected.
 
--   [% i "fail (in unit test)" "unit test!fail" %][% g fail_test %]Fail[% /g %][% /i %]:
+-   [%i "fail (in unit test)" "unit test!fail" %][%g fail_test "Fail" %][%/i%]:
     something is wrong with the test subject.
 
--   [% i "error (in unit test)" "unit test!error" %][% g error_test %]Error[% /g %][% /i %]:
+-   [%i "error (in unit test)" "unit test!error" %][%g error_test "Error" %][%/i%]:
     something wrong in the test itself,
     which means we don't know whether the test subject is working properly or not.
 
 To make this work,
 we need some way to distinguish failing tests from broken ones.
 Our solution relies on the fact that exceptions are objects
-and that a program can use [% i "introspection!in unit testing" %][% g introspection %]introspection[% /g %][% /i %]
+and that a program can use [%i "introspection!in unit testing" %][%g introspection "introspection" %][%/i%]
 to determine the class of an object.
-If a test [% i "exception!throw" %][% g throw_exception %]throws an exception[% /g %][% /i %] whose class is `assert.AssertionError`,
+If a test [%i "exception!throw" %][%g throw_exception "throws an exception" %][%/i%] whose class is `assert.AssertionError`,
 then we will assume the exception came from
 one of the assertions we put in the test as a check
-([% f unit-test-mental-model %]).
+([%f unit-test-mental-model %]).
 Any other kind of assertion indicates that the test itself contains an error.
 
-[% figure slug="unit-test-mental-model" img="figures/mental-model.svg" alt="Mental model of unit testing" caption="Running tests that can pass, fail, or contain errors." %]
+[% figure
+   slug="unit-test-mental-model"
+   img="mental-model.svg"
+   alt="Mental model of unit testing"
+   caption="Running tests that can pass, fail, or contain errors."
+%]
 
 ## How can we separate registration, execution, and reporting? {: #unit-test-design}
 
 To start,
-let's use a handful of [% g global_variable %]global variables[% /g %] to record tests and their results:
+let's use a handful of [%g global_variable "global variables" %] to record tests and their results:
 
-[% excerpt file="dry-run.js" keep="state" %]
+[% inc file="dry-run.js" keep="state" %]
 
 We don't run tests immediately
-because we want to wrap each one in our own [% i "exception!handler" %][% g exception_handler %]exception handler[% /g %][% /i %].
+because we want to wrap each one in our own [%i "exception!handler" %][%g exception_handler "exception handler" %][%/i%].
 Instead,
 the function `hopeThat` saves a descriptive message and a callback function that implements a test
 in the `HopeTest` array.
 
-[% excerpt file="dry-run.js" keep="save" %]
+[% inc file="dry-run.js" keep="save" %]
 
-> ### Independence
->
-> Because we're appending tests to an array,
-> they will be run in the order in which they are registered,
-> but we shouldn't rely on that.
-> Every unit test should work independently of every other
-> so that an error or failure in an early test
-> doesn't affect the result of a later one.
+<div class="callout" markdown="1">
+
+### Independence
+
+Because we're appending tests to an array,
+they will be run in the order in which they are registered,
+but we shouldn't rely on that.
+Every unit test should work independently of every other
+so that an error or failure in an early test
+doesn't affect the result of a later one.
+
+</div>
 
 Finally,
 the function `main` runs all registered tests:
 
-[% excerpt file="dry-run.js" keep="main" %]
+[% inc file="dry-run.js" keep="main" %]
 
 If a test completes without an exception, it passes.
 If any of the `assert` calls inside the test raises an `AssertionError`,
@@ -97,8 +104,8 @@ After all tests are run,
 
 Let's try it out:
 
-[% excerpt file="dry-run.js" keep="use" %]
-[% excerpt file="dry-run.out" %]
+[% inc file="dry-run.js" keep="use" %]
+[% inc file="dry-run.out" %]
 
 This simple "framework" does what it's supposed to, but:
 
@@ -111,7 +118,7 @@ This simple "framework" does what it's supposed to, but:
 
 1.  We don't have a way to test things that are supposed to raise `AssertionError`.
     Putting assertions into code to check that it is behaving correctly
-    is called [% g defensive_programming %]defensive programming[% /g %];
+    is called [%g defensive_programming "defensive programming" %];
     it's a good practice,
     but we should make sure those assertions are failing when they're supposed to,
     just as we should test our smoke detectors every once in a while.
@@ -120,8 +127,8 @@ This simple "framework" does what it's supposed to, but:
 
 The next version of our testing tool solves the first two problems in the original
 by putting the testing machinery in a class.
-It uses the [% i "Singleton pattern" "design pattern!Singleton" %][% g singleton_pattern %]Singleton[% /g %][% /i %] [% g design_pattern %]design pattern[% /g %]
-to ensure that only one object of that class is ever created [% b Osmani2017 %].
+It uses the [%i "Singleton pattern" "design pattern!Singleton" %][%g singleton_pattern "Singleton" %][%/i%] [%g design_pattern "design pattern" %]
+to ensure that only one object of that class is ever created [%b Osmani2017 %].
 Singletons are a way to manage global variables that belong together
 like the ones we're using to record tests and their results.
 As an extra benefit,
@@ -130,14 +137,14 @@ we can just construct more instances of the class.
 
 The file `hope.js` defines the class and exports one instance of it:
 
-[% excerpt file="hope.js" keep="report" %]
+[% inc file="hope.js" keep="report" %]
 
 This strategy relies on two things:
 
 1.  [Node][nodejs] executes the code in a JavaScript module as it loads it,
     which means that it runs `new Hope()` and exports the newly-created object.
 
-1.  Node [% i "cache!modules" "require!caching modules" %][% g caching %]caches[% /g %][% /i %] modules
+1.  Node [%i "cache!modules" "require!caching modules" %][%g caching "caches" %][%/i%] modules
     so that a given module is only loaded once
     no matter how many times it is imported.
     This ensures that `new Hope()` really is only called once.
@@ -145,31 +152,42 @@ This strategy relies on two things:
 Once a program has imported `hope`,
 it can call `Hope.test` to record a test for later execution
 and `Hope.run` to execute all of the tests registered up until that point
-([% f unit-test-hope-structure %]).
+([%f unit-test-hope-structure %]).
 
-[% figure slug="unit-test-hope-structure" img="figures/hope-structure.svg" alt="Recording and running tests" caption="Creating a singleton, recording tests, and running them." %]
+[% figure
+   slug="unit-test-hope-structure"
+   img="hope-structure.svg"
+   alt="Recording and running tests"
+   caption="Creating a singleton, recording tests, and running them."
+%]
+
+<div class="pagebreak"></div>
 
 Finally,
 our `Hope` class can report results as both a terse one-line summary and as a detailed listing.
 It can also provide the titles and results of individual tests
 so that if someone wants to format them in a different way (e.g., as HTML) they can do so:
 
-[% excerpt file="hope.js" keep="report" %]
+[% inc file="hope.js" keep="report" %]
 
-> ### Who's calling?
->
-> `Hope.test` uses the [% i "caller module" %][`caller`][caller][% /i %] module
-> to get the name of the function that is registering a test.
-> Reporting the test's name helps the user figure out where to start debugging;
-> getting it via introspection
-> rather than requiring the user to pass the function's name as a string
-> reduces typing
-> and guarantees that what we report is accurate.
-> Programmers will often copy, paste, and modify tests;
-> sooner or later (probably sooner) they will forget to modify
-> the copy-and-pasted function name being passed into `Hope.test`
-> and will then lose time trying to figure out why `test_this` is failing
-> when the failure is actually in `test_that`.
+<div class="callout" markdown="1">
+
+### Who's calling?
+
+`Hope.test` uses the [%i "caller module" %][`caller`][caller][%/i%] module
+to get the name of the function that is registering a test.
+Reporting the test's name helps the user figure out where to start debugging;
+getting it via introspection
+rather than requiring the user to pass the function's name as a string
+reduces typing
+and guarantees that what we report is accurate.
+Programmers will often copy, paste, and modify tests;
+sooner or later (probably sooner) they will forget to modify
+the copy-and-pasted function name being passed into `Hope.test`
+and will then lose time trying to figure out why `test_this` is failing
+when the failure is actually in `test_that`.
+
+</div>
 
 ## How can we build a command-line interface for testing? {: #unit-test-cli}
 
@@ -180,7 +198,7 @@ A couple of `import` statements to get `assert` and `hope`
 and then one function call per test
 is about as simple as we can make the tests themselves:
 
-[% excerpt file="test-add.js" %]
+[% inc file="test-add.js" %]
 
 But that just defines the tests---how will we find them so that we can run them?
 One option is to require people to `import` each of the files containing tests
@@ -200,13 +218,13 @@ Hope.run()
 
 Here,
 `all-the-tests.js` imports other files so that they will register tests
-as a [% i "side effect!for module registration" %][% g side_effect %]side effect[% /g %][% /i %] via calls to `hope.test`
+as a [%i "side effect!for module registration" %][%g side_effect "side effect" %][%/i%] via calls to `hope.test`
 and then calls `Hope.run` to execute them.
 It works,
 but sooner or later (probably sooner) someone will forget to import one of the test files.
 {: .continue}
 
-A better strategy is to load test files [% i "dynamic loading" %][% g dynamic_loading %]dynamically[% /g %][% /i %].
+A better strategy is to load test files [%i "dynamic loading" %][%g dynamic_loading "dynamically" %][%/i%].
 While `import` is usually written as a statement,
 it can also be used as an `async` function
 that takes a path as a parameter and loads the corresponding file.
@@ -214,7 +232,7 @@ As before,
 loading files executes the code they contain,
 which registers tests as a side effect:
 
-[% excerpt file="pray.js" omit="options" %]
+[% inc file="pray.js" omit="options" %]
 
 By default,
 this program finds all files below the current working directory
@@ -231,38 +249,46 @@ Given command-line arguments *after* the program's name
 it looks for patterns like `-x something`
 and creates an object with flags as keys and values associated with them.
 
-> ### Filenames in `minimist`
->
-> If we use a command line like `pray.js -v something.js`,
-> then `something.js` becomes the value of `-v`.
-> To indicate that we want `something.js` added to the list of trailing filenames
-> associated with the special key `_` (a single underscore),
-> we have to write `pray.js -v -- something.js`.
-> The double dash is a common Unix convention for signalling the end of parameters.
+<div class="callout" markdown="1">
 
-Our [% i "test runner" "unit test!test runner" %][% g test_runner %]test runner[% /g %][% /i %] is now complete,
+### Filenames in `minimist`
+
+If we use a command line like `pray.js -v something.js`,
+then `something.js` becomes the value of `-v`.
+To indicate that we want `something.js` added to the list of trailing filenames
+associated with the special key `_` (a single underscore),
+we have to write `pray.js -v -- something.js`.
+The double dash is a common Unix convention for signalling the end of parameters.
+
+</div>
+
+Our [%i "test runner" "unit test!test runner" %][%g test_runner "test runner" %][%/i%] is now complete,
 so we can try it out with some files containing tests that pass, fail, and contain errors:
 
-[% excerpt pat="pray.*" fill="sh out" %]
+[% inc pat="pray.*" fill="sh out" %]
 
-> ### Infinity is allowed
->
-> `test-div.js` contains the line:
->
-> ```js
-> hope.test('Quotient of 1 and 0', () => assert((1 / 0) === 0))
-> ```
->
-> This test counts as a failure rather than an error
-> because thinks the result of dividing by zero is the special value `Infinity`
-> rather than an arithmetic error.
+<div class="callout" markdown="1">
+
+### Infinity is allowed
+
+`test-div.js` contains the line:
+
+```js
+hope.test('Quotient of 1 and 0', () => assert((1 / 0) === 0))
+```
+
+This test counts as a failure rather than an error
+because thinks the result of dividing by zero is the special value `Infinity`
+rather than an arithmetic error.
+
+</div>
 
 Loading modules dynamically so that they can register something for us to call later
 is a common pattern in many programming languages.
 Control flow goes back and forth between the framework and the module being loaded
 as this happens
-so we must specify the [% i "lifecycle!of unit test" "unit test!lifecycle" %][% g lifecycle %]lifecycle[% /g %][% /i %] of the loaded modules quite carefully.
-[% f unit-test-lifecycle %] illustrates what happens
+so we must specify the [%i "lifecycle!of unit test" "unit test!lifecycle" %][%g lifecycle "lifecycle" %][%/i%] of the loaded modules quite carefully.
+[%f unit-test-lifecycle %] illustrates what happens
 when a pair of files `test-add.js` and `test-sub.js` are loaded by our framework:
 
 1.  `pray` loads `hope.js`.
@@ -278,9 +304,13 @@ when a pair of files `test-add.js` and `test-sub.js` are loaded by our framework
 10.  `pray` can now ask the unique instance of `Hope` to run all of the tests,
      then get a report from the `Hope` singleton and display it.
 
-[% figure slug="unit-test-lifecycle" img="figures/lifecycle.svg" alt="Unit testing lifecycle" caption="Lifecycle of dynamically-discovered unit tests." %]
+[% figure
+   slug="unit-test-lifecycle"
+   img="lifecycle.svg"
+   alt="Unit testing lifecycle"
+   caption="Lifecycle of dynamically-discovered unit tests."
+%]
 
-<div class="break-before"></div>
 ## Exercises {: #unit-test-exercises}
 
 ### Asynchronous globbing {: .exercise}
@@ -311,8 +341,8 @@ so that it records and reports the execution times for tests.
         // does not throw
         assertApproxEqual(1.0, 2.0, 'Large margin of error', 10.0)
 
-3.  Modify the function again so that it checks the [% g relative_error %]relative error[% /g %]
-    instead of the [% g absolute_error %]absolute error[% /g %].
+3.  Modify the function again so that it checks the [%g relative_error "relative error" %]
+    instead of the [%g absolute_error "absolute error" %].
     (The relative error is the absolute value of the difference between the actual and expected value,
     divided by the absolute value.)
 
@@ -407,7 +437,7 @@ exactly once before each test in that file.
 Add a similar way to register a teardown function with `hope.teardown`.
 {: .continue}
 
-### Multiple tests {: .exercise .break-before}
+### Multiple tests {: .exercise}
 
 Add a method `hope.multiTest` that allows users to specify
 multiple test cases for a function at once.

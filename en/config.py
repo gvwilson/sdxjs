@@ -1,30 +1,18 @@
 """Ivy configuration."""
 
-# Theme.
-theme = "mccole"
+# ----------------------------------------
 
-# Enable various Markdown extensions.
-markdown_settings = {"extensions": ["markdown.extensions.extra"]}
-
-# Site title and author.
-title = "Software Design by Example"
-subtitle = "A Tool-Based Introduction with JavaScript"
-author = "Greg Wilson"
-
-# Output directory.
-out_dir = "docs"
+# Abbreviation for this document.
+abbrev = "stjs"
 
 # GitHub repository.
 repo = "https://github.com/software-tools-books/stjs/"
 
-# Site logo.
-logo = "files/codebender.svg"
-
-# Use "a/" URLs instead of "a.html".
-extension = "/"
-
-# Language code.
-lang = "en"
+# Site title and author.
+title = "Software Design by Example"
+acronym = "STJS"
+tagline = "a tool-based introduction with JavaScript"
+author = "Greg Wilson"
 
 # Chapter and appendix slugs in order.
 chapters = [
@@ -50,35 +38,111 @@ chapters = [
     "debugger",
     "conclusion",
 ]
+
 appendices = [
     "license",
     "conduct",
     "contributing",
     "bibliography",
     "glossary",
-    "links",
+    "credits",
     "contents",
 ]
 
-# BibTeX bibliography file and style.
-bibliography = "info/bibliography.bib"
-bibliography_style = "unsrt"
-
-# Glossary definitions.
-glossary = "info/glossary.yml"
-
-# Link table file.
-links = "info/links.yml"
-
-# Footer entries are (link, title).
-footer = [
-    ("@root/license/", "License"),
-    ("@root/conduct/", "Code of Conduct"),
-    ("@root/bibliography/", "Bibliography"),
-    ("@root/glossary/", "Glossary"),
-    ("@root/links/", "Links"),
-    (repo, "GitHub"),
-]
+# To do.
+todo = []
 
 # Debugging hook.
 debug = False
+
+# Warn about missing or unused entries.
+warnings = True
+
+# ----------------------------------------
+
+# Theme.
+theme = "mccole"
+
+# Enable various Markdown extensions.
+markdown_settings = {
+    "extensions": [
+        "markdown.extensions.extra",
+        "markdown.extensions.smarty",
+        "pymdownx.superfences"
+    ]
+}
+
+# External files.
+acknowledgments = "info/acknowledgments.yml"
+bibliography = "info/bibliography.bib"
+bibliography_style = "unsrt"
+credits = "info/credits.yml"
+glossary = "info/glossary.yml"
+links = "info/links.yml"
+dom = "info/dom.yml"
+
+# Language code.
+lang = "en"
+
+# Input and output directories.
+src_dir = "src"
+out_dir = "docs"
+
+# Use "a/" URLs instead of "a.html".
+extension = "/"
+
+# Files to copy verbatim.
+copy = [
+    "*.ht",
+    "*.json",
+    "*.out",
+    "*.pdf",
+    "*.png",
+    "*.py",
+    "*.svg",
+]
+
+# Exclusions (don't process).
+exclude = [
+    "*/Makefile",
+    "*.as",
+    "*.csv",
+    "*.gz",
+    "*.ht",
+    "*.js",
+    "*.json",
+    "*.mk",
+    "*.mx",
+    "*.out",
+    "*.pdf",
+    "*.png",
+    "*.py",
+    "*.pyc",
+    "*.sh",
+    "*.svg",
+    "*.tll",
+    "*.txt",
+    "*.yml",
+    "*~",
+    "*/__pycache__",
+    "*/.pytest_cache",
+    "*/sample_dir"
+]
+
+# Display values for LaTeX generation.
+if __name__ == "__main__":
+    import sys
+
+    assert len(sys.argv) == 2, "Expect exactly one argument"
+    if sys.argv[1] == "--abbrev":
+        print(abbrev)
+    elif sys.argv[1] == "--latex":
+        print(f"\\title{{{title}}}")
+        print(f"\\subtitle{{{tagline}}}")
+        print(f"\\author{{{author}}}")
+    elif sys.argv[1] == "--tagline":
+        print(tagline)
+    elif sys.argv[1] == "--title":
+        print(title)
+    else:
+        assert False, f"Unknown flag {sys.argv[1]}"

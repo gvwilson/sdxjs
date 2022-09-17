@@ -1,9 +1,8 @@
 ---
 title: "License"
-template: page
 ---
 
-All of the written material on this site is made available under the Creative
+All of the written material is made available under the Creative
 Commons - Attribution - NonCommercial 4.0 International license (CC-BY-NC-4.0),
 while the software is made available under the Hippocratic License.
 
@@ -24,6 +23,7 @@ Attribution - NonCommercial 4.0 license. You are free to:
     terms.
 
 Under the following terms:
+{: .continue}
 
 -   **Attribution** — You must give appropriate credit, provide a link to the
     license, and indicate if changes were made. You may do so in any reasonable
@@ -32,11 +32,12 @@ Under the following terms:
 
 -   **NonCommercial** — You may not use the material for commercial purposes.
 
--   No additional restrictions — You may not apply legal terms or technological
+-   **No additional restrictions** — You may not apply legal terms or technological
     measures that legally restrict others from doing anything the license
     permits.
 
-Notices:
+**Notices:**
+{: .continue}
 
 You do not have to comply with the license for elements of the material in the
 public domain or where your use is permitted by an applicable exception or
@@ -57,7 +58,7 @@ to permit persons to whom the Software is furnished to do so, subject to the
 following conditions:
 
 -   The above copyright notice and this License or a subsequent version published
-    on the [Hippocratic License Website](https://firstdonoharm.dev/) shall be
+    on the [Hippocratic License Website][hippocratic-license] shall be
     included in all copies or substantial portions of the Software. Licensee has
     the option of following the terms and conditions either of the above
     numbered version of this License or of any subsequent version published on
@@ -75,22 +76,20 @@ following conditions:
         groups harmed shall apply.
 
     2.  Human Rights Principles. Licensee is advised to consult the articles of
-        the [United Nations Universal Declaration of Human
-        Rights](https://www.un.org/en/universal-declaration-human-rights/) and
-        the [United Nations Global
-        Compact](https://www.unglobalcompact.org/what-is-gc/mission/principles)
-        that define recognized principles of international human rights (the
-        "Human Rights Principles"). It is Licensor's express intent that all use
-        of the Software be consistent with Human Rights Principles. If Licensor
-        receives notification or otherwise learns of an alleged violation of any
-        Human Rights Principles relating to Licensee's use of the Software,
-        Licensor may in its discretion and without obligation (i) (a) notify
-        Licensee of such allegation and (b) allow Licensee 90 days from
-        notification under (i)(a) to investigate and respond to Licensor
-        regarding the allegation and (ii) (a) after the earlier of 90 days from
-        notification under (i)(a), or Licensee's response under (i)(b), notify
-        Licensee of License termination and (b) allow Licensee an additional 90
-        days from notification under (ii)(a) to cease use of the Software.
+        the [United Nations Universal Declaration of Human Rights][udhr] and the
+        [United Nations Global Compact][ungc] that define recognized principles
+        of international human rights (the "Human Rights Principles"). It is
+        Licensor's express intent that all use of the Software be consistent
+        with Human Rights Principles. If Licensor receives notification or
+        otherwise learns of an alleged violation of any Human Rights Principles
+        relating to Licensee's use of the Software, Licensor may in its
+        discretion and without obligation (i) (a) notify Licensee of such
+        allegation and (b) allow Licensee 90 days from notification under (i)(a)
+        to investigate and respond to Licensor regarding the allegation and (ii)
+        (a) after the earlier of 90 days from notification under (i)(a), or
+        Licensee's response under (i)(b), notify Licensee of License termination
+        and (b) allow Licensee an additional 90 days from notification under
+        (ii)(a) to cease use of the Software.
 
     3.  Indemnity. Licensee shall hold harmless and indemnify Licensor against
         all losses, damages, liabilities, deficiencies, claims, actions,
@@ -122,4 +121,4 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-*The Hippocratic License is an [Ethical Source license](https://ethicalsource.dev).*
+*The Hippocratic License is an [Ethical Source license][ethical-source].*
