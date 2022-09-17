@@ -263,22 +263,22 @@
   
 
 
-          <p>We've been writing tests since <a class="x-ref" href="../unit-test/">Chapter 4</a>,
+          <p>We&rsquo;ve been writing tests since <a class="x-ref" href="../unit-test/">Chapter 4</a>,
 but how much of our code do they actually check?
 One way to find out is to use a <span class="ix-entry" ix-key="code coverage" markdown="1"><a class="gl-ref" href="../glossary/#code_coverage" markdown="1">code coverage</a></span> tool
 like <span class="ix-entry" ix-key="Istanbul" markdown="1"><a href="https://istanbul.js.org/">Istanbul</a></span>
 that watches a program while it executes
-and keeps track of which lines have run and which haven't.
-Making sure that each line is tested at least once doesn't guarantee that the code is bug-free,
-but any code that <em>isn't</em> run shouldn't be trusted.</p>
-<p>Our code coverage tool will keep track of which functions have and haven't been called.
+and keeps track of which lines have run and which haven&rsquo;t.
+Making sure that each line is tested at least once doesn&rsquo;t guarantee that the code is bug-free,
+but any code that <em>isn&rsquo;t</em> run shouldn&rsquo;t be trusted.</p>
+<p>Our code coverage tool will keep track of which functions have and haven&rsquo;t been called.
 Rather than rewriting <a href="https://nodejs.org/en/">Node</a> to keep track of this for us,
 we will modify the functions themselves
 by parsing the code with <span class="ix-entry" ix-key="Acorn" markdown="1"><a href="https://github.com/acornjs/acorn">Acorn</a></span>,
 inserting the instructions we need into the <span class="ix-entry" ix-key="abstract syntax tree" markdown="1">AST</span>,
 and then turning the AST back into code.</p>
 <blockquote>
-<h3>Simple usually isn't</h3>
+<h3>Simple usually isn&rsquo;t</h3>
 <p>At first glance it would be a lot simpler
 to use regular expressions to find every line that looks like the start of a function definition
 and insert a line right after each one
@@ -286,28 +286,28 @@ to record the information we want.
 Of course,
 some people split function headers across several lines if they have lots of parameters,
 and there might be things that look like function definitions embedded in comments or strings.
-It doesn't take long before our simple solution turns into
+It doesn&rsquo;t take long before our simple solution turns into
 a poorly-implemented parser for a subset of JavaScript that no-one else understands.
 Using a full-blown parser and working with the AST is almost always less work.</p>
 </blockquote>
 <h2 id="code-generator-replace">Section 15.1: How can we replace a function with another function?</h2>
 <p>The first thing we need is a way to wrap up an arbitrary function call.
 If we declare a function in JavaScript with a parameter like <code>...args</code>,
-all of the "extra" arguments in the call that don't line up with regular parameters
+all of the &ldquo;extra&rdquo; arguments in the call that don&rsquo;t line up with regular parameters
 are stuffed into the variable <code>args</code>
 (<a class="fig-ref" href="../code-generator/#code-generator-spread">Figure 15.1</a>).
 We can also call a function by putting values in a variable
 and using <code>func(...var)</code> to <span class="ix-entry" ix-key="spread!function arguments" markdown="1">spread</span> those values out.
-There's nothing special about the names <code>args</code> and <code>vars</code>:
+There&rsquo;s nothing special about the names <code>args</code> and <code>vars</code>:
 what matters is the ellipsis <code>...</code></p>
 <figure id="code-generator-spread">
   <img src="./spread.svg" alt="Spreading parameters"/>
-  <figcaption markdown="1">Figure 15.1: Using ...args to capture and spread parameters.</figcaption>
+  <figcaption markdown="1">Figure 15.1: Using &hellip;args to capture and spread parameters.</figcaption>
 </figure>
 
 <p>We can use <code>...args</code> to capture all of the arguments to a function call
 and forward them to another function.
-Let's start by creating functions with a varying number of parameters
+Let&rsquo;s start by creating functions with a varying number of parameters
 that run to completion or throw an exception,
 then run them to make sure they do what we want:</p>
 <div class="code-sample lang-js" title="replace-func.js">
@@ -364,7 +364,7 @@ and creates a new function that handles all of the errors in the original functi
 <span class="nx">runAll</span><span class="p">(</span><span class="s1">&#39;second time&#39;</span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
 </div>
-<p>Let's try it out:</p>
+<p>Let&rsquo;s try it out:</p>
 <div class="code-sample lang-out" title="replace-func.out">
 <div class="highlight"><pre><span></span><code>first time
 zero
@@ -408,13 +408,13 @@ and then modify those instructions.
 This approach is often used in compiled languages like <span class="ix-entry" ix-key="Java" markdown="1"><a href="https://en.wikipedia.org/wiki/Java_(programming_language)">Java</a></span>,
 where the <a class="gl-ref" href="../glossary/#byte_code" markdown="1">byte code</a> produced by the <a class="gl-ref" href="../glossary/#compiler" markdown="1">compiler</a> is saved in files
 in order to be run.
-We can't do this here because Node compiles and runs code in a single step.</p>
+We can&rsquo;t do this here because Node compiles and runs code in a single step.</p>
 </blockquote>
 <p>Our tool will parse the JavaScript with Acorn to create an AST,
 modify the AST,
 and then use a library called <span class="ix-entry" ix-key="Escodegen" markdown="1"><a href="https://github.com/estools/escodegen/">Escodegen</a></span> to turn the AST back into JavaScript.
 To start,
-let's look at the AST for a simple function definition,
+let&rsquo;s look at the AST for a simple function definition,
 which is 75 lines of pretty-printed JSON:</p>
 <div class="code-sample lang-js" title="func-def.js">
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">acorn</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;acorn&#39;</span><span class="w"></span>
@@ -529,8 +529,8 @@ we have the JSON representation of the expression <code>40+2</code>:</p>
 <h2 id="code-generator-count">Section 15.3: How can we count how often functions are executed?</h2>
 <p>Our tool will find all the function declaration nodes in the program
 and insert a node to increment an entry in a global variable called <code>__counters</code>.
-(Prefixing the name with two underscores doesn't guarantee that
-we won't accidentally clobber a variable in the user's program with the same name,
+(Prefixing the name with two underscores doesn&rsquo;t guarantee that
+we won&rsquo;t accidentally clobber a variable in the user&rsquo;s program with the same name,
 but hopefully it makes that less likely.)
 Our test case is:</p>
 <div class="code-sample lang-js" title="multi-func-counter.js">
@@ -570,7 +570,7 @@ Our test case is:</p>
 </code></pre></div>
 </div>
 <p>To insert a count we call <code>insertCounter</code>
-to record the function's name and modify the node:</p>
+to record the function&rsquo;s name and modify the node:</p>
 <div class="code-sample lang-js" title="multi-func-counter.js">
 <div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">insertCounter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">names</span><span class="p">,</span><span class="w"> </span><span class="nx">node</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">node</span><span class="p">.</span><span class="nx">id</span><span class="p">.</span><span class="nx">name</span><span class="w"></span>
@@ -583,7 +583,7 @@ to record the function's name and modify the node:</p>
 <span class="p">}</span><span class="w"></span>
 </code></pre></div>
 </div>
-<p class="continue">Notice how we don't try to build the nodes by hand,
+<p class="continue">Notice how we don&rsquo;t try to build the nodes by hand,
 but instead construct the string we need,
 use <span class="ix-entry" ix-key="Acorn" markdown="1">Acorn</span> to parse that,
 and use the result.
@@ -629,9 +629,9 @@ console.log(__counters)
 </div>
 <blockquote>
 <h3>Too simple to be safe</h3>
-<p>Our simple approach to naming counters doesn't work if functions can have the same names,
+<p>Our simple approach to naming counters doesn&rsquo;t work if functions can have the same names,
 which they can if we use modules or <span class="ix-entry" ix-key="nested function;function!nested" markdown="1"><a class="gl-ref" href="../glossary/#nested_function" markdown="1">nested functions</a></span>.
-One way to solve this would be to manufacture a label from the function's name
+One way to solve this would be to manufacture a label from the function&rsquo;s name
 and the line number in the source code;
 another would be to keep track of which functions are nested within which
 and concatenate their names to produce a unique key.
@@ -701,7 +701,7 @@ so that we have a spot in the AST to insert the actual code:</p>
 <span class="p">}</span><span class="w"></span>
 </code></pre></div>
 </div>
-<p>Let's run one last test:</p>
+<p>Let&rsquo;s run one last test:</p>
 <div class="code-sample lang-out" title="test-time-func.out">
 <div class="highlight"><pre><span></span><code>const __counters = {
 &#39;assignment&#39;: 0,
@@ -808,7 +808,7 @@ as well as functions declared using <code>=&gt;</code>.</p>
 </li>
 <li>
 <p>Write the function <code>readFileSyncCount</code> to read and return a file using <code>fs.readFileSync</code>
-    but to also record the file's name and size in bytes.</p>
+    but to also record the file&rsquo;s name and size in bytes.</p>
 </li>
 <li>
 <p>Write a third function <code>reportInputFileSizes</code> that reports
@@ -823,8 +823,8 @@ as well as functions declared using <code>=&gt;</code>.</p>
 <ol>
 <li>
 <p>Each function is replaced by a function that passes all of its arguments to <code>checkArgs</code>
-    along with the function's name,
-    then continues with the function's original operation.</p>
+    along with the function&rsquo;s name,
+    then continues with the function&rsquo;s original operation.</p>
 </li>
 <li>
 <p>The first time <code>checkArgs</code> is called for a particular function

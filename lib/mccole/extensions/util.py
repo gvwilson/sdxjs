@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 import ivy
+import markdown
 import yaml
 
 # Configuration sections and their default values.
@@ -133,6 +134,17 @@ def make_major():
         for (i, slug) in enumerate(ivy.site.config["appendices"])
     }
     return chapters | appendices
+
+
+def markdownify(text, ext=None, strip=True):
+    """Convert to Markdown."""
+    extensions = ["markdown.extensions.extra", "markdown.extensions.smarty"]
+    if ext:
+        extensions = [ext, *extensions]
+    result = markdown.markdown(text, extensions=extensions)
+    if strip and result.startswith("<p>"):
+        result = result[3:-4]  # remove trailing '</p>' as well
+    return result
 
 
 def mccole():

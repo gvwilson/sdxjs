@@ -38,8 +38,8 @@ def figure_def(pargs, kwargs, node):
     )
     slug = kwargs["slug"]
     img = kwargs["img"]
-    alt = kwargs["alt"]
-    caption = kwargs["caption"]
+    alt = util.markdownify(kwargs["alt"])
+    caption = util.markdownify(kwargs["caption"])
 
     figure = util.get_config("figures")[slug]
     label = util.make_label("figure", figure.number)

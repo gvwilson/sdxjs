@@ -66,7 +66,11 @@ theme = "mccole"
 
 # Enable various Markdown extensions.
 markdown_settings = {
-    "extensions": ["markdown.extensions.extra", "pymdownx.superfences"]
+    "extensions": [
+        "markdown.extensions.extra",
+        "markdown.extensions.smarty",
+        "pymdownx.superfences"
+    ]
 }
 
 # External files.

@@ -77,7 +77,7 @@ def table_caption(text, node):
 
 
 def _table_caption_replace(match):
-    caption = match.group(1)
+    caption = util.markdownify(match.group(1))
     cls = match.group(2)
     slug = match.group(4)
     table = util.get_config("tables")[slug]

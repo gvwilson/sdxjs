@@ -3,7 +3,6 @@
 from pathlib import Path
 
 import ivy
-import markdown
 import shortcodes
 import yaml
 from markdown.extensions import Extension
@@ -52,9 +51,7 @@ def check():
     used = set()
     ext = LinkCollectorExtension(used)
     ivy.nodes.root().walk(
-        lambda node: markdown.markdown(
-            node.text, extensions=[ext, "markdown.extensions.extra"]
-        )
+        lambda node: util.markdownify(node.text, ext=ext, strip=False)
     )
 
     defined = {d["url"] for d in _read_links()}

@@ -265,9 +265,9 @@
 
           <p>The biggest difference between JavaScript and most other programming languages
 is that many operations in JavaScript are <span class="ix-entry" ix-key="asynchronous execution;execution!asynchronous" markdown="1"><a class="gl-ref" href="../glossary/#asynchronous" markdown="1">asynchronous</a></span>.
-Its designers didn't want browsers to freeze while waiting for data to arrive or for users to click on things,
+Its designers didn&rsquo;t want browsers to freeze while waiting for data to arrive or for users to click on things,
 so operations that might be slow are implemented by describing now what to do later.
-And since anything that touches the hard drive is slow from a processor's point of view,
+And since anything that touches the hard drive is slow from a processor&rsquo;s point of view,
 <a href="https://nodejs.org/en/">Node</a> implements <span class="ix-entry" ix-key="filesystem operations" markdown="1"><a class="gl-ref" href="../glossary/#filesystem" markdown="1">filesystem</a></span> operations the same way.</p>
 <blockquote>
 <h3>How slow is slow?</h3>
@@ -323,20 +323,22 @@ if we imagine that one CPU cycle is equivalent to one second.</p>
 </table>
 </div>
 <p>Early JavaScript programs used <span class="ix-entry" ix-key="callback function" markdown="1"><a class="gl-ref" href="../glossary/#callback" markdown="1">callback functions</a></span> to describe asynchronous operations,
-but as we're about to see,
+but as we&rsquo;re about to see,
 callbacks can be hard to understand even in small programs.
 In 2015,
-the language's developers standardized a higher-level tool called promises
+the language&rsquo;s developers standardized a higher-level tool called promises
 to make callbacks easier to manage,
 and more recently they have added new keywords called <code>async</code> and <code>await</code> to make it easier still.
 We need to understand all three layers in order to debug things when they go wrong,
 so this chapter explores callbacks,
 while <a class="x-ref" href="../async-programming/">Chapter 3</a> shows how promises and <code>async</code>/<code>await</code> work.
-This chapter also shows how to read and write files and directories with Node's standard libraries,
-because we're going to be doing that a lot.</p>
+This chapter also shows how to read and write files and directories with Node&rsquo;s standard libraries,
+because we&rsquo;re going to be doing that a lot.</p>
+<div class="pagebreak"></div>
+
 <h2 id="systems-programming-ls">Section 2.1: How can we list a directory?</h2>
 <p>To start,
-let's try listing the contents of a directory the way we would in <span class="ix-entry" ix-key="Python" markdown="1"><a href="https://www.python.org/">Python</a></span>
+let&rsquo;s try listing the contents of a directory the way we would in <span class="ix-entry" ix-key="Python" markdown="1"><a href="https://www.python.org/">Python</a></span>
 or <span class="ix-entry" ix-key="Java" markdown="1"><a href="https://en.wikipedia.org/wiki/Java_(programming_language)">Java</a></span>:</p>
 <div class="code-sample lang-js" title="list-dir-wrong.js">
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;fs&#39;</span><span class="w"></span>
@@ -348,7 +350,7 @@ or <span class="ix-entry" ix-key="Java" markdown="1"><a href="https://en.wikiped
 <span class="p">}</span><span class="w"></span>
 </code></pre></div>
 </div>
-<p class="continue">We use <span class="ix-entry" ix-key="import module" markdown="1"><code>import <em>module</em> from 'source'</code></span> to load the library <code><em>source</em></code>
+<p class="continue">We use <span class="ix-entry" ix-key="import module" markdown="1"><code>import <em>module</em> from &lsquo;source&rsquo;</code></span> to load the library <code><em>source</em></code>
 and assign its contents to <code><em>module</em></code>.
 After that,
 we can refer to things in the library using <code><em>module.component</em></code>
@@ -367,15 +369,15 @@ we have added <code>"type": "module"</code> at the top level of our Node <code>p
 </blockquote>
 <p>Our little program uses the <a href="https://nodejs.org/api/fs.html"><code>fs</code></a> library
 which contains functions to create directories, read or delete files, etc.
-(Its name is short for "filesystem".)
+(Its name is short for &ldquo;filesystem&rdquo;.)
 We tell the program what to list using <span class="ix-entry" ix-key="command-line argument" markdown="1"><a class="gl-ref" href="../glossary/#command_line_argument" markdown="1">command-line arguments</a></span>,
 which Node automatically stores in an array called <span class="ix-entry" ix-key="process.argv" markdown="1"><code>process.argv</code></span>.
-<code>process.argv[0]</code> is the name of the program used to run our code (in this case <code>node</code>),
-while <code>process.argv[1]</code> is the name of our program (in this case <code>list-dir-wrong.js</code>);
-the rest of <code>process.argv</code> holds whatever arguments we gave at the command line when we ran the program,
+The name of the program used to run our code is stored <code>process.argv[0]</code> (which in this case is <code>node</code>),
+while <code>process.argv[1]</code> is the name of our program (in this case <code>list-dir-wrong.js</code>).
+The rest of <code>process.argv</code> holds whatever arguments we gave at the command line when we ran the program,
 so <code>process.argv[2]</code> is the first argument after the name of our program (<a class="fig-ref" href="../systems-programming/#systems-programming-process-argv">Figure 2.1</a>):</p>
 <figure id="systems-programming-process-argv">
-  <img src="./process-argv.svg" alt="Command-line arguments in `process.argv`"/>
+  <img src="./process-argv.svg" alt="Command-line arguments in <code>process.argv</code>"/>
   <figcaption markdown="1">Figure 2.1: How Node stores command-line arguments in <code>process.argv</code>.</figcaption>
 </figure>
 
@@ -385,15 +387,15 @@ so <code>process.argv[2]</code> is the first argument after the name of our prog
 <code>fs.readdir</code> returns the names of the things in that directory as an array of strings.
 The program uses <code>for (const name of results)</code> to loop over the contents of that array.
 We could use <code>let</code> instead of <code>const</code>,
-but it's good practice to declare things as <span class="ix-entry" ix-key="const declaration!advantages of" markdown="1"><code>const</code></span> wherever possible
-so that anyone reading the program knows the variable isn't actually going to vary---doing
+but it&rsquo;s good practice to declare things as <span class="ix-entry" ix-key="const declaration!advantages of" markdown="1"><code>const</code></span> wherever possible
+so that anyone reading the program knows the variable isn&rsquo;t actually going to vary&mdash;doing
 this reduces the <span class="ix-entry" ix-key="cognitive load" markdown="1"><a class="gl-ref" href="../glossary/#cognitive_load" markdown="1">cognitive load</a></span> on people reading the program.
 Finally,
-<span class="ix-entry" ix-key="console.log" markdown="1"><code>console.log</code></span> is JavaScript's equivalent of other languages' <code>print</code> command;
+<span class="ix-entry" ix-key="console.log" markdown="1"><code>console.log</code></span> is JavaScript&rsquo;s equivalent of other languages&rsquo; <code>print</code> command;
 its strange name comes from the fact that
 its original purpose was to create <a class="gl-ref" href="../glossary/#log_message" markdown="1">log messages</a> in the browser <a class="gl-ref" href="../glossary/#console" markdown="1">console</a>.</p>
 <p>Unfortunately,
-our program doesn't work:</p>
+our program doesn&rsquo;t work:</p>
 <div class="code-sample lang-sh" title="list-dir-wrong.sh">
 <div class="highlight"><pre><span></span><code>node list-dir-wrong.js .
 </code></pre></div>
@@ -415,12 +417,12 @@ undefined
 }
 </code></pre></div>
 </div>
-<p class="continue">The error message comes from something we didn't write whose source we would struggle to read.
+<p class="continue">The error message comes from something we didn&rsquo;t write whose source we would struggle to read.
 If we look for the name of our file (<code>list-dir-wrong.js</code>)
 we see the error occurred on line 4;
 everything above that is inside <code>fs.readdir</code>,
 while everything below it is Node loading and running our program.</p>
-<p>The problem is that <code>fs.readdir</code> doesn't return anything.
+<p>The problem is that <code>fs.readdir</code> doesn&rsquo;t return anything.
 Instead,
 its documentation says that it needs a callback function
 that tells it what to do when data is available,
@@ -432,14 +434,16 @@ so we need to explore those in order to make our program work.</p>
 <li>Every program can be made one line shorter.</li>
 <li>Therefore, every program can be reduced to a single statement which is wrong.</li>
 </ol>
-<p>--- variously attributed</p>
+<p>&mdash; variously attributed</p>
 </blockquote>
 <h2 id="systems-programming-callback">Section 2.2: What is a callback function?</h2>
 <p>JavaScript uses a <span class="ix-entry" ix-key="single-threaded execution;execution!single-threaded" markdown="1"><a class="gl-ref" href="../glossary/#single_threaded" markdown="1">single-threaded</a></span> programming model:
 as the introduction to this lesson said,
-it splits operations like file I/O into "please do this" and "do this when data is available".
+it splits operations like file I/O into &ldquo;please do this&rdquo; and &ldquo;do this when data is available&rdquo;.
 <code>fs.readdir</code> is the first part,
 but we need to write a function that specifies the second part.</p>
+<div class="pagebreak"></div>
+
 <p>JavaScript saves a reference to this function
 and calls with a specific set of parameters when our data is ready
 (<a class="fig-ref" href="../systems-programming/#systems-programming-callbacks">Figure 2.2</a>).
@@ -475,10 +479,10 @@ just like the USB standard allows us to plug hardware devices together.</p>
 always get an error (if there is any) as their first argument
 and the result of a successful function call as their second.
 The function can tell the difference by checking to see if the error argument is <code>null</code>.
-If it is, the function lists the directory's contents with <code>console.log</code>,
+If it is, the function lists the directory&rsquo;s contents with <code>console.log</code>,
 otherwise, it uses <code>console.error</code> to display the error message.
-Let's run the program with the <a class="gl-ref" href="../glossary/#current_working_directory" markdown="1">current working directory</a>
-(written as '.')
+Let&rsquo;s run the program with the <a class="gl-ref" href="../glossary/#current_working_directory" markdown="1">current working directory</a>
+(written as &lsquo;.&rsquo;)
 as an argument:</p>
 <div class="code-sample lang-sh" title="list-dir-function-defined.sh">
 <div class="highlight"><pre><span></span><code>node list-dir-function-defined.js .
@@ -498,7 +502,7 @@ x-trace-callback.md
 x-where-is-node.md
 </code></pre></div>
 </div>
-<p>Nothing that follows will make sense if we don't understand
+<p>Nothing that follows will make sense if we don&rsquo;t understand
 the order in which Node executes the statements in this program
 (<a class="fig-ref" href="../systems-programming/#systems-programming-execution-order">Figure 2.3</a>):</p>
 <ol>
@@ -517,7 +521,7 @@ the order in which Node executes the statements in this program
     telling it what directory we want to read and what function to call when data is available.</p>
 </li>
 <li>
-<p>Print a message to show we're at the end of the file.</p>
+<p>Print a message to show we&rsquo;re at the end of the file.</p>
 </li>
 <li>
 <p>Wait until the filesystem operation finishes (this step is invisible).</p>
@@ -532,14 +536,14 @@ the order in which Node executes the statements in this program
 </figure>
 
 <h2 id="systems-programming-anonymous">Section 2.3: What are anonymous functions?</h2>
-<p>Most JavaScript programmers wouldn't define the function <code>listContents</code>
+<p>Most JavaScript programmers wouldn&rsquo;t define the function <code>listContents</code>
 and then pass it as a callback.
 Instead,
 since the callback is only used in one place,
 it is more <a class="gl-ref" href="../glossary/#idiomatic" markdown="1">idiomatic</a>
 to define it where it is needed
 as an <span class="ix-entry" ix-key="anonymous function;function!anonymous" markdown="1"><a class="gl-ref" href="../glossary/#anonymous_function" markdown="1">anonymous function</a></span>.
-This makes it easier to see what's going to happen when the operation completes,
+This makes it easier to see what&rsquo;s going to happen when the operation completes,
 though it means the order of execution is quite different from the order of reading
 (<a class="fig-ref" href="../systems-programming/#systems-programming-anonymous-functions">Figure 2.4</a>).
 Using an anonymous function gives us the final version of our program:</p>
@@ -574,16 +578,16 @@ and passing a function as an argument to another function is no different from p
 We are going to rely on this insight over and over again in the coming lessons.</p>
 </blockquote>
 <h2 id="systems-programming-fileset">Section 2.4: How can we select a set of files?</h2>
-<p>Suppose we want to copy some files instead of listing a directory's contents.
+<p>Suppose we want to copy some files instead of listing a directory&rsquo;s contents.
 Depending on the situation
 we might want to copy only those files given on the command line
 or all files except some explicitly excluded.
-What we <em>don't</em> want to have to do is list the files one by one;
+What we <em>don&rsquo;t</em> want to have to do is list the files one by one;
 instead,
 we want to be able to write patterns like <code>*.js</code>.</p>
 <p>To find files that match patterns like that,
 we can use the <a href="https://www.npmjs.com/package/glob"><code>glob</code></a> module.
-(To <span class="ix-entry" ix-key="globbing" markdown="1"><a class="gl-ref" href="../glossary/#globbing" markdown="1">glob</a></span> (short for "global") is an old Unix term for matching a set of files by name.)
+(To <span class="ix-entry" ix-key="globbing" markdown="1"><a class="gl-ref" href="../glossary/#globbing" markdown="1">glob</a></span> (short for &ldquo;global&rdquo;) is an old Unix term for matching a set of files by name.)
 The <code>glob</code> module provides a function that takes a pattern and a callback
 and does something with every filename that matched the pattern:</p>
 <div class="code-sample lang-js" title="glob-all-files.js">
@@ -614,24 +618,26 @@ x-trace-callback/trace.js
 x-where-is-node.md
 </code></pre></div>
 </div>
-<p>The leading <code>**</code> means "recurse into subdirectories",
-while <code>*.*</code> means "any characters followed by '.' followed by any characters"
+<p>The leading <code>**</code> means &ldquo;recurse into subdirectories&rdquo;,
+while <code>*.*</code> means &ldquo;any characters followed by &lsquo;.&rsquo; followed by any characters&rdquo;
 (<a class="fig-ref" href="../systems-programming/#systems-programming-globbing">Figure 2.5</a>).
-Names that don't match <code>*.*</code> won't be included,
+Names that don&rsquo;t match <code>*.*</code> won&rsquo;t be included,
 and by default,
-neither are names that start with a '.' character.
+neither are names that start with a &lsquo;.&rsquo; character.
 This is another old Unix convention:
-files and directories whose names have a leading '.'
+files and directories whose names have a leading &lsquo;.&rsquo;
 usually contain configuration information for various programs,
 so most commands will leave them alone unless told to do otherwise.</p>
 <figure id="systems-programming-globbing">
-  <img src="./globbing.svg" alt="Matching filenames with `glob`"/>
-  <figcaption markdown="1">Figure 2.5: Using `glob` patterns to match filenames.</figcaption>
+  <img src="./globbing.svg" alt="Matching filenames with <code>glob</code>"/>
+  <figcaption markdown="1">Figure 2.5: Using <code>glob</code> patterns to match filenames.</figcaption>
 </figure>
 
 <p>This program works,
-but we probably don't want to copy Emacs backup files whose names end with <code>~</code>.
+but we probably don&rsquo;t want to copy Emacs backup files whose names end with a tilde.
 We can get rid of them by <span class="ix-entry" ix-key="globbing!filtering results" markdown="1"><a class="gl-ref" href="../glossary/#filter" markdown="1">filtering</a></span> the list that <code>glob</code> returns:</p>
+<div class="pagebreak"></div>
+
 <div class="code-sample lang-js" title="glob-get-then-filter-pedantic.js">
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">glob</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;glob&#39;</span><span class="w"></span>
 
@@ -671,8 +677,8 @@ that tells <code>Array.filter</code> whether to keep the item in the new array o
 <code>Array.filter</code> does not modify the original array,
 so we can filter our original list of filenames several times if we want to.</p>
 <figure id="systems-programming-array-filter">
-  <img src="./array-filter.svg" alt="Using `Array.filter`"/>
-  <figcaption markdown="1">Figure 2.6: Selecting array elements using `Array.filter`.</figcaption>
+  <img src="./array-filter.svg" alt="Using <code>Array.filter</code>"/>
+  <figcaption markdown="1">Figure 2.6: Selecting array elements using <code>Array.filter</code>.</figcaption>
 </figure>
 
 <p>We can make our globbing program more idiomatic by
@@ -717,13 +723,13 @@ our program becomes:</p>
 <span class="p">})</span><span class="w"></span>
 </code></pre></div>
 </div>
-<p class="continue">Notice that we don't quote the key in the <code>options</code> object.
+<p class="continue">Notice that we don&rsquo;t quote the key in the <code>options</code> object.
 The keys in objects are almost always strings,
-and if a string is simple enough that it won't confuse the parser,
-we don't need to put quotes around it.
+and if a string is simple enough that it won&rsquo;t confuse the parser,
+we don&rsquo;t need to put quotes around it.
 Here,
-"simple enough" means "looks like it could be a variable name",
-or equivalently "contains only letters, digits, and the underscore".</p>
+&ldquo;simple enough&rdquo; means &ldquo;looks like it could be a variable name&rdquo;,
+or equivalently &ldquo;contains only letters, digits, and the underscore&rdquo;.</p>
 <blockquote>
 <h3>No one knows everything</h3>
 <p>We combined <code>glob.glob</code> and <code>Array.filter</code> in our functions for more than a year
@@ -736,16 +742,16 @@ This shows:</p>
     and re-use it rather than looking for something better.</p>
 </li>
 <li>
-<p>Code reviews aren't just about finding bugs:
+<p>Code reviews aren&rsquo;t just about finding bugs:
     they are also the most effective way to transfer knowledge between programmers.
     Even if someone is much more experienced than you,
-    there's a good chance you might have stumbled over a better way to do something
-    than the one they're using (see point #1 above).</p>
+    there&rsquo;s a good chance you might have stumbled over a better way to do something
+    than the one they&rsquo;re using (see point #1 above).</p>
 </li>
 </ol>
 </blockquote>
 <p>To finish off our globbing program,
-let's specify a source directory on the command line and include that in the pattern:</p>
+let&rsquo;s specify a source directory on the command line and include that in the pattern:</p>
 <div class="code-sample lang-js" title="glob-with-source-directory.js">
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">glob</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;glob&#39;</span><span class="w"></span>
 
@@ -798,7 +804,7 @@ by unpacking the elements of an array
 It only works if the array contains the enough elements,
 i.e.,
 if both a source and destination are given on the command line;
-we'll add a check for that in the exercises.</p>
+we&rsquo;ll add a check for that in the exercises.</p>
 <figure id="systems-programming-destructuring-assignment">
   <img src="./destructuring-assignment.svg" alt="Matching values with destructuring assignment"/>
   <figcaption markdown="1">Figure 2.7: Assigning many values at once by destructuring.</figcaption>
@@ -806,7 +812,7 @@ we'll add a check for that in the exercises.</p>
 
 <p>A more serious problem is that
 this program only works if the destination directory already exists:
-<code>fs</code> and equivalent libraries in other languages usually won't create directories for us automatically.
+<code>fs</code> and equivalent libraries in other languages usually won&rsquo;t create directories for us automatically.
 The need to do this comes up so often that there is a function called <code>ensureDir</code> to do it:</p>
 <div class="code-sample lang-js" title="glob-ensure-output-directory.js">
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">glob</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;glob&#39;</span><span class="w"></span>
@@ -851,8 +857,8 @@ a new <span class="ix-entry" ix-key="scope!of variable definitions;variable defi
 but hard for people to understand.</p>
 </blockquote>
 <p>Our file copying program currently creates empty destination directories
-but doesn't actually copy any files.
-Let's use <code>fs.copy</code> to do that:</p>
+but doesn&rsquo;t actually copy any files.
+Let&rsquo;s use <code>fs.copy</code> to do that:</p>
 <div class="code-sample lang-js" title="copy-file-unfiltered.js">
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">glob</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;glob&#39;</span><span class="w"></span>
 <span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;fs-extra&#39;</span><span class="w"></span>
@@ -923,12 +929,12 @@ node copy-file-unfiltered.js ../node_modules /tmp/out <span class="m">2</span>&g
 <p>The problem is that <code>node_modules/fs.stat</code> and <code>node_modules/fs.walk</code> match our globbing expression,
 but are directories rather than files.
 To prevent our program from trying to use <code>fs.copy</code> on directories,
-we must use <code>fs.stat</code> to get the properties of the thing whose name <code>glob</code> has given us
-and then check if it's a file.
-The name "stat" is short for "status",
+we must use <code>fs.stat</code> to get the properties of the things <code>glob</code> gives us
+and then check if they are files.
+The name &ldquo;stat&rdquo; is short for &ldquo;status&rdquo;,
 and since the status of something in the filesystem can be very complex,
 <span class="ix-entry" ix-key="fs.stat" markdown="1"><code>fs.stat</code></span> returns <a href="https://nodejs.org/api/fs.html#fs_class_fs_stats">an object with methods that can answer common questions</a>.</p>
-<p>Here's the final version of our file copying program:</p>
+<p>Here&rsquo;s the final version of our file copying program:</p>
 <div class="code-sample lang-js" title="copy-file-filtered.js">
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">glob</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;glob&#39;</span><span class="w"></span>
 <span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;fs-extra&#39;</span><span class="w"></span>
@@ -1012,7 +1018,7 @@ that make code like this easier to read.</p>
 </div>
 <h3 class="exercise">Checking arguments</h3>
 <p>Modify the file copying program to check that it has been given the right number of command-line arguments
-and to print a sensible error message (including a usage statement) if it hasn't.</p>
+and to print a sensible error message (including a usage statement) if it hasn&rsquo;t.</p>
 <h3 class="exercise">Significant entries</h3>
 <p><code>count-lines-histogram.js</code> displays many zeroes and gives no visual sense of how large entries are.
 Modify it so that:</p>
@@ -1039,7 +1045,7 @@ Modify it so that:</p>
 <p>Fill in the blank in the code below so that it runs correctly.
 Note: you can compare strings in JavaScript using <code>&lt;</code>, <code>&gt;=</code>, and other operators,
 so that (for example) <code>person.personal &gt; 'P'</code> is <code>true</code>
-if someone's personal name starts with a letter that comes after 'P' in the alphabet.</p>
+if someone&rsquo;s personal name starts with a letter that comes after &lsquo;P&rsquo; in the alphabet.</p>
 <div class="code-sample lang-js" title="filter.js">
 <div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">people</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
 <span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">personal</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Jean&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">family</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Jennings&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"></span>

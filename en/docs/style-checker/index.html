@@ -278,9 +278,9 @@ then go through that data structure and apply rules for each part of the program
 It will also introduce us to one of the key ideas of this book,
 which is that source code is just another kind of data.</p>
 <blockquote>
-<h3>Don't define your own style</h3>
-<p>Just as the world doesn't need more file format (<a class="x-ref" href="../regex-parser/">Chapter 8</a>)
-it also doesn't need more programming styles,
+<h3>Don&rsquo;t define your own style</h3>
+<p>Just as the world doesn&rsquo;t need more file format (<a class="x-ref" href="../regex-parser/">Chapter 8</a>)
+it also doesn&rsquo;t need more programming styles,
 or more arguments among programmers about whether there should be spaces before curly braces or not.
 <span class="ix-entry" ix-key="Standard JS" markdown="1"><a href="https://standardjs.com/">Standard JS</a></span> may not do everything exactly the way you want,
 but adopting it increases the odds that other programmers will be able to read your code at first glance.</p>
@@ -291,7 +291,7 @@ A parser for a language as complex as JavaScript is much more work,
 so we will use one called <span class="ix-entry" ix-key="Acorn" markdown="1"><a href="https://github.com/acornjs/acorn">Acorn</a></span> instead.
 Acorn takes a string containing source code as input
 and produces an <span class="ix-entry" ix-key="abstract syntax tree" markdown="1"><a class="gl-ref" href="../glossary/#abstract_syntax_tree" markdown="1">abstract syntax tree</a></span> (AST)
-whose nodes store information about what's in the program
+whose nodes store information about what&rsquo;s in the program
 (<a class="fig-ref" href="../style-checker/#style-checker-parse-tree">Figure 14.1</a>).
 An AST is for a program what the <span class="ix-entry" ix-key="Document Object Model" markdown="1">DOM</span> is for HTML:
 an in-memory representation that is easy for software to inspect and manipulate.</p>
@@ -300,7 +300,7 @@ an in-memory representation that is easy for software to inspect and manipulate.
   <figcaption markdown="1">Figure 14.1: The parse tree of a simple program.</figcaption>
 </figure>
 
-<p>ASTs can be quite complex---for example,
+<p>ASTs can be quite complex&mdash;for example,
 the JSON representation of the AST for a single constant declaration
 is 84 lines long:</p>
 <div class="code-sample lang-js" title="parse-single-const.js">
@@ -334,9 +334,9 @@ is 84 lines long:</p>
 }
 </code></pre></div>
 </div>
-<p>Acorn's output is in <span class="ix-entry" ix-key="Esprima format" markdown="1"><a href="https://esprima.org/">Esprima</a> format</span>
+<p>Acorn&rsquo;s output is in <span class="ix-entry" ix-key="Esprima format" markdown="1"><a href="https://esprima.org/">Esprima</a> format</span>
 (so-called because it was originally defined by a tool with that name).
-The format's specification is very detailed,
+The format&rsquo;s specification is very detailed,
 but we can usually figure out most of what we need by inspection.
 For example,
 here is the output for a 15-line program:</p>
@@ -454,7 +454,7 @@ comments on lines 1, 4, 10
 </code></pre></div>
 </div>
 <blockquote>
-<h3>There's more than one way to do it</h3>
+<h3>There&rsquo;s more than one way to do it</h3>
 <p><code>walk.simple</code> takes four arguments:</p>
 <ol>
 <li>
@@ -464,18 +464,18 @@ comments on lines 1, 4, 10
 <p>An object containing callback functions for handling various kinds of nodes.</p>
 </li>
 <li>
-<p>Another object that specifies what algorithm to use---we have set this to <code>null</code>
+<p>Another object that specifies what algorithm to use&mdash;we have set this to <code>null</code>
     to use the default because
-    we don't particularly care about the order in which the nodes are processed.</p>
+    we don&rsquo;t particularly care about the order in which the nodes are processed.</p>
 </li>
 <li>
 <p>Something we want passed in to each of the node handlers,
     which in our case is the <code>state</code> array.
-    If our node handling functions don't require any extra data
+    If our node handling functions don&rsquo;t require any extra data
     from one call to the next
     we can leave this out;
     if we want to accumulate information across calls,
-    this argument acts as the Visitor's memory.</p>
+    this argument acts as the Visitor&rsquo;s memory.</p>
 </li>
 </ol>
 <p>Any general-purpose implementation of the Visitor pattern
@@ -484,12 +484,12 @@ but as we will see below,
 we can implement them in different ways.</p>
 </blockquote>
 <h2 id="style-checker-apply">Section 14.3: How can we apply checks?</h2>
-<p>We don't just want to collect nodes:
+<p>We don&rsquo;t just want to collect nodes:
 we want to check their properties against a set of rules.
 One way to do this would be to call <code>walk.simple</code> once for each rule,
 passing it a function that checks just that rule.
-Another way---the one we'll use---is to write a <span class="ix-entry" ix-key="software design!generic function" markdown="1">generic function</span>
-that checks a rule and records any nodes that don't satisfy it,
+Another way&mdash;the one we&rsquo;ll use&mdash;is to write a <span class="ix-entry" ix-key="software design!generic function" markdown="1">generic function</span>
+that checks a rule and records any nodes that don&rsquo;t satisfy it,
 and then call that function once for each rule inside our <code>Identifier</code> handler.
 This may see like extra work,
 but it ensures that all of our rule-checkers store their results in the same way,
@@ -502,8 +502,8 @@ and a logical value telling it whether the node passed the test or not.
 If the node failed the test
 we make sure that <code>state</code> contains a list with the appropriate label
 and then append this node to it.
-This "create storage space on demand" pattern
-is widely used but doesn't have a well-known name.</p>
+This &ldquo;create storage space on demand&rdquo; pattern
+is widely used but doesn&rsquo;t have a well-known name.</p>
 <div class="code-sample lang-js" title="check-name-lengths.js">
 <div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">applyCheck</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">state</span><span class="p">,</span><span class="w"> </span><span class="nx">label</span><span class="p">,</span><span class="w"> </span><span class="nx">node</span><span class="p">,</span><span class="w"> </span><span class="nx">passes</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">passes</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -530,8 +530,8 @@ is widely used but doesn't have a well-known name.</p>
 <span class="w">  </span><span class="nx">node</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">node</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="sb"> at line </span><span class="si">${</span><span class="nx">node</span><span class="p">.</span><span class="nx">loc</span><span class="p">.</span><span class="nx">start</span><span class="p">.</span><span class="nx">line</span><span class="si">}</span><span class="sb">`</span><span class="p">))</span><span class="w"></span>
 </code></pre></div>
 </div>
-<p class="continue">We can't just use <code>applyCheck</code> as the handler for <code>Identifier</code>
-because <code>walk.simple</code> wouldn't know how to call it.
+<p class="continue">We can&rsquo;t just use <code>applyCheck</code> as the handler for <code>Identifier</code>
+because <code>walk.simple</code> wouldn&rsquo;t know how to call it.
 This is a (very simple) example of the <span class="ix-entry" ix-key="Adapter pattern;design pattern!Adapter" markdown="1"><a class="gl-ref" href="../glossary/#adapter_pattern" markdown="1">Adapter</a></span> design pattern:
 we write a function or class to connect the code we want to call
 to the already-written code that is going to call it.</p>
@@ -541,9 +541,9 @@ to the already-written code that is going to call it.</p>
 y at line 7
 </code></pre></div>
 </div>
-<p class="continue">The exercises will ask why the parameter <code>x</code> doesn't show up
+<p class="continue">The exercises will ask why the parameter <code>x</code> doesn&rsquo;t show up
 as a violation of our rule
-that variables' names must be at least four characters long.</p>
+that variables&rsquo; names must be at least four characters long.</p>
 <h2 id="style-checker-walker">Section 14.4: How does the AST walker work?</h2>
 <p>The AST walker uses the Visitor pattern,
 but how does it actually work?
@@ -551,17 +551,17 @@ We can build our own by defining a class with methods that walk the tree,
 take action depending on the kind of node,
 and then go through the children of that node (if any).
 The user can then derive a class of their own from this
-and override the set of action methods they're interested in.</p>
-<p>One key difference between our implementation and <code>acorn-walk</code>'s is that
-our methods don't need to take <code>state</code> as a parameter
-because it's contained in the object that they're part of.
-That simplifies the methods---one less parameter---but it does mean that
+and override the set of action methods they&rsquo;re interested in.</p>
+<p>One key difference between our implementation and <code>acorn-walk</code>&lsquo;s is that
+our methods don&rsquo;t need to take <code>state</code> as a parameter
+because it&rsquo;s contained in the object that they&rsquo;re part of.
+That simplifies the methods&mdash;one less parameter&mdash;but it does mean that
 anyone who wants to use our visitor has to derive a class,
 which is a bit more complicated than writing a function.
-This tradeoff is a sign that managing state is part of the problem's
+This tradeoff is a sign that managing state is part of the problem&rsquo;s
 <span class="ix-entry" ix-key="intrinsic complexity" markdown="1"><a class="gl-ref" href="../glossary/#intrinsic_complexity" markdown="1">intrinsic complexity</a></span>:
 we can move it around,
-but we can't get rid of it.</p>
+but we can&rsquo;t get rid of it.</p>
 <p>The other difference between our visitor and <code>acorn-walk</code> is that
 our class uses <span class="ix-entry" ix-key="dynamic lookup" markdown="1"><a class="gl-ref" href="../glossary/#dynamic_lookup" markdown="1">dynamic lookup</a></span>
 (a form of <span class="ix-entry" ix-key="introspection!of methods" markdown="1">introspection</span>)
@@ -709,7 +709,7 @@ The result of <code>yield</code> is a two-part structure with a value and a flag
 { value: undefined, done: true }
 </code></pre></div>
 </div>
-<p class="continue">A generator function doesn't actually generate anything;
+<p class="continue">A generator function doesn&rsquo;t actually generate anything;
 instead,
 it creates an object that we can then ask for values repeatedly.
 This gives us a way to have several generators in play at the same time.</p>
@@ -749,8 +749,8 @@ which knows how to work with generators:</p>
 </code></pre></div>
 </div>
 <p>Finally,
-just as <code>function *</code> says "this function is a generator",
-<code>yield *</code> says "yield the values from a nested generator one by one".
+just as <code>function *</code> says &ldquo;this function is a generator&rdquo;,
+<code>yield *</code> says &ldquo;yield the values from a nested generator one by one&rdquo;.
 We can use it to walk irregular structures like nested arrays:</p>
 <div class="code-sample lang-js" title="generator-tree.js">
 <div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">getNodes</span><span class="w"> </span><span class="p">(</span><span class="nx">here</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -771,7 +771,7 @@ We can use it to walk irregular structures like nested arrays:</p>
 <span class="p">}</span><span class="w"></span>
 </code></pre></div>
 </div>
-<p>Let's use generators to count the number of expressions of various types in a program.
+<p>Let&rsquo;s use generators to count the number of expressions of various types in a program.
 The generator function that visits each node is:</p>
 <div class="code-sample lang-js" title="generator-count.js">
 <div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">getNodes</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -816,7 +816,7 @@ but we find it more difficult to check variable identifiers using generators
 than using the class-based Visitor approach
 because we want to accumulate violations to report later.
 Again,
-this could be a reflection of what we're used to rather than anything intrinsic;
+this could be a reflection of what we&rsquo;re used to rather than anything intrinsic;
 as with coding style,
 the most important thing is to be consistent.</p>
 <h2 id="style-checker-analysis">Section 14.6: What other kinds of analysis can we do?</h2>
@@ -1187,7 +1187,7 @@ and prints the assertion message (if any).</p>
 <h3 class="exercise">Finding a missing parameter</h3>
 <ol>
 <li>
-<p>Why doesn't the parameter <code>x</code> show up as a rule violation
+<p>Why doesn&rsquo;t the parameter <code>x</code> show up as a rule violation
     in the example where we check name lengths?</p>
 </li>
 <li>
@@ -1210,7 +1210,7 @@ where the program contains expression like <code>arr[table[i]]</code>.</p>
 </code></pre></div>
 </li>
 <li>
-<p>What <em>doesn't</em> this work for?</p>
+<p>What <em>doesn&rsquo;t</em> this work for?</p>
 </li>
 </ol>
 <h3 class="exercise">Generators and arrays</h3>

@@ -60,6 +60,10 @@ pdf: docs/${ABBREV}.tex ${FIG_PDF}
 	cd docs && pdflatex ${ABBREV}
 	cd docs && pdflatex ${ABBREV}
 
+## pdf-once: create PDF document with a single compilation
+pdf-once: docs/${ABBREV}.tex ${FIG_PDF}
+	cd docs && pdflatex ${ABBREV}
+
 docs/%.pdf: src/%.svg
 	@convert $< $@
 

@@ -40,6 +40,8 @@ while [%x async-programming %] shows how promises and `async`/`await` work.
 This chapter also shows how to read and write files and directories with Node's standard libraries,
 because we're going to be doing that a lot.
 
+<div class="pagebreak"></div>
+
 ## How can we list a directory? {: #systems-programming-ls}
 
 To start,
@@ -72,9 +74,9 @@ which contains functions to create directories, read or delete files, etc.
 (Its name is short for "filesystem".)
 We tell the program what to list using [%i "command-line argument" %][%g command_line_argument "command-line arguments" %][%/i%],
 which Node automatically stores in an array called [%i "process.argv" %]`process.argv`[%/i%].
-`process.argv[0]` is the name of the program used to run our code (in this case `node`),
-while `process.argv[1]` is the name of our program (in this case `list-dir-wrong.js`);
-the rest of `process.argv` holds whatever arguments we gave at the command line when we ran the program,
+The name of the program used to run our code is stored `process.argv[0]` (which in this case is `node`),
+while `process.argv[1]` is the name of our program (in this case `list-dir-wrong.js`).
+The rest of `process.argv` holds whatever arguments we gave at the command line when we ran the program,
 so `process.argv[2]` is the first argument after the name of our program ([%f systems-programming-process-argv %]):
 
 [% figure slug="systems-programming-process-argv" img="process-argv.svg" alt="Command-line arguments in `process.argv`" caption="How Node stores command-line arguments in <code>process.argv</code>." %]
@@ -126,6 +128,8 @@ as the introduction to this lesson said,
 it splits operations like file I/O into "please do this" and "do this when data is available".
 `fs.readdir` is the first part,
 but we need to write a function that specifies the second part.
+
+<div class="pagebreak"></div>
 
 JavaScript saves a reference to this function
 and calls with a specific set of parameters when our data is ready
@@ -235,8 +239,10 @@ so most commands will leave them alone unless told to do otherwise.
 [% figure slug="systems-programming-globbing" img="globbing.svg" alt="Matching filenames with `glob`" caption="Using `glob` patterns to match filenames." %]
 
 This program works,
-but we probably don't want to copy Emacs backup files whose names end with `~`.
+but we probably don't want to copy Emacs backup files whose names end with a tilde.
 We can get rid of them by [%i "globbing!filtering results" %][%g filter "filtering" %][%/i%] the list that `glob` returns:
+
+<div class="pagebreak"></div>
 
 [% inc pat="glob-get-then-filter-pedantic.*" fill="js slice.out" %]
 
@@ -384,8 +390,8 @@ we get an error message:
 The problem is that `node_modules/fs.stat` and `node_modules/fs.walk` match our globbing expression,
 but are directories rather than files.
 To prevent our program from trying to use `fs.copy` on directories,
-we must use `fs.stat` to get the properties of the thing whose name `glob` has given us
-and then check if it's a file.
+we must use `fs.stat` to get the properties of the things `glob` gives us
+and then check if they are files.
 The name "stat" is short for "status",
 and since the status of something in the filesystem can be very complex,
 [%i "fs.stat" %]`fs.stat`[%/i%] returns [an object with methods that can answer common questions][node-fs-stats].

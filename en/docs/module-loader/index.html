@@ -264,21 +264,21 @@
 
 
           <p><a class="x-ref" href="../file-interpolator/">Chapter 12</a> showed how to use <code>eval</code> to load code dynamically.
-We can use this to build our own version of JavaScript's <code>require</code> function.
+We can use this to build our own version of JavaScript&rsquo;s <code>require</code> function.
 Our function will take the name of a source file as an argument
 and return whatever that file exports.
 The key requirement for such a function is to avoid accidentally overwriting things:
 if we just <code>eval</code> some code and it happens to assign to a variable called <code>x</code>,
 anything called <code>x</code> already in our program might be overwritten.
-We therefore need a way to <span class="ix-entry" ix-key="encapsulation;software design!encapsulation" markdown="1"><a class="gl-ref" href="../glossary/#encapsulate" markdown="1">encapsulate</a></span> the contents of what we're loading.
+We therefore need a way to <span class="ix-entry" ix-key="encapsulation;software design!encapsulation" markdown="1"><a class="gl-ref" href="../glossary/#encapsulate" markdown="1">encapsulate</a></span> the contents of what we&rsquo;re loading.
 Our approach is based on <span class="bib-ref">[<a class="bib-ref" href="../bibliography/#Casciaro2020">Casciaro2020</a>]</span>,
 which contains a lot of other useful information as well.</p>
 <h2 id="module-loader-namespace">Section 13.1: How can we implement namespaces?</h2>
 <p>A <span class="ix-entry" ix-key="namespace" markdown="1"><a class="gl-ref" href="../glossary/#namespace" markdown="1">namespace</a></span> is a collection of names in a program
 that are isolated from other namespaces.
 Most modern languages provide namespaces as a built-in feature
-so that programmers don't accidentally step on each other's toes.
-JavaScript doesn't,
+so that programmers don&rsquo;t accidentally step on each other&rsquo;s toes.
+JavaScript doesn&rsquo;t,
 so we have to implement them ourselves.</p>
 <p>We can do this using <span class="ix-entry" ix-key="closure" markdown="1"><a class="gl-ref" href="../glossary/#closure" markdown="1">closures</a></span>.
 Every function is a namespace:
@@ -294,7 +294,7 @@ that inner function will be the only thing with references to those variables.</
 </figure>
 
 <p>For example,
-let's create a function that always appends the same string to its argument:</p>
+let&rsquo;s create a function that always appends the same string to its argument:</p>
 <div class="code-sample lang-js" title="manual-namespacing.js">
 <div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">createAppender</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">suffix</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">appender</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">text</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -325,7 +325,7 @@ ReferenceError: suffix is not defined
 </code></pre></div>
 </div>
 <p>We could require every module to define a setup function like this for users to call,
-but thanks to <code>eval</code> we can wrap the file's contents in a function and call it automatically.
+but thanks to <code>eval</code> we can wrap the file&rsquo;s contents in a function and call it automatically.
 To do this we will create something called
 an <span class="ix-entry" ix-key="immediately-invoked function expression" markdown="1"><a class="gl-ref" href="../glossary/#iife" markdown="1">immediately-invoked function expression</a></span> (IIFE).
 The syntax <code>() =&gt; {...}</code> defines a function.
@@ -457,7 +457,7 @@ and that extension calls utility functions defined in the file containing the ma
 they compile each module into low-level instructions,
 then link those to resolve dependencies before running anything
 (<a class="fig-ref" href="../module-loader/#module-loader-circularity">Figure 13.4</a>).
-But interpreted languages usually run code as they're loading it,
+But interpreted languages usually run code as they&rsquo;re loading it,
 so if X is in the process of loading Y and Y tries to call X,
 X may not (fully) exist yet.</p>
 <figure id="module-loader-circularity">
@@ -467,7 +467,7 @@ X may not (fully) exist yet.</p>
 
 <p>Circular dependencies work in <span class="ix-entry" ix-key="Python" markdown="1"><a href="https://www.python.org/">Python</a></span>,
 but only sort of.
-Let's create two files called <code>major.py</code> and <code>minor.py</code>:</p>
+Let&rsquo;s create two files called <code>major.py</code> and <code>minor.py</code>:</p>
 <div class="code-sample lang-py" title="major.py">
 <div class="highlight"><pre><span></span><code><span class="c1"># major.py</span>
 
@@ -595,27 +595,27 @@ TypeError: bottom is not a function
     at [stdin]:1:1
 </code></pre></div>
 </div>
-<p>We therefore won't try to handle circular dependencies.
+<p>We therefore won&rsquo;t try to handle circular dependencies.
 However,
 we will detect them and generate a sensible error message.</p>
 <blockquote>
 <h3><code>import</code> vs. <code>require</code></h3>
-<p>Circular dependencies work JavaScript's <code>import</code> syntax
+<p>Circular dependencies work JavaScript&rsquo;s <code>import</code> syntax
 because we can analyze files to determine what needs what,
 get everything into memory,
 and then resolve dependencies.
-We can't do this with <code>require</code>-based code
+We can&rsquo;t do this with <code>require</code>-based code
 because someone might create an <span class="ix-entry" ix-key="alias!during import;import!alias" markdown="1"><a class="gl-ref" href="../glossary/#alias" markdown="1">alias</a></span>
 and call <code>require</code> through that
 or <code>eval</code> a string that contains a <code>require</code> call.
 (Of course, they can also do these things with the function version of <code>import</code>.)</p>
 </blockquote>
 <h2 id="module-loader-subload">Section 13.4: How can a module load another module?</h2>
-<p>While we're not going to handle circular dependencies,
+<p>While we&rsquo;re not going to handle circular dependencies,
 modules do need to be able to load other modules.
 To enable this,
 we need to provide the module with a function called <code>require</code>
-that it can call as it's loading.
+that it can call as it&rsquo;s loading.
 As in <a class="x-ref" href="../file-interpolator/">Chapter 12</a>,
 this function checks a <span class="ix-entry" ix-key="cache!of loaded files" markdown="1">cache</span>
 to see if the file being asked for has already been loaded.
@@ -632,13 +632,13 @@ We will use <a class="gl-ref" href="../glossary/#absolute_path" markdown="1">abs
 so that every file has a unique, predictable key.</p>
 <p>To reduce confusion,
 we will call our function <code>need</code> instead of <code>require</code>.
-In order to make the cache available to modules while they're loading,
+In order to make the cache available to modules while they&rsquo;re loading,
 we will make it a property of <code>need</code>.
 (Remember,
 a function is just another kind of object in JavaScript;
 every function gets several properties automatically,
 and we can always add more.)
-Since we're using the built-in <code>Map</code> class as a cache,
+Since we&rsquo;re using the built-in <code>Map</code> class as a cache,
 the entire implementation of <code>need</code> is just 15 lines long:</p>
 <div class="code-sample lang-js" title="need.js">
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">path</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;path&#39;</span><span class="w"></span>
@@ -659,8 +659,8 @@ the entire implementation of <code>need</code> is just 15 lines long:</p>
 </code></pre></div>
 </div>
 <p>We now need to modify <code>loadModule</code> to take our function <code>need</code> as a parameter.
-(Again, we'll have our modules call <code>need('something.js')</code> instead of <code>require('something')</code> for clarity.)
-Let's test it with the same small module that doesn't need anything else to make sure we haven't broken anything:</p>
+(Again, we&rsquo;ll have our modules call <code>need('something.js')</code> instead of <code>require('something')</code> for clarity.)
+Let&rsquo;s test it with the same small module that doesn&rsquo;t need anything else to make sure we haven&rsquo;t broken anything:</p>
 <div class="code-sample lang-js" title="test-need-small-module.js">
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">need</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./need.js&#39;</span><span class="w"></span>
 
@@ -740,7 +740,7 @@ SyntaxError: Cannot use import statement outside a module
     at async Object.loadESM (internal/process/esm_loader.js:68:5)
 </code></pre></div>
 </div>
-<p>This doesn't work because <code>import</code> only works at the top level of a program,
+<p>This doesn&rsquo;t work because <code>import</code> only works at the top level of a program,
 not inside a function.
 Our system can therefore only run loaded modules by <code>need</code>ing them:</p>
 <div class="code-sample lang-js" title="large-needless.js">
@@ -791,20 +791,20 @@ publicFunction called from large called from main
 </code></pre></div>
 </div>
 <blockquote>
-<h3>"It's so deep it's meaningless"</h3>
+<h3>&ldquo;It&rsquo;s so deep it&rsquo;s meaningless&rdquo;</h3>
 <p>The programs we have written in this chapter are harder to understand
 than most of the programs in earlier chapters
 because they are so abstract.
 Reading through them,
-it's easy to get the feeling that everything is happening somewhere else.
-Programmers' tools are often like this:
-there's always a risk of confusing the thing in the program
+it&rsquo;s easy to get the feeling that everything is happening somewhere else.
+Programmers&rsquo; tools are often like this:
+there&rsquo;s always a risk of confusing the thing in the program
 with the thing the program is working on.
 Drawing pictures of data structures can help,
 and so can practicing with closures
 (which are one of the most powerful ideas in programming),
 but a lot of the difficulty is irreducible,
-so don't feel bad if it takes you a while to wrap your head around it.</p>
+so don&rsquo;t feel bad if it takes you a while to wrap your head around it.</p>
 </blockquote>
 <div class="break-before"></div>
 <h2 id="module-loader-exercises">Section 13.5: Exercises</h2>
@@ -828,7 +828,7 @@ right `
 <h3 class="exercise">Objects and namespaces</h3>
 <p>A JavaScript object stores key-value pairs,
 and the keys in one object are separate from the keys in another.
-Why doesn't this provide the same level of safety as a closure?</p>
+Why doesn&rsquo;t this provide the same level of safety as a closure?</p>
 <h3 class="exercise">Testing module loading</h3>
 <p>Write tests for <code>need.js</code> using Mocha and <code>mock-fs</code>.</p>
 <h3 class="exercise">Using <code>module</code> as a name</h3>
@@ -844,7 +844,7 @@ rather than creating a variable called <code>result</code> and passing that in:<
 <span class="p">}</span><span class="w"></span>
 </code></pre></div>
 <h3 class="exercise">Implementing a search path</h3>
-<p>Add a search path to <code>need.js</code> so that if a module isn't found locally,
+<p>Add a search path to <code>need.js</code> so that if a module isn&rsquo;t found locally,
 it will be looked for in each directory in the search path in order.</p>
 <h3 class="exercise">Using a setup function</h3>
 <p>Rewrite the module loader so that every module has a function called <code>setup</code>
@@ -899,7 +899,7 @@ reduces access time while limiting the amount of memory used
 by keeping track of the N items that have been used most recently.
 For example,
 if the cache size is 3 and objects are accessed in the order shown in the first column,
-the cache's contents will be as shown in the second column:</p>
+the cache&rsquo;s contents will be as shown in the second column:</p>
 <table>
 <thead>
 <tr>
