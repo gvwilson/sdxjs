@@ -3,14 +3,14 @@
 # ----------------------------------------
 
 # Abbreviation for this document.
-abbrev = "stjs"
+abbrev = "sdxjs"
 
 # GitHub repository.
 repo = "https://github.com/software-tools-books/stjs/"
 
 # Site title and author.
 title = "Software Design by Example"
-acronym = "STJS"
+acronym = "SDXJS"
 tagline = "a tool-based introduction with JavaScript"
 author = "Greg Wilson"
 

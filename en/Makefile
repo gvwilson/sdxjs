@@ -3,6 +3,8 @@
 # Local configuration.
 CONFIG := ./config.py
 ABBREV := $(shell python ${CONFIG} --abbrev)
+BUILD_DATE := $(shell date '+%Y-%m-%d')
+STEM := ${ABBREV}-${BUILD_DATE}
 
 # Direct variables.
 EXAMPLES := $(patsubst %/Makefile,%,$(wildcard src/*/Makefile))
@@ -48,27 +50,27 @@ docs/all.html: ./docs/index.html ${HTML} bin/single.py
 	> docs/all.html
 
 ## latex: create LaTeX document
-latex: docs/${ABBREV}.tex
-docs/${ABBREV}.tex: docs/all.html ${TEX} bin/html2tex.py ${CONFIG}
+latex: docs/${STEM}.tex
+docs/${STEM}.tex: docs/all.html ${TEX} bin/html2tex.py ${CONFIG}
 	python ./bin/html2tex.py \
 	--head info/head.tex \
 	--foot info/foot.tex \
 	< docs/all.html \
-	> docs/${ABBREV}.tex
+	> docs/${STEM}.tex
 	python ${CONFIG} --latex > docs/config.tex
 
 ## pdf: create PDF document
-pdf: docs/${ABBREV}.tex ${FIG_PDF}
+pdf: docs/${STEM}.tex ${FIG_PDF}
 	cp info/bibliography.bib docs
-	cd docs && pdflatex ${ABBREV}
-	cd docs && biber ${ABBREV}
-	cd docs && makeindex ${ABBREV}
-	cd docs && pdflatex ${ABBREV}
-	cd docs && pdflatex ${ABBREV}
+	cd docs && pdflatex ${STEM}
+	cd docs && biber ${STEM}
+	cd docs && makeindex ${STEM}
+	cd docs && pdflatex ${STEM}
+	cd docs && pdflatex ${STEM}
 
 ## pdf-once: create PDF document with a single compilation
-pdf-once: docs/${ABBREV}.tex ${FIG_PDF}
-	cd docs && pdflatex ${ABBREV}
+pdf-once: docs/${STEM}.tex ${FIG_PDF}
+	cd docs && pdflatex ${STEM}
 
 docs/%.pdf: src/%.svg
 	@convert $< $@
@@ -166,6 +168,7 @@ release:
 .PHONY: vars
 vars:
 	@echo ABBREV ${ABBREV}
+	@echo BUILD_DATE ${BUILD_DATE}
 	@echo DOCS ${DOCS}
 	@echo FIG_SVG ${FIG_SVG}
 	@echo FIG_PDF ${FIG_PDF}
@@ -173,6 +176,7 @@ vars:
 	@echo INFO ${INFO}
 	@echo IVY ${IVY}
 	@echo SRC ${SRC}
+	@echo STEM ${STEM}
 	@echo TEX ${TEX}
 
 # local rules (if any).
