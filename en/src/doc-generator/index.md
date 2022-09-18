@@ -124,17 +124,18 @@ Let's run this generator and see what it produces
 [% inc file="process-plain.html" %]
 
 [% figure
-   slug="doc-generator-process-plain"
-   img="process-plain.svg"
-   alt="Output of documentation generator"
-   caption="The page produced by the documentation generator."
-%]
-
-[% figure
    slug="doc-generator-mapping"
    img="mapping.svg"
    alt="Mapping comments to documentation"
    caption="How comments in code map to documentation in HTML."
+%]
+
+[% figure
+   cls="latex-small"
+   slug="doc-generator-process-plain"
+   img="process-plain.svg"
+   alt="Output of documentation generator"
+   caption="The page produced by the documentation generator."
 %]
 
 It works,
@@ -210,15 +211,14 @@ We can use this to create better output ([%f doc-generator-fill-in-headers %]):
 [% inc file="fill-in-headers.html" %]
 
 [% figure
+   cls="latex-small"
    slug="doc-generator-fill-in-headers"
    img="fill-in-headers.svg"
    alt="Filling in headers"
    caption="Filling in headers when generating documentation."
 %]
 
-<div class="callout" markdown="1">
-
-### Code is data
+## Code is Data {: #doc-generator-note}
 
 We haven't made this point explicitly in a while,
 so we will repeat it here:
@@ -235,8 +235,6 @@ which in turn gives us more time to think about the tasks that we can't (yet) au
 Doing this is the foundation of a tool-based approach to software engineering;
 as the mathematician [%i "Whitehead, Alfred North" %]Alfred North Whitehead[%/i%] once wrote,
 "Civilization advances by extending the number of important operations which we can perform without thinking about them."
-
-</div>
 
 ## Exercises {: #doc-generator-exercises}
 

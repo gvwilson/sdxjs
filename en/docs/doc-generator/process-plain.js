@@ -6,7 +6,7 @@ import MarkdownAnchor from 'markdown-it-anchor'
 import slugify from './slugify.js'
 
 // [main]
-const STYLE = 'width: 40rem; padding-left: 0.5rem; border: 1px solid black;'
+const STYLE = 'width: 40rem; padding-left: 0.5rem; border: solid;'
 const HEAD = `<html><body style="${STYLE}">`
 const FOOT = '</body></html>'
 

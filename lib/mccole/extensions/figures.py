@@ -37,7 +37,7 @@ def figure_def(pargs, kwargs, node):
         f"Bad 'figure' shortcode {pargs} and {kwargs}",
     )
     cls = kwargs.get("cls", None)
-    cls = f' class="figure-here"' if cls is not None else ""
+    cls = f' class="{cls}"' if cls is not None else ""
     slug = kwargs["slug"]
     img = kwargs["img"]
     alt = util.markdownify(kwargs["alt"])

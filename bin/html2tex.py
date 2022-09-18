@@ -74,12 +74,21 @@ def figure(node, state, accum, doEscape):
     """Convert a figure."""
     assert node.name == "figure", "Not a figure"
     label = node["id"]
-    cls = node["class"] if node.has_attr("class") else None
-    command = "figpdfhere" if cls is not None else "figpdf"
+
+    if node.has_attr("class") and "figure-here" in node["class"]:
+        command = "figpdfhere"
+    else:
+        command = "figpdf"
+
+    if node.has_attr("class") and "latex-small" in node["class"]:
+        scale = 0.4
+    else:
+        scale = 0.6
+
     path = node.img["src"].replace(".svg", ".pdf")
     caption = "".join(children(node.figcaption, state, [], True))
     caption = caption.split(":", 1)[1].strip()
-    accum.append(f"\\{command}{{{label}}}{{{path}}}{{{caption}}}{{0.6}}\n")
+    accum.append(f"\\{command}{{{label}}}{{{path}}}{{{caption}}}{{{scale}}}\n")
 
 
 def handle(node, state, accum, doEscape):
