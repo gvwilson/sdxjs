@@ -9,7 +9,6 @@ STEM := ${ABBREV}-${BUILD_DATE}
 # Direct variables.
 EXAMPLES := $(patsubst %/Makefile,%,$(wildcard src/*/Makefile))
 HTML := info/head.html info/foot.html
-JAVASCRIPT = $(wildcard */*.js) $(wildcard */x-*/*.js)
 INFO := info/bibliography.bib info/credits.yml info/glossary.yml info/links.yml
 FIG_SVG := $(wildcard src/*/*.svg)
 IVY := $(wildcard lib/mccole/*/*.*)
@@ -93,10 +92,6 @@ check: lint
 lint: clean build
 	@python ./bin/lint.py \
 	--config config.py
-
-## standard: run checks on code formatting
-standard:
-	@npx standard ${JAVASCRIPT}
 
 ## examples: re-run examples
 .PHONY: examples
