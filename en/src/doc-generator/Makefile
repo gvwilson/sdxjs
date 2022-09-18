@@ -10,8 +10,12 @@ TARGETS=\
 
 include ../examples.mk
 
-fill-in-headers.html: fill-in-headers-input.js
+fill-in-headers.html: fill-in-headers.sh fill-in-headers.js fill-in-headers-input.js
+	bash $< > $@
+
+process-plain.html: process-plain.sh process-plain.js example-plain.js util-plain.js
+	bash $< > $@
+
 find-following.out: find-following-input.js
-process-plain.html: example-plain.js util-plain.js
 two-kinds-of-comment.out: extract-comments.js
 two-kinds-of-comment-subset.out: extract-comments-subset.js

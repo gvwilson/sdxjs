@@ -6,7 +6,8 @@ import getDefinitions from './get-definitions.js'
 import fillIn from './fill-in.js'
 import slugify from './slugify.js'
 
-const HEAD = '<html><body style="font-size: 100%; margin-left: 0.5em">'
+const STYLE = 'width: 40rem; padding-left: 0.5rem; border: solid;'
+const HEAD = `<html><body style="${STYLE}">`
 const FOOT = '</body></html>'
 
 const main = () => {
