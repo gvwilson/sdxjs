@@ -22,7 +22,9 @@ PORT := 4000
 
 ## commands: show available commands
 commands:
-	@grep -h -E '^##' ${MAKEFILE_LIST} | sed -e 's/## //g' | column -t -s ':'
+	@grep -h -E '^##' ${MAKEFILE_LIST} \
+	| sed -e 's/## //g' \
+	| column -t -s ':'
 
 ## build: rebuild site without running server
 build: ./docs/index.html
@@ -48,7 +50,11 @@ docs/all.html: ./docs/index.html ${HTML} bin/single.py
 ## latex: create LaTeX document
 latex: docs/${ABBREV}.tex
 docs/${ABBREV}.tex: docs/all.html ${TEX} bin/html2tex.py ${CONFIG}
-	python ./bin/html2tex.py --head info/head.tex --foot info/foot.tex < docs/all.html > docs/${ABBREV}.tex
+	python ./bin/html2tex.py \
+	--head info/head.tex \
+	--foot info/foot.tex \
+	< docs/all.html \
+	> docs/${ABBREV}.tex
 	python ${CONFIG} --latex > docs/config.tex
 
 ## pdf: create PDF document
@@ -168,3 +174,6 @@ vars:
 	@echo IVY ${IVY}
 	@echo SRC ${SRC}
 	@echo TEX ${TEX}
+
+# local rules (if any).
+-include local.mk
