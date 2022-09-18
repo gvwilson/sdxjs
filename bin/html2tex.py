@@ -16,7 +16,7 @@ def main():
     text = sys.stdin.read()
     text = text.replace(r"\(", "<math>").replace(r"\)", "</math>")
     soup = BeautifulSoup(text, "html.parser")
-    state = {"appendix": False, "unknown": set()}
+    state = {"appendix": False, "seen": {}, "unknown": set()}
     accum = []
     for child in soup.find_all("section", class_="new-chapter"):
         accum = handle(child, state, accum, True)
@@ -29,8 +29,15 @@ def main():
         print(reader.read())
 
     if options.debug:
-        for key in sorted(state["unknown"]):
+        if state["unknown"]:
+            print("Unknown:", file=sys.stderr)
+            for key in sorted(state["unknown"]):
+                print(key, file=sys.stderr)
+        print("Seen", file=sys.stderr)
+        for key in sorted(state["seen"]):
             print(key, file=sys.stderr)
+            for value in sorted(state["seen"][key]):
+                print(f"- {', '.join(value)}", file=sys.stderr)
 
 
 def children(node, state, accum, doEscape):
@@ -93,6 +100,7 @@ def figure(node, state, accum, doEscape):
 
 def handle(node, state, accum, doEscape):
     """Handle nodes by type."""
+    record_seen(node, state)
 
     # Pure text
     if isinstance(node, NavigableString):
@@ -414,11 +422,25 @@ def noindent(node):
 
 
 def parse_args():
+    """Handle command-line arguments."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--debug", action="store_true", help="show debugging")
     parser.add_argument("--head", required=True, help="LaTeX head")
     parser.add_argument("--foot", required=True, help="LaTeX foot")
     return parser.parse_args()
+
+
+def record_seen(node, state):
+    """Record which node types have been seen."""
+    if not isinstance(node, Tag):
+        return
+    seen = state["seen"]
+    if node.name not in seen:
+        seen[node.name] = set()
+    if node.has_attr("class"):
+        seen[node.name].add(tuple(sorted(node["class"])))
+    else:
+        seen[node.name].add(("None",))
 
 
 def table(node, state, accum, doEscape):
