@@ -31,6 +31,7 @@ so let's slim down the JSON that we extract:
 [% inc pat="two-kinds-of-comment-subset.*" fill="sh out" %]
 
 [% figure
+   cls="figure-here"
    slug="doc-generator-comments"
    img="comments.svg"
    alt="Line and block comments"
