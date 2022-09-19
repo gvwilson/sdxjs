@@ -77,13 +77,6 @@ clean:
 	@find . -name '*~' -exec rm {} \;
 	@find . -type d -name __pycache__ | xargs rm -r
 
-## check: check code and project structure
-.PHONY: check
-check: lint
-	-flake8
-	-isort --check .
-	-black --check .
-
 ## lint: check project structure
 .PHONY: lint
 lint: clean build
