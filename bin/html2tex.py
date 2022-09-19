@@ -9,6 +9,15 @@ from bs4 import BeautifulSoup, NavigableString, Tag
 
 CROSSREFS = {"Appendix": "appref", "Chapter": "chapref", "Section": "secref"}
 
+PRINT_INDEX = r"""
+\cleardoublepage
+\makeatletter
+\renewcommand{\tocetcmark}[1]{%
+  \@mkboth{{#1}}{{#1}}}
+  \makeatother
+\printindex
+"""
+
 
 def main():
     """Convert HTML to LateX."""
@@ -230,14 +239,17 @@ def handle(node, state, accum, doEscape):
         state["slug"] = node["id"]
         content = "".join(children(node, state, [], doEscape))
         kind, title = content.split(":", 1)
+        title = title.strip()
         if kind.startswith("Appendix") and not state["appendix"]:
             accum.append("\n\\appendix\n")
             state["appendix"] = True
         accum.append(r"\chapter{")
-        accum.append(title.strip())
+        accum.append(title)
         accum.append(r"}\label{")
         accum.append(state["slug"])
         accum.append("}\n")
+        if state["appendix"]:
+            accum.append(f"\\markboth{{\\thechapter\ {title}}}{{\\thechapter\\ {title}}}")
 
     # <h2> => section title (with or without ID)
     elif node_match(node, "h2"):
@@ -323,7 +335,7 @@ def handle(node, state, accum, doEscape):
     # <section> => chapter (recurse only)
     elif node_match(node, "section"):
         if node.h1["id"] == "contents":
-            accum.append("\\printindex\n")
+            accum.append(PRINT_INDEX)
         else:
             children(node, state, accum, doEscape)
 
