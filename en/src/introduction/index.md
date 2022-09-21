@@ -185,7 +185,7 @@ for details.
 If you would like to improve what we have or add new material, please see the
 Code of Conduct in [%x conduct %] and the contributor guidelines in
 [%x contributing %].  If you have questions or would like to use this material in
-a course, please file an issue in our GitHub repository or send us email.
+a course, please file an issue in [our GitHub repository][book-repo] or send us email.
 
 ## Who helped us? {: #introduction-help}
 
