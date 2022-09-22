@@ -52,18 +52,6 @@ def filter_files(value, filepath):
     return result
 
 
-@ivy.events.register(ivy.events.Event.EXIT_BUILD)
-def copy_files():
-    """Copy all included files."""
-    # Wrong part of the cycle.
-    if (inclusions := util.get_config("inclusions")) is None:
-        return
-
-    # Copy files.
-    for (src, dst) in inclusions.items():
-        shutil.copy(src, dst)
-
-
 @shortcodes.register("linecount")
 def linecount(pargs, kwargs, node):
     """Count lines in an include file."""
