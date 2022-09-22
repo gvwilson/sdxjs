@@ -202,6 +202,6 @@ I am grateful to the creators of [Emacs][emacs],
 and all the other open source tools used in creating these lessons:
 if we all give a little,
 we all get a lot.
-I would also like to thank Darren McElligott and Evan Schultz
-for their reviews and feedback;
+I would also like to thank Darren McElligott, Evan Schultz, and Juanan Pereira
+for their feedback;
 any errors, omissions, or misunderstandings that remain are entirely my fault.
