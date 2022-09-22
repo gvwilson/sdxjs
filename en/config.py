@@ -6,7 +6,7 @@
 abbrev = "sdxjs"
 
 # GitHub repository.
-repo = "https://github.com/software-tools-books/stjs/"
+repo = "https://github.com/gvwilson/sdxjs/"
 
 # Site title and author.
 title = "Software Design by Example"
