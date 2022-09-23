@@ -9,6 +9,9 @@ import ivy
 import markdown
 import yaml
 
+# File containing things to ignore.
+IGNORE_FILE = ".mccoleignore"
+
 # Configuration sections and their default values.
 # These are added to the config dynamically under the `mccole` key,
 # i.e., `"figures"` becomes `ivy.site.config["mccole"]["figures"]`.

@@ -191,8 +191,8 @@ def get_figures(filepath):
 
 
 def get_html(out_dir):
-    """Get paths to HTML files for processing."""
-    return list(Path(out_dir).glob("**/*.html"))
+    """Get paths to HTML pages for processing."""
+    return list(Path(out_dir).glob("**/index.html"))
 
 
 def get_ignores(dirname):
