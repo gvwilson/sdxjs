@@ -72,6 +72,11 @@ pdf: docs/${STEM}.tex ${FIG_PDF}
 pdf-once: docs/${STEM}.tex ${FIG_PDF}
 	cd docs && pdflatex ${STEM}
 
+## diagrams: convert diagrams from SVG to pdf
+diagrams: ${FIG_PDF}
+docs/%.pdf: src/%.svg
+	draw.io --export --crop --output $@ $<
+
 ## clean: clean up stray files
 clean:
 	@find . -name '*~' -exec rm {} \;

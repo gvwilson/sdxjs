@@ -93,13 +93,18 @@ extension = "/"
 
 # Files to copy verbatim.
 copy = [
+    "*.as",
     "*.ht",
+    "*.js",
     "*.json",
+    "*.mx",
     "*.out",
-    "*.pdf",
     "*.png",
     "*.py",
+    "*.sh",
     "*.svg",
+    "*.txt",
+    "*.yml",
 ]
 
 # Exclusions (don't process).
@@ -126,7 +131,8 @@ exclude = [
     "*~",
     "*/__pycache__",
     "*/.pytest_cache",
-    "*/sample_dir"
+    "*/sample_dir",
+    "*/x-*",
 ]
 
 # Display values for LaTeX generation.
