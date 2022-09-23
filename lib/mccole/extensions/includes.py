@@ -108,6 +108,14 @@ def _file(inclusions, node, file):
     return _include_file(node, filepath)
 
 
+def _html(inclusions, node, html):
+    """Handle an HTML file inclusion."""
+    filepath = _inclusion_filepath(inclusions, node, html)
+    with open(filepath, "r") as reader:
+        content = reader.read().rstrip()
+    return f'<div class="html">\n{content}\n</div>'
+
+
 def _keep(inclusions, node, file, keep):
     """Handle a sliced file inclusion."""
     filepath = _inclusion_filepath(inclusions, node, file)
