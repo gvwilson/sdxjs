@@ -145,7 +145,7 @@ Let's try it on a program that adds the numbers in an array:
 
 What we have built so far is an always-on `print` statement.
 To turn it into an interactive debugger,
-we will use the [`prompt-sync`][node-prompt-sync] module to manage user input
+we will use the [`prompt-sync`][node_prompt_sync] module to manage user input
 with the following set of commands:
 
 -   `?` or `help` to list commands.
@@ -323,7 +323,7 @@ we are finally able to test our interactive debugger:
 
 ### Implementing tab completion {: .exercise}
 
-Read the documentation for [`prompt-sync`][node-prompt-sync]
+Read the documentation for `prompt-sync`
 and then implement [%g tab_completion "tab completion" %]
 for the debugger.
 

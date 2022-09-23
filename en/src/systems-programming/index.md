@@ -77,7 +77,7 @@ we have added `"type": "module"` at the top level of our Node `package.json` fil
 
 </div>
 
-Our little program uses the [`fs`][node-fs] library
+Our little program uses the [`fs`][node_fs] library
 which contains functions to create directories, read or delete files, etc.
 (Its name is short for "filesystem".)
 We tell the program what to list using [%i "command-line argument" %][%g command_line_argument "command-line arguments" %][%/i%],
@@ -255,7 +255,7 @@ instead,
 we want to be able to write patterns like `*.js`.
 
 To find files that match patterns like that,
-we can use the [`glob`][node-glob] module.
+we can use the [`glob`][node_glob] module.
 (To [%i "globbing" %][%g globbing "glob" %][%/i%] (short for "global") is an old Unix term for matching a set of files by name.)
 The `glob` module provides a function that takes a pattern and a callback
 and does something with every filename that matched the pattern:
@@ -402,8 +402,8 @@ The need to do this comes up so often that there is a function called `ensureDir
 [% inc file="glob-ensure-output-directory.js" %]
 
 Notice that we import from `fs-extra` instead of `fs`;
-the [`fs-extra`][node-fs-extra] module provides some useful utilities on top of `fs`.
-We also use [`path`][node-path] to manipulate pathnames
+the [`fs-extra`][node_fs_extra] module provides some useful utilities on top of `fs`.
+We also use [`path`][node_path] to manipulate pathnames
 rather than concatenating or interpolating strings
 because there are a lot of tricky [%g edge_case "edge cases" %] in pathnames
 that the authors of that module have figured out for us.
@@ -459,7 +459,7 @@ we must use `fs.stat` to get the properties of the things `glob` gives us
 and then check if they are files.
 The name "stat" is short for "status",
 and since the status of something in the filesystem can be very complex,
-[%i "fs.stat" %]`fs.stat`[%/i%] returns [an object with methods that can answer common questions][node-fs-stats].
+[%i "fs.stat" %]`fs.stat`[%/i%] returns [an object with methods that can answer common questions][node_fs_stats].
 
 Here's the final version of our file copying program:
 

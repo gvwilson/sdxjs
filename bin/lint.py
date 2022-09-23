@@ -29,13 +29,13 @@ CONFIGURATION = [
     ("debug", bool),
     ("exclude", list),
     ("extension", str),
-    ("github", str),
     ("glossary", str),
     ("lang", str),
     ("links", str),
     ("markdown_settings", dict),
     ("out_dir", str),
     ("src_dir", str),
+    ("repo", str),
     ("tagline", str),
     ("theme", str),
     ("title", str),
@@ -211,7 +211,8 @@ def get_links(filename):
         text = RE_CODE_BLOCK.sub("", text)
         text = RE_CODE_INLINE.sub("", text)
         text = RE_SHORTCODE.sub("", text)
-        return {m.group(1) for m in RE_LINK.finditer(text)}
+        result = {m.group(1) for m in RE_LINK.finditer(text)}
+        return result
 
 
 def get_src(src_dir):

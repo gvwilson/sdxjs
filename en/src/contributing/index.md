@@ -8,7 +8,7 @@ All contributors must abide by our Code of Conduct.
 
 ## Making Decisions
 
-This project uses [Martha's Rules][marthas-rules] for consensus decision making:
+This project uses [Martha's Rules][marthas_rules] for consensus decision making:
 
 1.  Before each meeting, anyone who wishes may sponsor a proposal by filing an
     issue in the GitHub repository tagged "proposal".  People must file proposals

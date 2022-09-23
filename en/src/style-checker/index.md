@@ -25,7 +25,7 @@ which is that source code is just another kind of data.
 Just as the world doesn't need more file format ([%x regex-parser %])
 it also doesn't need more programming styles,
 or more arguments among programmers about whether there should be spaces before curly braces or not.
-[%i "Standard JS" %][Standard JS][standard-js][%/i%] may not do everything exactly the way you want,
+[%i "Standard JS" %][Standard JS][standard_js][%/i%] may not do everything exactly the way you want,
 but adopting it increases the odds that other programmers will be able to read your code at first glance.
 
 </div>
@@ -74,7 +74,7 @@ If we want to find functions, variables, or anything else in an AST
 we need to [%i "walk a tree" %][%g walk_tree "walk the tree" %][%/i%],
 i.e.,
 to visit each node in turn.
-The [`acorn-walk`][acorn-walk] library will do this for us
+The [`acorn-walk`][acorn_walk] library will do this for us
 using the [%i "Visitor pattern" "design pattern!Visitor" %]Visitor design pattern[%/i%] we first saw in [%x page-templates %]
 If we provide a function to act on nodes of type `Identifier`,
 `acorn-walk` will call that function each time it finds an identifier.

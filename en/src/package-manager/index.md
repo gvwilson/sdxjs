@@ -26,7 +26,7 @@ the disk space wouldn't be much of an obstacle,
 but loading dozens of copies of the same package into the browser
 would slow applications down.
 This chapter therefore explores how to find a workable installation or prove that there isn't one.
-It is based in part on [this tutorial][package-manager-tutorial] by [%i "Nison, Maël" %][Maël Nison][nison-mael][%/i%].
+It is based in part on [this tutorial][package_manager_tutorial] by [%i "Nison, Maël" %][Maël Nison][nison_mael][%/i%].
 
 <div class="callout" markdown="1">
 
@@ -50,7 +50,7 @@ Each version number consists of three integers X.Y.Z,
 where X is the major version,
 Y is the minor version,
 and Z is the [%i "patch number" "semantic versioning!patch number" %][%g patch "patch" %][%/i%] number.
-(The [full specification][semver-spec] allows for more fields,
+(The [full specification][semver_spec] allows for more fields,
 but we will ignore them in this tutorial.)
 
 A package's authors increment its major version number
@@ -74,7 +74,7 @@ in the way that minutes add up to hours or months add up to years.
 
 It isn't hard to write a few simple comparisons for semantic version identifiers,
 but getting all the different cases right is almost as tricky as handling dates and times correctly,
-so we will rely on the [`semver`][node-semver] module.
+so we will rely on the [`semver`][node_semver] module.
 `semver.valid('1.2.3')` checks that `1.2.3` is a valid version identifier,
 while `semver.satisfies('2.2', '1.0 - 3.1')` checks that its first argument
 is compatible with the range specified in its second.
@@ -330,7 +330,7 @@ Remember that `2.1` is greater than `1.99`.
 ### Parsing semantic versions {: .exercise}
 
 Using the techniques of [%x regex-parser %],
-write a parser for a subset of the [semantic versioning specification][semver-spec].
+write a parser for a subset of the [semantic versioning specification][semver_spec].
 
 ### Using scoring functions {: .exercise}
 

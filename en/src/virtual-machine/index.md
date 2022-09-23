@@ -11,8 +11,8 @@ that gives instructions names instead of numbers.
 To understand more about how JavaScript actually runs,
 we will simulate a very simple processor with a little bit of memory.
 If you want to dive deeper,
-have a look at [%i "Nystrom, Bob" %][Bob Nystrom's][nystrom-bob][%/i%] *[Crafting Interpreters][crafting-interpreters]*.
-You may also enjoy [%i "Human Resource Machine" %][Human Resource Machine][human-resource-machine][%/i%],
+have a look at [%i "Nystrom, Bob" %][Bob Nystrom's][nystrom_bob][%/i%] *[Crafting Interpreters][crafting_interpreters]*.
+You may also enjoy [%i "Human Resource Machine" %][Human Resource Machine][human_resource_machine][[%/i%],
 which asks you to solve puzzles of increasing difficulty
 using a processor almost as simple as ours.
 
@@ -161,7 +161,7 @@ as is jumping to a fixed address if the value in a register is zero:
 ## What do assembly programs look like? {: #virtual-machine-assembly}
 
 We could figure out numerical op codes by hand,
-and in fact that's what [the first programmers][eniac-programmers] did.
+and in fact that's what [the first programmers][eniac_programmers] did.
 However,
 it is much easier to use an [%i "assembler" %][%g assembler "assembler" %][%/i%],
 which is just a small compiler for a language that very closely represents actual machine instructions.

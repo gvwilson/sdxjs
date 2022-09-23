@@ -385,7 +385,7 @@ our lesson can be inconsistent.
 to try to prevent this from happening,
 but it never really caught on---unfortunately,
 most programming systems that describe themselves as "literate" these days
-only implement part of [%i "Knuth, Donald" %][Donald Knuth's][knuth-donald][%/i%] original vision.
+only implement part of [%i "Knuth, Donald" %][Donald Knuth's][knuth_donald][%/i%] original vision.
 
 ## Exercises {: #file-interpolator-exercises}
 

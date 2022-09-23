@@ -6,7 +6,7 @@ We have been globbing to match filenames against patterns since [%x systems-prog
 This lesson will explore how that works
 by building a simple version of the [%i "regular expression" %][%g regular_expression "regular expressions" %][%/i%]
 used to match text in everything from editor and shell commands to web scrapers.
-Our approach is inspired by [%i "Kernighan, Brian" %][Brian Kernighan's][kernighan-brian][%/i%] entry
+Our approach is inspired by [%i "Kernighan, Brian" %][Brian Kernighan's][kernighan_brian][%/i%] entry
 in [%b Oram2007 %].
 
 Regular expressions have inspired pattern matching for many other kinds of data,

@@ -20,7 +20,7 @@ from spreadsheets and databases
 to the [%i "data frame" %][%g data_frame "data frames" %][%/i%] in
 [%i "R" %]R's[%/i%] [%i "tidyverse" %][tidyverse][tidyverse][%/i%] packages,
 [%i "Python" %][Python's][python][%/i%] [%i "Pandas" %][Pandas][pandas][%/i%] library,
-or the [%i "DataForge" %][DataForge][data-forge][%/i%] library for JavaScript [%b Davis2018 %].
+or the [%i "DataForge" %][DataForge][data_forge][%/i%] library for JavaScript [%b Davis2018 %].
 
 [% figure
    slug="data-table-conceptual"
@@ -167,7 +167,7 @@ Our performance measurement program looks like this:
 The functions that actually do the measurements
 use the [`microtime`][microtime] library to get microsecond level timing
 because JavaScript's `Date` only gives us millisecond-level resolution.
-We use [`object-sizeof`][object-sizeof] to estimate how much memory our structures require;
+We use [`object-sizeof`][object_sizeof] to estimate how much memory our structures require;
 we also call `process.memoryUsage()` and look at the `heapUsed` value
 to see how much memory [Node][nodejs] is using while the program runs,
 but that may be affected by [%g garbage_collection "garbage collection" %]

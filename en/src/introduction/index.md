@@ -12,22 +12,20 @@ and browser layout engines
 both to demystify them
 and to give some insights into how experienced programmers think.
 We draw inspiration from [%b Brown2011 Brown2012 Brown2016 %],
-[Mary Rose Cook's][cook-mary-rose] [Gitlet][gitlet],
+[Mary Rose Cook's][cook_mary_rose] [Gitlet][gitlet],
 and the books that introduced the Unix philosophy to an entire generation of programmers
 [%b Kernighan1979 Kernighan1981 Kernighan1983 Kernighan1988 %].
 
 All of the written material in this project can be freely reused
-under the terms of the [Creative Commons - Attribution - NonCommercial license][cc-by-nc],
+under the terms of the [Creative Commons - Attribution - NonCommercial license][cc_by_nc],
 while all of the software is made available under the terms of
-the [Hippocratic License][hippocratic-license];
-see [%x license %] for details.
-
-All proceeds from this project will go to support the [Red Door Family Shelter][red-door].
+the [Hippocratic License][hippocratic_license].
+All proceeds from this project will go to support the [Red Door Family Shelter][red_door].
 
 ## Who is our audience? {: #introduction-audience}
 
 Every lesson should be written with specific learners in mind.
-These three [personas][t3-personas] describe ours:
+These three [personas][t3_personas] describe ours:
 
 -   Aïsha started writing VB macros for Excel in an accounting course and never looked back.
     After spending three years doing front-end JavaScript work
@@ -62,7 +60,7 @@ Like these three personas, readers should be able to:
     and run programs with it from the command line.
 
 -   Use [Git][git] to save and share files.
-    (It's OK not to know [the more obscure commands][git-man-page-generator].)
+    (It's OK not to know [the more obscure commands][git_man_page_generator].)
 
 -   Explain what a tree is and how to process one recursively.
     (This is the most complicated data structure and algorithm we *don't* explain.)
@@ -74,7 +72,7 @@ Please see [%x conclusion %] for more details.
 
 ## What tools and ideas do we cover? {: #introduction-contents}
 
-Programmers have invented [a lot of tools][programming-tools] to make their lives easier.
+Programmers have invented [a lot of tools][programming_tools] to make their lives easier.
 This volume focuses on a few that individual developers use while writing software;
 we hope future volumes
 will explore those used in the applications that programmers build.
@@ -116,7 +114,7 @@ We occasionally wrap lines in source code in unnatural ways to make listings fit
 and sometimes use `...` to show where lines have been omitted.
 Where we need to break lines of output for the same reason,
 we end all but the last line with a single backslash `\`.
-The full listings are all available in [our Git repository][stjs-repo]
+The full listings are all available in [our Git repository][book_repo]
 and [on our website][stjs].
 
 Finally,
@@ -129,7 +127,7 @@ whether we're talking about "the function itself" or "a call to the function wit
 ## How did we get here? {: #introduction-history}
 
 In the early 2000s,
-the [%i "University of Toronto" %]University of Toronto[%/i%] asked [%i "Wilson, Greg" %][Greg Wilson][wilson-greg][%/i%]
+the [%i "University of Toronto" %]University of Toronto[%/i%] asked [%i "Wilson, Greg" %][Greg Wilson][wilson_greg][%/i%]
 to teach an undergraduate course on software architecture.
 After delivering the course three times he told the university they should cancel it:
 between them,
@@ -139,7 +137,7 @@ devoted a total of less than 30 pages to describing the designs of actual system
 <div class="pagebreak"></div>
 
 Frustrated by that,
-he and [%i "Oram, Andy" %][Andy Oram][oram-andy][%/i%] persuaded some well-known programmers to contribute a chapter each
+he and [%i "Oram, Andy" %][Andy Oram][oram_andy][%/i%] persuaded some well-known programmers to contribute a chapter each
 to a collection called *Beautiful Code* [%b Oram2007 %],
 which went on to win the Jolt Award in 2007.
 Entries in the book described everything from figuring out whether three points are on a line
@@ -149,9 +147,9 @@ but the breadth that made them fun to read
 also meant they weren't particularly useful for teaching.
 
 To fix that,
-Greg Wilson, [%i "Brown, Amy" %][Amy Brown][brown-amy][%/i%],
-[%i "Armstrong, Tavish" %][Tavish Armstrong][armstrong-tavish][%/i%],
-and [%i "DiBernardo, Mike" %][Mike DiBernardo][dibernardo-mike][%/i%]
+Greg Wilson, [%i "Brown, Amy" %][Amy Brown][brown_amy][%/i%],
+[%i "Armstrong, Tavish" %][Tavish Armstrong][armstrong_tavish][%/i%],
+and [%i "DiBernardo, Mike" %][Mike DiBernardo][dibernardo_mike][%/i%]
 edited a four-book series between 2011 and 2016 called *[The Architecture of Open Source Applications][aosa]*.
 In the first two volumes,
 the creators of fifty open source projects described their systems' designs;
@@ -185,20 +183,21 @@ for details.
 If you would like to improve what we have or add new material, please see the
 Code of Conduct in [%x conduct %] and the contributor guidelines in
 [%x contributing %].  If you have questions or would like to use this material in
-a course, please file an issue in [our GitHub repository][book-repo] or send us email.
+a course, please file an issue in [our GitHub repository][book_repo] or send us email.
 
 ## Who helped us? {: #introduction-help}
 
-I am grateful to the creators of [Emacs][emacs],
+I am grateful to the creators of [diagrams.net][diagrams_net],
+[Emacs][emacs],
 [ESLint][eslint],
 [Glosario][glosario],
-[GNU Make][gnu-make],
+[GNU Make][gnu_make],
 [LaTeX][latex],
 [Node][nodejs],
 [NPM][npm],
-[Standard JS][standard-js],
-[SVG Screenshot][svg-screenshot],
-[WAVE][webaim-wave],
+[Standard JS][standard_js],
+[SVG Screenshot][svg_screenshot],
+[WAVE][webaim_wave],
 and all the other open source tools used in creating these lessons:
 if we all give a little,
 we all get a lot.

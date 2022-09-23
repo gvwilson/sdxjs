@@ -80,8 +80,8 @@ We will fix some of these problems once we have a basic tool up and running.
 The next step in doing that is to translate Markdown into HTML.
 There are many [%i "Markdown!parser" %]Markdown parsers[%/i%] in JavaScript;
 after experimenting with a few,
-we decided to use [`markdown-it`][markdown-it]
-along with the [`markdown-it-anchor`][markdown-it-anchor] extension
+we decided to use [`markdown-it`][markdown_it]
+along with the [`markdown-it-anchor`][markdown_it_anchor] extension
 that creates HTML anchors for headings.
 The main program gets all the doc comments from all of the input files,
 converts the Markdown to HTML,

@@ -212,13 +212,13 @@ Compared to parsers for things like JSON and YAML,
 though,
 it is still very simple.
 If we have more operators with different [%i "operator precedence!implementing" %][%g precedence "precedences" %][%/i%]
-we should switch to the [%i "shunting-yard algorithm" "parser!shunting-yard algorithm" %][shunting-yard algorithm][shunting-yard-algorithm][%/i%],
+we should switch to the [%i "shunting-yard algorithm" "parser!shunting-yard algorithm" %][shunting-yard algorithm][shunting_yard_algorithm][%/i%],
 and if we need to handle a language like JavaScript we should explore tools like [%i "ANTLR" %][ANTLR][antlr][%/i%],
 which can generate a parser automatically given a description of the language to be parsed.
 As we said at the start,
 though,
 if our design requires us to write a parser we should try to come up with a better design.
-CSV, JSON, YAML, and other formats [have their quirks][third-bit-nice-things],
+CSV, JSON, YAML, and other formats [have their quirks][third_bit_nice_things],
 but at least they're broken the same way everywhere.
 
 <div class="callout" markdown="1">
@@ -328,7 +328,7 @@ values may be strings in double quotes or unquoted numbers.
 
 ### The Shunting-Yard Algorithm {: .exercise}
 
-1.  Use the [shunting-yard algorithm][shunting-yard-algorithm]
+1.  Use the [shunting-yard algorithm][shunting_yard_algorithm]
     to implement a tokenizer for a simple subset of arithmetic that includes:
 
     -   single-letter variable names

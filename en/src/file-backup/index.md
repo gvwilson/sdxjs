@@ -18,7 +18,7 @@ In this chapter we will build a tool for doing both tasks.
 It won't do everything Git does:
 in particular, it won't let us create and merge branches.
 If you would like to know how that works,
-please see [%i "Cook, Mary Rose" %][Mary Rose Cook's][cook-mary-rose][%/i%] excellent [Gitlet][gitlet] project.
+please see [%i "Cook, Mary Rose" %][Mary Rose Cook's][cook_mary_rose][%/i%] excellent [Gitlet][gitlet] project.
 
 ## How can we uniquely identify files? {: #file-backup-unique}
 
@@ -69,15 +69,15 @@ and a 99.9% chance with 70 people.
 
 We can use the same math to calculate how many files we need to hash before there's a 50% chance of a collision.
 Instead of 365, we use \\(2^{160}\\) (the number of values that are 160 bits long),
-and after checking [Wikipedia][wikipedia-birthday-problem]
-and doing a few calculations with [%i "Wolfram Alpha" %][Wolfram Alpha][wolfram-alpha][%/i%],
+and after checking [Wikipedia][wikipedia_birthday_problem]
+and doing a few calculations with [%i "Wolfram Alpha" %][Wolfram Alpha][wolfram_alpha][%/i%],
 we calculate that we would need to have approximately \\(10^{24}\\) files
 in order to have a 50% chance of a collision.
 We're willing to take that risk.
 
 </div>
 
-[Node's][nodejs] [`crypto`][node-crypto] module provides tools to create a SHA-1 hash.
+[Node's][nodejs] [`crypto`][node_crypto] module provides tools to create a SHA-1 hash.
 To use them,
 we create an object that keeps track of the current state of the hashing calculations,
 tell it how we want to encode (or represent) the hash value,
@@ -269,7 +269,7 @@ A better approach is to use a [%i "mock object!for testing" "unit test!using moc
 instead of the real filesystem.
 A mock object has the same interface as the function, object, class, or library that it replaces,
 but is designed to be used solely for testing.
-Node's [`mock-fs`][node-mock-fs] library provides the same functions as the `fs` library,
+Node's [`mock-fs`][node_mock_fs] library provides the same functions as the `fs` library,
 but stores everything in memory
 ([%f file-backup-mock-fs %]).
 This prevents our tests from accidentally disturbing the filesystem,

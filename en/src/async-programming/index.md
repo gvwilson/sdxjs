@@ -12,7 +12,7 @@ to make asynchronous programming easier still.
 To show how these work,
 we will create a [%g class "class" %] of our own called `Pledge`
 that provides the same core features as promises.
-Our explanation was inspired by [%i "Huffine, Trey" %][Trey Huffine's][huffine-trey][%/i%] [tutorial][huffine-promises],
+Our explanation was inspired by [%i "Huffine, Trey" %][Trey Huffine's][huffine_trey][%/i%] [tutorial][huffine_promises],
 and we encourage you to read that as well.
 
 ## How can we manage asynchronous execution? {: #async-programming-manage}
@@ -215,7 +215,7 @@ though,
 `this` isn't automatically set to the correct object.
 To convert the method to a plain old function with the right `this`,
 we have to use `bind`.
-[The documentation][bind-docs] has more details and examples.
+[The documentation][bind_docs] has more details and examples.
 
 </div>
 
@@ -679,4 +679,4 @@ In what order do the print statements in this test program appear and why?
     and returns a single promise that resolves to an array
     containing the final values of all of those pledges.
 
-[This article][promise-all-any] may be helpful.
+[This article][promise_all_any] may be helpful.

@@ -15,7 +15,6 @@ and the books that introduced the Unix philosophy to an entire generation of pro
 All of the written material in this project can be freely reused
 under the terms of the [Creative Commons - Attribution - NonCommercial license][cc-by-nc],
 while all of the software is made available under the terms of
-the [Hippocratic License][hippocratic-license];
-see <a section="license"/> for details.
+the [Hippocratic License][hippocratic-license].
 All proceeds from this project will go to support the
 [Red Door Family Shelter][red-door].

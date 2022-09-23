@@ -9,7 +9,7 @@ In all three cases,
 a [%i "layout engine" %][%g layout_engine "layout engine" %][%/i%] took some text and some layout instructions
 and decided where to put each character and image.
 We will build a small layout engine in this chapter
-based on [%i "Brubeck, Matt" %][Matt Brubeck's][brubeck-matt][%/i%] [tutorial][browser-tutorial]
+based on [%i "Brubeck, Matt" %][Matt Brubeck's][brubeck_matt][%/i%] [tutorial][browser_tutorial]
 to explore how browsers decide what to put where.
 
 Our inputs will be a very small subset of HTML and an equally small subset of CSS.
@@ -31,7 +31,7 @@ but Y increases as we go down, rather than up
 ([%f layout-engine-coordinate-system %]).
 This convention is a holdover from the days of teletype terminals
 that printed lines on rolls of paper;
-as [%i "Hoye, Mike" %][Mike Hoye][hoye-mike][%/i%] has [repeatedly observed][punching-holes],
+as [%i "Hoye, Mike" %][Mike Hoye][hoye_mike][%/i%] has [repeatedly observed][punching_holes],
 the past is all around us.
 
 </div>

@@ -42,7 +42,7 @@ like JavaScript
 when we want to bundle multiple modules into a single loadable file ([%x module-bundler %])
 or re-create documentation from source code ([%x doc-generator %]).
 In this chapter we will create a simple build manager
-based on [%i "Make" %][Make][gnu-make][%/i%], [%i "Bajel" %][Bajel][bajel][%/i%], [%i "Jake" %][Jake][jake][%/i%],
+based on [%i "Make" %][Make][gnu_make][%/i%], [%i "Bajel" %][Bajel][bajel][%/i%], [%i "Jake" %][Jake][jake][%/i%],
 and other systems discussed in [%b Smith2011 %].
 
 ## What's in a build manager? {: #build-manager-contents}

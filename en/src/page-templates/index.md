@@ -24,7 +24,7 @@ Most of these systems use one of three designs
     which we used to write these lessons.
 
 2.  Create a mini-language with its own commands like [%i "Jekyll" %][Jekyll][jekyll][%/i%]
-    (which is used by [%i "GitHub Pages" %][GitHub Pages][github-pages][%/i%]).
+    (which is used by [%i "GitHub Pages" %][GitHub Pages][github_pages][%/i%]).
     Mini-languages are appealing because they are smaller and safer than general-purpose languages,
     but experience shows that they eventually grow
     most of the features of a general-purpose language.
@@ -92,7 +92,7 @@ We could instead require people to use two attributes, as in:
 but we have decided to err on the side of minimal typing.
 And note that strictly speaking,
 we should call our attributes `data-something` instead of `z-something`
-to conform with [%i "HTML5 specification" %][the HTML5 specification][html5-data-attributes][%/i%],
+to conform with [%i "HTML5 specification" %][the HTML5 specification][html5_data_attributes][%/i%],
 but by the time we're finished processing our templates,
 there shouldn't be any `z-*` attributes left to confuse a browser.
 {: .continue}
