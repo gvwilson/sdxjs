@@ -85,7 +85,7 @@ which Node automatically stores in an array called [%i "process.argv" %]`process
 The name of the program used to run our code is stored `process.argv[0]` (which in this case is `node`),
 while `process.argv[1]` is the name of our program (in this case `list-dir-wrong.js`).
 The rest of `process.argv` holds whatever arguments we gave at the command line when we ran the program,
-so `process.argv[2]` is the first argument after the name of our program ([%f systems-programming-process-argv %]):
+so `process.argv[2]` is the first argument after the name of our program ([%f systems-programming-process-argv %]).
 
 [% figure
    slug="systems-programming-process-argv"
