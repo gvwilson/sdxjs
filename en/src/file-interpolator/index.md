@@ -331,7 +331,7 @@ Let's test it:
 When this program runs, its [%i "lifecycle!of file interpolation" %]lifecycle[%/i%] is:
 
 1.  Node starts to run `test-import-interpolate.js`.
-1.  It sees the `import` of need-interpolate` so it reads and evaluates that code.
+1.  It sees the `import` of `need-interpolate` so it reads and evaluates that code.
 1.  Doing this creates a singleton cache object.
 1.  The program then calls `need('./import-interpolate.js')`.
 1.  This checks the cache: nope, nothing there.

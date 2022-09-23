@@ -12,6 +12,8 @@ import utils
 from bs4 import BeautifulSoup, Tag
 from yaml_header_tools import NoValidHeader, get_header_from_file
 
+from mccole.util import DIRECTIVES_FILE, read_directives
+
 CONFIGURATION = [
     ("abbrev", str),
     ("acknowledgments", str),
@@ -38,7 +40,6 @@ CONFIGURATION = [
     ("title", str),
     ("warnings", bool),
 ]
-IGNORE_FILE = ".mccoleignore"
 INDEX_FILE = "index.md"
 MAKEFILE = "Makefile"
 RE_CODE_BLOCK = re.compile("```.+?```", re.DOTALL)
@@ -51,7 +52,7 @@ RE_SHORTCODE = re.compile(r"\[%.+?%\]")
 SLIDES_FILE = "slides.html"
 SLIDES_TEMPLATE = "slides"
 
-EXPECTED_FILES = {INDEX_FILE, SLIDES_FILE}
+EXPECTED_FILES = {DIRECTIVES_FILE, INDEX_FILE, MAKEFILE, SLIDES_FILE}
 
 
 def main():
@@ -197,12 +198,7 @@ def get_html(out_dir):
 
 def get_ignores(dirname):
     """Get list of files in a directory that are intentionally unreferenced."""
-    result = {IGNORE_FILE, MAKEFILE}
-    ignore = Path(dirname, ".mccoleignore")
-    if ignore.exists():
-        with open(ignore, "r") as reader:
-            result |= {x.strip() for x in reader.readlines()}
-    return result
+    return set(read_directives(dirname, "unreferenced"))
 
 
 def get_links(filename):
