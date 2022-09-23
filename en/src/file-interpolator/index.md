@@ -24,7 +24,7 @@ and [%i "static site generator!header file" "header file!static site generator" 
    caption="Including fragments of code to create runnable programs."
 %]
 
-The special comments in our source files contain two fields:
+The special comments in our source files contain
 the text to put in the displayed version
 and file to include when loading:
 
