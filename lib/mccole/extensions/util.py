@@ -10,7 +10,7 @@ import markdown
 import yaml
 
 # File containing things to ignore.
-IGNORE_FILE = ".mccoleignore"
+DIRECTIVES_FILE = ".mccole"
 
 # Configuration sections and their default values.
 # These are added to the config dynamically under the `mccole` key,
@@ -153,6 +153,16 @@ def markdownify(text, ext=None, strip=True):
 def mccole():
     """Get configuration section, creating if necessary."""
     return ivy.site.config.setdefault("mccole", {})
+
+
+def read_directives(dirname, section):
+    """Get a section from the directives file if it exists"""
+    filepath = Path(dirname).joinpath(DIRECTIVES_FILE)
+    if not filepath.exists():
+        return []
+    with open(filepath, "r") as reader:
+        content = yaml.safe_load(reader) or {}
+        return content.get(section, [])
 
 
 def read_glossary(filename):

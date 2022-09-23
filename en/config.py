@@ -109,7 +109,7 @@ copy = [
 
 # Exclusions (don't process).
 exclude = [
-    "*/Makefile",
+    "Makefile",
     "*.as",
     "*.csv",
     "*.gz",
@@ -129,10 +129,9 @@ exclude = [
     "*.txt",
     "*.yml",
     "*~",
-    "*/__pycache__",
-    "*/.pytest_cache",
-    "*/sample_dir",
-    "*/x-*",
+    "__pycache__",
+    ".pytest_cache",
+    "x-*",
 ]
 
 # Display values for LaTeX generation.
