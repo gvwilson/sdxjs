@@ -10,10 +10,7 @@ from pathlib import Path
 
 import utils
 from bs4 import BeautifulSoup, Tag
-from yaml_header_tools import get_header_from_file, NoValidHeader
-
-from mccole.util import DIRECTIVES_FILE, read_directives
-
+from yaml_header_tools import NoValidHeader, get_header_from_file
 
 CONFIGURATION = [
     ("abbrev", str),
@@ -29,27 +26,28 @@ CONFIGURATION = [
     ("debug", bool),
     ("exclude", list),
     ("extension", str),
+    ("github", str),
     ("glossary", str),
     ("lang", str),
     ("links", str),
     ("markdown_settings", dict),
     ("out_dir", str),
     ("src_dir", str),
-    ("repo", str),
     ("tagline", str),
     ("theme", str),
     ("title", str),
     ("warnings", bool),
 ]
+IGNORE_FILE = ".mccoleignore"
 INDEX_FILE = "index.md"
 MAKEFILE = "Makefile"
-RE_CODE_BLOCK = re.compile('```.+?```', re.DOTALL)
-RE_CODE_INLINE = re.compile('`.+?`')
-RE_FILE = re.compile(r'\[%\s*inc\b.+?file="(.+?)".+?%\]')
+RE_CODE_BLOCK = re.compile("```.+?```", re.DOTALL)
+RE_CODE_INLINE = re.compile("`.+?`")
+RE_FILE = re.compile(r'\[%\s*inc\b.+?(file|html)="(.+?)".+?%\]')
 RE_FIGURE = re.compile(r'\[%\s*figure\b.+?img="(.+?)".+?%\]', re.DOTALL)
-RE_LINK = re.compile(r'\[[^]]+?\]\[(\w+?)\]')
+RE_LINK = re.compile(r"\[[^]]*?\]\[(\w+?)\]")
 RE_PAT = re.compile(r'\[%\s*inc\b.+?pat="(.+?)"\s+fill="(.+?)".+?%\]')
-RE_SHORTCODE = re.compile(r'\[%.+?%\]')
+RE_SHORTCODE = re.compile(r"\[%.+?%\]")
 SLIDES_FILE = "slides.html"
 SLIDES_TEMPLATE = "slides"
 
@@ -80,6 +78,7 @@ def main():
 
 def check_config(config_path):
     """Check configuration file."""
+
     def _require(m, field, kind):
         if field not in dir(m):
             print(f"Configuration does not have {field}")
@@ -124,7 +123,7 @@ def check_glossary(glossary_file, language):
         print("glossary entries without keys: {missing_keys}")
         return
 
-    glossary = {g["key"]:g for g in glossary}
+    glossary = {g["key"]: g for g in glossary}
     for (key, entry) in sorted(glossary.items()):
         if language not in entry:
             print("glossary entry {key} missing {language}")
@@ -168,7 +167,7 @@ def get_inclusions(filename):
     """Find inclusion filenames."""
     with open(filename, "r") as reader:
         text = reader.read()
-        result = {m.group(1) for m in RE_FILE.finditer(text)}
+        result = {m.group(2) for m in RE_FILE.finditer(text)}
         pats = [(m.group(1), m.group(2)) for m in RE_PAT.finditer(text)]
         for (pat, fill) in pats:
             result |= {pat.replace("*", f) for f in fill.split()}
@@ -192,15 +191,17 @@ def get_figures(filepath):
 
 
 def get_html(out_dir):
-    """Get paths to HTML pages for processing."""
-    return list(Path(out_dir).glob("**/index.html"))
+    """Get paths to HTML files for processing."""
+    return list(Path(out_dir).glob("**/*.html"))
 
 
 def get_ignores(dirname):
     """Get list of files in a directory that are intentionally unreferenced."""
-    result = {DIRECTIVES_FILE, MAKEFILE}
-    for filename in read_directives(dirname, "unreferenced"):
-        result.add(filename)
+    result = {IGNORE_FILE, MAKEFILE}
+    ignore = Path(dirname, ".mccoleignore")
+    if ignore.exists():
+        with open(ignore, "r") as reader:
+            result |= {x.strip() for x in reader.readlines()}
     return result
 
 

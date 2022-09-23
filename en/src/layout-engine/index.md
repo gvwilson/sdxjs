@@ -304,7 +304,7 @@ these three classes are just over 40 lines of code:
 
 We will use regular expressions to parse HTML
 (though as we explained in [%x regex-parser %],
-[this is a sin][stack-overflow-html-regex]).
+[this is a sin][stack_overflow_html_regex]).
 The main body of our parser is:
 
 [% inc file="parse.js" omit="skip" %]

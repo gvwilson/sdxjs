@@ -233,7 +233,7 @@ every regular expression corresponds to a [%i "finite state machine!corresponden
 like the one in [%f regex-parser-finite-state-machine %].
 As powerful as FSMs are,
 they cannot match things like nested parentheses or HTML tags,
-and [%i "sin!using regular expressions to parse HTML" %][attempting to do so is a sin][stack-overflow-html-regex][%/i%].
+and [%i "sin!using regular expressions to parse HTML" %][attempting to do so is a sin][stack_overflow_html_regex][%/i%].
 If you add a stack to the system you can process a much richer set of languages,
 and if you add two stacks you have something equivalent to a [%i "Turing Machine" %][%g turing_machine "Turing Machine" %][%/i%]
 that can do any conceivable computation.
