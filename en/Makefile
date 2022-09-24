@@ -13,7 +13,7 @@ INFO := info/bibliography.bib info/credits.yml info/glossary.yml info/links.yml
 FIG_SVG := $(wildcard src/*/*.svg)
 IVY := $(wildcard lib/mccole/*/*.*)
 TEX := info/head.tex info/foot.tex
-TEX_CLS := info/krantz.cls
+TEX_COPY := info/krantz.cls info/dedication.tex
 SRC := $(wildcard *.md) $(wildcard src/*.md) $(wildcard src/*/index.md) $(wildcard src/*/slides.html)
 
 # Calculated variables.
@@ -51,14 +51,14 @@ docs/all.html: ./docs/index.html ${HTML} bin/single.py
 
 ## latex: create LaTeX document
 latex: docs/${STEM}.tex
-docs/${STEM}.tex: docs/all.html bin/html2tex.py ${CONFIG} ${TEX} ${TEX_CLS}
+docs/${STEM}.tex: docs/all.html bin/html2tex.py ${CONFIG} ${TEX} ${TEX_COPY}
 	python ./bin/html2tex.py \
 	--head info/head.tex \
 	--foot info/foot.tex \
 	< docs/all.html \
 	> docs/${STEM}.tex
 	python ${CONFIG} --latex > docs/config.tex
-	cp ${TEX_CLS} docs
+	cp ${TEX_COPY} docs
 
 ## pdf: create PDF document
 pdf: docs/${STEM}.tex ${FIG_PDF}
