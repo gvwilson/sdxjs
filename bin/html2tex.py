@@ -189,6 +189,12 @@ def handle(node, state, accum, doEscape):
         children(node, state, accum, doEscape)
         accum.append("\\end{callout}\n")
 
+    # <div class="center"> => center a block of text
+    elif node_match(node, "div", "center"):
+        accum.append("\\begin{center}\n")
+        children(node, state, accum, doEscape)
+        accum.append("\\end{center}\n")
+
     # <div class="code-sample"> => pass through
     elif node_match(node, "div", "code-sample"):
         children(node, state, accum, doEscape)
@@ -239,12 +245,11 @@ def handle(node, state, accum, doEscape):
         state["slug"] = node["id"]
         content = "".join(children(node, state, [], doEscape))
         kind, title = content.split(":", 1)
-        title = title.strip()
         if kind.startswith("Appendix") and not state["appendix"]:
             accum.append("\n\\appendix\n")
             state["appendix"] = True
         accum.append(r"\chapter{")
-        accum.append(title)
+        accum.append(title.strip())
         accum.append(r"}\label{")
         accum.append(state["slug"])
         accum.append("}\n")

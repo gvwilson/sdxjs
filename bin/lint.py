@@ -209,8 +209,7 @@ def get_links(filename):
         text = RE_CODE_BLOCK.sub("", text)
         text = RE_CODE_INLINE.sub("", text)
         text = RE_SHORTCODE.sub("", text)
-        result = {m.group(1) for m in RE_LINK.finditer(text)}
-        return result
+        return {m.group(1) for m in RE_LINK.finditer(text)}
 
 
 def get_src(src_dir):
