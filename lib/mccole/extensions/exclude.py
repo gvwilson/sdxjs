@@ -4,7 +4,6 @@ from fnmatch import fnmatch
 from pathlib import Path
 
 import ivy
-
 from util import read_directives
 
 

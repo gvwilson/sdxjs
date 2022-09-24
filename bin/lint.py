@@ -10,9 +10,8 @@ from pathlib import Path
 
 import utils
 from bs4 import BeautifulSoup, Tag
-from yaml_header_tools import NoValidHeader, get_header_from_file
-
 from mccole.util import DIRECTIVES_FILE, read_directives
+from yaml_header_tools import NoValidHeader, get_header_from_file
 
 CONFIGURATION = [
     ("abbrev", str),
@@ -182,11 +181,7 @@ def get_files(source_dir, dirname):
     else:
         candidates = set(Path(dirname).rglob("**/*"))
     prefix_len = len(str(dirname)) + 1
-    result = set(
-        str(f)[prefix_len:]
-        for f in candidates
-        if Path(f).is_file()
-    )
+    result = set(str(f)[prefix_len:] for f in candidates if Path(f).is_file())
     return result - EXPECTED_FILES
 
 

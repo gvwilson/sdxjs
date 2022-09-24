@@ -68,7 +68,7 @@ markdown_settings = {
     "extensions": [
         "markdown.extensions.extra",
         "markdown.extensions.smarty",
-        "pymdownx.superfences"
+        "pymdownx.superfences",
     ]
 }
 

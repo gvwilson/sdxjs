@@ -249,7 +249,9 @@ def handle(node, state, accum, doEscape):
         accum.append(state["slug"])
         accum.append("}\n")
         if state["appendix"]:
-            accum.append(f"\\markboth{{\\thechapter\ {title}}}{{\\thechapter\\ {title}}}")
+            accum.append(
+                f"\\markboth{{\\thechapter\\ {title}}}{{\\thechapter\\ {title}}}"
+            )
 
     # <h2> => section title (with or without ID)
     elif node_match(node, "h2"):
@@ -268,7 +270,11 @@ def handle(node, state, accum, doEscape):
             accum.append("}\n")
 
     # <h3> inside <div class="callout"> => callout title
-    elif (node.name == "h3") and (node.parent.name == "div") and has_class(node.parent, "callout"):
+    elif (
+        (node.name == "h3")
+        and (node.parent.name == "div")
+        and has_class(node.parent, "callout")
+    ):
         accum.append("\n")
         accum.append(r"\subsubsection*{")
         children(node, state, accum, doEscape)
