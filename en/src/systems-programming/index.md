@@ -475,7 +475,7 @@ that make code like this easier to read.
 
 ### Where is Node? {: .exercise}
 
-Write a program called `wherenode.js` that prints the full path to the version of Node is is run with.
+Write a program called `wherenode.js` that prints the full path to the version of Node it is run with.
 
 ### Tracing callbacks {: .exercise}
 
