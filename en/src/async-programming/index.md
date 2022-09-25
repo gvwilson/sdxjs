@@ -293,8 +293,8 @@ We therefore have three rules for chaining promises:
     if we want to use a library function that relies on callbacks,
     we have to convert it to use promises.
     Doing this is called [%g promisification "promisification" %]
-    (because programmers will rarely pass up an opportunity add a bit of jargon to the world),
-    and most functions in the Node have already been promisified.
+    (because programmers will rarely pass up an opportunity to add a bit of jargon to the world),
+    and most functions in Node have already been promisified.
 
 ## How can we build tools with promises? {: #async-programming-tools}
 
