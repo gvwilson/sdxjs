@@ -137,7 +137,7 @@ we can just construct more instances of the class.
 
 The file `hope.js` defines the class and exports one instance of it:
 
-[% inc file="hope.js" keep="report" %]
+[% inc file="hope.js" omit="report" %]
 
 This strategy relies on two things:
 
