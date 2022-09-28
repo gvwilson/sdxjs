@@ -1,6 +1,6 @@
 import glob from 'glob'
 
-glob('**/*.*', { ignore: '*~' }, (err, files) => {
+glob('**/*.*', { ignore: '*.bck' }, (err, files) => {
   if (err) {
     console.log(err)
   } else {

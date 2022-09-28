@@ -281,7 +281,7 @@ so most commands will leave them alone unless told to do otherwise.
 %]
 
 This program works,
-but we probably don't want to copy Emacs backup files whose names end with a tilde.
+but we probably don't want to copy editor backup files whose names end with `.bck`.
 We can get rid of them by [%i "globbing!filtering results" %][%g filter "filtering" %][%/i%] the list that `glob` returns:
 
 <div class="pagebreak"></div>
