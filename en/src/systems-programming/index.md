@@ -494,17 +494,6 @@ In what order does the program below print messages?
 Modify the file copying program to check that it has been given the right number of command-line arguments
 and to print a sensible error message (including a usage statement) if it hasn't.
 
-### Significant entries {: .exercise}
-
-`count-lines-histogram.js` displays many zeroes and gives no visual sense of how large entries are.
-Modify it so that:
-
-1.  When it is run with the `--nonzero` flag only non-zero values are shown.
-
-2.  When it is run with the `--graphical` flag the numeric values are replaced with rows of asterisks.
-
-3.  If both flags are given the program prints an error message instead of running.
-
 ### Glob patterns {: .exercise}
 
 What filenames does each of the following glob patterns match?
