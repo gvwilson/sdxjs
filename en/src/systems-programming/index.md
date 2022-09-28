@@ -516,7 +516,7 @@ What filenames does each of the following glob patterns match?
 
 ### Filtering arrays {: .exercise}
 
-Fill in the blank in the code below so that it runs correctly.
+Fill in the blank in the code below so that the output matches the one shown.
 Note: you can compare strings in JavaScript using `<`, `>=`, and other operators,
 so that (for example) `person.personal > 'P'` is `true`
 if someone's personal name starts with a letter that comes after 'P' in the alphabet.
