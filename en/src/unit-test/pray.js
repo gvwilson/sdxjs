@@ -1,3 +1,5 @@
+// pray.js
+
 import minimist from 'minimist'
 import glob from 'glob'
 import hope from './hope.js'
