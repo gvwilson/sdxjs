@@ -228,7 +228,8 @@ A better strategy is to load test files [%i "dynamic loading" %][%g dynamic_load
 While `import` is usually written as a statement,
 it can also be used as an `async` function
 that takes a path as a parameter and loads the corresponding file.
-As before,
+The program `pray.js` (shown below) does this;
+as before,
 loading files executes the code they contain,
 which registers tests as a side effect:
 
