@@ -1,1 +1,1 @@
-tree --charset unicode test
+tree test
