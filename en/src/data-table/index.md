@@ -86,7 +86,7 @@ since shared data structures are a rich source of bugs.
 For our first experiment,
 let's build a row-major table with some number of columns.
 To keep it simple,
-we will repeat the values 0, 1, and 2 to fill the table.
+we will use the row indexes to fill the table.
 
 [% inc file="build.js" keep="build-rows" %]
 
