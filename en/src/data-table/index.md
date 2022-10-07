@@ -453,7 +453,7 @@ i.e.,
 they limit the length of the strings in a column to some fixed size
 and [%g pad_string "pad" %] strings that are shorter than that.
 
-1.  Write a function that takes an array of strings and an integer with
+1.  Write a function that takes an array of strings and an integer width
     and creates an `ArrayBuffer` containing the strings padded to that width.
     The function should throw an exception if any of the strings
     are longer than the specified width.
