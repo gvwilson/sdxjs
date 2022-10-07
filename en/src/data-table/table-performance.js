@@ -95,7 +95,7 @@ const rowSelect = (table, toKeep) => {
 // [operate-cols]
 const colFilter = (table, func) => {
   const result = {}
-  const labels = Object.keys(result)
+  const labels = Object.keys(table)
   labels.forEach(label => {
     result[label] = []
   })

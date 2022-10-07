@@ -86,7 +86,7 @@ since shared data structures are a rich source of bugs.
 For our first experiment,
 let's build a row-major table with some number of columns.
 To keep it simple,
-we will use the row indexes to fill the table.
+we will use the row indexes to fill the table:
 
 [% inc file="build.js" keep="build-rows" %]
 
@@ -121,6 +121,10 @@ We expect selecting to be relatively fast,
 since only the references to the columns need to be copied,
 but filtering will be relatively slow since we are constructing multiple new arrays
 ([%f data-table-col-ops %]).
+Note that this code assumes there is a column called `label_1`
+that it can look at to find out how many rows there are in the table.
+This would be a horrible thing to put into production,
+but is good enough for some simple performance testing.
 
 [% inc file="table-performance.js" keep="operate-cols" %]
 

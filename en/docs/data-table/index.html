@@ -287,7 +287,7 @@ since shared data structures are a rich source of bugs.</p>
 <p>For our first experiment,
 let&rsquo;s build a row-major table with some number of columns.
 To keep it simple,
-we will use the row indexes to fill the table.</p>
+we will use the row indexes to fill the table:</p>
 <div class="code-sample lang-js" title="build.js">
 <div class="highlight"><pre><span></span><code><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">buildRows</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">nRows</span><span class="p">,</span><span class="w"> </span><span class="nx">labels</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span><span class="w"></span>
@@ -353,11 +353,15 @@ but selecting is just a matter of recycling the arrays we want in the new table.
 We expect selecting to be relatively fast,
 since only the references to the columns need to be copied,
 but filtering will be relatively slow since we are constructing multiple new arrays
-(<a class="fig-ref" href="../data-table/#data-table-col-ops">Figure 6.4</a>).</p>
+(<a class="fig-ref" href="../data-table/#data-table-col-ops">Figure 6.4</a>).
+Note that this code assumes there is a column called <code>label_1</code>
+that it can look at to find out how many rows there are in the table.
+This would be a horrible thing to put into production,
+but is good enough for some simple performance testing.</p>
 <div class="code-sample lang-js" title="table-performance.js">
 <div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">colFilter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">table</span><span class="p">,</span><span class="w"> </span><span class="nx">func</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">labels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">labels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">table</span><span class="p">)</span><span class="w"></span>
 <span class="w">  </span><span class="nx">labels</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">label</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="nx">result</span><span class="p">[</span><span class="nx">label</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span><span class="w"></span>
 <span class="w">  </span><span class="p">})</span><span class="w"></span>
