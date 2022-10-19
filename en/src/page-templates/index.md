@@ -134,7 +134,7 @@ we look through the stack frames in order to find the uppermost definition of th
 
 Searching the stack [%i "call stack!stack frame" "stack frame" %]frame[%/i%]-by-frame
 while the program is running
-is called is [%i "dynamic scoping" "scoping!dynamic" %][%g dynamic_scoping "dynamic scoping" %][%/i%],
+is called [%i "dynamic scoping" "scoping!dynamic" %][%g dynamic_scoping "dynamic scoping" %][%/i%],
 since we find variables while the program is running.
 In contrast,
 most programming languages used [%i "lexical scoping" "scoping!lexical" %][%g lexical_scoping "lexical scoping" %][%/i%],
