@@ -460,9 +460,8 @@ into actual operations on actual data.
 
 More experienced programmers are more capable at both ends of the curve,
 but that's not the only thing that changes.
-If a novice's comprehension curve looks like the one on the left
-of [%f page-templates-comprehension %],
-then an expert's looks like the one on the right.
+If a novice's comprehension curve looks like the lower curve in [%f page-templates-comprehension %],
+then an expert's looks like the upper one.
 Experts don't just understand more at all levels of abstraction;
 their *preferred* level has also shifted
 so that \\(\sqrt{x^2 + y^2}\\)
