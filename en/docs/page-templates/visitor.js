@@ -19,12 +19,12 @@ class Visitor {
 
   open (node) {
     assert(false,
-      'Must implemented "open"')
+      'Must implement "open"')
   }
 
   close (node) {
     assert(false,
-      'Must implemented "close"')
+      'Must implement "close"')
   }
 }
 
