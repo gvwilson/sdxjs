@@ -13,6 +13,7 @@ title = "Software Design by Example"
 acronym = "SDXJS"
 tagline = "a tool-based introduction with JavaScript"
 author = "Greg Wilson"
+plausible = "" # "third-bit.com"
 
 # Chapter and appendix slugs in order.
 chapters = [
