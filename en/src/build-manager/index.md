@@ -3,7 +3,7 @@ title: "Build Manager"
 ---
 
 Suppose we are using a page templating system to create a website ([%x page-templates %]).
-If we a change a single page our tool should translate it,
+If we change a single page our tool should translate it,
 but shouldn't waste time translating others.
 If we change a template,
 on the other hand,
