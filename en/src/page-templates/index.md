@@ -175,7 +175,7 @@ it uses that instead.
 
 `Visitor` defines two methods called `open` and `close` that are called
 when we first arrive at a node and when we are finished with it
-([%f page-templates-visitor %]).
+(shown for the `p` node in [%f page-templates-visitor %]).
 The default implementations of these methods throw exceptions
 to remind the creators of derived classes to implement their own versions.
 {: .continue}
