@@ -484,7 +484,7 @@ In an ideal world our tools would automatically re-represent programs at differe
 so that with a click of a button we could view our code as either:
 
 ```
-const hosts = links.map(a => a.href.split(':')[1].split('/')[0]).unique()
+const hosts = links.map(a => a.href.split(':')[1].split('/')[2]).unique()
 ```
 
 or:
@@ -492,7 +492,7 @@ or:
 ```
 hosts = []
 for (each a in links) do
-  temp <- attr(a, 'href').split(':')[1].split('/')[0]
+  temp <- attr(a, 'href').split(':')[1].split('/')[2]
   if (not (temp in hosts)) do
     hosts.append(temp)
   end
