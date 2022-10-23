@@ -184,7 +184,7 @@ Two features of `graphlib` that took us a while to figure out are that:
 
 `graphlib` provides implementations of some common graph algorithms,
 including one to check for cycles,
-so we might as well write that method at this point as well:
+so we might as well write that method at this point too:
 {: .continue}
 
 [% inc file="graph-creator.js" %]

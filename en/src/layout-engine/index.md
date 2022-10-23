@@ -292,6 +292,8 @@ Each text block has one or more lines of text;
 the number of lines determines the block's height
 and the length of the longest line determines its width.
 
+<div class="pagebreak"></div>
+
 Rows and columns can have [%g attribute "attributes" %] just as they can in real HTML,
 and each attribute must have a single value in quotes.
 Rows no longer take a fixed width:
