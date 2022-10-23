@@ -106,6 +106,8 @@ or return an error message if something has gone wrong:
 
 [% inc file="simple-selectors-test.js" keep="getText" %]
 
+<div class="pagebreak"></div>
+
 When we run our program it produces this result:
 
 [% inc file="simple-selectors-test.out" %]
@@ -179,7 +181,7 @@ We need to explore a different approach.
 ## How can we implement an extensible matcher? {: #pattern-matching-extensible}
 
 Instead of packing all of our code into one long function,
-we can implement each kind of match as separate function.
+we can implement each kind of match as a separate function.
 Doing this makes it much easier to add more matchers:
 we just define a function that we can mix in with calls to the ones we already have.
 
@@ -208,6 +210,8 @@ The first step in implementing this is to write test cases,
 which forces us to define the syntax we are going to support:
 
 [% inc file="regex-initial/regex-complete.js" %]
+
+<div class="pagebreak"></div>
 
 Next,
 we define a [%g base_class "base class" %] that all matchers will inherit from.
@@ -312,6 +316,8 @@ The `_match` method checks whether all of the pattern matches the target text st
 If so, it checks whether the rest of the overall pattern matches what's left.
 Matching the start `/^/` and end `/$/` anchors is just as straightforward:
 {: .continue}
+
+<div class="pagebreak"></div>
 
 [% inc file="regex-recursive/regex-start.js" %]
 

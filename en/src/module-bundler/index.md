@@ -3,11 +3,11 @@ title: "Module Bundler"
 ---
 
 [%i "JavaScript!hurried design of" %]JavaScript[%/i%] was designed in a hurry 25 years ago to make web pages interactive.
-Nobody realized it would become one of the most popular programming languages in the world,
+Nobody realized it would become so popular,
 so it didn't include support for things that large programs need.
-One of those things was a way to turn a set of easy-to-edit source files
-into a single easy-to-load file
-so that browsers could get what they needed with one request.
+One of those things was a way to turn a set of source files
+into a single file
+so that browsers could load what they needed with one request.
 
 A [%i "module bundler" %][%g module_bundler "module bundler" %][%/i%]
 finds all the files that an application depends on
@@ -195,6 +195,9 @@ Adding this takes our transitive closure code from
 to [% linecount transitive-closure.js %] lines:
 
 [% inc file="transitive-closure.js" %]
+
+<div class="pagebreak"></div>
+
 [% inc pat="test-transitive-closure.*" fill="js sh out" %]
 
 The real cost, though, is the extra complexity of the data structure:
@@ -265,11 +268,11 @@ and then load the result and call `initialize`:
 
 The code we have built so far has not created our exports;
 instead,
-it has build a lookup table of functions that can create what we asked for.
+it has built a lookup table of functions that can create what we asked for.
 More specifically we have:
 
 -   a lookup table from absolute filenames
-    to functions that create the exports for those modules;
+    to functions that create module exports;
 
 -   a lookup table from the importer's absolute filename
     to pairs storing the name of the required file as it was written

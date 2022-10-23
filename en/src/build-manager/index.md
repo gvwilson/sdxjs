@@ -4,7 +4,7 @@ title: "Build Manager"
 
 Suppose we are using a page templating system to create a website ([%x page-templates %]).
 If we change a single page our tool should translate it,
-but shouldn't waste time translating others.
+but it shouldn't waste time translating others.
 If we change a template,
 on the other hand,
 the tool should realize that every page in the site is potentially affected
@@ -156,7 +156,7 @@ even if the details of *how* vary from case to case.
 %]
 
 We would normally implement all of the methods required by the `build` method at the same time;
-here, we will write them them one-by-one to make the evolving code easier to follow.
+here, we will write them one-by-one to make the evolving code easier to follow.
 The `loadConfig` method loads the configuration file
 as the builder object is being constructed:
 
@@ -208,7 +208,7 @@ Let's write a quick test to make sure the cycle detector works as intended:
 
 The next step is to figure out which files are out-of-date.
 Make does this by comparing the [%i "timestamp!in build" "build!timestamp" %]timestamps[%/i%] of the files in question,
-but this isn't always reliable:
+but this isn't always reliable because
 [%i "clock synchronization (in build)" "build!clock synchronization" %]computers' clocks may be slightly out of sync[%/i%],
 which can produce a wrong answer on a networked filesystem,
 and the operating system may only report file update times to the nearest millisecond
@@ -292,7 +292,7 @@ we don't want to have to write a hundred nearly-identical recipes.
 Instead,
 we want to be able to write generic [%i "build!rule" "rule (in build)" %][%g build_rule "build rules" %][%/i%] that say,
 "Build all things of this kind the same way."
-These generic rules need to:
+These generic rules need:
 
 -   a way to define a set of files;
 
@@ -337,7 +337,6 @@ has broken something that used to work.
 That gives us a firm base to build on as we debug the new code.
 {: .continue}
 
-<div class="pagebreak"></div>
 Now we need to add [%i "pattern rule (in build)" "build!pattern rule" %][%g pattern_rule "pattern rules" %][%/i%].
 Our first attempt at a rules file looks like this:
 
@@ -384,8 +383,8 @@ rather than having them in a separate file:
 
 [% inc file="pattern-user-read.js" %]
 
-Before we try to run this,
-let's add methods to show the state of our two internal data structures:
+Before we run this,
+let's add methods to show the state of our data structures:
 
 [% inc pat="pattern-user-show.*" fill="js sh out" %]
 

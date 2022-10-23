@@ -152,7 +152,7 @@ but we need to write a function that specifies the second part.
 JavaScript saves a reference to this function
 and calls with a specific set of parameters when our data is ready
 ([%f systems-programming-callbacks %]).
-Those parameters defined a standard [%i "protocol!API as" "API!as protocol" %][%g protocol "protocol" %][%/i%]
+Those parameters defined a standard [%i "protocol!API as" "API" %][%g protocol "protocol" %][%/i%]
 for connecting to libraries,
 just like the USB standard allows us to plug hardware devices together.
 
@@ -381,7 +381,7 @@ This program uses [%i "destructuring assignment" "assignment!destructuring" %][%
 to create two variables at once
 by unpacking the elements of an array
 ([%f systems-programming-destructuring-assignment %]).
-It only works if the array contains the enough elements,
+It only works if the array contains enough elements,
 i.e.,
 if both a source and destination are given on the command line;
 we'll add a check for that in the exercises.

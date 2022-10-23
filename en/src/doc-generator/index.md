@@ -182,7 +182,7 @@ and add nodes to the [%i "Accumulator pattern" "design pattern!Accumulator" %][%
 [% inc file="find-following.js" keep="findFollowing" %]
 
 Finally,
-we use a function called `condense` to get the name we want out of the AST we have:
+we use a function called `condense` to get the name we want out of the AST:
 
 [% inc file="find-following.js" keep="condense" %]
 

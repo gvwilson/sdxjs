@@ -52,14 +52,14 @@ and its second is the delay.
 When `setTimeout` is called,
 Node sets the callback aside for the requested length of time,
 then adds it to the run queue.
-(This means the task runs *at least* the specified number of milliseconds later).
+(This means the task runs *at least* the specified number of milliseconds later.)
 
 <div class="callout" markdown="1">
 
 ### Why zero arguments?
 
 `setTimeout`'s requirement that callback functions take no arguments
-is another example of a [%i "protocol!API as" "API!as protocol" %][%g protocol "protocol" %][%/i%].
+is another example of a [%i "protocol!API as" "API" %][%g protocol "protocol" %][%/i%].
 One way to think about it is that protocols allow old code to use new code:
 whoever wrote `setTimeout` couldn't know what specific tasks we want to delay,
 so they specified a way to wrap up any task at all.
@@ -136,10 +136,12 @@ which is how the first part of the action communicates with the second
 
 In order to make this work,
 `Pledge`'s [%g constructor "constructor" %] must take a single function called `action`.
-This function must take take two callbacks as arguments:
+This function must take two callbacks as arguments:
 what to do if the action completes successfully
 and what to do if it doesn't (i.e., how to handle errors).
 `Pledge` will provide these callbacks to the action at the right times.
+
+<div class="pagebreak"></div>
 
 `Pledge` also needs two methods:
 [%i "promise!then" %]`then`[%/i%] to enable more actions
@@ -188,7 +190,7 @@ or even
 ```
 
 `Array`'s fluent interface lets us write expressions like
-`Array.filter(...).map(...).map(...)`
+`Array.filter(...).map(...)`
 that are usually more readable than assigning intermediate results to temporary variables.
 
 If the original action given to our `Pledge` completes successfully,
@@ -432,7 +434,7 @@ but the result is less cluttered than our previous version.
 ## How can we handle errors with asynchronous code? {: #async-programming-errors}
 
 We created several intermediate variables in the line-counting program to make the steps clearer.
-Doing this also helps with error handling:
+Doing this also helps with error handling;
 to see how,
 we will build up an example in stages.
 
@@ -512,7 +514,7 @@ When the code is run it produces:
 
 [% inc file="x-multiple-catch/example.txt" %]
 
-1.  Trace the order of operations: what is created and executed when?
+1.  Trace the order of operations: what is created and when is it executed?
 2.  What happens if we run these same lines interactively?
     Why do we see something different than what we see when we run this file from the command line?
 

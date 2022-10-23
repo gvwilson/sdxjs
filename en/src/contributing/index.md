@@ -52,4 +52,4 @@ This project uses [Martha's Rules][marthas_rules] for consensus decision making:
 This material uses [Ivy][ivy] with some custom extensions.
 Run `make` in the root directory to get a list of available commands.
 Some of these rely on scripts in the `./bin/` directory.
-Please see our Git repository for up-to-date instructions.
+Please see [our Git repository][book_repo] for up-to-date instructions.

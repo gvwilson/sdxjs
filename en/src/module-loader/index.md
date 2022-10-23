@@ -27,7 +27,7 @@ Every function is a namespace:
 variables defined inside the function are distinct from variables defined outside it
 ([%f module-loader-closures %]).
 If we create the variables we want to manage inside a function,
-then defined another function inside the first
+then define another function inside the first
 and return that [%i "inner function" "function!inner" %][%g inner_function "inner function" %][%/i%],
 that inner function will be the only thing with references to those variables.
 
@@ -168,6 +168,8 @@ but works in the interactive interpreter:
 {: .continue}
 
 [% inc file="checking/py-interactive.out" %]
+
+<div class="pagebreak"></div>
 
 The equivalent test in JavaScript also has two files:
 

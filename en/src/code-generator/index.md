@@ -110,7 +110,7 @@ which is [% linecount func-def.out %] lines of pretty-printed JSON:
 [% inc pat="func-def.*" fill="js out" %]
 
 After inspecting a few nodes,
-we can try to create some of our own and turn them into code.
+we can create some of our own and turn them into code.
 Here,
 for example,
 we have the JSON representation of the expression `40+2`:
@@ -163,7 +163,7 @@ and run it to make sure it all works:
 
 Our simple approach to naming counters doesn't work if functions can have the same names,
 which they can if we use modules or [%i "nested function" "function!nested" %][%g nested_function "nested functions" %][%/i%].
-One way to solve this would be to manufacture a label from the function's name
+One solution would be to manufacture a label from the function's name
 and the line number in the source code;
 another would be to keep track of which functions are nested within which
 and concatenate their names to produce a unique key.

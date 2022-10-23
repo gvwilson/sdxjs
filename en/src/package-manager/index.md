@@ -53,8 +53,10 @@ and Z is the [%i "patch number" "semantic versioning!patch number" %][%g patch "
 (The [full specification][semver_spec] allows for more fields,
 but we will ignore them in this tutorial.)
 
+<div class="pagebreak"></div>
+
 A package's authors increment its major version number
-every time something changes in a way that makes the package incompatible with previous versions
+every time something changes in a way that makes the package incompatible with previous versions.
 For example,
 if they add a required parameter to a function,
 then code built for the old version will fail or behave unpredictably with the new one.
@@ -231,7 +233,7 @@ If we sort the output by the case that caught the exclusion,
 it turns out that 9 of the 17 exclusions are redundant rediscovery of a previously known problem
 ([%t package-manager-exclusions %]).
 
-<div class="table" id="package-manager-exclusions" caption="Package exclusions." markdown="1">
+<div class="table table-here" id="package-manager-exclusions" caption="Package exclusions." markdown="1">
 | Excluded  |   X |   Y |   Z |
 | --------  | --- | --- | --- |
 | X/1 - Y/3 |   1 |   3 |   1 |

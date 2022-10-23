@@ -19,10 +19,10 @@ Attribution - NonCommercial 4.0 license. You are free to:
 
 -   **Adapt** — remix, transform, and build upon the material
 
--   The licensor cannot revoke these freedoms as long as you follow the license
-    terms.
+The licensor cannot revoke these freedoms as long as you follow the license
+terms.
 
-Under the following terms:
+**Under the following terms:**
 {: .continue}
 
 -   **Attribution** — You must give appropriate credit, provide a link to the

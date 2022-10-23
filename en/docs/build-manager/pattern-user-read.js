@@ -20,9 +20,7 @@ class PatternUserRead extends VariableExpander {
         }
         this.rules.set(rule.target, data)
       } else {
-        const timestamp = ('timestamp' in rule)
-          ? rule.timestamp
-          : null
+        const timestamp = ('timestamp' in rule) ? rule.timestamp : null
         this.graph.setNode(rule.target, {
           recipes: rule.recipes,
           timestamp: timestamp

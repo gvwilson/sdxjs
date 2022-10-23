@@ -39,7 +39,7 @@ The outcome can be exactly one of:
     something is wrong with the test subject.
 
 -   [%i "error (in unit test)" "unit test!error" %][%g error_test "Error" %][%/i%]:
-    something wrong in the test itself,
+    something is wrong in the test itself,
     which means we don't know whether the test subject is working properly or not.
 
 To make this work,
@@ -279,8 +279,9 @@ hope.test('Quotient of 1 and 0', () => assert((1 / 0) === 0))
 ```
 
 This test counts as a failure rather than an error
-because thinks the result of dividing by zero is the special value `Infinity`
+because the result of dividing by zero is the special value `Infinity`
 rather than an arithmetic error.
+{: .continue}
 
 </div>
 

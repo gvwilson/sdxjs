@@ -99,6 +99,8 @@ there shouldn't be any `z-*` attributes left to confuse a browser.
 
 </div>
 
+<div class="pagebreak"></div>
+
 The next step is to define the API for filling in templates.
 Our tool needs the template itself,
 somewhere to write its output,
@@ -488,6 +490,7 @@ const hosts = links.map(a => a.href.split(':')[1].split('/')[2]).unique()
 ```
 
 or:
+{: .continue}
 
 ```
 hosts = []
@@ -519,7 +522,7 @@ Write unit tests for template expansion using Mocha.
 
 ### Trimming text {: .exercise}
 
-Modify all of the directives to take an extra optional attribute `z-trim="true"`
+Modify all of the directives to take an extra optional attribute `z-trim="true"`.
 If this attribute is set,
 leading and trailing whitespace is trimmed from the directive's expansion.
 

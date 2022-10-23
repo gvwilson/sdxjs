@@ -102,6 +102,8 @@ using temporary code in place of what you think you'll eventually need.
 
 </div>
 
+<div class="pagebreak"></div>
+
 The next step is to modify the VM's `exec` method
 so that it executes a callback function for each significant operation
 (where "significant" means "we bothered to record its line number").
@@ -346,7 +348,7 @@ Our solution for handling loops is sloppy; fix it.
 Modify the debugger and virtual machine to use a "continue executing" flag
 rather than throwing an exception when execution should end.
 Which approach is easier to understand?
-Which will be easier to extend in future?
+Which will be easier to extend in the future?
 
 ### Numbering lines {: .exercise}
 

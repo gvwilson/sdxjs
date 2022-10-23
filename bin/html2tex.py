@@ -314,6 +314,8 @@ def handle(node, state, accum, doEscape):
             accum.append(r"\noindent ")
         children(node, state, accum, doEscape)
         accum.append("\n")
+        if has_class(node, "definitions"):
+            accum.append("\\vspace{\\baselineskip}\n")
 
     # <pre> => preformatted text
     elif node_match(node, "pre"):

@@ -75,7 +75,7 @@ we need to [%i "walk a tree" %][%g walk_tree "walk the tree" %][%/i%],
 i.e.,
 to visit each node in turn.
 The [`acorn-walk`][acorn_walk] library will do this for us
-using the [%i "Visitor pattern" "design pattern!Visitor" %]Visitor design pattern[%/i%] we first saw in [%x page-templates %]
+using the [%i "Visitor pattern" "design pattern!Visitor" %]Visitor design pattern[%/i%] we first saw in [%x page-templates %].
 If we provide a function to act on nodes of type `Identifier`,
 `acorn-walk` will call that function each time it finds an identifier.
 We can use other options to say that we want to record the locations of nodes (i.e., their line numbers)
@@ -298,7 +298,7 @@ the most important thing is to be consistent.
 
 As one final example,
 consider the problem of keeping track of which methods are defined where
-in a deeply-nested class hierarchy.
+in a deeply nested class hierarchy.
 (This problem comes up in some of the later chapters in this book:
 we wrote so many classes that incrementally extended their predecessors for pedagogical purposes
 that we lost track of what was defined where.)
@@ -343,7 +343,7 @@ but it proves its worth when we are looking at something like
 the virtual machine we will build in [%x virtual-machine %],
 which has a more complex method definition table:
 
-| method | DebuggerBase | DebuggerInteractive | DebuggerTest | DebuggerExit |
+| method | Base | Interactive | Test | Exit |
 | ---- | ---- | ---- | ---- | ---- |
 | clear | . | X | . | . |
 | constructor | X | X | X | . |
@@ -412,7 +412,7 @@ and prints the assertion message (if any).
 
 Write a tool that finds places where nested indexing is used,
 i.e.,
-where the program contains expression like `arr[table[i]]`.
+where the program contains expressions like `arr[table[i]]`.
 
 ### Dynamic lookup {: .exercise}
 

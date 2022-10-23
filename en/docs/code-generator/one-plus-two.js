@@ -1,5 +1,4 @@
 import escodegen from 'escodegen'
-
 const result = escodegen.generate({
   type: 'BinaryExpression',
   operator: '+',

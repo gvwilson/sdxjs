@@ -102,7 +102,11 @@ and immediately runs the result.
 We can make the example a little more interesting
 by constructing the string dynamically:
 
-[% inc pat="eval-loop.*" fill="js out" %]
+[% inc file="eval-loop.js" %]
+
+<div class="pagebreak"></div>
+
+[% inc file="eval-loop.out" %]
 
 The first time the loop runs the string is `'x + 1'`;
 since there's a variable called `x` in scope,
@@ -193,6 +197,8 @@ to "export" it from the evaluated file:
 
 [% inc file="import-simple.js" %]
 
+<div class="pagebreak"></div>
+
 To test our program,
 we load the implementation of the cache using `import`,
 then use it to load and evaluate another file.
@@ -207,7 +213,7 @@ Each of the files included in our examples is in the same directory as the file 
 but in C/C++ or a page templating system
 we might include a particular file in several different places.
 We don't want to have to put all of our files in a single directory,
-so we need a way specify where to look for files that are being included.
+so we need a way to specify where to look for files that are being included.
 
 One option is to use relative paths,
 but another option is to give our program
@@ -355,7 +361,7 @@ we always have to ask how it fits into everything else we have.
 
 Rather than interpolating file fragments,
 we extract or erase parts of regular JavaScript files
-based on specially-formatted comments
+based on specially formatted comments
 like the `<fragment>...</fragment>` pair shown below.
 
 ```js

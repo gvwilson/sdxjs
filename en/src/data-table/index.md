@@ -78,7 +78,7 @@ All of our implementations will treat each data table as [%i "immutable data" %]
 once we have created it,
 we will not modify its contents.
 This doesn't actually have much impact on performance
-an makes the programming easier and safer,
+and makes the programming easier and safer,
 since shared data structures are a rich source of bugs.
 
 </div>
@@ -161,7 +161,7 @@ these ratios will affect our decision about which is better,
 so if we were doing this for a real application we would test what happens
 as these fractions vary.
 And as we said earlier,
-the relative performance will also depend on the how many filters we do for each select;
+the relative performance will also depend on how many filters we do for each select;
 our balance should be based on data from whatever application we intend to support.
 
 Our performance measurement program looks like this:
@@ -188,7 +188,7 @@ What if we increase the table size to 10,000 rows by 30 columns with the same 3:
 
 [% inc file="table-performance-10000-30-03.out" %]
 
-And if we keep the table size the same but use a 10:1 filter/select ratio?
+And what if we keep the table size the same but use a 10:1 filter/select ratio?
 {: .continue}
 
 [% inc file="table-performance-10000-30-10.out" %]
@@ -318,7 +318,7 @@ a few simple experiments like these can sometimes save weeks or months of effort
 ### Varying filter behavior {: .exercise}
 
 How does our decision about which storage format is better change
-if we keep 1% of rows when filtering instead of one third?
+if we keep 1% of rows when filtering instead of one-third?
 What if we keep 90% of rows?
 
 ### Filtering by strings {: .exercise}

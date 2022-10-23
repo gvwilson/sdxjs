@@ -124,8 +124,8 @@ to extract the op code and operands from the instruction
 
 ### Semi-realistic
 
-We always unpack two operands regardless of whether the instructions has them or not,
-since this is what a hardware implementation would be.
+We always unpack two operands regardless of whether the instructions have them or not
+because this is what a hardware implementation would do.
 We have also included assertions in our VM
 to simulate the way that real hardware includes logic
 to detect illegal instructions and out-of-bound memory addresses.
@@ -256,7 +256,7 @@ this program counts up to three:
 ## How can we store data? {: #virtual-machine-data}
 
 It is tedious to write interesting programs when each value needs a unique name.
-We can do a lot more once we have collections like [%i "array!implementation of" %]arrays[%/i%],
+We can do a lot more once we have collections like [%i "array implementation" %]arrays[%/i%],
 so let's add those to our assembler.
 We don't have to make any changes to the virtual machine,
 which doesn't care if we think of a bunch of numbers as individuals or elements of an array,
@@ -292,6 +292,8 @@ And that's it:
 no other changes are needed to either compilation or execution.
 To test it,
 let's fill an array with the numbers from 0 to 3:
+
+<div class="pagebreak"></div>
 
 [% inc file="fill-array.as" %]
 [% inc file="fill-array-out.out" %]
@@ -359,7 +361,7 @@ The C programming language stored character strings as non-zero bytes terminated
 
 ### Call and return {: .exercise}
 
-1.  Add another register to the virtual machine called SP (for "stack pointer")
+1.  Add another register to the virtual machine called SP ("stack pointer")
     that is automatically initialized to the *last* address in memory.
 
 2.  Add an instruction `psh` (short for "push") that copies a value from a register
