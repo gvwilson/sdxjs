@@ -180,7 +180,7 @@ To teach each kind of cell how to render itself,
 we have to derive a new class from each of the ones we have
 and give the new class a `render` method with the same [%i "signature!of function" "function signature" %][%g signature "signature" %][%/i%]:
 
-[% inc file="rendered.js" %]
+[% inc file="rendered.js" keep="keep" %]
 
 These `render` methods do exactly the same thing,
 so we have each one call a shared function that does the actual work.
