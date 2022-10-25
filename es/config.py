@@ -1,65 +1,91 @@
 """Ivy configuration."""
 
-# Theme.
-theme = "mccole"
+# Get standard settings.
+import sys
+sys.path.insert(0, "info")
+from mccole import *
+del sys.path[0]
 
-# Enable various Markdown extensions.
-markdown_settings = {"extensions": ["markdown.extensions.extra"]}
-
-# Site title and author.
-title = "Software Design by Example"
-subtitle = "A Tool-Based Introduction with JavaScript"
-author = "Greg Wilson and Orlando Méndez"
-
-# Output directory.
-out_dir = "docs"
+# Abbreviation for this document.
+abbrev = "sdxjs"
 
 # GitHub repository.
-repo = "https://github.com/software-tools-books/stjs/"
+repo = "https://github.com/gvwilson/sdxjs/"
 
-# Site logo.
-logo = "files/codebender.svg"
-
-# Use "a/" URLs instead of "a.html".
-extension = "/"
-
-# Language code.
-lang = "es"
+# Specific book settings.
+lang = "en"
+title = "Software Design by Example"
+acronym = "SDXJS"
+tagline = "a tool-based introduction with JavaScript"
+author = "Greg Wilson"
+plausible = "" # "third-bit.com"
 
 # Chapter and appendix slugs in order.
 chapters = [
+    "introduction",
+    "systems-programming",
+    "async-programming",
     "unit-test",
     "file-backup",
+    "data-table",
+    "pattern-matching",
+    "regex-parser",
+    "page-templates",
+    "build-manager",
+    "layout-engine",
+    "file-interpolator",
+    "module-loader",
+    "style-checker",
+    "code-generator",
+    "doc-generator",
+    "module-bundler",
+    "package-manager",
+    "virtual-machine",
+    "debugger",
+    "conclusion",
 ]
+
 appendices = [
     "license",
     "conduct",
     "contributing",
     "bibliography",
     "glossary",
-    "links",
     "contents",
 ]
 
-# BibTeX bibliography file and style.
-bibliography = "info/bibliography.bib"
-bibliography_style = "unsrt"
-
-# Glossary definitions.
-glossary = "info/glossary.yml"
-
-# Link table file.
-links = "info/links.yml"
-
-# Footer entries are (link, title).
-footer = [
-    ("@root/license/", "License"),
-    ("@root/conduct/", "Code of Conduct"),
-    ("@root/bibliography/", "Bibliography"),
-    ("@root/glossary/", "Glossary"),
-    ("@root/links/", "Links"),
-    (repo, "GitHub"),
-]
+# To do.
+todo = []
 
 # Debugging hook.
 debug = False
+
+# Warn about missing or unused entries.
+warnings = True
+
+# Files to copy verbatim.
+copy += [
+    "*.as",
+    "*.bck",
+    "*.ht",
+    "*.mx",
+]
+
+# Exclusions (don't process).
+exclude += [
+    "*.as",
+    "*.bck",
+    "*.ht",
+    "*.mx",
+    "*.tll",
+    "*.txt",
+    "*.yml",
+    "*~",
+    "__pycache__",
+    ".pytest_cache",
+    "x-*",
+]
+
+# Display values for LaTeX generation.
+if __name__ == "__main__":
+    main(sys.argv, abbrev)
