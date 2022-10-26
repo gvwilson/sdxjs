@@ -21,6 +21,7 @@ SRC := $(wildcard *.md) $(wildcard src/*.md) $(wildcard src/*/index.md) $(wildca
 DOCS := docs/index.html $(patsubst src/%.md,docs/%.html,$(wildcard src/*/index.md))
 FIG_PDF := $(patsubst src/%.svg,docs/%.pdf,${FIG_SVG})
 
+# Miscellaneous variables.
 PORT := 4000
 
 ## commands: show available commands
@@ -191,3 +192,7 @@ vars:
 	@echo SRC ${SRC}
 	@echo STEM ${STEM}
 	@echo TEX ${TEX}
+
+# Miscellaneous dependencies.
+config.py: info/mccole.py
+	touch $@

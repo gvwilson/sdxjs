@@ -83,4 +83,4 @@ exclude += [
 
 # Display values for LaTeX generation.
 if __name__ == "__main__":
-    main(sys.argv, abbrev)
+    main(sys.argv, abbrev, title, tagline, author)

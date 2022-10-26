@@ -64,7 +64,7 @@ exclude = [
 ]
 
 # Show values for build.
-def main(args, abbrev):
+def main(args, abbrev, title, tagline, author):
     assert len(args) == 2, "Expect exactly one argument"
     if args[1] == "--abbrev":
         print(abbrev)
