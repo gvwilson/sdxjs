@@ -8,13 +8,13 @@ and browser layout engines
 both to demystify them
 and to give some insights into how experienced programmers think.
 We draw inspiration from [% b Brown2011 Brown2012 Brown2016 %],
-[Mary Rose Cook][cook-mary-rose]'s [Gitlet][gitlet],
+[Mary Rose Cook][cook_mary_rose]'s [Gitlet][gitlet],
 and the books that introduced the Unix philosophy to an entire generation of programmers
 [% b Kernighan1979 Kernighan1981 Kernighan1983 Kernighan1988 %].
 
 All of the written material in this project can be freely reused
-under the terms of the [Creative Commons - Attribution - NonCommercial license][cc-by-nc],
+under the terms of the [Creative Commons - Attribution - NonCommercial license][cc_by_nc],
 while all of the software is made available under the terms of
-the [Hippocratic License][hippocratic-license].
+the [Hippocratic License][hippocratic_license].
 All proceeds from this project will go to support the
-[Red Door Family Shelter][red-door].
+[Red Door Family Shelter][red_door].
