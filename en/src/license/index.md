@@ -58,7 +58,7 @@ to permit persons to whom the Software is furnished to do so, subject to the
 following conditions:
 
 -   The above copyright notice and this License or a subsequent version published
-    on the [Hippocratic License Website][hippocratic-license] shall be
+    on the [Hippocratic License Website][hippocratic_license] shall be
     included in all copies or substantial portions of the Software. Licensee has
     the option of following the terms and conditions either of the above
     numbered version of this License or of any subsequent version published on

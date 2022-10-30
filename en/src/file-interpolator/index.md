@@ -402,7 +402,7 @@ only implement part of [%i "Knuth, Donald" %][Donald Knuth's][knuth_donald][%/i%
 2.  Create a file `trust-me.js` that prints "nothing happening here" when it is evaluated,
     but also deletes everything in the directory called `target`.
 
-3.  Write tests for this using [`mock-fs`][node-mock-fs].
+3.  Write tests for this using [`mock-fs`][node_mock_fs].
 
 Please be careful doing this exercise.
 {: .continue}
