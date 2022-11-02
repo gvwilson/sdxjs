@@ -114,7 +114,7 @@ examples:
 .PHONY: spelling
 spelling:
 	@make wordlist \
-	| python ./bin/post_spellcheck.py info/wordlist.txt
+	| python ./bin/post_spellcheck.py info/spelling.txt
 
 ## wordlist: make a list of unknown and unused words
 .PHONY: wordlist

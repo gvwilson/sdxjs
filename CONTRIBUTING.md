@@ -45,11 +45,24 @@ This project uses [Martha's Rules][marthas-rules] for consensus decision making:
     "yes" the proposal is implemented.  Otherwise, the proposal is returned to
     the sponsor for further work.
 
-## Formatting
+## Building
 
-This material uses [Ivy][ivy] with some custom extensions.
-Run `make` in the root directory to get a list of available commands.
-Some of these rely on scripts in the `./bin/` directory.
+This material uses [Ivy][ivy] with some custom extensions. You'll need a recent
+version of Python, available on your path as `python`. Install ivy and the 
+other dependencies with 
+
+```shell
+pip install -r requirements.txt
+```
+
+Run `make` in the `en` or `es` directory to get a list of available commands. If
+you are just writing or editing locally, you can use `make serve`.
+
+Some of these rely on scripts in the `./bin/` directory. 
+
+Building diagrams needs drawio from [diagrams.net](https://www.diagrams.net/), 
+aliased to `draw.io`. Building the PDF requires further dependencies (see 
+"Building the PDF" below).
 
 ### Chapters and Appendices
 
