@@ -1,8 +1,7 @@
 # Contributing
 
-Contributions are very welcome;
-please contact us by email or by filing an issue on this site.
-All contributors must abide by our Code of Conduct.
+Contributions are very welcome; please contact us by email or by filing an issue
+on this site.  All contributors must abide by our Code of Conduct.
 
 ## Making Decisions
 
@@ -47,16 +46,16 @@ This project uses [Martha's Rules][marthas-rules] for consensus decision making:
 
 ## Building
 
-This material uses [Ivy][ivy] with some custom extensions. You'll need a recent
-version of Python, available on your path as `python`. Install ivy and the 
-other dependencies with 
+This material uses [Ivy][ivy] with some custom extensions.  You'll need Python
+3.9 or higher on your path as `python`.  Install Ivy and the other dependencies
+with:
 
 ```shell
 pip install -r requirements.txt
 ```
 
-Run `make` in the `en` or `es` directory to get a list of available commands. If
-you are just writing or editing locally, you can use `make serve`.
+Run `make` in the `en` or `es` directory to get a list of available commands.
+If you are just writing or editing locally, you can use `make serve`.
 
 Some of these rely on scripts in the `./bin/` directory. 
 
@@ -66,13 +65,13 @@ aliased to `draw.io`. Building the PDF requires further dependencies (see
 
 ### Chapters and Appendices
 
-1.  Each chapter or appendix has a unique slug such as `topic`.
-    Its text lives in <code>./src/<em>topic</em>/index.md</code>,
-    and there is an entry for it in the `chapters` or `appendices` list in `./config.py`
-    (which control ordering).
+1.  Each chapter or appendix has a unique slug such as `topic`.  Its text lives
+    in <code>./src/<em>topic</em>/index.md</code>, and there is an entry for it
+    in the `chapters` or `appendices` list in `./config.py` (which control
+    ordering).
 
-1.  Each `index.md` file starts with a YAML header in triple dashes.
-    This header must include the key `title:` with the page's title.
+1.  Each `index.md` file starts with a YAML header in triple dashes.  This
+    header must include the key `title:` with the page's title.
 
 1.  Each section within a page must use a heading like this:
 
@@ -80,9 +79,9 @@ aliased to `draw.io`. Building the PDF requires further dependencies (see
     ## Some Title {: #topic-sometitle}
     ```
 
-    This creates an `h2`-level heading with the HTML ID `topic-sometitle`.
-    Use the page's slug instead of `topic` and a single unhyphenated work
-    in place of `sometitle`.
+    This creates an `h2`-level heading with the HTML ID `topic-sometitle`.  Use
+    the page's slug instead of `topic` and a single unhyphenated work in place
+    of `sometitle`.
 
 1.  To create a cross-reference to a chapter or appendix write:
 
@@ -90,14 +89,14 @@ aliased to `draw.io`. Building the PDF requires further dependencies (see
     [% x topic %]
     ```
 
-    where `topic` is the slug of the chapter being referred to.
-    This shortcode is converted to `Chapter N` or `Appendix N` as appropriate.
-    Please only refer to chapters or appendices, not to sections.
+    where `topic` is the slug of the chapter being referred to.  This shortcode
+    is converted to `Chapter N` or `Appendix N` as appropriate.  Please only
+    refer to chapters or appendices, not to sections.
 
 ### External Links
 
-1.  The table of external links lives in `./info/links.yml`.
-    Please add entries as needed.
+1.  The table of external links lives in `./info/links.yml`.  Please add entries
+    as needed.
 
 1.  To refer to an external link write:
 
@@ -105,9 +104,9 @@ aliased to `draw.io`. Building the PDF requires further dependencies (see
     [body text][link_key]
     ```
 
-Please do *not* add links directly with `[text](http://some.url)`:
-keeping the links in `./info/links.yml` ensures consistency
-and makes it easier to create a table of external links.
+Please do *not* add links directly with `[text](http://some.url)`: keeping the
+links in `./info/links.yml` ensures consistency and makes it easier to create a
+table of external links.
 
 ### Code Inclusions
 
@@ -143,8 +142,8 @@ and makes it easier to create a table of external links.
 
 ### Figures
 
-1.  Put the image file in the same directory as the chapter or appendix
-    and use this to include it:
+1.  Put the image file in the same directory as the chapter or appendix and use
+    this to include it:
 
     ```markdown
     [% figure
@@ -163,11 +162,11 @@ and makes it easier to create a table of external links.
 
     This is converted to `Figure N.K`.
 
-1.  Use [diagrams.net][diagrams] to create SVG diagrams
-    using the "sketch" style and a 12-point Comic Sans font.
+1.  Use [diagrams.net][diagrams] to create SVG diagrams using the "sketch" style
+    and a 12-point Comic Sans font.
 
-1.  Avoid screenshots if at all possible:
-    making them display correctly in print is difficult.
+1.  Avoid screenshots if at all possible: making them display correctly in print
+    is difficult.
 
 ### Tables
 
@@ -195,13 +194,11 @@ so we must do something a bit clumsy.
 
 ### Bibliography
 
-1.  The BibTeX bibliography lives in `./info/bibliography.bib`.
-    Please add entries as needed;
-    you may find <https://doi2bib.org> useful for creating entries.
-    Please format keys as `Author1234`,
-    where `Author` is the first author's family name
-    and `1234` is the year of publication.
-    (Use `Author1234a`, `Author1234b`, etc. to resolve conflicts.)
+1.  The BibTeX bibliography lives in `./info/bibliography.bib`.  Please add
+    entries as needed; you may find <https://doi2bib.org> useful for creating
+    entries.  Please format keys as `Author1234`, where `Author` is the first
+    author's family name and `1234` is the year of publication.  (Use
+    `Author1234a`, `Author1234b`, etc. to resolve conflicts.)
 
 1.  To cite bibliography entries write:
 
@@ -210,9 +207,6 @@ so we must do something a bit clumsy.
     ```
 
 ### Glossary
-
-Please do not worry about adding entries for now;
-we will fill in the glossary during the final editing pass.
 
 1.  The glossary lives in `./info/glossary.yml` and uses [Glosario][glosario] format.
 
@@ -223,9 +217,6 @@ we will fill in the glossary during the final editing pass.
     ```
 
 ### Index
-
-Please do not worry about adding entries for now;
-we will fill in the index during the final editing pass.
 
 1.  To create a simple index entry write:
 
@@ -255,8 +246,8 @@ we will fill in the index during the final editing pass.
     {: .continue}
     ```
 
-    This has no effect on the appearance of the HTML,
-    but prevents an unwanted paragraph indent in the PDF version.
+    This has no effect on the appearance of the HTML, but prevents an unwanted
+    paragraph indent in the PDF version.
 
 1.  To create a callout box, use:
 
@@ -270,20 +261,19 @@ we will fill in the index during the final editing pass.
     </div>
     ```
 
-    Use "Sentence case" for the callout's title,
-    and please put blank lines before and after the opening and closing `<div>` markers.
-    You *must* include `markdown="1"` in the opening `<div>` tag
-    to ensure that Markdown inside the callout is processed.
+    Use "Sentence case" for the callout's title, and please put blank lines
+    before and after the opening and closing `<div>` markers.  You *must*
+    include `markdown="1"` in the opening `<div>` tag to ensure that Markdown
+    inside the callout is processed.
 
-    Note: earlier versions of this template used `blockquote` rather than `div` callouts.
-    Please only use the former for actual quotations.
+    Note: earlier versions of this template used `blockquote` rather than `div`
+    callouts.  Please only use the former for actual quotations.
 
 ## Building the PDF
 
-We use LaTeX to build the PDF version of this book.
-Please don't worry about this for now,
-but if you want to see what the print version will look like
-you will need to install this packages:
+We use LaTeX to build the PDF version of this book.  Please don't worry about
+this for now, but if you want to see what the print version will look like you
+will need to install this packages:
 
 -   `babel-english`
 -   `babel-greek`
