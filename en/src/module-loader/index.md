@@ -305,7 +305,7 @@ must produce:
 left 0
 right 0
 left 1
-right `
+right 1
 ```
 
 ### Objects and namespaces {: .exercise}
