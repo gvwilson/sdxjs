@@ -1,11 +1,5 @@
 """Ivy configuration."""
 
-# Get standard settings.
-import sys
-sys.path.insert(0, "info")
-from mccole import *
-del sys.path[0]
-
 # Abbreviation for this document.
 abbrev = "sdxjs"
 
@@ -22,27 +16,27 @@ plausible = "" # "third-bit.com"
 
 # Chapter and appendix slugs in order.
 chapters = [
-    "introduction",
-    "systems-programming",
-    "async-programming",
+    # "introduction",
+    # "systems-programming",
+    # "async-programming",
     "unit-test",
     "file-backup",
-    "data-table",
-    "pattern-matching",
-    "regex-parser",
-    "page-templates",
-    "build-manager",
-    "layout-engine",
-    "file-interpolator",
-    "module-loader",
-    "style-checker",
-    "code-generator",
-    "doc-generator",
-    "module-bundler",
-    "package-manager",
-    "virtual-machine",
-    "debugger",
-    "conclusion",
+    # "data-table",
+    # "pattern-matching",
+    # "regex-parser",
+    # "page-templates",
+    # "build-manager",
+    # "layout-engine",
+    # "file-interpolator",
+    # "module-loader",
+    # "style-checker",
+    # "code-generator",
+    # "doc-generator",
+    # "module-bundler",
+    # "package-manager",
+    # "virtual-machine",
+    # "debugger",
+    # "conclusion",
 ]
 
 appendices = [
@@ -57,14 +51,8 @@ appendices = [
 # To do.
 todo = []
 
-# Debugging hook.
-debug = False
-
-# Warn about missing or unused entries.
-warnings = True
-
 # Files to copy verbatim.
-copy += [
+copy = [
     "*.as",
     "*.bck",
     "*.ht",
@@ -72,20 +60,101 @@ copy += [
 ]
 
 # Exclusions (don't process).
-exclude += [
+exclude = [
     "*.as",
     "*.bck",
     "*.ht",
     "*.mx",
     "*.tll",
+    "x-*",
+]
+
+# Debugging hook.
+debug = False
+
+# Warn about missing or unused entries.
+warnings = True
+
+# ----------------------------------------------------------------------
+
+# Theme.
+theme = "mccole"
+
+# Enable various Markdown extensions.
+markdown_settings = {
+    "extensions": [
+        "markdown.extensions.extra",
+        "markdown.extensions.smarty",
+        "pymdownx.superfences",
+    ]
+}
+
+# External files.
+acknowledgments = "info/acknowledgments.yml"
+bibliography = "info/bibliography.bib"
+bibliography_style = "unsrt"
+credits = "info/credits.yml"
+glossary = "info/glossary.yml"
+links = "info/links.yml"
+dom = "info/dom.yml"
+
+# Input and output directories.
+src_dir = "src"
+out_dir = "docs"
+
+# Use "a/" URLs instead of "a.html".
+extension = "/"
+
+# Files to copy verbatim.
+copy += [
+    "*.js",
+    "*.json",
+    "*.out",
+    "*.png",
+    "*.py",
+    "*.sh",
+    "*.svg",
+    "*.txt",
+    "*.yml",
+]
+
+# Exclusions (don't process).
+exclude += [
+    "Makefile",
+    "*.csv",
+    "*.ht",
+    "*.js",
+    "*.json",
+    "*.mk",
+    "*.out",
+    "*.pdf",
+    "*.png",
+    "*.py",
+    "*.pyc",
+    "*.sh",
+    "*.svg",
     "*.txt",
     "*.yml",
     "*~",
     "__pycache__",
     ".pytest_cache",
-    "x-*",
 ]
+
+# ----------------------------------------------------------------------
 
 # Display values for LaTeX generation.
 if __name__ == "__main__":
-    main(sys.argv, abbrev)
+    import sys
+    assert len(sys.argv) == 2, "Expect exactly one argument"
+    if sys.argv[1] == "--abbrev":
+        print(abbrev)
+    elif sys.argv[1] == "--latex":
+        print(f"\\title{{{title}}}")
+        print(f"\\subtitle{{{tagline}}}")
+        print(f"\\author{{{author}}}")
+    elif sys.argv[1] == "--tagline":
+        print(tagline)
+    elif sys.argv[1] == "--title":
+        print(title)
+    else:
+        assert False, f"Unknown flag {sys.argv[1]}"

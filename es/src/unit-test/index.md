@@ -1,15 +1,13 @@
 ---
-template: page
 title: "Pruebas Unitarias"
-lede: "Probando el software parte por parte"
 ---
 
 Hemos escrito muchos programitas en los dos capítulos anteriores,
 pero de hecho no hemos probado ninguno de ellos.
-Eso está bien para [% i "exploratory programming" %][% g exploratory_programming %]programación exploratoria[% /g %][% /i %],
+Eso está bien para [%i "exploratory programming" %][%g exploratory_programming "programación exploratoria" %][%/i%],
 pero si nuestro software se va a usar en lugar de solo leerlo, debemos asegurarnos que funcione.
 
-Una herramienta para escribir  y ejecutar [% i "unit test!requirements for" %][% g unit_test %]pruebas unitarias[% /g %][% /i %] es un buen primer paso.
+Una herramienta para escribir  y ejecutar [%i "unit test!requirements for" %][%g unit_test "pruebas unitarias" %][%/i%] es un buen primer paso.
 Esta herramienta debe:
 
 -   encontrar los archivos que contienen pruebas;
@@ -18,7 +16,7 @@ Esta herramienta debe:
 -   capturar los resultados; y
 -   reportar cada resultado y un resumen de esos resultados.
 
-Nuestro diseño está inspirado en herramientas como [% i "Mocha" %][Mocha][mocha][% /i %] y [% i "Jest" %][Jest][jest][% /i %],
+Nuestro diseño está inspirado en herramientas como [%i "Mocha" %][Mocha][mocha][%/i%] y [%i "Jest" %][Jest][jest][%/i%],
 los que a su vez están inspirados por herramientas hechas para otros lenguajes 
 desde los 1980s [% b Meszaros2007 Tudose2020 %].
 
@@ -27,49 +25,49 @@ desde los 1980s [% b Meszaros2007 Tudose2020 %].
 Como en los otros frameworks de Pruebas Unitarias,
 cada prueba será una función de cero argumentos
 ya que el framework puede correrlos todos de la misma manera.
-Cada prueba creará una [% i "fixture (in unit test)" "unit test!fixture" %][% g fixture %]fixture[% /g %][% /i %] a ser probada
-y usar [% i "assertion!in unit test" %][% g assertion %]aserciones[% /g %][% /i %]
-para comparar el [% i "actual result (in unit test)" "unit test!actual result" %][% g actual_result %]resultado actual[% /g %][% /i %]
-contra el [% i "expected result (in unit test)" "unit test!expected result" %][% g expected_result %]resultado esperado[% /g %][% /i %].
+Cada prueba creará una [%i "fixture (in unit test)" "unit test!fixture" %][%g fixture "fixture" %][%/i%] a ser probada
+y usar [%i "assertion!in unit test" %][%g assertion "aserciones" %][%/i%]
+para comparar el [%i "actual result (in unit test)" "unit test!actual result" %][%g actual_result "resultado actual" %][%/i%]
+contra el [%i "expected result (in unit test)" "unit test!expected result" %][%g expected_result "resultado esperado" %][%/i%].
 El resultado puede ser exactamente uno de:
 
--   [% i "pass (in unit test)" "unit test!pass" %][% g pass_test %]Pase[% /g %][% /i %]:
-    el [% i "test subject (in unit test)" "unit test!test subject" %][% g test_subject %]sujeto de prueba[% /g %][% /i %] funciona según lo esperado.
+-   [%i "pass (in unit test)" "unit test!pass" %][%g pass_test "Pase" %][%/i%]:
+    el [%i "test subject (in unit test)" "unit test!test subject" %][%g test_subject "sujeto de prueba" %][%/i%] funciona según lo esperado.
 
--   [% i "fail (in unit test)" "unit test!fail" %][% g fail_test %]Falla[% /g %][% /i %]:
+-   [%i "fail (in unit test)" "unit test!fail" %][%g fail_test "Falla" %][%/i%]:
     algo falla con el sujeto de prueba.
 
--   [% i "error (in unit test)" "unit test!error" %][% g error_test %]Error[% /g %][% /i %]:
+-   [%i "error (in unit test)" "unit test!error" %][%g error_test "Error" %][%/i%]:
     algo está mal con la prueba en sí,
     lo que significa que no sabemos si el sujeto de prueba funciona correctamente o no.
 
 Para que esto sirva,
 necesitamos distinguir las pruebas fallidas de las erróneas.
 Nuestra solución descansa en el hecho que las excepciones son objetos
-y que un programa puede usar [% i "introspection!in Pruebas Unitarias" %][% g introspection %]introspección[% /g %][% /i %]
+y que un programa puede usar [%i "introspection!in Pruebas Unitarias" %][%g introspection "introspección" %][%/i%]
 para determinar la clase de un objeto.
-si una prueba [% i "excepción!throw" %][% g throw_exception %]arroja una excepción[% /g %][% /i %] cuya clase es `assert.AssertionError`,
+si una prueba [%i "excepción!throw" %][%g throw_exception "arroja una excepción" %][%/i%] cuya clase es `assert.AssertionError`,
 entonces asumiremos que la excepción vino de
 una de las aserciones que pusimos en la prueba como un chequeo
 ([% f unit-test-mental-model %]).
 Cualquier otro tipo  de aserción indica que la prueba en sí tiene un error.
 
-[% figure slug="unit-test-mental-model" img="figures/mental-model.svg" alt="Modelo mental de Pruebas Unitarias" caption="Ejecutando pruebas que pasen, fallen, o contengan errores." %]
+[% figure slug="unit-test-mental-model" img="mental-model.svg" alt="Modelo mental de Pruebas Unitarias" caption="Ejecutando pruebas que pasen, fallen, o contengan errores." %]
 
 ## ¿Cómo podemos separar registro, ejecución, y reporteo? {: #unit-test-design}
 
 Para empezar,
-vamos a usar unas cuantas [% g global_variable %]variables global[% /g %] para registrar las pruebas  y sus resultados:
+vamos a usar unas cuantas [%g global_variable "variables globales" %] para registrar las pruebas  y sus resultados:
 
-[% excerpt file="dry-run.js" keep="state" %]
+[% inc file="dry-run.js" keep="state" %]
 
 No ejecutamos pruebas inmediatamente
-porque queremos envolver cada una en nuestro propio [% i "excepción!handler" %][% g exception_handler %]manejador de excepciones[% /g %][% /i %].
+porque queremos envolver cada una en nuestro propio [%i "excepción!handler" %][%g exception_handler "manejador de excepciones" %][%/i%].
 En su lugar,
 la función `hopeThat` guarda un mensaje descriptivo y una función de retro-llamada que implemente una prueba
 en el arreglo `HopeTest` .
 
-[% excerpt file="dry-run.js" keep="save" %]
+[% inc file="dry-run.js" keep="save" %]
 
 > ### Independencia
 >
@@ -83,7 +81,7 @@ en el arreglo `HopeTest` .
 Finalmente,
 la función `main` corre todas las pruebas registradas:
 
-[% excerpt file="dry-run.js" keep="main" %]
+[% inc file="dry-run.js" keep="main" %]
 
 Si una prueba termina sin excepción, entonces pasa.
 Si una de las llamadas a `assert` dentro de la prueba crea un `AssertionError`,
@@ -96,8 +94,8 @@ Luego que corren todas las pruebas,
 
 Vamos a probar:
 
-[% excerpt file="dry-run.js" keep="use" %]
-[% excerpt file="dry-run.out" %]
+[% inc file="dry-run.js" keep="use" %]
+[% inc file="dry-run.out" %]
 
 Este simple "framework" hace lo que se espera, pero:
 
@@ -110,7 +108,7 @@ Este simple "framework" hace lo que se espera, pero:
 
 1.  No tenemos forma de probar cosas que se supone generen `AssertionError`.
     A colocar aserciones dentro del código para revisar que se comporta correctamente
-    se le llama [% g defensive_programming %]programación defensiva[% /g %];
+    se le llama [%g defensive_programming "programación defensiva" %];
     es una buena práctica,
     pero debemos asegurarnos que esas aserciones  fallen cuando deban hacerlo,
     igual que revisamos nuestros detectores de incendio de vez en cuando.
@@ -119,7 +117,7 @@ Este simple "framework" hace lo que se espera, pero:
 
 La siguiente versión de nuestra herramienta de pruebas resuelve los primeros dos problemas en el original
 colocando la maquinaria de pruebas en una clase.
-Usa el [% g design_pattern %]patrón de diseño[% /g %] [% i "Singleton patrón" "design patrón!Singleton" %][% g singleton_pattern %]Singleton[% /g %][% /i %] 
+Usa el [%g design_pattern "patrón de diseño" %] [%i "Singleton patrón" "design patrón!Singleton" %][%g singleton_pattern "Singleton" %][%/i%] 
 para asegurar que solo un objeto de esa clase sea creado a la vez[% b Osmani2017 %].
 Los Singletons son una forma de gestionar variables globales que están relacionadas
 como las que usamos para registrar las pruebas y sus resultados.
@@ -129,14 +127,14 @@ solo necesitamos crear más instancias de esa clase.
 
 El archivo `hope.js` define la clase y exporta una instancia de ella:
 
-[% excerpt file="hope.js" keep="report" %]
+[% inc file="hope.js" keep="report" %]
 
 Esta estrategia asume dos cosas:
 
 1.  [Node][nodejs] ejecuta el código en un módulo JavaScript en cuanto lo carga,
     lo que implica que corre `new Hope()` y exporta el objeto recién creado.
 
-1.  Los módulos se guardan en el [% i "cache!modules" "require!caching modules" %][% g caching %]cache[% /g %][% /i %] en Node
+1.  Los módulos se guardan en el [%i "cache!modules" "require!caching modules" %][%g caching "cache" %][%/i%] en Node
     para que un módulo dado solo cargue una vez
     sin importar cuántas veces se importa.
     Esto asegura que `new Hope()` en verdad se llama una sola vez.
@@ -144,18 +142,18 @@ Esta estrategia asume dos cosas:
 Una vez que un programa ha importado `hope`,
 puede llamar a `Hope.test` para registrar una prueba para una ejecución posterior
 y `Hope.run` para ejecutar todas las pruebas registradas hasta ese punto 
-[% figure slug="unit-test-hope-structure" img="figures/hope-structure.svg" alt="Recording y running tests" caption="Creando un singleton, grabando pruebas, y corriéndolas." %]
+[% figure slug="unit-test-hope-structure" img="hope-structure.svg" alt="Recording y running tests" caption="Creando un singleton, grabando pruebas, y corriéndolas." %]
 
 Finalmente,
 nuestra clase `Hope` puede reportar resultados como un resumen terso de  una-linea  y como un listado detallado.
 Puede además proveer los títulos y resultados de pruebas individuales
 por si alguien quiere formatearlas en una manera diferente (e.g., como HTML) puedan hacerlo:
 
-[% excerpt file="hope.js" keep="report" %]
+[% inc file="hope.js" keep="report" %]
 
 > ### ¿Quién está llamando?
 >
-> `Hope.test` usa el módulo [% i "caller module" %][`caller`][caller][% /i %] 
+> `Hope.test` usa el módulo [%i "caller module" %][`caller`][caller][%/i%] 
 >  para recibir el nombre de la función que está registrando una prueba.
 > Reportar el nombre de la prueba ayuda al usuario a entender por donde iniciar depurando;
 > recibirlo vía introspección
@@ -177,7 +175,7 @@ Un par de sentencias `import` para tener  `assert` y `hope`
 y luego una llamada a función por prueba
 es lo más simple que podemos hacer las pruebas mismas:
 
-[% excerpt file="test-add.js" %]
+[% inc file="test-add.js" %]
 
 Pero eso solo define las pruebas ---¿Cómo las encontraremos para ejecutarlas?
 Una opción es pedirle a la gente que use `import` en cada uno de los archivos con pruebas
@@ -197,13 +195,13 @@ Hope.run()
 
 Aquí,
 `all-the-tests.js` importa otros archivos para que registren las pruebas
-como un [% i "side effect!for module registration" %][% g side_effect %]efecto colateral[% /g %][% /i %] vía las llamadas a `hope.test`
+como un [%i "side effect!for module registration" %][%g side_effect "efecto colateral" %][%/i%] vía las llamadas a `hope.test`
 y luego llame a `Hope.run` para ejecutarlas.
 Funciona,
 pero antes o después (quizá antes) alguien olvidará importar uno de los archivos de pruebas.
 {: .continue}
 
-Una mejor estrategia es cargar los archivos de prueba [% i "dynamic loading" %][% g dynamic_loading %]dinámicamente[% /g %][% /i %].
+Una mejor estrategia es cargar los archivos de prueba [%i "dynamic loading" %][%g dynamic_loading "dinámicamente" %][%/i%].
 Mientras que  `import` se escribe usualmente como una  declaración,
 también puede usarse como una función `async` 
 que tome una ruta como parámetro y cargue el archivo correspondiente.
@@ -211,7 +209,7 @@ Igual que antes,
 cargar archivos ejecuta el código que contienen
 lo que registra las pruebas como efecto secundario:
 
-[% excerpt file="pray.js" omit="options" %]
+[% inc file="pray.js" omit="options" %]
 
 Por defecto,
 este programa encuentra todos los archivos anidados en el directorio actual
@@ -237,10 +235,10 @@ y crea un objeto con opciones como claves y valores asociados a ellas.
 > tenemos que escribir `pray.js -v -- something.js`.
 > el doble guión es una convención común en Unix  para señalar el fin de los parámetros.
 
-Nuestro [% i "test runner" "unit test!test runner" %][% g test_runner %] ejecutor de pruebas[% /g %][% /i %] ahora está completo,
+Nuestro [%i "test runner" "unit test!test runner" %][%g test_runner "ejecutor de pruebas" %][%/i%] ahora está completo,
 así que podemos probarlo con algunos archivos con pruebas que pasen, fallen, y contengan errores:
 
-[% excerpt pat="pray.*" fill="sh out" %]
+[% inc pat="pray.*" fill="sh out" %]
 
 > ### El Infinito está permitido
 >
@@ -258,7 +256,7 @@ Cargar módulos dinámicamente para que puedan registrar algo por nosotros para 
 es un patrón común en muchos lenguajes de programación.
 El flujo de control va y viene entre el framework y el módulo siendo cargado
 conforme esto ocurre
-así que necesitamos especificar el [% i "lifecycle!of unit test" "unit test!lifecycle" %][% g lifecycle %]ciclo vital[% /g %][% /i %] de los módulos cargados con mucho cuidado.
+así que necesitamos especificar el [%i "lifecycle!of unit test" "unit test!lifecycle" %][%g lifecycle "ciclo vital" %][%/i%] de los módulos cargados con mucho cuidado.
 [% f unit-test-lifecycle %] ilustra lo que pasa
 cuando un par de archivos `test-add.js` y `test-sub.js` son cargados por nuestro framework:
 
@@ -275,7 +273,7 @@ cuando un par de archivos `test-add.js` y `test-sub.js` son cargados por nuestro
 10.  `pray` puede pedir a la instancia única de  `Hope` que ejecute todas las pruebas,
      luego recibe un reporte desde el singleton de `Hope`  y lo muestra.
 
-[% figure slug="unit-test-lifecycle" img="figures/lifecycle.svg" alt="Pruebas Unitarias lifecycle" caption="Ciclo vital de pruebas unitarias descubiertas dinámicamente." %]
+[% figure slug="unit-test-lifecycle" img="lifecycle.svg" alt="Pruebas Unitarias lifecycle" caption="Ciclo vital de pruebas unitarias descubiertas dinámicamente." %]
 
 <div class="break-antes"></div>
 ## Ejercicios {: #unit-test-exercises}
@@ -309,8 +307,8 @@ para que registre y reporte el tiempo de ejecución de las pruebas.
         // does not throw
         assertApproxEqual(1.0, 2.0, 'Large margin of error', 10.0)
 
-3.  Modificar la función  de nuevo para que revise el [% g relative_error %]error relativo[% /g %]
-    en lugar del [% g absolute_error %]error absoluto[% /g %].
+3.  Modificar la función  de nuevo para que revise el [%g relative_error "error relativo" %]
+    en lugar del [%g absolute_error "error absoluto" %].
     (el error relativo es el valor absoluto  de la diferencia entre el valor actual y el esperado,
     dividido entre el valor absoluto.)
 

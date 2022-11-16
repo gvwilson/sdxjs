@@ -1,28 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-<link rel="icon" type="image/x-icon" href="../favicon.ico">
-<link rel="stylesheet" href="../mccole.css">
-<link rel="stylesheet" href="../codehilite-tango.css">
-
-    <title>Software Design by Example: Respaldo</title>
-  </head>
-  <body class="page">
-    <div class="centered title">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+  <link rel="stylesheet" href="../mccole.css">
+  <link rel="stylesheet" href="../tango.css">
   
-  <h2><a href="../">Software Design by Example</a></h2>
-  <h1 id="file-backup">Capítulo 2: Respaldo</h1>
-  
-  <p>
-    <img class="page-logo" src="../files/codebender.svg" alt="logo" />
-  </p>
-</div>
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']]
+      }
+    };
+  </script>
+  <script
+    type="text/javascript"
+    id="MathJax-script"
+    async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+  <title>Software Design by Example: Respaldo</title>
+</head>
 
-    <main>
-<p>Ahora que podemos probar software, tenemos algo que guardar.
-Un <span class="indexentry" index-key="version control system" markdown="1"><a class="glossref" href="../glossary/#version_control_system" markdown="1">sistema de control de versiones</a></span>
-como <span class="indexentry" index-key="Git;version control system!Git" markdown="1"><a href="https://git-scm.com/">Git</a></span>
+  <body>
+    <div class="row">
+      <div class="sidebar">
+        <p>
+  <img src="../logo.svg" alt="site logo" class="logo" />
+  <a href="../">Software Design by Example</a>
+</p>
+<ol class="toc-chapter">
+  
+  <li>
+    <a href="../unit-test/">
+      Pruebas Unitarias
+    </a>
+  </li>
+  
+  <li>
+    <a href="../file-backup/">
+      <strong>Respaldo</strong>
+    </a>
+  </li>
+  
+</ol>
+<ol class="toc-appendix">
+  
+  <li>
+    <a href="../license/">
+      License
+    </a>
+  </li>
+  
+  <li>
+    <a href="../conduct/">
+      Code of Conduct
+    </a>
+  </li>
+  
+  <li>
+    <a href="../contributing/">
+      Contributing
+    </a>
+  </li>
+  
+  <li>
+    <a href="../bibliography/">
+      Bibliography
+    </a>
+  </li>
+  
+  <li>
+    <a href="../glossary/">
+      Glossary
+    </a>
+  </li>
+  
+  <li>
+    <a href="../contents/">
+      Index
+    </a>
+  </li>
+  
+</ol>
+
+      </div>
+      <div id="printable" class="contents bordered">
+        <main>
+          
+  <h1>Chapter 2: Respaldo</h1>
+
+
+          
+
+          
+<p class="definitions">
+  Terms defined: <a class="gl-ref" href="../glossary/#api" markdown="1">Application Programming Interface</a>, <a class="gl-ref" href="../glossary/#collision" markdown="1">collision</a>, <a class="gl-ref" href="../glossary/#csv" markdown="1">comma-separated values</a>, <a class="gl-ref" href="../glossary/#utc" markdown="1">Coordinated Universal Time</a>, <a class="gl-ref" href="../glossary/#cryptographic_hash_function" markdown="1">cryptographic hash function</a>, <a class="gl-ref" href="../glossary/#data_migration" markdown="1">data migration</a>, <a class="gl-ref" href="../glossary/#handler" markdown="1">handler</a>, <a class="gl-ref" href="../glossary/#hash_code" markdown="1">hash code</a>, <a class="gl-ref" href="../glossary/#hash_function" markdown="1">hash function</a>, <a class="gl-ref" href="../glossary/#json" markdown="1">JavaScript Object Notation</a>, <a class="gl-ref" href="../glossary/#mock_object" markdown="1">mock object</a>, <a class="gl-ref" href="../glossary/#pipe" markdown="1">pipe</a>, <a class="gl-ref" href="../glossary/#race_condition" markdown="1">race condition</a>, <a class="gl-ref" href="../glossary/#sha_1" markdown="1">SHA-1 hash</a>, <a class="gl-ref" href="../glossary/#stream" markdown="1">stream</a>, <a class="gl-ref" href="../glossary/#streaming_api" markdown="1">streaming API</a>, <a class="gl-ref" href="../glossary/#toctou" markdown="1">Time of check/time of use</a>, <a class="gl-ref" href="../glossary/#timestamp" markdown="1">timestamp</a>, <a class="gl-ref" href="../glossary/#version_control_system" markdown="1">version control system</a>
+</p>
+
+
+          <p>Ahora que podemos probar software, tenemos algo que guardar.
+Un <span class="ix-entry" ix-key="version control system" markdown="1"><a class="gl-ref" href="../glossary/#version_control_system" markdown="1">sistema de control de versiones</a></span>
+como <span class="ix-entry" ix-key="Git;version control system!Git" markdown="1"><a href="https://git-scm.com/">Git</a></span>
 lleva la cuenta de cambios a archivos
 para poder recuperar versiones anteriores si lo deseamos.
 Su esencia es una forma de guardar archivos que:</p>
@@ -35,24 +114,24 @@ Su esencia es una forma de guardar archivos que:</p>
 <p>En este capítulo, construiremos una herramienta para tareas.
 No hará todo lo que Git hace:
 en particular, no nos permitirá crear y unir branches.
---TODO: investigar cómo se denominan un las branches en la documentación original de Git</p>
+&ndash;TODO: investigar cómo se denominan un las branches en la documentación original de Git</p>
 <p>Si desean saber cómo funciona aquello,
-por favor vean <span class="indexentry" index-key="Cook, Mary Rose" markdown="1"><a href="https://maryrosecook.com/">Mary Rose Cook's</a></span>, un excelente proyecto <a href="http://gitlet.maryrosecook.com/">Gitlet</a>.</p>
-<h2 id="archivo-respaldo-únicos">Sección 2.1:  ¿Cómo podemos identificar inequívocamente archivos?</h2>
+por favor vean <span class="ix-entry" ix-key="Cook, Mary Rose" markdown="1">[Mary Rose Cook&rsquo;s][cook-mary-rose]</span>, un excelente proyecto <a href="http://gitlet.maryrosecook.com/">Gitlet</a>.</p>
+<h2 id="archivo-respaldo-únicos">Section 2.1: ¿Cómo podemos identificar inequívocamente archivos?</h2>
 <p>Para evitar almacenar copias redundantes de archivos,
 necesitamos saber cuando dos archivos contienen los mismos datos.
 No podemos confiar en nombres porque los archivos pueden moverse o renombrarse con el tiempo;
 podríamos comparar los archivos byte por byte,
-pero una forma más rápida es  usar una <span class="indexentry" index-key="hash_function" markdown="1"><a class="glossref" href="../glossary/#hash_function" markdown="1">función hash</a></span>
+pero una forma más rápida es  usar una <span class="ix-entry" ix-key="hash_function" markdown="1"><a class="gl-ref" href="../glossary/#hash_function" markdown="1">función hash</a></span>
 que convierte datos arbitrarios en una cadena de bits de longitud fija. 
-(<a class="figref" href="../file-backup/#file-backup-hash-function">Figura 2.1</a>).</p>
+(<a class="fig-ref" href="../file-backup/#file-backup-hash-function">Figure 2.1</a>).</p>
 <figure id="file-backup-hash-function">
-  <img src="./figures/hash-function.svg" alt="Hash functions" />
-  <figcaption markdown="1">Figura 2.1: Cómo hash funciones acelera la búsqueda.</figcaption>
+  <img src="./hash-function.svg" alt="Funciones hash"/>
+  <figcaption markdown="1">Figure 2.1: Cómo las funciones hash aceleran la búsqueda.</figcaption>
 </figure>
 
-<p>Una función hash  siempre  produce el mismo <span class="indexentry" index-key="hash code" markdown="1"><a class="glossref" href="../glossary/#hash_code" markdown="1"> código hash</a></span> para una entrada dada.
-Una <span class="indexentry" index-key="cryptographic hash function;hash function!cryptographic" markdown="1"><a class="glossref" href="../glossary/#cryptographic_hash_function" markdown="1"> función hash criptográfica </a></span>
+<p>Una función hash  siempre  produce el mismo <span class="ix-entry" ix-key="hash code" markdown="1"><a class="gl-ref" href="../glossary/#hash_code" markdown="1">código hash</a></span> para una entrada dada.
+Una <span class="ix-entry" ix-key="cryptographic hash function;hash function!cryptographic" markdown="1"><a class="gl-ref" href="../glossary/#cryptographic_hash_function" markdown="1">función hash criptográfica</a></span>
 tiene dos propiedades extra :</p>
 <ol>
 <li>
@@ -67,10 +146,10 @@ tiene dos propiedades extra :</p>
 </ol>
 <p>Es fácil escribir una mala función hash,
 pero muy difícil escribir una que califica como criptográfica.
-Usaremos por lo tanto una librería para calcular para calcular hashes  <span class="indexentry" index-key="hash code!SHA-1;SHA-1 hash code" markdown="1"><a class="glossref" href="../glossary/#sha_1" markdown="1">SHA-1</a></span> de 160 bits para nuestros archivos.
+Usaremos por lo tanto una librería para calcular para calcular hashes  <span class="ix-entry" ix-key="hash code!SHA-1;SHA-1 hash code" markdown="1"><a class="gl-ref" href="../glossary/#sha_1" markdown="1">SHA-1</a></span> de 160 bits para nuestros archivos.
 Estos no son lo suficientemente aleatorios como para mantener privados los datos  de un paciente respecto de un atacante con recursos,
 pero eso no es para lo que los estamos usando:
-solo queremos hashes que sean aleatorios para que <span class="indexentry" index-key="hash function!collision;collision (in hashing)" markdown="1"><a class="glossref" href="../glossary/#collision" markdown="1"> la colisión</a></span> sea extremadamente improbable.</p>
+solo queremos hashes que sean aleatorios para que <span class="ix-entry" ix-key="hash function!collision;collision (in hashing)" markdown="1"><a class="gl-ref" href="../glossary/#collision" markdown="1">la colisión</a></span> sea extremadamente improbable.</p>
 <blockquote>
 <h3>El Problema del Cumpleaños</h3>
 <p>Las probabilidades de que dos personas compartan cumpleaños son 1/365 (ignorando el 29 de Febrero).
@@ -82,13 +161,13 @@ Si seguimos calculando, hay un chance de 50%  que dos personas compartan cumplea
 y un chance de 99.9%  en 70 personas.</p>
 <p>Podemos usar el mismo cómputo para calcular cuantos archivos necesitamos hashear antes que haya una probabilidad del 50% de una colisión.
 En lugar de  365 usamos \(2^{160}\) (el número de valores con longitud de 160 bits),
-y tras revisar <a href="https://en.wikipedia.org/wiki/Birthday_problem#A_simple_exponentiation">Wikipedia</a>
-y hacer algunos cálculos con <span class="indexentry" index-key="Wolfram Alpha" markdown="1"><a href="http://wolframalpha.com">Wolfram Alpha</a></span>,
+y tras revisar [Wikipedia][wikipedia-birthday-problem]
+y hacer algunos cálculos con <span class="ix-entry" ix-key="Wolfram Alpha" markdown="1">[Wolfram Alpha][wolfram-alpha]</span>,
 calculamos que necesitaríamos tener aproximadamente \(10^{24}\) archivos
 para tener   un chance de un colisión del 50% .
 Estamos dispuestos a tomar ese riesgo…</p>
 </blockquote>
-<p>El módulo <a href="https://nodejs.org/api/crypto.html"><code>crypto</code></a> de <a href="https://nodejs.org/en/">Node</a>  provee herramientas para crear un hash SHA-1.
+<p>El módulo [<code>crypto</code>][node-crypto] de <a href="https://nodejs.org/en/">Node</a>  provee herramientas para crear un hash SHA-1.
 Para usarlo,
 creamos un objeto que lleva la cuenta de estado actual  de los    cálculos de hashing,
 le decimos como queremos codificar (o representar) el valor hash ,
@@ -96,74 +175,86 @@ y entonces le pasamos algunos bytes.
 Cuando terminamos,
 llamamos su método <code>.end</code> 
 y entonces usamos su método <code>.read</code> para obtener el resultado final:</p>
-<pre><code class="language-js">import crypto from 'crypto'
+<div class="code-sample lang-js" title="hash-text.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">crypto</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;crypto&#39;</span><span class="w"></span>
 
-// create a SHA1 hasher
-const hash = crypto.createHash('sha1')
+<span class="c1">// create a SHA1 hasher</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">hash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">crypto</span><span class="p">.</span><span class="nx">createHash</span><span class="p">(</span><span class="s1">&#39;sha1&#39;</span><span class="p">)</span><span class="w"></span>
 
-// encode as hex (rather than binary)
-hash.setEncoding('hex')
+<span class="c1">// encode as hex (rather than binary)</span><span class="w"></span>
+<span class="nx">hash</span><span class="p">.</span><span class="nx">setEncoding</span><span class="p">(</span><span class="s1">&#39;hex&#39;</span><span class="p">)</span><span class="w"></span>
 
-// send it some text
-const text = process.argv[2]
-hash.write(text)
+<span class="c1">// send it some text</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span><span class="w"></span>
+<span class="nx">hash</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">text</span><span class="p">)</span><span class="w"></span>
 
-// signal end of text
-hash.end()
+<span class="c1">// signal end of text</span><span class="w"></span>
+<span class="nx">hash</span><span class="p">.</span><span class="nx">end</span><span class="p">()</span><span class="w"></span>
 
-// display the result
-const sha1sum = hash.read()
-console.log(`SHA1 of &quot;${text}&quot; is ${sha1sum}`)
-</code></pre>
-<pre><code class="language-sh">node hash-text.js something
-</code></pre>
-<pre><code class="language-out">SHA1 of &quot;something&quot; is 1af17e73721dbe0c40011b82ed4bb1a7dbe3ce29
-</code></pre>
+<span class="c1">// display the result</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">sha1sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">hash</span><span class="p">.</span><span class="nx">read</span><span class="p">()</span><span class="w"></span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`SHA1 of &quot;</span><span class="si">${</span><span class="nx">text</span><span class="si">}</span><span class="sb">&quot; is </span><span class="si">${</span><span class="nx">sha1sum</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-sh" title="hash-text.sh">
+<div class="highlight"><pre><span></span><code>node hash-text.js something
+</code></pre></div>
+</div>
+<div class="code-sample lang-out" title="hash-text.out">
+<div class="highlight"><pre><span></span><code>SHA1 of &quot;something&quot; is 1af17e73721dbe0c40011b82ed4bb1a7dbe3ce29
+</code></pre></div>
+</div>
 <p>Hashear un archivo en lugar de una cadena fija de texto es simple:
 solo leemos el contenido del archivo y pasamos aquellos caracteres al objeto que hace el hash:</p>
 <p><span class="FIXME">FIXME</span></p>
 <p>Sin embargo,
-es más eficiente procesar el archivo como un <a class="glossref" href="../glossary/#stream" markdown="1">stream</a>:</p>
-<pre><code class="language-js">import fs from 'fs'
-import crypto from 'crypto'
+es más eficiente procesar el archivo como un <a class="gl-ref" href="../glossary/#stream" markdown="1">stream</a>:</p>
+<div class="code-sample lang-js" title="hash-stream.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;fs&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">crypto</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;crypto&#39;</span><span class="w"></span>
 
-const filename = process.argv[2]
-const hash = crypto.createHash('sha1').setEncoding('hex')
-fs.createReadStream(filename).pipe(hash)
-hash.on('finish', () =&gt; {
-  const final = hash.read()
-  console.log('final', final)
-})
-console.log('program ends')
-</code></pre>
-<pre><code class="language-sh">node hash-stream.js hash-stream.js
-</code></pre>
-<pre><code class="language-out">program ends
+<span class="kd">const</span><span class="w"> </span><span class="nx">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">hash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">crypto</span><span class="p">.</span><span class="nx">createHash</span><span class="p">(</span><span class="s1">&#39;sha1&#39;</span><span class="p">).</span><span class="nx">setEncoding</span><span class="p">(</span><span class="s1">&#39;hex&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="nx">fs</span><span class="p">.</span><span class="nx">createReadStream</span><span class="p">(</span><span class="nx">filename</span><span class="p">).</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">hash</span><span class="p">)</span><span class="w"></span>
+<span class="nx">hash</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;finish&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="kr">final</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">hash</span><span class="p">.</span><span class="nx">read</span><span class="p">()</span><span class="w"></span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;final&#39;</span><span class="p">,</span><span class="w"> </span><span class="kr">final</span><span class="p">)</span><span class="w"></span>
+<span class="p">})</span><span class="w"></span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;program ends&#39;</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-sh" title="hash-stream.sh">
+<div class="highlight"><pre><span></span><code>node hash-stream.js hash-stream.js
+</code></pre></div>
+</div>
+<div class="code-sample lang-out" title="hash-stream.out">
+<div class="highlight"><pre><span></span><code>program ends
 final dc9e6c231e243860dace2dbf52845b121062b60e
-</code></pre>
+</code></pre></div>
+</div>
 <p class="continue">Este tipo de interfaz se llama
-API <span class="indexentry" index-key="streaming API;execution!streaming" markdown="1"><a class="glossref" href="../glossary/#streaming_api" markdown="1"> de Transmisión</a></span> <a class="glossref" href="../glossary/#api" markdown="1">API</a>
+API <span class="ix-entry" ix-key="streaming API;execution!streaming" markdown="1"><a class="gl-ref" href="../glossary/#streaming_api" markdown="1">api de Transmisión</a></span> <a class="gl-ref" href="../glossary/#api" markdown="1">API</a>
 porque está diseñada para procesar un stream de datos un bloque a la vez
 en lugar de requerir todos los datos en memoria de una.
 Muchas aplicaciones usan streams
 para que los programas no tengan que leer archivos  enteros (acaso grandes) en la memoria.</p>
 <p>Para iniciar,
 este programa pide a la librería <code>fs</code>  crear un  stream de lectura para un archivo
-y  <a class="glossref" href="../glossary/#pipe" markdown="1">entubar</a> los datos desde ese stream al objeto hashing 
+y  <a class="gl-ref" href="../glossary/#pipe" markdown="1">entubar</a> los datos desde ese stream al objeto hashing 
 (<span class="FIXME">FIXME</span>).
 Luego, dice al  objeto hashing qué hacer cuando no hay más datos
-proveyendo un <span class="indexentry" index-key="event handler!streaming API;streaming API!event handler" markdown="1"><a class="glossref" href="../glossary/#handler" markdown="1">detector</a></span> para el evento "finish" .
+proveyendo un <span class="ix-entry" ix-key="event handler!streaming API;streaming API!event handler" markdown="1"><a class="gl-ref" href="../glossary/#handler" markdown="1">gestor</a></span> para el evento &ldquo;finish&rdquo; .
 Esto es llamado de forma asíncrona:
 como la salida muestra,
 el programa principal termina antes que la tarea que maneja los datos sea agendada y ejecutada.
-La mayoría de programas también proveen un detector para que eventos de "datos"  hagan algo con cada bloque de datos que va llegando;
+La mayoría de programas también proveen un detector para que eventos de &ldquo;datos&rdquo;  hagan algo con cada bloque de datos que va llegando;
 el objeto <code>hash</code>  en nuestro programa hace eso  por nosotros.</p>
 <figure id="file-backup-streaming">
-  <img src="./figures/streaming.svg" alt="Transmisión de operaciones de archivo" />
-  <figcaption markdown="1">Figura 2.2: Procesando archivos como streams de bloques.</figcaption>
+  <img src="./streaming.svg" alt="Transmisión de operaciones de archivo"/>
+  <figcaption markdown="1">Figure 2.2: Procesando archivos como streams de bloques.</figcaption>
 </figure>
 
-<h2 id="archivo-respaldo-respaldo">Sección 2.2:  ¿Cómo podemos respaldar archivos?</h2>
+<h2 id="archivo-respaldo-respaldo">Section 2.2: ¿Cómo podemos respaldar archivos?</h2>
 <p>Muchos archivos solo cambian ocasionalmente luego que son recreados, o nunca en absoluto.
 Sería un desperdicio para un sistema de control de versiones hacer copias
 cada vez que el usuario quisiera guardar una  instantánea de un proyecto,
@@ -175,10 +266,10 @@ mientras que los nombres de archivos nos dicen qué contenido de cada archivo fu
 (ya que los archivos pueden ser movidos o renombrados).
 Para restaurar una  instantánea particular,
 todo lo que tenemos que hacer es copiar los archivos <code>.bck</code> guardados de vuelta a donde estaban
-(<a class="figref" href="../file-backup/#file-backup-storage">Figura 2.3</a>).</p>
+(<a class="fig-ref" href="../file-backup/#file-backup-storage">Figure 2.3</a>).</p>
 <figure id="file-backup-storage">
-  <img src="./figures/storage.svg" alt="Backup file  storage" />
-  <figcaption markdown="1">Figura 2.3: Organización del almacenamiento de archivos de respaldo.</figcaption>
+  <img src="./figures/storage.svg" alt="Backup file  storage"/>
+  <figcaption markdown="1">Figure 2.3: Organización del almacenamiento de archivos de respaldo.</figcaption>
 </figure>
 
 <p>Podemos  construir las herramientas necesarias para esto usando promesas (<span class="FIXME">FIXME</span>).
@@ -195,71 +286,82 @@ y entonces:</p>
 <p>calcula los hashes para esos archivos.</p>
 </li>
 </ol>
-<pre><code class="language-js">import fs from 'fs-extra-promise'
-import glob from 'glob-promise'
-import crypto from 'crypto'
+<div class="code-sample lang-js" title="hash-existing-promise.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;fs-extra-promise&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">glob</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;glob-promise&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">crypto</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;crypto&#39;</span><span class="w"></span>
 
-const hashExisting = (rootDir) =&gt; {
-  const pattern = `${rootDir}/**/*`
-  return new Promise((resolve, reject) =&gt; {
-    glob(pattern, {})
-      .then(matches =&gt; Promise.all(
-        matches.map(path =&gt; statPath(path))))
-      .then(pairs =&gt; pairs.filter(
-        ([path, stat]) =&gt; stat.isFile()))
-      .then(pairs =&gt; Promise.all(
-        pairs.map(([path, stat]) =&gt; readPath(path))))
-      .then(pairs =&gt; Promise.all(
-        pairs.map(([path, content]) =&gt; hashPath(path, content))))
-      .then(pairs =&gt; resolve(pairs))
-      .catch(err =&gt; reject(err))
-  })
-}
-</code></pre>
+<span class="kd">const</span><span class="w"> </span><span class="nx">hashExisting</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">rootDir</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">pattern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">rootDir</span><span class="si">}</span><span class="sb">/**/*`</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span><span class="w"> </span><span class="nx">reject</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">glob</span><span class="p">(</span><span class="nx">pattern</span><span class="p">,</span><span class="w"> </span><span class="p">{})</span><span class="w"></span>
+<span class="w">      </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">matches</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="nx">matches</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">path</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">statPath</span><span class="p">(</span><span class="nx">path</span><span class="p">))))</span><span class="w"></span>
+<span class="w">      </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">pairs</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">pairs</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="p">([</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">stat</span><span class="p">])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">stat</span><span class="p">.</span><span class="nx">isFile</span><span class="p">()))</span><span class="w"></span>
+<span class="w">      </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">pairs</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="nx">pairs</span><span class="p">.</span><span class="nx">map</span><span class="p">(([</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">stat</span><span class="p">])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">readPath</span><span class="p">(</span><span class="nx">path</span><span class="p">))))</span><span class="w"></span>
+<span class="w">      </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">pairs</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="nx">pairs</span><span class="p">.</span><span class="nx">map</span><span class="p">(([</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">content</span><span class="p">])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">hashPath</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">content</span><span class="p">))))</span><span class="w"></span>
+<span class="w">      </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">pairs</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">resolve</span><span class="p">(</span><span class="nx">pairs</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">))</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p class="continue">Esta función usa <code>promesa.all</code>
 para esperar que se completen las operaciones en todos archivos de la lista 
 antes de avanzar al siguiente paso.
 Un diseño diferente sería combinar stat, read, y hash en un solo paso
 para que cada archivo fuese manejado independientemente
 y use un <code>promesa.all</code> al final para juntarlos a todos.</p>
-<p>Las primeras dos <span class="indexentry" index-key="helper function" markdown="1"> funciones de ayuda</span> de las que <code>hashExisting</code> depende
+<p>Las primeras dos <span class="ix-entry" ix-key="helper function" markdown="1"> funciones de ayuda</span> de las que <code>hashExisting</code> depende
 envuelven una operación asíncrona en promesas:</p>
-<pre><code class="language-js">const statPath = (path) =&gt; {
-  return new Promise((resolve, reject) =&gt; {
-    fs.statAsync(path)
-      .then(stat =&gt; resolve([path, stat]))
-      .catch(err =&gt; reject(err))
-  })
-}
+<div class="code-sample lang-js" title="hash-existing-promise.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">statPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">path</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span><span class="w"> </span><span class="nx">reject</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">fs</span><span class="p">.</span><span class="nx">statAsync</span><span class="p">(</span><span class="nx">path</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">stat</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">resolve</span><span class="p">([</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">stat</span><span class="p">]))</span><span class="w"></span>
+<span class="w">      </span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">))</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const readPath = (path) =&gt; {
-  return new Promise((resolve, reject) =&gt; {
-    fs.readFileAsync(path, 'utf-8')
-      .then(content =&gt; resolve([path, content]))
-      .catch(err =&gt; reject(err))
-  })
-}
-</code></pre>
+<span class="kd">const</span><span class="w"> </span><span class="nx">readPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">path</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span><span class="w"> </span><span class="nx">reject</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">content</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">resolve</span><span class="p">([</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">content</span><span class="p">]))</span><span class="w"></span>
+<span class="w">      </span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">))</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p>La función final de ayuda calcula el hash de forma síncrona,
 pero podemos usar <code>promesa.all</code> para esperar a que esas operaciones terminen:</p>
-<pre><code class="language-js">const hashPath = (path, content) =&gt; {
-  const hasher = crypto.createHash('sha1').setEncoding('hex')
-  hasher.write(content)
-  hasher.end()
-  return [path, hasher.read()]
-}
-</code></pre>
+<div class="code-sample lang-js" title="hash-existing-promise.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">hashPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">content</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">hasher</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">crypto</span><span class="p">.</span><span class="nx">createHash</span><span class="p">(</span><span class="s1">&#39;sha1&#39;</span><span class="p">).</span><span class="nx">setEncoding</span><span class="p">(</span><span class="s1">&#39;hex&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="nx">hasher</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">content</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="nx">hasher</span><span class="p">.</span><span class="nx">end</span><span class="p">()</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">[</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">hasher</span><span class="p">.</span><span class="nx">read</span><span class="p">()]</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p>Vamos a ejecutarla:</p>
-<pre><code class="language-js">import hashExisting from './hash-existing-promise.js'
+<div class="code-sample lang-js" title="run-hash-existing-promise.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">hashExisting</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./hash-existing-promise.js&#39;</span><span class="w"></span>
 
-const root = process.argv[2]
-hashExisting(root).then(pairs =&gt; pairs.forEach(
-  ([path, hash]) =&gt; console.log(path, hash)
-))
-</code></pre>
-<pre><code class="language-sh">node run-hash-existing-promise.js . | fgrep -v test/ | fgrep -v '~'
-</code></pre>
-<pre><code class="language-out">./backup.js 11422489e11be3d8ff76278503457665f6152ebe
+<span class="kd">const</span><span class="w"> </span><span class="nx">root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span><span class="w"></span>
+<span class="nx">hashExisting</span><span class="p">(</span><span class="nx">root</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">pairs</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">pairs</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="w"></span>
+<span class="w">  </span><span class="p">([</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">hash</span><span class="p">])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">hash</span><span class="p">)</span><span class="w"></span>
+<span class="p">))</span><span class="w"></span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-sh" title="run-hash-existing-promise.sh">
+<div class="highlight"><pre><span></span><code>node run-hash-existing-promise.js . <span class="p">|</span> fgrep -v test/ <span class="p">|</span> fgrep -v <span class="s1">&#39;~&#39;</span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-out" title="run-hash-existing-promise.slice.out">
+<div class="highlight"><pre><span></span><code>./backup.js 11422489e11be3d8ff76278503457665f6152ebe
 ./check-existing-archivos.js 66b933cf9e792e9a9204171d04e0f8b530ec3f4f
 ./figures/hash-function.pdf 0eb82de379a95ee2be3f00b38c0102e2f2f8170e
 ./figures/hash-function.svg 563996575d581f2a08e3e954d7faba4d189d0773
@@ -270,54 +372,62 @@ hashExisting(root).then(pairs =&gt; pairs.forEach(
 ./x-json-manifests.md 223e0e4167acc6d4d81b76ba1287b90234c95e22
 ./x-mock-hashes.md 580edfc0cb8eaca4f3700307002ae10ee97af8d2
 ./x-pre-commit.md b7d945af4554fc0f64b708fe735417bee8b33eef
-</code></pre>
+</code></pre></div>
+</div>
 <p>El código que escribimos es más claro de lo que sería con retro-llamadas
 (intenta reescribirla si no me crees)
 pero la capa de promesas alrededor todavía oscurece todo su significado.
 Las mismas operaciones son más fáciles de leer cuando usamos <code>async</code> y <code>await</code>:</p>
-<pre><code class="language-js">const statPath = async (path) =&gt; {
-  const stat = await fs.statAsync(path)
-  return [path, stat]
-}
+<div class="code-sample lang-js" title="hash-existing-async.js">
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">statPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">path</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">stat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">statAsync</span><span class="p">(</span><span class="nx">path</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">[</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">stat</span><span class="p">]</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const readPath = async (path) =&gt; {
-  const content = await fs.readFileAsync(path, 'utf-8')
-  return [path, content]
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">readPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">path</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">[</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">content</span><span class="p">]</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const hashPath = (path, content) =&gt; {
-  const hasher = crypto.createHash('sha1').setEncoding('hex')
-  hasher.write(content)
-  hasher.end()
-  return [path, hasher.read()]
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">hashPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">content</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">hasher</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">crypto</span><span class="p">.</span><span class="nx">createHash</span><span class="p">(</span><span class="s1">&#39;sha1&#39;</span><span class="p">).</span><span class="nx">setEncoding</span><span class="p">(</span><span class="s1">&#39;hex&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="nx">hasher</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">content</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="nx">hasher</span><span class="p">.</span><span class="nx">end</span><span class="p">()</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">[</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">hasher</span><span class="p">.</span><span class="nx">read</span><span class="p">()]</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const hashExisting = async (rootDir) =&gt; {
-  const pattern = `${rootDir}/**/*`
-  const options = {}
-  const matches = await glob(pattern, options)
-  const stats = await Promise.all(matches.map(path =&gt; statPath(path)))
-  const files = stats.filter(([path, stat]) =&gt; stat.isFile())
-  const contents = await Promise.all(
-    files.map(([path, stat]) =&gt; readPath(path)))
-  const hashes = contents.map(
-    ([path, content]) =&gt; hashPath(path, content))
-  return hashes
-}
-</code></pre>
+<span class="kd">const</span><span class="w"> </span><span class="nx">hashExisting</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">rootDir</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">pattern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">rootDir</span><span class="si">}</span><span class="sb">/**/*`</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">matches</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="nx">pattern</span><span class="p">,</span><span class="w"> </span><span class="nx">options</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">stats</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">matches</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">path</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">statPath</span><span class="p">(</span><span class="nx">path</span><span class="p">)))</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">files</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">stats</span><span class="p">.</span><span class="nx">filter</span><span class="p">(([</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">stat</span><span class="p">])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">stat</span><span class="p">.</span><span class="nx">isFile</span><span class="p">())</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">contents</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="nx">files</span><span class="p">.</span><span class="nx">map</span><span class="p">(([</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">stat</span><span class="p">])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">readPath</span><span class="p">(</span><span class="nx">path</span><span class="p">)))</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">hashes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">contents</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="p">([</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">content</span><span class="p">])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">hashPath</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">content</span><span class="p">))</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">hashes</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p class="continue">Esta versión crea y resuelve exactamente las mismas promesas como en la ejecución anterior,
 pero esas promesas son creadas automáticamente para nosotros por Node.
 Para ver que funciona,
 la corremos para los mismos archivos de entrada :</p>
-<pre><code class="language-js">import hashExisting from './hash-existing-async.js'
+<div class="code-sample lang-js" title="run-hash-existing-async.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">hashExisting</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./hash-existing-async.js&#39;</span><span class="w"></span>
 
-const root = process.argv[2]
-hashExisting(root).then(
-  pairs =&gt; pairs.forEach(([path, hash]) =&gt; console.log(path, hash)))
-</code></pre>
-<pre><code class="language-sh">node run-hash-existing-async.js . | fgrep -v test/ | fgrep -v '~'
-</code></pre>
-<pre><code class="language-out">./backup.js 11422489e11be3d8ff76278503457665f6152ebe
+<span class="kd">const</span><span class="w"> </span><span class="nx">root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span><span class="w"></span>
+<span class="nx">hashExisting</span><span class="p">(</span><span class="nx">root</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="w"></span>
+<span class="w">  </span><span class="nx">pairs</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">pairs</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(([</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">hash</span><span class="p">])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">hash</span><span class="p">)))</span><span class="w"></span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-sh" title="run-hash-existing-async.sh">
+<div class="highlight"><pre><span></span><code>node run-hash-existing-async.js . <span class="p">|</span> fgrep -v test/ <span class="p">|</span> fgrep -v <span class="s1">&#39;~&#39;</span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-out" title="run-hash-existing-async.slice.out">
+<div class="highlight"><pre><span></span><code>./backup.js 11422489e11be3d8ff76278503457665f6152ebe
 ./check-existing-archivos.js 66b933cf9e792e9a9204171d04e0f8b530ec3f4f
 ./figures/hash-function.pdf 0eb82de379a95ee2be3f00b38c0102e2f2f8170e
 ./figures/hash-function.svg 563996575d581f2a08e3e954d7faba4d189d0773
@@ -328,15 +438,16 @@ hashExisting(root).then(
 ./x-json-manifests.md 223e0e4167acc6d4d81b76ba1287b90234c95e22
 ./x-mock-hashes.md 580edfc0cb8eaca4f3700307002ae10ee97af8d2
 ./x-pre-commit.md b7d945af4554fc0f64b708fe735417bee8b33eef
-</code></pre>
-<h2 id="archivo-respaldo-track">Sección 2.3:  ¿Cómo podemos rastrear cuales archivos ya han sido respaldados?</h2>
+</code></pre></div>
+</div>
+<h2 id="archivo-respaldo-track">Section 2.3: ¿Cómo podemos rastrear cuales archivos ya han sido respaldados?</h2>
 <p>La segunda parte de nuestro herramienta de respaldo lleva registro de cuales archivos han sido respaldados y cuales no.
 Almacena los respaldos en un directorio que contiene archivos respaldo como <code>abcd1234.bck</code>
 y archivos describiendo el contenido de instantáneas particulares.
 Estas últimas se llaman <code>ssssssssss.csv</code>,
-donde  <code>ssssssssss</code> es la <a class="glossref" href="../glossary/#utc" markdown="1">UTC</a> <a class="glossref" href="../glossary/#timestamp" markdown="1">marca temporal</a>  de creación del respaldo
-y la  extensión <code>.csv</code> indica que el archivo está formateado como <a class="glossref" href="../glossary/#csv" markdown="1">valores separados por comas </a>.
-(Podríamos guardar estos archivos como <a class="glossref" href="../glossary/#json" markdown="1">JSON</a>, pero CSV es más fácil de leer para las personas).</p>
+donde  <code>ssssssssss</code> es la <a class="gl-ref" href="../glossary/#utc" markdown="1">UTC</a> <a class="gl-ref" href="../glossary/#timestamp" markdown="1">marca temporal</a>  de creación del respaldo
+y la  extensión <code>.csv</code> indica que el archivo está formateado como <a class="gl-ref" href="../glossary/#csv" markdown="1">valores separados por comas</a>.
+(Podríamos guardar estos archivos como <a class="gl-ref" href="../glossary/#json" markdown="1">JSON</a>, pero CSV es más fácil de leer para las personas).</p>
 <blockquote>
 <h3>hora de revisión/hora de uso</h3>
 <p>nuestra convención  de nomenclatura  para indexar archivos fallará si intentamos crea más de un respaldo por segundo.
@@ -344,40 +455,45 @@ Esto puede parece poco probable,
 pero muchas fallas y faltas de seguridad son resultado de programadores asumiendo que las cosas no pasarían.</p>
 <p>Podríamos tratar de evitar este problema usando un esquema de nomenclatura bi-partita <code>ssssssss-un.csv</code>,
 <code>ssssssss-b.csv</code>, y así,
-pero esto lleva a una <span class="indexentry" index-key="race condition" markdown="1"><a class="glossref" href="../glossary/#race_condition" markdown="1">condición de carrera</a></span>
-llamada <span class="indexentry" index-key="race condition!time of check/time of use;time of check/time of use" markdown="1"><a class="glossref" href="../glossary/#toctou" markdown="1"> hora de revisión/hora de uso</a></span>.
+pero esto lleva a una <span class="ix-entry" ix-key="race condition" markdown="1"><a class="gl-ref" href="../glossary/#race_condition" markdown="1">condición de carrera</a></span>
+llamada <span class="ix-entry" ix-key="race condition!time of check/time of use;time of check/time of use" markdown="1"><a class="gl-ref" href="../glossary/#toctou" markdown="1">hora de revisión/hora de uso</a></span>.
 Si dos usuarios ejecutan la herramienta de respaldo al mismo tiempo,
 ambos verán que no hay un archivo (aún) con la marca temporal actual,
 entonces ambos lo crearán la primera vez.</p>
 </blockquote>
-<pre><code class="language-js">import glob from 'glob-promise'
-import path from 'path'
+<div class="code-sample lang-js" title="check-existing-files.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">glob</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;glob-promise&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">path</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;path&#39;</span><span class="w"></span>
 
-const findNew = async (rootDir, pathHashPairs) =&gt; {
-  const hashToPath = pathHashPairs.reduce((obj, [path, hash]) =&gt; {
-    obj[hash] = path
-    return obj
-  }, {})
+<span class="kd">const</span><span class="w"> </span><span class="nx">findNew</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">rootDir</span><span class="p">,</span><span class="w"> </span><span class="nx">pathHashPairs</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">hashToPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">pathHashPairs</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">obj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">hash</span><span class="p">])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">obj</span><span class="p">[</span><span class="nx">hash</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">path</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">obj</span><span class="w"></span>
+<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="p">{})</span><span class="w"></span>
 
-  const pattern = `${rootDir}/*.bck`
-  const options = {}
-  const existingFiles = await glob(pattern, options)
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">pattern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">rootDir</span><span class="si">}</span><span class="sb">/*.bck`</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">existingFiles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="nx">pattern</span><span class="p">,</span><span class="w"> </span><span class="nx">options</span><span class="p">)</span><span class="w"></span>
 
-  existingFiles.forEach(filename =&gt; {
-    const stripped = path.basename(filename).replace(/\.bck$/, '')
-    delete hashToPath[stripped]
-  })
+<span class="w">  </span><span class="nx">existingFiles</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">filename</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">stripped</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">path</span><span class="p">.</span><span class="nx">basename</span><span class="p">(</span><span class="nx">filename</span><span class="p">).</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/\.bck$/</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="ow">delete</span><span class="w"> </span><span class="nx">hashToPath</span><span class="p">[</span><span class="nx">stripped</span><span class="p">]</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
 
-  return hashToPath
-}
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">hashToPath</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-export default findNew
-</code></pre>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">findNew</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p>Para probar nuestro programa
 creamos manualmente directorios de prueba con hashes (cortos) manufacturados  :</p>
-<pre><code class="language-sh">tree --charset unicode test
-</code></pre>
-<pre><code class="language-out">test
+<div class="code-sample lang-sh" title="tree-test.sh">
+<div class="highlight"><pre><span></span><code>tree --charset unicode <span class="nb">test</span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-out" title="tree-test.out">
+<div class="highlight"><pre><span></span><code>test
 |-- bck-0-csv-0
 |-- bck-1-csv-1
 |   |-- 0001.csv
@@ -393,75 +509,79 @@ creamos manualmente directorios de prueba con hashes (cortos) manufacturados  :<
 `-- test-find.js
 
 3 directories, 10 archivos
-</code></pre>
-<p>Usamos <span class="indexentry" index-key="Mocha" markdown="1"><a href="https://mochajs.org/">Mocha</a></span> para gestionar nuestras pruebas.
+</code></pre></div>
+</div>
+<p>Usamos <span class="ix-entry" ix-key="Mocha" markdown="1"><a href="https://mochajs.org/">Mocha</a></span> para gestionar nuestras pruebas.
 Cada test es una  función <code>async</code>;
 Mocha automáticamente espera que se completen todos antes de reportar resultados.
 Para correrlos,
 agregamos la línea:</p>
-<pre><code class="language-js">&quot;test&quot;: &quot;mocha */test/test-*.js&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="s2">&quot;test&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;mocha */test/test-*.js&quot;</span><span class="w"></span>
+</code></pre></div>
 <p class="continue">en la sección <code>scripts</code>  del archivo <code>package.json</code>  en nuestro proyecto
 así que cuando llamamos <code>npm run test</code>,
 Mocha busca los archivos en los sub-directorios <code>test</code>  de los directorios que tienen nuestras lecciones.</p>
 <p>Aquí están algunas de nuestras pruebas:</p>
-<pre><code class="language-js">import assert from 'assert'
+<div class="code-sample lang-js" title="test-find.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">assert</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;assert&#39;</span><span class="w"></span>
 
-import findNew from '../check-existing-files.js'
+<span class="k">import</span><span class="w"> </span><span class="nx">findNew</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../check-existing-files.js&#39;</span><span class="w"></span>
 
-describe('pre-existing hashes and actual filesystem', () =&gt; {
-  it('finds no pre-existing files when none given or exist', async () =&gt; {
-    const expected = {}
-    const actual = await findNew('file-backup/test/bck-0-csv-0', [])
-    assert.deepStrictEqual(expected, actual,
-      'Expected no files')
-  })
+<span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;pre-existing hashes and actual filesystem&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;finds no pre-existing files when none given or exist&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actual</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">findNew</span><span class="p">(</span><span class="s1">&#39;file-backup/test/bck-0-csv-0&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[])</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">expected</span><span class="p">,</span><span class="w"> </span><span class="nx">actual</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="s1">&#39;Expected no files&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
 
-  it('finds some files when one is given and none exist', async () =&gt; {
-    const check = [['somefile.txt', '9876fedc']]
-    const expected = { '9876fedc': 'somefile.txt' }
-    const actual = await findNew('file-backup/test/bck-0-csv-0', check)
-    assert.deepStrictEqual(expected, actual,
-      'Expected one file')
-  })
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;finds some files when one is given and none exist&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">check</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[[</span><span class="s1">&#39;somefile.txt&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;9876fedc&#39;</span><span class="p">]]</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s1">&#39;9876fedc&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;somefile.txt&#39;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actual</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">findNew</span><span class="p">(</span><span class="s1">&#39;file-backup/test/bck-0-csv-0&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">check</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">expected</span><span class="p">,</span><span class="w"> </span><span class="nx">actual</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="s1">&#39;Expected one file&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
 
-  it('finds nothing needs backup when there is a match', async () =&gt; {
-    const check = [['alpha.js', 'abcd1234']]
-    const expected = {}
-    const actual = await findNew('file-backup/test/bck-1-csv-1', check)
-    assert.deepStrictEqual(expected, actual,
-      'Expected no files')
-  })
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;finds nothing needs backup when there is a match&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">check</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[[</span><span class="s1">&#39;alpha.js&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;abcd1234&#39;</span><span class="p">]]</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actual</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">findNew</span><span class="p">(</span><span class="s1">&#39;file-backup/test/bck-1-csv-1&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">check</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">expected</span><span class="p">,</span><span class="w"> </span><span class="nx">actual</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="s1">&#39;Expected no files&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
 
-  it('finds something needs backup when there is a mismatch', async () =&gt; {
-    const check = [['alpha.js', 'a1b2c3d4']]
-    const expected = { a1b2c3d4: 'alpha.js' }
-    const actual = await findNew('file-backup/test/bck-1-csv-1', check)
-    assert.deepStrictEqual(expected, actual,
-      'Expected one file')
-  })
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;finds something needs backup when there is a mismatch&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">check</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[[</span><span class="s1">&#39;alpha.js&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;a1b2c3d4&#39;</span><span class="p">]]</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">a1b2c3d4</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;alpha.js&#39;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actual</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">findNew</span><span class="p">(</span><span class="s1">&#39;file-backup/test/bck-1-csv-1&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">check</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">expected</span><span class="p">,</span><span class="w"> </span><span class="nx">actual</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="s1">&#39;Expected one file&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
 
-  it('finds mixed matches', async () =&gt; {
-    const check = [
-      ['matches.js', '3456cdef'],
-      ['matches.txt', 'abcd1234'],
-      ['mismatch.txt', '12345678']
-    ]
-    const expected = { 12345678: 'mismatch.txt' }
-    const actual = await findNew('file-backup/test/bck-4-csv-2', check)
-    assert.deepStrictEqual(expected, actual,
-      'Expected one file')
-  })
-})
-</code></pre>
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;finds mixed matches&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">check</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">      </span><span class="p">[</span><span class="s1">&#39;matches.js&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;3456cdef&#39;</span><span class="p">],</span><span class="w"></span>
+<span class="w">      </span><span class="p">[</span><span class="s1">&#39;matches.txt&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;abcd1234&#39;</span><span class="p">],</span><span class="w"></span>
+<span class="w">      </span><span class="p">[</span><span class="s1">&#39;mismatch.txt&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;12345678&#39;</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mf">12345678</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;mismatch.txt&#39;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actual</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">findNew</span><span class="p">(</span><span class="s1">&#39;file-backup/test/bck-4-csv-2&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">check</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">expected</span><span class="p">,</span><span class="w"> </span><span class="nx">actual</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="s1">&#39;Expected one file&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
+<span class="p">})</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p class="continue">y este es el reporte de Mocha:</p>
-<pre><code class="language-out">
-&gt; stjs@1.0.0 test
+<div class="code-sample lang-out" title="test-check-filesystem.out">
+<div class="highlight"><pre><span></span><code>&gt; stjs@1.0.0 test
 &gt; mocha */test/test-*.js &quot;-g&quot; &quot;pre-existing hashes&quot;
 
 sh: mocha: command not found
-</code></pre>
-<h2 id="archivo-respaldo-test">Sección 2.4:  ¿Cómo podemos probar código que modifica archivos?</h2>
+</code></pre></div>
+</div>
+<h2 id="archivo-respaldo-test">Section 2.4: ¿Cómo podemos probar código que modifica archivos?</h2>
 <p>Lo último que  nuestra herramienta necesita hacer
 es copiar los archivos que necesita y crear un nuevo archivo de índice.
 El código en sí será relativamente simple,
@@ -469,206 +589,214 @@ pero probarlo será complicado porque
 nuestras pruebas necesitarán crear directorios y archivos antes de correr
 y luego borrarlos
 (para que no contaminen pruebas posteriores).</p>
-<p>un mejor plan es usar un <span class="indexentry" index-key="mock object!for testing;unit test!using mock object" markdown="1"><a class="glossref" href="../glossary/#mock_object" markdown="1">objeto simulado</a></span>
+<p>un mejor plan es usar un <span class="ix-entry" ix-key="mock object!for testing;unit test!using mock object" markdown="1"><a class="gl-ref" href="../glossary/#mock_object" markdown="1">objeto simulado</a></span>
 en lugar del sistema de archivos real .
 Un objeto simulado tiene la misma  interfaz que la función, objeto, clase, o librería que reemplaza,
 pero está diseñado solo para usarse durante pruebas.
-La librería de Node <a href="https://www.npmjs.com/package/mock-fs"><code>mock-fs</code></a>  provee las mismas funciones como la librería <code>fs</code>,
+La librería de Node [<code>mock-fs</code>][node-mock-fs]  provee las mismas funciones como la librería <code>fs</code>,
 pero almacena todo en memoria
-(<a class="figref" href="../file-backup/#file-backup-mock-fs">Figura 2.4</a>).
+(<a class="fig-ref" href="../file-backup/#file-backup-mock-fs">Figure 2.4</a>).
 Esto evita que nuestras pruebas accidentalmente alteren the sistema de archivos,
 y también hace más rápidas las pruebas
 (porque las operaciones en-memoria son miles de veces más rápidas que las  operaciones en disco).</p>
 <figure id="file-backup-mock-fs">
-  <img src="./figures/mock-fs.svg" alt="simulación del sistema de archivos" />
-  <figcaption markdown="1">Figura 2.4: Usando un simulado del sistema de archivos para simplificar las pruebas.</figcaption>
+  <img src="./figures/mock-fs.svg" alt="simulación del sistema de archivos"/>
+  <figcaption markdown="1">Figure 2.4: Usando un simulado del sistema de archivos para simplificar las pruebas.</figcaption>
 </figure>
 
 <p>Podemos crear un simulaod del sistema de archivos al dar a la librería una descripción en JSON  de
 los archivos y qué debieran contener:</p>
-<pre><code class="language-js">import assert from 'assert'
-import mock from 'mock-fs'
+<div class="code-sample lang-js" title="test-find-mock.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">assert</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;assert&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">mock</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;mock-fs&#39;</span><span class="w"></span>
 
-import findNew from '../check-existing-files.js'
+<span class="k">import</span><span class="w"> </span><span class="nx">findNew</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../check-existing-files.js&#39;</span><span class="w"></span>
 
-describe('checks for pre-existing hashes using mock filesystem', () =&gt; {
-  beforeEach(() =&gt; {
-    mock({
-      'bck-0-csv-0': {},
-      'bck-1-csv-1': {
-        '0001.csv': 'alpha.js,abcd1234',
-        'abcd1234.bck': 'alpha.js content'
-      },
-      'bck-4-csv-2': {
-        '0001.csv': ['alpha.js,abcd1234',
-          'beta.txt,bcde2345'].join('\n'),
-        '3024.csv': ['alpha.js,abcd1234',
-          'gamma.png,3456cdef',
-          'subdir/renamed.txt,bcde2345'].join('\n'),
-        '3456cdef.bck': 'gamma.png content',
-        'abcd1234.bck': 'alpha content',
-        'bcde2345.bck': 'beta.txt became subdir/renamed.txt'
-      }
-    })
-  })
+<span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;checks for pre-existing hashes using mock filesystem&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">beforeEach</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">mock</span><span class="p">({</span><span class="w"></span>
+<span class="w">      </span><span class="s1">&#39;bck-0-csv-0&#39;</span><span class="o">:</span><span class="w"> </span><span class="p">{},</span><span class="w"></span>
+<span class="w">      </span><span class="s1">&#39;bck-1-csv-1&#39;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="s1">&#39;0001.csv&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;alpha.js,abcd1234&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="s1">&#39;abcd1234.bck&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;alpha.js content&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="p">},</span><span class="w"></span>
+<span class="w">      </span><span class="s1">&#39;bck-4-csv-2&#39;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="s1">&#39;0001.csv&#39;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;alpha.js,abcd1234&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">          </span><span class="s1">&#39;beta.txt,bcde2345&#39;</span><span class="p">].</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;\n&#39;</span><span class="p">),</span><span class="w"></span>
+<span class="w">        </span><span class="s1">&#39;3024.csv&#39;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;alpha.js,abcd1234&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">          </span><span class="s1">&#39;gamma.png,3456cdef&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">          </span><span class="s1">&#39;subdir/renamed.txt,bcde2345&#39;</span><span class="p">].</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;\n&#39;</span><span class="p">),</span><span class="w"></span>
+<span class="w">        </span><span class="s1">&#39;3456cdef.bck&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;gamma.png content&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="s1">&#39;abcd1234.bck&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;alpha content&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="s1">&#39;bcde2345.bck&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;beta.txt became subdir/renamed.txt&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">})</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
 
-  afterEach(() =&gt; {
-    mock.restore()
-  })
+<span class="w">  </span><span class="nx">afterEach</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">mock</span><span class="p">.</span><span class="nx">restore</span><span class="p">()</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
 
-})
-</code></pre>
-<p class="continue"><span class="indexentry" index-key="Mocha!beforeEach" markdown="1">Mocha</span> automáticamente llama a <code>beforeEach</code> antes de correr cada prueba,
-y <span class="indexentry" index-key="Mocha!afterEach" markdown="1"><code>afterEach</code></span> luego que cada prueba termina
-(el cual es otro <span class="indexentry" index-key="protocol!for unit testing" markdown="1">protocolo</span>).
+<span class="p">})</span><span class="w"></span>
+</code></pre></div>
+</div>
+<p class="continue"><span class="ix-entry" ix-key="Mocha!beforeEach" markdown="1">Mocha</span> automáticamente llama a <code>beforeEach</code> antes de correr cada prueba,
+y <span class="ix-entry" ix-key="Mocha!afterEach" markdown="1"><code>afterEach</code></span> luego que cada prueba termina
+(el cual es otro <span class="ix-entry" ix-key="protocol!for unit testing" markdown="1">protocolo</span>).
 Todas las pruebas quedan exactamente igual,
 y ya que <code>mock-fs</code> reemplaza las funciones en la  librería standard <code>fs</code> con sus propias,
 nada en nuestra aplicación necesita cambiar.</p>
 <p>Finalmente, estamos listos para escribir el programa que efectivamente respalda archivos:</p>
-<pre><code class="language-js">import fs from 'fs-extra-promise'
+<div class="code-sample lang-js" title="backup.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;fs-extra-promise&#39;</span><span class="w"></span>
 
-import hashExisting from './hash-existing-async.js'
-import findNew from './check-existing-files.js'
+<span class="k">import</span><span class="w"> </span><span class="nx">hashExisting</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./hash-existing-async.js&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">findNew</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./check-existing-files.js&#39;</span><span class="w"></span>
 
-const backup = async (src, dst, timestamp = null) =&gt; {
-  if (timestamp === null) {
-    timestamp = Math.round((new Date()).getTime() / 1000)
-  }
-  timestamp = String(timestamp).padStart(10, '0')
+<span class="kd">const</span><span class="w"> </span><span class="nx">backup</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">src</span><span class="p">,</span><span class="w"> </span><span class="nx">dst</span><span class="p">,</span><span class="w"> </span><span class="nx">timestamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">timestamp</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">timestamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">((</span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">()).</span><span class="nx">getTime</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1000</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="nx">timestamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">String</span><span class="p">(</span><span class="nx">timestamp</span><span class="p">).</span><span class="nx">padStart</span><span class="p">(</span><span class="mf">10</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;0&#39;</span><span class="p">)</span><span class="w"></span>
 
-  const existing = await hashExisting(src)
-  const needToCopy = await findNew(dst, existing)
-  await copyFiles(dst, needToCopy)
-  await saveManifest(dst, timestamp, existing)
-}
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">existing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">hashExisting</span><span class="p">(</span><span class="nx">src</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">needToCopy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">findNew</span><span class="p">(</span><span class="nx">dst</span><span class="p">,</span><span class="w"> </span><span class="nx">existing</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">copyFiles</span><span class="p">(</span><span class="nx">dst</span><span class="p">,</span><span class="w"> </span><span class="nx">needToCopy</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">saveManifest</span><span class="p">(</span><span class="nx">dst</span><span class="p">,</span><span class="w"> </span><span class="nx">timestamp</span><span class="p">,</span><span class="w"> </span><span class="nx">existing</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const copyFiles = async (dst, needToCopy) =&gt; {
-  const promises = Object.keys(needToCopy).map(hash =&gt; {
-    const srcPath = needToCopy[hash]
-    const dstPath = `${dst}/${hash}.bck`
-    fs.copyFileAsync(srcPath, dstPath)
-  })
-  return Promise.all(promises)
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">copyFiles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">dst</span><span class="p">,</span><span class="w"> </span><span class="nx">needToCopy</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">promises</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">needToCopy</span><span class="p">).</span><span class="nx">map</span><span class="p">(</span><span class="nx">hash</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">srcPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">needToCopy</span><span class="p">[</span><span class="nx">hash</span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">dstPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">dst</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">hash</span><span class="si">}</span><span class="sb">.bck`</span><span class="w"></span>
+<span class="w">    </span><span class="nx">fs</span><span class="p">.</span><span class="nx">copyFileAsync</span><span class="p">(</span><span class="nx">srcPath</span><span class="p">,</span><span class="w"> </span><span class="nx">dstPath</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">promises</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const saveManifest = async (dst, timestamp, pathHash) =&gt; {
-  pathHash = pathHash.sort()
-  const content = pathHash.map(
-    ([path, hash]) =&gt; `${path},${hash}`).join('\n')
-  const manifest = `${dst}/${timestamp}.csv`
-  fs.writeFileAsync(manifest, content, 'utf-8')
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">saveManifest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">dst</span><span class="p">,</span><span class="w"> </span><span class="nx">timestamp</span><span class="p">,</span><span class="w"> </span><span class="nx">pathHash</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">pathHash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">pathHash</span><span class="p">.</span><span class="nx">sort</span><span class="p">()</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">pathHash</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="p">([</span><span class="nx">path</span><span class="p">,</span><span class="w"> </span><span class="nx">hash</span><span class="p">])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">path</span><span class="si">}</span><span class="sb">,</span><span class="si">${</span><span class="nx">hash</span><span class="si">}</span><span class="sb">`</span><span class="p">).</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;\n&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">manifest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">dst</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">timestamp</span><span class="si">}</span><span class="sb">.csv`</span><span class="w"></span>
+<span class="w">  </span><span class="nx">fs</span><span class="p">.</span><span class="nx">writeFileAsync</span><span class="p">(</span><span class="nx">manifest</span><span class="p">,</span><span class="w"> </span><span class="nx">content</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-export default backup
-</code></pre>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">backup</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p>Las pruebas para esto son más complicadas que las pruebas que hemos escrito antes
 porque queremoves revisar con los hashes reales del archivo.
 Vamos a usar algunas fixtures para ejecutar las pruebas:</p>
-<pre><code class="language-js">import backup from '../backup.js'
+<div class="code-sample lang-js" title="test-backup.js">
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">backup</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../backup.js&#39;</span><span class="w"></span>
 
-const hashString = (data) =&gt; {
-  const hasher = crypto.createHash('sha1').setEncoding('hex')
-  hasher.write(data)
-  hasher.end()
-  return hasher.read()
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">hashString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">hasher</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">crypto</span><span class="p">.</span><span class="nx">createHash</span><span class="p">(</span><span class="s1">&#39;sha1&#39;</span><span class="p">).</span><span class="nx">setEncoding</span><span class="p">(</span><span class="s1">&#39;hex&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="nx">hasher</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="nx">hasher</span><span class="p">.</span><span class="nx">end</span><span class="p">()</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">hasher</span><span class="p">.</span><span class="nx">read</span><span class="p">()</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const Contents = {
-  aaa: 'AAA',
-  bbb: 'BBB',
-  ccc: 'CCC'
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">Contents</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">aaa</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;AAA&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">bbb</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;BBB&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">ccc</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;CCC&#39;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const Hashes = Object.keys(Contents).reduce((obj, key) =&gt; {
-  obj[key] = hashString(Contents[key])
-  return obj
-}, {})
+<span class="kd">const</span><span class="w"> </span><span class="nx">Hashes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">Contents</span><span class="p">).</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">obj</span><span class="p">,</span><span class="w"> </span><span class="nx">key</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">obj</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">hashString</span><span class="p">(</span><span class="nx">Contents</span><span class="p">[</span><span class="nx">key</span><span class="p">])</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">obj</span><span class="w"></span>
+<span class="p">},</span><span class="w"> </span><span class="p">{})</span><span class="w"></span>
 
-const Fixture = {
-  source: {
-    'alpha.txt': Contents.aaa,
-    'beta.txt': Contents.bbb,
-    gamma: {
-      'delta.txt': Contents.ccc
-    }
-  },
-  backup: {}
-}
+<span class="kd">const</span><span class="w"> </span><span class="nx">Fixture</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">source</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="s1">&#39;alpha.txt&#39;</span><span class="o">:</span><span class="w"> </span><span class="nx">Contents</span><span class="p">.</span><span class="nx">aaa</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="s1">&#39;beta.txt&#39;</span><span class="o">:</span><span class="w"> </span><span class="nx">Contents</span><span class="p">.</span><span class="nx">bbb</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nx">gamma</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="s1">&#39;delta.txt&#39;</span><span class="o">:</span><span class="w"> </span><span class="nx">Contents</span><span class="p">.</span><span class="nx">ccc</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">},</span><span class="w"></span>
+<span class="w">  </span><span class="nx">backup</span><span class="o">:</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-const InitialBackups = Object.keys(Hashes).reduce((set, filename) =&gt; {
-  set.add(`backup/${Hashes[filename]}.bck`)
-  return set
-}, new Set())
-</code></pre>
+<span class="kd">const</span><span class="w"> </span><span class="nx">InitialBackups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">Hashes</span><span class="p">).</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">set</span><span class="p">,</span><span class="w"> </span><span class="nx">filename</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">set</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="sb">`backup/</span><span class="si">${</span><span class="nx">Hashes</span><span class="p">[</span><span class="nx">filename</span><span class="p">]</span><span class="si">}</span><span class="sb">.bck`</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">set</span><span class="w"></span>
+<span class="p">},</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Set</span><span class="p">())</span><span class="w"></span>
+</code></pre></div>
+</div>
 <p class="continue">y luego correr unas pruebas:</p>
-<pre><code class="language-js">describe('check entire backup process', () =&gt; {
-  beforeEach(() =&gt; {
-    mock(Fixture)
-  })
+<div class="code-sample lang-js" title="test-backup.js">
+<div class="highlight"><pre><span></span><code><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;check entire backup process&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nx">beforeEach</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">mock</span><span class="p">(</span><span class="nx">Fixture</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
 
-  afterEach(() =&gt; {
-    mock.restore()
-  })
+<span class="w">  </span><span class="nx">afterEach</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">mock</span><span class="p">.</span><span class="nx">restore</span><span class="p">()</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
 
-  it('creates an initial CSV manifest', async () =&gt; {
-    await backup('source', 'backup', 0)
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;creates an initial CSV manifest&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">backup</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;backup&#39;</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"></span>
 
-    assert.strictEqual((await glob('backup/*')).length, 4,
-      'Expected 4 files')
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*&#39;</span><span class="p">)).</span><span class="nx">length</span><span class="p">,</span><span class="w"> </span><span class="mf">4</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="s1">&#39;Expected 4 files&#39;</span><span class="p">)</span><span class="w"></span>
 
-    const actualBackups = new Set(await glob('backup/*.bck'))
-    assert.deepStrictEqual(actualBackups, InitialBackups,
-      'Expected 3 backup files')
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actualBackups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Set</span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*.bck&#39;</span><span class="p">))</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">actualBackups</span><span class="p">,</span><span class="w"> </span><span class="nx">InitialBackups</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="s1">&#39;Expected 3 backup files&#39;</span><span class="p">)</span><span class="w"></span>
 
-    const actualManifests = await glob('backup/*.csv')
-    assert.deepStrictEqual(actualManifests, ['backup/0000000000.csv'],
-      'Expected one manifest')
-  })
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actualManifests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*.csv&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">actualManifests</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;backup/0000000000.csv&#39;</span><span class="p">],</span><span class="w"></span>
+<span class="w">      </span><span class="s1">&#39;Expected one manifest&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
 
-  it('does not duplicate files unnecessarily', async () =&gt; {
-    await backup('source', 'backup', 0)
-    assert.strictEqual((await glob('backup/*')).length, 4,
-      'Expected 4 files after first backup')
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;does not duplicate files unnecessarily&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">backup</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;backup&#39;</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*&#39;</span><span class="p">)).</span><span class="nx">length</span><span class="p">,</span><span class="w"> </span><span class="mf">4</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="s1">&#39;Expected 4 files after first backup&#39;</span><span class="p">)</span><span class="w"></span>
 
-    await backup('source', 'backup', 1)
-    assert.strictEqual((await glob('backup/*')).length, 5,
-      'Expected 5 files after second backup')
-    const actualBackups = new Set(await glob('backup/*.bck'))
-    assert.deepStrictEqual(actualBackups, InitialBackups,
-      'Expected 3 backup files after second backup')
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">backup</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;backup&#39;</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*&#39;</span><span class="p">)).</span><span class="nx">length</span><span class="p">,</span><span class="w"> </span><span class="mf">5</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="s1">&#39;Expected 5 files after second backup&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actualBackups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Set</span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*.bck&#39;</span><span class="p">))</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">actualBackups</span><span class="p">,</span><span class="w"> </span><span class="nx">InitialBackups</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="s1">&#39;Expected 3 backup files after second backup&#39;</span><span class="p">)</span><span class="w"></span>
 
-    const actualManifests = (await glob('backup/*.csv')).sort()
-    assert.deepStrictEqual(actualManifests,
-      ['backup/0000000000.csv', 'backup/0000000001.csv'],
-      'Expected two manifests')
-  })
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actualManifests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*.csv&#39;</span><span class="p">)).</span><span class="nx">sort</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">actualManifests</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="p">[</span><span class="s1">&#39;backup/0000000000.csv&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;backup/0000000001.csv&#39;</span><span class="p">],</span><span class="w"></span>
+<span class="w">      </span><span class="s1">&#39;Expected two manifests&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
 
-  it('adds a file as needed', async () =&gt; {
-    await backup('source', 'backup', 0)
-    assert.strictEqual((await glob('backup/*')).length, 4,
-      'Expected 4 files after first backup')
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;adds a file as needed&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">backup</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;backup&#39;</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*&#39;</span><span class="p">)).</span><span class="nx">length</span><span class="p">,</span><span class="w"> </span><span class="mf">4</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="s1">&#39;Expected 4 files after first backup&#39;</span><span class="p">)</span><span class="w"></span>
 
-    await fs.writeFileAsync('source/newfile.txt', 'NNN')
-    const hashOfNewFile = hashString('NNN')
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">writeFileAsync</span><span class="p">(</span><span class="s1">&#39;source/newfile.txt&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;NNN&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">hashOfNewFile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">hashString</span><span class="p">(</span><span class="s1">&#39;NNN&#39;</span><span class="p">)</span><span class="w"></span>
 
-    await backup('source', 'backup', 1)
-    assert.strictEqual((await glob('backup/*')).length, 6,
-      'Expected 6 files after second backup')
-    const expected = new Set(InitialBackups)
-      .add(`backup/${hashOfNewFile}.bck`)
-    const actualBackups = new Set(await glob('backup/*.bck'))
-    assert.deepStrictEqual(actualBackups, expected,
-      'Expected 4 backup files after second backup')
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">backup</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;backup&#39;</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*&#39;</span><span class="p">)).</span><span class="nx">length</span><span class="p">,</span><span class="w"> </span><span class="mf">6</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="s1">&#39;Expected 6 files after second backup&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Set</span><span class="p">(</span><span class="nx">InitialBackups</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="sb">`backup/</span><span class="si">${</span><span class="nx">hashOfNewFile</span><span class="si">}</span><span class="sb">.bck`</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actualBackups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Set</span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*.bck&#39;</span><span class="p">))</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">actualBackups</span><span class="p">,</span><span class="w"> </span><span class="nx">expected</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="s1">&#39;Expected 4 backup files after second backup&#39;</span><span class="p">)</span><span class="w"></span>
 
-    const actualManifests = (await glob('backup/*.csv')).sort()
-    assert.deepStrictEqual(actualManifests,
-      ['backup/0000000000.csv', 'backup/0000000001.csv'],
-      'Expected two manifests')
-  })
-})
-</code></pre>
-<pre><code class="language-out">
-&gt; stjs@1.0.0 test
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actualManifests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">&#39;backup/*.csv&#39;</span><span class="p">)).</span><span class="nx">sort</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">actualManifests</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="p">[</span><span class="s1">&#39;backup/0000000000.csv&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;backup/0000000001.csv&#39;</span><span class="p">],</span><span class="w"></span>
+<span class="w">      </span><span class="s1">&#39;Expected two manifests&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
+<span class="p">})</span><span class="w"></span>
+</code></pre></div>
+</div>
+<div class="code-sample lang-out" title="test-backup.out">
+<div class="highlight"><pre><span></span><code>&gt; stjs@1.0.0 test
 &gt; mocha */test/test-*.js &quot;-g&quot; &quot;check entire backup process&quot;
 
 
@@ -680,11 +808,12 @@ const InitialBackups = Object.keys(Hashes).reduce((set, filename) =&gt; {
 
 
   3 passing (18ms)
-</code></pre>
+</code></pre></div>
+</div>
 <blockquote class="break-before">
 <h3>Diseñar para probar</h3>
-<p>Una de las mejores formas---quizá <em>la</em> mejor forma--- de evaluar un diseño de software 
-es pensar en la <span class="indexentry" index-key="testability!as design criterion;software design !testability" markdown="1">testabilidad</span> <span class="citation"><a class="bibref" href="../bibliography/#Feathers2004">Feathers2004</a></span>.
+<p>Una de las mejores formas&mdash;quizá <em>la</em> mejor forma&mdash; de evaluar un diseño de software 
+es pensar en la <span class="ix-entry" ix-key="testability!as design criterion;software design !testability" markdown="1">testabilidad</span> <span class="bib-ref">[<a class="bib-ref" href="../bibliography/#Feathers2004">Feathers2004</a>]</span>.
 Pudimos usar un simulado del sistema de archivos En lugar de  de uno real
 porque el sistema de archivos tiene una API bien definida
 que noes dada a nosotros en una sola librería,
@@ -693,7 +822,7 @@ Si tienes que cambiar varias partes de tu código para poder probar algo,
 el código está diciendote que necesitas consolidar esas partes en un componente.</p>
 </blockquote>
 <div class="break-before"></div>
-<h2 id="file-backup-exercises">Sección 2.5:  Ejercicios</h2>
+<h2 id="file-backup-exercises">Section 2.5: Ejercicios</h2>
 <h3 class="exercise">Posibilidades de colisión</h3>
 <p>Si los hashes fueran solo  de 2 bits,
 entonces las chances de colisión con cadda archivo sucesivo
@@ -749,7 +878,7 @@ en lugar de marcarlos con hora y fecha.
 <li>
 <p>Escribe otro programa llamado <code>migrate.js</code> que convierta un set de manifiestos
     desde CSV to JSON.
-    (El nombre del programa viene del término <a class="glossref" href="../glossary/#data_migration" markdown="1">migración de datos </a>.)</p>
+    (El nombre del programa viene del término <a class="gl-ref" href="../glossary/#data_migration" markdown="1">migración de datos</a>.)</p>
 </li>
 <li>
 <p>Modifica el programa <code>backup.js</code>  para que cada manifiesto guarde el nombre de usuario de quien lo creó
@@ -824,27 +953,8 @@ almacedano en el directorio root de los archivos a ser respaldados.
 Si <code>preCommit</code> retorna <code>true</code>, el respaldo procede;
 Si retorna <code>false</code> o lanza una excepción,
 el respaldo no se crea.</p>
-    </main>
-  <div class="centered footer">
-  <hr/>
-  <table class="plain footer">
-    <tr>
-      
-      <td><a href="../license/">License</a></td>
-      
-      <td><a href="../conduct/">Code of Conduct</a></td>
-      
-      <td><a href="../bibliography/">Bibliography</a></td>
-      
-      <td><a href="../glossary/">Glossary</a></td>
-      
-      <td><a href="../links/">Links</a></td>
-      
-      <td><a href="https://github.com/software-tools-books/stjs/">GitHub</a></td>
-      
-    </tr>
-  </table>
-</div>
-
+        </main>
+      </div>
+    </div>
   </body>
 </html>
