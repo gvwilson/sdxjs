@@ -139,7 +139,7 @@ Para restaurar una  instantánea particular,
 todo lo que tenemos que hacer es copiar los archivos `.bck` guardados de vuelta a donde estaban
 ([% f file-backup-storage %]).
 
-[% figure slug="file-backup-storage" img="figures/storage.svg" alt="Backup file  storage" caption="Organización del almacenamiento de archivos de respaldo." %]
+[% figure slug="file-backup-storage" img="storage.svg" alt="Backup file  storage" caption="Organización del almacenamiento de archivos de respaldo." %]
 
 Podemos  construir las herramientas necesarias para esto usando promesas ([% fixme async-programming %]).
 La función principal crea una promesa que use la versión asíncrona  de `glob` para encontrar archivos
@@ -266,7 +266,7 @@ Esto evita que nuestras pruebas accidentalmente alteren the sistema de archivos,
 y también hace más rápidas las pruebas
 (porque las operaciones en-memoria son miles de veces más rápidas que las  operaciones en disco).
 
-[% figure slug="file-backup-mock-fs" img="figures/mock-fs.svg" alt="simulación del sistema de archivos" caption="Usando un simulado del sistema de archivos para simplificar las pruebas." %]
+[% figure slug="file-backup-mock-fs" img="mock-fs.svg" alt="simulación del sistema de archivos" caption="Usando un simulado del sistema de archivos para simplificar las pruebas." %]
 
 Podemos crear un simulaod del sistema de archivos al dar a la librería una descripción en JSON  de
 los archivos y qué debieran contener:

@@ -301,7 +301,7 @@ para que registre y reporte el tiempo de ejecución de las pruebas.
 
 2.  Modificar la función para usar una tolerancia por defecto si ninguna se especifica:
 
-        // throws excepción
+        // throws exception
         assertApproxEqual(1.0, 2.0, 'Values are too far apart')
 
         // does not throw
