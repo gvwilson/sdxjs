@@ -19,6 +19,7 @@
     id="MathJax-script"
     async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
   </script>
+  <script defer src="../mccole.js"></script>
   <title>Software Design by Example: Respaldo</title>
 </head>
 
@@ -84,22 +85,27 @@
   
 </ol>
 
+<p><a href="../sdxjs-examples.zip" alt="source code archive">download examples</a></p>
+
+
       </div>
       <div id="printable" class="contents bordered">
         <main>
           
-  <h1>Chapter 2: Respaldo</h1>
+  <h1>Capítulo 2: Respaldo</h1>
 
 
           
+            
 
-          
+            
 <p class="definitions">
-  Terms defined: <a class="gl-ref" href="../glossary/#api" markdown="1">Application Programming Interface</a>, <a class="gl-ref" href="../glossary/#collision" markdown="1">collision</a>, <a class="gl-ref" href="../glossary/#csv" markdown="1">comma-separated values</a>, <a class="gl-ref" href="../glossary/#utc" markdown="1">Coordinated Universal Time</a>, <a class="gl-ref" href="../glossary/#cryptographic_hash_function" markdown="1">cryptographic hash function</a>, <a class="gl-ref" href="../glossary/#data_migration" markdown="1">data migration</a>, <a class="gl-ref" href="../glossary/#handler" markdown="1">handler</a>, <a class="gl-ref" href="../glossary/#hash_code" markdown="1">hash code</a>, <a class="gl-ref" href="../glossary/#hash_function" markdown="1">hash function</a>, <a class="gl-ref" href="../glossary/#json" markdown="1">JavaScript Object Notation</a>, <a class="gl-ref" href="../glossary/#mock_object" markdown="1">mock object</a>, <a class="gl-ref" href="../glossary/#pipe" markdown="1">pipe</a>, <a class="gl-ref" href="../glossary/#race_condition" markdown="1">race condition</a>, <a class="gl-ref" href="../glossary/#sha_1" markdown="1">SHA-1 hash</a>, <a class="gl-ref" href="../glossary/#stream" markdown="1">stream</a>, <a class="gl-ref" href="../glossary/#streaming_api" markdown="1">streaming API</a>, <a class="gl-ref" href="../glossary/#toctou" markdown="1">Time of check/time of use</a>, <a class="gl-ref" href="../glossary/#timestamp" markdown="1">timestamp</a>, <a class="gl-ref" href="../glossary/#version_control_system" markdown="1">version control system</a>
+  Terms defined: <a class="gl-ref" href="../glossary/#collision" markdown="1">colisión</a>, <a class="gl-ref" href="../glossary/#handler" markdown="1">FIXME</a>, <a class="gl-ref" href="../glossary/#hash_code" markdown="1">FIXME</a>, <a class="gl-ref" href="../glossary/#hash_function" markdown="1">FIXME</a>, <a class="gl-ref" href="../glossary/#json" markdown="1">FIXME</a>, <a class="gl-ref" href="../glossary/#mock_object" markdown="1">FIXME</a>, <a class="gl-ref" href="../glossary/#pipe" markdown="1">FIXME</a>, <a class="gl-ref" href="../glossary/#race_condition" markdown="1">FIXME</a>, <a class="gl-ref" href="../glossary/#sha_1" markdown="1">FIXME</a>, <a class="gl-ref" href="../glossary/#stream" markdown="1">FIXME</a>, <a class="gl-ref" href="../glossary/#streaming_api" markdown="1">FIXME</a>, <a class="gl-ref" href="../glossary/#timestamp" markdown="1">FIXME</a>, <a class="gl-ref" href="../glossary/#toctou" markdown="1">FIXME</a>, <a class="gl-ref" href="../glossary/#version_control_system" markdown="1">FIXME</a>, <a class="gl-ref" href="../glossary/#cryptographic_hash_function" markdown="1">función hash criptográfica</a>, <a class="gl-ref" href="../glossary/#utc" markdown="1">Hora Universal Coordinada</a>, <a class="gl-ref" href="../glossary/#api" markdown="1">Interfaz de programación de aplicación</a>, <a class="gl-ref" href="../glossary/#data_migration" markdown="1">migración de datos</a>, <a class="gl-ref" href="../glossary/#csv" markdown="1">valores separados por comas</a>
 </p>
 
 
-          <p>Ahora que podemos probar software, tenemos algo que guardar.
+            <div class="page-toc"></div>
+            <p>Ahora que podemos probar software, tenemos algo que guardar.
 Un <span class="ix-entry" ix-key="version control system" markdown="1"><a class="gl-ref" href="../glossary/#version_control_system" markdown="1">sistema de control de versiones</a></span>
 como <span class="ix-entry" ix-key="Git;version control system!Git" markdown="1"><a href="https://git-scm.com/">Git</a></span>
 lleva la cuenta de cambios a archivos
@@ -117,17 +123,17 @@ en particular, no nos permitirá crear y unir branches.
 &ndash;TODO: investigar cómo se denominan un las branches en la documentación original de Git</p>
 <p>Si desean saber cómo funciona aquello,
 por favor vean <span class="ix-entry" ix-key="Cook, Mary Rose" markdown="1">[Mary Rose Cook&rsquo;s][cook-mary-rose]</span>, un excelente proyecto <a href="http://gitlet.maryrosecook.com/">Gitlet</a>.</p>
-<h2 id="archivo-respaldo-únicos">Section 2.1: ¿Cómo podemos identificar inequívocamente archivos?</h2>
+<h2 id="archivo-respaldo-únicos">Sección 2.1: ¿Cómo podemos identificar inequívocamente archivos?</h2>
 <p>Para evitar almacenar copias redundantes de archivos,
 necesitamos saber cuando dos archivos contienen los mismos datos.
 No podemos confiar en nombres porque los archivos pueden moverse o renombrarse con el tiempo;
 podríamos comparar los archivos byte por byte,
 pero una forma más rápida es  usar una <span class="ix-entry" ix-key="hash_function" markdown="1"><a class="gl-ref" href="../glossary/#hash_function" markdown="1">función hash</a></span>
 que convierte datos arbitrarios en una cadena de bits de longitud fija. 
-(<a class="fig-ref" href="../file-backup/#file-backup-hash-function">Figure 2.1</a>).</p>
+(<a class="fig-ref" href="../file-backup/#file-backup-hash-function">Figura 2.1</a>).</p>
 <figure id="file-backup-hash-function">
   <img src="./hash-function.svg" alt="Funciones hash"/>
-  <figcaption markdown="1">Figure 2.1: Cómo las funciones hash aceleran la búsqueda.</figcaption>
+  <figcaption markdown="1">Figura 2.1: Cómo las funciones hash aceleran la búsqueda.</figcaption>
 </figure>
 
 <p>Una función hash  siempre  produce el mismo <span class="ix-entry" ix-key="hash code" markdown="1"><a class="gl-ref" href="../glossary/#hash_code" markdown="1">código hash</a></span> para una entrada dada.
@@ -206,7 +212,7 @@ y entonces usamos su método <code>.read</code> para obtener el resultado final:
 </div>
 <p>Hashear un archivo en lugar de una cadena fija de texto es simple:
 solo leemos el contenido del archivo y pasamos aquellos caracteres al objeto que hace el hash:</p>
-<p><span class="FIXME">FIXME</span></p>
+<p><span class="fixme">FIXME pat:hash-archivo.* fill:js sh out</span></p>
 <p>Sin embargo,
 es más eficiente procesar el archivo como un <a class="gl-ref" href="../glossary/#stream" markdown="1">stream</a>:</p>
 <div class="code-sample lang-js" title="hash-stream.js">
@@ -241,7 +247,7 @@ para que los programas no tengan que leer archivos  enteros (acaso grandes) en l
 <p>Para iniciar,
 este programa pide a la librería <code>fs</code>  crear un  stream de lectura para un archivo
 y  <a class="gl-ref" href="../glossary/#pipe" markdown="1">entubar</a> los datos desde ese stream al objeto hashing 
-(<span class="FIXME">FIXME</span>).
+(<span class="fixme">FIXME archivo-respaldo-Transmisión</span>).
 Luego, dice al  objeto hashing qué hacer cuando no hay más datos
 proveyendo un <span class="ix-entry" ix-key="event handler!streaming API;streaming API!event handler" markdown="1"><a class="gl-ref" href="../glossary/#handler" markdown="1">gestor</a></span> para el evento &ldquo;finish&rdquo; .
 Esto es llamado de forma asíncrona:
@@ -251,10 +257,10 @@ La mayoría de programas también proveen un detector para que eventos de &ldquo
 el objeto <code>hash</code>  en nuestro programa hace eso  por nosotros.</p>
 <figure id="file-backup-streaming">
   <img src="./streaming.svg" alt="Transmisión de operaciones de archivo"/>
-  <figcaption markdown="1">Figure 2.2: Procesando archivos como streams de bloques.</figcaption>
+  <figcaption markdown="1">Figura 2.2: Procesando archivos como streams de bloques.</figcaption>
 </figure>
 
-<h2 id="archivo-respaldo-respaldo">Section 2.2: ¿Cómo podemos respaldar archivos?</h2>
+<h2 id="archivo-respaldo-respaldo">Sección 2.2: ¿Cómo podemos respaldar archivos?</h2>
 <p>Muchos archivos solo cambian ocasionalmente luego que son recreados, o nunca en absoluto.
 Sería un desperdicio para un sistema de control de versiones hacer copias
 cada vez que el usuario quisiera guardar una  instantánea de un proyecto,
@@ -266,13 +272,13 @@ mientras que los nombres de archivos nos dicen qué contenido de cada archivo fu
 (ya que los archivos pueden ser movidos o renombrados).
 Para restaurar una  instantánea particular,
 todo lo que tenemos que hacer es copiar los archivos <code>.bck</code> guardados de vuelta a donde estaban
-(<a class="fig-ref" href="../file-backup/#file-backup-storage">Figure 2.3</a>).</p>
+(<a class="fig-ref" href="../file-backup/#file-backup-storage">Figura 2.3</a>).</p>
 <figure id="file-backup-storage">
   <img src="./storage.svg" alt="Backup file  storage"/>
-  <figcaption markdown="1">Figure 2.3: Organización del almacenamiento de archivos de respaldo.</figcaption>
+  <figcaption markdown="1">Figura 2.3: Organización del almacenamiento de archivos de respaldo.</figcaption>
 </figure>
 
-<p>Podemos  construir las herramientas necesarias para esto usando promesas (<span class="FIXME">FIXME</span>).
+<p>Podemos  construir las herramientas necesarias para esto usando promesas (<span class="fixme">FIXME async-programming</span>).
 La función principal crea una promesa que use la versión asíncrona  de <code>glob</code> para encontrar archivos
 y entonces:</p>
 <ol>
@@ -440,7 +446,7 @@ la corremos para los mismos archivos de entrada :</p>
 ./x-pre-commit.md b7d945af4554fc0f64b708fe735417bee8b33eef
 </code></pre></div>
 </div>
-<h2 id="archivo-respaldo-track">Section 2.3: ¿Cómo podemos rastrear cuales archivos ya han sido respaldados?</h2>
+<h2 id="archivo-respaldo-track">Sección 2.3: ¿Cómo podemos rastrear cuales archivos ya han sido respaldados?</h2>
 <p>La segunda parte de nuestro herramienta de respaldo lleva registro de cuales archivos han sido respaldados y cuales no.
 Almacena los respaldos en un directorio que contiene archivos respaldo como <code>abcd1234.bck</code>
 y archivos describiendo el contenido de instantáneas particulares.
@@ -581,7 +587,7 @@ Mocha busca los archivos en los sub-directorios <code>test</code>  de los direct
 sh: mocha: command not found
 </code></pre></div>
 </div>
-<h2 id="archivo-respaldo-test">Section 2.4: ¿Cómo podemos probar código que modifica archivos?</h2>
+<h2 id="archivo-respaldo-test">Sección 2.4: ¿Cómo podemos probar código que modifica archivos?</h2>
 <p>Lo último que  nuestra herramienta necesita hacer
 es copiar los archivos que necesita y crear un nuevo archivo de índice.
 El código en sí será relativamente simple,
@@ -595,13 +601,13 @@ Un objeto simulado tiene la misma  interfaz que la función, objeto, clase, o li
 pero está diseñado solo para usarse durante pruebas.
 La librería de Node [<code>mock-fs</code>][node-mock-fs]  provee las mismas funciones como la librería <code>fs</code>,
 pero almacena todo en memoria
-(<a class="fig-ref" href="../file-backup/#file-backup-mock-fs">Figure 2.4</a>).
+(<a class="fig-ref" href="../file-backup/#file-backup-mock-fs">Figura 2.4</a>).
 Esto evita que nuestras pruebas accidentalmente alteren the sistema de archivos,
 y también hace más rápidas las pruebas
 (porque las operaciones en-memoria son miles de veces más rápidas que las  operaciones en disco).</p>
 <figure id="file-backup-mock-fs">
   <img src="./mock-fs.svg" alt="simulación del sistema de archivos"/>
-  <figcaption markdown="1">Figure 2.4: Usando un simulado del sistema de archivos para simplificar las pruebas.</figcaption>
+  <figcaption markdown="1">Figura 2.4: Usando un simulado del sistema de archivos para simplificar las pruebas.</figcaption>
 </figure>
 
 <p>Podemos crear un simulaod del sistema de archivos al dar a la librería una descripción en JSON  de
@@ -822,7 +828,7 @@ Si tienes que cambiar varias partes de tu código para poder probar algo,
 el código está diciendote que necesitas consolidar esas partes en un componente.</p>
 </blockquote>
 <div class="break-before"></div>
-<h2 id="file-backup-exercises">Section 2.5: Ejercicios</h2>
+<h2 id="file-backup-exercises">Sección 2.5: Ejercicios</h2>
 <h3 class="exercise">Posibilidades de colisión</h3>
 <p>Si los hashes fueran solo  de 2 bits,
 entonces las chances de colisión con cadda archivo sucesivo
@@ -953,6 +959,7 @@ almacedano en el directorio root de los archivos a ser respaldados.
 Si <code>preCommit</code> retorna <code>true</code>, el respaldo procede;
 Si retorna <code>false</code> o lanza una excepción,
 el respaldo no se crea.</p>
+          
         </main>
       </div>
     </div>

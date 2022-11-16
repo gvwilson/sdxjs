@@ -7,12 +7,12 @@ abbrev = "sdxjs"
 repo = "https://github.com/gvwilson/sdxjs/"
 
 # Specific book settings.
-lang = "en"
+lang = "es"
 title = "Software Design by Example"
-acronym = "SDXJS"
 tagline = "a tool-based introduction with JavaScript"
 author = "Greg Wilson"
 plausible = "" # "third-bit.com"
+archive = f"{abbrev}-examples.zip"
 
 # Chapter and appendix slugs in order.
 chapters = [
@@ -27,7 +27,7 @@ chapters = [
     # "page-templates",
     # "build-manager",
     # "layout-engine",
-    # "file-interpolator",
+    # "file-interpolator",
     # "module-loader",
     # "style-checker",
     # "code-generator",
