@@ -1,3 +1,4 @@
+EXAMPLES_INCLUDE = '*.as' '*.bck' '*.js' '*.json' '*.mx' '*.out' '*.py' '*.sh' '*.txt' '*.yml'
 JAVASCRIPT = $(wildcard src/*/*.js) $(wildcard src/*/x-*/*.js)
 
 ## ---: -------------------------------------

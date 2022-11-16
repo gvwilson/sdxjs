@@ -9,6 +9,7 @@ STEM := ${ABBREV}-${BUILD_DATE}
 
 # Direct variables.
 EXAMPLES := $(patsubst %/Makefile,%,$(wildcard src/*/Makefile))
+EXPORT_EXCLUDE := '*.pdf'
 HTML := info/head.html info/foot.html
 INFO := info/bibliography.bib info/credits.yml info/glossary.yml info/links.yml
 FIG_SVG := $(wildcard src/*/*.svg)
@@ -83,6 +84,7 @@ docs/%.pdf: src/%.svg
 ## clean: clean up stray files
 clean:
 	@find . -name '*~' -exec rm {} \;
+	@find . -name '*.bkp' -exec rm {} \;
 	@find . -type d -name __pycache__ | xargs rm -r
 	@rm -f \
 	docs/*.aux \
@@ -114,7 +116,7 @@ examples:
 .PHONY: spelling
 spelling:
 	@make wordlist \
-	| python ./bin/post_spellcheck.py info/spelling.txt
+	| python ./bin/post_spellcheck.py info/wordlist.txt
 
 ## wordlist: make a list of unknown and unused words
 .PHONY: wordlist
@@ -178,12 +180,21 @@ publisher:
 	docs/krantz.cls \
 	docs/*/*.pdf
 
+## export: export files for publishing on the web
+.PHONY: export
+export:
+	@zip -q -r docs/${ABBREV}-examples.zip docs \
+	-i ${EXAMPLES_INCLUDE} \
+	-x '*.html'
+	@zip -q -r ${STEM}-docs.zip docs -x ${EXPORT_EXCLUDE}
+
 ## vars: show variables
 .PHONY: vars
 vars:
 	@echo ABBREV ${ABBREV}
 	@echo BUILD_DATE ${BUILD_DATE}
 	@echo DOCS ${DOCS}
+	@echo EXPORT_FILES ${EXPORT_FILES}
 	@echo FIG_SVG ${FIG_SVG}
 	@echo FIG_PDF ${FIG_PDF}
 	@echo HTML ${HTML}
