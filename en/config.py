@@ -9,10 +9,10 @@ repo = "https://github.com/gvwilson/sdxjs/"
 # Specific book settings.
 lang = "en"
 title = "Software Design by Example"
-acronym = "SDXJS"
 tagline = "a tool-based introduction with JavaScript"
 author = "Greg Wilson"
-plausible = "" # "third-bit.com"
+plausible = "third-bit.com"
+archive = f"{abbrev}-examples.zip"
 
 # Chapter and appendix slugs in order.
 chapters = [
