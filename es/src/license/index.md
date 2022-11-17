@@ -1,50 +1,35 @@
 ---
-title: "License"
-template: page
+title: "Licencia"
 ---
 
-All of the written material on this site is made available under the Creative
-Commons - Attribution - NonCommercial 4.0 International license (CC-BY-NC-4.0),
-while the software is made available under the Hippocratic License.
+Todo el material escrito en este sitio está disponible bajo la licencia Creative Commons - Atribución - No Comercial 4.0 Internacional (CC-BY-NC-4.0), mientras que el software está disponible bajo la Licencia Hipocrática.
 
-## Writing
+## Del texto
 
-*This is a human-readable summary of (and not a substitute for) the license.
-For the full legal text of this license, please see
-<https://creativecommons.org/licenses/by-nc/4.0/legalcode>.*
+*Este es un resumen legible por humanos (y no un sustituto) de la licencia. Para el texto legal completo de esta licencia, por favor diríjase a <https://creativecommons.org/licenses/by-nc/4.0/legalcode>.*
 
-All of this site is made available under the terms of the Creative Commons
-Attribution - NonCommercial 4.0 license. You are free to:
+El contenido de este sitio está disponible bajo los términos de la Licencia Creative Commons Reconocimiento - No Comercial 4.0. Usted es libre de:
 
--   **Share** — copy and redistribute the material in any medium or format
+-   **Compartir** — copiar y redistribuir el material en cualquier medio o formato
 
--   **Adapt** — remix, transform, and build upon the material
+-   **Adaptar** — remezclar, transformar y crear a partir del material 
 
--   The licensor cannot revoke these freedoms as long as you follow the license
-    terms.
+El licenciador no puede revocar estas libertades mientras cumpla con los términos de la licencia.
+**Bajo las siguientes condiciones:**
+{: .continue}
 
-Under the following terms:
+-   **Reconocimiento** —  Debe reconocer adecuadamente la autoría, proporcionar un enlace a la licencia e indicar si se han realizado cambios. Puede hacerlo de cualquier manera razonable, pero no de una manera que sugiera que tiene el apoyo del licenciador o lo recibe por el uso que hace.
 
--   **Attribution** — You must give appropriate credit, provide a link to the
-    license, and indicate if changes were made. You may do so in any reasonable
-    manner, but not in any way that suggests the licensor endorses you or your
-    use.
+-   **NoComercial** —  No puede utilizar el material para una finalidad comercial.
 
--   **NonCommercial** — You may not use the material for commercial purposes.
+-   **No hay restricciones adicionales** — No puede aplicar términos legales o medidas tecnológicas que legalmente restrinjan realizar aquello que la licencia permite.
 
--   No additional restrictions — You may not apply legal terms or technological
-    measures that legally restrict others from doing anything the license
-    permits.
+**Avisos:**
+{: .continue}
 
-Notices:
+No tiene que cumplir con la licencia para aquellos elementos del material en el dominio público o cuando su utilización esté permitida por la aplicación de una excepción o un límite.
 
-You do not have to comply with the license for elements of the material in the
-public domain or where your use is permitted by an applicable exception or
-limitation.
-
-No warranties are given. The license may not give you all of the permissions
-necessary for your intended use. For example, other rights such as publicity,
-privacy, or moral rights may limit how you use the material.
+No se dan garantías. La licencia puede no ofrecer todos los permisos necesarios para la utilización prevista. Por ejemplo, otros derechos como los de publicidad, privacidad, o los derechos morales pueden limitar el uso del material.
 
 ## Software
 
