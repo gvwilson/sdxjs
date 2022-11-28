@@ -4,7 +4,7 @@ title: "Licencia"
 
 Todo el material escrito en este sitio está disponible bajo la licencia Creative Commons - Atribución - No Comercial 4.0 Internacional (CC-BY-NC-4.0), mientras que el software está disponible bajo la Licencia Hipocrática.
 
-## Del texto
+## Texto
 
 *Este es un resumen legible por humanos (y no un sustituto) de la licencia. Para el texto legal completo de esta licencia, por favor diríjase a <https://creativecommons.org/licenses/by-nc/4.0/legalcode>.*
 
@@ -15,6 +15,7 @@ El contenido de este sitio está disponible bajo los términos de la Licencia Cr
 -   **Adaptar** — remezclar, transformar y crear a partir del material 
 
 El licenciador no puede revocar estas libertades mientras cumpla con los términos de la licencia.
+
 **Bajo las siguientes condiciones:**
 {: .continue}
 
@@ -33,78 +34,58 @@ No se dan garantías. La licencia puede no ofrecer todos los permisos necesarios
 
 ## Software
 
-Licensor hereby grants permission by this license ("License"), free of charge,
-to any person or entity (the "Licensee") obtaining a copy of this software and
-associated documentation files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use, copy, modify,
-merge, publish, distribute, sublicense, and/or sell copies of the Software, and
-to permit persons to whom the Software is furnished to do so, subject to the
-following conditions:
+Por medio de esta licencia ("Licencia"), el licenciante concede permiso gratuito a cualquier persona o entidad (el "Licenciatario") 
+que obtenga una copia de este software y de los archivos de documentación asociados (el "Software"), para operar con el Software 
+sin restricciones, incluyendo, sin limitación, los derechos de uso, copia, modificación, combinación, publicación, distribución, 
+sublicencia y/o venta de copias del Software, y para permitir que las personas a las que se les proporcione el Software lo hagan, 
+con sujeción a las siguientes condiciones:
 
--   The above copyright notice and this License or a subsequent version published
-    on the [Hippocratic License Website](https://firstdonoharm.dev/) shall be
-    included in all copies or substantial portions of the Software. Licensee has
-    the option of following the terms and conditions either of the above
-    numbered version of this License or of any subsequent version published on
-    the Hippocratic License Website.
+-   El aviso de copyright anterior y esta Licencia o una versión posterior publicada en el sitio web de Hippocratic License se 
+    incluirán en todas las copias o partes sustanciales del Software. El licenciatario tiene la opción de seguir los términos y 
+    condiciones de la versión numerada anteriormente de esta Licencia o de cualquier versión posterior publicada en el sitio web 
+    de la [Licencia Hipocrática][hippocratic_license].
 
--   Compliance with Human Rights Laws and Human Rights Principles:
+-   Cumplimiento de la Normativa y Principios de Derechos Humanos:
 
-    1.  Human Rights Laws. The Software shall not be used by any person or
-        entity for any systems, activities, or other uses that violate any
-        applicable laws, regulations, or rules that protect human, civil, labor,
-        privacy, political, environmental, security, economic, due process, or
-        similar rights (the "Human Rights Laws"). Where the Human Rights Laws of
-        more than one jurisdiction are applicable to the use of the Software,
-        the Human Rights Laws that are most protective of the individuals or
-        groups harmed shall apply.
+    1.  Normativa de Derechos Humanos. El Software no podrá ser utilizado por ninguna persona o entidad para ningún sistema, 
+        actividad u otros usos que infrinjan las leyes, reglamentos o normas aplicables que protegen los derechos humanos, 
+        civiles, laborales, de privacidad, políticos, ambientales, de seguridad, económicos, de debido proceso o similares 
+        ("Normativa de Derechos Humanos"). Cuando la Normativa sobre Derechos Humanos de más de una jurisdicción sean aplicables 
+        al uso del Software, se aplicará aquella que más proteja a los individuos o grupos perjudicados.
 
-    2.  Human Rights Principles. Licensee is advised to consult the articles of
-        the [United Nations Universal Declaration of Human
-        Rights](https://www.un.org/en/universal-declaration-human-rights/) and
-        the [United Nations Global
-        Compact](https://www.unglobalcompact.org/what-is-gc/mission/principles)
-        that define recognized principles of international human rights (the
-        "Human Rights Principles"). It is Licensor's express intent that all use
-        of the Software be consistent with Human Rights Principles. If Licensor
-        receives notification or otherwise learns of an alleged violation of any
-        Human Rights Principles relating to Licensee's use of the Software,
-        Licensor may in its discretion and without obligation (i) (a) notify
-        Licensee of such allegation and (b) allow Licensee 90 days from
-        notification under (i)(a) to investigate and respond to Licensor
-        regarding the allegation and (ii) (a) after the earlier of 90 days from
-        notification under (i)(a), or Licensee's response under (i)(b), notify
-        Licensee of License termination and (b) allow Licensee an additional 90
-        days from notification under (ii)(a) to cease use of the Software.
+    2.  Principios de Derechos Humanos. Se aconseja al Licenciatario que consulte los artículos de la [Declaración Universal de 
+        Derechos Humanos de las Naciones Unidas][udhr] y del [Pacto Mundial 
+        de las Naciones Unidas][ungc] que definen los principios 
+        reconocidos de los derechos humanos internacionales (los "Principios de Derechos Humanos"). Es intención expresa del 
+        Licenciante que todo uso del Software sea coherente con los Principios de Derechos Humanos. Si el Licenciante recibe una 
+        notificación o tiene conocimiento de una supuesta violación de cualquiera de los Principios de Derechos Humanos en relación 
+        con el uso del Software por parte del Licenciatario, el Licenciante podrá, a su discreción y sin obligación alguna, 
+        (i)(a) notificar al Licenciatario dicha alegación y (b) conceder al Licenciatario un plazo de 90 días desde la notificación 
+        conforme a (i)(a) para investigar y responder al Licenciante en relación con la alegación y (ii)(a) una vez transcurridos 
+        los 90 días desde la notificación conforme a (i)(a),  o la respuesta del Licenciatario bajo (i)(b), lo que ocurra primero, 
+        notificar al Licenciatario la terminación de la Licencia y (b) conceder al Licenciatario 90 días adicionales desde la 
+        notificación bajo (ii)(a) para cesar el uso del Software.
 
-    3.  Indemnity. Licensee shall hold harmless and indemnify Licensor against
-        all losses, damages, liabilities, deficiencies, claims, actions,
-        judgments, settlements, interest, awards, penalties, fines, costs, or
-        expenses of whatever kind, including Licensor's reasonable attorneys'
-        fees, arising out of or relating to Licensee's non-compliance with this
-        License or use of the Software in violation of Human Rights Laws or
-        Human Rights Principles.
+    3.  Indemnización. El Licenciatario mantendrá indemne e indemnizará al Licenciante por todas las pérdidas, daños, 
+        responsabilidades, deficiencias, reclamaciones, acciones, sentencias, acuerdos, intereses, premios, sanciones, multas, 
+        costes o gastos de cualquier tipo, incluidos los honorarios razonables de los abogados del Licenciante, que surjan o
+        estén relacionados con el incumplimiento por parte del Licenciatario de esta Licencia o con el uso del Software en 
+        violación de la Normativa de Derechos Humanos o de los Principios de Derechos Humanos.
 
--    Enforceability: If any portion or provision of this License is determined to
-     be invalid, illegal, or unenforceable by a court of competent jurisdiction,
-     then such invalidity, illegality, or unenforceability shall not affect any
-     other term or provision of this License or invalidate or render
-     unenforceable such term or provision in any other jurisdiction. Upon a
-     determination that any term or provision is invalid, illegal, or
-     unenforceable, to the extent permitted by applicable law, the court may
-     modify this License to affect the original intent of the parties as closely
-     as possible. The section headings are for convenience only and are not
-     intended to affect the construction or interpretation of this License. Any
-     rule of construction to the effect that ambiguities are to be resolved
-     against the drafting party shall not apply in interpreting this
-     License. The language in this License shall be interpreted as to its fair
-     meaning and not strictly for or against any party.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-    Aplicabilidad: Si se determina que cualquier parte o disposición de esta Licencia es inválida, ilegal o inaplicable por 
+     un tribunal de jurisdicción competente, dicha invalidez, ilegalidad o inaplicabilidad no afectará a ningún otro término o 
+     disposición de esta Licencia ni invalidará o hará inaplicable dicho término o disposición en cualquier otra jurisdicción. 
+     Si se determina que algún término o disposición es inválido, ilegal o inaplicable, en la medida en que lo permita la ley 
+     aplicable, el tribunal podrá modificar esta Licencia para que se ajuste lo más posible a la intención original de las partes. 
+     Los títulos de las secciones son sólo por conveniencia y no pretenden afectar a la construcción o interpretación de esta Licencia. 
+     Cualquier regla de construcción en el sentido de que las ambigüedades deben ser resueltas en contra de la parte redactora no 
+     se aplicará en la interpretación de esta Licencia. El lenguaje de esta Licencia se interpretará en su justo sentido y no 
+     estrictamente a favor o en contra de ninguna de las partes.
 
-*The Hippocratic License is an [Ethical Source license](https://ethicalsource.dev).*
+EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O IMPLÍCITA, INCLUIDAS, ENTRE OTRAS, LAS
+GARANTÍAS DE COMERCIABILIDAD, IDONEIDAD PARA UN FIN DETERMINADO Y NO INFRACCIÓN. EN NINGÚN CASO LOS AUTORES O LOS TITULARES DE 
+LOS DERECHOS DE AUTOR SERÁN RESPONSABLES DE NINGUNA RECLAMACIÓN, DAÑO U OTRA RESPONSABILIDAD, YA SEA EN UNA ACCIÓN CONTRACTUAL, 
+EXTRACONTRACTUAL O DE OTRO TIPO, QUE SURJA DE, O ESTÉ RELACIONADA CON EL SOFTWARE O EL USO U OTRAS OPERACIONES CON EL SOFTWARE.
+
+*La Licencia Hipocrática es una licencia de tipo [Ethical Source][ethical_source].*
