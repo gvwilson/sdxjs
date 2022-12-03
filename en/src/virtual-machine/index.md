@@ -12,7 +12,7 @@ To understand more about how JavaScript actually runs,
 we will simulate a very simple processor with a little bit of memory.
 If you want to dive deeper,
 have a look at [%i "Nystrom, Bob" %][Bob Nystrom's][nystrom_bob][%/i%] *[Crafting Interpreters][crafting_interpreters]*.
-You may also enjoy [%i "Human Resource Machine" %][Human Resource Machine][human_resource_machine][[%/i%],
+You may also enjoy [%i "Human Resource Machine" %][Human Resource Machine][human_resource_machine][%/i%],
 which asks you to solve puzzles of increasing difficulty
 using a processor almost as simple as ours.
 
