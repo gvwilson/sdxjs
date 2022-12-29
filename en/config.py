@@ -13,6 +13,7 @@ tagline = "a tool-based introduction with JavaScript"
 author = "Greg Wilson"
 plausible = "third-bit.com"
 archive = f"{abbrev}-examples.zip"
+hardcopy = "https://www.taylorfrancis.com/books/mono/10.1201/9781003317807/software-design-example-greg-wilson"
 
 # Chapter and appendix slugs in order.
 chapters = [
