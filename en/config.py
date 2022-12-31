@@ -14,6 +14,7 @@ author = "Greg Wilson"
 plausible = "third-bit.com"
 archive = f"{abbrev}-examples.zip"
 hardcopy = "https://www.taylorfrancis.com/books/mono/10.1201/9781003317807/software-design-example-greg-wilson"
+cover = f"{abbrev}-cover.png"
 
 # Chapter and appendix slugs in order.
 chapters = [
