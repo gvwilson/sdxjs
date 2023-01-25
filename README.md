@@ -125,7 +125,7 @@ and received ACM SIGSOFT's Influential Educator Award in 2020.
 [beautiful-soup]: https://beautiful-soup-4.readthedocs.io/en/latest/
 [email]: mailto:gvwilson@third-bit.com
 [ivy]: http://www.dmulholl.com/docs/ivy/main/
-[js4ds]: https://nodejs.org/
+[js4ds]: https://third-bit.com/js4ds/
 [knuth-donald]: https://en.wikipedia.org/wiki/Donald_Knuth
 [meetings-video]: https://www.youtube.com/watch?v=PtewOjRy-1U
 [node]: https://nodejs.org/
