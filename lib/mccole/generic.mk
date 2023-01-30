@@ -16,7 +16,8 @@ FIG_SVG := $(wildcard src/*/*.svg)
 IVY := $(wildcard lib/mccole/*/*.*)
 TEX := info/head.tex info/foot.tex
 TEX_COPY := info/krantz.cls info/dedication.tex
-SRC := $(wildcard *.md) $(wildcard src/*.md) $(wildcard src/*/index.md) $(wildcard src/*/slides.html)
+MARKDOWN := $(wildcard src/*.md) $(wildcard src/*/index.md)
+SRC := ${MARKDOWN} $(wildcard src/*/slides.html)
 
 # Calculated variables.
 DOCS := docs/index.html $(patsubst src/%.md,docs/%.html,$(wildcard src/*/index.md))
@@ -105,7 +106,8 @@ clean:
 .PHONY: lint
 lint: clean build
 	@python ./bin/lint.py \
-	--config config.py
+	--config config.py \
+	--dom ./lib/mccole/dom.yml
 
 ## examples: re-run examples
 .PHONY: examples
@@ -130,7 +132,7 @@ wordlist: ./docs/index.html
 ## count: words per file
 .PHONY: count
 count:
-	@wc -w ${SRC} | sort -n
+	@(wc -w ${MARKDOWN} && grep -c '\[% figure' ${MARKDOWN}) | python bin/count.py
 
 ## valid: run html5validator on generated files
 .PHONY: valid
@@ -183,10 +185,11 @@ publisher:
 ## export: export files for publishing on the web
 .PHONY: export
 export:
-	@zip -q -r docs/${ABBREV}-examples.zip docs \
-	-i ${EXAMPLES_INCLUDE} \
+	rm -rf ${MCCOLE}
+	MCCOLE=${MCCOLE} ivy build
+	@zip -q -r ${MCCOLE}/${ABBREV}-examples.zip docs \
+	-i '*.ht' '*.json' '*.out' '*.py' '*.sh' '*.txt' '*.yml' \
 	-x '*.html'
-	@zip -q -r ${STEM}-docs.zip docs -x ${EXPORT_EXCLUDE}
 
 ## vars: show variables
 .PHONY: vars

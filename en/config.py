@@ -1,5 +1,7 @@
 """Ivy configuration."""
 
+import os
+
 # Abbreviation for this document.
 abbrev = "sdxjs"
 
@@ -50,9 +52,6 @@ appendices = [
     "contents",
 ]
 
-# To do.
-todo = []
-
 # Files to copy verbatim.
 copy = [
     "*.as",
@@ -102,7 +101,7 @@ dom = "info/dom.yml"
 
 # Input and output directories.
 src_dir = "src"
-out_dir = "docs"
+out_dir = os.getenv("MCCOLE", "docs")
 
 # Use "a/" URLs instead of "a.html".
 extension = "/"
