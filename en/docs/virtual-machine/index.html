@@ -28,7 +28,7 @@
       <div class="sidebar">
         <p>
   
-  <a href="https://www.taylorfrancis.com/books/mono/10.1201/9781003317807/software-design-example-greg-wilson" /><img src="../sdxjs-cover.png" alt="Book cover" width="80%" /></a>
+  <a href="https://www.taylorfrancis.com/books/mono/10.1201/9781003317807/software-design-example-greg-wilson"><img src="../sdxjs-cover.png" alt="Book cover" width="80%" /></a>
   
 </p>
 <ol class="toc-chapter">
@@ -385,35 +385,35 @@ and <code>a</code> indicates an address.</p>
 <p>We put our VM&rsquo;s architectural details in a file
 that can be shared by other components:</p>
 <div class="code-sample lang-js" title="architecture.js">
-<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">OPS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nx">hlt</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w">  </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;--&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Halt program</span><span class="w"></span>
-<span class="w">  </span><span class="nx">ldc</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w">  </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rv&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Load immediate</span><span class="w"></span>
-<span class="w">  </span><span class="nx">ldr</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w">  </span><span class="mf">3</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rr&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Load register</span><span class="w"></span>
-<span class="w">  </span><span class="nx">cpy</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w">  </span><span class="mf">4</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rr&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Copy register</span><span class="w"></span>
-<span class="w">  </span><span class="nx">str</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w">  </span><span class="mf">5</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rr&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Store register</span><span class="w"></span>
-<span class="w">  </span><span class="nx">add</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w">  </span><span class="mf">6</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rr&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Add</span><span class="w"></span>
-<span class="w">  </span><span class="nx">sub</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w">  </span><span class="mf">7</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rr&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Subtract</span><span class="w"></span>
-<span class="w">  </span><span class="nx">beq</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w">  </span><span class="mf">8</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rv&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Branch if equal</span><span class="w"></span>
-<span class="w">  </span><span class="nx">bne</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w">  </span><span class="mf">9</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rv&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Branch if not equal</span><span class="w"></span>
-<span class="w">  </span><span class="nx">prr</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w"> </span><span class="mf">10</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;r-&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Print register</span><span class="w"></span>
-<span class="w">  </span><span class="nx">prm</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w"> </span><span class="mf">11</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;r-&#39;</span><span class="w"> </span><span class="p">}</span><span class="w">  </span><span class="c1">// Print memory</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">OPS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">hlt</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w">  </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;--&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Halt program</span>
+<span class="w">  </span><span class="nx">ldc</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w">  </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rv&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Load immediate</span>
+<span class="w">  </span><span class="nx">ldr</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w">  </span><span class="mf">3</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rr&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Load register</span>
+<span class="w">  </span><span class="nx">cpy</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w">  </span><span class="mf">4</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rr&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Copy register</span>
+<span class="w">  </span><span class="nx">str</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w">  </span><span class="mf">5</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rr&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Store register</span>
+<span class="w">  </span><span class="nx">add</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w">  </span><span class="mf">6</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rr&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Add</span>
+<span class="w">  </span><span class="nx">sub</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w">  </span><span class="mf">7</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rr&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Subtract</span>
+<span class="w">  </span><span class="nx">beq</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w">  </span><span class="mf">8</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rv&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Branch if equal</span>
+<span class="w">  </span><span class="nx">bne</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w">  </span><span class="mf">9</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rv&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Branch if not equal</span>
+<span class="w">  </span><span class="nx">prr</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w"> </span><span class="mf">10</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;r-&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Print register</span>
+<span class="w">  </span><span class="nx">prm</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">code</span><span class="o">:</span><span class="w"> </span><span class="mf">11</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;r-&#39;</span><span class="w"> </span><span class="p">}</span><span class="w">  </span><span class="c1">// Print memory</span>
+<span class="p">}</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">OP_MASK</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0xFF</span><span class="w"> </span><span class="c1">// select a single byte</span><span class="w"></span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">OP_SHIFT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">8</span><span class="w">   </span><span class="c1">// shift up by one byte</span><span class="w"></span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">OP_WIDTH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">6</span><span class="w">   </span><span class="c1">// op width in characters when printing</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">OP_MASK</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0xFF</span><span class="w"> </span><span class="c1">// select a single byte</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">OP_SHIFT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">8</span><span class="w">   </span><span class="c1">// shift up by one byte</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">OP_WIDTH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">6</span><span class="w">   </span><span class="c1">// op width in characters when printing</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">NUM_REG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4</span><span class="w">    </span><span class="c1">// number of registers</span><span class="w"></span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">RAM_LEN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">256</span><span class="w">  </span><span class="c1">// number of words in RAM</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">NUM_REG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4</span><span class="w">    </span><span class="c1">// number of registers</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">RAM_LEN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">256</span><span class="w">  </span><span class="c1">// number of words in RAM</span>
 
-<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nx">OPS</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">OP_MASK</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">OP_SHIFT</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">OP_WIDTH</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">NUM_REG</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">RAM_LEN</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="k">export</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">OPS</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">OP_MASK</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">OP_SHIFT</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">OP_WIDTH</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">NUM_REG</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">RAM_LEN</span>
+<span class="p">}</span>
 </code></pre></div>
 </div>
 <p class="continue">While there isn&rsquo;t a name for this design pattern,
@@ -426,48 +426,48 @@ we will split a class that would normally be written in one piece into several p
 We start by defining a class with an instruction pointer, some registers, and some memory
 along with a prompt for output:</p>
 <div class="code-sample lang-js" title="vm-base.js">
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">assert</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;assert&#39;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">assert</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;assert&#39;</span>
 
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nx">OP_MASK</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">OP_SHIFT</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">NUM_REG</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nx">RAM_LEN</span><span class="w"></span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./architecture.js&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">OP_MASK</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">OP_SHIFT</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">NUM_REG</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">RAM_LEN</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./architecture.js&#39;</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">COLUMNS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4</span><span class="w"></span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">DIGITS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">8</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">COLUMNS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">DIGITS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">8</span>
 
-<span class="kd">class</span><span class="w"> </span><span class="nx">VirtualMachineBase</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="kr">constructor</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="w"></span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Array</span><span class="p">(</span><span class="nx">NUM_REG</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Array</span><span class="p">(</span><span class="nx">RAM_LEN</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">prompt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&gt;&gt;&#39;</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="kd">class</span><span class="w"> </span><span class="nx">VirtualMachineBase</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Array</span><span class="p">(</span><span class="nx">NUM_REG</span><span class="p">)</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Array</span><span class="p">(</span><span class="nx">RAM_LEN</span><span class="p">)</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">prompt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&gt;&gt;&#39;</span>
+<span class="w">  </span><span class="p">}</span>
 
-<span class="p">}</span><span class="w"></span>
+<span class="p">}</span>
 
-<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">VirtualMachineBase</span><span class="w"></span>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">VirtualMachineBase</span>
 </code></pre></div>
 </div>
 <p>A program is just an array of numbers representing instructions.
 To load one,
 we copy those numbers into memory and reset the instruction pointer and registers:</p>
 <div class="code-sample lang-js" title="vm-base.js">
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">initialize</span><span class="w"> </span><span class="p">(</span><span class="nx">program</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nx">assert</span><span class="p">(</span><span class="nx">program</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="s1">&#39;Program is too long for memory&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">program</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">program</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"></span>
-<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="w"></span>
-<span class="w">      </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="w"></span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">.</span><span class="nx">fill</span><span class="p">(</span><span class="mf">0</span><span class="p">)</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">initialize</span><span class="w"> </span><span class="p">(</span><span class="nx">program</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">(</span><span class="nx">program</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span>
+<span class="w">      </span><span class="s1">&#39;Program is too long for memory&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">program</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">program</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">.</span><span class="nx">fill</span><span class="p">(</span><span class="mf">0</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
 </code></pre></div>
 </div>
 <p>In order to handle the next instruction,
@@ -477,18 +477,18 @@ It then uses <span class="ix-entry" ix-key="bitwise operation" markdown="1"><a c
 to extract the op code and operands from the instruction
 (<a class="fig-ref" href="../virtual-machine/#virtual-machine-unpacking">Figure 19.2</a>):</p>
 <div class="code-sample lang-js" title="vm-base.js">
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">fetch</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nx">assert</span><span class="p">((</span><span class="mf">0</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">RAM_LEN</span><span class="p">),</span><span class="w"></span>
-<span class="w">      </span><span class="sb">`Program counter </span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="si">}</span><span class="sb"> out of range 0..</span><span class="si">${</span><span class="nx">RAM_LEN</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">instruction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">[</span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="p">]</span><span class="w"></span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1</span><span class="w"></span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">op</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">instruction</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="nx">OP_MASK</span><span class="w"></span>
-<span class="w">    </span><span class="nx">instruction</span><span class="w"> </span><span class="o">&gt;&gt;=</span><span class="w"> </span><span class="nx">OP_SHIFT</span><span class="w"></span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">arg0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">instruction</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="nx">OP_MASK</span><span class="w"></span>
-<span class="w">    </span><span class="nx">instruction</span><span class="w"> </span><span class="o">&gt;&gt;=</span><span class="w"> </span><span class="nx">OP_SHIFT</span><span class="w"></span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">arg1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">instruction</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="nx">OP_MASK</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">[</span><span class="nx">op</span><span class="p">,</span><span class="w"> </span><span class="nx">arg0</span><span class="p">,</span><span class="w"> </span><span class="nx">arg1</span><span class="p">]</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">fetch</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">((</span><span class="mf">0</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">RAM_LEN</span><span class="p">),</span>
+<span class="w">      </span><span class="sb">`Program counter </span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="si">}</span><span class="sb"> out of range 0..</span><span class="si">${</span><span class="nx">RAM_LEN</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">instruction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">[</span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="p">]</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">op</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">instruction</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="nx">OP_MASK</span>
+<span class="w">    </span><span class="nx">instruction</span><span class="w"> </span><span class="o">&gt;&gt;=</span><span class="w"> </span><span class="nx">OP_SHIFT</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">arg0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">instruction</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="nx">OP_MASK</span>
+<span class="w">    </span><span class="nx">instruction</span><span class="w"> </span><span class="o">&gt;&gt;=</span><span class="w"> </span><span class="nx">OP_SHIFT</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">arg1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">instruction</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="nx">OP_MASK</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">[</span><span class="nx">op</span><span class="p">,</span><span class="w"> </span><span class="nx">arg0</span><span class="p">,</span><span class="w"> </span><span class="nx">arg1</span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
 </code></pre></div>
 </div>
 <figure id="virtual-machine-unpacking" class="figure-here">
@@ -508,61 +508,61 @@ to detect illegal instructions and out-of-bound memory addresses.</p>
 As its name suggests,
 this runs the program by fetching instructions and executing them until told to stop:</p>
 <div class="code-sample lang-js" title="vm.js">
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">assert</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;assert&#39;</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">assert</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;assert&#39;</span>
 
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nx">OPS</span><span class="w"></span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./architecture.js&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">OPS</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./architecture.js&#39;</span>
 
-<span class="k">import</span><span class="w"> </span><span class="nx">VirtualMachineBase</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./vm-base.js&#39;</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nx">VirtualMachineBase</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./vm-base.js&#39;</span>
 
-<span class="kd">class</span><span class="w"> </span><span class="nx">VirtualMachine</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">VirtualMachineBase</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nx">run</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">running</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="w"></span>
-<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">running</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">op</span><span class="p">,</span><span class="w"> </span><span class="nx">arg0</span><span class="p">,</span><span class="w"> </span><span class="nx">arg1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">fetch</span><span class="p">()</span><span class="w"></span>
-<span class="w">      </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="nx">op</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nx">OPS</span><span class="p">.</span><span class="nx">hlt</span><span class="p">.</span><span class="nx">code</span><span class="o">:</span><span class="w"></span>
-<span class="w">          </span><span class="nx">running</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="w"></span>
-<span class="w">          </span><span class="k">break</span><span class="w"></span>
+<span class="kd">class</span><span class="w"> </span><span class="nx">VirtualMachine</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">VirtualMachineBase</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">run</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">running</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">running</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">op</span><span class="p">,</span><span class="w"> </span><span class="nx">arg0</span><span class="p">,</span><span class="w"> </span><span class="nx">arg1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">fetch</span><span class="p">()</span>
+<span class="w">      </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="nx">op</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nx">OPS</span><span class="p">.</span><span class="nx">hlt</span><span class="p">.</span><span class="nx">code</span><span class="o">:</span>
+<span class="w">          </span><span class="nx">running</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">          </span><span class="k">break</span>
 
-<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nx">OPS</span><span class="p">.</span><span class="nx">ldc</span><span class="p">.</span><span class="nx">code</span><span class="o">:</span><span class="w"></span>
-<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">assertIsRegister</span><span class="p">(</span><span class="nx">arg0</span><span class="p">,</span><span class="w"> </span><span class="nx">op</span><span class="p">)</span><span class="w"></span>
-<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">arg1</span><span class="w"></span>
-<span class="w">          </span><span class="k">break</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nx">OPS</span><span class="p">.</span><span class="nx">ldc</span><span class="p">.</span><span class="nx">code</span><span class="o">:</span>
+<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">assertIsRegister</span><span class="p">(</span><span class="nx">arg0</span><span class="p">,</span><span class="w"> </span><span class="nx">op</span><span class="p">)</span>
+<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">arg1</span>
+<span class="w">          </span><span class="k">break</span>
 
 
-<span class="w">        </span><span class="k">default</span><span class="o">:</span><span class="w"></span>
-<span class="w">          </span><span class="nx">assert</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="sb">`Unknown op </span><span class="si">${</span><span class="nx">op</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span><span class="w"></span>
-<span class="w">          </span><span class="k">break</span><span class="w"></span>
-<span class="w">      </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="k">default</span><span class="o">:</span>
+<span class="w">          </span><span class="nx">assert</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="sb">`Unknown op </span><span class="si">${</span><span class="nx">op</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">          </span><span class="k">break</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="nx">assertIsRegister</span><span class="w"> </span><span class="p">(</span><span class="nx">reg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nx">assert</span><span class="p">((</span><span class="mf">0</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nx">reg</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="nx">reg</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">.</span><span class="nx">length</span><span class="p">),</span><span class="w"></span>
-<span class="w">      </span><span class="sb">`Invalid register </span><span class="si">${</span><span class="nx">reg</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="nx">assertIsRegister</span><span class="w"> </span><span class="p">(</span><span class="nx">reg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">((</span><span class="mf">0</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nx">reg</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="nx">reg</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">.</span><span class="nx">length</span><span class="p">),</span>
+<span class="w">      </span><span class="sb">`Invalid register </span><span class="si">${</span><span class="nx">reg</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="nx">assertIsAddress</span><span class="w"> </span><span class="p">(</span><span class="nx">addr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nx">assert</span><span class="p">((</span><span class="mf">0</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nx">addr</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="nx">addr</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">.</span><span class="nx">length</span><span class="p">),</span><span class="w"></span>
-<span class="w">      </span><span class="sb">`Invalid register </span><span class="si">${</span><span class="nx">addr</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="nx">assertIsAddress</span><span class="w"> </span><span class="p">(</span><span class="nx">addr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">((</span><span class="mf">0</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nx">addr</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="nx">addr</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">.</span><span class="nx">length</span><span class="p">),</span>
+<span class="w">      </span><span class="sb">`Invalid register </span><span class="si">${</span><span class="nx">addr</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
 
-<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">VirtualMachine</span><span class="w"></span>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">VirtualMachine</span>
 </code></pre></div>
 </div>
 <p>Some instructions are very similar to others,
 so we will only look at three here.
 The first stores the value of one register in the address held by another register:</p>
 <div class="code-sample lang-js" title="vm.js">
-<div class="highlight"><pre><span></span><code><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nx">OPS</span><span class="p">.</span><span class="nx">str</span><span class="p">.</span><span class="nx">code</span><span class="o">:</span><span class="w"></span>
-<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">assertIsRegister</span><span class="p">(</span><span class="nx">arg0</span><span class="p">,</span><span class="w"> </span><span class="nx">op</span><span class="p">)</span><span class="w"></span>
-<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">assertIsRegister</span><span class="p">(</span><span class="nx">arg1</span><span class="p">,</span><span class="w"> </span><span class="nx">op</span><span class="p">)</span><span class="w"></span>
-<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">assertIsAddress</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg1</span><span class="p">],</span><span class="w"> </span><span class="nx">op</span><span class="p">)</span><span class="w"></span>
-<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">[</span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg1</span><span class="p">]]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg0</span><span class="p">]</span><span class="w"></span>
-<span class="w">          </span><span class="k">break</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nx">OPS</span><span class="p">.</span><span class="nx">str</span><span class="p">.</span><span class="nx">code</span><span class="o">:</span>
+<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">assertIsRegister</span><span class="p">(</span><span class="nx">arg0</span><span class="p">,</span><span class="w"> </span><span class="nx">op</span><span class="p">)</span>
+<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">assertIsRegister</span><span class="p">(</span><span class="nx">arg1</span><span class="p">,</span><span class="w"> </span><span class="nx">op</span><span class="p">)</span>
+<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">assertIsAddress</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg1</span><span class="p">],</span><span class="w"> </span><span class="nx">op</span><span class="p">)</span>
+<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">ram</span><span class="p">[</span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg1</span><span class="p">]]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg0</span><span class="p">]</span>
+<span class="w">          </span><span class="k">break</span>
 </code></pre></div>
 </div>
 <p class="continue">The first three lines check that the operation is legal;
@@ -570,22 +570,22 @@ the fourth one uses the value in one register as an address,
 which is why it has nested array indexing.</p>
 <p>Adding the value in one register to the value in another register is simpler:</p>
 <div class="code-sample lang-js" title="vm.js">
-<div class="highlight"><pre><span></span><code><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nx">OPS</span><span class="p">.</span><span class="nx">add</span><span class="p">.</span><span class="nx">code</span><span class="o">:</span><span class="w"></span>
-<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">assertIsRegister</span><span class="p">(</span><span class="nx">arg0</span><span class="p">,</span><span class="w"> </span><span class="nx">op</span><span class="p">)</span><span class="w"></span>
-<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">assertIsRegister</span><span class="p">(</span><span class="nx">arg1</span><span class="p">,</span><span class="w"> </span><span class="nx">op</span><span class="p">)</span><span class="w"></span>
-<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg0</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg1</span><span class="p">]</span><span class="w"></span>
-<span class="w">          </span><span class="k">break</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nx">OPS</span><span class="p">.</span><span class="nx">add</span><span class="p">.</span><span class="nx">code</span><span class="o">:</span>
+<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">assertIsRegister</span><span class="p">(</span><span class="nx">arg0</span><span class="p">,</span><span class="w"> </span><span class="nx">op</span><span class="p">)</span>
+<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">assertIsRegister</span><span class="p">(</span><span class="nx">arg1</span><span class="p">,</span><span class="w"> </span><span class="nx">op</span><span class="p">)</span>
+<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg0</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg1</span><span class="p">]</span>
+<span class="w">          </span><span class="k">break</span>
 </code></pre></div>
 </div>
 <p class="continue">as is jumping to a fixed address if the value in a register is zero:</p>
 <div class="code-sample lang-js" title="vm.js">
-<div class="highlight"><pre><span></span><code><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nx">OPS</span><span class="p">.</span><span class="nx">beq</span><span class="p">.</span><span class="nx">code</span><span class="o">:</span><span class="w"></span>
-<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">assertIsRegister</span><span class="p">(</span><span class="nx">arg0</span><span class="p">,</span><span class="w"> </span><span class="nx">op</span><span class="p">)</span><span class="w"></span>
-<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">assertIsAddress</span><span class="p">(</span><span class="nx">arg1</span><span class="p">,</span><span class="w"> </span><span class="nx">op</span><span class="p">)</span><span class="w"></span>
-<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg0</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">arg1</span><span class="w"></span>
-<span class="w">          </span><span class="p">}</span><span class="w"></span>
-<span class="w">          </span><span class="k">break</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nx">OPS</span><span class="p">.</span><span class="nx">beq</span><span class="p">.</span><span class="nx">code</span><span class="o">:</span>
+<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">assertIsRegister</span><span class="p">(</span><span class="nx">arg0</span><span class="p">,</span><span class="w"> </span><span class="nx">op</span><span class="p">)</span>
+<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">assertIsAddress</span><span class="p">(</span><span class="nx">arg1</span><span class="p">,</span><span class="w"> </span><span class="nx">op</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">reg</span><span class="p">[</span><span class="nx">arg0</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">this</span><span class="p">.</span><span class="nx">ip</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">arg1</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">          </span><span class="k">break</span>
 </code></pre></div>
 </div>
 <h2 id="virtual-machine-assembly">Section 19.3: What do assembly programs look like?</h2>
@@ -597,9 +597,9 @@ which is just a small compiler for a language that very closely represents actua
 <p>Each command in our assembly languages matches an instruction in the VM.
 Here&rsquo;s an assembly language program to print the value stored in R1 and then halt:</p>
 <div class="code-sample lang-as" title="print-r1.as">
-<div class="highlight"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="nx">Print</span><span class="w"> </span><span class="nx">initial</span><span class="w"> </span><span class="nx">contents</span><span class="w"> </span><span class="nx">of</span><span class="w"> </span><span class="nx">R1</span><span class="p">.</span><span class="w"></span>
-<span class="nx">prr</span><span class="w"> </span><span class="nx">R1</span><span class="w"></span>
-<span class="nx">hlt</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="nx">Print</span><span class="w"> </span><span class="nx">initial</span><span class="w"> </span><span class="nx">contents</span><span class="w"> </span><span class="nx">of</span><span class="w"> </span><span class="nx">R1</span><span class="p">.</span>
+<span class="nx">prr</span><span class="w"> </span><span class="nx">R1</span>
+<span class="nx">hlt</span>
 </code></pre></div>
 </div>
 <p class="continue">Its numeric representation is:</p>
@@ -618,19 +618,19 @@ For example,
 this program prints the numbers from 0 to 2
 (<a class="fig-ref" href="../virtual-machine/#virtual-machine-count-up">Figure 19.3</a>):</p>
 <div class="code-sample lang-as" title="count-up.as">
-<div class="highlight"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="nx">Count</span><span class="w"> </span><span class="nx">up</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="mi">3</span><span class="p">.</span><span class="w"></span>
-<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R0</span><span class="o">:</span><span class="w"> </span><span class="nx">loop</span><span class="w"> </span><span class="nx">index</span><span class="p">.</span><span class="w"></span>
-<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R1</span><span class="o">:</span><span class="w"> </span><span class="nx">loop</span><span class="w"> </span><span class="nx">limit</span><span class="p">.</span><span class="w"></span>
-<span class="nx">ldc</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
-<span class="nx">ldc</span><span class="w"> </span><span class="nx">R1</span><span class="w"> </span><span class="mi">3</span><span class="w"></span>
-<span class="nx">loop</span><span class="o">:</span><span class="w"></span>
-<span class="nx">prr</span><span class="w"> </span><span class="nx">R0</span><span class="w"></span>
-<span class="nx">ldc</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="nx">add</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="nx">R2</span><span class="w"></span>
-<span class="nx">cpy</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="nx">R1</span><span class="w"></span>
-<span class="nx">sub</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="nx">R0</span><span class="w"></span>
-<span class="nx">bne</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="err">@</span><span class="nx">loop</span><span class="w"></span>
-<span class="nx">hlt</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="nx">Count</span><span class="w"> </span><span class="nx">up</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="mi">3</span><span class="p">.</span>
+<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R0</span><span class="o">:</span><span class="w"> </span><span class="nx">loop</span><span class="w"> </span><span class="nx">index</span><span class="p">.</span>
+<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R1</span><span class="o">:</span><span class="w"> </span><span class="nx">loop</span><span class="w"> </span><span class="nx">limit</span><span class="p">.</span>
+<span class="nx">ldc</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="mi">0</span>
+<span class="nx">ldc</span><span class="w"> </span><span class="nx">R1</span><span class="w"> </span><span class="mi">3</span>
+<span class="nx">loop</span><span class="o">:</span>
+<span class="nx">prr</span><span class="w"> </span><span class="nx">R0</span>
+<span class="nx">ldc</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="mi">1</span>
+<span class="nx">add</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="nx">R2</span>
+<span class="nx">cpy</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="nx">R1</span>
+<span class="nx">sub</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="nx">R0</span>
+<span class="nx">bne</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="err">@</span><span class="nx">loop</span>
+<span class="nx">hlt</span>
 </code></pre></div>
 </div>
 <div class="code-sample lang-mx" title="count-up.mx">
@@ -672,25 +672,25 @@ The main method gets interesting lines,
 finds the addresses of labels,
 and turns each remaining line into an instruction:</p>
 <div class="code-sample lang-js" title="assembler.js">
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">assemble</span><span class="w"> </span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nx">lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">cleanLines</span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">labels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">findLabels</span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">instructions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">lines</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">line</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">isLabel</span><span class="p">(</span><span class="nx">line</span><span class="p">))</span><span class="w"></span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">compiled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">instructions</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">instr</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">compile</span><span class="p">(</span><span class="nx">instr</span><span class="p">,</span><span class="w"> </span><span class="nx">labels</span><span class="p">))</span><span class="w"></span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">program</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">instructionsToText</span><span class="p">(</span><span class="nx">compiled</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">program</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">assemble</span><span class="w"> </span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">cleanLines</span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">labels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">findLabels</span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">instructions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">lines</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">line</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">isLabel</span><span class="p">(</span><span class="nx">line</span><span class="p">))</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">compiled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">instructions</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">instr</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">compile</span><span class="p">(</span><span class="nx">instr</span><span class="p">,</span><span class="w"> </span><span class="nx">labels</span><span class="p">))</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">program</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">instructionsToText</span><span class="p">(</span><span class="nx">compiled</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">program</span>
+<span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="nx">cleanLines</span><span class="w"> </span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">lines</span><span class="w"></span>
-<span class="w">      </span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">line</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">line</span><span class="p">.</span><span class="nx">trim</span><span class="p">())</span><span class="w"></span>
-<span class="w">      </span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">line</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">line</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">line</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">isComment</span><span class="p">(</span><span class="nx">line</span><span class="p">))</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="nx">cleanLines</span><span class="w"> </span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">lines</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">line</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">line</span><span class="p">.</span><span class="nx">trim</span><span class="p">())</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">line</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">line</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">line</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">isComment</span><span class="p">(</span><span class="nx">line</span><span class="p">))</span>
+<span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="nx">isComment</span><span class="w"> </span><span class="p">(</span><span class="nx">line</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">line</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="nx">isComment</span><span class="w"> </span><span class="p">(</span><span class="nx">line</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">line</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
 </code></pre></div>
 </div>
 <p>To find labels,
@@ -698,109 +698,109 @@ we go through the lines one by one
 and either save the label <em>or</em> increment the current address
 (because labels don&rsquo;t take up space):</p>
 <div class="code-sample lang-js" title="assembler.js">
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">findLabels</span><span class="w"> </span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
-<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="w"></span>
-<span class="w">    </span><span class="nx">lines</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">line</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">isLabel</span><span class="p">(</span><span class="nx">line</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">line</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">)</span><span class="w"></span>
-<span class="w">        </span><span class="nx">assert</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nx">label</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">result</span><span class="p">),</span><span class="w"></span>
-<span class="w">          </span><span class="sb">`Duplicate label </span><span class="si">${</span><span class="nx">label</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span><span class="w"></span>
-<span class="w">        </span><span class="nx">result</span><span class="p">[</span><span class="nx">label</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">index</span><span class="w"></span>
-<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="nx">index</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1</span><span class="w"></span>
-<span class="w">      </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="p">})</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">result</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">findLabels</span><span class="w"> </span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span>
+<span class="w">    </span><span class="nx">lines</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">line</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">isLabel</span><span class="p">(</span><span class="nx">line</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">line</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">assert</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nx">label</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">result</span><span class="p">),</span>
+<span class="w">          </span><span class="sb">`Duplicate label </span><span class="si">${</span><span class="nx">label</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">result</span><span class="p">[</span><span class="nx">label</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">index</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">index</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">result</span>
+<span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="nx">isLabel</span><span class="w"> </span><span class="p">(</span><span class="nx">line</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">line</span><span class="p">.</span><span class="nx">endsWith</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="nx">isLabel</span><span class="w"> </span><span class="p">(</span><span class="nx">line</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">line</span><span class="p">.</span><span class="nx">endsWith</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
 </code></pre></div>
 </div>
 <p>To compile a single instruction we break the line into tokens,
 look up the format for the operands,
 and pack them into a single value:</p>
 <div class="code-sample lang-js" title="assembler.js">
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">compile</span><span class="w"> </span><span class="p">(</span><span class="nx">instruction</span><span class="p">,</span><span class="w"> </span><span class="nx">labels</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">op</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="nx">args</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">instruction</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="sr">/\s+/</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="nx">assert</span><span class="p">(</span><span class="nx">op</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">OPS</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="sb">`Unknown operation &quot;</span><span class="si">${</span><span class="nx">op</span><span class="si">}</span><span class="sb">&quot;`</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="w"></span>
-<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="nx">OPS</span><span class="p">[</span><span class="nx">op</span><span class="p">].</span><span class="nx">fmt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;--&#39;</span><span class="o">:</span><span class="w"></span>
-<span class="w">        </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">combine</span><span class="p">(</span><span class="w"></span>
-<span class="w">          </span><span class="nx">OPS</span><span class="p">[</span><span class="nx">op</span><span class="p">].</span><span class="nx">code</span><span class="w"></span>
-<span class="w">        </span><span class="p">)</span><span class="w"></span>
-<span class="w">        </span><span class="k">break</span><span class="w"></span>
-<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;r-&#39;</span><span class="o">:</span><span class="w"></span>
-<span class="w">        </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">combine</span><span class="p">(</span><span class="w"></span>
-<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mf">0</span><span class="p">]),</span><span class="w"></span>
-<span class="w">          </span><span class="nx">OPS</span><span class="p">[</span><span class="nx">op</span><span class="p">].</span><span class="nx">code</span><span class="w"></span>
-<span class="w">        </span><span class="p">)</span><span class="w"></span>
-<span class="w">        </span><span class="k">break</span><span class="w"></span>
-<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;rr&#39;</span><span class="o">:</span><span class="w"></span>
-<span class="w">        </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">combine</span><span class="p">(</span><span class="w"></span>
-<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mf">1</span><span class="p">]),</span><span class="w"></span>
-<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mf">0</span><span class="p">]),</span><span class="w"></span>
-<span class="w">          </span><span class="nx">OPS</span><span class="p">[</span><span class="nx">op</span><span class="p">].</span><span class="nx">code</span><span class="w"></span>
-<span class="w">        </span><span class="p">)</span><span class="w"></span>
-<span class="w">        </span><span class="k">break</span><span class="w"></span>
-<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;rv&#39;</span><span class="o">:</span><span class="w"></span>
-<span class="w">        </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">combine</span><span class="p">(</span><span class="w"></span>
-<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">value</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mf">1</span><span class="p">],</span><span class="w"> </span><span class="nx">labels</span><span class="p">),</span><span class="w"></span>
-<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mf">0</span><span class="p">]),</span><span class="w"></span>
-<span class="w">          </span><span class="nx">OPS</span><span class="p">[</span><span class="nx">op</span><span class="p">].</span><span class="nx">code</span><span class="w"></span>
-<span class="w">        </span><span class="p">)</span><span class="w"></span>
-<span class="w">        </span><span class="k">break</span><span class="w"></span>
-<span class="w">      </span><span class="k">default</span><span class="o">:</span><span class="w"></span>
-<span class="w">        </span><span class="nx">assert</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="sb">`Unknown instruction format </span><span class="si">${</span><span class="nx">OPS</span><span class="p">[</span><span class="nx">op</span><span class="p">].</span><span class="nx">fmt</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">result</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">compile</span><span class="w"> </span><span class="p">(</span><span class="nx">instruction</span><span class="p">,</span><span class="w"> </span><span class="nx">labels</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">op</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="nx">args</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">instruction</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="sr">/\s+/</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">(</span><span class="nx">op</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">OPS</span><span class="p">,</span>
+<span class="w">      </span><span class="sb">`Unknown operation &quot;</span><span class="si">${</span><span class="nx">op</span><span class="si">}</span><span class="sb">&quot;`</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span>
+<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="nx">OPS</span><span class="p">[</span><span class="nx">op</span><span class="p">].</span><span class="nx">fmt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;--&#39;</span><span class="o">:</span>
+<span class="w">        </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">combine</span><span class="p">(</span>
+<span class="w">          </span><span class="nx">OPS</span><span class="p">[</span><span class="nx">op</span><span class="p">].</span><span class="nx">code</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">        </span><span class="k">break</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;r-&#39;</span><span class="o">:</span>
+<span class="w">        </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">combine</span><span class="p">(</span>
+<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mf">0</span><span class="p">]),</span>
+<span class="w">          </span><span class="nx">OPS</span><span class="p">[</span><span class="nx">op</span><span class="p">].</span><span class="nx">code</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">        </span><span class="k">break</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;rr&#39;</span><span class="o">:</span>
+<span class="w">        </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">combine</span><span class="p">(</span>
+<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mf">1</span><span class="p">]),</span>
+<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mf">0</span><span class="p">]),</span>
+<span class="w">          </span><span class="nx">OPS</span><span class="p">[</span><span class="nx">op</span><span class="p">].</span><span class="nx">code</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">        </span><span class="k">break</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;rv&#39;</span><span class="o">:</span>
+<span class="w">        </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">combine</span><span class="p">(</span>
+<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">value</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mf">1</span><span class="p">],</span><span class="w"> </span><span class="nx">labels</span><span class="p">),</span>
+<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mf">0</span><span class="p">]),</span>
+<span class="w">          </span><span class="nx">OPS</span><span class="p">[</span><span class="nx">op</span><span class="p">].</span><span class="nx">code</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">        </span><span class="k">break</span>
+<span class="w">      </span><span class="k">default</span><span class="o">:</span>
+<span class="w">        </span><span class="nx">assert</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span>
+<span class="w">          </span><span class="sb">`Unknown instruction format </span><span class="si">${</span><span class="nx">OPS</span><span class="p">[</span><span class="nx">op</span><span class="p">].</span><span class="nx">fmt</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">result</span>
+<span class="w">  </span><span class="p">}</span>
 </code></pre></div>
 </div>
 <p>Combining op codes and operands into a single value
 is the reverse of the unpacking done by the virtual machine:</p>
 <div class="code-sample lang-js" title="assembler.js">
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">combine</span><span class="w"> </span><span class="p">(...</span><span class="nx">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nx">assert</span><span class="p">(</span><span class="nx">args</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="s1">&#39;Cannot combine no arguments&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="w"></span>
-<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="nx">result</span><span class="w"> </span><span class="o">&lt;&lt;=</span><span class="w"> </span><span class="nx">OP_SHIFT</span><span class="w"></span>
-<span class="w">      </span><span class="nx">result</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="nx">a</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">result</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">combine</span><span class="w"> </span><span class="p">(...</span><span class="nx">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">(</span><span class="nx">args</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span>
+<span class="w">      </span><span class="s1">&#39;Cannot combine no arguments&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">result</span><span class="w"> </span><span class="o">&lt;&lt;=</span><span class="w"> </span><span class="nx">OP_SHIFT</span>
+<span class="w">      </span><span class="nx">result</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="nx">a</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">result</span>
+<span class="w">  </span><span class="p">}</span>
 </code></pre></div>
 </div>
 <p>Finally, we need few utility functions:</p>
 <div class="code-sample lang-js" title="assembler.js">
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">instructionsToText</span><span class="w"> </span><span class="p">(</span><span class="nx">program</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">program</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">op</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">op</span><span class="p">.</span><span class="nx">toString</span><span class="p">(</span><span class="mf">16</span><span class="p">).</span><span class="nx">padStart</span><span class="p">(</span><span class="nx">OP_WIDTH</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;0&#39;</span><span class="p">))</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">instructionsToText</span><span class="w"> </span><span class="p">(</span><span class="nx">program</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">program</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">op</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">op</span><span class="p">.</span><span class="nx">toString</span><span class="p">(</span><span class="mf">16</span><span class="p">).</span><span class="nx">padStart</span><span class="p">(</span><span class="nx">OP_WIDTH</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;0&#39;</span><span class="p">))</span>
+<span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="nx">register</span><span class="w"> </span><span class="p">(</span><span class="nx">token</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nx">assert</span><span class="p">(</span><span class="nx">token</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="sb">`Register &quot;</span><span class="si">${</span><span class="nx">token</span><span class="si">}</span><span class="sb">&quot; does not start with &#39;R&#39;`</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">token</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">1</span><span class="p">))</span><span class="w"></span>
-<span class="w">    </span><span class="nx">assert</span><span class="p">((</span><span class="mf">0</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nx">r</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">NUM_REG</span><span class="p">),</span><span class="w"></span>
-<span class="w">      </span><span class="sb">`Illegal register </span><span class="si">${</span><span class="nx">token</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">r</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="nx">register</span><span class="w"> </span><span class="p">(</span><span class="nx">token</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">(</span><span class="nx">token</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;R&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="sb">`Register &quot;</span><span class="si">${</span><span class="nx">token</span><span class="si">}</span><span class="sb">&quot; does not start with &#39;R&#39;`</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">token</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">1</span><span class="p">))</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">((</span><span class="mf">0</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nx">r</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">NUM_REG</span><span class="p">),</span>
+<span class="w">      </span><span class="sb">`Illegal register </span><span class="si">${</span><span class="nx">token</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">r</span>
+<span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="nx">value</span><span class="w"> </span><span class="p">(</span><span class="nx">token</span><span class="p">,</span><span class="w"> </span><span class="nx">labels</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">token</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s1">&#39;@&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">labelName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">token</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="nx">assert</span><span class="p">(</span><span class="nx">labelName</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">labels</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="sb">`Unknown label &quot;</span><span class="si">${</span><span class="nx">token</span><span class="si">}</span><span class="sb">&quot;`</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">labels</span><span class="p">[</span><span class="nx">labelName</span><span class="p">]</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="nx">value</span><span class="w"> </span><span class="p">(</span><span class="nx">token</span><span class="p">,</span><span class="w"> </span><span class="nx">labels</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">token</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s1">&#39;@&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">labelName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">token</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">(</span><span class="nx">labelName</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">labels</span><span class="p">,</span>
+<span class="w">      </span><span class="sb">`Unknown label &quot;</span><span class="si">${</span><span class="nx">token</span><span class="si">}</span><span class="sb">&quot;`</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">labels</span><span class="p">[</span><span class="nx">labelName</span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
 </code></pre></div>
 </div>
 <p>Let&rsquo;s try assembling a program and display its output,
@@ -809,19 +809,19 @@ and the interesting contents of memory.
 As a test,
 this program counts up to three:</p>
 <div class="code-sample lang-as" title="count-up.as">
-<div class="highlight"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="nx">Count</span><span class="w"> </span><span class="nx">up</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="mi">3</span><span class="p">.</span><span class="w"></span>
-<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R0</span><span class="o">:</span><span class="w"> </span><span class="nx">loop</span><span class="w"> </span><span class="nx">index</span><span class="p">.</span><span class="w"></span>
-<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R1</span><span class="o">:</span><span class="w"> </span><span class="nx">loop</span><span class="w"> </span><span class="nx">limit</span><span class="p">.</span><span class="w"></span>
-<span class="nx">ldc</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
-<span class="nx">ldc</span><span class="w"> </span><span class="nx">R1</span><span class="w"> </span><span class="mi">3</span><span class="w"></span>
-<span class="nx">loop</span><span class="o">:</span><span class="w"></span>
-<span class="nx">prr</span><span class="w"> </span><span class="nx">R0</span><span class="w"></span>
-<span class="nx">ldc</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="nx">add</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="nx">R2</span><span class="w"></span>
-<span class="nx">cpy</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="nx">R1</span><span class="w"></span>
-<span class="nx">sub</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="nx">R0</span><span class="w"></span>
-<span class="nx">bne</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="err">@</span><span class="nx">loop</span><span class="w"></span>
-<span class="nx">hlt</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="nx">Count</span><span class="w"> </span><span class="nx">up</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="mi">3</span><span class="p">.</span>
+<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R0</span><span class="o">:</span><span class="w"> </span><span class="nx">loop</span><span class="w"> </span><span class="nx">index</span><span class="p">.</span>
+<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R1</span><span class="o">:</span><span class="w"> </span><span class="nx">loop</span><span class="w"> </span><span class="nx">limit</span><span class="p">.</span>
+<span class="nx">ldc</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="mi">0</span>
+<span class="nx">ldc</span><span class="w"> </span><span class="nx">R1</span><span class="w"> </span><span class="mi">3</span>
+<span class="nx">loop</span><span class="o">:</span>
+<span class="nx">prr</span><span class="w"> </span><span class="nx">R0</span>
+<span class="nx">ldc</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="mi">1</span>
+<span class="nx">add</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="nx">R2</span>
+<span class="nx">cpy</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="nx">R1</span>
+<span class="nx">sub</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="nx">R0</span>
+<span class="nx">bne</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="err">@</span><span class="nx">loop</span>
+<span class="nx">hlt</span>
 </code></pre></div>
 </div>
 <div class="code-sample lang-out" title="count-up-out.out">
@@ -852,28 +852,28 @@ and then <code>label: number</code> to give a region a name and allocate some st
 First,
 we need to split the lines into instructions and data allocations:</p>
 <div class="code-sample lang-js" title="allocate-data.js">
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">assemble</span><span class="w"> </span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nx">lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">cleanLines</span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">toCompile</span><span class="p">,</span><span class="w"> </span><span class="nx">toAllocate</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">splitAllocations</span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">labels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">findLabels</span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">instructions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">toCompile</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">line</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">isLabel</span><span class="p">(</span><span class="nx">line</span><span class="p">))</span><span class="w"></span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">baseOfData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">instructions</span><span class="p">.</span><span class="nx">length</span><span class="w"></span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">addAllocations</span><span class="p">(</span><span class="nx">baseOfData</span><span class="p">,</span><span class="w"> </span><span class="nx">labels</span><span class="p">,</span><span class="w"> </span><span class="nx">toAllocate</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">compiled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">instructions</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">instr</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">compile</span><span class="p">(</span><span class="nx">instr</span><span class="p">,</span><span class="w"> </span><span class="nx">labels</span><span class="p">))</span><span class="w"></span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">program</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">instructionsToText</span><span class="p">(</span><span class="nx">compiled</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">program</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">assemble</span><span class="w"> </span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">cleanLines</span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">toCompile</span><span class="p">,</span><span class="w"> </span><span class="nx">toAllocate</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">splitAllocations</span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">labels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">findLabels</span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">instructions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">toCompile</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">line</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">isLabel</span><span class="p">(</span><span class="nx">line</span><span class="p">))</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">baseOfData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">instructions</span><span class="p">.</span><span class="nx">length</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">addAllocations</span><span class="p">(</span><span class="nx">baseOfData</span><span class="p">,</span><span class="w"> </span><span class="nx">labels</span><span class="p">,</span><span class="w"> </span><span class="nx">toAllocate</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">compiled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">instructions</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">instr</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">compile</span><span class="p">(</span><span class="nx">instr</span><span class="p">,</span><span class="w"> </span><span class="nx">labels</span><span class="p">))</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">program</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">instructionsToText</span><span class="p">(</span><span class="nx">compiled</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">program</span>
+<span class="w">  </span><span class="p">}</span>
 </code></pre></div>
 </div>
 <div class="code-sample lang-js" title="allocate-data.js">
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">splitAllocations</span><span class="w"> </span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">split</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">lines</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">DIVIDER</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">split</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="p">[</span><span class="nx">lines</span><span class="p">,</span><span class="w"> </span><span class="p">[]]</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="p">[</span><span class="nx">lines</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">split</span><span class="p">),</span><span class="w"> </span><span class="nx">lines</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="nx">split</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">)]</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">splitAllocations</span><span class="w"> </span><span class="p">(</span><span class="nx">lines</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">split</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">lines</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">DIVIDER</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">split</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="p">[</span><span class="nx">lines</span><span class="p">,</span><span class="w"> </span><span class="p">[]]</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="p">[</span><span class="nx">lines</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">split</span><span class="p">),</span><span class="w"> </span><span class="nx">lines</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="nx">split</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">)]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
 </code></pre></div>
 </div>
 <figure id="virtual-machine-storage-allocation" class="figure-here">
@@ -884,21 +884,21 @@ we need to split the lines into instructions and data allocations:</p>
 <p>Second,
 we need to figure out where each allocation lies and create a label accordingly:</p>
 <div class="code-sample lang-js" title="allocate-data.js">
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">addAllocations</span><span class="w"> </span><span class="p">(</span><span class="nx">baseOfData</span><span class="p">,</span><span class="w"> </span><span class="nx">labels</span><span class="p">,</span><span class="w"> </span><span class="nx">toAllocate</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nx">toAllocate</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">alloc</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">fields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">alloc</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">).</span><span class="nx">map</span><span class="p">(</span><span class="nx">a</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">a</span><span class="p">.</span><span class="nx">trim</span><span class="p">())</span><span class="w"></span>
-<span class="w">      </span><span class="nx">assert</span><span class="p">(</span><span class="nx">fields</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="sb">`Invalid allocation directive &quot;</span><span class="si">${</span><span class="nx">alloc</span><span class="si">}</span><span class="sb">&quot;`</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">label</span><span class="p">,</span><span class="w"> </span><span class="nx">numWordsText</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fields</span><span class="w"></span>
-<span class="w">      </span><span class="nx">assert</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nx">label</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">labels</span><span class="p">),</span><span class="w"></span>
-<span class="w">        </span><span class="sb">`Duplicate label &quot;</span><span class="si">${</span><span class="nx">label</span><span class="si">}</span><span class="sb">&quot; in data allocation`</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">numWords</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">numWordsText</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="nx">assert</span><span class="p">((</span><span class="nx">baseOfData</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">numWords</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">RAM_LEN</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="sb">`Allocation &quot;</span><span class="si">${</span><span class="nx">label</span><span class="si">}</span><span class="sb">&quot; requires too much memory`</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="nx">labels</span><span class="p">[</span><span class="nx">label</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">baseOfData</span><span class="w"></span>
-<span class="w">      </span><span class="nx">baseOfData</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">numWords</span><span class="w"></span>
-<span class="w">    </span><span class="p">})</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nx">addAllocations</span><span class="w"> </span><span class="p">(</span><span class="nx">baseOfData</span><span class="p">,</span><span class="w"> </span><span class="nx">labels</span><span class="p">,</span><span class="w"> </span><span class="nx">toAllocate</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">toAllocate</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">alloc</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">fields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">alloc</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">).</span><span class="nx">map</span><span class="p">(</span><span class="nx">a</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">a</span><span class="p">.</span><span class="nx">trim</span><span class="p">())</span>
+<span class="w">      </span><span class="nx">assert</span><span class="p">(</span><span class="nx">fields</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span>
+<span class="w">        </span><span class="sb">`Invalid allocation directive &quot;</span><span class="si">${</span><span class="nx">alloc</span><span class="si">}</span><span class="sb">&quot;`</span><span class="p">)</span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">label</span><span class="p">,</span><span class="w"> </span><span class="nx">numWordsText</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fields</span>
+<span class="w">      </span><span class="nx">assert</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nx">label</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">labels</span><span class="p">),</span>
+<span class="w">        </span><span class="sb">`Duplicate label &quot;</span><span class="si">${</span><span class="nx">label</span><span class="si">}</span><span class="sb">&quot; in data allocation`</span><span class="p">)</span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">numWords</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">numWordsText</span><span class="p">)</span>
+<span class="w">      </span><span class="nx">assert</span><span class="p">((</span><span class="nx">baseOfData</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">numWords</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">RAM_LEN</span><span class="p">,</span>
+<span class="w">        </span><span class="sb">`Allocation &quot;</span><span class="si">${</span><span class="nx">label</span><span class="si">}</span><span class="sb">&quot; requires too much memory`</span><span class="p">)</span>
+<span class="w">      </span><span class="nx">labels</span><span class="p">[</span><span class="nx">label</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">baseOfData</span>
+<span class="w">      </span><span class="nx">baseOfData</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">numWords</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">  </span><span class="p">}</span>
 </code></pre></div>
 </div>
 <p>And that&rsquo;s it:
@@ -908,25 +908,25 @@ let&rsquo;s fill an array with the numbers from 0 to 3:</p>
 <div class="pagebreak"></div>
 
 <div class="code-sample lang-as" title="fill-array.as">
-<div class="highlight"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="nx">Count</span><span class="w"> </span><span class="nx">up</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="mi">3</span><span class="p">.</span><span class="w"></span>
-<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R0</span><span class="o">:</span><span class="w"> </span><span class="nx">loop</span><span class="w"> </span><span class="nx">index</span><span class="p">.</span><span class="w"></span>
-<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R1</span><span class="o">:</span><span class="w"> </span><span class="nx">loop</span><span class="w"> </span><span class="nx">limit</span><span class="p">.</span><span class="w"></span>
-<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R2</span><span class="o">:</span><span class="w"> </span><span class="nx">array</span><span class="w"> </span><span class="nx">index</span><span class="p">.</span><span class="w"></span>
-<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R3</span><span class="o">:</span><span class="w"> </span><span class="nx">temporary</span><span class="p">.</span><span class="w"></span>
-<span class="nx">ldc</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
-<span class="nx">ldc</span><span class="w"> </span><span class="nx">R1</span><span class="w"> </span><span class="mi">3</span><span class="w"></span>
-<span class="nx">ldc</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="err">@</span><span class="nx">array</span><span class="w"></span>
-<span class="nx">loop</span><span class="o">:</span><span class="w"></span>
-<span class="nx">str</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="nx">R2</span><span class="w"></span>
-<span class="nx">ldc</span><span class="w"> </span><span class="nx">R3</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="nx">add</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="nx">R3</span><span class="w"></span>
-<span class="nx">add</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="nx">R3</span><span class="w"></span>
-<span class="nx">cpy</span><span class="w"> </span><span class="nx">R3</span><span class="w"> </span><span class="nx">R1</span><span class="w"></span>
-<span class="nx">sub</span><span class="w"> </span><span class="nx">R3</span><span class="w"> </span><span class="nx">R0</span><span class="w"></span>
-<span class="nx">bne</span><span class="w"> </span><span class="nx">R3</span><span class="w"> </span><span class="err">@</span><span class="nx">loop</span><span class="w"></span>
-<span class="nx">hlt</span><span class="w"></span>
-<span class="p">.</span><span class="nx">data</span><span class="w"></span>
-<span class="nx">array</span><span class="o">:</span><span class="w"> </span><span class="mi">10</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="nx">Count</span><span class="w"> </span><span class="nx">up</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="mi">3</span><span class="p">.</span>
+<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R0</span><span class="o">:</span><span class="w"> </span><span class="nx">loop</span><span class="w"> </span><span class="nx">index</span><span class="p">.</span>
+<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R1</span><span class="o">:</span><span class="w"> </span><span class="nx">loop</span><span class="w"> </span><span class="nx">limit</span><span class="p">.</span>
+<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R2</span><span class="o">:</span><span class="w"> </span><span class="nx">array</span><span class="w"> </span><span class="nx">index</span><span class="p">.</span>
+<span class="err">#</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">R3</span><span class="o">:</span><span class="w"> </span><span class="nx">temporary</span><span class="p">.</span>
+<span class="nx">ldc</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="mi">0</span>
+<span class="nx">ldc</span><span class="w"> </span><span class="nx">R1</span><span class="w"> </span><span class="mi">3</span>
+<span class="nx">ldc</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="err">@</span><span class="nx">array</span>
+<span class="nx">loop</span><span class="o">:</span>
+<span class="nx">str</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="nx">R2</span>
+<span class="nx">ldc</span><span class="w"> </span><span class="nx">R3</span><span class="w"> </span><span class="mi">1</span>
+<span class="nx">add</span><span class="w"> </span><span class="nx">R0</span><span class="w"> </span><span class="nx">R3</span>
+<span class="nx">add</span><span class="w"> </span><span class="nx">R2</span><span class="w"> </span><span class="nx">R3</span>
+<span class="nx">cpy</span><span class="w"> </span><span class="nx">R3</span><span class="w"> </span><span class="nx">R1</span>
+<span class="nx">sub</span><span class="w"> </span><span class="nx">R3</span><span class="w"> </span><span class="nx">R0</span>
+<span class="nx">bne</span><span class="w"> </span><span class="nx">R3</span><span class="w"> </span><span class="err">@</span><span class="nx">loop</span>
+<span class="nx">hlt</span>
+<span class="p">.</span><span class="nx">data</span>
+<span class="nx">array</span><span class="o">:</span><span class="w"> </span><span class="mi">10</span>
 </code></pre></div>
 </div>
 <div class="code-sample lang-out" title="fill-array-out.out">
