@@ -3,7 +3,7 @@
 import re
 from pathlib import Path
 
-import ivy
+import ark
 import shortcodes
 import util
 
@@ -18,7 +18,7 @@ def root(pargs, kwargs, node):
     )
 
     filename = pargs[0]
-    fullpath = Path(ivy.site.home(), filename)
+    fullpath = Path(ark.site.home(), filename)
     util.require(fullpath.exists(), f"No file {filename} in root directory")
     with open(fullpath, "r") as reader:
         content = reader.read()

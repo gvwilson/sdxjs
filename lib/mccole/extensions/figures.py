@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from textwrap import dedent
 
-import ivy
+import ark
 import shortcodes
 import util
 
@@ -13,7 +13,7 @@ import util
 class Figure:
     """Keep track of information about a figure."""
 
-    node: ivy.nodes.Node = None
+    node: ark.nodes.Node = None
     fileslug: str = ""
     cls: str = ""
     slug: str = ""
@@ -24,13 +24,13 @@ class Figure:
     width: str = ""
 
 
-@ivy.events.register(ivy.events.Event.INIT)
+@ark.events.register(ark.events.Event.INIT)
 def collect():
     """Collect information from pages."""
     # Gather data.
     major = util.make_major()
     collected = {}
-    ivy.nodes.root().walk(lambda node: _collect(node, major, collected))
+    ark.nodes.root().walk(lambda node: _collect(node, major, collected))
     _cleanup(major, collected)
 
 

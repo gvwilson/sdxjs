@@ -39,12 +39,12 @@ To make this work:
 import re
 from pathlib import Path
 
-import ivy
+import ark
 import shortcodes
 import util
 
 
-@ivy.filters.register(ivy.filters.Filter.LOAD_NODE_FILE)
+@ark.filters.register(ark.filters.Filter.LOAD_NODE_FILE)
 def filter_files(value, filepath):
     """Only process HTML and Markdown files."""
     result = filepath.suffix in {".html", ".md"}

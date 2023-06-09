@@ -35,12 +35,12 @@ commands:
 ## build: rebuild site without running server
 build: ./docs/index.html
 ./docs/index.html: ${SRC} ${INFO} ${IVY} config.py
-	ivy build && touch $@
+	ark build && touch $@
 
 ## serve: build site and run server
 .PHONY: serve
 serve:
-	ivy watch --port ${PORT}
+	ark watch --port ${PORT}
 
 ## single: create single-page HTML
 single: docs/all.html
@@ -186,7 +186,7 @@ publisher:
 .PHONY: export
 export:
 	rm -rf ${MCCOLE}
-	MCCOLE=${MCCOLE} ivy build
+	MCCOLE=${MCCOLE} ark build
 	@zip -q -r ${MCCOLE}/${ABBREV}-examples.zip docs \
 	-i '*.ht' '*.json' '*.out' '*.py' '*.sh' '*.txt' '*.yml' \
 	-x '*.html'

@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-import ivy
+import ark
 import shortcodes
 import util
 import yaml
@@ -10,10 +10,10 @@ from markdown.extensions import Extension
 from markdown.treeprocessors import Treeprocessor
 
 
-@ivy.events.register(ivy.events.Event.INIT)
+@ark.events.register(ark.events.Event.INIT)
 def links_append():
     """Add Markdown links table to Markdown files."""
-    if "links" not in ivy.site.config:
+    if "links" not in ark.site.config:
         return
 
     links = _read_links()
@@ -23,15 +23,15 @@ def links_append():
         if node.ext == "md":
             node.text += "\n\n" + links
 
-    ivy.nodes.root().walk(visitor)
+    ark.nodes.root().walk(visitor)
 
 
 @shortcodes.register("links")
 def links_table(pargs, kwargs, node):
     """Create a table of links."""
-    util.require("links" in ivy.site.config, "No links specified")
+    util.require("links" in ark.site.config, "No links specified")
 
-    lang = ivy.site.config.get("lang", None)
+    lang = ark.site.config.get("lang", None)
     util.require(lang is not None, "No language specified")
 
     links = _read_links()
@@ -43,12 +43,12 @@ def links_table(pargs, kwargs, node):
     return f"<ul>\n{links}\n</ul>"
 
 
-@ivy.events.register(ivy.events.Event.EXIT)
+@ark.events.register(ark.events.Event.EXIT)
 def check():
     """Check link usage."""
     used = set()
     ext = LinkCollectorExtension(used)
-    ivy.nodes.root().walk(
+    ark.nodes.root().walk(
         lambda node: util.markdownify(node.text, ext=ext, strip=False)
     )
 
@@ -91,6 +91,6 @@ def _link_key(item, lang):
 
 def _read_links():
     """Read links file."""
-    filepath = Path(ivy.site.home(), ivy.site.config["links"])
+    filepath = Path(ark.site.home(), ark.site.config["links"])
     with open(filepath, "r") as reader:
         return yaml.safe_load(reader)
