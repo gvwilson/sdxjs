@@ -51,7 +51,7 @@ If a test [%i "exception!throw" %][%g throw_exception "throws an exception" %][%
 then we will assume the exception came from
 one of the assertions we put in the test as a check
 ([%f unit-test-mental-model %]).
-Any other kind of assertion indicates that the test itself contains an error.
+Any other kind of exception indicates that the test itself contains an error.
 
 [% figure
    slug="unit-test-mental-model"
