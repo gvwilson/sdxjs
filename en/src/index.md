@@ -18,3 +18,24 @@ while all of the software is made available under the terms of
 the [Hippocratic License][hippocratic_license].
 All proceeds from this project will go to support the
 [Red Door Family Shelter][red_door].
+
+_**Reviews**_
+
+-   [Jessica Kerr][kerr_jessica]:
+    "*Software Design by Example* is the book I'll recommend to every new dev…
+    It is nice to you.
+    It wants you to succeed…
+    It's a bridge from 'learn to program' to working programmer."
+
+-   [Jenn Schiffer][schiffer_jenn]:
+    "I am v much enjoying gvwilson's book *Software Design by Example*.
+    It makes me miss teaching, it would be such a fun text to use!"
+
+-   [Emily Gorcenski][gorcenski_emily]:
+    "There's a lot of books on programming
+    but fewer books that couple software development with effective and practical use of tools,
+    presenting a language not as a main course but as a part of an engineering ecosystem.
+    Greg Wilson's book hits all the right notes in bringing together theory, pragmatism, and best practices."
+
+-   [Danielle Navarro][navarro_danielle]:
+    "The book is really bloody lovely."
