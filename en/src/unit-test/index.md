@@ -446,7 +446,7 @@ multiple test cases for a function at once.
 For example, this:
 
 ```js
-hope.multiTest('check all of these`, functionToTest, [
+hope.multiTest('check all of these', functionToTest, [
   [['arg1a', 'arg1b'], 'result1'],
   [['arg2a', 'arg2b'], 'result2'],
   [['arg3a', 'arg3b'], 'result3']
