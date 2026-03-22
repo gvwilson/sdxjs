@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit Testing</title>
+<link href="../_static/favicon.ico" rel="icon" type="image/x-icon"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/page.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<nav>
+<a href="../">Software Design by Example</a>
+      ·
+      <span class="dropdown">
+<a href="#">Lessons</a>
+<span class="dropdown-content" id="nav-lessons">
+<a href="../introduction/">Introduction</a>
+<a href="../systems-programming/">Systems Programming</a>
+<a href="../async-programming/">Asynchronous Programming</a>
+<a href="../unit-test/">Unit Testing</a>
+<a href="../file-backup/">File Backup</a>
+<a href="../data-table/">Data Tables</a>
+<a href="../pattern-matching/">Pattern Matching</a>
+<a href="../regex-parser/">Parsing Expressions</a>
+<a href="../page-templates/">Page Templates</a>
+<a href="../build-manager/">Build Manager</a>
+<a href="../layout-engine/">Layout Engine</a>
+<a href="../file-interpolator/">File Interpolator</a>
+<a href="../module-loader/">Module Loader</a>
+<a href="../style-checker/">Style Checker</a>
+<a href="../code-generator/">Code Generator</a>
+<a href="../doc-generator/">Documentation Generator</a>
+<a href="../module-bundler/">Module Bundler</a>
+<a href="../package-manager/">Package Manager</a>
+<a href="../virtual-machine/">Virtual Machine</a>
+<a href="../debugger/">Debugger</a>
+<a href="../conclusion/">Conclusion</a>
+</span>
+</span>
+      ·
+      <span class="dropdown">
+<a href="#">Appendices</a>
+<span class="dropdown-content" id="nav-appendices">
+<a href="../license/">License</a>
+<a href="../conduct/">Code of Conduct</a>
+<a href="../contributing/">Contributing</a>
+<a href="../bibliography/">Bibliography</a>
+<a href="../glossary/">Glossary</a>
+</span>
+</span>
+</nav>
+<main>
+<h1>Unit Testing</h1>
+<p>We have written many small programs in the previous two chapters,
+but haven't really tested any of them.
+That's OK for <a class="gl-ref" href="../glossary/#exploratory_programming">exploratory programming</a>,
+but if our software is going to be used instead of just read,
+we should try to make sure it works.</p>
+<p>A tool for writing and running <a class="gl-ref" href="../glossary/#unit_test">unit tests</a> is a good first step.
+Such a tool should:</p>
+<ul>
+<li>find files containing tests;</li>
+<li>find the tests in those files;</li>
+<li>run the tests;</li>
+<li>capture their results; and</li>
+<li>report each test's result and a summary of those results.</li>
+</ul>
+<p>Our design is inspired by tools like <a href="https://mochajs.org/">Mocha</a> and <a href="https://jestjs.io/">Jest</a>,
+which were in turn inspired by tools built for other languages
+from the 1980s onward <a class="bib-ref" href="../bibliography/#Meszaros2007">Meszaros2007</a>, <a class="bib-ref" href="../bibliography/#Tudose2020">Tudose2020</a>.</p>
+<h2 id="unit-test-structure">How should we structure unit testing?</h2>
+<p>As in other unit testing frameworks,
+each test will be a function of zero arguments
+so that the framework can run them all in the same way.
+Each test will create a <a class="gl-ref" href="../glossary/#fixture">fixture</a> to be tested
+and use <a class="gl-ref" href="../glossary/#assertion">assertions</a>
+to compare the <a class="gl-ref" href="../glossary/#actual_result">actual result</a>
+against the <a class="gl-ref" href="../glossary/#expected_result">expected result</a>.
+The outcome can be exactly one of:</p>
+<ul>
+<li>
+<p><a class="gl-ref" href="../glossary/#pass_test">Pass</a>:
+    the <a class="gl-ref" href="../glossary/#test_subject">test subject</a> works as expected.</p>
+</li>
+<li>
+<p><a class="gl-ref" href="../glossary/#fail_test">Fail</a>:
+    something is wrong with the test subject.</p>
+</li>
+<li>
+<p><a class="gl-ref" href="../glossary/#error_test">Error</a>:
+    something is wrong in the test itself,
+    which means we don't know whether the test subject is working properly or not.</p>
+</li>
+</ul>
+<p>To make this work,
+we need some way to distinguish failing tests from broken ones.
+Our solution relies on the fact that exceptions are objects
+and that a program can use <a class="gl-ref" href="../glossary/#introspection">introspection</a>
+to determine the class of an object.
+If a test <a class="gl-ref" href="../glossary/#throw_exception">throws an exception</a> whose class is <code>assert.AssertionError</code>,
+then we will assume the exception came from
+one of the assertions we put in the test as a check
+(<a class="fig-ref" href="#f:unit-test-mental-model">Figure 1</a>).
+Any other kind of exception indicates that the test itself contains an error.</p>
+<figure id="f:unit-test-mental-model">
+<img alt="Mental model of unit testing" src="mental-model.svg"/>
+<figcaption>Figure 1: Running tests that can pass, fail, or contain errors.</figcaption>
+</figure>
+<h2 id="unit-test-design">How can we separate registration, execution, and reporting?</h2>
+<p>To start,
+let's use a handful of <a class="gl-ref" href="../glossary/#global_variable">global variables</a> to record tests and their results:</p>
+<div data-filter="inc=state" data-inc="dry-run.js"><div class="codehilite"><pre class=""><span></span><code>
+</code></pre></div>
+</div>
+<p>We don't run tests immediately
+because we want to wrap each one in our own <a class="gl-ref" href="../glossary/#exception_handler">exception handler</a>.
+Instead,
+the function <code>hopeThat</code> saves a descriptive message and a callback function that implements a test
+in the <code>HopeTest</code> array.</p>
+<div data-filter="inc=save" data-inc="dry-run.js"><div class="codehilite"><pre class=""><span></span><code>
+</code></pre></div>
+</div>
+<div class="callout">
+<h3>Independence</h3>
+<p>Because we're appending tests to an array,
+they will be run in the order in which they are registered,
+but we shouldn't rely on that.
+Every unit test should work independently of every other
+so that an error or failure in an early test
+doesn't affect the result of a later one.</p>
+</div>
+<p>Finally,
+the function <code>main</code> runs all registered tests:</p>
+<div data-filter="inc=main" data-inc="dry-run.js"><div class="codehilite"><pre class=""><span></span><code>
+</code></pre></div>
+</div>
+<p>If a test completes without an exception, it passes.
+If any of the <code>assert</code> calls inside the test raises an <code>AssertionError</code>,
+the test fails,
+and if it raises any other exception,
+it's an error.
+After all tests are run,
+<code>main</code> reports the number of results of each kind.</p>
+<p>Let's try it out:</p>
+<div data-filter="inc=use" data-inc="dry-run.js"><div class="codehilite"><pre class=""><span></span><code>
+</code></pre></div>
+</div>
+<div data-inc="dry-run.out"><div class="codehilite"><pre class=""><span></span><code>pass 2
+fail 1
+error 1
+</code></pre></div>
+</div>
+<p>This simple "framework" does what it's supposed to, but:</p>
+<ol>
+<li>
+<p>It doesn't tell us which tests have passed or failed.</p>
+</li>
+<li>
+<p>Those global variables should be consolidated somehow
+    so that it's clear they belong together.</p>
+</li>
+<li>
+<p>It doesn't discover tests on its own.</p>
+</li>
+<li>
+<p>We don't have a way to test things that are supposed to raise <code>AssertionError</code>.
+    Putting assertions into code to check that it is behaving correctly
+    is called <a class="gl-ref" href="../glossary/#defensive_programming">defensive programming</a>;
+    it's a good practice,
+    but we should make sure those assertions are failing when they're supposed to,
+    just as we should test our smoke detectors every once in a while.</p>
+</li>
+</ol>
+<h2 id="unit-test-registration">How should we structure test registration?</h2>
+<p>The next version of our testing tool solves the first two problems in the original
+by putting the testing machinery in a class.
+It uses the <a class="gl-ref" href="../glossary/#singleton_pattern">Singleton</a> <a class="gl-ref" href="../glossary/#design_pattern">design pattern</a>
+to ensure that only one object of that class is ever created <a class="bib-ref" href="../bibliography/#Osmani2017">Osmani2017</a>.
+Singletons are a way to manage global variables that belong together
+like the ones we're using to record tests and their results.
+As an extra benefit,
+if we decide later that we need several copies of those variables,
+we can just construct more instances of the class.</p>
+<p>The file <code>hope.js</code> defines the class and exports one instance of it:</p>
+<div data-filter="exc=report" data-inc="hope.js"><div class="codehilite"><pre class=""><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">assert</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'assert'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">caller</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'caller'</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nx">Hope</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">todo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">passes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">fails</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">test</span><span class="w"> </span><span class="p">(</span><span class="nx">comment</span><span class="p">,</span><span class="w"> </span><span class="nx">callback</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">todo</span><span class="p">.</span><span class="nx">push</span><span class="p">([</span><span class="sb">`</span><span class="si">${</span><span class="nx">caller</span><span class="p">()</span><span class="si">}</span><span class="sb">::</span><span class="si">${</span><span class="nx">comment</span><span class="si">}</span><span class="sb">`</span><span class="p">,</span><span class="w"> </span><span class="nx">callback</span><span class="p">])</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">run</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">todo</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(([</span><span class="nx">comment</span><span class="p">,</span><span class="w"> </span><span class="nx">test</span><span class="p">])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">test</span><span class="p">()</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">passes</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">comment</span><span class="p">)</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="w"> </span><span class="ow">instanceof</span><span class="w"> </span><span class="nx">assert</span><span class="p">.</span><span class="nx">AssertionError</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">fails</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">comment</span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">comment</span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// [report]</span>
+<span class="w">  </span><span class="nx">terse</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">cases</span><span class="p">()</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">map</span><span class="p">(([</span><span class="nx">title</span><span class="p">,</span><span class="w"> </span><span class="nx">results</span><span class="p">])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">title</span><span class="si">}</span><span class="sb">: </span><span class="si">${</span><span class="nx">results</span><span class="p">.</span><span class="nx">length</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">' '</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">verbose</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">report</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">''</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">''</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">title</span><span class="p">,</span><span class="w"> </span><span class="nx">results</span><span class="p">]</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">cases</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">report</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">prefix</span><span class="si">}${</span><span class="nx">title</span><span class="si">}</span><span class="sb">:`</span>
+<span class="w">      </span><span class="nx">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'\n'</span>
+<span class="w">      </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">results</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">report</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">prefix</span><span class="si">}</span><span class="sb">  </span><span class="si">${</span><span class="nx">r</span><span class="si">}</span><span class="sb">`</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">report</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">cases</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">[</span><span class="s1">'passes'</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">passes</span><span class="p">],</span>
+<span class="w">      </span><span class="p">[</span><span class="s1">'fails'</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">fails</span><span class="p">],</span>
+<span class="w">      </span><span class="p">[</span><span class="s1">'errors'</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">errors</span><span class="p">]]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="c1">// [/report]</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Hope</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<p>This strategy relies on two things:</p>
+<ol>
+<li>
+<p><a href="https://nodejs.org/en/">Node</a> executes the code in a JavaScript module as it loads it,
+    which means that it runs <code>new Hope()</code> and exports the newly-created object.</p>
+</li>
+<li>
+<p>Node <a class="gl-ref" href="../glossary/#caching">caches</a> modules
+    so that a given module is only loaded once
+    no matter how many times it is imported.
+    This ensures that <code>new Hope()</code> really is only called once.</p>
+</li>
+</ol>
+<p>Once a program has imported <code>hope</code>,
+it can call <code>Hope.test</code> to record a test for later execution
+and <code>Hope.run</code> to execute all of the tests registered up until that point
+(<a class="fig-ref" href="#f:unit-test-hope-structure">Figure 2</a>).</p>
+<figure id="f:unit-test-hope-structure">
+<img alt="Recording and running tests" src="hope-structure.svg"/>
+<figcaption>Figure 2: Creating a singleton, recording tests, and running them.</figcaption>
+</figure>
+<p>Finally,
+our <code>Hope</code> class can report results as both a terse one-line summary and as a detailed listing.
+It can also provide the titles and results of individual tests
+so that if someone wants to format them in a different way (e.g., as HTML) they can do so:</p>
+<div data-filter="inc=report" data-inc="hope.js"><div class="codehilite"><pre class=""><span></span><code>
+</code></pre></div>
+</div>
+<div class="callout">
+<h3>Who's calling?</h3>
+<p><code>Hope.test</code> uses the <a href="https://www.npmjs.com/package/caller"><code>caller</code></a> module
+to get the name of the function that is registering a test.
+Reporting the test's name helps the user figure out where to start debugging;
+getting it via introspection
+rather than requiring the user to pass the function's name as a string
+reduces typing
+and guarantees that what we report is accurate.
+Programmers will often copy, paste, and modify tests;
+sooner or later (probably sooner) they will forget to modify
+the copy-and-pasted function name being passed into <code>Hope.test</code>
+and will then lose time trying to figure out why <code>test_this</code> is failing
+when the failure is actually in <code>test_that</code>.</p>
+</div>
+<h2 id="unit-test-cli">How can we build a command-line interface for testing?</h2>
+<p>Most programmers don't enjoy writing tests,
+so if we want them to do it,
+we have to make it as painless as possible.
+A couple of <code>import</code> statements to get <code>assert</code> and <code>hope</code>
+and then one function call per test
+is about as simple as we can make the tests themselves:</p>
+<div data-inc="test-add.js"><div class="codehilite"><pre class=""><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">assert</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'assert'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">hope</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./hope.js'</span>
+
+<span class="nx">hope</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="s1">'Sum of 1 and 2'</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">assert</span><span class="p">((</span><span class="mf">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">2</span><span class="p">)</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">3</span><span class="p">))</span>
+</code></pre></div>
+</div>
+<p>But that just defines the tests---how will we find them so that we can run them?
+One option is to require people to <code>import</code> each of the files containing tests
+into another file:</p>
+<div class="codehilite"><pre class=""><span></span><code><span class="c1">// all-the-tests.js</span>
+
+<span class="k">import</span><span class="w"> </span><span class="s1">'./test-add.js'</span>
+<span class="k">import</span><span class="w"> </span><span class="s1">'./test-sub.js'</span>
+<span class="k">import</span><span class="w"> </span><span class="s1">'./test-mul.js'</span>
+<span class="k">import</span><span class="w"> </span><span class="s1">'./test-div.js'</span>
+
+<span class="nx">Hope</span><span class="p">.</span><span class="nx">run</span><span class="p">()</span>
+<span class="p">...</span>
+</code></pre></div>
+<p>Here,
+<code>all-the-tests.js</code> imports other files so that they will register tests
+as a <a class="gl-ref" href="../glossary/#side_effect">side effect</a> via calls to <code>hope.test</code>
+and then calls <code>Hope.run</code> to execute them.
+It works,
+but sooner or later (probably sooner) someone will forget to import one of the test files.</p>
+<p>A better strategy is to load test files <a class="gl-ref" href="../glossary/#dynamic_loading">dynamically</a>.
+While <code>import</code> is usually written as a statement,
+it can also be used as an <code>async</code> function
+that takes a path as a parameter and loads the corresponding file.
+The program <code>pray.js</code> (shown below) does this;
+as before,
+loading files executes the code they contain,
+which registers tests as a side effect:</p>
+<div data-filter="exc=options" data-inc="pray.js"><div class="codehilite"><pre class=""><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">minimist</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'minimist'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">glob</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'glob'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">hope</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./hope.js'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">args</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">parse</span><span class="p">(</span><span class="nx">args</span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">filenames</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">options</span><span class="p">.</span><span class="nx">filenames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">glob</span><span class="p">.</span><span class="nx">sync</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">options</span><span class="p">.</span><span class="nx">root</span><span class="si">}</span><span class="sb">/**/test-*.js`</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">f</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">options</span><span class="p">.</span><span class="nx">filenames</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="nx">f</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">hope</span><span class="p">.</span><span class="nx">run</span><span class="p">()</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">output</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'terse'</span><span class="p">)</span>
+<span class="w">    </span><span class="o">?</span><span class="w"> </span><span class="nx">hope</span><span class="p">.</span><span class="nx">terse</span><span class="p">()</span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="nx">hope</span><span class="p">.</span><span class="nx">verbose</span><span class="p">()</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// [options]</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">DEFAULTS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">filenames</span><span class="o">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">  </span><span class="nx">root</span><span class="o">:</span><span class="w"> </span><span class="s1">'.'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">output</span><span class="o">:</span><span class="w"> </span><span class="s1">'terse'</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">parse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">args</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">assign</span><span class="p">({},</span><span class="w"> </span><span class="nx">DEFAULTS</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">argv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">minimist</span><span class="p">(</span><span class="nx">args</span><span class="p">)</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">key</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">argv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="nx">key</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">'d'</span><span class="w"> </span><span class="o">:</span>
+<span class="w">        </span><span class="nx">options</span><span class="p">.</span><span class="nx">root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">argv</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+<span class="w">        </span><span class="k">break</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">'v'</span><span class="w"> </span><span class="o">:</span>
+<span class="w">        </span><span class="nx">options</span><span class="p">.</span><span class="nx">output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'verbose'</span>
+<span class="w">        </span><span class="k">break</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">'_'</span><span class="o">:</span>
+<span class="w">        </span><span class="nx">options</span><span class="p">.</span><span class="nx">filenames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">argv</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+<span class="w">        </span><span class="k">break</span>
+<span class="w">      </span><span class="k">default</span><span class="w"> </span><span class="o">:</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="sb">`unrecognized option </span><span class="si">${</span><span class="nx">key</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">        </span><span class="k">break</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">options</span>
+<span class="p">}</span>
+<span class="c1">// [/options]</span>
+
+<span class="nx">main</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">2</span><span class="p">))</span>
+</code></pre></div>
+</div>
+<p>By default,
+this program finds all files below the current working directory
+whose names match the pattern <code>test-*.js</code>
+and uses terse output.
+Since we may want to look for files somewhere else,
+or request verbose output,
+the program needs to handle command-line arguments.</p>
+<p>The <a href="https://www.npmjs.com/package/minimist"><code>minimist</code></a> module does this
+in a way that is consistent with Unix conventions.
+Given command-line arguments <em>after</em> the program's name
+(i.e., from <code>process.argv[2]</code> onward),
+it looks for patterns like <code>-x something</code>
+and creates an object with flags as keys and values associated with them.</p>
+<div class="callout">
+<h3>Filenames in <code>minimist</code></h3>
+<p>If we use a command line like <code>pray.js -v something.js</code>,
+then <code>something.js</code> becomes the value of <code>-v</code>.
+To indicate that we want <code>something.js</code> added to the list of trailing filenames
+associated with the special key <code>_</code> (a single underscore),
+we have to write <code>pray.js -v -- something.js</code>.
+The double dash is a common Unix convention for signalling the end of parameters.</p>
+</div>
+<p>Our <a class="gl-ref" href="../glossary/#test_runner">test runner</a> is now complete,
+so we can try it out with some files containing tests that pass, fail, and contain errors:</p>
+<div data-inc="pray.sh"><div class="codehilite"><pre class=""><span></span><code>node<span class="w"> </span>pray.js<span class="w"> </span>-v
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="pray.out"><div class="codehilite"><pre class=""><span></span><code>passes:
+  /u/stjs/unit-test/test-add.js::Sum of 1 and 2
+  /u/stjs/unit-test/test-sub.js::Difference of 1 and 2
+fails:
+  /u/stjs/unit-test/test-div.js::Quotient of 1 and 0
+  /u/stjs/unit-test/test-mul.js::Product of 1 and 2
+errors:
+  /u/stjs/unit-test/test-missing.js::Sum of x and 0
+</code></pre></div>
+</div>
+<div class="callout">
+<h3>Infinity is allowed</h3>
+<p><code>test-div.js</code> contains the line:</p>
+<div class="codehilite"><pre class=""><span></span><code><span class="nx">hope</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="s1">'Quotient of 1 and 0'</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">assert</span><span class="p">((</span><span class="mf">1</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">))</span>
+</code></pre></div>
+<p>This test counts as a failure rather than an error
+because the result of dividing by zero is the special value <code>Infinity</code>
+rather than an arithmetic error.</p>
+</div>
+<p>Loading modules dynamically so that they can register something for us to call later
+is a common pattern in many programming languages.
+Control flow goes back and forth between the framework and the module being loaded
+as this happens
+so we must specify the <a class="gl-ref" href="../glossary/#lifecycle">lifecycle</a> of the loaded modules quite carefully.
+<a class="fig-ref" href="#f:unit-test-lifecycle">Figure 3</a> illustrates what happens
+when a pair of files <code>test-add.js</code> and <code>test-sub.js</code> are loaded by our framework:</p>
+<ol>
+<li><code>pray</code> loads <code>hope.js</code>.</li>
+<li>Loading <code>hope.js</code> creates a single instance of the class <code>Hope</code>.</li>
+<li><code>pray</code> uses <code>glob</code> to find files with tests.</li>
+<li><code>pray</code> loads <code>test-add.js</code> using <code>import</code> as a function.</li>
+<li>As <code>test-add.js</code> runs, it loads <code>hope.js</code>.
+    Since <code>hope.js</code> is already loaded, this does not create a new instance of <code>Hope</code>.</li>
+<li><code>test-add.js</code> uses <code>hope.test</code> to register a test (which does not run yet).</li>
+<li><code>pray</code> then loads <code>test-sub.js</code>…</li>
+<li>…which loads <code>Hope</code>…</li>
+<li>…then registers a test.</li>
+<li><code>pray</code> can now ask the unique instance of <code>Hope</code> to run all of the tests,
+     then get a report from the <code>Hope</code> singleton and display it.</li>
+</ol>
+<figure id="f:unit-test-lifecycle">
+<img alt="Unit testing lifecycle" src="lifecycle.svg"/>
+<figcaption>Figure 3: Lifecycle of dynamically-discovered unit tests.</figcaption>
+</figure>
+<section class="exercises">
+<h2 id="unit-test-exercises">Exercises</h2>
+<h3>Asynchronous globbing</h3>
+<p>Modify <code>pray.js</code> to use the asynchronous version of <code>glob</code> rather than <code>glob.sync</code>.</p>
+<h3>Timing tests</h3>
+<p>Install the <a href="https://www.npmjs.com/package/microtime"><code>microtime</code></a> package and then modify the <code>dry-run.js</code> example
+so that it records and reports the execution times for tests.</p>
+<h3>Approximately equal</h3>
+<ol>
+<li>
+<p>Write a function <code>assertApproxEqual</code> that does nothing if two values are within a certain tolerance of each other
+    but throws an exception if they are not:</p>
+<div class="codehilite"><pre class=""><span></span><code><span class="c1">// throws exception</span>
+<span class="n">assertApproxEqual</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="s">'Values are too far apart'</span><span class="p">)</span>
+
+<span class="c1">// does not throw</span>
+<span class="n">assertApproxEqual</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0</span><span class="p">,</span><span class="w"> </span><span class="mf">10.0</span><span class="p">,</span><span class="w"> </span><span class="s">'Large margin of error'</span><span class="p">)</span>
+</code></pre></div>
+</li>
+<li>
+<p>Modify the function so that a default tolerance is used if none is specified:</p>
+<div class="codehilite"><pre class=""><span></span><code><span class="c1">// throws exception</span>
+<span class="n">assertApproxEqual</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0</span><span class="p">,</span><span class="w"> </span><span class="s">'Values are too far apart'</span><span class="p">)</span>
+
+<span class="c1">// does not throw</span>
+<span class="n">assertApproxEqual</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0</span><span class="p">,</span><span class="w"> </span><span class="s">'Large margin of error'</span><span class="p">,</span><span class="w"> </span><span class="mf">10.0</span><span class="p">)</span>
+</code></pre></div>
+</li>
+<li>
+<p>Modify the function again so that it checks the <a class="gl-ref" href="../glossary/#relative_error">relative error</a>
+    instead of the <a class="gl-ref" href="../glossary/#absolute_error">absolute error</a>.
+    (The relative error is the absolute value of the difference between the actual and expected value,
+    divided by the absolute value.)</p>
+</li>
+</ol>
+<h3>Rectangle overlay</h3>
+<p>A windowing application represents rectangles using objects with four values:
+<code>x</code> and <code>y</code> are the coordinates of the lower-left corner,
+while <code>w</code> and <code>h</code> are the width and height.
+All values are non-negative:
+the lower-left corner of the screen is at <code>(0, 0)</code>
+and the screen's size is <code>WIDTH</code>x<code>HEIGHT</code>.</p>
+<ol>
+<li>
+<p>Write tests to check that an object represents a valid rectangle.</p>
+</li>
+<li>
+<p>The function <code>overlay(a, b)</code> takes two rectangles and returns either
+    a new rectangle representing the region where they overlap or <code>null</code> if they do not overlap.
+    Write tests to check that <code>overlay</code> is working correctly.</p>
+</li>
+<li>
+<p>Do your tests assume that two rectangles that touch on an edge overlap or not?
+    What about two rectangles that only touch at a single corner?</p>
+</li>
+</ol>
+<h3>Selecting tests</h3>
+<p>Modify <code>pray.js</code> so that if the user provides <code>-s pattern</code> or <code>--select pattern</code>
+then the program only runs tests in files that contain the string <code>pattern</code> in their name.</p>
+<h3>Tagging tests</h3>
+<p>Modify <code>hope.js</code> so that users can optionally provide an array of strings to tag tests:</p>
+<div class="codehilite"><pre class=""><span></span><code><span class="nx">hope</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="s1">'Difference of 1 and 2'</span><span class="p">,</span>
+<span class="w">          </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">assert</span><span class="p">((</span><span class="mf">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">2</span><span class="p">)</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">),</span>
+<span class="w">          </span><span class="p">[</span><span class="s1">'math'</span><span class="p">,</span><span class="w"> </span><span class="s1">'fast'</span><span class="p">])</span>
+</code></pre></div>
+<p>Then modify <code>pray.js</code> so that if users specify either <code>-t tagName</code> or <code>--tag tagName</code>
+only tests with that tag are run.</p>
+<h3>Mock objects</h3>
+<p>A mock object is a simplified replacement for part of a program
+whose behavior is easier to control and predict than the thing it is replacing.
+For example,
+we may want to test that our program does the right thing if an error occurs while reading a file.
+To do this,
+we write a function that wraps <code>fs.readFileSync</code>:</p>
+<div class="codehilite"><pre class=""><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">mockReadFileSync</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="nx">encoding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'utf-8'</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="nx">encoding</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>and then modify it so that it throws an exception under our control.
+For example,
+if we define <code>MOCK_READ_FILE_CONTROL</code> like this:</p>
+<div class="codehilite"><pre class=""><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">MOCK_READ_FILE_CONTROL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">]</span>
+</code></pre></div>
+<p>then the third and fifth calls to <code>mockReadFileSync</code> throw an exception instead of reading data,
+as do any calls after the fifth.
+Write this function.</p>
+<h3>Setup and teardown</h3>
+<p>Testing frameworks often allow programmers to specify a <code>setup</code> function
+that is to be run before each test
+and a corresponding <code>teardown</code> function
+that is to be run after each test.
+(<code>setup</code> usually re-creates complicated test fixtures,
+while <code>teardown</code> functions are sometimes needed to clean up after tests,
+e.g., to close database connections or delete temporary files.)</p>
+<p>Modify the testing framework in this chapter so that
+if a file of tests contains something like this:</p>
+<div class="codehilite"><pre class=""><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">createFixtures</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="p">...</span><span class="k">do</span><span class="w"> </span><span class="nx">something</span><span class="p">...</span>
+<span class="p">}</span>
+
+<span class="nx">hope</span><span class="p">.</span><span class="nx">setup</span><span class="p">(</span><span class="nx">createFixtures</span><span class="p">)</span>
+</code></pre></div>
+<p>then the function <code>createFixtures</code> will be called
+exactly once before each test in that file.
+Add a similar way to register a teardown function with <code>hope.teardown</code>.</p>
+<h3>Multiple tests</h3>
+<p>Add a method <code>hope.multiTest</code> that allows users to specify
+multiple test cases for a function at once.
+For example, this:</p>
+<div class="codehilite"><pre class=""><span></span><code><span class="nx">hope</span><span class="p">.</span><span class="nx">multiTest</span><span class="p">(</span><span class="s1">'check all of these`, functionToTest, [</span>
+<span class="s1">  [['</span><span class="nx">arg1a</span><span class="s1">', '</span><span class="nx">arg1b</span><span class="s1">'], '</span><span class="nx">result1</span><span class="s1">'],</span>
+<span class="s1">  [['</span><span class="nx">arg2a</span><span class="s1">', '</span><span class="nx">arg2b</span><span class="s1">'], '</span><span class="nx">result2</span><span class="s1">'],</span>
+<span class="s1">  [['</span><span class="nx">arg3a</span><span class="s1">', '</span><span class="nx">arg3b</span><span class="s1">'], '</span><span class="nx">result3</span><span class="err">'</span><span class="p">]</span>
+<span class="p">])</span>
+</code></pre></div>
+<p>should be equivalent to this:</p>
+<div class="codehilite"><pre class=""><span></span><code><span class="nx">hope</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="s1">'check all of these 0'</span><span class="p">,</span>
+<span class="w">  </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">assert</span><span class="p">(</span><span class="nx">functionToTest</span><span class="p">(</span><span class="s1">'arg1a'</span><span class="p">,</span><span class="w"> </span><span class="s1">'arg1b'</span><span class="p">)</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'result1'</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="nx">hope</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="s1">'check all of these 1'</span><span class="p">,</span>
+<span class="w">  </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">assert</span><span class="p">(</span><span class="nx">functionToTest</span><span class="p">(</span><span class="s1">'arg2a'</span><span class="p">,</span><span class="w"> </span><span class="s1">'arg2b'</span><span class="p">)</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'result2'</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="nx">hope</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="s1">'check all of these 2'</span><span class="p">,</span>
+<span class="w">  </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">assert</span><span class="p">(</span><span class="nx">functionToTest</span><span class="p">(</span><span class="s1">'arg3a'</span><span class="p">,</span><span class="w"> </span><span class="s1">'arg3b'</span><span class="p">)</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'result3'</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<h3>Assertions for sets and maps</h3>
+<ol>
+<li>
+<p>Write functions <code>assertSetEqual</code> and <code>assertMapEqual</code>
+    that check whether two instances of <code>Set</code> or two instances of <code>Map</code> are equal.</p>
+</li>
+<li>
+<p>Write a function <code>assertArraySame</code>
+    that checks whether two arrays have the same elements,
+    even if those elements are in different orders.</p>
+</li>
+</ol>
+<h3>Testing promises</h3>
+<p>Modify the unit testing framework to handle <code>async</code> functions,
+so that:</p>
+<div class="codehilite"><pre class=""><span></span><code><span class="nx">hope</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="s1">'delayed test'</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{...})</span>
+</code></pre></div>
+<p>does the right thing.
+(Note that you can use <code>typeof</code> to determine whether the object given to <code>hope.test</code>
+is a function or a promise.)</p>
+</section>
+</main>
+<footer>
+<div class="row">
+<div class="col-3 left">
+	  ⇐ <a href="../async-programming/">Asynchronous Programming</a>
+</div>
+<div class="col-6 center">
+<a href="../">Software Design by Example</a>
+	  ©
+	  <a href="../#acknowledgments">the authors</a>
+</div>
+<div class="col-3 right">
+<a href="../file-backup/">File Backup</a> ⇒
+	</div>
+</div>
+</footer>
+</body>
+</html>

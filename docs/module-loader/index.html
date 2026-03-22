@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Module Loader</title>
+<link href="../_static/favicon.ico" rel="icon" type="image/x-icon"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/page.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<nav>
+<a href="../">Software Design by Example</a>
+      ·
+      <span class="dropdown">
+<a href="#">Lessons</a>
+<span class="dropdown-content" id="nav-lessons">
+<a href="../introduction/">Introduction</a>
+<a href="../systems-programming/">Systems Programming</a>
+<a href="../async-programming/">Asynchronous Programming</a>
+<a href="../unit-test/">Unit Testing</a>
+<a href="../file-backup/">File Backup</a>
+<a href="../data-table/">Data Tables</a>
+<a href="../pattern-matching/">Pattern Matching</a>
+<a href="../regex-parser/">Parsing Expressions</a>
+<a href="../page-templates/">Page Templates</a>
+<a href="../build-manager/">Build Manager</a>
+<a href="../layout-engine/">Layout Engine</a>
+<a href="../file-interpolator/">File Interpolator</a>
+<a href="../module-loader/">Module Loader</a>
+<a href="../style-checker/">Style Checker</a>
+<a href="../code-generator/">Code Generator</a>
+<a href="../doc-generator/">Documentation Generator</a>
+<a href="../module-bundler/">Module Bundler</a>
+<a href="../package-manager/">Package Manager</a>
+<a href="../virtual-machine/">Virtual Machine</a>
+<a href="../debugger/">Debugger</a>
+<a href="../conclusion/">Conclusion</a>
+</span>
+</span>
+      ·
+      <span class="dropdown">
+<a href="#">Appendices</a>
+<span class="dropdown-content" id="nav-appendices">
+<a href="../license/">License</a>
+<a href="../conduct/">Code of Conduct</a>
+<a href="../contributing/">Contributing</a>
+<a href="../bibliography/">Bibliography</a>
+<a href="../glossary/">Glossary</a>
+</span>
+</span>
+</nav>
+<main>
+<h1>Module Loader</h1>
+<p><a class="xref" href="../file-interpolator/">Chapter 12</a> showed how to use <code>eval</code> to load code dynamically.
+We can use this to build our own version of JavaScript's <code>require</code> function.
+Our function will take the name of a source file as an argument
+and return whatever that file exports.
+The key requirement for such a function is to avoid accidentally overwriting things:
+if we just <code>eval</code> some code and it happens to assign to a variable called <code>x</code>,
+anything called <code>x</code> already in our program might be overwritten.
+We therefore need a way to <a class="gl-ref" href="../glossary/#encapsulate">encapsulate</a> the contents of what we're loading.
+Our approach is based on <a class="bib-ref" href="../bibliography/#Casciaro2020">Casciaro2020</a>,
+which contains a lot of other useful information as well.</p>
+<h2 id="module-loader-namespace">How can we implement namespaces?</h2>
+<p>A <a class="gl-ref" href="../glossary/#namespace">namespace</a> is a collection of names in a program
+that are isolated from other namespaces.
+Most modern languages provide namespaces as a built-in feature
+so that programmers don't accidentally step on each other's toes.
+JavaScript doesn't,
+so we have to implement them ourselves.</p>
+<p>We can do this using <a class="gl-ref" href="../glossary/#closure">closures</a>.
+Every function is a namespace:
+variables defined inside the function are distinct from variables defined outside it
+(<a class="fig-ref" href="#f:module-loader-closures">Figure 1</a>).
+If we create the variables we want to manage inside a function,
+then define another function inside the first
+and return that <a class="gl-ref" href="../glossary/#inner_function">inner function</a>,
+that inner function will be the only thing with references to those variables.</p>
+<figure id="f:module-loader-closures">
+<img alt="How closures work" src="closures.svg"/>
+<figcaption>Figure 1: Using closures to create private variables.</figcaption>
+</figure>
+<p>For example,
+let's create a function that always appends the same string to its argument:</p>
+<div data-inc="manual-namespacing.js"><div class="codehilite"><pre class=""><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">createAppender</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">suffix</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">appender</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">text</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">text</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">suffix</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">appender</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">exampleFunction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createAppender</span><span class="p">(</span><span class="s1">' and that'</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">exampleFunction</span><span class="p">(</span><span class="s1">'this'</span><span class="p">))</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'suffix is'</span><span class="p">,</span><span class="w"> </span><span class="nx">suffix</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<p>When we run it,
+the value that was assigned to the parameter <code>suffix</code> still exists
+but can only be reached by the inner function:</p>
+<div data-inc="manual-namespacing.out"><div class="codehilite"><pre class=""><span></span><code>this and that
+/u/stjs/module-loader/manual-namespacing.js:10
+console.log('suffix is', suffix)
+                         ^
+
+ReferenceError: suffix is not defined
+    at /u/stjs/module-loader/manual-namespacing.js:10:26
+    at ModuleJob.run (internal/modules/esm/module_job.js:152:23)
+    at async Loader.import (internal/modules/esm/loader.js:166:24)
+    at async Object.loadESM (internal/process/esm_loader.js:68:5)
+</code></pre></div>
+</div>
+<p>We could require every module to define a setup function like this for users to call,
+but thanks to <code>eval</code> we can wrap the file's contents in a function and call it automatically.
+To do this we will create something called
+an <a class="gl-ref" href="../glossary/#iife">immediately-invoked function expression</a> (IIFE).
+The syntax <code>() =&gt; {...}</code> defines a function.
+If we put the definition in parentheses and then put another pair of parentheses right after it:</p>
+<div class="codehilite"><pre class=""><span></span><code><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{...})()</span>
+</code></pre></div>
+<p>we have code that defines a function of no arguments and immediately calls it.
+We can use this trick to achieve the same effect as the previous example in one step:</p>
+<div data-inc="automatic-namespacing.js"><div class="codehilite"><pre class=""><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">contents</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">privateValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'private value'</span><span class="w"> </span><span class="c1">// eslint-disable-line</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">publicValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public value'</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">publicValue</span><span class="w"> </span><span class="p">}</span>
+<span class="p">})()</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`contents.publicValue is </span><span class="si">${</span><span class="nx">contents</span><span class="p">.</span><span class="nx">publicValue</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`contents.privateValue is </span><span class="si">${</span><span class="nx">contents</span><span class="p">.</span><span class="nx">privateValue</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="automatic-namespacing.out"><div class="codehilite"><pre class=""><span></span><code>contents.publicValue is public value
+contents.privateValue is undefined
+</code></pre></div>
+</div>
+<div class="callout">
+<h3>Unconfusing the parser</h3>
+<p>The extra parentheses around the original definition force the parser to evaluate things in the right order;
+if we write:</p>
+<div class="codehilite"><pre class=""><span></span><code><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{...}()</span>
+</code></pre></div>
+<p>then JavaScript interprets it as a function definition followed by an empty expression
+rather than an immediate call to the function just defined.</p>
+</div>
+<h2 id="module-loader-load">How can we load a module?</h2>
+<p>We want the module we are loading to export names by assigning to <code>module.exports</code> just as <code>require</code> does,
+so we need to provide an object called <code>module</code> and create a IIFE.
+(We will handle the problem of the module loading other modules later.)
+Our <code>loadModule</code> function takes a filename and returns a newly created module object;
+the parameter to the function we build and <code>eval</code> must be called <code>module</code> so that we can assign to <code>module.exports</code>.
+For clarity,
+we call the object we pass in <code>result</code> in <code>loadModule</code>.</p>
+<div data-inc="load-module-only.js"><div class="codehilite"><pre class=""><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'fs'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">loadModule</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="s1">'utf-8'</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">fullText</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`((module) =&gt; {</span><span class="si">${</span><span class="nx">source</span><span class="si">}</span><span class="sb">})(result)`</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`full text for eval:\n</span><span class="si">${</span><span class="nx">fullText</span><span class="si">}</span><span class="sb">\n`</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">eval</span><span class="p">(</span><span class="nx">fullText</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">result</span><span class="p">.</span><span class="nx">exports</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">loadModule</span>
+</code></pre></div>
+</div>
+<figure id="f:module-loader-iife-a">
+<img alt="Implementing modules with IIFEs (part 1)" src="iife-a.svg"/>
+<figcaption>Figure 2: Using IIFEs to encapsulate modules and get their exports (part 1).</figcaption>
+</figure>
+<figure id="f:module-loader-iife-b">
+<img alt="Implementing modules with IIFEs (part 2)" src="iife-b.svg"/>
+<figcaption>Figure 3: Using IIFEs to encapsulate modules and get their exports (part 2).</figcaption>
+</figure>
+<p><a class="fig-ref" href="#f:module-loader-iife-a">Figure 2</a> and <a class="fig-ref" href="#f:module-loader-iife-b">Figure 3</a> show the structure of our loader so far.
+We can use this code as a test:</p>
+<div data-inc="small-module.js"><div class="codehilite"><pre class=""><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">publicValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public value'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">privateValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'private value'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">publicFunction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">caller</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="sb">`publicFunction called from </span><span class="si">${</span><span class="nx">caller</span><span class="si">}</span><span class="sb">`</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">publicValue</span><span class="p">,</span><span class="w"> </span><span class="nx">publicFunction</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+</div>
+<p>and this short program to load the test and check its exports:</p>
+<div data-inc="test-load-module-only.js"><div class="codehilite"><pre class=""><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">loadModule</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./load-module-only.js'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">loadModule</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">])</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`result.publicValue is </span><span class="si">${</span><span class="nx">result</span><span class="p">.</span><span class="nx">publicValue</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`result.privateValue is </span><span class="si">${</span><span class="nx">result</span><span class="p">.</span><span class="nx">privateValue</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">publicFunction</span><span class="p">(</span><span class="s1">'main'</span><span class="p">))</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="test-load-module-only.sh"><div class="codehilite"><pre class=""><span></span><code>node<span class="w"> </span>test-load-module-only.js<span class="w"> </span>small-module.js
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="test-load-module-only.out"><div class="codehilite"><pre class=""><span></span><code>full text for eval:
+((module) =&gt; {const publicValue = 'public value'
+
+const privateValue = 'private value'
+
+const publicFunction = (caller) =&gt; {
+  return `publicFunction called from ${caller}`
+}
+
+module.exports = { publicValue, publicFunction }
+})(result)
+
+result.publicValue is public value
+result.privateValue is undefined
+publicFunction called from main
+</code></pre></div>
+</div>
+<h2 id="module-loader-circular">Do we need to handle circular dependencies?</h2>
+<p>What if the code we are loading loads other code?
+We can visualize the network of who requires whom as a <a class="gl-ref" href="../glossary/#directed_graph">directed graph</a>:
+if X requires Y,
+we draw an arrow from X to Y.
+Unlike the directed <em>acyclic</em> graphs we met in <a class="xref" href="../build-manager/">Chapter 10</a>,
+though,
+these graphs can contain cycles:
+we say a <a class="gl-ref" href="../glossary/#circular_dependency">circular dependency</a> exists
+if X depends on Y and Y depends on X
+either directly or indirectly.
+This may seem nonsensical,
+but can easily arise with <a class="gl-ref" href="../glossary/#plugin_architecture">plugin architectures</a>:
+the file containing the main program loads an extension,
+and that extension calls utility functions defined in the file containing the main program.</p>
+<p>Most compiled languages can handle circular dependencies easily:
+they compile each module into low-level instructions,
+then link those to resolve dependencies before running anything
+(<a class="fig-ref" href="#f:module-loader-circularity">Figure 4</a>).
+But interpreted languages usually run code as they're loading it,
+so if X is in the process of loading Y and Y tries to call X,
+X may not (fully) exist yet.</p>
+<figure id="f:module-loader-circularity">
+<img alt="Circularity test case" src="circularity.svg"/>
+<figcaption>Figure 4: Testing circular imports.</figcaption>
+</figure>
+<p>Circular dependencies work in <a href="https://www.python.org/">Python</a>,
+but only sort of.
+Let's create two files called <code>major.py</code> and <code>minor.py</code>:</p>
+<div data-inc="checking/major.py"><div class="codehilite"><pre class=""><span></span><code><span class="c1"># major.py</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">minor</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">top</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"top"</span><span class="p">)</span>
+    <span class="n">minor</span><span class="o">.</span><span class="n">middle</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">bottom</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"bottom"</span><span class="p">)</span>
+
+<span class="n">top</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div data-inc="checking/minor.py"><div class="codehilite"><pre class=""><span></span><code><span class="c1"># minor.py</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">major</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">middle</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"middle"</span><span class="p">)</span>
+    <span class="n">major</span><span class="o">.</span><span class="n">bottom</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<p>Loading fails when we run <code>major.py</code> from the command line:</p>
+<div data-inc="checking/py-command-line.out"><div class="codehilite"><pre class=""><span></span><code>top
+Traceback (most recent call last):
+  File "major.py", line 3, in &lt;module&gt;
+    import minor
+  File "/u/stjs/module-loader/checking/minor.py", line 3, in &lt;module&gt;
+    import major
+  File "/u/stjs/module-loader/checking/major.py", line 12, in &lt;module&gt;
+    top()
+  File "/u/stjs/module-loader/checking/major.py", line 7, in top
+    minor.middle()
+AttributeError: module 'minor' has no attribute 'middle'
+</code></pre></div>
+</div>
+<p>but works in the interactive interpreter:</p>
+<div data-inc="checking/py-interactive.out"><div class="codehilite"><pre class=""><span></span><code>$ python
+&gt;&gt;&gt; import major
+top
+middle
+bottom
+</code></pre></div>
+</div>
+<p>The equivalent test in JavaScript also has two files:</p>
+<div data-inc="checking/major.js"><div class="codehilite"><pre class=""><span></span><code><span class="c1">// major.js</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">middle</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">'./minor'</span><span class="p">)</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'top'</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">middle</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">bottom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'bottom'</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nx">top</span><span class="p">()</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">top</span><span class="p">,</span><span class="w"> </span><span class="nx">bottom</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+</div>
+<div data-inc="checking/minor.js"><div class="codehilite"><pre class=""><span></span><code><span class="c1">// minor.js</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">bottom</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">'./major'</span><span class="p">)</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">middle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'middle'</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">bottom</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">middle</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+</div>
+<p>It fails on the command line:</p>
+<div data-inc="checking/js-command-line.out"><div class="codehilite"><pre class=""><span></span><code>top
+middle
+/u/stjs/module-loader/checking/minor.js:6
+  bottom()
+  ^
+
+TypeError: bottom is not a function
+    at middle (/u/stjs/module-loader/checking/minor.js:6:3)
+    at top (/u/stjs/module-loader/checking/major.js:6:3)
+    at Object.&lt;anonymous&gt; (/u/stjs/module-loader/checking/major.js:13:1)
+    at Module._compile (internal/modules/cjs/loader.js:1063:30)
+    at Object.Module._extensions..js \
+ (internal/modules/cjs/loader.js:1092:10)
+    at Module.load (internal/modules/cjs/loader.js:928:32)
+    at Function.Module._load (internal/modules/cjs/loader.js:769:14)
+    at Function.executeUserEntryPoint [as runMain] \
+ (internal/modules/run_main.js:72:12)
+    at internal/main/run_main_module.js:17:47
+</code></pre></div>
+</div>
+<p>and also fails in the interactive interpreter
+(which is more consistent):</p>
+<div data-inc="checking/js-interactive.out"><div class="codehilite"><pre class=""><span></span><code>$ node
+&gt; require('./major')
+top
+middle
+/u/stjs/module-loader/checking/minor.js:6
+  bottom()
+  ^
+
+TypeError: bottom is not a function
+    at middle (/u/stjs/module-loader/checking/minor.js:6:3)
+    at top (/u/stjs/module-loader/checking/major.js:6:3)
+    at Object.&lt;anonymous&gt; (/u/stjs/module-loader/checking/major.js:13:1)
+    at Module._compile (internal/modules/cjs/loader.js:1063:30)
+    at Object.Module._extensions..js \
+ (internal/modules/cjs/loader.js:1092:10)
+    at Module.load (internal/modules/cjs/loader.js:928:32)
+    at Function.Module._load (internal/modules/cjs/loader.js:769:14)
+    at Module.require (internal/modules/cjs/loader.js:952:19)
+    at require (internal/modules/cjs/helpers.js:88:18)
+    at [stdin]:1:1
+</code></pre></div>
+</div>
+<p>We therefore won't try to handle circular dependencies.
+However,
+we will detect them and generate a sensible error message.</p>
+<div class="callout">
+<h3><code>import</code> vs. <code>require</code></h3>
+<p>Circular dependencies work JavaScript's <code>import</code> syntax
+because we can analyze files to determine what needs what,
+get everything into memory,
+and then resolve dependencies.
+We can't do this with <code>require</code>-based code
+because someone might create an <a class="gl-ref" href="../glossary/#alias">alias</a>
+and call <code>require</code> through that
+or <code>eval</code> a string that contains a <code>require</code> call.
+(Of course, they can also do these things with the function version of <code>import</code>.)</p>
+</div>
+<h2 id="module-loader-subload">How can a module load another module?</h2>
+<p>While we're not going to handle circular dependencies,
+modules do need to be able to load other modules.
+To enable this,
+we need to provide the module with a function called <code>require</code>
+that it can call as it loads.
+As in <a class="xref" href="../file-interpolator/">Chapter 12</a>,
+this function checks a cache
+to see if the file being asked for has already been loaded.
+If not, it loads it and saves it;
+either way, it returns the result.</p>
+<p>Our cache needs to be careful about how it identifies files
+so that it can detect duplicates loading attempts that use different names.
+For example,
+suppose that <code>major.js</code> loads <code>subdir/first.js</code> and <code>subdir/second.js</code>.
+When <code>subdir/second.js</code> loads <code>./first.js</code>,
+our system needs to realize that it already has that file
+even though the path looks different.
+We will use <a class="gl-ref" href="../glossary/#absolute_path">absolute paths</a> as cache keys
+so that every file has a unique, predictable key.</p>
+<p>To reduce confusion,
+we will call our function <code>need</code> instead of <code>require</code>.
+In order to make the cache available to modules while they're loading,
+we will make it a property of <code>need</code>.
+(Remember,
+a function is just another kind of object in JavaScript;
+every function gets several properties automatically,
+and we can always add more.)
+Since we're using the built-in <code>Map</code> class as a cache,
+the entire implementation of <code>need</code> is just 12 lines long:</p>
+<div data-inc="need.js"><div class="codehilite"><pre class=""><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">path</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'path'</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nx">loadModule</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./load-module.js'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">need</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">name</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">absPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">need</span><span class="p">.</span><span class="nx">cache</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">absPath</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">contents</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">loadModule</span><span class="p">(</span><span class="nx">absPath</span><span class="p">,</span><span class="w"> </span><span class="nx">need</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">need</span><span class="p">.</span><span class="nx">cache</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">absPath</span><span class="p">,</span><span class="w"> </span><span class="nx">contents</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">need</span><span class="p">.</span><span class="nx">cache</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">absPath</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="nx">need</span><span class="p">.</span><span class="nx">cache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Map</span><span class="p">()</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">need</span>
+</code></pre></div>
+</div>
+<p>We now need to modify <code>loadModule</code> to take our function <code>need</code> as a parameter.
+(Again, we'll have our modules call <code>need('something.js')</code> instead of <code>require('something')</code> for clarity.)
+Let's test it with the same small module that doesn't need anything else to make sure we haven't broken anything:</p>
+<div data-inc="test-need-small-module.js"><div class="codehilite"><pre class=""><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">need</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./need.js'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">small</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">need</span><span class="p">(</span><span class="s1">'small-module.js'</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`small.publicValue is </span><span class="si">${</span><span class="nx">small</span><span class="p">.</span><span class="nx">publicValue</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`small.privateValue is </span><span class="si">${</span><span class="nx">small</span><span class="p">.</span><span class="nx">privateValue</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">small</span><span class="p">.</span><span class="nx">publicFunction</span><span class="p">(</span><span class="s1">'main'</span><span class="p">))</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="test-need-small-module.out"><div class="codehilite"><pre class=""><span></span><code>full text for eval:
+((module, need) =&gt; {
+const publicValue = 'public value'
+
+const privateValue = 'private value'
+
+const publicFunction = (caller) =&gt; {
+  return `publicFunction called from ${caller}`
+}
+
+module.exports = { publicValue, publicFunction }
+
+})(result, need)
+
+small.publicValue is public value
+small.privateValue is undefined
+publicFunction called from main
+</code></pre></div>
+</div>
+<p>What if we test it with a module that <em>does</em> load something else?</p>
+<div data-inc="large-module.js"><div class="codehilite"><pre class=""><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">need</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./need'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">small</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">need</span><span class="p">(</span><span class="s1">'small-module.js'</span><span class="p">)</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">large</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">caller</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`large from </span><span class="si">${</span><span class="nx">caller</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">small</span><span class="p">.</span><span class="nx">publicFunction</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">caller</span><span class="si">}</span><span class="sb"> to large`</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">large</span>
+</code></pre></div>
+</div>
+<div data-inc="test-need-large-module.js"><div class="codehilite"><pre class=""><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">need</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./need.js'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">large</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">need</span><span class="p">(</span><span class="s1">'large-module.js'</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">large</span><span class="p">.</span><span class="nx">large</span><span class="p">(</span><span class="s1">'main'</span><span class="p">))</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="test-need-large-module.out"><div class="codehilite"><pre class=""><span></span><code>full text for eval:
+((module, need) =&gt; {
+import need from './need'
+
+const small = need('small-module.js')
+
+const large = (caller) =&gt; {
+  console.log(`large from ${caller}`)
+  small.publicFunction(`${caller} to large`)
+}
+
+export default large
+
+})(result, need)
+
+undefined:2
+import need from './need'
+^^^^^^
+
+SyntaxError: Cannot use import statement outside a module
+    at loadModule (/u/stjs/module-loader/load-module.js:8:8)
+    at need (/u/stjs/module-loader/need.js:8:22)
+    at /u/stjs/module-loader/test-need-large-module.js:3:15
+    at ModuleJob.run (internal/modules/esm/module_job.js:152:23)
+    at async Loader.import (internal/modules/esm/loader.js:166:24)
+    at async Object.loadESM (internal/process/esm_loader.js:68:5)
+</code></pre></div>
+</div>
+<p>This doesn't work because <code>import</code> only works at the top level of a program,
+not inside a function.
+Our system can therefore only run loaded modules by <code>need</code>ing them:</p>
+<div data-inc="large-needless.js"><div class="codehilite"><pre class=""><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">small</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">need</span><span class="p">(</span><span class="s1">'small-module.js'</span><span class="p">)</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">large</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">caller</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">small</span><span class="p">.</span><span class="nx">publicFunction</span><span class="p">(</span><span class="sb">`large called from </span><span class="si">${</span><span class="nx">caller</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">large</span>
+</code></pre></div>
+</div>
+<div data-inc="test-need-large-needless.js"><div class="codehilite"><pre class=""><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">need</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./need.js'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">large</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">need</span><span class="p">(</span><span class="s1">'large-needless.js'</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">large</span><span class="p">(</span><span class="s1">'main'</span><span class="p">))</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="test-need-large-needless.out"><div class="codehilite"><pre class=""><span></span><code>full text for eval:
+((module, need) =&gt; {
+const small = need('small-module.js')
+
+const large = (caller) =&gt; {
+  return small.publicFunction(`large called from ${caller}`)
+}
+
+module.exports = large
+
+})(result, need)
+
+full text for eval:
+((module, need) =&gt; {
+const publicValue = 'public value'
+
+const privateValue = 'private value'
+
+const publicFunction = (caller) =&gt; {
+  return `publicFunction called from ${caller}`
+}
+
+module.exports = { publicValue, publicFunction }
+
+})(result, need)
+
+publicFunction called from large called from main
+</code></pre></div>
+</div>
+<div class="callout">
+<h3>"It's so deep it's meaningless"</h3>
+<p>The programs we have written in this chapter are harder to understand
+than most of the programs in earlier chapters
+because they are so abstract.
+Reading through them,
+it's easy to get the feeling that everything is happening somewhere else.
+Programmers' tools are often like this:
+there's always a risk of confusing the thing in the program
+with the thing the program is working on.
+Drawing pictures of data structures can help,
+and so can practicing with closures
+(which are one of the most powerful ideas in programming),
+but a lot of the difficulty is irreducible,
+so don't feel bad if it takes you a while to wrap your head around it.</p>
+</div>
+<section class="exercises">
+<h2 id="module-loader-exercises">Exercises</h2>
+<h3>Counting with closures</h3>
+<p>Write a function <code>makeCounter</code> that returns a function
+that produces the next integer in sequence starting from zero each time it is called.
+Each function returned by <code>makeCounter</code> must count independently, so:</p>
+<div class="codehilite"><pre class=""><span></span><code><span class="nx">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">makeCounter</span><span class="p">()</span>
+<span class="nx">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">makeCounter</span><span class="p">()</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`left </span><span class="si">${</span><span class="nx">left</span><span class="p">()</span><span class="sb">`)</span>
+<span class="sb">console.log(`</span><span class="nx">right</span><span class="w"> </span><span class="nx">$</span><span class="p">{</span><span class="nx">right</span><span class="p">()</span><span class="sb">`)</span>
+<span class="sb">console.log(`</span><span class="nx">left</span><span class="w"> </span><span class="nx">$</span><span class="p">{</span><span class="nx">left</span><span class="p">()</span><span class="sb">`)</span>
+<span class="sb">console.log(`</span><span class="nx">right</span><span class="w"> </span><span class="nx">$</span><span class="p">{</span><span class="nx">right</span><span class="p">()</span><span class="sb">`)</span>
+</code></pre></div>
+<p>must produce:</p>
+<div class="codehilite"><pre class=""><span></span><code>left 0
+right 0
+left 1
+right 1
+</code></pre></div>
+<h3>Objects and namespaces</h3>
+<p>A JavaScript object stores key-value pairs,
+and the keys in one object are separate from the keys in another.
+Why doesn't this provide the same level of safety as a closure?</p>
+<h3>Testing module loading</h3>
+<p>Write tests for <code>need.js</code> using Mocha and <code>mock-fs</code>.</p>
+<h3>Using <code>module</code> as a name</h3>
+<p>What happens if we define the variable <code>module</code> in <code>loadModule</code>
+so that it is in scope when <code>eval</code> is called
+rather than creating a variable called <code>result</code> and passing that in:</p>
+<div class="codehilite"><pre class=""><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">loadModule</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="s1">'utf-8'</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">fullText</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`(() =&gt; {</span><span class="si">${</span><span class="nx">source</span><span class="si">}</span><span class="sb">})()`</span>
+<span class="w">  </span><span class="nb">eval</span><span class="p">(</span><span class="nx">fullText</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3>Implementing a search path</h3>
+<p>Add a search path to <code>need.js</code> so that if a module isn't found locally,
+it will be looked for in each directory in the search path in order.</p>
+<h3>Using a setup function</h3>
+<p>Rewrite the module loader so that every module has a function called <code>setup</code>
+that must be called after loading it to create its exports
+rather than using <code>module.exports</code>.</p>
+<h3>Handling errors while loading</h3>
+<ol>
+<li>
+<p>Modify <code>need.js</code> so that it does something graceful
+    if an exception is thrown while a module is being loaded.</p>
+</li>
+<li>
+<p>Write unit tests for this using Mocha.</p>
+</li>
+</ol>
+<h3>Refactoring circularity</h3>
+<p>Suppose that <code>main.js</code> contains this:</p>
+<div data-inc="x-refactoring-circularity/main.js"><div class="codehilite"><pre class=""><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">PLUGINS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">plugin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">'./plugin'</span><span class="p">)</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">PLUGINS</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">p</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">p</span><span class="p">())</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">loadPlugin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">plugin</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">PLUGINS</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">plugin</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">main</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">loadPlugin</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<p>and <code>plugin.js</code> contains this:</p>
+<div data-inc="x-refactoring-circularity/plugin.js"><div class="codehilite"><pre class=""><span></span><code><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">loadPlugin</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">'./main'</span><span class="p">)</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">printMessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'running plugin'</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nx">loadPlugin</span><span class="p">(</span><span class="nx">printMessage</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<p>Refactor this code so that it works correctly while still using <code>require</code> rather than <code>import</code>.</p>
+<h3>An LRU cache</h3>
+<p>A <a class="gl-ref" href="../glossary/#lru_cache">Least Recently Used (LRU) cache</a>
+reduces access time while limiting the amount of memory used
+by keeping track of the N items that have been used most recently.
+For example,
+if the cache size is 3 and objects are accessed in the order shown in the first column,
+the cache's contents will be as shown in the second column:</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Action</th>
+<th>Cache After Access</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>read A</td>
+<td>[A]</td>
+</tr>
+<tr>
+<td>A</td>
+<td>get A from cache</td>
+<td>[A]</td>
+</tr>
+<tr>
+<td>B</td>
+<td>read B</td>
+<td>[B, A]</td>
+</tr>
+<tr>
+<td>A</td>
+<td>get A from cache</td>
+<td>[A, B]</td>
+</tr>
+<tr>
+<td>C</td>
+<td>read C</td>
+<td>[C, A, B]</td>
+</tr>
+<tr>
+<td>D</td>
+<td>read D</td>
+<td>[D, C, A]</td>
+</tr>
+<tr>
+<td>B</td>
+<td>read B</td>
+<td>[B, D, C]</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>
+<p>Implement a function <code>cachedRead</code> that takes the number of entries in the cache as an argument
+    and returns a function that uses an LRU cache
+    to either read files or return cached copies.</p>
+</li>
+<li>
+<p>Modify <code>cachedRead</code> so that the number of items in the cache
+    is determined by their combined size
+    rather than by the number of files.</p>
+</li>
+</ol>
+<h3>Make functions safe for renaming</h3>
+<p>Our implementation of <code>need</code> implemented the cache as a property of the function itself.</p>
+<ol>
+<li>
+<p>How can this go wrong?
+    (Hint: thing about aliases.)</p>
+</li>
+<li>
+<p>Modify the implementation to solve this problem using a closure.</p>
+</li>
+</ol>
+</section>
+</main>
+<footer>
+<div class="row">
+<div class="col-3 left">
+	  ⇐ <a href="../file-interpolator/">File Interpolator</a>
+</div>
+<div class="col-6 center">
+<a href="../">Software Design by Example</a>
+	  ©
+	  <a href="../#acknowledgments">the authors</a>
+</div>
+<div class="col-3 right">
+<a href="../style-checker/">Style Checker</a> ⇒
+	</div>
+</div>
+</footer>
+</body>
+</html>

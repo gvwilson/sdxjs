@@ -178,9 +178,9 @@ def report(title, checkOnlyRight=True, **kwargs):
 
 def strip_nested(value):
     """Strip a string or all strings in a list."""
-    if type(value) == str:
+    if isinstance(value, str):
         return value.strip()
-    elif type(value) == list:
+    elif isinstance(value, list):
         return [x.strip() for x in value]
     return value
 

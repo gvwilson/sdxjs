@@ -1,4 +1,6 @@
-# Code of Conduct
+---
+title: "Code of Conduct"
+---
 
 In the interest of fostering an open and welcoming environment, we as
 contributors and maintainers pledge to making participation in our project and
@@ -19,6 +21,7 @@ include:
 * showing empathy towards other community members.
 
 Examples of unacceptable behavior by participants include:
+{: .continue}
 
 * the use of sexualized language or imagery and unwelcome sexual
   attention or advances,
@@ -66,6 +69,5 @@ members of the project's leadership.
 
 ## Attribution
 
-This Code of Conduct is adapted from the [Contributor Covenant][cc] version 1.4.
-
-[cc]: https://www.contributor-covenant.org/
+This Code of Conduct is adapted from the [Contributor Covenant][contributor_covenant]
+version 1.4.
