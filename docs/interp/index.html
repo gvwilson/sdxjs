@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>File Interpolator</title>
+<meta content="Software Design by Example" name="description"/>
+<meta content="#f8f8f8" media="(prefers-color-scheme: light)" name="theme-color"/>
+<meta content="#1a1a1a" media="(prefers-color-scheme: dark)" name="theme-color"/>
+<link href="../_static/favicon.ico" rel="icon" type="image/x-icon"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/page.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<nav aria-label="Site navigation">
+<a href="../">Software Design by Example</a>
+<span aria-hidden="true">·</span>
+<span class="dropdown">
+<button aria-controls="nav-lessons" aria-haspopup="true">Lessons</button>
+<ul class="dropdown-content" id="nav-lessons" role="list">
+<li><a href="../introduction/">Introduction</a></li>
+<li><a href="../sysprog/">Systems Programming</a></li>
+<li><a href="../async/">Asynchronous Programming</a></li>
+<li><a href="../test/">Unit Testing</a></li>
+<li><a href="../backup/">File Backup</a></li>
+<li><a href="../table/">Data Tables</a></li>
+<li><a href="../glob/">Pattern Matching</a></li>
+<li><a href="../parser/">Parsing Expressions</a></li>
+<li><a href="../templater/">Page Templates</a></li>
+<li><a href="../build/">Build Manager</a></li>
+<li><a href="../layout/">Layout Engine</a></li>
+<li><a class="active" href="../interp/">File Interpolator</a></li>
+<li><a href="../loader/">Module Loader</a></li>
+<li><a href="../style/">Style Checker</a></li>
+<li><a href="../codegen/">Code Generator</a></li>
+<li><a href="../docgen/">Documentation Generator</a></li>
+<li><a href="../bundler/">Module Bundler</a></li>
+<li><a href="../packman/">Package Manager</a></li>
+<li><a href="../vm/">Virtual Machine</a></li>
+<li><a href="../debugger/">Debugger</a></li>
+<li><a href="../conclusion/">Conclusion</a></li>
+</ul>
+</span>
+<span aria-hidden="true">·</span>
+<span class="dropdown">
+<button aria-controls="nav-appendices" aria-haspopup="true">Appendices</button>
+<ul class="dropdown-content" id="nav-appendices" role="list">
+<li><a href="../license/">License</a></li>
+<li><a href="../conduct/">Code of Conduct</a></li>
+<li><a href="../contributing/">Contributing</a></li>
+<li><a href="../bibliography/">Bibliography</a></li>
+<li><a href="../glossary/">Glossary</a></li>
+</ul>
+</span>
+</nav>
+<main id="main-content">
+<h1>File Interpolator</h1>
+<p>Many of the examples in these lessons are too long
+to show comfortably in one block of code on a printed page,
+so we needed a way to break them up.
+As an experiment,
+we wrote a custom <a class="gl-ref" href="../glossary/#loader">module loader</a>
+that reads a source file containing specially-formatted comments
+and then reads and inserts the files specified in those comments
+before running the code
+(<a class="fig-ref" href="#f:file-interpolator-conceptual">Figure 1</a>).
+Modern programming languages don't work this way,
+but C and C++ do this
+with <a class="gl-ref" href="../glossary/#header_file">header files</a>,
+and static site generators
+(<a class="xref" href="../templater/">Chapter 9</a>) do this to share fragments of HTML.</p>
+<figure id="f:file-interpolator-conceptual">
+<img alt="Using file inclusions" src="conceptual.svg"/>
+<figcaption>Figure 1: Including fragments of code to create runnable programs.</figcaption>
+</figure>
+<p>The special comments in our source files contain
+the text to put in the displayed version
+and file to include when loading:</p>
+<div data-inc="interpolation-example.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="c1">// eslint-disable</span>
+<span class="kd">class</span><span class="w"> </span><span class="nx">Something</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="cm">/*+ constructor + constructor.js +*/</span>
+
+<span class="w">  </span><span class="cm">/*+ a long method + long_method.js +*/</span>
+
+<span class="w">  </span><span class="cm">/*+ another method + another_method.js +*/</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<p>We got this to work,
+but decided to use a different approach in this book.
+The stumbling block was that the style-checking tool <a href="https://eslint.org/">ESLint</a>
+didn't know what to make of our inclusions,
+so we would either have to modify it or build a style checker of our own.
+(We will actually do that in <a class="xref" href="../style/">Chapter 14</a>,
+but we won't go nearly as far as ESLint.)</p>
+<p>Despite being a dead end,
+the inclusion tool is a good way to show
+how JavaScript turns source code into something it can execute.
+We need to be able to do this in the next couple of chapters,
+so we might as well tackle it now.</p>
+<h2 id="file-interpolator-dynamic">How can we evaluate JavaScript dynamically?</h2>
+<p>We want to display files as they are on the web and in print,
+but interpolate the files referenced in special comments
+when we load things with <code>import</code>.
+To do this,
+we need to understand the lifecycle of a JavaScript program.
+When we ask for a file,
+<a href="https://nodejs.org/en/">Node</a> reads the text,
+translates it into runnable instructions,
+and runs those instructions.
+We can do the second and third steps whenever we want using a function called <code>eval</code>,
+which takes a string as input and executes it as if it were part of the program
+(<a class="fig-ref" href="#f:file-interpolator-eval">Figure 2</a>).</p>
+<figure id="f:file-interpolator-eval">
+<img alt="How eval works" src="eval.svg"/>
+<figcaption>Figure 2: `eval` vs. normal translation and execution.</figcaption>
+</figure>
+<div class="callout">
+<h3>This is not a good idea</h3>
+<p><code>eval</code> is a security risk:
+arbitrary code can do arbitrary things,
+so if we take a string typed in by a user and execute it without any checks
+it could email our bookmark list to villains all over the world,
+erase our hard drive,
+or do anything else that code can do (which is pretty much anything).
+Browsers do their best to run code in a <a class="gl-ref" href="../glossary/#sandbox">sandbox</a> for safety,
+but Node doesn't,
+so it's up to us to be (very) careful.</p>
+</div>
+<p>To see <code>eval</code> in action,
+let's evaluate an expression:</p>
+<div data-inc="eval-two-plus-two.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="c1">// eslint-disable no-eval</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">eval</span><span class="p">(</span><span class="s1">'2 + 2'</span><span class="p">))</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="eval-two-plus-two.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>4
+</code></pre></div>
+</div>
+<p>Notice that the input to <code>eval</code> is <em>not</em> <code>2 + 2</code>,
+but rather a string containing the digit 2,
+a space,
+a plus sign,
+another space,
+and another 2.
+When we call <code>eval</code>,
+it translates this string
+using exactly the same parser that Node uses for our program
+and immediately runs the result.</p>
+<p>We can make the example a little more interesting
+by constructing the string dynamically:</p>
+<div data-inc="eval-loop.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="c1">// eslint-disable no-eval</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1</span><span class="w"> </span><span class="c1">// eslint-disable-line</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3</span><span class="w"> </span><span class="c1">// eslint-disable-line</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">5</span><span class="w"> </span><span class="c1">// eslint-disable-line</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">name</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="p">[</span><span class="s1">'x'</span><span class="p">,</span><span class="w"> </span><span class="s1">'y'</span><span class="p">,</span><span class="w"> </span><span class="s1">'z'</span><span class="p">,</span><span class="w"> </span><span class="s1">'oops'</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">expr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb"> + 1`</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span><span class="w"> </span><span class="s1">'+ 1 ='</span><span class="p">,</span><span class="w"> </span><span class="nb">eval</span><span class="p">(</span><span class="nx">expr</span><span class="p">))</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<div data-inc="eval-loop.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>x + 1 = 2
+y + 1 = 4
+z + 1 = 6
+undefined:1
+oops + 1
+^
+
+ReferenceError: oops is not defined
+    at eval (eval at &lt;anonymous&gt; \
+    (/u/stjs/file-interpolator/eval-loop.js:7:30), &lt;anonymous&gt;:1:1)
+    at /u/stjs/file-interpolator/eval-loop.js:7:30
+    at ModuleJob.run (internal/modules/esm/module_job.js:152:23)
+    at async Loader.import (internal/modules/esm/loader.js:166:24)
+    at async Object.loadESM (internal/process/esm_loader.js:68:5)
+</code></pre></div>
+</div>
+<p>The first time the loop runs the string is <code>'x + 1'</code>;
+since there's a variable called <code>x</code> in scope,
+<code>eval</code> does the addition and we print the result.
+The same thing happens for the variables <code>y</code> and <code>z</code>,
+but we get an error when we try to evaluate the string <code>'oops + 1'</code>
+because there is no variable in scope called <code>oops</code>.</p>
+<p><code>eval</code> can use whatever variables are in scope when it's called,
+but what happens to any variables it defines?
+This example creates a variable called <code>x</code> and runs <code>console.log</code> to display it,
+but as the output shows,
+<code>x</code> is local to the <code>eval</code> call
+just as variables created inside a function
+only exist during a call to that function:</p>
+<div data-inc="eval-local-vars.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="c1">// eslint-disable no-eval</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">code</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`</span>
+<span class="sb">  const x = 'hello'</span>
+<span class="sb">  console.log('x in eval is', x)</span>
+<span class="sb">`</span>
+
+<span class="nb">eval</span><span class="p">(</span><span class="nx">code</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'typeof x after eval'</span><span class="p">,</span><span class="w"> </span><span class="ow">typeof</span><span class="w"> </span><span class="nx">x</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="eval-local-vars.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>x in eval is hello
+typeof x after eval undefined
+</code></pre></div>
+</div>
+<p>However,
+<code>eval</code> can modify variables defined outside the text being evaluated
+in the same way that a function can modify global variables:</p>
+<div data-inc="eval-global-vars.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="c1">// eslint-disable no-eval</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'original'</span><span class="w"> </span><span class="c1">// eslint-disable-line</span>
+<span class="nb">eval</span><span class="p">(</span><span class="s1">'x = "modified"'</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'x after eval is'</span><span class="p">,</span><span class="w"> </span><span class="nx">x</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="eval-global-vars.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>x after eval is modified
+</code></pre></div>
+</div>
+<p>This means that
+if the text we give to <code>eval</code> modifies a structure that is defined outside the text,
+that change outlives the call to <code>eval</code>:</p>
+<div data-inc="eval-global-structure.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="c1">// eslint-disable no-eval</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">seen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span>
+
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">name</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="p">[</span><span class="s1">'x'</span><span class="p">,</span><span class="w"> </span><span class="s1">'y'</span><span class="p">,</span><span class="w"> </span><span class="s1">'z'</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">expr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`seen["</span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">"] = "</span><span class="si">${</span><span class="nx">name</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">()</span><span class="si">}</span><span class="sb">"`</span>
+<span class="w">  </span><span class="nb">eval</span><span class="p">(</span><span class="nx">expr</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">seen</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="eval-global-structure.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>{ x: 'X', y: 'Y', z: 'Z' }
+</code></pre></div>
+</div>
+<p>The examples so far have all evaluated strings embedded in the program itself,
+but <code>eval</code> doesn't care where its input comes from.
+Let's move the code that does the modifying into <code>to-be-loaded.js</code>:</p>
+<div data-inc="to-be-loaded.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="c1">// eslint-disable</span>
+<span class="c1">// Modify a global structure defined by whoever loads us.</span>
+<span class="nx">Seen</span><span class="p">.</span><span class="nx">from_loaded_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'from loaded file'</span>
+</code></pre></div>
+</div>
+<p>This doesn't work on its own because <code>Seen</code> isn't defined:</p>
+<div data-inc="to-be-loaded.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>/u/stjs/file-interpolator/to-be-loaded.js:3
+Seen.from_loaded_file = 'from loaded file'
+^
+
+ReferenceError: Seen is not defined
+    at /u/stjs/file-interpolator/to-be-loaded.js:3:1
+    at ModuleJob.run (internal/modules/esm/module_job.js:152:23)
+    at async Loader.import (internal/modules/esm/loader.js:166:24)
+    at async Object.loadESM (internal/process/esm_loader.js:68:5)
+</code></pre></div>
+</div>
+<p>But if we read the file and <code>eval</code> the text <em>after</em> defining <code>Seen</code>,
+it does what we want:</p>
+<div data-inc="does-the-loading.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="c1">// eslint-disable no-eval</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'fs'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">Seen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="s1">'utf-8'</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'before eval, Seen is'</span><span class="p">,</span><span class="w"> </span><span class="nx">Seen</span><span class="p">)</span>
+<span class="nb">eval</span><span class="p">(</span><span class="nx">content</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'after eval, Seen is'</span><span class="p">,</span><span class="w"> </span><span class="nx">Seen</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="does-the-loading.sh"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>does-the-loading.js<span class="w"> </span>to-be-loaded.js
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="does-the-loading.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>before eval, Seen is {}
+after eval, Seen is { from_loaded_file: 'from loaded file' }
+</code></pre></div>
+</div>
+<h2 id="file-interpolator-manage">How can we manage files?</h2>
+<p>The source files in this book are small enough
+that we don't have to worry about reading them repeatedly,
+but we would like to avoid re-reading things unnecessarily
+in large systems or when there might be network delays.
+The usual approach is to create a cache
+using the Singleton pattern
+that we first met in <a class="xref" href="../test/">Chapter 4</a>.
+Whenever we want to read a file,
+we check to see if it's already in the cache
+(<a class="fig-ref" href="#f:file-interpolator-cache">Figure 3</a>).
+If it is,
+we use that copy;
+if not,
+we read it and add it to the cache
+using the file path as a lookup key.</p>
+<p>We can write a simple cache in just a few lines of code:</p>
+<div data-inc="need-simple.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="c1">// eslint-disable no-eval</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'fs'</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nx">Cache</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">loaded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Map</span><span class="p">()</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">need</span><span class="w"> </span><span class="p">(</span><span class="nx">name</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">loaded</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">name</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`returning cached value for </span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">loaded</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`loading </span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span><span class="w"> </span><span class="s1">'utf-8'</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">eval</span><span class="p">(</span><span class="nx">content</span><span class="p">)</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">loaded</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span><span class="w"> </span><span class="nx">result</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">result</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">cache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Cache</span><span class="p">()</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="p">(</span><span class="nx">name</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">cache</span><span class="p">.</span><span class="nx">need</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<figure id="f:file-interpolator-cache">
+<img alt="Implementing a cache as a singleton" src="cache.svg"/>
+<figcaption>Figure 3: Using the Singleton pattern to implement a cache of loaded files.</figcaption>
+</figure>
+<p>Since we are using <code>eval</code>, though,
+we can't rely on <code>export</code> to make things available to the rest of the program.
+Instead,
+we rely on the fact that the result of an <code>eval</code> call is the value of
+the last expression evaluated.
+Since a variable name on its own evaluates to the variable's value,
+we can create a function and then use its name
+to "export" it from the evaluated file:</p>
+<div data-inc="import-simple.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="c1">// eslint-disable</span>
+<span class="c1">// Define.</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">report</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">message</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`report in import-01.js with message "</span><span class="si">${</span><span class="nx">message</span><span class="si">}</span><span class="sb">"`</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// Export.</span>
+<span class="nx">report</span>
+</code></pre></div>
+</div>
+<p>To test our program,
+we load the implementation of the cache using <code>import</code>,
+then use it to load and evaluate another file.
+This example expects that "other file" to define a function,
+which we call in order to show that everything is working:</p>
+<div data-inc="test-simple.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">need</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./need-simple.js'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">imported</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">need</span><span class="p">(</span><span class="s1">'./import-simple.js'</span><span class="p">)</span>
+<span class="nx">imported</span><span class="p">(</span><span class="s1">'called from test-simple.js'</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="test-simple.sh"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>test-simple.js
+</code></pre></div>
+</div>
+<h2 id="file-interpolator-find">How can we find files?</h2>
+<p>Each of the files included in our examples is in the same directory as the file including it,
+but in C/C++ or a page templating system
+we might include a particular file in several different places.
+We don't want to have to put all of our files in a single directory,
+so we need a way to specify where to look for files that are being included.</p>
+<p>One option is to use relative paths,
+but another option is to give our program
+a list of directories to look in.
+This is called a <a class="gl-ref" href="../glossary/#search_path">search path</a>,
+and many programs use them,
+including Node itself.
+By convention,
+a search path is written as a colon-separated list of directories on Unix
+or using semi-colons on Windows.
+If the path to an included file starts with <code>./</code>,
+we look for it locally;
+if not,
+we go through the directories in the search path in order
+until we find a file with a matching name
+(<a class="fig-ref" href="#f:file-interpolator-search-path">Figure 4</a>).</p>
+<figure id="f:file-interpolator-search-path">
+<img alt="Implementing a search path" src="search-path.svg"/>
+<figcaption>Figure 4: Using a colon-separated list of directories as a search path.</figcaption>
+</figure>
+<div class="callout">
+<h3>That's just how it is</h3>
+<p>The rules about search paths in the paragraph above are a convention:
+somebody did it this way years ago
+and (almost) everyone has imitated it since.
+We could implement search paths some other way,
+but as with configuration file formats,
+variable naming conventions,
+and many other things,
+the last thing the world needs is more innovation.</p>
+</div>
+<p>Since the cache is responsible for finding files,
+it should also handle the search path.
+The outline of the class stays the same:</p>
+<div data-inc="need-path.js" data-omit="skip"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="c1">// eslint-disable no-eval</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'fs'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">path</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'path'</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nx">Cache</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">loaded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Map</span><span class="p">()</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">constructSearchPath</span><span class="p">()</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">need</span><span class="w"> </span><span class="p">(</span><span class="nx">fileSpec</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">loaded</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">fileSpec</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`returning cached value for </span><span class="si">${</span><span class="nx">fileSpec</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">loaded</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">fileSpec</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`loading value for </span><span class="si">${</span><span class="nx">fileSpec</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">filePath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">fileSpec</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">filePath</span><span class="p">,</span><span class="w"> </span><span class="s1">'utf-8'</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">eval</span><span class="p">(</span><span class="nx">content</span><span class="p">)</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">loaded</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">fileSpec</span><span class="p">,</span><span class="w"> </span><span class="nx">result</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">result</span>
+<span class="w">  </span><span class="p">}</span>
+</code></pre></div>
+</div>
+<p>To get the search path,
+we look for the <a class="gl-ref" href="../glossary/#shell_variable">shell variable</a> <code>NEED_PATH</code>.
+(Writing shell variables' names in upper case is another convention.)
+If <code>NEED_PATH</code> exists,
+we split it on colons to create a list of directories:</p>
+<div data-inc="need-path.js" data-mark="search"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="w">  </span><span class="nx">constructSearchPath</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">searchPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="s1">'NEED_PATH'</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="nx">searchPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NEED_PATH</span>
+<span class="w">        </span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">':'</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">x</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">x</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+</code></pre></div>
+</div>
+<p>When we need to find a file we first check to see if the path is local.
+If it's not,
+we try the directories in the search path in order:</p>
+<div data-inc="need-path.js" data-mark="search"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="w">  </span><span class="nx">constructSearchPath</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">searchPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="s1">'NEED_PATH'</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="nx">searchPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NEED_PATH</span>
+<span class="w">        </span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">':'</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">x</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">x</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+</code></pre></div>
+</div>
+<p>To test this,
+we put the file to import in a subdirectory called <code>modules</code>:</p>
+<div data-inc="modules/imported-left.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="c1">// eslint-disable</span>
+<span class="c1">// Define.</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">report</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">message</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`in LEFT with message "</span><span class="si">${</span><span class="nx">message</span><span class="si">}</span><span class="sb">"`</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// Export.</span>
+<span class="nx">report</span>
+</code></pre></div>
+</div>
+<p>and then put the file doing the importing in the current directory:</p>
+<div data-inc="test-import-left.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">need</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./need-path.js'</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">imported</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">need</span><span class="p">(</span><span class="s1">'imported-left.js'</span><span class="p">)</span>
+<span class="nx">imported</span><span class="p">(</span><span class="s1">'called from test-import-left.js'</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<p>We now need to set the variable <code>NEED_PATH</code>.
+There are many ways to do this in shell;
+if we only need the variable to exist for a single command,
+the simplest is to write it as:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="nv">NAME</span><span class="o">=</span>value<span class="w"> </span><span class="nb">command</span>
+</code></pre></div>
+<p>right before the command (on the same line).
+Here's the shell command that runs our test case
+using <code>$PWD</code> to get the current working directory:</p>
+<div data-inc="test-import-left.sh"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="nv">NEED_PATH</span><span class="o">=</span><span class="nv">$PWD</span>/modules/<span class="w"> </span>node<span class="w"> </span>test-import-left.js
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="test-import-left.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>loading value for imported-left.js
+trying /u/stjs/file-interpolator/modules/imported-left.js for \
+imported-left.js
+in LEFT with message "called from test-import-left.js"
+</code></pre></div>
+</div>
+<p>Now let's create a second importable file in the <code>modules</code> directory:</p>
+<div data-inc="modules/imported-right.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="c1">// eslint-disable</span>
+<span class="c1">// Define.</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">report</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">message</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`in RIGHT with message "</span><span class="si">${</span><span class="nx">message</span><span class="si">}</span><span class="sb">"`</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// Export.</span>
+<span class="nx">report</span>
+</code></pre></div>
+</div>
+<p>and load that twice to check that caching works:</p>
+<div data-inc="test-import-right.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">need</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./need-path.js'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">imported</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">need</span><span class="p">(</span><span class="s1">'imported-right.js'</span><span class="p">)</span>
+<span class="nx">imported</span><span class="p">(</span><span class="s1">'called from test-import-right.js'</span><span class="p">)</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">alsoImported</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">need</span><span class="p">(</span><span class="s1">'imported-right.js'</span><span class="p">)</span>
+<span class="nx">alsoImported</span><span class="p">(</span><span class="s1">'called from test-import-right.js'</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="test-import-right.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>loading value for imported-right.js
+trying /u/stjs/file-interpolator/modules/imported-right.js for \
+imported-right.js
+in RIGHT with message "called from test-import-right.js"
+returning cached value for imported-right.js
+in RIGHT with message "called from test-import-right.js"
+</code></pre></div>
+</div>
+<h2 id="file-interpolator-interpolate">How can we interpolate pieces of code?</h2>
+<p>Interpolating files is straightforward once we have this machinery in place.
+We modify <code>Cache.find</code> to return a directory and a file path,
+then add an <code>interpolate</code> method to replace special comments:</p>
+<div data-inc="caching.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="c1">// eslint-disable</span>
+<span class="kd">class</span><span class="w"> </span><span class="nx">Cache</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// ...</span>
+<span class="w">  </span><span class="nx">interpolate</span><span class="w"> </span><span class="p">(</span><span class="nx">fileDir</span><span class="p">,</span><span class="w"> </span><span class="nx">outer</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">outer</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="nx">Cache</span><span class="p">.</span><span class="nx">INTERPOLATE_PAT</span><span class="p">,</span>
+<span class="w">                         </span><span class="p">(</span><span class="nx">match</span><span class="p">,</span><span class="w"> </span><span class="nx">comment</span><span class="p">,</span><span class="w"> </span><span class="nx">filename</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">filename</span><span class="p">.</span><span class="nx">trim</span><span class="p">()</span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">filePath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">fileDir</span><span class="p">,</span><span class="w"> </span><span class="nx">filename</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">fs</span><span class="p">.</span><span class="nx">existsSync</span><span class="p">(</span><span class="nx">filePath</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="sb">`Cannot find </span><span class="si">${</span><span class="nx">filePath</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">inner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">filePath</span><span class="p">,</span><span class="w"> </span><span class="s1">'utf-8'</span><span class="p">)</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">inner</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="c1">// ...</span>
+<span class="p">}</span>
+<span class="nx">Cache</span><span class="p">.</span><span class="nx">INTERPOLATE_PAT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sr">/\/\*\+(.+?)\+(.+?)\+\*\//g</span>
+</code></pre></div>
+</div>
+<p>We can now have a file like this:</p>
+<div data-inc="import-interpolate.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="c1">// eslint-disable</span>
+<span class="kd">class</span><span class="w"> </span><span class="nx">Example</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="w"> </span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">constructorMessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">msg</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="cm">/*+ top method + import-interpolate-topmethod.js +*/</span>
+<span class="w">  </span><span class="cm">/*+ bottom method + import-interpolate-bottommethod.js +*/</span>
+<span class="p">}</span>
+
+<span class="nx">Example</span>
+</code></pre></div>
+</div>
+<p>and subfiles like this:</p>
+<div data-inc="import-interpolate-topmethod.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="c1">// eslint-disable</span>
+<span class="nx">topMethod</span><span class="w"> </span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">bottomMethod</span><span class="p">(</span><span class="sb">`(topMethod </span><span class="si">${</span><span class="nx">msg</span><span class="si">}</span><span class="sb">)`</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<p>and this:</p>
+<div data-inc="import-interpolate-bottommethod.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="c1">// eslint-disable</span>
+<span class="nx">bottomMethod</span><span class="w"> </span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`(bottomMethod </span><span class="si">${</span><span class="nx">msg</span><span class="si">}</span><span class="sb">)`</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<p>Let's test it:</p>
+<div data-inc="test-import-interpolate.sh"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>test-import-interpolate.js
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="test-import-interpolate.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>(bottomMethod (topMethod called from test-import-interpolate.js))
+</code></pre></div>
+</div>
+<p>When this program runs, its lifecycle is:</p>
+<ol>
+<li>Node starts to run <code>test-import-interpolate.js</code>.</li>
+<li>It sees the <code>import</code> of <code>need-interpolate</code> so it reads and evaluates that code.</li>
+<li>Doing this creates a singleton cache object.</li>
+<li>The program then calls <code>need('./import-interpolate.js')</code>.</li>
+<li>This checks the cache: nope, nothing there.</li>
+<li>So it loads <code>import-interpolate.js</code>.</li>
+<li>It finds two specially-formatted comments in the text…</li>
+<li>…so it loads the file described by each one and inserts the text in place of the comment.</li>
+<li>Now that it has the complete text, it calls <code>eval</code>…</li>
+<li>…and stores the result of <code>eval</code> (which is a class) in the cache.</li>
+<li>It also returns that class.</li>
+<li>We then create an instance of that class and call its method.</li>
+</ol>
+<p>This works,
+but as we said in the introduction we decided not to use it
+because it didn't play well with other tools.
+No piece of software exists in isolation;
+when we evaluate a design,
+we always have to ask how it fits into everything else we have.</p>
+<h2 id="file-interpolator-instead">What did we do instead?</h2>
+<p>Rather than interpolating file fragments,
+we extract or erase parts of regular JavaScript files
+based on specially formatted comments
+like the <code>&lt;fragment&gt;...&lt;/fragment&gt;</code> pair shown below.</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nx">Example</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="w"> </span><span class="p">(</span><span class="nx">name</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">name</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// &lt;fragment&gt;</span>
+<span class="w">  </span><span class="nx">fragment</span><span class="w"> </span><span class="p">(</span><span class="nx">message</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">: </span><span class="si">${</span><span class="nx">message</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="c1">// &lt;/fragment&gt;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The code that selects the part of the file we want to display
+is part of our page templating system.
+It re-extracts code for display every time the web version of this site is built,
+which ensures that we always shows what's in the current version of our examples.
+However,
+this system doesn't automatically update the description of the code:
+if we write, "It does X,"
+then modify the code to do Y,
+our lesson can be inconsistent.
+<a class="gl-ref" href="../glossary/#literate_programming">Literate programming</a> was invented
+to try to prevent this from happening,
+but it never really caught on---unfortunately,
+most programming systems that describe themselves as "literate" these days
+only implement part of <a href="https://www-cs-faculty.stanford.edu/~knuth/">Donald Knuth's</a> original vision.</p>
+<section aria-label="Exercises" class="exercises">
+<h2 id="file-interpolator-exercises">Exercises</h2>
+<h3>Security concerns</h3>
+<ol>
+<li>
+<p>Write a function <code>loadAndRun</code> that reads a file, evaluates it, and returns the result.</p>
+</li>
+<li>
+<p>Create a file <code>trust-me.js</code> that prints "nothing happening here" when it is evaluated,
+    but also deletes everything in the directory called <code>target</code>.</p>
+</li>
+<li>
+<p>Write tests for this using <a href="https://www.npmjs.com/package/mock-fs"><code>mock-fs</code></a>.</p>
+</li>
+</ol>
+<p>Please be careful doing this exercise.</p>
+<h3>Loading functions</h3>
+<p>Write a function that reads a file containing single-argument functions like this:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="nx">addOne</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">x</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">halve</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">x</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">x</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">2</span>
+<span class="nx">array</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">x</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nb">Array</span><span class="p">(</span><span class="nx">x</span><span class="p">).</span><span class="nx">fill</span><span class="p">(</span><span class="mf">0</span><span class="p">)</span>
+</code></pre></div>
+<p>and returns an object containing callable functions.</p>
+<h3>Registering functions</h3>
+<p>Write a function that loads one or more files containing function definitions like this:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="kr">double</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">x</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">x</span>
+<span class="p">}</span>
+
+<span class="nx">EXPORTS</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="kr">double</span><span class="p">)</span>
+</code></pre></div>
+<p>and returns a list containing all the loaded functions.</p>
+<h3>Indenting inclusions</h3>
+<p>Modify the file inclusion system
+so that inclusions are indented by the same amount as the including comment.
+For example,
+if the including file is:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">withLogging</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">args</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="cm">/*+ logging call + logging.js +*/</span>
+<span class="p">}</span>
+
+<span class="nx">withLogging</span>
+</code></pre></div>
+<p>and the included file is:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'first message'</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'second message'</span><span class="p">)</span>
+</code></pre></div>
+<p>then the result will be:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">withLogging</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">args</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'first message'</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'second message'</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nx">withLogging</span>
+</code></pre></div>
+<p>i.e., all lines of the inclusion will be indented to match the first.</p>
+<h3>Interpolating from subdirectories</h3>
+<p>Modify the file interpolator so that snippets can be included from sub-directories using relative paths.</p>
+<h3>Recursive search for inclusions</h3>
+<ol>
+<li>
+<p>Modify the file interpolator so that it searches recursively
+    through all subdirectories of the directories on the search path
+    to find inclusions.</p>
+</li>
+<li>
+<p>Explain why this is a bad idea.</p>
+</li>
+</ol>
+<h3>Defining variables</h3>
+<p>Modify the file inclusion system so that users can pass in a <code>Map</code> containing name-value pairs
+and have these interpolated into the text of the files being loaded.
+To interpolate a value,
+the included file must use <code>@@name@@</code>.</p>
+<h3>Specifying markers</h3>
+<p>Modify the file inclusion system so that the user can override the inclusion comment markers.
+For example, the user should be able to specify that <code>/*!</code> and <code>!*/</code> be used to mark inclusions.
+(This is often used in tutorials that need to show the inclusion markers without them being interpreted.)</p>
+<h3>Recursive inclusions</h3>
+<p>Modify the file interpolator to support recursive includes,
+i.e.,
+to handle inclusion markers in files that are being included.
+Be sure to check for the case of infinite includes.</p>
+<h3>Slicing files</h3>
+<p>Write a function that reads a JavaScript source file
+containing specially-formatted comments like the ones shown below
+and extracts the indicated section.</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">toBeLeftOut</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">args</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'this should not appear'</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// &lt;keepThis&gt;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">toBeKept</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">args</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'only this function should appear'</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// &lt;/keepThis&gt;</span>
+</code></pre></div>
+<p>Users should be able to specify any tag they want,
+and if that tag occurs multiple times,
+all of the sections marked with that tag should be kept.
+(This is the approach we took for this book instead of file interpolation.)</p>
+</section>
+</main>
+<footer aria-label="Page navigation">
+<div class="row">
+<div class="col-3 left">
+<span aria-hidden="true">⇐</span> <a href="../layout/">Layout Engine</a>
+</div>
+<div class="col-6 center">
+<a href="../">Software Design by Example</a>
+	  ©
+	  <a href="../#acknowledgments">the authors</a>
+</div>
+<div class="col-3 right">
+<a href="../loader/">Module Loader</a> <span aria-hidden="true">⇒</span>
+</div>
+</div>
+</footer>
+</body>
+</html>

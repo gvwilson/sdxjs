@@ -7,13 +7,13 @@ Debuggers are as much a part of programmers' lives as version control
 but are taught far less often
 (in part, we believe, because it's harder to create homework questions for them).
 In this chapter we will build a simple single-stepping debugger
-and show one way to test interactive applications ([%x unit-test %]).
+and show one way to test interactive applications ([%x test %]).
 
 ## What is our starting point? {: #debugger-start}
 
-We would like to debug a higher-level language than the assembly code of [%x virtual-machine %],
+We would like to debug a higher-level language than the assembly code of [%x vm %],
 but we don't want to have to write a parser
-or wrestle with the ASTs of [%x style-checker %].
+or wrestle with the ASTs of [%x style %].
 As a compromise,
 we will represent programs as JSON data structures
 whose elements have the form `[command ...args]`.
@@ -26,7 +26,7 @@ then the JSON representation is:
 
 [%inc filter-base.json %]
 
-Our virtual machine is structured like the one in [%x virtual-machine %].
+Our virtual machine is structured like the one in [%x vm %].
 A real system would parse a program to create JSON,
 then translate JSON into assembly code,
 then assemble that to create machine instructions.
@@ -372,7 +372,7 @@ that halt the program whenever the value of a variable changes.
 ### Translating JSON to assembler 
 
 Write a tool that translates the JSON program representation
-into the assembly code of [%x virtual-machine %].
+into the assembly code of [%x vm %].
 To simplify things,
 increase the number of registers so that
 there is always storage for intermediate results

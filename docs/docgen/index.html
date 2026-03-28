@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Documentation Generator</title>
+<meta content="Software Design by Example" name="description"/>
+<meta content="#f8f8f8" media="(prefers-color-scheme: light)" name="theme-color"/>
+<meta content="#1a1a1a" media="(prefers-color-scheme: dark)" name="theme-color"/>
+<link href="../_static/favicon.ico" rel="icon" type="image/x-icon"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/page.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<nav aria-label="Site navigation">
+<a href="../">Software Design by Example</a>
+<span aria-hidden="true">·</span>
+<span class="dropdown">
+<button aria-controls="nav-lessons" aria-haspopup="true">Lessons</button>
+<ul class="dropdown-content" id="nav-lessons" role="list">
+<li><a href="../introduction/">Introduction</a></li>
+<li><a href="../sysprog/">Systems Programming</a></li>
+<li><a href="../async/">Asynchronous Programming</a></li>
+<li><a href="../test/">Unit Testing</a></li>
+<li><a href="../backup/">File Backup</a></li>
+<li><a href="../table/">Data Tables</a></li>
+<li><a href="../glob/">Pattern Matching</a></li>
+<li><a href="../parser/">Parsing Expressions</a></li>
+<li><a href="../templater/">Page Templates</a></li>
+<li><a href="../build/">Build Manager</a></li>
+<li><a href="../layout/">Layout Engine</a></li>
+<li><a href="../interp/">File Interpolator</a></li>
+<li><a href="../loader/">Module Loader</a></li>
+<li><a href="../style/">Style Checker</a></li>
+<li><a href="../codegen/">Code Generator</a></li>
+<li><a class="active" href="../docgen/">Documentation Generator</a></li>
+<li><a href="../bundler/">Module Bundler</a></li>
+<li><a href="../packman/">Package Manager</a></li>
+<li><a href="../vm/">Virtual Machine</a></li>
+<li><a href="../debugger/">Debugger</a></li>
+<li><a href="../conclusion/">Conclusion</a></li>
+</ul>
+</span>
+<span aria-hidden="true">·</span>
+<span class="dropdown">
+<button aria-controls="nav-appendices" aria-haspopup="true">Appendices</button>
+<ul class="dropdown-content" id="nav-appendices" role="list">
+<li><a href="../license/">License</a></li>
+<li><a href="../conduct/">Code of Conduct</a></li>
+<li><a href="../contributing/">Contributing</a></li>
+<li><a href="../bibliography/">Bibliography</a></li>
+<li><a href="../glossary/">Glossary</a></li>
+</ul>
+</span>
+</nav>
+<main id="main-content">
+<h1>Documentation Generator</h1>
+<p>Many programmers believe they're more likely to write documentation and keep it up to date
+if it is close to the code.
+Tools that extract specially-formatted comments from code and turn them into documentation
+have been around since at least the 1980s;
+many are used for JavaScript,
+including <a href="https://jsdoc.app/">JSDoc</a> and <a href="https://esdoc.org/">ESDoc</a>.
+This chapter will use what we learned in <a class="xref" href="../codegen/">Chapter 15</a> about parsing source code
+to build a simple documentation generator of our own.</p>
+<h2 id="doc-generator-extract">How can we extract documentation comments?</h2>
+<p>We will use <a href="https://github.com/acornjs/acorn">Acorn</a> once again to parse our source files.
+This time we will use the parser's <code>onComment</code> option,
+giving it an array to fill in.
+For the moment we won't bother to assign the AST produced by parsing to a variable
+because we are just interested in the comments:</p>
+<div data-inc="extract-comments.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'fs'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">acorn</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'acorn'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">],</span><span class="w"> </span><span class="s1">'utf-8'</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">sourceType</span><span class="o">:</span><span class="w"> </span><span class="s1">'module'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">locations</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">onComment</span><span class="o">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="p">}</span>
+<span class="nx">acorn</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">options</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">onComment</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">))</span>
+</code></pre></div>
+</div>
+<div data-inc="two-kinds-of-comment.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="c1">// double-slash comment</span>
+<span class="cm">/* slash-star comment */</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="two-kinds-of-comment.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>[
+  {
+    "type": "Line",
+    "value": " double-slash comment",
+    "start": 0,
+    "end": 23,
+    "loc": {
+      "start": {
+        "line": 1,
+        "column": 0
+      },
+      "end": {
+        "line": 1,
+        "column": 23
+      }
+    }
+  },
+  {
+    "type": "Block",
+    "value": " slash-star comment ",
+    "start": 24,
+    "end": 48,
+    "loc": {
+      "start": {
+        "line": 2,
+        "column": 0
+      },
+      "end": {
+        "line": 2,
+        "column": 24
+      }
+    }
+  }
+]
+</code></pre></div>
+</div>
+<p>There is more information here than we need,
+so let's slim down the JSON that we extract:</p>
+<div data-inc="extract-comments-subset.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'fs'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">acorn</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'acorn'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">],</span><span class="w"> </span><span class="s1">'utf-8'</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">sourceType</span><span class="o">:</span><span class="w"> </span><span class="s1">'module'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">locations</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">onComment</span><span class="o">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="p">}</span>
+<span class="nx">acorn</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">options</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">subset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">options</span><span class="p">.</span><span class="nx">onComment</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">entry</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="nx">entry</span><span class="p">.</span><span class="nx">type</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="nx">entry</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">start</span><span class="o">:</span><span class="w"> </span><span class="nx">entry</span><span class="p">.</span><span class="nx">loc</span><span class="p">.</span><span class="nx">start</span><span class="p">.</span><span class="nx">line</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">end</span><span class="o">:</span><span class="w"> </span><span class="nx">entry</span><span class="p">.</span><span class="nx">loc</span><span class="p">.</span><span class="nx">end</span><span class="p">.</span><span class="nx">line</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">})</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">subset</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">))</span>
+</code></pre></div>
+</div>
+<div data-inc="two-kinds-of-comment-subset.sh"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>extract-comments-subset.js<span class="w"> </span>two-kinds-of-comment.js
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="two-kinds-of-comment-subset.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>[
+  {
+    "type": "Line",
+    "value": " double-slash comment",
+    "start": 1,
+    "end": 1
+  },
+  {
+    "type": "Block",
+    "value": " slash-star comment ",
+    "start": 2,
+    "end": 2
+  }
+]
+</code></pre></div>
+</div>
+<figure id="f:doc-generator-comments">
+<img alt="Line and block comments" src="comments.svg"/>
+<figcaption>Figure 1: How line comments and block comments are distinguished and represented.</figcaption>
+</figure>
+<p>Acorn distinguishes two kinds of comments (<a class="fig-ref" href="#f:doc-generator-comments">Figure 1</a>).
+<a class="gl-ref" href="../glossary/#line_comment">Line comments</a> cannot span multiple lines;
+if one line comment occurs immediately after another,
+Acorn reports two comments:</p>
+<div data-inc="multi-line-double-slash-comment.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="c1">//</span>
+<span class="c1">// multi-line double-slash comment</span>
+<span class="c1">//</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="multi-line-double-slash-comment.sh"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>extract-comments-subset.js<span class="w"> </span>multi-line-double-slash-comment.js
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="multi-line-double-slash-comment.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>[
+  {
+    "type": "Line",
+    "value": "",
+    "start": 1,
+    "end": 1
+  },
+  {
+    "type": "Line",
+    "value": " multi-line double-slash comment",
+    "start": 2,
+    "end": 2
+  },
+  {
+    "type": "Line",
+    "value": "",
+    "start": 3,
+    "end": 3
+  }
+]
+</code></pre></div>
+</div>
+<p><a class="gl-ref" href="../glossary/#block_comment">Block comments</a>,
+on the other hand,
+can span any number of lines.
+We don't need to prefix each line with <code>*</code> but most people do for readability:</p>
+<div data-inc="multi-line-slash-star-comment.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="cm">/*</span>
+<span class="cm"> * multi-line slash-star comment</span>
+<span class="cm"> */</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="multi-line-slash-star-comment.sh"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>extract-comments-subset.js<span class="w"> </span>multi-line-slash-star-comment.js
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="multi-line-slash-star-comment.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>[
+  {
+    "type": "Block",
+    "value": "\n * multi-line slash-star comment\n ",
+    "start": 1,
+    "end": 3
+  }
+]
+</code></pre></div>
+</div>
+<p>By convention,
+we use block comments that start with <code>/**</code> for documentation.
+The first two characters are recognized by the parser as "start of comment",
+so the first character in the extracted text is <code>*</code>:</p>
+<div data-inc="doc-comment.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="cm">/**</span>
+<span class="cm"> * doc comment</span>
+<span class="cm"> */</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="doc-comment.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>[
+  {
+    "type": "Block",
+    "value": "*\n * doc comment\n ",
+    "start": 1,
+    "end": 3
+  }
+]
+</code></pre></div>
+</div>
+<h2 id="doc-generator-input">What input will we try to handle?</h2>
+<p>We will use <a href="https://en.wikipedia.org/wiki/Markdown">Markdown</a> for formatting our documentation.
+The <a class="gl-ref" href="../glossary/#doc_comment">doc comments</a> for function definitions look like this:</p>
+<div data-inc="example-plain.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="cm">/**</span>
+<span class="cm"> * # Demonstrate documentation generator.</span>
+<span class="cm"> */</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nx">util</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./util-plain'</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * ## `main`: Main driver.</span>
+<span class="cm"> */</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// eslint-disable-line</span>
+<span class="w">  </span><span class="c1">// Parse arguments.</span>
+<span class="w">  </span><span class="c1">// Process input stream.</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * ## `parseArgs`: Parse command line.</span>
+<span class="cm"> * - `args` (`string[]`): arguments to parse.</span>
+<span class="cm"> * - `defaults` (`Object`): default values.</span>
+<span class="cm"> *</span>
+<span class="cm"> * Returns: program configuration object.</span>
+<span class="cm"> */</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">parseArgs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">args</span><span class="p">,</span><span class="w"> </span><span class="nx">defaults</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// eslint-disable-line</span>
+<span class="w">  </span><span class="c1">// body would go here</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * ## `process`: Transform data.</span>
+<span class="cm"> * - `input` (`stream`): where to read.</span>
+<span class="cm"> * - `output` (`stream`): where to write.</span>
+<span class="cm"> * - `op` (`class`): what to do.</span>
+<span class="cm"> *    Use @BaseProcessor unless told otherwise.</span>
+<span class="cm"> */</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">process</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">input</span><span class="p">,</span><span class="w"> </span><span class="nx">output</span><span class="p">,</span><span class="w"> </span><span class="nx">op</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">util</span><span class="p">.</span><span class="nx">BaseProcessor</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// eslint-disable-line</span>
+<span class="w">  </span><span class="c1">// body would go here</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<p>while the ones for class definitions look like this:</p>
+<div data-inc="util-plain.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="cm">/**</span>
+<span class="cm"> * # Utilities to demonstrate doc generator.</span>
+<span class="cm"> */</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * ## `BaseProcessor`: General outline.</span>
+<span class="cm"> */</span>
+<span class="kd">class</span><span class="w"> </span><span class="nx">BaseProcessor</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="cm">/**</span>
+<span class="cm">   * ### `constructor`: Build processor.</span>
+<span class="cm">   */</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// eslint-disable-line</span>
+<span class="w">    </span><span class="c1">// body would go here</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="cm">/**</span>
+<span class="cm">   * ### `run`: Pass input to output.</span>
+<span class="cm">   * - `input` (`stream`): where to read.</span>
+<span class="cm">   * - `output` (`stream`): where to write.</span>
+<span class="cm">   */</span>
+<span class="w">  </span><span class="nx">run</span><span class="w"> </span><span class="p">(</span><span class="nx">input</span><span class="p">,</span><span class="w"> </span><span class="nx">output</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// body would go here</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">BaseProcessor</span>
+</code></pre></div>
+</div>
+<p>The doc comments are unpleasant at the moment:
+they repeat the function and method names from the code,
+we have to create titles ourselves,
+and we have to remember the back-quotes for formatting code.
+We will fix some of these problems once we have a basic tool up and running.</p>
+<p>The next step in doing that is to translate Markdown into HTML.
+There are many Markdown parsers in JavaScript;
+after experimenting with a few,
+we decided to use <a href="https://markdown-it.github.io/"><code>markdown-it</code></a>
+along with the <a href="https://www.npmjs.com/package/markdown-it-anchor"><code>markdown-it-anchor</code></a> extension
+that creates HTML anchors for headings.
+The main program gets all the doc comments from all of the input files,
+converts the Markdown to HTML,
+and displays that:</p>
+<div data-inc="process-plain.js" data-mark="main"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">STYLE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'width: 40rem; padding-left: 0.5rem; border: solid;'</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">HEAD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`&lt;html&gt;&lt;body style="</span><span class="si">${</span><span class="nx">STYLE</span><span class="si">}</span><span class="sb">"&gt;`</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">FOOT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'&lt;/body&gt;&lt;/html&gt;'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">allComments</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getAllComments</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">2</span><span class="p">))</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">md</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">MarkdownIt</span><span class="p">({</span><span class="w"> </span><span class="nx">html</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">})</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">MarkdownAnchor</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">level</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">slugify</span><span class="o">:</span><span class="w"> </span><span class="nx">slugify</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">html</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">md</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span><span class="nx">allComments</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">HEAD</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">html</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">FOOT</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<p>To get all the comments,
+we extract comments from all the files,
+remove the leading <code>*</code> characters (which aren't part of the documentation),
+and then join the results after stripping off extraneous blanks:</p>
+<div data-inc="process-plain.js" data-mark="getAllComments"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">getAllComments</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">allFilenames</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">allFilenames</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">filename</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">comments</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">extractComments</span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="nx">comments</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">map</span><span class="p">(({</span><span class="w"> </span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="nx">comments</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">comments</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">comments</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">comment</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">removePrefix</span><span class="p">(</span><span class="nx">comment</span><span class="p">))</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="nx">comments</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">map</span><span class="p">(({</span><span class="w"> </span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="nx">comments</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">combined</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">comments</span>
+<span class="w">        </span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">comment</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">comment</span><span class="p">.</span><span class="nx">stripped</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">'\n\n'</span><span class="p">)</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="sb">`# </span><span class="si">${</span><span class="nx">filename</span><span class="si">}</span><span class="sb">\n\n</span><span class="si">${</span><span class="nx">combined</span><span class="si">}</span><span class="sb">`</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">'\n\n'</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<p>Extracting the comments from a single file is done as before:</p>
+<div data-inc="process-plain.js" data-mark="extractComments"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">extractComments</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="s1">'utf-8'</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">sourceType</span><span class="o">:</span><span class="w"> </span><span class="s1">'module'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">locations</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">onComment</span><span class="o">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">acorn</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">options</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">subset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">options</span><span class="p">.</span><span class="nx">onComment</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">entry</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">entry</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'Block'</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">entry</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="nx">entry</span><span class="p">.</span><span class="nx">type</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="nx">entry</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">start</span><span class="o">:</span><span class="w"> </span><span class="nx">entry</span><span class="p">.</span><span class="nx">start</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">end</span><span class="o">:</span><span class="w"> </span><span class="nx">entry</span><span class="p">.</span><span class="nx">end</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">subset</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<p>and removing the prefix <code>*</code> characters is a matter of splitting the text into lines,
+removing the leading spaces and asterisks,
+and putting the lines back together:</p>
+<div data-inc="process-plain.js" data-mark="removePrefix"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">removePrefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">comment</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">comment</span><span class="p">.</span><span class="nx">stripped</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">comment</span><span class="p">.</span><span class="nx">value</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">'\n'</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">line</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">line</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/^ *\/?\* */</span><span class="p">,</span><span class="w"> </span><span class="s1">''</span><span class="p">))</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">line</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">line</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="s1">'*/'</span><span class="p">,</span><span class="w"> </span><span class="s1">''</span><span class="p">))</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">'\n'</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">trim</span><span class="p">()</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">comment</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<p>One thing that isn't in this file (because we're going to use it in later versions)
+is the function <code>slugify</code>.
+A <a class="gl-ref" href="../glossary/#slug">slug</a> is a short string that identifies a header or a web page;
+the name comes from the era of newspapers,
+where a slug was a short name used to identify an article while it was in production.
+Our <code>slugify</code> function strips unnecessary characters out of a title,
+adds hyphens,
+and generally makes it something you might see in a URL:</p>
+<div data-inc="slugify.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">slugify</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">text</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nb">encodeURIComponent</span><span class="p">(</span>
+<span class="w">    </span><span class="nx">text</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">' '</span><span class="p">)[</span><span class="mf">0</span><span class="p">]</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/.js$/</span><span class="p">,</span><span class="w"> </span><span class="s1">''</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">trim</span><span class="p">()</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/[^ \w]/g</span><span class="p">,</span><span class="w"> </span><span class="s1">''</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/\s+/g</span><span class="p">,</span><span class="w"> </span><span class="s1">'-'</span><span class="p">)</span>
+<span class="w">  </span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">slugify</span>
+</code></pre></div>
+</div>
+<p>Let's run this generator and see what it produces
+(<a class="fig-ref" href="#f:doc-generator-process-plain">Figure 3</a> and <a class="fig-ref" href="#f:doc-generator-mapping">Figure 2</a>):</p>
+<div data-inc="process-plain.sh"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>process-plain.js<span class="w"> </span>example-plain.js<span class="w"> </span>util-plain.js
+</code></pre></div>
+</div>
+<div data-inc="process-plain.html"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;&lt;</span><span class="nt">body</span> <span class="na">style</span><span class="o">=</span><span class="s">"width: 40rem; padding-left: 0.5rem; border: solid;"</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h1</span> <span class="na">id</span><span class="o">=</span><span class="s">"exampleplain"</span><span class="p">&gt;</span>example-plain.js<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h1</span> <span class="na">id</span><span class="o">=</span><span class="s">"demonstrate"</span><span class="p">&gt;</span>Demonstrate documentation generator.<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h2</span> <span class="na">id</span><span class="o">=</span><span class="s">"main"</span><span class="p">&gt;&lt;</span><span class="nt">code</span><span class="p">&gt;</span>main<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>: Main driver.<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h2</span> <span class="na">id</span><span class="o">=</span><span class="s">"parseargs"</span><span class="p">&gt;&lt;</span><span class="nt">code</span><span class="p">&gt;</span>parseArgs<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>: Parse command line.<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">code</span><span class="p">&gt;</span>args<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span> (<span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>string[]<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>): arguments to parse.<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">code</span><span class="p">&gt;</span>defaults<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span> (<span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>Object<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>): default values.<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Returns: program configuration object.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h2</span> <span class="na">id</span><span class="o">=</span><span class="s">"process"</span><span class="p">&gt;&lt;</span><span class="nt">code</span><span class="p">&gt;</span>process<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>: Transform data.<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">code</span><span class="p">&gt;</span>input<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span> (<span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>stream<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>): where to read.<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">code</span><span class="p">&gt;</span>output<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span> (<span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>stream<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>): where to write.<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">code</span><span class="p">&gt;</span>op<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span> (<span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>class<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>): what to do.
+Use @BaseProcessor unless told otherwise.<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h1</span> <span class="na">id</span><span class="o">=</span><span class="s">"utilplain"</span><span class="p">&gt;</span>util-plain.js<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h1</span> <span class="na">id</span><span class="o">=</span><span class="s">"utilities"</span><span class="p">&gt;</span>Utilities to demonstrate doc generator.<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h2</span> <span class="na">id</span><span class="o">=</span><span class="s">"baseprocessor"</span><span class="p">&gt;&lt;</span><span class="nt">code</span><span class="p">&gt;</span>BaseProcessor<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>: General outline.<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h3</span> <span class="na">id</span><span class="o">=</span><span class="s">"constructor"</span><span class="p">&gt;&lt;</span><span class="nt">code</span><span class="p">&gt;</span>constructor<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>: Build processor.<span class="p">&lt;/</span><span class="nt">h3</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h3</span> <span class="na">id</span><span class="o">=</span><span class="s">"run"</span><span class="p">&gt;&lt;</span><span class="nt">code</span><span class="p">&gt;</span>run<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>: Pass input to output.<span class="p">&lt;/</span><span class="nt">h3</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">code</span><span class="p">&gt;</span>input<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span> (<span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>stream<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>): where to read.<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">code</span><span class="p">&gt;</span>output<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span> (<span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>stream<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>): where to write.<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
+</div>
+<figure id="f:doc-generator-mapping">
+<img alt="Mapping comments to documentation" src="mapping.svg"/>
+<figcaption>Figure 2: How comments in code map to documentation in HTML.</figcaption>
+</figure>
+<figure id="f:doc-generator-process-plain">
+<img alt="Output of documentation generator" src="process-plain.svg"/>
+<figcaption>Figure 3: The page produced by the documentation generator.</figcaption>
+</figure>
+<p>It works,
+but there is a double <code>h1</code> header for each file (the filename and the title comment),
+the anchor IDs are hard to read,
+there are no cross-references,
+and so on.
+Some of the visual issues can be resolved with CSS,
+and we can change our input format to make processing easier
+as long as it also makes authoring easier.
+However,
+anything that is written twice will eventually be wrong in one place or another,
+so our first priority is to remove duplication.</p>
+<h2 id="doc-generator-dup">How can we avoid duplicating names?</h2>
+<p>If a comment is the first thing in a file,
+we want to use it as title text;
+this will save us having to write an explicit level-1 title in a comment.
+For each other comment,
+we can extract the name of the function or method
+from the node on the line immediately following the doc comment.
+This allows us to write much tidier comments:</p>
+<div data-inc="find-following-input.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="cm">/**</span>
+<span class="cm"> * Overall file header.</span>
+<span class="cm"> */</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Double the input.</span>
+<span class="cm"> */</span>
+<span class="kd">const</span><span class="w"> </span><span class="kr">double</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">x</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">x</span><span class="w"> </span><span class="c1">// eslint-disable-line</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Triple the input.</span>
+<span class="cm"> */</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">triple</span><span class="w"> </span><span class="p">(</span><span class="nx">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// eslint-disable-line</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mf">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">x</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Define a class.</span>
+<span class="cm"> */</span>
+<span class="kd">class</span><span class="w"> </span><span class="nx">Example</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// eslint-disable-line</span>
+<span class="w">  </span><span class="cm">/**</span>
+<span class="cm">   * Method description.</span>
+<span class="cm">   */</span>
+<span class="w">  </span><span class="nx">someMethod</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<p>To extract and display information from nodes immediately following doc comments
+we must find all the block comments,
+record the last line of each,
+and then search the AST to find nodes that are on lines
+immediately following any of those trailing comment lines.
+(We will assume for now that there are no blank lines between the comment
+and the start of the class or function.)
+The main program finds the comments as usual,
+creates a set containing the line numbers we are looking for,
+then searches for the nodes we want:</p>
+<div data-inc="find-following.js" data-mark="main"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">sourceType</span><span class="o">:</span><span class="w"> </span><span class="s1">'module'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">locations</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">onComment</span><span class="o">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">],</span><span class="w"> </span><span class="s1">'utf-8'</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">ast</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">acorn</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="nx">options</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">comments</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">options</span><span class="p">.</span><span class="nx">onComment</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">entry</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">entry</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'Block'</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">entry</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="nx">entry</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">start</span><span class="o">:</span><span class="w"> </span><span class="nx">entry</span><span class="p">.</span><span class="nx">loc</span><span class="p">.</span><span class="nx">start</span><span class="p">.</span><span class="nx">line</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">end</span><span class="o">:</span><span class="w"> </span><span class="nx">entry</span><span class="p">.</span><span class="nx">loc</span><span class="p">.</span><span class="nx">end</span><span class="p">.</span><span class="nx">line</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">targets</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Set</span><span class="p">(</span><span class="nx">comments</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">comment</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">comment</span><span class="p">.</span><span class="nx">end</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">))</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">nodes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">  </span><span class="nx">findFollowing</span><span class="p">(</span><span class="nx">ast</span><span class="p">,</span><span class="w"> </span><span class="nx">targets</span><span class="p">,</span><span class="w"> </span><span class="nx">nodes</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">nodes</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">node</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">condense</span><span class="p">(</span><span class="nx">node</span><span class="p">)))</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<p>The recursive search is straightforward as well---we delete line numbers from the target set
+and add nodes to the <a class="gl-ref" href="../glossary/#accumulator">accumulator</a> as we find matches:</p>
+<div data-inc="find-following.js" data-mark="findFollowing"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">findFollowing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">,</span><span class="w"> </span><span class="nx">targets</span><span class="p">,</span><span class="w"> </span><span class="nx">accum</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="o">!</span><span class="nx">node</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="ow">typeof</span><span class="w"> </span><span class="nx">node</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s1">'object'</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="s1">'type'</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">node</span><span class="p">)))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">targets</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">loc</span><span class="p">.</span><span class="nx">start</span><span class="p">.</span><span class="nx">line</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">accum</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">node</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">targets</span><span class="p">.</span><span class="ow">delete</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">loc</span><span class="p">.</span><span class="nx">start</span><span class="p">.</span><span class="nx">line</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">key</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">node</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">node</span><span class="p">[</span><span class="nx">key</span><span class="p">]))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">node</span><span class="p">[</span><span class="nx">key</span><span class="p">].</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">child</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">findFollowing</span><span class="p">(</span><span class="nx">child</span><span class="p">,</span><span class="w"> </span><span class="nx">targets</span><span class="p">,</span><span class="w"> </span><span class="nx">accum</span><span class="p">))</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="ow">typeof</span><span class="w"> </span><span class="nx">node</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'object'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">findFollowing</span><span class="p">(</span><span class="nx">node</span><span class="p">[</span><span class="nx">key</span><span class="p">],</span><span class="w"> </span><span class="nx">targets</span><span class="p">,</span><span class="w"> </span><span class="nx">accum</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<p>Finally,
+we use a function called <code>condense</code> to get the name we want out of the AST:</p>
+<div data-inc="find-following.js" data-mark="condense"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">condense</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="nx">node</span><span class="p">.</span><span class="nx">type</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">start</span><span class="o">:</span><span class="w"> </span><span class="nx">node</span><span class="p">.</span><span class="nx">loc</span><span class="p">.</span><span class="nx">start</span><span class="p">.</span><span class="nx">line</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">type</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">'VariableDeclaration'</span><span class="o">:</span>
+<span class="w">      </span><span class="nx">result</span><span class="p">.</span><span class="nx">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">node</span><span class="p">.</span><span class="nx">declarations</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">id</span><span class="p">.</span><span class="nx">name</span>
+<span class="w">      </span><span class="k">break</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">'FunctionDeclaration'</span><span class="o">:</span>
+<span class="w">      </span><span class="nx">result</span><span class="p">.</span><span class="nx">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">node</span><span class="p">.</span><span class="nx">id</span><span class="p">.</span><span class="nx">name</span>
+<span class="w">      </span><span class="k">break</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">'ClassDeclaration'</span><span class="o">:</span>
+<span class="w">      </span><span class="nx">result</span><span class="p">.</span><span class="nx">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">node</span><span class="p">.</span><span class="nx">id</span><span class="p">.</span><span class="nx">name</span>
+<span class="w">      </span><span class="k">break</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">'MethodDefinition'</span><span class="o">:</span>
+<span class="w">      </span><span class="nx">result</span><span class="p">.</span><span class="nx">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">node</span><span class="p">.</span><span class="nx">key</span><span class="p">.</span><span class="nx">name</span>
+<span class="w">      </span><span class="k">break</span>
+<span class="w">    </span><span class="k">default</span><span class="o">:</span>
+<span class="w">      </span><span class="nx">assert</span><span class="p">.</span><span class="nx">fail</span><span class="p">(</span><span class="sb">`Unknown node type </span><span class="si">${</span><span class="nx">node</span><span class="p">.</span><span class="nx">type</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">      </span><span class="k">break</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">result</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<p>We need this because we get a different structure with:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>than we get with:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">name</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>When we run this on our test case we get:</p>
+<div data-inc="find-following.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>[
+  { type: 'VariableDeclaration', start: 8, name: 'double' },
+  { type: 'FunctionDeclaration', start: 13, name: 'triple' },
+  { type: 'ClassDeclaration', start: 20, name: 'Example' },
+  { type: 'MethodDefinition', start: 24, name: 'someMethod' }
+]
+</code></pre></div>
+</div>
+<p>We can use this to create better output (<a class="fig-ref" href="#f:doc-generator-fill-in-headers">Figure 4</a>):</p>
+<div data-inc="fill-in-headers.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">MarkdownIt</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'markdown-it'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">MarkdownAnchor</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'markdown-it-anchor'</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nx">getComments</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./get-comments.js'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">getDefinitions</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./get-definitions.js'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">fillIn</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./fill-in.js'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">slugify</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./slugify.js'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">STYLE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'width: 40rem; padding-left: 0.5rem; border: solid;'</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">HEAD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`&lt;html&gt;&lt;body style="</span><span class="si">${</span><span class="nx">STYLE</span><span class="si">}</span><span class="sb">"&gt;`</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">FOOT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'&lt;/body&gt;&lt;/html&gt;'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">filenames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">2</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">allComments</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getComments</span><span class="p">(</span><span class="nx">filenames</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">allDefinitions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getDefinitions</span><span class="p">(</span><span class="nx">filenames</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">combined</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="nx">comments</span><span class="p">]</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">allComments</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">definitions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">allDefinitions</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fillIn</span><span class="p">(</span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="nx">comments</span><span class="p">,</span><span class="w"> </span><span class="nx">definitions</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">combined</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">text</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">md</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">MarkdownIt</span><span class="p">({</span><span class="w"> </span><span class="nx">html</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">})</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">MarkdownAnchor</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">level</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">slugify</span><span class="o">:</span><span class="w"> </span><span class="nx">slugify</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">html</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">md</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span><span class="nx">combined</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">'\n\n'</span><span class="p">))</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">HEAD</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">html</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">FOOT</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nx">main</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div data-inc="fill-in-headers.html"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;&lt;</span><span class="nt">body</span> <span class="na">style</span><span class="o">=</span><span class="s">"width: 40rem; padding-left: 0.5rem; border: solid;"</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h1</span> <span class="na">id</span><span class="o">=</span><span class="s">"fillinheadersinput"</span><span class="p">&gt;</span>fill-in-headers-input.js<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Demonstrate documentation generator.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h2</span> <span class="na">id</span><span class="o">=</span><span class="s">"main"</span><span class="p">&gt;</span>main<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Main driver.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h2</span> <span class="na">id</span><span class="o">=</span><span class="s">"parseargs"</span><span class="p">&gt;</span>parseArgs<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Parse command-line arguments.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">code</span><span class="p">&gt;</span>args<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span> (<span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>string[]<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>): arguments to parse.<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">code</span><span class="p">&gt;</span>defaults<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span> (<span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>Object<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>): default values.<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">blockquote</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Program configuration object.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">blockquote</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h2</span> <span class="na">id</span><span class="o">=</span><span class="s">"baseprocessor"</span><span class="p">&gt;</span>BaseProcessor<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Default processing class.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h3</span> <span class="na">id</span><span class="o">=</span><span class="s">"constructor"</span><span class="p">&gt;</span>constructor<span class="p">&lt;/</span><span class="nt">h3</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Build base processor.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h3</span> <span class="na">id</span><span class="o">=</span><span class="s">"run"</span><span class="p">&gt;</span>run<span class="p">&lt;/</span><span class="nt">h3</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Pass input to output.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">code</span><span class="p">&gt;</span>input<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span> (<span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>stream<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>): where to read.<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">code</span><span class="p">&gt;</span>output<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span> (<span class="p">&lt;</span><span class="nt">code</span><span class="p">&gt;</span>stream<span class="p">&lt;/</span><span class="nt">code</span><span class="p">&gt;</span>): where to write.<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
+</div>
+<figure id="f:doc-generator-fill-in-headers">
+<img alt="Filling in headers" src="fill-in-headers.svg"/>
+<figcaption>Figure 4: Filling in headers when generating documentation.</figcaption>
+</figure>
+<h2 id="doc-generator-note">Code is Data</h2>
+<p>We haven't made this point explicitly in a while,
+so we will repeat it here:
+code is just another kind of data,
+and we can process it just like we would process any other data.
+Parsing code to produce an AST is no different from parsing HTML to produce DOM;
+in both cases we are simply transforming a textual representation that's easy for people to author
+into a data structure that's easy for a program to manipulate.
+Pulling things out of that data to create a report
+is no different from pulling numbers out of a hospital database to report monthly vaccination rates.</p>
+<p>Treating code as data enables us to do routine programming tasks with a single command,
+which in turn gives us more time to think about the tasks that we can't (yet) automate.
+Doing this is the foundation of a tool-based approach to software engineering;
+as the mathematician Alfred North Whitehead once wrote,
+"Civilization advances by extending the number of important operations which we can perform without thinking about them."</p>
+<section aria-label="Exercises" class="exercises">
+<h2 id="doc-generator-exercises">Exercises</h2>
+<h3>Building an index</h3>
+<p>Modify the documentation generator to produce an alphabetical index of all classes and methods found.
+Index entries should be hyperlinks to the documentation for the corresponding item.</p>
+<h3>Documenting exceptions</h3>
+<p>Extend the documentation generator to allow people to document the exceptions that a function throws.</p>
+<h3>Deprecation warning</h3>
+<p>Add a feature to the documentation generator
+to allow authors to mark functions and methods as <a class="gl-ref" href="../glossary/#deprecation">deprecation</a>
+(i.e., to indicate that while they still exist,
+they should not be used because they are being phased out).</p>
+<h3>Usage examples</h3>
+<p>Enhance the documentation generator so that
+if a horizontal rule <code>---</code> appears in a documentation comment,
+the text following is typeset as usage example.
+(A doc comment may contain several usage examples.)</p>
+<h3>Unit testing</h3>
+<p>Write unit tests for the documentation generator using Mocha.</p>
+<h3>Summarizing functions</h3>
+<p>Modify the documentation generator so that line comments inside a function that use <code>//*</code>
+are formatted as a bullet list in the documentation for that function.</p>
+<h3>Cross referencing</h3>
+<p>Modify the documentation generator so that
+the documentation for one class or function
+can include Markdown links to other classes or functions.</p>
+<h3>Data types</h3>
+<p>Modify the documentation generator to allow authors to define new data types
+in the same way as <a href="https://jsdoc.app/">JSDoc</a>.</p>
+<h3>Inline parameter documentation</h3>
+<p>Some documentation generators put the documentation for a parameter
+on the same line as the parameter:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="cm">/**</span>
+<span class="cm"> * Transform data.</span>
+<span class="cm"> */</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">process</span><span class="p">(</span>
+<span class="w">  </span><span class="nx">input</span><span class="p">,</span><span class="w">  </span><span class="cm">/*- {stream} where to read */</span>
+<span class="w">  </span><span class="nx">output</span><span class="p">,</span><span class="w"> </span><span class="cm">/*- {stream} where to write */</span>
+<span class="w">  </span><span class="nx">op</span><span class="w">      </span><span class="cm">/*- {Operation} what to do */</span>
+<span class="p">){</span>
+<span class="w">  </span><span class="c1">// body would go here</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Modify the documentation generator to handle this.</p>
+<h3>Tests as documentation</h3>
+<p>The <a href="https://docs.python.org/3/library/doctest.html">doctest</a> library for Python
+allows programmers to embed unit tests as documentation in their programs.
+Write a tool that:</p>
+<ol>
+<li>
+<p>Finds functions that start with a block comment.</p>
+</li>
+<li>
+<p>Extracts the code and output from those blocks comments
+    and turns them into assertions.</p>
+</li>
+</ol>
+<p>For example, given this input:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">findIncreasing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">values</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="cm">/**</span>
+<span class="cm">   * &gt; findIncreasing([])</span>
+<span class="cm">   * []</span>
+<span class="cm">   * &gt; findIncreasing([1])</span>
+<span class="cm">   * [1]</span>
+<span class="cm">   * &gt; findIncreasing([1, 2])</span>
+<span class="cm">   * [1, 2]</span>
+<span class="cm">   * &gt; findIncreasing([2, 1])</span>
+<span class="cm">   * [2]</span>
+<span class="cm">   */</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>the tool would produce:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">findIncreasing</span><span class="p">([]),</span><span class="w"> </span><span class="p">[])</span>
+<span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">findIncreasing</span><span class="p">([</span><span class="mf">1</span><span class="p">]),</span><span class="w"> </span><span class="p">[</span><span class="mf">1</span><span class="p">])</span>
+<span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">findIncreasing</span><span class="p">([</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">]),</span><span class="w"> </span><span class="p">[</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">])</span>
+<span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">findIncreasing</span><span class="p">([</span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">]),</span><span class="w"> </span><span class="p">[</span><span class="mf">2</span><span class="p">])</span>
+</code></pre></div>
+</section>
+</main>
+<footer aria-label="Page navigation">
+<div class="row">
+<div class="col-3 left">
+<span aria-hidden="true">⇐</span> <a href="../codegen/">Code Generator</a>
+</div>
+<div class="col-6 center">
+<a href="../">Software Design by Example</a>
+	  ©
+	  <a href="../#acknowledgments">the authors</a>
+</div>
+<div class="col-3 right">
+<a href="../bundler/">Module Bundler</a> <span aria-hidden="true">⇒</span>
+</div>
+</div>
+</footer>
+</body>
+</html>

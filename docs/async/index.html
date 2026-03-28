@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Asynchronous Programming</title>
+<meta content="Software Design by Example" name="description"/>
+<meta content="#f8f8f8" media="(prefers-color-scheme: light)" name="theme-color"/>
+<meta content="#1a1a1a" media="(prefers-color-scheme: dark)" name="theme-color"/>
+<link href="../_static/favicon.ico" rel="icon" type="image/x-icon"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/page.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<nav aria-label="Site navigation">
+<a href="../">Software Design by Example</a>
+<span aria-hidden="true">·</span>
+<span class="dropdown">
+<button aria-controls="nav-lessons" aria-haspopup="true">Lessons</button>
+<ul class="dropdown-content" id="nav-lessons" role="list">
+<li><a href="../introduction/">Introduction</a></li>
+<li><a href="../sysprog/">Systems Programming</a></li>
+<li><a class="active" href="../async/">Asynchronous Programming</a></li>
+<li><a href="../test/">Unit Testing</a></li>
+<li><a href="../backup/">File Backup</a></li>
+<li><a href="../table/">Data Tables</a></li>
+<li><a href="../glob/">Pattern Matching</a></li>
+<li><a href="../parser/">Parsing Expressions</a></li>
+<li><a href="../templater/">Page Templates</a></li>
+<li><a href="../build/">Build Manager</a></li>
+<li><a href="../layout/">Layout Engine</a></li>
+<li><a href="../interp/">File Interpolator</a></li>
+<li><a href="../loader/">Module Loader</a></li>
+<li><a href="../style/">Style Checker</a></li>
+<li><a href="../codegen/">Code Generator</a></li>
+<li><a href="../docgen/">Documentation Generator</a></li>
+<li><a href="../bundler/">Module Bundler</a></li>
+<li><a href="../packman/">Package Manager</a></li>
+<li><a href="../vm/">Virtual Machine</a></li>
+<li><a href="../debugger/">Debugger</a></li>
+<li><a href="../conclusion/">Conclusion</a></li>
+</ul>
+</span>
+<span aria-hidden="true">·</span>
+<span class="dropdown">
+<button aria-controls="nav-appendices" aria-haspopup="true">Appendices</button>
+<ul class="dropdown-content" id="nav-appendices" role="list">
+<li><a href="../license/">License</a></li>
+<li><a href="../conduct/">Code of Conduct</a></li>
+<li><a href="../contributing/">Contributing</a></li>
+<li><a href="../bibliography/">Bibliography</a></li>
+<li><a href="../glossary/">Glossary</a></li>
+</ul>
+</span>
+</nav>
+<main id="main-content">
+<h1>Asynchronous Programming</h1>
+<p>Callbacks work,
+but they are hard to read and debug,
+which means they only "work" in a limited sense.
+JavaScript's developers added <a class="gl-ref" href="../glossary/#promise">promises</a> to the language in 2015
+to make callbacks easier to write and understand,
+and more recently they added the keywords <code>async</code> and <code>await</code> as well
+to make asynchronous programming easier still.
+To show how these work,
+we will create a <a class="gl-ref" href="../glossary/#class">class</a> of our own called <code>Pledge</code>
+that provides the same core features as promises.
+Our explanation was inspired by <a href="https://medium.com/@treyhuffine">Trey Huffine's</a> <a href="https://levelup.gitconnected.com/understand-javascript-promises-by-building-a-promise-from-scratch-84c0fd855720">tutorial</a>,
+and we encourage you to read that as well.</p>
+<h2 id="async-programming-manage">How can we manage asynchronous execution?</h2>
+<p>JavaScript is built around an <a class="gl-ref" href="../glossary/#event_loop">event loop</a>.
+Every task is represented by an entry in a queue;
+the event loop repeatedly takes a task from the front of the queue,
+runs it,
+and adds any new tasks that it creates to the back of the queue to run later.
+Only one task runs at a time;
+each has its own <a class="gl-ref" href="../glossary/#call_stack">call stack</a>,
+but objects can be shared between tasks
+(<a class="fig-ref" href="#f:async-programming-event-loop">Figure 1</a>).</p>
+<figure id="f:async-programming-event-loop">
+<img alt="The event loop" src="event-loop.svg"/>
+<figcaption>Figure 1: Using an event loop to manage concurrent tasks.</figcaption>
+</figure>
+<p>Most tasks execute all the code available in the order it is written.
+For example,
+this one-line program uses <code>Array.forEach</code>
+to print each element of an array in turn:</p>
+<div data-inc="not-callbacks-alone.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="p">[</span><span class="mf">1000</span><span class="p">,</span><span class="w"> </span><span class="mf">1500</span><span class="p">,</span><span class="w"> </span><span class="mf">500</span><span class="p">].</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">t</span><span class="p">))</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="not-callbacks-alone.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>1000
+1500
+500
+</code></pre></div>
+</div>
+<p>However,
+a handful of special built-in functions make <a href="https://nodejs.org/en/">Node</a> switch tasks
+or add new tasks to the run queue.
+For example,
+<code>setTimeout</code> tells Node to run a callback function
+after a certain number of milliseconds have passed.
+Its first argument is a callback function that takes no arguments,
+and its second is the delay.
+When <code>setTimeout</code> is called,
+Node sets the callback aside for the requested length of time,
+then adds it to the run queue.
+(This means the task runs <em>at least</em> the specified number of milliseconds later.)</p>
+<div class="callout">
+<h3>Why zero arguments?</h3>
+<p><code>setTimeout</code>'s requirement that callback functions take no arguments
+is another example of a protocol.
+One way to think about it is that protocols allow old code to use new code:
+whoever wrote <code>setTimeout</code> couldn't know what specific tasks we want to delay,
+so they specified a way to wrap up any task at all.</p>
+</div>
+<p>As the listing below shows,
+the original task can generate many new tasks before it completes,
+and those tasks can run in a different order than the order in which they were created
+(<a class="fig-ref" href="#f:async-programming-set-timeout">Figure 2</a>).</p>
+<div data-inc="callbacks-with-timeouts.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="p">[</span><span class="mf">1000</span><span class="p">,</span><span class="w"> </span><span class="mf">1500</span><span class="p">,</span><span class="w"> </span><span class="mf">500</span><span class="p">].</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`about to setTimeout for </span><span class="si">${</span><span class="nx">t</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">setTimeout</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`inside timer handler for </span><span class="si">${</span><span class="nx">t</span><span class="si">}</span><span class="sb">`</span><span class="p">),</span><span class="w"> </span><span class="nx">t</span><span class="p">)</span>
+<span class="p">})</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="callbacks-with-timeouts.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>about to setTimeout for 1000
+about to setTimeout for 1500
+about to setTimeout for 500
+inside timer handler for 500
+inside timer handler for 1000
+inside timer handler for 1500
+</code></pre></div>
+</div>
+<figure id="f:async-programming-set-timeout">
+<img alt="Setting a timeout" src="set-timeout.svg"/>
+<figcaption>Figure 2: Using `setTimeout` to delay operations.</figcaption>
+</figure>
+<p>If we give <code>setTimeout</code> a delay of zero milliseconds,
+the new task can be run right away,
+but any other tasks that are waiting have a chance to run as well:</p>
+<div data-inc="callbacks-with-zero-timeouts.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="p">[</span><span class="mf">1000</span><span class="p">,</span><span class="w"> </span><span class="mf">1500</span><span class="p">,</span><span class="w"> </span><span class="mf">500</span><span class="p">].</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`about to setTimeout for </span><span class="si">${</span><span class="nx">t</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">setTimeout</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`inside timer handler for </span><span class="si">${</span><span class="nx">t</span><span class="si">}</span><span class="sb">`</span><span class="p">),</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span>
+<span class="p">})</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="callbacks-with-zero-timeouts.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>about to setTimeout for 1000
+about to setTimeout for 1500
+about to setTimeout for 500
+inside timer handler for 1000
+inside timer handler for 1500
+inside timer handler for 500
+</code></pre></div>
+</div>
+<p>We can use this trick to build a generic
+<a class="gl-ref" href="../glossary/#non_blocking_execution">non-blocking function</a>
+that takes a callback defining a task
+and switches tasks if any others are available:</p>
+<div data-inc="non-blocking.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">nonBlocking</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">callback</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">setTimeout</span><span class="p">(</span><span class="nx">callback</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="p">[</span><span class="mf">1000</span><span class="p">,</span><span class="w"> </span><span class="mf">1500</span><span class="p">,</span><span class="w"> </span><span class="mf">500</span><span class="p">].</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`about to do nonBlocking for </span><span class="si">${</span><span class="nx">t</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">nonBlocking</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`inside timer handler for </span><span class="si">${</span><span class="nx">t</span><span class="si">}</span><span class="sb">`</span><span class="p">))</span>
+<span class="p">})</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="non-blocking.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>about to do nonBlocking for 1000
+about to do nonBlocking for 1500
+about to do nonBlocking for 500
+inside timer handler for 1000
+inside timer handler for 1500
+inside timer handler for 500
+</code></pre></div>
+</div>
+<p>Node's built-in function <code>setImmediate</code>
+does exactly what our <code>nonBlocking</code> function does:
+Node also has <code>process.nextTick</code>,
+which doesn't do quite the same thing---we'll explore the differences in the exercises.</p>
+<div data-inc="set-immediate.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="p">[</span><span class="mf">1000</span><span class="p">,</span><span class="w"> </span><span class="mf">1500</span><span class="p">,</span><span class="w"> </span><span class="mf">500</span><span class="p">].</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`about to do setImmediate for </span><span class="si">${</span><span class="nx">t</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">setImmediate</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`inside immediate handler for </span><span class="si">${</span><span class="nx">t</span><span class="si">}</span><span class="sb">`</span><span class="p">))</span>
+<span class="p">})</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="set-immediate.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>about to do setImmediate for 1000
+about to do setImmediate for 1500
+about to do setImmediate for 500
+inside immediate handler for 1000
+inside immediate handler for 1500
+inside immediate handler for 500
+</code></pre></div>
+</div>
+<h2 id="async-programming-promises">How do promises work?</h2>
+<p>Before we start building our own promises,
+let's look at how we want them to work:</p>
+<div data-inc="use-pledge-motivation.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">Pledge</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./pledge.js'</span>
+
+<span class="ow">new</span><span class="w"> </span><span class="nx">Pledge</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span><span class="w"> </span><span class="nx">reject</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'top of a single then clause'</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">setTimeout</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'about to call resolve callback'</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">resolve</span><span class="p">(</span><span class="s1">'this is the result'</span><span class="p">)</span>
+<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">((</span><span class="nx">value</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`in 'then' with "</span><span class="si">${</span><span class="nx">value</span><span class="si">}</span><span class="sb">"`</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="s1">'first then value'</span>
+<span class="p">})</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="use-pledge-motivation.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>top of a single then clause
+about to call resolve callback
+in 'then' with "this is the result"
+</code></pre></div>
+</div>
+<p>This short program creates a new <code>Pledge</code>
+with a callback that takes two other callbacks as arguments:
+<code>resolve</code> (which will run when everything worked)
+and <code>reject</code> (which will run when something went wrong).
+The top-level callback does the first part of what we want to do,
+i.e.,
+whatever we want to run before we expect a delay;
+for demonstration purposes, we will use <code>setTimeout</code> with zero delay to switch tasks.
+Once this task resumes,
+we call the <code>resolve</code> callback to trigger whatever is supposed to happen after the delay.</p>
+<p>Now look at the line with <code>then</code>.
+This is a <a class="gl-ref" href="../glossary/#method">method</a> of the <code>Pledge</code> object we just created,
+and its job is to do whatever we want to do after the delay.
+The argument to <code>then</code> is yet another callback function;
+it will get the value passed to <code>resolve</code>,
+which is how the first part of the action communicates with the second
+(<a class="fig-ref" href="#f:async-programming-resolve">Figure 3</a>).</p>
+<figure id="f:async-programming-resolve">
+<img alt="How promises resolve" src="resolve.svg"/>
+<figcaption>Figure 3: Order of operations when a promise resolves.</figcaption>
+</figure>
+<p>In order to make this work,
+<code>Pledge</code>'s <a class="gl-ref" href="../glossary/#constructor">constructor</a> must take a single function called <code>action</code>.
+This function must take two callbacks as arguments:
+what to do if the action completes successfully
+and what to do if it doesn't (i.e., how to handle errors).
+<code>Pledge</code> will provide these callbacks to the action at the right times.</p>
+<p><code>Pledge</code> also needs two methods:
+<code>then</code> to enable more actions
+and <code>catch</code> to handle errors.
+To simplify things just a little bit,
+we will allow users to <a class="gl-ref" href="../glossary/#method_chaining">chain</a> as many <code>then</code>s as they want,
+but only allow one <code>catch</code>.</p>
+<h2 id="async-programming-fluent">How can we chain operations together?</h2>
+<p>A <a class="gl-ref" href="../glossary/#fluent_interface">fluent interface</a>
+is a style of object-oriented programming
+in which the methods of an object return <code>this</code>
+so that method calls can be chained together.
+For example,
+if our class is:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nx">Fluent</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{...}</span>
+
+<span class="w">  </span><span class="nx">first</span><span class="w"> </span><span class="p">(</span><span class="nx">top</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">...</span><span class="k">do</span><span class="w"> </span><span class="nx">something</span><span class="w"> </span><span class="kd">with</span><span class="w"> </span><span class="nx">top</span><span class="p">...</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">second</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="p">,</span><span class="w"> </span><span class="nx">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">...</span><span class="k">do</span><span class="w"> </span><span class="nx">something</span><span class="w"> </span><span class="kd">with</span><span class="w"> </span><span class="nx">left</span><span class="w"> </span><span class="nx">and</span><span class="w"> </span><span class="nx">right</span><span class="p">...</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>then we can write:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Fluent</span><span class="p">()</span>
+<span class="w">  </span><span class="nx">f</span><span class="p">.</span><span class="nx">first</span><span class="p">(</span><span class="s1">'hello'</span><span class="p">).</span><span class="nx">second</span><span class="p">(</span><span class="s1">'and'</span><span class="p">,</span><span class="w"> </span><span class="s1">'goodbye'</span><span class="p">)</span>
+</code></pre></div>
+<p>or even</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="w">  </span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">Fluent</span><span class="p">()).</span><span class="nx">first</span><span class="p">(</span><span class="s1">'hello'</span><span class="p">).</span><span class="nx">second</span><span class="p">(</span><span class="s1">'and'</span><span class="p">,</span><span class="w"> </span><span class="s1">'goodbye'</span><span class="p">)</span>
+</code></pre></div>
+<p><code>Array</code>'s fluent interface lets us write expressions like
+<code>Array.filter(...).map(...)</code>
+that are usually more readable than assigning intermediate results to temporary variables.</p>
+<p>If the original action given to our <code>Pledge</code> completes successfully,
+the <code>Pledge</code> gives us a value by calling the <code>resolve</code> callback.
+We pass this value to the first <code>then</code>,
+pass the result of that <code>then</code> to the second one,
+and so on.
+If any of them fail and throw an <a class="gl-ref" href="../glossary/#exception">exception</a>,
+we pass that exception to the error handler.
+Putting it all together,
+the whole class looks like this:</p>
+<div data-inc="pledge.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nx">Pledge</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="w"> </span><span class="p">(</span><span class="nx">action</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">actionCallbacks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">errorCallback</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">    </span><span class="nx">action</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">onResolve</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">),</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">onReject</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">))</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">then</span><span class="w"> </span><span class="p">(</span><span class="nx">thenHandler</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">actionCallbacks</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">thenHandler</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">errorHandler</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">errorCallback</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">errorHandler</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">onResolve</span><span class="w"> </span><span class="p">(</span><span class="nx">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">storedValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">value</span>
+<span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="nx">actionCallbacks</span><span class="p">.</span><span class="nx">forEach</span><span class="p">((</span><span class="nx">action</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">storedValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">action</span><span class="p">(</span><span class="nx">storedValue</span><span class="p">)</span>
+<span class="w">      </span><span class="p">})</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="nx">actionCallbacks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="nx">onReject</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">onReject</span><span class="w"> </span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">errorCallback</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">Pledge</span>
+</code></pre></div>
+</div>
+<div class="callout">
+<h3>Binding <code>this</code></h3>
+<p><code>Pledge</code>'s constructor makes two calls to a special function called <code>bind</code>.
+When we create an object <code>obj</code> and call a method <code>meth</code>,
+JavaScript sets the special variable <code>this</code> to <code>obj</code> inside <code>meth</code>.
+If we use a method as a callback,
+though,
+<code>this</code> isn't automatically set to the correct object.
+To convert the method to a plain old function with the right <code>this</code>,
+we have to use <code>bind</code>.
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Function/bind">The documentation</a> has more details and examples.</p>
+</div>
+<p>Let's create a <code>Pledge</code> and return a value:</p>
+<div data-inc="use-pledge-return.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">Pledge</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./pledge.js'</span>
+
+<span class="ow">new</span><span class="w"> </span><span class="nx">Pledge</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span><span class="w"> </span><span class="nx">reject</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'top of a single then clause'</span><span class="p">)</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">((</span><span class="nx">value</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`then with "</span><span class="si">${</span><span class="nx">value</span><span class="si">}</span><span class="sb">"`</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="s1">'first then value'</span>
+<span class="p">})</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="use-pledge-return.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>top of a single then clause
+</code></pre></div>
+</div>
+<p>Why didn't this work?</p>
+<ol>
+<li>
+<p>We can't use <code>return</code> with pledges
+    because the call stack of the task that created the pledge is gone
+    by the time the pledge executes.
+    Instead, we must call <code>resolve</code> or <code>reject</code>.</p>
+</li>
+<li>
+<p>We haven't done anything that defers execution,
+    i.e.,
+    there is no call to <code>setTimeout</code>, <code>setImmediate</code>,
+    or anything else that would switch tasks.
+    Our original motivating example got this right.</p>
+</li>
+</ol>
+<p>This example shows how we can chain actions together:</p>
+<div data-inc="use-pledge-chained.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">Pledge</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./pledge.js'</span>
+
+<span class="ow">new</span><span class="w"> </span><span class="nx">Pledge</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span><span class="w"> </span><span class="nx">reject</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'top of action callback with double then and a catch'</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">setTimeout</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'about to call resolve callback'</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">resolve</span><span class="p">(</span><span class="s1">'initial result'</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'after resolve callback'</span><span class="p">)</span>
+<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'end of action callback'</span><span class="p">)</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">((</span><span class="nx">value</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`first then with "</span><span class="si">${</span><span class="nx">value</span><span class="si">}</span><span class="sb">"`</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="s1">'first value'</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">((</span><span class="nx">value</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`second then with "</span><span class="si">${</span><span class="nx">value</span><span class="si">}</span><span class="sb">"`</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="s1">'second value'</span>
+<span class="p">})</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="use-pledge-chained.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>top of action callback with double then and a catch
+end of action callback
+about to call resolve callback
+first then with "initial result"
+second then with "first value"
+after resolve callback
+</code></pre></div>
+</div>
+<p>Notice that inside each <code>then</code> we <em>do</em> use <code>return</code>
+because these clauses all run in a single task.
+As we will see in the next section,
+the full implementation of <code>Promise</code> allows us to run both normal code
+and delayed tasks inside <code>then</code> handlers.</p>
+<p>Finally,
+in this example we explicitly signal a problem by calling <code>reject</code>
+to make sure our error handling does what it's supposed to:</p>
+<div data-inc="use-pledge-reject.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">Pledge</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./pledge.js'</span>
+
+<span class="ow">new</span><span class="w"> </span><span class="nx">Pledge</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span><span class="w"> </span><span class="nx">reject</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'top of action callback with deliberate error'</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">setTimeout</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'about to reject on purpose'</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">reject</span><span class="p">(</span><span class="s1">'error on purpose'</span><span class="p">)</span>
+<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">((</span><span class="nx">value</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`should not be here with "</span><span class="si">${</span><span class="nx">value</span><span class="si">}</span><span class="sb">"`</span><span class="p">)</span>
+<span class="p">}).</span><span class="k">catch</span><span class="p">((</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`in error handler with "</span><span class="si">${</span><span class="nx">err</span><span class="si">}</span><span class="sb">"`</span><span class="p">)</span>
+<span class="p">})</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="use-pledge-reject.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>top of action callback with deliberate error
+about to reject on purpose
+in error handler with "error on purpose"
+</code></pre></div>
+</div>
+<h2 id="async-programming-real">How are real promises different?</h2>
+<p>Let's rewrite our chained pledge with built-in promises:</p>
+<div data-inc="use-promise-chained.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="ow">new</span><span class="w"> </span><span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span><span class="w"> </span><span class="nx">reject</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'top of action callback with double then and a catch'</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">setTimeout</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'about to call resolve callback'</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">resolve</span><span class="p">(</span><span class="s1">'initial result'</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'after resolve callback'</span><span class="p">)</span>
+<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'end of action callback'</span><span class="p">)</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">((</span><span class="nx">value</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`first then with "</span><span class="si">${</span><span class="nx">value</span><span class="si">}</span><span class="sb">"`</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="s1">'first value'</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">((</span><span class="nx">value</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`second then with "</span><span class="si">${</span><span class="nx">value</span><span class="si">}</span><span class="sb">"`</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="s1">'second value'</span>
+<span class="p">})</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="use-promise-chained.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>top of action callback with double then and a catch
+end of action callback
+about to call resolve callback
+after resolve callback
+first then with "initial result"
+second then with "first value"
+</code></pre></div>
+</div>
+<p>It looks almost the same,
+but if we read the output carefully
+we can see that the callbacks run <em>after</em> the main program finishes.
+This is a signal that Node is delaying the execution of the code in the <code>then</code> handler.</p>
+<p>A very common pattern is to return another promise from inside <code>then</code>
+so that the next <code>then</code> is called on the returned promise,
+not on the original promise
+(<a class="fig-ref" href="#f:async-programming-chained">Figure 4</a>).
+This is another way to implement a fluent interface:
+if a method of one object returns a second object,
+we can call a method of the second object immediately.</p>
+<div data-inc="promise-example.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">delay</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">message</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span><span class="w"> </span><span class="nx">reject</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`constructing promise: </span><span class="si">${</span><span class="nx">message</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">setTimeout</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">resolve</span><span class="p">(</span><span class="sb">`resolving: </span><span class="si">${</span><span class="nx">message</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">    </span><span class="p">},</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'before'</span><span class="p">)</span>
+<span class="nx">delay</span><span class="p">(</span><span class="s1">'outer delay'</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">value</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`first then: </span><span class="si">${</span><span class="nx">value</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">delay</span><span class="p">(</span><span class="s1">'inner delay'</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}).</span><span class="nx">then</span><span class="p">((</span><span class="nx">value</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`second then: </span><span class="si">${</span><span class="nx">value</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'after'</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="promise-example.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>before
+constructing promise: outer delay
+after
+first then: resolving: outer delay
+constructing promise: inner delay
+second then: resolving: inner delay
+</code></pre></div>
+</div>
+<figure id="f:async-programming-chained">
+<img alt="Chained promises" src="chained.svg"/>
+<figcaption>Figure 4: Chaining promises to make asynchronous operations depend on each other.</figcaption>
+</figure>
+<p>We therefore have three rules for chaining promises:</p>
+<ol>
+<li>
+<p>If our code can run synchronously, just put it in <code>then</code>.</p>
+</li>
+<li>
+<p>If we want to use our own asynchronous function,
+    it must create and return a promise.</p>
+</li>
+<li>
+<p>Finally,
+    if we want to use a library function that relies on callbacks,
+    we have to convert it to use promises.
+    Doing this is called <a class="gl-ref" href="../glossary/#promisification">promisification</a>
+    (because programmers will rarely pass up an opportunity to add a bit of jargon to the world),
+    and most functions in Node have already been promisified.</p>
+</li>
+</ol>
+<h2 id="async-programming-tools">How can we build tools with promises?</h2>
+<p>Promises may seem more complex than callbacks right now,
+but that's because we're looking at how they work rather than at how to use them.
+To explore the latter subject,
+let's use promises to build a program to count the number of lines in a set of files.
+A few moments of search on <a href="https://www.npmjs.com/">NPM</a> turns up a promisified version of <code>fs-extra</code>
+called <code>fs-extra-promise</code>,
+so we will rely on it for file operations.</p>
+<p>Our first step is to count the lines in a single file:</p>
+<div data-inc="count-lines-single-file.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'fs-extra-promise'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span>
+
+<span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">encoding</span><span class="o">:</span><span class="w"> </span><span class="s1">'utf-8'</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">'\n'</span><span class="p">).</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">filename</span><span class="si">}</span><span class="sb">: </span><span class="si">${</span><span class="nx">length</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">err</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span>
+<span class="w">  </span><span class="p">})</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="count-lines-single-file.sh"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>count-lines-single-file.js<span class="w"> </span>count-lines-single-file.js
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="count-lines-single-file.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>count-lines-single-file.js: 12
+</code></pre></div>
+</div>
+<div class="callout">
+<h3>Character encoding</h3>
+<p>A <a class="gl-ref" href="../glossary/#character_encoding">character encoding</a>
+specifies how characters are stored as bytes.
+The most widely used is <a class="gl-ref" href="../glossary/#utf_8">UTF-8</a>,
+which stores characters common in Western European languages in a single byte
+and uses multi-byte sequences for other symbols.
+If we don't specify a character encoding,
+<code>fs.readFileAsync</code> gives us an array of bytes rather than a string of characters.
+We can tell we've made this mistake when we try to call a method of <code>String</code>
+and Node tells us we can't.</p>
+</div>
+<p>The next step is to count the lines in multiple files.
+We can use <code>glob-promise</code> to delay handling the output of <code>glob</code>,
+but we need some way to create a separate task to count the lines in each file
+and to wait until those line counts are available before exiting our program.</p>
+<p>The tool we want is <code>Promise.all</code>,
+which waits until all of the promises in an array have completed.
+To make our program a little more readable,
+we will put the creation of the promise for each file in a separate function:</p>
+<div data-inc="count-lines-globbed-files.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">glob</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'glob-promise'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'fs-extra-promise'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">srcDir</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">glob</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">srcDir</span><span class="si">}</span><span class="sb">/**/*.*`</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">files</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">files</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">f</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">lineCount</span><span class="p">(</span><span class="nx">f</span><span class="p">))))</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">counts</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">counts</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">c</span><span class="p">)))</span>
+<span class="w">    </span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">.</span><span class="nx">message</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">lineCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span><span class="w"> </span><span class="nx">reject</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">encoding</span><span class="o">:</span><span class="w"> </span><span class="s1">'utf-8'</span><span class="w"> </span><span class="p">})</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">resolve</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">'\n'</span><span class="p">).</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">))</span>
+<span class="w">      </span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">))</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">srcDir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span>
+<span class="nx">main</span><span class="p">(</span><span class="nx">srcDir</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="count-lines-globbed-files.sh"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>count-lines-globbed-files.js<span class="w"> </span>.
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="count-lines-globbed-files.slice.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>10
+1
+12
+4
+1
+...
+3
+2
+5
+2
+14
+</code></pre></div>
+</div>
+<p>However,
+we want to display the names of the files whose lines we're counting along with the counts.
+To do this our <code>then</code> must return two values.
+We could put them in an array,
+but it's better practice to construct a temporary object with named fields
+(<a class="fig-ref" href="#f:async-programming-temporary-named-fields">Figure 5</a>).
+This approach allows us to add or rearrange fields without breaking code
+and also serves as a bit of documentation.
+With this change
+our line-counting program becomes:</p>
+<div data-inc="count-lines-print-filenames.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">glob</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'glob-promise'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'fs-extra-promise'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">srcDir</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">glob</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">srcDir</span><span class="si">}</span><span class="sb">/**/*.*`</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">files</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">files</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">f</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">lineCount</span><span class="p">(</span><span class="nx">f</span><span class="p">))))</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">counts</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">counts</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span>
+<span class="w">      </span><span class="nx">c</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">c</span><span class="p">.</span><span class="nx">lines</span><span class="si">}</span><span class="sb">: </span><span class="si">${</span><span class="nx">c</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="sb">`</span><span class="p">)))</span>
+<span class="w">    </span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">.</span><span class="nx">message</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">lineCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span><span class="w"> </span><span class="nx">reject</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">encoding</span><span class="o">:</span><span class="w"> </span><span class="s1">'utf-8'</span><span class="w"> </span><span class="p">})</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">resolve</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="nx">filename</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">lines</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">'\n'</span><span class="p">).</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span>
+<span class="w">      </span><span class="p">}))</span>
+<span class="w">      </span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">))</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">srcDir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span>
+<span class="nx">main</span><span class="p">(</span><span class="nx">srcDir</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<figure id="f:async-programming-temporary-named-fields">
+<img alt="Temporary objects with named fields" src="temporary-named-fields.svg"/>
+<figcaption>Figure 5: Creating temporary objects with named fields to carry values forward.</figcaption>
+</figure>
+<p>As in <a class="xref" href="../sysprog/">Chapter 2</a>,
+this works until we run into a directory whose name name matches <code>*.*</code>,
+which we do when counting the lines in the contents of <code>node_modules</code>.
+The solution once again is to use <code>stat</code> to check if something is a file or not
+before trying to read it.
+And since <code>stat</code> returns an object that doesn't include the file's name,
+we create another temporary object to pass information down the chain of <code>then</code>s.</p>
+<div data-inc="count-lines-with-stat.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">glob</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'glob-promise'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'fs-extra-promise'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">srcDir</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">glob</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">srcDir</span><span class="si">}</span><span class="sb">/**/*.*`</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">files</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">files</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">f</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">statPair</span><span class="p">(</span><span class="nx">f</span><span class="p">))))</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">files</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">files</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">pair</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">pair</span><span class="p">.</span><span class="nx">stats</span><span class="p">.</span><span class="nx">isFile</span><span class="p">()))</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">files</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">files</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">pair</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">pair</span><span class="p">.</span><span class="nx">filename</span><span class="p">))</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">files</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">files</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">f</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">lineCount</span><span class="p">(</span><span class="nx">f</span><span class="p">))))</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">counts</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">counts</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span>
+<span class="w">      </span><span class="nx">c</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">c</span><span class="p">.</span><span class="nx">lines</span><span class="si">}</span><span class="sb">: </span><span class="si">${</span><span class="nx">c</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="sb">`</span><span class="p">)))</span>
+<span class="w">    </span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">.</span><span class="nx">message</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">statPair</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span><span class="w"> </span><span class="nx">reject</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">fs</span><span class="p">.</span><span class="nx">statAsync</span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">stats</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">resolve</span><span class="p">({</span><span class="w"> </span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="nx">stats</span><span class="w"> </span><span class="p">}))</span>
+<span class="w">      </span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">))</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">lineCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span><span class="w"> </span><span class="nx">reject</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">encoding</span><span class="o">:</span><span class="w"> </span><span class="s1">'utf-8'</span><span class="w"> </span><span class="p">})</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">resolve</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="nx">filename</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">lines</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">'\n'</span><span class="p">).</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span>
+<span class="w">      </span><span class="p">}))</span>
+<span class="w">      </span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">))</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">srcDir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span>
+<span class="nx">main</span><span class="p">(</span><span class="nx">srcDir</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="count-lines-with-stat.sh"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>count-lines-with-stat.js<span class="w"> </span>.
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="count-lines-with-stat.slice.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>10: ./assign-immediately.js
+1: ./assign-immediately.out
+12: ./await-fs.js
+4: ./await-fs.out
+1: ./await-fs.sh
+...
+3: ./x-multiple-catch/example.js
+2: ./x-multiple-catch/example.txt
+5: ./x-trace-load.md
+2: ./x-trace-load/config.yml
+14: ./x-trace-load/example.js
+</code></pre></div>
+</div>
+<p>This code is complex, but much simpler than it would be if we were using callbacks.</p>
+<div class="callout">
+<h3>Lining things up</h3>
+<p>This code uses the expression <code>{filename, stats}</code>
+to create an object whose keys are <code>filename</code> and <code>stats</code>,
+and whose values are the values of the corresponding variables.
+Doing this makes the code easier to read,
+both because it's shorter
+but also because it signals that the value associated with the key <code>filename</code>
+is exactly the value of the variable with the same name.</p>
+</div>
+<h2 id="async-programming-readable">How can we make this more readable?</h2>
+<p>Promises eliminate the deep nesting associated with callbacks of callbacks,
+but they are still hard to follow.
+The latest versions of JavaScript provide two new keywords <code>async</code> and <code>await</code>
+to flatten code further.
+<code>async</code> means "this function implicitly returns a promise",
+while <code>await</code> means "wait for a promise to resolve".
+This short program uses both keywords to print the first ten characters of a file:</p>
+<div data-inc="await-fs.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'fs-extra-promise'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">firstTenCharacters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="s1">'utf-8'</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`inside, raw text is </span><span class="si">${</span><span class="nx">text</span><span class="p">.</span><span class="nx">length</span><span class="si">}</span><span class="sb"> characters long`</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">text</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">10</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'about to call'</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">firstTenCharacters</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">])</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`function result has type </span><span class="si">${</span><span class="nx">result</span><span class="p">.</span><span class="kr">constructor</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="nx">result</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">value</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`outside, final result is "</span><span class="si">${</span><span class="nx">value</span><span class="si">}</span><span class="sb">"`</span><span class="p">))</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="await-fs.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>about to call
+function result has type Promise
+inside, raw text is 24 characters long
+outside, final result is "Begin at t"
+</code></pre></div>
+</div>
+<blockquote>
+<h3>Translating code</h3>
+<p>When Node sees <code>await</code> and <code>async</code>
+it silently converts the code to use promises with <code>then</code>, <code>resolve</code>, and <code>reject</code>;
+we will see how this works in <a class="xref" href="../codegen/">Chapter 15</a>.
+In order to provide a context for this transformation
+we must put <code>await</code> inside a function that is declared to be <code>async</code>:
+we can't simply write <code>await fs.statAsync(...)</code> at the top level of our program
+outside a function.
+This requirement is occasionally annoying,
+but since we should be putting our code in functions anyway
+it's hard to complain.</p>
+</blockquote>
+<p>To see how much cleaner our code is with <code>await</code> and <code>async</code>,
+let's rewrite our line counting program to use them.
+First,
+we modify the two helper functions to look like they're waiting for results and returning them.
+They actually wrap their results in promises and return those,
+but Node now takes care of that for us:</p>
+<div data-inc="count-lines-with-stat-async.js" data-mark="recycle"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">statPair</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">stats</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">statAsync</span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="nx">stats</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">lineCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="s1">'utf-8'</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">filename</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">lines</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">'\n'</span><span class="p">).</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+<p>Next,
+we modify <code>main</code> to wait for things to complete.
+We must still use <code>Promise.all</code> to handle the promises
+that are counting lines for individual files,
+but the result is less cluttered than our previous version.</p>
+<div data-inc="count-lines-with-stat-async.js" data-mark="main"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">srcDir</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">files</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">srcDir</span><span class="si">}</span><span class="sb">/**/*.*`</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">pairs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span>
+<span class="w">    </span><span class="nx">files</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="nx">filename</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">statPair</span><span class="p">(</span><span class="nx">filename</span><span class="p">))</span>
+<span class="w">  </span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">filtered</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">pairs</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">pair</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">pair</span><span class="p">.</span><span class="nx">stats</span><span class="p">.</span><span class="nx">isFile</span><span class="p">())</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">pair</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">pair</span><span class="p">.</span><span class="nx">filename</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">counts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span>
+<span class="w">    </span><span class="nx">filtered</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="nx">name</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">lineCount</span><span class="p">(</span><span class="nx">name</span><span class="p">))</span>
+<span class="w">  </span><span class="p">)</span>
+<span class="w">  </span><span class="nx">counts</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span>
+<span class="w">    </span><span class="p">({</span><span class="w"> </span><span class="nx">filename</span><span class="p">,</span><span class="w"> </span><span class="nx">lines</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">lines</span><span class="si">}</span><span class="sb">: </span><span class="si">${</span><span class="nx">filename</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">  </span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">srcDir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span>
+<span class="nx">main</span><span class="p">(</span><span class="nx">srcDir</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<h2 id="async-programming-errors">How can we handle errors with asynchronous code?</h2>
+<p>We created several intermediate variables in the line-counting program to make the steps clearer.
+Doing this also helps with error handling;
+to see how,
+we will build up an example in stages.</p>
+<p>First,
+if we return a promise that fails without using <code>await</code>,
+then our main function will finish running before the error occurs,
+and our <code>try</code>/<code>catch</code> doesn't help us
+(<a class="fig-ref" href="#f:async-programming-handling-errors">Figure 6</a>):</p>
+<div data-inc="return-immediately.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">returnImmediately</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s1">'deliberate'</span><span class="p">))</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'caught exception'</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">returnImmediately</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="return-immediately.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>/u/stjs/async-programming/return-immediately.js:3
+</code></pre></div>
+</div>
+<figure id="f:async-programming-handling-errors">
+<img alt="Handling asynchronous errors" src="handling-errors.svg"/>
+<figcaption>Figure 6: Wrong and right ways to handle errors in asynchronous code.</figcaption>
+</figure>
+<p>One solution to this problem is to be consistent and always return something.
+Because the function is declared <code>async</code>,
+the <code>Error</code> in the code below is automatically wrapped in a promise
+so we can use <code>.then</code> and <code>.catch</code> to handle it as before:</p>
+<div data-inc="assign-immediately.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">returnImmediately</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s1">'deliberate'</span><span class="p">))</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s1">'caught exception'</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">returnImmediately</span><span class="p">()</span>
+<span class="nx">result</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`caller caught </span><span class="si">${</span><span class="nx">err</span><span class="si">}</span><span class="sb">`</span><span class="p">))</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="assign-immediately.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>caller caught Error: deliberate
+</code></pre></div>
+</div>
+<p>If instead we <code>return await</code>,
+the function waits until the promise runs before returning.
+The promise is turned into an exception because it failed,
+and since we're inside the scope of our <code>try</code>/<code>catch</code> block,
+everything works as we want:</p>
+<div data-inc="return-await.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">returnAwait</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s1">'deliberate'</span><span class="p">))</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'caught exception'</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">returnAwait</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="return-await.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>caught exception
+</code></pre></div>
+</div>
+<p>We prefer the second approach,
+but whichever you choose,
+please be consistent.</p>
+<section aria-label="Exercises" class="exercises">
+<h2 id="async-programming-exercises">Exercises</h2>
+<h3>Immediate versus next tick</h3>
+<p>What is the difference between <code>setImmediate</code> and <code>process.nextTick</code>?
+When would you use each one?</p>
+<h3>Tracing promise execution</h3>
+<ol>
+<li>
+<p>What does this code print and why?</p>
+<p><code>js
+Promise.resolve('hello')</code></p>
+</li>
+<li>
+<p>What does this code print and why?</p>
+<p><code>js
+Promise.resolve('hello').then(result =&gt; console.log(result))</code></p>
+</li>
+<li>
+<p>What does this code print and why?</p>
+<p><code>js
+const p = new Promise((resolve, reject) =&gt; resolve('hello'))
+  .then(result =&gt; console.log(result))</code></p>
+</li>
+</ol>
+<p>Hint: try each snippet of code interactively in the Node interpreter and as a command-line script.</p>
+<h3>Multiple catches</h3>
+<p>Suppose we create a promise that deliberately fails and then add two error handlers:</p>
+<div data-inc="x-multiple-catch/example.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">oops</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span><span class="w"> </span><span class="nx">reject</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">reject</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s1">'failure'</span><span class="p">)))</span>
+<span class="nx">oops</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">.</span><span class="nx">message</span><span class="p">))</span>
+<span class="nx">oops</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">.</span><span class="nx">message</span><span class="p">))</span>
+</code></pre></div>
+</div>
+<p>When the code is run it produces:</p>
+<div data-inc="x-multiple-catch/example.txt"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>failure
+failure
+</code></pre></div>
+</div>
+<ol>
+<li>Trace the order of operations: what is created and when is it executed?</li>
+<li>What happens if we run these same lines interactively?
+    Why do we see something different than what we see when we run this file from the command line?</li>
+</ol>
+<h3>Then after catch</h3>
+<p>Suppose we create a promise that deliberately fails
+and attach both <code>then</code> and <code>catch</code> to it:</p>
+<div data-inc="x-catch-then/example.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="ow">new</span><span class="w"> </span><span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span><span class="w"> </span><span class="nx">reject</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">reject</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s1">'failure'</span><span class="p">)))</span>
+<span class="w">  </span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">))</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">err</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">))</span>
+</code></pre></div>
+</div>
+<p>When the code is run it produces:</p>
+<div data-inc="x-catch-then/example.txt"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>Error: failure
+    at /u/stjs/promises/catch-then/example.js:1:41
+    at new Promise (&lt;anonymous&gt;)
+    at Object.&lt;anonymous&gt; (/u/stjs/promises/catch-then/example.js:1:1)
+    at Module._compile (internal/modules/cjs/loader.js:1151:30)
+    at Object.Module._extensions..js \
+ (internal/modules/cjs/loader.js:1171:10)
+    at Module.load (internal/modules/cjs/loader.js:1000:32)
+    at Function.Module._load (internal/modules/cjs/loader.js:899:14)
+    at Function.executeUserEntryPoint [as runMain] \
+ (internal/modules/run_main.js:71:12)
+    at internal/main/run_main_module.js:17:47
+undefined
+</code></pre></div>
+</div>
+<ol>
+<li>Trace the order of execution.</li>
+<li>Why is <code>undefined</code> printed at the end?</li>
+</ol>
+<h3>Head and tail</h3>
+<p>The Unix <code>head</code> command shows the first few lines of one or more files,
+while the <code>tail</code> command shows the last few.
+Write programs <code>head.js</code> and <code>tail.js</code> that do the same things using promises and <code>async</code>/<code>await</code>,
+so that:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>head.js<span class="w"> </span><span class="m">5</span><span class="w"> </span>first.txt<span class="w"> </span>second.txt<span class="w"> </span>third.txt
+</code></pre></div>
+<p>prints the first five lines of each of the three files and:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>tail.js<span class="w"> </span><span class="m">5</span><span class="w"> </span>first.txt<span class="w"> </span>second.txt<span class="w"> </span>third.txt
+</code></pre></div>
+<p>prints the last five lines of each file.</p>
+<h3>Histogram of line counts</h3>
+<p>Extend <code>count-lines-with-stat-async.js</code> to create a program <code>lh.js</code>
+that prints two columns of output:
+the number of lines in one or more files
+and the number of files that are that long.
+For example,
+if we run:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>lh.js<span class="w"> </span>promises/*.*
+</code></pre></div>
+<p>the output might be:</p>
+<table>
+<thead>
+<tr>
+<th scope="col">Length</th>
+<th scope="col">Number of Files</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>7</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3</td>
+</tr>
+<tr>
+<td>6</td>
+<td>7</td>
+</tr>
+<tr>
+<td>8</td>
+<td>2</td>
+</tr>
+<tr>
+<td>12</td>
+<td>2</td>
+</tr>
+<tr>
+<td>13</td>
+<td>1</td>
+</tr>
+<tr>
+<td>15</td>
+<td>1</td>
+</tr>
+<tr>
+<td>17</td>
+<td>2</td>
+</tr>
+<tr>
+<td>20</td>
+<td>1</td>
+</tr>
+<tr>
+<td>24</td>
+<td>1</td>
+</tr>
+<tr>
+<td>35</td>
+<td>2</td>
+</tr>
+<tr>
+<td>37</td>
+<td>3</td>
+</tr>
+<tr>
+<td>38</td>
+<td>1</td>
+</tr>
+<tr>
+<td>171</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<h3>Select matching lines</h3>
+<p>Using <code>async</code> and <code>await</code>,
+write a program called <code>match.js</code> that finds and prints lines containing a given string.
+For example:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>match.js<span class="w"> </span>Toronto<span class="w"> </span>first.txt<span class="w"> </span>second.txt<span class="w"> </span>third.txt
+</code></pre></div>
+<p>would print all of the lines from the three files that contain the word "Toronto".</p>
+<h3>Find lines in all files</h3>
+<p>Using <code>async</code> and <code>await</code>,
+write a program called <code>in-all.js</code> that finds and prints lines found in all of its input files.
+For example:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span><span class="k">in</span>-all.js<span class="w"> </span>first.txt<span class="w"> </span>second.txt<span class="w"> </span>third.txt
+</code></pre></div>
+<p>will print those lines that occur in all three files.</p>
+<h3>Find differences between two files</h3>
+<p>Using <code>async</code> and <code>await</code>,
+write a program called <code>file-diff.js</code>
+that compares the lines in two files
+and shows which ones are only in the first file,
+which are only in the second,
+and which are in both.
+For example,
+if <code>left.txt</code> contains:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code>some
+people
+</code></pre></div>
+<p>and <code>right.txt</code> contains:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code>write
+some
+code
+</code></pre></div>
+<p>then:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>file-diff.js<span class="w"> </span>left.txt<span class="w"> </span>right.txt
+</code></pre></div>
+<p>would print:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="mf">2</span><span class="w"> </span><span class="n">code</span>
+<span class="mf">1</span><span class="w"> </span><span class="n">people</span>
+<span class="o">*</span><span class="w"> </span><span class="n">some</span>
+<span class="mf">2</span><span class="w"> </span><span class="n">write</span>
+</code></pre></div>
+<p>where <code>1</code>, <code>2</code>, and <code>*</code> show whether lines are in only the first or second file
+or are in both.
+Note that the order of the lines in the file doesn't matter.</p>
+<p>Hint: you may want to use the <code>Set</code> class to store lines.</p>
+<h3>Trace file loading</h3>
+<p>Suppose we are loading a YAML configuration file
+using the promisified version of the <code>fs</code> library.
+In what order do the print statements in this test program appear and why?</p>
+<div data-inc="x-trace-load/example.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'fs-extra-promise'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">yaml</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'js-yaml'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">raw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileAsync</span><span class="p">(</span><span class="s1">'config.yml'</span><span class="p">,</span><span class="w"> </span><span class="s1">'utf-8'</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'inside test, raw text'</span><span class="p">,</span><span class="w"> </span><span class="nx">raw</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">cooked</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">yaml</span><span class="p">.</span><span class="nx">safeLoad</span><span class="p">(</span><span class="nx">raw</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'inside test, cooked configuration'</span><span class="p">,</span><span class="w"> </span><span class="nx">cooked</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">cooked</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">test</span><span class="p">()</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'outside test, result is'</span><span class="p">,</span><span class="w"> </span><span class="nx">result</span><span class="p">.</span><span class="kr">constructor</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span>
+<span class="nx">result</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">something</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'outside test we have'</span><span class="p">,</span><span class="w"> </span><span class="nx">something</span><span class="p">))</span>
+</code></pre></div>
+</div>
+<h3>Any and all</h3>
+<ol>
+<li>
+<p>Add a method <code>Pledge.any</code> that takes an array of pledges
+    and as soon as one of the pledges in the array resolves,
+    returns a single promise that resolves with the value from that pledge.</p>
+</li>
+<li>
+<p>Add another method <code>Pledge.all</code> that takes an array of pledges
+    and returns a single promise that resolves to an array
+    containing the final values of all of those pledges.</p>
+</li>
+</ol>
+<p><a href="https://2ality.com/2019/08/promise-combinators.html">This article</a> may be helpful.</p>
+</section>
+</main>
+<footer aria-label="Page navigation">
+<div class="row">
+<div class="col-3 left">
+<span aria-hidden="true">⇐</span> <a href="../sysprog/">Systems Programming</a>
+</div>
+<div class="col-6 center">
+<a href="../">Software Design by Example</a>
+	  ©
+	  <a href="../#acknowledgments">the authors</a>
+</div>
+<div class="col-3 right">
+<a href="../test/">Unit Testing</a> <span aria-hidden="true">⇒</span>
+</div>
+</div>
+</footer>
+</body>
+</html>

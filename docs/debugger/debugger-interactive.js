@@ -34,8 +34,8 @@ class DebuggerInteractive extends DebuggerBase {
     }
   }
 
-  // [skip]
-  // [interact]
+  // mccole:skip
+  // mccole:interact
   interact (env, lineNum, op) {
     let interacting = true
     while (interacting) {
@@ -66,8 +66,7 @@ class DebuggerInteractive extends DebuggerBase {
   input (display) {
     return prompt(PROMPT_OPTIONS)(display)
   }
-  // [/interact]
-
+  // mccole:/interact
   help (env, lineNum, op, args) {
     this.message(this.lookup)
     return true
@@ -98,14 +97,13 @@ class DebuggerInteractive extends DebuggerBase {
     return true
   }
 
-  // [next]
+  // mccole:next
   next (env, lineNum, op, args) {
     this.singleStep = true
     return false
   }
-  // [/next]
-
-  // [print]
+  // mccole:/next
+  // mccole:print
   print (env, lineNum, op, args) {
     if (args.length !== 1) {
       this.message('p[rint] requires one variable name')
@@ -116,8 +114,7 @@ class DebuggerInteractive extends DebuggerBase {
     }
     return true
   }
-  // [/print]
-
+  // mccole:/print
   run (env, lineNum, op, args) {
     this.singleStep = false
     return false
@@ -140,7 +137,7 @@ class DebuggerInteractive extends DebuggerBase {
   exit (env, lineNum, op, args) {
     process.exit(0)
   }
-  // [/skip]
+  // mccole:/skip
 }
 
 export default DebuggerInteractive

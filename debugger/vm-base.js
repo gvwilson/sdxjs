@@ -30,16 +30,15 @@ class VirtualMachineBase {
     return this[op](args)
   }
 
-  // [skip]
-  // [add]
+  // mccole:skip
+  // mccole:add
   add (args) {
     this.checkOp('add', 2, args)
     const left = this.exec(args[0])
     const right = this.exec(args[1])
     return left + right
   }
-  // [/add]
-
+  // mccole:/add
   append (args) {
     this.checkOp('append', 2, args)
     this.checkArray('append', args[0])
@@ -57,14 +56,13 @@ class VirtualMachineBase {
     this.env[name] = this.exec(data)
   }
 
-  // [defV]
+  // mccole:defV
   defV (args) {
     this.checkOp('defV', 2, args)
     const [name, value] = args
     this.env[name] = this.exec(value)
   }
-  // [/defV]
-
+  // mccole:/defV
   getA (args) {
     this.checkOp('getA', 2, args)
     this.checkArray('getA', args[0])
@@ -99,7 +97,7 @@ class VirtualMachineBase {
     return left < right
   }
 
-  // [loop]
+  // mccole:loop
   loop (args) {
     this.checkBody('loop', 1, args)
     const body = args.slice(1)
@@ -107,8 +105,7 @@ class VirtualMachineBase {
       this.runAll(body)
     }
   }
-  // [/loop]
-
+  // mccole:/loop
   num (args) {
     this.checkOp('num', 1, args)
     assert(typeof args[0] === 'number',
@@ -146,15 +143,14 @@ class VirtualMachineBase {
     }
   }
 
-  // [checkArray]
+  // mccole:checkArray
   checkArray (op, name) {
     this.checkName(op, name)
     const array = this.env[name]
     assert(Array.isArray(array),
       `Variable "${name}" used in "${op}" is not array`)
   }
-  // [/checkArray]
-
+  // mccole:/checkArray
   checkBody (op, minimum, args) {
     assert(args.length >= minimum,
       `Badly-formatted operation ${op}: ${JSON.stringify(args)}`)
@@ -179,7 +175,7 @@ class VirtualMachineBase {
   message (prefix, val) {
     console.log(prefix, val)
   }
-  // [/skip]
+  // mccole:/skip
 }
 
 export default VirtualMachineBase

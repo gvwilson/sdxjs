@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Build Manager</title>
+<meta content="Software Design by Example" name="description"/>
+<meta content="#f8f8f8" media="(prefers-color-scheme: light)" name="theme-color"/>
+<meta content="#1a1a1a" media="(prefers-color-scheme: dark)" name="theme-color"/>
+<link href="../_static/favicon.ico" rel="icon" type="image/x-icon"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/page.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<nav aria-label="Site navigation">
+<a href="../">Software Design by Example</a>
+<span aria-hidden="true">·</span>
+<span class="dropdown">
+<button aria-controls="nav-lessons" aria-haspopup="true">Lessons</button>
+<ul class="dropdown-content" id="nav-lessons" role="list">
+<li><a href="../introduction/">Introduction</a></li>
+<li><a href="../sysprog/">Systems Programming</a></li>
+<li><a href="../async/">Asynchronous Programming</a></li>
+<li><a href="../test/">Unit Testing</a></li>
+<li><a href="../backup/">File Backup</a></li>
+<li><a href="../table/">Data Tables</a></li>
+<li><a href="../glob/">Pattern Matching</a></li>
+<li><a href="../parser/">Parsing Expressions</a></li>
+<li><a href="../templater/">Page Templates</a></li>
+<li><a class="active" href="../build/">Build Manager</a></li>
+<li><a href="../layout/">Layout Engine</a></li>
+<li><a href="../interp/">File Interpolator</a></li>
+<li><a href="../loader/">Module Loader</a></li>
+<li><a href="../style/">Style Checker</a></li>
+<li><a href="../codegen/">Code Generator</a></li>
+<li><a href="../docgen/">Documentation Generator</a></li>
+<li><a href="../bundler/">Module Bundler</a></li>
+<li><a href="../packman/">Package Manager</a></li>
+<li><a href="../vm/">Virtual Machine</a></li>
+<li><a href="../debugger/">Debugger</a></li>
+<li><a href="../conclusion/">Conclusion</a></li>
+</ul>
+</span>
+<span aria-hidden="true">·</span>
+<span class="dropdown">
+<button aria-controls="nav-appendices" aria-haspopup="true">Appendices</button>
+<ul class="dropdown-content" id="nav-appendices" role="list">
+<li><a href="../license/">License</a></li>
+<li><a href="../conduct/">Code of Conduct</a></li>
+<li><a href="../contributing/">Contributing</a></li>
+<li><a href="../bibliography/">Bibliography</a></li>
+<li><a href="../glossary/">Glossary</a></li>
+</ul>
+</span>
+</nav>
+<main id="main-content">
+<h1>Build Manager</h1>
+<p>Suppose we are using a page templating system to create a website (<a class="xref" href="../templater/">Chapter 9</a>).
+If we change a single page our tool should translate it,
+but it shouldn't waste time translating others.
+If we change a template,
+on the other hand,
+the tool should realize that every page in the site is potentially affected
+and automatically re-translate all of them.</p>
+<p>Choosing what actions to take based on how files depend on one another is a common pattern.
+For example,
+programs in <a class="gl-ref" href="../glossary/#compiled_language">compiled languages</a>
+like C and Java
+have to be translated into lower-level forms before they can run.
+In fact,
+there are usually two stages to the translation:
+compiling each source file into some intermediate form,
+and then <a class="gl-ref" href="../glossary/#link">linking</a> the compiled modules
+to each other and to libraries
+to create a runnable program
+(<a class="fig-ref" href="#f:build-manager-compiling">Figure 1</a>).
+If a source file hasn't changed,
+there's no need to recompile it before linking.</p>
+<figure id="f:build-manager-compiling">
+<img alt="Compiling and linking" src="compiling.svg"/>
+<figcaption>Figure 1: Compiling source files and linking the resulting modules.</figcaption>
+</figure>
+<p>A <a class="gl-ref" href="../glossary/#build_manager">build manager</a> takes a description of what depends on what,
+figures out which files are out of date,
+determines an order in which to rebuild things,
+and then executes any necessary steps.
+Originally created to manage compilation,
+they are also useful for programs written in <a class="gl-ref" href="../glossary/#interpreted_language">interpreted languages</a>
+like JavaScript
+when we want to bundle multiple modules into a single loadable file (<a class="xref" href="../bundler/">Chapter 17</a>)
+or re-create documentation from source code (<a class="xref" href="../docgen/">Chapter 16</a>).
+In this chapter we will create a simple build manager
+based on <a href="https://www.gnu.org/software/make/">Make</a>, <a href="https://www.npmjs.com/package/bajel">Bajel</a>, <a href="https://jakejs.com/">Jake</a>,
+and other systems discussed in <a class="bib-ref" href="../bibliography/#Smith2011">Smith2011</a>.</p>
+<h2 id="build-manager-contents">What's in a build manager?</h2>
+<p>The input to a build manager is a set of rules,
+each of which has:</p>
+<ul>
+<li>
+<p>a <a class="gl-ref" href="../glossary/#build_target">target</a>, which is the file to be updated;</p>
+</li>
+<li>
+<p>some <a class="gl-ref" href="../glossary/#dependency">dependencies</a>, which are the things that file depends on;
+    and</p>
+</li>
+<li>
+<p>a <a class="gl-ref" href="../glossary/#build_recipe">recipe</a> that specifies how to update the target
+    if it is out of date compared to its dependencies.</p>
+</li>
+</ul>
+<p>The target of one rule can be a dependency of another rule,
+so the relationships between the files form a <a class="gl-ref" href="../glossary/#dag">directed acyclic graph</a> or DAG
+(<a class="fig-ref" href="#f:build-manager-dependencies">Figure 2</a>).
+The graph is directed because "A depends on B" is a one-way relationship;
+it cannot contain cycles (or loops) because
+if something depends on itself we can never finish updating it.
+We say that a target is <a class="gl-ref" href="../glossary/#build_stale">stale</a> if it is older than any of its dependencies.
+When this happens,
+we use the recipes to bring it up to date.</p>
+<figure id="f:build-manager-dependencies">
+<img alt="Respecting dependencies" src="dependencies.svg"/>
+<figcaption>Figure 2: How a build manager finds and respects dependencies.</figcaption>
+</figure>
+<p>Our build manager must:</p>
+<ol>
+<li>
+<p>Read a file containing rules.</p>
+</li>
+<li>
+<p>Construct the dependency graph.</p>
+</li>
+<li>
+<p>Figure out which targets are stale.</p>
+</li>
+<li>
+<p>Build those targets,
+    making sure to build things <em>before</em> anything that depends on them is built.</p>
+</li>
+</ol>
+<div class="callout">
+<h3>Topological order</h3>
+<p>A <a class="gl-ref" href="../glossary/#topological_order">topological ordering</a> of a graph
+arranges the nodes so that every node comes after everything it depends on.
+For example,
+if A depends on both B and C,
+then (B, C, A) and (C, B, A) are both valid topological orders of the graph.</p>
+</div>
+<h2 id="build-manager-start">Where should we start?</h2>
+<p>We will store our rules in YAML files like this:</p>
+<div data-inc="three-simple-rules.yml"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">A</span>
+<span class="w">  </span><span class="nt">depends</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">B</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">C</span>
+<span class="w">  </span><span class="nt">recipes</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"update</span><span class="nv"> </span><span class="s">A</span><span class="nv"> </span><span class="s">from</span><span class="nv"> </span><span class="s">B</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">C"</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">B</span>
+<span class="w">  </span><span class="nt">depends</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">C</span>
+<span class="w">  </span><span class="nt">recipes</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"update</span><span class="nv"> </span><span class="s">B</span><span class="nv"> </span><span class="s">from</span><span class="nv"> </span><span class="s">C"</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">C</span>
+<span class="w">  </span><span class="nt">depends</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">recipes</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+</code></pre></div>
+</div>
+<p>We could equally well have used JSON,
+but it wouldn't have made sense to use CSV:
+rules have a nested structure,
+and CSV doesn't represent nesting particularly gracefully.</p>
+<p>We are going to create our build manager in stages,
+so we start by writing a simple <a class="gl-ref" href="../glossary/#driver">driver</a> that loads a JavaScript source file,
+creates an object of whatever class that file exports,
+and runs the <code>.build</code> method of that object with the rest of the command-line parameters:</p>
+<div data-inc="driver.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">BuilderClass</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">])).</span><span class="k">default</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">BuilderClass</span><span class="p">(...</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">3</span><span class="p">))</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">builder</span><span class="p">.</span><span class="nx">build</span><span class="p">()</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">'Build failed:'</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">main</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<p>We use the <code>import</code> function to dynamically load files in <a class="xref" href="../test/">Chapter 4</a> as well.
+It only saves us a few lines of code in this case,
+but we will use this idea of a general-purpose driver for larger programs in future chapters.</p>
+<p>To work with our driver,
+each version of our build manager must be a class that satisfies two requirements:</p>
+<ol>
+<li>
+<p>Its constructor must take a configuration file as an argument.</p>
+</li>
+<li>
+<p>It must provide a <code>build</code> method that needs no arguments.</p>
+</li>
+</ol>
+<p>The <code>build</code> method must create a graph from the configuration file,
+check that it does not contain any <a class="gl-ref" href="../glossary/#cycle">cycles</a>,
+and then run whatever commands are needed to update stale targets.
+Just as we built a generic <code>Visitor</code> class in <a class="xref" href="../templater/">Chapter 9</a>,
+we can build a generic base class for our build manager that does these steps in this order
+without actually implementing any of them:</p>
+<div data-inc="skeleton-builder.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">assert</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'assert'</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nx">SkeletonBuilder</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="w"> </span><span class="p">(</span><span class="nx">configFile</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">configFile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">configFile</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">build</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">loadConfig</span><span class="p">()</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">buildGraph</span><span class="p">()</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">checkCycles</span><span class="p">()</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">run</span><span class="p">()</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">loadConfig</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="s1">'not implemented'</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">buildGraph</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="s1">'not implemented'</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">checkCycles</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="s1">'not implemented'</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">run</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">fail</span><span class="p">(</span><span class="s1">'run method not implemented'</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">SkeletonBuilder</span>
+</code></pre></div>
+</div>
+<p>This is an example of
+the <a class="gl-ref" href="../glossary/#template_method_pattern">Template Method</a> design pattern:
+the parent class defines the order of the steps
+and child classes fill them in
+(<a class="fig-ref" href="#f:build-manager-template-method">Figure 3</a>).
+This design pattern ensures that every child does the same things in the same order,
+even if the details of <em>how</em> vary from case to case.</p>
+<figure id="f:build-manager-template-method">
+<img alt="Template Method pattern" src="template-method.svg"/>
+<figcaption>Figure 3: The Template Method pattern in action.</figcaption>
+</figure>
+<p>We would normally implement all of the methods required by the <code>build</code> method at the same time;
+here, we will write them one-by-one to make the evolving code easier to follow.
+The <code>loadConfig</code> method loads the configuration file
+as the builder object is being constructed:</p>
+<div data-inc="config-loader.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">assert</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'assert'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'fs'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">yaml</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'js-yaml'</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nx">SkeletonBuilder</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./skeleton-builder.js'</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nx">ConfigLoader</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">SkeletonBuilder</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">loadConfig</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">yaml</span><span class="p">.</span><span class="nx">safeLoad</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">configFile</span><span class="p">,</span><span class="w"> </span><span class="s1">'utf-8'</span><span class="p">))</span>
+
+<span class="w">    </span><span class="nx">assert</span><span class="p">(</span><span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">config</span><span class="p">),</span>
+<span class="w">      </span><span class="s1">'Configuration must be array'</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">config</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">rule</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">assert</span><span class="p">((</span><span class="s1">'target'</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">rule</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="ow">typeof</span><span class="w"> </span><span class="nx">rule</span><span class="p">.</span><span class="nx">target</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'string'</span><span class="p">),</span>
+<span class="w">        </span><span class="sb">`Rule </span><span class="si">${</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">rule</span><span class="p">)</span><span class="si">}</span><span class="sb"> does not string as 'target'`</span><span class="p">)</span>
+
+<span class="w">      </span><span class="nx">assert</span><span class="p">((</span><span class="s1">'depends'</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">rule</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">        </span><span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">rule</span><span class="p">.</span><span class="nx">depends</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">        </span><span class="nx">rule</span><span class="p">.</span><span class="nx">depends</span><span class="p">.</span><span class="nx">every</span><span class="p">(</span><span class="nx">dep</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="ow">typeof</span><span class="w"> </span><span class="nx">dep</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'string'</span><span class="p">)),</span>
+<span class="w">        </span><span class="sb">`Bad 'depends' for rule </span><span class="si">${</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">rule</span><span class="p">)</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+
+<span class="w">      </span><span class="nx">assert</span><span class="p">((</span><span class="s1">'recipes'</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">rule</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">        </span><span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">rule</span><span class="p">.</span><span class="nx">recipes</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">        </span><span class="nx">rule</span><span class="p">.</span><span class="nx">recipes</span><span class="p">.</span><span class="nx">every</span><span class="p">(</span><span class="nx">recipe</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="ow">typeof</span><span class="w"> </span><span class="nx">recipe</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'string'</span><span class="p">)),</span>
+<span class="w">        </span><span class="sb">`Bad 'recipes' for rule </span><span class="si">${</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">rule</span><span class="p">)</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">ConfigLoader</span>
+</code></pre></div>
+</div>
+<p>The first line does the loading;
+the rest of the method checks that the rules are at least superficially plausible.
+We need these checks because YAML is a generic file format
+that doesn't know anything about the extra requirements of our rules.
+And as we first saw in <a class="xref" href="../async/">Chapter 3</a>,
+we have to specify that the character encoding of our file is UTF-8
+so that JavaScript knows how to convert bytes into text.</p>
+<p>The next step is to turn the configuration into a graph in memory.
+We use the <a href="https://www.npmjs.com/package/graphlib"><code>graphlib</code></a> module to manage nodes and links
+rather than writing our own classes for graphs,
+and store the recipe to rebuild a node in that node.
+Two features of <code>graphlib</code> that took us a while to figure out are that:</p>
+<ol>
+<li>
+<p>links go <em>from</em> the dependency <em>to</em> the target,
+    and</p>
+</li>
+<li>
+<p><code>setEdge</code> automatically adds nodes if they aren't already present.</p>
+</li>
+</ol>
+<p><code>graphlib</code> provides implementations of some common graph algorithms,
+including one to check for cycles,
+so we might as well write that method at this point too:</p>
+<div data-inc="graph-creator.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">assert</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'assert'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">graphlib</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@dagrejs/graphlib'</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nx">ConfigLoader</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./config-loader.js'</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nx">GraphCreator</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">ConfigLoader</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">buildGraph</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">graphlib</span><span class="p">.</span><span class="nx">Graph</span><span class="p">()</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">config</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">rule</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">setNode</span><span class="p">(</span><span class="nx">rule</span><span class="p">.</span><span class="nx">target</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">recipes</span><span class="o">:</span><span class="w"> </span><span class="nx">rule</span><span class="p">.</span><span class="nx">recipes</span>
+<span class="w">      </span><span class="p">})</span>
+<span class="w">      </span><span class="nx">rule</span><span class="p">.</span><span class="nx">depends</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">dep</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">setEdge</span><span class="p">(</span><span class="nx">dep</span><span class="p">,</span><span class="w"> </span><span class="nx">rule</span><span class="p">.</span><span class="nx">target</span><span class="p">))</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">checkCycles</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">cycles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">graphlib</span><span class="p">.</span><span class="nx">alg</span><span class="p">.</span><span class="nx">findCycles</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">(</span><span class="nx">cycles</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span>
+<span class="w">      </span><span class="sb">`Dependency graph contains cycles </span><span class="si">${</span><span class="nx">cycles</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">GraphCreator</span>
+</code></pre></div>
+</div>
+<p>We can now create something that displays our configuration when it runs
+but does nothing else:</p>
+<div data-inc="display-only.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">graphlib</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@dagrejs/graphlib'</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nx">GraphCreator</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./graph-creator.js'</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nx">DisplayOnly</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">GraphCreator</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">run</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Graph'</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">graphlib</span><span class="p">.</span><span class="nx">json</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">))</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Sorted'</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">graphlib</span><span class="p">.</span><span class="nx">alg</span><span class="p">.</span><span class="nx">topsort</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">))</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">DisplayOnly</span>
+</code></pre></div>
+</div>
+<p>If we run this with our three simple rules as input,
+it shows the graph with <code>v</code> and <code>w</code> keys to represent the ends of the links:</p>
+<div data-inc="display-only.sh"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>driver.js<span class="w"> </span>./display-only.js<span class="w"> </span>three-simple-rules.yml
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="display-only.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>Graph
+{
+  options: { directed: true, multigraph: false, compound: false },
+  nodes: [
+    { v: 'A', value: [Object] },
+    { v: 'B', value: [Object] },
+    { v: 'C', value: [Object] }
+  ],
+  edges: [ { v: 'B', w: 'A' }, { v: 'C', w: 'A' }, { v: 'C', w: 'B' } ]
+}
+Sorted
+[ 'C', 'B', 'A' ]
+</code></pre></div>
+</div>
+<p>Let's write a quick test to make sure the cycle detector works as intended:</p>
+<div data-inc="circular-rules.yml"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">A</span>
+<span class="w">  </span><span class="nt">depends</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">B</span>
+<span class="w">  </span><span class="nt">recipes</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"update</span><span class="nv"> </span><span class="s">A</span><span class="nv"> </span><span class="s">from</span><span class="nv"> </span><span class="s">B"</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">B</span>
+<span class="w">  </span><span class="nt">depends</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">A</span>
+<span class="w">  </span><span class="nt">recipes</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"update</span><span class="nv"> </span><span class="s">B</span><span class="nv"> </span><span class="s">from</span><span class="nv"> </span><span class="s">A"</span>
+</code></pre></div>
+</div>
+<div data-inc="check-cycles.sh"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>driver.js<span class="w"> </span>./display-only.js<span class="w"> </span>circular-rules.yml
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="check-cycles.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>Build failed: AssertionError [ERR_ASSERTION]: Dependency graph contains \
+ cycles B,A
+    at DisplayOnly.checkCycles \
+     (/u/stjs/build-manager/graph-creator.js:19:12)
+    at DisplayOnly.build \
+     (/u/stjs/build-manager/skeleton-builder.js:11:10)
+    at main (/u/stjs/build-manager/driver.js:5:13) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual'
+}
+</code></pre></div>
+</div>
+<h2 id="build-manager-timestamp">How can we specify that a file is out-of-date?</h2>
+<p>The next step is to figure out which files are out-of-date.
+Make does this by comparing the timestamps of the files in question,
+but this isn't always reliable because
+computers' clocks may be slightly out of sync,
+which can produce a wrong answer on a networked filesystem,
+and the operating system may only report file update times to the nearest millisecond
+(which seemed very short in 1970 but seems very long today).</p>
+<p>More modern build systems store a hash of each file's contents
+and compare the current hash to the stored one to see if the file has changed.
+Since we already looked at hashing in <a class="xref" href="../backup/">Chapter 5</a>,
+we will use the timestamp approach here.
+And instead of using a mock filesystem as we did in <a class="xref" href="../backup/">Chapter 5</a>,
+we will simply load another configuration file that specifies fake timestamps for files:</p>
+<div data-inc="add-stamps.yml"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="nt">A</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="nt">B</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="nt">C</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+</code></pre></div>
+</div>
+<p>Since we want to associate those timestamps with files,
+we add a step to <code>buildGraph</code> to read the timestamp file and add information to the graph's nodes:</p>
+<div data-inc="add-stamps.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">assert</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'assert'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'fs'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">yaml</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'js-yaml'</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nx">GraphCreator</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./graph-creator.js'</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nx">AddTimestamps</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">GraphCreator</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="w"> </span><span class="p">(</span><span class="nx">configFile</span><span class="p">,</span><span class="w"> </span><span class="nx">timesFile</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">super</span><span class="p">(</span><span class="nx">configFile</span><span class="p">)</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">timesFile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">timesFile</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">buildGraph</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">super</span><span class="p">.</span><span class="nx">buildGraph</span><span class="p">()</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">addTimestamps</span><span class="p">()</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">addTimestamps</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">times</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">yaml</span><span class="p">.</span><span class="nx">safeLoad</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">timesFile</span><span class="p">,</span><span class="w"> </span><span class="s1">'utf-8'</span><span class="p">))</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">node</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">times</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">assert</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">hasNode</span><span class="p">(</span><span class="nx">node</span><span class="p">),</span>
+<span class="w">             </span><span class="sb">`Graph does not have node </span><span class="si">${</span><span class="nx">node</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">node</span><span class="p">).</span><span class="nx">timestamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">times</span><span class="p">[</span><span class="nx">node</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">missing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">nodes</span><span class="p">().</span><span class="nx">filter</span><span class="p">(</span>
+<span class="w">      </span><span class="nx">n</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="o">!</span><span class="p">(</span><span class="s1">'timestamp'</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">n</span><span class="p">))</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">(</span><span class="nx">missing</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span>
+<span class="w">      </span><span class="sb">`Timestamp missing for node(s) </span><span class="si">${</span><span class="nx">missing</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">run</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">nodes</span><span class="p">().</span><span class="nx">map</span><span class="p">(</span>
+<span class="w">      </span><span class="nx">n</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">n</span><span class="si">}</span><span class="sb">: </span><span class="si">${</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">n</span><span class="p">))</span><span class="si">}</span><span class="sb">`</span>
+<span class="w">    </span><span class="p">))</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">AddTimestamps</span>
+</code></pre></div>
+</div>
+<div class="callout">
+<h3>Not quite what we were expecting</h3>
+<p>The steps defined in <code>SkeletonBuilder.build</code> don't change when we do this,
+so people reading the code don't have to change their mental model of what it does overall.
+However,
+if we had realized in advance that we were going to want to add timestamps from a file,
+we would probably have added a step for that in the template method.
+And if someone ever wants to inject a new step between building the graph and adding timestamps,
+they will have to override <code>addTimestamps</code> and put their step at the top before calling <code>super.addTimestamps</code>,
+which will make the code a lot harder to understand.</p>
+</div>
+<p>Before we move on,
+let's make sure that adding timestamps works as we want:</p>
+<div data-inc="add-stamps.sh"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>driver.js<span class="w"> </span>./add-stamps.js<span class="w"> </span>three-simple-rules.yml<span class="w"> </span>add-stamps.yml
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="add-stamps.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>[
+  'A: {"recipes":["update A from B and C"],"timestamp":2}',
+  'B: {"recipes":["update B from C"],"timestamp":5}',
+  'C: {"recipes":[],"timestamp":8}'
+]
+</code></pre></div>
+</div>
+<h2 id="build-manager-update">How can we update out-of-date files?</h2>
+<p>To figure out which recipes to execute and in which order,
+we set the pretended current time to the latest time of any file,
+then look at each file in topological order.
+If a file is older than any of its dependencies,
+we update the file <em>and</em> its pretended timestamp
+to trigger an update of anything that depends on it.</p>
+<p>We can pretend that updating a file always takes one unit of time,
+so we advance our fictional clock by one for each build.
+Using <code>graphlib.alg.topsort</code> to create the topological order,
+we get this:</p>
+<div data-inc="update-stamps.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">graphlib</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@dagrejs/graphlib'</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nx">AddTimestamps</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./add-stamps.js'</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nx">UpdateOnTimestamps</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">AddTimestamps</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">run</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">sorted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">graphlib</span><span class="p">.</span><span class="nx">alg</span><span class="p">.</span><span class="nx">topsort</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">startTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(...</span><span class="nx">sorted</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span>
+<span class="w">      </span><span class="nx">n</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">n</span><span class="p">).</span><span class="nx">timestamp</span><span class="p">))</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">startTime</span><span class="si">}</span><span class="sb">: START`</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">endTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">sorted</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">currTime</span><span class="p">,</span><span class="w"> </span><span class="nx">node</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">isStale</span><span class="p">(</span><span class="nx">node</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">currTime</span><span class="si">}</span><span class="sb">: </span><span class="si">${</span><span class="nx">node</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">node</span><span class="p">).</span><span class="nx">recipes</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span>
+<span class="w">          </span><span class="nx">a</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`    </span><span class="si">${</span><span class="nx">a</span><span class="si">}</span><span class="sb">`</span><span class="p">))</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">node</span><span class="p">).</span><span class="nx">timestamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">currTime</span>
+<span class="w">        </span><span class="nx">currTime</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">currTime</span>
+<span class="w">    </span><span class="p">},</span><span class="w"> </span><span class="nx">startTime</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">endTime</span><span class="si">}</span><span class="sb">: END`</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">isStale</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">predecessors</span><span class="p">(</span><span class="nx">node</span><span class="p">).</span><span class="nx">some</span><span class="p">(</span>
+<span class="w">      </span><span class="nx">other</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">other</span><span class="p">).</span><span class="nx">timestamp</span><span class="w"> </span><span class="o">&gt;=</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">node</span><span class="p">).</span><span class="nx">timestamp</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">UpdateOnTimestamps</span>
+</code></pre></div>
+</div>
+<p>The <code>run</code> method:</p>
+<ol>
+<li>
+<p>gets a sorted list of nodes;</p>
+</li>
+<li>
+<p>sets the starting time to be one unit past the largest file time;
+    and then</p>
+</li>
+<li>
+<p>uses <code>Array.reduce</code> to operate on each node (i.e., each file) in order.
+    If that file is stale,
+    we print the steps we would run and then update the file's timestamp.
+    We only advance the notional current time when we do an update.</p>
+</li>
+</ol>
+<p>To check if a file is stale,
+we see if any of its dependencies currently have timestamps greater than or equal to its own.
+When we run this,
+it seems to do the right thing:</p>
+<div data-inc="update-stamps.sh"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>driver.js<span class="w"> </span>./update-stamps.js<span class="w"> </span>three-simple-rules.yml<span class="w"> </span>add-stamps.yml
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="update-stamps.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>9: START
+9: B
+    update B from C
+10: A
+    update A from B and C
+11: END
+</code></pre></div>
+</div>
+<h2 id="build-manager-generic">How can we add generic build rules?</h2>
+<p>If our website has a hundred blog posts
+or a hundred pages of documentation about particular JavaScript files,
+we don't want to have to write a hundred nearly-identical recipes.
+Instead,
+we want to be able to write generic <a class="gl-ref" href="../glossary/#build_rule">build rules</a> that say,
+"Build all things of this kind the same way."
+These generic rules need:</p>
+<ul>
+<li>
+<p>a way to define a set of files;</p>
+</li>
+<li>
+<p>a way to specify a generic rule;
+    and</p>
+</li>
+<li>
+<p>a way to fill in parts of that rule.</p>
+</li>
+</ul>
+<p>We will achieve this by overriding <code>buildGraph</code> to replace variables in recipes with values.
+Once again,
+object-oriented programming helps us change only what we need to change,
+provided we divided our problem into sensible chunks in the first place.</p>
+<p>Make provides <a class="gl-ref" href="../glossary/#automatic_variable">automatic variables</a>
+with names like <code>$&lt;</code> and <code>$@</code>
+to represent the parts of a rule.
+Ours will be more readable:
+we will use <code>@TARGET</code> for the target,
+<code>@DEPENDENCIES</code> for the dependencies (in order),
+and <code>@DEP[1]</code>, <code>@DEP[2]</code>, and so on for specific dependencies
+(<a class="fig-ref" href="#f:build-manager-pattern-rules">Figure 4</a>).
+Our variable expander looks like this:</p>
+<div data-inc="variable-expander.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">UpdateOnTimestamps</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./update-stamps.js'</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nx">VariableExpander</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">UpdateOnTimestamps</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">buildGraph</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">super</span><span class="p">.</span><span class="nx">buildGraph</span><span class="p">()</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">expandVariables</span><span class="p">()</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">expandVariables</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">nodes</span><span class="p">().</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">target</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">predecessors</span><span class="p">(</span><span class="nx">target</span><span class="p">)</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">recipes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">target</span><span class="p">).</span><span class="nx">recipes</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">target</span><span class="p">).</span><span class="nx">recipes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">recipes</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">act</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">act</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">act</span>
+<span class="w">            </span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="s1">'@TARGET'</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="s1">'@DEPENDENCIES'</span><span class="p">,</span><span class="w"> </span><span class="nx">dependencies</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">' '</span><span class="p">))</span>
+<span class="w">          </span><span class="nx">dependencies</span><span class="p">.</span><span class="nx">forEach</span><span class="p">((</span><span class="nx">dep</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">act</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">act</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sb">`@DEP[</span><span class="si">${</span><span class="nx">i</span><span class="si">}</span><span class="sb">]`</span><span class="p">,</span><span class="w"> </span><span class="nx">dependencies</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span>
+<span class="w">          </span><span class="p">})</span>
+<span class="w">          </span><span class="k">return</span><span class="w"> </span><span class="nx">act</span>
+<span class="w">        </span><span class="p">})</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="sb">`Cannot find </span><span class="si">${</span><span class="nx">target</span><span class="si">}</span><span class="sb"> in graph`</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">process</span><span class="p">.</span><span class="nx">exit</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">VariableExpander</span>
+</code></pre></div>
+</div>
+<figure id="f:build-manager-pattern-rules">
+<img alt="Pattern rules" src="pattern-rules.svg"/>
+<figcaption>Figure 4: Turning patterns rules into runnable commands.</figcaption>
+</figure>
+<p>The first thing we do is test that it works when there <em>aren't</em> any variables to expand
+by running it on the same example we used previously:</p>
+<div data-inc="variable-expander.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>9: START
+9: B
+    update B from C
+10: A
+    update A from B C
+11: END
+</code></pre></div>
+</div>
+<p>This is perhaps the most important reason to create tests:
+they tell us right away if something we have added or changed
+has broken something that used to work.
+That gives us a firm base to build on as we debug the new code.</p>
+<p>Now we need to add <a class="gl-ref" href="../glossary/#pattern_rule">pattern rules</a>.
+Our first attempt at a rules file looks like this:</p>
+<div data-inc="pattern-rules.yml"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">left.out</span>
+<span class="w">  </span><span class="nt">depends</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">recipes</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">timestamp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">left.in</span>
+<span class="w">  </span><span class="nt">depends</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">recipes</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">timestamp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">right.out</span>
+<span class="w">  </span><span class="nt">depends</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">recipes</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">timestamp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">right.in</span>
+<span class="w">  </span><span class="nt">depends</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">recipes</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">timestamp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="s">"%.out"</span>
+<span class="w">  </span><span class="nt">depends</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"%.in"</span>
+<span class="w">  </span><span class="nt">recipes</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"update</span><span class="nv"> </span><span class="s">@TARGET</span><span class="nv"> </span><span class="s">from</span><span class="nv"> </span><span class="s">@DEPENDENCIES"</span>
+</code></pre></div>
+</div>
+<p>and our first attempt at reading it extracts rules before expanding variables:</p>
+<div data-inc="pattern-user-attempt.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">VariableExpander</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./variable-expander.js'</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nx">PatternUserAttempt</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">VariableExpander</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">buildGraph</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">super</span><span class="p">.</span><span class="nx">buildGraph</span><span class="p">()</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">extractRules</span><span class="p">()</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">expandVariables</span><span class="p">()</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">extractRules</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">rules</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Map</span><span class="p">()</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">nodes</span><span class="p">().</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">target</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">target</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s1">'%'</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">recipes</span><span class="o">:</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">target</span><span class="p">).</span><span class="nx">recipes</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">rules</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">target</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">)</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">rules</span><span class="p">.</span><span class="nx">forEach</span><span class="p">((</span><span class="nx">value</span><span class="p">,</span><span class="w"> </span><span class="nx">key</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">removeNode</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">PatternUserAttempt</span>
+</code></pre></div>
+</div>
+<p>However,
+that doesn't work:</p>
+<div data-inc="pattern-user-attempt.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>Build failed: AssertionError [ERR_ASSERTION]: Graph does not have node A
+    at PatternUserAttempt.addTimestamps \
+    (/u/stjs/build-manager/add-stamps.js:21:7)
+    at PatternUserAttempt.buildGraph \
+    (/u/stjs/build-manager/add-stamps.js:15:10)
+    at PatternUserAttempt.buildGraph \
+    (/u/stjs/build-manager/variable-expander.js:5:11)
+    at PatternUserAttempt.buildGraph \
+    (/u/stjs/build-manager/pattern-user-attempt.js:5:11)
+    at PatternUserAttempt.build \
+    (/u/stjs/build-manager/skeleton-builder.js:10:10)
+    at main (/u/stjs/build-manager/driver.js:5:13) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '=='
+}
+</code></pre></div>
+</div>
+<p>The problem is that our simple graph loader creates nodes for dependencies even if they aren't targets.
+As a result,
+we wind up tripping over the lack of a node for <code>%.in</code> before we get to extracting rules.</p>
+<div class="callout">
+<h3>Errors become assertions</h3>
+<p>When we first wrote <code>add-stamps.js</code>,
+it didn't contain the assertion
+that printed the error message shown above.
+Once we tracked down our bug,
+though,
+we added the assertion to ensure we didn't make the same mistake again,
+and as <a class="gl-ref" href="../glossary/#runnable_documentation">runnable documentation</a>
+to tell the next programmer more about the code.
+Regular code tells the computer what to do;
+assertions with meaningful error messages tell the reader why.</p>
+</div>
+<p>We can fix our problem by rewriting the rule loader
+to separate pattern rules from simple rules;
+we can tell the two apart by checking if the rule's dependencies include <code>%</code>.
+While we're here,
+we will enable timestamps as an optional field in the rules for testing purposes
+rather than having them in a separate file:</p>
+<div data-inc="pattern-user-read.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">assert</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'assert'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">graphlib</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@dagrejs/graphlib'</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nx">VariableExpander</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./variable-expander.js'</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nx">PatternUserRead</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">VariableExpander</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">buildGraph</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">buildGraphAndRules</span><span class="p">()</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">expandVariables</span><span class="p">()</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">buildGraphAndRules</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">graphlib</span><span class="p">.</span><span class="nx">Graph</span><span class="p">()</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">rules</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Map</span><span class="p">()</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">config</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">rule</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">rule</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s1">'%'</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">recipes</span><span class="o">:</span><span class="w"> </span><span class="nx">rule</span><span class="p">.</span><span class="nx">recipes</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">depends</span><span class="o">:</span><span class="w"> </span><span class="nx">rule</span><span class="p">.</span><span class="nx">depends</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">rules</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">rule</span><span class="p">.</span><span class="nx">target</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">)</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">timestamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="s1">'timestamp'</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">rule</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">rule</span><span class="p">.</span><span class="nx">timestamp</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">setNode</span><span class="p">(</span><span class="nx">rule</span><span class="p">.</span><span class="nx">target</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">recipes</span><span class="o">:</span><span class="w"> </span><span class="nx">rule</span><span class="p">.</span><span class="nx">recipes</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="nx">timestamp</span>
+<span class="w">        </span><span class="p">})</span>
+<span class="w">        </span><span class="nx">rule</span><span class="p">.</span><span class="nx">depends</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">dep</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">assert</span><span class="p">(</span><span class="o">!</span><span class="nx">dep</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s1">'%'</span><span class="p">),</span>
+<span class="w">            </span><span class="s1">'Cannot have "%" in a non-pattern rule'</span><span class="p">)</span>
+<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">setEdge</span><span class="p">(</span><span class="nx">dep</span><span class="p">,</span><span class="w"> </span><span class="nx">rule</span><span class="p">.</span><span class="nx">target</span><span class="p">)</span>
+<span class="w">        </span><span class="p">})</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">PatternUserRead</span>
+</code></pre></div>
+</div>
+<p>Before we run this,
+let's add methods to show the state of our data structures:</p>
+<div data-inc="pattern-user-show.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">graphlib</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@dagrejs/graphlib'</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nx">PatternUserRead</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./pattern-user-read.js'</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nx">PatternUserShow</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">PatternUserRead</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">run</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">toJSON</span><span class="p">(),</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">))</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">toJSON</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">graph</span><span class="o">:</span><span class="w"> </span><span class="nx">graphlib</span><span class="p">.</span><span class="nx">json</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">),</span>
+<span class="w">      </span><span class="nx">rules</span><span class="o">:</span><span class="w"> </span><span class="nb">Array</span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">rules</span><span class="p">.</span><span class="nx">keys</span><span class="p">()).</span><span class="nx">map</span><span class="p">(</span><span class="nx">key</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">k</span><span class="o">:</span><span class="w"> </span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">v</span><span class="o">:</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">rules</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<span class="w">      </span><span class="p">})</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">PatternUserShow</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="pattern-user-show.sh"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>driver.js<span class="w"> </span>./pattern-user-show.js<span class="w"> </span>pattern-rules.yml
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="pattern-user-show.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>{
+  "graph": {
+    "options": {
+      "directed": true,
+      "multigraph": false,
+      "compound": false
+    },
+    "nodes": [
+      {
+        "v": "left.out",
+        "value": {
+          "recipes": [],
+          "timestamp": 1
+        }
+      },
+      {
+        "v": "left.in",
+        "value": {
+          "recipes": [],
+          "timestamp": 2
+        }
+      },
+      {
+        "v": "right.out",
+        "value": {
+          "recipes": [],
+          "timestamp": 1
+        }
+      },
+      {
+        "v": "right.in",
+        "value": {
+          "recipes": [],
+          "timestamp": 3
+        }
+      }
+    ],
+    "edges": []
+  },
+  "rules": [
+    {
+      "k": "%.out",
+      "v": {
+        "recipes": [
+          "update @TARGET from @DEPENDENCIES"
+        ],
+        "depends": [
+          "%.in"
+        ]
+      }
+    }
+  ]
+}
+</code></pre></div>
+</div>
+<p>The output seems to be right,
+so let's try expanding rules <em>after</em> building the graph and rules
+but <em>before</em> expanding variables:</p>
+<div data-inc="pattern-user-run.js"><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">PatternUserRead</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./pattern-user-read.js'</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nx">PatternUserRun</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">PatternUserRead</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">buildGraph</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">buildGraphAndRules</span><span class="p">()</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">expandAllRules</span><span class="p">()</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">expandVariables</span><span class="p">()</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">expandAllRules</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">nodes</span><span class="p">().</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">target</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">predecessors</span><span class="p">(</span><span class="nx">target</span><span class="p">).</span><span class="nx">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">target</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">recipes</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">rule</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">findRule</span><span class="p">(</span><span class="nx">target</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">rule</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="nx">expandRule</span><span class="p">(</span><span class="nx">target</span><span class="p">,</span><span class="w"> </span><span class="nx">rule</span><span class="p">)</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">findRule</span><span class="w"> </span><span class="p">(</span><span class="nx">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">pattern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`%.</span><span class="si">${</span><span class="nx">target</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">'.'</span><span class="p">)[</span><span class="mf">1</span><span class="p">]</span><span class="si">}</span><span class="sb">`</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">rules</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">pattern</span><span class="p">)</span>
+<span class="w">      </span><span class="o">?</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">rules</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">pattern</span><span class="p">)</span>
+<span class="w">      </span><span class="o">:</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">expandRule</span><span class="w"> </span><span class="p">(</span><span class="nx">target</span><span class="p">,</span><span class="w"> </span><span class="nx">rule</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">stem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">target</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">'.'</span><span class="p">)[</span><span class="mf">0</span><span class="p">]</span>
+<span class="w">    </span><span class="nx">rule</span><span class="p">.</span><span class="nx">depends</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">dep</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">dep</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="s1">'%'</span><span class="p">,</span><span class="w"> </span><span class="nx">stem</span><span class="p">))</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">dep</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">setEdge</span><span class="p">(</span><span class="nx">dep</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="p">))</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">recipes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">rule</span><span class="p">.</span><span class="nx">recipes</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">act</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">act</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="s1">'%'</span><span class="p">,</span><span class="w"> </span><span class="nx">stem</span><span class="p">))</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">timestamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">node</span><span class="p">(</span><span class="nx">target</span><span class="p">).</span><span class="nx">timestamp</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">graph</span><span class="p">.</span><span class="nx">setNode</span><span class="p">(</span><span class="nx">target</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">recipes</span><span class="o">:</span><span class="w"> </span><span class="nx">recipes</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="nx">timestamp</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">PatternUserRun</span>
+</code></pre></div>
+</div>
+<p class="continuation"></p>
+<div data-inc="pattern-user-run.out"><div class="codehilite"><pre class="" tabindex="0"><span></span><code>4: START
+4: left.out
+    update left.out from left.in
+5: right.out
+    update right.out from right.in
+6: END
+</code></pre></div>
+</div>
+<h2 id="build-manager-next">What should we do next?</h2>
+<p>We have added a lot of steps to our original template method,
+which makes it a bit of a stretch to claim that the overall operation hasn't changed.
+Knowing what we know now,
+we could go back and modify the original <code>SkeletonBuilder.build</code> method
+to include those extra steps and provide do-nothing implementations.</p>
+<p>The root of the problem is that we didn't anticipate all the steps that would be involved
+when we wrote our template method.
+It typically takes a few child classes for this to settle down;
+if it never does,
+then Template Method is probably the wrong pattern for our situation.
+This isn't a failure in initial design:
+we always learn about our problem as we try to capture it in code,
+and if we know enough to anticipate 100% of the issues that are going to come up,
+it's time to put what we've learned in a library for future use.</p>
+<section aria-label="Exercises" class="exercises">
+<h2 id="build-manager-exercises">Exercises</h2>
+<h3>Handle failure</h3>
+<ol>
+<li>
+<p>Modify the build manager to accommodate build steps that fail.</p>
+</li>
+<li>
+<p>Write Mocha tests to check that this change works correctly.</p>
+</li>
+</ol>
+<h3>Dry run</h3>
+<p>Add an option to the build manager to show what commands would be executed and why
+if a build were actually run.
+For example,
+the output should display things like, "'update A' because A older than B".</p>
+<h3>Change directories</h3>
+<p>Modify the build manager so that:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code>node<span class="w"> </span>build.js<span class="w"> </span>-C<span class="w"> </span>some/sub/directory<span class="w"> </span>rules.yml<span class="w"> </span>timestamps.yml
+</code></pre></div>
+<p>runs the build in the specified directory rather than the current directory.</p>
+<h3>Merge files</h3>
+<p>Modify the build manager so that it can read multiple configuration files
+and execute their combined rules.</p>
+<h3>Show recipes</h3>
+<p>Add a method to build manager to display all unique recipes,
+i.e.,
+all of the commands it might execute if asked to rebuild everything.</p>
+<h3>Conditional execution</h3>
+<p>Modify the build manager so that:</p>
+<ol>
+<li>
+<p>The user can pass <code>variable=true</code> and <code>variable=false</code> arguments on the command-line
+    to define variables.</p>
+</li>
+<li>
+<p>Rules can contain an <code>if: variable</code> field.</p>
+</li>
+<li>
+<p>Those rules are only executed if the variable is defined and true.</p>
+</li>
+<li>
+<p>Write Mocha tests to check that this works correctly.</p>
+</li>
+</ol>
+<h3>Define filesets</h3>
+<p>Modify the build manager so that users can define sets of files:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="n">fileset</span><span class="o">:</span>
+<span class="w">  </span><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="n">everything</span>
+<span class="w">  </span><span class="n">contains</span><span class="o">:</span>
+<span class="w">    </span><span class="o">-</span><span class="w"> </span><span class="n">X</span>
+<span class="w">    </span><span class="o">-</span><span class="w"> </span><span class="n">Y</span>
+<span class="w">    </span><span class="o">-</span><span class="w"> </span><span class="n">Z</span>
+</code></pre></div>
+<p>and then refer to them later:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="o">-</span><span class="w"> </span><span class="nl">target</span><span class="p">:</span><span class="w"> </span><span class="n">P</span>
+<span class="w">  </span><span class="nl">depends</span><span class="p">:</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="nv">@everything</span>
+</code></pre></div>
+<h3>Globbing</h3>
+<p>Modify the build manager so that it can dynamically construct a set of files:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="n">glob</span><span class="o">:</span>
+<span class="w">  </span><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="n">allAvailableInputs</span>
+<span class="w">  </span><span class="n">pattern</span><span class="o">:</span><span class="w"> </span><span class="s2">"./*.in"</span>
+</code></pre></div>
+<p>and then refer to them later:</p>
+<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="o">-</span><span class="w"> </span><span class="nl">target</span><span class="p">:</span><span class="w"> </span><span class="n">P</span>
+<span class="w">  </span><span class="nl">depends</span><span class="p">:</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="nv">@allAvailableInputs</span>
+</code></pre></div>
+<h3>Use hashes</h3>
+<ol>
+<li>
+<p>Write a program called <code>build-init.js</code> that calculates a hash
+    for every file mentioned in the build configuration
+    and stores the hash along with the file's name in <code>build-hash.json</code>.</p>
+</li>
+<li>
+<p>Modify the build manager to compare the current hashes of files
+    with those stored in <code>build-hash.json</code>
+    in order to determine what is out of date,
+    and to update <code>build-hash.json</code> each time it runs.</p>
+</li>
+</ol>
+<h3>Auxiliary functions</h3>
+<ol>
+<li>
+<p>Modify the builder manager so that it takes an extra argument <code>auxiliaries</code>
+    containing zero or more named functions:</p>
+<p><code>js
+const builder = new ExtensibleBuilder(configFile, timesFile, {
+  slice: (node, graph) =&gt; simplify(node, graph, 1)
+})</code></p>
+</li>
+<li>
+<p>Modify the <code>run</code> method to call these functions
+    before executing the rules for a node,
+    and to only execute the rules if all of them return <code>true</code>.</p>
+</li>
+<li>
+<p>Write Mocha tests to check that this works correctly.</p>
+</li>
+</ol>
+</section>
+</main>
+<footer aria-label="Page navigation">
+<div class="row">
+<div class="col-3 left">
+<span aria-hidden="true">⇐</span> <a href="../templater/">Page Templates</a>
+</div>
+<div class="col-6 center">
+<a href="../">Software Design by Example</a>
+	  ©
+	  <a href="../#acknowledgments">the authors</a>
+</div>
+<div class="col-3 right">
+<a href="../layout/">Layout Engine</a> <span aria-hidden="true">⇒</span>
+</div>
+</div>
+</footer>
+</body>
+</html>

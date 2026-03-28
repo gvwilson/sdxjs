@@ -2,7 +2,7 @@
 title: "Conclusion"
 ---
 
-We have come a long way since we listed the contents of a directory in [%x systems-programming %].
+We have come a long way since we listed the contents of a directory in [%x sysprog %].
 Saving files in version control,
 making sure code meets style rules,
 debugging it and bundling it (hopefully in that order)---programmers do these things every day,
