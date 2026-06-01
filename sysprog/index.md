@@ -48,12 +48,12 @@ because we're going to be doing that a lot.
 ## How can we list a directory? {: #systems-programming-ls}
 
 To start,
-let's try listing the contents of a directory the way we would in [Python][python]
+let's try listing the contents of a [%g directory "directory" %] the way we would in [Python][python]
 or [Java][java]:
 
 [%inc list-dir-wrong.js %]
 
-We use <code>import <em>module</em> from 'source'</code> to load the library <code><em>source</em></code>
+We use <code>import <em>module</em> from 'source'</code> to load the [%g library "library" %] <code><em>source</em></code>
 and assign its contents to <code><em>module</em></code>.
 After that,
 we can refer to things in the library using <code><em>module.component</em></code>
@@ -68,7 +68,7 @@ we will take advantage of this in future chapters.
 ### `require` versus `import`
 
 In 2015, a new version of JavaScript called ES6 introduced
-the keyword `import` for importing modules.
+the keyword `import` for [%g import "importing" %] [%g module "modules" %].
 It improves on the older `require` function in several ways,
 but Node still uses `require` by default.
 To tell it to use `import`,
@@ -84,13 +84,13 @@ which Node automatically stores in an array called `process.argv`.
 The name of the program used to run our code is stored `process.argv[0]` (which in this case is `node`),
 while `process.argv[1]` is the name of our program (in this case `list-dir-wrong.js`).
 The rest of `process.argv` holds whatever arguments we gave at the command line when we ran the program,
-so `process.argv[2]` is the first argument after the name of our program ([%f systems-programming-process-argv %]).
+so `process.argv[2]` is the first [%g argument "argument" %] after the name of our program ([%f systems-programming-process-argv %]).
 
 [%figure slug=systems-programming-process-argv img=process-argv.svg alt="Command-line arguments in `process.argv`" caption="How Node stores command-line arguments in <code>process.argv</code>." %]
 
 
 If we run this program with the name of a directory as its argument,
-`fs.readdir` returns the names of the things in that directory as an array of strings.
+`fs.readdir` returns the names of the things in that directory as an array of [%g string "strings" %].
 The program uses `for (const name of results)` to loop over the contents of that array.
 We could use `let` instead of `const`,
 but it's good practice to declare things as `const` wherever possible
@@ -123,7 +123,7 @@ so we need to explore those in order to make our program work.
 
 ### A theorem
 
-1.  Every program contains at least one bug.
+1.  Every program contains at least one [%g bug "bug" %].
 2.  Every program can be made one line shorter.
 3.  Therefore, every program can be reduced to a single statement which is wrong.
 

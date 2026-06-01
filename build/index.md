@@ -17,7 +17,7 @@ like C and Java
 have to be translated into lower-level forms before they can run.
 In fact,
 there are usually two stages to the translation:
-compiling each source file into some intermediate form,
+[%g compile "compiling" %] each source file into some intermediate form,
 and then [%g link "linking" %] the compiled modules
 to each other and to libraries
 to create a runnable program
@@ -56,7 +56,7 @@ each of which has:
 The target of one rule can be a dependency of another rule,
 so the relationships between the files form a [%g dag "directed acyclic graph" %] or DAG
 ([%f build-manager-dependencies %]).
-The graph is directed because "A depends on B" is a one-way relationship;
+The [%g graph "graph" %] is directed because "A depends on B" is a one-way relationship;
 it cannot contain cycles (or loops) because
 if something depends on itself we can never finish updating it.
 We say that a target is [%g build_stale "stale" %] if it is older than any of its dependencies.
@@ -70,7 +70,7 @@ Our build manager must:
 
 1.  Read a file containing rules.
 
-1.  Construct the dependency graph.
+1.  Construct the [%g dependency_graph "dependency graph" %].
 
 1.  Figure out which targets are stale.
 
@@ -132,8 +132,8 @@ without actually implementing any of them:
 
 This is an example of
 the [%g template_method_pattern "Template Method" %] design pattern:
-the parent class defines the order of the steps
-and child classes fill them in
+the [%g parent_class "parent class" %] defines the order of the steps
+and [%g child_class "child classes" %] fill them in
 ([%f build-manager-template-method %]).
 This design pattern ensures that every child does the same things in the same order,
 even if the details of *how* vary from case to case.
@@ -196,7 +196,7 @@ Make does this by comparing the timestamps of the files in question,
 but this isn't always reliable because
 computers' clocks may be slightly out of sync,
 which can produce a wrong answer on a networked filesystem,
-and the operating system may only report file update times to the nearest millisecond
+and the [%g operating_system "operating system" %] may only report file update times to the nearest millisecond
 (which seemed very short in 1970 but seems very long today).
 
 More modern build systems store a hash of each file's contents
@@ -288,7 +288,7 @@ These generic rules need:
 
 We will achieve this by overriding `buildGraph` to replace variables in recipes with values.
 Once again,
-object-oriented programming helps us change only what we need to change,
+[%g oop "object-oriented programming" %] helps us change only what we need to change,
 provided we divided our problem into sensible chunks in the first place.
 
 

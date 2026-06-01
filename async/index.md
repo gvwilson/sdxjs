@@ -110,7 +110,7 @@ Once this task resumes,
 we call the `resolve` callback to trigger whatever is supposed to happen after the delay.
 
 Now look at the line with `then`.
-This is a [%g method "method" %] of the `Pledge` object we just created,
+This is a [%g method "method" %] of the `Pledge` [%g object "object" %] we just created,
 and its job is to do whatever we want to do after the delay.
 The argument to `then` is yet another callback function;
 it will get the value passed to `resolve`,
@@ -265,7 +265,7 @@ we can call a method of the second object immediately.
 
 We therefore have three rules for chaining promises:
 
-1.  If our code can run synchronously, just put it in `then`.
+1.  If our code can run [%g synchronous "synchronously" %], just put it in `then`.
 
 1.  If we want to use our own asynchronous function,
     it must create and return a promise.
@@ -323,7 +323,7 @@ However,
 we want to display the names of the files whose lines we're counting along with the counts.
 To do this our `then` must return two values.
 We could put them in an array,
-but it's better practice to construct a temporary object with named fields
+but it's better practice to construct a temporary object with named [%g field "fields" %]
 ([%f async-programming-temporary-named-fields %]).
 This approach allows us to add or rearrange fields without breaking code
 and also serves as a bit of documentation.
@@ -408,7 +408,7 @@ but the result is less cluttered than our previous version.
 ## How can we handle errors with asynchronous code? {: #async-programming-errors}
 
 We created several intermediate variables in the line-counting program to make the steps clearer.
-Doing this also helps with error handling;
+Doing this also helps with [%g error_handling "error handling" %];
 to see how,
 we will build up an example in stages.
 

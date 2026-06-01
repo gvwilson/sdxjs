@@ -108,7 +108,7 @@ the name comes from the era of newspapers,
 where a slug was a short name used to identify an article while it was in production.
 Our `slugify` function strips unnecessary characters out of a title,
 adds hyphens,
-and generally makes it something you might see in a URL:
+and generally makes it something you might see in a [%g url "URL" %]:
 
 [%inc slugify.js %]
 

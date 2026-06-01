@@ -197,7 +197,7 @@ we might include a particular file in several different places.
 We don't want to have to put all of our files in a single directory,
 so we need a way to specify where to look for files that are being included.
 
-One option is to use relative paths,
+One option is to use [%g relative_path "relative paths" %],
 but another option is to give our program
 a list of directories to look in.
 This is called a [%g search_path "search path" %],

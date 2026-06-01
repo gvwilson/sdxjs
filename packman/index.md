@@ -4,7 +4,7 @@ title: "Package Manager"
 
 There is no point building software if you can't install it.
 Inspired by the Comprehensive TeX Archive Network [CTAN][ctan],
-most languages now have an online archive from which developers can download packages.
+most languages now have an online archive from which developers can download [%g package "packages" %].
 Each package typically has a name and one or more version(s);
 each version may have a list of dependencies,
 and the package may specify a version or range of versions for each dependency.

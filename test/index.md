@@ -91,7 +91,7 @@ the function `main` runs all registered tests:
 If a test completes without an exception, it passes.
 If any of the `assert` calls inside the test raises an `AssertionError`,
 the test fails,
-and if it raises any other exception,
+and if it [%g raise_exception "raises" %] any other exception,
 it's an error.
 After all tests are run,
 `main` reports the number of results of each kind.
@@ -130,7 +130,7 @@ As an extra benefit,
 if we decide later that we need several copies of those variables,
 we can just construct more instances of the class.
 
-The file `hope.js` defines the class and exports one instance of it:
+The file `hope.js` defines the class and exports one [%g instance "instance" %] of it:
 
 [%inc hope.js omit=report %]
 
@@ -212,8 +212,8 @@ and then calls `Hope.run` to execute them.
 It works,
 but sooner or later (probably sooner) someone will forget to import one of the test files.
 
-
-A better strategy is to load test files [%g dynamic_loading "dynamically" %].
+A better strategy for creating a [%g cli "command-line interface" %]
+is to load test files [%g dynamic_loading "dynamically" %].
 While `import` is usually written as a statement,
 it can also be used as an `async` function
 that takes a path as a parameter and loads the corresponding file.
@@ -293,7 +293,7 @@ when a pair of files `test-add.js` and `test-sub.js` are loaded by our framework
 8.   …which loads `Hope`…
 9.   …then registers a test.
 10.  `pray` can now ask the unique instance of `Hope` to run all of the tests,
-     then get a report from the `Hope` singleton and display it.
+     then get a report from the `Hope` [%g singleton "singleton" %] and display it.
 
 [%figure slug=unit-test-lifecycle img=lifecycle.svg alt="Unit testing lifecycle" caption="Lifecycle of dynamically-discovered unit tests." %]
 

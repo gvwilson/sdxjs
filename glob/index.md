@@ -17,7 +17,7 @@ so we will start by looking at them.
 ## How can we match query selectors? {: #pattern-matching-selectors}
 
 Programs stores HTML pages in memory using a [%g dom "document object model" %] or DOM.
-Each element in the page,
+Each [%g element "element" %] in the page,
 such as a heading and or paragraph,
 is a [%g node "node" %];
 the [%g child_tree "children" %] of a node are the elements it contains
@@ -50,7 +50,7 @@ until all the selectors in the query string have matched or no matches have been
 
 The `firstMatch` function handles three cases:
 
-1.  This node isn't an element, i.e., it is plain text or a comment.
+1.  This node isn't an element, i.e., it is plain text or a [%g comment "comment" %].
     This can't match a selector, and these nodes don't have children,
     so the function returns `null` to indicate that matching has failed.
 

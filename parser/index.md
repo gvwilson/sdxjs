@@ -68,7 +68,7 @@ This classification guides the design of our parser:
     based on where they appear.
 
 We can translate these rules almost directly into code
-to create a list of objects whose keys are `kind` and `loc` (short for location),
+to create a [%g list "list" %] of objects whose keys are `kind` and `loc` (short for location),
 with the extra key `value` for literal values:
 
 [%inc tokenizer-collapse.js omit=combine %]

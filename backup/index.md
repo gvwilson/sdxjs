@@ -27,7 +27,7 @@ we need a way to tell when two files contain the same data.
 We can't rely on names because files can be renamed or moved over time;
 we could compare the files byte-by-byte,
 but a quicker way is to use a [%g hash_function "hash function" %]
-that turns arbitrary data into a fixed-length string of bits
+that turns arbitrary data into a fixed-length string of [%g bit "bits" %]
 ([%f file-backup-hash-function %]).
 
 [%figure slug=file-backup-hash-function img=hash-function.svg alt="Hash functions" caption="How hash functions speed up lookup." %]

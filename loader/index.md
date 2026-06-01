@@ -17,7 +17,7 @@ which contains a lot of other useful information as well.
 
 A [%g namespace "namespace" %] is a collection of names in a program
 that are isolated from other namespaces.
-Most modern languages provide namespaces as a built-in feature
+Most modern languages provide namespaces as a built-in [%g feature_software "feature" %]
 so that programmers don't accidentally step on each other's toes.
 JavaScript doesn't,
 so we have to implement them ourselves.
@@ -143,7 +143,7 @@ Loading fails when we run `major.py` from the command line:
 
 [%inc checking/py-command-line.out %]
 
-but works in the interactive interpreter:
+but works in the interactive [%g interpreter "interpreter" %]:
 
 
 [%inc checking/py-interactive.out %]

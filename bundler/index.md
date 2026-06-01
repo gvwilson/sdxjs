@@ -239,7 +239,7 @@ and then load the result and call `initialize`:
 
 ## How can files access each other? {: #module-bundler-access}
 
-The code we have built so far has not created our exports;
+The code we have built so far has not created our [%g export "exports" %];
 instead,
 it has built a lookup table of functions that can create what we asked for.
 More specifically we have:
@@ -265,7 +265,7 @@ it actually needs four things:
 the argument to the user's `require` call,
 the absolute path of the file making the call,
 and the two lookup tables described above.
-Those two tables can't be global variables because of possible name collisions:
+Those two tables can't be global variables because of possible [%g name_collision "name collisions" %]:
 no matter what we call them,
 the user might have given a variable the same name.
 

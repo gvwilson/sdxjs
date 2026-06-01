@@ -119,7 +119,7 @@ We don't just want to collect nodes:
 we want to check their properties against a set of rules.
 One way to do this would be to call `walk.simple` once for each rule,
 passing it a function that checks just that rule.
-Another way---the one we'll use---is to write a generic function
+Another way---the one we'll use---is to write a [%g generic_function "generic function" %]
 that checks a rule and records any nodes that don't satisfy it,
 and then call that function once for each rule inside our `Identifier` handler.
 This may seem like extra work,

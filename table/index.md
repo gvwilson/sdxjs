@@ -10,7 +10,7 @@ how can we tell which of several designs is going to be the most efficient?
 
 The best answer is to conduct some experiments.
 To see how to do this,
-we will take a look at several ways to implement data tables
+we will take a look at several ways to implement [%g table "data tables" %]
 with one or more named columns and zero or more rows.
 Each row has one value for each column,
 and all the values in a column have the same type
@@ -85,7 +85,7 @@ we write `filter` and `select` for tables laid out this way.
 We need to provide a callback function to `filter` to determine which rows to keep
 like the callback for `Array.filter`;
 for selecting columns,
-we provide a list of the keys that identify the columns we want to keep.
+we provide a list of the [%g key "keys" %] that identify the columns we want to keep.
 We expect filtering to be relatively fast,
 since it is recycling rows,
 while selecting should be relatively slow because we have to construct a new set of arrays
@@ -443,7 +443,7 @@ and [%g pad_string "pad" %] strings that are shorter than that.
 Fixed-width storage is inefficient for large blocks of text
 such as contracts, novels, and resumés,
 since padding every document to the length of the longest will probably waste a lot of space.
-An alternative way to store these in binary is to save each entry as a (length, text) pair.
+An alternative way to store these in [%g binary "binary" %] is to save each entry as a (length, text) pair.
 
 1.  Write a function that takes a list of strings as input
     and returns an `ArrayBuffer` containing (length, text) pairs.
@@ -455,7 +455,7 @@ An alternative way to store these in binary is to save each entry as a (length, 
 
 ### ASCII storage 
 
-The original ASCII standard specified
+The original [%g ascii "ASCII" %] standard specified
 a 7-bit character encoding for letters commonly used in English,
 and many data files still only use characters whose numeric codes are in the range 0--127.
 

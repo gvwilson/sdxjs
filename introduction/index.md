@@ -54,7 +54,7 @@ Like these three personas, readers should be able to:
 
 -   Write JavaScript programs using loops, arrays, functions, and classes.
 
--   Create static web pages using HTML and CSS.
+-   Create static web pages using [%g html "HTML" %] and [%g css "CSS" %].
 
 -   Install Node on their computer
     and run programs with it from the command line.
@@ -62,7 +62,7 @@ Like these three personas, readers should be able to:
 -   Use [Git][git] to save and share files.
     (It's OK not to know [the more obscure commands][git_man_page_generator].)
 
--   Explain what a tree is and how to process one recursively.
+-   Explain what a [%g tree "tree" %] is and how to process one recursively.
     (This is the most complicated data structure and algorithm we *don't* explain.)
 
 This book can be read on its own or used as a classroom resource.
@@ -99,7 +99,7 @@ We display JavaScript source code like this:
 
 [%inc example.js %]
 
-Unix shell commands are shown like this:
+Unix [%g shell "shell" %] commands are shown like this:
 
 
 [%inc example.sh %]
@@ -121,7 +121,7 @@ we write functions as `functionName` rather than `functionName()`;
 the latter is more common,
 but people don't use `objectName{}` for objects or `arrayName[]` for arrays,
 and the empty parentheses makes it hard to tell
-whether we're talking about "the function itself" or "a call to the function with no parameters".
+whether we're talking about "the function itself" or "a call to the function with no [%g parameter "parameters" %]".
 
 ## How did we get here? {: #introduction-history}
 
