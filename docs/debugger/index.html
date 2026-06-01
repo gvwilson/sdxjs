@@ -609,7 +609,30 @@ then provides input when asked and checks output when it is given
 <figcaption>Figure 2: Replacing input and output to test interactive applications.</figcaption>
 </figure>
 <p>The results look like this:</p>
-<div data-inc="test/test-expect.js" data-mark="tests"><span aria-label="Source: debugger/test/test-expect.js" class="inc-path" role="img" tabindex="0" title="debugger/test/test-expect.js">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code>
+<div data-inc="test/test-expect.js" data-mark="tests"><span aria-label="Source: debugger/test/test-expect.js" class="inc-path" role="img" tabindex="0" title="debugger/test/test-expect.js">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="nx">describe</span><span class="p">(</span><span class="s1">'interactive debugger'</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">'runs and prints'</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">done</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">setup</span><span class="p">(</span><span class="s1">'print-0.json'</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'[1 ?clnprsvx] '</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="s1">'r'</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'&gt;&gt; 0'</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">run</span><span class="p">()</span>
+<span class="w">    </span><span class="nx">done</span><span class="p">()</span>
+<span class="w">  </span><span class="p">})</span>
+
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">'breaks and resumes'</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">done</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">setup</span><span class="p">(</span><span class="s1">'print-3.json'</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'[1 ?clnprsvx] '</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="s1">'s 3'</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'[1 ?clnprsvx] '</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="s1">'r'</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'&gt;&gt; 0'</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'&gt;&gt; 1'</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'[3 ?clnprsvx] '</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="s1">'x'</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">run</span><span class="p">()</span>
+<span class="w">    </span><span class="nx">done</span><span class="p">()</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="p">})</span>
 </code></pre></div>
 </div>
 <p>Our <code>Expect</code> class may be short,
@@ -709,7 +732,17 @@ keeping in mind that the prompt counts as an output
 <p>Again,
 we can't pass the tester as a constructor parameter because of initialization order,
 so we write a <code>setup</code> function to make sure everything is connected the right way:</p>
-<div data-inc="test/test-expect.js" data-mark="setup"><span aria-label="Source: debugger/test/test-expect.js" class="inc-path" role="img" tabindex="0" title="debugger/test/test-expect.js">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code>
+<div data-inc="test/test-expect.js" data-mark="setup"><span aria-label="Source: debugger/test/test-expect.js" class="inc-path" role="img" tabindex="0" title="debugger/test/test-expect.js">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">Expect</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'../expect.js'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">VM</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'../vm-interactive.js'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">Debugger</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'../debugger-test.js'</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">readSource</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'../read-source.js'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">setup</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">filename</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">readSource</span><span class="p">(</span><span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">'debugger/test'</span><span class="p">,</span><span class="w"> </span><span class="nx">filename</span><span class="p">))</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">dbg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Debugger</span><span class="p">()</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">vm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">VM</span><span class="p">(</span><span class="nx">lines</span><span class="p">,</span><span class="w"> </span><span class="nx">dbg</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Expect</span><span class="p">(</span><span class="nx">dbg</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">vm</span><span class="p">.</span><span class="nx">run</span><span class="p">())</span>
+<span class="p">}</span>
 </code></pre></div>
 </div>
 <p>Let's try running our tests:</p>

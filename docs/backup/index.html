@@ -699,11 +699,109 @@ nothing in our application needs to change either.</p>
 <p>The tests for this are more complicated than tests we have written previously
 because we want to check with actual file hashes.
 Let's set up some fixtures to run tests on:</p>
-<div data-inc="test/test-backup.js" data-mark="fixtures"><span aria-label="Source: backup/test/test-backup.js" class="inc-path" role="img" tabindex="0" title="backup/test/test-backup.js">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code>
+<div data-inc="test/test-backup.js" data-mark="fixtures"><span aria-label="Source: backup/test/test-backup.js" class="inc-path" role="img" tabindex="0" title="backup/test/test-backup.js">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">backup</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'../backup.js'</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">hashString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">hasher</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">crypto</span><span class="p">.</span><span class="nx">createHash</span><span class="p">(</span><span class="s1">'sha1'</span><span class="p">).</span><span class="nx">setEncoding</span><span class="p">(</span><span class="s1">'hex'</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">hasher</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">hasher</span><span class="p">.</span><span class="nx">end</span><span class="p">()</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">hasher</span><span class="p">.</span><span class="nx">read</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">Contents</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">aaa</span><span class="o">:</span><span class="w"> </span><span class="s1">'AAA'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">bbb</span><span class="o">:</span><span class="w"> </span><span class="s1">'BBB'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">ccc</span><span class="o">:</span><span class="w"> </span><span class="s1">'CCC'</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">Hashes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">Contents</span><span class="p">).</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">obj</span><span class="p">,</span><span class="w"> </span><span class="nx">key</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">obj</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">hashString</span><span class="p">(</span><span class="nx">Contents</span><span class="p">[</span><span class="nx">key</span><span class="p">])</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">obj</span>
+<span class="p">},</span><span class="w"> </span><span class="p">{})</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">Fixture</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">source</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="s1">'alpha.txt'</span><span class="o">:</span><span class="w"> </span><span class="nx">Contents</span><span class="p">.</span><span class="nx">aaa</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'beta.txt'</span><span class="o">:</span><span class="w"> </span><span class="nx">Contents</span><span class="p">.</span><span class="nx">bbb</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">gamma</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="s1">'delta.txt'</span><span class="o">:</span><span class="w"> </span><span class="nx">Contents</span><span class="p">.</span><span class="nx">ccc</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">backup</span><span class="o">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">InitialBackups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">Hashes</span><span class="p">).</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">set</span><span class="p">,</span><span class="w"> </span><span class="nx">filename</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">set</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="sb">`backup/</span><span class="si">${</span><span class="nx">Hashes</span><span class="p">[</span><span class="nx">filename</span><span class="p">]</span><span class="si">}</span><span class="sb">.bck`</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">set</span>
+<span class="p">},</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Set</span><span class="p">())</span>
 </code></pre></div>
 </div>
 <p>and then run some tests:</p>
-<div data-inc="test/test-backup.js" data-mark="tests"><span aria-label="Source: backup/test/test-backup.js" class="inc-path" role="img" tabindex="0" title="backup/test/test-backup.js">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code>
+<div data-inc="test/test-backup.js" data-mark="tests"><span aria-label="Source: backup/test/test-backup.js" class="inc-path" role="img" tabindex="0" title="backup/test/test-backup.js">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="nx">describe</span><span class="p">(</span><span class="s1">'check entire backup process'</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">beforeEach</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">mock</span><span class="p">(</span><span class="nx">Fixture</span><span class="p">)</span>
+<span class="w">  </span><span class="p">})</span>
+
+<span class="w">  </span><span class="nx">afterEach</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">mock</span><span class="p">.</span><span class="nx">restore</span><span class="p">()</span>
+<span class="w">  </span><span class="p">})</span>
+
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">'creates an initial CSV manifest'</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">backup</span><span class="p">(</span><span class="s1">'source'</span><span class="p">,</span><span class="w"> </span><span class="s1">'backup'</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span>
+
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">'backup/*'</span><span class="p">)).</span><span class="nx">length</span><span class="p">,</span><span class="w"> </span><span class="mf">4</span><span class="p">,</span>
+<span class="w">      </span><span class="s1">'Expected 4 files'</span><span class="p">)</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actualBackups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Set</span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">'backup/*.bck'</span><span class="p">))</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">actualBackups</span><span class="p">,</span><span class="w"> </span><span class="nx">InitialBackups</span><span class="p">,</span>
+<span class="w">      </span><span class="s1">'Expected 3 backup files'</span><span class="p">)</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actualManifests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">'backup/*.csv'</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">actualManifests</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s1">'backup/0000000000.csv'</span><span class="p">],</span>
+<span class="w">      </span><span class="s1">'Expected one manifest'</span><span class="p">)</span>
+<span class="w">  </span><span class="p">})</span>
+
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">'does not duplicate files unnecessarily'</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">backup</span><span class="p">(</span><span class="s1">'source'</span><span class="p">,</span><span class="w"> </span><span class="s1">'backup'</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">'backup/*'</span><span class="p">)).</span><span class="nx">length</span><span class="p">,</span><span class="w"> </span><span class="mf">4</span><span class="p">,</span>
+<span class="w">      </span><span class="s1">'Expected 4 files after first backup'</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">backup</span><span class="p">(</span><span class="s1">'source'</span><span class="p">,</span><span class="w"> </span><span class="s1">'backup'</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">'backup/*'</span><span class="p">)).</span><span class="nx">length</span><span class="p">,</span><span class="w"> </span><span class="mf">5</span><span class="p">,</span>
+<span class="w">      </span><span class="s1">'Expected 5 files after second backup'</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actualBackups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Set</span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">'backup/*.bck'</span><span class="p">))</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">actualBackups</span><span class="p">,</span><span class="w"> </span><span class="nx">InitialBackups</span><span class="p">,</span>
+<span class="w">      </span><span class="s1">'Expected 3 backup files after second backup'</span><span class="p">)</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actualManifests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">'backup/*.csv'</span><span class="p">)).</span><span class="nx">sort</span><span class="p">()</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">actualManifests</span><span class="p">,</span>
+<span class="w">      </span><span class="p">[</span><span class="s1">'backup/0000000000.csv'</span><span class="p">,</span><span class="w"> </span><span class="s1">'backup/0000000001.csv'</span><span class="p">],</span>
+<span class="w">      </span><span class="s1">'Expected two manifests'</span><span class="p">)</span>
+<span class="w">  </span><span class="p">})</span>
+
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">'adds a file as needed'</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">backup</span><span class="p">(</span><span class="s1">'source'</span><span class="p">,</span><span class="w"> </span><span class="s1">'backup'</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">'backup/*'</span><span class="p">)).</span><span class="nx">length</span><span class="p">,</span><span class="w"> </span><span class="mf">4</span><span class="p">,</span>
+<span class="w">      </span><span class="s1">'Expected 4 files after first backup'</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">writeFileAsync</span><span class="p">(</span><span class="s1">'source/newfile.txt'</span><span class="p">,</span><span class="w"> </span><span class="s1">'NNN'</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">hashOfNewFile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">hashString</span><span class="p">(</span><span class="s1">'NNN'</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">backup</span><span class="p">(</span><span class="s1">'source'</span><span class="p">,</span><span class="w"> </span><span class="s1">'backup'</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">((</span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">'backup/*'</span><span class="p">)).</span><span class="nx">length</span><span class="p">,</span><span class="w"> </span><span class="mf">6</span><span class="p">,</span>
+<span class="w">      </span><span class="s1">'Expected 6 files after second backup'</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Set</span><span class="p">(</span><span class="nx">InitialBackups</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="sb">`backup/</span><span class="si">${</span><span class="nx">hashOfNewFile</span><span class="si">}</span><span class="sb">.bck`</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actualBackups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Set</span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">'backup/*.bck'</span><span class="p">))</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">actualBackups</span><span class="p">,</span><span class="w"> </span><span class="nx">expected</span><span class="p">,</span>
+<span class="w">      </span><span class="s1">'Expected 4 backup files after second backup'</span><span class="p">)</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">actualManifests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="nx">glob</span><span class="p">(</span><span class="s1">'backup/*.csv'</span><span class="p">)).</span><span class="nx">sort</span><span class="p">()</span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">deepStrictEqual</span><span class="p">(</span><span class="nx">actualManifests</span><span class="p">,</span>
+<span class="w">      </span><span class="p">[</span><span class="s1">'backup/0000000000.csv'</span><span class="p">,</span><span class="w"> </span><span class="s1">'backup/0000000001.csv'</span><span class="p">],</span>
+<span class="w">      </span><span class="s1">'Expected two manifests'</span><span class="p">)</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="p">})</span>
 </code></pre></div>
 </div>
 <div data-inc="test-backup.out"><span aria-label="Source: backup/test-backup.out" class="inc-path" role="img" tabindex="0" title="backup/test-backup.out">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code>&gt; stjs@1.0.0 test

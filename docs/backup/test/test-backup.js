@@ -4,7 +4,7 @@ import glob from 'glob-promise'
 import mock from 'mock-fs'
 import crypto from 'crypto'
 
-// [fixtures]
+// mccole: fixtures
 import backup from '../backup.js'
 
 const hashString = (data) => {
@@ -40,9 +40,9 @@ const InitialBackups = Object.keys(Hashes).reduce((set, filename) => {
   set.add(`backup/${Hashes[filename]}.bck`)
   return set
 }, new Set())
-// [/fixtures]
+// mccole: /fixtures
 
-// [tests]
+// mccole: tests
 describe('check entire backup process', () => {
   beforeEach(() => {
     mock(Fixture)
@@ -108,4 +108,4 @@ describe('check entire backup process', () => {
       'Expected two manifests')
   })
 })
-// [/tests]
+// mccole: /tests
