@@ -1,9 +1,8 @@
-.PHONY: docs
+.PHONY: commands site serve check clean
 
-EXAMPLES_INCLUDE = '*.as' '*.bck' '*.js' '*.json' '*.mx' '*.out' '*.py' '*.sh' '*.txt' '*.yml'
-JAVASCRIPT = $(wildcard src/*/*.js) $(wildcard src/*/x-*/*.js)
-
-all: commands
+QUARTO=quarto
+DOCS=docs
+JAVASCRIPT = $(wildcard */*.js) $(wildcard */x-*/*.js)
 
 ## commands: show available commands (*)
 commands:
@@ -11,23 +10,20 @@ commands:
 	| sed -e 's/## //g' \
 	| column -t -s ':'
 
-## check: run checks on code formatting
+## site: render HTML with Quarto
+site:
+	${QUARTO} render --to html
+	@touch ${DOCS}/.nojekyll
+
+## serve: preview the site locally
+serve:
+	${QUARTO} preview
+
+## check: check JavaScript code style
 check:
 	@npx standard ${JAVASCRIPT}
 
-## clean: clean up
+## clean: remove generated and cache files
 clean:
-	@find . -path ./.venv -prune -o -type f -name '*~' -exec rm {} +
-
-## html: check HTML
-html:
-	@mccole check --src . --dst docs
-
-## serve: serve documentation
-serve:
-	python -m http.server -d docs
-
-## site: build documentation
-site:
-	@mccole build --src . --dst docs
-	@touch docs/.nojekyll
+	rm -rf .quarto _book
+	find . -type f -name '*~' -delete

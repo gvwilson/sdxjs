@@ -1,160 +1,456 @@
 <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
-<html lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Code Generator</title>
-<meta content="Software Design by Example" name="description"/>
-<link href="../_static/favicon.ico" rel="icon" type="image/x-icon"/>
-<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
-<link href="../_static/chota.css" rel="stylesheet" type="text/css"/>
-<link href="../_static/mccole.css" rel="stylesheet" type="text/css"/>
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.11.9">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>15&nbsp; Code Generator – Software Design by Example</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../docgen/index.html" rel="next">
+<link href="../style/index.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-01a495efc5497ac6e3f5457e7ed18e65.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../mccole/book.css">
 </head>
-<body>
-<a class="skip-link" href="#main-content">Skip to main content</a>
-<nav aria-label="Site navigation" class="nav">
-<div class="nav-left">
-<a class="brand" href="../">sdxjs</a>
-<div class="dropdown">
-<button aria-controls="nav-lessons" aria-haspopup="true">Lessons</button>
-<ul class="dropdown-content" id="nav-lessons">
-<li><a href="../introduction/">Introduction</a></li>
-<li><a href="../sysprog/">Systems Programming</a></li>
-<li><a href="../async/">Asynchronous Programming</a></li>
-<li><a href="../test/">Unit Testing</a></li>
-<li><a href="../backup/">File Backup</a></li>
-<li><a href="../table/">Data Tables</a></li>
-<li><a href="../glob/">Pattern Matching</a></li>
-<li><a href="../parser/">Parsing Expressions</a></li>
-<li><a href="../templater/">Page Templates</a></li>
-<li><a href="../build/">Build Manager</a></li>
-<li><a href="../layout/">Layout Engine</a></li>
-<li><a href="../interp/">File Interpolator</a></li>
-<li><a href="../loader/">Module Loader</a></li>
-<li><a href="../style/">Style Checker</a></li>
-<li><a class="active" href="../codegen/">Code Generator</a></li>
-<li><a href="../docgen/">Documentation Generator</a></li>
-<li><a href="../bundler/">Module Bundler</a></li>
-<li><a href="../packman/">Package Manager</a></li>
-<li><a href="../vm/">Virtual Machine</a></li>
-<li><a href="../debugger/">Debugger</a></li>
-<li><a href="../conclusion/">Conclusion</a></li>
-</ul>
+
+<body class="nav-sidebar floating quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" aria-label="Toolbar">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../codegen/index.html"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Code Generator</span></a></li></ol></nav>
+        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto" aria-label="Site">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Software Design by Example</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/gvwilson/sdxjs" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
 </div>
-<div class="dropdown">
-<button aria-controls="nav-appendices" aria-haspopup="true">Appendices</button>
-<ul class="dropdown-content" id="nav-appendices">
-<li><a href="../license/">License</a></li>
-<li><a href="../conduct/">Code of Conduct</a></li>
-<li><a href="../contributing/">Contributing</a></li>
-<li><a href="../bibliography/">Bibliography</a></li>
-<li><a href="../glossary/">Glossary</a></li>
-</ul>
-</div>
-<a href="https://github.com/gvwilson/sdxjs">Repository</a>
-</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../introduction/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../sysprog/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Systems Programming</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../async/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Asynchronous Programming</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../test/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Unit Testing</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../backup/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">File Backup</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../table/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Tables</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../glob/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Pattern Matching</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../parser/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Parsing Expressions</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../templater/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Page Templates</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Build Manager</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../layout/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Layout Engine</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../interp/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">File Interpolator</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../loader/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Module Loader</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../style/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Style Checker</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../codegen/index.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Code Generator</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docgen/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Documentation Generator</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bundler/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Module Bundler</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../packman/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Package Manager</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../vm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Virtual Machine</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../debugger/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Debugger</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../conclusion/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Conclusion</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-1-label">Appendices</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../license/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">License</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../conduct/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Code of Conduct</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../contributing/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Contributing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bibliography/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Bibliography</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../glossary/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">E</span>&nbsp; <span class="chapter-title">Glossary</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
 </nav>
-<main id="main-content">
-<h1>Code Generator</h1>
-<p>We've been writing tests since <a class="xref" href="../test/">Chapter 4</a>,
-but how much of our code do they actually check?
-One way to find out is to use a <a class="gl-ref" href="../glossary/#code_coverage">code coverage</a> tool
-like <a href="https://istanbul.js.org/">Istanbul</a>
-that watches a program while it executes
-and keeps track of which lines have run and which haven't.
-Making sure that each line is tested at least once doesn't guarantee that the code is bug-free,
-but any code that <em>isn't</em> run shouldn't be trusted.</p>
-<p>Our code coverage tool will keep track of which functions have and haven't been called.
-Rather than rewriting <a href="https://nodejs.org/en/">Node</a> to keep track of this for us,
-we will modify the functions themselves
-by parsing the code with <a href="https://github.com/acornjs/acorn">Acorn</a>,
-inserting the instructions we need into the AST,
-and then turning the AST back into code.</p>
-<div class="callout">
-<h3>Simple usually isn't</h3>
-<p>At first glance it would be a lot simpler
-to use regular expressions to find every line that looks like the start of a function definition
-and insert a line right after each one
-to record the information we want.
-Of course,
-some people split function headers across several lines if they have lots of parameters,
-and there might be things that look like function definitions embedded in comments or strings.
-It doesn't take long before our simple solution turns into
-a poorly-implemented parser for a subset of JavaScript that no-one else understands.
-Using a full-blown parser and working with the AST is almost always less work.</p>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#code-generator-replace" id="toc-code-generator-replace" class="nav-link active" data-scroll-target="#code-generator-replace"><span class="header-section-number">15.1</span> How can we replace a function with another function?</a></li>
+  <li><a href="#code-generator-generate" id="toc-code-generator-generate" class="nav-link" data-scroll-target="#code-generator-generate"><span class="header-section-number">15.2</span> How can we generate JavaScript?</a></li>
+  <li><a href="#code-generator-count" id="toc-code-generator-count" class="nav-link" data-scroll-target="#code-generator-count"><span class="header-section-number">15.3</span> How can we count how often functions are executed?</a></li>
+  <li><a href="#code-generator-time" id="toc-code-generator-time" class="nav-link" data-scroll-target="#code-generator-time"><span class="header-section-number">15.4</span> How can we time function execution?</a></li>
+  <li><a href="#code-generator-exercises" id="toc-code-generator-exercises" class="nav-link" data-scroll-target="#code-generator-exercises"><span class="header-section-number">15.5</span> Exercises</a>
+  <ul class="collapse">
+  <li><a href="#json-to-javascript" id="toc-json-to-javascript" class="nav-link" data-scroll-target="#json-to-javascript"><span class="header-section-number">15.5.1</span> JSON to JavaScript</a></li>
+  <li><a href="#javascript-to-html" id="toc-javascript-to-html" class="nav-link" data-scroll-target="#javascript-to-html"><span class="header-section-number">15.5.2</span> JavaScript to HTML</a></li>
+  <li><a href="#handling-modules" id="toc-handling-modules" class="nav-link" data-scroll-target="#handling-modules"><span class="header-section-number">15.5.3</span> Handling modules</a></li>
+  <li><a href="#tracking-calls" id="toc-tracking-calls" class="nav-link" data-scroll-target="#tracking-calls"><span class="header-section-number">15.5.4</span> Tracking calls</a></li>
+  <li><a href="#counting-classical-function-definitions" id="toc-counting-classical-function-definitions" class="nav-link" data-scroll-target="#counting-classical-function-definitions"><span class="header-section-number">15.5.5</span> Counting classical function definitions</a></li>
+  <li><a href="#recording-input-file-size" id="toc-recording-input-file-size" class="nav-link" data-scroll-target="#recording-input-file-size"><span class="header-section-number">15.5.6</span> Recording input file size</a></li>
+  <li><a href="#checking-argument-types" id="toc-checking-argument-types" class="nav-link" data-scroll-target="#checking-argument-types"><span class="header-section-number">15.5.7</span> Checking argument types</a></li>
+  <li><a href="#two-dimensional-arrays" id="toc-two-dimensional-arrays" class="nav-link" data-scroll-target="#two-dimensional-arrays"><span class="header-section-number">15.5.8</span> Two-dimensional arrays</a></li>
+  <li><a href="#from-require-to-import" id="toc-from-require-to-import" class="nav-link" data-scroll-target="#from-require-to-import"><span class="header-section-number">15.5.9</span> From require to import</a></li>
+  <li><a href="#removing-empty-constructors" id="toc-removing-empty-constructors" class="nav-link" data-scroll-target="#removing-empty-constructors"><span class="header-section-number">15.5.10</span> Removing empty constructors</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content" tabindex="-1">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="sec-codegen" class="quarto-section-identifier"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Code Generator</span></span></h1>
 </div>
-<h2 id="code-generator-replace">How can we replace a function with another function?</h2>
-<p>The first thing we need is a way to wrap up an arbitrary function call.
-If we declare a function in JavaScript with a parameter like <code>...args</code>,
-all of the "extra" arguments in the call that don't line up with regular parameters
-are stuffed into the variable <code>args</code>
-(<a class="fig-ref" href="#f:code-generator-spread">Figure 1</a>).
-We can also call a function by putting values in a variable
-and using <code>func(...var)</code> to spread those values out.
-There's nothing special about the names <code>args</code> and <code>vars</code>:
-what matters is the ellipsis <code>...</code></p>
-<figure id="f:code-generator-spread">
-<img alt="Spreading parameters" src="spread.svg"/>
-<figcaption>Figure 1: Using ...args to capture and spread parameters.</figcaption>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>We’ve been writing tests since <a href="../test/index.html" class="quarto-xref"><span>Chapter 4</span></a>, but how much of our code do they actually check? One way to find out is to use a <a href="../glossary/index.html#code_coverage">code coverage</a> tool like <a href="https://istanbul.js.org/">Istanbul</a> that watches a program while it executes and keeps track of which lines have run and which haven’t. Making sure that each line is tested at least once doesn’t guarantee that the code is bug-free, but any code that <em>isn’t</em> run shouldn’t be trusted.</p>
+<p>Our code coverage tool will keep track of which functions have and haven’t been called. Rather than rewriting <a href="https://nodejs.org/en/">Node</a> to keep track of this for us, we will modify the functions themselves by parsing the code with <a href="https://github.com/acornjs/acorn">Acorn</a>, inserting the instructions we need into the AST, and then turning the AST back into code.</p>
+<div class="callout callout-style-simple callout-none no-icon callout-titled" data-markdown="1">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">None</span>Simple usually isn’t
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>At first glance it would be a lot simpler to use regular expressions to find every line that looks like the start of a function definition and insert a line right after each one to record the information we want. Of course, some people split function headers across several lines if they have lots of parameters, and there might be things that look like function definitions embedded in comments or strings. It doesn’t take long before our simple solution turns into a poorly-implemented parser for a subset of JavaScript that no-one else understands. Using a full-blown parser and working with the AST is almost always less work.</p>
+</div>
+</div>
+<section id="code-generator-replace" class="level2" data-number="15.1">
+<h2 data-number="15.1" class="anchored" data-anchor-id="code-generator-replace"><span class="header-section-number">15.1</span> How can we replace a function with another function?</h2>
+<p>The first thing we need is a way to wrap up an arbitrary function call. If we declare a function in JavaScript with a parameter like <code>...args</code>, all of the “extra” arguments in the call that don’t line up with regular parameters are stuffed into the variable <code>args</code> (<a href="#fig-code-generator-spread" class="quarto-xref">Figure&nbsp;<span>15.1</span></a>). We can also call a function by putting values in a variable and using <code>func(...var)</code> to spread those values out. There’s nothing special about the names <code>args</code> and <code>vars</code>: what matters is the ellipsis <code>...</code></p>
+<div id="fig-code-generator-spread" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-code-generator-spread-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="spread.svg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-code-generator-spread-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;15.1: Using …args to capture and spread parameters.
+</figcaption>
 </figure>
-<p>We can use <code>...args</code> to capture all of the arguments to a function call
-and forward them to another function.
-Let's start by creating functions with a varying number of parameters
-that run to completion or throw an exception,
-then run them to make sure they do what we want:</p>
-<div data-inc="replace-func.js" data-mark="original"><span aria-label="Source: codegen/replace-func.js" class="inc-path" role="img" tabindex="0" title="codegen/replace-func.js">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">let</span><span class="w"> </span><span class="nx">zero</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'zero'</span><span class="p">)</span>
-<span class="kd">let</span><span class="w"> </span><span class="nx">one</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">first</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`one(</span><span class="si">${</span><span class="nx">first</span><span class="si">}</span><span class="sb">)`</span><span class="p">)</span>
-<span class="kd">let</span><span class="w"> </span><span class="nx">two</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">first</span><span class="p">,</span><span class="w"> </span><span class="nx">second</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`two(</span><span class="si">${</span><span class="nx">first</span><span class="si">}</span><span class="sb">, </span><span class="si">${</span><span class="nx">second</span><span class="si">}</span><span class="sb">)`</span><span class="p">)</span>
-
-<span class="kd">let</span><span class="w"> </span><span class="nx">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'error'</span><span class="p">)</span>
-<span class="w">  </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s1">'from error'</span><span class="p">)</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'should not reach this'</span><span class="p">)</span><span class="w"> </span><span class="c1">// eslint-disable-line</span>
-<span class="p">}</span>
-
-<span class="kd">const</span><span class="w"> </span><span class="nx">runAll</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">title</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">title</span><span class="p">)</span>
-<span class="w">  </span><span class="nx">zero</span><span class="p">()</span>
-<span class="w">  </span><span class="nx">one</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
-<span class="w">  </span><span class="nx">two</span><span class="p">(</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">)</span>
-<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">error</span><span class="p">()</span>
-<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`caught </span><span class="si">${</span><span class="nx">error</span><span class="si">}</span><span class="sb"> as expected`</span><span class="p">)</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">()</span>
-<span class="p">}</span>
-
-<span class="nx">runAll</span><span class="p">(</span><span class="s1">'first time'</span><span class="p">)</span>
-</code></pre></div>
 </div>
-<p>We can now write a function that takes a function as an input
-and creates a new function that handles all of the errors in the original function:</p>
-<div data-inc="replace-func.js" data-mark="replace"><span aria-label="Source: codegen/replace-func.js" class="inc-path" role="img" tabindex="0" title="codegen/replace-func.js">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">replace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">func</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(...</span><span class="nx">args</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'before'</span><span class="p">)</span>
-<span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">func</span><span class="p">(...</span><span class="nx">args</span><span class="p">)</span>
-<span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'after'</span><span class="p">)</span>
-<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">result</span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'error'</span><span class="p">)</span>
-<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="nx">error</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">}</span>
-
-<span class="nx">zero</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">replace</span><span class="p">(</span><span class="nx">zero</span><span class="p">)</span>
-<span class="nx">one</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">replace</span><span class="p">(</span><span class="nx">one</span><span class="p">)</span>
-<span class="nx">two</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">replace</span><span class="p">(</span><span class="nx">two</span><span class="p">)</span>
-<span class="nx">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">replace</span><span class="p">(</span><span class="nx">error</span><span class="p">)</span>
-
-<span class="nx">runAll</span><span class="p">(</span><span class="s1">'second time'</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<p>Let's try it out:</p>
-<div data-inc="replace-func.out"><span aria-label="Source: codegen/replace-func.out" class="inc-path" role="img" tabindex="0" title="codegen/replace-func.out">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code>first time
+<p>We can use <code>...args</code> to capture all of the arguments to a function call and forward them to another function. Let’s start by creating functions with a varying number of parameters that run to completion or throw an exception, then run them to make sure they do what we want:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> zero <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'zero'</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> one <span class="op">=</span> (first) <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`one(</span><span class="sc">${</span>first<span class="sc">}</span><span class="vs">)`</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> two <span class="op">=</span> (first<span class="op">,</span> second) <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`two(</span><span class="sc">${</span>first<span class="sc">}</span><span class="vs">, </span><span class="sc">${</span>second<span class="sc">}</span><span class="vs">)`</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> error <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'error'</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(<span class="st">'from error'</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'should not reach this'</span>) <span class="co">// eslint-disable-line</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> runAll <span class="op">=</span> (title) <span class="kw">=&gt;</span> {</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(title)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">zero</span>()</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">one</span>(<span class="dv">1</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">two</span>(<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">try</span> {</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">error</span>()</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">catch</span> (error) {</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`caught </span><span class="sc">${</span>error<span class="sc">}</span><span class="vs"> as expected`</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>()</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="fu">runAll</span>(<span class="st">'first time'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>We can now write a function that takes a function as an input and creates a new function that handles all of the errors in the original function:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> replace <span class="op">=</span> (func) <span class="kw">=&gt;</span> {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> (<span class="op">...</span>args) <span class="kw">=&gt;</span> {</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'before'</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span> {</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> result <span class="op">=</span> <span class="fu">func</span>(<span class="op">...</span>args)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>      <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'after'</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> result</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">catch</span> (error) {</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>      <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'error'</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>      <span class="cf">throw</span> error</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>zero <span class="op">=</span> <span class="fu">replace</span>(zero)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>one <span class="op">=</span> <span class="fu">replace</span>(one)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>two <span class="op">=</span> <span class="fu">replace</span>(two)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>error <span class="op">=</span> <span class="fu">replace</span>(error)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="fu">runAll</span>(<span class="st">'second time'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Let’s try it out:</p>
+<pre><code>first time
 zero
 one(1)
 two(1, 2)
@@ -175,47 +471,35 @@ before
 error
 error
 caught Error: from error as expected
-</code></pre></div>
+</code></pre>
+<p>This is an example of the <a href="../glossary/index.html#decorator_pattern">Decorator</a> design pattern. A decorator is a function whose job is to modify the behavior of other functions in some general ways. Decorators are built in to some languages (like <a href="https://www.python.org/">Python</a>), and we can add them in most others as we have done here.</p>
+</section>
+<section id="code-generator-generate" class="level2" data-number="15.2">
+<h2 data-number="15.2" class="anchored" data-anchor-id="code-generator-generate"><span class="header-section-number">15.2</span> How can we generate JavaScript?</h2>
+<p>We could use a decorator to replace every function in our program with one that keeps track of whether or not it was called, but it would be tedious to apply the decorator to every one of our functions by hand. What we really want is a way to do this automatically for everything, and for that we need to parse and generate code.</p>
+<div class="callout callout-style-simple callout-none no-icon callout-titled" data-markdown="1">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
 </div>
-<p>This is an example of the <a class="gl-ref" href="../glossary/#decorator_pattern">Decorator</a> design pattern.
-A decorator is a function whose job is to modify the behavior of other functions
-in some general ways.
-Decorators are built in to some languages (like <a href="https://www.python.org/">Python</a>),
-and we can add them in most others as we have done here.</p>
-<h2 id="code-generator-generate">How can we generate JavaScript?</h2>
-<p>We could use a decorator to replace every function in our program
-with one that keeps track of whether or not it was called,
-but it would be tedious to apply the decorator to every one of our functions by hand.
-What we really want is a way to do this automatically for everything,
-and for that we need to parse and generate code.</p>
-<div class="callout">
-<h3>Other ways to do it</h3>
-<p>A third way to achieve what we want is
-to let the system turn code into runnable instructions
-and then modify those instructions.
-This approach is often used in compiled languages like <a href="https://en.wikipedia.org/wiki/Java_(programming_language)">Java</a>,
-where the <a class="gl-ref" href="../glossary/#byte_code">byte code</a> produced by the <a class="gl-ref" href="../glossary/#compiler">compiler</a> is saved in files
-in order to be run.
-We can't do this here because Node compiles and runs code in a single step.</p>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">None</span>Other ways to do it
 </div>
-<p>Our tool will parse the JavaScript with Acorn to create an AST,
-modify the AST,
-and then use a library called <a href="https://github.com/estools/escodegen/">Escodegen</a> to turn the AST back into JavaScript.
-To start,
-let's look at the AST for a simple function definition,
-which is 75 lines of pretty-printed JSON:</p>
-<div data-inc="func-def.js"><span aria-label="Source: codegen/func-def.js" class="inc-path" role="img" tabindex="0" title="codegen/func-def.js">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">acorn</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'acorn'</span>
-
-<span class="kd">const</span><span class="w"> </span><span class="nx">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`const func = (param) =&gt; {</span>
-<span class="sb">  return param + 1</span>
-<span class="sb">}`</span>
-
-<span class="kd">const</span><span class="w"> </span><span class="nx">ast</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">acorn</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">sourceType</span><span class="o">:</span><span class="w"> </span><span class="s1">'module'</span><span class="w"> </span><span class="p">})</span>
-<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">ast</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">))</span>
-</code></pre></div>
 </div>
-<p class="continuation"></p>
-<div data-inc="func-def.out"><span aria-label="Source: codegen/func-def.out" class="inc-path" role="img" tabindex="0" title="codegen/func-def.out">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code>{
+<div class="callout-body-container callout-body">
+<p>A third way to achieve what we want is to let the system turn code into runnable instructions and then modify those instructions. This approach is often used in compiled languages like <a href="https://en.wikipedia.org/wiki/Java_(programming_language)">Java</a>, where the <a href="../glossary/index.html#byte_code">byte code</a> produced by the <a href="../glossary/index.html#compiler">compiler</a> is saved in files in order to be run. We can’t do this here because Node compiles and runs code in a single step.</p>
+</div>
+</div>
+<p>Our tool will parse the JavaScript with Acorn to create an AST, modify the AST, and then use a library called <a href="https://github.com/estools/escodegen/">Escodegen</a> to turn the AST back into JavaScript. To start, let’s look at the AST for a simple function definition, which is 75 lines of pretty-printed JSON:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> acorn <span class="im">from</span> <span class="st">'acorn'</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> text <span class="op">=</span> <span class="vs">`const func = (param) =&gt; {</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="vs">  return param + 1</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="vs">}`</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> ast <span class="op">=</span> acorn<span class="op">.</span><span class="fu">parse</span>(text<span class="op">,</span> { <span class="dt">sourceType</span><span class="op">:</span> <span class="st">'module'</span> })</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(ast<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> <span class="dv">2</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>{
   "type": "Program",
   "start": 0,
   "end": 46,
@@ -290,102 +574,74 @@ which is 75 lines of pretty-printed JSON:</p>
   ],
   "sourceType": "module"
 }
-</code></pre></div>
-</div>
-<p>After inspecting a few nodes,
-we can create some of our own and turn them into code.
-Here,
-for example,
-we have the JSON representation of the expression <code>40+2</code>:</p>
-<div data-inc="one-plus-two.js"><span aria-label="Source: codegen/one-plus-two.js" class="inc-path" role="img" tabindex="0" title="codegen/one-plus-two.js">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">escodegen</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'escodegen'</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">escodegen</span><span class="p">.</span><span class="nx">generate</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'BinaryExpression'</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">operator</span><span class="o">:</span><span class="w"> </span><span class="s1">'+'</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">left</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'Literal'</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="mf">40</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nx">right</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'Literal'</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="p">}</span>
-<span class="p">})</span>
-<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<p class="continuation"></p>
-<div data-inc="one-plus-two.out"><span aria-label="Source: codegen/one-plus-two.out" class="inc-path" role="img" tabindex="0" title="codegen/one-plus-two.out">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code>40 + 2
-</code></pre></div>
-</div>
-<h2 id="code-generator-count">How can we count how often functions are executed?</h2>
-<p>Our tool will find all the function declaration nodes in the program
-and insert a node to increment an entry in a global variable called <code>__counters</code>.
-(Prefixing the name with two underscores doesn't guarantee that
-we won't accidentally clobber a variable in the user's program with the same name,
-but hopefully it makes that less likely.)
-Our test case is:</p>
-<div data-inc="multi-func-counter.js" data-mark="test"><span aria-label="Source: codegen/multi-func-counter.js" class="inc-path" role="img" tabindex="0" title="codegen/multi-func-counter.js">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">TEXT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`</span>
-<span class="sb">const funcOuter = (param) =&gt; {</span>
-<span class="sb">  return param + 1</span>
-<span class="sb">}</span>
-<span class="sb">const funcInner = (param) =&gt; {</span>
-<span class="sb">  return param + 1</span>
-<span class="sb">}</span>
-<span class="sb">for (const i of [1, 3, 5]) {</span>
-<span class="sb">  funcOuter(funcInner(i) + funcInner(i))</span>
-<span class="sb">}</span>
-<span class="sb">`</span>
-</code></pre></div>
-</div>
+</code></pre>
+<p>After inspecting a few nodes, we can create some of our own and turn them into code. Here, for example, we have the JSON representation of the expression <code>40+2</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> escodegen <span class="im">from</span> <span class="st">'escodegen'</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> result <span class="op">=</span> escodegen<span class="op">.</span><span class="fu">generate</span>({</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">type</span><span class="op">:</span> <span class="st">'BinaryExpression'</span><span class="op">,</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">operator</span><span class="op">:</span> <span class="st">'+'</span><span class="op">,</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">left</span><span class="op">:</span> { <span class="dt">type</span><span class="op">:</span> <span class="st">'Literal'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">40</span> }<span class="op">,</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">right</span><span class="op">:</span> { <span class="dt">type</span><span class="op">:</span> <span class="st">'Literal'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">2</span> }</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(result)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>40 + 2
+</code></pre>
+</section>
+<section id="code-generator-count" class="level2" data-number="15.3">
+<h2 data-number="15.3" class="anchored" data-anchor-id="code-generator-count"><span class="header-section-number">15.3</span> How can we count how often functions are executed?</h2>
+<p>Our tool will find all the function declaration nodes in the program and insert a node to increment an entry in a global variable called <code>__counters</code>. (Prefixing the name with two underscores doesn’t guarantee that we won’t accidentally clobber a variable in the user’s program with the same name, but hopefully it makes that less likely.) Our test case is:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> TEXT <span class="op">=</span> <span class="vs">`</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="vs">const funcOuter = (param) =&gt; {</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="vs">  return param + 1</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="vs">}</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="vs">const funcInner = (param) =&gt; {</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="vs">  return param + 1</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="vs">}</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="vs">for (const i of [1, 3, 5]) {</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="vs">  funcOuter(funcInner(i) + funcInner(i))</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="vs">}</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="vs">`</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>and the main function of our program is:</p>
-<div data-inc="multi-func-counter.js" data-mark="main"><span aria-label="Source: codegen/multi-func-counter.js" class="inc-path" role="img" tabindex="0" title="codegen/multi-func-counter.js">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">ast</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">acorn</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">TEXT</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">sourceType</span><span class="o">:</span><span class="w"> </span><span class="s1">'module'</span><span class="w"> </span><span class="p">})</span>
-
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">allNodes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
-<span class="w">  </span><span class="nx">walk</span><span class="p">.</span><span class="nx">simple</span><span class="p">(</span><span class="nx">ast</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">VariableDeclarator</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">,</span><span class="w"> </span><span class="nx">state</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">init</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">init</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'ArrowFunctionExpression'</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">state</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">node</span><span class="p">)</span>
-<span class="w">      </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nx">allNodes</span><span class="p">)</span>
-
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span>
-<span class="w">  </span><span class="nx">allNodes</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">node</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">insertCounter</span><span class="p">(</span><span class="nx">names</span><span class="p">,</span><span class="w"> </span><span class="nx">node</span><span class="p">))</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">initializeCounters</span><span class="p">(</span><span class="nx">names</span><span class="p">))</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">escodegen</span><span class="p">.</span><span class="nx">generate</span><span class="p">(</span><span class="nx">ast</span><span class="p">))</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">reportCounters</span><span class="p">())</span>
-<span class="p">}</span>
-</code></pre></div>
-</div>
-<p>To insert a count we call <code>insertCounter</code>
-to record the function's name and modify the node:</p>
-<div data-inc="multi-func-counter.js" data-mark="insert"><span aria-label="Source: codegen/multi-func-counter.js" class="inc-path" role="img" tabindex="0" title="codegen/multi-func-counter.js">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">insertCounter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">names</span><span class="p">,</span><span class="w"> </span><span class="nx">node</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">node</span><span class="p">.</span><span class="nx">id</span><span class="p">.</span><span class="nx">name</span>
-<span class="w">  </span><span class="nx">names</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span>
-
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">body</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">node</span><span class="p">.</span><span class="nx">init</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">body</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">increment</span><span class="w"> </span><span class="o">=</span>
-<span class="w">    </span><span class="nx">acorn</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="sb">`__counters['</span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">'] += 1`</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">sourceType</span><span class="o">:</span><span class="w"> </span><span class="s1">'module'</span><span class="w"> </span><span class="p">})</span>
-<span class="w">  </span><span class="nx">body</span><span class="p">.</span><span class="nx">unshift</span><span class="p">(</span><span class="nx">increment</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></div>
-</div>
-<p>Notice how we don't try to build the nodes by hand,
-but instead construct the string we need,
-use Acorn to parse that,
-and use the result.
-Doing this saves us from embedding multiple lines of JSON in our program
-and also ensures that if a newer version of Acorn decides to generate a different AST,
-our program will do the right thing automatically.</p>
-<p>Finally,
-we need to add a couple of helper functions:</p>
-<div data-inc="multi-func-counter.js" data-mark="admin"><span aria-label="Source: codegen/multi-func-counter.js" class="inc-path" role="img" tabindex="0" title="codegen/multi-func-counter.js">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">initializeCounters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">names</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">body</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">names</span><span class="p">).</span><span class="nx">map</span><span class="p">(</span><span class="nx">n</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="sb">`'</span><span class="si">${</span><span class="nx">n</span><span class="si">}</span><span class="sb">': 0`</span><span class="p">).</span><span class="nx">join</span><span class="p">(</span><span class="s1">',\n'</span><span class="p">)</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="s1">'const __counters = {\n'</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">body</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">'\n}'</span>
-<span class="p">}</span>
-
-<span class="kd">const</span><span class="w"> </span><span class="nx">reportCounters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="s1">'console.log(__counters)'</span>
-<span class="p">}</span>
-</code></pre></div>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> main <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> ast <span class="op">=</span> acorn<span class="op">.</span><span class="fu">parse</span>(TEXT<span class="op">,</span> { <span class="dt">sourceType</span><span class="op">:</span> <span class="st">'module'</span> })</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> allNodes <span class="op">=</span> []</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  walk<span class="op">.</span><span class="fu">simple</span>(ast<span class="op">,</span> {</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">VariableDeclarator</span><span class="op">:</span> (node<span class="op">,</span> state) <span class="kw">=&gt;</span> {</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (node<span class="op">.</span><span class="at">init</span> <span class="op">&amp;&amp;</span> (node<span class="op">.</span><span class="at">init</span><span class="op">.</span><span class="at">type</span> <span class="op">===</span> <span class="st">'ArrowFunctionExpression'</span>)) {</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        state<span class="op">.</span><span class="fu">push</span>(node)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> allNodes)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> names <span class="op">=</span> {}</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  allNodes<span class="op">.</span><span class="fu">forEach</span>(node <span class="kw">=&gt;</span> <span class="fu">insertCounter</span>(names<span class="op">,</span> node))</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="fu">initializeCounters</span>(names))</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(escodegen<span class="op">.</span><span class="fu">generate</span>(ast))</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="fu">reportCounters</span>())</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>To insert a count we call <code>insertCounter</code> to record the function’s name and modify the node:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> insertCounter <span class="op">=</span> (names<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> name <span class="op">=</span> node<span class="op">.</span><span class="at">id</span><span class="op">.</span><span class="at">name</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  names[name] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> body <span class="op">=</span> node<span class="op">.</span><span class="at">init</span><span class="op">.</span><span class="at">body</span><span class="op">.</span><span class="at">body</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> increment <span class="op">=</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    acorn<span class="op">.</span><span class="fu">parse</span>(<span class="vs">`__counters['</span><span class="sc">${</span>name<span class="sc">}</span><span class="vs">'] += 1`</span><span class="op">,</span> { <span class="dt">sourceType</span><span class="op">:</span> <span class="st">'module'</span> })</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  body<span class="op">.</span><span class="fu">unshift</span>(increment)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Notice how we don’t try to build the nodes by hand, but instead construct the string we need, use Acorn to parse that, and use the result. Doing this saves us from embedding multiple lines of JSON in our program and also ensures that if a newer version of Acorn decides to generate a different AST, our program will do the right thing automatically.</p>
+<p>Finally, we need to add a couple of helper functions:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> initializeCounters <span class="op">=</span> (names) <span class="kw">=&gt;</span> {</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> body <span class="op">=</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">keys</span>(names)<span class="op">.</span><span class="fu">map</span>(n <span class="kw">=&gt;</span> <span class="vs">`'</span><span class="sc">${</span>n<span class="sc">}</span><span class="vs">': 0`</span>)<span class="op">.</span><span class="fu">join</span>(<span class="st">',</span><span class="sc">\n</span><span class="st">'</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="st">'const __counters = {</span><span class="sc">\n</span><span class="st">'</span> <span class="op">+</span> body <span class="op">+</span> <span class="st">'</span><span class="sc">\n</span><span class="st">}'</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> reportCounters <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="st">'console.log(__counters)'</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>and run it to make sure it all works:</p>
-<div data-inc="multi-func-counter.out"><span aria-label="Source: codegen/multi-func-counter.out" class="inc-path" role="img" tabindex="0" title="codegen/multi-func-counter.out">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code>const __counters = {
+<pre><code>const __counters = {
 'funcOuter': 0,
 'funcInner': 0
 }
@@ -405,80 +661,66 @@ for (const i of [
     funcOuter(funcInner(i) + funcInner(i));
 }
 console.log(__counters)
-</code></pre></div>
+</code></pre>
+<div class="callout callout-style-simple callout-none no-icon callout-titled" data-markdown="1">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
 </div>
-<div class="callout">
-<h3>Too simple to be safe</h3>
-<p>Our simple approach to naming counters doesn't work if functions can have the same names,
-which they can if we use modules or <a class="gl-ref" href="../glossary/#nested_function">nested functions</a>.
-One solution would be to manufacture a label from the function's name
-and the line number in the source code;
-another would be to keep track of which functions are nested within which
-and concatenate their names to produce a unique key.
-Problems like this are why people say that naming things
-is one of the <a class="gl-ref" href="../glossary/#two_hard_problems">two hard problems</a> in computer science.</p>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">None</span>Too simple to be safe
 </div>
-<h2 id="code-generator-time">How can we time function execution?</h2>
-<p>Now that we have a way to insert code into functions
-we can use it to do many other things.
-For example,
-we can find out how long it takes functions to run
-by wrapping them up in code that records the start and end time of each call.
-As before,
-we find the nodes of interest and decorate them,
-then stitch the result together with a bit of bookkeeping:</p>
-<div data-inc="time-func.js" data-mark="timeFunc"><span aria-label="Source: codegen/time-func.js" class="inc-path" role="img" tabindex="0" title="codegen/time-func.js">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">timeFunc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">text</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">ast</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">acorn</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">sourceType</span><span class="o">:</span><span class="w"> </span><span class="s1">'module'</span><span class="w"> </span><span class="p">})</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">allNodes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">gatherNodes</span><span class="p">(</span><span class="nx">ast</span><span class="p">)</span>
-<span class="w">  </span><span class="nx">allNodes</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">node</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">wrapFuncDef</span><span class="p">(</span><span class="nx">node</span><span class="p">))</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="nx">initializeCounters</span><span class="p">(</span><span class="nx">allNodes</span><span class="p">),</span>
-<span class="w">    </span><span class="nx">escodegen</span><span class="p">.</span><span class="nx">generate</span><span class="p">(</span><span class="nx">ast</span><span class="p">),</span>
-<span class="w">    </span><span class="nx">reportCounters</span><span class="p">()</span>
-<span class="w">  </span><span class="p">].</span><span class="nx">join</span><span class="p">(</span><span class="s1">'\n'</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></div>
 </div>
+<div class="callout-body-container callout-body">
+<p>Our simple approach to naming counters doesn’t work if functions can have the same names, which they can if we use modules or <a href="../glossary/index.html#nested_function">nested functions</a>. One solution would be to manufacture a label from the function’s name and the line number in the source code; another would be to keep track of which functions are nested within which and concatenate their names to produce a unique key. Problems like this are why people say that naming things is one of the <a href="../glossary/index.html#two_hard_problems">two hard problems</a> in computer science.</p>
+</div>
+</div>
+</section>
+<section id="code-generator-time" class="level2" data-number="15.4">
+<h2 data-number="15.4" class="anchored" data-anchor-id="code-generator-time"><span class="header-section-number">15.4</span> How can we time function execution?</h2>
+<p>Now that we have a way to insert code into functions we can use it to do many other things. For example, we can find out how long it takes functions to run by wrapping them up in code that records the start and end time of each call. As before, we find the nodes of interest and decorate them, then stitch the result together with a bit of bookkeeping:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> timeFunc <span class="op">=</span> (text) <span class="kw">=&gt;</span> {</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> ast <span class="op">=</span> acorn<span class="op">.</span><span class="fu">parse</span>(text<span class="op">,</span> { <span class="dt">sourceType</span><span class="op">:</span> <span class="st">'module'</span> })</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> allNodes <span class="op">=</span> <span class="fu">gatherNodes</span>(ast)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  allNodes<span class="op">.</span><span class="fu">forEach</span>(node <span class="kw">=&gt;</span> <span class="fu">wrapFuncDef</span>(node))</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> [</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">initializeCounters</span>(allNodes)<span class="op">,</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    escodegen<span class="op">.</span><span class="fu">generate</span>(ast)<span class="op">,</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reportCounters</span>()</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">.</span><span class="fu">join</span>(<span class="st">'</span><span class="sc">\n</span><span class="st">'</span>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Gathering nodes is straightforward:</p>
-<div data-inc="time-func.js" data-mark="gatherNodes"><span aria-label="Source: codegen/time-func.js" class="inc-path" role="img" tabindex="0" title="codegen/time-func.js">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">gatherNodes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">ast</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">allNodes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
-<span class="w">  </span><span class="nx">walk</span><span class="p">.</span><span class="nx">simple</span><span class="p">(</span><span class="nx">ast</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">VariableDeclarator</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">,</span><span class="w"> </span><span class="nx">state</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">init</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">init</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'ArrowFunctionExpression'</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">state</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">node</span><span class="p">)</span>
-<span class="w">      </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nx">allNodes</span><span class="p">)</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">allNodes</span>
-<span class="p">}</span>
-</code></pre></div>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> gatherNodes <span class="op">=</span> (ast) <span class="kw">=&gt;</span> {</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> allNodes <span class="op">=</span> []</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  walk<span class="op">.</span><span class="fu">simple</span>(ast<span class="op">,</span> {</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">VariableDeclarator</span><span class="op">:</span> (node<span class="op">,</span> state) <span class="kw">=&gt;</span> {</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (node<span class="op">.</span><span class="at">init</span> <span class="op">&amp;&amp;</span> (node<span class="op">.</span><span class="at">init</span><span class="op">.</span><span class="at">type</span> <span class="op">===</span> <span class="st">'ArrowFunctionExpression'</span>)) {</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>        state<span class="op">.</span><span class="fu">push</span>(node)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> allNodes)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> allNodes</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>as is wrapping the function definition:</p>
-<div data-inc="time-func.js" data-mark="wrapFuncDef"><span aria-label="Source: codegen/time-func.js" class="inc-path" role="img" tabindex="0" title="codegen/time-func.js">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">wrapFuncDef</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">originalAst</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">originalAst</span><span class="p">.</span><span class="nx">id</span><span class="p">.</span><span class="nx">name</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">wrapperAst</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">makeWrapperAst</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span>
-<span class="w">  </span><span class="nx">wrapperAst</span><span class="p">.</span><span class="nx">init</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">body</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">declarations</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">init</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">originalAst</span><span class="p">.</span><span class="nx">init</span>
-<span class="w">  </span><span class="nx">originalAst</span><span class="p">.</span><span class="nx">init</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">wrapperAst</span><span class="p">.</span><span class="nx">init</span>
-<span class="p">}</span>
-</code></pre></div>
-</div>
-<p>The only big difference is how we make the wrapper function.
-We create it with a placeholder for the original function
-so that we have a spot in the AST to insert the actual code:</p>
-<div data-inc="time-func.js" data-mark="timeFunc"><span aria-label="Source: codegen/time-func.js" class="inc-path" role="img" tabindex="0" title="codegen/time-func.js">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">timeFunc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">text</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">ast</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">acorn</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">sourceType</span><span class="o">:</span><span class="w"> </span><span class="s1">'module'</span><span class="w"> </span><span class="p">})</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">allNodes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">gatherNodes</span><span class="p">(</span><span class="nx">ast</span><span class="p">)</span>
-<span class="w">  </span><span class="nx">allNodes</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">node</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">wrapFuncDef</span><span class="p">(</span><span class="nx">node</span><span class="p">))</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="nx">initializeCounters</span><span class="p">(</span><span class="nx">allNodes</span><span class="p">),</span>
-<span class="w">    </span><span class="nx">escodegen</span><span class="p">.</span><span class="nx">generate</span><span class="p">(</span><span class="nx">ast</span><span class="p">),</span>
-<span class="w">    </span><span class="nx">reportCounters</span><span class="p">()</span>
-<span class="w">  </span><span class="p">].</span><span class="nx">join</span><span class="p">(</span><span class="s1">'\n'</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></div>
-</div>
-<p>Let's run one last test:</p>
-<div data-inc="test-time-func.out"><span aria-label="Source: codegen/test-time-func.out" class="inc-path" role="img" tabindex="0" title="codegen/test-time-func.out">i</span><div class="codehilite"><pre class="" tabindex="0"><span></span><code>const __counters = {
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> wrapFuncDef <span class="op">=</span> (originalAst) <span class="kw">=&gt;</span> {</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> name <span class="op">=</span> originalAst<span class="op">.</span><span class="at">id</span><span class="op">.</span><span class="at">name</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> wrapperAst <span class="op">=</span> <span class="fu">makeWrapperAst</span>(name)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  wrapperAst<span class="op">.</span><span class="at">init</span><span class="op">.</span><span class="at">body</span><span class="op">.</span><span class="at">body</span>[<span class="dv">0</span>]<span class="op">.</span><span class="at">declarations</span>[<span class="dv">0</span>]<span class="op">.</span><span class="at">init</span> <span class="op">=</span> originalAst<span class="op">.</span><span class="at">init</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  originalAst<span class="op">.</span><span class="at">init</span> <span class="op">=</span> wrapperAst<span class="op">.</span><span class="at">init</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The only big difference is how we make the wrapper function. We create it with a placeholder for the original function so that we have a spot in the AST to insert the actual code:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> timeFunc <span class="op">=</span> (text) <span class="kw">=&gt;</span> {</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> ast <span class="op">=</span> acorn<span class="op">.</span><span class="fu">parse</span>(text<span class="op">,</span> { <span class="dt">sourceType</span><span class="op">:</span> <span class="st">'module'</span> })</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> allNodes <span class="op">=</span> <span class="fu">gatherNodes</span>(ast)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  allNodes<span class="op">.</span><span class="fu">forEach</span>(node <span class="kw">=&gt;</span> <span class="fu">wrapFuncDef</span>(node))</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> [</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">initializeCounters</span>(allNodes)<span class="op">,</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    escodegen<span class="op">.</span><span class="fu">generate</span>(ast)<span class="op">,</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reportCounters</span>()</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">.</span><span class="fu">join</span>(<span class="st">'</span><span class="sc">\n</span><span class="st">'</span>)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Let’s run one last test:</p>
+<pre><code>const __counters = {
 'assignment': 0,
 'readFile': 0
 }
@@ -525,146 +767,589 @@ readFile(numLoops, 'index.md');
 console.log(__counters)
 OUTPUT
 { assignment: 1, readFile: 3879 }
-</code></pre></div>
-</div>
-<p>Source-to-source translation is widely used in JavaScript:
-tools like <a href="https://babeljs.io/">Babel</a> use it to transform modern features like <code>async</code> and <code>await</code>
-(<a class="xref" href="../async/">Chapter 3</a>)
-into code that older browsers can understand.
-The technique is so powerful that it is built into languages like Scheme,
-which allow programmers to add new syntax to the language
-by defining <a class="gl-ref" href="../glossary/#macro">macros</a>.
-Depending on how carefully they are used,
-macros can make programs elegant, incomprehensible, or both.</p>
-<section aria-label="Exercises" class="exercises">
-<h2 id="code-generator-exercises">Exercises</h2>
-<h3>JSON to JavaScript</h3>
-<p>Write a tool that uses <a href="https://github.com/estools/escodegen/">Escodegen</a>
-to translate simple expressions written in JSON into runnable JavaScript.
-For example, the tool should translate:</p>
-<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="p">[</span><span class="s1">'+'</span><span class="p">,</span><span class="w"> </span><span class="mf">3</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s1">'*'</span><span class="p">,</span><span class="w"> </span><span class="mf">5</span><span class="p">,</span><span class="w"> </span><span class="s1">'a'</span><span class="p">]]</span>
-</code></pre></div>
-<p>into:</p>
-<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="mf">3</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="mf">5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">a</span><span class="p">)</span>
-</code></pre></div>
-<h3>JavaScript to HTML</h3>
-<p>Write a function that takes nested JavaScript function calls for generating HTML like this:</p>
-<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="nx">div</span><span class="p">(</span><span class="nx">h1</span><span class="p">(</span><span class="s1">'title'</span><span class="p">),</span><span class="w"> </span><span class="nx">p</span><span class="p">(</span><span class="s1">'explanation'</span><span class="p">))</span>
-</code></pre></div>
-<p>and turns them into HTML like this:</p>
-<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="nt">&lt;div&gt;&lt;h1&gt;</span>title<span class="nt">&lt;/h1&gt;&lt;p&gt;</span>explanation<span class="nt">&lt;/p&gt;&lt;/div&gt;</span>
-</code></pre></div>
-<h3>Handling modules</h3>
-<p>Modify the code that counts the number of times a function is called
-to handle functions with the same name from different modules.</p>
-<h3>Tracking calls</h3>
-<p>Write a decorator that takes a function as its argument
-and returns a new function that behaves exactly the same way
-except that it keeps track of who called it.</p>
-<ol>
-<li>
-<p>The program contains a stack where decorated functions push and pop their names
-    as they are called and as they exit.</p>
-</li>
-<li>
-<p>Each time a function is called
-    it adds a <a class="gl-ref" href="../glossary/#record">record</a> to an array to record its name and the name at the top of the stack
-    (i.e., the most-recently-called decorated function).</p>
-</li>
-</ol>
-<h3>Counting classical function definitions</h3>
-<p>Modify the code generator to handle functions declared with the <code>function</code> keyword
-as well as functions declared using <code>=&gt;</code>.</p>
-<h3>Recording input file size</h3>
-<ol>
-<li>
-<p>Write a program that replaces all calls to <code>fs.readFileSync</code>
-    with calls to <code>readFileSyncCount</code>.</p>
-</li>
-<li>
-<p>Write the function <code>readFileSyncCount</code> to read and return a file using <code>fs.readFileSync</code>
-    but to also record the file's name and size in bytes.</p>
-</li>
-<li>
-<p>Write a third function <code>reportInputFileSizes</code> that reports
-    what files were read and how large they were.</p>
-</li>
-<li>
-<p>Write tests for these functions using Mocha and <code>mock-fs</code>.</p>
-</li>
-</ol>
-<h3>Checking argument types</h3>
-<p>Write a tool that modifies functions to check the types of their arguments at run-time.</p>
-<ol>
-<li>
-<p>Each function is replaced by a function that passes all of its arguments to <code>checkArgs</code>
-    along with the function's name,
-    then continues with the function's original operation.</p>
-</li>
-<li>
-<p>The first time <code>checkArgs</code> is called for a particular function
-    it records the actual types of the arguments.</p>
-</li>
-<li>
-<p>On subsequent calls, it checks that the argument types match those of the first call
-    and throws an exception if they do not.</p>
-</li>
-</ol>
-<h3>Two-dimensional arrays</h3>
-<p>The function <code>make2D</code> takes a row length and one or more values
-and creates a two-dimensional array from those values:</p>
-<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="nx">make2D</span><span class="p">(</span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="s1">'a'</span><span class="p">,</span><span class="w"> </span><span class="s1">'b'</span><span class="p">,</span><span class="w"> </span><span class="s1">'c'</span><span class="p">,</span><span class="w"> </span><span class="s1">'d'</span><span class="p">)</span>
-<span class="c1">// produces [['a', 'b'], ['c', 'd']]</span>
-</code></pre></div>
-<p>Write a function that searches code to find calls to <code>make2D</code>
-and replaces them with inline arrays-of-arrays.
-This function only has to work for calls with a fixed row length,
-i.e., it does <em>not</em> have to handle <code>make2D(N, 'a', 'b')</code>.</p>
-<h3>From require to import</h3>
-<p>Write a function that searches code for simple calls to <code>require</code>
-and replaces them with calls to <code>import</code>.
-This function only needs to work for the simplest case;
-for example, if the input is:</p>
-<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">'module'</span><span class="p">)</span>
-</code></pre></div>
-<p>then the output is:</p>
-<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">name</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'module'</span>
-</code></pre></div>
-<h3>Removing empty constructors</h3>
-<p>Write a function that removes empty constructors from class definitions.
-For example, if the input is:</p>
-<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nx">Example</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kr">constructor</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="p">}</span>
-
-<span class="w">  </span><span class="nx">someMethod</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'some method'</span><span class="p">)</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div>
-<p>then the output should be:</p>
-<div class="codehilite"><pre class="" tabindex="0"><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nx">Example</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">someMethod</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'some method'</span><span class="p">)</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div>
+</code></pre>
+<p>Source-to-source translation is widely used in JavaScript: tools like <a href="https://babeljs.io/">Babel</a> use it to transform modern features like <code>async</code> and <code>await</code> (<a href="../async/index.html" class="quarto-xref"><span>Chapter 3</span></a>) into code that older browsers can understand. The technique is so powerful that it is built into languages like Scheme, which allow programmers to add new syntax to the language by defining <a href="../glossary/index.html#macro">macros</a>. Depending on how carefully they are used, macros can make programs elegant, incomprehensible, or both.</p>
+<section class="exercises">
 </section>
-</main>
-<footer aria-label="Page navigation">
-<div class="row">
-<div class="col-3 left">
-<span aria-hidden="true">⇐</span> <a href="../style/">Style Checker</a>
-</div>
-<div class="col-6 center">
-<a href="../">sdxjs</a>
-	  ©
-	  <a href="../#acknowledgments">the authors</a>
-</div>
-<div class="col-3 right">
-<a href="../docgen/">Documentation Generator</a> <span aria-hidden="true">⇒</span>
-</div>
-</div>
-</footer>
-</body>
-</html>
+<section id="code-generator-exercises" class="level2" data-number="15.5">
+<h2 data-number="15.5" class="anchored" data-anchor-id="code-generator-exercises"><span class="header-section-number">15.5</span> Exercises</h2>
+<section id="json-to-javascript" class="level3" data-number="15.5.1">
+<h3 data-number="15.5.1" class="anchored" data-anchor-id="json-to-javascript"><span class="header-section-number">15.5.1</span> JSON to JavaScript</h3>
+<p>Write a tool that uses <a href="https://github.com/estools/escodegen/">Escodegen</a> to translate simple expressions written in JSON into runnable JavaScript. For example, the tool should translate:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>[<span class="st">'+'</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> [<span class="st">'*'</span><span class="op">,</span> <span class="dv">5</span><span class="op">,</span> <span class="st">'a'</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>into:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="dv">3</span> <span class="op">+</span> (<span class="dv">5</span> <span class="op">*</span> a)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="javascript-to-html" class="level3" data-number="15.5.2">
+<h3 data-number="15.5.2" class="anchored" data-anchor-id="javascript-to-html"><span class="header-section-number">15.5.2</span> JavaScript to HTML</h3>
+<p>Write a function that takes nested JavaScript function calls for generating HTML like this:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">div</span>(<span class="fu">h1</span>(<span class="st">'title'</span>)<span class="op">,</span> <span class="fu">p</span>(<span class="st">'explanation'</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>and turns them into HTML like this:</p>
+<pre><code>&lt;div&gt;&lt;h1&gt;title&lt;/h1&gt;&lt;p&gt;explanation&lt;/p&gt;&lt;/div&gt;</code></pre>
+</section>
+<section id="handling-modules" class="level3" data-number="15.5.3">
+<h3 data-number="15.5.3" class="anchored" data-anchor-id="handling-modules"><span class="header-section-number">15.5.3</span> Handling modules</h3>
+<p>Modify the code that counts the number of times a function is called to handle functions with the same name from different modules.</p>
+</section>
+<section id="tracking-calls" class="level3" data-number="15.5.4">
+<h3 data-number="15.5.4" class="anchored" data-anchor-id="tracking-calls"><span class="header-section-number">15.5.4</span> Tracking calls</h3>
+<p>Write a decorator that takes a function as its argument and returns a new function that behaves exactly the same way except that it keeps track of who called it.</p>
+<ol type="1">
+<li><p>The program contains a stack where decorated functions push and pop their names as they are called and as they exit.</p></li>
+<li><p>Each time a function is called it adds a <a href="../glossary/index.html#record">record</a> to an array to record its name and the name at the top of the stack (i.e., the most-recently-called decorated function).</p></li>
+</ol>
+</section>
+<section id="counting-classical-function-definitions" class="level3" data-number="15.5.5">
+<h3 data-number="15.5.5" class="anchored" data-anchor-id="counting-classical-function-definitions"><span class="header-section-number">15.5.5</span> Counting classical function definitions</h3>
+<p>Modify the code generator to handle functions declared with the <code>function</code> keyword as well as functions declared using <code>=&gt;</code>.</p>
+</section>
+<section id="recording-input-file-size" class="level3" data-number="15.5.6">
+<h3 data-number="15.5.6" class="anchored" data-anchor-id="recording-input-file-size"><span class="header-section-number">15.5.6</span> Recording input file size</h3>
+<ol type="1">
+<li><p>Write a program that replaces all calls to <code>fs.readFileSync</code> with calls to <code>readFileSyncCount</code>.</p></li>
+<li><p>Write the function <code>readFileSyncCount</code> to read and return a file using <code>fs.readFileSync</code> but to also record the file’s name and size in bytes.</p></li>
+<li><p>Write a third function <code>reportInputFileSizes</code> that reports what files were read and how large they were.</p></li>
+<li><p>Write tests for these functions using Mocha and <code>mock-fs</code>.</p></li>
+</ol>
+</section>
+<section id="checking-argument-types" class="level3" data-number="15.5.7">
+<h3 data-number="15.5.7" class="anchored" data-anchor-id="checking-argument-types"><span class="header-section-number">15.5.7</span> Checking argument types</h3>
+<p>Write a tool that modifies functions to check the types of their arguments at run-time.</p>
+<ol type="1">
+<li><p>Each function is replaced by a function that passes all of its arguments to <code>checkArgs</code> along with the function’s name, then continues with the function’s original operation.</p></li>
+<li><p>The first time <code>checkArgs</code> is called for a particular function it records the actual types of the arguments.</p></li>
+<li><p>On subsequent calls, it checks that the argument types match those of the first call and throws an exception if they do not.</p></li>
+</ol>
+</section>
+<section id="two-dimensional-arrays" class="level3" data-number="15.5.8">
+<h3 data-number="15.5.8" class="anchored" data-anchor-id="two-dimensional-arrays"><span class="header-section-number">15.5.8</span> Two-dimensional arrays</h3>
+<p>The function <code>make2D</code> takes a row length and one or more values and creates a two-dimensional array from those values:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make2D</span>(<span class="dv">2</span><span class="op">,</span> <span class="st">'a'</span><span class="op">,</span> <span class="st">'b'</span><span class="op">,</span> <span class="st">'c'</span><span class="op">,</span> <span class="st">'d'</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co">// produces [['a', 'b'], ['c', 'd']]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Write a function that searches code to find calls to <code>make2D</code> and replaces them with inline arrays-of-arrays. This function only has to work for calls with a fixed row length, i.e., it does <em>not</em> have to handle <code>make2D(N, 'a', 'b')</code>.</p>
+</section>
+<section id="from-require-to-import" class="level3" data-number="15.5.9">
+<h3 data-number="15.5.9" class="anchored" data-anchor-id="from-require-to-import"><span class="header-section-number">15.5.9</span> From require to import</h3>
+<p>Write a function that searches code for simple calls to <code>require</code> and replaces them with calls to <code>import</code>. This function only needs to work for the simplest case; for example, if the input is:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> name <span class="op">=</span> <span class="pp">require</span>(<span class="st">'module'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>then the output is:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> name <span class="im">from</span> <span class="st">'module'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="removing-empty-constructors" class="level3" data-number="15.5.10">
+<h3 data-number="15.5.10" class="anchored" data-anchor-id="removing-empty-constructors"><span class="header-section-number">15.5.10</span> Removing empty constructors</h3>
+<p>Write a function that removes empty constructors from class definitions. For example, if the input is:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Example {</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> () {</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">someMethod</span> () {</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'some method'</span>)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>then the output should be:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Example {</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">someMethod</span> () {</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'some method'</span>)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+      }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
+          if (lineIds.length > 0) {
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            placeBand(gutterDiv, el, lastEl);
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
+  </script>
+<nav class="page-navigation" aria-label="Page">
+  <div class="nav-page nav-page-previous">
+      <a href="../style/index.html" class="pagination-link" aria-label="Style Checker">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Style Checker</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../docgen/index.html" class="pagination-link" aria-label="Documentation Generator">
+        <span class="nav-page-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Documentation Generator</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
