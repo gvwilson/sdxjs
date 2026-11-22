@@ -351,7 +351,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#translating-json-to-assembler" id="toc-translating-json-to-assembler" class="nav-link" data-scroll-target="#translating-json-to-assembler"><span class="header-section-number">20.5.10</span> Translating JSON to assembler</a></li>
   </ul></li>
   </ul>
-</nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/gvwilson/sdxjs/edit/main/debugger/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gvwilson/sdxjs/blob/main/debugger/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/gvwilson/sdxjs/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content" tabindex="-1">
@@ -379,21 +379,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="debugger-start" class="level2" data-number="20.1">
 <h2 data-number="20.1" class="anchored" data-anchor-id="debugger-start"><span class="header-section-number">20.1</span> What is our starting point?</h2>
 <p>We would like to debug a higher-level language than the assembly code of <a href="../vm/index.html" class="quarto-xref"><span>Chapter 19</span></a>, but we don’t want to have to write a parser or wrestle with the ASTs of <a href="../style/index.html" class="quarto-xref"><span>Chapter 14</span></a>. As a compromise, we will represent programs as JSON data structures whose elements have the form <code>[command ...args]</code>. If the JavaScript version of our program is:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> a <span class="op">=</span> [<span class="op">-</span><span class="dv">3</span><span class="op">,</span> <span class="op">-</span><span class="dv">5</span><span class="op">,</span> <span class="op">-</span><span class="dv">1</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="op">-</span><span class="dv">2</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">1</span>]</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> b <span class="op">=</span> <span class="bu">Array</span>()</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> largest <span class="op">=</span> a[<span class="dv">0</span>]</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> (i <span class="op">&lt;</span> <span class="fu">length</span>(a)) {</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (a[i] <span class="op">&gt;</span> largest) {</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    b<span class="op">.</span><span class="fu">push</span>(a[i])</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  i <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>i <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> (i <span class="op">&lt;</span> <span class="fu">length</span>(b)) {</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(b[i])</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  i <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>const a = [-3, -5, -1, 0, -2, 1, 3, 1]
+const b = Array()
+let largest = a[0]
+let i = 0
+while (i &lt; length(a)) {
+  if (a[i] &gt; largest) {
+    b.push(a[i])
+  }
+  i += 1
+}
+i = 0
+while (i &lt; length(b)) {
+  console.log(b[i])
+  i += 1
+}
+</code></pre>
 <p>then the JSON representation is:</p>
 <pre><code>[
   ["defA", "a", ["data", -3, -5, -1, 0, -2, 1, 3, 1]],
@@ -416,70 +417,197 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 ]
 </code></pre>
 <p>Our virtual machine is structured like the one in <a href="../vm/index.html" class="quarto-xref"><span>Chapter 19</span></a>. A real system would parse a program to create JSON, then translate JSON into assembly code, then assemble that to create machine instructions. Again, to keep things simple we will execute a program by removing comments and blank lines and then running commands by looking up the command name’s and calling that method:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VirtualMachineBase {</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (program) {</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">program</span> <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">compile</span>(program)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">prefix</span> <span class="op">=</span> <span class="st">'&gt;&gt;'</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">compile</span> (lines) {</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> text <span class="op">=</span> lines</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">map</span>(line <span class="kw">=&gt;</span> line<span class="op">.</span><span class="fu">trim</span>())</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">filter</span>(line <span class="kw">=&gt;</span> (line<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span>line<span class="op">.</span><span class="fu">startsWith</span>(<span class="st">'//'</span>))</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">join</span>(<span class="st">'</span><span class="sc">\n</span><span class="st">'</span>)</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">parse</span>(text)</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">run</span> () {</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">env</span> <span class="op">=</span> {}</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">runAll</span>(<span class="kw">this</span><span class="op">.</span><span class="at">program</span>)</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">runAll</span> (commands) {</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    commands<span class="op">.</span><span class="fu">forEach</span>(command <span class="kw">=&gt;</span> <span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(command))</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exec</span> (command) {</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [op<span class="op">,</span> <span class="op">...</span>args] <span class="op">=</span> command</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(op <span class="kw">in</span> <span class="kw">this</span><span class="op">,</span></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Unknown op "</span><span class="sc">${</span>op<span class="sc">}</span><span class="vs">"`</span>)</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span>[op](args)</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> VirtualMachineBase</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>import assert from 'assert'
+
+class VirtualMachineBase {
+  constructor (program) {
+    this.program = this.compile(program)
+    this.prefix = '&gt;&gt;'
+  }
+
+  compile (lines) {
+    const text = lines
+      .map(line =&gt; line.trim())
+      .filter(line =&gt; (line.length &gt; 0) &amp;&amp; !line.startsWith('//'))
+      .join('\n')
+    return JSON.parse(text)
+  }
+
+  run () {
+    this.env = {}
+    this.runAll(this.program)
+  }
+
+  runAll (commands) {
+    commands.forEach(command =&gt; this.exec(command))
+  }
+
+  exec (command) {
+    const [op, ...args] = command
+    assert(op in this,
+      `Unknown op "${op}"`)
+    return this[op](args)
+  }
+
+  // mccole:skip
+  // mccole:add
+  add (args) {
+    this.checkOp('add', 2, args)
+    const left = this.exec(args[0])
+    const right = this.exec(args[1])
+    return left + right
+  }
+  // mccole:/add
+  append (args) {
+    this.checkOp('append', 2, args)
+    this.checkArray('append', args[0])
+    const val = this.exec(args[1])
+    this.env[args[0]].push(val)
+  }
+
+  data (args) {
+    return args
+  }
+
+  defA (args) {
+    this.checkOp('defA', 2, args)
+    const [name, data] = args
+    this.env[name] = this.exec(data)
+  }
+
+  // mccole:defV
+  defV (args) {
+    this.checkOp('defV', 2, args)
+    const [name, value] = args
+    this.env[name] = this.exec(value)
+  }
+  // mccole:/defV
+  getA (args) {
+    this.checkOp('getA', 2, args)
+    this.checkArray('getA', args[0])
+    const index = this.exec(args[1])
+    this.checkIndex('getA', args[0], index)
+    return this.env[args[0]][index]
+  }
+
+  getV (args) {
+    this.checkOp('getV', 1, args)
+    this.checkName('getV', args[0])
+    return this.env[args[0]]
+  }
+
+  gt (args) {
+    this.checkOp('gt', 2, args)
+    const left = this.exec(args[0])
+    const right = this.exec(args[1])
+    return left &gt; right
+  }
+
+  len (args) {
+    this.checkOp('len', 1, args)
+    this.checkArray('len', args[0])
+    return this.env[args[0]].length
+  }
+
+  lt (args) {
+    this.checkOp('lt', 2, args)
+    const left = this.exec(args[0])
+    const right = this.exec(args[1])
+    return left &lt; right
+  }
+
+  // mccole:loop
+  loop (args) {
+    this.checkBody('loop', 1, args)
+    const body = args.slice(1)
+    while (this.exec(args[0])) {
+      this.runAll(body)
+    }
+  }
+  // mccole:/loop
+  num (args) {
+    this.checkOp('num', 1, args)
+    assert(typeof args[0] === 'number',
+      `Non-numeric value for "num": "${args[0]}"`)
+    return args[0]
+  }
+
+  print (args) {
+    this.checkOp('print', 1, args)
+    const val = this.exec(args[0])
+    this.message(this.prefix, val)
+  }
+
+  setA (args) {
+    this.checkOp('setA', 3, args)
+    this.checkArray('setA', args[0])
+    const index = this.exec(args[1])
+    this.checkIndex('setA', args[0], index)
+    const value = this.exec(args[2])
+    this.env[args[0]][index] = value
+  }
+
+  setV (args) {
+    this.checkOp('setV', 2, args)
+    this.checkName('setV', args[0])
+    this.env[args[0]] = this.exec(args[1])
+  }
+
+  test (args) {
+    this.checkBody('test', 1, args)
+    const condition = this.exec(args[0])
+    if (condition) {
+      const body = args.slice(1)
+      this.runAll(body)
+    }
+  }
+
+  // mccole:checkArray
+  checkArray (op, name) {
+    this.checkName(op, name)
+    const array = this.env[name]
+    assert(Array.isArray(array),
+      `Variable "${name}" used in "${op}" is not array`)
+  }
+  // mccole:/checkArray
+  checkBody (op, minimum, args) {
+    assert(args.length &gt;= minimum,
+      `Badly-formatted operation ${op}: ${JSON.stringify(args)}`)
+  }
+
+  checkIndex (op, name, index) {
+    this.checkArray(op, name)
+    assert((0 &lt;= index) &amp;&amp; (index &lt; this.env[name].length),
+      `Index "${index}" out of bounds for array "${name}"`)
+  }
+
+  checkName (op, name) {
+    assert(name in this.env,
+      `Unknown name "${name}" for operation "${op}"`)
+  }
+
+  checkOp (op, expected, args) {
+    assert(args.length === expected,
+      `Badly-formatted operation ${op}: ${JSON.stringify(args)}`)
+  }
+
+  message (prefix, val) {
+    console.log(prefix, val)
+  }
+  // mccole:/skip
+}
+
+export default VirtualMachineBase
+</code></pre>
 <p>Remember, functions and methods are just another kind of data, so if an object has a method called <code>"meth"</code>, the expression <code>this["meth"]</code> looks it up and <code>this["meth"](args)</code> calls it. If <code>"meth"</code> is stored in a variable called <code>name</code>, then <code>this[name](args)</code> will do exactly the same thing.</p>
 <p>The method in our VM that defines a new variable with an initial value looks like this:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">defV</span> (args) {</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkOp</span>(<span class="st">'defV'</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> args)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [name<span class="op">,</span> value] <span class="op">=</span> args</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">env</span>[name] <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(value)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <p>while the one that adds two values looks like this:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add</span> (args) {</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkOp</span>(<span class="st">'add'</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> args)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> left <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(args[<span class="dv">0</span>])</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> right <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(args[<span class="dv">1</span>])</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> left <span class="op">+</span> right</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <p>Running a <code>while</code> loop is:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">loop</span> (args) {</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkBody</span>(<span class="st">'loop'</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> args)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> body <span class="op">=</span> args<span class="op">.</span><span class="fu">slice</span>(<span class="dv">1</span>)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> (<span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(args[<span class="dv">0</span>])) {</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">runAll</span>(body)</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <p>and checking that a variable name refers to an array is:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">checkArray</span> (op<span class="op">,</span> name) {</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkName</span>(op<span class="op">,</span> name)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> array <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="at">env</span>[name]</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(<span class="bu">Array</span><span class="op">.</span><span class="fu">isArray</span>(array)<span class="op">,</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Variable "</span><span class="sc">${</span>name<span class="sc">}</span><span class="vs">" used in "</span><span class="sc">${</span>op<span class="sc">}</span><span class="vs">" is not array`</span>)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <p>The other operations are similar to these.</p>
 </section>
 <section id="debugger-tracing" class="level2" data-number="20.2">
@@ -487,44 +615,45 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The next thing we need in our debugger is a <a href="../glossary/index.html#source_map">source map</a> that keeps track of where in the source file each instruction came from. Since JSON is a subset of JavaScript, we could get line numbers by parsing our programs with <a href="https://github.com/acornjs/acorn">Acorn</a>. However, we would then have to scrape the information we want for this example out of the AST. Since this chapter is supposed to be about debugging, not parsing, we will instead cheat and add a line number to each interesting statement by hand so that our program looks like this:</p>
 <pre><code></code></pre>
 <p>Building the source map from that is simple; for now, we just modify <code>exec</code> to ignore the line number:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> VirtualMachineBase <span class="im">from</span> <span class="st">'./vm-base.js'</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VirtualMachineSourceMap <span class="kw">extends</span> VirtualMachineBase {</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">compile</span> (lines) {</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> original <span class="op">=</span> <span class="kw">super</span><span class="op">.</span><span class="fu">compile</span>(lines)</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">sourceMap</span> <span class="op">=</span> {}</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> result <span class="op">=</span> original<span class="op">.</span><span class="fu">map</span>(command <span class="kw">=&gt;</span> <span class="kw">this</span><span class="op">.</span><span class="fu">transform</span>(command))</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transform</span> (node) {</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="op">!</span><span class="bu">Array</span><span class="op">.</span><span class="fu">isArray</span>(node)) {</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> node</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="bu">Array</span><span class="op">.</span><span class="at">length</span> <span class="op">===</span> <span class="dv">0</span>) {</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> []</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [first<span class="op">,</span> <span class="op">...</span>rest] <span class="op">=</span> node</span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="kw">typeof</span> first <span class="op">!==</span> <span class="st">'number'</span>) {</span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> [first<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> <span class="op">...</span>rest<span class="op">.</span><span class="fu">map</span>(arg <span class="kw">=&gt;</span> <span class="kw">this</span><span class="op">.</span><span class="fu">transform</span>(arg))]</span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [op<span class="op">,</span> <span class="op">...</span>args] <span class="op">=</span> rest</span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">sourceMap</span>[first] <span class="op">=</span></span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>      [op<span class="op">,</span> first<span class="op">,</span> <span class="op">...</span>args<span class="op">.</span><span class="fu">map</span>(arg <span class="kw">=&gt;</span> <span class="kw">this</span><span class="op">.</span><span class="fu">transform</span>(arg))]</span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="at">sourceMap</span>[first]</span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exec</span> (command) {</span>
-<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [op<span class="op">,</span> lineNum<span class="op">,</span> <span class="op">...</span>args] <span class="op">=</span> command</span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(op <span class="kw">in</span> <span class="kw">this</span><span class="op">,</span></span>
-<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Unknown op "</span><span class="sc">${</span>op<span class="sc">}</span><span class="vs">"`</span>)</span>
-<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span>[op](args)</span>
-<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> VirtualMachineSourceMap</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>import assert from 'assert'
+
+import VirtualMachineBase from './vm-base.js'
+
+class VirtualMachineSourceMap extends VirtualMachineBase {
+  compile (lines) {
+    const original = super.compile(lines)
+    this.sourceMap = {}
+    const result = original.map(command =&gt; this.transform(command))
+    return result
+  }
+
+  transform (node) {
+    if (!Array.isArray(node)) {
+      return node
+    }
+    if (Array.length === 0) {
+      return []
+    }
+    const [first, ...rest] = node
+    if (typeof first !== 'number') {
+      return [first, null, ...rest.map(arg =&gt; this.transform(arg))]
+    }
+    const [op, ...args] = rest
+    this.sourceMap[first] =
+      [op, first, ...args.map(arg =&gt; this.transform(arg))]
+    return this.sourceMap[first]
+  }
+
+  exec (command) {
+    const [op, lineNum, ...args] = command
+    assert(op in this,
+      `Unknown op "${op}"`)
+    return this[op](args)
+  }
+}
+
+export default VirtualMachineSourceMap
+</code></pre>
 <div class="callout callout-style-simple callout-none no-icon callout-titled" data-markdown="1">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -539,31 +668,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>The next step is to modify the VM’s <code>exec</code> method so that it executes a callback function for each significant operation (where “significant” means “we bothered to record its line number”). Since we’re not sure what our debugger is going to need, we give this callback the environment holding the current set of variables, the line number, and the operation being performed:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> VirtualMachineSourceMap <span class="im">from</span> <span class="st">'./vm-source-map.js'</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VirtualMachineCallback <span class="kw">extends</span> VirtualMachineSourceMap {</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (program<span class="op">,</span> dbg) {</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>(program)</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">dbg</span> <span class="op">=</span> dbg</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">dbg</span><span class="op">.</span><span class="fu">setVM</span>(<span class="kw">this</span>)</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exec</span> (command) {</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [op<span class="op">,</span> lineNum<span class="op">,</span> <span class="op">...</span>args] <span class="op">=</span> command</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">dbg</span><span class="op">.</span><span class="fu">handle</span>(<span class="kw">this</span><span class="op">.</span><span class="at">env</span><span class="op">,</span> lineNum<span class="op">,</span> op)</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(op <span class="kw">in</span> <span class="kw">this</span><span class="op">,</span></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Unknown op "</span><span class="sc">${</span>op<span class="sc">}</span><span class="vs">"`</span>)</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span>[op](args<span class="op">,</span> lineNum)</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">message</span> (prefix<span class="op">,</span> val) {</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">dbg</span><span class="op">.</span><span class="fu">message</span>(<span class="vs">`</span><span class="sc">${</span>prefix<span class="sc">}</span><span class="vs"> </span><span class="sc">${</span>val<span class="sc">}</span><span class="vs">`</span>)</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> VirtualMachineCallback</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>import assert from 'assert'
+
+import VirtualMachineSourceMap from './vm-source-map.js'
+
+class VirtualMachineCallback extends VirtualMachineSourceMap {
+  constructor (program, dbg) {
+    super(program)
+    this.dbg = dbg
+    this.dbg.setVM(this)
+  }
+
+  exec (command) {
+    const [op, lineNum, ...args] = command
+    this.dbg.handle(this.env, lineNum, op)
+    assert(op in this,
+      `Unknown op "${op}"`)
+    return this[op](args, lineNum)
+  }
+
+  message (prefix, val) {
+    this.dbg.message(`${prefix} ${val}`)
+  }
+}
+
+export default VirtualMachineCallback
+</code></pre>
 <p>We also modify the VM’s constructor to record the debugger and give it a reference to the virtual machine (<a href="#fig-debugger-initialization" class="quarto-xref">Figure&nbsp;<span>20.1</span></a>). We have to connect the two objects explicitly because each one needs a reference to the other, but one of them has to be created first. “A gets B then B tells A about itself” is a common pattern; we will look at other ways to manage it in the exercises.</p>
 <div id="fig-debugger-initialization" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -576,35 +706,37 @@ Figure&nbsp;20.1: Two-step initialization of mutually-dependent objects.
 </figure>
 </div>
 <p>To run the program, we create a debugger object and pass it to the VM’s constructor:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> readSource <span class="im">from</span> <span class="st">'./read-source.js'</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> main <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assert</span>(<span class="bu">process</span><span class="op">.</span><span class="at">argv</span><span class="op">.</span><span class="at">length</span> <span class="op">===</span> <span class="dv">5</span><span class="op">,</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Usage: run-debugger.js ./vm ./debugger input|-'</span>)</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> VM <span class="op">=</span> <span class="pp">require</span>(<span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">2</span>])</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> Debugger <span class="op">=</span> <span class="pp">require</span>(<span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">3</span>])</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> inFile <span class="op">=</span> <span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">4</span>]</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> lines <span class="op">=</span> <span class="fu">readSource</span>(inFile)</span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> dbg <span class="op">=</span> <span class="kw">new</span> <span class="fu">Debugger</span>()</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> vm <span class="op">=</span> <span class="kw">new</span> <span class="fu">VM</span>(lines<span class="op">,</span> dbg)</span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  vm<span class="op">.</span><span class="fu">run</span>()</span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="fu">main</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>import assert from 'assert'
+
+import readSource from './read-source.js'
+
+const main = () =&gt; {
+  assert(process.argv.length === 5,
+    'Usage: run-debugger.js ./vm ./debugger input|-')
+  const VM = require(process.argv[2])
+  const Debugger = require(process.argv[3])
+  const inFile = process.argv[4]
+  const lines = readSource(inFile)
+  const dbg = new Debugger()
+  const vm = new VM(lines, dbg)
+  vm.run()
+}
+
+main()
+</code></pre>
 <p>A simple debugger just traces interesting statements as they run:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> DebuggerBase <span class="im">from</span> <span class="st">'./debugger-base.js'</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DebuggerTrace <span class="kw">extends</span> DebuggerBase {</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">handle</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op) {</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (lineNum <span class="op">!==</span> <span class="kw">null</span>) {</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>      <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`</span><span class="sc">${</span>lineNum<span class="sc">}</span><span class="vs"> / </span><span class="sc">${</span>op<span class="sc">}</span><span class="vs">: </span><span class="sc">${</span><span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(env)<span class="sc">}</span><span class="vs">`</span>)</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> DebuggerTrace</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>import DebuggerBase from './debugger-base.js'
+
+class DebuggerTrace extends DebuggerBase {
+  handle (env, lineNum, op) {
+    if (lineNum !== null) {
+      console.log(`${lineNum} / ${op}: ${JSON.stringify(env)}`)
+    }
+  }
+}
+
+export default DebuggerTrace
+</code></pre>
 <p>Let’s try it on a program that adds the numbers in an array:</p>
 <pre><code>// const a = [-5, 1, 3]
 // const total = 0
@@ -657,76 +789,152 @@ Figure&nbsp;20.1: Two-step initialization of mutually-dependent objects.
 <li><p><code>exit</code> to exit immediately.</p></li>
 </ul>
 <p>When the virtual machine calls the debugger, the debugger first checks if it is on a numbered line. If it isn’t, it hands control back to the VM. Otherwise, if we are single-stepping or this line is a breakpoint, the debugger takes over. Its overall structure is:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> prompt <span class="im">from</span> <span class="st">'prompt-sync'</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> DebuggerBase <span class="im">from</span> <span class="st">'./debugger-base.js'</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> PROMPT_OPTIONS <span class="op">=</span> { <span class="dt">sigint</span><span class="op">:</span> <span class="kw">true</span> }</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DebuggerInteractive <span class="kw">extends</span> DebuggerBase {</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> () {</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>()</span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">singleStep</span> <span class="op">=</span> <span class="kw">true</span></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">breakpoints</span> <span class="op">=</span> <span class="kw">new</span> <span class="bu">Set</span>()</span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">lookup</span> <span class="op">=</span> {</span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>      <span class="st">'?'</span><span class="op">:</span> <span class="st">'help'</span><span class="op">,</span></span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>      <span class="dt">c</span><span class="op">:</span> <span class="st">'clear'</span><span class="op">,</span></span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>      <span class="dt">l</span><span class="op">:</span> <span class="st">'list'</span><span class="op">,</span></span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>      <span class="dt">n</span><span class="op">:</span> <span class="st">'next'</span><span class="op">,</span></span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>      <span class="dt">p</span><span class="op">:</span> <span class="st">'print'</span><span class="op">,</span></span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>      <span class="dt">r</span><span class="op">:</span> <span class="st">'run'</span><span class="op">,</span></span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>      <span class="dt">s</span><span class="op">:</span> <span class="st">'stop'</span><span class="op">,</span></span>
-<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>      <span class="dt">v</span><span class="op">:</span> <span class="st">'variables'</span><span class="op">,</span></span>
-<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>      <span class="dt">x</span><span class="op">:</span> <span class="st">'exit'</span></span>
-<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">handle</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op) {</span>
-<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (lineNum <span class="op">===</span> <span class="kw">null</span>) {</span>
-<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span></span>
-<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="at">singleStep</span>) {</span>
-<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="at">singleStep</span> <span class="op">=</span> <span class="kw">false</span></span>
-<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">interact</span>(env<span class="op">,</span> lineNum<span class="op">,</span> op)</span>
-<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="at">breakpoints</span><span class="op">.</span><span class="fu">has</span>(lineNum)) {</span>
-<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">interact</span>(env<span class="op">,</span> lineNum<span class="op">,</span> op)</span>
-<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> DebuggerInteractive</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>import prompt from 'prompt-sync'
+
+import DebuggerBase from './debugger-base.js'
+
+const PROMPT_OPTIONS = { sigint: true }
+
+class DebuggerInteractive extends DebuggerBase {
+  constructor () {
+    super()
+    this.singleStep = true
+    this.breakpoints = new Set()
+    this.lookup = {
+      '?': 'help',
+      c: 'clear',
+      l: 'list',
+      n: 'next',
+      p: 'print',
+      r: 'run',
+      s: 'stop',
+      v: 'variables',
+      x: 'exit'
+    }
+  }
+
+  handle (env, lineNum, op) {
+    if (lineNum === null) {
+      return
+    }
+    if (this.singleStep) {
+      this.singleStep = false
+      this.interact(env, lineNum, op)
+    } else if (this.breakpoints.has(lineNum)) {
+      this.interact(env, lineNum, op)
+    }
+  }
+
+  // mccole:skip
+  // mccole:interact
+  interact (env, lineNum, op) {
+    let interacting = true
+    while (interacting) {
+      const command = this.getCommand(env, lineNum, op)
+      if (command.length === 0) {
+        continue
+      }
+      const [cmd, ...args] = command
+      if (cmd in this) {
+        interacting = this[cmd](env, lineNum, op, args)
+      } else if (cmd in this.lookup) {
+        interacting = this[this.lookup[cmd]](env, lineNum, op, args)
+      } else {
+        this.message(`unknown command ${command} (use '?' for help)`)
+      }
+    }
+  }
+
+  getCommand (env, lineNum, op) {
+    const options = Object.keys(this.lookup).sort().join('')
+    const display = `[${lineNum} ${options}] `
+    return this.input(display)
+      .split(/\s+/)
+      .map(s =&gt; s.trim())
+      .filter(s =&gt; s.length &gt; 0)
+  }
+
+  input (display) {
+    return prompt(PROMPT_OPTIONS)(display)
+  }
+  // mccole:/interact
+  help (env, lineNum, op, args) {
+    this.message(this.lookup)
+    return true
+  }
+
+  clear (env, lineNum, op, args) {
+    if (args.length !== 1) {
+      this.message('c[lear] requires one line number')
+    } else {
+      this.breakpoints.delete(parseInt(args[0]))
+    }
+    return true
+  }
+
+  list (env, lineNum, op, args) {
+    const msg = Object.keys(this.vm.sourceMap)
+      .map(n =&gt; parseInt(n))
+      .sort((left, right) =&gt; left - right)
+      .map(n =&gt; {
+        if (this.breakpoints.has(n)) {
+          return `${n}*`
+        } else {
+          return `${n}`
+        }
+      })
+      .join(' ')
+    this.message(msg)
+    return true
+  }
+
+  // mccole:next
+  next (env, lineNum, op, args) {
+    this.singleStep = true
+    return false
+  }
+  // mccole:/next
+  // mccole:print
+  print (env, lineNum, op, args) {
+    if (args.length !== 1) {
+      this.message('p[rint] requires one variable name')
+    } else if (!(args[0] in env)) {
+      this.message(`unknown variable name "${args[0]}"`)
+    } else {
+      this.message(JSON.stringify(env[args[0]]))
+    }
+    return true
+  }
+  // mccole:/print
+  run (env, lineNum, op, args) {
+    this.singleStep = false
+    return false
+  }
+
+  stop (env, lineNum, op, args) {
+    if (args.length !== 1) {
+      this.message('s[top] requires one line number')
+    } else {
+      this.breakpoints.add(parseInt(args[0]))
+    }
+    return true
+  }
+
+  variables (env, lineNum, op, args) {
+    this.message(Object.keys(env).sort())
+    return true
+  }
+
+  exit (env, lineNum, op, args) {
+    process.exit(0)
+  }
+  // mccole:/skip
+}
+
+export default DebuggerInteractive
+</code></pre>
 <p>It interacts with users by lookup up a command and invoking the corresponding method, just as the VM does:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">interact</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op) {</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> interacting <span class="op">=</span> <span class="kw">true</span></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> (interacting) {</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> command <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">getCommand</span>(env<span class="op">,</span> lineNum<span class="op">,</span> op)</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (command<span class="op">.</span><span class="at">length</span> <span class="op">===</span> <span class="dv">0</span>) {</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">continue</span></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> [cmd<span class="op">,</span> <span class="op">...</span>args] <span class="op">=</span> command</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (cmd <span class="kw">in</span> <span class="kw">this</span>) {</span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>        interacting <span class="op">=</span> <span class="kw">this</span>[cmd](env<span class="op">,</span> lineNum<span class="op">,</span> op<span class="op">,</span> args)</span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> <span class="cf">if</span> (cmd <span class="kw">in</span> <span class="kw">this</span><span class="op">.</span><span class="at">lookup</span>) {</span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>        interacting <span class="op">=</span> <span class="kw">this</span>[<span class="kw">this</span><span class="op">.</span><span class="at">lookup</span>[cmd]](env<span class="op">,</span> lineNum<span class="op">,</span> op<span class="op">,</span> args)</span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">message</span>(<span class="vs">`unknown command </span><span class="sc">${</span>command<span class="sc">}</span><span class="vs"> (use '?' for help)`</span>)</span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">getCommand</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op) {</span>
-<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> options <span class="op">=</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">keys</span>(<span class="kw">this</span><span class="op">.</span><span class="at">lookup</span>)<span class="op">.</span><span class="fu">sort</span>()<span class="op">.</span><span class="fu">join</span>(<span class="st">''</span>)</span>
-<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> display <span class="op">=</span> <span class="vs">`[</span><span class="sc">${</span>lineNum<span class="sc">}</span><span class="vs"> </span><span class="sc">${</span>options<span class="sc">}</span><span class="vs">] `</span></span>
-<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="fu">input</span>(display)</span>
-<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">split</span>(<span class="ss">/</span><span class="sc">\s+</span><span class="ss">/</span>)</span>
-<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">map</span>(s <span class="kw">=&gt;</span> s<span class="op">.</span><span class="fu">trim</span>())</span>
-<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">filter</span>(s <span class="kw">=&gt;</span> s<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span>)</span>
-<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">input</span> (display) {</span>
-<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fu">prompt</span>(PROMPT_OPTIONS)(display)</span>
-<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <div class="callout callout-style-simple callout-none no-icon callout-titled" data-markdown="1">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -741,36 +949,25 @@ Figure&nbsp;20.1: Two-step initialization of mutually-dependent objects.
 </div>
 </div>
 <p>With this structure in place, the command handlers are pretty straightforward. For example, this method moves us to the next line:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">next</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op<span class="op">,</span> args) {</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">singleStep</span> <span class="op">=</span> <span class="kw">true</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">false</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <p>while this one prints the value of a variable:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op<span class="op">,</span> args) {</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (args<span class="op">.</span><span class="at">length</span> <span class="op">!==</span> <span class="dv">1</span>) {</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">message</span>(<span class="st">'p[rint] requires one variable name'</span>)</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (<span class="op">!</span>(args[<span class="dv">0</span>] <span class="kw">in</span> env)) {</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">message</span>(<span class="vs">`unknown variable name "</span><span class="sc">${</span>args[<span class="dv">0</span>]<span class="sc">}</span><span class="vs">"`</span>)</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">message</span>(<span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(env[args[<span class="dv">0</span>]]))</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">true</span></span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <p>After using this for a few moments, though we realized that we needed to change the signature of the <code>loop</code> method. We want to stop the loop each time it runs, and need to know where we are. We didn’t allow for this in the base class, and we don’t want to have to change every method, so we take advantage of the fact that JavaScript ignores any extra arguments passed to a method:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> VirtualMachineCallback <span class="im">from</span> <span class="st">'./vm-callback.js'</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VirtualMachineInteractive <span class="kw">extends</span> VirtualMachineCallback {</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">loop</span> (args<span class="op">,</span> lineNum) {</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkBody</span>(<span class="st">'loop'</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> args)</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> body <span class="op">=</span> args<span class="op">.</span><span class="fu">slice</span>(<span class="dv">1</span>)</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> (<span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(args[<span class="dv">0</span>])) {</span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="at">dbg</span><span class="op">.</span><span class="fu">handle</span>(<span class="kw">this</span><span class="op">.</span><span class="at">env</span><span class="op">,</span> lineNum<span class="op">,</span> <span class="st">'loop'</span>)</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">runAll</span>(body)</span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> VirtualMachineInteractive</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>import VirtualMachineCallback from './vm-callback.js'
+
+class VirtualMachineInteractive extends VirtualMachineCallback {
+  loop (args, lineNum) {
+    this.checkBody('loop', 1, args)
+    const body = args.slice(1)
+    while (this.exec(args[0])) {
+      this.dbg.handle(this.env, lineNum, 'loop')
+      this.runAll(body)
+    }
+  }
+}
+
+export default VirtualMachineInteractive
+</code></pre>
 <p>This is sloppy, but it works; we will tidy it up in the exercises.</p>
 </section>
 <section id="debugger-test" class="level2" data-number="20.4">
@@ -787,55 +984,56 @@ Figure&nbsp;20.2: Replacing input and output to test interactive applications.
 </figure>
 </div>
 <p>The results look like this:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <p>Our <code>Expect</code> class may be short, but it is hard to understand because it is so abstract:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Expect {</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (subject<span class="op">,</span> start) {</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">start</span> <span class="op">=</span> start</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">steps</span> <span class="op">=</span> []</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    subject<span class="op">.</span><span class="fu">setTester</span>(<span class="kw">this</span>)</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">send</span> (text) {</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">steps</span><span class="op">.</span><span class="fu">push</span>({ <span class="dt">op</span><span class="op">:</span> <span class="st">'toSystem'</span><span class="op">,</span> <span class="dt">arg</span><span class="op">:</span> text })</span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span></span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">get</span> (text) {</span>
-<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">steps</span><span class="op">.</span><span class="fu">push</span>({ <span class="dt">op</span><span class="op">:</span> <span class="st">'fromSystem'</span><span class="op">,</span> <span class="dt">arg</span><span class="op">:</span> text })</span>
-<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span></span>
-<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">run</span> () {</span>
-<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">start</span>()</span>
-<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>(<span class="kw">this</span><span class="op">.</span><span class="at">steps</span><span class="op">.</span><span class="at">length</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span></span>
-<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Extra steps at end of test'</span>)</span>
-<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">toSystem</span> () {</span>
-<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="fu">next</span>(<span class="st">'toSystem'</span>)</span>
-<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fromSystem</span> (actual) {</span>
-<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> expected <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">next</span>(<span class="st">'fromSystem'</span>)</span>
-<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>(expected<span class="op">,</span> actual<span class="op">,</span></span>
-<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Expected "</span><span class="sc">${</span>expected<span class="sc">}</span><span class="vs">" got "</span><span class="sc">${</span>actual<span class="sc">}</span><span class="vs">"`</span>)</span>
-<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">next</span> (kind) {</span>
-<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(<span class="kw">this</span><span class="op">.</span><span class="at">steps</span><span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">,</span></span>
-<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Unexpected end of steps'</span>)</span>
-<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>(<span class="kw">this</span><span class="op">.</span><span class="at">steps</span>[<span class="dv">0</span>]<span class="op">.</span><span class="at">op</span><span class="op">,</span> kind<span class="op">,</span></span>
-<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Expected </span><span class="sc">${</span>kind<span class="sc">}</span><span class="vs">, got "</span><span class="sc">${</span><span class="kw">this</span><span class="op">.</span><span class="at">steps</span>[<span class="dv">0</span>]<span class="op">.</span><span class="at">op</span><span class="sc">}</span><span class="vs">"`</span>)</span>
-<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> text <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="at">steps</span>[<span class="dv">0</span>]<span class="op">.</span><span class="at">arg</span></span>
-<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">steps</span> <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="at">steps</span><span class="op">.</span><span class="fu">slice</span>(<span class="dv">1</span>)</span>
-<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> text</span>
-<span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb21-46"><a href="#cb21-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-47"><a href="#cb21-47" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> Expect</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>import assert from 'assert'
+
+class Expect {
+  constructor (subject, start) {
+    this.start = start
+    this.steps = []
+    subject.setTester(this)
+  }
+
+  send (text) {
+    this.steps.push({ op: 'toSystem', arg: text })
+    return this
+  }
+
+  get (text) {
+    this.steps.push({ op: 'fromSystem', arg: text })
+    return this
+  }
+
+  run () {
+    this.start()
+    assert.strictEqual(this.steps.length, 0,
+      'Extra steps at end of test')
+  }
+
+  toSystem () {
+    return this.next('toSystem')
+  }
+
+  fromSystem (actual) {
+    const expected = this.next('fromSystem')
+    assert.strictEqual(expected, actual,
+      `Expected "${expected}" got "${actual}"`)
+  }
+
+  next (kind) {
+    assert(this.steps.length &gt; 0,
+      'Unexpected end of steps')
+    assert.strictEqual(this.steps[0].op, kind,
+      `Expected ${kind}, got "${this.steps[0].op}"`)
+    const text = this.steps[0].arg
+    this.steps = this.steps.slice(1)
+    return text
+  }
+}
+
+export default Expect
+</code></pre>
 <p>Piece-by-piece:</p>
 <ul>
 <li><code>subject</code> is the thing being tested.</li>
@@ -845,31 +1043,32 @@ Figure&nbsp;20.2: Replacing input and output to test interactive applications.
 <li><code>toSystem</code> and <code>fromSystem</code> use <code>next</code> to get the next test record, check its type, and return the string.</li>
 </ul>
 <p>Let’s modify the debugger to use the tester, keeping in mind that the prompt counts as an output (and yes, we forgot this in the first version):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> DebuggerInteractive <span class="im">from</span> <span class="st">'./debugger-interactive.js'</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DebuggerTest <span class="kw">extends</span> DebuggerInteractive {</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> () {</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>()</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">tester</span> <span class="op">=</span> <span class="kw">null</span></span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setTester</span> (tester) {</span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">tester</span> <span class="op">=</span> tester</span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">input</span> (display) {</span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">tester</span><span class="op">.</span><span class="fu">fromSystem</span>(display)</span>
-<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="at">tester</span><span class="op">.</span><span class="fu">toSystem</span>()</span>
-<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">message</span> (m) {</span>
-<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">tester</span><span class="op">.</span><span class="fu">fromSystem</span>(m)</span>
-<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> DebuggerTest</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>import DebuggerInteractive from './debugger-interactive.js'
+
+class DebuggerTest extends DebuggerInteractive {
+  constructor () {
+    super()
+    this.tester = null
+  }
+
+  setTester (tester) {
+    this.tester = tester
+  }
+
+  input (display) {
+    this.tester.fromSystem(display)
+    return this.tester.toSystem()
+  }
+
+  message (m) {
+    this.tester.fromSystem(m)
+  }
+}
+
+export default DebuggerTest
+</code></pre>
 <p>Again, we can’t pass the tester as a constructor parameter because of initialization order, so we write a <code>setup</code> function to make sure everything is connected the right way:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <p>Let’s try running our tests:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run test <span class="at">--</span> <span class="at">-g</span> <span class="st">'interactive debugger'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre><code>
@@ -884,40 +1083,43 @@ Figure&nbsp;20.2: Replacing input and output to test interactive applications.
 <p>That works—or does it? Why is only one test shown, and doesn’t the summary appear? After a bit of digging, we realize that the debugger’s <code>exit</code> command calls <code>process.exit</code> when the simulated program ends, so the whole program including the VM, debugger, and test framework stops immediately <em>before</em> the promises that contain the tests have run.</p>
 <p>We could fix this by modifying the debugger callback to return an indication of whether or not execution should continue, then modify the VM to pay attention to that flag. However, this approach becomes very complicated when we have deeply-nested calls to <code>exec</code>, which will happen with loops and conditionals.</p>
 <p>A better alternative is to use an exception for control flow. We can define our own kind of exception as an empty class: it doesn’t need any data because we are only using it to get a typed object:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> HaltException {</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> HaltException</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>class HaltException {
+}
+
+export default HaltException
+</code></pre>
 <p>Next, we modify the debugger to throw this exception when asked to exit:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> HaltException <span class="im">from</span> <span class="st">'./halt-exception.js'</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> DebuggerTest <span class="im">from</span> <span class="st">'./debugger-test.js'</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DebuggerExit <span class="kw">extends</span> DebuggerTest {</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exit</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op<span class="op">,</span> args) {</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="fu">HaltException</span>()</span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> DebuggerExit</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>import HaltException from './halt-exception.js'
+import DebuggerTest from './debugger-test.js'
+
+class DebuggerExit extends DebuggerTest {
+  exit (env, lineNum, op, args) {
+    throw new HaltException()
+  }
+}
+
+export default DebuggerExit
+</code></pre>
 <p>And finally we modify the VM to finish cleanly if this exception is thrown, but re-throw any other kind of exception:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> HaltException <span class="im">from</span> <span class="st">'./halt-exception.js'</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> VirtualMachineInteractive <span class="im">from</span> <span class="st">'./vm-interactive.js'</span></span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VirtualMachineExit <span class="kw">extends</span> VirtualMachineInteractive {</span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">run</span> () {</span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">env</span> <span class="op">=</span> {}</span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span> {</span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">runAll</span>(<span class="kw">this</span><span class="op">.</span><span class="at">program</span>)</span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">catch</span> (exc) {</span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (exc <span class="kw">instanceof</span> HaltException) {</span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span></span>
-<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>      <span class="cf">throw</span> exc</span>
-<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> VirtualMachineExit</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>import HaltException from './halt-exception.js'
+import VirtualMachineInteractive from './vm-interactive.js'
+
+class VirtualMachineExit extends VirtualMachineInteractive {
+  run () {
+    this.env = {}
+    try {
+      this.runAll(this.program)
+    } catch (exc) {
+      if (exc instanceof HaltException) {
+        return
+      }
+      throw exc
+    }
+  }
+}
+
+export default VirtualMachineExit
+</code></pre>
 <p>With these changes in place, we are finally able to test our interactive debugger:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run test <span class="at">--</span> <span class="at">-g</span> <span class="st">'exitable debugger'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre><code>
@@ -1481,4 +1683,4 @@ Figure&nbsp;20.2: Replacing input and output to test interactive applications.
 
 
 
-</body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gvwilson/sdxjs/edit/main/debugger/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gvwilson/sdxjs/blob/main/debugger/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/gvwilson/sdxjs/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

@@ -356,7 +356,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#auxiliary-functions" id="toc-auxiliary-functions" class="nav-link" data-scroll-target="#auxiliary-functions"><span class="header-section-number">9.7.10</span> Auxiliary functions</a></li>
   </ul></li>
   </ul>
-</nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/gvwilson/sdxjs/edit/main/templater/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gvwilson/sdxjs/blob/main/templater/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/gvwilson/sdxjs/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content" tabindex="-1">
@@ -441,13 +441,14 @@ Figure&nbsp;9.1: Three different ways to implement page templating.
 </div>
 </div>
 <p>The next step is to define the API for filling in templates. Our tool needs the template itself, somewhere to write its output, and some variables to use in the expansion. These variables might come from a configuration file, from a YAML header in the file itself, or from some mix of the two; for the moment, we will just pass them into the expansion function as an object:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> variables <span class="op">=</span> {</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">names</span><span class="op">:</span> [<span class="st">'Johnson'</span><span class="op">,</span> <span class="st">'Vaughan'</span><span class="op">,</span> <span class="st">'Jackson'</span>]</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> dom <span class="op">=</span> <span class="fu">readHtml</span>(<span class="st">'template.html'</span>) <span class="co">// eslint-disable-line</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> expander <span class="op">=</span> <span class="kw">new</span> <span class="fu">Expander</span>(dom<span class="op">,</span> variables) <span class="co">// eslint-disable-line</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>expander<span class="op">.</span><span class="fu">walk</span>()</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(expander<span class="op">.</span><span class="at">result</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>const variables = {
+  names: ['Johnson', 'Vaughan', 'Jackson']
+}
+const dom = readHtml('template.html') // eslint-disable-line
+const expander = new Expander(dom, variables) // eslint-disable-line
+expander.walk()
+console.log(expander.result)
+</code></pre>
 </section>
 <section id="page-templates-values" class="level2" data-number="9.2">
 <h2 data-number="9.2" class="anchored" data-anchor-id="page-templates-values"><span class="header-section-number">9.2</span> How can we keep track of values?</h2>
@@ -467,35 +468,36 @@ Figure&nbsp;9.1: Three different ways to implement page templating.
 </div>
 </div>
 <p>The values in a running program are sometimes called an <a href="../glossary/index.html#environment">environment</a>, so we have named our stack-handling class <code>Env</code>. Its methods let us push and pop new stack frames and find a variable given its name; if the variable can’t be found, <code>Env.find</code> returns <code>undefined</code> instead of throwing an exception (<a href="#fig-page-templates-stack" class="quarto-xref">Figure&nbsp;<span>9.2</span></a>).</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Env {</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (initial) {</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">stack</span> <span class="op">=</span> []</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">push</span>(<span class="bu">Object</span><span class="op">.</span><span class="fu">assign</span>({}<span class="op">,</span> initial))</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">push</span> (frame) {</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">stack</span><span class="op">.</span><span class="fu">push</span>(frame)</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pop</span> () {</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">stack</span><span class="op">.</span><span class="fu">pop</span>()</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">find</span> (name) {</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="at">stack</span><span class="op">.</span><span class="at">length</span> <span class="op">-</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">;</span> i<span class="op">--</span>) {</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (name <span class="kw">in</span> <span class="kw">this</span><span class="op">.</span><span class="at">stack</span>[i]) {</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="at">stack</span>[i][name]</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">undefined</span></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">toString</span> () {</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(<span class="kw">this</span><span class="op">.</span><span class="at">stack</span>)</span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> Env</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>class Env {
+  constructor (initial) {
+    this.stack = []
+    this.push(Object.assign({}, initial))
+  }
+
+  push (frame) {
+    this.stack.push(frame)
+  }
+
+  pop () {
+    this.stack.pop()
+  }
+
+  find (name) {
+    for (let i = this.stack.length - 1; i &gt;= 0; i--) {
+      if (name in this.stack[i]) {
+        return this.stack[i][name]
+      }
+    }
+    return undefined
+  }
+
+  toString () {
+    return JSON.stringify(this.stack)
+  }
+}
+
+export default Env
+</code></pre>
 <div id="fig-page-templates-stack" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-page-templates-stack-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -510,37 +512,38 @@ Figure&nbsp;9.2: Using a stack to manage variables.
 <section id="page-templates-nodes" class="level2" data-number="9.3">
 <h2 data-number="9.3" class="anchored" data-anchor-id="page-templates-nodes"><span class="header-section-number">9.3</span> How do we handle nodes?</h2>
 <p>HTML pages have a nested structure, so we will process them using the <a href="../glossary/index.html#visitor_pattern">Visitor</a> design pattern. <code>Visitor</code>’s constructor takes the <a href="../glossary/index.html#root_tree">root node</a> of the DOM tree as an argument and saves it. When we call <code>Visitor.walk</code> without a value, it starts recursing from that saved root; if <code>.walk</code> is given a value (as it is during recursive calls), it uses that instead.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Visitor {</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (<span class="bu">root</span>) {</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">root</span> <span class="op">=</span> <span class="bu">root</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">walk</span> (node <span class="op">=</span> <span class="kw">null</span>) {</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (node <span class="op">===</span> <span class="kw">null</span>) {</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>      node <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="at">root</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="fu">open</span>(node)) {</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>      node<span class="op">.</span><span class="at">children</span><span class="op">.</span><span class="fu">forEach</span>(child <span class="kw">=&gt;</span> {</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">walk</span>(child)</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>      })</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">close</span>(node)</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">open</span> (node) {</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(<span class="kw">false</span><span class="op">,</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Must implement "open"'</span>)</span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">close</span> (node) {</span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(<span class="kw">false</span><span class="op">,</span></span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Must implement "close"'</span>)</span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> Visitor</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>import assert from 'assert'
+
+class Visitor {
+  constructor (root) {
+    this.root = root
+  }
+
+  walk (node = null) {
+    if (node === null) {
+      node = this.root
+    }
+    if (this.open(node)) {
+      node.children.forEach(child =&gt; {
+        this.walk(child)
+      })
+    }
+    this.close(node)
+  }
+
+  open (node) {
+    assert(false,
+      'Must implement "open"')
+  }
+
+  close (node) {
+    assert(false,
+      'Must implement "close"')
+  }
+}
+
+export default Visitor
+</code></pre>
 <p><code>Visitor</code> defines two methods called <code>open</code> and <code>close</code> that are called when we first arrive at a node and when we are finished with it (shown for the <code>p</code> node in <a href="#fig-page-templates-visitor" class="quarto-xref">Figure&nbsp;<span>9.3</span></a>). The default implementations of these methods throw exceptions to remind the creators of derived classes to implement their own versions.</p>
 <div id="fig-page-templates-visitor" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -558,154 +561,166 @@ Figure&nbsp;9.3: Using the Visitor pattern to evaluate a page template.
 <li><p>If there is a handler for the node, call the handler’s <code>open</code> or <code>close</code> method.</p></li>
 <li><p>Otherwise, open or close a regular tag.</p></li>
 </ol>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Visitor <span class="im">from</span> <span class="st">'./visitor.js'</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Env <span class="im">from</span> <span class="st">'./env.js'</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> z_if <span class="im">from</span> <span class="st">'./z-if.js'</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> z_loop <span class="im">from</span> <span class="st">'./z-loop.js'</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> z_num <span class="im">from</span> <span class="st">'./z-num.js'</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> z_var <span class="im">from</span> <span class="st">'./z-var.js'</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> HANDLERS <span class="op">=</span> {</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">'z-if'</span><span class="op">:</span> z_if<span class="op">,</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">'z-loop'</span><span class="op">:</span> z_loop<span class="op">,</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">'z-num'</span><span class="op">:</span> z_num<span class="op">,</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">'z-var'</span><span class="op">:</span> z_var</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Expander <span class="kw">extends</span> Visitor {</span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (<span class="bu">root</span><span class="op">,</span> vars) {</span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>(<span class="bu">root</span>)</span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">env</span> <span class="op">=</span> <span class="kw">new</span> <span class="fu">Env</span>(vars)</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">handlers</span> <span class="op">=</span> HANDLERS</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">result</span> <span class="op">=</span> []</span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">open</span> (node) {</span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (node<span class="op">.</span><span class="at">type</span> <span class="op">===</span> <span class="st">'text'</span>) {</span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">output</span>(node<span class="op">.</span><span class="at">data</span>)</span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="kw">false</span></span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="fu">hasHandler</span>(node)) {</span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="fu">getHandler</span>(node)<span class="op">.</span><span class="fu">open</span>(<span class="kw">this</span><span class="op">,</span> node)</span>
-<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
-<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">false</span>)</span>
-<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="kw">true</span></span>
-<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">close</span> (node) {</span>
-<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (node<span class="op">.</span><span class="at">type</span> <span class="op">===</span> <span class="st">'text'</span>) {</span>
-<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span></span>
-<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="fu">hasHandler</span>(node)) {</span>
-<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">getHandler</span>(node)<span class="op">.</span><span class="fu">close</span>(<span class="kw">this</span><span class="op">,</span> node)</span>
-<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
-<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">true</span>)</span>
-<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> Expander</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>import assert from 'assert'
+
+import Visitor from './visitor.js'
+import Env from './env.js'
+
+import z_if from './z-if.js'
+import z_loop from './z-loop.js'
+import z_num from './z-num.js'
+import z_var from './z-var.js'
+
+const HANDLERS = {
+  'z-if': z_if,
+  'z-loop': z_loop,
+  'z-num': z_num,
+  'z-var': z_var
+}
+
+class Expander extends Visitor {
+  constructor (root, vars) {
+    super(root)
+    this.env = new Env(vars)
+    this.handlers = HANDLERS
+    this.result = []
+  }
+
+  open (node) {
+    if (node.type === 'text') {
+      this.output(node.data)
+      return false
+    } else if (this.hasHandler(node)) {
+      return this.getHandler(node).open(this, node)
+    } else {
+      this.showTag(node, false)
+      return true
+    }
+  }
+
+  close (node) {
+    if (node.type === 'text') {
+      return
+    }
+    if (this.hasHandler(node)) {
+      this.getHandler(node).close(this, node)
+    } else {
+      this.showTag(node, true)
+    }
+  }
+
+  // mccole:skip
+  // mccole:handlers
+  hasHandler (node) {
+    for (const name in node.attribs) {
+      if (name in this.handlers) {
+        return true
+      }
+    }
+    return false
+  }
+
+  getHandler (node) {
+    const possible = Object.keys(node.attribs)
+      .filter(name =&gt; name in this.handlers)
+    assert(possible.length === 1,
+      'Should be exactly one handler')
+    return this.handlers[possible[0]]
+  }
+  // mccole:/handlers
+  // mccole:helpers
+  showTag (node, closing) {
+    if (closing) {
+      this.output(`&lt;/${node.name}&gt;`)
+      return
+    }
+
+    this.output(`&lt;${node.name}`)
+    if (node.name === 'body') {
+      this.output(' style="font-size: 200%; margin-left: 0.5em"')
+    }
+    for (const name in node.attribs) {
+      if (!name.startsWith('z-')) {
+        this.output(` ${name}="${node.attribs[name]}"`)
+      }
+    }
+    this.output('&gt;')
+  }
+
+  output (text) {
+    this.result.push((text === undefined) ? 'UNDEF' : text)
+  }
+
+  getResult () {
+    return this.result.join('')
+  }
+  // mccole:/helpers
+  // mccole:/skip
+}
+
+export default Expander
+</code></pre>
 <p>Checking to see if there is a handler for a particular node and getting that handler are straightforward—we just look at the node’s attributes:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">hasHandler</span> (node) {</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">const</span> name <span class="kw">in</span> node<span class="op">.</span><span class="at">attribs</span>) {</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (name <span class="kw">in</span> <span class="kw">this</span><span class="op">.</span><span class="at">handlers</span>) {</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">true</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">false</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">getHandler</span> (node) {</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> possible <span class="op">=</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">keys</span>(node<span class="op">.</span><span class="at">attribs</span>)</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">filter</span>(name <span class="kw">=&gt;</span> name <span class="kw">in</span> <span class="kw">this</span><span class="op">.</span><span class="at">handlers</span>)</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(possible<span class="op">.</span><span class="at">length</span> <span class="op">===</span> <span class="dv">1</span><span class="op">,</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Should be exactly one handler'</span>)</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="at">handlers</span>[possible[<span class="dv">0</span>]]</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <p>Finally, we need a few helper methods to show tags and generate output:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">showTag</span> (node<span class="op">,</span> closing) {</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (closing) {</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">output</span>(<span class="vs">`&lt;/</span><span class="sc">${</span>node<span class="op">.</span><span class="at">name</span><span class="sc">}</span><span class="vs">&gt;`</span>)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">output</span>(<span class="vs">`&lt;</span><span class="sc">${</span>node<span class="op">.</span><span class="at">name</span><span class="sc">}</span><span class="vs">`</span>)</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (node<span class="op">.</span><span class="at">name</span> <span class="op">===</span> <span class="st">'body'</span>) {</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">output</span>(<span class="st">' style="font-size: 200%; margin-left: 0.5em"'</span>)</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">const</span> name <span class="kw">in</span> node<span class="op">.</span><span class="at">attribs</span>) {</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="op">!</span>name<span class="op">.</span><span class="fu">startsWith</span>(<span class="st">'z-'</span>)) {</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">output</span>(<span class="vs">` </span><span class="sc">${</span>name<span class="sc">}</span><span class="vs">="</span><span class="sc">${</span>node<span class="op">.</span><span class="at">attribs</span>[name]<span class="sc">}</span><span class="vs">"`</span>)</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">output</span>(<span class="st">'&gt;'</span>)</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">output</span> (text) {</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">result</span><span class="op">.</span><span class="fu">push</span>((text <span class="op">===</span> <span class="kw">undefined</span>) <span class="op">?</span> <span class="st">'UNDEF'</span> <span class="op">:</span> text)</span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">getResult</span> () {</span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="at">result</span><span class="op">.</span><span class="fu">join</span>(<span class="st">''</span>)</span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <p>Notice that this class adds strings to an array and joins them all right at the end rather than concatenating strings repeatedly. Doing this is more efficient and also helps with debugging, since each string in the array corresponds to a single method call.</p>
 </section>
 <section id="page-templates-handlers" class="level2" data-number="9.4">
 <h2 data-number="9.4" class="anchored" data-anchor-id="page-templates-handlers"><span class="header-section-number">9.4</span> How do we implement node handlers?</h2>
 <p>At this point we have built a lot of infrastructure but haven’t actually processed any special nodes. To do that, let’s write a handler that copies a constant number into the output:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> {</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">open</span><span class="op">:</span> (expander<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    expander<span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">false</span>)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    expander<span class="op">.</span><span class="fu">output</span>(node<span class="op">.</span><span class="at">attribs</span>[<span class="st">'z-num'</span>])</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">close</span><span class="op">:</span> (expander<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    expander<span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">true</span>)</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>export default {
+  open: (expander, node) =&gt; {
+    expander.showTag(node, false)
+    expander.output(node.attribs['z-num'])
+  },
+
+  close: (expander, node) =&gt; {
+    expander.showTag(node, true)
+  }
+}
+</code></pre>
 <p>When we enter a node like <code>&lt;span z-num="123"/&gt;</code> this handler asks the expander to show an opening tag followed by the value of the <code>z-num</code> attribute. When we exit the node, the handler asks the expander to close the tag. The handler doesn’t know whether things are printed immediately, added to an output list, or something else; it just knows that whoever called it implements the low-level operations it needs.</p>
 <p>Note that this expander is <em>not</em> a class, but instead an object with two functions stored under the keys <code>open</code> and <code>close</code>. We could use a class for each handler so that handlers can store any extra state they need, but <a href="../glossary/index.html#bare_object">bare objects</a> are common and useful in JavaScript (though we will see below that we <em>should</em> have used classes).</p>
 <p>So much for constants; what about variables?</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> {</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">open</span><span class="op">:</span> (expander<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    expander<span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">false</span>)</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    expander<span class="op">.</span><span class="fu">output</span>(expander<span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="fu">find</span>(node<span class="op">.</span><span class="at">attribs</span>[<span class="st">'z-var'</span>]))</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">close</span><span class="op">:</span> (expander<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    expander<span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">true</span>)</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>export default {
+  open: (expander, node) =&gt; {
+    expander.showTag(node, false)
+    expander.output(expander.env.find(node.attribs['z-var']))
+  },
+
+  close: (expander, node) =&gt; {
+    expander.showTag(node, true)
+  }
+}
+</code></pre>
 <p>This code is almost the same as the previous example. The only difference is that instead of copying the attribute’s value directly to the output, we use it as a key to look up a value in the environment.</p>
 <p>These two pairs of handlers look plausible, but do they work? To find out, we can build a program that loads variable definitions from a JSON file, reads an HTML template, and does the expansion:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs'</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> htmlparser2 <span class="im">from</span> <span class="st">'htmlparser2'</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Expander <span class="im">from</span> <span class="st">'./expander.js'</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> main <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> vars <span class="op">=</span> <span class="fu">readJSON</span>(<span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">2</span>])</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> doc <span class="op">=</span> <span class="fu">readHtml</span>(<span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">3</span>])</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> expander <span class="op">=</span> <span class="kw">new</span> <span class="fu">Expander</span>(doc<span class="op">,</span> vars)</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  expander<span class="op">.</span><span class="fu">walk</span>()</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(expander<span class="op">.</span><span class="fu">getResult</span>())</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> readJSON <span class="op">=</span> (filename) <span class="kw">=&gt;</span> {</span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> text <span class="op">=</span> fs<span class="op">.</span><span class="fu">readFileSync</span>(filename<span class="op">,</span> <span class="st">'utf-8'</span>)</span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">parse</span>(text)</span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> readHtml <span class="op">=</span> (filename) <span class="kw">=&gt;</span> {</span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> text <span class="op">=</span> fs<span class="op">.</span><span class="fu">readFileSync</span>(filename<span class="op">,</span> <span class="st">'utf-8'</span>)</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> htmlparser2<span class="op">.</span><span class="fu">parseDOM</span>(text)[<span class="dv">0</span>]</span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="fu">main</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>import fs from 'fs'
+import htmlparser2 from 'htmlparser2'
+
+import Expander from './expander.js'
+
+const main = () =&gt; {
+  const vars = readJSON(process.argv[2])
+  const doc = readHtml(process.argv[3])
+  const expander = new Expander(doc, vars)
+  expander.walk()
+  console.log(expander.getResult())
+}
+
+const readJSON = (filename) =&gt; {
+  const text = fs.readFileSync(filename, 'utf-8')
+  return JSON.parse(text)
+}
+
+const readHtml = (filename) =&gt; {
+  const text = fs.readFileSync(filename, 'utf-8')
+  return htmlparser2.parseDOM(text)[0]
+}
+
+main()
+</code></pre>
 <p>We added new variables for our test cases one-by-one as we were writing this chapter. To avoid repeating text repeatedly, we show the entire set once:</p>
 <pre><code>{
   "firstVariable": "firstValue",
@@ -825,21 +840,22 @@ Figure&nbsp;9.7: Multiple variables generated by page templates.
 <section id="page-templates-flow" class="level2" data-number="9.5">
 <h2 data-number="9.5" class="anchored" data-anchor-id="page-templates-flow"><span class="header-section-number">9.5</span> How can we implement control flow?</h2>
 <p>Our tool supports two types of control flow: conditional expressions and loops. Since we don’t support Boolean expressions like <code>and</code> and <code>or</code>, implementing a conditional is as simple as looking up a variable (which we know how to do) and then expanding the node if the value is true:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> {</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">open</span><span class="op">:</span> (expander<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> doRest <span class="op">=</span> expander<span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="fu">find</span>(node<span class="op">.</span><span class="at">attribs</span>[<span class="st">'z-if'</span>])</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (doRest) {</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>      expander<span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">false</span>)</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> doRest</span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">close</span><span class="op">:</span> (expander<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (expander<span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="fu">find</span>(node<span class="op">.</span><span class="at">attribs</span>[<span class="st">'z-if'</span>])) {</span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>      expander<span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">true</span>)</span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>export default {
+  open: (expander, node) =&gt; {
+    const doRest = expander.env.find(node.attribs['z-if'])
+    if (doRest) {
+      expander.showTag(node, false)
+    }
+    return doRest
+  },
+
+  close: (expander, node) =&gt; {
+    if (expander.env.find(node.attribs['z-if'])) {
+      expander.showTag(node, true)
+    }
+  }
+}
+</code></pre>
 <p>Let’s test it (<a href="#fig-page-templates-output-conditional" class="quarto-xref">Figure&nbsp;<span>9.8</span></a>):</p>
 <pre><code>&lt;html&gt;
   &lt;body&gt;
@@ -876,24 +892,25 @@ The <code>open</code> and <code>close</code> functions for <code>if</code> both 
 <li><p>Expand all of the node’s children with that stack frame in place.</p></li>
 <li><p>Pop the stack frame to get rid of the temporary variable.</p></li>
 </ol>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> {</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">open</span><span class="op">:</span> (expander<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [indexName<span class="op">,</span> targetName] <span class="op">=</span> node<span class="op">.</span><span class="at">attribs</span>[<span class="st">'z-loop'</span>]<span class="op">.</span><span class="fu">split</span>(<span class="st">':'</span>)</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">delete</span> node<span class="op">.</span><span class="at">attribs</span>[<span class="st">'z-loop'</span>]</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    expander<span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">false</span>)</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> target <span class="op">=</span> expander<span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="fu">find</span>(targetName)</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">const</span> index <span class="kw">of</span> target) {</span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>      expander<span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="fu">push</span>({ [indexName]<span class="op">:</span> index })</span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>      node<span class="op">.</span><span class="at">children</span><span class="op">.</span><span class="fu">forEach</span>(child <span class="kw">=&gt;</span> expander<span class="op">.</span><span class="fu">walk</span>(child))</span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>      expander<span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="fu">pop</span>()</span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">false</span></span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">close</span><span class="op">:</span> (expander<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>    expander<span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">true</span>)</span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>export default {
+  open: (expander, node) =&gt; {
+    const [indexName, targetName] = node.attribs['z-loop'].split(':')
+    delete node.attribs['z-loop']
+    expander.showTag(node, false)
+    const target = expander.env.find(targetName)
+    for (const index of target) {
+      expander.env.push({ [indexName]: index })
+      node.children.forEach(child =&gt; expander.walk(child))
+      expander.env.pop()
+    }
+    return false
+  },
+
+  close: (expander, node) =&gt; {
+    expander.showTag(node, true)
+  }
+}
+</code></pre>
 <p>Once again, it’s not done until we test it (<a href="#fig-page-templates-output-loop" class="quarto-xref">Figure&nbsp;<span>9.9</span></a>):</p>
 <pre><code>&lt;html&gt;
   &lt;body&gt;
@@ -1543,4 +1560,4 @@ end</code></pre>
 
 
 
-</body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gvwilson/sdxjs/edit/main/templater/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gvwilson/sdxjs/blob/main/templater/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/gvwilson/sdxjs/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

@@ -26,41 +26,6 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 /* CSS for citations */
 div.csl-bib-body { }
 div.csl-entry {
@@ -370,7 +335,7 @@ div.csl-indent {
   <li><a href="#unit-testing" id="toc-unit-testing" class="nav-link" data-scroll-target="#unit-testing"><span class="header-section-number">19.5.10</span> Unit testing</a></li>
   </ul></li>
   </ul>
-</nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/gvwilson/sdxjs/edit/main/vm/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gvwilson/sdxjs/blob/main/vm/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/gvwilson/sdxjs/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content" tabindex="-1">
@@ -534,90 +499,123 @@ Table&nbsp;19.1: Virtual machine op codes.
 </figure>
 </div>
 <p>We put our VM’s architectural details in a file that can be shared by other components:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> OPS <span class="op">=</span> {</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">hlt</span><span class="op">:</span> { <span class="dt">code</span><span class="op">:</span>  <span class="dv">1</span><span class="op">,</span> <span class="dt">fmt</span><span class="op">:</span> <span class="st">'--'</span> }<span class="op">,</span> <span class="co">// Halt program</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">ldc</span><span class="op">:</span> { <span class="dt">code</span><span class="op">:</span>  <span class="dv">2</span><span class="op">,</span> <span class="dt">fmt</span><span class="op">:</span> <span class="st">'rv'</span> }<span class="op">,</span> <span class="co">// Load immediate</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">ldr</span><span class="op">:</span> { <span class="dt">code</span><span class="op">:</span>  <span class="dv">3</span><span class="op">,</span> <span class="dt">fmt</span><span class="op">:</span> <span class="st">'rr'</span> }<span class="op">,</span> <span class="co">// Load register</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">cpy</span><span class="op">:</span> { <span class="dt">code</span><span class="op">:</span>  <span class="dv">4</span><span class="op">,</span> <span class="dt">fmt</span><span class="op">:</span> <span class="st">'rr'</span> }<span class="op">,</span> <span class="co">// Copy register</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">str</span><span class="op">:</span> { <span class="dt">code</span><span class="op">:</span>  <span class="dv">5</span><span class="op">,</span> <span class="dt">fmt</span><span class="op">:</span> <span class="st">'rr'</span> }<span class="op">,</span> <span class="co">// Store register</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">add</span><span class="op">:</span> { <span class="dt">code</span><span class="op">:</span>  <span class="dv">6</span><span class="op">,</span> <span class="dt">fmt</span><span class="op">:</span> <span class="st">'rr'</span> }<span class="op">,</span> <span class="co">// Add</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">sub</span><span class="op">:</span> { <span class="dt">code</span><span class="op">:</span>  <span class="dv">7</span><span class="op">,</span> <span class="dt">fmt</span><span class="op">:</span> <span class="st">'rr'</span> }<span class="op">,</span> <span class="co">// Subtract</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">beq</span><span class="op">:</span> { <span class="dt">code</span><span class="op">:</span>  <span class="dv">8</span><span class="op">,</span> <span class="dt">fmt</span><span class="op">:</span> <span class="st">'rv'</span> }<span class="op">,</span> <span class="co">// Branch if equal</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">bne</span><span class="op">:</span> { <span class="dt">code</span><span class="op">:</span>  <span class="dv">9</span><span class="op">,</span> <span class="dt">fmt</span><span class="op">:</span> <span class="st">'rv'</span> }<span class="op">,</span> <span class="co">// Branch if not equal</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">prr</span><span class="op">:</span> { <span class="dt">code</span><span class="op">:</span> <span class="dv">10</span><span class="op">,</span> <span class="dt">fmt</span><span class="op">:</span> <span class="st">'r-'</span> }<span class="op">,</span> <span class="co">// Print register</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">prm</span><span class="op">:</span> { <span class="dt">code</span><span class="op">:</span> <span class="dv">11</span><span class="op">,</span> <span class="dt">fmt</span><span class="op">:</span> <span class="st">'r-'</span> }  <span class="co">// Print memory</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> OP_MASK <span class="op">=</span> <span class="bn">0xFF</span> <span class="co">// select a single byte</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> OP_SHIFT <span class="op">=</span> <span class="dv">8</span>   <span class="co">// shift up by one byte</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> OP_WIDTH <span class="op">=</span> <span class="dv">6</span>   <span class="co">// op width in characters when printing</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> NUM_REG <span class="op">=</span> <span class="dv">4</span>    <span class="co">// number of registers</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> RAM_LEN <span class="op">=</span> <span class="dv">256</span>  <span class="co">// number of words in RAM</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> {</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  OPS<span class="op">,</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  OP_MASK<span class="op">,</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  OP_SHIFT<span class="op">,</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  OP_WIDTH<span class="op">,</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  NUM_REG<span class="op">,</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  RAM_LEN</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>const OPS = {
+  hlt: { code:  1, fmt: '--' }, // Halt program
+  ldc: { code:  2, fmt: 'rv' }, // Load immediate
+  ldr: { code:  3, fmt: 'rr' }, // Load register
+  cpy: { code:  4, fmt: 'rr' }, // Copy register
+  str: { code:  5, fmt: 'rr' }, // Store register
+  add: { code:  6, fmt: 'rr' }, // Add
+  sub: { code:  7, fmt: 'rr' }, // Subtract
+  beq: { code:  8, fmt: 'rv' }, // Branch if equal
+  bne: { code:  9, fmt: 'rv' }, // Branch if not equal
+  prr: { code: 10, fmt: 'r-' }, // Print register
+  prm: { code: 11, fmt: 'r-' }  // Print memory
+}
+
+const OP_MASK = 0xFF // select a single byte
+const OP_SHIFT = 8   // shift up by one byte
+const OP_WIDTH = 6   // op width in characters when printing
+
+const NUM_REG = 4    // number of registers
+const RAM_LEN = 256  // number of words in RAM
+
+export {
+  OPS,
+  OP_MASK,
+  OP_SHIFT,
+  OP_WIDTH,
+  NUM_REG,
+  RAM_LEN
+}
+</code></pre>
 <p>While there isn’t a name for this design pattern, putting all the constants that define a system in one file instead of scattering them across multiple files makes them easier to find as well as ensuring consistency.</p>
 </section>
 <section id="virtual-machine-execute" class="level2" data-number="19.2">
 <h2 data-number="19.2" class="anchored" data-anchor-id="virtual-machine-execute"><span class="header-section-number">19.2</span> How can we execute these instructions?</h2>
 <p>As in previous chapters, we will split a class that would normally be written in one piece into several parts for exposition. We start by defining a class with an instruction pointer, some registers, and some memory along with a prompt for output:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> {</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  OP_MASK<span class="op">,</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  OP_SHIFT<span class="op">,</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  NUM_REG<span class="op">,</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  RAM_LEN</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>} <span class="im">from</span> <span class="st">'./architecture.js'</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> COLUMNS <span class="op">=</span> <span class="dv">4</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> DIGITS <span class="op">=</span> <span class="dv">8</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VirtualMachineBase {</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> () {</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">ip</span> <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">reg</span> <span class="op">=</span> <span class="bu">Array</span>(NUM_REG)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">ram</span> <span class="op">=</span> <span class="bu">Array</span>(RAM_LEN)</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">prompt</span> <span class="op">=</span> <span class="st">'&gt;&gt;'</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> VirtualMachineBase</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>import assert from 'assert'
+
+import {
+  OP_MASK,
+  OP_SHIFT,
+  NUM_REG,
+  RAM_LEN
+} from './architecture.js'
+
+const COLUMNS = 4
+const DIGITS = 8
+
+class VirtualMachineBase {
+  constructor () {
+    this.ip = 0
+    this.reg = Array(NUM_REG)
+    this.ram = Array(RAM_LEN)
+    this.prompt = '&gt;&gt;'
+  }
+
+  // mccole:skip
+  // mccole:initialize
+  initialize (program) {
+    assert(program.length &lt;= this.ram.length,
+      'Program is too long for memory')
+    for (let i = 0; i &lt; this.ram.length; i += 1) {
+      if (i &lt; program.length) {
+        this.ram[i] = program[i]
+      } else {
+        this.ram[i] = 0
+      }
+    }
+    this.ip = 0
+    this.reg.fill(0)
+  }
+  // mccole:/initialize
+  // mccole:fetch
+  fetch () {
+    assert((0 &lt;= this.ip) &amp;&amp; (this.ip &lt; RAM_LEN),
+      `Program counter ${this.ip} out of range 0..${RAM_LEN}`)
+    let instruction = this.ram[this.ip]
+    this.ip += 1
+    const op = instruction &amp; OP_MASK
+    instruction &gt;&gt;= OP_SHIFT
+    const arg0 = instruction &amp; OP_MASK
+    instruction &gt;&gt;= OP_SHIFT
+    const arg1 = instruction &amp; OP_MASK
+    return [op, arg0, arg1]
+  }
+  // mccole:/fetch
+  show () {
+    // Show registers
+    for (let i = 0 ; i &lt; NUM_REG; i += 1) {
+      console.log(`R${i} = ${this.reg[i]}`)
+    }
+
+    // How much memory to show
+    let top = RAM_LEN - 1
+    while ((top &gt;= 0) &amp;&amp; (this.ram[top] === 0)) {
+      top -= 1
+    }
+
+    // Show memory
+    let base = 0
+    while (base &lt;= top) {
+      let output = base.toString(16) + ': '
+      for (let i = 0; i &lt; COLUMNS; i += 1) {
+        output += '  ' + this.ram[base + i].toString(16).padStart(DIGITS, '0')
+      }
+      console.log(output)
+      base += COLUMNS
+    }
+  }
+  // mccole:/skip
+}
+
+export default VirtualMachineBase
+</code></pre>
 <p>A program is just an array of numbers representing instructions. To load one, we copy those numbers into memory and reset the instruction pointer and registers:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">initialize</span> (program) {</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(program<span class="op">.</span><span class="at">length</span> <span class="op">&lt;=</span> <span class="kw">this</span><span class="op">.</span><span class="at">ram</span><span class="op">.</span><span class="at">length</span><span class="op">,</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Program is too long for memory'</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="kw">this</span><span class="op">.</span><span class="at">ram</span><span class="op">.</span><span class="at">length</span><span class="op">;</span> i <span class="op">+=</span> <span class="dv">1</span>) {</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (i <span class="op">&lt;</span> program<span class="op">.</span><span class="at">length</span>) {</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="at">ram</span>[i] <span class="op">=</span> program[i]</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="at">ram</span>[i] <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">ip</span> <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">reg</span><span class="op">.</span><span class="fu">fill</span>(<span class="dv">0</span>)</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <p>In order to handle the next instruction, the VM gets the value in memory that the instruction pointer currently refers to and moves the instruction pointer on by one address. It then uses <a href="../glossary/index.html#bitwise_operation">bitwise operations</a> to extract the op code and operands from the instruction (<a href="#fig-virtual-machine-unpacking" class="quarto-xref">Figure&nbsp;<span>19.2</span></a>):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fetch</span> () {</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>((<span class="dv">0</span> <span class="op">&lt;=</span> <span class="kw">this</span><span class="op">.</span><span class="at">ip</span>) <span class="op">&amp;&amp;</span> (<span class="kw">this</span><span class="op">.</span><span class="at">ip</span> <span class="op">&lt;</span> RAM_LEN)<span class="op">,</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Program counter </span><span class="sc">${</span><span class="kw">this</span><span class="op">.</span><span class="at">ip</span><span class="sc">}</span><span class="vs"> out of range 0..</span><span class="sc">${</span>RAM_LEN<span class="sc">}</span><span class="vs">`</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> instruction <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="at">ram</span>[<span class="kw">this</span><span class="op">.</span><span class="at">ip</span>]</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">ip</span> <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> op <span class="op">=</span> instruction <span class="op">&amp;</span> OP_MASK</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    instruction <span class="op">&gt;&gt;=</span> OP_SHIFT</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> arg0 <span class="op">=</span> instruction <span class="op">&amp;</span> OP_MASK</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    instruction <span class="op">&gt;&gt;=</span> OP_SHIFT</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> arg1 <span class="op">=</span> instruction <span class="op">&amp;</span> OP_MASK</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [op<span class="op">,</span> arg0<span class="op">,</span> arg1]</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <div id="fig-virtual-machine-unpacking" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-virtual-machine-unpacking-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -642,70 +640,118 @@ Figure&nbsp;19.2: Using bitwise operations to unpack instructions.
 </div>
 </div>
 <p>The next step is to extend our base class with one that has a <code>run</code> method. As its name suggests, this runs the program by fetching instructions and executing them until told to stop:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> {</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  OPS</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>} <span class="im">from</span> <span class="st">'./architecture.js'</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> VirtualMachineBase <span class="im">from</span> <span class="st">'./vm-base.js'</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VirtualMachine <span class="kw">extends</span> VirtualMachineBase {</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">run</span> () {</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> running <span class="op">=</span> <span class="kw">true</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> (running) {</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> [op<span class="op">,</span> arg0<span class="op">,</span> arg1] <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">fetch</span>()</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>      <span class="cf">switch</span> (op) {</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">case</span> OPS<span class="op">.</span><span class="at">hlt</span><span class="op">.</span><span class="at">code</span><span class="op">:</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>          running <span class="op">=</span> <span class="kw">false</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>          <span class="cf">break</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">case</span> OPS<span class="op">.</span><span class="at">ldc</span><span class="op">.</span><span class="at">code</span><span class="op">:</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>          <span class="kw">this</span><span class="op">.</span><span class="fu">assertIsRegister</span>(arg0<span class="op">,</span> op)</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>          <span class="kw">this</span><span class="op">.</span><span class="at">reg</span>[arg0] <span class="op">=</span> arg1</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>          <span class="cf">break</span></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">default</span><span class="op">:</span></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>          <span class="fu">assert</span>(<span class="kw">false</span><span class="op">,</span> <span class="vs">`Unknown op </span><span class="sc">${</span>op<span class="sc">}</span><span class="vs">`</span>)</span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>          <span class="cf">break</span></span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assertIsRegister</span> (reg) {</span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>((<span class="dv">0</span> <span class="op">&lt;=</span> reg) <span class="op">&amp;&amp;</span> (reg <span class="op">&lt;</span> <span class="kw">this</span><span class="op">.</span><span class="at">reg</span><span class="op">.</span><span class="at">length</span>)<span class="op">,</span></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Invalid register </span><span class="sc">${</span>reg<span class="sc">}</span><span class="vs">`</span>)</span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assertIsAddress</span> (addr) {</span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>((<span class="dv">0</span> <span class="op">&lt;=</span> addr) <span class="op">&amp;&amp;</span> (addr <span class="op">&lt;</span> <span class="kw">this</span><span class="op">.</span><span class="at">ram</span><span class="op">.</span><span class="at">length</span>)<span class="op">,</span></span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Invalid register </span><span class="sc">${</span>addr<span class="sc">}</span><span class="vs">`</span>)</span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> VirtualMachine</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>import assert from 'assert'
+
+import {
+  OPS
+} from './architecture.js'
+
+import VirtualMachineBase from './vm-base.js'
+
+class VirtualMachine extends VirtualMachineBase {
+  run () {
+    let running = true
+    while (running) {
+      const [op, arg0, arg1] = this.fetch()
+      switch (op) {
+        case OPS.hlt.code:
+          running = false
+          break
+
+        case OPS.ldc.code:
+          this.assertIsRegister(arg0, op)
+          this.reg[arg0] = arg1
+          break
+
+        // mccole:skip
+        case OPS.ldr.code:
+          this.assertIsRegister(arg0, op)
+          this.assertIsRegister(arg1, op)
+          this.reg[arg0] = this.ram[this.reg[arg1]]
+          break
+
+        case OPS.cpy.code:
+          this.assertIsRegister(arg0, op)
+          this.assertIsRegister(arg1, op)
+          this.reg[arg0] = this.reg[arg1]
+          break
+
+        // mccole:op_str
+        case OPS.str.code:
+          this.assertIsRegister(arg0, op)
+          this.assertIsRegister(arg1, op)
+          this.assertIsAddress(this.reg[arg1], op)
+          this.ram[this.reg[arg1]] = this.reg[arg0]
+          break
+        // mccole:/op_str
+        // mccole:op_add
+        case OPS.add.code:
+          this.assertIsRegister(arg0, op)
+          this.assertIsRegister(arg1, op)
+          this.reg[arg0] += this.reg[arg1]
+          break
+        // mccole:/op_add
+        case OPS.sub.code:
+          this.assertIsRegister(arg0, op)
+          this.assertIsRegister(arg1, op)
+          this.reg[arg0] -= this.reg[arg1]
+          break
+
+        // mccole:op_beq
+        case OPS.beq.code:
+          this.assertIsRegister(arg0, op)
+          this.assertIsAddress(arg1, op)
+          if (this.reg[arg0] === 0) {
+            this.ip = arg1
+          }
+          break
+        // mccole:/op_beq
+        case OPS.bne.code:
+          this.assertIsRegister(arg0, op)
+          this.assertIsAddress(arg1, op)
+          if (this.reg[arg0] !== 0) {
+            this.ip = arg1
+          }
+          break
+
+        case OPS.prr.code:
+          this.assertIsRegister(arg0)
+          console.log(this.prompt, this.reg[arg0])
+          break
+
+        case OPS.prm.code:
+          this.assertIsRegister(arg0)
+          this.assertIsAddress(this.reg[arg0])
+          console.log(this.prompt, this.ram[this.reg[arg0]])
+          break
+        // mccole:/skip
+        default:
+          assert(false, `Unknown op ${op}`)
+          break
+      }
+    }
+  }
+
+  assertIsRegister (reg) {
+    assert((0 &lt;= reg) &amp;&amp; (reg &lt; this.reg.length),
+      `Invalid register ${reg}`)
+  }
+
+  assertIsAddress (addr) {
+    assert((0 &lt;= addr) &amp;&amp; (addr &lt; this.ram.length),
+      `Invalid register ${addr}`)
+  }
+}
+
+export default VirtualMachine
+</code></pre>
 <p>Some instructions are very similar to others, so we will only look at three here. The first stores the value of one register in the address held by another register:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>        <span class="cf">case</span> OPS<span class="op">.</span><span class="at">str</span><span class="op">.</span><span class="at">code</span><span class="op">:</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>          <span class="kw">this</span><span class="op">.</span><span class="fu">assertIsRegister</span>(arg0<span class="op">,</span> op)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>          <span class="kw">this</span><span class="op">.</span><span class="fu">assertIsRegister</span>(arg1<span class="op">,</span> op)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>          <span class="kw">this</span><span class="op">.</span><span class="fu">assertIsAddress</span>(<span class="kw">this</span><span class="op">.</span><span class="at">reg</span>[arg1]<span class="op">,</span> op)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>          <span class="kw">this</span><span class="op">.</span><span class="at">ram</span>[<span class="kw">this</span><span class="op">.</span><span class="at">reg</span>[arg1]] <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="at">reg</span>[arg0]</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>          <span class="cf">break</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <p>The first three lines check that the operation is legal; the fourth one uses the value in one register as an address, which is why it has nested array indexing.</p>
 <p>Adding the value in one register to the value in another register is simpler:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>        <span class="cf">case</span> OPS<span class="op">.</span><span class="at">add</span><span class="op">.</span><span class="at">code</span><span class="op">:</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>          <span class="kw">this</span><span class="op">.</span><span class="fu">assertIsRegister</span>(arg0<span class="op">,</span> op)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>          <span class="kw">this</span><span class="op">.</span><span class="fu">assertIsRegister</span>(arg1<span class="op">,</span> op)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>          <span class="kw">this</span><span class="op">.</span><span class="at">reg</span>[arg0] <span class="op">+=</span> <span class="kw">this</span><span class="op">.</span><span class="at">reg</span>[arg1]</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>          <span class="cf">break</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <p>as is jumping to a fixed address if the value in a register is zero:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>        <span class="cf">case</span> OPS<span class="op">.</span><span class="at">beq</span><span class="op">.</span><span class="at">code</span><span class="op">:</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>          <span class="kw">this</span><span class="op">.</span><span class="fu">assertIsRegister</span>(arg0<span class="op">,</span> op)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>          <span class="kw">this</span><span class="op">.</span><span class="fu">assertIsAddress</span>(arg1<span class="op">,</span> op)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>          <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="at">reg</span>[arg0] <span class="op">===</span> <span class="dv">0</span>) {</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>            <span class="kw">this</span><span class="op">.</span><span class="at">ip</span> <span class="op">=</span> arg1</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>          }</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>          <span class="cf">break</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 </section>
 <section id="virtual-machine-assembly" class="level2" data-number="19.3">
 <h2 data-number="19.3" class="anchored" data-anchor-id="virtual-machine-assembly"><span class="header-section-number">19.3</span> What do assembly programs look like?</h2>
@@ -774,117 +820,15 @@ Figure&nbsp;19.4: Tracing registers and memory values for a simple counting prog
 </figure>
 </div>
 <p>The implementation of the assembler mirrors the simplicity of assembly language. The main method gets interesting lines, finds the addresses of labels, and turns each remaining line into an instruction:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assemble</span> (lines) {</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    lines <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">cleanLines</span>(lines)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> labels <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">findLabels</span>(lines)</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> instructions <span class="op">=</span> lines<span class="op">.</span><span class="fu">filter</span>(line <span class="kw">=&gt;</span> <span class="op">!</span><span class="kw">this</span><span class="op">.</span><span class="fu">isLabel</span>(line))</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> compiled <span class="op">=</span> instructions<span class="op">.</span><span class="fu">map</span>(instr <span class="kw">=&gt;</span> <span class="kw">this</span><span class="op">.</span><span class="fu">compile</span>(instr<span class="op">,</span> labels))</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> program <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">instructionsToText</span>(compiled)</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> program</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cleanLines</span> (lines) {</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lines</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">map</span>(line <span class="kw">=&gt;</span> line<span class="op">.</span><span class="fu">trim</span>())</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">filter</span>(line <span class="kw">=&gt;</span> line<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span>)</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">filter</span>(line <span class="kw">=&gt;</span> <span class="op">!</span><span class="kw">this</span><span class="op">.</span><span class="fu">isComment</span>(line))</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">isComment</span> (line) {</span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> line<span class="op">.</span><span class="fu">startsWith</span>(<span class="st">'#'</span>)</span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <p>To find labels, we go through the lines one by one and either save the label <em>or</em> increment the current address (because labels don’t take up space):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">findLabels</span> (lines) {</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> result <span class="op">=</span> {}</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> index <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    lines<span class="op">.</span><span class="fu">forEach</span>(line <span class="kw">=&gt;</span> {</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="fu">isLabel</span>(line)) {</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> label <span class="op">=</span> line<span class="op">.</span><span class="fu">slice</span>(<span class="dv">0</span><span class="op">,</span> <span class="op">-</span><span class="dv">1</span>)</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assert</span>(<span class="op">!</span>(label <span class="kw">in</span> result)<span class="op">,</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>          <span class="vs">`Duplicate label </span><span class="sc">${</span>label<span class="sc">}</span><span class="vs">`</span>)</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>        result[label] <span class="op">=</span> index</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>        index <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    })</span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">isLabel</span> (line) {</span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> line<span class="op">.</span><span class="fu">endsWith</span>(<span class="st">':'</span>)</span>
-<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <p>To compile a single instruction we break the line into tokens, look up the format for the operands, and pack them into a single value:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">compile</span> (instruction<span class="op">,</span> labels) {</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [op<span class="op">,</span> <span class="op">...</span>args] <span class="op">=</span> instruction<span class="op">.</span><span class="fu">split</span>(<span class="ss">/</span><span class="sc">\s+</span><span class="ss">/</span>)</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(op <span class="kw">in</span> OPS<span class="op">,</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Unknown operation "</span><span class="sc">${</span>op<span class="sc">}</span><span class="vs">"`</span>)</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> result <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">switch</span> (OPS[op]<span class="op">.</span><span class="at">fmt</span>) {</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> <span class="st">'--'</span><span class="op">:</span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>        result <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">combine</span>(</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>          OPS[op]<span class="op">.</span><span class="at">code</span></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> <span class="st">'r-'</span><span class="op">:</span></span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>        result <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">combine</span>(</span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>          <span class="kw">this</span><span class="op">.</span><span class="fu">register</span>(args[<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>          OPS[op]<span class="op">.</span><span class="at">code</span></span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> <span class="st">'rr'</span><span class="op">:</span></span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>        result <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">combine</span>(</span>
-<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>          <span class="kw">this</span><span class="op">.</span><span class="fu">register</span>(args[<span class="dv">1</span>])<span class="op">,</span></span>
-<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>          <span class="kw">this</span><span class="op">.</span><span class="fu">register</span>(args[<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>          OPS[op]<span class="op">.</span><span class="at">code</span></span>
-<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
-<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> <span class="st">'rv'</span><span class="op">:</span></span>
-<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>        result <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">combine</span>(</span>
-<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>          <span class="kw">this</span><span class="op">.</span><span class="fu">value</span>(args[<span class="dv">1</span>]<span class="op">,</span> labels)<span class="op">,</span></span>
-<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>          <span class="kw">this</span><span class="op">.</span><span class="fu">register</span>(args[<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>          OPS[op]<span class="op">.</span><span class="at">code</span></span>
-<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
-<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>      <span class="cf">default</span><span class="op">:</span></span>
-<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assert</span>(<span class="kw">false</span><span class="op">,</span></span>
-<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>          <span class="vs">`Unknown instruction format </span><span class="sc">${</span>OPS[op]<span class="op">.</span><span class="at">fmt</span><span class="sc">}</span><span class="vs">`</span>)</span>
-<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span>
-<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <p>Combining op codes and operands into a single value is the reverse of the unpacking done by the virtual machine:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">combine</span> (<span class="op">...</span>args) {</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(args<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">,</span></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Cannot combine no arguments'</span>)</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> result <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">const</span> a <span class="kw">of</span> args) {</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>      result <span class="op">&lt;&lt;=</span> OP_SHIFT</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>      result <span class="op">|=</span> a</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <p>Finally, we need few utility functions:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">instructionsToText</span> (program) {</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> program<span class="op">.</span><span class="fu">map</span>(op <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">toString</span>(<span class="dv">16</span>)<span class="op">.</span><span class="fu">padStart</span>(OP_WIDTH<span class="op">,</span> <span class="st">'0'</span>))</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">register</span> (token) {</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(token[<span class="dv">0</span>] <span class="op">===</span> <span class="st">'R'</span><span class="op">,</span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Register "</span><span class="sc">${</span>token<span class="sc">}</span><span class="vs">" does not start with 'R'`</span>)</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> r <span class="op">=</span> <span class="pp">parseInt</span>(token<span class="op">.</span><span class="fu">slice</span>(<span class="dv">1</span>))</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>((<span class="dv">0</span> <span class="op">&lt;=</span> r) <span class="op">&amp;&amp;</span> (r <span class="op">&lt;</span> NUM_REG)<span class="op">,</span></span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Illegal register </span><span class="sc">${</span>token<span class="sc">}</span><span class="vs">`</span>)</span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> r</span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">value</span> (token<span class="op">,</span> labels) {</span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (token[<span class="dv">0</span>] <span class="op">!==</span> <span class="st">'@'</span>) {</span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="pp">parseInt</span>(token)</span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> labelName <span class="op">=</span> token<span class="op">.</span><span class="fu">slice</span>(<span class="dv">1</span>)</span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(labelName <span class="kw">in</span> labels<span class="op">,</span></span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Unknown label "</span><span class="sc">${</span>token<span class="sc">}</span><span class="vs">"`</span>)</span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> labels[labelName]</span>
-<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <p>Let’s try assembling a program and display its output, the registers, and the interesting contents of memory. As a test, this program counts up to three:</p>
 <pre><code># Count up to 3.
 # - R0: loop index.
@@ -917,25 +861,8 @@ R3 = 0
 <p>It is tedious to write interesting programs when each value needs a unique name. We can do a lot more once we have collections like arrays, so let’s add those to our assembler. We don’t have to make any changes to the virtual machine, which doesn’t care if we think of a bunch of numbers as individuals or elements of an array, but we do need a way to create arrays and refer to them.</p>
 <p>We will allocate storage for arrays at the end of the program by using <code>.data</code> on a line of its own to mark the start of the data section and then <code>label: number</code> to give a region a name and allocate some storage space (<a href="#fig-virtual-machine-storage-allocation" class="quarto-xref">Figure&nbsp;<span>19.5</span></a>).</p>
 <p>This enhancement only requires a few changes to the assembler. First, we need to split the lines into instructions and data allocations:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assemble</span> (lines) {</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    lines <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">cleanLines</span>(lines)</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [toCompile<span class="op">,</span> toAllocate] <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">splitAllocations</span>(lines)</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> labels <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">findLabels</span>(lines)</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> instructions <span class="op">=</span> toCompile<span class="op">.</span><span class="fu">filter</span>(line <span class="kw">=&gt;</span> <span class="op">!</span><span class="kw">this</span><span class="op">.</span><span class="fu">isLabel</span>(line))</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> baseOfData <span class="op">=</span> instructions<span class="op">.</span><span class="at">length</span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">addAllocations</span>(baseOfData<span class="op">,</span> labels<span class="op">,</span> toAllocate)</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> compiled <span class="op">=</span> instructions<span class="op">.</span><span class="fu">map</span>(instr <span class="kw">=&gt;</span> <span class="kw">this</span><span class="op">.</span><span class="fu">compile</span>(instr<span class="op">,</span> labels))</span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> program <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">instructionsToText</span>(compiled)</span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> program</span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">splitAllocations</span> (lines) {</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> split <span class="op">=</span> lines<span class="op">.</span><span class="fu">indexOf</span>(DIVIDER)</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (split <span class="op">===</span> <span class="op">-</span><span class="dv">1</span>) {</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> [lines<span class="op">,</span> []]</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> [lines<span class="op">.</span><span class="fu">slice</span>(<span class="dv">0</span><span class="op">,</span> split)<span class="op">,</span> lines<span class="op">.</span><span class="fu">slice</span>(split <span class="op">+</span> <span class="dv">1</span>)]</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
+<pre><code></code></pre>
 <div id="fig-virtual-machine-storage-allocation" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-virtual-machine-storage-allocation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -947,21 +874,7 @@ Figure&nbsp;19.5: Allocating storage for arrays in the virtual machine.
 </figure>
 </div>
 <p>Second, we need to figure out where each allocation lies and create a label accordingly:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode javascript code-with-copy"><code class="sourceCode javascript"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">addAllocations</span> (baseOfData<span class="op">,</span> labels<span class="op">,</span> toAllocate) {</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    toAllocate<span class="op">.</span><span class="fu">forEach</span>(alloc <span class="kw">=&gt;</span> {</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> fields <span class="op">=</span> alloc<span class="op">.</span><span class="fu">split</span>(<span class="st">':'</span>)<span class="op">.</span><span class="fu">map</span>(a <span class="kw">=&gt;</span> a<span class="op">.</span><span class="fu">trim</span>())</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">assert</span>(fields<span class="op">.</span><span class="at">length</span> <span class="op">===</span> <span class="dv">2</span><span class="op">,</span></span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>        <span class="vs">`Invalid allocation directive "</span><span class="sc">${</span>alloc<span class="sc">}</span><span class="vs">"`</span>)</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> [label<span class="op">,</span> numWordsText] <span class="op">=</span> fields</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">assert</span>(<span class="op">!</span>(label <span class="kw">in</span> labels)<span class="op">,</span></span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>        <span class="vs">`Duplicate label "</span><span class="sc">${</span>label<span class="sc">}</span><span class="vs">" in data allocation`</span>)</span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> numWords <span class="op">=</span> <span class="pp">parseInt</span>(numWordsText)</span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">assert</span>((baseOfData <span class="op">+</span> numWords) <span class="op">&lt;</span> RAM_LEN<span class="op">,</span></span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>        <span class="vs">`Allocation "</span><span class="sc">${</span>label<span class="sc">}</span><span class="vs">" requires too much memory`</span>)</span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>      labels[label] <span class="op">=</span> baseOfData</span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>      baseOfData <span class="op">+=</span> numWords</span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>    })</span>
-<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code></code></pre>
 <p>And that’s it: no other changes are needed to either compilation or execution. To test it, let’s fill an array with the numbers from 0 to 3:</p>
 <pre><code># Count up to 3.
 # - R0: loop index.
@@ -1585,4 +1498,4 @@ Patterson, David A., and John L. Hennessy. 2017. <em>Computer Organization and D
 
 
 
-</body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gvwilson/sdxjs/edit/main/vm/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gvwilson/sdxjs/blob/main/vm/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/gvwilson/sdxjs/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
