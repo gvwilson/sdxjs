@@ -1,405 +1,42 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head><meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Parsing Expressions</title>
+  <link rel="stylesheet" href="../mccole/mccole-book.css">
 
-<meta charset="utf-8">
-<meta name="generator" content="quarto-1.11.9">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-
-
-<title>8&nbsp; Parsing Expressions – Software Design by Example</title>
-<style>
-/* Default styles provided by pandoc.
-** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-*/
-span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: 1.5em;}
-div.column{flex: auto;}
-@media screen {
-div.columns{gap: min(4vw, 1.5em);}
-div.column{overflow-x: auto;}
-}
-div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-ul.task-list{list-style: none;}
-ul.task-list li input[type="checkbox"] {
-  width: 0.8em;
-  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
-  vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-/* CSS for citations */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-}
-.hanging-indent div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}</style>
-
-
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<link href="../templater/index.html" rel="next">
-<link href="../glob/index.html" rel="prev">
-<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-01a495efc5497ac6e3f5457e7ed18e65.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
-<script id="quarto-search-options" type="application/json">{
-  "location": "sidebar",
-  "copy-button": false,
-  "collapse-after": 3,
-  "panel-placement": "start",
-  "type": "textbox",
-  "limit": 50,
-  "keyboard-shortcut": [
-    "f",
-    "/",
-    "s"
-  ],
-  "show-item-context": false,
-  "language": {
-    "search-no-results-text": "No results",
-    "search-matching-documents-text": "matching documents",
-    "search-copy-link-title": "Copy link to search",
-    "search-hide-matches-text": "Hide additional matches",
-    "search-more-match-text": "more match in this document",
-    "search-more-matches-text": "more matches in this document",
-    "search-clear-button-title": "Clear",
-    "search-text-placeholder": "",
-    "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit",
-    "search-label": "Search"
-  }
-}</script>
-
-
-<link rel="stylesheet" href="../mccole/book.css">
 </head>
-
-<body class="nav-sidebar floating quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
-
-<div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
-  <nav class="quarto-secondary-nav" aria-label="Toolbar">
-    <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-        <i class="bi bi-layout-text-sidebar-reverse"></i>
-      </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../parser/index.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Parsing Expressions</span></a></li></ol></nav>
-        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-        </a>
-      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
-        <i class="bi bi-search"></i>
-      </button>
+<body>
+<header class="topbar">
+  <nav class="topnav">
+    <a class="topnav-item" href="../index.html">Home</a>
+    <div class="topnav-dropdown">
+      <span class="topnav-item">Chapters</span>
+      <div class="topnav-menu"><ul class="topnav-list"><li><a href="../introduction/index.html">Introduction</a></li><li><a href="../sysprog/index.html">Systems Programming</a></li><li><a href="../async/index.html">Asynchronous Programming</a></li><li><a href="../test/index.html">Unit Testing</a></li><li><a href="../backup/index.html">File Backup</a></li><li><a href="../table/index.html">Data Tables</a></li><li><a href="../glob/index.html">Pattern Matching</a></li><li><a href="../parser/index.html">Parsing Expressions</a></li><li><a href="../templater/index.html">Page Templates</a></li><li><a href="../build/index.html">Build Manager</a></li><li><a href="../layout/index.html">Layout Engine</a></li><li><a href="../interp/index.html">File Interpolator</a></li><li><a href="../loader/index.html">Module Loader</a></li><li><a href="../style/index.html">Style Checker</a></li><li><a href="../codegen/index.html">Code Generator</a></li><li><a href="../docgen/index.html">Documentation Generator</a></li><li><a href="../bundler/index.html">Module Bundler</a></li><li><a href="../packman/index.html">Package Manager</a></li><li><a href="../vm/index.html">Virtual Machine</a></li><li><a href="../debugger/index.html">Debugger</a></li><li><a href="../conclusion/index.html">Conclusion</a></li></ul></div>
+    </div>
+    <div class="topnav-dropdown">
+      <span class="topnav-item">Appendices</span>
+      <div class="topnav-menu"><ul class="topnav-list"><li><a href="../license/index.html">License</a></li><li><a href="../conduct/index.html">Code of Conduct</a></li><li><a href="../contributing/index.html">Contributing</a></li><li><a href="../bibliography/index.html">Bibliography</a></li><li><a href="../glossary/index.html">Glossary</a></li></ul></div>
+    </div>
+    <div class="topnav-dropdown">
+      <span class="topnav-item">Contents</span>
+      <div class="topnav-menu"><ul>
+<li><a href="#regex-parser-tokenize" id="toc-regex-parser-tokenize"><span class="header-section-number">8.1</span> How can we break text into tokens?</a></li>
+<li><a href="#regex-parser-tree" id="toc-regex-parser-tree"><span class="header-section-number">8.2</span> How can we turn a list of tokens into a tree?</a></li>
+<li><a href="#regex-parser-exercises" id="toc-regex-parser-exercises"><span class="header-section-number">8.3</span> Exercises</a></li>
+</ul></div>
     </div>
   </nav>
 </header>
-<!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
-<!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto" aria-label="Site">
-    <div class="pt-lg-2 mt-2 text-left sidebar-header">
-    <div class="sidebar-title mb-0 py-0">
-      <a href="../">Software Design by Example</a> 
-        <div class="sidebar-tools-main">
-    <a href="https://github.com/gvwilson/sdxjs" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-</div>
-    </div>
-      </div>
-        <div class="mt-2 flex-shrink-0 align-items-center">
-        <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Search"></div>
-        </div>
-        </div>
-    <div class="sidebar-menu-container"> 
-    <ul class="list-unstyled mt-1">
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Overview</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../introduction/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../sysprog/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Systems Programming</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../async/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Asynchronous Programming</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../test/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Unit Testing</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../backup/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">File Backup</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../table/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Tables</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../glob/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Pattern Matching</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../parser/index.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Parsing Expressions</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../templater/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Page Templates</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../build/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Build Manager</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../layout/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Layout Engine</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../interp/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">File Interpolator</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../loader/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Module Loader</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../style/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Style Checker</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../codegen/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Code Generator</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../docgen/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Documentation Generator</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../bundler/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Module Bundler</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../packman/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Package Manager</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vm/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Virtual Machine</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../debugger/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Debugger</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../conclusion/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Conclusion</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
- <span class="menu-text" id="quarto-sidebar-section-1-label">Appendices</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
-      </div>
-      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../license/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">License</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../conduct/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Code of Conduct</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../contributing/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Contributing</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../bibliography/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Bibliography</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../glossary/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">E</span>&nbsp; <span class="chapter-title">Glossary</span></span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-    </ul>
-    </div>
-</nav>
-<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
-<!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
-    <h2 id="toc-title">Table of contents</h2>
-   
-  <ul>
-  <li><a href="#regex-parser-tokenize" id="toc-regex-parser-tokenize" class="nav-link active" data-scroll-target="#regex-parser-tokenize"><span class="header-section-number">8.1</span> How can we break text into tokens?</a></li>
-  <li><a href="#regex-parser-tree" id="toc-regex-parser-tree" class="nav-link" data-scroll-target="#regex-parser-tree"><span class="header-section-number">8.2</span> How can we turn a list of tokens into a tree?</a></li>
-  <li><a href="#regex-parser-exercises" id="toc-regex-parser-exercises" class="nav-link" data-scroll-target="#regex-parser-exercises"><span class="header-section-number">8.3</span> Exercises</a>
-  <ul class="collapse">
-  <li><a href="#create-objects" id="toc-create-objects" class="nav-link" data-scroll-target="#create-objects"><span class="header-section-number">8.3.1</span> Create objects</a></li>
-  <li><a href="#escape-characters" id="toc-escape-characters" class="nav-link" data-scroll-target="#escape-characters"><span class="header-section-number">8.3.2</span> Escape characters</a></li>
-  <li><a href="#lazy-matching" id="toc-lazy-matching" class="nav-link" data-scroll-target="#lazy-matching"><span class="header-section-number">8.3.3</span> Lazy matching</a></li>
-  <li><a href="#character-sets" id="toc-character-sets" class="nav-link" data-scroll-target="#character-sets"><span class="header-section-number">8.3.4</span> Character sets</a></li>
-  <li><a href="#back-reference" id="toc-back-reference" class="nav-link" data-scroll-target="#back-reference"><span class="header-section-number">8.3.5</span> Back reference</a></li>
-  <li><a href="#named-groups" id="toc-named-groups" class="nav-link" data-scroll-target="#named-groups"><span class="header-section-number">8.3.6</span> Named groups</a></li>
-  <li><a href="#object-streams" id="toc-object-streams" class="nav-link" data-scroll-target="#object-streams"><span class="header-section-number">8.3.7</span> Object streams</a></li>
-  <li><a href="#tokenize-html" id="toc-tokenize-html" class="nav-link" data-scroll-target="#tokenize-html"><span class="header-section-number">8.3.8</span> Tokenize HTML</a></li>
-  <li><a href="#the-shunting-yard-algorithm" id="toc-the-shunting-yard-algorithm" class="nav-link" data-scroll-target="#the-shunting-yard-algorithm"><span class="header-section-number">8.3.9</span> The Shunting-Yard Algorithm</a></li>
-  <li><a href="#handling-errors" id="toc-handling-errors" class="nav-link" data-scroll-target="#handling-errors"><span class="header-section-number">8.3.10</span> Handling errors</a></li>
-  </ul></li>
-  </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/gvwilson/sdxjs/edit/main/parser/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gvwilson/sdxjs/blob/main/parser/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/gvwilson/sdxjs/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
-    </div>
-<!-- main -->
-<main class="content" id="quarto-document-content" tabindex="-1">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title"><span id="sec-parser" class="quarto-section-identifier"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Parsing Expressions</span></span></h1>
-</div>
-
-
-
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
+<main class="content"><header id="title-block-header" class="quarto-title-block"></header>
+<h1 class="title">Parsing Expressions</h1>
 <p>In <a href="../glob/index.html" class="quarto-xref"><span>Chapter 7</span></a> we created regular expressions by constructing objects. It takes a lot less typing to write them as strings as we did for HTML selectors, but if we’re going to do that we need something to convert those strings to the required objects. In other words, we need to write a <a href="../glossary/index.html#parser">parser</a>.</p>
-<div id="tbl-regex-parser-grammar-codes" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-tbl figure">
+<div id="tbl-regex-parser-grammar-codes" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-tbl">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-regex-parser-grammar-codes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;8.1: Regular expression grammar.
 </figcaption>
 <div aria-describedby="tbl-regex-parser-grammar-codes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<table class="caption-top table">
+<table class="caption-top">
 <thead>
 <tr class="header">
 <th>Meaning</th>
@@ -437,31 +74,23 @@ Table&nbsp;8.1: Regular expression grammar.
 </figure>
 </div>
 <p><a href="#tbl-regex-parser-grammar-codes" class="quarto-xref">Table&nbsp;<span>8.1</span></a> shows the grammar we will handle. When we are done we should be able to parse <code>/^(a|b|$)*z$/</code> as “start of text”, “any number of ‘a’, ‘b’, or ‘$’”, “a single ‘z’, and”end of text”. (We write regular expressions inside slashes to distinguish them from strings.) To keep things simple, we will create a tree of objects (<a href="#fig-regex-parser-expression-tree" class="quarto-xref">Figure&nbsp;<span>8.1</span></a>) rather than instances of the regular expression classes from <a href="../glob/index.html" class="quarto-xref"><span>Chapter 7</span></a>; the exercises will tackle the latter.</p>
-<div id="fig-regex-parser-expression-tree" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-regex-parser-expression-tree" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-regex-parser-expression-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="expression-tree.svg" class="img-fluid figure-img">
+<img src="expression-tree.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-regex-parser-expression-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;8.1: Representing the result of parsing a regular expression as an tree.
 </figcaption>
 </figure>
 </div>
-<div class="callout callout-style-simple callout-none no-icon callout-titled" data-markdown="1">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">None</span>Please don’t write parsers
-</div>
-</div>
-<div class="callout-body-container callout-body">
+<div>
+<blockquote>
+<p><strong>Please don’t write parsers</strong></p>
 <p>Languages that are comfortable for people to read are usually difficult for computers to understand and vice versa, so we need parsers to translate human-friendly notation into computer-friendly representations. However, the world doesn’t need more file formats; if you need a configuration file or lookup table, please use CSV, JSON, <a href="../glossary/index.html#yaml">YAML</a>, or something else that already has an acronym rather than inventing a format of your own.</p>
+</blockquote>
 </div>
-</div>
-<section id="regex-parser-tokenize" class="level2" data-number="8.1">
-<h2 data-number="8.1" class="anchored" data-anchor-id="regex-parser-tokenize"><span class="header-section-number">8.1</span> How can we break text into tokens?</h2>
+<h2 data-number="8.1" id="regex-parser-tokenize"><span class="header-section-number">8.1</span> How can we break text into tokens?</h2>
 <p>A <a href="../glossary/index.html#token">token</a> is an atom of text, such as the digits making up a number or the letters making up a variable name. In our grammar the tokens are the special characters <code>*</code>, <code>|</code>, <code>(</code>, <code>)</code>, <code>^</code>, and <code>$</code>, plus any sequence of one or more other characters (which count as one multi-letter token). This classification guides the design of our parser:</p>
 <ol type="1">
 <li><p>If a character is special, create a token for it.</p></li>
@@ -475,7 +104,6 @@ Figure&nbsp;8.1: Representing the result of parsing a regular expression as an t
   '(': 'GroupStart',
   ')': 'GroupEnd'
 }
-
 const tokenize = (text) =&gt; {
   const result = []
   for (let i = 0; i &lt; text.length; i += 1) {
@@ -498,10 +126,8 @@ const tokenize = (text) =&gt; {
       combineOrPush(result, c, i)
     }
   }
-
   return result
 }
-
 // mccole:combine
 const combineOrPush = (soFar, character, location) =&gt; {
   const topIndex = soFar.length - 1
@@ -512,17 +138,14 @@ const combineOrPush = (soFar, character, location) =&gt; {
   }
 }
 // mccole:/combine
-export default tokenize
-</code></pre>
+export default tokenize</code></pre>
 <p>The helper function <code>combineOrPush</code> does exactly what its name says. If the thing most recently added to the list of tokens isn’t a literal, the new character becomes a new token; otherwise, we append the new character to the literal we’re building:</p>
 <pre><code></code></pre>
 <p>We can try this out with a three-line test program:</p>
 <pre><code>import tokenize from './tokenizer-collapse.js'
-
 const test = '^a^b*'
 const result = tokenize(test)
-console.log(JSON.stringify(result, null, 2))
-</code></pre>
+console.log(JSON.stringify(result, null, 2))</code></pre>
 <pre><code>[
   {
     "kind": "Start",
@@ -547,8 +170,7 @@ console.log(JSON.stringify(result, null, 2))
     "kind": "Any",
     "loc": 4
   }
-]
-</code></pre>
+]</code></pre>
 <p>This simple tokenizer is readable, efficient, and wrong. The problem is that the expression <code>/ab*/</code> means “a single <code>a</code> followed by zero or more <code>b</code>”. If we combine the <code>a</code> and <code>b</code> as we read them, though, we wind up with “zero or more repetitions of <code>ab</code>”. (Don’t feel bad if you didn’t spot this: we didn’t notice the problem until we were implementing the next step.)</p>
 <p>The solution is to treat each regular character as its own literal in this stage and then combine things later. Doing this lets us get rid of the nested <code>if</code> for handling <code>^</code> and <code>$</code> as well:</p>
 <pre><code>const SIMPLE = {
@@ -557,7 +179,6 @@ console.log(JSON.stringify(result, null, 2))
   '(': 'GroupStart',
   ')': 'GroupEnd'
 }
-
 const tokenize = (text) =&gt; {
   const result = []
   for (let i = 0; i &lt; text.length; i += 1) {
@@ -572,44 +193,35 @@ const tokenize = (text) =&gt; {
       result.push({ kind: 'Lit', loc: i, value: c })
     }
   }
-
   return result
 }
-
-export default tokenize
-</code></pre>
+export default tokenize</code></pre>
 <p>Software isn’t done until it’s tested, so let’s build some <a href="https://mochajs.org/">Mocha</a> tests for our tokenizer. The listing below shows a few of these along with the output for the full set:</p>
 <pre><code>import assert from 'assert'
-
 import tokenize from '../tokenizer.js'
-
 describe('tokenizes correctly', async () =&gt; {
   it('tokenizes a single character', () =&gt; {
     assert.deepStrictEqual(tokenize('a'), [
       { kind: 'Lit', value: 'a', loc: 0 }
     ])
   })
-
   it('tokenizes a sequence of characters', () =&gt; {
     assert.deepStrictEqual(tokenize('ab'), [
       { kind: 'Lit', value: 'a', loc: 0 },
       { kind: 'Lit', value: 'b', loc: 1 }
     ])
   })
-
   it('tokenizes start anchor alone', () =&gt; {
     assert.deepStrictEqual(tokenize('^'), [
       { kind: 'Start', loc: 0 }
     ])
   })
-
   it('tokenizes start anchor followed by characters', () =&gt; {
     assert.deepStrictEqual(tokenize('^a'), [
       { kind: 'Start', loc: 0 },
       { kind: 'Lit', value: 'a', loc: 1 }
     ])
   })
-
   // [omit]
   it('tokenizes circumflex not at start', () =&gt; {
     assert.deepStrictEqual(tokenize('a^b'), [
@@ -618,20 +230,17 @@ describe('tokenizes correctly', async () =&gt; {
       { kind: 'Lit', value: 'b', loc: 2 }
     ])
   })
-
   it('tokenizes start anchor alone', () =&gt; {
     assert.deepStrictEqual(tokenize('$'), [
       { kind: 'End', loc: 0 }
     ])
   })
-
   it('tokenizes end anchor preceded by characters', () =&gt; {
     assert.deepStrictEqual(tokenize('a$'), [
       { kind: 'Lit', value: 'a', loc: 0 },
       { kind: 'End', loc: 1 }
     ])
   })
-
   it('tokenizes dollar sign not at end', () =&gt; {
     assert.deepStrictEqual(tokenize('a$b'), [
       { kind: 'Lit', value: 'a', loc: 0 },
@@ -639,13 +248,11 @@ describe('tokenizes correctly', async () =&gt; {
       { kind: 'Lit', value: 'b', loc: 2 }
     ])
   })
-
   it('tokenizes repetition alone', () =&gt; {
     assert.deepStrictEqual(tokenize('*'), [
       { kind: 'Any', loc: 0 }
     ])
   })
-
   it('tokenizes repetition in string', () =&gt; {
     assert.deepStrictEqual(tokenize('a*b'), [
       { kind: 'Lit', value: 'a', loc: 0 },
@@ -653,20 +260,17 @@ describe('tokenizes correctly', async () =&gt; {
       { kind: 'Lit', value: 'b', loc: 2 }
     ])
   })
-
   it('tokenizes repetition at end of string', () =&gt; {
     assert.deepStrictEqual(tokenize('a*'), [
       { kind: 'Lit', value: 'a', loc: 0 },
       { kind: 'Any', loc: 1 }
     ])
   })
-
   it('tokenizes alternation alone', () =&gt; {
     assert.deepStrictEqual(tokenize('|'), [
       { kind: 'Alt', loc: 0 }
     ])
   })
-
   it('tokenizes alternation in string', () =&gt; {
     assert.deepStrictEqual(tokenize('a|b'), [
       { kind: 'Lit', value: 'a', loc: 0 },
@@ -674,20 +278,17 @@ describe('tokenizes correctly', async () =&gt; {
       { kind: 'Lit', value: 'b', loc: 2 }
     ])
   })
-
   it('tokenizes alternation at start of string', () =&gt; {
     assert.deepStrictEqual(tokenize('|a'), [
       { kind: 'Alt', loc: 0 },
       { kind: 'Lit', value: 'a', loc: 1 }
     ])
   })
-
   it('tokenizes the start of a group alone', () =&gt; {
     assert.deepStrictEqual(tokenize('('), [
       { kind: 'GroupStart', loc: 0 }
     ])
   })
-
   it('tokenizes the start of a group in a string', () =&gt; {
     assert.deepStrictEqual(tokenize('a(b'), [
       { kind: 'Lit', value: 'a', loc: 0 },
@@ -695,20 +296,17 @@ describe('tokenizes correctly', async () =&gt; {
       { kind: 'Lit', value: 'b', loc: 2 }
     ])
   })
-
   it('tokenizes the end of a group alone', () =&gt; {
     assert.deepStrictEqual(tokenize(')'), [
       { kind: 'GroupEnd', loc: 0 }
     ])
   })
-
   it('tokenizes the end of a group at the end of a string', () =&gt; {
     assert.deepStrictEqual(tokenize('a)'), [
       { kind: 'Lit', value: 'a', loc: 0 },
       { kind: 'GroupEnd', loc: 1 }
     ])
   })
-
   // [/omit]
   it('tokenizes a complex expression', () =&gt; {
     assert.deepStrictEqual(tokenize('^a*(bcd|e^)*f$gh$'), [
@@ -731,14 +329,9 @@ describe('tokenizes correctly', async () =&gt; {
       { kind: 'End', loc: 16 }
     ])
   })
-})
-</code></pre>
-<pre><code>
-&gt; stjs@1.0.0 test /u/stjs
+})</code></pre>
+<pre><code>&gt; stjs@1.0.0 test /u/stjs
 &gt; mocha */test/test-*.js "-g" "tokenizes correctly"
-
-
-
   tokenizes correctly
     ✓ tokenizes a single character
     ✓ tokenizes a sequence of characters
@@ -759,13 +352,8 @@ describe('tokenizes correctly', async () =&gt; {
     ✓ tokenizes the end of a group alone
     ✓ tokenizes the end of a group at the end of a string
     ✓ tokenizes a complex expression
-
-
-  19 passing (12ms)
-</code></pre>
-</section>
-<section id="regex-parser-tree" class="level2" data-number="8.2">
-<h2 data-number="8.2" class="anchored" data-anchor-id="regex-parser-tree"><span class="header-section-number">8.2</span> How can we turn a list of tokens into a tree?</h2>
+  19 passing (12ms)</code></pre>
+<h2 data-number="8.2" id="regex-parser-tree"><span class="header-section-number">8.2</span> How can we turn a list of tokens into a tree?</h2>
 <p>We now have a list of tokens, but we need a tree that captures the nesting introduced by parentheses and the way that <code>*</code> applies to whatever comes before it. Let’s trace a few cases in order to see how to build this tree:</p>
 <ol type="1">
 <li><p>If the regular expression is <code>/a/</code>, we create a <code>Lit</code> token for the letter <code>a</code> (where “create” means “append to the output list”).</p></li>
@@ -782,10 +370,10 @@ describe('tokenizes correctly', async () =&gt; {
 <li><p>After all tokens have been handled, look for partially-completed <code>Alt</code> tokens and make whatever comes after them their right child.</p></li>
 </ol>
 <p>Again, this automatically handles patterns like <code>/(ab)|c*|(de)/</code>.</p>
-<div id="fig-regex-parser-mechanics" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-regex-parser-mechanics" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-regex-parser-mechanics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="mechanics.svg" class="img-fluid figure-img">
+<img src="mechanics.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-regex-parser-mechanics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;8.2: Mechanics of combining tokens while parsing regular expressions.
@@ -794,9 +382,7 @@ Figure&nbsp;8.2: Mechanics of combining tokens while parsing regular expressions
 </div>
 <p>It’s time to turn these ideas into code. The main structure of our parser is:</p>
 <pre><code>import assert from 'assert'
-
 import tokenize from './tokenizer.js'
-
 const parse = (text) =&gt; {
   const result = []
   const allTokens = tokenize(text)
@@ -807,7 +393,6 @@ const parse = (text) =&gt; {
   }
   return compress(result)
 }
-
 // mccole:skip
 // mccole:handle
 const handle = (result, token, last) =&gt; {
@@ -878,8 +463,7 @@ const compress = (raw) =&gt; {
 }
 // mccole:/compress
 // mccole:/skip
-export default parse
-</code></pre>
+export default parse</code></pre>
 <p>We handle tokens case-by-case (with a few assertions to check that patterns are <a href="../glossary/index.html#well_formed">well formed</a>):</p>
 <pre><code></code></pre>
 <p>When we find the <code>)</code> that marks the end of a group, we take items from the end of the output list until we find the matching start and use them to create a group:</p>
@@ -888,27 +472,22 @@ export default parse
 <pre><code></code></pre>
 <p>Once again, it’s not done until we’ve tested it:</p>
 <pre><code>import assert from 'assert'
-
 import parse from '../parser.js'
-
 describe('parses correctly', async () =&gt; {
   it('parses the empty string', () =&gt; {
     assert.deepStrictEqual(parse(''), [])
   })
-
   it('parses a single literal', () =&gt; {
     assert.deepStrictEqual(parse('a'), [
       { kind: 'Lit', loc: 0, value: 'a' }
     ])
   })
-
   it('parses multiple literals', () =&gt; {
     assert.deepStrictEqual(parse('ab'), [
       { kind: 'Lit', loc: 0, value: 'a' },
       { kind: 'Lit', loc: 1, value: 'b' }
     ])
   })
-
   // [omit]
   it('parses start anchors', () =&gt; {
     assert.deepStrictEqual(parse('^a'), [
@@ -916,34 +495,29 @@ describe('parses correctly', async () =&gt; {
       { kind: 'Lit', loc: 1, value: 'a' }
     ])
   })
-
   it('handles circumflex not at start', () =&gt; {
     assert.deepStrictEqual(parse('a^'), [
       { kind: 'Lit', loc: 0, value: 'a' },
       { kind: 'Lit', loc: 1, value: '^' }
     ])
   })
-
   it('parses end anchors', () =&gt; {
     assert.deepStrictEqual(parse('a$'), [
       { kind: 'Lit', loc: 0, value: 'a' },
       { kind: 'End', loc: 1 }
     ])
   })
-
   it('parses circumflex not at start', () =&gt; {
     assert.deepStrictEqual(parse('$a'), [
       { kind: 'Lit', loc: 0, value: '$' },
       { kind: 'Lit', loc: 1, value: 'a' }
     ])
   })
-
   it('parses empty groups', () =&gt; {
     assert.deepStrictEqual(parse('()'), [
       { kind: 'Group', loc: 0, end: 1, children: [] }
     ])
   })
-
   it('parses groups containing characters', () =&gt; {
     assert.deepStrictEqual(parse('(a)'), [
       {
@@ -956,7 +530,6 @@ describe('parses correctly', async () =&gt; {
       }
     ])
   })
-
   it('parses two groups containing characters', () =&gt; {
     assert.deepStrictEqual(parse('(a)(b)'), [
       {
@@ -977,7 +550,6 @@ describe('parses correctly', async () =&gt; {
       }
     ])
   })
-
   it('parses any', () =&gt; {
     assert.deepStrictEqual(parse('a*'), [
       {
@@ -987,7 +559,6 @@ describe('parses correctly', async () =&gt; {
       }
     ])
   })
-
   it('parses any of group', () =&gt; {
     assert.deepStrictEqual(parse('(ab)*'), [
       {
@@ -1005,7 +576,6 @@ describe('parses correctly', async () =&gt; {
       }
     ])
   })
-
   it('parses alt', () =&gt; {
     assert.deepStrictEqual(parse('a|b'), [
       {
@@ -1016,7 +586,6 @@ describe('parses correctly', async () =&gt; {
       }
     ])
   })
-
   it('parses alt of any', () =&gt; {
     assert.deepStrictEqual(parse('a*|b'), [
       {
@@ -1032,7 +601,6 @@ describe('parses correctly', async () =&gt; {
     ])
   })
   // [/omit]
-
   it('parses alt of groups', () =&gt; {
     assert.deepStrictEqual(parse('a|(bc)'), [
       {
@@ -1051,14 +619,9 @@ describe('parses correctly', async () =&gt; {
       }
     ])
   })
-})
-</code></pre>
-<pre><code>
-&gt; stjs@1.0.0 test /u/stjs
+})</code></pre>
+<pre><code>&gt; stjs@1.0.0 test /u/stjs
 &gt; mocha */test/test-*.js "-g" "parses correctly"
-
-
-
   parses correctly
     ✓ parses the empty string
     ✓ parses a single literal
@@ -1075,28 +638,18 @@ describe('parses correctly', async () =&gt; {
     ✓ parses alt
     ✓ parses alt of any
     ✓ parses alt of groups
-
-
-  15 passing (11ms)
-</code></pre>
+  15 passing (11ms)</code></pre>
 <p>While our final parser is less than 90 lines of code, it is doing a lot of complex things. Compared to parsers for things like JSON and YAML, though, it is still very simple. If we have more operators with different <a href="../glossary/index.html#precedence">precedences</a> we should switch to the <a href="https://en.wikipedia.org/wiki/Shunting-yard_algorithm">shunting-yard algorithm</a>, and if we need to handle a language like JavaScript we should explore tools like <a href="https://www.antlr.org/">ANTLR</a>, which can generate a parser automatically given a description of the language to be parsed. As we said at the start, though, if our design requires us to write a parser we should try to come up with a better design. CSV, JSON, YAML, and other formats <a href="https://third-bit.com/2015/06/11/why-we-cant-have-nice-things/">have their quirks</a>, but at least they’re broken the same way everywhere.</p>
-<div class="callout callout-style-simple callout-none no-icon callout-titled" data-markdown="1">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">None</span>The limits of computing
-</div>
-</div>
-<div class="callout-body-container callout-body">
+<div>
+<blockquote>
+<p><strong>The limits of computing</strong></p>
 <p>One of the most important theoretical results in computer science is that every formal language corresponds to a type of abstract machine and vice versa, and that some languages (or machines) are more or less powerful than others. For example, every regular expression corresponds to a <a href="../glossary/index.html#fsm">finite state machine</a> (FSM) like the one in <a href="#fig-regex-parser-finite-state-machine" class="quarto-xref">Figure&nbsp;<span>8.3</span></a>. As powerful as FSMs are, they cannot match things like nested parentheses or HTML tags, and <a href="https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454">attempting to do so is a sin</a>. If you add a stack to the system you can process a much richer set of languages, and if you add two stacks you have something equivalent to a <a href="../glossary/index.html#turing_machine">Turing Machine</a> that can do any conceivable computation. <span class="citation" data-cites="Conery2021">(<a href="../bibliography/index.html#ref-Conery2021" role="doc-biblioref">Conery 2021</a>)</span> presents this idea and others for self-taught developers.</p>
+</blockquote>
 </div>
-</div>
-<div id="fig-regex-parser-finite-state-machine" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-regex-parser-finite-state-machine" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-regex-parser-finite-state-machine-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="finite-state-machine.svg" class="img-fluid figure-img">
+<img src="finite-state-machine.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-regex-parser-finite-state-machine-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;8.3: A finite state machine equivalent to a regular expression.
@@ -1104,57 +657,40 @@ Figure&nbsp;8.3: A finite state machine equivalent to a regular expression.
 </figure>
 </div>
 <section class="exercises">
-</section>
-<section id="regex-parser-exercises" class="level2" data-number="8.3">
-<h2 data-number="8.3" class="anchored" data-anchor-id="regex-parser-exercises"><span class="header-section-number">8.3</span> Exercises</h2>
-<section id="create-objects" class="level3" data-number="8.3.1">
-<h3 data-number="8.3.1" class="anchored" data-anchor-id="create-objects"><span class="header-section-number">8.3.1</span> Create objects</h3>
+<h2 data-number="8.3" id="regex-parser-exercises"><span class="header-section-number">8.3</span> Exercises</h2>
+<h3 data-number="8.3.1" id="create-objects"><span class="header-section-number">8.3.1</span> Create objects</h3>
 <p>Modify the parser to return instances of classes derived from <code>RegexBase</code>.</p>
-</section>
-<section id="escape-characters" class="level3" data-number="8.3.2">
-<h3 data-number="8.3.2" class="anchored" data-anchor-id="escape-characters"><span class="header-section-number">8.3.2</span> Escape characters</h3>
+<h3 data-number="8.3.2" id="escape-characters"><span class="header-section-number">8.3.2</span> Escape characters</h3>
 <p>Modify the parser to handle escape characters, so that (for example) <code>\*</code> is interpreted as “a literal asterisk” and <code>\\</code> is interpreted as “a literal backslash”.</p>
-</section>
-<section id="lazy-matching" class="level3" data-number="8.3.3">
-<h3 data-number="8.3.3" class="anchored" data-anchor-id="lazy-matching"><span class="header-section-number">8.3.3</span> Lazy matching</h3>
+<h3 data-number="8.3.3" id="lazy-matching"><span class="header-section-number">8.3.3</span> Lazy matching</h3>
 <p>Modify the parser so that <code>*?</code> is interpreted as a single token meaning “lazy match zero or more”.</p>
-</section>
-<section id="character-sets" class="level3" data-number="8.3.4">
-<h3 data-number="8.3.4" class="anchored" data-anchor-id="character-sets"><span class="header-section-number">8.3.4</span> Character sets</h3>
+<h3 data-number="8.3.4" id="character-sets"><span class="header-section-number">8.3.4</span> Character sets</h3>
 <p>Modify the parser so that expressions like <code>[xyz]</code> are interpreted to mean “match any one of the characters x, y, or z”.</p>
-</section>
-<section id="back-reference" class="level3" data-number="8.3.5">
-<h3 data-number="8.3.5" class="anchored" data-anchor-id="back-reference"><span class="header-section-number">8.3.5</span> Back reference</h3>
+<h3 data-number="8.3.5" id="back-reference"><span class="header-section-number">8.3.5</span> Back reference</h3>
 <p>Modify the tokenizer so that it recognizes <code>\1</code>, <code>\2</code>, and so on to mean “back reference”. The number may contain any number of digits.</p>
-</section>
-<section id="named-groups" class="level3" data-number="8.3.6">
-<h3 data-number="8.3.6" class="anchored" data-anchor-id="named-groups"><span class="header-section-number">8.3.6</span> Named groups</h3>
+<h3 data-number="8.3.6" id="named-groups"><span class="header-section-number">8.3.6</span> Named groups</h3>
 <ol type="1">
 <li><p>Modify the tokenizer to recognize named groups. For example, the named group <code>/(?&lt;triple&gt;aaa)/</code> would create a named group called <code>triple</code> that matches exactly three consecutive occurrences of ‘a’.</p></li>
 <li><p>Write Mocha tests for your modified tokenizer. Does it handle nested named groups?</p></li>
 </ol>
-</section>
-<section id="object-streams" class="level3" data-number="8.3.7">
-<h3 data-number="8.3.7" class="anchored" data-anchor-id="object-streams"><span class="header-section-number">8.3.7</span> Object streams</h3>
+<h3 data-number="8.3.7" id="object-streams"><span class="header-section-number">8.3.7</span> Object streams</h3>
 <p>Write a parser that turns files of key-value pairs separated by blank lines into objects. For example, if the input is:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode txt code-with-copy"><code class="sourceCode default"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>left: "left value"</span>
+<div class="sourceCode" id="cb14"><pre class="sourceCode txt"><code class="sourceCode default"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>left: "left value"</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>first: 1</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>middle: "middle value"</span>
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>second: 2</span>
 <span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>right: "right value"</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>third: 3</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>third: 3</span></code></pre></div>
 <p>then the output will be:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>[</span>
+<div class="sourceCode" id="cb15"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>[</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  {<span class="dt">left</span><span class="op">:</span> <span class="st">"left value"</span><span class="op">,</span> <span class="dt">first</span><span class="op">:</span> <span class="dv">1</span>}<span class="op">,</span></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  {<span class="dt">middle</span><span class="op">:</span> <span class="st">"middle value"</span><span class="op">,</span> <span class="dt">second</span><span class="op">:</span> <span class="dv">2</span>}<span class="op">,</span></span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  {<span class="dt">right</span><span class="op">:</span> <span class="st">"right value"</span><span class="op">,</span> <span class="dt">third</span><span class="op">:</span> <span class="dv">3</span>}</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div>
 <p>Keys are always upper- and lower-case characters; values may be strings in double quotes or unquoted numbers.</p>
-</section>
-<section id="tokenize-html" class="level3" data-number="8.3.8">
-<h3 data-number="8.3.8" class="anchored" data-anchor-id="tokenize-html"><span class="header-section-number">8.3.8</span> Tokenize HTML</h3>
+<h3 data-number="8.3.8" id="tokenize-html"><span class="header-section-number">8.3.8</span> Tokenize HTML</h3>
 <ol type="1">
 <li><p>Write a tokenizer for a subset of HTML that consists of:</p>
 <ul>
@@ -1165,9 +701,7 @@ Figure&nbsp;8.3: A finite state machine equivalent to a regular expression.
 <li><p>Modify the tokenizer to handle <code>key="value"</code> attributes in opening tags.</p></li>
 <li><p>Write Mocha tests for your tokenizer.</p></li>
 </ol>
-</section>
-<section id="the-shunting-yard-algorithm" class="level3" data-number="8.3.9">
-<h3 data-number="8.3.9" class="anchored" data-anchor-id="the-shunting-yard-algorithm"><span class="header-section-number">8.3.9</span> The Shunting-Yard Algorithm</h3>
+<h3 data-number="8.3.9" id="the-shunting-yard-algorithm"><span class="header-section-number">8.3.9</span> The Shunting-Yard Algorithm</h3>
 <ol type="1">
 <li><p>Use the <a href="https://en.wikipedia.org/wiki/Shunting-yard_algorithm">shunting-yard algorithm</a> to implement a tokenizer for a simple subset of arithmetic that includes:</p>
 <ul>
@@ -1177,516 +711,19 @@ Figure&nbsp;8.3: A finite state machine equivalent to a regular expression.
 </ul></li>
 <li><p>Write Mocha tests for your tokenizer.</p></li>
 </ol>
-</section>
-<section id="handling-errors" class="level3" data-number="8.3.10">
-<h3 data-number="8.3.10" class="anchored" data-anchor-id="handling-errors"><span class="header-section-number">8.3.10</span> Handling errors</h3>
+<h3 data-number="8.3.10" id="handling-errors"><span class="header-section-number">8.3.10</span> Handling errors</h3>
 <ol type="1">
 <li><p>What does the regular expression tokenizer do with expressions that contain unmatched opening parentheses like <code>/a(b/</code>? What about expressions that contain unmatched closing parentheses like <code>/ab)/</code>?</p></li>
 <li><p>Modify it so it produces a more useful error message.</p></li>
 </ol>
 </section>
 
-
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
 <div id="ref-Conery2021" class="csl-entry" role="listitem">
 Conery, Rob. 2021. <em>The Imposter’s Handbook: A CS Primer for Self-Taught Developers</em>. Independently published. ISBN 9788708185266.
 </div>
 </div>
-</section>
-</section>
-
-</main> <!-- /main -->
-<script id="quarto-html-after-body" type="application/javascript">
-  window.document.addEventListener("DOMContentLoaded", function (event) {
-    const icon = "";
-    const anchorJS = new window.AnchorJS();
-    anchorJS.options = {
-      placement: 'right',
-      icon: icon
-    };
-    anchorJS.add('.anchored');
-    const isCodeAnnotation = (el) => {
-      for (const clz of el.classList) {
-        if (clz.startsWith('code-annotation-')) {                     
-          return true;
-        }
-      }
-      return false;
-    }
-    const onCopySuccess = function(e) {
-      // button target
-      const button = e.trigger;
-      // don't keep focus
-      button.blur();
-      // flash "checked"
-      button.classList.add('code-copy-button-checked');
-      var currentTitle = button.getAttribute("title");
-      button.setAttribute("title", "Copied!");
-      let tooltip;
-      if (window.bootstrap) {
-        button.setAttribute("data-bs-toggle", "tooltip");
-        button.setAttribute("data-bs-placement", "left");
-        button.setAttribute("data-bs-title", "Copied!");
-        tooltip = new bootstrap.Tooltip(button, 
-          { trigger: "manual", 
-            customClass: "code-copy-button-tooltip",
-            offset: [0, -8]});
-        tooltip.show();    
-      }
-      setTimeout(function() {
-        if (tooltip) {
-          tooltip.hide();
-          button.removeAttribute("data-bs-title");
-          button.removeAttribute("data-bs-toggle");
-          button.removeAttribute("data-bs-placement");
-        }
-        button.setAttribute("title", currentTitle);
-        button.classList.remove('code-copy-button-checked');
-      }, 1000);
-      // clear code selection
-      e.clearSelection();
-    }
-    const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-      text: getTextToCopy
-    });
-    clipboard.on('success', onCopySuccess);
-    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-        text: getTextToCopy,
-        container: window.document.getElementById('quarto-embedded-source-code-modal')
-      });
-      clipboardModal.on('success', onCopySuccess);
-    }
-      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-      var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
-      var isInternal = (href) => {
-          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
-      }
-      // Inspect non-navigation links and adorn them if external
-      window.quartoDecorateExternalLinks = function (root) {
-     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-      for (var i=0; i<links.length; i++) {
-        const link = links[i];
-        if (!isInternal(link.href)) {
-          // undo the damage that might have been done by quarto-nav.js in the case of
-          // links that we want to consider external
-          if (link.dataset.originalHref !== undefined) {
-            link.href = link.dataset.originalHref;
-          }
-          if (!link.classList.contains('no-external-icon')) {
-          }
-        }
-      }
-      };
-      window.quartoDecorateExternalLinks(window.document);
-    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
-    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
-    const hideOnEscAndFocusOut = {
-      name: 'hideOnEscAndFocusOut',
-      defaultValue: true,
-      fn(instance) {
-        const dismiss = () => {
-          // A show scheduled by the trigger delay would otherwise reopen it
-          instance.clearDelayTimeouts();
-          instance.hide();
-        };
-        const onKeyDown = (event) => {
-          if (event.key !== 'Escape') {
-            return;
-          }
-          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
-          // except an open reveal.js slide menu, which Esc should close too.
-          // The menu handles keys only when its keyboard option is on.
-          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
-            window.Reveal.getConfig().menu?.keyboard !== false;
-          if (!menuHandlesEsc) {
-            event.stopPropagation();
-          }
-          if (instance.popper.contains(window.document.activeElement)) {
-            // Disabled while refocusing so the focus trigger does not reopen it
-            instance.disable();
-            instance.reference.focus();
-            instance.enable();
-          }
-          dismiss();
-        };
-        const onFocusOut = (event) => {
-          const target = event.relatedTarget;
-          if (target && !instance.reference.contains(target) &&
-              !instance.popper.contains(target)) {
-            dismiss();
-          }
-        };
-        // On the trigger too: a click trigger (code-annotations: select) has no
-        // blur handling. Attached for the instance's lifetime so leaving the
-        // trigger also cancels a show still pending on the trigger delay.
-        instance.reference.addEventListener('focusout', onFocusOut);
-        return {
-          onShow() {
-            window.document.addEventListener('keydown', onKeyDown, true);
-            instance.popper.addEventListener('focusout', onFocusOut);
-          },
-          onHide() {
-            window.document.removeEventListener('keydown', onKeyDown, true);
-            instance.popper.removeEventListener('focusout', onFocusOut);
-          },
-          onDestroy() {
-            instance.reference.removeEventListener('focusout', onFocusOut);
-          },
-        };
-      },
-    };
-    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-      const config = {
-        allowHTML: true,
-        maxWidth: 500,
-        delay: 100,
-        arrow: false,
-        appendTo: function(el) {
-            return el.parentElement;
-        },
-        interactive: true,
-        interactiveBorder: 10,
-        theme: 'quarto',
-        placement: 'bottom-start',
-        plugins: [hideOnEscAndFocusOut],
-      };
-      if (contentFn) {
-        config.content = contentFn;
-      }
-      if (onTriggerFn) {
-        config.onTrigger = onTriggerFn;
-      }
-      if (onUntriggerFn) {
-        config.onUntrigger = onUntriggerFn;
-      }
-      window.tippy(el, config); 
-    }
-    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-    for (var i=0; i<noterefs.length; i++) {
-      const ref = noterefs[i];
-      tippyHover(ref, function() {
-        // use id or data attribute instead here
-        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-        try { href = new URL(href).hash; } catch {}
-        const id = href.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note) {
-          return note.innerHTML;
-        } else {
-          return "";
-        }
-      });
-    }
-    const xrefs = window.document.querySelectorAll('a.quarto-xref');
-    const processXRef = (id, note) => {
-      // Strip column container classes
-      const stripColumnClz = (el) => {
-        el.classList.remove("page-full", "page-columns");
-        if (el.children) {
-          for (const child of el.children) {
-            stripColumnClz(child);
-          }
-        }
-      }
-      stripColumnClz(note)
-      if (id === null || id.startsWith('sec-')) {
-        // Special case sections, only their first couple elements
-        const container = document.createElement("div");
-        if (note.children && note.children.length > 2) {
-          container.appendChild(note.children[0].cloneNode(true));
-          for (let i = 1; i < note.children.length; i++) {
-            const child = note.children[i];
-            if (child.tagName === "P" && child.innerText === "") {
-              continue;
-            } else {
-              container.appendChild(child.cloneNode(true));
-              break;
-            }
-          }
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(container);
-          }
-          return container.innerHTML
-        } else {
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(note);
-          }
-          return note.innerHTML;
-        }
-      } else {
-        // Remove any anchor links if they are present
-        const anchorLink = note.querySelector('a.anchorjs-link');
-        if (anchorLink) {
-          anchorLink.remove();
-        }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(note);
-        }
-        if (note.classList.contains("callout")) {
-          return note.outerHTML;
-        } else {
-          return note.innerHTML;
-        }
-      }
-    }
-    for (var i=0; i<xrefs.length; i++) {
-      const xref = xrefs[i];
-      tippyHover(xref, undefined, function(instance) {
-        instance.disable();
-        let url = xref.getAttribute('href');
-        let hash = undefined; 
-        if (url.startsWith('#')) {
-          hash = url;
-        } else {
-          try { hash = new URL(url).hash; } catch {}
-        }
-        if (hash) {
-          const id = hash.replace(/^#\/?/, "");
-          const note = window.document.getElementById(id);
-          if (note !== null) {
-            try {
-              const html = processXRef(id, note.cloneNode(true));
-              instance.setContent(html);
-            } finally {
-              instance.enable();
-              instance.show();
-            }
-          } else {
-            // See if we can fetch this
-            fetch(url.split('#')[0])
-            .then(res => res.text())
-            .then(html => {
-              const parser = new DOMParser();
-              const htmlDoc = parser.parseFromString(html, "text/html");
-              const note = htmlDoc.getElementById(id);
-              if (note !== null) {
-                const html = processXRef(id, note);
-                instance.setContent(html);
-              } 
-            }).finally(() => {
-              instance.enable();
-              instance.show();
-            });
-          }
-        } else {
-          // See if we can fetch a full url (with no hash to target)
-          // This is a special case and we should probably do some content thinning / targeting
-          fetch(url)
-          .then(res => res.text())
-          .then(html => {
-            const parser = new DOMParser();
-            const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.querySelector('main.content');
-            if (note !== null) {
-              // This should only happen for chapter cross references
-              // (since there is no id in the URL)
-              // remove the first header
-              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-                note.children[0].remove();
-              }
-              const html = processXRef(null, note);
-              instance.setContent(html);
-            } 
-          }).finally(() => {
-            instance.enable();
-            instance.show();
-          });
-        }
-      }, function(instance) {
-      });
-    }
-        let selectedAnnoteEl;
-        const selectorForAnnotation = ( cell, annotation) => {
-          let cellAttr = 'data-code-cell="' + cell + '"';
-          let lineAttr = 'data-code-annotation="' +  annotation + '"';
-          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-          return selector;
-        }
-        const selectCodeLines = (annoteEl) => {
-          const doc = window.document;
-          const targetCell = annoteEl.getAttribute("data-target-cell");
-          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-          const lineIds = lines.map((line) => {
-            return targetCell + "-" + line;
-          })
-          // Each band is positioned against its own containing block, which is
-          // not the offsetParent of the lines, so place it from client rects.
-          const placeBand = (band, firstEl, lastEl, codeBlock) => {
-            const container = band.offsetParent;
-            if (container === null) {
-              return;
-            }
-            const containerRect = container.getBoundingClientRect();
-            // Reveal.js scales slides with a transform, so convert client
-            // pixels back to the CSS pixels of the container.
-            const scale = containerRect.height / container.offsetHeight || 1;
-            const firstRect = firstEl.getBoundingClientRect();
-            const lastRect = lastEl.getBoundingClientRect();
-            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
-            const height = (lastRect.bottom - firstRect.top) / scale;
-            band.style.top = top - 2 + "px";
-            band.style.height = height + 4 + "px";
-            if (codeBlock) {
-              // Without the copy button wrapper, the containing block is wider
-              // than the code block, so span the code block explicitly.
-              const blockRect = codeBlock.getBoundingClientRect();
-              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
-              band.style.width = blockRect.width / scale + "px";
-            }
-          };
-          if (lineIds.length > 0) {
-            const el = window.document.getElementById(lineIds[0]);
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const parent = el.parentElement.parentElement;
-            // cook up a div (if necessary) and position it
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
-            }
-            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
-            }
-            placeBand(gutterDiv, el, lastEl);
-            selectedAnnoteEl = annoteEl;
-          }
-        };
-        const unselectCodeLines = () => {
-          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-          elementsIds.forEach((elId) => {
-            const div = window.document.getElementById(elId);
-            if (div) {
-              div.remove();
-            }
-          });
-          selectedAnnoteEl = undefined;
-        };
-          // Handle positioning of the toggle
-      window.addEventListener(
-        "resize",
-        throttle(() => {
-          elRect = undefined;
-          if (selectedAnnoteEl) {
-            selectCodeLines(selectedAnnoteEl);
-          }
-        }, 10)
-      );
-      function throttle(fn, ms) {
-      let throttle = false;
-      let timer;
-        return (...args) => {
-          if(!throttle) { // first call gets through
-              fn.apply(this, args);
-              throttle = true;
-          } else { // all the others get throttled
-              if(timer) clearTimeout(timer); // cancel #2
-              timer = setTimeout(() => {
-                fn.apply(this, args);
-                timer = throttle = false;
-              }, ms);
-          }
-        };
-      }
-        // Attach click handler to the DT
-        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-        for (const annoteDlNode of annoteDls) {
-          annoteDlNode.addEventListener('click', (event) => {
-            const clickedEl = event.target;
-            if (clickedEl !== selectedAnnoteEl) {
-              unselectCodeLines();
-              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-              if (activeEl) {
-                activeEl.classList.remove('code-annotation-active');
-              }
-              selectCodeLines(clickedEl);
-              clickedEl.classList.add('code-annotation-active');
-            } else {
-              // Unselect the line
-              unselectCodeLines();
-              clickedEl.classList.remove('code-annotation-active');
-            }
-          });
-        }
-    const findCites = (el) => {
-      const parentEl = el.parentElement;
-      if (parentEl) {
-        const cites = parentEl.dataset.cites;
-        if (cites) {
-          return {
-            el,
-            cites: cites.split(' ')
-          };
-        } else {
-          return findCites(el.parentElement)
-        }
-      } else {
-        return undefined;
-      }
-    };
-    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-    for (var i=0; i<bibliorefs.length; i++) {
-      const ref = bibliorefs[i];
-      const citeInfo = findCites(ref);
-      if (citeInfo) {
-        tippyHover(citeInfo.el, function() {
-          var popup = window.document.createElement('div');
-          citeInfo.cites.forEach(function(cite) {
-            var citeDiv = window.document.createElement('div');
-            citeDiv.classList.add('hanging-indent');
-            citeDiv.classList.add('csl-entry');
-            var biblioDiv = window.document.getElementById('ref-' + cite);
-            if (biblioDiv) {
-              citeDiv.innerHTML = biblioDiv.innerHTML;
-            }
-            popup.appendChild(citeDiv);
-          });
-          return popup.innerHTML;
-        });
-      }
-    }
-  });
-  </script>
-  <script type="application/javascript">
-  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
-  </script>
-<nav class="page-navigation" aria-label="Page">
-  <div class="nav-page nav-page-previous">
-      <a href="../glob/index.html" class="pagination-link" aria-label="Pattern Matching">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Pattern Matching</span></span>
-      </a>          
-  </div>
-  <div class="nav-page nav-page-next">
-      <a href="../templater/index.html" class="pagination-link" aria-label="Page Templates">
-        <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Page Templates</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
-  </div>
-</nav>
-</div> <!-- /content -->
+</main>
 
 
-
-
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gvwilson/sdxjs/edit/main/parser/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gvwilson/sdxjs/blob/main/parser/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/gvwilson/sdxjs/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+</body></html>

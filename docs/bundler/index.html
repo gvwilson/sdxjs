@@ -1,405 +1,42 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head><meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Module Bundler</title>
+  <link rel="stylesheet" href="../mccole/mccole-book.css">
 
-<meta charset="utf-8">
-<meta name="generator" content="quarto-1.11.9">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-
-
-<title>17&nbsp; Module Bundler – Software Design by Example</title>
-<style>
-/* Default styles provided by pandoc.
-** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-*/
-span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: 1.5em;}
-div.column{flex: auto;}
-@media screen {
-div.columns{gap: min(4vw, 1.5em);}
-div.column{overflow-x: auto;}
-}
-div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-ul.task-list{list-style: none;}
-ul.task-list li input[type="checkbox"] {
-  width: 0.8em;
-  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
-  vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-/* CSS for citations */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-}
-.hanging-indent div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}</style>
-
-
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<link href="../packman/index.html" rel="next">
-<link href="../docgen/index.html" rel="prev">
-<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-01a495efc5497ac6e3f5457e7ed18e65.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
-<script id="quarto-search-options" type="application/json">{
-  "location": "sidebar",
-  "copy-button": false,
-  "collapse-after": 3,
-  "panel-placement": "start",
-  "type": "textbox",
-  "limit": 50,
-  "keyboard-shortcut": [
-    "f",
-    "/",
-    "s"
-  ],
-  "show-item-context": false,
-  "language": {
-    "search-no-results-text": "No results",
-    "search-matching-documents-text": "matching documents",
-    "search-copy-link-title": "Copy link to search",
-    "search-hide-matches-text": "Hide additional matches",
-    "search-more-match-text": "more match in this document",
-    "search-more-matches-text": "more matches in this document",
-    "search-clear-button-title": "Clear",
-    "search-text-placeholder": "",
-    "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit",
-    "search-label": "Search"
-  }
-}</script>
-
-
-<link rel="stylesheet" href="../mccole/book.css">
 </head>
-
-<body class="nav-sidebar floating quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
-
-<div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
-  <nav class="quarto-secondary-nav" aria-label="Toolbar">
-    <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-        <i class="bi bi-layout-text-sidebar-reverse"></i>
-      </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../bundler/index.html"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Module Bundler</span></a></li></ol></nav>
-        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-        </a>
-      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
-        <i class="bi bi-search"></i>
-      </button>
+<body>
+<header class="topbar">
+  <nav class="topnav">
+    <a class="topnav-item" href="../index.html">Home</a>
+    <div class="topnav-dropdown">
+      <span class="topnav-item">Chapters</span>
+      <div class="topnav-menu"><ul class="topnav-list"><li><a href="../introduction/index.html">Introduction</a></li><li><a href="../sysprog/index.html">Systems Programming</a></li><li><a href="../async/index.html">Asynchronous Programming</a></li><li><a href="../test/index.html">Unit Testing</a></li><li><a href="../backup/index.html">File Backup</a></li><li><a href="../table/index.html">Data Tables</a></li><li><a href="../glob/index.html">Pattern Matching</a></li><li><a href="../parser/index.html">Parsing Expressions</a></li><li><a href="../templater/index.html">Page Templates</a></li><li><a href="../build/index.html">Build Manager</a></li><li><a href="../layout/index.html">Layout Engine</a></li><li><a href="../interp/index.html">File Interpolator</a></li><li><a href="../loader/index.html">Module Loader</a></li><li><a href="../style/index.html">Style Checker</a></li><li><a href="../codegen/index.html">Code Generator</a></li><li><a href="../docgen/index.html">Documentation Generator</a></li><li><a href="../bundler/index.html">Module Bundler</a></li><li><a href="../packman/index.html">Package Manager</a></li><li><a href="../vm/index.html">Virtual Machine</a></li><li><a href="../debugger/index.html">Debugger</a></li><li><a href="../conclusion/index.html">Conclusion</a></li></ul></div>
+    </div>
+    <div class="topnav-dropdown">
+      <span class="topnav-item">Appendices</span>
+      <div class="topnav-menu"><ul class="topnav-list"><li><a href="../license/index.html">License</a></li><li><a href="../conduct/index.html">Code of Conduct</a></li><li><a href="../contributing/index.html">Contributing</a></li><li><a href="../bibliography/index.html">Bibliography</a></li><li><a href="../glossary/index.html">Glossary</a></li></ul></div>
+    </div>
+    <div class="topnav-dropdown">
+      <span class="topnav-item">Contents</span>
+      <div class="topnav-menu"><ul>
+<li><a href="#module-bundler-tests" id="toc-module-bundler-tests"><span class="header-section-number">17.1</span> What will we use as test cases?</a></li>
+<li><a href="#module-bundler-find" id="toc-module-bundler-find"><span class="header-section-number">17.2</span> How can we find dependencies?</a></li>
+<li><a href="#module-bundler-combine" id="toc-module-bundler-combine"><span class="header-section-number">17.3</span> How can we safely combine several files into one?</a></li>
+<li><a href="#module-bundler-access" id="toc-module-bundler-access"><span class="header-section-number">17.4</span> How can files access each other?</a></li>
+<li><a href="#module-bundler-exercises" id="toc-module-bundler-exercises"><span class="header-section-number">17.5</span> Exercises</a></li>
+</ul></div>
     </div>
   </nav>
 </header>
-<!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
-<!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto" aria-label="Site">
-    <div class="pt-lg-2 mt-2 text-left sidebar-header">
-    <div class="sidebar-title mb-0 py-0">
-      <a href="../">Software Design by Example</a> 
-        <div class="sidebar-tools-main">
-    <a href="https://github.com/gvwilson/sdxjs" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-</div>
-    </div>
-      </div>
-        <div class="mt-2 flex-shrink-0 align-items-center">
-        <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Search"></div>
-        </div>
-        </div>
-    <div class="sidebar-menu-container"> 
-    <ul class="list-unstyled mt-1">
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Overview</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../introduction/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../sysprog/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Systems Programming</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../async/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Asynchronous Programming</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../test/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Unit Testing</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../backup/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">File Backup</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../table/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Tables</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../glob/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Pattern Matching</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../parser/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Parsing Expressions</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../templater/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Page Templates</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../build/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Build Manager</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../layout/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Layout Engine</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../interp/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">File Interpolator</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../loader/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Module Loader</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../style/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Style Checker</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../codegen/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Code Generator</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../docgen/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Documentation Generator</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../bundler/index.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Module Bundler</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../packman/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Package Manager</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vm/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Virtual Machine</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../debugger/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Debugger</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../conclusion/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Conclusion</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
- <span class="menu-text" id="quarto-sidebar-section-1-label">Appendices</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
-      </div>
-      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../license/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">License</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../conduct/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Code of Conduct</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../contributing/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Contributing</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../bibliography/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Bibliography</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../glossary/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">E</span>&nbsp; <span class="chapter-title">Glossary</span></span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-    </ul>
-    </div>
-</nav>
-<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
-<!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
-    <h2 id="toc-title">Table of contents</h2>
-   
-  <ul>
-  <li><a href="#module-bundler-tests" id="toc-module-bundler-tests" class="nav-link active" data-scroll-target="#module-bundler-tests"><span class="header-section-number">17.1</span> What will we use as test cases?</a></li>
-  <li><a href="#module-bundler-find" id="toc-module-bundler-find" class="nav-link" data-scroll-target="#module-bundler-find"><span class="header-section-number">17.2</span> How can we find dependencies?</a></li>
-  <li><a href="#module-bundler-combine" id="toc-module-bundler-combine" class="nav-link" data-scroll-target="#module-bundler-combine"><span class="header-section-number">17.3</span> How can we safely combine several files into one?</a></li>
-  <li><a href="#module-bundler-access" id="toc-module-bundler-access" class="nav-link" data-scroll-target="#module-bundler-access"><span class="header-section-number">17.4</span> How can files access each other?</a></li>
-  <li><a href="#module-bundler-exercises" id="toc-module-bundler-exercises" class="nav-link" data-scroll-target="#module-bundler-exercises"><span class="header-section-number">17.5</span> Exercises</a>
-  <ul class="collapse">
-  <li><a href="#using-test-driven-development" id="toc-using-test-driven-development" class="nav-link" data-scroll-target="#using-test-driven-development"><span class="header-section-number">17.5.1</span> Using test-driven development</a></li>
-  <li><a href="#finding-import-dependencies" id="toc-finding-import-dependencies" class="nav-link" data-scroll-target="#finding-import-dependencies"><span class="header-section-number">17.5.2</span> Finding <code>import</code> dependencies</a></li>
-  <li><a href="#track-files-using-hashes" id="toc-track-files-using-hashes" class="nav-link" data-scroll-target="#track-files-using-hashes"><span class="header-section-number">17.5.3</span> Track files using hashes</a></li>
-  <li><a href="#using-asynchronous-file-operations" id="toc-using-asynchronous-file-operations" class="nav-link" data-scroll-target="#using-asynchronous-file-operations"><span class="header-section-number">17.5.4</span> Using asynchronous file operations</a></li>
-  <li><a href="#unit-testing-transitive-closure" id="toc-unit-testing-transitive-closure" class="nav-link" data-scroll-target="#unit-testing-transitive-closure"><span class="header-section-number">17.5.5</span> Unit testing transitive closure</a></li>
-  <li><a href="#exporting-multiple-functions" id="toc-exporting-multiple-functions" class="nav-link" data-scroll-target="#exporting-multiple-functions"><span class="header-section-number">17.5.6</span> Exporting multiple functions</a></li>
-  <li><a href="#checking-integrity" id="toc-checking-integrity" class="nav-link" data-scroll-target="#checking-integrity"><span class="header-section-number">17.5.7</span> Checking integrity</a></li>
-  <li><a href="#logging-module-loading" id="toc-logging-module-loading" class="nav-link" data-scroll-target="#logging-module-loading"><span class="header-section-number">17.5.8</span> Logging module loading</a></li>
-  <li><a href="#tracing-execution" id="toc-tracing-execution" class="nav-link" data-scroll-target="#tracing-execution"><span class="header-section-number">17.5.9</span> Tracing execution</a></li>
-  <li><a href="#making-bundles-more-readable" id="toc-making-bundles-more-readable" class="nav-link" data-scroll-target="#making-bundles-more-readable"><span class="header-section-number">17.5.10</span> Making bundles more readable</a></li>
-  </ul></li>
-  </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/gvwilson/sdxjs/edit/main/bundler/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gvwilson/sdxjs/blob/main/bundler/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/gvwilson/sdxjs/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
-    </div>
-<!-- main -->
-<main class="content" id="quarto-document-content" tabindex="-1">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title"><span id="sec-bundler" class="quarto-section-identifier"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Module Bundler</span></span></h1>
-</div>
-
-
-
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
+<main class="content"><header id="title-block-header" class="quarto-title-block"></header>
+<h1 class="title">Module Bundler</h1>
 <p>JavaScript was designed in a hurry 25 years ago to make web pages interactive. Nobody realized it would become so popular, so it didn’t include support for things that large programs need. One of those things was a way to turn a set of source files into a single file so that browsers could load what they needed with one request.</p>
 <p>A <a href="../glossary/index.html#module_bundler">module bundler</a> finds all the files that an application depends on and combines them into a single loadable file (<a href="#fig-module-bundler-bundling" class="quarto-xref">Figure&nbsp;<span>17.1</span></a>). This file is much more efficient to load: it’s the same number of bytes but just one network request. Bundling files also tests that dependencies actually resolve so that the application has at least a chance of being able to run.</p>
-<div id="fig-module-bundler-bundling" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-module-bundler-bundling" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-module-bundler-bundling-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="bundling.svg" class="img-fluid figure-img">
+<img src="bundling.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-module-bundler-bundling-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;17.1: Combining multiple modules into one.
@@ -407,50 +44,32 @@ Figure&nbsp;17.1: Combining multiple modules into one.
 </figure>
 </div>
 <p>Bundling requires an <a href="../glossary/index.html#entry_point">entry point</a>, i.e., a place to start searching for dependencies. Given that, it finds all dependencies, combines them into one file, and ensures they can find each other correctly once loaded. The sections below go through these steps one by one.</p>
-<section id="module-bundler-tests" class="level2" data-number="17.1">
-<h2 data-number="17.1" class="anchored" data-anchor-id="module-bundler-tests"><span class="header-section-number">17.1</span> What will we use as test cases?</h2>
+<h2 data-number="17.1" id="module-bundler-tests"><span class="header-section-number">17.1</span> What will we use as test cases?</h2>
 <p>Our first test case is a single file that doesn’t require anything:</p>
 <pre><code>const main = () =&gt; {
   console.log('in main')
 }
-
-module.exports = main
-</code></pre>
-<pre><code>in main
-</code></pre>
+module.exports = main</code></pre>
+<pre><code>in main</code></pre>
 <p>For our second test, <code>main.js</code> requires <code>other.js</code>:</p>
 <pre><code>const other = require('./other')
-
 const main = () =&gt; {
   console.log(other('main'))
 }
-
-module.exports = main
-</code></pre>
+module.exports = main</code></pre>
 <p>and <code>other.js</code> doesn’t require anything:</p>
 <pre><code>const other = require('./other')
-
 const main = () =&gt; {
   console.log(other('main'))
 }
-
-module.exports = main
-</code></pre>
+module.exports = main</code></pre>
 <p>The output we expect is:</p>
-<pre><code>other called from main
-</code></pre>
-<div class="callout callout-style-simple callout-none no-icon callout-titled" data-markdown="1">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">None</span>Why <code>require</code>?
-</div>
-</div>
-<div class="callout-body-container callout-body">
+<pre><code>other called from main</code></pre>
+<div>
+<blockquote>
+<p><strong>Why <code>require</code>?</strong></p>
 <p>Our tests cases use the old-style <code>require</code> function and assign things that are to be visible outside the module to <code>module.exports</code> rather than using <code>import</code> and <code>export</code>. We tried writing the chapter using the latter, but kept stumbling over whether we were talking about <code>import</code> in Node’s module loader or the <code>import</code> we were building. This kind of confusion is common when building programming tools; we hope that splitting terminology as we have will help.</p>
-</div>
+</blockquote>
 </div>
 <p>Our third test case has multiple inclusions in multiple directories and is shown in <a href="#fig-module-bundler-complicated" class="quarto-xref">Figure&nbsp;<span>17.2</span></a>:</p>
 <ul>
@@ -460,10 +79,10 @@ module.exports = main
 <li><code>./subdir/bottom-left</code> also requires <code>top-left</code> and <code>bottom-right</code>.</li>
 <li><code>./subdir/bottom-right</code> doesn’t require anything.</li>
 </ul>
-<div id="fig-module-bundler-complicated" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-module-bundler-complicated" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-module-bundler-complicated-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="complicated.svg" class="img-fluid figure-img">
+<img src="complicated.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-module-bundler-complicated-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;17.2: Dependencies in large module bundler test case.
@@ -472,38 +91,30 @@ Figure&nbsp;17.2: Dependencies in large module bundler test case.
 </div>
 <p>The main program is:</p>
 <pre><code>// main.js
-
 const topLeft = require('./top-left')
 const topRight = require('./top-right')
 const bottomLeft = require('./subdir/bottom-left')
 const bottomRight = require('./subdir/bottom-right')
-
 const main = () =&gt; {
   const functions = [topLeft, topRight, bottomLeft, bottomRight]
   functions.forEach(func =&gt; {
     console.log(`${func('main')}`)
   })
 }
-
-module.exports = main
-</code></pre>
+module.exports = main</code></pre>
 <p>and the other four files use <code>require</code> and <code>module.exports</code> to get what they need. The output we expect is:</p>
 <pre><code>topLeft from main
 topRight from main with topLeft from topRight and bottomRight from \
  topRight
 bottomLeft from main with topLeft from bottomLeft and bottomRight from \
  bottomLeft
-bottomRight from main
-</code></pre>
+bottomRight from main</code></pre>
 <p>We do not handle circular dependencies because <code>require</code> itself doesn’t (<a href="../loader/index.html" class="quarto-xref"><span>Chapter 13</span></a>).</p>
-</section>
-<section id="module-bundler-find" class="level2" data-number="17.2">
-<h2 data-number="17.2" class="anchored" data-anchor-id="module-bundler-find"><span class="header-section-number">17.2</span> How can we find dependencies?</h2>
+<h2 data-number="17.2" id="module-bundler-find"><span class="header-section-number">17.2</span> How can we find dependencies?</h2>
 <p>To get all the dependencies for one source file, we parse it and extract all of the calls to <code>require</code>. The code to do this is relatively straightforward given what we know about <a href="https://github.com/acornjs/acorn">Acorn</a>:</p>
 <pre><code>import acorn from 'acorn'
 import fs from 'fs'
 import walk from 'acorn-walk'
-
 const getRequires = (filename) =&gt; {
   const entryPointFile = filename
   const text = fs.readFileSync(entryPointFile, 'utf-8')
@@ -519,41 +130,29 @@ const getRequires = (filename) =&gt; {
   }, null, requires)
   return requires
 }
-
-export default getRequires
-</code></pre>
+export default getRequires</code></pre>
 <pre><code>import getRequires from './get-requires.js'
-
 const result = getRequires(process.argv[2])
-console.log(result)
-</code></pre>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-get-requires.js simple/main.js</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<pre><code>[ './other' ]
-</code></pre>
-<div class="callout callout-style-simple callout-none no-icon callout-titled" data-markdown="1">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">None</span>An unsolvable problem
-</div>
-</div>
-<div class="callout-body-container callout-body">
+console.log(result)</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-get-requires.js simple/main.js</span></code></pre></div>
+<pre><code>[ './other' ]</code></pre>
+<div>
+<blockquote>
+<p><strong>An unsolvable problem</strong></p>
 <p>The dependency finder shown above gives the right answer for reasonable JavaScript programs, but not all JavaScript is reasonable. Suppose creates an alias for <code>require</code> and uses that to load other files:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> req <span class="op">=</span> require</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> weWillMissThis <span class="op">=</span> <span class="fu">req</span>(<span class="st">'./other-file'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> req <span class="op">=</span> require</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> weWillMissThis <span class="op">=</span> <span class="fu">req</span>(<span class="st">'./other-file'</span>)</span></code></pre></div>
 <p>We could try to trace variable assignments to catch cases like these, but someone could still fool us by writing this:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> clever <span class="op">=</span> <span class="pp">eval</span>(<span class="vs">`require`</span>)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> weWillMissThisToo <span class="op">=</span> <span class="fu">clever</span>(<span class="st">'./other-file'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> clever <span class="op">=</span> <span class="pp">eval</span>(<span class="vs">`require`</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> weWillMissThisToo <span class="op">=</span> <span class="fu">clever</span>(<span class="st">'./other-file'</span>)</span></code></pre></div>
 <p><em>There is no general solution to this problem</em> other than running the code to see what it does. If you would like to understand why not, and learn about a pivotal moment in the history of computing, we highly recommend <span class="citation" data-cites="Petzold2008">(<a href="../bibliography/index.html#ref-Petzold2008" role="doc-biblioref">Petzold 2008</a>)</span>.</p>
-</div>
+</blockquote>
 </div>
 <p>To get all of the dependencies a bundle needs we need to find the <a href="../glossary/index.html#transitive_closure">transitive closure</a> of the entry point’s dependencies, i.e., the requirements of the requirements and so on recursively. Our algorithm for doing this uses two sets: <code>pending</code>, which contains the things we haven’t looked at yet, and <code>seen</code>, which contains the things we have (<a href="#fig-module-bundler-transitive-closure" class="quarto-xref">Figure&nbsp;<span>17.3</span></a>). <code>pending</code> initially contains the entry point file and <code>seen</code> is initially empty. We keep taking items from <code>pending</code> until it is empty. If the current thing is already in <code>seen</code> we do nothing; otherwise we get its dependencies and add them to either <code>seen</code> or <code>pending</code>.</p>
-<div id="fig-module-bundler-transitive-closure" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-module-bundler-transitive-closure" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-module-bundler-transitive-closure-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="transitive-closure.svg" class="img-fluid figure-img">
+<img src="transitive-closure.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-module-bundler-transitive-closure-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;17.3: Implementing transitive closure using two sets.
@@ -562,9 +161,7 @@ Figure&nbsp;17.3: Implementing transitive closure using two sets.
 </div>
 <p>Finding dependencies is complicated by the fact that we can load something under different names, such as <code>./subdir/bottom-left</code> from <code>main</code> but <code>./bottom-left</code> from <code>./subdir/bottom-right</code>. As with the module loader in <a href="../loader/index.html" class="quarto-xref"><span>Chapter 13</span></a>, we use absolute paths as unique identifiers. Our code is also complicated by the fact that JavaScript’s <code>Set</code> class doesn’t have an equivalent of <code>Array.pop</code>, so we will actually maintain the “set” of pending items as a list. The resulting code is:</p>
 <pre><code>import path from 'path'
-
 import getRequires from './get-requires.js'
-
 const transitiveClosure = (entryPointPath) =&gt; {
   const pending = [path.resolve(entryPointPath)]
   const filenames = new Set()
@@ -582,28 +179,23 @@ const transitiveClosure = (entryPointPath) =&gt; {
   }
   return [...filenames]
 }
-
-export default transitiveClosure
-</code></pre>
+export default transitiveClosure</code></pre>
 <pre><code>import transitiveClosure from './transitive-closure-only.js'
-
 const result = transitiveClosure(process.argv[2])
-console.log(JSON.stringify(result, null, 2))
-</code></pre>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-transitive-closure-only.js full/main.js</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+console.log(JSON.stringify(result, null, 2))</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-transitive-closure-only.js full/main.js</span></code></pre></div>
 <pre><code>[
   "/u/stjs/module-bundler/full/main.js",
   "/u/stjs/module-bundler/full/subdir/bottom-right.js",
   "/u/stjs/module-bundler/full/subdir/bottom-left.js",
   "/u/stjs/module-bundler/full/top-left.js",
   "/u/stjs/module-bundler/full/top-right.js"
-]
-</code></pre>
+]</code></pre>
 <p>This works, but it isn’t keeping track of the mapping from required names within files to absolute paths, so when one of the files in our bundle tries to access something, we might not know what it’s after. The fix is to modify transitive closure to construct and return a two-level structure. The primary keys are the absolute paths to the files being required, while sub-keys are the paths they refer to when loading things (<a href="#fig-module-bundler-structure" class="quarto-xref">Figure&nbsp;<span>17.4</span></a>).</p>
-<div id="fig-module-bundler-structure" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-module-bundler-structure" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-module-bundler-structure-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="structure.svg" class="img-fluid figure-img">
+<img src="structure.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-module-bundler-structure-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;17.4: Data structure used to map names to absolute paths.
@@ -613,7 +205,6 @@ Figure&nbsp;17.4: Data structure used to map names to absolute paths.
 <p>Adding this takes our transitive closure code from 23 lines to 28 lines:</p>
 <pre><code>import path from 'path'
 import getRequires from './get-requires.js'
-
 const transitiveClosure = (entryPointPath) =&gt; {
   const mapping = {}
   const pending = [path.resolve(entryPointPath)]
@@ -637,15 +228,11 @@ const transitiveClosure = (entryPointPath) =&gt; {
   }
   return mapping
 }
-
-export default transitiveClosure
-</code></pre>
+export default transitiveClosure</code></pre>
 <pre><code>import transitiveClosure from './transitive-closure.js'
-
 const result = transitiveClosure(process.argv[2])
-console.log(JSON.stringify(result, null, 2))
-</code></pre>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-transitive-closure.js full/main.js</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+console.log(JSON.stringify(result, null, 2))</code></pre>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-transitive-closure.js full/main.js</span></code></pre></div>
 <pre><code>{
   "/u/stjs/module-bundler/full/main.js": {
     "./top-left": "/u/stjs/module-bundler/full/top-left.js",
@@ -667,55 +254,41 @@ console.log(JSON.stringify(result, null, 2))
     "./subdir/bottom-right": \
     "/u/stjs/module-bundler/full/subdir/bottom-right.js"
   }
-}
-</code></pre>
+}</code></pre>
 <p>The real cost, though, is the extra complexity of the data structure: it took a couple of tries to get it right, and it will be harder for the next person to understand than the original. Comprehension and maintenance would be a little easier if we could draw diagrams directly in our source code, but as long as we insist that our programs be stored in a punchcard-compatible format (i.e., as lines of text), that will remain a dream.</p>
-</section>
-<section id="module-bundler-combine" class="level2" data-number="17.3">
-<h2 data-number="17.3" class="anchored" data-anchor-id="module-bundler-combine"><span class="header-section-number">17.3</span> How can we safely combine several files into one?</h2>
+<h2 data-number="17.3" id="module-bundler-combine"><span class="header-section-number">17.3</span> How can we safely combine several files into one?</h2>
 <p>We now need to combine the files we have found into one while keeping each in its own namespace. We do this using the same method we used in <a href="../loader/index.html" class="quarto-xref"><span>Chapter 13</span></a>: wrap the source code in an IIFE, giving that IIFE a <code>module</code> object to fill in and an implementation of <code>require</code> to resolve dependencies <em>within the bundle</em>. For example, suppose we have this file:</p>
 <pre><code>const main = () =&gt; {
   console.log('in main')
 }
-
-module.exports = main
-</code></pre>
+module.exports = main</code></pre>
 <p>The wrapped version will look like this:</p>
 <pre><code>const wrapper = (module, require) =&gt; { // eslint-disable-line
   const main = () =&gt; {
     console.log('in main')
   }
-
   module.exports = main
-}
-</code></pre>
+}</code></pre>
 <p>And we can test it like this:</p>
 <pre><code>const wrapper = (module, require) =&gt; {
   const main = () =&gt; {
     console.log('in main')
   }
-
   module.exports = main
 }
-
 const _require = (name) =&gt; null
 const temp = {}
 wrapper(temp, _require)
-temp.exports()
-</code></pre>
-<pre><code>in main
-</code></pre>
+temp.exports()</code></pre>
+<pre><code>in main</code></pre>
 <p>We need to do this for multiple files, so we will put these IIFEs in a lookup table that uses the files’ absolute paths as its keys. We will also wrap loading in a function so that we don’t accidentally step on anyone else’s toys:</p>
 <pre><code>import fs from 'fs'
 import path from 'path'
-
 const HEAD = `const initialize = (creators) =&gt; {
 `
-
 const TAIL = `
 }
 `
-
 const combineFiles = (allFilenames) =&gt; {
   const body = allFilenames
     .map(filename =&gt; {
@@ -729,14 +302,12 @@ const combineFiles = (allFilenames) =&gt; {
   const func = `${HEAD}\n${body}\n${TAIL}`
   return func
 }
-
-export default combineFiles
-</code></pre>
+export default combineFiles</code></pre>
 <p>Breaking this down, the code in <code>HEAD</code> creates a function of no arguments while the code in <code>TAIL</code> returns the lookup table from that function. In between, <code>combineFiles</code> adds an entry to the lookup table for each file (<a href="#fig-module-bundler-head-tail" class="quarto-xref">Figure&nbsp;<span>17.5</span></a>).</p>
-<div id="fig-module-bundler-head-tail" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-module-bundler-head-tail" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-module-bundler-head-tail-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="head-tail.svg" class="img-fluid figure-img">
+<img src="head-tail.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-module-bundler-head-tail-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;17.5: Assembling fragments and modules to create a bundle.
@@ -745,45 +316,31 @@ Figure&nbsp;17.5: Assembling fragments and modules to create a bundle.
 </div>
 <p>We can test that this works in our two-file case:</p>
 <pre><code>import combineFiles from './combine-files.js'
-
-console.log(combineFiles(process.argv.slice(2)))
-</code></pre>
+console.log(combineFiles(process.argv.slice(2)))</code></pre>
 <pre><code>// eslint-disable
 const initialize = (creators) =&gt; {
-
 // /u/stjs/stjs/module-bundler/simple/main.js
 creators.set('/u/stjs/stjs/module-bundler/simple/main.js',
 (module, require) =&gt; {const other = require('./other')
-
 const main = () =&gt; {
   console.log(other('main'))
 }
-
 module.exports = main
 })
-
 // /u/stjs/stjs/module-bundler/simple/other.js
 creators.set('/u/stjs/stjs/module-bundler/simple/other.js',
 (module, require) =&gt; {const other = (caller) =&gt; {
   return `other called from ${caller}`
 }
-
 module.exports = other
 })
-
-
-}
-
-</code></pre>
+}</code></pre>
 <p>and then load the result and call <code>initialize</code>:</p>
 <pre><code>Map(2) {
   '/u/stjs/module-bundler/simple/main.js' =&gt; [Function (anonymous)],
   '/u/stjs/module-bundler/simple/other.js' =&gt; [Function (anonymous)]
-}
-</code></pre>
-</section>
-<section id="module-bundler-access" class="level2" data-number="17.4">
-<h2 data-number="17.4" class="anchored" data-anchor-id="module-bundler-access"><span class="header-section-number">17.4</span> How can files access each other?</h2>
+}</code></pre>
+<h2 data-number="17.4" id="module-bundler-access"><span class="header-section-number">17.4</span> How can files access each other?</h2>
 <p>The code we have built so far has not created our <a href="../glossary/index.html#export">exports</a>; instead, it has built a lookup table of functions that can create what we asked for. More specifically we have:</p>
 <ul>
 <li><p>a lookup table from absolute filenames to functions that create module exports;</p></li>
@@ -792,10 +349,10 @@ module.exports = other
 </ul>
 <p>To turn this into what we want, we must look up the function associated with the entry point and run it, giving it an empty module object and a <code>require</code> function that we will describe below, then get the <code>exports</code> it has added to that module object. Our replacement for <code>require</code> is only allowed to take one argument (because that’s all that JavaScript’s <code>require</code> takes). However, it actually needs four things: the argument to the user’s <code>require</code> call, the absolute path of the file making the call, and the two lookup tables described above. Those two tables can’t be global variables because of possible <a href="../glossary/index.html#name_collision">name collisions</a>: no matter what we call them, the user might have given a variable the same name.</p>
 <p>As in <a href="../loader/index.html" class="quarto-xref"><span>Chapter 13</span></a> we solve this problem using closures. The result is probably the most difficult code in this book to understand because of its many levels of abstraction. First, we write a function that takes the two tables as arguments and returns a function that takes an absolute path identifying this module. When that function is called, it creates and returns a function that takes a local path inside a module and returns the exports. Each of these wrapping layers remembers more information for us (<a href="#fig-module-bundler-returning-functions" class="quarto-xref">Figure&nbsp;<span>17.6</span></a>), but we won’t pretend that it’s easy to trace.</p>
-<div id="fig-module-bundler-returning-functions" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-module-bundler-returning-functions" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-module-bundler-returning-functions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="returning-functions.svg" class="img-fluid figure-img">
+<img src="returning-functions.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-module-bundler-returning-functions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;17.6: A function that returns functions that return functions.
@@ -805,12 +362,9 @@ Figure&nbsp;17.6: A function that returns functions that return functions.
 <p>We also need a third structure: a cache for the modules we’ve already loaded. Putting it all together we have:</p>
 <pre><code>import fs from 'fs'
 import path from 'path'
-
 import transitiveClosure from './transitive-closure.js'
-
 const HEAD = `const creators = new Map()
 const cache = new Map()
-
 const makeRequire = (absPath) =&gt; {
   return (localPath) =&gt; {
     const actualKey = translate[absPath][localPath]
@@ -822,23 +376,18 @@ const makeRequire = (absPath) =&gt; {
     return cache.get(actualKey)
   }
 }
-
 const initialize = (creators) =&gt; {
 `
-
 const TAIL = `
 }
-
 initialize(creators)
 `
-
 const makeProof = (entryPoint) =&gt; `
 const start = creators.get('${entryPoint}')
 const m = {}
 start(m)
 m.exports()
 `
-
 const createBundle = (entryPoint) =&gt; {
   entryPoint = path.resolve(entryPoint)
   const table = transitiveClosure(entryPoint)
@@ -853,7 +402,6 @@ const createBundle = (entryPoint) =&gt; {
     proof
   ].join('\n')
 }
-
 const makeCreator = (filename) =&gt; {
   const key = path.resolve(filename)
   const source = fs.readFileSync(filename, 'utf-8')
@@ -861,20 +409,17 @@ const makeCreator = (filename) =&gt; {
   const entry = `creators.set('${key}',\n${func})`
   return `// ${key}\n${entry}\n`
 }
-
-export default createBundle
-</code></pre>
+export default createBundle</code></pre>
 <p>This code is hard to read because we have to distinguish what is being printed in the output versus what is being executed right now and because of the levels of nesting needed to capture variables safely. Getting this right took much more time per line of finished code than anything we have seen so far except the promises in <a href="../async/index.html" class="quarto-xref"><span>Chapter 3</span></a>. However, it is all intrinsic complexity: anything that does what <code>require</code> does is going to be equally convoluted.</p>
 <p>To prove that our code works, we will look up the function <code>main</code> in the first file and call it. (If we were loading in the browser, we’d capture the exports in a variable for later use.) First, we create the bundled file:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'// eslint-disable'</span> <span class="op">&gt;</span> bundle-single.js</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-create-bundle.js single/main.js <span class="op">&gt;&gt;</span> bundle-single.js</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'// eslint-disable'</span> <span class="op">&gt;</span> bundle-single.js</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-create-bundle.js single/main.js <span class="op">&gt;&gt;</span> bundle-single.js</span></code></pre></div>
 <pre><code>// eslint-disable
 const translate = {
   "/u/stjs/stjs/module-bundler/single/main.js": {}
 }
 const creators = new Map()
 const cache = new Map()
-
 const makeRequire = (absPath) =&gt; {
   return (localPath) =&gt; {
     const actualKey = translate[absPath][localPath]
@@ -886,9 +431,7 @@ const makeRequire = (absPath) =&gt; {
     return cache.get(actualKey)
   }
 }
-
 const initialize = (creators) =&gt; {
-
 // /u/stjs/stjs/module-bundler/single/main.js
 creators.set('/u/stjs/stjs/module-bundler/single/main.js',
 (module, require = 
@@ -896,25 +439,16 @@ makeRequire('/u/stjs/stjs/module-bundler/single/main.js')) =&gt;
 {const main = () =&gt; {
   console.log('in main')
 }
-
 module.exports = main
 })
-
-
 }
-
 initialize(creators)
-
-
 const start = creators.get('/u/stjs/stjs/module-bundler/single/main.js')
 const m = {}
 start(m)
-m.exports()
-
-</code></pre>
+m.exports()</code></pre>
 <p>and then we run it:</p>
-<pre><code>in main
-</code></pre>
+<pre><code>in main</code></pre>
 <p>That was a lot of work to print one line, but what we have should work for other files. The two-file case with <code>main</code> and <code>other</code> works:</p>
 <pre><code>// eslint-disable
 const translate = {
@@ -925,7 +459,6 @@ const translate = {
 }
 const creators = new Map()
 const cache = new Map()
-
 const makeRequire = (absPath) =&gt; {
   return (localPath) =&gt; {
     const actualKey = translate[absPath][localPath]
@@ -937,22 +470,17 @@ const makeRequire = (absPath) =&gt; {
     return cache.get(actualKey)
   }
 }
-
 const initialize = (creators) =&gt; {
-
 // /u/stjs/stjs/module-bundler/simple/main.js
 creators.set('/u/stjs/stjs/module-bundler/simple/main.js',
 (module, require =
 makeRequire('/u/stjs/stjs/module-bundler/simple/main.js')) =&gt;
 {const other = require('./other')
-
 const main = () =&gt; {
   console.log(other('main'))
 }
-
 module.exports = main
 })
-
 // /u/stjs/stjs/module-bundler/simple/other.js
 creators.set('/u/stjs/stjs/module-bundler/simple/other.js',
 (module, require =
@@ -960,581 +488,55 @@ makeRequire('/u/stjs/stjs/module-bundler/simple/other.js')) =&gt;
 {const other = (caller) =&gt; {
   return `other called from ${caller}`
 }
-
 module.exports = other
 })
-
-
 }
-
 initialize(creators)
-
-
 const start = creators.get('/u/stjs/stjs/module-bundler/simple/main.js')
 const m = {}
 start(m)
-m.exports()
-
-</code></pre>
-<pre><code>other called from main
-</code></pre>
+m.exports()</code></pre>
+<pre><code>other called from main</code></pre>
 <p>and so does our most complicated test with <code>main</code> and four other files:</p>
 <pre><code>topLeft from main
 topRight from main with topLeft from topRight and bottomRight from \
 topRight
 bottomLeft from main with topLeft from bottomLeft and bottomRight from \
 bottomLeft
-bottomRight from main
-</code></pre>
+bottomRight from main</code></pre>
 <section class="exercises">
-</section>
-<section id="module-bundler-exercises" class="level2" data-number="17.5">
-<h2 data-number="17.5" class="anchored" data-anchor-id="module-bundler-exercises"><span class="header-section-number">17.5</span> Exercises</h2>
-<section id="using-test-driven-development" class="level3" data-number="17.5.1">
-<h3 data-number="17.5.1" class="anchored" data-anchor-id="using-test-driven-development"><span class="header-section-number">17.5.1</span> Using test-driven development</h3>
+<h2 data-number="17.5" id="module-bundler-exercises"><span class="header-section-number">17.5</span> Exercises</h2>
+<h3 data-number="17.5.1" id="using-test-driven-development"><span class="header-section-number">17.5.1</span> Using test-driven development</h3>
 <p>Suppose we wanted to compress the files being stored by the file backup system in <a href="../backup/index.html" class="quarto-xref"><span>Chapter 5</span></a> instead of copying them as-is. What tests would you write before adding this feature in order to ensure that it worked correctly once it was implemented?</p>
-</section>
-<section id="finding-import-dependencies" class="level3" data-number="17.5.2">
-<h3 data-number="17.5.2" class="anchored" data-anchor-id="finding-import-dependencies"><span class="header-section-number">17.5.2</span> Finding <code>import</code> dependencies</h3>
+<h3 data-number="17.5.2" id="finding-import-dependencies"><span class="header-section-number">17.5.2</span> Finding <code>import</code> dependencies</h3>
 <p>Modify the dependency finder to work with <code>import</code> statements instead of <code>require</code> calls.</p>
-</section>
-<section id="track-files-using-hashes" class="level3" data-number="17.5.3">
-<h3 data-number="17.5.3" class="anchored" data-anchor-id="track-files-using-hashes"><span class="header-section-number">17.5.3</span> Track files using hashes</h3>
+<h3 data-number="17.5.3" id="track-files-using-hashes"><span class="header-section-number">17.5.3</span> Track files using hashes</h3>
 <p>Modify the dependency finder to track files by hashing them instead of relying on paths, so that if exactly the same file is being required from two locations, only one copy is loaded.</p>
-</section>
-<section id="using-asynchronous-file-operations" class="level3" data-number="17.5.4">
-<h3 data-number="17.5.4" class="anchored" data-anchor-id="using-asynchronous-file-operations"><span class="header-section-number">17.5.4</span> Using asynchronous file operations</h3>
+<h3 data-number="17.5.4" id="using-asynchronous-file-operations"><span class="header-section-number">17.5.4</span> Using asynchronous file operations</h3>
 <p>Modify the dependency finder to use <code>async</code> and <code>await</code> instead of synchronous file operations.</p>
-</section>
-<section id="unit-testing-transitive-closure" class="level3" data-number="17.5.5">
-<h3 data-number="17.5.5" class="anchored" data-anchor-id="unit-testing-transitive-closure"><span class="header-section-number">17.5.5</span> Unit testing transitive closure</h3>
+<h3 data-number="17.5.5" id="unit-testing-transitive-closure"><span class="header-section-number">17.5.5</span> Unit testing transitive closure</h3>
 <p>Write unit tests for the tool that finds the transitive closure of files’ requirements using Mocha and <code>mock-fs</code>. (Rather than parsing JavaScript files in the mock filesystem, have each file contain only a list of the names of the files it depends on.)</p>
-</section>
-<section id="exporting-multiple-functions" class="level3" data-number="17.5.6">
-<h3 data-number="17.5.6" class="anchored" data-anchor-id="exporting-multiple-functions"><span class="header-section-number">17.5.6</span> Exporting multiple functions</h3>
+<h3 data-number="17.5.6" id="exporting-multiple-functions"><span class="header-section-number">17.5.6</span> Exporting multiple functions</h3>
 <p>Create test cases for the module bundler in which files export more than one function and fix any bugs in the module bundler that they uncover.</p>
-</section>
-<section id="checking-integrity" class="level3" data-number="17.5.7">
-<h3 data-number="17.5.7" class="anchored" data-anchor-id="checking-integrity"><span class="header-section-number">17.5.7</span> Checking integrity</h3>
+<h3 data-number="17.5.7" id="checking-integrity"><span class="header-section-number">17.5.7</span> Checking integrity</h3>
 <p>Write a function that checks the integrity of the data structure returned by the transitive closure routine, i.e., that makes sure every cross-reference resolves correctly.</p>
-</section>
-<section id="logging-module-loading" class="level3" data-number="17.5.8">
-<h3 data-number="17.5.8" class="anchored" data-anchor-id="logging-module-loading"><span class="header-section-number">17.5.8</span> Logging module loading</h3>
+<h3 data-number="17.5.8" id="logging-module-loading"><span class="header-section-number">17.5.8</span> Logging module loading</h3>
 <ol type="1">
 <li><p>Write a function called <code>logLoad</code> that takes a module name as an argument and prints a message using <code>console.error</code> saying that the module has been loaded.</p></li>
 <li><p>Modify the bundle generator to insert calls to this function to report when modules are actually loaded.</p></li>
 </ol>
-</section>
-<section id="tracing-execution" class="level3" data-number="17.5.9">
-<h3 data-number="17.5.9" class="anchored" data-anchor-id="tracing-execution"><span class="header-section-number">17.5.9</span> Tracing execution</h3>
+<h3 data-number="17.5.9" id="tracing-execution"><span class="header-section-number">17.5.9</span> Tracing execution</h3>
 <p>Trace the execution of every function called when the <code>main</code> function in the full bundle is called.</p>
-</section>
-<section id="making-bundles-more-readable" class="level3" data-number="17.5.10">
-<h3 data-number="17.5.10" class="anchored" data-anchor-id="making-bundles-more-readable"><span class="header-section-number">17.5.10</span> Making bundles more readable</h3>
+<h3 data-number="17.5.10" id="making-bundles-more-readable"><span class="header-section-number">17.5.10</span> Making bundles more readable</h3>
 <p>Modify the bundle creator to make its output more readable, e.g., by adding comments and indentation. (This does not matter to the computer, but can help debugging.)</p>
 </section>
-
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
 <div id="ref-Petzold2008" class="csl-entry" role="listitem">
 Petzold, Charles. 2008. <em>The Annotated Turing</em>. Wiley. ISBN 9780470229057.
 </div>
 </div>
-</section>
-</section>
-
-</main> <!-- /main -->
-<script id="quarto-html-after-body" type="application/javascript">
-  window.document.addEventListener("DOMContentLoaded", function (event) {
-    const icon = "";
-    const anchorJS = new window.AnchorJS();
-    anchorJS.options = {
-      placement: 'right',
-      icon: icon
-    };
-    anchorJS.add('.anchored');
-    const isCodeAnnotation = (el) => {
-      for (const clz of el.classList) {
-        if (clz.startsWith('code-annotation-')) {                     
-          return true;
-        }
-      }
-      return false;
-    }
-    const onCopySuccess = function(e) {
-      // button target
-      const button = e.trigger;
-      // don't keep focus
-      button.blur();
-      // flash "checked"
-      button.classList.add('code-copy-button-checked');
-      var currentTitle = button.getAttribute("title");
-      button.setAttribute("title", "Copied!");
-      let tooltip;
-      if (window.bootstrap) {
-        button.setAttribute("data-bs-toggle", "tooltip");
-        button.setAttribute("data-bs-placement", "left");
-        button.setAttribute("data-bs-title", "Copied!");
-        tooltip = new bootstrap.Tooltip(button, 
-          { trigger: "manual", 
-            customClass: "code-copy-button-tooltip",
-            offset: [0, -8]});
-        tooltip.show();    
-      }
-      setTimeout(function() {
-        if (tooltip) {
-          tooltip.hide();
-          button.removeAttribute("data-bs-title");
-          button.removeAttribute("data-bs-toggle");
-          button.removeAttribute("data-bs-placement");
-        }
-        button.setAttribute("title", currentTitle);
-        button.classList.remove('code-copy-button-checked');
-      }, 1000);
-      // clear code selection
-      e.clearSelection();
-    }
-    const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-      text: getTextToCopy
-    });
-    clipboard.on('success', onCopySuccess);
-    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-        text: getTextToCopy,
-        container: window.document.getElementById('quarto-embedded-source-code-modal')
-      });
-      clipboardModal.on('success', onCopySuccess);
-    }
-      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-      var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
-      var isInternal = (href) => {
-          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
-      }
-      // Inspect non-navigation links and adorn them if external
-      window.quartoDecorateExternalLinks = function (root) {
-     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-      for (var i=0; i<links.length; i++) {
-        const link = links[i];
-        if (!isInternal(link.href)) {
-          // undo the damage that might have been done by quarto-nav.js in the case of
-          // links that we want to consider external
-          if (link.dataset.originalHref !== undefined) {
-            link.href = link.dataset.originalHref;
-          }
-          if (!link.classList.contains('no-external-icon')) {
-          }
-        }
-      }
-      };
-      window.quartoDecorateExternalLinks(window.document);
-    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
-    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
-    const hideOnEscAndFocusOut = {
-      name: 'hideOnEscAndFocusOut',
-      defaultValue: true,
-      fn(instance) {
-        const dismiss = () => {
-          // A show scheduled by the trigger delay would otherwise reopen it
-          instance.clearDelayTimeouts();
-          instance.hide();
-        };
-        const onKeyDown = (event) => {
-          if (event.key !== 'Escape') {
-            return;
-          }
-          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
-          // except an open reveal.js slide menu, which Esc should close too.
-          // The menu handles keys only when its keyboard option is on.
-          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
-            window.Reveal.getConfig().menu?.keyboard !== false;
-          if (!menuHandlesEsc) {
-            event.stopPropagation();
-          }
-          if (instance.popper.contains(window.document.activeElement)) {
-            // Disabled while refocusing so the focus trigger does not reopen it
-            instance.disable();
-            instance.reference.focus();
-            instance.enable();
-          }
-          dismiss();
-        };
-        const onFocusOut = (event) => {
-          const target = event.relatedTarget;
-          if (target && !instance.reference.contains(target) &&
-              !instance.popper.contains(target)) {
-            dismiss();
-          }
-        };
-        // On the trigger too: a click trigger (code-annotations: select) has no
-        // blur handling. Attached for the instance's lifetime so leaving the
-        // trigger also cancels a show still pending on the trigger delay.
-        instance.reference.addEventListener('focusout', onFocusOut);
-        return {
-          onShow() {
-            window.document.addEventListener('keydown', onKeyDown, true);
-            instance.popper.addEventListener('focusout', onFocusOut);
-          },
-          onHide() {
-            window.document.removeEventListener('keydown', onKeyDown, true);
-            instance.popper.removeEventListener('focusout', onFocusOut);
-          },
-          onDestroy() {
-            instance.reference.removeEventListener('focusout', onFocusOut);
-          },
-        };
-      },
-    };
-    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-      const config = {
-        allowHTML: true,
-        maxWidth: 500,
-        delay: 100,
-        arrow: false,
-        appendTo: function(el) {
-            return el.parentElement;
-        },
-        interactive: true,
-        interactiveBorder: 10,
-        theme: 'quarto',
-        placement: 'bottom-start',
-        plugins: [hideOnEscAndFocusOut],
-      };
-      if (contentFn) {
-        config.content = contentFn;
-      }
-      if (onTriggerFn) {
-        config.onTrigger = onTriggerFn;
-      }
-      if (onUntriggerFn) {
-        config.onUntrigger = onUntriggerFn;
-      }
-      window.tippy(el, config); 
-    }
-    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-    for (var i=0; i<noterefs.length; i++) {
-      const ref = noterefs[i];
-      tippyHover(ref, function() {
-        // use id or data attribute instead here
-        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-        try { href = new URL(href).hash; } catch {}
-        const id = href.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note) {
-          return note.innerHTML;
-        } else {
-          return "";
-        }
-      });
-    }
-    const xrefs = window.document.querySelectorAll('a.quarto-xref');
-    const processXRef = (id, note) => {
-      // Strip column container classes
-      const stripColumnClz = (el) => {
-        el.classList.remove("page-full", "page-columns");
-        if (el.children) {
-          for (const child of el.children) {
-            stripColumnClz(child);
-          }
-        }
-      }
-      stripColumnClz(note)
-      if (id === null || id.startsWith('sec-')) {
-        // Special case sections, only their first couple elements
-        const container = document.createElement("div");
-        if (note.children && note.children.length > 2) {
-          container.appendChild(note.children[0].cloneNode(true));
-          for (let i = 1; i < note.children.length; i++) {
-            const child = note.children[i];
-            if (child.tagName === "P" && child.innerText === "") {
-              continue;
-            } else {
-              container.appendChild(child.cloneNode(true));
-              break;
-            }
-          }
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(container);
-          }
-          return container.innerHTML
-        } else {
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(note);
-          }
-          return note.innerHTML;
-        }
-      } else {
-        // Remove any anchor links if they are present
-        const anchorLink = note.querySelector('a.anchorjs-link');
-        if (anchorLink) {
-          anchorLink.remove();
-        }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(note);
-        }
-        if (note.classList.contains("callout")) {
-          return note.outerHTML;
-        } else {
-          return note.innerHTML;
-        }
-      }
-    }
-    for (var i=0; i<xrefs.length; i++) {
-      const xref = xrefs[i];
-      tippyHover(xref, undefined, function(instance) {
-        instance.disable();
-        let url = xref.getAttribute('href');
-        let hash = undefined; 
-        if (url.startsWith('#')) {
-          hash = url;
-        } else {
-          try { hash = new URL(url).hash; } catch {}
-        }
-        if (hash) {
-          const id = hash.replace(/^#\/?/, "");
-          const note = window.document.getElementById(id);
-          if (note !== null) {
-            try {
-              const html = processXRef(id, note.cloneNode(true));
-              instance.setContent(html);
-            } finally {
-              instance.enable();
-              instance.show();
-            }
-          } else {
-            // See if we can fetch this
-            fetch(url.split('#')[0])
-            .then(res => res.text())
-            .then(html => {
-              const parser = new DOMParser();
-              const htmlDoc = parser.parseFromString(html, "text/html");
-              const note = htmlDoc.getElementById(id);
-              if (note !== null) {
-                const html = processXRef(id, note);
-                instance.setContent(html);
-              } 
-            }).finally(() => {
-              instance.enable();
-              instance.show();
-            });
-          }
-        } else {
-          // See if we can fetch a full url (with no hash to target)
-          // This is a special case and we should probably do some content thinning / targeting
-          fetch(url)
-          .then(res => res.text())
-          .then(html => {
-            const parser = new DOMParser();
-            const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.querySelector('main.content');
-            if (note !== null) {
-              // This should only happen for chapter cross references
-              // (since there is no id in the URL)
-              // remove the first header
-              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-                note.children[0].remove();
-              }
-              const html = processXRef(null, note);
-              instance.setContent(html);
-            } 
-          }).finally(() => {
-            instance.enable();
-            instance.show();
-          });
-        }
-      }, function(instance) {
-      });
-    }
-        let selectedAnnoteEl;
-        const selectorForAnnotation = ( cell, annotation) => {
-          let cellAttr = 'data-code-cell="' + cell + '"';
-          let lineAttr = 'data-code-annotation="' +  annotation + '"';
-          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-          return selector;
-        }
-        const selectCodeLines = (annoteEl) => {
-          const doc = window.document;
-          const targetCell = annoteEl.getAttribute("data-target-cell");
-          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-          const lineIds = lines.map((line) => {
-            return targetCell + "-" + line;
-          })
-          // Each band is positioned against its own containing block, which is
-          // not the offsetParent of the lines, so place it from client rects.
-          const placeBand = (band, firstEl, lastEl, codeBlock) => {
-            const container = band.offsetParent;
-            if (container === null) {
-              return;
-            }
-            const containerRect = container.getBoundingClientRect();
-            // Reveal.js scales slides with a transform, so convert client
-            // pixels back to the CSS pixels of the container.
-            const scale = containerRect.height / container.offsetHeight || 1;
-            const firstRect = firstEl.getBoundingClientRect();
-            const lastRect = lastEl.getBoundingClientRect();
-            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
-            const height = (lastRect.bottom - firstRect.top) / scale;
-            band.style.top = top - 2 + "px";
-            band.style.height = height + 4 + "px";
-            if (codeBlock) {
-              // Without the copy button wrapper, the containing block is wider
-              // than the code block, so span the code block explicitly.
-              const blockRect = codeBlock.getBoundingClientRect();
-              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
-              band.style.width = blockRect.width / scale + "px";
-            }
-          };
-          if (lineIds.length > 0) {
-            const el = window.document.getElementById(lineIds[0]);
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const parent = el.parentElement.parentElement;
-            // cook up a div (if necessary) and position it
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
-            }
-            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
-            }
-            placeBand(gutterDiv, el, lastEl);
-            selectedAnnoteEl = annoteEl;
-          }
-        };
-        const unselectCodeLines = () => {
-          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-          elementsIds.forEach((elId) => {
-            const div = window.document.getElementById(elId);
-            if (div) {
-              div.remove();
-            }
-          });
-          selectedAnnoteEl = undefined;
-        };
-          // Handle positioning of the toggle
-      window.addEventListener(
-        "resize",
-        throttle(() => {
-          elRect = undefined;
-          if (selectedAnnoteEl) {
-            selectCodeLines(selectedAnnoteEl);
-          }
-        }, 10)
-      );
-      function throttle(fn, ms) {
-      let throttle = false;
-      let timer;
-        return (...args) => {
-          if(!throttle) { // first call gets through
-              fn.apply(this, args);
-              throttle = true;
-          } else { // all the others get throttled
-              if(timer) clearTimeout(timer); // cancel #2
-              timer = setTimeout(() => {
-                fn.apply(this, args);
-                timer = throttle = false;
-              }, ms);
-          }
-        };
-      }
-        // Attach click handler to the DT
-        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-        for (const annoteDlNode of annoteDls) {
-          annoteDlNode.addEventListener('click', (event) => {
-            const clickedEl = event.target;
-            if (clickedEl !== selectedAnnoteEl) {
-              unselectCodeLines();
-              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-              if (activeEl) {
-                activeEl.classList.remove('code-annotation-active');
-              }
-              selectCodeLines(clickedEl);
-              clickedEl.classList.add('code-annotation-active');
-            } else {
-              // Unselect the line
-              unselectCodeLines();
-              clickedEl.classList.remove('code-annotation-active');
-            }
-          });
-        }
-    const findCites = (el) => {
-      const parentEl = el.parentElement;
-      if (parentEl) {
-        const cites = parentEl.dataset.cites;
-        if (cites) {
-          return {
-            el,
-            cites: cites.split(' ')
-          };
-        } else {
-          return findCites(el.parentElement)
-        }
-      } else {
-        return undefined;
-      }
-    };
-    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-    for (var i=0; i<bibliorefs.length; i++) {
-      const ref = bibliorefs[i];
-      const citeInfo = findCites(ref);
-      if (citeInfo) {
-        tippyHover(citeInfo.el, function() {
-          var popup = window.document.createElement('div');
-          citeInfo.cites.forEach(function(cite) {
-            var citeDiv = window.document.createElement('div');
-            citeDiv.classList.add('hanging-indent');
-            citeDiv.classList.add('csl-entry');
-            var biblioDiv = window.document.getElementById('ref-' + cite);
-            if (biblioDiv) {
-              citeDiv.innerHTML = biblioDiv.innerHTML;
-            }
-            popup.appendChild(citeDiv);
-          });
-          return popup.innerHTML;
-        });
-      }
-    }
-  });
-  </script>
-  <script type="application/javascript">
-  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
-  </script>
-<nav class="page-navigation" aria-label="Page">
-  <div class="nav-page nav-page-previous">
-      <a href="../docgen/index.html" class="pagination-link" aria-label="Documentation Generator">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Documentation Generator</span></span>
-      </a>          
-  </div>
-  <div class="nav-page nav-page-next">
-      <a href="../packman/index.html" class="pagination-link" aria-label="Package Manager">
-        <span class="nav-page-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Package Manager</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
-  </div>
-</nav>
-</div> <!-- /content -->
+</main>
 
 
-
-
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gvwilson/sdxjs/edit/main/bundler/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gvwilson/sdxjs/blob/main/bundler/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/gvwilson/sdxjs/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+</body></html>

@@ -1,383 +1,38 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head><meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Debugger</title>
+  <link rel="stylesheet" href="../mccole/mccole-book.css">
 
-<meta charset="utf-8">
-<meta name="generator" content="quarto-1.11.9">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-
-
-<title>20&nbsp; Debugger – Software Design by Example</title>
-<style>
-/* Default styles provided by pandoc.
-** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-*/
-span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: 1.5em;}
-div.column{flex: auto;}
-@media screen {
-div.columns{gap: min(4vw, 1.5em);}
-div.column{overflow-x: auto;}
-}
-div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-ul.task-list{list-style: none;}
-ul.task-list li input[type="checkbox"] {
-  width: 0.8em;
-  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
-  vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-</style>
-
-
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<link href="../conclusion/index.html" rel="next">
-<link href="../vm/index.html" rel="prev">
-<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-01a495efc5497ac6e3f5457e7ed18e65.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
-<script id="quarto-search-options" type="application/json">{
-  "location": "sidebar",
-  "copy-button": false,
-  "collapse-after": 3,
-  "panel-placement": "start",
-  "type": "textbox",
-  "limit": 50,
-  "keyboard-shortcut": [
-    "f",
-    "/",
-    "s"
-  ],
-  "show-item-context": false,
-  "language": {
-    "search-no-results-text": "No results",
-    "search-matching-documents-text": "matching documents",
-    "search-copy-link-title": "Copy link to search",
-    "search-hide-matches-text": "Hide additional matches",
-    "search-more-match-text": "more match in this document",
-    "search-more-matches-text": "more matches in this document",
-    "search-clear-button-title": "Clear",
-    "search-text-placeholder": "",
-    "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit",
-    "search-label": "Search"
-  }
-}</script>
-
-
-<link rel="stylesheet" href="../mccole/book.css">
 </head>
-
-<body class="nav-sidebar floating quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
-
-<div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
-  <nav class="quarto-secondary-nav" aria-label="Toolbar">
-    <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-        <i class="bi bi-layout-text-sidebar-reverse"></i>
-      </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../debugger/index.html"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Debugger</span></a></li></ol></nav>
-        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-        </a>
-      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
-        <i class="bi bi-search"></i>
-      </button>
+<body>
+<header class="topbar">
+  <nav class="topnav">
+    <a class="topnav-item" href="../index.html">Home</a>
+    <div class="topnav-dropdown">
+      <span class="topnav-item">Chapters</span>
+      <div class="topnav-menu"><ul class="topnav-list"><li><a href="../introduction/index.html">Introduction</a></li><li><a href="../sysprog/index.html">Systems Programming</a></li><li><a href="../async/index.html">Asynchronous Programming</a></li><li><a href="../test/index.html">Unit Testing</a></li><li><a href="../backup/index.html">File Backup</a></li><li><a href="../table/index.html">Data Tables</a></li><li><a href="../glob/index.html">Pattern Matching</a></li><li><a href="../parser/index.html">Parsing Expressions</a></li><li><a href="../templater/index.html">Page Templates</a></li><li><a href="../build/index.html">Build Manager</a></li><li><a href="../layout/index.html">Layout Engine</a></li><li><a href="../interp/index.html">File Interpolator</a></li><li><a href="../loader/index.html">Module Loader</a></li><li><a href="../style/index.html">Style Checker</a></li><li><a href="../codegen/index.html">Code Generator</a></li><li><a href="../docgen/index.html">Documentation Generator</a></li><li><a href="../bundler/index.html">Module Bundler</a></li><li><a href="../packman/index.html">Package Manager</a></li><li><a href="../vm/index.html">Virtual Machine</a></li><li><a href="../debugger/index.html">Debugger</a></li><li><a href="../conclusion/index.html">Conclusion</a></li></ul></div>
+    </div>
+    <div class="topnav-dropdown">
+      <span class="topnav-item">Appendices</span>
+      <div class="topnav-menu"><ul class="topnav-list"><li><a href="../license/index.html">License</a></li><li><a href="../conduct/index.html">Code of Conduct</a></li><li><a href="../contributing/index.html">Contributing</a></li><li><a href="../bibliography/index.html">Bibliography</a></li><li><a href="../glossary/index.html">Glossary</a></li></ul></div>
+    </div>
+    <div class="topnav-dropdown">
+      <span class="topnav-item">Contents</span>
+      <div class="topnav-menu"><ul>
+<li><a href="#debugger-start" id="toc-debugger-start"><span class="header-section-number">20.1</span> What is our starting point?</a></li>
+<li><a href="#debugger-tracing" id="toc-debugger-tracing"><span class="header-section-number">20.2</span> How can we make a tracing debugger?</a></li>
+<li><a href="#debugger-interactive" id="toc-debugger-interactive"><span class="header-section-number">20.3</span> How can we make the debugger interactive?</a></li>
+<li><a href="#debugger-test" id="toc-debugger-test"><span class="header-section-number">20.4</span> How can we test an interactive application?</a></li>
+<li><a href="#debugger-exercises" id="toc-debugger-exercises"><span class="header-section-number">20.5</span> Exercises</a></li>
+</ul></div>
     </div>
   </nav>
 </header>
-<!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
-<!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto" aria-label="Site">
-    <div class="pt-lg-2 mt-2 text-left sidebar-header">
-    <div class="sidebar-title mb-0 py-0">
-      <a href="../">Software Design by Example</a> 
-        <div class="sidebar-tools-main">
-    <a href="https://github.com/gvwilson/sdxjs" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-</div>
-    </div>
-      </div>
-        <div class="mt-2 flex-shrink-0 align-items-center">
-        <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Search"></div>
-        </div>
-        </div>
-    <div class="sidebar-menu-container"> 
-    <ul class="list-unstyled mt-1">
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Overview</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../introduction/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../sysprog/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Systems Programming</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../async/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Asynchronous Programming</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../test/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Unit Testing</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../backup/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">File Backup</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../table/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Tables</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../glob/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Pattern Matching</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../parser/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Parsing Expressions</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../templater/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Page Templates</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../build/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Build Manager</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../layout/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Layout Engine</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../interp/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">File Interpolator</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../loader/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Module Loader</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../style/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Style Checker</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../codegen/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Code Generator</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../docgen/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Documentation Generator</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../bundler/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Module Bundler</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../packman/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Package Manager</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vm/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Virtual Machine</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../debugger/index.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Debugger</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../conclusion/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Conclusion</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
- <span class="menu-text" id="quarto-sidebar-section-1-label">Appendices</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
-      </div>
-      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../license/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">License</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../conduct/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Code of Conduct</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../contributing/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Contributing</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../bibliography/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Bibliography</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../glossary/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">E</span>&nbsp; <span class="chapter-title">Glossary</span></span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-    </ul>
-    </div>
-</nav>
-<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
-<!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
-    <h2 id="toc-title">Table of contents</h2>
-   
-  <ul>
-  <li><a href="#debugger-start" id="toc-debugger-start" class="nav-link active" data-scroll-target="#debugger-start"><span class="header-section-number">20.1</span> What is our starting point?</a></li>
-  <li><a href="#debugger-tracing" id="toc-debugger-tracing" class="nav-link" data-scroll-target="#debugger-tracing"><span class="header-section-number">20.2</span> How can we make a tracing debugger?</a></li>
-  <li><a href="#debugger-interactive" id="toc-debugger-interactive" class="nav-link" data-scroll-target="#debugger-interactive"><span class="header-section-number">20.3</span> How can we make the debugger interactive?</a></li>
-  <li><a href="#debugger-test" id="toc-debugger-test" class="nav-link" data-scroll-target="#debugger-test"><span class="header-section-number">20.4</span> How can we test an interactive application?</a></li>
-  <li><a href="#debugger-exercises" id="toc-debugger-exercises" class="nav-link" data-scroll-target="#debugger-exercises"><span class="header-section-number">20.5</span> Exercises</a>
-  <ul class="collapse">
-  <li><a href="#implementing-tab-completion" id="toc-implementing-tab-completion" class="nav-link" data-scroll-target="#implementing-tab-completion"><span class="header-section-number">20.5.1</span> Implementing tab completion</a></li>
-  <li><a href="#modifying-variables-while-running" id="toc-modifying-variables-while-running" class="nav-link" data-scroll-target="#modifying-variables-while-running"><span class="header-section-number">20.5.2</span> Modifying variables while running</a></li>
-  <li><a href="#making-output-more-readable" id="toc-making-output-more-readable" class="nav-link" data-scroll-target="#making-output-more-readable"><span class="header-section-number">20.5.3</span> Making output more readable</a></li>
-  <li><a href="#better-loops" id="toc-better-loops" class="nav-link" data-scroll-target="#better-loops"><span class="header-section-number">20.5.4</span> Better loops</a></li>
-  <li><a href="#using-a-flag-to-continue-execution" id="toc-using-a-flag-to-continue-execution" class="nav-link" data-scroll-target="#using-a-flag-to-continue-execution"><span class="header-section-number">20.5.5</span> Using a flag to continue execution</a></li>
-  <li><a href="#numbering-lines" id="toc-numbering-lines" class="nav-link" data-scroll-target="#numbering-lines"><span class="header-section-number">20.5.6</span> Numbering lines</a></li>
-  <li><a href="#looping-around-again" id="toc-looping-around-again" class="nav-link" data-scroll-target="#looping-around-again"><span class="header-section-number">20.5.7</span> Looping around again</a></li>
-  <li><a href="#looking-up-objects" id="toc-looking-up-objects" class="nav-link" data-scroll-target="#looking-up-objects"><span class="header-section-number">20.5.8</span> Looking up objects</a></li>
-  <li><a href="#watching-for-variable-changes" id="toc-watching-for-variable-changes" class="nav-link" data-scroll-target="#watching-for-variable-changes"><span class="header-section-number">20.5.9</span> Watching for variable changes</a></li>
-  <li><a href="#translating-json-to-assembler" id="toc-translating-json-to-assembler" class="nav-link" data-scroll-target="#translating-json-to-assembler"><span class="header-section-number">20.5.10</span> Translating JSON to assembler</a></li>
-  </ul></li>
-  </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/gvwilson/sdxjs/edit/main/debugger/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gvwilson/sdxjs/blob/main/debugger/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/gvwilson/sdxjs/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
-    </div>
-<!-- main -->
-<main class="content" id="quarto-document-content" tabindex="-1">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title"><span id="sec-debugger" class="quarto-section-identifier"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Debugger</span></span></h1>
-</div>
-
-
-
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
+<main class="content"><header id="title-block-header" class="quarto-title-block"></header>
+<h1 class="title">Debugger</h1>
 <p>We have finally come to another of the topics that sparked this book: how does a debugger work? Debuggers are as much a part of programmers’ lives as version control but are taught far less often (in part, we believe, because it’s harder to create homework questions for them). In this chapter we will build a simple single-stepping debugger and show one way to test interactive applications (<a href="../test/index.html" class="quarto-xref"><span>Chapter 4</span></a>).</p>
-<section id="debugger-start" class="level2" data-number="20.1">
-<h2 data-number="20.1" class="anchored" data-anchor-id="debugger-start"><span class="header-section-number">20.1</span> What is our starting point?</h2>
+<h2 data-number="20.1" id="debugger-start"><span class="header-section-number">20.1</span> What is our starting point?</h2>
 <p>We would like to debug a higher-level language than the assembly code of <a href="../vm/index.html" class="quarto-xref"><span>Chapter 19</span></a>, but we don’t want to have to write a parser or wrestle with the ASTs of <a href="../style/index.html" class="quarto-xref"><span>Chapter 14</span></a>. As a compromise, we will represent programs as JSON data structures whose elements have the form <code>[command ...args]</code>. If the JavaScript version of our program is:</p>
 <pre><code>const a = [-3, -5, -1, 0, -2, 1, 3, 1]
 const b = Array()
@@ -393,8 +48,7 @@ i = 0
 while (i &lt; length(b)) {
   console.log(b[i])
   i += 1
-}
-</code></pre>
+}</code></pre>
 <p>then the JSON representation is:</p>
 <pre><code>[
   ["defA", "a", ["data", -3, -5, -1, 0, -2, 1, 3, 1]],
@@ -414,17 +68,14 @@ while (i &lt; length(b)) {
     ["print", ["getA", "b", ["getV", "i"]]],
     ["setV", "i", ["add", ["getV", "i"], ["num", 1]]]
   ]
-]
-</code></pre>
+]</code></pre>
 <p>Our virtual machine is structured like the one in <a href="../vm/index.html" class="quarto-xref"><span>Chapter 19</span></a>. A real system would parse a program to create JSON, then translate JSON into assembly code, then assemble that to create machine instructions. Again, to keep things simple we will execute a program by removing comments and blank lines and then running commands by looking up the command name’s and calling that method:</p>
 <pre><code>import assert from 'assert'
-
 class VirtualMachineBase {
   constructor (program) {
     this.program = this.compile(program)
     this.prefix = '&gt;&gt;'
   }
-
   compile (lines) {
     const text = lines
       .map(line =&gt; line.trim())
@@ -432,23 +83,19 @@ class VirtualMachineBase {
       .join('\n')
     return JSON.parse(text)
   }
-
   run () {
     this.env = {}
     this.runAll(this.program)
   }
-
   runAll (commands) {
     commands.forEach(command =&gt; this.exec(command))
   }
-
   exec (command) {
     const [op, ...args] = command
     assert(op in this,
       `Unknown op "${op}"`)
     return this[op](args)
   }
-
   // mccole:skip
   // mccole:add
   add (args) {
@@ -464,17 +111,14 @@ class VirtualMachineBase {
     const val = this.exec(args[1])
     this.env[args[0]].push(val)
   }
-
   data (args) {
     return args
   }
-
   defA (args) {
     this.checkOp('defA', 2, args)
     const [name, data] = args
     this.env[name] = this.exec(data)
   }
-
   // mccole:defV
   defV (args) {
     this.checkOp('defV', 2, args)
@@ -489,33 +133,28 @@ class VirtualMachineBase {
     this.checkIndex('getA', args[0], index)
     return this.env[args[0]][index]
   }
-
   getV (args) {
     this.checkOp('getV', 1, args)
     this.checkName('getV', args[0])
     return this.env[args[0]]
   }
-
   gt (args) {
     this.checkOp('gt', 2, args)
     const left = this.exec(args[0])
     const right = this.exec(args[1])
     return left &gt; right
   }
-
   len (args) {
     this.checkOp('len', 1, args)
     this.checkArray('len', args[0])
     return this.env[args[0]].length
   }
-
   lt (args) {
     this.checkOp('lt', 2, args)
     const left = this.exec(args[0])
     const right = this.exec(args[1])
     return left &lt; right
   }
-
   // mccole:loop
   loop (args) {
     this.checkBody('loop', 1, args)
@@ -531,13 +170,11 @@ class VirtualMachineBase {
       `Non-numeric value for "num": "${args[0]}"`)
     return args[0]
   }
-
   print (args) {
     this.checkOp('print', 1, args)
     const val = this.exec(args[0])
     this.message(this.prefix, val)
   }
-
   setA (args) {
     this.checkOp('setA', 3, args)
     this.checkArray('setA', args[0])
@@ -546,13 +183,11 @@ class VirtualMachineBase {
     const value = this.exec(args[2])
     this.env[args[0]][index] = value
   }
-
   setV (args) {
     this.checkOp('setV', 2, args)
     this.checkName('setV', args[0])
     this.env[args[0]] = this.exec(args[1])
   }
-
   test (args) {
     this.checkBody('test', 1, args)
     const condition = this.exec(args[0])
@@ -561,7 +196,6 @@ class VirtualMachineBase {
       this.runAll(body)
     }
   }
-
   // mccole:checkArray
   checkArray (op, name) {
     this.checkName(op, name)
@@ -574,31 +208,25 @@ class VirtualMachineBase {
     assert(args.length &gt;= minimum,
       `Badly-formatted operation ${op}: ${JSON.stringify(args)}`)
   }
-
   checkIndex (op, name, index) {
     this.checkArray(op, name)
     assert((0 &lt;= index) &amp;&amp; (index &lt; this.env[name].length),
       `Index "${index}" out of bounds for array "${name}"`)
   }
-
   checkName (op, name) {
     assert(name in this.env,
       `Unknown name "${name}" for operation "${op}"`)
   }
-
   checkOp (op, expected, args) {
     assert(args.length === expected,
       `Badly-formatted operation ${op}: ${JSON.stringify(args)}`)
   }
-
   message (prefix, val) {
     console.log(prefix, val)
   }
   // mccole:/skip
 }
-
-export default VirtualMachineBase
-</code></pre>
+export default VirtualMachineBase</code></pre>
 <p>Remember, functions and methods are just another kind of data, so if an object has a method called <code>"meth"</code>, the expression <code>this["meth"]</code> looks it up and <code>this["meth"](args)</code> calls it. If <code>"meth"</code> is stored in a variable called <code>name</code>, then <code>this[name](args)</code> will do exactly the same thing.</p>
 <p>The method in our VM that defines a new variable with an initial value looks like this:</p>
 <pre><code></code></pre>
@@ -609,16 +237,12 @@ export default VirtualMachineBase
 <p>and checking that a variable name refers to an array is:</p>
 <pre><code></code></pre>
 <p>The other operations are similar to these.</p>
-</section>
-<section id="debugger-tracing" class="level2" data-number="20.2">
-<h2 data-number="20.2" class="anchored" data-anchor-id="debugger-tracing"><span class="header-section-number">20.2</span> How can we make a tracing debugger?</h2>
+<h2 data-number="20.2" id="debugger-tracing"><span class="header-section-number">20.2</span> How can we make a tracing debugger?</h2>
 <p>The next thing we need in our debugger is a <a href="../glossary/index.html#source_map">source map</a> that keeps track of where in the source file each instruction came from. Since JSON is a subset of JavaScript, we could get line numbers by parsing our programs with <a href="https://github.com/acornjs/acorn">Acorn</a>. However, we would then have to scrape the information we want for this example out of the AST. Since this chapter is supposed to be about debugging, not parsing, we will instead cheat and add a line number to each interesting statement by hand so that our program looks like this:</p>
 <pre><code></code></pre>
 <p>Building the source map from that is simple; for now, we just modify <code>exec</code> to ignore the line number:</p>
 <pre><code>import assert from 'assert'
-
 import VirtualMachineBase from './vm-base.js'
-
 class VirtualMachineSourceMap extends VirtualMachineBase {
   compile (lines) {
     const original = super.compile(lines)
@@ -626,7 +250,6 @@ class VirtualMachineSourceMap extends VirtualMachineBase {
     const result = original.map(command =&gt; this.transform(command))
     return result
   }
-
   transform (node) {
     if (!Array.isArray(node)) {
       return node
@@ -643,7 +266,6 @@ class VirtualMachineSourceMap extends VirtualMachineBase {
       [op, first, ...args.map(arg =&gt; this.transform(arg))]
     return this.sourceMap[first]
   }
-
   exec (command) {
     const [op, lineNum, ...args] = command
     assert(op in this,
@@ -651,34 +273,22 @@ class VirtualMachineSourceMap extends VirtualMachineBase {
     return this[op](args)
   }
 }
-
-export default VirtualMachineSourceMap
-</code></pre>
-<div class="callout callout-style-simple callout-none no-icon callout-titled" data-markdown="1">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">None</span>It’s not really cheating
-</div>
-</div>
-<div class="callout-body-container callout-body">
+export default VirtualMachineSourceMap</code></pre>
+<div>
+<blockquote>
+<p><strong>It’s not really cheating</strong></p>
 <p>We said that adding line numbers by hand was cheating, but it isn’t. What we’re actually doing is deferring a problem until we’re sure we need to solve it. If our approach is clumsy or fails outright because of some aspect of design we didn’t foresee, there will have been no point handling line numbers the “right” way. A good rule for software design is to tackle the thing you’re least sure about first, using temporary code in place of what you think you’ll eventually need.</p>
-</div>
+</blockquote>
 </div>
 <p>The next step is to modify the VM’s <code>exec</code> method so that it executes a callback function for each significant operation (where “significant” means “we bothered to record its line number”). Since we’re not sure what our debugger is going to need, we give this callback the environment holding the current set of variables, the line number, and the operation being performed:</p>
 <pre><code>import assert from 'assert'
-
 import VirtualMachineSourceMap from './vm-source-map.js'
-
 class VirtualMachineCallback extends VirtualMachineSourceMap {
   constructor (program, dbg) {
     super(program)
     this.dbg = dbg
     this.dbg.setVM(this)
   }
-
   exec (command) {
     const [op, lineNum, ...args] = command
     this.dbg.handle(this.env, lineNum, op)
@@ -686,19 +296,16 @@ class VirtualMachineCallback extends VirtualMachineSourceMap {
       `Unknown op "${op}"`)
     return this[op](args, lineNum)
   }
-
   message (prefix, val) {
     this.dbg.message(`${prefix} ${val}`)
   }
 }
-
-export default VirtualMachineCallback
-</code></pre>
+export default VirtualMachineCallback</code></pre>
 <p>We also modify the VM’s constructor to record the debugger and give it a reference to the virtual machine (<a href="#fig-debugger-initialization" class="quarto-xref">Figure&nbsp;<span>20.1</span></a>). We have to connect the two objects explicitly because each one needs a reference to the other, but one of them has to be created first. “A gets B then B tells A about itself” is a common pattern; we will look at other ways to manage it in the exercises.</p>
-<div id="fig-debugger-initialization" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-debugger-initialization" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-debugger-initialization-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="initialization.svg" class="img-fluid figure-img">
+<img src="initialization.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-debugger-initialization-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;20.1: Two-step initialization of mutually-dependent objects.
@@ -707,9 +314,7 @@ Figure&nbsp;20.1: Two-step initialization of mutually-dependent objects.
 </div>
 <p>To run the program, we create a debugger object and pass it to the VM’s constructor:</p>
 <pre><code>import assert from 'assert'
-
 import readSource from './read-source.js'
-
 const main = () =&gt; {
   assert(process.argv.length === 5,
     'Usage: run-debugger.js ./vm ./debugger input|-')
@@ -721,12 +326,9 @@ const main = () =&gt; {
   const vm = new VM(lines, dbg)
   vm.run()
 }
-
-main()
-</code></pre>
+main()</code></pre>
 <p>A simple debugger just traces interesting statements as they run:</p>
 <pre><code>import DebuggerBase from './debugger-base.js'
-
 class DebuggerTrace extends DebuggerBase {
   handle (env, lineNum, op) {
     if (lineNum !== null) {
@@ -734,9 +336,7 @@ class DebuggerTrace extends DebuggerBase {
     }
   }
 }
-
-export default DebuggerTrace
-</code></pre>
+export default DebuggerTrace</code></pre>
 <p>Let’s try it on a program that adds the numbers in an array:</p>
 <pre><code>// const a = [-5, 1, 3]
 // const total = 0
@@ -746,7 +346,6 @@ export default DebuggerTrace
 //   i += 1
 // }
 // console.log(total)
-
 [
   [1, "defA", "a", ["data", -5, 1, 3]],
   [2, "defV", "total", ["num", 0]],
@@ -758,8 +357,7 @@ export default DebuggerTrace
     [8, "setV", "i", ["add", ["getV", "i"], ["num", 1]]]
   ],
   [10, "print", ["getV", "total"]]
-]
-</code></pre>
+]</code></pre>
 <pre><code>1 / defA: {}
 2 / defV: {"a":[-5,1,3]}
 3 / defV: {"a":[-5,1,3],"total":0}
@@ -771,11 +369,8 @@ export default DebuggerTrace
 5 / setV: {"a":[-5,1,3],"total":-4,"i":2}
 8 / setV: {"a":[-5,1,3],"total":-1,"i":2}
 10 / print: {"a":[-5,1,3],"total":-1,"i":3}
-&gt;&gt; -1
-</code></pre>
-</section>
-<section id="debugger-interactive" class="level2" data-number="20.3">
-<h2 data-number="20.3" class="anchored" data-anchor-id="debugger-interactive"><span class="header-section-number">20.3</span> How can we make the debugger interactive?</h2>
+&gt;&gt; -1</code></pre>
+<h2 data-number="20.3" id="debugger-interactive"><span class="header-section-number">20.3</span> How can we make the debugger interactive?</h2>
 <p>What we have built so far is an always-on <code>print</code> statement. To turn it into an interactive debugger, we will use the <a href="https://www.npmjs.com/package/prompt-sync"><code>prompt-sync</code></a> module to manage user input with the following set of commands:</p>
 <ul>
 <li><p><code>?</code> or <code>help</code> to list commands.</p></li>
@@ -790,11 +385,8 @@ export default DebuggerTrace
 </ul>
 <p>When the virtual machine calls the debugger, the debugger first checks if it is on a numbered line. If it isn’t, it hands control back to the VM. Otherwise, if we are single-stepping or this line is a breakpoint, the debugger takes over. Its overall structure is:</p>
 <pre><code>import prompt from 'prompt-sync'
-
 import DebuggerBase from './debugger-base.js'
-
 const PROMPT_OPTIONS = { sigint: true }
-
 class DebuggerInteractive extends DebuggerBase {
   constructor () {
     super()
@@ -812,7 +404,6 @@ class DebuggerInteractive extends DebuggerBase {
       x: 'exit'
     }
   }
-
   handle (env, lineNum, op) {
     if (lineNum === null) {
       return
@@ -824,7 +415,6 @@ class DebuggerInteractive extends DebuggerBase {
       this.interact(env, lineNum, op)
     }
   }
-
   // mccole:skip
   // mccole:interact
   interact (env, lineNum, op) {
@@ -844,7 +434,6 @@ class DebuggerInteractive extends DebuggerBase {
       }
     }
   }
-
   getCommand (env, lineNum, op) {
     const options = Object.keys(this.lookup).sort().join('')
     const display = `[${lineNum} ${options}] `
@@ -853,7 +442,6 @@ class DebuggerInteractive extends DebuggerBase {
       .map(s =&gt; s.trim())
       .filter(s =&gt; s.length &gt; 0)
   }
-
   input (display) {
     return prompt(PROMPT_OPTIONS)(display)
   }
@@ -862,7 +450,6 @@ class DebuggerInteractive extends DebuggerBase {
     this.message(this.lookup)
     return true
   }
-
   clear (env, lineNum, op, args) {
     if (args.length !== 1) {
       this.message('c[lear] requires one line number')
@@ -871,7 +458,6 @@ class DebuggerInteractive extends DebuggerBase {
     }
     return true
   }
-
   list (env, lineNum, op, args) {
     const msg = Object.keys(this.vm.sourceMap)
       .map(n =&gt; parseInt(n))
@@ -887,7 +473,6 @@ class DebuggerInteractive extends DebuggerBase {
     this.message(msg)
     return true
   }
-
   // mccole:next
   next (env, lineNum, op, args) {
     this.singleStep = true
@@ -910,7 +495,6 @@ class DebuggerInteractive extends DebuggerBase {
     this.singleStep = false
     return false
   }
-
   stop (env, lineNum, op, args) {
     if (args.length !== 1) {
       this.message('s[top] requires one line number')
@@ -919,34 +503,23 @@ class DebuggerInteractive extends DebuggerBase {
     }
     return true
   }
-
   variables (env, lineNum, op, args) {
     this.message(Object.keys(env).sort())
     return true
   }
-
   exit (env, lineNum, op, args) {
     process.exit(0)
   }
   // mccole:/skip
 }
-
-export default DebuggerInteractive
-</code></pre>
+export default DebuggerInteractive</code></pre>
 <p>It interacts with users by lookup up a command and invoking the corresponding method, just as the VM does:</p>
 <pre><code></code></pre>
-<div class="callout callout-style-simple callout-none no-icon callout-titled" data-markdown="1">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">None</span>Learning as we go
-</div>
-</div>
-<div class="callout-body-container callout-body">
+<div>
+<blockquote>
+<p><strong>Learning as we go</strong></p>
 <p>We didn’t originally put the input and output in methods that could be overridden, but realized later we needed to do this to make the debugger testable. Rather than coming back and rewriting this, we have done it here.</p>
-</div>
+</blockquote>
 </div>
 <p>With this structure in place, the command handlers are pretty straightforward. For example, this method moves us to the next line:</p>
 <pre><code></code></pre>
@@ -954,7 +527,6 @@ export default DebuggerInteractive
 <pre><code></code></pre>
 <p>After using this for a few moments, though we realized that we needed to change the signature of the <code>loop</code> method. We want to stop the loop each time it runs, and need to know where we are. We didn’t allow for this in the base class, and we don’t want to have to change every method, so we take advantage of the fact that JavaScript ignores any extra arguments passed to a method:</p>
 <pre><code>import VirtualMachineCallback from './vm-callback.js'
-
 class VirtualMachineInteractive extends VirtualMachineCallback {
   loop (args, lineNum) {
     this.checkBody('loop', 1, args)
@@ -965,18 +537,14 @@ class VirtualMachineInteractive extends VirtualMachineCallback {
     }
   }
 }
-
-export default VirtualMachineInteractive
-</code></pre>
+export default VirtualMachineInteractive</code></pre>
 <p>This is sloppy, but it works; we will tidy it up in the exercises.</p>
-</section>
-<section id="debugger-test" class="level2" data-number="20.4">
-<h2 data-number="20.4" class="anchored" data-anchor-id="debugger-test"><span class="header-section-number">20.4</span> How can we test an interactive application?</h2>
+<h2 data-number="20.4" id="debugger-test"><span class="header-section-number">20.4</span> How can we test an interactive application?</h2>
 <p>How can we test an interactive application like a debugger? The answer is, “By making it non-interactive.” Like many tools over the past 30 years, our approach is based on a program called <a href="https://en.wikipedia.org/wiki/Expect">Expect</a>. Our library replaces the input and output functions of the application being tested with callbacks, then provides input when asked and checks output when it is given (<a href="#fig-debugger-test-interact" class="quarto-xref">Figure&nbsp;<span>20.2</span></a>).</p>
-<div id="fig-debugger-test-interact" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-debugger-test-interact" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-debugger-test-interact-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="test-interact.svg" class="img-fluid figure-img">
+<img src="test-interact.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-debugger-test-interact-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;20.2: Replacing input and output to test interactive applications.
@@ -987,40 +555,33 @@ Figure&nbsp;20.2: Replacing input and output to test interactive applications.
 <pre><code></code></pre>
 <p>Our <code>Expect</code> class may be short, but it is hard to understand because it is so abstract:</p>
 <pre><code>import assert from 'assert'
-
 class Expect {
   constructor (subject, start) {
     this.start = start
     this.steps = []
     subject.setTester(this)
   }
-
   send (text) {
     this.steps.push({ op: 'toSystem', arg: text })
     return this
   }
-
   get (text) {
     this.steps.push({ op: 'fromSystem', arg: text })
     return this
   }
-
   run () {
     this.start()
     assert.strictEqual(this.steps.length, 0,
       'Extra steps at end of test')
   }
-
   toSystem () {
     return this.next('toSystem')
   }
-
   fromSystem (actual) {
     const expected = this.next('fromSystem')
     assert.strictEqual(expected, actual,
       `Expected "${expected}" got "${actual}"`)
   }
-
   next (kind) {
     assert(this.steps.length &gt; 0,
       'Unexpected end of steps')
@@ -1031,9 +592,7 @@ class Expect {
     return text
   }
 }
-
-export default Expect
-</code></pre>
+export default Expect</code></pre>
 <p>Piece-by-piece:</p>
 <ul>
 <li><code>subject</code> is the thing being tested.</li>
@@ -1044,66 +603,49 @@ export default Expect
 </ul>
 <p>Let’s modify the debugger to use the tester, keeping in mind that the prompt counts as an output (and yes, we forgot this in the first version):</p>
 <pre><code>import DebuggerInteractive from './debugger-interactive.js'
-
 class DebuggerTest extends DebuggerInteractive {
   constructor () {
     super()
     this.tester = null
   }
-
   setTester (tester) {
     this.tester = tester
   }
-
   input (display) {
     this.tester.fromSystem(display)
     return this.tester.toSystem()
   }
-
   message (m) {
     this.tester.fromSystem(m)
   }
 }
-
-export default DebuggerTest
-</code></pre>
+export default DebuggerTest</code></pre>
 <p>Again, we can’t pass the tester as a constructor parameter because of initialization order, so we write a <code>setup</code> function to make sure everything is connected the right way:</p>
 <pre><code></code></pre>
 <p>Let’s try running our tests:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run test <span class="at">--</span> <span class="at">-g</span> <span class="st">'interactive debugger'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<pre><code>
-&gt; stjs@1.0.0 test /u/stjs
+<div class="sourceCode" id="cb24"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run test <span class="at">--</span> <span class="at">-g</span> <span class="st">'interactive debugger'</span></span></code></pre></div>
+<pre><code>&gt; stjs@1.0.0 test /u/stjs
 &gt; mocha */test/test-*.js "-g" "interactive debugger"
-
-
-
   interactive debugger
-    ✓ runs and prints
-</code></pre>
+    ✓ runs and prints</code></pre>
 <p>That works—or does it? Why is only one test shown, and doesn’t the summary appear? After a bit of digging, we realize that the debugger’s <code>exit</code> command calls <code>process.exit</code> when the simulated program ends, so the whole program including the VM, debugger, and test framework stops immediately <em>before</em> the promises that contain the tests have run.</p>
 <p>We could fix this by modifying the debugger callback to return an indication of whether or not execution should continue, then modify the VM to pay attention to that flag. However, this approach becomes very complicated when we have deeply-nested calls to <code>exec</code>, which will happen with loops and conditionals.</p>
 <p>A better alternative is to use an exception for control flow. We can define our own kind of exception as an empty class: it doesn’t need any data because we are only using it to get a typed object:</p>
 <pre><code>class HaltException {
 }
-
-export default HaltException
-</code></pre>
+export default HaltException</code></pre>
 <p>Next, we modify the debugger to throw this exception when asked to exit:</p>
 <pre><code>import HaltException from './halt-exception.js'
 import DebuggerTest from './debugger-test.js'
-
 class DebuggerExit extends DebuggerTest {
   exit (env, lineNum, op, args) {
     throw new HaltException()
   }
 }
-
-export default DebuggerExit
-</code></pre>
+export default DebuggerExit</code></pre>
 <p>And finally we modify the VM to finish cleanly if this exception is thrown, but re-throw any other kind of exception:</p>
 <pre><code>import HaltException from './halt-exception.js'
 import VirtualMachineInteractive from './vm-interactive.js'
-
 class VirtualMachineExit extends VirtualMachineInteractive {
   run () {
     this.env = {}
@@ -1117,570 +659,45 @@ class VirtualMachineExit extends VirtualMachineInteractive {
     }
   }
 }
-
-export default VirtualMachineExit
-</code></pre>
+export default VirtualMachineExit</code></pre>
 <p>With these changes in place, we are finally able to test our interactive debugger:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run test <span class="at">--</span> <span class="at">-g</span> <span class="st">'exitable debugger'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<pre><code>
-&gt; stjs@1.0.0 test /u/stjs
+<div class="sourceCode" id="cb29"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run test <span class="at">--</span> <span class="at">-g</span> <span class="st">'exitable debugger'</span></span></code></pre></div>
+<pre><code>&gt; stjs@1.0.0 test /u/stjs
 &gt; mocha */test/test-*.js "-g" "exitable debugger"
-
-
-
   exitable debugger
     ✓ runs and prints
     ✓ breaks and resumes
-
-
-  2 passing (7ms)
-</code></pre>
+  2 passing (7ms)</code></pre>
 <section class="exercises">
-</section>
-<section id="debugger-exercises" class="level2" data-number="20.5">
-<h2 data-number="20.5" class="anchored" data-anchor-id="debugger-exercises"><span class="header-section-number">20.5</span> Exercises</h2>
-<section id="implementing-tab-completion" class="level3" data-number="20.5.1">
-<h3 data-number="20.5.1" class="anchored" data-anchor-id="implementing-tab-completion"><span class="header-section-number">20.5.1</span> Implementing tab completion</h3>
+<h2 data-number="20.5" id="debugger-exercises"><span class="header-section-number">20.5</span> Exercises</h2>
+<h3 data-number="20.5.1" id="implementing-tab-completion"><span class="header-section-number">20.5.1</span> Implementing tab completion</h3>
 <p>Read the documentation for <code>prompt-sync</code> and then implement <a href="../glossary/index.html#tab_completion">tab completion</a> for the debugger.</p>
-</section>
-<section id="modifying-variables-while-running" class="level3" data-number="20.5.2">
-<h3 data-number="20.5.2" class="anchored" data-anchor-id="modifying-variables-while-running"><span class="header-section-number">20.5.2</span> Modifying variables while running</h3>
+<h3 data-number="20.5.2" id="modifying-variables-while-running"><span class="header-section-number">20.5.2</span> Modifying variables while running</h3>
 <p>Add a <code>set</code> command that sets the value of a variable to a new value in a running program. How do you handle setting array elements?</p>
-</section>
-<section id="making-output-more-readable" class="level3" data-number="20.5.3">
-<h3 data-number="20.5.3" class="anchored" data-anchor-id="making-output-more-readable"><span class="header-section-number">20.5.3</span> Making output more readable</h3>
+<h3 data-number="20.5.3" id="making-output-more-readable"><span class="header-section-number">20.5.3</span> Making output more readable</h3>
 <p>Modify the tracing debugger so that the statements inside loops and conditionals are indented for easier reading.</p>
-</section>
-<section id="better-loops" class="level3" data-number="20.5.4">
-<h3 data-number="20.5.4" class="anchored" data-anchor-id="better-loops"><span class="header-section-number">20.5.4</span> Better loops</h3>
+<h3 data-number="20.5.4" id="better-loops"><span class="header-section-number">20.5.4</span> Better loops</h3>
 <p>Our solution for handling loops is sloppy; fix it.</p>
-</section>
-<section id="using-a-flag-to-continue-execution" class="level3" data-number="20.5.5">
-<h3 data-number="20.5.5" class="anchored" data-anchor-id="using-a-flag-to-continue-execution"><span class="header-section-number">20.5.5</span> Using a flag to continue execution</h3>
+<h3 data-number="20.5.5" id="using-a-flag-to-continue-execution"><span class="header-section-number">20.5.5</span> Using a flag to continue execution</h3>
 <p>Modify the debugger and virtual machine to use a “continue executing” flag rather than throwing an exception when execution should end. Which approach is easier to understand? Which will be easier to extend in the future?</p>
-</section>
-<section id="numbering-lines" class="level3" data-number="20.5.6">
-<h3 data-number="20.5.6" class="anchored" data-anchor-id="numbering-lines"><span class="header-section-number">20.5.6</span> Numbering lines</h3>
+<h3 data-number="20.5.6" id="numbering-lines"><span class="header-section-number">20.5.6</span> Numbering lines</h3>
 <p>Write a tool that takes a JSON program representation <em>without</em> statement numbers and produces one that numbers all of the interesting statements for debugging purposes. Use whatever definition of “interesting” you think would be most useful.</p>
-</section>
-<section id="looping-around-again" class="level3" data-number="20.5.7">
-<h3 data-number="20.5.7" class="anchored" data-anchor-id="looping-around-again"><span class="header-section-number">20.5.7</span> Looping around again</h3>
+<h3 data-number="20.5.7" id="looping-around-again"><span class="header-section-number">20.5.7</span> Looping around again</h3>
 <p>Implement a “next loop iteration” command that runs the program until it reaches the current point in the next iteration of the current loop.</p>
-</section>
-<section id="looking-up-objects" class="level3" data-number="20.5.8">
-<h3 data-number="20.5.8" class="anchored" data-anchor-id="looking-up-objects"><span class="header-section-number">20.5.8</span> Looking up objects</h3>
+<h3 data-number="20.5.8" id="looking-up-objects"><span class="header-section-number">20.5.8</span> Looking up objects</h3>
 <p>Rather than having some objects call <code>setXYZ</code> methods in other objects, it is common practice to use a lookup table for mutual dependencies:</p>
 <ol type="1">
 <li><p>Every object initializes calls <code>table.set(name, this)</code> in its constructor.</p></li>
 <li><p>Whenever object A needs the instance of object B, it calls <code>table.lookup('B')</code>. It does <em>not</em> store the result in a member variable.</p></li>
 </ol>
 <p>Modify the virtual machine and debugger to use this pattern.</p>
-</section>
-<section id="watching-for-variable-changes" class="level3" data-number="20.5.9">
-<h3 data-number="20.5.9" class="anchored" data-anchor-id="watching-for-variable-changes"><span class="header-section-number">20.5.9</span> Watching for variable changes</h3>
+<h3 data-number="20.5.9" id="watching-for-variable-changes"><span class="header-section-number">20.5.9</span> Watching for variable changes</h3>
 <p>Modify the debugger and virtual machine to implement <a href="../glossary/index.html#watchpoint">watchpoints</a> that halt the program whenever the value of a variable changes.</p>
-</section>
-<section id="translating-json-to-assembler" class="level3" data-number="20.5.10">
-<h3 data-number="20.5.10" class="anchored" data-anchor-id="translating-json-to-assembler"><span class="header-section-number">20.5.10</span> Translating JSON to assembler</h3>
+<h3 data-number="20.5.10" id="translating-json-to-assembler"><span class="header-section-number">20.5.10</span> Translating JSON to assembler</h3>
 <p>Write a tool that translates the JSON program representation into the assembly code of <a href="../vm/index.html" class="quarto-xref"><span>Chapter 19</span></a>. To simplify things, increase the number of registers so that there is always storage for intermediate results when doing arithmetic.</p>
 </section>
 
-
-</section>
-</section>
-
-</main> <!-- /main -->
-<script id="quarto-html-after-body" type="application/javascript">
-  window.document.addEventListener("DOMContentLoaded", function (event) {
-    const icon = "";
-    const anchorJS = new window.AnchorJS();
-    anchorJS.options = {
-      placement: 'right',
-      icon: icon
-    };
-    anchorJS.add('.anchored');
-    const isCodeAnnotation = (el) => {
-      for (const clz of el.classList) {
-        if (clz.startsWith('code-annotation-')) {                     
-          return true;
-        }
-      }
-      return false;
-    }
-    const onCopySuccess = function(e) {
-      // button target
-      const button = e.trigger;
-      // don't keep focus
-      button.blur();
-      // flash "checked"
-      button.classList.add('code-copy-button-checked');
-      var currentTitle = button.getAttribute("title");
-      button.setAttribute("title", "Copied!");
-      let tooltip;
-      if (window.bootstrap) {
-        button.setAttribute("data-bs-toggle", "tooltip");
-        button.setAttribute("data-bs-placement", "left");
-        button.setAttribute("data-bs-title", "Copied!");
-        tooltip = new bootstrap.Tooltip(button, 
-          { trigger: "manual", 
-            customClass: "code-copy-button-tooltip",
-            offset: [0, -8]});
-        tooltip.show();    
-      }
-      setTimeout(function() {
-        if (tooltip) {
-          tooltip.hide();
-          button.removeAttribute("data-bs-title");
-          button.removeAttribute("data-bs-toggle");
-          button.removeAttribute("data-bs-placement");
-        }
-        button.setAttribute("title", currentTitle);
-        button.classList.remove('code-copy-button-checked');
-      }, 1000);
-      // clear code selection
-      e.clearSelection();
-    }
-    const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-      text: getTextToCopy
-    });
-    clipboard.on('success', onCopySuccess);
-    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-        text: getTextToCopy,
-        container: window.document.getElementById('quarto-embedded-source-code-modal')
-      });
-      clipboardModal.on('success', onCopySuccess);
-    }
-      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-      var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
-      var isInternal = (href) => {
-          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
-      }
-      // Inspect non-navigation links and adorn them if external
-      window.quartoDecorateExternalLinks = function (root) {
-     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-      for (var i=0; i<links.length; i++) {
-        const link = links[i];
-        if (!isInternal(link.href)) {
-          // undo the damage that might have been done by quarto-nav.js in the case of
-          // links that we want to consider external
-          if (link.dataset.originalHref !== undefined) {
-            link.href = link.dataset.originalHref;
-          }
-          if (!link.classList.contains('no-external-icon')) {
-          }
-        }
-      }
-      };
-      window.quartoDecorateExternalLinks(window.document);
-    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
-    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
-    const hideOnEscAndFocusOut = {
-      name: 'hideOnEscAndFocusOut',
-      defaultValue: true,
-      fn(instance) {
-        const dismiss = () => {
-          // A show scheduled by the trigger delay would otherwise reopen it
-          instance.clearDelayTimeouts();
-          instance.hide();
-        };
-        const onKeyDown = (event) => {
-          if (event.key !== 'Escape') {
-            return;
-          }
-          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
-          // except an open reveal.js slide menu, which Esc should close too.
-          // The menu handles keys only when its keyboard option is on.
-          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
-            window.Reveal.getConfig().menu?.keyboard !== false;
-          if (!menuHandlesEsc) {
-            event.stopPropagation();
-          }
-          if (instance.popper.contains(window.document.activeElement)) {
-            // Disabled while refocusing so the focus trigger does not reopen it
-            instance.disable();
-            instance.reference.focus();
-            instance.enable();
-          }
-          dismiss();
-        };
-        const onFocusOut = (event) => {
-          const target = event.relatedTarget;
-          if (target && !instance.reference.contains(target) &&
-              !instance.popper.contains(target)) {
-            dismiss();
-          }
-        };
-        // On the trigger too: a click trigger (code-annotations: select) has no
-        // blur handling. Attached for the instance's lifetime so leaving the
-        // trigger also cancels a show still pending on the trigger delay.
-        instance.reference.addEventListener('focusout', onFocusOut);
-        return {
-          onShow() {
-            window.document.addEventListener('keydown', onKeyDown, true);
-            instance.popper.addEventListener('focusout', onFocusOut);
-          },
-          onHide() {
-            window.document.removeEventListener('keydown', onKeyDown, true);
-            instance.popper.removeEventListener('focusout', onFocusOut);
-          },
-          onDestroy() {
-            instance.reference.removeEventListener('focusout', onFocusOut);
-          },
-        };
-      },
-    };
-    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-      const config = {
-        allowHTML: true,
-        maxWidth: 500,
-        delay: 100,
-        arrow: false,
-        appendTo: function(el) {
-            return el.parentElement;
-        },
-        interactive: true,
-        interactiveBorder: 10,
-        theme: 'quarto',
-        placement: 'bottom-start',
-        plugins: [hideOnEscAndFocusOut],
-      };
-      if (contentFn) {
-        config.content = contentFn;
-      }
-      if (onTriggerFn) {
-        config.onTrigger = onTriggerFn;
-      }
-      if (onUntriggerFn) {
-        config.onUntrigger = onUntriggerFn;
-      }
-      window.tippy(el, config); 
-    }
-    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-    for (var i=0; i<noterefs.length; i++) {
-      const ref = noterefs[i];
-      tippyHover(ref, function() {
-        // use id or data attribute instead here
-        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-        try { href = new URL(href).hash; } catch {}
-        const id = href.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note) {
-          return note.innerHTML;
-        } else {
-          return "";
-        }
-      });
-    }
-    const xrefs = window.document.querySelectorAll('a.quarto-xref');
-    const processXRef = (id, note) => {
-      // Strip column container classes
-      const stripColumnClz = (el) => {
-        el.classList.remove("page-full", "page-columns");
-        if (el.children) {
-          for (const child of el.children) {
-            stripColumnClz(child);
-          }
-        }
-      }
-      stripColumnClz(note)
-      if (id === null || id.startsWith('sec-')) {
-        // Special case sections, only their first couple elements
-        const container = document.createElement("div");
-        if (note.children && note.children.length > 2) {
-          container.appendChild(note.children[0].cloneNode(true));
-          for (let i = 1; i < note.children.length; i++) {
-            const child = note.children[i];
-            if (child.tagName === "P" && child.innerText === "") {
-              continue;
-            } else {
-              container.appendChild(child.cloneNode(true));
-              break;
-            }
-          }
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(container);
-          }
-          return container.innerHTML
-        } else {
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(note);
-          }
-          return note.innerHTML;
-        }
-      } else {
-        // Remove any anchor links if they are present
-        const anchorLink = note.querySelector('a.anchorjs-link');
-        if (anchorLink) {
-          anchorLink.remove();
-        }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(note);
-        }
-        if (note.classList.contains("callout")) {
-          return note.outerHTML;
-        } else {
-          return note.innerHTML;
-        }
-      }
-    }
-    for (var i=0; i<xrefs.length; i++) {
-      const xref = xrefs[i];
-      tippyHover(xref, undefined, function(instance) {
-        instance.disable();
-        let url = xref.getAttribute('href');
-        let hash = undefined; 
-        if (url.startsWith('#')) {
-          hash = url;
-        } else {
-          try { hash = new URL(url).hash; } catch {}
-        }
-        if (hash) {
-          const id = hash.replace(/^#\/?/, "");
-          const note = window.document.getElementById(id);
-          if (note !== null) {
-            try {
-              const html = processXRef(id, note.cloneNode(true));
-              instance.setContent(html);
-            } finally {
-              instance.enable();
-              instance.show();
-            }
-          } else {
-            // See if we can fetch this
-            fetch(url.split('#')[0])
-            .then(res => res.text())
-            .then(html => {
-              const parser = new DOMParser();
-              const htmlDoc = parser.parseFromString(html, "text/html");
-              const note = htmlDoc.getElementById(id);
-              if (note !== null) {
-                const html = processXRef(id, note);
-                instance.setContent(html);
-              } 
-            }).finally(() => {
-              instance.enable();
-              instance.show();
-            });
-          }
-        } else {
-          // See if we can fetch a full url (with no hash to target)
-          // This is a special case and we should probably do some content thinning / targeting
-          fetch(url)
-          .then(res => res.text())
-          .then(html => {
-            const parser = new DOMParser();
-            const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.querySelector('main.content');
-            if (note !== null) {
-              // This should only happen for chapter cross references
-              // (since there is no id in the URL)
-              // remove the first header
-              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-                note.children[0].remove();
-              }
-              const html = processXRef(null, note);
-              instance.setContent(html);
-            } 
-          }).finally(() => {
-            instance.enable();
-            instance.show();
-          });
-        }
-      }, function(instance) {
-      });
-    }
-        let selectedAnnoteEl;
-        const selectorForAnnotation = ( cell, annotation) => {
-          let cellAttr = 'data-code-cell="' + cell + '"';
-          let lineAttr = 'data-code-annotation="' +  annotation + '"';
-          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-          return selector;
-        }
-        const selectCodeLines = (annoteEl) => {
-          const doc = window.document;
-          const targetCell = annoteEl.getAttribute("data-target-cell");
-          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-          const lineIds = lines.map((line) => {
-            return targetCell + "-" + line;
-          })
-          // Each band is positioned against its own containing block, which is
-          // not the offsetParent of the lines, so place it from client rects.
-          const placeBand = (band, firstEl, lastEl, codeBlock) => {
-            const container = band.offsetParent;
-            if (container === null) {
-              return;
-            }
-            const containerRect = container.getBoundingClientRect();
-            // Reveal.js scales slides with a transform, so convert client
-            // pixels back to the CSS pixels of the container.
-            const scale = containerRect.height / container.offsetHeight || 1;
-            const firstRect = firstEl.getBoundingClientRect();
-            const lastRect = lastEl.getBoundingClientRect();
-            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
-            const height = (lastRect.bottom - firstRect.top) / scale;
-            band.style.top = top - 2 + "px";
-            band.style.height = height + 4 + "px";
-            if (codeBlock) {
-              // Without the copy button wrapper, the containing block is wider
-              // than the code block, so span the code block explicitly.
-              const blockRect = codeBlock.getBoundingClientRect();
-              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
-              band.style.width = blockRect.width / scale + "px";
-            }
-          };
-          if (lineIds.length > 0) {
-            const el = window.document.getElementById(lineIds[0]);
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const parent = el.parentElement.parentElement;
-            // cook up a div (if necessary) and position it
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
-            }
-            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
-            }
-            placeBand(gutterDiv, el, lastEl);
-            selectedAnnoteEl = annoteEl;
-          }
-        };
-        const unselectCodeLines = () => {
-          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-          elementsIds.forEach((elId) => {
-            const div = window.document.getElementById(elId);
-            if (div) {
-              div.remove();
-            }
-          });
-          selectedAnnoteEl = undefined;
-        };
-          // Handle positioning of the toggle
-      window.addEventListener(
-        "resize",
-        throttle(() => {
-          elRect = undefined;
-          if (selectedAnnoteEl) {
-            selectCodeLines(selectedAnnoteEl);
-          }
-        }, 10)
-      );
-      function throttle(fn, ms) {
-      let throttle = false;
-      let timer;
-        return (...args) => {
-          if(!throttle) { // first call gets through
-              fn.apply(this, args);
-              throttle = true;
-          } else { // all the others get throttled
-              if(timer) clearTimeout(timer); // cancel #2
-              timer = setTimeout(() => {
-                fn.apply(this, args);
-                timer = throttle = false;
-              }, ms);
-          }
-        };
-      }
-        // Attach click handler to the DT
-        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-        for (const annoteDlNode of annoteDls) {
-          annoteDlNode.addEventListener('click', (event) => {
-            const clickedEl = event.target;
-            if (clickedEl !== selectedAnnoteEl) {
-              unselectCodeLines();
-              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-              if (activeEl) {
-                activeEl.classList.remove('code-annotation-active');
-              }
-              selectCodeLines(clickedEl);
-              clickedEl.classList.add('code-annotation-active');
-            } else {
-              // Unselect the line
-              unselectCodeLines();
-              clickedEl.classList.remove('code-annotation-active');
-            }
-          });
-        }
-    const findCites = (el) => {
-      const parentEl = el.parentElement;
-      if (parentEl) {
-        const cites = parentEl.dataset.cites;
-        if (cites) {
-          return {
-            el,
-            cites: cites.split(' ')
-          };
-        } else {
-          return findCites(el.parentElement)
-        }
-      } else {
-        return undefined;
-      }
-    };
-    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-    for (var i=0; i<bibliorefs.length; i++) {
-      const ref = bibliorefs[i];
-      const citeInfo = findCites(ref);
-      if (citeInfo) {
-        tippyHover(citeInfo.el, function() {
-          var popup = window.document.createElement('div');
-          citeInfo.cites.forEach(function(cite) {
-            var citeDiv = window.document.createElement('div');
-            citeDiv.classList.add('hanging-indent');
-            citeDiv.classList.add('csl-entry');
-            var biblioDiv = window.document.getElementById('ref-' + cite);
-            if (biblioDiv) {
-              citeDiv.innerHTML = biblioDiv.innerHTML;
-            }
-            popup.appendChild(citeDiv);
-          });
-          return popup.innerHTML;
-        });
-      }
-    }
-  });
-  </script>
-  <script type="application/javascript">
-  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
-  </script>
-<nav class="page-navigation" aria-label="Page">
-  <div class="nav-page nav-page-previous">
-      <a href="../vm/index.html" class="pagination-link" aria-label="Virtual Machine">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Virtual Machine</span></span>
-      </a>          
-  </div>
-  <div class="nav-page nav-page-next">
-      <a href="../conclusion/index.html" class="pagination-link" aria-label="Conclusion">
-        <span class="nav-page-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Conclusion</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
-  </div>
-</nav>
-</div> <!-- /content -->
+</main>
 
 
-
-
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gvwilson/sdxjs/edit/main/debugger/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gvwilson/sdxjs/blob/main/debugger/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/gvwilson/sdxjs/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+</body></html>

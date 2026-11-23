@@ -1,367 +1,38 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head><meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Virtual Machine</title>
+  <link rel="stylesheet" href="../mccole/mccole-book.css">
 
-<meta charset="utf-8">
-<meta name="generator" content="quarto-1.11.9">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-
-
-<title>19&nbsp; Virtual Machine – Software Design by Example</title>
-<style>
-/* Default styles provided by pandoc.
-** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-*/
-span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: 1.5em;}
-div.column{flex: auto;}
-@media screen {
-div.columns{gap: min(4vw, 1.5em);}
-div.column{overflow-x: auto;}
-}
-div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-ul.task-list{list-style: none;}
-ul.task-list li input[type="checkbox"] {
-  width: 0.8em;
-  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
-  vertical-align: middle;
-}
-/* CSS for citations */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-}
-.hanging-indent div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}</style>
-
-
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<link href="../debugger/index.html" rel="next">
-<link href="../packman/index.html" rel="prev">
-<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-01a495efc5497ac6e3f5457e7ed18e65.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
-<script id="quarto-search-options" type="application/json">{
-  "location": "sidebar",
-  "copy-button": false,
-  "collapse-after": 3,
-  "panel-placement": "start",
-  "type": "textbox",
-  "limit": 50,
-  "keyboard-shortcut": [
-    "f",
-    "/",
-    "s"
-  ],
-  "show-item-context": false,
-  "language": {
-    "search-no-results-text": "No results",
-    "search-matching-documents-text": "matching documents",
-    "search-copy-link-title": "Copy link to search",
-    "search-hide-matches-text": "Hide additional matches",
-    "search-more-match-text": "more match in this document",
-    "search-more-matches-text": "more matches in this document",
-    "search-clear-button-title": "Clear",
-    "search-text-placeholder": "",
-    "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit",
-    "search-label": "Search"
-  }
-}</script>
-
-
-<link rel="stylesheet" href="../mccole/book.css">
 </head>
-
-<body class="nav-sidebar floating quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
-
-<div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
-  <nav class="quarto-secondary-nav" aria-label="Toolbar">
-    <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-        <i class="bi bi-layout-text-sidebar-reverse"></i>
-      </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../vm/index.html"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Virtual Machine</span></a></li></ol></nav>
-        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-        </a>
-      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
-        <i class="bi bi-search"></i>
-      </button>
+<body>
+<header class="topbar">
+  <nav class="topnav">
+    <a class="topnav-item" href="../index.html">Home</a>
+    <div class="topnav-dropdown">
+      <span class="topnav-item">Chapters</span>
+      <div class="topnav-menu"><ul class="topnav-list"><li><a href="../introduction/index.html">Introduction</a></li><li><a href="../sysprog/index.html">Systems Programming</a></li><li><a href="../async/index.html">Asynchronous Programming</a></li><li><a href="../test/index.html">Unit Testing</a></li><li><a href="../backup/index.html">File Backup</a></li><li><a href="../table/index.html">Data Tables</a></li><li><a href="../glob/index.html">Pattern Matching</a></li><li><a href="../parser/index.html">Parsing Expressions</a></li><li><a href="../templater/index.html">Page Templates</a></li><li><a href="../build/index.html">Build Manager</a></li><li><a href="../layout/index.html">Layout Engine</a></li><li><a href="../interp/index.html">File Interpolator</a></li><li><a href="../loader/index.html">Module Loader</a></li><li><a href="../style/index.html">Style Checker</a></li><li><a href="../codegen/index.html">Code Generator</a></li><li><a href="../docgen/index.html">Documentation Generator</a></li><li><a href="../bundler/index.html">Module Bundler</a></li><li><a href="../packman/index.html">Package Manager</a></li><li><a href="../vm/index.html">Virtual Machine</a></li><li><a href="../debugger/index.html">Debugger</a></li><li><a href="../conclusion/index.html">Conclusion</a></li></ul></div>
+    </div>
+    <div class="topnav-dropdown">
+      <span class="topnav-item">Appendices</span>
+      <div class="topnav-menu"><ul class="topnav-list"><li><a href="../license/index.html">License</a></li><li><a href="../conduct/index.html">Code of Conduct</a></li><li><a href="../contributing/index.html">Contributing</a></li><li><a href="../bibliography/index.html">Bibliography</a></li><li><a href="../glossary/index.html">Glossary</a></li></ul></div>
+    </div>
+    <div class="topnav-dropdown">
+      <span class="topnav-item">Contents</span>
+      <div class="topnav-menu"><ul>
+<li><a href="#virtual-machine-arch" id="toc-virtual-machine-arch"><span class="header-section-number">19.1</span> What is the architecture of our virtual machine?</a></li>
+<li><a href="#virtual-machine-execute" id="toc-virtual-machine-execute"><span class="header-section-number">19.2</span> How can we execute these instructions?</a></li>
+<li><a href="#virtual-machine-assembly" id="toc-virtual-machine-assembly"><span class="header-section-number">19.3</span> What do assembly programs look like?</a></li>
+<li><a href="#virtual-machine-data" id="toc-virtual-machine-data"><span class="header-section-number">19.4</span> How can we store data?</a></li>
+<li><a href="#virtual-machine-exercises" id="toc-virtual-machine-exercises"><span class="header-section-number">19.5</span> Exercises</a></li>
+</ul></div>
     </div>
   </nav>
 </header>
-<!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
-<!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto" aria-label="Site">
-    <div class="pt-lg-2 mt-2 text-left sidebar-header">
-    <div class="sidebar-title mb-0 py-0">
-      <a href="../">Software Design by Example</a> 
-        <div class="sidebar-tools-main">
-    <a href="https://github.com/gvwilson/sdxjs" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-</div>
-    </div>
-      </div>
-        <div class="mt-2 flex-shrink-0 align-items-center">
-        <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Search"></div>
-        </div>
-        </div>
-    <div class="sidebar-menu-container"> 
-    <ul class="list-unstyled mt-1">
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Overview</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../introduction/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../sysprog/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Systems Programming</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../async/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Asynchronous Programming</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../test/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Unit Testing</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../backup/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">File Backup</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../table/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Tables</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../glob/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Pattern Matching</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../parser/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Parsing Expressions</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../templater/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Page Templates</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../build/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Build Manager</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../layout/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Layout Engine</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../interp/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">File Interpolator</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../loader/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Module Loader</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../style/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Style Checker</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../codegen/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Code Generator</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../docgen/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Documentation Generator</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../bundler/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Module Bundler</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../packman/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Package Manager</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vm/index.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Virtual Machine</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../debugger/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Debugger</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../conclusion/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Conclusion</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
- <span class="menu-text" id="quarto-sidebar-section-1-label">Appendices</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
-      </div>
-      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../license/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">License</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../conduct/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Code of Conduct</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../contributing/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Contributing</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../bibliography/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Bibliography</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../glossary/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">E</span>&nbsp; <span class="chapter-title">Glossary</span></span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-    </ul>
-    </div>
-</nav>
-<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
-<!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
-    <h2 id="toc-title">Table of contents</h2>
-   
-  <ul>
-  <li><a href="#virtual-machine-arch" id="toc-virtual-machine-arch" class="nav-link active" data-scroll-target="#virtual-machine-arch"><span class="header-section-number">19.1</span> What is the architecture of our virtual machine?</a></li>
-  <li><a href="#virtual-machine-execute" id="toc-virtual-machine-execute" class="nav-link" data-scroll-target="#virtual-machine-execute"><span class="header-section-number">19.2</span> How can we execute these instructions?</a></li>
-  <li><a href="#virtual-machine-assembly" id="toc-virtual-machine-assembly" class="nav-link" data-scroll-target="#virtual-machine-assembly"><span class="header-section-number">19.3</span> What do assembly programs look like?</a></li>
-  <li><a href="#virtual-machine-data" id="toc-virtual-machine-data" class="nav-link" data-scroll-target="#virtual-machine-data"><span class="header-section-number">19.4</span> How can we store data?</a></li>
-  <li><a href="#virtual-machine-exercises" id="toc-virtual-machine-exercises" class="nav-link" data-scroll-target="#virtual-machine-exercises"><span class="header-section-number">19.5</span> Exercises</a>
-  <ul class="collapse">
-  <li><a href="#swapping-values" id="toc-swapping-values" class="nav-link" data-scroll-target="#swapping-values"><span class="header-section-number">19.5.1</span> Swapping values</a></li>
-  <li><a href="#reversing-an-array" id="toc-reversing-an-array" class="nav-link" data-scroll-target="#reversing-an-array"><span class="header-section-number">19.5.2</span> Reversing an array</a></li>
-  <li><a href="#increment-and-decrement" id="toc-increment-and-decrement" class="nav-link" data-scroll-target="#increment-and-decrement"><span class="header-section-number">19.5.3</span> Increment and decrement</a></li>
-  <li><a href="#using-long-addresses" id="toc-using-long-addresses" class="nav-link" data-scroll-target="#using-long-addresses"><span class="header-section-number">19.5.4</span> Using long addresses</a></li>
-  <li><a href="#operating-on-strings" id="toc-operating-on-strings" class="nav-link" data-scroll-target="#operating-on-strings"><span class="header-section-number">19.5.5</span> Operating on strings</a></li>
-  <li><a href="#call-and-return" id="toc-call-and-return" class="nav-link" data-scroll-target="#call-and-return"><span class="header-section-number">19.5.6</span> Call and return</a></li>
-  <li><a href="#disassembling-instructions" id="toc-disassembling-instructions" class="nav-link" data-scroll-target="#disassembling-instructions"><span class="header-section-number">19.5.7</span> Disassembling instructions</a></li>
-  <li><a href="#linking-multiple-files" id="toc-linking-multiple-files" class="nav-link" data-scroll-target="#linking-multiple-files"><span class="header-section-number">19.5.8</span> Linking multiple files</a></li>
-  <li><a href="#providing-system-calls" id="toc-providing-system-calls" class="nav-link" data-scroll-target="#providing-system-calls"><span class="header-section-number">19.5.9</span> Providing system calls</a></li>
-  <li><a href="#unit-testing" id="toc-unit-testing" class="nav-link" data-scroll-target="#unit-testing"><span class="header-section-number">19.5.10</span> Unit testing</a></li>
-  </ul></li>
-  </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/gvwilson/sdxjs/edit/main/vm/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gvwilson/sdxjs/blob/main/vm/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/gvwilson/sdxjs/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
-    </div>
-<!-- main -->
-<main class="content" id="quarto-document-content" tabindex="-1">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title"><span id="sec-vm" class="quarto-section-identifier"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Virtual Machine</span></span></h1>
-</div>
-
-
-
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
+<main class="content"><header id="title-block-header" class="quarto-title-block"></header>
+<h1 class="title">Virtual Machine</h1>
 <p>Computers don’t execute JavaScript directly. Instead, each processor has its own <a href="../glossary/index.html#instruction_set">instruction set</a>, and a compiler translates high-level languages into those instructions. Compilers often use an intermediate representation called <a href="../glossary/index.html#assembly_code">assembly code</a> that gives instructions names instead of numbers. To understand more about how JavaScript actually runs, we will simulate a very simple processor with a little bit of memory. If you want to dive deeper, have a look at <a href="http://journal.stuffwithstuff.com/">Bob Nystrom’s</a> <em><a href="https://craftinginterpreters.com/">Crafting Interpreters</a></em>. You may also enjoy <a href="https://tomorrowcorporation.com/humanresourcemachine">Human Resource Machine</a>, which asks you to solve puzzles of increasing difficulty using a processor almost as simple as ours.</p>
-<section id="virtual-machine-arch" class="level2" data-number="19.1">
-<h2 data-number="19.1" class="anchored" data-anchor-id="virtual-machine-arch"><span class="header-section-number">19.1</span> What is the architecture of our virtual machine?</h2>
+<h2 data-number="19.1" id="virtual-machine-arch"><span class="header-section-number">19.1</span> What is the architecture of our virtual machine?</h2>
 <p>Our <a href="../glossary/index.html#virtual_machine">virtual machine</a> has three parts, which are shown in <a href="#fig-virtual-machine-architecture" class="quarto-xref">Figure&nbsp;<span>19.1</span></a> for a program made up of 110 instructions:</p>
 <ol type="1">
 <li><p>An <a href="../glossary/index.html#instruction_pointer">instruction pointer</a> (IP) that holds the memory address of the next instruction to execute. It is automatically initialized to point at address 0, which is where every program must start. This rule is part of the <a href="../glossary/index.html#abi">Application Binary Interface</a> (ABI) for our virtual machine.</p></li>
@@ -369,23 +40,23 @@ div.csl-indent {
 <li><p>256 <a href="../glossary/index.html#word_memory">words</a> of memory, each of which can store a single value. Both the program and its data live in this single block of memory; we chose the size 256 so that each address will fit in a single byte.</p></li>
 </ol>
 <p>The instructions for our VM are 3 bytes long. The <a href="../glossary/index.html#op_code">op code</a> fits into one byte, and each instruction may optionally include one or two single-byte operands. Each operand is a register identifier, a constant, or an address (which is just a constant that identifies a location in memory); since constants have to fit in one byte, the largest number we can represent directly is 256. <a href="#tbl-virtual-machine-op-codes" class="quarto-xref">Table&nbsp;<span>19.1</span></a> uses the letters <code>r</code>, <code>c</code>, and <code>a</code> to indicate instruction format, where <code>r</code> indicates a register identifier, <code>c</code> indicates a constant, and <code>a</code> indicates an address.</p>
-<div id="fig-virtual-machine-architecture" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-virtual-machine-architecture" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-virtual-machine-architecture-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="architecture.svg" class="img-fluid figure-img">
+<img src="architecture.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-virtual-machine-architecture-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.1: Architecture of the virtual machine.
 </figcaption>
 </figure>
 </div>
-<div id="tbl-virtual-machine-op-codes" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-tbl figure">
+<div id="tbl-virtual-machine-op-codes" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-tbl">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-virtual-machine-op-codes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;19.1: Virtual machine op codes.
 </figcaption>
 <div aria-describedby="tbl-virtual-machine-op-codes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<table class="caption-top table">
+<table class="caption-top">
 <colgroup>
 <col style="width: 14%">
 <col style="width: 5%">
@@ -512,14 +183,11 @@ Table&nbsp;19.1: Virtual machine op codes.
   prr: { code: 10, fmt: 'r-' }, // Print register
   prm: { code: 11, fmt: 'r-' }  // Print memory
 }
-
 const OP_MASK = 0xFF // select a single byte
 const OP_SHIFT = 8   // shift up by one byte
 const OP_WIDTH = 6   // op width in characters when printing
-
 const NUM_REG = 4    // number of registers
 const RAM_LEN = 256  // number of words in RAM
-
 export {
   OPS,
   OP_MASK,
@@ -527,25 +195,19 @@ export {
   OP_WIDTH,
   NUM_REG,
   RAM_LEN
-}
-</code></pre>
+}</code></pre>
 <p>While there isn’t a name for this design pattern, putting all the constants that define a system in one file instead of scattering them across multiple files makes them easier to find as well as ensuring consistency.</p>
-</section>
-<section id="virtual-machine-execute" class="level2" data-number="19.2">
-<h2 data-number="19.2" class="anchored" data-anchor-id="virtual-machine-execute"><span class="header-section-number">19.2</span> How can we execute these instructions?</h2>
+<h2 data-number="19.2" id="virtual-machine-execute"><span class="header-section-number">19.2</span> How can we execute these instructions?</h2>
 <p>As in previous chapters, we will split a class that would normally be written in one piece into several parts for exposition. We start by defining a class with an instruction pointer, some registers, and some memory along with a prompt for output:</p>
 <pre><code>import assert from 'assert'
-
 import {
   OP_MASK,
   OP_SHIFT,
   NUM_REG,
   RAM_LEN
 } from './architecture.js'
-
 const COLUMNS = 4
 const DIGITS = 8
-
 class VirtualMachineBase {
   constructor () {
     this.ip = 0
@@ -553,7 +215,6 @@ class VirtualMachineBase {
     this.ram = Array(RAM_LEN)
     this.prompt = '&gt;&gt;'
   }
-
   // mccole:skip
   // mccole:initialize
   initialize (program) {
@@ -589,13 +250,11 @@ class VirtualMachineBase {
     for (let i = 0 ; i &lt; NUM_REG; i += 1) {
       console.log(`R${i} = ${this.reg[i]}`)
     }
-
     // How much memory to show
     let top = RAM_LEN - 1
     while ((top &gt;= 0) &amp;&amp; (this.ram[top] === 0)) {
       top -= 1
     }
-
     // Show memory
     let base = 0
     while (base &lt;= top) {
@@ -609,45 +268,33 @@ class VirtualMachineBase {
   }
   // mccole:/skip
 }
-
-export default VirtualMachineBase
-</code></pre>
+export default VirtualMachineBase</code></pre>
 <p>A program is just an array of numbers representing instructions. To load one, we copy those numbers into memory and reset the instruction pointer and registers:</p>
 <pre><code></code></pre>
 <p>In order to handle the next instruction, the VM gets the value in memory that the instruction pointer currently refers to and moves the instruction pointer on by one address. It then uses <a href="../glossary/index.html#bitwise_operation">bitwise operations</a> to extract the op code and operands from the instruction (<a href="#fig-virtual-machine-unpacking" class="quarto-xref">Figure&nbsp;<span>19.2</span></a>):</p>
 <pre><code></code></pre>
-<div id="fig-virtual-machine-unpacking" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-virtual-machine-unpacking" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-virtual-machine-unpacking-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="unpacking.svg" class="img-fluid figure-img">
+<img src="unpacking.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-virtual-machine-unpacking-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.2: Using bitwise operations to unpack instructions.
 </figcaption>
 </figure>
 </div>
-<div class="callout callout-style-simple callout-none no-icon callout-titled" data-markdown="1">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">None</span>Semi-realistic
-</div>
-</div>
-<div class="callout-body-container callout-body">
+<div>
+<blockquote>
+<p><strong>Semi-realistic</strong></p>
 <p>We always unpack two operands regardless of whether the instructions have them or not because this is what a hardware implementation would do. We have also included assertions in our VM to simulate the way that real hardware includes logic to detect illegal instructions and out-of-bound memory addresses.</p>
-</div>
+</blockquote>
 </div>
 <p>The next step is to extend our base class with one that has a <code>run</code> method. As its name suggests, this runs the program by fetching instructions and executing them until told to stop:</p>
 <pre><code>import assert from 'assert'
-
 import {
   OPS
 } from './architecture.js'
-
 import VirtualMachineBase from './vm-base.js'
-
 class VirtualMachine extends VirtualMachineBase {
   run () {
     let running = true
@@ -657,25 +304,21 @@ class VirtualMachine extends VirtualMachineBase {
         case OPS.hlt.code:
           running = false
           break
-
         case OPS.ldc.code:
           this.assertIsRegister(arg0, op)
           this.reg[arg0] = arg1
           break
-
         // mccole:skip
         case OPS.ldr.code:
           this.assertIsRegister(arg0, op)
           this.assertIsRegister(arg1, op)
           this.reg[arg0] = this.ram[this.reg[arg1]]
           break
-
         case OPS.cpy.code:
           this.assertIsRegister(arg0, op)
           this.assertIsRegister(arg1, op)
           this.reg[arg0] = this.reg[arg1]
           break
-
         // mccole:op_str
         case OPS.str.code:
           this.assertIsRegister(arg0, op)
@@ -696,7 +339,6 @@ class VirtualMachine extends VirtualMachineBase {
           this.assertIsRegister(arg1, op)
           this.reg[arg0] -= this.reg[arg1]
           break
-
         // mccole:op_beq
         case OPS.beq.code:
           this.assertIsRegister(arg0, op)
@@ -713,12 +355,10 @@ class VirtualMachine extends VirtualMachineBase {
             this.ip = arg1
           }
           break
-
         case OPS.prr.code:
           this.assertIsRegister(arg0)
           console.log(this.prompt, this.reg[arg0])
           break
-
         case OPS.prm.code:
           this.assertIsRegister(arg0)
           this.assertIsAddress(this.reg[arg0])
@@ -731,20 +371,16 @@ class VirtualMachine extends VirtualMachineBase {
       }
     }
   }
-
   assertIsRegister (reg) {
     assert((0 &lt;= reg) &amp;&amp; (reg &lt; this.reg.length),
       `Invalid register ${reg}`)
   }
-
   assertIsAddress (addr) {
     assert((0 &lt;= addr) &amp;&amp; (addr &lt; this.ram.length),
       `Invalid register ${addr}`)
   }
 }
-
-export default VirtualMachine
-</code></pre>
+export default VirtualMachine</code></pre>
 <p>Some instructions are very similar to others, so we will only look at three here. The first stores the value of one register in the address held by another register:</p>
 <pre><code></code></pre>
 <p>The first three lines check that the operation is legal; the fourth one uses the value in one register as an address, which is why it has nested array indexing.</p>
@@ -752,19 +388,15 @@ export default VirtualMachine
 <pre><code></code></pre>
 <p>as is jumping to a fixed address if the value in a register is zero:</p>
 <pre><code></code></pre>
-</section>
-<section id="virtual-machine-assembly" class="level2" data-number="19.3">
-<h2 data-number="19.3" class="anchored" data-anchor-id="virtual-machine-assembly"><span class="header-section-number">19.3</span> What do assembly programs look like?</h2>
+<h2 data-number="19.3" id="virtual-machine-assembly"><span class="header-section-number">19.3</span> What do assembly programs look like?</h2>
 <p>We could figure out numerical op codes by hand, and in fact that’s what <a href="http://eniacprogrammers.org/">the first programmers</a> did. However, it is much easier to use an <a href="../glossary/index.html#assembler">assembler</a>, which is just a small compiler for a language that very closely represents actual machine instructions.</p>
 <p>Each command in our assembly languages matches an instruction in the VM. Here’s an assembly language program to print the value stored in R1 and then halt:</p>
 <pre><code># Print initial contents of R1.
 prr R1
-hlt
-</code></pre>
+hlt</code></pre>
 <p>Its numeric representation is:</p>
 <pre><code>00010a
-000001
-</code></pre>
+000001</code></pre>
 <p>One thing the assembly language has that the instruction set doesn’t is <a href="../glossary/index.html#label_address">labels on addresses</a>. The label <code>loop</code> doesn’t take up any space; instead, it tells the assembler to give the address of the next instruction a name so that we can refer to that address as <code>@loop</code> in jump instructions. For example, this program prints the numbers from 0 to 2 (<a href="#fig-virtual-machine-count-up" class="quarto-xref">Figure&nbsp;<span>19.3</span></a>):</p>
 <pre><code># Count up to 3.
 # - R0: loop index.
@@ -778,8 +410,7 @@ add R0 R2
 cpy R2 R1
 sub R2 R0
 bne R2 @loop
-hlt
-</code></pre>
+hlt</code></pre>
 <pre><code>000002
 030102
 00000a
@@ -788,12 +419,11 @@ hlt
 010204
 000207
 020209
-000001
-</code></pre>
-<div id="fig-virtual-machine-count-up" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+000001</code></pre>
+<div id="fig-virtual-machine-count-up" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-virtual-machine-count-up-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="count-up.svg" class="img-fluid figure-img">
+<img src="count-up.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-virtual-machine-count-up-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.3: Flowchart of assembly language program to count up from 0 to 2.
@@ -809,10 +439,10 @@ Figure&nbsp;19.3: Flowchart of assembly language program to count up from 0 to 2
 <li>It checks to see if we should loop again, which takes three instructions.</li>
 <li>If the program <em>doesn’t</em> jump back, it halts.</li>
 </ol>
-<div id="fig-virtual-machine-trace-counter" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-virtual-machine-trace-counter" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-virtual-machine-trace-counter-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="trace-counter.svg" class="img-fluid figure-img">
+<img src="trace-counter.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-virtual-machine-trace-counter-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.4: Tracing registers and memory values for a simple counting program.
@@ -842,8 +472,7 @@ add R0 R2
 cpy R2 R1
 sub R2 R0
 bne R2 @loop
-hlt
-</code></pre>
+hlt</code></pre>
 <pre><code>&gt;&gt; 0
 &gt;&gt; 1
 &gt;&gt; 2
@@ -853,20 +482,17 @@ R2 = 0
 R3 = 0
 0:   00000002  00030102  0000000a  00010202
 4:   00020006  00010204  00000207  00020209
-8:   00000001  00000000  00000000  00000000
-</code></pre>
-</section>
-<section id="virtual-machine-data" class="level2" data-number="19.4">
-<h2 data-number="19.4" class="anchored" data-anchor-id="virtual-machine-data"><span class="header-section-number">19.4</span> How can we store data?</h2>
+8:   00000001  00000000  00000000  00000000</code></pre>
+<h2 data-number="19.4" id="virtual-machine-data"><span class="header-section-number">19.4</span> How can we store data?</h2>
 <p>It is tedious to write interesting programs when each value needs a unique name. We can do a lot more once we have collections like arrays, so let’s add those to our assembler. We don’t have to make any changes to the virtual machine, which doesn’t care if we think of a bunch of numbers as individuals or elements of an array, but we do need a way to create arrays and refer to them.</p>
 <p>We will allocate storage for arrays at the end of the program by using <code>.data</code> on a line of its own to mark the start of the data section and then <code>label: number</code> to give a region a name and allocate some storage space (<a href="#fig-virtual-machine-storage-allocation" class="quarto-xref">Figure&nbsp;<span>19.5</span></a>).</p>
 <p>This enhancement only requires a few changes to the assembler. First, we need to split the lines into instructions and data allocations:</p>
 <pre><code></code></pre>
 <pre><code></code></pre>
-<div id="fig-virtual-machine-storage-allocation" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-virtual-machine-storage-allocation" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-virtual-machine-storage-allocation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="storage-allocation.svg" class="img-fluid figure-img">
+<img src="storage-allocation.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-virtual-machine-storage-allocation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.5: Allocating storage for arrays in the virtual machine.
@@ -894,8 +520,7 @@ sub R3 R0
 bne R3 @loop
 hlt
 .data
-array: 10
-</code></pre>
+array: 10</code></pre>
 <pre><code>R0 = 3
 R1 = 3
 R2 = 14
@@ -903,31 +528,18 @@ R3 = 0
 0:   00000002  00030102  000b0202  00020005
 4:   00010302  00030006  00030206  00010304
 8:   00000307  00030309  00000001  00000000
-c:   00000001  00000002  00000000  00000000
-</code></pre>
-<div class="callout callout-style-simple callout-none no-icon callout-titled" data-markdown="1">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">None</span>How does it actually work?
-</div>
-</div>
-<div class="callout-body-container callout-body">
+c:   00000001  00000002  00000000  00000000</code></pre>
+<div>
+<blockquote>
+<p><strong>How does it actually work?</strong></p>
 <p>Our VM is just another program. If you’d like to know what happens when instructions finally meet hardware, and how electrical circuits are able to do arithmetic, make decisions, and talk to the world, <span class="citation" data-cites="Patterson2017">(<a href="../bibliography/index.html#ref-Patterson2017" role="doc-biblioref">Patterson and Hennessy 2017</a>)</span> has everything you want to know and more.</p>
-</div>
+</blockquote>
 </div>
 <section class="exercises">
-</section>
-<section id="virtual-machine-exercises" class="level2" data-number="19.5">
-<h2 data-number="19.5" class="anchored" data-anchor-id="virtual-machine-exercises"><span class="header-section-number">19.5</span> Exercises</h2>
-<section id="swapping-values" class="level3" data-number="19.5.1">
-<h3 data-number="19.5.1" class="anchored" data-anchor-id="swapping-values"><span class="header-section-number">19.5.1</span> Swapping values</h3>
+<h2 data-number="19.5" id="virtual-machine-exercises"><span class="header-section-number">19.5</span> Exercises</h2>
+<h3 data-number="19.5.1" id="swapping-values"><span class="header-section-number">19.5.1</span> Swapping values</h3>
 <p>Write an assembly language program that swaps the values in R1 and R2 without affecting the values in other registers.</p>
-</section>
-<section id="reversing-an-array" class="level3" data-number="19.5.2">
-<h3 data-number="19.5.2" class="anchored" data-anchor-id="reversing-an-array"><span class="header-section-number">19.5.2</span> Reversing an array</h3>
+<h3 data-number="19.5.2" id="reversing-an-array"><span class="header-section-number">19.5.2</span> Reversing an array</h3>
 <p>Write an assembly language program that starts with:</p>
 <ul>
 <li>the base address of an array in one word</li>
@@ -935,567 +547,56 @@ c:   00000001  00000002  00000000  00000000
 <li>N values immediately thereafter</li>
 </ul>
 <p>and reverses the array in place.</p>
-</section>
-<section id="increment-and-decrement" class="level3" data-number="19.5.3">
-<h3 data-number="19.5.3" class="anchored" data-anchor-id="increment-and-decrement"><span class="header-section-number">19.5.3</span> Increment and decrement</h3>
+<h3 data-number="19.5.3" id="increment-and-decrement"><span class="header-section-number">19.5.3</span> Increment and decrement</h3>
 <ol type="1">
 <li><p>Add instructions <code>inc</code> and <code>dec</code> that add one to the value of a register and subtract one from the value of a register respectively.</p></li>
 <li><p>Rewrite the examples to use these instructions. How much shorter do they make the programs? How much easier to read?</p></li>
 </ol>
-</section>
-<section id="using-long-addresses" class="level3" data-number="19.5.4">
-<h3 data-number="19.5.4" class="anchored" data-anchor-id="using-long-addresses"><span class="header-section-number">19.5.4</span> Using long addresses</h3>
+<h3 data-number="19.5.4" id="using-long-addresses"><span class="header-section-number">19.5.4</span> Using long addresses</h3>
 <ol type="1">
 <li><p>Modify the virtual machine so that the <code>ldr</code> and <code>str</code> instructions contain 16-bit addresses rather than 8-bit addresses and increase the virtual machine’s memory to 64K words to match.</p></li>
 <li><p>How does this complicate instruction interpretation?</p></li>
 </ol>
-</section>
-<section id="operating-on-strings" class="level3" data-number="19.5.5">
-<h3 data-number="19.5.5" class="anchored" data-anchor-id="operating-on-strings"><span class="header-section-number">19.5.5</span> Operating on strings</h3>
+<h3 data-number="19.5.5" id="operating-on-strings"><span class="header-section-number">19.5.5</span> Operating on strings</h3>
 <p>The C programming language stored character strings as non-zero bytes terminated by a byte containing zero.</p>
 <ol type="1">
 <li><p>Write a program that starts with the base address of a string in R1 and finishes with the length of the string (not including the terminator) in the same register.</p></li>
 <li><p>Write a program that starts with the base address of a string in R1 and the base address of some other block of memory in R2 and copies the string to that new location (including the terminator).</p></li>
 <li><p>What happens in each case if the terminator is missing?</p></li>
 </ol>
-</section>
-<section id="call-and-return" class="level3" data-number="19.5.6">
-<h3 data-number="19.5.6" class="anchored" data-anchor-id="call-and-return"><span class="header-section-number">19.5.6</span> Call and return</h3>
+<h3 data-number="19.5.6" id="call-and-return"><span class="header-section-number">19.5.6</span> Call and return</h3>
 <ol type="1">
 <li><p>Add another register to the virtual machine called SP (“stack pointer”) that is automatically initialized to the <em>last</em> address in memory.</p></li>
 <li><p>Add an instruction <code>psh</code> (short for “push”) that copies a value from a register to the address stored in SP and then subtracts one from SP.</p></li>
 <li><p>Add an instruction <code>pop</code> (short for “pop”) that adds one to SP and then copies a value from that address into a register.</p></li>
 <li><p>Using these instructions, write a subroutine that evaluates <code>2x+1</code> for every value in an array.</p></li>
 </ol>
-</section>
-<section id="disassembling-instructions" class="level3" data-number="19.5.7">
-<h3 data-number="19.5.7" class="anchored" data-anchor-id="disassembling-instructions"><span class="header-section-number">19.5.7</span> Disassembling instructions</h3>
+<h3 data-number="19.5.7" id="disassembling-instructions"><span class="header-section-number">19.5.7</span> Disassembling instructions</h3>
 <p>A <a href="../glossary/index.html#disassembler">disassembler</a> turns machine instructions into assembly code. Write a disassembler for the instruction set used by our virtual machine. (Since the labels for addresses are not stored in machine instructions, disassemblers typically generate labels like <code>@L001</code> and <code>@L002</code>.)</p>
-</section>
-<section id="linking-multiple-files" class="level3" data-number="19.5.8">
-<h3 data-number="19.5.8" class="anchored" data-anchor-id="linking-multiple-files"><span class="header-section-number">19.5.8</span> Linking multiple files</h3>
+<h3 data-number="19.5.8" id="linking-multiple-files"><span class="header-section-number">19.5.8</span> Linking multiple files</h3>
 <ol type="1">
 <li><p>Modify the assembler to handle <code>.include filename</code> directives.</p></li>
 <li><p>What does your modified assembler do about duplicate label names? How does it prevent infinite includes (i.e., <code>A.as</code> includes <code>B.as</code> which includes <code>A.as</code> again)?</p></li>
 </ol>
-</section>
-<section id="providing-system-calls" class="level3" data-number="19.5.9">
-<h3 data-number="19.5.9" class="anchored" data-anchor-id="providing-system-calls"><span class="header-section-number">19.5.9</span> Providing system calls</h3>
+<h3 data-number="19.5.9" id="providing-system-calls"><span class="header-section-number">19.5.9</span> Providing system calls</h3>
 <p>Modify the virtual machine so that developers can add “system calls” to it.</p>
 <ol type="1">
 <li><p>On startup, the virtual machine loads an array of functions defined in a file called <code>syscalls.js</code>.</p></li>
 <li><p>The <code>sys</code> instruction takes a one-byte constant argument. It looks up the corresponding function and calls it with the values of R0-R3 as parameters and places the result in R0.</p></li>
 </ol>
-</section>
-<section id="unit-testing" class="level3" data-number="19.5.10">
-<h3 data-number="19.5.10" class="anchored" data-anchor-id="unit-testing"><span class="header-section-number">19.5.10</span> Unit testing</h3>
+<h3 data-number="19.5.10" id="unit-testing"><span class="header-section-number">19.5.10</span> Unit testing</h3>
 <ol type="1">
 <li><p>Write unit tests for the assembler.</p></li>
 <li><p>Once they are working, write unit tests for the virtual machine.</p></li>
 </ol>
 </section>
 
-
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
 <div id="ref-Patterson2017" class="csl-entry" role="listitem">
 Patterson, David A., and John L. Hennessy. 2017. <em>Computer Organization and Design: The Hardware/Software Interface</em>. Morgan Kaufmann. ISBN 9780128122754.
 </div>
 </div>
-</section>
-</section>
-
-</main> <!-- /main -->
-<script id="quarto-html-after-body" type="application/javascript">
-  window.document.addEventListener("DOMContentLoaded", function (event) {
-    const icon = "";
-    const anchorJS = new window.AnchorJS();
-    anchorJS.options = {
-      placement: 'right',
-      icon: icon
-    };
-    anchorJS.add('.anchored');
-    const isCodeAnnotation = (el) => {
-      for (const clz of el.classList) {
-        if (clz.startsWith('code-annotation-')) {                     
-          return true;
-        }
-      }
-      return false;
-    }
-    const onCopySuccess = function(e) {
-      // button target
-      const button = e.trigger;
-      // don't keep focus
-      button.blur();
-      // flash "checked"
-      button.classList.add('code-copy-button-checked');
-      var currentTitle = button.getAttribute("title");
-      button.setAttribute("title", "Copied!");
-      let tooltip;
-      if (window.bootstrap) {
-        button.setAttribute("data-bs-toggle", "tooltip");
-        button.setAttribute("data-bs-placement", "left");
-        button.setAttribute("data-bs-title", "Copied!");
-        tooltip = new bootstrap.Tooltip(button, 
-          { trigger: "manual", 
-            customClass: "code-copy-button-tooltip",
-            offset: [0, -8]});
-        tooltip.show();    
-      }
-      setTimeout(function() {
-        if (tooltip) {
-          tooltip.hide();
-          button.removeAttribute("data-bs-title");
-          button.removeAttribute("data-bs-toggle");
-          button.removeAttribute("data-bs-placement");
-        }
-        button.setAttribute("title", currentTitle);
-        button.classList.remove('code-copy-button-checked');
-      }, 1000);
-      // clear code selection
-      e.clearSelection();
-    }
-    const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-      text: getTextToCopy
-    });
-    clipboard.on('success', onCopySuccess);
-    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-        text: getTextToCopy,
-        container: window.document.getElementById('quarto-embedded-source-code-modal')
-      });
-      clipboardModal.on('success', onCopySuccess);
-    }
-      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-      var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
-      var isInternal = (href) => {
-          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
-      }
-      // Inspect non-navigation links and adorn them if external
-      window.quartoDecorateExternalLinks = function (root) {
-     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-      for (var i=0; i<links.length; i++) {
-        const link = links[i];
-        if (!isInternal(link.href)) {
-          // undo the damage that might have been done by quarto-nav.js in the case of
-          // links that we want to consider external
-          if (link.dataset.originalHref !== undefined) {
-            link.href = link.dataset.originalHref;
-          }
-          if (!link.classList.contains('no-external-icon')) {
-          }
-        }
-      }
-      };
-      window.quartoDecorateExternalLinks(window.document);
-    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
-    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
-    const hideOnEscAndFocusOut = {
-      name: 'hideOnEscAndFocusOut',
-      defaultValue: true,
-      fn(instance) {
-        const dismiss = () => {
-          // A show scheduled by the trigger delay would otherwise reopen it
-          instance.clearDelayTimeouts();
-          instance.hide();
-        };
-        const onKeyDown = (event) => {
-          if (event.key !== 'Escape') {
-            return;
-          }
-          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
-          // except an open reveal.js slide menu, which Esc should close too.
-          // The menu handles keys only when its keyboard option is on.
-          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
-            window.Reveal.getConfig().menu?.keyboard !== false;
-          if (!menuHandlesEsc) {
-            event.stopPropagation();
-          }
-          if (instance.popper.contains(window.document.activeElement)) {
-            // Disabled while refocusing so the focus trigger does not reopen it
-            instance.disable();
-            instance.reference.focus();
-            instance.enable();
-          }
-          dismiss();
-        };
-        const onFocusOut = (event) => {
-          const target = event.relatedTarget;
-          if (target && !instance.reference.contains(target) &&
-              !instance.popper.contains(target)) {
-            dismiss();
-          }
-        };
-        // On the trigger too: a click trigger (code-annotations: select) has no
-        // blur handling. Attached for the instance's lifetime so leaving the
-        // trigger also cancels a show still pending on the trigger delay.
-        instance.reference.addEventListener('focusout', onFocusOut);
-        return {
-          onShow() {
-            window.document.addEventListener('keydown', onKeyDown, true);
-            instance.popper.addEventListener('focusout', onFocusOut);
-          },
-          onHide() {
-            window.document.removeEventListener('keydown', onKeyDown, true);
-            instance.popper.removeEventListener('focusout', onFocusOut);
-          },
-          onDestroy() {
-            instance.reference.removeEventListener('focusout', onFocusOut);
-          },
-        };
-      },
-    };
-    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-      const config = {
-        allowHTML: true,
-        maxWidth: 500,
-        delay: 100,
-        arrow: false,
-        appendTo: function(el) {
-            return el.parentElement;
-        },
-        interactive: true,
-        interactiveBorder: 10,
-        theme: 'quarto',
-        placement: 'bottom-start',
-        plugins: [hideOnEscAndFocusOut],
-      };
-      if (contentFn) {
-        config.content = contentFn;
-      }
-      if (onTriggerFn) {
-        config.onTrigger = onTriggerFn;
-      }
-      if (onUntriggerFn) {
-        config.onUntrigger = onUntriggerFn;
-      }
-      window.tippy(el, config); 
-    }
-    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-    for (var i=0; i<noterefs.length; i++) {
-      const ref = noterefs[i];
-      tippyHover(ref, function() {
-        // use id or data attribute instead here
-        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-        try { href = new URL(href).hash; } catch {}
-        const id = href.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note) {
-          return note.innerHTML;
-        } else {
-          return "";
-        }
-      });
-    }
-    const xrefs = window.document.querySelectorAll('a.quarto-xref');
-    const processXRef = (id, note) => {
-      // Strip column container classes
-      const stripColumnClz = (el) => {
-        el.classList.remove("page-full", "page-columns");
-        if (el.children) {
-          for (const child of el.children) {
-            stripColumnClz(child);
-          }
-        }
-      }
-      stripColumnClz(note)
-      if (id === null || id.startsWith('sec-')) {
-        // Special case sections, only their first couple elements
-        const container = document.createElement("div");
-        if (note.children && note.children.length > 2) {
-          container.appendChild(note.children[0].cloneNode(true));
-          for (let i = 1; i < note.children.length; i++) {
-            const child = note.children[i];
-            if (child.tagName === "P" && child.innerText === "") {
-              continue;
-            } else {
-              container.appendChild(child.cloneNode(true));
-              break;
-            }
-          }
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(container);
-          }
-          return container.innerHTML
-        } else {
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(note);
-          }
-          return note.innerHTML;
-        }
-      } else {
-        // Remove any anchor links if they are present
-        const anchorLink = note.querySelector('a.anchorjs-link');
-        if (anchorLink) {
-          anchorLink.remove();
-        }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(note);
-        }
-        if (note.classList.contains("callout")) {
-          return note.outerHTML;
-        } else {
-          return note.innerHTML;
-        }
-      }
-    }
-    for (var i=0; i<xrefs.length; i++) {
-      const xref = xrefs[i];
-      tippyHover(xref, undefined, function(instance) {
-        instance.disable();
-        let url = xref.getAttribute('href');
-        let hash = undefined; 
-        if (url.startsWith('#')) {
-          hash = url;
-        } else {
-          try { hash = new URL(url).hash; } catch {}
-        }
-        if (hash) {
-          const id = hash.replace(/^#\/?/, "");
-          const note = window.document.getElementById(id);
-          if (note !== null) {
-            try {
-              const html = processXRef(id, note.cloneNode(true));
-              instance.setContent(html);
-            } finally {
-              instance.enable();
-              instance.show();
-            }
-          } else {
-            // See if we can fetch this
-            fetch(url.split('#')[0])
-            .then(res => res.text())
-            .then(html => {
-              const parser = new DOMParser();
-              const htmlDoc = parser.parseFromString(html, "text/html");
-              const note = htmlDoc.getElementById(id);
-              if (note !== null) {
-                const html = processXRef(id, note);
-                instance.setContent(html);
-              } 
-            }).finally(() => {
-              instance.enable();
-              instance.show();
-            });
-          }
-        } else {
-          // See if we can fetch a full url (with no hash to target)
-          // This is a special case and we should probably do some content thinning / targeting
-          fetch(url)
-          .then(res => res.text())
-          .then(html => {
-            const parser = new DOMParser();
-            const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.querySelector('main.content');
-            if (note !== null) {
-              // This should only happen for chapter cross references
-              // (since there is no id in the URL)
-              // remove the first header
-              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-                note.children[0].remove();
-              }
-              const html = processXRef(null, note);
-              instance.setContent(html);
-            } 
-          }).finally(() => {
-            instance.enable();
-            instance.show();
-          });
-        }
-      }, function(instance) {
-      });
-    }
-        let selectedAnnoteEl;
-        const selectorForAnnotation = ( cell, annotation) => {
-          let cellAttr = 'data-code-cell="' + cell + '"';
-          let lineAttr = 'data-code-annotation="' +  annotation + '"';
-          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-          return selector;
-        }
-        const selectCodeLines = (annoteEl) => {
-          const doc = window.document;
-          const targetCell = annoteEl.getAttribute("data-target-cell");
-          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-          const lineIds = lines.map((line) => {
-            return targetCell + "-" + line;
-          })
-          // Each band is positioned against its own containing block, which is
-          // not the offsetParent of the lines, so place it from client rects.
-          const placeBand = (band, firstEl, lastEl, codeBlock) => {
-            const container = band.offsetParent;
-            if (container === null) {
-              return;
-            }
-            const containerRect = container.getBoundingClientRect();
-            // Reveal.js scales slides with a transform, so convert client
-            // pixels back to the CSS pixels of the container.
-            const scale = containerRect.height / container.offsetHeight || 1;
-            const firstRect = firstEl.getBoundingClientRect();
-            const lastRect = lastEl.getBoundingClientRect();
-            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
-            const height = (lastRect.bottom - firstRect.top) / scale;
-            band.style.top = top - 2 + "px";
-            band.style.height = height + 4 + "px";
-            if (codeBlock) {
-              // Without the copy button wrapper, the containing block is wider
-              // than the code block, so span the code block explicitly.
-              const blockRect = codeBlock.getBoundingClientRect();
-              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
-              band.style.width = blockRect.width / scale + "px";
-            }
-          };
-          if (lineIds.length > 0) {
-            const el = window.document.getElementById(lineIds[0]);
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const parent = el.parentElement.parentElement;
-            // cook up a div (if necessary) and position it
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
-            }
-            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
-            }
-            placeBand(gutterDiv, el, lastEl);
-            selectedAnnoteEl = annoteEl;
-          }
-        };
-        const unselectCodeLines = () => {
-          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-          elementsIds.forEach((elId) => {
-            const div = window.document.getElementById(elId);
-            if (div) {
-              div.remove();
-            }
-          });
-          selectedAnnoteEl = undefined;
-        };
-          // Handle positioning of the toggle
-      window.addEventListener(
-        "resize",
-        throttle(() => {
-          elRect = undefined;
-          if (selectedAnnoteEl) {
-            selectCodeLines(selectedAnnoteEl);
-          }
-        }, 10)
-      );
-      function throttle(fn, ms) {
-      let throttle = false;
-      let timer;
-        return (...args) => {
-          if(!throttle) { // first call gets through
-              fn.apply(this, args);
-              throttle = true;
-          } else { // all the others get throttled
-              if(timer) clearTimeout(timer); // cancel #2
-              timer = setTimeout(() => {
-                fn.apply(this, args);
-                timer = throttle = false;
-              }, ms);
-          }
-        };
-      }
-        // Attach click handler to the DT
-        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-        for (const annoteDlNode of annoteDls) {
-          annoteDlNode.addEventListener('click', (event) => {
-            const clickedEl = event.target;
-            if (clickedEl !== selectedAnnoteEl) {
-              unselectCodeLines();
-              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-              if (activeEl) {
-                activeEl.classList.remove('code-annotation-active');
-              }
-              selectCodeLines(clickedEl);
-              clickedEl.classList.add('code-annotation-active');
-            } else {
-              // Unselect the line
-              unselectCodeLines();
-              clickedEl.classList.remove('code-annotation-active');
-            }
-          });
-        }
-    const findCites = (el) => {
-      const parentEl = el.parentElement;
-      if (parentEl) {
-        const cites = parentEl.dataset.cites;
-        if (cites) {
-          return {
-            el,
-            cites: cites.split(' ')
-          };
-        } else {
-          return findCites(el.parentElement)
-        }
-      } else {
-        return undefined;
-      }
-    };
-    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-    for (var i=0; i<bibliorefs.length; i++) {
-      const ref = bibliorefs[i];
-      const citeInfo = findCites(ref);
-      if (citeInfo) {
-        tippyHover(citeInfo.el, function() {
-          var popup = window.document.createElement('div');
-          citeInfo.cites.forEach(function(cite) {
-            var citeDiv = window.document.createElement('div');
-            citeDiv.classList.add('hanging-indent');
-            citeDiv.classList.add('csl-entry');
-            var biblioDiv = window.document.getElementById('ref-' + cite);
-            if (biblioDiv) {
-              citeDiv.innerHTML = biblioDiv.innerHTML;
-            }
-            popup.appendChild(citeDiv);
-          });
-          return popup.innerHTML;
-        });
-      }
-    }
-  });
-  </script>
-  <script type="application/javascript">
-  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
-  </script>
-<nav class="page-navigation" aria-label="Page">
-  <div class="nav-page nav-page-previous">
-      <a href="../packman/index.html" class="pagination-link" aria-label="Package Manager">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Package Manager</span></span>
-      </a>          
-  </div>
-  <div class="nav-page nav-page-next">
-      <a href="../debugger/index.html" class="pagination-link" aria-label="Debugger">
-        <span class="nav-page-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Debugger</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
-  </div>
-</nav>
-</div> <!-- /content -->
+</main>
 
 
-
-
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gvwilson/sdxjs/edit/main/vm/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gvwilson/sdxjs/blob/main/vm/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/gvwilson/sdxjs/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+</body></html>

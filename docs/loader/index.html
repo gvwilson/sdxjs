@@ -1,408 +1,44 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head><meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Module Loader</title>
+  <link rel="stylesheet" href="../mccole/mccole-book.css">
 
-<meta charset="utf-8">
-<meta name="generator" content="quarto-1.11.9">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-
-
-<title>13&nbsp; Module Loader – Software Design by Example</title>
-<style>
-/* Default styles provided by pandoc.
-** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-*/
-span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: 1.5em;}
-div.column{flex: auto;}
-@media screen {
-div.columns{gap: min(4vw, 1.5em);}
-div.column{overflow-x: auto;}
-}
-div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-ul.task-list{list-style: none;}
-ul.task-list li input[type="checkbox"] {
-  width: 0.8em;
-  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
-  vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-/* CSS for citations */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-}
-.hanging-indent div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}</style>
-
-
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<link href="../style/index.html" rel="next">
-<link href="../interp/index.html" rel="prev">
-<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-01a495efc5497ac6e3f5457e7ed18e65.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
-<script id="quarto-search-options" type="application/json">{
-  "location": "sidebar",
-  "copy-button": false,
-  "collapse-after": 3,
-  "panel-placement": "start",
-  "type": "textbox",
-  "limit": 50,
-  "keyboard-shortcut": [
-    "f",
-    "/",
-    "s"
-  ],
-  "show-item-context": false,
-  "language": {
-    "search-no-results-text": "No results",
-    "search-matching-documents-text": "matching documents",
-    "search-copy-link-title": "Copy link to search",
-    "search-hide-matches-text": "Hide additional matches",
-    "search-more-match-text": "more match in this document",
-    "search-more-matches-text": "more matches in this document",
-    "search-clear-button-title": "Clear",
-    "search-text-placeholder": "",
-    "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit",
-    "search-label": "Search"
-  }
-}</script>
-
-
-<link rel="stylesheet" href="../mccole/book.css">
 </head>
-
-<body class="nav-sidebar floating quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
-
-<div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
-  <nav class="quarto-secondary-nav" aria-label="Toolbar">
-    <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-        <i class="bi bi-layout-text-sidebar-reverse"></i>
-      </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../loader/index.html"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Module Loader</span></a></li></ol></nav>
-        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-        </a>
-      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
-        <i class="bi bi-search"></i>
-      </button>
+<body>
+<header class="topbar">
+  <nav class="topnav">
+    <a class="topnav-item" href="../index.html">Home</a>
+    <div class="topnav-dropdown">
+      <span class="topnav-item">Chapters</span>
+      <div class="topnav-menu"><ul class="topnav-list"><li><a href="../introduction/index.html">Introduction</a></li><li><a href="../sysprog/index.html">Systems Programming</a></li><li><a href="../async/index.html">Asynchronous Programming</a></li><li><a href="../test/index.html">Unit Testing</a></li><li><a href="../backup/index.html">File Backup</a></li><li><a href="../table/index.html">Data Tables</a></li><li><a href="../glob/index.html">Pattern Matching</a></li><li><a href="../parser/index.html">Parsing Expressions</a></li><li><a href="../templater/index.html">Page Templates</a></li><li><a href="../build/index.html">Build Manager</a></li><li><a href="../layout/index.html">Layout Engine</a></li><li><a href="../interp/index.html">File Interpolator</a></li><li><a href="../loader/index.html">Module Loader</a></li><li><a href="../style/index.html">Style Checker</a></li><li><a href="../codegen/index.html">Code Generator</a></li><li><a href="../docgen/index.html">Documentation Generator</a></li><li><a href="../bundler/index.html">Module Bundler</a></li><li><a href="../packman/index.html">Package Manager</a></li><li><a href="../vm/index.html">Virtual Machine</a></li><li><a href="../debugger/index.html">Debugger</a></li><li><a href="../conclusion/index.html">Conclusion</a></li></ul></div>
+    </div>
+    <div class="topnav-dropdown">
+      <span class="topnav-item">Appendices</span>
+      <div class="topnav-menu"><ul class="topnav-list"><li><a href="../license/index.html">License</a></li><li><a href="../conduct/index.html">Code of Conduct</a></li><li><a href="../contributing/index.html">Contributing</a></li><li><a href="../bibliography/index.html">Bibliography</a></li><li><a href="../glossary/index.html">Glossary</a></li></ul></div>
+    </div>
+    <div class="topnav-dropdown">
+      <span class="topnav-item">Contents</span>
+      <div class="topnav-menu"><ul>
+<li><a href="#module-loader-namespace" id="toc-module-loader-namespace"><span class="header-section-number">13.1</span> How can we implement namespaces?</a></li>
+<li><a href="#module-loader-load" id="toc-module-loader-load"><span class="header-section-number">13.2</span> How can we load a module?</a></li>
+<li><a href="#module-loader-circular" id="toc-module-loader-circular"><span class="header-section-number">13.3</span> Do we need to handle circular dependencies?</a></li>
+<li><a href="#module-loader-subload" id="toc-module-loader-subload"><span class="header-section-number">13.4</span> How can a module load another module?</a></li>
+<li><a href="#module-loader-exercises" id="toc-module-loader-exercises"><span class="header-section-number">13.5</span> Exercises</a></li>
+</ul></div>
     </div>
   </nav>
 </header>
-<!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
-<!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto" aria-label="Site">
-    <div class="pt-lg-2 mt-2 text-left sidebar-header">
-    <div class="sidebar-title mb-0 py-0">
-      <a href="../">Software Design by Example</a> 
-        <div class="sidebar-tools-main">
-    <a href="https://github.com/gvwilson/sdxjs" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-</div>
-    </div>
-      </div>
-        <div class="mt-2 flex-shrink-0 align-items-center">
-        <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Search"></div>
-        </div>
-        </div>
-    <div class="sidebar-menu-container"> 
-    <ul class="list-unstyled mt-1">
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Overview</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../introduction/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../sysprog/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Systems Programming</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../async/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Asynchronous Programming</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../test/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Unit Testing</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../backup/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">File Backup</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../table/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Tables</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../glob/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Pattern Matching</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../parser/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Parsing Expressions</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../templater/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Page Templates</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../build/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Build Manager</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../layout/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Layout Engine</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../interp/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">File Interpolator</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../loader/index.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Module Loader</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../style/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Style Checker</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../codegen/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Code Generator</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../docgen/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Documentation Generator</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../bundler/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Module Bundler</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../packman/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Package Manager</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vm/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Virtual Machine</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../debugger/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Debugger</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../conclusion/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Conclusion</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
- <span class="menu-text" id="quarto-sidebar-section-1-label">Appendices</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
-      </div>
-      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../license/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">License</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../conduct/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Code of Conduct</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../contributing/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Contributing</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../bibliography/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Bibliography</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../glossary/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">E</span>&nbsp; <span class="chapter-title">Glossary</span></span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-    </ul>
-    </div>
-</nav>
-<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
-<!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
-    <h2 id="toc-title">Table of contents</h2>
-   
-  <ul>
-  <li><a href="#module-loader-namespace" id="toc-module-loader-namespace" class="nav-link active" data-scroll-target="#module-loader-namespace"><span class="header-section-number">13.1</span> How can we implement namespaces?</a></li>
-  <li><a href="#module-loader-load" id="toc-module-loader-load" class="nav-link" data-scroll-target="#module-loader-load"><span class="header-section-number">13.2</span> How can we load a module?</a></li>
-  <li><a href="#module-loader-circular" id="toc-module-loader-circular" class="nav-link" data-scroll-target="#module-loader-circular"><span class="header-section-number">13.3</span> Do we need to handle circular dependencies?</a></li>
-  <li><a href="#module-loader-subload" id="toc-module-loader-subload" class="nav-link" data-scroll-target="#module-loader-subload"><span class="header-section-number">13.4</span> How can a module load another module?</a></li>
-  <li><a href="#module-loader-exercises" id="toc-module-loader-exercises" class="nav-link" data-scroll-target="#module-loader-exercises"><span class="header-section-number">13.5</span> Exercises</a>
-  <ul class="collapse">
-  <li><a href="#counting-with-closures" id="toc-counting-with-closures" class="nav-link" data-scroll-target="#counting-with-closures"><span class="header-section-number">13.5.1</span> Counting with closures</a></li>
-  <li><a href="#objects-and-namespaces" id="toc-objects-and-namespaces" class="nav-link" data-scroll-target="#objects-and-namespaces"><span class="header-section-number">13.5.2</span> Objects and namespaces</a></li>
-  <li><a href="#testing-module-loading" id="toc-testing-module-loading" class="nav-link" data-scroll-target="#testing-module-loading"><span class="header-section-number">13.5.3</span> Testing module loading</a></li>
-  <li><a href="#using-module-as-a-name" id="toc-using-module-as-a-name" class="nav-link" data-scroll-target="#using-module-as-a-name"><span class="header-section-number">13.5.4</span> Using <code>module</code> as a name</a></li>
-  <li><a href="#implementing-a-search-path" id="toc-implementing-a-search-path" class="nav-link" data-scroll-target="#implementing-a-search-path"><span class="header-section-number">13.5.5</span> Implementing a search path</a></li>
-  <li><a href="#using-a-setup-function" id="toc-using-a-setup-function" class="nav-link" data-scroll-target="#using-a-setup-function"><span class="header-section-number">13.5.6</span> Using a setup function</a></li>
-  <li><a href="#handling-errors-while-loading" id="toc-handling-errors-while-loading" class="nav-link" data-scroll-target="#handling-errors-while-loading"><span class="header-section-number">13.5.7</span> Handling errors while loading</a></li>
-  <li><a href="#refactoring-circularity" id="toc-refactoring-circularity" class="nav-link" data-scroll-target="#refactoring-circularity"><span class="header-section-number">13.5.8</span> Refactoring circularity</a></li>
-  <li><a href="#an-lru-cache" id="toc-an-lru-cache" class="nav-link" data-scroll-target="#an-lru-cache"><span class="header-section-number">13.5.9</span> An LRU cache</a></li>
-  <li><a href="#make-functions-safe-for-renaming" id="toc-make-functions-safe-for-renaming" class="nav-link" data-scroll-target="#make-functions-safe-for-renaming"><span class="header-section-number">13.5.10</span> Make functions safe for renaming</a></li>
-  </ul></li>
-  </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/gvwilson/sdxjs/edit/main/loader/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gvwilson/sdxjs/blob/main/loader/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/gvwilson/sdxjs/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
-    </div>
-<!-- main -->
-<main class="content" id="quarto-document-content" tabindex="-1">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title"><span id="sec-loader" class="quarto-section-identifier"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Module Loader</span></span></h1>
-</div>
-
-
-
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
+<main class="content"><header id="title-block-header" class="quarto-title-block"></header>
+<h1 class="title">Module Loader</h1>
 <p><a href="../interp/index.html" class="quarto-xref"><span>Chapter 12</span></a> showed how to use <code>eval</code> to load code dynamically. We can use this to build our own version of JavaScript’s <code>require</code> function. Our function will take the name of a source file as an argument and return whatever that file exports. The key requirement for such a function is to avoid accidentally overwriting things: if we just <code>eval</code> some code and it happens to assign to a variable called <code>x</code>, anything called <code>x</code> already in our program might be overwritten. We therefore need a way to <a href="../glossary/index.html#encapsulate">encapsulate</a> the contents of what we’re loading. Our approach is based on <span class="citation" data-cites="Casciaro2020">(<a href="../bibliography/index.html#ref-Casciaro2020" role="doc-biblioref">Casciaro and Mammino 2020</a>)</span>, which contains a lot of other useful information as well.</p>
-<section id="module-loader-namespace" class="level2" data-number="13.1">
-<h2 data-number="13.1" class="anchored" data-anchor-id="module-loader-namespace"><span class="header-section-number">13.1</span> How can we implement namespaces?</h2>
+<h2 data-number="13.1" id="module-loader-namespace"><span class="header-section-number">13.1</span> How can we implement namespaces?</h2>
 <p>A <a href="../glossary/index.html#namespace">namespace</a> is a collection of names in a program that are isolated from other namespaces. Most modern languages provide namespaces as a built-in <a href="../glossary/index.html#feature_software">feature</a> so that programmers don’t accidentally step on each other’s toes. JavaScript doesn’t, so we have to implement them ourselves.</p>
 <p>We can do this using <a href="../glossary/index.html#closure">closures</a>. Every function is a namespace: variables defined inside the function are distinct from variables defined outside it (<a href="#fig-module-loader-closures" class="quarto-xref">Figure&nbsp;<span>13.1</span></a>). If we create the variables we want to manage inside a function, then define another function inside the first and return that <a href="../glossary/index.html#inner_function">inner function</a>, that inner function will be the only thing with references to those variables.</p>
-<div id="fig-module-loader-closures" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-module-loader-closures" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-module-loader-closures-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="closures.svg" class="img-fluid figure-img">
+<img src="closures.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-module-loader-closures-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;13.1: Using closures to create private variables.
@@ -416,59 +52,42 @@ Figure&nbsp;13.1: Using closures to create private variables.
   }
   return appender
 }
-
 const exampleFunction = createAppender(' and that')
 console.log(exampleFunction('this'))
-console.log('suffix is', suffix)
-</code></pre>
+console.log('suffix is', suffix)</code></pre>
 <p>When we run it, the value that was assigned to the parameter <code>suffix</code> still exists but can only be reached by the inner function:</p>
 <pre><code>this and that
 /u/stjs/module-loader/manual-namespacing.js:10
 console.log('suffix is', suffix)
                          ^
-
 ReferenceError: suffix is not defined
     at /u/stjs/module-loader/manual-namespacing.js:10:26
     at ModuleJob.run (internal/modules/esm/module_job.js:152:23)
     at async Loader.import (internal/modules/esm/loader.js:166:24)
-    at async Object.loadESM (internal/process/esm_loader.js:68:5)
-</code></pre>
+    at async Object.loadESM (internal/process/esm_loader.js:68:5)</code></pre>
 <p>We could require every module to define a setup function like this for users to call, but thanks to <code>eval</code> we can wrap the file’s contents in a function and call it automatically. To do this we will create something called an <a href="../glossary/index.html#iife">immediately-invoked function expression</a> (IIFE). The syntax <code>() =&gt; {...}</code> defines a function. If we put the definition in parentheses and then put another pair of parentheses right after it:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>(() <span class="kw">=&gt;</span> {<span class="op">...</span>})()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>(() <span class="kw">=&gt;</span> {<span class="op">...</span>})()</span></code></pre></div>
 <p>we have code that defines a function of no arguments and immediately calls it. We can use this trick to achieve the same effect as the previous example in one step:</p>
 <pre><code>const contents = (() =&gt; {
   const privateValue = 'private value' // eslint-disable-line
   const publicValue = 'public value'
   return { publicValue }
 })()
-
 console.log(`contents.publicValue is ${contents.publicValue}`)
-console.log(`contents.privateValue is ${contents.privateValue}`)
-</code></pre>
+console.log(`contents.privateValue is ${contents.privateValue}`)</code></pre>
 <pre><code>contents.publicValue is public value
-contents.privateValue is undefined
-</code></pre>
-<div class="callout callout-style-simple callout-none no-icon callout-titled" data-markdown="1">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">None</span>Unconfusing the parser
-</div>
-</div>
-<div class="callout-body-container callout-body">
+contents.privateValue is undefined</code></pre>
+<div>
+<blockquote>
+<p><strong>Unconfusing the parser</strong></p>
 <p>The extra parentheses around the original definition force the parser to evaluate things in the right order; if we write:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>() <span class="kw">=&gt;</span> {<span class="op">...</span>}()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>() <span class="kw">=&gt;</span> {<span class="op">...</span>}()</span></code></pre></div>
 <p>then JavaScript interprets it as a function definition followed by an empty expression rather than an immediate call to the function just defined.</p>
+</blockquote>
 </div>
-</div>
-</section>
-<section id="module-loader-load" class="level2" data-number="13.2">
-<h2 data-number="13.2" class="anchored" data-anchor-id="module-loader-load"><span class="header-section-number">13.2</span> How can we load a module?</h2>
+<h2 data-number="13.2" id="module-loader-load"><span class="header-section-number">13.2</span> How can we load a module?</h2>
 <p>We want the module we are loading to export names by assigning to <code>module.exports</code> just as <code>require</code> does, so we need to provide an object called <code>module</code> and create a IIFE. (We will handle the problem of the module loading other modules later.) Our <code>loadModule</code> function takes a filename and returns a newly created module object; the parameter to the function we build and <code>eval</code> must be called <code>module</code> so that we can assign to <code>module.exports</code>. For clarity, we call the object we pass in <code>result</code> in <code>loadModule</code>.</p>
 <pre><code>import fs from 'fs'
-
 const loadModule = (filename) =&gt; {
   const source = fs.readFileSync(filename, 'utf-8')
   const result = {}
@@ -477,23 +96,21 @@ const loadModule = (filename) =&gt; {
   eval(fullText)
   return result.exports
 }
-
-export default loadModule
-</code></pre>
-<div id="fig-module-loader-iife-a" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+export default loadModule</code></pre>
+<div id="fig-module-loader-iife-a" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-module-loader-iife-a-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="iife-a.svg" class="img-fluid figure-img">
+<img src="iife-a.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-module-loader-iife-a-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;13.2: Using IIFEs to encapsulate modules and get their exports (part 1).
 </figcaption>
 </figure>
 </div>
-<div id="fig-module-loader-iife-b" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-module-loader-iife-b" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-module-loader-iife-b-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="iife-b.svg" class="img-fluid figure-img">
+<img src="iife-b.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-module-loader-iife-b-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;13.3: Using IIFEs to encapsulate modules and get their exports (part 2).
@@ -502,49 +119,36 @@ Figure&nbsp;13.3: Using IIFEs to encapsulate modules and get their exports (part
 </div>
 <p><a href="#fig-module-loader-iife-a" class="quarto-xref">Figure&nbsp;<span>13.2</span></a> and <a href="#fig-module-loader-iife-b" class="quarto-xref">Figure&nbsp;<span>13.3</span></a> show the structure of our loader so far. We can use this code as a test:</p>
 <pre><code>const publicValue = 'public value'
-
 const privateValue = 'private value'
-
 const publicFunction = (caller) =&gt; {
   return `publicFunction called from ${caller}`
 }
-
-module.exports = { publicValue, publicFunction }
-</code></pre>
+module.exports = { publicValue, publicFunction }</code></pre>
 <p>and this short program to load the test and check its exports:</p>
 <pre><code>import loadModule from './load-module-only.js'
-
 const result = loadModule(process.argv[2])
 console.log(`result.publicValue is ${result.publicValue}`)
 console.log(`result.privateValue is ${result.privateValue}`)
-console.log(result.publicFunction('main'))
-</code></pre>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-load-module-only.js small-module.js</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+console.log(result.publicFunction('main'))</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-load-module-only.js small-module.js</span></code></pre></div>
 <pre><code>full text for eval:
 ((module) =&gt; {const publicValue = 'public value'
-
 const privateValue = 'private value'
-
 const publicFunction = (caller) =&gt; {
   return `publicFunction called from ${caller}`
 }
-
 module.exports = { publicValue, publicFunction }
 })(result)
-
 result.publicValue is public value
 result.privateValue is undefined
-publicFunction called from main
-</code></pre>
-</section>
-<section id="module-loader-circular" class="level2" data-number="13.3">
-<h2 data-number="13.3" class="anchored" data-anchor-id="module-loader-circular"><span class="header-section-number">13.3</span> Do we need to handle circular dependencies?</h2>
+publicFunction called from main</code></pre>
+<h2 data-number="13.3" id="module-loader-circular"><span class="header-section-number">13.3</span> Do we need to handle circular dependencies?</h2>
 <p>What if the code we are loading loads other code? We can visualize the network of who requires whom as a <a href="../glossary/index.html#directed_graph">directed graph</a>: if X requires Y, we draw an arrow from X to Y. Unlike the directed <em>acyclic</em> graphs we met in <a href="../build/index.html" class="quarto-xref"><span>Chapter 10</span></a>, though, these graphs can contain cycles: we say a <a href="../glossary/index.html#circular_dependency">circular dependency</a> exists if X depends on Y and Y depends on X either directly or indirectly. This may seem nonsensical, but can easily arise with <a href="../glossary/index.html#plugin_architecture">plugin architectures</a>: the file containing the main program loads an extension, and that extension calls utility functions defined in the file containing the main program.</p>
 <p>Most compiled languages can handle circular dependencies easily: they compile each module into low-level instructions, then link those to resolve dependencies before running anything (<a href="#fig-module-loader-circularity" class="quarto-xref">Figure&nbsp;<span>13.4</span></a>). But interpreted languages usually run code as they’re loading it, so if X is in the process of loading Y and Y tries to call X, X may not (fully) exist yet.</p>
-<div id="fig-module-loader-circularity" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-module-loader-circularity" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-module-loader-circularity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="circularity.svg" class="img-fluid figure-img">
+<img src="circularity.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-module-loader-circularity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;13.4: Testing circular imports.
@@ -552,25 +156,19 @@ Figure&nbsp;13.4: Testing circular imports.
 </figure>
 </div>
 <p>Circular dependencies work in <a href="https://www.python.org/">Python</a>, but only sort of. Let’s create two files called <code>major.py</code> and <code>minor.py</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># major.py</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> minor</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> top():</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"top"</span>)</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    minor.middle()</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bottom():</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"bottom"</span>)</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>top()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># minor.py</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> major</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> middle():</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"middle"</span>)</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    major.bottom()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># major.py</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> minor</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> top():</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"top"</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    minor.middle()</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bottom():</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"bottom"</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>top()</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># minor.py</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> major</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> middle():</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"middle"</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    major.bottom()</span></code></pre></div>
 <p>Loading fails when we run <code>major.py</code> from the command line:</p>
 <pre><code>top
 Traceback (most recent call last):
@@ -582,49 +180,38 @@ Traceback (most recent call last):
     top()
   File "/u/stjs/module-loader/checking/major.py", line 7, in top
     minor.middle()
-AttributeError: module 'minor' has no attribute 'middle'
-</code></pre>
+AttributeError: module 'minor' has no attribute 'middle'</code></pre>
 <p>but works in the interactive <a href="../glossary/index.html#interpreter">interpreter</a>:</p>
 <pre><code>$ python
 &gt;&gt;&gt; import major
 top
 middle
-bottom
-</code></pre>
+bottom</code></pre>
 <p>The equivalent test in JavaScript also has two files:</p>
 <pre><code>// major.js
 const { middle } = require('./minor')
-
 const top = () =&gt; {
   console.log('top')
   middle()
 }
-
 const bottom = () =&gt; {
   console.log('bottom')
 }
-
 top()
-
-module.exports = { top, bottom }
-</code></pre>
+module.exports = { top, bottom }</code></pre>
 <pre><code>// minor.js
 const { bottom } = require('./major')
-
 const middle = () =&gt; {
   console.log('middle')
   bottom()
 }
-
-module.exports = { middle }
-</code></pre>
+module.exports = { middle }</code></pre>
 <p>It fails on the command line:</p>
 <pre><code>top
 middle
 /u/stjs/module-loader/checking/minor.js:6
   bottom()
   ^
-
 TypeError: bottom is not a function
     at middle (/u/stjs/module-loader/checking/minor.js:6:3)
     at top (/u/stjs/module-loader/checking/major.js:6:3)
@@ -636,8 +223,7 @@ TypeError: bottom is not a function
     at Function.Module._load (internal/modules/cjs/loader.js:769:14)
     at Function.executeUserEntryPoint [as runMain] \
  (internal/modules/run_main.js:72:12)
-    at internal/main/run_main_module.js:17:47
-</code></pre>
+    at internal/main/run_main_module.js:17:47</code></pre>
 <p>and also fails in the interactive interpreter (which is more consistent):</p>
 <pre><code>$ node
 &gt; require('./major')
@@ -646,7 +232,6 @@ middle
 /u/stjs/module-loader/checking/minor.js:6
   bottom()
   ^
-
 TypeError: bottom is not a function
     at middle (/u/stjs/module-loader/checking/minor.js:6:3)
     at top (/u/stjs/module-loader/checking/major.js:6:3)
@@ -658,32 +243,20 @@ TypeError: bottom is not a function
     at Function.Module._load (internal/modules/cjs/loader.js:769:14)
     at Module.require (internal/modules/cjs/loader.js:952:19)
     at require (internal/modules/cjs/helpers.js:88:18)
-    at [stdin]:1:1
-</code></pre>
+    at [stdin]:1:1</code></pre>
 <p>We therefore won’t try to handle circular dependencies. However, we will detect them and generate a sensible error message.</p>
-<div class="callout callout-style-simple callout-none no-icon callout-titled" data-markdown="1">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">None</span><code>import</code> vs.&nbsp;<code>require</code>
-</div>
-</div>
-<div class="callout-body-container callout-body">
+<div>
+<blockquote>
+<p><strong><code>import</code> vs.&nbsp;<code>require</code></strong></p>
 <p>Circular dependencies work JavaScript’s <code>import</code> syntax because we can analyze files to determine what needs what, get everything into memory, and then resolve dependencies. We can’t do this with <code>require</code>-based code because someone might create an <a href="../glossary/index.html#alias">alias</a> and call <code>require</code> through that or <code>eval</code> a string that contains a <code>require</code> call. (Of course, they can also do these things with the function version of <code>import</code>.)</p>
+</blockquote>
 </div>
-</div>
-</section>
-<section id="module-loader-subload" class="level2" data-number="13.4">
-<h2 data-number="13.4" class="anchored" data-anchor-id="module-loader-subload"><span class="header-section-number">13.4</span> How can a module load another module?</h2>
+<h2 data-number="13.4" id="module-loader-subload"><span class="header-section-number">13.4</span> How can a module load another module?</h2>
 <p>While we’re not going to handle circular dependencies, modules do need to be able to load other modules. To enable this, we need to provide the module with a function called <code>require</code> that it can call as it loads. As in <a href="../interp/index.html" class="quarto-xref"><span>Chapter 12</span></a>, this function checks a cache to see if the file being asked for has already been loaded. If not, it loads it and saves it; either way, it returns the result.</p>
 <p>Our cache needs to be careful about how it identifies files so that it can detect duplicates loading attempts that use different names. For example, suppose that <code>major.js</code> loads <code>subdir/first.js</code> and <code>subdir/second.js</code>. When <code>subdir/second.js</code> loads <code>./first.js</code>, our system needs to realize that it already has that file even though the path looks different. We will use <a href="../glossary/index.html#absolute_path">absolute paths</a> as cache keys so that every file has a unique, predictable key.</p>
 <p>To reduce confusion, we will call our function <code>need</code> instead of <code>require</code>. In order to make the cache available to modules while they’re loading, we will make it a property of <code>need</code>. (Remember, a function is just another kind of object in JavaScript; every function gets several properties automatically, and we can always add more.) Since we’re using the built-in <code>Map</code> class as a cache, the entire implementation of <code>need</code> is just 15 lines long:</p>
 <pre><code>import path from 'path'
-
 import loadModule from './load-module.js'
-
 const need = (name) =&gt; {
   const absPath = path.resolve(name)
   if (!need.cache.has(absPath)) {
@@ -693,222 +266,150 @@ const need = (name) =&gt; {
   return need.cache.get(absPath)
 }
 need.cache = new Map()
-
-export default need
-</code></pre>
+export default need</code></pre>
 <p>We now need to modify <code>loadModule</code> to take our function <code>need</code> as a parameter. (Again, we’ll have our modules call <code>need('something.js')</code> instead of <code>require('something')</code> for clarity.) Let’s test it with the same small module that doesn’t need anything else to make sure we haven’t broken anything:</p>
 <pre><code>import need from './need.js'
-
 const small = need('small-module.js')
 console.log(`small.publicValue is ${small.publicValue}`)
 console.log(`small.privateValue is ${small.privateValue}`)
-console.log(small.publicFunction('main'))
-</code></pre>
+console.log(small.publicFunction('main'))</code></pre>
 <pre><code>full text for eval:
 ((module, need) =&gt; {
 const publicValue = 'public value'
-
 const privateValue = 'private value'
-
 const publicFunction = (caller) =&gt; {
   return `publicFunction called from ${caller}`
 }
-
 module.exports = { publicValue, publicFunction }
-
 })(result, need)
-
 small.publicValue is public value
 small.privateValue is undefined
-publicFunction called from main
-</code></pre>
+publicFunction called from main</code></pre>
 <p>What if we test it with a module that <em>does</em> load something else?</p>
 <pre><code>import need from './need'
-
 const small = need('small-module.js')
-
 const large = (caller) =&gt; {
   console.log(`large from ${caller}`)
   small.publicFunction(`${caller} to large`)
 }
-
-export default large
-</code></pre>
+export default large</code></pre>
 <pre><code>import need from './need.js'
-
 const large = need('large-module.js')
-console.log(large.large('main'))
-</code></pre>
+console.log(large.large('main'))</code></pre>
 <pre><code>full text for eval:
 ((module, need) =&gt; {
 import need from './need'
-
 const small = need('small-module.js')
-
 const large = (caller) =&gt; {
   console.log(`large from ${caller}`)
   small.publicFunction(`${caller} to large`)
 }
-
 export default large
-
 })(result, need)
-
 undefined:2
 import need from './need'
 ^^^^^^
-
 SyntaxError: Cannot use import statement outside a module
     at loadModule (/u/stjs/module-loader/load-module.js:8:8)
     at need (/u/stjs/module-loader/need.js:8:22)
     at /u/stjs/module-loader/test-need-large-module.js:3:15
     at ModuleJob.run (internal/modules/esm/module_job.js:152:23)
     at async Loader.import (internal/modules/esm/loader.js:166:24)
-    at async Object.loadESM (internal/process/esm_loader.js:68:5)
-</code></pre>
+    at async Object.loadESM (internal/process/esm_loader.js:68:5)</code></pre>
 <p>This doesn’t work because <code>import</code> only works at the top level of a program, not inside a function. Our system can therefore only run loaded modules by <code>need</code>ing them:</p>
 <pre><code>const small = need('small-module.js')
-
 const large = (caller) =&gt; {
   return small.publicFunction(`large called from ${caller}`)
 }
-
-module.exports = large
-</code></pre>
+module.exports = large</code></pre>
 <pre><code>import need from './need.js'
-
 const large = need('large-needless.js')
-console.log(large('main'))
-</code></pre>
+console.log(large('main'))</code></pre>
 <pre><code>full text for eval:
 ((module, need) =&gt; {
 const small = need('small-module.js')
-
 const large = (caller) =&gt; {
   return small.publicFunction(`large called from ${caller}`)
 }
-
 module.exports = large
-
 })(result, need)
-
 full text for eval:
 ((module, need) =&gt; {
 const publicValue = 'public value'
-
 const privateValue = 'private value'
-
 const publicFunction = (caller) =&gt; {
   return `publicFunction called from ${caller}`
 }
-
 module.exports = { publicValue, publicFunction }
-
 })(result, need)
-
-publicFunction called from large called from main
-</code></pre>
-<div class="callout callout-style-simple callout-none no-icon callout-titled" data-markdown="1">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">None</span>“It’s so deep it’s meaningless”
-</div>
-</div>
-<div class="callout-body-container callout-body">
+publicFunction called from large called from main</code></pre>
+<div>
+<blockquote>
+<p><strong>“It’s so deep it’s meaningless”</strong></p>
 <p>The programs we have written in this chapter are harder to understand than most of the programs in earlier chapters because they are so abstract. Reading through them, it’s easy to get the feeling that everything is happening somewhere else. Programmers’ tools are often like this: there’s always a risk of confusing the thing in the program with the thing the program is working on. Drawing pictures of data structures can help, and so can practicing with closures (which are one of the most powerful ideas in programming), but a lot of the difficulty is irreducible, so don’t feel bad if it takes you a while to wrap your head around it.</p>
-</div>
+</blockquote>
 </div>
 <section class="exercises">
-</section>
-<section id="module-loader-exercises" class="level2" data-number="13.5">
-<h2 data-number="13.5" class="anchored" data-anchor-id="module-loader-exercises"><span class="header-section-number">13.5</span> Exercises</h2>
-<section id="counting-with-closures" class="level3" data-number="13.5.1">
-<h3 data-number="13.5.1" class="anchored" data-anchor-id="counting-with-closures"><span class="header-section-number">13.5.1</span> Counting with closures</h3>
+<h2 data-number="13.5" id="module-loader-exercises"><span class="header-section-number">13.5</span> Exercises</h2>
+<h3 data-number="13.5.1" id="counting-with-closures"><span class="header-section-number">13.5.1</span> Counting with closures</h3>
 <p>Write a function <code>makeCounter</code> that returns a function that produces the next integer in sequence starting from zero each time it is called. Each function returned by <code>makeCounter</code> must count independently, so:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>left <span class="op">=</span> <span class="fu">makeCounter</span>()</span>
+<div class="sourceCode" id="cb29"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>left <span class="op">=</span> <span class="fu">makeCounter</span>()</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>right <span class="op">=</span> <span class="fu">makeCounter</span>()</span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`left </span><span class="sc">${</span><span class="fu">left</span>()<span class="vs">`)</span></span>
 <span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="vs">console.log(`</span>right ${<span class="fu">right</span>()<span class="vs">`)</span></span>
 <span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="vs">console.log(`</span>left ${<span class="fu">left</span>()<span class="vs">`)</span></span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="vs">console.log(`</span>right ${<span class="fu">right</span>()<span class="vs">`)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="vs">console.log(`</span>right ${<span class="fu">right</span>()<span class="vs">`)</span></span></code></pre></div>
 <p>must produce:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode txt code-with-copy"><code class="sourceCode default"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>left 0</span>
+<div class="sourceCode" id="cb30"><pre class="sourceCode txt"><code class="sourceCode default"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>left 0</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>right 0</span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>left 1</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>right 1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="objects-and-namespaces" class="level3" data-number="13.5.2">
-<h3 data-number="13.5.2" class="anchored" data-anchor-id="objects-and-namespaces"><span class="header-section-number">13.5.2</span> Objects and namespaces</h3>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>right 1</span></code></pre></div>
+<h3 data-number="13.5.2" id="objects-and-namespaces"><span class="header-section-number">13.5.2</span> Objects and namespaces</h3>
 <p>A JavaScript object stores key-value pairs, and the keys in one object are separate from the keys in another. Why doesn’t this provide the same level of safety as a closure?</p>
-</section>
-<section id="testing-module-loading" class="level3" data-number="13.5.3">
-<h3 data-number="13.5.3" class="anchored" data-anchor-id="testing-module-loading"><span class="header-section-number">13.5.3</span> Testing module loading</h3>
+<h3 data-number="13.5.3" id="testing-module-loading"><span class="header-section-number">13.5.3</span> Testing module loading</h3>
 <p>Write tests for <code>need.js</code> using Mocha and <code>mock-fs</code>.</p>
-</section>
-<section id="using-module-as-a-name" class="level3" data-number="13.5.4">
-<h3 data-number="13.5.4" class="anchored" data-anchor-id="using-module-as-a-name"><span class="header-section-number">13.5.4</span> Using <code>module</code> as a name</h3>
+<h3 data-number="13.5.4" id="using-module-as-a-name"><span class="header-section-number">13.5.4</span> Using <code>module</code> as a name</h3>
 <p>What happens if we define the variable <code>module</code> in <code>loadModule</code> so that it is in scope when <code>eval</code> is called rather than creating a variable called <code>result</code> and passing that in:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> loadModule <span class="op">=</span> (filename) <span class="kw">=&gt;</span> {</span>
+<div class="sourceCode" id="cb31"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> loadModule <span class="op">=</span> (filename) <span class="kw">=&gt;</span> {</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> source <span class="op">=</span> fs<span class="op">.</span><span class="fu">readFileSync</span>(filename<span class="op">,</span> <span class="st">'utf-8'</span>)</span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> module <span class="op">=</span> {}</span>
 <span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> fullText <span class="op">=</span> <span class="vs">`(() =&gt; {</span><span class="sc">${</span>source<span class="sc">}</span><span class="vs">})()`</span></span>
 <span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="pp">eval</span>(fullText)</span>
 <span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> module<span class="op">.</span><span class="at">exports</span></span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="implementing-a-search-path" class="level3" data-number="13.5.5">
-<h3 data-number="13.5.5" class="anchored" data-anchor-id="implementing-a-search-path"><span class="header-section-number">13.5.5</span> Implementing a search path</h3>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h3 data-number="13.5.5" id="implementing-a-search-path"><span class="header-section-number">13.5.5</span> Implementing a search path</h3>
 <p>Add a search path to <code>need.js</code> so that if a module isn’t found locally, it will be looked for in each directory in the search path in order.</p>
-</section>
-<section id="using-a-setup-function" class="level3" data-number="13.5.6">
-<h3 data-number="13.5.6" class="anchored" data-anchor-id="using-a-setup-function"><span class="header-section-number">13.5.6</span> Using a setup function</h3>
+<h3 data-number="13.5.6" id="using-a-setup-function"><span class="header-section-number">13.5.6</span> Using a setup function</h3>
 <p>Rewrite the module loader so that every module has a function called <code>setup</code> that must be called after loading it to create its exports rather than using <code>module.exports</code>.</p>
-</section>
-<section id="handling-errors-while-loading" class="level3" data-number="13.5.7">
-<h3 data-number="13.5.7" class="anchored" data-anchor-id="handling-errors-while-loading"><span class="header-section-number">13.5.7</span> Handling errors while loading</h3>
+<h3 data-number="13.5.7" id="handling-errors-while-loading"><span class="header-section-number">13.5.7</span> Handling errors while loading</h3>
 <ol type="1">
 <li><p>Modify <code>need.js</code> so that it does something graceful if an exception is thrown while a module is being loaded.</p></li>
 <li><p>Write unit tests for this using Mocha.</p></li>
 </ol>
-</section>
-<section id="refactoring-circularity" class="level3" data-number="13.5.8">
-<h3 data-number="13.5.8" class="anchored" data-anchor-id="refactoring-circularity"><span class="header-section-number">13.5.8</span> Refactoring circularity</h3>
+<h3 data-number="13.5.8" id="refactoring-circularity"><span class="header-section-number">13.5.8</span> Refactoring circularity</h3>
 <p>Suppose that <code>main.js</code> contains this:</p>
 <pre><code>const PLUGINS = []
-
 const plugin = require('./plugin')
-
 const main = () =&gt; {
   PLUGINS.forEach(p =&gt; p())
 }
-
 const loadPlugin = (plugin) =&gt; {
   PLUGINS.push(plugin)
 }
-
 module.exports = {
   main,
   loadPlugin
-}
-</code></pre>
+}</code></pre>
 <p>and <code>plugin.js</code> contains this:</p>
 <pre><code>const { loadPlugin } = require('./main')
-
 const printMessage = () =&gt; {
   console.log('running plugin')
 }
-
-loadPlugin(printMessage)
-</code></pre>
+loadPlugin(printMessage)</code></pre>
 <p>Refactor this code so that it works correctly while still using <code>require</code> rather than <code>import</code>.</p>
-</section>
-<section id="an-lru-cache" class="level3" data-number="13.5.9">
-<h3 data-number="13.5.9" class="anchored" data-anchor-id="an-lru-cache"><span class="header-section-number">13.5.9</span> An LRU cache</h3>
+<h3 data-number="13.5.9" id="an-lru-cache"><span class="header-section-number">13.5.9</span> An LRU cache</h3>
 <p>A <a href="../glossary/index.html#lru_cache">Least Recently Used (LRU) cache</a> reduces access time while limiting the amount of memory used by keeping track of the N items that have been used most recently. For example, if the cache size is 3 and objects are accessed in the order shown in the first column, the cache’s contents will be as shown in the second column:</p>
-<table class="caption-top table">
+<table class="caption-top">
 <thead>
 <tr class="header">
 <th>Item</th>
@@ -958,9 +459,7 @@ loadPlugin(printMessage)
 <li><p>Implement a function <code>cachedRead</code> that takes the number of entries in the cache as an argument and returns a function that uses an LRU cache to either read files or return cached copies.</p></li>
 <li><p>Modify <code>cachedRead</code> so that the number of items in the cache is determined by their combined size rather than by the number of files.</p></li>
 </ol>
-</section>
-<section id="make-functions-safe-for-renaming" class="level3" data-number="13.5.10">
-<h3 data-number="13.5.10" class="anchored" data-anchor-id="make-functions-safe-for-renaming"><span class="header-section-number">13.5.10</span> Make functions safe for renaming</h3>
+<h3 data-number="13.5.10" id="make-functions-safe-for-renaming"><span class="header-section-number">13.5.10</span> Make functions safe for renaming</h3>
 <p>Our implementation of <code>need</code> implemented the cache as a property of the function itself.</p>
 <ol type="1">
 <li><p>How can this go wrong? (Hint: thing about aliases.)</p></li>
@@ -968,507 +467,12 @@ loadPlugin(printMessage)
 </ol>
 </section>
 
-
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
 <div id="ref-Casciaro2020" class="csl-entry" role="listitem">
 Casciaro, Mario, and Luciano Mammino. 2020. <em>Node.js Design Patterns</em>. Packt. ISBN 9781839214110.
 </div>
 </div>
-</section>
-</section>
-
-</main> <!-- /main -->
-<script id="quarto-html-after-body" type="application/javascript">
-  window.document.addEventListener("DOMContentLoaded", function (event) {
-    const icon = "";
-    const anchorJS = new window.AnchorJS();
-    anchorJS.options = {
-      placement: 'right',
-      icon: icon
-    };
-    anchorJS.add('.anchored');
-    const isCodeAnnotation = (el) => {
-      for (const clz of el.classList) {
-        if (clz.startsWith('code-annotation-')) {                     
-          return true;
-        }
-      }
-      return false;
-    }
-    const onCopySuccess = function(e) {
-      // button target
-      const button = e.trigger;
-      // don't keep focus
-      button.blur();
-      // flash "checked"
-      button.classList.add('code-copy-button-checked');
-      var currentTitle = button.getAttribute("title");
-      button.setAttribute("title", "Copied!");
-      let tooltip;
-      if (window.bootstrap) {
-        button.setAttribute("data-bs-toggle", "tooltip");
-        button.setAttribute("data-bs-placement", "left");
-        button.setAttribute("data-bs-title", "Copied!");
-        tooltip = new bootstrap.Tooltip(button, 
-          { trigger: "manual", 
-            customClass: "code-copy-button-tooltip",
-            offset: [0, -8]});
-        tooltip.show();    
-      }
-      setTimeout(function() {
-        if (tooltip) {
-          tooltip.hide();
-          button.removeAttribute("data-bs-title");
-          button.removeAttribute("data-bs-toggle");
-          button.removeAttribute("data-bs-placement");
-        }
-        button.setAttribute("title", currentTitle);
-        button.classList.remove('code-copy-button-checked');
-      }, 1000);
-      // clear code selection
-      e.clearSelection();
-    }
-    const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-      text: getTextToCopy
-    });
-    clipboard.on('success', onCopySuccess);
-    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-        text: getTextToCopy,
-        container: window.document.getElementById('quarto-embedded-source-code-modal')
-      });
-      clipboardModal.on('success', onCopySuccess);
-    }
-      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-      var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
-      var isInternal = (href) => {
-          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
-      }
-      // Inspect non-navigation links and adorn them if external
-      window.quartoDecorateExternalLinks = function (root) {
-     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-      for (var i=0; i<links.length; i++) {
-        const link = links[i];
-        if (!isInternal(link.href)) {
-          // undo the damage that might have been done by quarto-nav.js in the case of
-          // links that we want to consider external
-          if (link.dataset.originalHref !== undefined) {
-            link.href = link.dataset.originalHref;
-          }
-          if (!link.classList.contains('no-external-icon')) {
-          }
-        }
-      }
-      };
-      window.quartoDecorateExternalLinks(window.document);
-    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
-    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
-    const hideOnEscAndFocusOut = {
-      name: 'hideOnEscAndFocusOut',
-      defaultValue: true,
-      fn(instance) {
-        const dismiss = () => {
-          // A show scheduled by the trigger delay would otherwise reopen it
-          instance.clearDelayTimeouts();
-          instance.hide();
-        };
-        const onKeyDown = (event) => {
-          if (event.key !== 'Escape') {
-            return;
-          }
-          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
-          // except an open reveal.js slide menu, which Esc should close too.
-          // The menu handles keys only when its keyboard option is on.
-          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
-            window.Reveal.getConfig().menu?.keyboard !== false;
-          if (!menuHandlesEsc) {
-            event.stopPropagation();
-          }
-          if (instance.popper.contains(window.document.activeElement)) {
-            // Disabled while refocusing so the focus trigger does not reopen it
-            instance.disable();
-            instance.reference.focus();
-            instance.enable();
-          }
-          dismiss();
-        };
-        const onFocusOut = (event) => {
-          const target = event.relatedTarget;
-          if (target && !instance.reference.contains(target) &&
-              !instance.popper.contains(target)) {
-            dismiss();
-          }
-        };
-        // On the trigger too: a click trigger (code-annotations: select) has no
-        // blur handling. Attached for the instance's lifetime so leaving the
-        // trigger also cancels a show still pending on the trigger delay.
-        instance.reference.addEventListener('focusout', onFocusOut);
-        return {
-          onShow() {
-            window.document.addEventListener('keydown', onKeyDown, true);
-            instance.popper.addEventListener('focusout', onFocusOut);
-          },
-          onHide() {
-            window.document.removeEventListener('keydown', onKeyDown, true);
-            instance.popper.removeEventListener('focusout', onFocusOut);
-          },
-          onDestroy() {
-            instance.reference.removeEventListener('focusout', onFocusOut);
-          },
-        };
-      },
-    };
-    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-      const config = {
-        allowHTML: true,
-        maxWidth: 500,
-        delay: 100,
-        arrow: false,
-        appendTo: function(el) {
-            return el.parentElement;
-        },
-        interactive: true,
-        interactiveBorder: 10,
-        theme: 'quarto',
-        placement: 'bottom-start',
-        plugins: [hideOnEscAndFocusOut],
-      };
-      if (contentFn) {
-        config.content = contentFn;
-      }
-      if (onTriggerFn) {
-        config.onTrigger = onTriggerFn;
-      }
-      if (onUntriggerFn) {
-        config.onUntrigger = onUntriggerFn;
-      }
-      window.tippy(el, config); 
-    }
-    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-    for (var i=0; i<noterefs.length; i++) {
-      const ref = noterefs[i];
-      tippyHover(ref, function() {
-        // use id or data attribute instead here
-        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-        try { href = new URL(href).hash; } catch {}
-        const id = href.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note) {
-          return note.innerHTML;
-        } else {
-          return "";
-        }
-      });
-    }
-    const xrefs = window.document.querySelectorAll('a.quarto-xref');
-    const processXRef = (id, note) => {
-      // Strip column container classes
-      const stripColumnClz = (el) => {
-        el.classList.remove("page-full", "page-columns");
-        if (el.children) {
-          for (const child of el.children) {
-            stripColumnClz(child);
-          }
-        }
-      }
-      stripColumnClz(note)
-      if (id === null || id.startsWith('sec-')) {
-        // Special case sections, only their first couple elements
-        const container = document.createElement("div");
-        if (note.children && note.children.length > 2) {
-          container.appendChild(note.children[0].cloneNode(true));
-          for (let i = 1; i < note.children.length; i++) {
-            const child = note.children[i];
-            if (child.tagName === "P" && child.innerText === "") {
-              continue;
-            } else {
-              container.appendChild(child.cloneNode(true));
-              break;
-            }
-          }
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(container);
-          }
-          return container.innerHTML
-        } else {
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(note);
-          }
-          return note.innerHTML;
-        }
-      } else {
-        // Remove any anchor links if they are present
-        const anchorLink = note.querySelector('a.anchorjs-link');
-        if (anchorLink) {
-          anchorLink.remove();
-        }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(note);
-        }
-        if (note.classList.contains("callout")) {
-          return note.outerHTML;
-        } else {
-          return note.innerHTML;
-        }
-      }
-    }
-    for (var i=0; i<xrefs.length; i++) {
-      const xref = xrefs[i];
-      tippyHover(xref, undefined, function(instance) {
-        instance.disable();
-        let url = xref.getAttribute('href');
-        let hash = undefined; 
-        if (url.startsWith('#')) {
-          hash = url;
-        } else {
-          try { hash = new URL(url).hash; } catch {}
-        }
-        if (hash) {
-          const id = hash.replace(/^#\/?/, "");
-          const note = window.document.getElementById(id);
-          if (note !== null) {
-            try {
-              const html = processXRef(id, note.cloneNode(true));
-              instance.setContent(html);
-            } finally {
-              instance.enable();
-              instance.show();
-            }
-          } else {
-            // See if we can fetch this
-            fetch(url.split('#')[0])
-            .then(res => res.text())
-            .then(html => {
-              const parser = new DOMParser();
-              const htmlDoc = parser.parseFromString(html, "text/html");
-              const note = htmlDoc.getElementById(id);
-              if (note !== null) {
-                const html = processXRef(id, note);
-                instance.setContent(html);
-              } 
-            }).finally(() => {
-              instance.enable();
-              instance.show();
-            });
-          }
-        } else {
-          // See if we can fetch a full url (with no hash to target)
-          // This is a special case and we should probably do some content thinning / targeting
-          fetch(url)
-          .then(res => res.text())
-          .then(html => {
-            const parser = new DOMParser();
-            const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.querySelector('main.content');
-            if (note !== null) {
-              // This should only happen for chapter cross references
-              // (since there is no id in the URL)
-              // remove the first header
-              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-                note.children[0].remove();
-              }
-              const html = processXRef(null, note);
-              instance.setContent(html);
-            } 
-          }).finally(() => {
-            instance.enable();
-            instance.show();
-          });
-        }
-      }, function(instance) {
-      });
-    }
-        let selectedAnnoteEl;
-        const selectorForAnnotation = ( cell, annotation) => {
-          let cellAttr = 'data-code-cell="' + cell + '"';
-          let lineAttr = 'data-code-annotation="' +  annotation + '"';
-          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-          return selector;
-        }
-        const selectCodeLines = (annoteEl) => {
-          const doc = window.document;
-          const targetCell = annoteEl.getAttribute("data-target-cell");
-          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-          const lineIds = lines.map((line) => {
-            return targetCell + "-" + line;
-          })
-          // Each band is positioned against its own containing block, which is
-          // not the offsetParent of the lines, so place it from client rects.
-          const placeBand = (band, firstEl, lastEl, codeBlock) => {
-            const container = band.offsetParent;
-            if (container === null) {
-              return;
-            }
-            const containerRect = container.getBoundingClientRect();
-            // Reveal.js scales slides with a transform, so convert client
-            // pixels back to the CSS pixels of the container.
-            const scale = containerRect.height / container.offsetHeight || 1;
-            const firstRect = firstEl.getBoundingClientRect();
-            const lastRect = lastEl.getBoundingClientRect();
-            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
-            const height = (lastRect.bottom - firstRect.top) / scale;
-            band.style.top = top - 2 + "px";
-            band.style.height = height + 4 + "px";
-            if (codeBlock) {
-              // Without the copy button wrapper, the containing block is wider
-              // than the code block, so span the code block explicitly.
-              const blockRect = codeBlock.getBoundingClientRect();
-              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
-              band.style.width = blockRect.width / scale + "px";
-            }
-          };
-          if (lineIds.length > 0) {
-            const el = window.document.getElementById(lineIds[0]);
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const parent = el.parentElement.parentElement;
-            // cook up a div (if necessary) and position it
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
-            }
-            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
-            }
-            placeBand(gutterDiv, el, lastEl);
-            selectedAnnoteEl = annoteEl;
-          }
-        };
-        const unselectCodeLines = () => {
-          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-          elementsIds.forEach((elId) => {
-            const div = window.document.getElementById(elId);
-            if (div) {
-              div.remove();
-            }
-          });
-          selectedAnnoteEl = undefined;
-        };
-          // Handle positioning of the toggle
-      window.addEventListener(
-        "resize",
-        throttle(() => {
-          elRect = undefined;
-          if (selectedAnnoteEl) {
-            selectCodeLines(selectedAnnoteEl);
-          }
-        }, 10)
-      );
-      function throttle(fn, ms) {
-      let throttle = false;
-      let timer;
-        return (...args) => {
-          if(!throttle) { // first call gets through
-              fn.apply(this, args);
-              throttle = true;
-          } else { // all the others get throttled
-              if(timer) clearTimeout(timer); // cancel #2
-              timer = setTimeout(() => {
-                fn.apply(this, args);
-                timer = throttle = false;
-              }, ms);
-          }
-        };
-      }
-        // Attach click handler to the DT
-        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-        for (const annoteDlNode of annoteDls) {
-          annoteDlNode.addEventListener('click', (event) => {
-            const clickedEl = event.target;
-            if (clickedEl !== selectedAnnoteEl) {
-              unselectCodeLines();
-              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-              if (activeEl) {
-                activeEl.classList.remove('code-annotation-active');
-              }
-              selectCodeLines(clickedEl);
-              clickedEl.classList.add('code-annotation-active');
-            } else {
-              // Unselect the line
-              unselectCodeLines();
-              clickedEl.classList.remove('code-annotation-active');
-            }
-          });
-        }
-    const findCites = (el) => {
-      const parentEl = el.parentElement;
-      if (parentEl) {
-        const cites = parentEl.dataset.cites;
-        if (cites) {
-          return {
-            el,
-            cites: cites.split(' ')
-          };
-        } else {
-          return findCites(el.parentElement)
-        }
-      } else {
-        return undefined;
-      }
-    };
-    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-    for (var i=0; i<bibliorefs.length; i++) {
-      const ref = bibliorefs[i];
-      const citeInfo = findCites(ref);
-      if (citeInfo) {
-        tippyHover(citeInfo.el, function() {
-          var popup = window.document.createElement('div');
-          citeInfo.cites.forEach(function(cite) {
-            var citeDiv = window.document.createElement('div');
-            citeDiv.classList.add('hanging-indent');
-            citeDiv.classList.add('csl-entry');
-            var biblioDiv = window.document.getElementById('ref-' + cite);
-            if (biblioDiv) {
-              citeDiv.innerHTML = biblioDiv.innerHTML;
-            }
-            popup.appendChild(citeDiv);
-          });
-          return popup.innerHTML;
-        });
-      }
-    }
-  });
-  </script>
-  <script type="application/javascript">
-  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
-  </script>
-<nav class="page-navigation" aria-label="Page">
-  <div class="nav-page nav-page-previous">
-      <a href="../interp/index.html" class="pagination-link" aria-label="File Interpolator">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">File Interpolator</span></span>
-      </a>          
-  </div>
-  <div class="nav-page nav-page-next">
-      <a href="../style/index.html" class="pagination-link" aria-label="Style Checker">
-        <span class="nav-page-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Style Checker</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
-  </div>
-</nav>
-</div> <!-- /content -->
+</main>
 
 
-
-
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gvwilson/sdxjs/edit/main/loader/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gvwilson/sdxjs/blob/main/loader/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/gvwilson/sdxjs/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+</body></html>

@@ -1,386 +1,42 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head><meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>File Interpolator</title>
+  <link rel="stylesheet" href="../mccole/mccole-book.css">
 
-<meta charset="utf-8">
-<meta name="generator" content="quarto-1.11.9">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-
-
-<title>12&nbsp; File Interpolator – Software Design by Example</title>
-<style>
-/* Default styles provided by pandoc.
-** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-*/
-span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: 1.5em;}
-div.column{flex: auto;}
-@media screen {
-div.columns{gap: min(4vw, 1.5em);}
-div.column{overflow-x: auto;}
-}
-div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-ul.task-list{list-style: none;}
-ul.task-list li input[type="checkbox"] {
-  width: 0.8em;
-  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
-  vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-</style>
-
-
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<link href="../loader/index.html" rel="next">
-<link href="../layout/index.html" rel="prev">
-<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-01a495efc5497ac6e3f5457e7ed18e65.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
-<script id="quarto-search-options" type="application/json">{
-  "location": "sidebar",
-  "copy-button": false,
-  "collapse-after": 3,
-  "panel-placement": "start",
-  "type": "textbox",
-  "limit": 50,
-  "keyboard-shortcut": [
-    "f",
-    "/",
-    "s"
-  ],
-  "show-item-context": false,
-  "language": {
-    "search-no-results-text": "No results",
-    "search-matching-documents-text": "matching documents",
-    "search-copy-link-title": "Copy link to search",
-    "search-hide-matches-text": "Hide additional matches",
-    "search-more-match-text": "more match in this document",
-    "search-more-matches-text": "more matches in this document",
-    "search-clear-button-title": "Clear",
-    "search-text-placeholder": "",
-    "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit",
-    "search-label": "Search"
-  }
-}</script>
-
-
-<link rel="stylesheet" href="../mccole/book.css">
 </head>
-
-<body class="nav-sidebar floating quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
-
-<div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
-  <nav class="quarto-secondary-nav" aria-label="Toolbar">
-    <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-        <i class="bi bi-layout-text-sidebar-reverse"></i>
-      </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../interp/index.html"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">File Interpolator</span></a></li></ol></nav>
-        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-        </a>
-      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
-        <i class="bi bi-search"></i>
-      </button>
+<body>
+<header class="topbar">
+  <nav class="topnav">
+    <a class="topnav-item" href="../index.html">Home</a>
+    <div class="topnav-dropdown">
+      <span class="topnav-item">Chapters</span>
+      <div class="topnav-menu"><ul class="topnav-list"><li><a href="../introduction/index.html">Introduction</a></li><li><a href="../sysprog/index.html">Systems Programming</a></li><li><a href="../async/index.html">Asynchronous Programming</a></li><li><a href="../test/index.html">Unit Testing</a></li><li><a href="../backup/index.html">File Backup</a></li><li><a href="../table/index.html">Data Tables</a></li><li><a href="../glob/index.html">Pattern Matching</a></li><li><a href="../parser/index.html">Parsing Expressions</a></li><li><a href="../templater/index.html">Page Templates</a></li><li><a href="../build/index.html">Build Manager</a></li><li><a href="../layout/index.html">Layout Engine</a></li><li><a href="../interp/index.html">File Interpolator</a></li><li><a href="../loader/index.html">Module Loader</a></li><li><a href="../style/index.html">Style Checker</a></li><li><a href="../codegen/index.html">Code Generator</a></li><li><a href="../docgen/index.html">Documentation Generator</a></li><li><a href="../bundler/index.html">Module Bundler</a></li><li><a href="../packman/index.html">Package Manager</a></li><li><a href="../vm/index.html">Virtual Machine</a></li><li><a href="../debugger/index.html">Debugger</a></li><li><a href="../conclusion/index.html">Conclusion</a></li></ul></div>
+    </div>
+    <div class="topnav-dropdown">
+      <span class="topnav-item">Appendices</span>
+      <div class="topnav-menu"><ul class="topnav-list"><li><a href="../license/index.html">License</a></li><li><a href="../conduct/index.html">Code of Conduct</a></li><li><a href="../contributing/index.html">Contributing</a></li><li><a href="../bibliography/index.html">Bibliography</a></li><li><a href="../glossary/index.html">Glossary</a></li></ul></div>
+    </div>
+    <div class="topnav-dropdown">
+      <span class="topnav-item">Contents</span>
+      <div class="topnav-menu"><ul>
+<li><a href="#file-interpolator-dynamic" id="toc-file-interpolator-dynamic"><span class="header-section-number">12.1</span> How can we evaluate JavaScript dynamically?</a></li>
+<li><a href="#file-interpolator-manage" id="toc-file-interpolator-manage"><span class="header-section-number">12.2</span> How can we manage files?</a></li>
+<li><a href="#file-interpolator-find" id="toc-file-interpolator-find"><span class="header-section-number">12.3</span> How can we find files?</a></li>
+<li><a href="#file-interpolator-interpolate" id="toc-file-interpolator-interpolate"><span class="header-section-number">12.4</span> How can we interpolate pieces of code?</a></li>
+<li><a href="#file-interpolator-instead" id="toc-file-interpolator-instead"><span class="header-section-number">12.5</span> What did we do instead?</a></li>
+<li><a href="#file-interpolator-exercises" id="toc-file-interpolator-exercises"><span class="header-section-number">12.6</span> Exercises</a></li>
+</ul></div>
     </div>
   </nav>
 </header>
-<!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
-<!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto" aria-label="Site">
-    <div class="pt-lg-2 mt-2 text-left sidebar-header">
-    <div class="sidebar-title mb-0 py-0">
-      <a href="../">Software Design by Example</a> 
-        <div class="sidebar-tools-main">
-    <a href="https://github.com/gvwilson/sdxjs" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-</div>
-    </div>
-      </div>
-        <div class="mt-2 flex-shrink-0 align-items-center">
-        <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Search"></div>
-        </div>
-        </div>
-    <div class="sidebar-menu-container"> 
-    <ul class="list-unstyled mt-1">
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Overview</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../introduction/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../sysprog/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Systems Programming</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../async/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Asynchronous Programming</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../test/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Unit Testing</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../backup/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">File Backup</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../table/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Tables</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../glob/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Pattern Matching</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../parser/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Parsing Expressions</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../templater/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Page Templates</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../build/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Build Manager</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../layout/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Layout Engine</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../interp/index.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">File Interpolator</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../loader/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Module Loader</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../style/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Style Checker</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../codegen/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Code Generator</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../docgen/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Documentation Generator</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../bundler/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Module Bundler</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../packman/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Package Manager</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../vm/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Virtual Machine</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../debugger/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Debugger</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../conclusion/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Conclusion</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
- <span class="menu-text" id="quarto-sidebar-section-1-label">Appendices</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
-      </div>
-      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../license/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">License</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../conduct/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Code of Conduct</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../contributing/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Contributing</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../bibliography/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Bibliography</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../glossary/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">E</span>&nbsp; <span class="chapter-title">Glossary</span></span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-    </ul>
-    </div>
-</nav>
-<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
-<!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
-    <h2 id="toc-title">Table of contents</h2>
-   
-  <ul>
-  <li><a href="#file-interpolator-dynamic" id="toc-file-interpolator-dynamic" class="nav-link active" data-scroll-target="#file-interpolator-dynamic"><span class="header-section-number">12.1</span> How can we evaluate JavaScript dynamically?</a></li>
-  <li><a href="#file-interpolator-manage" id="toc-file-interpolator-manage" class="nav-link" data-scroll-target="#file-interpolator-manage"><span class="header-section-number">12.2</span> How can we manage files?</a></li>
-  <li><a href="#file-interpolator-find" id="toc-file-interpolator-find" class="nav-link" data-scroll-target="#file-interpolator-find"><span class="header-section-number">12.3</span> How can we find files?</a></li>
-  <li><a href="#file-interpolator-interpolate" id="toc-file-interpolator-interpolate" class="nav-link" data-scroll-target="#file-interpolator-interpolate"><span class="header-section-number">12.4</span> How can we interpolate pieces of code?</a></li>
-  <li><a href="#file-interpolator-instead" id="toc-file-interpolator-instead" class="nav-link" data-scroll-target="#file-interpolator-instead"><span class="header-section-number">12.5</span> What did we do instead?</a></li>
-  <li><a href="#file-interpolator-exercises" id="toc-file-interpolator-exercises" class="nav-link" data-scroll-target="#file-interpolator-exercises"><span class="header-section-number">12.6</span> Exercises</a>
-  <ul class="collapse">
-  <li><a href="#security-concerns" id="toc-security-concerns" class="nav-link" data-scroll-target="#security-concerns"><span class="header-section-number">12.6.1</span> Security concerns</a></li>
-  <li><a href="#loading-functions" id="toc-loading-functions" class="nav-link" data-scroll-target="#loading-functions"><span class="header-section-number">12.6.2</span> Loading functions</a></li>
-  <li><a href="#registering-functions" id="toc-registering-functions" class="nav-link" data-scroll-target="#registering-functions"><span class="header-section-number">12.6.3</span> Registering functions</a></li>
-  <li><a href="#indenting-inclusions" id="toc-indenting-inclusions" class="nav-link" data-scroll-target="#indenting-inclusions"><span class="header-section-number">12.6.4</span> Indenting inclusions</a></li>
-  <li><a href="#interpolating-from-subdirectories" id="toc-interpolating-from-subdirectories" class="nav-link" data-scroll-target="#interpolating-from-subdirectories"><span class="header-section-number">12.6.5</span> Interpolating from subdirectories</a></li>
-  <li><a href="#recursive-search-for-inclusions" id="toc-recursive-search-for-inclusions" class="nav-link" data-scroll-target="#recursive-search-for-inclusions"><span class="header-section-number">12.6.6</span> Recursive search for inclusions</a></li>
-  <li><a href="#defining-variables" id="toc-defining-variables" class="nav-link" data-scroll-target="#defining-variables"><span class="header-section-number">12.6.7</span> Defining variables</a></li>
-  <li><a href="#specifying-markers" id="toc-specifying-markers" class="nav-link" data-scroll-target="#specifying-markers"><span class="header-section-number">12.6.8</span> Specifying markers</a></li>
-  <li><a href="#recursive-inclusions" id="toc-recursive-inclusions" class="nav-link" data-scroll-target="#recursive-inclusions"><span class="header-section-number">12.6.9</span> Recursive inclusions</a></li>
-  <li><a href="#slicing-files" id="toc-slicing-files" class="nav-link" data-scroll-target="#slicing-files"><span class="header-section-number">12.6.10</span> Slicing files</a></li>
-  </ul></li>
-  </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/gvwilson/sdxjs/edit/main/interp/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gvwilson/sdxjs/blob/main/interp/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/gvwilson/sdxjs/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
-    </div>
-<!-- main -->
-<main class="content" id="quarto-document-content" tabindex="-1">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title"><span id="sec-interp" class="quarto-section-identifier"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">File Interpolator</span></span></h1>
-</div>
-
-
-
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
+<main class="content"><header id="title-block-header" class="quarto-title-block"></header>
+<h1 class="title">File Interpolator</h1>
 <p>Many of the examples in these lessons are too long to show comfortably in one block of code on a printed page, so we needed a way to break them up. As an experiment, we wrote a custom <a href="../glossary/index.html#loader">module loader</a> that reads a source file containing specially-formatted comments and then reads and inserts the files specified in those comments before running the code (<a href="#fig-file-interpolator-conceptual" class="quarto-xref">Figure&nbsp;<span>12.1</span></a>). Modern programming languages don’t work this way, but C and C++ do this with <a href="../glossary/index.html#header_file">header files</a>, and static site generators (<a href="../templater/index.html" class="quarto-xref"><span>Chapter 9</span></a>) do this to share fragments of HTML.</p>
-<div id="fig-file-interpolator-conceptual" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-file-interpolator-conceptual" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-file-interpolator-conceptual-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="conceptual.svg" class="img-fluid figure-img">
+<img src="conceptual.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-file-interpolator-conceptual-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;12.1: Including fragments of code to create runnable programs.
@@ -391,46 +47,33 @@ Figure&nbsp;12.1: Including fragments of code to create runnable programs.
 <pre><code>// eslint-disable
 class Something {
   /*+ constructor + constructor.js +*/
-
   /*+ a long method + long_method.js +*/
-
   /*+ another method + another_method.js +*/
-}
-</code></pre>
+}</code></pre>
 <p>We got this to work, but decided to use a different approach in this book. The stumbling block was that the style-checking tool <a href="https://eslint.org/">ESLint</a> didn’t know what to make of our inclusions, so we would either have to modify it or build a style checker of our own. (We will actually do that in <a href="../style/index.html" class="quarto-xref"><span>Chapter 14</span></a>, but we won’t go nearly as far as ESLint.)</p>
 <p>Despite being a dead end, the inclusion tool is a good way to show how JavaScript turns source code into something it can execute. We need to be able to do this in the next couple of chapters, so we might as well tackle it now.</p>
-<section id="file-interpolator-dynamic" class="level2" data-number="12.1">
-<h2 data-number="12.1" class="anchored" data-anchor-id="file-interpolator-dynamic"><span class="header-section-number">12.1</span> How can we evaluate JavaScript dynamically?</h2>
+<h2 data-number="12.1" id="file-interpolator-dynamic"><span class="header-section-number">12.1</span> How can we evaluate JavaScript dynamically?</h2>
 <p>We want to display files as they are on the web and in print, but interpolate the files referenced in special comments when we load things with <code>import</code>. To do this, we need to understand the lifecycle of a JavaScript program. When we ask for a file, <a href="https://nodejs.org/en/">Node</a> reads the text, translates it into runnable instructions, and runs those instructions. We can do the second and third steps whenever we want using a function called <code>eval</code>, which takes a string as input and executes it as if it were part of the program (<a href="#fig-file-interpolator-eval" class="quarto-xref">Figure&nbsp;<span>12.2</span></a>).</p>
-<div id="fig-file-interpolator-eval" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-file-interpolator-eval" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-file-interpolator-eval-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="eval.svg" class="img-fluid figure-img">
+<img src="eval.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-file-interpolator-eval-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;12.2: <code>eval</code> vs.&nbsp;normal translation and execution.
 </figcaption>
 </figure>
 </div>
-<div class="callout callout-style-simple callout-none no-icon callout-titled" data-markdown="1">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">None</span>This is not a good idea
-</div>
-</div>
-<div class="callout-body-container callout-body">
+<div>
+<blockquote>
+<p><strong>This is not a good idea</strong></p>
 <p><code>eval</code> is a security risk: arbitrary code can do arbitrary things, so if we take a string typed in by a user and execute it without any checks it could email our bookmark list to villains all over the world, erase our hard drive, or do anything else that code can do (which is pretty much anything). Browsers do their best to run code in a <a href="../glossary/index.html#sandbox">sandbox</a> for safety, but Node doesn’t, so it’s up to us to be (very) careful.</p>
-</div>
+</blockquote>
 </div>
 <p>To see <code>eval</code> in action, let’s evaluate an expression:</p>
 <pre><code>// eslint-disable no-eval
-console.log(eval('2 + 2'))
-</code></pre>
-<pre><code>4
-</code></pre>
+console.log(eval('2 + 2'))</code></pre>
+<pre><code>4</code></pre>
 <p>Notice that the input to <code>eval</code> is <em>not</em> <code>2 + 2</code>, but rather a string containing the digit 2, a space, a plus sign, another space, and another 2. When we call <code>eval</code>, it translates this string using exactly the same parser that Node uses for our program and immediately runs the result.</p>
 <p>We can make the example a little more interesting by constructing the string dynamically:</p>
 <pre><code>// eslint-disable no-eval
@@ -440,23 +83,20 @@ const z = 5 // eslint-disable-line
 for (const name of ['x', 'y', 'z', 'oops']) {
   const expr = `${name} + 1`
   console.log(name, '+ 1 =', eval(expr))
-}
-</code></pre>
+}</code></pre>
 <pre><code>x + 1 = 2
 y + 1 = 4
 z + 1 = 6
 undefined:1
 oops + 1
 ^
-
 ReferenceError: oops is not defined
     at eval (eval at &lt;anonymous&gt; \
     (/u/stjs/file-interpolator/eval-loop.js:7:30), &lt;anonymous&gt;:1:1)
     at /u/stjs/file-interpolator/eval-loop.js:7:30
     at ModuleJob.run (internal/modules/esm/module_job.js:152:23)
     at async Loader.import (internal/modules/esm/loader.js:166:24)
-    at async Object.loadESM (internal/process/esm_loader.js:68:5)
-</code></pre>
+    at async Object.loadESM (internal/process/esm_loader.js:68:5)</code></pre>
 <p>The first time the loop runs the string is <code>'x + 1'</code>; since there’s a variable called <code>x</code> in scope, <code>eval</code> does the addition and we print the result. The same thing happens for the variables <code>y</code> and <code>z</code>, but we get an error when we try to evaluate the string <code>'oops + 1'</code> because there is no variable in scope called <code>oops</code>.</p>
 <p><code>eval</code> can use whatever variables are in scope when it’s called, but what happens to any variables it defines? This example creates a variable called <code>x</code> and runs <code>console.log</code> to display it, but as the output shows, <code>x</code> is local to the <code>eval</code> call just as variables created inside a function only exist during a call to that function:</p>
 <pre><code>// eslint-disable no-eval
@@ -464,79 +104,59 @@ const code = `
   const x = 'hello'
   console.log('x in eval is', x)
 `
-
 eval(code)
-console.log('typeof x after eval', typeof x)
-</code></pre>
+console.log('typeof x after eval', typeof x)</code></pre>
 <pre><code>x in eval is hello
-typeof x after eval undefined
-</code></pre>
+typeof x after eval undefined</code></pre>
 <p>However, <code>eval</code> can modify variables defined outside the text being evaluated in the same way that a function can modify global variables:</p>
 <pre><code>// eslint-disable no-eval
 let x = 'original' // eslint-disable-line
 eval('x = "modified"')
-console.log('x after eval is', x)
-</code></pre>
-<pre><code>x after eval is modified
-</code></pre>
+console.log('x after eval is', x)</code></pre>
+<pre><code>x after eval is modified</code></pre>
 <p>This means that if the text we give to <code>eval</code> modifies a structure that is defined outside the text, that change outlives the call to <code>eval</code>:</p>
 <pre><code>// eslint-disable no-eval
 const seen = {}
-
 for (const name of ['x', 'y', 'z']) {
   const expr = `seen["${name}"] = "${name.toUpperCase()}"`
   eval(expr)
 }
-
-console.log(seen)
-</code></pre>
-<pre><code>{ x: 'X', y: 'Y', z: 'Z' }
-</code></pre>
+console.log(seen)</code></pre>
+<pre><code>{ x: 'X', y: 'Y', z: 'Z' }</code></pre>
 <p>The examples so far have all evaluated strings embedded in the program itself, but <code>eval</code> doesn’t care where its input comes from. Let’s move the code that does the modifying into <code>to-be-loaded.js</code>:</p>
 <pre><code>// eslint-disable
 // Modify a global structure defined by whoever loads us.
-Seen.from_loaded_file = 'from loaded file'
-</code></pre>
+Seen.from_loaded_file = 'from loaded file'</code></pre>
 <p>This doesn’t work on its own because <code>Seen</code> isn’t defined:</p>
 <pre><code>/u/stjs/file-interpolator/to-be-loaded.js:3
 Seen.from_loaded_file = 'from loaded file'
 ^
-
 ReferenceError: Seen is not defined
     at /u/stjs/file-interpolator/to-be-loaded.js:3:1
     at ModuleJob.run (internal/modules/esm/module_job.js:152:23)
     at async Loader.import (internal/modules/esm/loader.js:166:24)
-    at async Object.loadESM (internal/process/esm_loader.js:68:5)
-</code></pre>
+    at async Object.loadESM (internal/process/esm_loader.js:68:5)</code></pre>
 <p>But if we read the file and <code>eval</code> the text <em>after</em> defining <code>Seen</code>, it does what we want:</p>
 <pre><code>// eslint-disable no-eval
 import fs from 'fs'
-
 const Seen = {}
-
 const filename = process.argv[2]
 const content = fs.readFileSync(filename, 'utf-8')
 console.log('before eval, Seen is', Seen)
 eval(content)
-console.log('after eval, Seen is', Seen)
-</code></pre>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> does-the-loading.js to-be-loaded.js</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+console.log('after eval, Seen is', Seen)</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> does-the-loading.js to-be-loaded.js</span></code></pre></div>
 <pre><code>before eval, Seen is {}
-after eval, Seen is { from_loaded_file: 'from loaded file' }
-</code></pre>
-</section>
-<section id="file-interpolator-manage" class="level2" data-number="12.2">
-<h2 data-number="12.2" class="anchored" data-anchor-id="file-interpolator-manage"><span class="header-section-number">12.2</span> How can we manage files?</h2>
+after eval, Seen is { from_loaded_file: 'from loaded file' }</code></pre>
+<h2 data-number="12.2" id="file-interpolator-manage"><span class="header-section-number">12.2</span> How can we manage files?</h2>
 <p>The source files in this book are small enough that we don’t have to worry about reading them repeatedly, but we would like to avoid re-reading things unnecessarily in large systems or when there might be network delays. The usual approach is to create a cache using the Singleton pattern that we first met in <a href="../test/index.html" class="quarto-xref"><span>Chapter 4</span></a>. Whenever we want to read a file, we check to see if it’s already in the cache (<a href="#fig-file-interpolator-cache" class="quarto-xref">Figure&nbsp;<span>12.3</span></a>). If it is, we use that copy; if not, we read it and add it to the cache using the file path as a lookup key.</p>
 <p>We can write a simple cache in just a few lines of code:</p>
 <pre><code>// eslint-disable no-eval
 import fs from 'fs'
-
 class Cache {
   constructor () {
     this.loaded = new Map()
   }
-
   need (name) {
     if (this.loaded.has(name)) {
       console.log(`returning cached value for ${name}`)
@@ -549,17 +169,14 @@ class Cache {
     return result
   }
 }
-
 const cache = new Cache()
-
 export default (name) =&gt; {
   return cache.need(name)
-}
-</code></pre>
-<div id="fig-file-interpolator-cache" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+}</code></pre>
+<div id="fig-file-interpolator-cache" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-file-interpolator-cache-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="cache.svg" class="img-fluid figure-img">
+<img src="cache.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-file-interpolator-cache-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;12.3: Using the Singleton pattern to implement a cache of loaded files.
@@ -572,56 +189,41 @@ Figure&nbsp;12.3: Using the Singleton pattern to implement a cache of loaded fil
 const report = (message) =&gt; {
   console.log(`report in import-01.js with message "${message}"`)
 }
-
 // Export.
-report
-</code></pre>
+report</code></pre>
 <p>To test our program, we load the implementation of the cache using <code>import</code>, then use it to load and evaluate another file. This example expects that “other file” to define a function, which we call in order to show that everything is working:</p>
 <pre><code>import need from './need-simple.js'
-
 const imported = need('./import-simple.js')
-imported('called from test-simple.js')
-</code></pre>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-simple.js</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="file-interpolator-find" class="level2" data-number="12.3">
-<h2 data-number="12.3" class="anchored" data-anchor-id="file-interpolator-find"><span class="header-section-number">12.3</span> How can we find files?</h2>
+imported('called from test-simple.js')</code></pre>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-simple.js</span></code></pre></div>
+<h2 data-number="12.3" id="file-interpolator-find"><span class="header-section-number">12.3</span> How can we find files?</h2>
 <p>Each of the files included in our examples is in the same directory as the file including it, but in C/C++ or a page templating system we might include a particular file in several different places. We don’t want to have to put all of our files in a single directory, so we need a way to specify where to look for files that are being included.</p>
 <p>One option is to use <a href="../glossary/index.html#relative_path">relative paths</a>, but another option is to give our program a list of directories to look in. This is called a <a href="../glossary/index.html#search_path">search path</a>, and many programs use them, including Node itself. By convention, a search path is written as a colon-separated list of directories on Unix or using semi-colons on Windows. If the path to an included file starts with <code>./</code>, we look for it locally; if not, we go through the directories in the search path in order until we find a file with a matching name (<a href="#fig-file-interpolator-search-path" class="quarto-xref">Figure&nbsp;<span>12.4</span></a>).</p>
-<div id="fig-file-interpolator-search-path" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
+<div id="fig-file-interpolator-search-path" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-file-interpolator-search-path-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="search-path.svg" class="img-fluid figure-img">
+<img src="search-path.svg">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-file-interpolator-search-path-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;12.4: Using a colon-separated list of directories as a search path.
 </figcaption>
 </figure>
 </div>
-<div class="callout callout-style-simple callout-none no-icon callout-titled" data-markdown="1">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">None</span>That’s just how it is
-</div>
-</div>
-<div class="callout-body-container callout-body">
+<div>
+<blockquote>
+<p><strong>That’s just how it is</strong></p>
 <p>The rules about search paths in the paragraph above are a convention: somebody did it this way years ago and (almost) everyone has imitated it since. We could implement search paths some other way, but as with configuration file formats, variable naming conventions, and many other things, the last thing the world needs is more innovation.</p>
-</div>
+</blockquote>
 </div>
 <p>Since the cache is responsible for finding files, it should also handle the search path. The outline of the class stays the same:</p>
 <pre><code>// eslint-disable no-eval
 import fs from 'fs'
 import path from 'path'
-
 class Cache {
   constructor () {
     this.loaded = new Map()
     this.constructSearchPath()
   }
-
   need (fileSpec) {
     if (this.loaded.has(fileSpec)) {
       console.log(`returning cached value for ${fileSpec}`)
@@ -634,7 +236,6 @@ class Cache {
     this.loaded.set(fileSpec, result)
     return result
   }
-
   // mccole:skip
   // mccole:search
   constructSearchPath () {
@@ -672,13 +273,10 @@ class Cache {
   // mccole:/find
   // mccole:/skip
 }
-
 const cache = new Cache()
-
 export default (fileSpec) =&gt; {
   return cache.need(fileSpec)
-}
-</code></pre>
+}</code></pre>
 <p>To get the search path, we look for the <a href="../glossary/index.html#shell_variable">shell variable</a> <code>NEED_PATH</code>. (Writing shell variables’ names in upper case is another convention.) If <code>NEED_PATH</code> exists, we split it on colons to create a list of directories:</p>
 <pre><code></code></pre>
 <p>When we need to find a file we first check to see if the path is local. If it’s not, we try the directories in the search path in order:</p>
@@ -689,53 +287,41 @@ export default (fileSpec) =&gt; {
 const report = (message) =&gt; {
   console.log(`in LEFT with message "${message}"`)
 }
-
 // Export.
-report
-</code></pre>
+report</code></pre>
 <p>and then put the file doing the importing in the current directory:</p>
 <pre><code>import need from './need-path.js'
 const imported = need('imported-left.js')
-imported('called from test-import-left.js')
-</code></pre>
+imported('called from test-import-left.js')</code></pre>
 <p>We now need to set the variable <code>NEED_PATH</code>. There are many ways to do this in shell; if we only need the variable to exist for a single command, the simplest is to write it as:</p>
 <pre class="shell"><code>NAME=value command</code></pre>
 <p>right before the command (on the same line). Here’s the shell command that runs our test case using <code>$PWD</code> to get the current working directory:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="va">NEED_PATH</span><span class="op">=</span><span class="va">$PWD</span>/modules/ <span class="ex">node</span> test-import-left.js</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="va">NEED_PATH</span><span class="op">=</span><span class="va">$PWD</span>/modules/ <span class="ex">node</span> test-import-left.js</span></code></pre></div>
 <pre><code>loading value for imported-left.js
 trying /u/stjs/file-interpolator/modules/imported-left.js for \
 imported-left.js
-in LEFT with message "called from test-import-left.js"
-</code></pre>
+in LEFT with message "called from test-import-left.js"</code></pre>
 <p>Now let’s create a second importable file in the <code>modules</code> directory:</p>
 <pre><code>// eslint-disable
 // Define.
 const report = (message) =&gt; {
   console.log(`in RIGHT with message "${message}"`)
 }
-
 // Export.
-report
-</code></pre>
+report</code></pre>
 <p>and load that twice to check that caching works:</p>
 <pre><code>import need from './need-path.js'
-
 const imported = need('imported-right.js')
 imported('called from test-import-right.js')
-
 const alsoImported = need('imported-right.js')
-alsoImported('called from test-import-right.js')
-</code></pre>
+alsoImported('called from test-import-right.js')</code></pre>
 <pre><code>loading value for imported-right.js
 trying /u/stjs/file-interpolator/modules/imported-right.js for \
 imported-right.js
 in RIGHT with message "called from test-import-right.js"
 returning cached value for imported-right.js
-in RIGHT with message "called from test-import-right.js"
-</code></pre>
-</section>
-<section id="file-interpolator-interpolate" class="level2" data-number="12.4">
-<h2 data-number="12.4" class="anchored" data-anchor-id="file-interpolator-interpolate"><span class="header-section-number">12.4</span> How can we interpolate pieces of code?</h2>
+in RIGHT with message "called from test-import-right.js"</code></pre>
+<h2 data-number="12.4" id="file-interpolator-interpolate"><span class="header-section-number">12.4</span> How can we interpolate pieces of code?</h2>
 <p>Interpolating files is straightforward once we have this machinery in place. We modify <code>Cache.find</code> to return a directory and a file path, then add an <code>interpolate</code> method to replace special comments:</p>
 <pre><code>// eslint-disable
 class Cache {
@@ -754,8 +340,7 @@ class Cache {
   }
   // ...
 }
-Cache.INTERPOLATE_PAT = /\/\*\+(.+?)\+(.+?)\+\*\//g
-</code></pre>
+Cache.INTERPOLATE_PAT = /\/\*\+(.+?)\+(.+?)\+\*\//g</code></pre>
 <p>We can now have a file like this:</p>
 <pre><code>// eslint-disable
 class Example {
@@ -765,25 +350,20 @@ class Example {
   /*+ top method + import-interpolate-topmethod.js +*/
   /*+ bottom method + import-interpolate-bottommethod.js +*/
 }
-
-Example
-</code></pre>
+Example</code></pre>
 <p>and subfiles like this:</p>
 <pre><code>// eslint-disable
 topMethod (msg) {
   this.bottomMethod(`(topMethod ${msg})`)
-}
-</code></pre>
+}</code></pre>
 <p>and this:</p>
 <pre><code>// eslint-disable
 bottomMethod (msg) {
   console.log(`(bottomMethod ${msg})`)
-}
-</code></pre>
+}</code></pre>
 <p>Let’s test it:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-import-interpolate.js</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<pre><code>(bottomMethod (topMethod called from test-import-interpolate.js))
-</code></pre>
+<div class="sourceCode" id="cb36"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-import-interpolate.js</span></code></pre></div>
+<pre><code>(bottomMethod (topMethod called from test-import-interpolate.js))</code></pre>
 <p>When this program runs, its lifecycle is:</p>
 <ol type="1">
 <li>Node starts to run <code>test-import-interpolate.js</code>.</li>
@@ -800,11 +380,9 @@ bottomMethod (msg) {
 <li>We then create an instance of that class and call its method.</li>
 </ol>
 <p>This works, but as we said in the introduction we decided not to use it because it didn’t play well with other tools. No piece of software exists in isolation; when we evaluate a design, we always have to ask how it fits into everything else we have.</p>
-</section>
-<section id="file-interpolator-instead" class="level2" data-number="12.5">
-<h2 data-number="12.5" class="anchored" data-anchor-id="file-interpolator-instead"><span class="header-section-number">12.5</span> What did we do instead?</h2>
+<h2 data-number="12.5" id="file-interpolator-instead"><span class="header-section-number">12.5</span> What did we do instead?</h2>
 <p>Rather than interpolating file fragments, we extract or erase parts of regular JavaScript files based on specially formatted comments like the <code>&lt;fragment&gt;...&lt;/fragment&gt;</code> pair shown below.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Example {</span>
+<div class="sourceCode" id="cb38"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Example {</span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (name) {</span>
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">name</span> <span class="op">=</span> name</span>
 <span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  }</span>
@@ -814,86 +392,65 @@ bottomMethod (msg) {
 <span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`</span><span class="sc">${</span>name<span class="sc">}</span><span class="vs">: </span><span class="sc">${</span>message<span class="sc">}</span><span class="vs">`</span>)</span>
 <span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">// &lt;/fragment&gt;</span></span>
-<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>The code that selects the part of the file we want to display is part of our page templating system. It re-extracts code for display every time the web version of this site is built, which ensures that we always shows what’s in the current version of our examples. However, this system doesn’t automatically update the description of the code: if we write, “It does X,” then modify the code to do Y, our lesson can be inconsistent. <a href="../glossary/index.html#literate_programming">Literate programming</a> was invented to try to prevent this from happening, but it never really caught on—unfortunately, most programming systems that describe themselves as “literate” these days only implement part of <a href="https://www-cs-faculty.stanford.edu/~knuth/">Donald Knuth’s</a> original vision.</p>
 <section class="exercises">
-</section>
-<section id="file-interpolator-exercises" class="level2" data-number="12.6">
-<h2 data-number="12.6" class="anchored" data-anchor-id="file-interpolator-exercises"><span class="header-section-number">12.6</span> Exercises</h2>
-<section id="security-concerns" class="level3" data-number="12.6.1">
-<h3 data-number="12.6.1" class="anchored" data-anchor-id="security-concerns"><span class="header-section-number">12.6.1</span> Security concerns</h3>
+<h2 data-number="12.6" id="file-interpolator-exercises"><span class="header-section-number">12.6</span> Exercises</h2>
+<h3 data-number="12.6.1" id="security-concerns"><span class="header-section-number">12.6.1</span> Security concerns</h3>
 <ol type="1">
 <li><p>Write a function <code>loadAndRun</code> that reads a file, evaluates it, and returns the result.</p></li>
 <li><p>Create a file <code>trust-me.js</code> that prints “nothing happening here” when it is evaluated, but also deletes everything in the directory called <code>target</code>.</p></li>
 <li><p>Write tests for this using <a href="https://www.npmjs.com/package/mock-fs"><code>mock-fs</code></a>.</p></li>
 </ol>
 <p>Please be careful doing this exercise.</p>
-</section>
-<section id="loading-functions" class="level3" data-number="12.6.2">
-<h3 data-number="12.6.2" class="anchored" data-anchor-id="loading-functions"><span class="header-section-number">12.6.2</span> Loading functions</h3>
+<h3 data-number="12.6.2" id="loading-functions"><span class="header-section-number">12.6.2</span> Loading functions</h3>
 <p>Write a function that reads a file containing single-argument functions like this:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>addOne<span class="op">:</span> (x) <span class="kw">=&gt;</span> x <span class="op">+</span> <span class="dv">1</span></span>
+<div class="sourceCode" id="cb39"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>addOne<span class="op">:</span> (x) <span class="kw">=&gt;</span> x <span class="op">+</span> <span class="dv">1</span></span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>halve<span class="op">:</span> (x) <span class="kw">=&gt;</span> x <span class="op">/</span> <span class="dv">2</span></span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>array<span class="op">:</span> (x) <span class="kw">=&gt;</span> <span class="bu">Array</span>(x)<span class="op">.</span><span class="fu">fill</span>(<span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>array<span class="op">:</span> (x) <span class="kw">=&gt;</span> <span class="bu">Array</span>(x)<span class="op">.</span><span class="fu">fill</span>(<span class="dv">0</span>)</span></code></pre></div>
 <p>and returns an object containing callable functions.</p>
-</section>
-<section id="registering-functions" class="level3" data-number="12.6.3">
-<h3 data-number="12.6.3" class="anchored" data-anchor-id="registering-functions"><span class="header-section-number">12.6.3</span> Registering functions</h3>
+<h3 data-number="12.6.3" id="registering-functions"><span class="header-section-number">12.6.3</span> Registering functions</h3>
 <p>Write a function that loads one or more files containing function definitions like this:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb40"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> double <span class="op">=</span> (x) <span class="kw">=&gt;</span> {</span>
+<div class="sourceCode" id="cb40"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> double <span class="op">=</span> (x) <span class="kw">=&gt;</span> {</span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">2</span> <span class="op">*</span> x</span>
 <span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>EXPORTS<span class="op">.</span><span class="fu">append</span>(double)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>EXPORTS<span class="op">.</span><span class="fu">append</span>(double)</span></code></pre></div>
 <p>and returns a list containing all the loaded functions.</p>
-</section>
-<section id="indenting-inclusions" class="level3" data-number="12.6.4">
-<h3 data-number="12.6.4" class="anchored" data-anchor-id="indenting-inclusions"><span class="header-section-number">12.6.4</span> Indenting inclusions</h3>
+<h3 data-number="12.6.4" id="indenting-inclusions"><span class="header-section-number">12.6.4</span> Indenting inclusions</h3>
 <p>Modify the file inclusion system so that inclusions are indented by the same amount as the including comment. For example, if the including file is:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb41"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> withLogging <span class="op">=</span> (args) <span class="kw">=&gt;</span> {</span>
+<div class="sourceCode" id="cb41"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> withLogging <span class="op">=</span> (args) <span class="kw">=&gt;</span> {</span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">/*+ logging call + logging.js +*/</span></span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>withLogging</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>withLogging</span></code></pre></div>
 <p>and the included file is:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'first message'</span>)</span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'second message'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'first message'</span>)</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'second message'</span>)</span></code></pre></div>
 <p>then the result will be:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb43"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> withLogging <span class="op">=</span> (args) <span class="kw">=&gt;</span> {</span>
+<div class="sourceCode" id="cb43"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> withLogging <span class="op">=</span> (args) <span class="kw">=&gt;</span> {</span>
 <span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'first message'</span>)</span>
 <span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'second message'</span>)</span>
 <span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>withLogging</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>withLogging</span></code></pre></div>
 <p>i.e., all lines of the inclusion will be indented to match the first.</p>
-</section>
-<section id="interpolating-from-subdirectories" class="level3" data-number="12.6.5">
-<h3 data-number="12.6.5" class="anchored" data-anchor-id="interpolating-from-subdirectories"><span class="header-section-number">12.6.5</span> Interpolating from subdirectories</h3>
+<h3 data-number="12.6.5" id="interpolating-from-subdirectories"><span class="header-section-number">12.6.5</span> Interpolating from subdirectories</h3>
 <p>Modify the file interpolator so that snippets can be included from sub-directories using relative paths.</p>
-</section>
-<section id="recursive-search-for-inclusions" class="level3" data-number="12.6.6">
-<h3 data-number="12.6.6" class="anchored" data-anchor-id="recursive-search-for-inclusions"><span class="header-section-number">12.6.6</span> Recursive search for inclusions</h3>
+<h3 data-number="12.6.6" id="recursive-search-for-inclusions"><span class="header-section-number">12.6.6</span> Recursive search for inclusions</h3>
 <ol type="1">
 <li><p>Modify the file interpolator so that it searches recursively through all subdirectories of the directories on the search path to find inclusions.</p></li>
 <li><p>Explain why this is a bad idea.</p></li>
 </ol>
-</section>
-<section id="defining-variables" class="level3" data-number="12.6.7">
-<h3 data-number="12.6.7" class="anchored" data-anchor-id="defining-variables"><span class="header-section-number">12.6.7</span> Defining variables</h3>
+<h3 data-number="12.6.7" id="defining-variables"><span class="header-section-number">12.6.7</span> Defining variables</h3>
 <p>Modify the file inclusion system so that users can pass in a <code>Map</code> containing name-value pairs and have these interpolated into the text of the files being loaded. To interpolate a value, the included file must use <code>@@name@@</code>.</p>
-</section>
-<section id="specifying-markers" class="level3" data-number="12.6.8">
-<h3 data-number="12.6.8" class="anchored" data-anchor-id="specifying-markers"><span class="header-section-number">12.6.8</span> Specifying markers</h3>
+<h3 data-number="12.6.8" id="specifying-markers"><span class="header-section-number">12.6.8</span> Specifying markers</h3>
 <p>Modify the file inclusion system so that the user can override the inclusion comment markers. For example, the user should be able to specify that <code>/*!</code> and <code>!*/</code> be used to mark inclusions. (This is often used in tutorials that need to show the inclusion markers without them being interpreted.)</p>
-</section>
-<section id="recursive-inclusions" class="level3" data-number="12.6.9">
-<h3 data-number="12.6.9" class="anchored" data-anchor-id="recursive-inclusions"><span class="header-section-number">12.6.9</span> Recursive inclusions</h3>
+<h3 data-number="12.6.9" id="recursive-inclusions"><span class="header-section-number">12.6.9</span> Recursive inclusions</h3>
 <p>Modify the file interpolator to support recursive includes, i.e., to handle inclusion markers in files that are being included. Be sure to check for the case of infinite includes.</p>
-</section>
-<section id="slicing-files" class="level3" data-number="12.6.10">
-<h3 data-number="12.6.10" class="anchored" data-anchor-id="slicing-files"><span class="header-section-number">12.6.10</span> Slicing files</h3>
+<h3 data-number="12.6.10" id="slicing-files"><span class="header-section-number">12.6.10</span> Slicing files</h3>
 <p>Write a function that reads a JavaScript source file containing specially-formatted comments like the ones shown below and extracts the indicated section.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb44"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> toBeLeftOut <span class="op">=</span> (args) <span class="kw">=&gt;</span> {</span>
+<div class="sourceCode" id="cb44"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> toBeLeftOut <span class="op">=</span> (args) <span class="kw">=&gt;</span> {</span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'this should not appear'</span>)</span>
 <span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -901,506 +458,11 @@ bottomMethod (msg) {
 <span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> toBeKept <span class="op">=</span> (args) <span class="kw">=&gt;</span> {</span>
 <span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'only this function should appear'</span>)</span>
 <span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a><span class="co">// &lt;/keepThis&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a><span class="co">// &lt;/keepThis&gt;</span></span></code></pre></div>
 <p>Users should be able to specify any tag they want, and if that tag occurs multiple times, all of the sections marked with that tag should be kept. (This is the approach we took for this book instead of file interpolation.)</p>
 </section>
 
-
-</section>
-</section>
-
-</main> <!-- /main -->
-<script id="quarto-html-after-body" type="application/javascript">
-  window.document.addEventListener("DOMContentLoaded", function (event) {
-    const icon = "";
-    const anchorJS = new window.AnchorJS();
-    anchorJS.options = {
-      placement: 'right',
-      icon: icon
-    };
-    anchorJS.add('.anchored');
-    const isCodeAnnotation = (el) => {
-      for (const clz of el.classList) {
-        if (clz.startsWith('code-annotation-')) {                     
-          return true;
-        }
-      }
-      return false;
-    }
-    const onCopySuccess = function(e) {
-      // button target
-      const button = e.trigger;
-      // don't keep focus
-      button.blur();
-      // flash "checked"
-      button.classList.add('code-copy-button-checked');
-      var currentTitle = button.getAttribute("title");
-      button.setAttribute("title", "Copied!");
-      let tooltip;
-      if (window.bootstrap) {
-        button.setAttribute("data-bs-toggle", "tooltip");
-        button.setAttribute("data-bs-placement", "left");
-        button.setAttribute("data-bs-title", "Copied!");
-        tooltip = new bootstrap.Tooltip(button, 
-          { trigger: "manual", 
-            customClass: "code-copy-button-tooltip",
-            offset: [0, -8]});
-        tooltip.show();    
-      }
-      setTimeout(function() {
-        if (tooltip) {
-          tooltip.hide();
-          button.removeAttribute("data-bs-title");
-          button.removeAttribute("data-bs-toggle");
-          button.removeAttribute("data-bs-placement");
-        }
-        button.setAttribute("title", currentTitle);
-        button.classList.remove('code-copy-button-checked');
-      }, 1000);
-      // clear code selection
-      e.clearSelection();
-    }
-    const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-      text: getTextToCopy
-    });
-    clipboard.on('success', onCopySuccess);
-    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-        text: getTextToCopy,
-        container: window.document.getElementById('quarto-embedded-source-code-modal')
-      });
-      clipboardModal.on('success', onCopySuccess);
-    }
-      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-      var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
-      var isInternal = (href) => {
-          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
-      }
-      // Inspect non-navigation links and adorn them if external
-      window.quartoDecorateExternalLinks = function (root) {
-     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-      for (var i=0; i<links.length; i++) {
-        const link = links[i];
-        if (!isInternal(link.href)) {
-          // undo the damage that might have been done by quarto-nav.js in the case of
-          // links that we want to consider external
-          if (link.dataset.originalHref !== undefined) {
-            link.href = link.dataset.originalHref;
-          }
-          if (!link.classList.contains('no-external-icon')) {
-          }
-        }
-      }
-      };
-      window.quartoDecorateExternalLinks(window.document);
-    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
-    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
-    const hideOnEscAndFocusOut = {
-      name: 'hideOnEscAndFocusOut',
-      defaultValue: true,
-      fn(instance) {
-        const dismiss = () => {
-          // A show scheduled by the trigger delay would otherwise reopen it
-          instance.clearDelayTimeouts();
-          instance.hide();
-        };
-        const onKeyDown = (event) => {
-          if (event.key !== 'Escape') {
-            return;
-          }
-          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
-          // except an open reveal.js slide menu, which Esc should close too.
-          // The menu handles keys only when its keyboard option is on.
-          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
-            window.Reveal.getConfig().menu?.keyboard !== false;
-          if (!menuHandlesEsc) {
-            event.stopPropagation();
-          }
-          if (instance.popper.contains(window.document.activeElement)) {
-            // Disabled while refocusing so the focus trigger does not reopen it
-            instance.disable();
-            instance.reference.focus();
-            instance.enable();
-          }
-          dismiss();
-        };
-        const onFocusOut = (event) => {
-          const target = event.relatedTarget;
-          if (target && !instance.reference.contains(target) &&
-              !instance.popper.contains(target)) {
-            dismiss();
-          }
-        };
-        // On the trigger too: a click trigger (code-annotations: select) has no
-        // blur handling. Attached for the instance's lifetime so leaving the
-        // trigger also cancels a show still pending on the trigger delay.
-        instance.reference.addEventListener('focusout', onFocusOut);
-        return {
-          onShow() {
-            window.document.addEventListener('keydown', onKeyDown, true);
-            instance.popper.addEventListener('focusout', onFocusOut);
-          },
-          onHide() {
-            window.document.removeEventListener('keydown', onKeyDown, true);
-            instance.popper.removeEventListener('focusout', onFocusOut);
-          },
-          onDestroy() {
-            instance.reference.removeEventListener('focusout', onFocusOut);
-          },
-        };
-      },
-    };
-    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-      const config = {
-        allowHTML: true,
-        maxWidth: 500,
-        delay: 100,
-        arrow: false,
-        appendTo: function(el) {
-            return el.parentElement;
-        },
-        interactive: true,
-        interactiveBorder: 10,
-        theme: 'quarto',
-        placement: 'bottom-start',
-        plugins: [hideOnEscAndFocusOut],
-      };
-      if (contentFn) {
-        config.content = contentFn;
-      }
-      if (onTriggerFn) {
-        config.onTrigger = onTriggerFn;
-      }
-      if (onUntriggerFn) {
-        config.onUntrigger = onUntriggerFn;
-      }
-      window.tippy(el, config); 
-    }
-    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-    for (var i=0; i<noterefs.length; i++) {
-      const ref = noterefs[i];
-      tippyHover(ref, function() {
-        // use id or data attribute instead here
-        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-        try { href = new URL(href).hash; } catch {}
-        const id = href.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note) {
-          return note.innerHTML;
-        } else {
-          return "";
-        }
-      });
-    }
-    const xrefs = window.document.querySelectorAll('a.quarto-xref');
-    const processXRef = (id, note) => {
-      // Strip column container classes
-      const stripColumnClz = (el) => {
-        el.classList.remove("page-full", "page-columns");
-        if (el.children) {
-          for (const child of el.children) {
-            stripColumnClz(child);
-          }
-        }
-      }
-      stripColumnClz(note)
-      if (id === null || id.startsWith('sec-')) {
-        // Special case sections, only their first couple elements
-        const container = document.createElement("div");
-        if (note.children && note.children.length > 2) {
-          container.appendChild(note.children[0].cloneNode(true));
-          for (let i = 1; i < note.children.length; i++) {
-            const child = note.children[i];
-            if (child.tagName === "P" && child.innerText === "") {
-              continue;
-            } else {
-              container.appendChild(child.cloneNode(true));
-              break;
-            }
-          }
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(container);
-          }
-          return container.innerHTML
-        } else {
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(note);
-          }
-          return note.innerHTML;
-        }
-      } else {
-        // Remove any anchor links if they are present
-        const anchorLink = note.querySelector('a.anchorjs-link');
-        if (anchorLink) {
-          anchorLink.remove();
-        }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(note);
-        }
-        if (note.classList.contains("callout")) {
-          return note.outerHTML;
-        } else {
-          return note.innerHTML;
-        }
-      }
-    }
-    for (var i=0; i<xrefs.length; i++) {
-      const xref = xrefs[i];
-      tippyHover(xref, undefined, function(instance) {
-        instance.disable();
-        let url = xref.getAttribute('href');
-        let hash = undefined; 
-        if (url.startsWith('#')) {
-          hash = url;
-        } else {
-          try { hash = new URL(url).hash; } catch {}
-        }
-        if (hash) {
-          const id = hash.replace(/^#\/?/, "");
-          const note = window.document.getElementById(id);
-          if (note !== null) {
-            try {
-              const html = processXRef(id, note.cloneNode(true));
-              instance.setContent(html);
-            } finally {
-              instance.enable();
-              instance.show();
-            }
-          } else {
-            // See if we can fetch this
-            fetch(url.split('#')[0])
-            .then(res => res.text())
-            .then(html => {
-              const parser = new DOMParser();
-              const htmlDoc = parser.parseFromString(html, "text/html");
-              const note = htmlDoc.getElementById(id);
-              if (note !== null) {
-                const html = processXRef(id, note);
-                instance.setContent(html);
-              } 
-            }).finally(() => {
-              instance.enable();
-              instance.show();
-            });
-          }
-        } else {
-          // See if we can fetch a full url (with no hash to target)
-          // This is a special case and we should probably do some content thinning / targeting
-          fetch(url)
-          .then(res => res.text())
-          .then(html => {
-            const parser = new DOMParser();
-            const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.querySelector('main.content');
-            if (note !== null) {
-              // This should only happen for chapter cross references
-              // (since there is no id in the URL)
-              // remove the first header
-              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-                note.children[0].remove();
-              }
-              const html = processXRef(null, note);
-              instance.setContent(html);
-            } 
-          }).finally(() => {
-            instance.enable();
-            instance.show();
-          });
-        }
-      }, function(instance) {
-      });
-    }
-        let selectedAnnoteEl;
-        const selectorForAnnotation = ( cell, annotation) => {
-          let cellAttr = 'data-code-cell="' + cell + '"';
-          let lineAttr = 'data-code-annotation="' +  annotation + '"';
-          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-          return selector;
-        }
-        const selectCodeLines = (annoteEl) => {
-          const doc = window.document;
-          const targetCell = annoteEl.getAttribute("data-target-cell");
-          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-          const lineIds = lines.map((line) => {
-            return targetCell + "-" + line;
-          })
-          // Each band is positioned against its own containing block, which is
-          // not the offsetParent of the lines, so place it from client rects.
-          const placeBand = (band, firstEl, lastEl, codeBlock) => {
-            const container = band.offsetParent;
-            if (container === null) {
-              return;
-            }
-            const containerRect = container.getBoundingClientRect();
-            // Reveal.js scales slides with a transform, so convert client
-            // pixels back to the CSS pixels of the container.
-            const scale = containerRect.height / container.offsetHeight || 1;
-            const firstRect = firstEl.getBoundingClientRect();
-            const lastRect = lastEl.getBoundingClientRect();
-            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
-            const height = (lastRect.bottom - firstRect.top) / scale;
-            band.style.top = top - 2 + "px";
-            band.style.height = height + 4 + "px";
-            if (codeBlock) {
-              // Without the copy button wrapper, the containing block is wider
-              // than the code block, so span the code block explicitly.
-              const blockRect = codeBlock.getBoundingClientRect();
-              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
-              band.style.width = blockRect.width / scale + "px";
-            }
-          };
-          if (lineIds.length > 0) {
-            const el = window.document.getElementById(lineIds[0]);
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const parent = el.parentElement.parentElement;
-            // cook up a div (if necessary) and position it
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
-            }
-            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
-            }
-            placeBand(gutterDiv, el, lastEl);
-            selectedAnnoteEl = annoteEl;
-          }
-        };
-        const unselectCodeLines = () => {
-          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-          elementsIds.forEach((elId) => {
-            const div = window.document.getElementById(elId);
-            if (div) {
-              div.remove();
-            }
-          });
-          selectedAnnoteEl = undefined;
-        };
-          // Handle positioning of the toggle
-      window.addEventListener(
-        "resize",
-        throttle(() => {
-          elRect = undefined;
-          if (selectedAnnoteEl) {
-            selectCodeLines(selectedAnnoteEl);
-          }
-        }, 10)
-      );
-      function throttle(fn, ms) {
-      let throttle = false;
-      let timer;
-        return (...args) => {
-          if(!throttle) { // first call gets through
-              fn.apply(this, args);
-              throttle = true;
-          } else { // all the others get throttled
-              if(timer) clearTimeout(timer); // cancel #2
-              timer = setTimeout(() => {
-                fn.apply(this, args);
-                timer = throttle = false;
-              }, ms);
-          }
-        };
-      }
-        // Attach click handler to the DT
-        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-        for (const annoteDlNode of annoteDls) {
-          annoteDlNode.addEventListener('click', (event) => {
-            const clickedEl = event.target;
-            if (clickedEl !== selectedAnnoteEl) {
-              unselectCodeLines();
-              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-              if (activeEl) {
-                activeEl.classList.remove('code-annotation-active');
-              }
-              selectCodeLines(clickedEl);
-              clickedEl.classList.add('code-annotation-active');
-            } else {
-              // Unselect the line
-              unselectCodeLines();
-              clickedEl.classList.remove('code-annotation-active');
-            }
-          });
-        }
-    const findCites = (el) => {
-      const parentEl = el.parentElement;
-      if (parentEl) {
-        const cites = parentEl.dataset.cites;
-        if (cites) {
-          return {
-            el,
-            cites: cites.split(' ')
-          };
-        } else {
-          return findCites(el.parentElement)
-        }
-      } else {
-        return undefined;
-      }
-    };
-    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-    for (var i=0; i<bibliorefs.length; i++) {
-      const ref = bibliorefs[i];
-      const citeInfo = findCites(ref);
-      if (citeInfo) {
-        tippyHover(citeInfo.el, function() {
-          var popup = window.document.createElement('div');
-          citeInfo.cites.forEach(function(cite) {
-            var citeDiv = window.document.createElement('div');
-            citeDiv.classList.add('hanging-indent');
-            citeDiv.classList.add('csl-entry');
-            var biblioDiv = window.document.getElementById('ref-' + cite);
-            if (biblioDiv) {
-              citeDiv.innerHTML = biblioDiv.innerHTML;
-            }
-            popup.appendChild(citeDiv);
-          });
-          return popup.innerHTML;
-        });
-      }
-    }
-  });
-  </script>
-  <script type="application/javascript">
-  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
-  </script>
-<nav class="page-navigation" aria-label="Page">
-  <div class="nav-page nav-page-previous">
-      <a href="../layout/index.html" class="pagination-link" aria-label="Layout Engine">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Layout Engine</span></span>
-      </a>          
-  </div>
-  <div class="nav-page nav-page-next">
-      <a href="../loader/index.html" class="pagination-link" aria-label="Module Loader">
-        <span class="nav-page-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Module Loader</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
-  </div>
-</nav>
-</div> <!-- /content -->
+</main>
 
 
-
-
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gvwilson/sdxjs/edit/main/interp/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gvwilson/sdxjs/blob/main/interp/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li><li><a href="https://github.com/gvwilson/sdxjs/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+</body></html>
