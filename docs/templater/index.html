@@ -3,6 +3,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Page Templates</title>
   <link rel="stylesheet" href="../mccole/mccole-book.css">
+  <link rel="stylesheet" href="../mccole/tango.css">
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async=""></script>
 </head>
@@ -54,26 +55,26 @@ Figure&nbsp;9.1: Three different ways to implement page templating.
 <p>In this chapter we will build a simple page templating system using the third strategy. We will process each page independently by parsing the HTML and walking the DOM to find nodes with special attributes. Our program will execute the instructions in those nodes to do the equivalent of loops and if/else statements; other nodes will be copied as-is to create text.</p>
 <h2 data-number="9.1" id="page-templates-syntax"><span class="header-section-number">9.1</span> What will our system look like?</h2>
 <p>Let’s start by deciding what “done” looks like. Suppose we want to turn an array of strings into an HTML list. Our page will look like this:</p>
-<pre><code>&lt;html&gt;
-  &lt;body&gt;
-    &lt;p&gt;Expect three items&lt;/p&gt;
-    &lt;ul z-loop="item:names"&gt;
-      &lt;li&gt;&lt;span z-var="item"/&gt;&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/body&gt;
-&lt;/html&gt;</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;</span>Expect three items<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">ul</span><span class="ot"> z-loop</span><span class="op">=</span><span class="st">"item:names"</span><span class="dt">&gt;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&lt;</span><span class="kw">li</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="ot"> z-var</span><span class="op">=</span><span class="st">"item"</span><span class="dt">/&gt;&lt;/</span><span class="kw">li</span><span class="dt">&gt;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;/</span><span class="kw">ul</span><span class="dt">&gt;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
 <p>The attribute <code>z-loop</code> tells the tool to repeat the contents of that node; the loop variable and the collection being looped over are separated by a colon. The attribute <code>z-var</code> tells the tool to fill in the node with the value of the variable.</p>
 <p>When our tool processes this page, the output will be standard HTML without any traces of how it was created:</p>
-<pre><code>&lt;html&gt;
-  &lt;body style="font-size: 200%; margin-left: 0.5em"&gt;
-    &lt;p&gt;Expect three items&lt;/p&gt;
-    &lt;ul&gt;
-      &lt;li&gt;&lt;span&gt;Johnson&lt;/span&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;span&gt;Vaughan&lt;/span&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;span&gt;Jackson&lt;/span&gt;&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/body&gt;
-&lt;/html&gt;</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="ot"> style</span><span class="op">=</span><span class="st">"font-size: 200%; margin-left: 0.5em"</span><span class="dt">&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;</span>Expect three items<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">ul</span><span class="dt">&gt;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&lt;</span><span class="kw">li</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="dt">&gt;</span>Johnson<span class="dt">&lt;/</span><span class="kw">span</span><span class="dt">&gt;&lt;/</span><span class="kw">li</span><span class="dt">&gt;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&lt;</span><span class="kw">li</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="dt">&gt;</span>Vaughan<span class="dt">&lt;/</span><span class="kw">span</span><span class="dt">&gt;&lt;/</span><span class="kw">li</span><span class="dt">&gt;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&lt;</span><span class="kw">li</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="dt">&gt;</span>Jackson<span class="dt">&lt;/</span><span class="kw">span</span><span class="dt">&gt;&lt;/</span><span class="kw">li</span><span class="dt">&gt;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;/</span><span class="kw">ul</span><span class="dt">&gt;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
 <div>
 <blockquote>
 <p><strong>Human-readable vs.&nbsp;machine-readable</strong></p>
@@ -83,13 +84,13 @@ Figure&nbsp;9.1: Three different ways to implement page templating.
 </blockquote>
 </div>
 <p>The next step is to define the API for filling in templates. Our tool needs the template itself, somewhere to write its output, and some variables to use in the expansion. These variables might come from a configuration file, from a YAML header in the file itself, or from some mix of the two; for the moment, we will just pass them into the expansion function as an object:</p>
-<pre><code>const variables = {
-  names: ['Johnson', 'Vaughan', 'Jackson']
-}
-const dom = readHtml('template.html') // eslint-disable-line
-const expander = new Expander(dom, variables) // eslint-disable-line
-expander.walk()
-console.log(expander.result)</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> variables <span class="op">=</span> {</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">names</span><span class="op">:</span> [<span class="st">'Johnson'</span><span class="op">,</span> <span class="st">'Vaughan'</span><span class="op">,</span> <span class="st">'Jackson'</span>]</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> dom <span class="op">=</span> <span class="fu">readHtml</span>(<span class="st">'template.html'</span>) <span class="co">// eslint-disable-line</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> expander <span class="op">=</span> <span class="kw">new</span> <span class="fu">Expander</span>(dom<span class="op">,</span> variables) <span class="co">// eslint-disable-line</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>expander<span class="op">.</span><span class="fu">walk</span>()</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(expander<span class="op">.</span><span class="at">result</span>)</span></code></pre></div>
 <h2 data-number="9.2" id="page-templates-values"><span class="header-section-number">9.2</span> How can we keep track of values?</h2>
 <p>Speaking of variables, we need a way to keep track of their current values; we say “current” because the value of a loop variable changes each time we go around the loop. We also need to maintain multiple sets of variables so that variables used inside a loop don’t conflict with ones used outside it. (We don’t actually “need” to do this—we could just have one global set of variables—but experience teaches us that if all our variables are global, all of our programs will be buggy.)</p>
 <p>The standard way to manage variables is to create a stack of lookup tables. Each <a href="../glossary/index.html#stack_frame">stack frame</a> is an object with names and values; when we need to find a variable, we look through the stack frames in order to find the uppermost definition of that variable..</p>
@@ -100,30 +101,30 @@ console.log(expander.result)</code></pre>
 </blockquote>
 </div>
 <p>The values in a running program are sometimes called an <a href="../glossary/index.html#environment">environment</a>, so we have named our stack-handling class <code>Env</code>. Its methods let us push and pop new stack frames and find a variable given its name; if the variable can’t be found, <code>Env.find</code> returns <code>undefined</code> instead of throwing an exception (<a href="#fig-page-templates-stack" class="quarto-xref">Figure&nbsp;<span>9.2</span></a>).</p>
-<pre><code>class Env {
-  constructor (initial) {
-    this.stack = []
-    this.push(Object.assign({}, initial))
-  }
-  push (frame) {
-    this.stack.push(frame)
-  }
-  pop () {
-    this.stack.pop()
-  }
-  find (name) {
-    for (let i = this.stack.length - 1; i &gt;= 0; i--) {
-      if (name in this.stack[i]) {
-        return this.stack[i][name]
-      }
-    }
-    return undefined
-  }
-  toString () {
-    return JSON.stringify(this.stack)
-  }
-}
-export default Env</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Env {</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (initial) {</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">stack</span> <span class="op">=</span> []</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">push</span>(<span class="bu">Object</span><span class="op">.</span><span class="fu">assign</span>({}<span class="op">,</span> initial))</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">push</span> (frame) {</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">stack</span><span class="op">.</span><span class="fu">push</span>(frame)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pop</span> () {</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">stack</span><span class="op">.</span><span class="fu">pop</span>()</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">find</span> (name) {</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="at">stack</span><span class="op">.</span><span class="at">length</span> <span class="op">-</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">;</span> i<span class="op">--</span>) {</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (name <span class="kw">in</span> <span class="kw">this</span><span class="op">.</span><span class="at">stack</span>[i]) {</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="at">stack</span>[i][name]</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">undefined</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">toString</span> () {</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(<span class="kw">this</span><span class="op">.</span><span class="at">stack</span>)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> Env</span></code></pre></div>
 <div id="fig-page-templates-stack" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-page-templates-stack-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -136,32 +137,32 @@ Figure&nbsp;9.2: Using a stack to manage variables.
 </div>
 <h2 data-number="9.3" id="page-templates-nodes"><span class="header-section-number">9.3</span> How do we handle nodes?</h2>
 <p>HTML pages have a nested structure, so we will process them using the <a href="../glossary/index.html#visitor_pattern">Visitor</a> design pattern. <code>Visitor</code>’s constructor takes the <a href="../glossary/index.html#root_tree">root node</a> of the DOM tree as an argument and saves it. When we call <code>Visitor.walk</code> without a value, it starts recursing from that saved root; if <code>.walk</code> is given a value (as it is during recursive calls), it uses that instead.</p>
-<pre><code>import assert from 'assert'
-class Visitor {
-  constructor (root) {
-    this.root = root
-  }
-  walk (node = null) {
-    if (node === null) {
-      node = this.root
-    }
-    if (this.open(node)) {
-      node.children.forEach(child =&gt; {
-        this.walk(child)
-      })
-    }
-    this.close(node)
-  }
-  open (node) {
-    assert(false,
-      'Must implement "open"')
-  }
-  close (node) {
-    assert(false,
-      'Must implement "close"')
-  }
-}
-export default Visitor</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Visitor {</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (<span class="bu">root</span>) {</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">root</span> <span class="op">=</span> <span class="bu">root</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">walk</span> (node <span class="op">=</span> <span class="kw">null</span>) {</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (node <span class="op">===</span> <span class="kw">null</span>) {</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>      node <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="at">root</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="fu">open</span>(node)) {</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>      node<span class="op">.</span><span class="at">children</span><span class="op">.</span><span class="fu">forEach</span>(child <span class="kw">=&gt;</span> {</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">walk</span>(child)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>      })</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">close</span>(node)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">open</span> (node) {</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(<span class="kw">false</span><span class="op">,</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Must implement "open"'</span>)</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">close</span> (node) {</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(<span class="kw">false</span><span class="op">,</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Must implement "close"'</span>)</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> Visitor</span></code></pre></div>
 <p><code>Visitor</code> defines two methods called <code>open</code> and <code>close</code> that are called when we first arrive at a node and when we are finished with it (shown for the <code>p</code> node in <a href="#fig-page-templates-visitor" class="quarto-xref">Figure&nbsp;<span>9.3</span></a>). The default implementations of these methods throw exceptions to remind the creators of derived classes to implement their own versions.</p>
 <div id="fig-page-templates-visitor" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig">
@@ -179,141 +180,141 @@ Figure&nbsp;9.3: Using the Visitor pattern to evaluate a page template.
 <li><p>If there is a handler for the node, call the handler’s <code>open</code> or <code>close</code> method.</p></li>
 <li><p>Otherwise, open or close a regular tag.</p></li>
 </ol>
-<pre><code>import assert from 'assert'
-import Visitor from './visitor.js'
-import Env from './env.js'
-import z_if from './z-if.js'
-import z_loop from './z-loop.js'
-import z_num from './z-num.js'
-import z_var from './z-var.js'
-const HANDLERS = {
-  'z-if': z_if,
-  'z-loop': z_loop,
-  'z-num': z_num,
-  'z-var': z_var
-}
-class Expander extends Visitor {
-  constructor (root, vars) {
-    super(root)
-    this.env = new Env(vars)
-    this.handlers = HANDLERS
-    this.result = []
-  }
-  open (node) {
-    if (node.type === 'text') {
-      this.output(node.data)
-      return false
-    } else if (this.hasHandler(node)) {
-      return this.getHandler(node).open(this, node)
-    } else {
-      this.showTag(node, false)
-      return true
-    }
-  }
-  close (node) {
-    if (node.type === 'text') {
-      return
-    }
-    if (this.hasHandler(node)) {
-      this.getHandler(node).close(this, node)
-    } else {
-      this.showTag(node, true)
-    }
-  }
-  // mccole:skip
-  // mccole:handlers
-  hasHandler (node) {
-    for (const name in node.attribs) {
-      if (name in this.handlers) {
-        return true
-      }
-    }
-    return false
-  }
-  getHandler (node) {
-    const possible = Object.keys(node.attribs)
-      .filter(name =&gt; name in this.handlers)
-    assert(possible.length === 1,
-      'Should be exactly one handler')
-    return this.handlers[possible[0]]
-  }
-  // mccole:/handlers
-  // mccole:helpers
-  showTag (node, closing) {
-    if (closing) {
-      this.output(`&lt;/${node.name}&gt;`)
-      return
-    }
-    this.output(`&lt;${node.name}`)
-    if (node.name === 'body') {
-      this.output(' style="font-size: 200%; margin-left: 0.5em"')
-    }
-    for (const name in node.attribs) {
-      if (!name.startsWith('z-')) {
-        this.output(` ${name}="${node.attribs[name]}"`)
-      }
-    }
-    this.output('&gt;')
-  }
-  output (text) {
-    this.result.push((text === undefined) ? 'UNDEF' : text)
-  }
-  getResult () {
-    return this.result.join('')
-  }
-  // mccole:/helpers
-  // mccole:/skip
-}
-export default Expander</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Visitor <span class="im">from</span> <span class="st">'./visitor.js'</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Env <span class="im">from</span> <span class="st">'./env.js'</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> z_if <span class="im">from</span> <span class="st">'./z-if.js'</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> z_loop <span class="im">from</span> <span class="st">'./z-loop.js'</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> z_num <span class="im">from</span> <span class="st">'./z-num.js'</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> z_var <span class="im">from</span> <span class="st">'./z-var.js'</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> HANDLERS <span class="op">=</span> {</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">'z-if'</span><span class="op">:</span> z_if<span class="op">,</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">'z-loop'</span><span class="op">:</span> z_loop<span class="op">,</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">'z-num'</span><span class="op">:</span> z_num<span class="op">,</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">'z-var'</span><span class="op">:</span> z_var</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Expander <span class="kw">extends</span> Visitor {</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (<span class="bu">root</span><span class="op">,</span> vars) {</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>(<span class="bu">root</span>)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">env</span> <span class="op">=</span> <span class="kw">new</span> <span class="fu">Env</span>(vars)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">handlers</span> <span class="op">=</span> HANDLERS</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">result</span> <span class="op">=</span> []</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">open</span> (node) {</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (node<span class="op">.</span><span class="at">type</span> <span class="op">===</span> <span class="st">'text'</span>) {</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">output</span>(node<span class="op">.</span><span class="at">data</span>)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="kw">false</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="fu">hasHandler</span>(node)) {</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="fu">getHandler</span>(node)<span class="op">.</span><span class="fu">open</span>(<span class="kw">this</span><span class="op">,</span> node)</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">false</span>)</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="kw">true</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">close</span> (node) {</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (node<span class="op">.</span><span class="at">type</span> <span class="op">===</span> <span class="st">'text'</span>) {</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="fu">hasHandler</span>(node)) {</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">getHandler</span>(node)<span class="op">.</span><span class="fu">close</span>(<span class="kw">this</span><span class="op">,</span> node)</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">true</span>)</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:skip</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:handlers</span></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">hasHandler</span> (node) {</span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">const</span> name <span class="kw">in</span> node<span class="op">.</span><span class="at">attribs</span>) {</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (name <span class="kw">in</span> <span class="kw">this</span><span class="op">.</span><span class="at">handlers</span>) {</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">true</span></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">false</span></span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">getHandler</span> (node) {</span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> possible <span class="op">=</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">keys</span>(node<span class="op">.</span><span class="at">attribs</span>)</span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">filter</span>(name <span class="kw">=&gt;</span> name <span class="kw">in</span> <span class="kw">this</span><span class="op">.</span><span class="at">handlers</span>)</span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(possible<span class="op">.</span><span class="at">length</span> <span class="op">===</span> <span class="dv">1</span><span class="op">,</span></span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Should be exactly one handler'</span>)</span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="at">handlers</span>[possible[<span class="dv">0</span>]]</span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:/handlers</span></span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:helpers</span></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">showTag</span> (node<span class="op">,</span> closing) {</span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (closing) {</span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">output</span>(<span class="vs">`&lt;/</span><span class="sc">${</span>node<span class="op">.</span><span class="at">name</span><span class="sc">}</span><span class="vs">&gt;`</span>)</span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span></span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">output</span>(<span class="vs">`&lt;</span><span class="sc">${</span>node<span class="op">.</span><span class="at">name</span><span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (node<span class="op">.</span><span class="at">name</span> <span class="op">===</span> <span class="st">'body'</span>) {</span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">output</span>(<span class="st">' style="font-size: 200%; margin-left: 0.5em"'</span>)</span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">const</span> name <span class="kw">in</span> node<span class="op">.</span><span class="at">attribs</span>) {</span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="op">!</span>name<span class="op">.</span><span class="fu">startsWith</span>(<span class="st">'z-'</span>)) {</span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">output</span>(<span class="vs">` </span><span class="sc">${</span>name<span class="sc">}</span><span class="vs">="</span><span class="sc">${</span>node<span class="op">.</span><span class="at">attribs</span>[name]<span class="sc">}</span><span class="vs">"`</span>)</span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">output</span>(<span class="st">'&gt;'</span>)</span>
+<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">output</span> (text) {</span>
+<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">result</span><span class="op">.</span><span class="fu">push</span>((text <span class="op">===</span> <span class="kw">undefined</span>) <span class="op">?</span> <span class="st">'UNDEF'</span> <span class="op">:</span> text)</span>
+<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>  <span class="fu">getResult</span> () {</span>
+<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="at">result</span><span class="op">.</span><span class="fu">join</span>(<span class="st">''</span>)</span>
+<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:/helpers</span></span>
+<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:/skip</span></span>
+<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> Expander</span></code></pre></div>
 <p>Checking to see if there is a handler for a particular node and getting that handler are straightforward—we just look at the node’s attributes:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Finally, we need a few helper methods to show tags and generate output:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Notice that this class adds strings to an array and joins them all right at the end rather than concatenating strings repeatedly. Doing this is more efficient and also helps with debugging, since each string in the array corresponds to a single method call.</p>
 <h2 data-number="9.4" id="page-templates-handlers"><span class="header-section-number">9.4</span> How do we implement node handlers?</h2>
 <p>At this point we have built a lot of infrastructure but haven’t actually processed any special nodes. To do that, let’s write a handler that copies a constant number into the output:</p>
-<pre><code>export default {
-  open: (expander, node) =&gt; {
-    expander.showTag(node, false)
-    expander.output(node.attribs['z-num'])
-  },
-  close: (expander, node) =&gt; {
-    expander.showTag(node, true)
-  }
-}</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> {</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">open</span><span class="op">:</span> (expander<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    expander<span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">false</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    expander<span class="op">.</span><span class="fu">output</span>(node<span class="op">.</span><span class="at">attribs</span>[<span class="st">'z-num'</span>])</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">close</span><span class="op">:</span> (expander<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    expander<span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">true</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>When we enter a node like <code>&lt;span z-num="123"/&gt;</code> this handler asks the expander to show an opening tag followed by the value of the <code>z-num</code> attribute. When we exit the node, the handler asks the expander to close the tag. The handler doesn’t know whether things are printed immediately, added to an output list, or something else; it just knows that whoever called it implements the low-level operations it needs.</p>
 <p>Note that this expander is <em>not</em> a class, but instead an object with two functions stored under the keys <code>open</code> and <code>close</code>. We could use a class for each handler so that handlers can store any extra state they need, but <a href="../glossary/index.html#bare_object">bare objects</a> are common and useful in JavaScript (though we will see below that we <em>should</em> have used classes).</p>
 <p>So much for constants; what about variables?</p>
-<pre><code>export default {
-  open: (expander, node) =&gt; {
-    expander.showTag(node, false)
-    expander.output(expander.env.find(node.attribs['z-var']))
-  },
-  close: (expander, node) =&gt; {
-    expander.showTag(node, true)
-  }
-}</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> {</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">open</span><span class="op">:</span> (expander<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    expander<span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">false</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    expander<span class="op">.</span><span class="fu">output</span>(expander<span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="fu">find</span>(node<span class="op">.</span><span class="at">attribs</span>[<span class="st">'z-var'</span>]))</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">close</span><span class="op">:</span> (expander<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    expander<span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">true</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>This code is almost the same as the previous example. The only difference is that instead of copying the attribute’s value directly to the output, we use it as a key to look up a value in the environment.</p>
 <p>These two pairs of handlers look plausible, but do they work? To find out, we can build a program that loads variable definitions from a JSON file, reads an HTML template, and does the expansion:</p>
-<pre><code>import fs from 'fs'
-import htmlparser2 from 'htmlparser2'
-import Expander from './expander.js'
-const main = () =&gt; {
-  const vars = readJSON(process.argv[2])
-  const doc = readHtml(process.argv[3])
-  const expander = new Expander(doc, vars)
-  expander.walk()
-  console.log(expander.getResult())
-}
-const readJSON = (filename) =&gt; {
-  const text = fs.readFileSync(filename, 'utf-8')
-  return JSON.parse(text)
-}
-const readHtml = (filename) =&gt; {
-  const text = fs.readFileSync(filename, 'utf-8')
-  return htmlparser2.parseDOM(text)[0]
-}
-main()</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs'</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> htmlparser2 <span class="im">from</span> <span class="st">'htmlparser2'</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Expander <span class="im">from</span> <span class="st">'./expander.js'</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> main <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> vars <span class="op">=</span> <span class="fu">readJSON</span>(<span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">2</span>])</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> doc <span class="op">=</span> <span class="fu">readHtml</span>(<span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">3</span>])</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> expander <span class="op">=</span> <span class="kw">new</span> <span class="fu">Expander</span>(doc<span class="op">,</span> vars)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  expander<span class="op">.</span><span class="fu">walk</span>()</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(expander<span class="op">.</span><span class="fu">getResult</span>())</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> readJSON <span class="op">=</span> (filename) <span class="kw">=&gt;</span> {</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> text <span class="op">=</span> fs<span class="op">.</span><span class="fu">readFileSync</span>(filename<span class="op">,</span> <span class="st">'utf-8'</span>)</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">parse</span>(text)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> readHtml <span class="op">=</span> (filename) <span class="kw">=&gt;</span> {</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> text <span class="op">=</span> fs<span class="op">.</span><span class="fu">readFileSync</span>(filename<span class="op">,</span> <span class="st">'utf-8'</span>)</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> htmlparser2<span class="op">.</span><span class="fu">parseDOM</span>(text)[<span class="dv">0</span>]</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="fu">main</span>()</span></code></pre></div>
 <p>We added new variables for our test cases one-by-one as we were writing this chapter. To avoid repeating text repeatedly, we show the entire set once:</p>
 <pre><code>{
   "firstVariable": "firstValue",
@@ -324,27 +325,27 @@ main()</code></pre>
   "names": ["Johnson", "Vaughan", "Jackson"]
 }</code></pre>
 <p>Our first test: is static text copied over as-is (<a href="#fig-page-templates-output-static-text" class="quarto-xref">Figure&nbsp;<span>9.4</span></a>)?</p>
-<pre><code>&lt;html&gt;
-  &lt;body&gt;
-    &lt;h1&gt;Static Text&lt;/h1&gt;
-    &lt;p&gt;This page has:&lt;/p&gt;
-    &lt;ul&gt;
-      &lt;li&gt;static&lt;/li&gt;
-      &lt;li&gt;text&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/body&gt;
-&lt;/html&gt;</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">h1</span><span class="dt">&gt;</span>Static Text<span class="dt">&lt;/</span><span class="kw">h1</span><span class="dt">&gt;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;</span>This page has:<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">ul</span><span class="dt">&gt;</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&lt;</span><span class="kw">li</span><span class="dt">&gt;</span>static<span class="dt">&lt;/</span><span class="kw">li</span><span class="dt">&gt;</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&lt;</span><span class="kw">li</span><span class="dt">&gt;</span>text<span class="dt">&lt;/</span><span class="kw">li</span><span class="dt">&gt;</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;/</span><span class="kw">ul</span><span class="dt">&gt;</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
 <div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> template.js vars.json input-static-text.html</span></code></pre></div>
-<pre><code>&lt;html&gt;
-  &lt;body style="font-size: 200%; margin-left: 0.5em"&gt;
-    &lt;h1&gt;Static Text&lt;/h1&gt;
-    &lt;p&gt;This page has:&lt;/p&gt;
-    &lt;ul&gt;
-      &lt;li&gt;static&lt;/li&gt;
-      &lt;li&gt;text&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/body&gt;
-&lt;/html&gt;</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="ot"> style</span><span class="op">=</span><span class="st">"font-size: 200%; margin-left: 0.5em"</span><span class="dt">&gt;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">h1</span><span class="dt">&gt;</span>Static Text<span class="dt">&lt;/</span><span class="kw">h1</span><span class="dt">&gt;</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;</span>This page has:<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">ul</span><span class="dt">&gt;</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&lt;</span><span class="kw">li</span><span class="dt">&gt;</span>static<span class="dt">&lt;/</span><span class="kw">li</span><span class="dt">&gt;</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&lt;</span><span class="kw">li</span><span class="dt">&gt;</span>text<span class="dt">&lt;/</span><span class="kw">li</span><span class="dt">&gt;</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;/</span><span class="kw">ul</span><span class="dt">&gt;</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
 <div id="fig-page-templates-output-static-text" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-page-templates-output-static-text-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -356,16 +357,16 @@ Figure&nbsp;9.4: Static text generated by page templates.
 </figure>
 </div>
 <p>Good. Now, does the expander handle constants (<a href="#fig-page-templates-output-single-constant" class="quarto-xref">Figure&nbsp;<span>9.5</span></a>)?</p>
-<pre><code>&lt;html&gt;
-  &lt;body&gt;
-    &lt;p&gt;&lt;span z-num="123"/&gt;&lt;/p&gt;
-  &lt;/body&gt;
-&lt;/html&gt;</code></pre>
-<pre><code>&lt;html&gt;
-  &lt;body style="font-size: 200%; margin-left: 0.5em"&gt;
-    &lt;p&gt;&lt;span&gt;123&lt;/span&gt;&lt;/p&gt;
-  &lt;/body&gt;
-&lt;/html&gt;</code></pre>
+<div class="sourceCode" id="cb17"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="ot"> z-num</span><span class="op">=</span><span class="st">"123"</span><span class="dt">/&gt;&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="ot"> style</span><span class="op">=</span><span class="st">"font-size: 200%; margin-left: 0.5em"</span><span class="dt">&gt;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="dt">&gt;</span>123<span class="dt">&lt;/</span><span class="kw">span</span><span class="dt">&gt;&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
 <div id="fig-page-templates-output-single-constant" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-page-templates-output-single-constant-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -377,16 +378,16 @@ Figure&nbsp;9.5: A single constant generated by page templates.
 </figure>
 </div>
 <p>What about a single variable (<a href="#fig-page-templates-output-single-variable" class="quarto-xref">Figure&nbsp;<span>9.6</span></a>)?</p>
-<pre><code>&lt;html&gt;
-  &lt;body&gt;
-    &lt;p&gt;&lt;span z-var="variableName"/&gt;&lt;/p&gt;
-  &lt;/body&gt;
-&lt;/html&gt;</code></pre>
-<pre><code>&lt;html&gt;
-  &lt;body style="font-size: 200%; margin-left: 0.5em"&gt;
-    &lt;p&gt;&lt;span&gt;variableValue&lt;/span&gt;&lt;/p&gt;
-  &lt;/body&gt;
-&lt;/html&gt;</code></pre>
+<div class="sourceCode" id="cb19"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="ot"> z-var</span><span class="op">=</span><span class="st">"variableName"</span><span class="dt">/&gt;&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="ot"> style</span><span class="op">=</span><span class="st">"font-size: 200%; margin-left: 0.5em"</span><span class="dt">&gt;</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="dt">&gt;</span>variableValue<span class="dt">&lt;/</span><span class="kw">span</span><span class="dt">&gt;&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
 <div id="fig-page-templates-output-single-variable" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-page-templates-output-single-variable-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -398,18 +399,18 @@ Figure&nbsp;9.6: A single variable generated by page templates.
 </figure>
 </div>
 <p>What about a page containing multiple variables? There’s no reason it should fail if the single-variable case works, but we should still check—again, software isn’t done until it has been tested (<a href="#fig-page-templates-output-multiple-variables" class="quarto-xref">Figure&nbsp;<span>9.7</span></a>).</p>
-<pre><code>&lt;html&gt;
-  &lt;body&gt;
-    &lt;p&gt;&lt;span z-var="firstVariable" /&gt;&lt;/p&gt;
-    &lt;p&gt;&lt;span z-var="secondVariable" /&gt;&lt;/p&gt;
-  &lt;/body&gt;
-&lt;/html&gt;</code></pre>
-<pre><code>&lt;html&gt;
-  &lt;body style="font-size: 200%; margin-left: 0.5em"&gt;
-    &lt;p&gt;&lt;span&gt;firstValue&lt;/span&gt;&lt;/p&gt;
-    &lt;p&gt;&lt;span&gt;secondValue&lt;/span&gt;&lt;/p&gt;
-  &lt;/body&gt;
-&lt;/html&gt;</code></pre>
+<div class="sourceCode" id="cb21"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="ot"> z-var</span><span class="op">=</span><span class="st">"firstVariable"</span><span class="ot"> </span><span class="dt">/&gt;&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="ot"> z-var</span><span class="op">=</span><span class="st">"secondVariable"</span><span class="ot"> </span><span class="dt">/&gt;&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="ot"> style</span><span class="op">=</span><span class="st">"font-size: 200%; margin-left: 0.5em"</span><span class="dt">&gt;</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="dt">&gt;</span>firstValue<span class="dt">&lt;/</span><span class="kw">span</span><span class="dt">&gt;&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="dt">&gt;</span>secondValue<span class="dt">&lt;/</span><span class="kw">span</span><span class="dt">&gt;&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
 <div id="fig-page-templates-output-multiple-variables" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-page-templates-output-multiple-variables-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -422,32 +423,32 @@ Figure&nbsp;9.7: Multiple variables generated by page templates.
 </div>
 <h2 data-number="9.5" id="page-templates-flow"><span class="header-section-number">9.5</span> How can we implement control flow?</h2>
 <p>Our tool supports two types of control flow: conditional expressions and loops. Since we don’t support Boolean expressions like <code>and</code> and <code>or</code>, implementing a conditional is as simple as looking up a variable (which we know how to do) and then expanding the node if the value is true:</p>
-<pre><code>export default {
-  open: (expander, node) =&gt; {
-    const doRest = expander.env.find(node.attribs['z-if'])
-    if (doRest) {
-      expander.showTag(node, false)
-    }
-    return doRest
-  },
-  close: (expander, node) =&gt; {
-    if (expander.env.find(node.attribs['z-if'])) {
-      expander.showTag(node, true)
-    }
-  }
-}</code></pre>
+<div class="sourceCode" id="cb23"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> {</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">open</span><span class="op">:</span> (expander<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> doRest <span class="op">=</span> expander<span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="fu">find</span>(node<span class="op">.</span><span class="at">attribs</span>[<span class="st">'z-if'</span>])</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (doRest) {</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>      expander<span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">false</span>)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> doRest</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">close</span><span class="op">:</span> (expander<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (expander<span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="fu">find</span>(node<span class="op">.</span><span class="at">attribs</span>[<span class="st">'z-if'</span>])) {</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>      expander<span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">true</span>)</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Let’s test it (<a href="#fig-page-templates-output-conditional" class="quarto-xref">Figure&nbsp;<span>9.8</span></a>):</p>
-<pre><code>&lt;html&gt;
-  &lt;body&gt;
-    &lt;p z-if="showThis"&gt;This should be shown.&lt;/p&gt;
-    &lt;p z-if="doNotShowThis"&gt;This should &lt;em&gt;not&lt;/em&gt; be shown.&lt;/p&gt;
-  &lt;/body&gt;
-&lt;/html&gt;</code></pre>
-<pre><code>&lt;html&gt;
-  &lt;body style="font-size: 200%; margin-left: 0.5em"&gt;
-    &lt;p&gt;This should be shown.&lt;/p&gt;
-  &lt;/body&gt;
-&lt;/html&gt;</code></pre>
+<div class="sourceCode" id="cb24"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="ot"> z-if</span><span class="op">=</span><span class="st">"showThis"</span><span class="dt">&gt;</span>This should be shown.<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="ot"> z-if</span><span class="op">=</span><span class="st">"doNotShowThis"</span><span class="dt">&gt;</span>This should <span class="dt">&lt;</span><span class="kw">em</span><span class="dt">&gt;</span>not<span class="dt">&lt;/</span><span class="kw">em</span><span class="dt">&gt;</span> be shown.<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="ot"> style</span><span class="op">=</span><span class="st">"font-size: 200%; margin-left: 0.5em"</span><span class="dt">&gt;</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;</span>This should be shown.<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
 <div id="fig-page-templates-output-conditional" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-page-templates-output-conditional-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -468,42 +469,42 @@ The <code>open</code> and <code>close</code> functions for <code>if</code> both 
 <li><p>Expand all of the node’s children with that stack frame in place.</p></li>
 <li><p>Pop the stack frame to get rid of the temporary variable.</p></li>
 </ol>
-<pre><code>export default {
-  open: (expander, node) =&gt; {
-    const [indexName, targetName] = node.attribs['z-loop'].split(':')
-    delete node.attribs['z-loop']
-    expander.showTag(node, false)
-    const target = expander.env.find(targetName)
-    for (const index of target) {
-      expander.env.push({ [indexName]: index })
-      node.children.forEach(child =&gt; expander.walk(child))
-      expander.env.pop()
-    }
-    return false
-  },
-  close: (expander, node) =&gt; {
-    expander.showTag(node, true)
-  }
-}</code></pre>
+<div class="sourceCode" id="cb26"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> {</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">open</span><span class="op">:</span> (expander<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [indexName<span class="op">,</span> targetName] <span class="op">=</span> node<span class="op">.</span><span class="at">attribs</span>[<span class="st">'z-loop'</span>]<span class="op">.</span><span class="fu">split</span>(<span class="st">':'</span>)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">delete</span> node<span class="op">.</span><span class="at">attribs</span>[<span class="st">'z-loop'</span>]</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    expander<span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">false</span>)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> target <span class="op">=</span> expander<span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="fu">find</span>(targetName)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">const</span> index <span class="kw">of</span> target) {</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>      expander<span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="fu">push</span>({ [indexName]<span class="op">:</span> index })</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>      node<span class="op">.</span><span class="at">children</span><span class="op">.</span><span class="fu">forEach</span>(child <span class="kw">=&gt;</span> expander<span class="op">.</span><span class="fu">walk</span>(child))</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>      expander<span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="fu">pop</span>()</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">false</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">close</span><span class="op">:</span> (expander<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>    expander<span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">true</span>)</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Once again, it’s not done until we test it (<a href="#fig-page-templates-output-loop" class="quarto-xref">Figure&nbsp;<span>9.9</span></a>):</p>
-<pre><code>&lt;html&gt;
-  &lt;body&gt;
-    &lt;p&gt;Expect three items&lt;/p&gt;
-    &lt;ul z-loop="item:names"&gt;
-      &lt;li&gt;&lt;span z-var="item"/&gt;&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/body&gt;
-&lt;/html&gt;</code></pre>
-<pre><code>&lt;html&gt;
-  &lt;body style="font-size: 200%; margin-left: 0.5em"&gt;
-    &lt;p&gt;Expect three items&lt;/p&gt;
-    &lt;ul&gt;
-      &lt;li&gt;&lt;span&gt;Johnson&lt;/span&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;span&gt;Vaughan&lt;/span&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;span&gt;Jackson&lt;/span&gt;&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/body&gt;
-&lt;/html&gt;</code></pre>
+<div class="sourceCode" id="cb27"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;</span>Expect three items<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">ul</span><span class="ot"> z-loop</span><span class="op">=</span><span class="st">"item:names"</span><span class="dt">&gt;</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&lt;</span><span class="kw">li</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="ot"> z-var</span><span class="op">=</span><span class="st">"item"</span><span class="dt">/&gt;&lt;/</span><span class="kw">li</span><span class="dt">&gt;</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;/</span><span class="kw">ul</span><span class="dt">&gt;</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="ot"> style</span><span class="op">=</span><span class="st">"font-size: 200%; margin-left: 0.5em"</span><span class="dt">&gt;</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;</span>Expect three items<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">ul</span><span class="dt">&gt;</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&lt;</span><span class="kw">li</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="dt">&gt;</span>Johnson<span class="dt">&lt;/</span><span class="kw">span</span><span class="dt">&gt;&lt;/</span><span class="kw">li</span><span class="dt">&gt;</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&lt;</span><span class="kw">li</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="dt">&gt;</span>Vaughan<span class="dt">&lt;/</span><span class="kw">span</span><span class="dt">&gt;&lt;/</span><span class="kw">li</span><span class="dt">&gt;</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&lt;</span><span class="kw">li</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="dt">&gt;</span>Jackson<span class="dt">&lt;/</span><span class="kw">span</span><span class="dt">&gt;&lt;/</span><span class="kw">li</span><span class="dt">&gt;</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;/</span><span class="kw">ul</span><span class="dt">&gt;</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
 <div id="fig-page-templates-output-loop" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-page-templates-output-loop-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">

@@ -3,6 +3,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Debugger</title>
   <link rel="stylesheet" href="../mccole/mccole-book.css">
+  <link rel="stylesheet" href="../mccole/tango.css">
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async=""></script>
 </head>
@@ -35,21 +36,21 @@
 <p>We have finally come to another of the topics that sparked this book: how does a debugger work? Debuggers are as much a part of programmers’ lives as version control but are taught far less often (in part, we believe, because it’s harder to create homework questions for them). In this chapter we will build a simple single-stepping debugger and show one way to test interactive applications (<a href="../test/index.html" class="quarto-xref"><span>Chapter 4</span></a>).</p>
 <h2 data-number="20.1" id="debugger-start"><span class="header-section-number">20.1</span> What is our starting point?</h2>
 <p>We would like to debug a higher-level language than the assembly code of <a href="../vm/index.html" class="quarto-xref"><span>Chapter 19</span></a>, but we don’t want to have to write a parser or wrestle with the ASTs of <a href="../style/index.html" class="quarto-xref"><span>Chapter 14</span></a>. As a compromise, we will represent programs as JSON data structures whose elements have the form <code>[command ...args]</code>. If the JavaScript version of our program is:</p>
-<pre><code>const a = [-3, -5, -1, 0, -2, 1, 3, 1]
-const b = Array()
-let largest = a[0]
-let i = 0
-while (i &lt; length(a)) {
-  if (a[i] &gt; largest) {
-    b.push(a[i])
-  }
-  i += 1
-}
-i = 0
-while (i &lt; length(b)) {
-  console.log(b[i])
-  i += 1
-}</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> a <span class="op">=</span> [<span class="op">-</span><span class="dv">3</span><span class="op">,</span> <span class="op">-</span><span class="dv">5</span><span class="op">,</span> <span class="op">-</span><span class="dv">1</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="op">-</span><span class="dv">2</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">1</span>]</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> b <span class="op">=</span> <span class="bu">Array</span>()</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> largest <span class="op">=</span> a[<span class="dv">0</span>]</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> (i <span class="op">&lt;</span> <span class="fu">length</span>(a)) {</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (a[i] <span class="op">&gt;</span> largest) {</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    b<span class="op">.</span><span class="fu">push</span>(a[i])</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  i <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>i <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> (i <span class="op">&lt;</span> <span class="fu">length</span>(b)) {</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(b[i])</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  i <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>then the JSON representation is:</p>
 <pre><code>[
   ["defA", "a", ["data", -3, -5, -1, 0, -2, 1, 3, 1]],
@@ -71,210 +72,210 @@ while (i &lt; length(b)) {
   ]
 ]</code></pre>
 <p>Our virtual machine is structured like the one in <a href="../vm/index.html" class="quarto-xref"><span>Chapter 19</span></a>. A real system would parse a program to create JSON, then translate JSON into assembly code, then assemble that to create machine instructions. Again, to keep things simple we will execute a program by removing comments and blank lines and then running commands by looking up the command name’s and calling that method:</p>
-<pre><code>import assert from 'assert'
-class VirtualMachineBase {
-  constructor (program) {
-    this.program = this.compile(program)
-    this.prefix = '&gt;&gt;'
-  }
-  compile (lines) {
-    const text = lines
-      .map(line =&gt; line.trim())
-      .filter(line =&gt; (line.length &gt; 0) &amp;&amp; !line.startsWith('//'))
-      .join('\n')
-    return JSON.parse(text)
-  }
-  run () {
-    this.env = {}
-    this.runAll(this.program)
-  }
-  runAll (commands) {
-    commands.forEach(command =&gt; this.exec(command))
-  }
-  exec (command) {
-    const [op, ...args] = command
-    assert(op in this,
-      `Unknown op "${op}"`)
-    return this[op](args)
-  }
-  // mccole:skip
-  // mccole:add
-  add (args) {
-    this.checkOp('add', 2, args)
-    const left = this.exec(args[0])
-    const right = this.exec(args[1])
-    return left + right
-  }
-  // mccole:/add
-  append (args) {
-    this.checkOp('append', 2, args)
-    this.checkArray('append', args[0])
-    const val = this.exec(args[1])
-    this.env[args[0]].push(val)
-  }
-  data (args) {
-    return args
-  }
-  defA (args) {
-    this.checkOp('defA', 2, args)
-    const [name, data] = args
-    this.env[name] = this.exec(data)
-  }
-  // mccole:defV
-  defV (args) {
-    this.checkOp('defV', 2, args)
-    const [name, value] = args
-    this.env[name] = this.exec(value)
-  }
-  // mccole:/defV
-  getA (args) {
-    this.checkOp('getA', 2, args)
-    this.checkArray('getA', args[0])
-    const index = this.exec(args[1])
-    this.checkIndex('getA', args[0], index)
-    return this.env[args[0]][index]
-  }
-  getV (args) {
-    this.checkOp('getV', 1, args)
-    this.checkName('getV', args[0])
-    return this.env[args[0]]
-  }
-  gt (args) {
-    this.checkOp('gt', 2, args)
-    const left = this.exec(args[0])
-    const right = this.exec(args[1])
-    return left &gt; right
-  }
-  len (args) {
-    this.checkOp('len', 1, args)
-    this.checkArray('len', args[0])
-    return this.env[args[0]].length
-  }
-  lt (args) {
-    this.checkOp('lt', 2, args)
-    const left = this.exec(args[0])
-    const right = this.exec(args[1])
-    return left &lt; right
-  }
-  // mccole:loop
-  loop (args) {
-    this.checkBody('loop', 1, args)
-    const body = args.slice(1)
-    while (this.exec(args[0])) {
-      this.runAll(body)
-    }
-  }
-  // mccole:/loop
-  num (args) {
-    this.checkOp('num', 1, args)
-    assert(typeof args[0] === 'number',
-      `Non-numeric value for "num": "${args[0]}"`)
-    return args[0]
-  }
-  print (args) {
-    this.checkOp('print', 1, args)
-    const val = this.exec(args[0])
-    this.message(this.prefix, val)
-  }
-  setA (args) {
-    this.checkOp('setA', 3, args)
-    this.checkArray('setA', args[0])
-    const index = this.exec(args[1])
-    this.checkIndex('setA', args[0], index)
-    const value = this.exec(args[2])
-    this.env[args[0]][index] = value
-  }
-  setV (args) {
-    this.checkOp('setV', 2, args)
-    this.checkName('setV', args[0])
-    this.env[args[0]] = this.exec(args[1])
-  }
-  test (args) {
-    this.checkBody('test', 1, args)
-    const condition = this.exec(args[0])
-    if (condition) {
-      const body = args.slice(1)
-      this.runAll(body)
-    }
-  }
-  // mccole:checkArray
-  checkArray (op, name) {
-    this.checkName(op, name)
-    const array = this.env[name]
-    assert(Array.isArray(array),
-      `Variable "${name}" used in "${op}" is not array`)
-  }
-  // mccole:/checkArray
-  checkBody (op, minimum, args) {
-    assert(args.length &gt;= minimum,
-      `Badly-formatted operation ${op}: ${JSON.stringify(args)}`)
-  }
-  checkIndex (op, name, index) {
-    this.checkArray(op, name)
-    assert((0 &lt;= index) &amp;&amp; (index &lt; this.env[name].length),
-      `Index "${index}" out of bounds for array "${name}"`)
-  }
-  checkName (op, name) {
-    assert(name in this.env,
-      `Unknown name "${name}" for operation "${op}"`)
-  }
-  checkOp (op, expected, args) {
-    assert(args.length === expected,
-      `Badly-formatted operation ${op}: ${JSON.stringify(args)}`)
-  }
-  message (prefix, val) {
-    console.log(prefix, val)
-  }
-  // mccole:/skip
-}
-export default VirtualMachineBase</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VirtualMachineBase {</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (program) {</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">program</span> <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">compile</span>(program)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">prefix</span> <span class="op">=</span> <span class="st">'&gt;&gt;'</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">compile</span> (lines) {</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> text <span class="op">=</span> lines</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">map</span>(line <span class="kw">=&gt;</span> line<span class="op">.</span><span class="fu">trim</span>())</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">filter</span>(line <span class="kw">=&gt;</span> (line<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span>line<span class="op">.</span><span class="fu">startsWith</span>(<span class="st">'//'</span>))</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">join</span>(<span class="st">'</span><span class="sc">\n</span><span class="st">'</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">parse</span>(text)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">run</span> () {</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">env</span> <span class="op">=</span> {}</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">runAll</span>(<span class="kw">this</span><span class="op">.</span><span class="at">program</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">runAll</span> (commands) {</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    commands<span class="op">.</span><span class="fu">forEach</span>(command <span class="kw">=&gt;</span> <span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(command))</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exec</span> (command) {</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [op<span class="op">,</span> <span class="op">...</span>args] <span class="op">=</span> command</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(op <span class="kw">in</span> <span class="kw">this</span><span class="op">,</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Unknown op "</span><span class="sc">${</span>op<span class="sc">}</span><span class="vs">"`</span>)</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span>[op](args)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:skip</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:add</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add</span> (args) {</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkOp</span>(<span class="st">'add'</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> args)</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> left <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(args[<span class="dv">0</span>])</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> right <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(args[<span class="dv">1</span>])</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> left <span class="op">+</span> right</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:/add</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">append</span> (args) {</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkOp</span>(<span class="st">'append'</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> args)</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkArray</span>(<span class="st">'append'</span><span class="op">,</span> args[<span class="dv">0</span>])</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> val <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(args[<span class="dv">1</span>])</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">env</span>[args[<span class="dv">0</span>]]<span class="op">.</span><span class="fu">push</span>(val)</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data</span> (args) {</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> args</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">defA</span> (args) {</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkOp</span>(<span class="st">'defA'</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> args)</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [name<span class="op">,</span> data] <span class="op">=</span> args</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">env</span>[name] <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(data)</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:defV</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">defV</span> (args) {</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkOp</span>(<span class="st">'defV'</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> args)</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [name<span class="op">,</span> value] <span class="op">=</span> args</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">env</span>[name] <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(value)</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:/defV</span></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">getA</span> (args) {</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkOp</span>(<span class="st">'getA'</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> args)</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkArray</span>(<span class="st">'getA'</span><span class="op">,</span> args[<span class="dv">0</span>])</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> index <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(args[<span class="dv">1</span>])</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkIndex</span>(<span class="st">'getA'</span><span class="op">,</span> args[<span class="dv">0</span>]<span class="op">,</span> index)</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="at">env</span>[args[<span class="dv">0</span>]][index]</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>  <span class="fu">getV</span> (args) {</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkOp</span>(<span class="st">'getV'</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> args)</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkName</span>(<span class="st">'getV'</span><span class="op">,</span> args[<span class="dv">0</span>])</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="at">env</span>[args[<span class="dv">0</span>]]</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span> (args) {</span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkOp</span>(<span class="st">'gt'</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> args)</span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> left <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(args[<span class="dv">0</span>])</span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> right <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(args[<span class="dv">1</span>])</span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> left <span class="op">&gt;</span> right</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">len</span> (args) {</span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkOp</span>(<span class="st">'len'</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> args)</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkArray</span>(<span class="st">'len'</span><span class="op">,</span> args[<span class="dv">0</span>])</span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="at">env</span>[args[<span class="dv">0</span>]]<span class="op">.</span><span class="at">length</span></span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lt</span> (args) {</span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkOp</span>(<span class="st">'lt'</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> args)</span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> left <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(args[<span class="dv">0</span>])</span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> right <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(args[<span class="dv">1</span>])</span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> left <span class="op">&lt;</span> right</span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:loop</span></span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a>  <span class="fu">loop</span> (args) {</span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkBody</span>(<span class="st">'loop'</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> args)</span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> body <span class="op">=</span> args<span class="op">.</span><span class="fu">slice</span>(<span class="dv">1</span>)</span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> (<span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(args[<span class="dv">0</span>])) {</span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">runAll</span>(body)</span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:/loop</span></span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a>  <span class="fu">num</span> (args) {</span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkOp</span>(<span class="st">'num'</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> args)</span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(<span class="kw">typeof</span> args[<span class="dv">0</span>] <span class="op">===</span> <span class="st">'number'</span><span class="op">,</span></span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Non-numeric value for "num": "</span><span class="sc">${</span>args[<span class="dv">0</span>]<span class="sc">}</span><span class="vs">"`</span>)</span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> args[<span class="dv">0</span>]</span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span> (args) {</span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkOp</span>(<span class="st">'print'</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> args)</span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> val <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(args[<span class="dv">0</span>])</span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">message</span>(<span class="kw">this</span><span class="op">.</span><span class="at">prefix</span><span class="op">,</span> val)</span>
+<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setA</span> (args) {</span>
+<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkOp</span>(<span class="st">'setA'</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> args)</span>
+<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkArray</span>(<span class="st">'setA'</span><span class="op">,</span> args[<span class="dv">0</span>])</span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> index <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(args[<span class="dv">1</span>])</span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkIndex</span>(<span class="st">'setA'</span><span class="op">,</span> args[<span class="dv">0</span>]<span class="op">,</span> index)</span>
+<span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> value <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(args[<span class="dv">2</span>])</span>
+<span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">env</span>[args[<span class="dv">0</span>]][index] <span class="op">=</span> value</span>
+<span id="cb3-113"><a href="#cb3-113" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-114"><a href="#cb3-114" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setV</span> (args) {</span>
+<span id="cb3-115"><a href="#cb3-115" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkOp</span>(<span class="st">'setV'</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> args)</span>
+<span id="cb3-116"><a href="#cb3-116" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkName</span>(<span class="st">'setV'</span><span class="op">,</span> args[<span class="dv">0</span>])</span>
+<span id="cb3-117"><a href="#cb3-117" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">env</span>[args[<span class="dv">0</span>]] <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(args[<span class="dv">1</span>])</span>
+<span id="cb3-118"><a href="#cb3-118" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-119"><a href="#cb3-119" aria-hidden="true" tabindex="-1"></a>  <span class="fu">test</span> (args) {</span>
+<span id="cb3-120"><a href="#cb3-120" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkBody</span>(<span class="st">'test'</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> args)</span>
+<span id="cb3-121"><a href="#cb3-121" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> condition <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(args[<span class="dv">0</span>])</span>
+<span id="cb3-122"><a href="#cb3-122" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (condition) {</span>
+<span id="cb3-123"><a href="#cb3-123" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> body <span class="op">=</span> args<span class="op">.</span><span class="fu">slice</span>(<span class="dv">1</span>)</span>
+<span id="cb3-124"><a href="#cb3-124" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">runAll</span>(body)</span>
+<span id="cb3-125"><a href="#cb3-125" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-126"><a href="#cb3-126" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-127"><a href="#cb3-127" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:checkArray</span></span>
+<span id="cb3-128"><a href="#cb3-128" aria-hidden="true" tabindex="-1"></a>  <span class="fu">checkArray</span> (op<span class="op">,</span> name) {</span>
+<span id="cb3-129"><a href="#cb3-129" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkName</span>(op<span class="op">,</span> name)</span>
+<span id="cb3-130"><a href="#cb3-130" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> array <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="at">env</span>[name]</span>
+<span id="cb3-131"><a href="#cb3-131" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(<span class="bu">Array</span><span class="op">.</span><span class="fu">isArray</span>(array)<span class="op">,</span></span>
+<span id="cb3-132"><a href="#cb3-132" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Variable "</span><span class="sc">${</span>name<span class="sc">}</span><span class="vs">" used in "</span><span class="sc">${</span>op<span class="sc">}</span><span class="vs">" is not array`</span>)</span>
+<span id="cb3-133"><a href="#cb3-133" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-134"><a href="#cb3-134" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:/checkArray</span></span>
+<span id="cb3-135"><a href="#cb3-135" aria-hidden="true" tabindex="-1"></a>  <span class="fu">checkBody</span> (op<span class="op">,</span> minimum<span class="op">,</span> args) {</span>
+<span id="cb3-136"><a href="#cb3-136" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(args<span class="op">.</span><span class="at">length</span> <span class="op">&gt;=</span> minimum<span class="op">,</span></span>
+<span id="cb3-137"><a href="#cb3-137" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Badly-formatted operation </span><span class="sc">${</span>op<span class="sc">}</span><span class="vs">: </span><span class="sc">${</span><span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(args)<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb3-138"><a href="#cb3-138" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-139"><a href="#cb3-139" aria-hidden="true" tabindex="-1"></a>  <span class="fu">checkIndex</span> (op<span class="op">,</span> name<span class="op">,</span> index) {</span>
+<span id="cb3-140"><a href="#cb3-140" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkArray</span>(op<span class="op">,</span> name)</span>
+<span id="cb3-141"><a href="#cb3-141" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>((<span class="dv">0</span> <span class="op">&lt;=</span> index) <span class="op">&amp;&amp;</span> (index <span class="op">&lt;</span> <span class="kw">this</span><span class="op">.</span><span class="at">env</span>[name]<span class="op">.</span><span class="at">length</span>)<span class="op">,</span></span>
+<span id="cb3-142"><a href="#cb3-142" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Index "</span><span class="sc">${</span>index<span class="sc">}</span><span class="vs">" out of bounds for array "</span><span class="sc">${</span>name<span class="sc">}</span><span class="vs">"`</span>)</span>
+<span id="cb3-143"><a href="#cb3-143" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-144"><a href="#cb3-144" aria-hidden="true" tabindex="-1"></a>  <span class="fu">checkName</span> (op<span class="op">,</span> name) {</span>
+<span id="cb3-145"><a href="#cb3-145" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(name <span class="kw">in</span> <span class="kw">this</span><span class="op">.</span><span class="at">env</span><span class="op">,</span></span>
+<span id="cb3-146"><a href="#cb3-146" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Unknown name "</span><span class="sc">${</span>name<span class="sc">}</span><span class="vs">" for operation "</span><span class="sc">${</span>op<span class="sc">}</span><span class="vs">"`</span>)</span>
+<span id="cb3-147"><a href="#cb3-147" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-148"><a href="#cb3-148" aria-hidden="true" tabindex="-1"></a>  <span class="fu">checkOp</span> (op<span class="op">,</span> expected<span class="op">,</span> args) {</span>
+<span id="cb3-149"><a href="#cb3-149" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(args<span class="op">.</span><span class="at">length</span> <span class="op">===</span> expected<span class="op">,</span></span>
+<span id="cb3-150"><a href="#cb3-150" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Badly-formatted operation </span><span class="sc">${</span>op<span class="sc">}</span><span class="vs">: </span><span class="sc">${</span><span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(args)<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb3-151"><a href="#cb3-151" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-152"><a href="#cb3-152" aria-hidden="true" tabindex="-1"></a>  <span class="fu">message</span> (prefix<span class="op">,</span> val) {</span>
+<span id="cb3-153"><a href="#cb3-153" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(prefix<span class="op">,</span> val)</span>
+<span id="cb3-154"><a href="#cb3-154" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-155"><a href="#cb3-155" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:/skip</span></span>
+<span id="cb3-156"><a href="#cb3-156" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-157"><a href="#cb3-157" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> VirtualMachineBase</span></code></pre></div>
 <p>Remember, functions and methods are just another kind of data, so if an object has a method called <code>"meth"</code>, the expression <code>this["meth"]</code> looks it up and <code>this["meth"](args)</code> calls it. If <code>"meth"</code> is stored in a variable called <code>name</code>, then <code>this[name](args)</code> will do exactly the same thing.</p>
 <p>The method in our VM that defines a new variable with an initial value looks like this:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>while the one that adds two values looks like this:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Running a <code>while</code> loop is:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>and checking that a variable name refers to an array is:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>The other operations are similar to these.</p>
 <h2 data-number="20.2" id="debugger-tracing"><span class="header-section-number">20.2</span> How can we make a tracing debugger?</h2>
 <p>The next thing we need in our debugger is a <a href="../glossary/index.html#source_map">source map</a> that keeps track of where in the source file each instruction came from. Since JSON is a subset of JavaScript, we could get line numbers by parsing our programs with <a href="https://github.com/acornjs/acorn">Acorn</a>. However, we would then have to scrape the information we want for this example out of the AST. Since this chapter is supposed to be about debugging, not parsing, we will instead cheat and add a line number to each interesting statement by hand so that our program looks like this:</p>
 <pre><code></code></pre>
 <p>Building the source map from that is simple; for now, we just modify <code>exec</code> to ignore the line number:</p>
-<pre><code>import assert from 'assert'
-import VirtualMachineBase from './vm-base.js'
-class VirtualMachineSourceMap extends VirtualMachineBase {
-  compile (lines) {
-    const original = super.compile(lines)
-    this.sourceMap = {}
-    const result = original.map(command =&gt; this.transform(command))
-    return result
-  }
-  transform (node) {
-    if (!Array.isArray(node)) {
-      return node
-    }
-    if (Array.length === 0) {
-      return []
-    }
-    const [first, ...rest] = node
-    if (typeof first !== 'number') {
-      return [first, null, ...rest.map(arg =&gt; this.transform(arg))]
-    }
-    const [op, ...args] = rest
-    this.sourceMap[first] =
-      [op, first, ...args.map(arg =&gt; this.transform(arg))]
-    return this.sourceMap[first]
-  }
-  exec (command) {
-    const [op, lineNum, ...args] = command
-    assert(op in this,
-      `Unknown op "${op}"`)
-    return this[op](args)
-  }
-}
-export default VirtualMachineSourceMap</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> VirtualMachineBase <span class="im">from</span> <span class="st">'./vm-base.js'</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VirtualMachineSourceMap <span class="kw">extends</span> VirtualMachineBase {</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">compile</span> (lines) {</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> original <span class="op">=</span> <span class="kw">super</span><span class="op">.</span><span class="fu">compile</span>(lines)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">sourceMap</span> <span class="op">=</span> {}</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> result <span class="op">=</span> original<span class="op">.</span><span class="fu">map</span>(command <span class="kw">=&gt;</span> <span class="kw">this</span><span class="op">.</span><span class="fu">transform</span>(command))</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transform</span> (node) {</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="op">!</span><span class="bu">Array</span><span class="op">.</span><span class="fu">isArray</span>(node)) {</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> node</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="bu">Array</span><span class="op">.</span><span class="at">length</span> <span class="op">===</span> <span class="dv">0</span>) {</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> []</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [first<span class="op">,</span> <span class="op">...</span>rest] <span class="op">=</span> node</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="kw">typeof</span> first <span class="op">!==</span> <span class="st">'number'</span>) {</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> [first<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> <span class="op">...</span>rest<span class="op">.</span><span class="fu">map</span>(arg <span class="kw">=&gt;</span> <span class="kw">this</span><span class="op">.</span><span class="fu">transform</span>(arg))]</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [op<span class="op">,</span> <span class="op">...</span>args] <span class="op">=</span> rest</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">sourceMap</span>[first] <span class="op">=</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>      [op<span class="op">,</span> first<span class="op">,</span> <span class="op">...</span>args<span class="op">.</span><span class="fu">map</span>(arg <span class="kw">=&gt;</span> <span class="kw">this</span><span class="op">.</span><span class="fu">transform</span>(arg))]</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="at">sourceMap</span>[first]</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exec</span> (command) {</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [op<span class="op">,</span> lineNum<span class="op">,</span> <span class="op">...</span>args] <span class="op">=</span> command</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(op <span class="kw">in</span> <span class="kw">this</span><span class="op">,</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Unknown op "</span><span class="sc">${</span>op<span class="sc">}</span><span class="vs">"`</span>)</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span>[op](args)</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> VirtualMachineSourceMap</span></code></pre></div>
 <div>
 <blockquote>
 <p><strong>It’s not really cheating</strong></p>
@@ -282,26 +283,26 @@ export default VirtualMachineSourceMap</code></pre>
 </blockquote>
 </div>
 <p>The next step is to modify the VM’s <code>exec</code> method so that it executes a callback function for each significant operation (where “significant” means “we bothered to record its line number”). Since we’re not sure what our debugger is going to need, we give this callback the environment holding the current set of variables, the line number, and the operation being performed:</p>
-<pre><code>import assert from 'assert'
-import VirtualMachineSourceMap from './vm-source-map.js'
-class VirtualMachineCallback extends VirtualMachineSourceMap {
-  constructor (program, dbg) {
-    super(program)
-    this.dbg = dbg
-    this.dbg.setVM(this)
-  }
-  exec (command) {
-    const [op, lineNum, ...args] = command
-    this.dbg.handle(this.env, lineNum, op)
-    assert(op in this,
-      `Unknown op "${op}"`)
-    return this[op](args, lineNum)
-  }
-  message (prefix, val) {
-    this.dbg.message(`${prefix} ${val}`)
-  }
-}
-export default VirtualMachineCallback</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> VirtualMachineSourceMap <span class="im">from</span> <span class="st">'./vm-source-map.js'</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VirtualMachineCallback <span class="kw">extends</span> VirtualMachineSourceMap {</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (program<span class="op">,</span> dbg) {</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>(program)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">dbg</span> <span class="op">=</span> dbg</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">dbg</span><span class="op">.</span><span class="fu">setVM</span>(<span class="kw">this</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exec</span> (command) {</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [op<span class="op">,</span> lineNum<span class="op">,</span> <span class="op">...</span>args] <span class="op">=</span> command</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">dbg</span><span class="op">.</span><span class="fu">handle</span>(<span class="kw">this</span><span class="op">.</span><span class="at">env</span><span class="op">,</span> lineNum<span class="op">,</span> op)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(op <span class="kw">in</span> <span class="kw">this</span><span class="op">,</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Unknown op "</span><span class="sc">${</span>op<span class="sc">}</span><span class="vs">"`</span>)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span>[op](args<span class="op">,</span> lineNum)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">message</span> (prefix<span class="op">,</span> val) {</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">dbg</span><span class="op">.</span><span class="fu">message</span>(<span class="vs">`</span><span class="sc">${</span>prefix<span class="sc">}</span><span class="vs"> </span><span class="sc">${</span>val<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> VirtualMachineCallback</span></code></pre></div>
 <p>We also modify the VM’s constructor to record the debugger and give it a reference to the virtual machine (<a href="#fig-debugger-initialization" class="quarto-xref">Figure&nbsp;<span>20.1</span></a>). We have to connect the two objects explicitly because each one needs a reference to the other, but one of them has to be created first. “A gets B then B tells A about itself” is a common pattern; we will look at other ways to manage it in the exercises.</p>
 <div id="fig-debugger-initialization" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig">
@@ -314,30 +315,30 @@ Figure&nbsp;20.1: Two-step initialization of mutually-dependent objects.
 </figure>
 </div>
 <p>To run the program, we create a debugger object and pass it to the VM’s constructor:</p>
-<pre><code>import assert from 'assert'
-import readSource from './read-source.js'
-const main = () =&gt; {
-  assert(process.argv.length === 5,
-    'Usage: run-debugger.js ./vm ./debugger input|-')
-  const VM = require(process.argv[2])
-  const Debugger = require(process.argv[3])
-  const inFile = process.argv[4]
-  const lines = readSource(inFile)
-  const dbg = new Debugger()
-  const vm = new VM(lines, dbg)
-  vm.run()
-}
-main()</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> readSource <span class="im">from</span> <span class="st">'./read-source.js'</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> main <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assert</span>(<span class="bu">process</span><span class="op">.</span><span class="at">argv</span><span class="op">.</span><span class="at">length</span> <span class="op">===</span> <span class="dv">5</span><span class="op">,</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Usage: run-debugger.js ./vm ./debugger input|-'</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> VM <span class="op">=</span> <span class="pp">require</span>(<span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">2</span>])</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> Debugger <span class="op">=</span> <span class="pp">require</span>(<span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">3</span>])</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> inFile <span class="op">=</span> <span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">4</span>]</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> lines <span class="op">=</span> <span class="fu">readSource</span>(inFile)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> dbg <span class="op">=</span> <span class="kw">new</span> <span class="fu">Debugger</span>()</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> vm <span class="op">=</span> <span class="kw">new</span> <span class="fu">VM</span>(lines<span class="op">,</span> dbg)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  vm<span class="op">.</span><span class="fu">run</span>()</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="fu">main</span>()</span></code></pre></div>
 <p>A simple debugger just traces interesting statements as they run:</p>
-<pre><code>import DebuggerBase from './debugger-base.js'
-class DebuggerTrace extends DebuggerBase {
-  handle (env, lineNum, op) {
-    if (lineNum !== null) {
-      console.log(`${lineNum} / ${op}: ${JSON.stringify(env)}`)
-    }
-  }
-}
-export default DebuggerTrace</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> DebuggerBase <span class="im">from</span> <span class="st">'./debugger-base.js'</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DebuggerTrace <span class="kw">extends</span> DebuggerBase {</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">handle</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op) {</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (lineNum <span class="op">!==</span> <span class="kw">null</span>) {</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>      <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`</span><span class="sc">${</span>lineNum<span class="sc">}</span><span class="vs"> / </span><span class="sc">${</span>op<span class="sc">}</span><span class="vs">: </span><span class="sc">${</span><span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(env)<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> DebuggerTrace</span></code></pre></div>
 <p>Let’s try it on a program that adds the numbers in an array:</p>
 <pre><code>// const a = [-5, 1, 3]
 // const total = 0
@@ -385,137 +386,137 @@ export default DebuggerTrace</code></pre>
 <li><p><code>exit</code> to exit immediately.</p></li>
 </ul>
 <p>When the virtual machine calls the debugger, the debugger first checks if it is on a numbered line. If it isn’t, it hands control back to the VM. Otherwise, if we are single-stepping or this line is a breakpoint, the debugger takes over. Its overall structure is:</p>
-<pre><code>import prompt from 'prompt-sync'
-import DebuggerBase from './debugger-base.js'
-const PROMPT_OPTIONS = { sigint: true }
-class DebuggerInteractive extends DebuggerBase {
-  constructor () {
-    super()
-    this.singleStep = true
-    this.breakpoints = new Set()
-    this.lookup = {
-      '?': 'help',
-      c: 'clear',
-      l: 'list',
-      n: 'next',
-      p: 'print',
-      r: 'run',
-      s: 'stop',
-      v: 'variables',
-      x: 'exit'
-    }
-  }
-  handle (env, lineNum, op) {
-    if (lineNum === null) {
-      return
-    }
-    if (this.singleStep) {
-      this.singleStep = false
-      this.interact(env, lineNum, op)
-    } else if (this.breakpoints.has(lineNum)) {
-      this.interact(env, lineNum, op)
-    }
-  }
-  // mccole:skip
-  // mccole:interact
-  interact (env, lineNum, op) {
-    let interacting = true
-    while (interacting) {
-      const command = this.getCommand(env, lineNum, op)
-      if (command.length === 0) {
-        continue
-      }
-      const [cmd, ...args] = command
-      if (cmd in this) {
-        interacting = this[cmd](env, lineNum, op, args)
-      } else if (cmd in this.lookup) {
-        interacting = this[this.lookup[cmd]](env, lineNum, op, args)
-      } else {
-        this.message(`unknown command ${command} (use '?' for help)`)
-      }
-    }
-  }
-  getCommand (env, lineNum, op) {
-    const options = Object.keys(this.lookup).sort().join('')
-    const display = `[${lineNum} ${options}] `
-    return this.input(display)
-      .split(/\s+/)
-      .map(s =&gt; s.trim())
-      .filter(s =&gt; s.length &gt; 0)
-  }
-  input (display) {
-    return prompt(PROMPT_OPTIONS)(display)
-  }
-  // mccole:/interact
-  help (env, lineNum, op, args) {
-    this.message(this.lookup)
-    return true
-  }
-  clear (env, lineNum, op, args) {
-    if (args.length !== 1) {
-      this.message('c[lear] requires one line number')
-    } else {
-      this.breakpoints.delete(parseInt(args[0]))
-    }
-    return true
-  }
-  list (env, lineNum, op, args) {
-    const msg = Object.keys(this.vm.sourceMap)
-      .map(n =&gt; parseInt(n))
-      .sort((left, right) =&gt; left - right)
-      .map(n =&gt; {
-        if (this.breakpoints.has(n)) {
-          return `${n}*`
-        } else {
-          return `${n}`
-        }
-      })
-      .join(' ')
-    this.message(msg)
-    return true
-  }
-  // mccole:next
-  next (env, lineNum, op, args) {
-    this.singleStep = true
-    return false
-  }
-  // mccole:/next
-  // mccole:print
-  print (env, lineNum, op, args) {
-    if (args.length !== 1) {
-      this.message('p[rint] requires one variable name')
-    } else if (!(args[0] in env)) {
-      this.message(`unknown variable name "${args[0]}"`)
-    } else {
-      this.message(JSON.stringify(env[args[0]]))
-    }
-    return true
-  }
-  // mccole:/print
-  run (env, lineNum, op, args) {
-    this.singleStep = false
-    return false
-  }
-  stop (env, lineNum, op, args) {
-    if (args.length !== 1) {
-      this.message('s[top] requires one line number')
-    } else {
-      this.breakpoints.add(parseInt(args[0]))
-    }
-    return true
-  }
-  variables (env, lineNum, op, args) {
-    this.message(Object.keys(env).sort())
-    return true
-  }
-  exit (env, lineNum, op, args) {
-    process.exit(0)
-  }
-  // mccole:/skip
-}
-export default DebuggerInteractive</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> prompt <span class="im">from</span> <span class="st">'prompt-sync'</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> DebuggerBase <span class="im">from</span> <span class="st">'./debugger-base.js'</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> PROMPT_OPTIONS <span class="op">=</span> { <span class="dt">sigint</span><span class="op">:</span> <span class="kw">true</span> }</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DebuggerInteractive <span class="kw">extends</span> DebuggerBase {</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> () {</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>()</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">singleStep</span> <span class="op">=</span> <span class="kw">true</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">breakpoints</span> <span class="op">=</span> <span class="kw">new</span> <span class="bu">Set</span>()</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">lookup</span> <span class="op">=</span> {</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>      <span class="st">'?'</span><span class="op">:</span> <span class="st">'help'</span><span class="op">,</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>      <span class="dt">c</span><span class="op">:</span> <span class="st">'clear'</span><span class="op">,</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>      <span class="dt">l</span><span class="op">:</span> <span class="st">'list'</span><span class="op">,</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>      <span class="dt">n</span><span class="op">:</span> <span class="st">'next'</span><span class="op">,</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>      <span class="dt">p</span><span class="op">:</span> <span class="st">'print'</span><span class="op">,</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>      <span class="dt">r</span><span class="op">:</span> <span class="st">'run'</span><span class="op">,</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>      <span class="dt">s</span><span class="op">:</span> <span class="st">'stop'</span><span class="op">,</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>      <span class="dt">v</span><span class="op">:</span> <span class="st">'variables'</span><span class="op">,</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>      <span class="dt">x</span><span class="op">:</span> <span class="st">'exit'</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">handle</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op) {</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (lineNum <span class="op">===</span> <span class="kw">null</span>) {</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="at">singleStep</span>) {</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="at">singleStep</span> <span class="op">=</span> <span class="kw">false</span></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">interact</span>(env<span class="op">,</span> lineNum<span class="op">,</span> op)</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="at">breakpoints</span><span class="op">.</span><span class="fu">has</span>(lineNum)) {</span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">interact</span>(env<span class="op">,</span> lineNum<span class="op">,</span> op)</span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:skip</span></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:interact</span></span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">interact</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op) {</span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> interacting <span class="op">=</span> <span class="kw">true</span></span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> (interacting) {</span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> command <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">getCommand</span>(env<span class="op">,</span> lineNum<span class="op">,</span> op)</span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (command<span class="op">.</span><span class="at">length</span> <span class="op">===</span> <span class="dv">0</span>) {</span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">continue</span></span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> [cmd<span class="op">,</span> <span class="op">...</span>args] <span class="op">=</span> command</span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (cmd <span class="kw">in</span> <span class="kw">this</span>) {</span>
+<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a>        interacting <span class="op">=</span> <span class="kw">this</span>[cmd](env<span class="op">,</span> lineNum<span class="op">,</span> op<span class="op">,</span> args)</span>
+<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> <span class="cf">if</span> (cmd <span class="kw">in</span> <span class="kw">this</span><span class="op">.</span><span class="at">lookup</span>) {</span>
+<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a>        interacting <span class="op">=</span> <span class="kw">this</span>[<span class="kw">this</span><span class="op">.</span><span class="at">lookup</span>[cmd]](env<span class="op">,</span> lineNum<span class="op">,</span> op<span class="op">,</span> args)</span>
+<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
+<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">message</span>(<span class="vs">`unknown command </span><span class="sc">${</span>command<span class="sc">}</span><span class="vs"> (use '?' for help)`</span>)</span>
+<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">getCommand</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op) {</span>
+<span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> options <span class="op">=</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">keys</span>(<span class="kw">this</span><span class="op">.</span><span class="at">lookup</span>)<span class="op">.</span><span class="fu">sort</span>()<span class="op">.</span><span class="fu">join</span>(<span class="st">''</span>)</span>
+<span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> display <span class="op">=</span> <span class="vs">`[</span><span class="sc">${</span>lineNum<span class="sc">}</span><span class="vs"> </span><span class="sc">${</span>options<span class="sc">}</span><span class="vs">] `</span></span>
+<span id="cb15-54"><a href="#cb15-54" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="fu">input</span>(display)</span>
+<span id="cb15-55"><a href="#cb15-55" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">split</span>(<span class="ss">/</span><span class="sc">\s+</span><span class="ss">/</span>)</span>
+<span id="cb15-56"><a href="#cb15-56" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">map</span>(s <span class="kw">=&gt;</span> s<span class="op">.</span><span class="fu">trim</span>())</span>
+<span id="cb15-57"><a href="#cb15-57" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">filter</span>(s <span class="kw">=&gt;</span> s<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb15-58"><a href="#cb15-58" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-59"><a href="#cb15-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">input</span> (display) {</span>
+<span id="cb15-60"><a href="#cb15-60" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fu">prompt</span>(PROMPT_OPTIONS)(display)</span>
+<span id="cb15-61"><a href="#cb15-61" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-62"><a href="#cb15-62" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:/interact</span></span>
+<span id="cb15-63"><a href="#cb15-63" aria-hidden="true" tabindex="-1"></a>  <span class="fu">help</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op<span class="op">,</span> args) {</span>
+<span id="cb15-64"><a href="#cb15-64" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">message</span>(<span class="kw">this</span><span class="op">.</span><span class="at">lookup</span>)</span>
+<span id="cb15-65"><a href="#cb15-65" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">true</span></span>
+<span id="cb15-66"><a href="#cb15-66" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-67"><a href="#cb15-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clear</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op<span class="op">,</span> args) {</span>
+<span id="cb15-68"><a href="#cb15-68" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (args<span class="op">.</span><span class="at">length</span> <span class="op">!==</span> <span class="dv">1</span>) {</span>
+<span id="cb15-69"><a href="#cb15-69" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">message</span>(<span class="st">'c[lear] requires one line number'</span>)</span>
+<span id="cb15-70"><a href="#cb15-70" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb15-71"><a href="#cb15-71" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="at">breakpoints</span><span class="op">.</span><span class="fu">delete</span>(<span class="pp">parseInt</span>(args[<span class="dv">0</span>]))</span>
+<span id="cb15-72"><a href="#cb15-72" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb15-73"><a href="#cb15-73" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">true</span></span>
+<span id="cb15-74"><a href="#cb15-74" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-75"><a href="#cb15-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op<span class="op">,</span> args) {</span>
+<span id="cb15-76"><a href="#cb15-76" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> msg <span class="op">=</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">keys</span>(<span class="kw">this</span><span class="op">.</span><span class="at">vm</span><span class="op">.</span><span class="at">sourceMap</span>)</span>
+<span id="cb15-77"><a href="#cb15-77" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">map</span>(n <span class="kw">=&gt;</span> <span class="pp">parseInt</span>(n))</span>
+<span id="cb15-78"><a href="#cb15-78" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">sort</span>((left<span class="op">,</span> right) <span class="kw">=&gt;</span> left <span class="op">-</span> right)</span>
+<span id="cb15-79"><a href="#cb15-79" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">map</span>(n <span class="kw">=&gt;</span> {</span>
+<span id="cb15-80"><a href="#cb15-80" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="at">breakpoints</span><span class="op">.</span><span class="fu">has</span>(n)) {</span>
+<span id="cb15-81"><a href="#cb15-81" aria-hidden="true" tabindex="-1"></a>          <span class="cf">return</span> <span class="vs">`</span><span class="sc">${</span>n<span class="sc">}</span><span class="vs">*`</span></span>
+<span id="cb15-82"><a href="#cb15-82" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">else</span> {</span>
+<span id="cb15-83"><a href="#cb15-83" aria-hidden="true" tabindex="-1"></a>          <span class="cf">return</span> <span class="vs">`</span><span class="sc">${</span>n<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb15-84"><a href="#cb15-84" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb15-85"><a href="#cb15-85" aria-hidden="true" tabindex="-1"></a>      })</span>
+<span id="cb15-86"><a href="#cb15-86" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">join</span>(<span class="st">' '</span>)</span>
+<span id="cb15-87"><a href="#cb15-87" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">message</span>(msg)</span>
+<span id="cb15-88"><a href="#cb15-88" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">true</span></span>
+<span id="cb15-89"><a href="#cb15-89" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-90"><a href="#cb15-90" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:next</span></span>
+<span id="cb15-91"><a href="#cb15-91" aria-hidden="true" tabindex="-1"></a>  <span class="fu">next</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op<span class="op">,</span> args) {</span>
+<span id="cb15-92"><a href="#cb15-92" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">singleStep</span> <span class="op">=</span> <span class="kw">true</span></span>
+<span id="cb15-93"><a href="#cb15-93" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">false</span></span>
+<span id="cb15-94"><a href="#cb15-94" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-95"><a href="#cb15-95" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:/next</span></span>
+<span id="cb15-96"><a href="#cb15-96" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:print</span></span>
+<span id="cb15-97"><a href="#cb15-97" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op<span class="op">,</span> args) {</span>
+<span id="cb15-98"><a href="#cb15-98" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (args<span class="op">.</span><span class="at">length</span> <span class="op">!==</span> <span class="dv">1</span>) {</span>
+<span id="cb15-99"><a href="#cb15-99" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">message</span>(<span class="st">'p[rint] requires one variable name'</span>)</span>
+<span id="cb15-100"><a href="#cb15-100" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (<span class="op">!</span>(args[<span class="dv">0</span>] <span class="kw">in</span> env)) {</span>
+<span id="cb15-101"><a href="#cb15-101" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">message</span>(<span class="vs">`unknown variable name "</span><span class="sc">${</span>args[<span class="dv">0</span>]<span class="sc">}</span><span class="vs">"`</span>)</span>
+<span id="cb15-102"><a href="#cb15-102" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb15-103"><a href="#cb15-103" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">message</span>(<span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(env[args[<span class="dv">0</span>]]))</span>
+<span id="cb15-104"><a href="#cb15-104" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb15-105"><a href="#cb15-105" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">true</span></span>
+<span id="cb15-106"><a href="#cb15-106" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-107"><a href="#cb15-107" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:/print</span></span>
+<span id="cb15-108"><a href="#cb15-108" aria-hidden="true" tabindex="-1"></a>  <span class="fu">run</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op<span class="op">,</span> args) {</span>
+<span id="cb15-109"><a href="#cb15-109" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">singleStep</span> <span class="op">=</span> <span class="kw">false</span></span>
+<span id="cb15-110"><a href="#cb15-110" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">false</span></span>
+<span id="cb15-111"><a href="#cb15-111" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-112"><a href="#cb15-112" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stop</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op<span class="op">,</span> args) {</span>
+<span id="cb15-113"><a href="#cb15-113" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (args<span class="op">.</span><span class="at">length</span> <span class="op">!==</span> <span class="dv">1</span>) {</span>
+<span id="cb15-114"><a href="#cb15-114" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">message</span>(<span class="st">'s[top] requires one line number'</span>)</span>
+<span id="cb15-115"><a href="#cb15-115" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb15-116"><a href="#cb15-116" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="at">breakpoints</span><span class="op">.</span><span class="fu">add</span>(<span class="pp">parseInt</span>(args[<span class="dv">0</span>]))</span>
+<span id="cb15-117"><a href="#cb15-117" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb15-118"><a href="#cb15-118" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">true</span></span>
+<span id="cb15-119"><a href="#cb15-119" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-120"><a href="#cb15-120" aria-hidden="true" tabindex="-1"></a>  <span class="fu">variables</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op<span class="op">,</span> args) {</span>
+<span id="cb15-121"><a href="#cb15-121" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">message</span>(<span class="bu">Object</span><span class="op">.</span><span class="fu">keys</span>(env)<span class="op">.</span><span class="fu">sort</span>())</span>
+<span id="cb15-122"><a href="#cb15-122" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">true</span></span>
+<span id="cb15-123"><a href="#cb15-123" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-124"><a href="#cb15-124" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exit</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op<span class="op">,</span> args) {</span>
+<span id="cb15-125"><a href="#cb15-125" aria-hidden="true" tabindex="-1"></a>    <span class="bu">process</span><span class="op">.</span><span class="fu">exit</span>(<span class="dv">0</span>)</span>
+<span id="cb15-126"><a href="#cb15-126" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-127"><a href="#cb15-127" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:/skip</span></span>
+<span id="cb15-128"><a href="#cb15-128" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-129"><a href="#cb15-129" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> DebuggerInteractive</span></code></pre></div>
 <p>It interacts with users by lookup up a command and invoking the corresponding method, just as the VM does:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <div>
 <blockquote>
 <p><strong>Learning as we go</strong></p>
@@ -523,22 +524,22 @@ export default DebuggerInteractive</code></pre>
 </blockquote>
 </div>
 <p>With this structure in place, the command handlers are pretty straightforward. For example, this method moves us to the next line:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb17"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>while this one prints the value of a variable:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb18"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>After using this for a few moments, though we realized that we needed to change the signature of the <code>loop</code> method. We want to stop the loop each time it runs, and need to know where we are. We didn’t allow for this in the base class, and we don’t want to have to change every method, so we take advantage of the fact that JavaScript ignores any extra arguments passed to a method:</p>
-<pre><code>import VirtualMachineCallback from './vm-callback.js'
-class VirtualMachineInteractive extends VirtualMachineCallback {
-  loop (args, lineNum) {
-    this.checkBody('loop', 1, args)
-    const body = args.slice(1)
-    while (this.exec(args[0])) {
-      this.dbg.handle(this.env, lineNum, 'loop')
-      this.runAll(body)
-    }
-  }
-}
-export default VirtualMachineInteractive</code></pre>
+<div class="sourceCode" id="cb19"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> VirtualMachineCallback <span class="im">from</span> <span class="st">'./vm-callback.js'</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VirtualMachineInteractive <span class="kw">extends</span> VirtualMachineCallback {</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">loop</span> (args<span class="op">,</span> lineNum) {</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">checkBody</span>(<span class="st">'loop'</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> args)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> body <span class="op">=</span> args<span class="op">.</span><span class="fu">slice</span>(<span class="dv">1</span>)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> (<span class="kw">this</span><span class="op">.</span><span class="fu">exec</span>(args[<span class="dv">0</span>])) {</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="at">dbg</span><span class="op">.</span><span class="fu">handle</span>(<span class="kw">this</span><span class="op">.</span><span class="at">env</span><span class="op">,</span> lineNum<span class="op">,</span> <span class="st">'loop'</span>)</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">runAll</span>(body)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> VirtualMachineInteractive</span></code></pre></div>
 <p>This is sloppy, but it works; we will tidy it up in the exercises.</p>
 <h2 data-number="20.4" id="debugger-test"><span class="header-section-number">20.4</span> How can we test an interactive application?</h2>
 <p>How can we test an interactive application like a debugger? The answer is, “By making it non-interactive.” Like many tools over the past 30 years, our approach is based on a program called <a href="https://en.wikipedia.org/wiki/Expect">Expect</a>. Our library replaces the input and output functions of the application being tested with callbacks, then provides input when asked and checks output when it is given (<a href="#fig-debugger-test-interact" class="quarto-xref">Figure&nbsp;<span>20.2</span></a>).</p>
@@ -553,47 +554,47 @@ Figure&nbsp;20.2: Replacing input and output to test interactive applications.
 </figure>
 </div>
 <p>The results look like this:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb20"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Our <code>Expect</code> class may be short, but it is hard to understand because it is so abstract:</p>
-<pre><code>import assert from 'assert'
-class Expect {
-  constructor (subject, start) {
-    this.start = start
-    this.steps = []
-    subject.setTester(this)
-  }
-  send (text) {
-    this.steps.push({ op: 'toSystem', arg: text })
-    return this
-  }
-  get (text) {
-    this.steps.push({ op: 'fromSystem', arg: text })
-    return this
-  }
-  run () {
-    this.start()
-    assert.strictEqual(this.steps.length, 0,
-      'Extra steps at end of test')
-  }
-  toSystem () {
-    return this.next('toSystem')
-  }
-  fromSystem (actual) {
-    const expected = this.next('fromSystem')
-    assert.strictEqual(expected, actual,
-      `Expected "${expected}" got "${actual}"`)
-  }
-  next (kind) {
-    assert(this.steps.length &gt; 0,
-      'Unexpected end of steps')
-    assert.strictEqual(this.steps[0].op, kind,
-      `Expected ${kind}, got "${this.steps[0].op}"`)
-    const text = this.steps[0].arg
-    this.steps = this.steps.slice(1)
-    return text
-  }
-}
-export default Expect</code></pre>
+<div class="sourceCode" id="cb21"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Expect {</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (subject<span class="op">,</span> start) {</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">start</span> <span class="op">=</span> start</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">steps</span> <span class="op">=</span> []</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    subject<span class="op">.</span><span class="fu">setTester</span>(<span class="kw">this</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">send</span> (text) {</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">steps</span><span class="op">.</span><span class="fu">push</span>({ <span class="dt">op</span><span class="op">:</span> <span class="st">'toSystem'</span><span class="op">,</span> <span class="dt">arg</span><span class="op">:</span> text })</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="kw">get</span> (text) {</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">steps</span><span class="op">.</span><span class="fu">push</span>({ <span class="dt">op</span><span class="op">:</span> <span class="st">'fromSystem'</span><span class="op">,</span> <span class="dt">arg</span><span class="op">:</span> text })</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">run</span> () {</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">start</span>()</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>(<span class="kw">this</span><span class="op">.</span><span class="at">steps</span><span class="op">.</span><span class="at">length</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Extra steps at end of test'</span>)</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">toSystem</span> () {</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="fu">next</span>(<span class="st">'toSystem'</span>)</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fromSystem</span> (actual) {</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> expected <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">next</span>(<span class="st">'fromSystem'</span>)</span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>(expected<span class="op">,</span> actual<span class="op">,</span></span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Expected "</span><span class="sc">${</span>expected<span class="sc">}</span><span class="vs">" got "</span><span class="sc">${</span>actual<span class="sc">}</span><span class="vs">"`</span>)</span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">next</span> (kind) {</span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(<span class="kw">this</span><span class="op">.</span><span class="at">steps</span><span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Unexpected end of steps'</span>)</span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>(<span class="kw">this</span><span class="op">.</span><span class="at">steps</span>[<span class="dv">0</span>]<span class="op">.</span><span class="at">op</span><span class="op">,</span> kind<span class="op">,</span></span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Expected </span><span class="sc">${</span>kind<span class="sc">}</span><span class="vs">, got "</span><span class="sc">${</span><span class="kw">this</span><span class="op">.</span><span class="at">steps</span>[<span class="dv">0</span>]<span class="op">.</span><span class="at">op</span><span class="sc">}</span><span class="vs">"`</span>)</span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> text <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="at">steps</span>[<span class="dv">0</span>]<span class="op">.</span><span class="at">arg</span></span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">steps</span> <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="at">steps</span><span class="op">.</span><span class="fu">slice</span>(<span class="dv">1</span>)</span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> text</span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> Expect</span></code></pre></div>
 <p>Piece-by-piece:</p>
 <ul>
 <li><code>subject</code> is the thing being tested.</li>
@@ -603,26 +604,26 @@ export default Expect</code></pre>
 <li><code>toSystem</code> and <code>fromSystem</code> use <code>next</code> to get the next test record, check its type, and return the string.</li>
 </ul>
 <p>Let’s modify the debugger to use the tester, keeping in mind that the prompt counts as an output (and yes, we forgot this in the first version):</p>
-<pre><code>import DebuggerInteractive from './debugger-interactive.js'
-class DebuggerTest extends DebuggerInteractive {
-  constructor () {
-    super()
-    this.tester = null
-  }
-  setTester (tester) {
-    this.tester = tester
-  }
-  input (display) {
-    this.tester.fromSystem(display)
-    return this.tester.toSystem()
-  }
-  message (m) {
-    this.tester.fromSystem(m)
-  }
-}
-export default DebuggerTest</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> DebuggerInteractive <span class="im">from</span> <span class="st">'./debugger-interactive.js'</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DebuggerTest <span class="kw">extends</span> DebuggerInteractive {</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> () {</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>()</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">tester</span> <span class="op">=</span> <span class="kw">null</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setTester</span> (tester) {</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">tester</span> <span class="op">=</span> tester</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">input</span> (display) {</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">tester</span><span class="op">.</span><span class="fu">fromSystem</span>(display)</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="at">tester</span><span class="op">.</span><span class="fu">toSystem</span>()</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">message</span> (m) {</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">tester</span><span class="op">.</span><span class="fu">fromSystem</span>(m)</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> DebuggerTest</span></code></pre></div>
 <p>Again, we can’t pass the tester as a constructor parameter because of initialization order, so we write a <code>setup</code> function to make sure everything is connected the right way:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb23"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Let’s try running our tests:</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run test <span class="at">--</span> <span class="at">-g</span> <span class="st">'interactive debugger'</span></span></code></pre></div>
 <pre><code>&gt; stjs@1.0.0 test /u/stjs
@@ -632,35 +633,35 @@ export default DebuggerTest</code></pre>
 <p>That works—or does it? Why is only one test shown, and doesn’t the summary appear? After a bit of digging, we realize that the debugger’s <code>exit</code> command calls <code>process.exit</code> when the simulated program ends, so the whole program including the VM, debugger, and test framework stops immediately <em>before</em> the promises that contain the tests have run.</p>
 <p>We could fix this by modifying the debugger callback to return an indication of whether or not execution should continue, then modify the VM to pay attention to that flag. However, this approach becomes very complicated when we have deeply-nested calls to <code>exec</code>, which will happen with loops and conditionals.</p>
 <p>A better alternative is to use an exception for control flow. We can define our own kind of exception as an empty class: it doesn’t need any data because we are only using it to get a typed object:</p>
-<pre><code>class HaltException {
-}
-export default HaltException</code></pre>
+<div class="sourceCode" id="cb26"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> HaltException {</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> HaltException</span></code></pre></div>
 <p>Next, we modify the debugger to throw this exception when asked to exit:</p>
-<pre><code>import HaltException from './halt-exception.js'
-import DebuggerTest from './debugger-test.js'
-class DebuggerExit extends DebuggerTest {
-  exit (env, lineNum, op, args) {
-    throw new HaltException()
-  }
-}
-export default DebuggerExit</code></pre>
+<div class="sourceCode" id="cb27"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> HaltException <span class="im">from</span> <span class="st">'./halt-exception.js'</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> DebuggerTest <span class="im">from</span> <span class="st">'./debugger-test.js'</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DebuggerExit <span class="kw">extends</span> DebuggerTest {</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exit</span> (env<span class="op">,</span> lineNum<span class="op">,</span> op<span class="op">,</span> args) {</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="fu">HaltException</span>()</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> DebuggerExit</span></code></pre></div>
 <p>And finally we modify the VM to finish cleanly if this exception is thrown, but re-throw any other kind of exception:</p>
-<pre><code>import HaltException from './halt-exception.js'
-import VirtualMachineInteractive from './vm-interactive.js'
-class VirtualMachineExit extends VirtualMachineInteractive {
-  run () {
-    this.env = {}
-    try {
-      this.runAll(this.program)
-    } catch (exc) {
-      if (exc instanceof HaltException) {
-        return
-      }
-      throw exc
-    }
-  }
-}
-export default VirtualMachineExit</code></pre>
+<div class="sourceCode" id="cb28"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> HaltException <span class="im">from</span> <span class="st">'./halt-exception.js'</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> VirtualMachineInteractive <span class="im">from</span> <span class="st">'./vm-interactive.js'</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VirtualMachineExit <span class="kw">extends</span> VirtualMachineInteractive {</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">run</span> () {</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">env</span> <span class="op">=</span> {}</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span> {</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">runAll</span>(<span class="kw">this</span><span class="op">.</span><span class="at">program</span>)</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">catch</span> (exc) {</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (exc <span class="kw">instanceof</span> HaltException) {</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>      <span class="cf">throw</span> exc</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> VirtualMachineExit</span></code></pre></div>
 <p>With these changes in place, we are finally able to test our interactive debugger:</p>
 <div class="sourceCode" id="cb29"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run test <span class="at">--</span> <span class="at">-g</span> <span class="st">'exitable debugger'</span></span></code></pre></div>
 <pre><code>&gt; stjs@1.0.0 test /u/stjs

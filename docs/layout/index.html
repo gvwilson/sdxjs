@@ -3,6 +3,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Layout Engine</title>
   <link rel="stylesheet" href="../mccole/mccole-book.css">
+  <link rel="stylesheet" href="../mccole/tango.css">
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async=""></script>
 </head>
@@ -53,9 +54,9 @@ Figure&nbsp;11.1: Coordinate system with (0, 0) in the upper left corner.
 </div>
 <h2 data-number="11.1" id="layout-engine-size"><span class="header-section-number">11.1</span> How can we size rows and columns?</h2>
 <p>Let’s start on <a href="../glossary/index.html#easy_mode">easy mode</a> without margins, padding, line-wrapping, or other complications. Everything we can put on the screen is represented as a rectangular cell, and every cell is either a row, a column, or a block. A block has a fixed width and height:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>A row arranges one or more cells horizontally; its width is the sum of the widths of its children, while its height is the height of its tallest child (<a href="#fig-layout-engine-sizing" class="quarto-xref">Figure&nbsp;<span>11.2</span></a>):</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <div id="fig-layout-engine-sizing" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-layout-engine-sizing-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -67,60 +68,60 @@ Figure&nbsp;11.2: Calculating sizes of blocks with fixed width and height.
 </figure>
 </div>
 <p>Finally, a column arranges one or more cells vertically; its width is the width of its widest child and its height is the sum of the heights of its children. (Here and elsewhere we use the abbreviation <code>col</code> when referring to columns.)</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Rows and columns nest inside one another: a row cannot span two or more columns, and a column cannot cross the boundary between two rows. Any time we have a structure with that property we can represent it as a tree of nested objects. Given such a tree, we can calculate the width and height of each cell every time we need to. This is simple but inefficient: we could calculate both width and height at the same time and <a href="../glossary/index.html#cache">cache</a> those values to avoid recalculation, but we called this “easy mode” for a reason.</p>
 <p>As simple as it is, this code could still contain errors (and did during development), so we write some <a href="https://mochajs.org/">Mocha</a> tests to check that it works as desired before trying to build anything more complicated:</p>
-<pre><code>import assert from 'assert'
-import {
-  Block,
-  Row,
-  Col
-} from '../easy-mode.js'
-describe('lays out in easy mode', () =&gt; {
-  it('lays out a single unit block', async () =&gt; {
-    const fixture = new Block(1, 1)
-    assert.strictEqual(fixture.getWidth(), 1)
-    assert.strictEqual(fixture.getHeight(), 1)
-  })
-  it('lays out a large block', async () =&gt; {
-    const fixture = new Block(3, 4)
-    assert.strictEqual(fixture.getWidth(), 3)
-    assert.strictEqual(fixture.getHeight(), 4)
-  })
-  it('lays out a row of two blocks', async () =&gt; {
-    const fixture = new Row(
-      new Block(1, 1),
-      new Block(2, 4)
-    )
-    assert.strictEqual(fixture.getWidth(), 3)
-    assert.strictEqual(fixture.getHeight(), 4)
-  })
-  it('lays out a column of two blocks', async () =&gt; {
-    const fixture = new Col(
-      new Block(1, 1),
-      new Block(2, 4)
-    )
-    assert.strictEqual(fixture.getWidth(), 2)
-    assert.strictEqual(fixture.getHeight(), 5)
-  })
-  it('lays out a grid of rows of columns', async () =&gt; {
-    const fixture = new Col(
-      new Row(
-        new Block(1, 2),
-        new Block(3, 4)
-      ),
-      new Row(
-        new Block(5, 6),
-        new Col(
-          new Block(7, 8),
-          new Block(9, 10)
-        )
-      )
-    )
-    assert.strictEqual(fixture.getWidth(), 14)
-    assert.strictEqual(fixture.getHeight(), 22)
-  })
-})</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> {</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  Block<span class="op">,</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  Row<span class="op">,</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  Col</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>} <span class="im">from</span> <span class="st">'../easy-mode.js'</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(<span class="st">'lays out in easy mode'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'lays out a single unit block'</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> fixture <span class="op">=</span> <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">1</span><span class="op">,</span> <span class="dv">1</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>(fixture<span class="op">.</span><span class="fu">getWidth</span>()<span class="op">,</span> <span class="dv">1</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>(fixture<span class="op">.</span><span class="fu">getHeight</span>()<span class="op">,</span> <span class="dv">1</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'lays out a large block'</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> fixture <span class="op">=</span> <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">3</span><span class="op">,</span> <span class="dv">4</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>(fixture<span class="op">.</span><span class="fu">getWidth</span>()<span class="op">,</span> <span class="dv">3</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>(fixture<span class="op">.</span><span class="fu">getHeight</span>()<span class="op">,</span> <span class="dv">4</span>)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'lays out a row of two blocks'</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> fixture <span class="op">=</span> <span class="kw">new</span> <span class="fu">Row</span>(</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>      <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">1</span><span class="op">,</span> <span class="dv">1</span>)<span class="op">,</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>      <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">2</span><span class="op">,</span> <span class="dv">4</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>(fixture<span class="op">.</span><span class="fu">getWidth</span>()<span class="op">,</span> <span class="dv">3</span>)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>(fixture<span class="op">.</span><span class="fu">getHeight</span>()<span class="op">,</span> <span class="dv">4</span>)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'lays out a column of two blocks'</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> fixture <span class="op">=</span> <span class="kw">new</span> <span class="fu">Col</span>(</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>      <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">1</span><span class="op">,</span> <span class="dv">1</span>)<span class="op">,</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>      <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">2</span><span class="op">,</span> <span class="dv">4</span>)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>(fixture<span class="op">.</span><span class="fu">getWidth</span>()<span class="op">,</span> <span class="dv">2</span>)</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>(fixture<span class="op">.</span><span class="fu">getHeight</span>()<span class="op">,</span> <span class="dv">5</span>)</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'lays out a grid of rows of columns'</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> fixture <span class="op">=</span> <span class="kw">new</span> <span class="fu">Col</span>(</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>      <span class="kw">new</span> <span class="fu">Row</span>(</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>        <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span>)<span class="op">,</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>        <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">3</span><span class="op">,</span> <span class="dv">4</span>)</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>      )<span class="op">,</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>      <span class="kw">new</span> <span class="fu">Row</span>(</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>        <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">5</span><span class="op">,</span> <span class="dv">6</span>)<span class="op">,</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>        <span class="kw">new</span> <span class="fu">Col</span>(</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>          <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">7</span><span class="op">,</span> <span class="dv">8</span>)<span class="op">,</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>          <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">9</span><span class="op">,</span> <span class="dv">10</span>)</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>(fixture<span class="op">.</span><span class="fu">getWidth</span>()<span class="op">,</span> <span class="dv">14</span>)</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>(fixture<span class="op">.</span><span class="fu">getHeight</span>()<span class="op">,</span> <span class="dv">22</span>)</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 <pre><code>&gt; stjs@1.0.0 test /u/stjs
 &gt; mocha */test/test-*.js "-g" "easy mode"
   lays out in easy mode
@@ -143,98 +144,98 @@ Figure&nbsp;11.3: Laying out rows and columns of fixed-size blocks.
 </figure>
 </div>
 <p>To save ourselves some testing we will derive the classes that know how to do layout from the classes we wrote before. Our blocks are:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>while our columns are:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>and our rows are:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Once again, we write and run some tests to check that everything is doing what it’s supposed to:</p>
-<pre><code>import assert from 'assert'
-import {
-  PlacedBlock as Block,
-  PlacedCol as Col,
-  PlacedRow as Row
-} from '../placed.js'
-describe('places blocks', () =&gt; {
-  it('places a single unit block', async () =&gt; {
-    const fixture = new Block(1, 1)
-    fixture.place(0, 0)
-    assert.deepStrictEqual(
-      fixture.report(),
-      ['block', 0, 0, 1, 1]
-    )
-  })
-  it('places a large block', async () =&gt; {
-    const fixture = new Block(3, 4)
-    fixture.place(0, 0)
-    assert.deepStrictEqual(
-      fixture.report(),
-      ['block', 0, 0, 3, 4]
-    )
-  })
-  it('places a row of two blocks', async () =&gt; {
-    const fixture = new Row(
-      new Block(1, 1),
-      new Block(2, 4)
-    )
-    fixture.place(0, 0)
-    assert.deepStrictEqual(
-      fixture.report(),
-      ['row', 0, 0, 3, 4,
-        ['block', 0, 3, 1, 4],
-        ['block', 1, 0, 3, 4]
-      ]
-    )
-  })
-  // [large]
-  it('places a column of two blocks', async () =&gt; {
-    const fixture = new Col(
-      new Block(1, 1),
-      new Block(2, 4)
-    )
-    fixture.place(0, 0)
-    assert.deepStrictEqual(
-      fixture.report(),
-      ['col', 0, 0, 2, 5,
-        ['block', 0, 0, 1, 1],
-        ['block', 0, 1, 2, 5]
-      ]
-    )
-  })
-  it('places a grid of rows of columns', async () =&gt; {
-    const fixture = new Col(
-      new Row(
-        new Block(1, 2),
-        new Block(3, 4)
-      ),
-      new Row(
-        new Block(5, 6),
-        new Col(
-          new Block(7, 8),
-          new Block(9, 10)
-        )
-      )
-    )
-    fixture.place(0, 0)
-    assert.deepStrictEqual(
-      fixture.report(),
-      ['col', 0, 0, 14, 22,
-        ['row', 0, 0, 4, 4,
-          ['block', 0, 2, 1, 4],
-          ['block', 1, 0, 4, 4]
-        ],
-        ['row', 0, 4, 14, 22,
-          ['block', 0, 16, 5, 22],
-          ['col', 5, 4, 14, 22,
-            ['block', 5, 4, 12, 12],
-            ['block', 5, 12, 14, 22]
-          ]
-        ]
-      ]
-    )
-  })
-  // [/large]
-})</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> {</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  PlacedBlock <span class="im">as</span> Block<span class="op">,</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  PlacedCol <span class="im">as</span> Col<span class="op">,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  PlacedRow <span class="im">as</span> Row</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>} <span class="im">from</span> <span class="st">'../placed.js'</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(<span class="st">'places blocks'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'places a single unit block'</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> fixture <span class="op">=</span> <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">1</span><span class="op">,</span> <span class="dv">1</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    fixture<span class="op">.</span><span class="fu">place</span>(<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>      fixture<span class="op">.</span><span class="fu">report</span>()<span class="op">,</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>      [<span class="st">'block'</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span>]</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'places a large block'</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> fixture <span class="op">=</span> <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">3</span><span class="op">,</span> <span class="dv">4</span>)</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    fixture<span class="op">.</span><span class="fu">place</span>(<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>)</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>      fixture<span class="op">.</span><span class="fu">report</span>()<span class="op">,</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>      [<span class="st">'block'</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">4</span>]</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'places a row of two blocks'</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> fixture <span class="op">=</span> <span class="kw">new</span> <span class="fu">Row</span>(</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>      <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">1</span><span class="op">,</span> <span class="dv">1</span>)<span class="op">,</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>      <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">2</span><span class="op">,</span> <span class="dv">4</span>)</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    fixture<span class="op">.</span><span class="fu">place</span>(<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>)</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>      fixture<span class="op">.</span><span class="fu">report</span>()<span class="op">,</span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>      [<span class="st">'row'</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>        [<span class="st">'block'</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>        [<span class="st">'block'</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">4</span>]</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>      ]</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>  <span class="co">// [large]</span></span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'places a column of two blocks'</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> fixture <span class="op">=</span> <span class="kw">new</span> <span class="fu">Col</span>(</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>      <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">1</span><span class="op">,</span> <span class="dv">1</span>)<span class="op">,</span></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>      <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">2</span><span class="op">,</span> <span class="dv">4</span>)</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>    fixture<span class="op">.</span><span class="fu">place</span>(<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>)</span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(</span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>      fixture<span class="op">.</span><span class="fu">report</span>()<span class="op">,</span></span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>      [<span class="st">'col'</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">5</span><span class="op">,</span></span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>        [<span class="st">'block'</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span>]<span class="op">,</span></span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>        [<span class="st">'block'</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">5</span>]</span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>      ]</span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'places a grid of rows of columns'</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> fixture <span class="op">=</span> <span class="kw">new</span> <span class="fu">Col</span>(</span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>      <span class="kw">new</span> <span class="fu">Row</span>(</span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>        <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span>)<span class="op">,</span></span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>        <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">3</span><span class="op">,</span> <span class="dv">4</span>)</span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>      )<span class="op">,</span></span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>      <span class="kw">new</span> <span class="fu">Row</span>(</span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>        <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">5</span><span class="op">,</span> <span class="dv">6</span>)<span class="op">,</span></span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>        <span class="kw">new</span> <span class="fu">Col</span>(</span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>          <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">7</span><span class="op">,</span> <span class="dv">8</span>)<span class="op">,</span></span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>          <span class="kw">new</span> <span class="fu">Block</span>(<span class="dv">9</span><span class="op">,</span> <span class="dv">10</span>)</span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>    fixture<span class="op">.</span><span class="fu">place</span>(<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>)</span>
+<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(</span>
+<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>      fixture<span class="op">.</span><span class="fu">report</span>()<span class="op">,</span></span>
+<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>      [<span class="st">'col'</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">14</span><span class="op">,</span> <span class="dv">22</span><span class="op">,</span></span>
+<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>        [<span class="st">'row'</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span></span>
+<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a>          [<span class="st">'block'</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">4</span>]<span class="op">,</span></span>
+<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a>          [<span class="st">'block'</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span> <span class="dv">4</span>]</span>
+<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a>        ]<span class="op">,</span></span>
+<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a>        [<span class="st">'row'</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span> <span class="dv">14</span><span class="op">,</span> <span class="dv">22</span><span class="op">,</span></span>
+<span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a>          [<span class="st">'block'</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">16</span><span class="op">,</span> <span class="dv">5</span><span class="op">,</span> <span class="dv">22</span>]<span class="op">,</span></span>
+<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a>          [<span class="st">'col'</span><span class="op">,</span> <span class="dv">5</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span> <span class="dv">14</span><span class="op">,</span> <span class="dv">22</span><span class="op">,</span></span>
+<span id="cb9-78"><a href="#cb9-78" aria-hidden="true" tabindex="-1"></a>            [<span class="st">'block'</span><span class="op">,</span> <span class="dv">5</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span> <span class="dv">12</span><span class="op">,</span> <span class="dv">12</span>]<span class="op">,</span></span>
+<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a>            [<span class="st">'block'</span><span class="op">,</span> <span class="dv">5</span><span class="op">,</span> <span class="dv">12</span><span class="op">,</span> <span class="dv">14</span><span class="op">,</span> <span class="dv">22</span>]</span>
+<span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a>          ]</span>
+<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a>        ]</span>
+<span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a>      ]</span>
+<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a>  <span class="co">// [/large]</span></span>
+<span id="cb9-86"><a href="#cb9-86" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 <pre><code>&gt; stjs@1.0.0 test /u/stjs
 &gt; mocha */test/test-*.js "-g" "places blocks"
   places blocks
@@ -257,20 +258,20 @@ Figure&nbsp;11.4: Render blocks by drawing child nodes on top of parent nodes.
 </figure>
 </div>
 <p>Our pretended screen is just an array of arrays of characters:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>We will use successive lower-case characters to show each block, i.e., the root block will draw itself using the letter a, while its children will use b, c, and so on.</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>To teach each kind of cell how to render itself, we have to derive a new class from each of the ones we have and give the new class a <code>render</code> method with the same <a href="../glossary/index.html#signature">signature</a>:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>These <code>render</code> methods do exactly the same thing, so we have each one call a shared function that does the actual work. If we were building a real layout engine, a cleaner solution would be to go back and create a class called <code>Cell</code> with this <code>render</code> method, then derive our <code>Block</code>, <code>Row</code>, and <code>Col</code> classes from that. In general, if two or more classes need to be able to do something, we should add a method to do that to their lowest common ancestor.</p>
 <p>Our simpler tests are a little easier to read once we have rendering in place, though we still had to draw things on paper to figure out our complex ones:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>The fact that we find our own tests difficult to understand is a sign that we should do more testing. It would be very easy for us to get a wrong result and convince ourselves that it was actually correct; <a href="../glossary/index.html#confirmation_bias">confirmation bias</a> of this kind is very common in software development.</p>
 <h2 data-number="11.4" id="layout-engine-fit"><span class="header-section-number">11.4</span> How can we wrap elements to fit?</h2>
 <p>One of the biggest differences between a browser and a printed page is that the text in the browser wraps itself automatically as the window is resized. (The other, these days, is that the printed page doesn’t spy on us, though someone is undoubtedly working on that.)</p>
 <p>To add wrapping to our layout engine, suppose we fix the width of a row. If the total width of the children is greater than the row’s width, the layout engine needs to wrap the children around. This assumes that columns can be made as big as they need to be, i.e., that we can grow vertically to make up for limited space horizontally. It also assumes that all of the row’s children are no wider than the width of the row; we will look at what happens when they’re not in the exercises.</p>
 <p>Our layout engine manages wrapping by transforming the tree. The height and width of blocks are fixed, so they become themselves. Columns become themselves as well, but since they have children that might need to wrap, the class representing columns needs a new method:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Rows do all the hard work. Each original row is replaced with a new row that contains a single column with one or more rows, each of which is one “line” of wrapped cells (<a href="#fig-layout-engine-wrap" class="quarto-xref">Figure&nbsp;<span>11.5</span></a>). This replacement is unnecessary when everything will fit on a single row, but it’s easiest to write the code that does it every time; we will look at making this more efficient in the exercises.</p>
 <div id="fig-layout-engine-wrap" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig">
@@ -283,11 +284,11 @@ Figure&nbsp;11.5: Wrapping rows by introducing a new row and column.
 </figure>
 </div>
 <p>Our new wrappable row’s constructor takes a fixed width followed by the children and returns that fixed width when asked for its size:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Wrapping puts the row’s children into buckets, then converts the buckets to a row of a column of rows:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb17"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Once again we bring forward all the previous tests and write some new ones to test the functionality we’ve added:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb18"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <pre><code>&gt; stjs@1.0.0 test /u/stjs
 &gt; mocha */test/test-*.js "-g" "wraps blocks"
   wraps blocks
@@ -308,145 +309,145 @@ Figure&nbsp;11.5: Wrapping rows by introducing a new row and column.
 <h2 data-number="11.5" id="layout-engine-css"><span class="header-section-number">11.5</span> What subset of CSS will we support?</h2>
 <p>It’s finally time to style pages that contain text. Our final subset of HTML has rows, columns, and text blocks as before. Each text block has one or more lines of text; the number of lines determines the block’s height and the length of the longest line determines its width.</p>
 <p>Rows and columns can have <a href="../glossary/index.html#attribute">attributes</a> just as they can in real HTML, and each attribute must have a single value in quotes. Rows no longer take a fixed width: instead, we will specify that with our little subset of CSS. Together, these three classes are just over 40 lines of code:</p>
-<pre><code>// mccole:erase
-import {
-  WrappedBlock,
-  WrappedCol,
-  WrappedRow
-} from './wrapped.js'
-// mccole:/erase
-export class DomBlock extends WrappedBlock {
-  constructor (lines) {
-    super(
-      Math.max(...lines.split('\n').map(line =&gt; line.length)),
-      lines.length
-    )
-    this.lines = lines
-    this.tag = 'text'
-    this.rules = null
-  }
-  findRules (css) {
-    this.rules = css.findRules(this)
-  }
-}
-export class DomCol extends WrappedCol {
-  constructor (attributes, ...children) {
-    super(...children)
-    this.attributes = attributes
-    this.tag = 'col'
-    this.rules = null
-  }
-  findRules (css) {
-    this.rules = css.findRules(this)
-    this.children.forEach(child =&gt; child.findRules(css))
-  }
-}
-export class DomRow extends WrappedRow {
-  constructor (attributes, ...children) {
-    super(0, ...children)
-    this.attributes = attributes
-    this.tag = 'row'
-    this.rules = null
-  }
-  findRules (css) {
-    this.rules = css.findRules(this)
-    this.children.forEach(child =&gt; child.findRules(css))
-  }
-}</code></pre>
+<div class="sourceCode" id="cb20"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:erase</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> {</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  WrappedBlock<span class="op">,</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  WrappedCol<span class="op">,</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  WrappedRow</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>} <span class="im">from</span> <span class="st">'./wrapped.js'</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:/erase</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">class</span> DomBlock <span class="kw">extends</span> WrappedBlock {</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (lines) {</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>(</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>      <span class="bu">Math</span><span class="op">.</span><span class="fu">max</span>(<span class="op">...</span>lines<span class="op">.</span><span class="fu">split</span>(<span class="st">'</span><span class="sc">\n</span><span class="st">'</span>)<span class="op">.</span><span class="fu">map</span>(line <span class="kw">=&gt;</span> line<span class="op">.</span><span class="at">length</span>))<span class="op">,</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>      lines<span class="op">.</span><span class="at">length</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">lines</span> <span class="op">=</span> lines</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">tag</span> <span class="op">=</span> <span class="st">'text'</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">rules</span> <span class="op">=</span> <span class="kw">null</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">findRules</span> (css) {</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">rules</span> <span class="op">=</span> css<span class="op">.</span><span class="fu">findRules</span>(<span class="kw">this</span>)</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">class</span> DomCol <span class="kw">extends</span> WrappedCol {</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (attributes<span class="op">,</span> <span class="op">...</span>children) {</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>(<span class="op">...</span>children)</span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">attributes</span> <span class="op">=</span> attributes</span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">tag</span> <span class="op">=</span> <span class="st">'col'</span></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">rules</span> <span class="op">=</span> <span class="kw">null</span></span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">findRules</span> (css) {</span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">rules</span> <span class="op">=</span> css<span class="op">.</span><span class="fu">findRules</span>(<span class="kw">this</span>)</span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">children</span><span class="op">.</span><span class="fu">forEach</span>(child <span class="kw">=&gt;</span> child<span class="op">.</span><span class="fu">findRules</span>(css))</span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">class</span> DomRow <span class="kw">extends</span> WrappedRow {</span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (attributes<span class="op">,</span> <span class="op">...</span>children) {</span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>(<span class="dv">0</span><span class="op">,</span> <span class="op">...</span>children)</span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">attributes</span> <span class="op">=</span> attributes</span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">tag</span> <span class="op">=</span> <span class="st">'row'</span></span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">rules</span> <span class="op">=</span> <span class="kw">null</span></span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">findRules</span> (css) {</span>
+<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">rules</span> <span class="op">=</span> css<span class="op">.</span><span class="fu">findRules</span>(<span class="kw">this</span>)</span>
+<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">children</span><span class="op">.</span><span class="fu">forEach</span>(child <span class="kw">=&gt;</span> child<span class="op">.</span><span class="fu">findRules</span>(css))</span>
+<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>We will use regular expressions to parse HTML (though as we explained in <a href="../parser/index.html" class="quarto-xref"><span>Chapter 8</span></a>, <a href="https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454">this is a sin</a>). The main body of our parser is:</p>
-<pre><code>import assert from 'assert'
-import {
-  DomBlock,
-  DomCol,
-  DomRow
-} from './micro-dom.js'
-const TEXT_AND_TAG = /^([^&lt;]*)(&lt;[^]+?&gt;)(.*)$/ms
-const TAG_AND_ATTR = /&lt;(\w+)([^&gt;]*)&gt;/
-const KEY_AND_VALUE = /\s*(\w+)="([^"]*)"\s*/g
-const parseHTML = (text) =&gt; {
-  const chunks = chunkify(text.trim())
-  assert(isElement(chunks[0]),
-    'Must have enclosing outer node')
-  const [node, remainder] = makeNode(chunks)
-  assert(remainder.length === 0,
-    'Cannot have dangling content')
-  return node
-}
-const chunkify = (text) =&gt; {
-  const raw = []
-  while (text) {
-    const matches = text.match(TEXT_AND_TAG)
-    if (!matches) {
-      break
-    }
-    raw.push(matches[1])
-    raw.push(matches[2])
-    text = matches[3]
-  }
-  if (text) {
-    raw.push(text)
-  }
-  const nonEmpty = raw.filter(chunk =&gt; (chunk.length &gt; 0))
-  return nonEmpty
-}
-const isElement = (chunk) =&gt; {
-  return chunk &amp;&amp; (chunk[0] === '&lt;')
-}
-// mccole:skip
-// mccole:makenode
-const makeNode = (chunks) =&gt; {
-  assert(chunks.length &gt; 0,
-    'Cannot make nodes without chunks')
-  if (!isElement(chunks[0])) {
-    return [new DomBlock(chunks[0]), chunks.slice(1)]
-  }
-  const node = makeOpening(chunks[0])
-  const closing = `&lt;/${node.tag}&gt;`
-  let remainder = chunks.slice(1)
-  let child = null
-  while (remainder &amp;&amp; (remainder[0] !== closing)) {
-    [child, remainder] = makeNode(remainder)
-    node.children.push(child)
-  }
-  assert(remainder &amp;&amp; (remainder[0] === closing),
-    `Node with tag ${node.tag} not closed`)
-  return [node, remainder.slice(1)]
-}
-// mccole:/makenode
-// mccole:makeopening
-const makeOpening = (chunk) =&gt; {
-  const outer = chunk.match(TAG_AND_ATTR)
-  const tag = outer[1]
-  const attributes = [...outer[2].trim().matchAll(KEY_AND_VALUE)]
-    .reduce((obj, [all, key, value]) =&gt; {
-      obj[key] = value
-      return obj
-    }, {})
-  let Cls = null
-  if (tag === 'col') {
-    Cls = DomCol
-  } else if (tag === 'row') {
-    Cls = DomRow
-  }
-  assert(Cls !== null,
-    `Unrecognized tag name ${tag}`)
-  return new Cls(attributes)
-}
-// mccole:/makeopening
-// mccole:/skip
-export default parseHTML</code></pre>
+<div class="sourceCode" id="cb21"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> {</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  DomBlock<span class="op">,</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  DomCol<span class="op">,</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  DomRow</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>} <span class="im">from</span> <span class="st">'./micro-dom.js'</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> TEXT_AND_TAG <span class="op">=</span> <span class="ss">/</span><span class="sc">^([^&lt;]*)(</span><span class="ss">&lt;</span><span class="sc">[^]+?</span><span class="ss">&gt;</span><span class="sc">)(</span><span class="ss">.</span><span class="sc">*)$</span><span class="ss">/ms</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> TAG_AND_ATTR <span class="op">=</span> <span class="ss">/&lt;</span><span class="sc">(\w+)([^&gt;]*)</span><span class="ss">&gt;/</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> KEY_AND_VALUE <span class="op">=</span> <span class="ss">/</span><span class="sc">\s*(\w+)</span><span class="ss">="</span><span class="sc">([^"]*)</span><span class="ss">"</span><span class="sc">\s*</span><span class="ss">/g</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> parseHTML <span class="op">=</span> (text) <span class="kw">=&gt;</span> {</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> chunks <span class="op">=</span> <span class="fu">chunkify</span>(text<span class="op">.</span><span class="fu">trim</span>())</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assert</span>(<span class="fu">isElement</span>(chunks[<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Must have enclosing outer node'</span>)</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> [node<span class="op">,</span> remainder] <span class="op">=</span> <span class="fu">makeNode</span>(chunks)</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assert</span>(remainder<span class="op">.</span><span class="at">length</span> <span class="op">===</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Cannot have dangling content'</span>)</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> node</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> chunkify <span class="op">=</span> (text) <span class="kw">=&gt;</span> {</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> raw <span class="op">=</span> []</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> (text) {</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> matches <span class="op">=</span> text<span class="op">.</span><span class="fu">match</span>(TEXT_AND_TAG)</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="op">!</span>matches) {</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>      <span class="cf">break</span></span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>    raw<span class="op">.</span><span class="fu">push</span>(matches[<span class="dv">1</span>])</span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>    raw<span class="op">.</span><span class="fu">push</span>(matches[<span class="dv">2</span>])</span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> matches[<span class="dv">3</span>]</span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (text) {</span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>    raw<span class="op">.</span><span class="fu">push</span>(text)</span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> nonEmpty <span class="op">=</span> raw<span class="op">.</span><span class="fu">filter</span>(chunk <span class="kw">=&gt;</span> (chunk<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span>))</span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> nonEmpty</span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> isElement <span class="op">=</span> (chunk) <span class="kw">=&gt;</span> {</span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> chunk <span class="op">&amp;&amp;</span> (chunk[<span class="dv">0</span>] <span class="op">===</span> <span class="st">'&lt;'</span>)</span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:skip</span></span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:makenode</span></span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> makeNode <span class="op">=</span> (chunks) <span class="kw">=&gt;</span> {</span>
+<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assert</span>(chunks<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Cannot make nodes without chunks'</span>)</span>
+<span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span><span class="fu">isElement</span>(chunks[<span class="dv">0</span>])) {</span>
+<span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [<span class="kw">new</span> <span class="fu">DomBlock</span>(chunks[<span class="dv">0</span>])<span class="op">,</span> chunks<span class="op">.</span><span class="fu">slice</span>(<span class="dv">1</span>)]</span>
+<span id="cb21-46"><a href="#cb21-46" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-47"><a href="#cb21-47" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> node <span class="op">=</span> <span class="fu">makeOpening</span>(chunks[<span class="dv">0</span>])</span>
+<span id="cb21-48"><a href="#cb21-48" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> closing <span class="op">=</span> <span class="vs">`&lt;/</span><span class="sc">${</span>node<span class="op">.</span><span class="at">tag</span><span class="sc">}</span><span class="vs">&gt;`</span></span>
+<span id="cb21-49"><a href="#cb21-49" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> remainder <span class="op">=</span> chunks<span class="op">.</span><span class="fu">slice</span>(<span class="dv">1</span>)</span>
+<span id="cb21-50"><a href="#cb21-50" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> child <span class="op">=</span> <span class="kw">null</span></span>
+<span id="cb21-51"><a href="#cb21-51" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> (remainder <span class="op">&amp;&amp;</span> (remainder[<span class="dv">0</span>] <span class="op">!==</span> closing)) {</span>
+<span id="cb21-52"><a href="#cb21-52" aria-hidden="true" tabindex="-1"></a>    [child<span class="op">,</span> remainder] <span class="op">=</span> <span class="fu">makeNode</span>(remainder)</span>
+<span id="cb21-53"><a href="#cb21-53" aria-hidden="true" tabindex="-1"></a>    node<span class="op">.</span><span class="at">children</span><span class="op">.</span><span class="fu">push</span>(child)</span>
+<span id="cb21-54"><a href="#cb21-54" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-55"><a href="#cb21-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assert</span>(remainder <span class="op">&amp;&amp;</span> (remainder[<span class="dv">0</span>] <span class="op">===</span> closing)<span class="op">,</span></span>
+<span id="cb21-56"><a href="#cb21-56" aria-hidden="true" tabindex="-1"></a>    <span class="vs">`Node with tag </span><span class="sc">${</span>node<span class="op">.</span><span class="at">tag</span><span class="sc">}</span><span class="vs"> not closed`</span>)</span>
+<span id="cb21-57"><a href="#cb21-57" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> [node<span class="op">,</span> remainder<span class="op">.</span><span class="fu">slice</span>(<span class="dv">1</span>)]</span>
+<span id="cb21-58"><a href="#cb21-58" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-59"><a href="#cb21-59" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:/makenode</span></span>
+<span id="cb21-60"><a href="#cb21-60" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:makeopening</span></span>
+<span id="cb21-61"><a href="#cb21-61" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> makeOpening <span class="op">=</span> (chunk) <span class="kw">=&gt;</span> {</span>
+<span id="cb21-62"><a href="#cb21-62" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> outer <span class="op">=</span> chunk<span class="op">.</span><span class="fu">match</span>(TAG_AND_ATTR)</span>
+<span id="cb21-63"><a href="#cb21-63" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> tag <span class="op">=</span> outer[<span class="dv">1</span>]</span>
+<span id="cb21-64"><a href="#cb21-64" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> attributes <span class="op">=</span> [<span class="op">...</span>outer[<span class="dv">2</span>]<span class="op">.</span><span class="fu">trim</span>()<span class="op">.</span><span class="fu">matchAll</span>(KEY_AND_VALUE)]</span>
+<span id="cb21-65"><a href="#cb21-65" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">reduce</span>((obj<span class="op">,</span> [all<span class="op">,</span> key<span class="op">,</span> value]) <span class="kw">=&gt;</span> {</span>
+<span id="cb21-66"><a href="#cb21-66" aria-hidden="true" tabindex="-1"></a>      obj[key] <span class="op">=</span> value</span>
+<span id="cb21-67"><a href="#cb21-67" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> obj</span>
+<span id="cb21-68"><a href="#cb21-68" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span> {})</span>
+<span id="cb21-69"><a href="#cb21-69" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> Cls <span class="op">=</span> <span class="kw">null</span></span>
+<span id="cb21-70"><a href="#cb21-70" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (tag <span class="op">===</span> <span class="st">'col'</span>) {</span>
+<span id="cb21-71"><a href="#cb21-71" aria-hidden="true" tabindex="-1"></a>    Cls <span class="op">=</span> DomCol</span>
+<span id="cb21-72"><a href="#cb21-72" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (tag <span class="op">===</span> <span class="st">'row'</span>) {</span>
+<span id="cb21-73"><a href="#cb21-73" aria-hidden="true" tabindex="-1"></a>    Cls <span class="op">=</span> DomRow</span>
+<span id="cb21-74"><a href="#cb21-74" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-75"><a href="#cb21-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assert</span>(Cls <span class="op">!==</span> <span class="kw">null</span><span class="op">,</span></span>
+<span id="cb21-76"><a href="#cb21-76" aria-hidden="true" tabindex="-1"></a>    <span class="vs">`Unrecognized tag name </span><span class="sc">${</span>tag<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb21-77"><a href="#cb21-77" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">new</span> <span class="fu">Cls</span>(attributes)</span>
+<span id="cb21-78"><a href="#cb21-78" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-79"><a href="#cb21-79" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:/makeopening</span></span>
+<span id="cb21-80"><a href="#cb21-80" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:/skip</span></span>
+<span id="cb21-81"><a href="#cb21-81" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> parseHTML</span></code></pre></div>
 <p>while the two functions that do most of the work are:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>and:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb23"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>The next step is to define a generic class for CSS rules with a subclass for each type of rule. From highest precedence to lowest, the three types of rules we support identify specific nodes via their ID, classes of nodes via their <code>class</code> attribute, and types of nodes via their element name. We keep track of which rules take precedence over which through the simple expedient of numbering the classes:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb24"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>An ID rule’s query selector is written as <code>#name</code> and matches HTML like <code>&lt;tag id="name"&gt;...&lt;/tag&gt;</code> (where <code>tag</code> is <code>row</code> or <code>col</code>):</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb25"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>A class rule’s query selector is written as <code>.kind</code> and matches HTML like <code>&lt;tag class="kind"&gt;...&lt;/tag&gt;</code>. Unlike real CSS, we only allow one class per node:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb26"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Finally, tag rules just have the name of the type of node they apply to without any punctuation:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb27"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>We could build yet another parser to read a subset of CSS and convert it to objects, but this chapter is long enough, so we will write our rules as JSON:</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>{</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">'row'</span><span class="op">:</span> { <span class="dt">width</span><span class="op">:</span> <span class="dv">20</span> }<span class="op">,</span></span>
@@ -454,10 +455,10 @@ export default parseHTML</code></pre>
 <span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">'#name'</span><span class="op">:</span> { <span class="dt">height</span><span class="op">:</span> <span class="dv">10</span> }</span>
 <span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>and build a class that converts this representation to a set of objects:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb29"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Our CSS ruleset class also has a method for finding the rules for a given DOM node. This method relies on the precedence values we defined for our classes in order to sort them so that we can find the most specific.</p>
 <p>Here’s our final set of tests:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb30"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>If we were going on, we would override the cells’ <code>getWidth</code> and <code>getHeight</code> methods to pay attention to styles. We would also decide what to do with cells that don’t have any styles defined: use a default, flag it as an error, or make a choice based on the contents of the child nodes. We will explore these possibilities in the exercises.</p>
 <div>
 <blockquote>

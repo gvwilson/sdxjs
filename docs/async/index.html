@@ -3,6 +3,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Asynchronous Programming</title>
   <link rel="stylesheet" href="../mccole/mccole-book.css">
+  <link rel="stylesheet" href="../mccole/tango.css">
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async=""></script>
 </head>
@@ -49,7 +50,7 @@ Figure&nbsp;3.1: Using an event loop to manage concurrent tasks.
 </figure>
 </div>
 <p>Most tasks execute all the code available in the order it is written. For example, this one-line program uses <code>Array.forEach</code> to print each element of an array in turn:</p>
-<pre><code>[1000, 1500, 500].forEach(t =&gt; console.log(t))</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>[<span class="dv">1000</span><span class="op">,</span> <span class="dv">1500</span><span class="op">,</span> <span class="dv">500</span>]<span class="op">.</span><span class="fu">forEach</span>(t <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(t))</span></code></pre></div>
 <pre><code>1000
 1500
 500</code></pre>
@@ -61,14 +62,14 @@ Figure&nbsp;3.1: Using an event loop to manage concurrent tasks.
 </blockquote>
 </div>
 <p>As the listing below shows, the original task can generate many new tasks before it completes, and those tasks can run in a different order than the order in which they were created (<a href="#fig-async-programming-set-timeout" class="quarto-xref">Figure&nbsp;<span>3.2</span></a>).</p>
-<pre><code>[1000, 1500, 500].forEach(t =&gt; {
-  console.log(`about to setTimeout for ${t}`)
-  setTimeout(() =&gt; console.log(`inside timer handler for ${t}`), t)
-})</code></pre>
-<pre><code>[1000, 1500, 500].forEach(t =&gt; {
-  console.log(`about to setTimeout for ${t}`)
-  setTimeout(() =&gt; console.log(`inside timer handler for ${t}`), t)
-})</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>[<span class="dv">1000</span><span class="op">,</span> <span class="dv">1500</span><span class="op">,</span> <span class="dv">500</span>]<span class="op">.</span><span class="fu">forEach</span>(t <span class="kw">=&gt;</span> {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`about to setTimeout for </span><span class="sc">${</span>t<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="pp">setTimeout</span>(() <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`inside timer handler for </span><span class="sc">${</span>t<span class="sc">}</span><span class="vs">`</span>)<span class="op">,</span> t)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>[<span class="dv">1000</span><span class="op">,</span> <span class="dv">1500</span><span class="op">,</span> <span class="dv">500</span>]<span class="op">.</span><span class="fu">forEach</span>(t <span class="kw">=&gt;</span> {</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`about to setTimeout for </span><span class="sc">${</span>t<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="pp">setTimeout</span>(() <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`inside timer handler for </span><span class="sc">${</span>t<span class="sc">}</span><span class="vs">`</span>)<span class="op">,</span> t)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 <div id="fig-async-programming-set-timeout" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-async-programming-set-timeout-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -80,22 +81,22 @@ Figure&nbsp;3.2: Using <code>setTimeout</code> to delay operations.
 </figure>
 </div>
 <p>If we give <code>setTimeout</code> a delay of zero milliseconds, the new task can be run right away, but any other tasks that are waiting have a chance to run as well:</p>
-<pre><code>[1000, 1500, 500].forEach(t =&gt; {
-  console.log(`about to setTimeout for ${t}`)
-  setTimeout(() =&gt; console.log(`inside timer handler for ${t}`), 0)
-})</code></pre>
-<pre><code>[1000, 1500, 500].forEach(t =&gt; {
-  console.log(`about to setTimeout for ${t}`)
-  setTimeout(() =&gt; console.log(`inside timer handler for ${t}`), 0)
-})</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>[<span class="dv">1000</span><span class="op">,</span> <span class="dv">1500</span><span class="op">,</span> <span class="dv">500</span>]<span class="op">.</span><span class="fu">forEach</span>(t <span class="kw">=&gt;</span> {</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`about to setTimeout for </span><span class="sc">${</span>t<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="pp">setTimeout</span>(() <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`inside timer handler for </span><span class="sc">${</span>t<span class="sc">}</span><span class="vs">`</span>)<span class="op">,</span> <span class="dv">0</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>[<span class="dv">1000</span><span class="op">,</span> <span class="dv">1500</span><span class="op">,</span> <span class="dv">500</span>]<span class="op">.</span><span class="fu">forEach</span>(t <span class="kw">=&gt;</span> {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`about to setTimeout for </span><span class="sc">${</span>t<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="pp">setTimeout</span>(() <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`inside timer handler for </span><span class="sc">${</span>t<span class="sc">}</span><span class="vs">`</span>)<span class="op">,</span> <span class="dv">0</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 <p>We can use this trick to build a generic <a href="../glossary/index.html#non_blocking_execution">non-blocking function</a> that takes a callback defining a task and switches tasks if any others are available:</p>
-<pre><code>const nonBlocking = (callback) =&gt; {
-  setTimeout(callback, 0)
-}
-[1000, 1500, 500].forEach(t =&gt; {
-  console.log(`about to do nonBlocking for ${t}`)
-  nonBlocking(() =&gt; console.log(`inside timer handler for ${t}`))
-})</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> nonBlocking <span class="op">=</span> (callback) <span class="kw">=&gt;</span> {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="pp">setTimeout</span>(callback<span class="op">,</span> <span class="dv">0</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>[<span class="dv">1000</span><span class="op">,</span> <span class="dv">1500</span><span class="op">,</span> <span class="dv">500</span>]<span class="op">.</span><span class="fu">forEach</span>(t <span class="kw">=&gt;</span> {</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`about to do nonBlocking for </span><span class="sc">${</span>t<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nonBlocking</span>(() <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`inside timer handler for </span><span class="sc">${</span>t<span class="sc">}</span><span class="vs">`</span>))</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 <pre><code>about to do nonBlocking for 1000
 about to do nonBlocking for 1500
 about to do nonBlocking for 500
@@ -103,10 +104,10 @@ inside timer handler for 1000
 inside timer handler for 1500
 inside timer handler for 500</code></pre>
 <p>Node’s built-in function <code>setImmediate</code> does exactly what our <code>nonBlocking</code> function does: Node also has <code>process.nextTick</code>, which doesn’t do quite the same thing—we’ll explore the differences in the exercises.</p>
-<pre><code>[1000, 1500, 500].forEach(t =&gt; {
-  console.log(`about to do setImmediate for ${t}`)
-  setImmediate(() =&gt; console.log(`inside immediate handler for ${t}`))
-})</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>[<span class="dv">1000</span><span class="op">,</span> <span class="dv">1500</span><span class="op">,</span> <span class="dv">500</span>]<span class="op">.</span><span class="fu">forEach</span>(t <span class="kw">=&gt;</span> {</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`about to do setImmediate for </span><span class="sc">${</span>t<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setImmediate</span>(() <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`inside immediate handler for </span><span class="sc">${</span>t<span class="sc">}</span><span class="vs">`</span>))</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 <pre><code>about to do setImmediate for 1000
 about to do setImmediate for 1500
 about to do setImmediate for 500
@@ -115,17 +116,17 @@ inside immediate handler for 1500
 inside immediate handler for 500</code></pre>
 <h2 data-number="3.2" id="async-programming-promises"><span class="header-section-number">3.2</span> How do promises work?</h2>
 <p>Before we start building our own promises, let’s look at how we want them to work:</p>
-<pre><code>import Pledge from './pledge.js'
-new Pledge((resolve, reject) =&gt; {
-  console.log('top of a single then clause')
-  setTimeout(() =&gt; {
-    console.log('about to call resolve callback')
-    resolve('this is the result')
-  }, 0)
-}).then((value) =&gt; {
-  console.log(`in 'then' with "${value}"`)
-  return 'first then value'
-})</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Pledge <span class="im">from</span> <span class="st">'./pledge.js'</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">new</span> <span class="fu">Pledge</span>((resolve<span class="op">,</span> reject) <span class="kw">=&gt;</span> {</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'top of a single then clause'</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="pp">setTimeout</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'about to call resolve callback'</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">resolve</span>(<span class="st">'this is the result'</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span> <span class="dv">0</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>})<span class="op">.</span><span class="fu">then</span>((value) <span class="kw">=&gt;</span> {</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`in 'then' with "</span><span class="sc">${</span>value<span class="sc">}</span><span class="vs">"`</span>)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="st">'first then value'</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 <pre><code>top of a single then clause
 about to call resolve callback
 in 'then' with "this is the result"</code></pre>
@@ -164,36 +165,36 @@ Figure&nbsp;3.3: Order of operations when a promise resolves.
 <div class="sourceCode" id="cb15"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>  (<span class="kw">new</span> <span class="fu">Fluent</span>())<span class="op">.</span><span class="fu">first</span>(<span class="st">'hello'</span>)<span class="op">.</span><span class="fu">second</span>(<span class="st">'and'</span><span class="op">,</span> <span class="st">'goodbye'</span>)</span></code></pre></div>
 <p><code>Array</code>’s fluent interface lets us write expressions like <code>Array.filter(...).map(...)</code> that are usually more readable than assigning intermediate results to temporary variables.</p>
 <p>If the original action given to our <code>Pledge</code> completes successfully, the <code>Pledge</code> gives us a value by calling the <code>resolve</code> callback. We pass this value to the first <code>then</code>, pass the result of that <code>then</code> to the second one, and so on. If any of them fail and throw an <a href="../glossary/index.html#exception">exception</a>, we pass that exception to the error handler. Putting it all together, the whole class looks like this:</p>
-<pre><code>class Pledge {
-  constructor (action) {
-    this.actionCallbacks = []
-    this.errorCallback = () =&gt; {}
-    action(this.onResolve.bind(this), this.onReject.bind(this))
-  }
-  then (thenHandler) {
-    this.actionCallbacks.push(thenHandler)
-    return this
-  }
-  catch (errorHandler) {
-    this.errorCallback = errorHandler
-    return this
-  }
-  onResolve (value) {
-    let storedValue = value
-    try {
-      this.actionCallbacks.forEach((action) =&gt; {
-        storedValue = action(storedValue)
-      })
-    } catch (err) {
-      this.actionCallbacks = []
-      this.onReject(err)
-    }
-  }
-  onReject (err) {
-    this.errorCallback(err)
-  }
-}
-export default Pledge</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Pledge {</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (action) {</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">actionCallbacks</span> <span class="op">=</span> []</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">errorCallback</span> <span class="op">=</span> () <span class="kw">=&gt;</span> {}</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">action</span>(<span class="kw">this</span><span class="op">.</span><span class="at">onResolve</span><span class="op">.</span><span class="fu">bind</span>(<span class="kw">this</span>)<span class="op">,</span> <span class="kw">this</span><span class="op">.</span><span class="at">onReject</span><span class="op">.</span><span class="fu">bind</span>(<span class="kw">this</span>))</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">then</span> (thenHandler) {</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">actionCallbacks</span><span class="op">.</span><span class="fu">push</span>(thenHandler)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">catch</span> (errorHandler) {</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">errorCallback</span> <span class="op">=</span> errorHandler</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">onResolve</span> (value) {</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> storedValue <span class="op">=</span> value</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span> {</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="at">actionCallbacks</span><span class="op">.</span><span class="fu">forEach</span>((action) <span class="kw">=&gt;</span> {</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>        storedValue <span class="op">=</span> <span class="fu">action</span>(storedValue)</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>      })</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">catch</span> (err) {</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="at">actionCallbacks</span> <span class="op">=</span> []</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">onReject</span>(err)</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">onReject</span> (err) {</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">errorCallback</span>(err)</span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> Pledge</span></code></pre></div>
 <div>
 <blockquote>
 <p><strong>Binding <code>this</code></strong></p>
@@ -201,13 +202,13 @@ export default Pledge</code></pre>
 </blockquote>
 </div>
 <p>Let’s create a <code>Pledge</code> and return a value:</p>
-<pre><code>import Pledge from './pledge.js'
-new Pledge((resolve, reject) =&gt; {
-  console.log('top of a single then clause')
-}).then((value) =&gt; {
-  console.log(`then with "${value}"`)
-  return 'first then value'
-})</code></pre>
+<div class="sourceCode" id="cb17"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Pledge <span class="im">from</span> <span class="st">'./pledge.js'</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="kw">new</span> <span class="fu">Pledge</span>((resolve<span class="op">,</span> reject) <span class="kw">=&gt;</span> {</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'top of a single then clause'</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>})<span class="op">.</span><span class="fu">then</span>((value) <span class="kw">=&gt;</span> {</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`then with "</span><span class="sc">${</span>value<span class="sc">}</span><span class="vs">"`</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="st">'first then value'</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 <pre><code>top of a single then clause</code></pre>
 <p>Why didn’t this work?</p>
 <ol type="1">
@@ -215,22 +216,22 @@ new Pledge((resolve, reject) =&gt; {
 <li><p>We haven’t done anything that defers execution, i.e., there is no call to <code>setTimeout</code>, <code>setImmediate</code>, or anything else that would switch tasks. Our original motivating example got this right.</p></li>
 </ol>
 <p>This example shows how we can chain actions together:</p>
-<pre><code>import Pledge from './pledge.js'
-new Pledge((resolve, reject) =&gt; {
-  console.log('top of action callback with double then and a catch')
-  setTimeout(() =&gt; {
-    console.log('about to call resolve callback')
-    resolve('initial result')
-    console.log('after resolve callback')
-  }, 0)
-  console.log('end of action callback')
-}).then((value) =&gt; {
-  console.log(`first then with "${value}"`)
-  return 'first value'
-}).then((value) =&gt; {
-  console.log(`second then with "${value}"`)
-  return 'second value'
-})</code></pre>
+<div class="sourceCode" id="cb19"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Pledge <span class="im">from</span> <span class="st">'./pledge.js'</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">new</span> <span class="fu">Pledge</span>((resolve<span class="op">,</span> reject) <span class="kw">=&gt;</span> {</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'top of action callback with double then and a catch'</span>)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="pp">setTimeout</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'about to call resolve callback'</span>)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">resolve</span>(<span class="st">'initial result'</span>)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'after resolve callback'</span>)</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span> <span class="dv">0</span>)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'end of action callback'</span>)</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>})<span class="op">.</span><span class="fu">then</span>((value) <span class="kw">=&gt;</span> {</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`first then with "</span><span class="sc">${</span>value<span class="sc">}</span><span class="vs">"`</span>)</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="st">'first value'</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>})<span class="op">.</span><span class="fu">then</span>((value) <span class="kw">=&gt;</span> {</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`second then with "</span><span class="sc">${</span>value<span class="sc">}</span><span class="vs">"`</span>)</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="st">'second value'</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 <pre><code>top of action callback with double then and a catch
 end of action callback
 about to call resolve callback
@@ -239,38 +240,38 @@ second then with "first value"
 after resolve callback</code></pre>
 <p>Notice that inside each <code>then</code> we <em>do</em> use <code>return</code> because these clauses all run in a single task. As we will see in the next section, the full implementation of <code>Promise</code> allows us to run both normal code and delayed tasks inside <code>then</code> handlers.</p>
 <p>Finally, in this example we explicitly signal a problem by calling <code>reject</code> to make sure our error handling does what it’s supposed to:</p>
-<pre><code>import Pledge from './pledge.js'
-new Pledge((resolve, reject) =&gt; {
-  console.log('top of action callback with deliberate error')
-  setTimeout(() =&gt; {
-    console.log('about to reject on purpose')
-    reject('error on purpose')
-  }, 0)
-}).then((value) =&gt; {
-  console.log(`should not be here with "${value}"`)
-}).catch((err) =&gt; {
-  console.log(`in error handler with "${err}"`)
-})</code></pre>
+<div class="sourceCode" id="cb21"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Pledge <span class="im">from</span> <span class="st">'./pledge.js'</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="kw">new</span> <span class="fu">Pledge</span>((resolve<span class="op">,</span> reject) <span class="kw">=&gt;</span> {</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'top of action callback with deliberate error'</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="pp">setTimeout</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'about to reject on purpose'</span>)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reject</span>(<span class="st">'error on purpose'</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span> <span class="dv">0</span>)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>})<span class="op">.</span><span class="fu">then</span>((value) <span class="kw">=&gt;</span> {</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`should not be here with "</span><span class="sc">${</span>value<span class="sc">}</span><span class="vs">"`</span>)</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>})<span class="op">.</span><span class="fu">catch</span>((err) <span class="kw">=&gt;</span> {</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`in error handler with "</span><span class="sc">${</span>err<span class="sc">}</span><span class="vs">"`</span>)</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 <pre><code>top of action callback with deliberate error
 about to reject on purpose
 in error handler with "error on purpose"</code></pre>
 <h2 data-number="3.4" id="async-programming-real"><span class="header-section-number">3.4</span> How are real promises different?</h2>
 <p>Let’s rewrite our chained pledge with built-in promises:</p>
-<pre><code>new Promise((resolve, reject) =&gt; {
-  console.log('top of action callback with double then and a catch')
-  setTimeout(() =&gt; {
-    console.log('about to call resolve callback')
-    resolve('initial result')
-    console.log('after resolve callback')
-  }, 0)
-  console.log('end of action callback')
-}).then((value) =&gt; {
-  console.log(`first then with "${value}"`)
-  return 'first value'
-}).then((value) =&gt; {
-  console.log(`second then with "${value}"`)
-  return 'second value'
-})</code></pre>
+<div class="sourceCode" id="cb23"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">new</span> <span class="bu">Promise</span>((resolve<span class="op">,</span> reject) <span class="kw">=&gt;</span> {</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'top of action callback with double then and a catch'</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="pp">setTimeout</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'about to call resolve callback'</span>)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">resolve</span>(<span class="st">'initial result'</span>)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'after resolve callback'</span>)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span> <span class="dv">0</span>)</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'end of action callback'</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>})<span class="op">.</span><span class="fu">then</span>((value) <span class="kw">=&gt;</span> {</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`first then with "</span><span class="sc">${</span>value<span class="sc">}</span><span class="vs">"`</span>)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="st">'first value'</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>})<span class="op">.</span><span class="fu">then</span>((value) <span class="kw">=&gt;</span> {</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`second then with "</span><span class="sc">${</span>value<span class="sc">}</span><span class="vs">"`</span>)</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="st">'second value'</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 <pre><code>top of action callback with double then and a catch
 end of action callback
 about to call resolve callback
@@ -279,23 +280,23 @@ first then with "initial result"
 second then with "first value"</code></pre>
 <p>It looks almost the same, but if we read the output carefully we can see that the callbacks run <em>after</em> the main program finishes. This is a signal that Node is delaying the execution of the code in the <code>then</code> handler.</p>
 <p>A very common pattern is to return another promise from inside <code>then</code> so that the next <code>then</code> is called on the returned promise, not on the original promise (<a href="#fig-async-programming-chained" class="quarto-xref">Figure&nbsp;<span>3.4</span></a>). This is another way to implement a fluent interface: if a method of one object returns a second object, we can call a method of the second object immediately.</p>
-<pre><code>const delay = (message) =&gt; {
-  return new Promise((resolve, reject) =&gt; {
-    console.log(`constructing promise: ${message}`)
-    setTimeout(() =&gt; {
-      resolve(`resolving: ${message}`)
-    }, 1)
-  })
-}
-console.log('before')
-delay('outer delay')
-  .then((value) =&gt; {
-    console.log(`first then: ${value}`)
-    return delay('inner delay')
-  }).then((value) =&gt; {
-    console.log(`second then: ${value}`)
-  })
-console.log('after')</code></pre>
+<div class="sourceCode" id="cb25"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> delay <span class="op">=</span> (message) <span class="kw">=&gt;</span> {</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">new</span> <span class="bu">Promise</span>((resolve<span class="op">,</span> reject) <span class="kw">=&gt;</span> {</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`constructing promise: </span><span class="sc">${</span>message<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    <span class="pp">setTimeout</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">resolve</span>(<span class="vs">`resolving: </span><span class="sc">${</span>message<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span> <span class="dv">1</span>)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'before'</span>)</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="fu">delay</span>(<span class="st">'outer delay'</span>)</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">then</span>((value) <span class="kw">=&gt;</span> {</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`first then: </span><span class="sc">${</span>value<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fu">delay</span>(<span class="st">'inner delay'</span>)</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>  })<span class="op">.</span><span class="fu">then</span>((value) <span class="kw">=&gt;</span> {</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`second then: </span><span class="sc">${</span>value<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'after'</span>)</span></code></pre></div>
 <pre><code>before
 constructing promise: outer delay
 after
@@ -321,16 +322,16 @@ Figure&nbsp;3.4: Chaining promises to make asynchronous operations depend on eac
 <h2 data-number="3.5" id="async-programming-tools"><span class="header-section-number">3.5</span> How can we build tools with promises?</h2>
 <p>Promises may seem more complex than callbacks right now, but that’s because we’re looking at how they work rather than at how to use them. To explore the latter subject, let’s use promises to build a program to count the number of lines in a set of files. A few moments of search on <a href="https://www.npmjs.com/">NPM</a> turns up a promisified version of <code>fs-extra</code> called <code>fs-extra-promise</code>, so we will rely on it for file operations.</p>
 <p>Our first step is to count the lines in a single file:</p>
-<pre><code>import fs from 'fs-extra-promise'
-const filename = process.argv[2]
-fs.readFileAsync(filename, { encoding: 'utf-8' })
-  .then(data =&gt; {
-    const length = data.split('\n').length - 1
-    console.log(`${filename}: ${length}`)
-  })
-  .catch(err =&gt; {
-    console.error(err.message)
-  })</code></pre>
+<div class="sourceCode" id="cb27"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs-extra-promise'</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> filename <span class="op">=</span> <span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">2</span>]</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>fs<span class="op">.</span><span class="fu">readFileAsync</span>(filename<span class="op">,</span> { <span class="dt">encoding</span><span class="op">:</span> <span class="st">'utf-8'</span> })</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">then</span>(data <span class="kw">=&gt;</span> {</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> length <span class="op">=</span> data<span class="op">.</span><span class="fu">split</span>(<span class="st">'</span><span class="sc">\n</span><span class="st">'</span>)<span class="op">.</span><span class="at">length</span> <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`</span><span class="sc">${</span>filename<span class="sc">}</span><span class="vs">: </span><span class="sc">${</span>length<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">catch</span>(err <span class="kw">=&gt;</span> {</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(err<span class="op">.</span><span class="at">message</span>)</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  })</span></code></pre></div>
 <div class="sourceCode" id="cb28"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> count-lines-single-file.js count-lines-single-file.js</span></code></pre></div>
 <pre><code>count-lines-single-file.js: 12</code></pre>
 <div>
@@ -341,23 +342,23 @@ fs.readFileAsync(filename, { encoding: 'utf-8' })
 </div>
 <p>The next step is to count the lines in multiple files. We can use <code>glob-promise</code> to delay handling the output of <code>glob</code>, but we need some way to create a separate task to count the lines in each file and to wait until those line counts are available before exiting our program.</p>
 <p>The tool we want is <code>Promise.all</code>, which waits until all of the promises in an array have completed. To make our program a little more readable, we will put the creation of the promise for each file in a separate function:</p>
-<pre><code>import glob from 'glob-promise'
-import fs from 'fs-extra-promise'
-const main = (srcDir) =&gt; {
-  glob(`${srcDir}/**/*.*`)
-    .then(files =&gt; Promise.all(files.map(f =&gt; lineCount(f))))
-    .then(counts =&gt; counts.forEach(c =&gt; console.log(c)))
-    .catch(err =&gt; console.log(err.message))
-}
-const lineCount = (filename) =&gt; {
-  return new Promise((resolve, reject) =&gt; {
-    fs.readFileAsync(filename, { encoding: 'utf-8' })
-      .then(data =&gt; resolve(data.split('\n').length - 1))
-      .catch(err =&gt; reject(err))
-  })
-}
-const srcDir = process.argv[2]
-main(srcDir)</code></pre>
+<div class="sourceCode" id="cb30"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob-promise'</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs-extra-promise'</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> main <span class="op">=</span> (srcDir) <span class="kw">=&gt;</span> {</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">glob</span>(<span class="vs">`</span><span class="sc">${</span>srcDir<span class="sc">}</span><span class="vs">/**/*.*`</span>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">then</span>(files <span class="kw">=&gt;</span> <span class="bu">Promise</span><span class="op">.</span><span class="fu">all</span>(files<span class="op">.</span><span class="fu">map</span>(f <span class="kw">=&gt;</span> <span class="fu">lineCount</span>(f))))</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">then</span>(counts <span class="kw">=&gt;</span> counts<span class="op">.</span><span class="fu">forEach</span>(c <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(c)))</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">catch</span>(err <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(err<span class="op">.</span><span class="at">message</span>))</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> lineCount <span class="op">=</span> (filename) <span class="kw">=&gt;</span> {</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">new</span> <span class="bu">Promise</span>((resolve<span class="op">,</span> reject) <span class="kw">=&gt;</span> {</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>    fs<span class="op">.</span><span class="fu">readFileAsync</span>(filename<span class="op">,</span> { <span class="dt">encoding</span><span class="op">:</span> <span class="st">'utf-8'</span> })</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">then</span>(data <span class="kw">=&gt;</span> <span class="fu">resolve</span>(data<span class="op">.</span><span class="fu">split</span>(<span class="st">'</span><span class="sc">\n</span><span class="st">'</span>)<span class="op">.</span><span class="at">length</span> <span class="op">-</span> <span class="dv">1</span>))</span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">catch</span>(err <span class="kw">=&gt;</span> <span class="fu">reject</span>(err))</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> srcDir <span class="op">=</span> <span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">2</span>]</span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a><span class="fu">main</span>(srcDir)</span></code></pre></div>
 <div class="sourceCode" id="cb31"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> count-lines-globbed-files.js .</span></code></pre></div>
 <pre><code>10
 1
@@ -371,27 +372,27 @@ main(srcDir)</code></pre>
 2
 14</code></pre>
 <p>However, we want to display the names of the files whose lines we’re counting along with the counts. To do this our <code>then</code> must return two values. We could put them in an array, but it’s better practice to construct a temporary object with named <a href="../glossary/index.html#field">fields</a> (<a href="#fig-async-programming-temporary-named-fields" class="quarto-xref">Figure&nbsp;<span>3.5</span></a>). This approach allows us to add or rearrange fields without breaking code and also serves as a bit of documentation. With this change our line-counting program becomes:</p>
-<pre><code>import glob from 'glob-promise'
-import fs from 'fs-extra-promise'
-const main = (srcDir) =&gt; {
-  glob(`${srcDir}/**/*.*`)
-    .then(files =&gt; Promise.all(files.map(f =&gt; lineCount(f))))
-    .then(counts =&gt; counts.forEach(
-      c =&gt; console.log(`${c.lines}: ${c.name}`)))
-    .catch(err =&gt; console.log(err.message))
-}
-const lineCount = (filename) =&gt; {
-  return new Promise((resolve, reject) =&gt; {
-    fs.readFileAsync(filename, { encoding: 'utf-8' })
-      .then(data =&gt; resolve({
-        name: filename,
-        lines: data.split('\n').length - 1
-      }))
-      .catch(err =&gt; reject(err))
-  })
-}
-const srcDir = process.argv[2]
-main(srcDir)</code></pre>
+<div class="sourceCode" id="cb33"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob-promise'</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs-extra-promise'</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> main <span class="op">=</span> (srcDir) <span class="kw">=&gt;</span> {</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">glob</span>(<span class="vs">`</span><span class="sc">${</span>srcDir<span class="sc">}</span><span class="vs">/**/*.*`</span>)</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">then</span>(files <span class="kw">=&gt;</span> <span class="bu">Promise</span><span class="op">.</span><span class="fu">all</span>(files<span class="op">.</span><span class="fu">map</span>(f <span class="kw">=&gt;</span> <span class="fu">lineCount</span>(f))))</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">then</span>(counts <span class="kw">=&gt;</span> counts<span class="op">.</span><span class="fu">forEach</span>(</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>      c <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`</span><span class="sc">${</span>c<span class="op">.</span><span class="at">lines</span><span class="sc">}</span><span class="vs">: </span><span class="sc">${</span>c<span class="op">.</span><span class="at">name</span><span class="sc">}</span><span class="vs">`</span>)))</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">catch</span>(err <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(err<span class="op">.</span><span class="at">message</span>))</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> lineCount <span class="op">=</span> (filename) <span class="kw">=&gt;</span> {</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">new</span> <span class="bu">Promise</span>((resolve<span class="op">,</span> reject) <span class="kw">=&gt;</span> {</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>    fs<span class="op">.</span><span class="fu">readFileAsync</span>(filename<span class="op">,</span> { <span class="dt">encoding</span><span class="op">:</span> <span class="st">'utf-8'</span> })</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">then</span>(data <span class="kw">=&gt;</span> <span class="fu">resolve</span>({</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>        <span class="dt">name</span><span class="op">:</span> filename<span class="op">,</span></span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>        <span class="dt">lines</span><span class="op">:</span> data<span class="op">.</span><span class="fu">split</span>(<span class="st">'</span><span class="sc">\n</span><span class="st">'</span>)<span class="op">.</span><span class="at">length</span> <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>      }))</span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">catch</span>(err <span class="kw">=&gt;</span> <span class="fu">reject</span>(err))</span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> srcDir <span class="op">=</span> <span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">2</span>]</span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a><span class="fu">main</span>(srcDir)</span></code></pre></div>
 <div id="fig-async-programming-temporary-named-fields" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-async-programming-temporary-named-fields-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -403,37 +404,37 @@ Figure&nbsp;3.5: Creating temporary objects with named fields to carry values fo
 </figure>
 </div>
 <p>As in <a href="../sysprog/index.html" class="quarto-xref"><span>Chapter 2</span></a>, this works until we run into a directory whose name name matches <code>*.*</code>, which we do when counting the lines in the contents of <code>node_modules</code>. The solution once again is to use <code>stat</code> to check if something is a file or not before trying to read it. And since <code>stat</code> returns an object that doesn’t include the file’s name, we create another temporary object to pass information down the chain of <code>then</code>s.</p>
-<pre><code>import glob from 'glob-promise'
-import fs from 'fs-extra-promise'
-const main = (srcDir) =&gt; {
-  glob(`${srcDir}/**/*.*`)
-    .then(files =&gt; Promise.all(files.map(f =&gt; statPair(f))))
-    .then(files =&gt; files.filter(pair =&gt; pair.stats.isFile()))
-    .then(files =&gt; files.map(pair =&gt; pair.filename))
-    .then(files =&gt; Promise.all(files.map(f =&gt; lineCount(f))))
-    .then(counts =&gt; counts.forEach(
-      c =&gt; console.log(`${c.lines}: ${c.name}`)))
-    .catch(err =&gt; console.log(err.message))
-}
-const statPair = (filename) =&gt; {
-  return new Promise((resolve, reject) =&gt; {
-    fs.statAsync(filename)
-      .then(stats =&gt; resolve({ filename, stats }))
-      .catch(err =&gt; reject(err))
-  })
-}
-const lineCount = (filename) =&gt; {
-  return new Promise((resolve, reject) =&gt; {
-    fs.readFileAsync(filename, { encoding: 'utf-8' })
-      .then(data =&gt; resolve({
-        name: filename,
-        lines: data.split('\n').length - 1
-      }))
-      .catch(err =&gt; reject(err))
-  })
-}
-const srcDir = process.argv[2]
-main(srcDir)</code></pre>
+<div class="sourceCode" id="cb34"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob-promise'</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs-extra-promise'</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> main <span class="op">=</span> (srcDir) <span class="kw">=&gt;</span> {</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">glob</span>(<span class="vs">`</span><span class="sc">${</span>srcDir<span class="sc">}</span><span class="vs">/**/*.*`</span>)</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">then</span>(files <span class="kw">=&gt;</span> <span class="bu">Promise</span><span class="op">.</span><span class="fu">all</span>(files<span class="op">.</span><span class="fu">map</span>(f <span class="kw">=&gt;</span> <span class="fu">statPair</span>(f))))</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">then</span>(files <span class="kw">=&gt;</span> files<span class="op">.</span><span class="fu">filter</span>(pair <span class="kw">=&gt;</span> pair<span class="op">.</span><span class="at">stats</span><span class="op">.</span><span class="fu">isFile</span>()))</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">then</span>(files <span class="kw">=&gt;</span> files<span class="op">.</span><span class="fu">map</span>(pair <span class="kw">=&gt;</span> pair<span class="op">.</span><span class="at">filename</span>))</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">then</span>(files <span class="kw">=&gt;</span> <span class="bu">Promise</span><span class="op">.</span><span class="fu">all</span>(files<span class="op">.</span><span class="fu">map</span>(f <span class="kw">=&gt;</span> <span class="fu">lineCount</span>(f))))</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">then</span>(counts <span class="kw">=&gt;</span> counts<span class="op">.</span><span class="fu">forEach</span>(</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>      c <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`</span><span class="sc">${</span>c<span class="op">.</span><span class="at">lines</span><span class="sc">}</span><span class="vs">: </span><span class="sc">${</span>c<span class="op">.</span><span class="at">name</span><span class="sc">}</span><span class="vs">`</span>)))</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">catch</span>(err <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(err<span class="op">.</span><span class="at">message</span>))</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> statPair <span class="op">=</span> (filename) <span class="kw">=&gt;</span> {</span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">new</span> <span class="bu">Promise</span>((resolve<span class="op">,</span> reject) <span class="kw">=&gt;</span> {</span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>    fs<span class="op">.</span><span class="fu">statAsync</span>(filename)</span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">then</span>(stats <span class="kw">=&gt;</span> <span class="fu">resolve</span>({ filename<span class="op">,</span> stats }))</span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">catch</span>(err <span class="kw">=&gt;</span> <span class="fu">reject</span>(err))</span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> lineCount <span class="op">=</span> (filename) <span class="kw">=&gt;</span> {</span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">new</span> <span class="bu">Promise</span>((resolve<span class="op">,</span> reject) <span class="kw">=&gt;</span> {</span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>    fs<span class="op">.</span><span class="fu">readFileAsync</span>(filename<span class="op">,</span> { <span class="dt">encoding</span><span class="op">:</span> <span class="st">'utf-8'</span> })</span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">then</span>(data <span class="kw">=&gt;</span> <span class="fu">resolve</span>({</span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a>        <span class="dt">name</span><span class="op">:</span> filename<span class="op">,</span></span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a>        <span class="dt">lines</span><span class="op">:</span> data<span class="op">.</span><span class="fu">split</span>(<span class="st">'</span><span class="sc">\n</span><span class="st">'</span>)<span class="op">.</span><span class="at">length</span> <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a>      }))</span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">catch</span>(err <span class="kw">=&gt;</span> <span class="fu">reject</span>(err))</span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> srcDir <span class="op">=</span> <span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">2</span>]</span>
+<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a><span class="fu">main</span>(srcDir)</span></code></pre></div>
 <div class="sourceCode" id="cb35"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> count-lines-with-stat.js .</span></code></pre></div>
 <pre><code>10: ./assign-immediately.js
 1: ./assign-immediately.out
@@ -455,16 +456,16 @@ main(srcDir)</code></pre>
 </div>
 <h2 data-number="3.6" id="async-programming-readable"><span class="header-section-number">3.6</span> How can we make this more readable?</h2>
 <p>Promises eliminate the deep nesting associated with callbacks of callbacks, but they are still hard to follow. The latest versions of JavaScript provide two new keywords <code>async</code> and <code>await</code> to flatten code further. <code>async</code> means “this function implicitly returns a promise”, while <code>await</code> means “wait for a promise to resolve”. This short program uses both keywords to print the first ten characters of a file:</p>
-<pre><code>import fs from 'fs-extra-promise'
-const firstTenCharacters = async (filename) =&gt; {
-  const text = await fs.readFileAsync(filename, 'utf-8')
-  console.log(`inside, raw text is ${text.length} characters long`)
-  return text.slice(0, 10)
-}
-console.log('about to call')
-const result = firstTenCharacters(process.argv[2])
-console.log(`function result has type ${result.constructor.name}`)
-result.then(value =&gt; console.log(`outside, final result is "${value}"`))</code></pre>
+<div class="sourceCode" id="cb37"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs-extra-promise'</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> firstTenCharacters <span class="op">=</span> <span class="kw">async</span> (filename) <span class="kw">=&gt;</span> {</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> text <span class="op">=</span> <span class="cf">await</span> fs<span class="op">.</span><span class="fu">readFileAsync</span>(filename<span class="op">,</span> <span class="st">'utf-8'</span>)</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`inside, raw text is </span><span class="sc">${</span>text<span class="op">.</span><span class="at">length</span><span class="sc">}</span><span class="vs"> characters long`</span>)</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> text<span class="op">.</span><span class="fu">slice</span>(<span class="dv">0</span><span class="op">,</span> <span class="dv">10</span>)</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'about to call'</span>)</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> result <span class="op">=</span> <span class="fu">firstTenCharacters</span>(<span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">2</span>])</span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`function result has type </span><span class="sc">${</span>result<span class="op">.</span><span class="at">constructor</span><span class="op">.</span><span class="at">name</span><span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>result<span class="op">.</span><span class="fu">then</span>(value <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`outside, final result is "</span><span class="sc">${</span>value<span class="sc">}</span><span class="vs">"`</span>))</span></code></pre></div>
 <pre><code>about to call
 function result has type Promise
 inside, raw text is 24 characters long
@@ -474,20 +475,20 @@ outside, final result is "Begin at t"</code></pre>
 When Node sees <code>await</code> and <code>async</code> it silently converts the code to use promises with <code>then</code>, <code>resolve</code>, and <code>reject</code>; we will see how this works in <a href="../codegen/index.html" class="quarto-xref"><span>Chapter 15</span></a>. In order to provide a context for this transformation we must put <code>await</code> inside a function that is declared to be <code>async</code>: we can’t simply write <code>await fs.statAsync(...)</code> at the top level of our program outside a function. This requirement is occasionally annoying, but since we should be putting our code in functions anyway it’s hard to complain.
 </blockquote>
 <p>To see how much cleaner our code is with <code>await</code> and <code>async</code>, let’s rewrite our line counting program to use them. First, we modify the two helper functions to look like they’re waiting for results and returning them. They actually wrap their results in promises and return those, but Node now takes care of that for us:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb39"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Next, we modify <code>main</code> to wait for things to complete. We must still use <code>Promise.all</code> to handle the promises that are counting lines for individual files, but the result is less cluttered than our previous version.</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb40"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <h2 data-number="3.7" id="async-programming-errors"><span class="header-section-number">3.7</span> How can we handle errors with asynchronous code?</h2>
 <p>We created several intermediate variables in the line-counting program to make the steps clearer. Doing this also helps with <a href="../glossary/index.html#error_handling">error handling</a>; to see how, we will build up an example in stages.</p>
 <p>First, if we return a promise that fails without using <code>await</code>, then our main function will finish running before the error occurs, and our <code>try</code>/<code>catch</code> doesn’t help us (<a href="#fig-async-programming-handling-errors" class="quarto-xref">Figure&nbsp;<span>3.6</span></a>):</p>
-<pre><code>async function returnImmediately () {
-  try {
-    return Promise.reject(new Error('deliberate'))
-  } catch (err) {
-    console.log('caught exception')
-  }
-}
-returnImmediately()</code></pre>
+<div class="sourceCode" id="cb41"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">returnImmediately</span> () {</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">try</span> {</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">Promise</span><span class="op">.</span><span class="fu">reject</span>(<span class="kw">new</span> <span class="bu">Error</span>(<span class="st">'deliberate'</span>))</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">catch</span> (err) {</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'caught exception'</span>)</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a><span class="fu">returnImmediately</span>()</span></code></pre></div>
 <pre><code>/u/stjs/async-programming/return-immediately.js:3</code></pre>
 <div id="fig-async-programming-handling-errors" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig">
@@ -500,25 +501,25 @@ Figure&nbsp;3.6: Wrong and right ways to handle errors in asynchronous code.
 </figure>
 </div>
 <p>One solution to this problem is to be consistent and always return something. Because the function is declared <code>async</code>, the <code>Error</code> in the code below is automatically wrapped in a promise so we can use <code>.then</code> and <code>.catch</code> to handle it as before:</p>
-<pre><code>async function returnImmediately () {
-  try {
-    return Promise.reject(new Error('deliberate'))
-  } catch (err) {
-    return new Error('caught exception')
-  }
-}
-const result = returnImmediately()
-result.catch(err =&gt; console.log(`caller caught ${err}`))</code></pre>
+<div class="sourceCode" id="cb43"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">returnImmediately</span> () {</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">try</span> {</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">Promise</span><span class="op">.</span><span class="fu">reject</span>(<span class="kw">new</span> <span class="bu">Error</span>(<span class="st">'deliberate'</span>))</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">catch</span> (err) {</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">new</span> <span class="bu">Error</span>(<span class="st">'caught exception'</span>)</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> result <span class="op">=</span> <span class="fu">returnImmediately</span>()</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>result<span class="op">.</span><span class="fu">catch</span>(err <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`caller caught </span><span class="sc">${</span>err<span class="sc">}</span><span class="vs">`</span>))</span></code></pre></div>
 <pre><code>caller caught Error: deliberate</code></pre>
 <p>If instead we <code>return await</code>, the function waits until the promise runs before returning. The promise is turned into an exception because it failed, and since we’re inside the scope of our <code>try</code>/<code>catch</code> block, everything works as we want:</p>
-<pre><code>async function returnAwait () {
-  try {
-    return await Promise.reject(new Error('deliberate'))
-  } catch (err) {
-    console.log('caught exception')
-  }
-}
-returnAwait()</code></pre>
+<div class="sourceCode" id="cb45"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">returnAwait</span> () {</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">try</span> {</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="cf">await</span> <span class="bu">Promise</span><span class="op">.</span><span class="fu">reject</span>(<span class="kw">new</span> <span class="bu">Error</span>(<span class="st">'deliberate'</span>))</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">catch</span> (err) {</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'caught exception'</span>)</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a><span class="fu">returnAwait</span>()</span></code></pre></div>
 <pre><code>caught exception</code></pre>
 <p>We prefer the second approach, but whichever you choose, please be consistent.</p>
 <section class="exercises">
@@ -538,9 +539,9 @@ returnAwait()</code></pre>
 <p>Hint: try each snippet of code interactively in the Node interpreter and as a command-line script.</p>
 <h3 data-number="3.8.3" id="multiple-catches"><span class="header-section-number">3.8.3</span> Multiple catches</h3>
 <p>Suppose we create a promise that deliberately fails and then add two error handlers:</p>
-<pre><code>const oops = new Promise((resolve, reject) =&gt; reject(new Error('failure')))
-oops.catch(err =&gt; console.log(err.message))
-oops.catch(err =&gt; console.log(err.message))</code></pre>
+<div class="sourceCode" id="cb50"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> oops <span class="op">=</span> <span class="kw">new</span> <span class="bu">Promise</span>((resolve<span class="op">,</span> reject) <span class="kw">=&gt;</span> <span class="fu">reject</span>(<span class="kw">new</span> <span class="bu">Error</span>(<span class="st">'failure'</span>)))</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>oops<span class="op">.</span><span class="fu">catch</span>(err <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(err<span class="op">.</span><span class="at">message</span>))</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>oops<span class="op">.</span><span class="fu">catch</span>(err <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(err<span class="op">.</span><span class="at">message</span>))</span></code></pre></div>
 <p>When the code is run it produces:</p>
 <pre><code>failure
 failure</code></pre>
@@ -550,9 +551,9 @@ failure</code></pre>
 </ol>
 <h3 data-number="3.8.4" id="then-after-catch"><span class="header-section-number">3.8.4</span> Then after catch</h3>
 <p>Suppose we create a promise that deliberately fails and attach both <code>then</code> and <code>catch</code> to it:</p>
-<pre><code>new Promise((resolve, reject) =&gt; reject(new Error('failure')))
-  .catch(err =&gt; console.log(err))
-  .then(err =&gt; console.log(err))</code></pre>
+<div class="sourceCode" id="cb52"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="kw">new</span> <span class="bu">Promise</span>((resolve<span class="op">,</span> reject) <span class="kw">=&gt;</span> <span class="fu">reject</span>(<span class="kw">new</span> <span class="bu">Error</span>(<span class="st">'failure'</span>)))</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">catch</span>(err <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(err))</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">then</span>(err <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(err))</span></code></pre></div>
 <p>When the code is run it produces:</p>
 <pre><code>Error: failure
     at /u/stjs/promises/catch-then/example.js:1:41
@@ -678,18 +679,18 @@ undefined</code></pre>
 <p>Hint: you may want to use the <code>Set</code> class to store lines.</p>
 <h3 data-number="3.8.10" id="trace-file-loading"><span class="header-section-number">3.8.10</span> Trace file loading</h3>
 <p>Suppose we are loading a YAML configuration file using the promisified version of the <code>fs</code> library. In what order do the print statements in this test program appear and why?</p>
-<pre><code>import fs from 'fs-extra-promise'
-import yaml from 'js-yaml'
-const test = async () =&gt; {
-  const raw = await fs.readFileAsync('config.yml', 'utf-8')
-  console.log('inside test, raw text', raw)
-  const cooked = yaml.safeLoad(raw)
-  console.log('inside test, cooked configuration', cooked)
-  return cooked
-}
-const result = test()
-console.log('outside test, result is', result.constructor.name)
-result.then(something =&gt; console.log('outside test we have', something))</code></pre>
+<div class="sourceCode" id="cb63"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs-extra-promise'</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> yaml <span class="im">from</span> <span class="st">'js-yaml'</span></span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> test <span class="op">=</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> raw <span class="op">=</span> <span class="cf">await</span> fs<span class="op">.</span><span class="fu">readFileAsync</span>(<span class="st">'config.yml'</span><span class="op">,</span> <span class="st">'utf-8'</span>)</span>
+<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'inside test, raw text'</span><span class="op">,</span> raw)</span>
+<span id="cb63-6"><a href="#cb63-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> cooked <span class="op">=</span> yaml<span class="op">.</span><span class="fu">safeLoad</span>(raw)</span>
+<span id="cb63-7"><a href="#cb63-7" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'inside test, cooked configuration'</span><span class="op">,</span> cooked)</span>
+<span id="cb63-8"><a href="#cb63-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> cooked</span>
+<span id="cb63-9"><a href="#cb63-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb63-10"><a href="#cb63-10" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> result <span class="op">=</span> <span class="fu">test</span>()</span>
+<span id="cb63-11"><a href="#cb63-11" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'outside test, result is'</span><span class="op">,</span> result<span class="op">.</span><span class="at">constructor</span><span class="op">.</span><span class="at">name</span>)</span>
+<span id="cb63-12"><a href="#cb63-12" aria-hidden="true" tabindex="-1"></a>result<span class="op">.</span><span class="fu">then</span>(something <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'outside test we have'</span><span class="op">,</span> something))</span></code></pre></div>
 <h3 data-number="3.8.11" id="any-and-all"><span class="header-section-number">3.8.11</span> Any and all</h3>
 <ol type="1">
 <li><p>Add a method <code>Pledge.any</code> that takes an array of pledges and as soon as one of the pledges in the array resolves, returns a single promise that resolves with the value from that pledge.</p></li>

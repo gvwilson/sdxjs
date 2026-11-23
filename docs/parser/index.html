@@ -3,6 +3,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Parsing Expressions</title>
   <link rel="stylesheet" href="../mccole/mccole-book.css">
+  <link rel="stylesheet" href="../mccole/tango.css">
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async=""></script>
 </head>
@@ -99,54 +100,54 @@ Figure&nbsp;8.1: Representing the result of parsing a regular expression as an t
 <li><p>Since <code>^</code> and <code>$</code> are either special or regular depending on position, we must treat them as separate tokens or as part of a literal based on where they appear.</p></li>
 </ol>
 <p>We can translate these rules almost directly into code to create a <a href="../glossary/index.html#list">list</a> of objects whose keys are <code>kind</code> and <code>loc</code> (short for location), with the extra key <code>value</code> for literal values:</p>
-<pre><code>const SIMPLE = {
-  '*': 'Any',
-  '|': 'Alt',
-  '(': 'GroupStart',
-  ')': 'GroupEnd'
-}
-const tokenize = (text) =&gt; {
-  const result = []
-  for (let i = 0; i &lt; text.length; i += 1) {
-    const c = text[i]
-    if (c in SIMPLE) {
-      result.push({ kind: SIMPLE[c], loc: i })
-    } else if (c === '^') {
-      if (i === 0) {
-        result.push({ kind: 'Start', loc: i })
-      } else {
-        combineOrPush(result, c, i)
-      }
-    } else if (c === '$') {
-      if (i === (text.length - 1)) {
-        result.push({ kind: 'End', loc: i })
-      } else {
-        combineOrPush(result, c, i)
-      }
-    } else {
-      combineOrPush(result, c, i)
-    }
-  }
-  return result
-}
-// mccole:combine
-const combineOrPush = (soFar, character, location) =&gt; {
-  const topIndex = soFar.length - 1
-  if ((soFar.length === 0) || (soFar[topIndex].token !== 'Lit')) {
-    soFar.push({ kind: 'Lit', value: character, loc: location })
-  } else {
-    soFar[topIndex].value += character
-  }
-}
-// mccole:/combine
-export default tokenize</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> SIMPLE <span class="op">=</span> {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">'*'</span><span class="op">:</span> <span class="st">'Any'</span><span class="op">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">'|'</span><span class="op">:</span> <span class="st">'Alt'</span><span class="op">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">'('</span><span class="op">:</span> <span class="st">'GroupStart'</span><span class="op">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">')'</span><span class="op">:</span> <span class="st">'GroupEnd'</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> tokenize <span class="op">=</span> (text) <span class="kw">=&gt;</span> {</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> result <span class="op">=</span> []</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> text<span class="op">.</span><span class="at">length</span><span class="op">;</span> i <span class="op">+=</span> <span class="dv">1</span>) {</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> c <span class="op">=</span> text[i]</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (c <span class="kw">in</span> SIMPLE) {</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>      result<span class="op">.</span><span class="fu">push</span>({ <span class="dt">kind</span><span class="op">:</span> SIMPLE[c]<span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> i })</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (c <span class="op">===</span> <span class="st">'^'</span>) {</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (i <span class="op">===</span> <span class="dv">0</span>) {</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        result<span class="op">.</span><span class="fu">push</span>({ <span class="dt">kind</span><span class="op">:</span> <span class="st">'Start'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> i })</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        <span class="fu">combineOrPush</span>(result<span class="op">,</span> c<span class="op">,</span> i)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (c <span class="op">===</span> <span class="st">'$'</span>) {</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (i <span class="op">===</span> (text<span class="op">.</span><span class="at">length</span> <span class="op">-</span> <span class="dv">1</span>)) {</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        result<span class="op">.</span><span class="fu">push</span>({ <span class="dt">kind</span><span class="op">:</span> <span class="st">'End'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> i })</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        <span class="fu">combineOrPush</span>(result<span class="op">,</span> c<span class="op">,</span> i)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>      <span class="fu">combineOrPush</span>(result<span class="op">,</span> c<span class="op">,</span> i)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> result</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:combine</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> combineOrPush <span class="op">=</span> (soFar<span class="op">,</span> character<span class="op">,</span> location) <span class="kw">=&gt;</span> {</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> topIndex <span class="op">=</span> soFar<span class="op">.</span><span class="at">length</span> <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> ((soFar<span class="op">.</span><span class="at">length</span> <span class="op">===</span> <span class="dv">0</span>) <span class="op">||</span> (soFar[topIndex]<span class="op">.</span><span class="at">token</span> <span class="op">!==</span> <span class="st">'Lit'</span>)) {</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    soFar<span class="op">.</span><span class="fu">push</span>({ <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> character<span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> location })</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    soFar[topIndex]<span class="op">.</span><span class="at">value</span> <span class="op">+=</span> character</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:/combine</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> tokenize</span></code></pre></div>
 <p>The helper function <code>combineOrPush</code> does exactly what its name says. If the thing most recently added to the list of tokens isn’t a literal, the new character becomes a new token; otherwise, we append the new character to the literal we’re building:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>We can try this out with a three-line test program:</p>
-<pre><code>import tokenize from './tokenizer-collapse.js'
-const test = '^a^b*'
-const result = tokenize(test)
-console.log(JSON.stringify(result, null, 2))</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tokenize <span class="im">from</span> <span class="st">'./tokenizer-collapse.js'</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> test <span class="op">=</span> <span class="st">'^a^b*'</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> result <span class="op">=</span> <span class="fu">tokenize</span>(test)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(result<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> <span class="dv">2</span>))</span></code></pre></div>
 <pre><code>[
   {
     "kind": "Start",
@@ -174,163 +175,163 @@ console.log(JSON.stringify(result, null, 2))</code></pre>
 ]</code></pre>
 <p>This simple tokenizer is readable, efficient, and wrong. The problem is that the expression <code>/ab*/</code> means “a single <code>a</code> followed by zero or more <code>b</code>”. If we combine the <code>a</code> and <code>b</code> as we read them, though, we wind up with “zero or more repetitions of <code>ab</code>”. (Don’t feel bad if you didn’t spot this: we didn’t notice the problem until we were implementing the next step.)</p>
 <p>The solution is to treat each regular character as its own literal in this stage and then combine things later. Doing this lets us get rid of the nested <code>if</code> for handling <code>^</code> and <code>$</code> as well:</p>
-<pre><code>const SIMPLE = {
-  '*': 'Any',
-  '|': 'Alt',
-  '(': 'GroupStart',
-  ')': 'GroupEnd'
-}
-const tokenize = (text) =&gt; {
-  const result = []
-  for (let i = 0; i &lt; text.length; i += 1) {
-    const c = text[i]
-    if (c in SIMPLE) {
-      result.push({ kind: SIMPLE[c], loc: i })
-    } else if ((c === '^') &amp;&amp; (i === 0)) {
-      result.push({ kind: 'Start', loc: i })
-    } else if ((c === '$') &amp;&amp; (i === (text.length - 1))) {
-      result.push({ kind: 'End', loc: i })
-    } else {
-      result.push({ kind: 'Lit', loc: i, value: c })
-    }
-  }
-  return result
-}
-export default tokenize</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> SIMPLE <span class="op">=</span> {</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">'*'</span><span class="op">:</span> <span class="st">'Any'</span><span class="op">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">'|'</span><span class="op">:</span> <span class="st">'Alt'</span><span class="op">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">'('</span><span class="op">:</span> <span class="st">'GroupStart'</span><span class="op">,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">')'</span><span class="op">:</span> <span class="st">'GroupEnd'</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> tokenize <span class="op">=</span> (text) <span class="kw">=&gt;</span> {</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> result <span class="op">=</span> []</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> text<span class="op">.</span><span class="at">length</span><span class="op">;</span> i <span class="op">+=</span> <span class="dv">1</span>) {</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> c <span class="op">=</span> text[i]</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (c <span class="kw">in</span> SIMPLE) {</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>      result<span class="op">.</span><span class="fu">push</span>({ <span class="dt">kind</span><span class="op">:</span> SIMPLE[c]<span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> i })</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> ((c <span class="op">===</span> <span class="st">'^'</span>) <span class="op">&amp;&amp;</span> (i <span class="op">===</span> <span class="dv">0</span>)) {</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>      result<span class="op">.</span><span class="fu">push</span>({ <span class="dt">kind</span><span class="op">:</span> <span class="st">'Start'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> i })</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> ((c <span class="op">===</span> <span class="st">'$'</span>) <span class="op">&amp;&amp;</span> (i <span class="op">===</span> (text<span class="op">.</span><span class="at">length</span> <span class="op">-</span> <span class="dv">1</span>))) {</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>      result<span class="op">.</span><span class="fu">push</span>({ <span class="dt">kind</span><span class="op">:</span> <span class="st">'End'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> i })</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>      result<span class="op">.</span><span class="fu">push</span>({ <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> i<span class="op">,</span> <span class="dt">value</span><span class="op">:</span> c })</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> result</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> tokenize</span></code></pre></div>
 <p>Software isn’t done until it’s tested, so let’s build some <a href="https://mochajs.org/">Mocha</a> tests for our tokenizer. The listing below shows a few of these along with the output for the full set:</p>
-<pre><code>import assert from 'assert'
-import tokenize from '../tokenizer.js'
-describe('tokenizes correctly', async () =&gt; {
-  it('tokenizes a single character', () =&gt; {
-    assert.deepStrictEqual(tokenize('a'), [
-      { kind: 'Lit', value: 'a', loc: 0 }
-    ])
-  })
-  it('tokenizes a sequence of characters', () =&gt; {
-    assert.deepStrictEqual(tokenize('ab'), [
-      { kind: 'Lit', value: 'a', loc: 0 },
-      { kind: 'Lit', value: 'b', loc: 1 }
-    ])
-  })
-  it('tokenizes start anchor alone', () =&gt; {
-    assert.deepStrictEqual(tokenize('^'), [
-      { kind: 'Start', loc: 0 }
-    ])
-  })
-  it('tokenizes start anchor followed by characters', () =&gt; {
-    assert.deepStrictEqual(tokenize('^a'), [
-      { kind: 'Start', loc: 0 },
-      { kind: 'Lit', value: 'a', loc: 1 }
-    ])
-  })
-  // [omit]
-  it('tokenizes circumflex not at start', () =&gt; {
-    assert.deepStrictEqual(tokenize('a^b'), [
-      { kind: 'Lit', value: 'a', loc: 0 },
-      { kind: 'Lit', value: '^', loc: 1 },
-      { kind: 'Lit', value: 'b', loc: 2 }
-    ])
-  })
-  it('tokenizes start anchor alone', () =&gt; {
-    assert.deepStrictEqual(tokenize('$'), [
-      { kind: 'End', loc: 0 }
-    ])
-  })
-  it('tokenizes end anchor preceded by characters', () =&gt; {
-    assert.deepStrictEqual(tokenize('a$'), [
-      { kind: 'Lit', value: 'a', loc: 0 },
-      { kind: 'End', loc: 1 }
-    ])
-  })
-  it('tokenizes dollar sign not at end', () =&gt; {
-    assert.deepStrictEqual(tokenize('a$b'), [
-      { kind: 'Lit', value: 'a', loc: 0 },
-      { kind: 'Lit', value: '$', loc: 1 },
-      { kind: 'Lit', value: 'b', loc: 2 }
-    ])
-  })
-  it('tokenizes repetition alone', () =&gt; {
-    assert.deepStrictEqual(tokenize('*'), [
-      { kind: 'Any', loc: 0 }
-    ])
-  })
-  it('tokenizes repetition in string', () =&gt; {
-    assert.deepStrictEqual(tokenize('a*b'), [
-      { kind: 'Lit', value: 'a', loc: 0 },
-      { kind: 'Any', loc: 1 },
-      { kind: 'Lit', value: 'b', loc: 2 }
-    ])
-  })
-  it('tokenizes repetition at end of string', () =&gt; {
-    assert.deepStrictEqual(tokenize('a*'), [
-      { kind: 'Lit', value: 'a', loc: 0 },
-      { kind: 'Any', loc: 1 }
-    ])
-  })
-  it('tokenizes alternation alone', () =&gt; {
-    assert.deepStrictEqual(tokenize('|'), [
-      { kind: 'Alt', loc: 0 }
-    ])
-  })
-  it('tokenizes alternation in string', () =&gt; {
-    assert.deepStrictEqual(tokenize('a|b'), [
-      { kind: 'Lit', value: 'a', loc: 0 },
-      { kind: 'Alt', loc: 1 },
-      { kind: 'Lit', value: 'b', loc: 2 }
-    ])
-  })
-  it('tokenizes alternation at start of string', () =&gt; {
-    assert.deepStrictEqual(tokenize('|a'), [
-      { kind: 'Alt', loc: 0 },
-      { kind: 'Lit', value: 'a', loc: 1 }
-    ])
-  })
-  it('tokenizes the start of a group alone', () =&gt; {
-    assert.deepStrictEqual(tokenize('('), [
-      { kind: 'GroupStart', loc: 0 }
-    ])
-  })
-  it('tokenizes the start of a group in a string', () =&gt; {
-    assert.deepStrictEqual(tokenize('a(b'), [
-      { kind: 'Lit', value: 'a', loc: 0 },
-      { kind: 'GroupStart', loc: 1 },
-      { kind: 'Lit', value: 'b', loc: 2 }
-    ])
-  })
-  it('tokenizes the end of a group alone', () =&gt; {
-    assert.deepStrictEqual(tokenize(')'), [
-      { kind: 'GroupEnd', loc: 0 }
-    ])
-  })
-  it('tokenizes the end of a group at the end of a string', () =&gt; {
-    assert.deepStrictEqual(tokenize('a)'), [
-      { kind: 'Lit', value: 'a', loc: 0 },
-      { kind: 'GroupEnd', loc: 1 }
-    ])
-  })
-  // [/omit]
-  it('tokenizes a complex expression', () =&gt; {
-    assert.deepStrictEqual(tokenize('^a*(bcd|e^)*f$gh$'), [
-      { kind: 'Start', loc: 0 },
-      { kind: 'Lit', loc: 1, value: 'a' },
-      { kind: 'Any', loc: 2 },
-      { kind: 'GroupStart', loc: 3 },
-      { kind: 'Lit', loc: 4, value: 'b' },
-      { kind: 'Lit', loc: 5, value: 'c' },
-      { kind: 'Lit', loc: 6, value: 'd' },
-      { kind: 'Alt', loc: 7 },
-      { kind: 'Lit', loc: 8, value: 'e' },
-      { kind: 'Lit', loc: 9, value: '^' },
-      { kind: 'GroupEnd', loc: 10 },
-      { kind: 'Any', loc: 11 },
-      { kind: 'Lit', loc: 12, value: 'f' },
-      { kind: 'Lit', loc: 13, value: '$' },
-      { kind: 'Lit', loc: 14, value: 'g' },
-      { kind: 'Lit', loc: 15, value: 'h' },
-      { kind: 'End', loc: 16 }
-    ])
-  })
-})</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tokenize <span class="im">from</span> <span class="st">'../tokenizer.js'</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(<span class="st">'tokenizes correctly'</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'tokenizes a single character'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">tokenize</span>(<span class="st">'a'</span>)<span class="op">,</span> [</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span> }</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'tokenizes a sequence of characters'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">tokenize</span>(<span class="st">'ab'</span>)<span class="op">,</span> [</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span> }<span class="op">,</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'b'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span> }</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'tokenizes start anchor alone'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">tokenize</span>(<span class="st">'^'</span>)<span class="op">,</span> [</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Start'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span> }</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'tokenizes start anchor followed by characters'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">tokenize</span>(<span class="st">'^a'</span>)<span class="op">,</span> [</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Start'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span> }<span class="op">,</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span> }</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  <span class="co">// [omit]</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'tokenizes circumflex not at start'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">tokenize</span>(<span class="st">'a^b'</span>)<span class="op">,</span> [</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span> }<span class="op">,</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'^'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span> }<span class="op">,</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'b'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">2</span> }</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'tokenizes start anchor alone'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">tokenize</span>(<span class="st">'$'</span>)<span class="op">,</span> [</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'End'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span> }</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'tokenizes end anchor preceded by characters'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">tokenize</span>(<span class="st">'a$'</span>)<span class="op">,</span> [</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span> }<span class="op">,</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'End'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span> }</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'tokenizes dollar sign not at end'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">tokenize</span>(<span class="st">'a$b'</span>)<span class="op">,</span> [</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span> }<span class="op">,</span></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'$'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span> }<span class="op">,</span></span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'b'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">2</span> }</span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'tokenizes repetition alone'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">tokenize</span>(<span class="st">'*'</span>)<span class="op">,</span> [</span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Any'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span> }</span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'tokenizes repetition in string'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">tokenize</span>(<span class="st">'a*b'</span>)<span class="op">,</span> [</span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span> }<span class="op">,</span></span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Any'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span> }<span class="op">,</span></span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'b'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">2</span> }</span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'tokenizes repetition at end of string'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">tokenize</span>(<span class="st">'a*'</span>)<span class="op">,</span> [</span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span> }<span class="op">,</span></span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Any'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span> }</span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'tokenizes alternation alone'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">tokenize</span>(<span class="st">'|'</span>)<span class="op">,</span> [</span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Alt'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span> }</span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'tokenizes alternation in string'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">tokenize</span>(<span class="st">'a|b'</span>)<span class="op">,</span> [</span>
+<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span> }<span class="op">,</span></span>
+<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Alt'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span> }<span class="op">,</span></span>
+<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'b'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">2</span> }</span>
+<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'tokenizes alternation at start of string'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">tokenize</span>(<span class="st">'|a'</span>)<span class="op">,</span> [</span>
+<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Alt'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span> }<span class="op">,</span></span>
+<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span> }</span>
+<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'tokenizes the start of a group alone'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">tokenize</span>(<span class="st">'('</span>)<span class="op">,</span> [</span>
+<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'GroupStart'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span> }</span>
+<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'tokenizes the start of a group in a string'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">tokenize</span>(<span class="st">'a(b'</span>)<span class="op">,</span> [</span>
+<span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span> }<span class="op">,</span></span>
+<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'GroupStart'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span> }<span class="op">,</span></span>
+<span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'b'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">2</span> }</span>
+<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb6-99"><a href="#cb6-99" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'tokenizes the end of a group alone'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-101"><a href="#cb6-101" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">tokenize</span>(<span class="st">')'</span>)<span class="op">,</span> [</span>
+<span id="cb6-102"><a href="#cb6-102" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'GroupEnd'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span> }</span>
+<span id="cb6-103"><a href="#cb6-103" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb6-104"><a href="#cb6-104" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-105"><a href="#cb6-105" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'tokenizes the end of a group at the end of a string'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">tokenize</span>(<span class="st">'a)'</span>)<span class="op">,</span> [</span>
+<span id="cb6-107"><a href="#cb6-107" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span> }<span class="op">,</span></span>
+<span id="cb6-108"><a href="#cb6-108" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'GroupEnd'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span> }</span>
+<span id="cb6-109"><a href="#cb6-109" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb6-110"><a href="#cb6-110" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-111"><a href="#cb6-111" aria-hidden="true" tabindex="-1"></a>  <span class="co">// [/omit]</span></span>
+<span id="cb6-112"><a href="#cb6-112" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'tokenizes a complex expression'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-113"><a href="#cb6-113" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">tokenize</span>(<span class="st">'^a*(bcd|e^)*f$gh$'</span>)<span class="op">,</span> [</span>
+<span id="cb6-114"><a href="#cb6-114" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Start'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span> }<span class="op">,</span></span>
+<span id="cb6-115"><a href="#cb6-115" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span> }<span class="op">,</span></span>
+<span id="cb6-116"><a href="#cb6-116" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Any'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">2</span> }<span class="op">,</span></span>
+<span id="cb6-117"><a href="#cb6-117" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'GroupStart'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">3</span> }<span class="op">,</span></span>
+<span id="cb6-118"><a href="#cb6-118" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">4</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'b'</span> }<span class="op">,</span></span>
+<span id="cb6-119"><a href="#cb6-119" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">5</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'c'</span> }<span class="op">,</span></span>
+<span id="cb6-120"><a href="#cb6-120" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">6</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'d'</span> }<span class="op">,</span></span>
+<span id="cb6-121"><a href="#cb6-121" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Alt'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">7</span> }<span class="op">,</span></span>
+<span id="cb6-122"><a href="#cb6-122" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">8</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'e'</span> }<span class="op">,</span></span>
+<span id="cb6-123"><a href="#cb6-123" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">9</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'^'</span> }<span class="op">,</span></span>
+<span id="cb6-124"><a href="#cb6-124" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'GroupEnd'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">10</span> }<span class="op">,</span></span>
+<span id="cb6-125"><a href="#cb6-125" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Any'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">11</span> }<span class="op">,</span></span>
+<span id="cb6-126"><a href="#cb6-126" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">12</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'f'</span> }<span class="op">,</span></span>
+<span id="cb6-127"><a href="#cb6-127" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">13</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'$'</span> }<span class="op">,</span></span>
+<span id="cb6-128"><a href="#cb6-128" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">14</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'g'</span> }<span class="op">,</span></span>
+<span id="cb6-129"><a href="#cb6-129" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">15</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'h'</span> }<span class="op">,</span></span>
+<span id="cb6-130"><a href="#cb6-130" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'End'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">16</span> }</span>
+<span id="cb6-131"><a href="#cb6-131" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb6-132"><a href="#cb6-132" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-133"><a href="#cb6-133" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 <pre><code>&gt; stjs@1.0.0 test /u/stjs
 &gt; mocha */test/test-*.js "-g" "tokenizes correctly"
   tokenizes correctly
@@ -382,245 +383,245 @@ Figure&nbsp;8.2: Mechanics of combining tokens while parsing regular expressions
 </figure>
 </div>
 <p>It’s time to turn these ideas into code. The main structure of our parser is:</p>
-<pre><code>import assert from 'assert'
-import tokenize from './tokenizer.js'
-const parse = (text) =&gt; {
-  const result = []
-  const allTokens = tokenize(text)
-  for (let i = 0; i &lt; allTokens.length; i += 1) {
-    const token = allTokens[i]
-    const last = i === allTokens.length - 1
-    handle(result, token, last)
-  }
-  return compress(result)
-}
-// mccole:skip
-// mccole:handle
-const handle = (result, token, last) =&gt; {
-  if (token.kind === 'Lit') {
-    result.push(token)
-  } else if (token.kind === 'Start') {
-    assert(result.length === 0,
-      'Should not have start token after other tokens')
-    result.push(token)
-  } else if (token.kind === 'End') {
-    assert(last,
-      'Should not have end token before other tokens')
-    result.push(token)
-  } else if (token.kind === 'GroupStart') {
-    result.push(token)
-  } else if (token.kind === 'GroupEnd') {
-    result.push(groupEnd(result, token))
-  } else if (token.kind === 'Any') {
-    assert(result.length &gt; 0,
-      `No operand for '*' (location ${token.loc})`)
-    token.child = result.pop()
-    result.push(token)
-  } else if (token.kind === 'Alt') {
-    assert(result.length &gt; 0,
-      `No operand for '*' (location ${token.loc})`)
-    token.left = result.pop()
-    token.right = null
-    result.push(token)
-  } else {
-    assert(false, 'UNIMPLEMENTED')
-  }
-}
-// mccole:/handle
-// mccole:groupend
-const groupEnd = (result, token) =&gt; {
-  const group = {
-    kind: 'Group',
-    loc: null,
-    end: token.loc,
-    children: []
-  }
-  while (true) {
-    assert(result.length &gt; 0,
-           `Unmatched end parenthesis (location ${token.loc})`)
-    const child = result.pop()
-    if (child.kind === 'GroupStart') {
-      group.loc = child.loc
-      break
-    }
-    group.children.unshift(child)
-  }
-  return group
-}
-// mccole:/groupend
-// mccole:compress
-const compress = (raw) =&gt; {
-  const cooked = []
-  while (raw.length &gt; 0) {
-    const token = raw.pop()
-    if (token.kind === 'Alt') {
-      assert(cooked.length &gt; 0,
-             `No right operand for alt (location ${token.loc})`)
-      token.right = cooked.shift()
-    }
-    cooked.unshift(token)
-  }
-  return cooked
-}
-// mccole:/compress
-// mccole:/skip
-export default parse</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tokenize <span class="im">from</span> <span class="st">'./tokenizer.js'</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> parse <span class="op">=</span> (text) <span class="kw">=&gt;</span> {</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> result <span class="op">=</span> []</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> allTokens <span class="op">=</span> <span class="fu">tokenize</span>(text)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> allTokens<span class="op">.</span><span class="at">length</span><span class="op">;</span> i <span class="op">+=</span> <span class="dv">1</span>) {</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> token <span class="op">=</span> allTokens[i]</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> last <span class="op">=</span> i <span class="op">===</span> allTokens<span class="op">.</span><span class="at">length</span> <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">handle</span>(result<span class="op">,</span> token<span class="op">,</span> last)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">compress</span>(result)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:skip</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:handle</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> handle <span class="op">=</span> (result<span class="op">,</span> token<span class="op">,</span> last) <span class="kw">=&gt;</span> {</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (token<span class="op">.</span><span class="at">kind</span> <span class="op">===</span> <span class="st">'Lit'</span>) {</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    result<span class="op">.</span><span class="fu">push</span>(token)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (token<span class="op">.</span><span class="at">kind</span> <span class="op">===</span> <span class="st">'Start'</span>) {</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(result<span class="op">.</span><span class="at">length</span> <span class="op">===</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Should not have start token after other tokens'</span>)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    result<span class="op">.</span><span class="fu">push</span>(token)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (token<span class="op">.</span><span class="at">kind</span> <span class="op">===</span> <span class="st">'End'</span>) {</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(last<span class="op">,</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Should not have end token before other tokens'</span>)</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    result<span class="op">.</span><span class="fu">push</span>(token)</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (token<span class="op">.</span><span class="at">kind</span> <span class="op">===</span> <span class="st">'GroupStart'</span>) {</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    result<span class="op">.</span><span class="fu">push</span>(token)</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (token<span class="op">.</span><span class="at">kind</span> <span class="op">===</span> <span class="st">'GroupEnd'</span>) {</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    result<span class="op">.</span><span class="fu">push</span>(<span class="fu">groupEnd</span>(result<span class="op">,</span> token))</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (token<span class="op">.</span><span class="at">kind</span> <span class="op">===</span> <span class="st">'Any'</span>) {</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(result<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`No operand for '*' (location </span><span class="sc">${</span>token<span class="op">.</span><span class="at">loc</span><span class="sc">}</span><span class="vs">)`</span>)</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>    token<span class="op">.</span><span class="at">child</span> <span class="op">=</span> result<span class="op">.</span><span class="fu">pop</span>()</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>    result<span class="op">.</span><span class="fu">push</span>(token)</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (token<span class="op">.</span><span class="at">kind</span> <span class="op">===</span> <span class="st">'Alt'</span>) {</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(result<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`No operand for '*' (location </span><span class="sc">${</span>token<span class="op">.</span><span class="at">loc</span><span class="sc">}</span><span class="vs">)`</span>)</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>    token<span class="op">.</span><span class="at">left</span> <span class="op">=</span> result<span class="op">.</span><span class="fu">pop</span>()</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    token<span class="op">.</span><span class="at">right</span> <span class="op">=</span> <span class="kw">null</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>    result<span class="op">.</span><span class="fu">push</span>(token)</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(<span class="kw">false</span><span class="op">,</span> <span class="st">'UNIMPLEMENTED'</span>)</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:/handle</span></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:groupend</span></span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> groupEnd <span class="op">=</span> (result<span class="op">,</span> token) <span class="kw">=&gt;</span> {</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> group <span class="op">=</span> {</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>    <span class="dt">kind</span><span class="op">:</span> <span class="st">'Group'</span><span class="op">,</span></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>    <span class="dt">loc</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span></span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>    <span class="dt">end</span><span class="op">:</span> token<span class="op">.</span><span class="at">loc</span><span class="op">,</span></span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>    <span class="dt">children</span><span class="op">:</span> []</span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> (<span class="kw">true</span>) {</span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(result<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>           <span class="vs">`Unmatched end parenthesis (location </span><span class="sc">${</span>token<span class="op">.</span><span class="at">loc</span><span class="sc">}</span><span class="vs">)`</span>)</span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> child <span class="op">=</span> result<span class="op">.</span><span class="fu">pop</span>()</span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (child<span class="op">.</span><span class="at">kind</span> <span class="op">===</span> <span class="st">'GroupStart'</span>) {</span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>      group<span class="op">.</span><span class="at">loc</span> <span class="op">=</span> child<span class="op">.</span><span class="at">loc</span></span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>      <span class="cf">break</span></span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a>    group<span class="op">.</span><span class="at">children</span><span class="op">.</span><span class="fu">unshift</span>(child)</span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> group</span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:/groupend</span></span>
+<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:compress</span></span>
+<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> compress <span class="op">=</span> (raw) <span class="kw">=&gt;</span> {</span>
+<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> cooked <span class="op">=</span> []</span>
+<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> (raw<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> token <span class="op">=</span> raw<span class="op">.</span><span class="fu">pop</span>()</span>
+<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (token<span class="op">.</span><span class="at">kind</span> <span class="op">===</span> <span class="st">'Alt'</span>) {</span>
+<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a>      <span class="fu">assert</span>(cooked<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a>             <span class="vs">`No right operand for alt (location </span><span class="sc">${</span>token<span class="op">.</span><span class="at">loc</span><span class="sc">}</span><span class="vs">)`</span>)</span>
+<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a>      token<span class="op">.</span><span class="at">right</span> <span class="op">=</span> cooked<span class="op">.</span><span class="fu">shift</span>()</span>
+<span id="cb8-76"><a href="#cb8-76" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb8-77"><a href="#cb8-77" aria-hidden="true" tabindex="-1"></a>    cooked<span class="op">.</span><span class="fu">unshift</span>(token)</span>
+<span id="cb8-78"><a href="#cb8-78" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-79"><a href="#cb8-79" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> cooked</span>
+<span id="cb8-80"><a href="#cb8-80" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-81"><a href="#cb8-81" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:/compress</span></span>
+<span id="cb8-82"><a href="#cb8-82" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:/skip</span></span>
+<span id="cb8-83"><a href="#cb8-83" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> parse</span></code></pre></div>
 <p>We handle tokens case-by-case (with a few assertions to check that patterns are <a href="../glossary/index.html#well_formed">well formed</a>):</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>When we find the <code>)</code> that marks the end of a group, we take items from the end of the output list until we find the matching start and use them to create a group:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Finally, when we have finished with the input, we go through the output list one last time to fill in the right side of <code>Alt</code>s:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Once again, it’s not done until we’ve tested it:</p>
-<pre><code>import assert from 'assert'
-import parse from '../parser.js'
-describe('parses correctly', async () =&gt; {
-  it('parses the empty string', () =&gt; {
-    assert.deepStrictEqual(parse(''), [])
-  })
-  it('parses a single literal', () =&gt; {
-    assert.deepStrictEqual(parse('a'), [
-      { kind: 'Lit', loc: 0, value: 'a' }
-    ])
-  })
-  it('parses multiple literals', () =&gt; {
-    assert.deepStrictEqual(parse('ab'), [
-      { kind: 'Lit', loc: 0, value: 'a' },
-      { kind: 'Lit', loc: 1, value: 'b' }
-    ])
-  })
-  // [omit]
-  it('parses start anchors', () =&gt; {
-    assert.deepStrictEqual(parse('^a'), [
-      { kind: 'Start', loc: 0 },
-      { kind: 'Lit', loc: 1, value: 'a' }
-    ])
-  })
-  it('handles circumflex not at start', () =&gt; {
-    assert.deepStrictEqual(parse('a^'), [
-      { kind: 'Lit', loc: 0, value: 'a' },
-      { kind: 'Lit', loc: 1, value: '^' }
-    ])
-  })
-  it('parses end anchors', () =&gt; {
-    assert.deepStrictEqual(parse('a$'), [
-      { kind: 'Lit', loc: 0, value: 'a' },
-      { kind: 'End', loc: 1 }
-    ])
-  })
-  it('parses circumflex not at start', () =&gt; {
-    assert.deepStrictEqual(parse('$a'), [
-      { kind: 'Lit', loc: 0, value: '$' },
-      { kind: 'Lit', loc: 1, value: 'a' }
-    ])
-  })
-  it('parses empty groups', () =&gt; {
-    assert.deepStrictEqual(parse('()'), [
-      { kind: 'Group', loc: 0, end: 1, children: [] }
-    ])
-  })
-  it('parses groups containing characters', () =&gt; {
-    assert.deepStrictEqual(parse('(a)'), [
-      {
-        kind: 'Group',
-        loc: 0,
-        end: 2,
-        children: [
-          { kind: 'Lit', loc: 1, value: 'a' }
-        ]
-      }
-    ])
-  })
-  it('parses two groups containing characters', () =&gt; {
-    assert.deepStrictEqual(parse('(a)(b)'), [
-      {
-        kind: 'Group',
-        loc: 0,
-        end: 2,
-        children: [
-          { kind: 'Lit', loc: 1, value: 'a' }
-        ]
-      },
-      {
-        kind: 'Group',
-        loc: 3,
-        end: 5,
-        children: [
-          { kind: 'Lit', loc: 4, value: 'b' }
-        ]
-      }
-    ])
-  })
-  it('parses any', () =&gt; {
-    assert.deepStrictEqual(parse('a*'), [
-      {
-        kind: 'Any',
-        loc: 1,
-        child: { kind: 'Lit', loc: 0, value: 'a' }
-      }
-    ])
-  })
-  it('parses any of group', () =&gt; {
-    assert.deepStrictEqual(parse('(ab)*'), [
-      {
-        kind: 'Any',
-        loc: 4,
-        child: {
-          kind: 'Group',
-          loc: 0,
-          end: 3,
-          children: [
-            { kind: 'Lit', loc: 1, value: 'a' },
-            { kind: 'Lit', loc: 2, value: 'b' }
-          ]
-        }
-      }
-    ])
-  })
-  it('parses alt', () =&gt; {
-    assert.deepStrictEqual(parse('a|b'), [
-      {
-        kind: 'Alt',
-        loc: 1,
-        left: { kind: 'Lit', loc: 0, value: 'a' },
-        right: { kind: 'Lit', loc: 2, value: 'b' }
-      }
-    ])
-  })
-  it('parses alt of any', () =&gt; {
-    assert.deepStrictEqual(parse('a*|b'), [
-      {
-        kind: 'Alt',
-        loc: 2,
-        left: {
-          kind: 'Any',
-          loc: 1,
-          child: { kind: 'Lit', loc: 0, value: 'a' }
-        },
-        right: { kind: 'Lit', loc: 3, value: 'b' }
-      }
-    ])
-  })
-  // [/omit]
-  it('parses alt of groups', () =&gt; {
-    assert.deepStrictEqual(parse('a|(bc)'), [
-      {
-        kind: 'Alt',
-        loc: 1,
-        left: { kind: 'Lit', loc: 0, value: 'a' },
-        right: {
-          kind: 'Group',
-          loc: 2,
-          end: 5,
-          children: [
-            { kind: 'Lit', loc: 3, value: 'b' },
-            { kind: 'Lit', loc: 4, value: 'c' }
-          ]
-        }
-      }
-    ])
-  })
-})</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> parse <span class="im">from</span> <span class="st">'../parser.js'</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(<span class="st">'parses correctly'</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'parses the empty string'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">parse</span>(<span class="st">''</span>)<span class="op">,</span> [])</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'parses a single literal'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">parse</span>(<span class="st">'a'</span>)<span class="op">,</span> [</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span> }</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'parses multiple literals'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">parse</span>(<span class="st">'ab'</span>)<span class="op">,</span> [</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span> }<span class="op">,</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'b'</span> }</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="co">// [omit]</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'parses start anchors'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">parse</span>(<span class="st">'^a'</span>)<span class="op">,</span> [</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Start'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span> }<span class="op">,</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span> }</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'handles circumflex not at start'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">parse</span>(<span class="st">'a^'</span>)<span class="op">,</span> [</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span> }<span class="op">,</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'^'</span> }</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'parses end anchors'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">parse</span>(<span class="st">'a$'</span>)<span class="op">,</span> [</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span> }<span class="op">,</span></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'End'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span> }</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'parses circumflex not at start'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">parse</span>(<span class="st">'$a'</span>)<span class="op">,</span> [</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'$'</span> }<span class="op">,</span></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span> }</span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'parses empty groups'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">parse</span>(<span class="st">'()'</span>)<span class="op">,</span> [</span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Group'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">end</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">children</span><span class="op">:</span> [] }</span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'parses groups containing characters'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">parse</span>(<span class="st">'(a)'</span>)<span class="op">,</span> [</span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>      {</span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>        <span class="dt">kind</span><span class="op">:</span> <span class="st">'Group'</span><span class="op">,</span></span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>        <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>        <span class="dt">end</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a>        <span class="dt">children</span><span class="op">:</span> [</span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>          { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span> }</span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a>        ]</span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'parses two groups containing characters'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">parse</span>(<span class="st">'(a)(b)'</span>)<span class="op">,</span> [</span>
+<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a>      {</span>
+<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a>        <span class="dt">kind</span><span class="op">:</span> <span class="st">'Group'</span><span class="op">,</span></span>
+<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a>        <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a>        <span class="dt">end</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></span>
+<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a>        <span class="dt">children</span><span class="op">:</span> [</span>
+<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a>          { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span> }</span>
+<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a>        ]</span>
+<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a>      }<span class="op">,</span></span>
+<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a>      {</span>
+<span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a>        <span class="dt">kind</span><span class="op">:</span> <span class="st">'Group'</span><span class="op">,</span></span>
+<span id="cb12-72"><a href="#cb12-72" aria-hidden="true" tabindex="-1"></a>        <span class="dt">loc</span><span class="op">:</span> <span class="dv">3</span><span class="op">,</span></span>
+<span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a>        <span class="dt">end</span><span class="op">:</span> <span class="dv">5</span><span class="op">,</span></span>
+<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a>        <span class="dt">children</span><span class="op">:</span> [</span>
+<span id="cb12-75"><a href="#cb12-75" aria-hidden="true" tabindex="-1"></a>          { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">4</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'b'</span> }</span>
+<span id="cb12-76"><a href="#cb12-76" aria-hidden="true" tabindex="-1"></a>        ]</span>
+<span id="cb12-77"><a href="#cb12-77" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb12-78"><a href="#cb12-78" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb12-79"><a href="#cb12-79" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb12-80"><a href="#cb12-80" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'parses any'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb12-81"><a href="#cb12-81" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">parse</span>(<span class="st">'a*'</span>)<span class="op">,</span> [</span>
+<span id="cb12-82"><a href="#cb12-82" aria-hidden="true" tabindex="-1"></a>      {</span>
+<span id="cb12-83"><a href="#cb12-83" aria-hidden="true" tabindex="-1"></a>        <span class="dt">kind</span><span class="op">:</span> <span class="st">'Any'</span><span class="op">,</span></span>
+<span id="cb12-84"><a href="#cb12-84" aria-hidden="true" tabindex="-1"></a>        <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span></span>
+<span id="cb12-85"><a href="#cb12-85" aria-hidden="true" tabindex="-1"></a>        <span class="dt">child</span><span class="op">:</span> { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span> }</span>
+<span id="cb12-86"><a href="#cb12-86" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb12-87"><a href="#cb12-87" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb12-88"><a href="#cb12-88" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb12-89"><a href="#cb12-89" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'parses any of group'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb12-90"><a href="#cb12-90" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">parse</span>(<span class="st">'(ab)*'</span>)<span class="op">,</span> [</span>
+<span id="cb12-91"><a href="#cb12-91" aria-hidden="true" tabindex="-1"></a>      {</span>
+<span id="cb12-92"><a href="#cb12-92" aria-hidden="true" tabindex="-1"></a>        <span class="dt">kind</span><span class="op">:</span> <span class="st">'Any'</span><span class="op">,</span></span>
+<span id="cb12-93"><a href="#cb12-93" aria-hidden="true" tabindex="-1"></a>        <span class="dt">loc</span><span class="op">:</span> <span class="dv">4</span><span class="op">,</span></span>
+<span id="cb12-94"><a href="#cb12-94" aria-hidden="true" tabindex="-1"></a>        <span class="dt">child</span><span class="op">:</span> {</span>
+<span id="cb12-95"><a href="#cb12-95" aria-hidden="true" tabindex="-1"></a>          <span class="dt">kind</span><span class="op">:</span> <span class="st">'Group'</span><span class="op">,</span></span>
+<span id="cb12-96"><a href="#cb12-96" aria-hidden="true" tabindex="-1"></a>          <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb12-97"><a href="#cb12-97" aria-hidden="true" tabindex="-1"></a>          <span class="dt">end</span><span class="op">:</span> <span class="dv">3</span><span class="op">,</span></span>
+<span id="cb12-98"><a href="#cb12-98" aria-hidden="true" tabindex="-1"></a>          <span class="dt">children</span><span class="op">:</span> [</span>
+<span id="cb12-99"><a href="#cb12-99" aria-hidden="true" tabindex="-1"></a>            { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span> }<span class="op">,</span></span>
+<span id="cb12-100"><a href="#cb12-100" aria-hidden="true" tabindex="-1"></a>            { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'b'</span> }</span>
+<span id="cb12-101"><a href="#cb12-101" aria-hidden="true" tabindex="-1"></a>          ]</span>
+<span id="cb12-102"><a href="#cb12-102" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb12-103"><a href="#cb12-103" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb12-104"><a href="#cb12-104" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb12-105"><a href="#cb12-105" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb12-106"><a href="#cb12-106" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'parses alt'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb12-107"><a href="#cb12-107" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">parse</span>(<span class="st">'a|b'</span>)<span class="op">,</span> [</span>
+<span id="cb12-108"><a href="#cb12-108" aria-hidden="true" tabindex="-1"></a>      {</span>
+<span id="cb12-109"><a href="#cb12-109" aria-hidden="true" tabindex="-1"></a>        <span class="dt">kind</span><span class="op">:</span> <span class="st">'Alt'</span><span class="op">,</span></span>
+<span id="cb12-110"><a href="#cb12-110" aria-hidden="true" tabindex="-1"></a>        <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span></span>
+<span id="cb12-111"><a href="#cb12-111" aria-hidden="true" tabindex="-1"></a>        <span class="dt">left</span><span class="op">:</span> { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span> }<span class="op">,</span></span>
+<span id="cb12-112"><a href="#cb12-112" aria-hidden="true" tabindex="-1"></a>        <span class="dt">right</span><span class="op">:</span> { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'b'</span> }</span>
+<span id="cb12-113"><a href="#cb12-113" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb12-114"><a href="#cb12-114" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb12-115"><a href="#cb12-115" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb12-116"><a href="#cb12-116" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'parses alt of any'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb12-117"><a href="#cb12-117" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">parse</span>(<span class="st">'a*|b'</span>)<span class="op">,</span> [</span>
+<span id="cb12-118"><a href="#cb12-118" aria-hidden="true" tabindex="-1"></a>      {</span>
+<span id="cb12-119"><a href="#cb12-119" aria-hidden="true" tabindex="-1"></a>        <span class="dt">kind</span><span class="op">:</span> <span class="st">'Alt'</span><span class="op">,</span></span>
+<span id="cb12-120"><a href="#cb12-120" aria-hidden="true" tabindex="-1"></a>        <span class="dt">loc</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></span>
+<span id="cb12-121"><a href="#cb12-121" aria-hidden="true" tabindex="-1"></a>        <span class="dt">left</span><span class="op">:</span> {</span>
+<span id="cb12-122"><a href="#cb12-122" aria-hidden="true" tabindex="-1"></a>          <span class="dt">kind</span><span class="op">:</span> <span class="st">'Any'</span><span class="op">,</span></span>
+<span id="cb12-123"><a href="#cb12-123" aria-hidden="true" tabindex="-1"></a>          <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span></span>
+<span id="cb12-124"><a href="#cb12-124" aria-hidden="true" tabindex="-1"></a>          <span class="dt">child</span><span class="op">:</span> { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span> }</span>
+<span id="cb12-125"><a href="#cb12-125" aria-hidden="true" tabindex="-1"></a>        }<span class="op">,</span></span>
+<span id="cb12-126"><a href="#cb12-126" aria-hidden="true" tabindex="-1"></a>        <span class="dt">right</span><span class="op">:</span> { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">3</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'b'</span> }</span>
+<span id="cb12-127"><a href="#cb12-127" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb12-128"><a href="#cb12-128" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb12-129"><a href="#cb12-129" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb12-130"><a href="#cb12-130" aria-hidden="true" tabindex="-1"></a>  <span class="co">// [/omit]</span></span>
+<span id="cb12-131"><a href="#cb12-131" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'parses alt of groups'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb12-132"><a href="#cb12-132" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(<span class="fu">parse</span>(<span class="st">'a|(bc)'</span>)<span class="op">,</span> [</span>
+<span id="cb12-133"><a href="#cb12-133" aria-hidden="true" tabindex="-1"></a>      {</span>
+<span id="cb12-134"><a href="#cb12-134" aria-hidden="true" tabindex="-1"></a>        <span class="dt">kind</span><span class="op">:</span> <span class="st">'Alt'</span><span class="op">,</span></span>
+<span id="cb12-135"><a href="#cb12-135" aria-hidden="true" tabindex="-1"></a>        <span class="dt">loc</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span></span>
+<span id="cb12-136"><a href="#cb12-136" aria-hidden="true" tabindex="-1"></a>        <span class="dt">left</span><span class="op">:</span> { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'a'</span> }<span class="op">,</span></span>
+<span id="cb12-137"><a href="#cb12-137" aria-hidden="true" tabindex="-1"></a>        <span class="dt">right</span><span class="op">:</span> {</span>
+<span id="cb12-138"><a href="#cb12-138" aria-hidden="true" tabindex="-1"></a>          <span class="dt">kind</span><span class="op">:</span> <span class="st">'Group'</span><span class="op">,</span></span>
+<span id="cb12-139"><a href="#cb12-139" aria-hidden="true" tabindex="-1"></a>          <span class="dt">loc</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></span>
+<span id="cb12-140"><a href="#cb12-140" aria-hidden="true" tabindex="-1"></a>          <span class="dt">end</span><span class="op">:</span> <span class="dv">5</span><span class="op">,</span></span>
+<span id="cb12-141"><a href="#cb12-141" aria-hidden="true" tabindex="-1"></a>          <span class="dt">children</span><span class="op">:</span> [</span>
+<span id="cb12-142"><a href="#cb12-142" aria-hidden="true" tabindex="-1"></a>            { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">3</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'b'</span> }<span class="op">,</span></span>
+<span id="cb12-143"><a href="#cb12-143" aria-hidden="true" tabindex="-1"></a>            { <span class="dt">kind</span><span class="op">:</span> <span class="st">'Lit'</span><span class="op">,</span> <span class="dt">loc</span><span class="op">:</span> <span class="dv">4</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="st">'c'</span> }</span>
+<span id="cb12-144"><a href="#cb12-144" aria-hidden="true" tabindex="-1"></a>          ]</span>
+<span id="cb12-145"><a href="#cb12-145" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb12-146"><a href="#cb12-146" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb12-147"><a href="#cb12-147" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb12-148"><a href="#cb12-148" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb12-149"><a href="#cb12-149" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 <pre><code>&gt; stjs@1.0.0 test /u/stjs
 &gt; mocha */test/test-*.js "-g" "parses correctly"
   parses correctly

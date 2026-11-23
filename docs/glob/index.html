@@ -3,6 +3,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Pattern Matching</title>
   <link rel="stylesheet" href="../mccole/mccole-book.css">
+  <link rel="stylesheet" href="../mccole/tango.css">
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async=""></script>
 </head>
@@ -91,65 +92,65 @@ Figure&nbsp;7.2: Matching a simple set of query selectors.
 </figcaption>
 </figure>
 </div>
-<pre><code>import assert from 'assert'
-const select = (root, selector) =&gt; {
-  const selectors = selector.split(' ').filter(s =&gt; s.length &gt; 0)
-  return firstMatch(root, selectors)
-}
-const firstMatch = (node, selectors) =&gt; {
-  assert(selectors.length &gt; 0,
-    'Require selector(s)')
-  // Not a tag.
-  if (node.type !== 'tag') {
-    return null
-  }
-  // This node matches.
-  if (matchHere(node, selectors[0])) {
-    // This is the last selector, so matching worked.
-    if (selectors.length === 1) {
-      return node
-    }
-    // Try to match remaining selectors.
-    return firstChildMatch(node, selectors.slice(1))
-  }
-  // This node doesn't match, so try further down.
-  return firstChildMatch(node, selectors)
-}
-// mccole:skip
-// mccole:firstChild
-const firstChildMatch = (node, selectors) =&gt; {
-  assert(node.type === 'tag',
-    `Should only try to match first child of tags, not ${node.type}`)
-  // First working match.
-  for (const child of node.children) {
-    const match = firstMatch(child, selectors)
-    if (match) {
-      return match
-    }
-  }
-  // Nothing worked.
-  return null
-}
-// mccole:/firstChild
-// mccole:matchHere
-const matchHere = (node, selector) =&gt; {
-  let name = null
-  let id = null
-  let cls = null
-  if (selector.includes('#')) {
-    [name, id] = selector.split('#')
-  } else if (selector.includes('.')) {
-    [name, cls] = selector.split('.')
-  } else {
-    name = selector
-  }
-  return (node.name === name) &amp;&amp;
-    ((id === null) || (node.attribs.id === id)) &amp;&amp;
-    ((cls === null) || (node.attribs.class === cls))
-}
-// mccole:/matchHere
-// mccole:/skip
-export default select</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> select <span class="op">=</span> (<span class="bu">root</span><span class="op">,</span> selector) <span class="kw">=&gt;</span> {</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> selectors <span class="op">=</span> selector<span class="op">.</span><span class="fu">split</span>(<span class="st">' '</span>)<span class="op">.</span><span class="fu">filter</span>(s <span class="kw">=&gt;</span> s<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">firstMatch</span>(<span class="bu">root</span><span class="op">,</span> selectors)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> firstMatch <span class="op">=</span> (node<span class="op">,</span> selectors) <span class="kw">=&gt;</span> {</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assert</span>(selectors<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Require selector(s)'</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Not a tag.</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (node<span class="op">.</span><span class="at">type</span> <span class="op">!==</span> <span class="st">'tag'</span>) {</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">null</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="co">// This node matches.</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">matchHere</span>(node<span class="op">,</span> selectors[<span class="dv">0</span>])) {</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">// This is the last selector, so matching worked.</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (selectors<span class="op">.</span><span class="at">length</span> <span class="op">===</span> <span class="dv">1</span>) {</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> node</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Try to match remaining selectors.</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fu">firstChildMatch</span>(node<span class="op">,</span> selectors<span class="op">.</span><span class="fu">slice</span>(<span class="dv">1</span>))</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="co">// This node doesn't match, so try further down.</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">firstChildMatch</span>(node<span class="op">,</span> selectors)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:skip</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:firstChild</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> firstChildMatch <span class="op">=</span> (node<span class="op">,</span> selectors) <span class="kw">=&gt;</span> {</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assert</span>(node<span class="op">.</span><span class="at">type</span> <span class="op">===</span> <span class="st">'tag'</span><span class="op">,</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="vs">`Should only try to match first child of tags, not </span><span class="sc">${</span>node<span class="op">.</span><span class="at">type</span><span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="co">// First working match.</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> child <span class="kw">of</span> node<span class="op">.</span><span class="at">children</span>) {</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> match <span class="op">=</span> <span class="fu">firstMatch</span>(child<span class="op">,</span> selectors)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (match) {</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> match</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Nothing worked.</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">null</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:/firstChild</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:matchHere</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> matchHere <span class="op">=</span> (node<span class="op">,</span> selector) <span class="kw">=&gt;</span> {</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> name <span class="op">=</span> <span class="kw">null</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> id <span class="op">=</span> <span class="kw">null</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> cls <span class="op">=</span> <span class="kw">null</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (selector<span class="op">.</span><span class="fu">includes</span>(<span class="st">'#'</span>)) {</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    [name<span class="op">,</span> id] <span class="op">=</span> selector<span class="op">.</span><span class="fu">split</span>(<span class="st">'#'</span>)</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (selector<span class="op">.</span><span class="fu">includes</span>(<span class="st">'.'</span>)) {</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    [name<span class="op">,</span> cls] <span class="op">=</span> selector<span class="op">.</span><span class="fu">split</span>(<span class="st">'.'</span>)</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>    name <span class="op">=</span> selector</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> (node<span class="op">.</span><span class="at">name</span> <span class="op">===</span> name) <span class="op">&amp;&amp;</span></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>    ((id <span class="op">===</span> <span class="kw">null</span>) <span class="op">||</span> (node<span class="op">.</span><span class="at">attribs</span><span class="op">.</span><span class="at">id</span> <span class="op">===</span> id)) <span class="op">&amp;&amp;</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>    ((cls <span class="op">===</span> <span class="kw">null</span>) <span class="op">||</span> (node<span class="op">.</span><span class="at">attribs</span><span class="op">.</span><span class="at">class</span> <span class="op">===</span> cls))</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:/matchHere</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:/skip</span></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> select</span></code></pre></div>
 <p>The <code>firstMatch</code> function handles three cases:</p>
 <ol type="1">
 <li><p>This node isn’t an element, i.e., it is plain text or a <a href="../glossary/index.html#comment">comment</a>. This can’t match a selector, and these nodes don’t have children, so the function returns <code>null</code> to indicate that matching has failed.</p></li>
@@ -157,15 +158,15 @@ export default select</code></pre>
 <li><p>This node <em>doesn’t</em> match the current selector, so we search the children one by one to see if there is a match further down.</p></li>
 </ol>
 <p>This algorithm is called <a href="../glossary/index.html#depth_first">depth-first search</a>: it explores one possible match to the end before considering any others. <code>firstMatch</code> relies on a helper function called <code>firstChildMatch</code>, which finds the first child of a node to match a set of selectors:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>and on the function <code>matchHere</code> which compares a node against a selector:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>This version of <code>matchHere</code> is simple but inefficient, since it breaks the selector into parts each time it is called rather than doing that once and re-using the results. We will build a more efficient version in the exercises, but let’s try out the one we have. Our test cases are all in one piece of HTML:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>The program contains a table of queries and the expected matches. The function <code>main</code> loops over it to report whether each test passes or fails:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p><code>main</code> uses a helper function called <code>getText</code> to extract text from a node or return an error message if something has gone wrong:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>When we run our program it produces this result:</p>
 <pre><code>"p": pass
 "p#id-01": pass
@@ -225,11 +226,11 @@ Table&nbsp;7.2: Pattern matching cases.
 </figure>
 </div>
 <p>The top-level function that users call handles the special case of <code>^</code> at the start of a pattern matching the start of the target string being searched. It then tries the pattern against each successive substring of the target string until it finds a match or runs out of characters:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p><code>matchHere</code> does the matching and recursing:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Once again, we use a table of test cases and expected results to test it:</p>
-<pre><code></code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <pre><code>"a" X "a": pass
 "b" X "a": pass
 "a" X "ab": pass
@@ -261,60 +262,60 @@ Figure&nbsp;7.3: Using nested objects to match regular expressions.
 </figure>
 </div>
 <p>The first step in implementing this is to write test cases, which forces us to define the syntax we are going to support:</p>
-<pre><code>import Alt from './regex-alt.js'
-import Any from './regex-any.js'
-import End from './regex-end.js'
-import Lit from './regex-lit.js'
-import Seq from './regex-seq.js'
-import Start from './regex-start.js'
-const main = () =&gt; {
-  const tests = [
-    ['a', 'a', true, Lit('a')],
-    ['b', 'a', false, Lit('b')],
-    ['a', 'ab', true, Lit('a')],
-    ['b', 'ab', true, Lit('b')],
-    ['ab', 'ab', true, Seq(Lit('a'), Lit('b'))],
-    ['ba', 'ab', false, Seq(Lit('b'), Lit('a'))],
-    ['ab', 'ba', false, Lit('ab')],
-    ['^a', 'ab', true, Seq(Start(), Lit('a'))],
-    ['^b', 'ab', false, Seq(Start(), Lit('b'))],
-    ['a$', 'ab', false, Seq(Lit('a'), End())],
-    ['a$', 'ba', true, Seq(Lit('a'), End())],
-    ['a*', '', true, Any('a')],
-    ['a*', 'baac', true, Any('a')],
-    ['ab*c', 'ac', true, Seq(Lit('a'), Any('b'), Lit('c'))],
-    ['ab*c', 'abc', true, Seq(Lit('a'), Any('b'), Lit('c'))],
-    ['ab*c', 'abbbc', true, Seq(Lit('a'), Any('b'), Lit('c'))],
-    ['ab*c', 'abxc', false, Seq(Lit('a'), Any('b'), Lit('c'))],
-    ['ab|cd', 'xaby', true, Alt(Lit('ab'), Lit('cd'))],
-    ['ab|cd', 'acdc', true, Alt(Lit('ab'), Lit('cd'))],
-    ['a(b|c)d', 'xabdy', true,
-      Seq(Lit('a'), Alt(Lit('b'), Lit('c')), Lit('d'))],
-    ['a(b|c)d', 'xabady', false,
-      Seq(Lit('a'), Alt(Lit('b'), Lit('c')), Lit('d'))]
-  ]
-  tests.forEach(([pattern, text, expected, matcher]) =&gt; {
-    const actual = matcher.match(text)
-    const result = (actual === expected) ? 'pass' : 'fail'
-    console.log(`"${pattern}" X "${text}": ${result}`)
-  })
-}
-main()</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Alt <span class="im">from</span> <span class="st">'./regex-alt.js'</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Any <span class="im">from</span> <span class="st">'./regex-any.js'</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> End <span class="im">from</span> <span class="st">'./regex-end.js'</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Lit <span class="im">from</span> <span class="st">'./regex-lit.js'</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Seq <span class="im">from</span> <span class="st">'./regex-seq.js'</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Start <span class="im">from</span> <span class="st">'./regex-start.js'</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> main <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> tests <span class="op">=</span> [</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'a'</span><span class="op">,</span> <span class="st">'a'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'a'</span>)]<span class="op">,</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'b'</span><span class="op">,</span> <span class="st">'a'</span><span class="op">,</span> <span class="kw">false</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'b'</span>)]<span class="op">,</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'a'</span><span class="op">,</span> <span class="st">'ab'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'a'</span>)]<span class="op">,</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'b'</span><span class="op">,</span> <span class="st">'ab'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'b'</span>)]<span class="op">,</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'ab'</span><span class="op">,</span> <span class="st">'ab'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Seq</span>(<span class="fu">Lit</span>(<span class="st">'a'</span>)<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'b'</span>))]<span class="op">,</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'ba'</span><span class="op">,</span> <span class="st">'ab'</span><span class="op">,</span> <span class="kw">false</span><span class="op">,</span> <span class="fu">Seq</span>(<span class="fu">Lit</span>(<span class="st">'b'</span>)<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'a'</span>))]<span class="op">,</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'ab'</span><span class="op">,</span> <span class="st">'ba'</span><span class="op">,</span> <span class="kw">false</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'ab'</span>)]<span class="op">,</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'^a'</span><span class="op">,</span> <span class="st">'ab'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Seq</span>(<span class="fu">Start</span>()<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'a'</span>))]<span class="op">,</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'^b'</span><span class="op">,</span> <span class="st">'ab'</span><span class="op">,</span> <span class="kw">false</span><span class="op">,</span> <span class="fu">Seq</span>(<span class="fu">Start</span>()<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'b'</span>))]<span class="op">,</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'a$'</span><span class="op">,</span> <span class="st">'ab'</span><span class="op">,</span> <span class="kw">false</span><span class="op">,</span> <span class="fu">Seq</span>(<span class="fu">Lit</span>(<span class="st">'a'</span>)<span class="op">,</span> <span class="fu">End</span>())]<span class="op">,</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'a$'</span><span class="op">,</span> <span class="st">'ba'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Seq</span>(<span class="fu">Lit</span>(<span class="st">'a'</span>)<span class="op">,</span> <span class="fu">End</span>())]<span class="op">,</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'a*'</span><span class="op">,</span> <span class="st">''</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Any</span>(<span class="st">'a'</span>)]<span class="op">,</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'a*'</span><span class="op">,</span> <span class="st">'baac'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Any</span>(<span class="st">'a'</span>)]<span class="op">,</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'ab*c'</span><span class="op">,</span> <span class="st">'ac'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Seq</span>(<span class="fu">Lit</span>(<span class="st">'a'</span>)<span class="op">,</span> <span class="fu">Any</span>(<span class="st">'b'</span>)<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'c'</span>))]<span class="op">,</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'ab*c'</span><span class="op">,</span> <span class="st">'abc'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Seq</span>(<span class="fu">Lit</span>(<span class="st">'a'</span>)<span class="op">,</span> <span class="fu">Any</span>(<span class="st">'b'</span>)<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'c'</span>))]<span class="op">,</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'ab*c'</span><span class="op">,</span> <span class="st">'abbbc'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Seq</span>(<span class="fu">Lit</span>(<span class="st">'a'</span>)<span class="op">,</span> <span class="fu">Any</span>(<span class="st">'b'</span>)<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'c'</span>))]<span class="op">,</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'ab*c'</span><span class="op">,</span> <span class="st">'abxc'</span><span class="op">,</span> <span class="kw">false</span><span class="op">,</span> <span class="fu">Seq</span>(<span class="fu">Lit</span>(<span class="st">'a'</span>)<span class="op">,</span> <span class="fu">Any</span>(<span class="st">'b'</span>)<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'c'</span>))]<span class="op">,</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'ab|cd'</span><span class="op">,</span> <span class="st">'xaby'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Alt</span>(<span class="fu">Lit</span>(<span class="st">'ab'</span>)<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'cd'</span>))]<span class="op">,</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'ab|cd'</span><span class="op">,</span> <span class="st">'acdc'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Alt</span>(<span class="fu">Lit</span>(<span class="st">'ab'</span>)<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'cd'</span>))]<span class="op">,</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'a(b|c)d'</span><span class="op">,</span> <span class="st">'xabdy'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>      <span class="fu">Seq</span>(<span class="fu">Lit</span>(<span class="st">'a'</span>)<span class="op">,</span> <span class="fu">Alt</span>(<span class="fu">Lit</span>(<span class="st">'b'</span>)<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'c'</span>))<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'d'</span>))]<span class="op">,</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'a(b|c)d'</span><span class="op">,</span> <span class="st">'xabady'</span><span class="op">,</span> <span class="kw">false</span><span class="op">,</span></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>      <span class="fu">Seq</span>(<span class="fu">Lit</span>(<span class="st">'a'</span>)<span class="op">,</span> <span class="fu">Alt</span>(<span class="fu">Lit</span>(<span class="st">'b'</span>)<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'c'</span>))<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'d'</span>))]</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>  tests<span class="op">.</span><span class="fu">forEach</span>(([pattern<span class="op">,</span> text<span class="op">,</span> expected<span class="op">,</span> matcher]) <span class="kw">=&gt;</span> {</span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> actual <span class="op">=</span> matcher<span class="op">.</span><span class="fu">match</span>(text)</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> result <span class="op">=</span> (actual <span class="op">===</span> expected) <span class="op">?</span> <span class="st">'pass'</span> <span class="op">:</span> <span class="st">'fail'</span></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`"</span><span class="sc">${</span>pattern<span class="sc">}</span><span class="vs">" X "</span><span class="sc">${</span>text<span class="sc">}</span><span class="vs">": </span><span class="sc">${</span>result<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a><span class="fu">main</span>()</span></code></pre></div>
 <p>Next, we define a <a href="../glossary/index.html#base_class">base class</a> that all matchers will inherit from. This class contains the <code>match</code> method that users will call so that we can start matching right away no matter what kind of matcher we have at the top level of our pattern.</p>
-<pre><code>class RegexBase {
-  match (text) {
-    for (let i = 0; i &lt; text.length; i += 1) {
-      if (this._match(text, i)) {
-        return true
-      }
-    }
-    return false
-  }
-  _match (text, start) {
-    throw new Error('derived classes must override "_match"')
-  }
-}
-export default RegexBase</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RegexBase {</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">match</span> (text) {</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> text<span class="op">.</span><span class="at">length</span><span class="op">;</span> i <span class="op">+=</span> <span class="dv">1</span>) {</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="fu">_match</span>(text<span class="op">,</span> i)) {</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">true</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">false</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">_match</span> (text<span class="op">,</span> start) {</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(<span class="st">'derived classes must override "_match"'</span>)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> RegexBase</span></code></pre></div>
 <p>The base class also defines a <code>_match</code> method (with a leading underscore) that other classes will fill in with actual matching code. The base implementation of this method throws an exception so that if we forget to provide <code>_match</code> in a <a href="../glossary/index.html#derived_class">derived class</a> our code will fail with a meaningful reminder.</p>
 <div>
 <blockquote>
@@ -323,17 +324,17 @@ export default RegexBase</code></pre>
 </blockquote>
 </div>
 <p>We can now define empty versions of each matching class that all say “no match here” like this one for literal characters:</p>
-<pre><code>import RegexBase from './regex-base.js'
-class RegexLit extends RegexBase {
-  constructor (chars) {
-    super()
-    this.chars = chars
-  }
-  _match (text, start) {
-    return undefined // FIXME
-  }
-}
-export default (chars) =&gt; new RegexLit(chars)</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RegexLit <span class="kw">extends</span> RegexBase {</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (chars) {</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>()</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">chars</span> <span class="op">=</span> chars</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">_match</span> (text<span class="op">,</span> start) {</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">undefined</span> <span class="co">// </span><span class="al">FIXME</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> (chars) <span class="kw">=&gt;</span> <span class="kw">new</span> <span class="fu">RegexLit</span>(chars)</span></code></pre></div>
 <p>Our tests now run, but most of them fail: “most” because we expect some tests not to match, so the test runner reports <code>true</code>.</p>
 <pre><code>"a" X "a": fail
 "b" X "a": pass
@@ -358,24 +359,24 @@ export default (chars) =&gt; new RegexLit(chars)</code></pre>
 "a(b|c)d" X "xabady": pass</code></pre>
 <p>This output tells us how much work we have left to do: when all of these tests pass, we’re finished.</p>
 <p>Let’s implement a literal character string matcher first:</p>
-<pre><code>import RegexBase from './regex-base.js'
-class RegexLit extends RegexBase {
-  constructor (chars) {
-    super()
-    this.chars = chars
-  }
-  _match (text, start) {
-    const nextIndex = start + this.chars.length
-    if (nextIndex &gt; text.length) {
-      return undefined
-    }
-    if (text.slice(start, nextIndex) !== this.chars) {
-      return undefined
-    }
-    return nextIndex
-  }
-}
-export default (chars) =&gt; new RegexLit(chars)</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RegexLit <span class="kw">extends</span> RegexBase {</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (chars) {</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>()</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">chars</span> <span class="op">=</span> chars</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">_match</span> (text<span class="op">,</span> start) {</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> nextIndex <span class="op">=</span> start <span class="op">+</span> <span class="kw">this</span><span class="op">.</span><span class="at">chars</span><span class="op">.</span><span class="at">length</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (nextIndex <span class="op">&gt;</span> text<span class="op">.</span><span class="at">length</span>) {</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="kw">undefined</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (text<span class="op">.</span><span class="fu">slice</span>(start<span class="op">,</span> nextIndex) <span class="op">!==</span> <span class="kw">this</span><span class="op">.</span><span class="at">chars</span>) {</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="kw">undefined</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> nextIndex</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> (chars) <span class="kw">=&gt;</span> <span class="kw">new</span> <span class="fu">RegexLit</span>(chars)</span></code></pre></div>
 <p>Some tests now pass, others still fail as expected:</p>
 <pre><code>"a" X "a": pass
 "b" X "a": pass
@@ -422,153 +423,153 @@ Figure&nbsp;7.5: Using <code>rest</code> to match the remainder of a pattern.
 </figure>
 </div>
 <p>This design means we can get rid of <code>RegexSeq</code>, but it does make our tests a little harder to read:</p>
-<pre><code>import Alt from './regex-alt.js'
-import Any from './regex-any.js'
-import End from './regex-end.js'
-import Lit from './regex-lit.js'
-import Start from './regex-start.js'
-const main = () =&gt; {
-  const tests = [
-    ['a', 'a', true, Lit('a')],
-    ['b', 'a', false, Lit('b')],
-    ['a', 'ab', true, Lit('a')],
-    ['b', 'ab', true, Lit('b')],
-    ['ab', 'ab', true, Lit('a', Lit('b'))],
-    ['ba', 'ab', false, Lit('b', Lit('a'))],
-    ['ab', 'ba', false, Lit('ab')],
-    ['^a', 'ab', true, Start(Lit('a'))],
-    ['^b', 'ab', false, Start(Lit('b'))],
-    ['a$', 'ab', false, Lit('a', End())],
-    ['a$', 'ba', true, Lit('a', End())],
-    ['a*', '', true, Any(Lit('a'))],
-    ['a*', 'baac', true, Any(Lit('a'))],
-    ['ab*c', 'ac', true, Lit('a', Any(Lit('b'), Lit('c')))],
-    ['ab*c', 'abc', true, Lit('a', Any(Lit('b'), Lit('c')))],
-    ['ab*c', 'abbbc', true, Lit('a', Any(Lit('b'), Lit('c')))],
-    ['ab*c', 'abxc', false, Lit('a', Any(Lit('b'), Lit('c')))],
-    ['ab|cd', 'xaby', true, Alt(Lit('ab'), Lit('cd'))],
-    ['ab|cd', 'acdc', true, Alt(Lit('ab'), Lit('cd'))],
-    ['a(b|c)d', 'xabdy', true, Lit('a', Alt(Lit('b'), Lit('c'), Lit('d')))],
-    ['a(b|c)d', 'xabady', false, Lit('a', Alt(Lit('b'), Lit('c'), Lit('d')))]
-  ]
-  tests.forEach(([pattern, text, expected, matcher]) =&gt; {
-    const actual = matcher.match(text)
-    const result = (actual === expected) ? 'pass' : 'fail'
-    console.log(`"${pattern}" X "${text}": ${result}`)
-  })
-}
-main()</code></pre>
+<div class="sourceCode" id="cb18"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Alt <span class="im">from</span> <span class="st">'./regex-alt.js'</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Any <span class="im">from</span> <span class="st">'./regex-any.js'</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> End <span class="im">from</span> <span class="st">'./regex-end.js'</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Lit <span class="im">from</span> <span class="st">'./regex-lit.js'</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Start <span class="im">from</span> <span class="st">'./regex-start.js'</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> main <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> tests <span class="op">=</span> [</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'a'</span><span class="op">,</span> <span class="st">'a'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'a'</span>)]<span class="op">,</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'b'</span><span class="op">,</span> <span class="st">'a'</span><span class="op">,</span> <span class="kw">false</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'b'</span>)]<span class="op">,</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'a'</span><span class="op">,</span> <span class="st">'ab'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'a'</span>)]<span class="op">,</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'b'</span><span class="op">,</span> <span class="st">'ab'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'b'</span>)]<span class="op">,</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'ab'</span><span class="op">,</span> <span class="st">'ab'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'a'</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'b'</span>))]<span class="op">,</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'ba'</span><span class="op">,</span> <span class="st">'ab'</span><span class="op">,</span> <span class="kw">false</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'b'</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'a'</span>))]<span class="op">,</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'ab'</span><span class="op">,</span> <span class="st">'ba'</span><span class="op">,</span> <span class="kw">false</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'ab'</span>)]<span class="op">,</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'^a'</span><span class="op">,</span> <span class="st">'ab'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Start</span>(<span class="fu">Lit</span>(<span class="st">'a'</span>))]<span class="op">,</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'^b'</span><span class="op">,</span> <span class="st">'ab'</span><span class="op">,</span> <span class="kw">false</span><span class="op">,</span> <span class="fu">Start</span>(<span class="fu">Lit</span>(<span class="st">'b'</span>))]<span class="op">,</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'a$'</span><span class="op">,</span> <span class="st">'ab'</span><span class="op">,</span> <span class="kw">false</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'a'</span><span class="op">,</span> <span class="fu">End</span>())]<span class="op">,</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'a$'</span><span class="op">,</span> <span class="st">'ba'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'a'</span><span class="op">,</span> <span class="fu">End</span>())]<span class="op">,</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'a*'</span><span class="op">,</span> <span class="st">''</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Any</span>(<span class="fu">Lit</span>(<span class="st">'a'</span>))]<span class="op">,</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'a*'</span><span class="op">,</span> <span class="st">'baac'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Any</span>(<span class="fu">Lit</span>(<span class="st">'a'</span>))]<span class="op">,</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'ab*c'</span><span class="op">,</span> <span class="st">'ac'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'a'</span><span class="op">,</span> <span class="fu">Any</span>(<span class="fu">Lit</span>(<span class="st">'b'</span>)<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'c'</span>)))]<span class="op">,</span></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'ab*c'</span><span class="op">,</span> <span class="st">'abc'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'a'</span><span class="op">,</span> <span class="fu">Any</span>(<span class="fu">Lit</span>(<span class="st">'b'</span>)<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'c'</span>)))]<span class="op">,</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'ab*c'</span><span class="op">,</span> <span class="st">'abbbc'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'a'</span><span class="op">,</span> <span class="fu">Any</span>(<span class="fu">Lit</span>(<span class="st">'b'</span>)<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'c'</span>)))]<span class="op">,</span></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'ab*c'</span><span class="op">,</span> <span class="st">'abxc'</span><span class="op">,</span> <span class="kw">false</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'a'</span><span class="op">,</span> <span class="fu">Any</span>(<span class="fu">Lit</span>(<span class="st">'b'</span>)<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'c'</span>)))]<span class="op">,</span></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'ab|cd'</span><span class="op">,</span> <span class="st">'xaby'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Alt</span>(<span class="fu">Lit</span>(<span class="st">'ab'</span>)<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'cd'</span>))]<span class="op">,</span></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'ab|cd'</span><span class="op">,</span> <span class="st">'acdc'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Alt</span>(<span class="fu">Lit</span>(<span class="st">'ab'</span>)<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'cd'</span>))]<span class="op">,</span></span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'a(b|c)d'</span><span class="op">,</span> <span class="st">'xabdy'</span><span class="op">,</span> <span class="kw">true</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'a'</span><span class="op">,</span> <span class="fu">Alt</span>(<span class="fu">Lit</span>(<span class="st">'b'</span>)<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'c'</span>)<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'d'</span>)))]<span class="op">,</span></span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'a(b|c)d'</span><span class="op">,</span> <span class="st">'xabady'</span><span class="op">,</span> <span class="kw">false</span><span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'a'</span><span class="op">,</span> <span class="fu">Alt</span>(<span class="fu">Lit</span>(<span class="st">'b'</span>)<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'c'</span>)<span class="op">,</span> <span class="fu">Lit</span>(<span class="st">'d'</span>)))]</span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>  tests<span class="op">.</span><span class="fu">forEach</span>(([pattern<span class="op">,</span> text<span class="op">,</span> expected<span class="op">,</span> matcher]) <span class="kw">=&gt;</span> {</span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> actual <span class="op">=</span> matcher<span class="op">.</span><span class="fu">match</span>(text)</span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> result <span class="op">=</span> (actual <span class="op">===</span> expected) <span class="op">?</span> <span class="st">'pass'</span> <span class="op">:</span> <span class="st">'fail'</span></span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`"</span><span class="sc">${</span>pattern<span class="sc">}</span><span class="vs">" X "</span><span class="sc">${</span>text<span class="sc">}</span><span class="vs">": </span><span class="sc">${</span>result<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a><span class="fu">main</span>()</span></code></pre></div>
 <p>Here’s how this works for matching a literal expression:</p>
-<pre><code>import RegexBase from './regex-base.js'
-class RegexLit extends RegexBase {
-  constructor (chars, rest) {
-    super(rest)
-    this.chars = chars
-  }
-  _match (text, start) {
-    const nextIndex = start + this.chars.length
-    if (nextIndex &gt; text.length) {
-      return undefined
-    }
-    if (text.slice(start, nextIndex) !== this.chars) {
-      return undefined
-    }
-    if (this.rest === null) {
-      return nextIndex
-    }
-    return this.rest._match(text, nextIndex)
-  }
-}
-export default (chars, rest = null) =&gt; new RegexLit(chars, rest)</code></pre>
+<div class="sourceCode" id="cb19"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RegexLit <span class="kw">extends</span> RegexBase {</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (chars<span class="op">,</span> rest) {</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>(rest)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">chars</span> <span class="op">=</span> chars</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">_match</span> (text<span class="op">,</span> start) {</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> nextIndex <span class="op">=</span> start <span class="op">+</span> <span class="kw">this</span><span class="op">.</span><span class="at">chars</span><span class="op">.</span><span class="at">length</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (nextIndex <span class="op">&gt;</span> text<span class="op">.</span><span class="at">length</span>) {</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="kw">undefined</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (text<span class="op">.</span><span class="fu">slice</span>(start<span class="op">,</span> nextIndex) <span class="op">!==</span> <span class="kw">this</span><span class="op">.</span><span class="at">chars</span>) {</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="kw">undefined</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="at">rest</span> <span class="op">===</span> <span class="kw">null</span>) {</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> nextIndex</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="at">rest</span><span class="op">.</span><span class="fu">_match</span>(text<span class="op">,</span> nextIndex)</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> (chars<span class="op">,</span> rest <span class="op">=</span> <span class="kw">null</span>) <span class="kw">=&gt;</span> <span class="kw">new</span> <span class="fu">RegexLit</span>(chars<span class="op">,</span> rest)</span></code></pre></div>
 <p>The <code>_match</code> method checks whether all of the pattern matches the target text starting at the current location. If so, it checks whether the rest of the overall pattern matches what’s left. Matching the start <code>/^/</code> and end <code>/$/</code> anchors is just as straightforward:</p>
-<pre><code>import RegexBase from './regex-base.js'
-class RegexStart extends RegexBase {
-  _match (text, start) {
-    if (start !== 0) {
-      return undefined
-    }
-    if (this.rest === null) {
-      return 0
-    }
-    return this.rest._match(text, start)
-  }
-}
-export default (rest = null) =&gt; new RegexStart(rest)</code></pre>
-<pre><code>import RegexBase from './regex-base.js'
-class RegexEnd extends RegexBase {
-  _match (text, start) {
-    if (start !== text.length) {
-      return undefined
-    }
-    if (this.rest === null) {
-      return text.length
-    }
-    return this.rest._match(text, start)
-  }
-}
-export default (rest = null) =&gt; new RegexEnd(rest)</code></pre>
+<div class="sourceCode" id="cb20"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RegexStart <span class="kw">extends</span> RegexBase {</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">_match</span> (text<span class="op">,</span> start) {</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (start <span class="op">!==</span> <span class="dv">0</span>) {</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="kw">undefined</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="at">rest</span> <span class="op">===</span> <span class="kw">null</span>) {</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="dv">0</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="at">rest</span><span class="op">.</span><span class="fu">_match</span>(text<span class="op">,</span> start)</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> (rest <span class="op">=</span> <span class="kw">null</span>) <span class="kw">=&gt;</span> <span class="kw">new</span> <span class="fu">RegexStart</span>(rest)</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RegexEnd <span class="kw">extends</span> RegexBase {</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">_match</span> (text<span class="op">,</span> start) {</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (start <span class="op">!==</span> text<span class="op">.</span><span class="at">length</span>) {</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="kw">undefined</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="at">rest</span> <span class="op">===</span> <span class="kw">null</span>) {</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> text<span class="op">.</span><span class="at">length</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="at">rest</span><span class="op">.</span><span class="fu">_match</span>(text<span class="op">,</span> start)</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> (rest <span class="op">=</span> <span class="kw">null</span>) <span class="kw">=&gt;</span> <span class="kw">new</span> <span class="fu">RegexEnd</span>(rest)</span></code></pre></div>
 <p>Matching either/or is done by trying the first pattern and the rest, and if that fails, trying the second pattern and the rest:</p>
-<pre><code>import RegexBase from './regex-base.js'
-class RegexAlt extends RegexBase {
-  constructor (left, right, rest) {
-    super(rest)
-    this.left = left
-    this.right = right
-  }
-  _match (text, start) {
-    for (const pat of [this.left, this.right]) {
-      const afterPat = pat._match(text, start)
-      if (afterPat !== undefined) {
-        if (this.rest === null) {
-          return afterPat
-        }
-        const afterRest = this.rest._match(text, afterPat)
-        if (afterRest !== undefined) {
-          return afterRest
-        }
-      }
-    }
-    return undefined
-  }
-}
-const create = (left, right, rest = null) =&gt; {
-  return new RegexAlt(left, right, rest)
-}
-export default create</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RegexAlt <span class="kw">extends</span> RegexBase {</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (left<span class="op">,</span> right<span class="op">,</span> rest) {</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>(rest)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">left</span> <span class="op">=</span> left</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">right</span> <span class="op">=</span> right</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">_match</span> (text<span class="op">,</span> start) {</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">const</span> pat <span class="kw">of</span> [<span class="kw">this</span><span class="op">.</span><span class="at">left</span><span class="op">,</span> <span class="kw">this</span><span class="op">.</span><span class="at">right</span>]) {</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> afterPat <span class="op">=</span> pat<span class="op">.</span><span class="fu">_match</span>(text<span class="op">,</span> start)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (afterPat <span class="op">!==</span> <span class="kw">undefined</span>) {</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="at">rest</span> <span class="op">===</span> <span class="kw">null</span>) {</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>          <span class="cf">return</span> afterPat</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> afterRest <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="at">rest</span><span class="op">.</span><span class="fu">_match</span>(text<span class="op">,</span> afterPat)</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (afterRest <span class="op">!==</span> <span class="kw">undefined</span>) {</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>          <span class="cf">return</span> afterRest</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">undefined</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> create <span class="op">=</span> (left<span class="op">,</span> right<span class="op">,</span> rest <span class="op">=</span> <span class="kw">null</span>) <span class="kw">=&gt;</span> {</span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">new</span> <span class="fu">RegexAlt</span>(left<span class="op">,</span> right<span class="op">,</span> rest)</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> create</span></code></pre></div>
 <p>To match a repetition, we figure out the maximum number of matches that might be left, then count down until something succeeds. (We start with the maximum because matching is supposed to be greedy.) Each non-empty repetition matches at least one character, so the number of remaining characters is the maximum number of matches worth trying.</p>
-<pre><code>import RegexBase from './regex-base.js'
-class RegexAny extends RegexBase {
-  constructor (child, rest) {
-    super(rest)
-    this.child = child
-  }
-  _match (text, start) {
-    const maxPossible = text.length - start
-    for (let num = maxPossible; num &gt;= 0; num -= 1) {
-      const afterMany = this._matchMany(text, start, num)
-      if (afterMany !== undefined) {
-        return afterMany
-      }
-    }
-    return undefined
-  }
-  _matchMany (text, start, num) {
-    for (let i = 0; i &lt; num; i += 1) {
-      start = this.child._match(text, start)
-      if (start === undefined) {
-        return undefined
-      }
-    }
-    if (this.rest !== null) {
-      return this.rest._match(text, start)
-    }
-    return start
-  }
-}
-const create = (child, rest = null) =&gt; {
-  return new RegexAny(child, rest)
-}
-export default create</code></pre>
+<div class="sourceCode" id="cb23"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RegexAny <span class="kw">extends</span> RegexBase {</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (child<span class="op">,</span> rest) {</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>(rest)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">child</span> <span class="op">=</span> child</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">_match</span> (text<span class="op">,</span> start) {</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> maxPossible <span class="op">=</span> text<span class="op">.</span><span class="at">length</span> <span class="op">-</span> start</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">let</span> num <span class="op">=</span> maxPossible<span class="op">;</span> num <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">;</span> num <span class="op">-=</span> <span class="dv">1</span>) {</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> afterMany <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">_matchMany</span>(text<span class="op">,</span> start<span class="op">,</span> num)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (afterMany <span class="op">!==</span> <span class="kw">undefined</span>) {</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> afterMany</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">undefined</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">_matchMany</span> (text<span class="op">,</span> start<span class="op">,</span> num) {</span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> num<span class="op">;</span> i <span class="op">+=</span> <span class="dv">1</span>) {</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>      start <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="at">child</span><span class="op">.</span><span class="fu">_match</span>(text<span class="op">,</span> start)</span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (start <span class="op">===</span> <span class="kw">undefined</span>) {</span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">undefined</span></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="at">rest</span> <span class="op">!==</span> <span class="kw">null</span>) {</span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="at">rest</span><span class="op">.</span><span class="fu">_match</span>(text<span class="op">,</span> start)</span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> start</span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> create <span class="op">=</span> (child<span class="op">,</span> rest <span class="op">=</span> <span class="kw">null</span>) <span class="kw">=&gt;</span> {</span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">new</span> <span class="fu">RegexAny</span>(child<span class="op">,</span> rest)</span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> create</span></code></pre></div>
 <p>With these classes in place, our tests all pass:</p>
 <pre><code>"a" X "a": pass
 "b" X "a": pass
