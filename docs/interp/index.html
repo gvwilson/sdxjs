@@ -36,10 +36,10 @@
 <main class="content"><header id="title-block-header" class="quarto-title-block"></header>
 <h1 class="title">File Interpolator</h1>
 <p>Many of the examples in these lessons are too long to show comfortably in one block of code on a printed page, so we needed a way to break them up. As an experiment, we wrote a custom <a href="../glossary/index.html#loader">module loader</a> that reads a source file containing specially-formatted comments and then reads and inserts the files specified in those comments before running the code (<a href="#fig-file-interpolator-conceptual" class="quarto-xref">Figure&nbsp;<span>12.1</span></a>). Modern programming languages don’t work this way, but C and C++ do this with <a href="../glossary/index.html#header_file">header files</a>, and static site generators (<a href="../templater/index.html" class="quarto-xref"><span>Chapter 9</span></a>) do this to share fragments of HTML.</p>
-<div id="fig-file-interpolator-conceptual" class="quarto-float quarto-figure quarto-figure-center">
+<div id="fig-file-interpolator-conceptual" class="quarto-float quarto-figure quarto-figure-center" alt="How code fragments are combined into an executable program.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-file-interpolator-conceptual-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="conceptual.svg">
+<img src="conceptual.svg" alt="How code fragments are combined into an executable program.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-file-interpolator-conceptual-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;12.1: Including fragments of code to create runnable programs.
@@ -57,10 +57,10 @@ Figure&nbsp;12.1: Including fragments of code to create runnable programs.
 <p>Despite being a dead end, the inclusion tool is a good way to show how JavaScript turns source code into something it can execute. We need to be able to do this in the next couple of chapters, so we might as well tackle it now.</p>
 <h2 data-number="12.1" id="file-interpolator-dynamic"><span class="header-section-number">12.1</span> How can we evaluate JavaScript dynamically?</h2>
 <p>We want to display files as they are on the web and in print, but interpolate the files referenced in special comments when we load things with <code>import</code>. To do this, we need to understand the lifecycle of a JavaScript program. When we ask for a file, <a href="https://nodejs.org/en/">Node</a> reads the text, translates it into runnable instructions, and runs those instructions. We can do the second and third steps whenever we want using a function called <code>eval</code>, which takes a string as input and executes it as if it were part of the program (<a href="#fig-file-interpolator-eval" class="quarto-xref">Figure&nbsp;<span>12.2</span></a>).</p>
-<div id="fig-file-interpolator-eval" class="quarto-float quarto-figure quarto-figure-center">
+<div id="fig-file-interpolator-eval" class="quarto-float quarto-figure quarto-figure-center" alt="Comparison of eval against ordinary translation and execution.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-file-interpolator-eval-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="eval.svg">
+<img src="eval.svg" alt="Comparison of eval against ordinary translation and execution.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-file-interpolator-eval-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;12.2: <code>eval</code> vs.&nbsp;normal translation and execution.
@@ -176,10 +176,10 @@ after eval, Seen is { from_loaded_file: 'from loaded file' }</code></pre>
 <span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> (name) <span class="kw">=&gt;</span> {</span>
 <span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> cache<span class="op">.</span><span class="fu">need</span>(name)</span>
 <span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<div id="fig-file-interpolator-cache" class="quarto-float quarto-figure quarto-figure-center">
+<div id="fig-file-interpolator-cache" class="quarto-float quarto-figure quarto-figure-center" alt="A Singleton-based cache holding already-loaded files.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-file-interpolator-cache-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="cache.svg">
+<img src="cache.svg" alt="A Singleton-based cache holding already-loaded files.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-file-interpolator-cache-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;12.3: Using the Singleton pattern to implement a cache of loaded files.
@@ -202,10 +202,10 @@ Figure&nbsp;12.3: Using the Singleton pattern to implement a cache of loaded fil
 <h2 data-number="12.3" id="file-interpolator-find"><span class="header-section-number">12.3</span> How can we find files?</h2>
 <p>Each of the files included in our examples is in the same directory as the file including it, but in C/C++ or a page templating system we might include a particular file in several different places. We don’t want to have to put all of our files in a single directory, so we need a way to specify where to look for files that are being included.</p>
 <p>One option is to use <a href="../glossary/index.html#relative_path">relative paths</a>, but another option is to give our program a list of directories to look in. This is called a <a href="../glossary/index.html#search_path">search path</a>, and many programs use them, including Node itself. By convention, a search path is written as a colon-separated list of directories on Unix or using semi-colons on Windows. If the path to an included file starts with <code>./</code>, we look for it locally; if not, we go through the directories in the search path in order until we find a file with a matching name (<a href="#fig-file-interpolator-search-path" class="quarto-xref">Figure&nbsp;<span>12.4</span></a>).</p>
-<div id="fig-file-interpolator-search-path" class="quarto-float quarto-figure quarto-figure-center">
+<div id="fig-file-interpolator-search-path" class="quarto-float quarto-figure quarto-figure-center" alt="Searching a colon-separated list of directories for a file.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-file-interpolator-search-path-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="search-path.svg">
+<img src="search-path.svg" alt="Searching a colon-separated list of directories for a file.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-file-interpolator-search-path-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;12.4: Using a colon-separated list of directories as a search path.

@@ -12,11 +12,11 @@ function M.s(v)
 end
 
 function M.extract_region(content, mark)
-  return content:match("# mccole:" .. mark .. "\n(.-)\n# mccole:/" .. mark) or ""
+  return content:match("# mccole:%s+" .. mark .. "\n(.-)\n# mccole:%s+/" .. mark) or ""
 end
 
 function M.omit_region(content, mark)
-  return content:gsub("# mccole:" .. mark .. "\n.-# mccole:/" .. mark .. "\n", "")
+  return content:gsub("# mccole:%s+" .. mark .. "\n.-# mccole:%s+/" .. mark .. "\n", "")
 end
 
 function M.head_lines(content, n)

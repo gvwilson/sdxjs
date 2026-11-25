@@ -42,10 +42,10 @@
 <p>In this chapter we will build a tool for doing both tasks. It won’t do everything Git does: in particular, it won’t let us create and merge branches. If you would like to know how that works, please see <a href="https://maryrosecook.com/">Mary Rose Cook’s</a> excellent <a href="http://gitlet.maryrosecook.com/">Gitlet</a> project.</p>
 <h2 data-number="5.1" id="file-backup-unique"><span class="header-section-number">5.1</span> How can we uniquely identify files?</h2>
 <p>To avoid storing redundant copies of files, we need a way to tell when two files contain the same data. We can’t rely on names because files can be renamed or moved over time; we could compare the files byte-by-byte, but a quicker way is to use a <a href="../glossary/index.html#hash_function">hash function</a> that turns arbitrary data into a fixed-length string of <a href="../glossary/index.html#bit">bits</a> (<a href="#fig-file-backup-hash-function" class="quarto-xref">Figure&nbsp;<span>5.1</span></a>).</p>
-<div id="fig-file-backup-hash-function" class="quarto-float quarto-figure quarto-figure-center">
+<div id="fig-file-backup-hash-function" class="quarto-float quarto-figure quarto-figure-center" alt="Using a hash function to accelerate lookup.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-file-backup-hash-function-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="hash-function.svg">
+<img src="hash-function.svg" alt="Using a hash function to accelerate lookup.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-file-backup-hash-function-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;5.1: How hash functions speed up lookup.
@@ -138,10 +138,10 @@ Figure&nbsp;5.1: How hash functions speed up lookup.
 final dc9e6c231e243860dace2dbf52845b121062b60e</code></pre>
 <p>This kind of interface is called a <a href="../glossary/index.html#streaming_api">streaming</a> <a href="../glossary/index.html#api">API</a> because it is designed to process a stream of data one chunk at a time rather than requiring all of the data to be in memory at once. Many applications use streams so that programs don’t have to read entire (possibly large) files into memory.</p>
 <p>To start, this program asks the <code>fs</code> library to create a reading stream for a file and to <a href="../glossary/index.html#pipe">pipe</a> the data from that stream to the hashing object (<a href="#fig-file-backup-streaming" class="quarto-xref">Figure&nbsp;<span>5.2</span></a>). It then tells the hashing object what to do when there is no more data by providing a <a href="../glossary/index.html#handler">handler</a> for the “finish” event. This is called asynchronously: as the output shows, the main program ends before the task handling the end of data is scheduled and run. Most programs also provide a handler for “data” events to do something with each block of data as it comes in; the <code>hash</code> object in our program does that for us.</p>
-<div id="fig-file-backup-streaming" class="quarto-float quarto-figure quarto-figure-center">
+<div id="fig-file-backup-streaming" class="quarto-float quarto-figure quarto-figure-center" alt="Reading files as a stream of chunks.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-file-backup-streaming-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="streaming.svg">
+<img src="streaming.svg" alt="Reading files as a stream of chunks.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-file-backup-streaming-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;5.2: Processing files as streams of chunks.
@@ -150,10 +150,10 @@ Figure&nbsp;5.2: Processing files as streams of chunks.
 </div>
 <h2 data-number="5.2" id="file-backup-backup"><span class="header-section-number">5.2</span> How can we back up files?</h2>
 <p>Many files only change occasionally after they’re created, or not at all. It would be wasteful for a version control system to make copies each time the user wanted to save a snapshot of a project, so instead our tool will copy each unique file to something like <code>abcd1234.bck</code>, where <code>abcd1234</code> is a hash of the file’s contents. It will then store a data structure that records the filenames and hash keys for each snapshot. The hash keys tell it which unique files are part of the snapshot, while the filenames tell us what each file’s contents were called when the snapshot was made (since files can be moved or renamed). To restore a particular snapshot, all we have to do is copy the saved <code>.bck</code> files back to where they were (<a href="#fig-file-backup-storage" class="quarto-xref">Figure&nbsp;<span>5.3</span></a>).</p>
-<div id="fig-file-backup-storage" class="quarto-float quarto-figure quarto-figure-center">
+<div id="fig-file-backup-storage" class="quarto-float quarto-figure quarto-figure-center" alt="Layout of the backup store.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-file-backup-storage-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="storage.svg">
+<img src="storage.svg" alt="Layout of the backup store.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-file-backup-storage-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;5.3: Organization of backup file storage.
@@ -318,10 +318,10 @@ Figure&nbsp;5.3: Organization of backup file storage.
 <h2 data-number="5.4" id="file-backup-test"><span class="header-section-number">5.4</span> How can we test code that modifies files?</h2>
 <p>The final thing our tool needs to do is copy the files that need copying and create a new index file. The code itself will be relatively simple, but testing will be complicated by the fact that our tests will need to create directories and files before they run and then delete them afterward (so that they don’t contaminate subsequent tests).</p>
 <p>A better approach is to use a <a href="../glossary/index.html#mock_object">mock object</a> instead of the real filesystem. A mock object has the same interface as the function, object, class, or library that it replaces, but is designed to be used solely for testing. Node’s <a href="https://www.npmjs.com/package/mock-fs"><code>mock-fs</code></a> library provides the same functions as the <code>fs</code> library, but stores everything in memory (<a href="#fig-file-backup-mock-fs" class="quarto-xref">Figure&nbsp;<span>5.4</span></a>). This prevents our tests from accidentally disturbing the filesystem, and also makes tests much faster (since in-memory operations are thousands of times faster than operations that touch the disk).</p>
-<div id="fig-file-backup-mock-fs" class="quarto-float quarto-figure quarto-figure-center">
+<div id="fig-file-backup-mock-fs" class="quarto-float quarto-figure quarto-figure-center" alt="Substituting a fake filesystem to ease testing.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-file-backup-mock-fs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="mock-fs.svg">
+<img src="mock-fs.svg" alt="Substituting a fake filesystem to ease testing.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-file-backup-mock-fs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;5.4: Using a mock filesystem to simplify testing.

@@ -45,7 +45,6 @@
 [huffine_trey]: https://medium.com/@treyhuffine
 [human_resource_machine]: https://tomorrowcorporation.com/humanresourcemachine
 [istanbul]: https://istanbul.js.org/
-[ivy]: https://www.dmulholl.com/docs/ivy/dev/
 [jake]: https://jakejs.com/
 [java]: https://en.wikipedia.org/wiki/Java_(programming_language)
 [jekyll]: https://jekyllrb.com/
@@ -96,8 +95,6 @@
 [t3_personas]: https://teachtogether.tech/en/index.html#s:process-personas
 [third_bit_nice_things]: https://third-bit.com/2015/06/11/why-we-cant-have-nice-things/
 [tidyverse]: https://www.tidyverse.org/
-[udhr]: https://www.un.org/en/universal-declaration-human-rights/
-[ungc]: https://www.unglobalcompact.org/what-is-gc/mission/principles
 [webaim_wave]: https://wave.webaim.org/
 [wikipedia_birthday_problem]: https://en.wikipedia.org/wiki/Birthday_problem#A_simple_exponentiation
 [wilson_greg]: https://third-bit.com/

@@ -36,10 +36,10 @@
 <h1 class="title">Data Tables</h1>
 <p><a href="../sysprog/index.html" class="quarto-xref"><span>Chapter 2</span></a> said that operations in memory are thousands of times faster than operations that touch the filesystem, but what about different in-memory operations—how do they compare with each other? Putting it another way, how can we tell which of several designs is going to be the most efficient?</p>
 <p>The best answer is to conduct some experiments. To see how to do this, we will take a look at several ways to implement <a href="../glossary/index.html#table">data tables</a> with one or more named columns and zero or more rows. Each row has one value for each column, and all the values in a column have the same type (<a href="#fig-data-table-conceptual" class="quarto-xref">Figure&nbsp;<span>6.1</span></a>). Data tables appear over and over again in programming, from spreadsheets and databases to the <a href="../glossary/index.html#data_frame">data frames</a> in R’s <a href="https://www.tidyverse.org/">tidyverse</a> packages, <a href="https://www.python.org/">Python’s</a> <a href="https://pandas.pydata.org/">Pandas</a> library, or the <a href="http://www.data-forge-js.com/">DataForge</a> library for JavaScript <span class="citation" data-cites="Davis2018">(<a href="../bibliography/index.html#ref-Davis2018" role="doc-biblioref">Davis 2018</a>)</span>.</p>
-<div id="fig-data-table-conceptual" class="quarto-float quarto-figure quarto-figure-center">
+<div id="fig-data-table-conceptual" class="quarto-float quarto-figure quarto-figure-center" alt="Rows, columns, and cells that make up a data table.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-data-table-conceptual-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="conceptual.svg">
+<img src="conceptual.svg" alt="Rows, columns, and cells that make up a data table.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-data-table-conceptual-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;6.1: The structure of a data table.
@@ -50,10 +50,10 @@ Figure&nbsp;6.1: The structure of a data table.
 <h2 data-number="6.1" id="data-table-implement"><span class="header-section-number">6.1</span> How can we implement data tables?</h2>
 <p>One way to store a table is <a href="../glossary/index.html#row_major">row-major</a> order, in which the values in each row are stored together in memory. This is sometimes also called <a href="../glossary/index.html#heterogeneous">heterogeneous</a> storage because each “unit” of storage can contain values of different types. We can implement this design in JavaScript using an array of objects, each of which has the same keys (<a href="#fig-data-table-storage-order" class="quarto-xref">Figure&nbsp;<span>6.2</span></a>).</p>
 <p>Another option is <a href="../glossary/index.html#column_major">column-major</a> or <a href="../glossary/index.html#homogeneous">homogeneous</a> order, in which all the values in a column are stored together. In JavaScript, this could be implemented using an object whose members are all arrays of the same length.</p>
-<div id="fig-data-table-storage-order" class="quarto-float quarto-figure quarto-figure-center">
+<div id="fig-data-table-storage-order" class="quarto-float quarto-figure quarto-figure-center" alt="Contrast between storing a table row-by-row and column-by-column.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-data-table-storage-order-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="storage-order.svg">
+<img src="storage-order.svg" alt="Contrast between storing a table row-by-row and column-by-column.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-data-table-storage-order-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;6.2: Row-major storage vs.&nbsp;column-major storage for data tables.
@@ -71,10 +71,10 @@ Figure&nbsp;6.2: Row-major storage vs.&nbsp;column-major storage for data tables
 <div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Next, we write <code>filter</code> and <code>select</code> for tables laid out this way. We need to provide a callback function to <code>filter</code> to determine which rows to keep like the callback for <code>Array.filter</code>; for selecting columns, we provide a list of the <a href="../glossary/index.html#key">keys</a> that identify the columns we want to keep. We expect filtering to be relatively fast, since it is recycling rows, while selecting should be relatively slow because we have to construct a new set of arrays (<a href="#fig-data-table-row-ops" class="quarto-xref">Figure&nbsp;<span>6.3</span></a>).</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
-<div id="fig-data-table-row-ops" class="quarto-float quarto-figure quarto-figure-center">
+<div id="fig-data-table-row-ops" class="quarto-float quarto-figure quarto-figure-center" alt="Accessing elements in a row-major table.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-data-table-row-ops-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="row-ops.svg">
+<img src="row-ops.svg" alt="Accessing elements in a row-major table.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-data-table-row-ops-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;6.3: Operations on row-major data tables.
@@ -85,10 +85,10 @@ Figure&nbsp;6.3: Operations on row-major data tables.
 <div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Filtering is more complex because the values in each row are scattered across several arrays, but selecting is just a matter of recycling the arrays we want in the new table. We expect selecting to be relatively fast, since only the references to the columns need to be copied, but filtering will be relatively slow since we are constructing multiple new arrays (<a href="#fig-data-table-col-ops" class="quarto-xref">Figure&nbsp;<span>6.4</span></a>). Note that this code assumes there is a column called <code>label_1</code> that it can look at to find out how many rows there are in the table. This would be a horrible thing to put into production, but is good enough for some simple performance testing.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
-<div id="fig-data-table-col-ops" class="quarto-float quarto-figure quarto-figure-center">
+<div id="fig-data-table-col-ops" class="quarto-float quarto-figure quarto-figure-center" alt="Accessing elements in a column-major table.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-data-table-col-ops-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="col-ops.svg">
+<img src="col-ops.svg" alt="Accessing elements in a column-major table.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-data-table-col-ops-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;6.4: Operations on column-major data tables.
@@ -230,10 +230,10 @@ packedRowStringSize: 2974084</code></pre>
 <p>These results show that changing layout for storage is faster than turning the data structure we have into a string. Again, we assume this is because copying data takes less time than turning labels into strings over and over, but column-major storage is still the best approach.</p>
 <h2 data-number="6.4" id="data-table-binary"><span class="header-section-number">6.4</span> Does binary storage improve performance?</h2>
 <p>Let’s try one more strategy for storing our tables. JavaScript stores values in <a href="../glossary/index.html#tagged_data">tagged</a> data structures: some bits define the value’s type while other bits store the value itself in a type-dependent way (<a href="#fig-data-table-object-storage" class="quarto-xref">Figure&nbsp;<span>6.5</span></a>).</p>
-<div id="fig-data-table-object-storage" class="quarto-float quarto-figure quarto-figure-center">
+<div id="fig-data-table-object-storage" class="quarto-float quarto-figure quarto-figure-center" alt="Tagged structure JavaScript uses to represent objects.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-data-table-object-storage-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="object-storage.svg">
+<img src="object-storage.svg" alt="Tagged structure JavaScript uses to represent objects.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-data-table-object-storage-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;6.5: How JavaScript uses tagged data structures to store objects.
@@ -241,10 +241,10 @@ Figure&nbsp;6.5: How JavaScript uses tagged data structures to store objects.
 </figure>
 </div>
 <p>We can save space by keeping track of the types ourselves and just storing the bits that represent the values. JavaScript has an <code>ArrayBuffer</code> class for exactly this purpose. It stores any value we want as a set of bits; we then access those bits through a view that presents the data as a particular type, such as Boolean (one byte per value) or number (64 bits per number). As <a href="#fig-data-table-packed-storage" class="quarto-xref">Figure&nbsp;<span>6.6</span></a> shows, we can mix different types of data in a single <code>ArrayBuffer</code>, but it’s up to us to keep track of which bytes belong to which values.</p>
-<div id="fig-data-table-packed-storage" class="quarto-float quarto-figure quarto-figure-center">
+<div id="fig-data-table-packed-storage" class="quarto-float quarto-figure quarto-figure-center" alt="Encoding values as bits plus lookup metadata.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-data-table-packed-storage-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="packed-storage.svg">
+<img src="packed-storage.svg" alt="Encoding values as bits plus lookup metadata.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-data-table-packed-storage-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;6.6: Storing object values as bits with lookup information.

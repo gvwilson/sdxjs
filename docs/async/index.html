@@ -40,10 +40,10 @@
 <p>Callbacks work, but they are hard to read and debug, which means they only “work” in a limited sense. JavaScript’s developers added <a href="../glossary/index.html#promise">promises</a> to the language in 2015 to make callbacks easier to write and understand, and more recently they added the keywords <code>async</code> and <code>await</code> as well to make asynchronous programming easier still. To show how these work, we will create a <a href="../glossary/index.html#class">class</a> of our own called <code>Pledge</code> that provides the same core features as promises. Our explanation was inspired by <a href="https://medium.com/@treyhuffine">Trey Huffine’s</a> <a href="https://levelup.gitconnected.com/understand-javascript-promises-by-building-a-promise-from-scratch-84c0fd855720">tutorial</a>, and we encourage you to read that as well.</p>
 <h2 data-number="3.1" id="async-programming-manage"><span class="header-section-number">3.1</span> How can we manage asynchronous execution?</h2>
 <p>JavaScript is built around an <a href="../glossary/index.html#event_loop">event loop</a>. Every task is represented by an entry in a queue; the event loop repeatedly takes a task from the front of the queue, runs it, and adds any new tasks that it creates to the back of the queue to run later. Only one task runs at a time; each has its own <a href="../glossary/index.html#call_stack">call stack</a>, but objects can be shared between tasks (<a href="#fig-async-programming-event-loop" class="quarto-xref">Figure&nbsp;<span>3.1</span></a>).</p>
-<div id="fig-async-programming-event-loop" class="quarto-float quarto-figure quarto-figure-center">
+<div id="fig-async-programming-event-loop" class="quarto-float quarto-figure quarto-figure-center" alt="Diagram of an event loop scheduling concurrent tasks.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-async-programming-event-loop-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="event-loop.svg">
+<img src="event-loop.svg" alt="Diagram of an event loop scheduling concurrent tasks.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-async-programming-event-loop-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;3.1: Using an event loop to manage concurrent tasks.
@@ -71,10 +71,10 @@ Figure&nbsp;3.1: Using an event loop to manage concurrent tasks.
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`about to setTimeout for </span><span class="sc">${</span>t<span class="sc">}</span><span class="vs">`</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="pp">setTimeout</span>(() <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`inside timer handler for </span><span class="sc">${</span>t<span class="sc">}</span><span class="vs">`</span>)<span class="op">,</span> t)</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
-<div id="fig-async-programming-set-timeout" class="quarto-float quarto-figure quarto-figure-center">
+<div id="fig-async-programming-set-timeout" class="quarto-float quarto-figure quarto-figure-center" alt="How setTimeout postpones an operation.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-async-programming-set-timeout-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="set-timeout.svg">
+<img src="set-timeout.svg" alt="How setTimeout postpones an operation.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-async-programming-set-timeout-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;3.2: Using <code>setTimeout</code> to delay operations.
@@ -133,10 +133,10 @@ about to call resolve callback
 in 'then' with "this is the result"</code></pre>
 <p>This short program creates a new <code>Pledge</code> with a callback that takes two other callbacks as arguments: <code>resolve</code> (which will run when everything worked) and <code>reject</code> (which will run when something went wrong). The top-level callback does the first part of what we want to do, i.e., whatever we want to run before we expect a delay; for demonstration purposes, we will use <code>setTimeout</code> with zero delay to switch tasks. Once this task resumes, we call the <code>resolve</code> callback to trigger whatever is supposed to happen after the delay.</p>
 <p>Now look at the line with <code>then</code>. This is a <a href="../glossary/index.html#method">method</a> of the <code>Pledge</code> <a href="../glossary/index.html#object">object</a> we just created, and its job is to do whatever we want to do after the delay. The argument to <code>then</code> is yet another callback function; it will get the value passed to <code>resolve</code>, which is how the first part of the action communicates with the second (<a href="#fig-async-programming-resolve" class="quarto-xref">Figure&nbsp;<span>3.3</span></a>).</p>
-<div id="fig-async-programming-resolve" class="quarto-float quarto-figure quarto-figure-center">
+<div id="fig-async-programming-resolve" class="quarto-float quarto-figure quarto-figure-center" alt="Sequence of steps that run when a promise resolves.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-async-programming-resolve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="resolve.svg">
+<img src="resolve.svg" alt="Sequence of steps that run when a promise resolves.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-async-programming-resolve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;3.3: Order of operations when a promise resolves.
@@ -304,10 +304,10 @@ after
 first then: resolving: outer delay
 constructing promise: inner delay
 second then: resolving: inner delay</code></pre>
-<div id="fig-async-programming-chained" class="quarto-float quarto-figure quarto-figure-center">
+<div id="fig-async-programming-chained" class="quarto-float quarto-figure quarto-figure-center" alt="A chain of promises where each step depends on the previous one.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-async-programming-chained-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="chained.svg">
+<img src="chained.svg" alt="A chain of promises where each step depends on the previous one.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-async-programming-chained-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;3.4: Chaining promises to make asynchronous operations depend on each other.
@@ -394,10 +394,10 @@ Figure&nbsp;3.4: Chaining promises to make asynchronous operations depend on eac
 <span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> srcDir <span class="op">=</span> <span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">2</span>]</span>
 <span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a><span class="fu">main</span>(srcDir)</span></code></pre></div>
-<div id="fig-async-programming-temporary-named-fields" class="quarto-float quarto-figure quarto-figure-center">
+<div id="fig-async-programming-temporary-named-fields" class="quarto-float quarto-figure quarto-figure-center" alt="Using objects with named fields to pass values between steps.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-async-programming-temporary-named-fields-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="temporary-named-fields.svg">
+<img src="temporary-named-fields.svg" alt="Using objects with named fields to pass values between steps.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-async-programming-temporary-named-fields-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;3.5: Creating temporary objects with named fields to carry values forward.
@@ -491,10 +491,10 @@ When Node sees <code>await</code> and <code>async</code> it silently converts th
 <span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a><span class="fu">returnImmediately</span>()</span></code></pre></div>
 <pre><code>/u/stjs/async-programming/return-immediately.js:3</code></pre>
-<div id="fig-async-programming-handling-errors" class="quarto-float quarto-figure quarto-figure-center">
+<div id="fig-async-programming-handling-errors" class="quarto-float quarto-figure quarto-figure-center" alt="Correct and incorrect approaches to async error handling.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-async-programming-handling-errors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="handling-errors.svg">
+<img src="handling-errors.svg" alt="Correct and incorrect approaches to async error handling.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-async-programming-handling-errors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;3.6: Wrong and right ways to handle errors in asynchronous code.
