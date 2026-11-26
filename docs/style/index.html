@@ -181,9 +181,24 @@ Figure&nbsp;14.2: Walking a tree to perform an operation at each node.
 <h2 data-number="14.3" id="style-checker-apply"><span class="header-section-number">14.3</span> How can we apply checks?</h2>
 <p>We don’t just want to collect nodes: we want to check their properties against a set of rules. One way to do this would be to call <code>walk.simple</code> once for each rule, passing it a function that checks just that rule. Another way—the one we’ll use—is to write a <a href="../glossary/index.html#generic_function">generic function</a> that checks a rule and records any nodes that don’t satisfy it, and then call that function once for each rule inside our <code>Identifier</code> handler. This may seem like extra work, but it ensures that all of our rule-checkers store their results in the same way, which in turn means that we can write one reporting function and be sure it will handle everything.</p>
 <p>The function <code>applyCheck</code> takes the current state (where we are accumulating rule violations), a label that identifies this rule (so that violations of it can be stored together), the node, and a logical value telling it whether the node passed the test or not. If the node failed the test we make sure that <code>state</code> contains a list with the appropriate label and then append this node to it. This “create storage space on demand” pattern is widely used but doesn’t have a well-known name.</p>
-<div class="sourceCode" id="cb7" data-file="style/check-name-lengths.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb7" data-file="style/check-name-lengths.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> applyCheck <span class="op">=</span> (state<span class="op">,</span> label<span class="op">,</span> node<span class="op">,</span> passes) <span class="kw">=&gt;</span> {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>passes) {</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="op">!</span>(label <span class="kw">in</span> state)) {</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>      state[label] <span class="op">=</span> []</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    state[label]<span class="op">.</span><span class="fu">push</span>(node)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>We can now put a call to <code>applyCheck</code> inside the handler for <code>Identifier</code>:</p>
-<div class="sourceCode" id="cb8" data-file="style/check-name-lengths.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb8" data-file="style/check-name-lengths.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> ast <span class="op">=</span> acorn<span class="op">.</span><span class="fu">parse</span>(program<span class="op">,</span> { <span class="dt">locations</span><span class="op">:</span> <span class="kw">true</span> })</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> state <span class="op">=</span> {}</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>walk<span class="op">.</span><span class="fu">simple</span>(ast<span class="op">,</span> {</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Identifier</span><span class="op">:</span> (node<span class="op">,</span> state) <span class="kw">=&gt;</span> {</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">applyCheck</span>(state<span class="op">,</span> <span class="st">'name_length'</span><span class="op">,</span> node<span class="op">,</span> node<span class="op">.</span><span class="at">name</span><span class="op">.</span><span class="at">length</span> <span class="op">&gt;=</span> <span class="dv">4</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>}<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> state)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>state<span class="op">.</span><span class="at">name_length</span><span class="op">.</span><span class="fu">forEach</span>(</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  node <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`</span><span class="sc">${</span>node<span class="op">.</span><span class="at">name</span><span class="sc">}</span><span class="vs"> at line </span><span class="sc">${</span>node<span class="op">.</span><span class="at">loc</span><span class="op">.</span><span class="at">start</span><span class="op">.</span><span class="at">line</span><span class="sc">}</span><span class="vs">`</span>))</span></code></pre></div>
 <p>We can’t just use <code>applyCheck</code> as the handler for <code>Identifier</code> because <code>walk.simple</code> wouldn’t know how to call it. This is a (very simple) example of the <a href="../glossary/index.html#adapter_pattern">Adapter</a> design pattern: we write a function or class to connect the code we want to call to the already-written code that is going to call it.</p>
 <p>The output for the same sample program as before is:</p>
 <pre data-file="style/check-name-lengths.out"><code>x at line 6
@@ -193,78 +208,75 @@ y at line 7</code></pre>
 <p>The AST walker uses the Visitor pattern, but how does it actually work? We can build our own by defining a class with methods that walk the tree, take action depending on the kind of node, and then go through the children of that node (if any). The user can then derive a class of their own from this and override the set of action methods they’re interested in.</p>
 <p>One key difference between our implementation and <code>acorn-walk</code>’s is that our methods don’t need to take <code>state</code> as a parameter because it’s contained in the object that they’re part of. That simplifies the methods—one less parameter—but it does mean that anyone who wants to use our visitor has to derive a class, which is a bit more complicated than writing a function. This tradeoff is a sign that managing state is part of the problem’s <a href="../glossary/index.html#intrinsic_complexity">intrinsic complexity</a>: we can move it around, but we can’t get rid of it.</p>
 <p>The other difference between our visitor and <code>acorn-walk</code> is that our class uses <a href="../glossary/index.html#dynamic_lookup">dynamic lookup</a> (a form of introspection) to look up a method with the same name as the node type in the object. While we normally refer to a particular method of an object using <code>object.method</code>, we can also look them up by asking for <code>object[name]</code> in the same way that we would look up any other property of any other object. Our completed class looks like this:</p>
-<div class="sourceCode" id="cb10" data-file="style/walker-class.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb10" data-file="style/walker-class.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Walker {</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Construct a new AST tree walker.</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (ast) {</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">ast</span> <span class="op">=</span> ast</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Walk the tree.</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">walk</span> (accumulator) {</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">stack</span> <span class="op">=</span> []</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">_walk</span>(<span class="kw">this</span><span class="op">.</span><span class="at">ast</span><span class="op">,</span> accumulator)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> accumulator</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Act on node and then on children.</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">_walk</span> (node<span class="op">,</span> accumulator) {</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (node <span class="op">&amp;&amp;</span> (<span class="kw">typeof</span> node <span class="op">===</span> <span class="st">'object'</span>) <span class="op">&amp;&amp;</span> (<span class="st">'type'</span> <span class="kw">in</span> node)) {</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">_doNode</span>(node<span class="op">,</span> accumulator)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">_doChildren</span>(node<span class="op">,</span> accumulator)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Handle a single node by lookup.</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">_doNode</span> (node<span class="op">,</span> accumulator) {</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (node<span class="op">.</span><span class="at">type</span> <span class="kw">in</span> <span class="kw">this</span>) {</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span>[node<span class="op">.</span><span class="at">type</span>](node<span class="op">,</span> accumulator)</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Recurse for anything interesting within the node.</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">_doChildren</span> (node<span class="op">,</span> accumulator) {</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">stack</span><span class="op">.</span><span class="fu">push</span>(node)</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">const</span> key <span class="kw">in</span> node) {</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="bu">Array</span><span class="op">.</span><span class="fu">isArray</span>(node[key])) {</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>        node[key]<span class="op">.</span><span class="fu">forEach</span>(child <span class="kw">=&gt;</span> {</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>          <span class="kw">this</span><span class="op">.</span><span class="fu">_walk</span>(child<span class="op">,</span> accumulator)</span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> <span class="cf">if</span> (<span class="kw">typeof</span> node[key] <span class="op">===</span> <span class="st">'object'</span>) {</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">_walk</span>(node[key]<span class="op">,</span> accumulator)</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">stack</span><span class="op">.</span><span class="fu">pop</span>(node)</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Is the current node a child of some other type of node?</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">_childOf</span> (nodeTypes) {</span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="at">stack</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>      nodeTypes<span class="op">.</span><span class="fu">includes</span>(<span class="kw">this</span><span class="op">.</span><span class="at">stack</span><span class="op">.</span><span class="fu">slice</span>(<span class="op">-</span><span class="dv">1</span>)[<span class="dv">0</span>]<span class="op">.</span><span class="at">type</span>)</span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>The code we need to use it is:</p>
 <div class="sourceCode" id="cb11" data-file="style/walker-class.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> acorn <span class="im">from</span> <span class="st">'acorn'</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:walker</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Walker {</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Construct a new AST tree walker.</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (ast) {</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">ast</span> <span class="op">=</span> ast</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Walk the tree.</span></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">walk</span> (accumulator) {</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">stack</span> <span class="op">=</span> []</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">_walk</span>(<span class="kw">this</span><span class="op">.</span><span class="at">ast</span><span class="op">,</span> accumulator)</span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> accumulator</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Act on node and then on children.</span></span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">_walk</span> (node<span class="op">,</span> accumulator) {</span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (node <span class="op">&amp;&amp;</span> (<span class="kw">typeof</span> node <span class="op">===</span> <span class="st">'object'</span>) <span class="op">&amp;&amp;</span> (<span class="st">'type'</span> <span class="kw">in</span> node)) {</span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">_doNode</span>(node<span class="op">,</span> accumulator)</span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="fu">_doChildren</span>(node<span class="op">,</span> accumulator)</span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Handle a single node by lookup.</span></span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">_doNode</span> (node<span class="op">,</span> accumulator) {</span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (node<span class="op">.</span><span class="at">type</span> <span class="kw">in</span> <span class="kw">this</span>) {</span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span>[node<span class="op">.</span><span class="at">type</span>](node<span class="op">,</span> accumulator)</span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Recurse for anything interesting within the node.</span></span>
-<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">_doChildren</span> (node<span class="op">,</span> accumulator) {</span>
-<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">stack</span><span class="op">.</span><span class="fu">push</span>(node)</span>
-<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">const</span> key <span class="kw">in</span> node) {</span>
-<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="bu">Array</span><span class="op">.</span><span class="fu">isArray</span>(node[key])) {</span>
-<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>        node[key]<span class="op">.</span><span class="fu">forEach</span>(child <span class="kw">=&gt;</span> {</span>
-<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>          <span class="kw">this</span><span class="op">.</span><span class="fu">_walk</span>(child<span class="op">,</span> accumulator)</span>
-<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>        })</span>
-<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> <span class="cf">if</span> (<span class="kw">typeof</span> node[key] <span class="op">===</span> <span class="st">'object'</span>) {</span>
-<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">_walk</span>(node[key]<span class="op">,</span> accumulator)</span>
-<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">stack</span><span class="op">.</span><span class="fu">pop</span>(node)</span>
-<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Is the current node a child of some other type of node?</span></span>
-<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">_childOf</span> (nodeTypes) {</span>
-<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="at">stack</span> <span class="op">&amp;&amp;</span></span>
-<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>      nodeTypes<span class="op">.</span><span class="fu">includes</span>(<span class="kw">this</span><span class="op">.</span><span class="at">stack</span><span class="op">.</span><span class="fu">slice</span>(<span class="op">-</span><span class="dv">1</span>)[<span class="dv">0</span>]<span class="op">.</span><span class="at">type</span>)</span>
-<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:/walker</span></span>
-<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a><span class="co">// Walk to accumulate variable and parameter definitions.</span></span>
-<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VariableWalker <span class="kw">extends</span> Walker {</span>
-<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">Identifier</span> (node<span class="op">,</span> accumulator) {</span>
-<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="fu">_childOf</span>([<span class="st">'ArrowFunctionExpression'</span><span class="op">,</span></span>
-<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>      <span class="st">'VariableDeclarator'</span>])) {</span>
-<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>      accumulator<span class="op">.</span><span class="fu">push</span>(node<span class="op">.</span><span class="at">name</span>)</span>
-<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a><span class="co">// Test.</span></span>
-<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> program <span class="op">=</span> <span class="vs">`const value = 2</span></span>
-<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a><span class="vs">const double = (x) =&gt; {</span></span>
-<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a><span class="vs">  const y = 2 * x</span></span>
-<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a><span class="vs">  return y</span></span>
-<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a><span class="vs">}</span></span>
-<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a><span class="vs">const result = double(value)</span></span>
-<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a><span class="vs">console.log(result)</span></span>
-<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a><span class="vs">`</span></span>
-<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> ast <span class="op">=</span> acorn<span class="op">.</span><span class="fu">parse</span>(program<span class="op">,</span> { <span class="dt">locations</span><span class="op">:</span> <span class="kw">true</span> })</span>
-<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> walker <span class="op">=</span> <span class="kw">new</span> <span class="fu">VariableWalker</span>(ast)</span>
-<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> accumulator <span class="op">=</span> []</span>
-<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a>walker<span class="op">.</span><span class="fu">walk</span>(accumulator)</span>
-<span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'definitions are'</span><span class="op">,</span> accumulator)</span></code></pre></div>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Walk to accumulate variable and parameter definitions.</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VariableWalker <span class="kw">extends</span> Walker {</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">Identifier</span> (node<span class="op">,</span> accumulator) {</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="fu">_childOf</span>([<span class="st">'ArrowFunctionExpression'</span><span class="op">,</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">'VariableDeclarator'</span>])) {</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>      accumulator<span class="op">.</span><span class="fu">push</span>(node<span class="op">.</span><span class="at">name</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co">// Test.</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> program <span class="op">=</span> <span class="vs">`const value = 2</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="vs">const double = (x) =&gt; {</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="vs">  const y = 2 * x</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="vs">  return y</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="vs">}</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="vs">const result = double(value)</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="vs">console.log(result)</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="vs">`</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> ast <span class="op">=</span> acorn<span class="op">.</span><span class="fu">parse</span>(program<span class="op">,</span> { <span class="dt">locations</span><span class="op">:</span> <span class="kw">true</span> })</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> walker <span class="op">=</span> <span class="kw">new</span> <span class="fu">VariableWalker</span>(ast)</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> accumulator <span class="op">=</span> []</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>walker<span class="op">.</span><span class="fu">walk</span>(accumulator)</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'definitions are'</span><span class="op">,</span> accumulator)</span></code></pre></div>
 <p>and its output is:</p>
 <pre data-file="style/walker-class.out"><code>definitions are [ 'value', 'double', 'x', 'y', 'result' ]</code></pre>
 <p>We think this approach to implementing the Visitor pattern is easier to understand and extend than one that relies on callbacks, but that could just be a reflection of our background and experience. As with code style, the most important thing is consistency: if we implement Visitor using classes in one place, we should implement it that way everywhere.</p>
@@ -316,7 +328,9 @@ a
 e</code></pre>
 <p>A generator function doesn’t actually generate anything; instead, it creates an object that we can then ask for values repeatedly. This gives us a way to have several generators in play at the same time.</p>
 <p>Instead of a <code>while</code> loop it is much more common to use <code>for...of</code>, which knows how to work with generators:</p>
-<div class="sourceCode" id="cb17" data-file="style/generator-vowels-for.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb17" data-file="style/generator-vowels-for.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (<span class="kw">const</span> vowel <span class="kw">of</span> <span class="fu">getVowels</span>(test)) {</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(vowel)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Finally, just as <code>function *</code> says “this function is a generator”, <code>yield *</code> says “yield the values from a nested generator one by one”. We can use it to walk irregular structures like nested arrays:</p>
 <div class="sourceCode" id="cb18" data-file="style/generator-tree.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="op">*</span> <span class="fu">getNodes</span> (here) {</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="kw">typeof</span> here <span class="op">===</span> <span class="st">'string'</span>) {</span>
@@ -334,9 +348,33 @@ e</code></pre>
 <span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(value)</span>
 <span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Let’s use generators to count the number of expressions of various types in a program. The generator function that visits each node is:</p>
-<div class="sourceCode" id="cb19" data-file="style/generator-count.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb19" data-file="style/generator-count.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="op">*</span> <span class="fu">getNodes</span> (node) {</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (node <span class="op">&amp;&amp;</span> (<span class="kw">typeof</span> node <span class="op">===</span> <span class="st">'object'</span>) <span class="op">&amp;&amp;</span> (<span class="st">'type'</span> <span class="kw">in</span> node)) {</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">yield</span> node</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">const</span> key <span class="kw">in</span> node) {</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="bu">Array</span><span class="op">.</span><span class="fu">isArray</span>(node[key])) {</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> (<span class="kw">const</span> child <span class="kw">of</span> node[key]) {</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>          <span class="kw">yield</span> <span class="op">*</span> <span class="fu">getNodes</span>(child)</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> <span class="cf">if</span> (<span class="kw">typeof</span> node[key] <span class="op">===</span> <span class="st">'object'</span>) {</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>        <span class="kw">yield</span> <span class="op">*</span> <span class="fu">getNodes</span>(node[key])</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>and the program that uses it is:</p>
-<div class="sourceCode" id="cb20" data-file="style/generator-count.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb20" data-file="style/generator-count.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> ast <span class="op">=</span> acorn<span class="op">.</span><span class="fu">parse</span>(program<span class="op">,</span> { <span class="dt">locations</span><span class="op">:</span> <span class="kw">true</span> })</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> result <span class="op">=</span> {}</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (<span class="kw">const</span> node <span class="kw">of</span> <span class="fu">getNodes</span>(ast)) {</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (node<span class="op">.</span><span class="at">type</span> <span class="op">===</span> <span class="st">'BinaryExpression'</span>) {</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (node<span class="op">.</span><span class="at">operator</span> <span class="kw">in</span> result) {</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>      result[node<span class="op">.</span><span class="at">operator</span>] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>      result[node<span class="op">.</span><span class="at">operator</span>] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'counts are'</span><span class="op">,</span> result)</span></code></pre></div>
 <p>When we run it with our usual test program as input, we get:</p>
 <pre data-file="style/generator-count.out"><code>counts are { '*': 2, '+': 1 }</code></pre>
 <p>Generators are a clean solution to many hard problems, but we find it more difficult to check variable identifiers using generators than using the class-based Visitor approach because we want to accumulate violations to report later. Again, this could be a reflection of what we’re used to rather than anything intrinsic; as with coding style, the most important thing is to be consistent.</p>
@@ -365,56 +403,23 @@ e</code></pre>
 <span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> ancestorFile <span class="op">=</span> <span class="kw">this</span><span class="op">.</span><span class="fu">findImport</span>(filename<span class="op">,</span> ast<span class="op">,</span> ancestorName)</span>
 <span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="fu">traceAncestry</span>(dirname<span class="op">,</span> ancestorFile<span class="op">,</span> ancestorName<span class="op">,</span> accum)</span>
 <span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:skip</span></span>
-<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:findClassDef</span></span>
-<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">findClassDef</span> (filename<span class="op">,</span> ast<span class="op">,</span> className) {</span>
-<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> state <span class="op">=</span> []</span>
-<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>    walk<span class="op">.</span><span class="fu">simple</span>(ast<span class="op">,</span> {</span>
-<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>      <span class="dt">ClassDeclaration</span><span class="op">:</span> (node<span class="op">,</span> state) <span class="kw">=&gt;</span> {</span>
-<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> ((node<span class="op">.</span><span class="at">id</span><span class="op">.</span><span class="at">type</span> <span class="op">===</span> <span class="st">'Identifier'</span>) <span class="op">&amp;&amp;</span></span>
-<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>            (node<span class="op">.</span><span class="at">id</span><span class="op">.</span><span class="at">name</span> <span class="op">===</span> className)) {</span>
-<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>          state<span class="op">.</span><span class="fu">push</span>(node)</span>
-<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>        }</span>
-<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> state)</span>
-<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(state<span class="op">.</span><span class="at">length</span> <span class="op">===</span> <span class="dv">1</span><span class="op">,</span></span>
-<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`No definition for </span><span class="sc">${</span>className<span class="sc">}</span><span class="vs"> in </span><span class="sc">${</span>filename<span class="sc">}</span><span class="vs">`</span>)</span>
-<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> state[<span class="dv">0</span>]</span>
-<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:/findClassDef</span></span>
-<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">getAncestor</span> (classDef) {</span>
-<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (classDef<span class="op">.</span><span class="at">superClass</span> <span class="op">===</span> <span class="kw">null</span>)</span>
-<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a>      <span class="op">?</span> <span class="kw">null</span></span>
-<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>      <span class="op">:</span> classDef<span class="op">.</span><span class="at">superClass</span><span class="op">.</span><span class="at">name</span></span>
-<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">findImport</span> (filename<span class="op">,</span> ast<span class="op">,</span> className) {</span>
-<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> state <span class="op">=</span> []</span>
-<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a>    walk<span class="op">.</span><span class="fu">simple</span>(ast<span class="op">,</span> {</span>
-<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a>      <span class="dt">ImportDeclaration</span><span class="op">:</span> (node<span class="op">,</span> state) <span class="kw">=&gt;</span> {</span>
-<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (node<span class="op">.</span><span class="at">specifiers</span><span class="op">.</span><span class="at">length</span> <span class="op">!==</span> <span class="dv">1</span>) {</span>
-<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a>          <span class="cf">return</span></span>
-<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a>        }</span>
-<span id="cb22-53"><a href="#cb22-53" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> spec <span class="op">=</span> node<span class="op">.</span><span class="at">specifiers</span>[<span class="dv">0</span>]</span>
-<span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> ((spec<span class="op">.</span><span class="at">type</span> <span class="op">!==</span> <span class="st">'ImportDefaultSpecifier'</span>) <span class="op">||</span></span>
-<span id="cb22-55"><a href="#cb22-55" aria-hidden="true" tabindex="-1"></a>            (<span class="op">!</span>(<span class="st">'local'</span> <span class="kw">in</span> spec)) <span class="op">||</span></span>
-<span id="cb22-56"><a href="#cb22-56" aria-hidden="true" tabindex="-1"></a>            (spec<span class="op">.</span><span class="at">local</span><span class="op">.</span><span class="at">type</span> <span class="op">!==</span> <span class="st">'Identifier'</span>)) {</span>
-<span id="cb22-57"><a href="#cb22-57" aria-hidden="true" tabindex="-1"></a>          <span class="cf">return</span></span>
-<span id="cb22-58"><a href="#cb22-58" aria-hidden="true" tabindex="-1"></a>        }</span>
-<span id="cb22-59"><a href="#cb22-59" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (spec<span class="op">.</span><span class="at">local</span><span class="op">.</span><span class="at">name</span> <span class="op">!==</span> className) {</span>
-<span id="cb22-60"><a href="#cb22-60" aria-hidden="true" tabindex="-1"></a>          <span class="cf">return</span></span>
-<span id="cb22-61"><a href="#cb22-61" aria-hidden="true" tabindex="-1"></a>        }</span>
-<span id="cb22-62"><a href="#cb22-62" aria-hidden="true" tabindex="-1"></a>        state<span class="op">.</span><span class="fu">push</span>(node<span class="op">.</span><span class="at">source</span><span class="op">.</span><span class="at">value</span>)</span>
-<span id="cb22-63"><a href="#cb22-63" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb22-64"><a href="#cb22-64" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> state)</span>
-<span id="cb22-65"><a href="#cb22-65" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(state<span class="op">.</span><span class="at">length</span> <span class="op">===</span> <span class="dv">1</span><span class="op">,</span></span>
-<span id="cb22-66"><a href="#cb22-66" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`No import found for </span><span class="sc">${</span>className<span class="sc">}</span><span class="vs"> in </span><span class="sc">${</span>filename<span class="sc">}</span><span class="vs">`</span>)</span>
-<span id="cb22-67"><a href="#cb22-67" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> state[<span class="dv">0</span>]</span>
-<span id="cb22-68"><a href="#cb22-68" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb22-69"><a href="#cb22-69" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:/skip</span></span>
-<span id="cb22-70"><a href="#cb22-70" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb22-71"><a href="#cb22-71" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> FindAncestors</span></code></pre></div>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> FindAncestors</span></code></pre></div>
 <p>Finding class definitions is a straightforward extension of what we have already done:</p>
-<div class="sourceCode" id="cb23" data-file="style/find-ancestors.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb23" data-file="style/find-ancestors.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">findClassDef</span> (filename<span class="op">,</span> ast<span class="op">,</span> className) {</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> state <span class="op">=</span> []</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    walk<span class="op">.</span><span class="fu">simple</span>(ast<span class="op">,</span> {</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">ClassDeclaration</span><span class="op">:</span> (node<span class="op">,</span> state) <span class="kw">=&gt;</span> {</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> ((node<span class="op">.</span><span class="at">id</span><span class="op">.</span><span class="at">type</span> <span class="op">===</span> <span class="st">'Identifier'</span>) <span class="op">&amp;&amp;</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>            (node<span class="op">.</span><span class="at">id</span><span class="op">.</span><span class="at">name</span> <span class="op">===</span> className)) {</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>          state<span class="op">.</span><span class="fu">push</span>(node)</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> state)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assert</span>(state<span class="op">.</span><span class="at">length</span> <span class="op">===</span> <span class="dv">1</span><span class="op">,</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`No definition for </span><span class="sc">${</span>className<span class="sc">}</span><span class="vs"> in </span><span class="sc">${</span>filename<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> state[<span class="dv">0</span>]</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div>
 <p>To test this code, we start with the last of these three short files:</p>
 <div class="sourceCode" id="cb24" data-file="style/upper.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Upper {</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> () {</span>

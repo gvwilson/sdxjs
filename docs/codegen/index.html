@@ -55,9 +55,46 @@ Figure&nbsp;15.1: Using …args to capture and spread parameters.
 </figure>
 </div>
 <p>We can use <code>...args</code> to capture all of the arguments to a function call and forward them to another function. Let’s start by creating functions with a varying number of parameters that run to completion or throw an exception, then run them to make sure they do what we want:</p>
-<div class="sourceCode" id="cb1" data-file="codegen/replace-func.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb1" data-file="codegen/replace-func.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> zero <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'zero'</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> one <span class="op">=</span> (first) <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`one(</span><span class="sc">${</span>first<span class="sc">}</span><span class="vs">)`</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> two <span class="op">=</span> (first<span class="op">,</span> second) <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`two(</span><span class="sc">${</span>first<span class="sc">}</span><span class="vs">, </span><span class="sc">${</span>second<span class="sc">}</span><span class="vs">)`</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> error <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'error'</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(<span class="st">'from error'</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'should not reach this'</span>) <span class="co">// eslint-disable-line</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> runAll <span class="op">=</span> (title) <span class="kw">=&gt;</span> {</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(title)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">zero</span>()</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">one</span>(<span class="dv">1</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">two</span>(<span class="dv">1</span><span class="op">,</span> <span class="dv">2</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">try</span> {</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">error</span>()</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">catch</span> (error) {</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`caught </span><span class="sc">${</span>error<span class="sc">}</span><span class="vs"> as expected`</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>()</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="fu">runAll</span>(<span class="st">'first time'</span>)</span></code></pre></div>
 <p>We can now write a function that takes a function as an input and creates a new function that handles all of the errors in the original function:</p>
-<div class="sourceCode" id="cb2" data-file="codegen/replace-func.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb2" data-file="codegen/replace-func.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> replace <span class="op">=</span> (func) <span class="kw">=&gt;</span> {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> (<span class="op">...</span>args) <span class="kw">=&gt;</span> {</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'before'</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span> {</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> result <span class="op">=</span> <span class="fu">func</span>(<span class="op">...</span>args)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>      <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'after'</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> result</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">catch</span> (error) {</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>      <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'error'</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>      <span class="cf">throw</span> error</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>zero <span class="op">=</span> <span class="fu">replace</span>(zero)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>one <span class="op">=</span> <span class="fu">replace</span>(one)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>two <span class="op">=</span> <span class="fu">replace</span>(two)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>error <span class="op">=</span> <span class="fu">replace</span>(error)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="fu">runAll</span>(<span class="st">'second time'</span>)</span></code></pre></div>
 <p>Let’s try it out:</p>
 <pre data-file="codegen/replace-func.out"><code>first time
 zero
@@ -182,14 +219,52 @@ caught Error: from error as expected</code></pre>
 <pre data-file="codegen/one-plus-two.out"><code>40 + 2</code></pre>
 <h2 data-number="15.3" id="code-generator-count"><span class="header-section-number">15.3</span> How can we count how often functions are executed?</h2>
 <p>Our tool will find all the function declaration nodes in the program and insert a node to increment an entry in a global variable called <code>__counters</code>. (Prefixing the name with two underscores doesn’t guarantee that we won’t accidentally clobber a variable in the user’s program with the same name, but hopefully it makes that less likely.) Our test case is:</p>
-<div class="sourceCode" id="cb8" data-file="codegen/multi-func-counter.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb8" data-file="codegen/multi-func-counter.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> TEXT <span class="op">=</span> <span class="vs">`</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="vs">const funcOuter = (param) =&gt; {</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="vs">  return param + 1</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="vs">}</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="vs">const funcInner = (param) =&gt; {</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="vs">  return param + 1</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="vs">}</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="vs">for (const i of [1, 3, 5]) {</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="vs">  funcOuter(funcInner(i) + funcInner(i))</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="vs">}</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="vs">`</span></span></code></pre></div>
 <p>and the main function of our program is:</p>
-<div class="sourceCode" id="cb9" data-file="codegen/multi-func-counter.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb9" data-file="codegen/multi-func-counter.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> main <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> ast <span class="op">=</span> acorn<span class="op">.</span><span class="fu">parse</span>(TEXT<span class="op">,</span> { <span class="dt">sourceType</span><span class="op">:</span> <span class="st">'module'</span> })</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> allNodes <span class="op">=</span> []</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  walk<span class="op">.</span><span class="fu">simple</span>(ast<span class="op">,</span> {</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">VariableDeclarator</span><span class="op">:</span> (node<span class="op">,</span> state) <span class="kw">=&gt;</span> {</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (node<span class="op">.</span><span class="at">init</span> <span class="op">&amp;&amp;</span> (node<span class="op">.</span><span class="at">init</span><span class="op">.</span><span class="at">type</span> <span class="op">===</span> <span class="st">'ArrowFunctionExpression'</span>)) {</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        state<span class="op">.</span><span class="fu">push</span>(node)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> allNodes)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> names <span class="op">=</span> {}</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  allNodes<span class="op">.</span><span class="fu">forEach</span>(node <span class="kw">=&gt;</span> <span class="fu">insertCounter</span>(names<span class="op">,</span> node))</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="fu">initializeCounters</span>(names))</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(escodegen<span class="op">.</span><span class="fu">generate</span>(ast))</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="fu">reportCounters</span>())</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>To insert a count we call <code>insertCounter</code> to record the function’s name and modify the node:</p>
-<div class="sourceCode" id="cb10" data-file="codegen/multi-func-counter.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb10" data-file="codegen/multi-func-counter.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> insertCounter <span class="op">=</span> (names<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> name <span class="op">=</span> node<span class="op">.</span><span class="at">id</span><span class="op">.</span><span class="at">name</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  names[name] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> body <span class="op">=</span> node<span class="op">.</span><span class="at">init</span><span class="op">.</span><span class="at">body</span><span class="op">.</span><span class="at">body</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> increment <span class="op">=</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    acorn<span class="op">.</span><span class="fu">parse</span>(<span class="vs">`__counters['</span><span class="sc">${</span>name<span class="sc">}</span><span class="vs">'] += 1`</span><span class="op">,</span> { <span class="dt">sourceType</span><span class="op">:</span> <span class="st">'module'</span> })</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  body<span class="op">.</span><span class="fu">unshift</span>(increment)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Notice how we don’t try to build the nodes by hand, but instead construct the string we need, use Acorn to parse that, and use the result. Doing this saves us from embedding multiple lines of JSON in our program and also ensures that if a newer version of Acorn decides to generate a different AST, our program will do the right thing automatically.</p>
 <p>Finally, we need to add a couple of helper functions:</p>
-<div class="sourceCode" id="cb11" data-file="codegen/multi-func-counter.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb11" data-file="codegen/multi-func-counter.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> initializeCounters <span class="op">=</span> (names) <span class="kw">=&gt;</span> {</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> body <span class="op">=</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">keys</span>(names)<span class="op">.</span><span class="fu">map</span>(n <span class="kw">=&gt;</span> <span class="vs">`'</span><span class="sc">${</span>n<span class="sc">}</span><span class="vs">': 0`</span>)<span class="op">.</span><span class="fu">join</span>(<span class="st">',</span><span class="sc">\n</span><span class="st">'</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="st">'const __counters = {</span><span class="sc">\n</span><span class="st">'</span> <span class="op">+</span> body <span class="op">+</span> <span class="st">'</span><span class="sc">\n</span><span class="st">}'</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> reportCounters <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="st">'console.log(__counters)'</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>and run it to make sure it all works:</p>
 <pre data-file="codegen/multi-func-counter.out"><code>const __counters = {
 'funcOuter': 0,
@@ -219,13 +294,46 @@ console.log(__counters)</code></pre>
 </div>
 <h2 data-number="15.4" id="code-generator-time"><span class="header-section-number">15.4</span> How can we time function execution?</h2>
 <p>Now that we have a way to insert code into functions we can use it to do many other things. For example, we can find out how long it takes functions to run by wrapping them up in code that records the start and end time of each call. As before, we find the nodes of interest and decorate them, then stitch the result together with a bit of bookkeeping:</p>
-<div class="sourceCode" id="cb13" data-file="codegen/time-func.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb13" data-file="codegen/time-func.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> timeFunc <span class="op">=</span> (text) <span class="kw">=&gt;</span> {</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> ast <span class="op">=</span> acorn<span class="op">.</span><span class="fu">parse</span>(text<span class="op">,</span> { <span class="dt">sourceType</span><span class="op">:</span> <span class="st">'module'</span> })</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> allNodes <span class="op">=</span> <span class="fu">gatherNodes</span>(ast)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  allNodes<span class="op">.</span><span class="fu">forEach</span>(node <span class="kw">=&gt;</span> <span class="fu">wrapFuncDef</span>(node))</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> [</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">initializeCounters</span>(allNodes)<span class="op">,</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    escodegen<span class="op">.</span><span class="fu">generate</span>(ast)<span class="op">,</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reportCounters</span>()</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">.</span><span class="fu">join</span>(<span class="st">'</span><span class="sc">\n</span><span class="st">'</span>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Gathering nodes is straightforward:</p>
-<div class="sourceCode" id="cb14" data-file="codegen/time-func.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb14" data-file="codegen/time-func.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> gatherNodes <span class="op">=</span> (ast) <span class="kw">=&gt;</span> {</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> allNodes <span class="op">=</span> []</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  walk<span class="op">.</span><span class="fu">simple</span>(ast<span class="op">,</span> {</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">VariableDeclarator</span><span class="op">:</span> (node<span class="op">,</span> state) <span class="kw">=&gt;</span> {</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (node<span class="op">.</span><span class="at">init</span> <span class="op">&amp;&amp;</span> (node<span class="op">.</span><span class="at">init</span><span class="op">.</span><span class="at">type</span> <span class="op">===</span> <span class="st">'ArrowFunctionExpression'</span>)) {</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>        state<span class="op">.</span><span class="fu">push</span>(node)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> allNodes)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> allNodes</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>as is wrapping the function definition:</p>
-<div class="sourceCode" id="cb15" data-file="codegen/time-func.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb15" data-file="codegen/time-func.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> wrapFuncDef <span class="op">=</span> (originalAst) <span class="kw">=&gt;</span> {</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> name <span class="op">=</span> originalAst<span class="op">.</span><span class="at">id</span><span class="op">.</span><span class="at">name</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> wrapperAst <span class="op">=</span> <span class="fu">makeWrapperAst</span>(name)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  wrapperAst<span class="op">.</span><span class="at">init</span><span class="op">.</span><span class="at">body</span><span class="op">.</span><span class="at">body</span>[<span class="dv">0</span>]<span class="op">.</span><span class="at">declarations</span>[<span class="dv">0</span>]<span class="op">.</span><span class="at">init</span> <span class="op">=</span> originalAst<span class="op">.</span><span class="at">init</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  originalAst<span class="op">.</span><span class="at">init</span> <span class="op">=</span> wrapperAst<span class="op">.</span><span class="at">init</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>The only big difference is how we make the wrapper function. We create it with a placeholder for the original function so that we have a spot in the AST to insert the actual code:</p>
-<div class="sourceCode" id="cb16" data-file="codegen/time-func.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb16" data-file="codegen/time-func.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> timeFunc <span class="op">=</span> (text) <span class="kw">=&gt;</span> {</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> ast <span class="op">=</span> acorn<span class="op">.</span><span class="fu">parse</span>(text<span class="op">,</span> { <span class="dt">sourceType</span><span class="op">:</span> <span class="st">'module'</span> })</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> allNodes <span class="op">=</span> <span class="fu">gatherNodes</span>(ast)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  allNodes<span class="op">.</span><span class="fu">forEach</span>(node <span class="kw">=&gt;</span> <span class="fu">wrapFuncDef</span>(node))</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> [</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">initializeCounters</span>(allNodes)<span class="op">,</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    escodegen<span class="op">.</span><span class="fu">generate</span>(ast)<span class="op">,</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reportCounters</span>()</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">.</span><span class="fu">join</span>(<span class="st">'</span><span class="sc">\n</span><span class="st">'</span>)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Let’s run one last test:</p>
 <pre data-file="codegen/test-time-func.out"><code>const __counters = {
 'assignment': 0,

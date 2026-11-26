@@ -259,20 +259,20 @@ Table&nbsp;18.2: Result for example package dependencies.
 <p>In the worst case this procedure will create a <a href="../glossary/index.html#combinatorial_explosion">combinatorial explosion</a> of possibilities. Smart algorithms will try to add packages to the mix in an order that minimize the number of new possibilities at each stage, or create pairs and then combine them to create pairs of pairs and so on. Our algorithm will be simpler (and therefore slower), but illustrates the key idea.</p>
 <h2 data-number="18.3" id="package-manager-constraints"><span class="header-section-number">18.3</span> How can we satisfy constraints?</h2>
 <p>To avoid messing around with parsers, our programs reads a JSON data structure describing the problem; a real package manager would read the <a href="../glossary/index.html#manifest">manifests</a> of the packages in question and construct a similar data structure. We will stick to single-digit version numbers for readability, and will use this as our first test case:</p>
-<pre data-file="packman/double-chained.json"><code>{
-  "X": {
-    "1": {
-      "Y": ["1"]
-    },
-    "2": {
-      "Y": ["2"]
-    }
-  },
-  "Y": {
-    "1": {},
-    "2": {}
-  }
-}</code></pre>
+<div class="sourceCode" id="cb1" data-file="packman/double-chained.json"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"X"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"1"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"Y"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"1"</span><span class="ot">]</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">},</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"2"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"Y"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"2"</span><span class="ot">]</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"Y"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"1"</span><span class="fu">:</span> <span class="fu">{},</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"2"</span><span class="fu">:</span> <span class="fu">{}</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <div>
 <blockquote>
 <p><strong>Comments</strong></p>
@@ -300,26 +300,23 @@ Table&nbsp;18.2: Result for example package dependencies.
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    }</span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:allows</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> allows <span class="op">=</span> (manifest<span class="op">,</span> config) <span class="kw">=&gt;</span> {</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> [leftN<span class="op">,</span> leftV] <span class="kw">of</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">entries</span>(config)) {</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> requirements <span class="op">=</span> manifest[leftN][leftV]</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">const</span> [rightN<span class="op">,</span> rightVAll] <span class="kw">of</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">entries</span>(requirements)) {</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="op">!</span>rightVAll<span class="op">.</span><span class="fu">includes</span>(config[rightN])) {</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> title <span class="op">=</span> <span class="fu">configStr</span>(config)</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> missing <span class="op">=</span> config[rightN]</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>        <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`</span><span class="sc">${</span>title<span class="sc">}</span><span class="vs"> @ </span><span class="sc">${</span>leftN<span class="sc">}</span><span class="vs">/</span><span class="sc">${</span>leftV<span class="sc">}</span><span class="vs"> </span><span class="sc">${</span>rightN<span class="sc">}</span><span class="vs">/</span><span class="sc">${</span>missing<span class="sc">}</span><span class="vs">`</span>)</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">false</span></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="fu">configStr</span>(config))</span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">true</span></span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:/allows</span></span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> sweep</span></code></pre></div>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> sweep</span></code></pre></div>
 <p>The simplest way to find configurations is to sweep over all possibilities. For debugging purposes, our function prints possibilities as it goes:</p>
-<div class="sourceCode" id="cb3" data-file="packman/sweep.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb3" data-file="packman/sweep.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> allows <span class="op">=</span> (manifest<span class="op">,</span> config) <span class="kw">=&gt;</span> {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> [leftN<span class="op">,</span> leftV] <span class="kw">of</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">entries</span>(config)) {</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> requirements <span class="op">=</span> manifest[leftN][leftV]</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">const</span> [rightN<span class="op">,</span> rightVAll] <span class="kw">of</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">entries</span>(requirements)) {</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="op">!</span>rightVAll<span class="op">.</span><span class="fu">includes</span>(config[rightN])) {</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> title <span class="op">=</span> <span class="fu">configStr</span>(config)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> missing <span class="op">=</span> config[rightN]</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`</span><span class="sc">${</span>title<span class="sc">}</span><span class="vs"> @ </span><span class="sc">${</span>leftN<span class="sc">}</span><span class="vs">/</span><span class="sc">${</span>leftV<span class="sc">}</span><span class="vs"> </span><span class="sc">${</span>rightN<span class="sc">}</span><span class="vs">/</span><span class="sc">${</span>missing<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">false</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="fu">configStr</span>(config))</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">true</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>If we run this program on the two-package example shown earlier, we get this output:</p>
 <div class="sourceCode" id="cb4" data-file="packman/sweep-double-chained.sh"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> driver.js ./sweep.js double-chained.json</span></code></pre></div>
 <pre data-file="packman/sweep-double-chained.out"><code>{X:1 Y:1}
@@ -513,32 +510,29 @@ Figure&nbsp;18.2: Pruning options in the search tree to reduce work.
 <span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    }</span>
 <span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:compatible</span></span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> compatible <span class="op">=</span> (manifest<span class="op">,</span> config) <span class="kw">=&gt;</span> {</span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> [leftN<span class="op">,</span> leftV] <span class="kw">of</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">entries</span>(config)) {</span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> leftR <span class="op">=</span> manifest[leftN][leftV]</span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">const</span> [rightN<span class="op">,</span> rightV] <span class="kw">of</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">entries</span>(config)) {</span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> ((rightN <span class="kw">in</span> leftR) <span class="op">&amp;&amp;</span> (<span class="op">!</span>leftR[rightN]<span class="op">.</span><span class="fu">includes</span>(rightV))) {</span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>        <span class="fu">report</span>(config<span class="op">,</span> leftN<span class="op">,</span> leftV<span class="op">,</span> rightN<span class="op">,</span> rightV)</span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">false</span></span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> rightR <span class="op">=</span> manifest[rightN][rightV]</span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> ((leftN <span class="kw">in</span> rightR) <span class="op">&amp;&amp;</span> (<span class="op">!</span>rightR[leftN]<span class="op">.</span><span class="fu">includes</span>(leftV))) {</span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>        <span class="fu">report</span>(config<span class="op">,</span> leftN<span class="op">,</span> leftV<span class="op">,</span> rightN<span class="op">,</span> rightV)</span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">false</span></span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">true</span></span>
-<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:/compatible</span></span>
-<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> report <span class="op">=</span> (config<span class="op">,</span> leftN<span class="op">,</span> leftV<span class="op">,</span> rightN<span class="op">,</span> rightV) <span class="kw">=&gt;</span> {</span>
-<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> title <span class="op">=</span> <span class="fu">configStr</span>(config)</span>
-<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`</span><span class="sc">${</span>title<span class="sc">}</span><span class="vs"> @ </span><span class="sc">${</span>leftN<span class="sc">}</span><span class="vs">/</span><span class="sc">${</span>leftV<span class="sc">}</span><span class="vs"> </span><span class="sc">${</span>rightN<span class="sc">}</span><span class="vs">/</span><span class="sc">${</span>rightV<span class="sc">}</span><span class="vs">`</span>)</span>
-<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> prune</span></code></pre></div>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> report <span class="op">=</span> (config<span class="op">,</span> leftN<span class="op">,</span> leftV<span class="op">,</span> rightN<span class="op">,</span> rightV) <span class="kw">=&gt;</span> {</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> title <span class="op">=</span> <span class="fu">configStr</span>(config)</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`</span><span class="sc">${</span>title<span class="sc">}</span><span class="vs"> @ </span><span class="sc">${</span>leftN<span class="sc">}</span><span class="vs">/</span><span class="sc">${</span>leftV<span class="sc">}</span><span class="vs"> </span><span class="sc">${</span>rightN<span class="sc">}</span><span class="vs">/</span><span class="sc">${</span>rightV<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> prune</span></code></pre></div>
 <p>The <code>compatible</code> function checks to see if adding something will leave us with a consistent configuration:</p>
-<div class="sourceCode" id="cb9" data-file="packman/prune.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb9" data-file="packman/prune.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> compatible <span class="op">=</span> (manifest<span class="op">,</span> config) <span class="kw">=&gt;</span> {</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> [leftN<span class="op">,</span> leftV] <span class="kw">of</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">entries</span>(config)) {</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> leftR <span class="op">=</span> manifest[leftN][leftV]</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">const</span> [rightN<span class="op">,</span> rightV] <span class="kw">of</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">entries</span>(config)) {</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> ((rightN <span class="kw">in</span> leftR) <span class="op">&amp;&amp;</span> (<span class="op">!</span>leftR[rightN]<span class="op">.</span><span class="fu">includes</span>(rightV))) {</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">report</span>(config<span class="op">,</span> leftN<span class="op">,</span> leftV<span class="op">,</span> rightN<span class="op">,</span> rightV)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">false</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> rightR <span class="op">=</span> manifest[rightN][rightV]</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> ((leftN <span class="kw">in</span> rightR) <span class="op">&amp;&amp;</span> (<span class="op">!</span>rightR[leftN]<span class="op">.</span><span class="fu">includes</span>(leftV))) {</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">report</span>(config<span class="op">,</span> leftN<span class="op">,</span> leftV<span class="op">,</span> rightN<span class="op">,</span> rightV)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">false</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">true</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Checking as we go gets us from 18 complete solutions to 11. One is workable and two are incomplete—they represent 6 possible complete solutions that we didn’t need to finish:</p>
 <pre data-file="packman/prune-triple.out"><code>{X:1 Y:1 Z:1} @ Y/1 Z/1
 {X:1 Y:1 Z:2} @ X/1 Z/2

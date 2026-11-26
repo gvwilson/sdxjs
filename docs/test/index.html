@@ -64,9 +64,16 @@ Figure&nbsp;4.1: Running tests that can pass, fail, or contain errors.
 </div>
 <h2 data-number="4.2" id="unit-test-design"><span class="header-section-number">4.2</span> How can we separate registration, execution, and reporting?</h2>
 <p>To start, let’s use a handful of <a href="../glossary/index.html#global_variable">global variables</a> to record tests and their results:</p>
-<div class="sourceCode" id="cb1" data-file="test/dry-run.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb1" data-file="test/dry-run.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// State of tests.</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> HopeTests <span class="op">=</span> []</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> HopePass <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> HopeFail <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> HopeError <span class="op">=</span> <span class="dv">0</span></span></code></pre></div>
 <p>We don’t run tests immediately because we want to wrap each one in our own <a href="../glossary/index.html#exception_handler">exception handler</a>. Instead, the function <code>hopeThat</code> saves a descriptive message and a callback function that implements a test in the <code>HopeTest</code> array.</p>
-<div class="sourceCode" id="cb2" data-file="test/dry-run.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb2" data-file="test/dry-run.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Record a single test for running later.</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> hopeThat <span class="op">=</span> (message<span class="op">,</span> callback) <span class="kw">=&gt;</span> {</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  HopeTests<span class="op">.</span><span class="fu">push</span>([message<span class="op">,</span> callback])</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <div>
 <blockquote>
 <p><strong>Independence</strong></p>
@@ -74,10 +81,43 @@ Figure&nbsp;4.1: Running tests that can pass, fail, or contain errors.
 </blockquote>
 </div>
 <p>Finally, the function <code>main</code> runs all registered tests:</p>
-<div class="sourceCode" id="cb3" data-file="test/dry-run.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb3" data-file="test/dry-run.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Run all of the tests that have been asked for and report summary.</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> main <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  HopeTests<span class="op">.</span><span class="fu">forEach</span>(([message<span class="op">,</span> test]) <span class="kw">=&gt;</span> {</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span> {</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">test</span>()</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>      HopePass <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">catch</span> (e) {</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (e <span class="kw">instanceof</span> assert<span class="op">.</span><span class="at">AssertionError</span>) {</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        HopeFail <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        HopeError <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`pass </span><span class="sc">${</span>HopePass<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`fail </span><span class="sc">${</span>HopeFail<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`error </span><span class="sc">${</span>HopeError<span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>If a test completes without an exception, it passes. If any of the <code>assert</code> calls inside the test raises an <code>AssertionError</code>, the test fails, and if it <a href="../glossary/index.html#raise_exception">raises</a> any other exception, it’s an error. After all tests are run, <code>main</code> reports the number of results of each kind.</p>
 <p>Let’s try it out:</p>
-<div class="sourceCode" id="cb4" data-file="test/dry-run.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb4" data-file="test/dry-run.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Something to test (doesn't handle zero properly).</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> sign <span class="op">=</span> (value) <span class="kw">=&gt;</span> {</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (value <span class="op">&lt;</span> <span class="dv">0</span>) {</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span><span class="dv">1</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">1</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">// These two should pass.</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="fu">hopeThat</span>(<span class="st">'Sign of negative is -1'</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="fu">assert</span>(<span class="fu">sign</span>(<span class="op">-</span><span class="dv">3</span>) <span class="op">===</span> <span class="op">-</span><span class="dv">1</span>))</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="fu">hopeThat</span>(<span class="st">'Sign of positive is 1'</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="fu">assert</span>(<span class="fu">sign</span>(<span class="dv">19</span>) <span class="op">===</span> <span class="dv">1</span>))</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">// This one should fail.</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="fu">hopeThat</span>(<span class="st">'Sign of zero is 0'</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="fu">assert</span>(<span class="fu">sign</span>(<span class="dv">0</span>) <span class="op">===</span> <span class="dv">0</span>))</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">// This one is an error.</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="fu">hopeThat</span>(<span class="st">'Sign misspelled is error'</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="fu">assert</span>(<span class="fu">sgn</span>(<span class="dv">1</span>) <span class="op">===</span> <span class="dv">1</span>)) <span class="co">// eslint-disable-line</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">// Call the main driver.</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="fu">main</span>()</span></code></pre></div>
 <pre data-file="test/dry-run.out"><code>pass 2
 fail 1
 error 1</code></pre>
@@ -117,33 +157,8 @@ error 1</code></pre>
 <span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>      }</span>
 <span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    })</span>
 <span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:report</span></span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">terse</span> () {</span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="fu">cases</span>()</span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">map</span>(([title<span class="op">,</span> results]) <span class="kw">=&gt;</span> <span class="vs">`</span><span class="sc">${</span>title<span class="sc">}</span><span class="vs">: </span><span class="sc">${</span>results<span class="op">.</span><span class="at">length</span><span class="sc">}</span><span class="vs">`</span>)</span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">join</span>(<span class="st">' '</span>)</span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">verbose</span> () {</span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> report <span class="op">=</span> <span class="st">''</span></span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> prefix <span class="op">=</span> <span class="st">''</span></span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">const</span> [title<span class="op">,</span> results] <span class="kw">of</span> <span class="kw">this</span><span class="op">.</span><span class="fu">cases</span>()) {</span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>      report <span class="op">+=</span> <span class="vs">`</span><span class="sc">${</span>prefix<span class="sc">}${</span>title<span class="sc">}</span><span class="vs">:`</span></span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>      prefix <span class="op">=</span> <span class="st">'</span><span class="sc">\n</span><span class="st">'</span></span>
-<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> (<span class="kw">const</span> r <span class="kw">of</span> results) {</span>
-<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>        report <span class="op">+=</span> <span class="vs">`</span><span class="sc">${</span>prefix<span class="sc">}</span><span class="vs">  </span><span class="sc">${</span>r<span class="sc">}</span><span class="vs">`</span></span>
-<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> report</span>
-<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cases</span> () {</span>
-<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [</span>
-<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>      [<span class="st">'passes'</span><span class="op">,</span> <span class="kw">this</span><span class="op">.</span><span class="at">passes</span>]<span class="op">,</span></span>
-<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>      [<span class="st">'fails'</span><span class="op">,</span> <span class="kw">this</span><span class="op">.</span><span class="at">fails</span>]<span class="op">,</span></span>
-<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>      [<span class="st">'errors'</span><span class="op">,</span> <span class="kw">this</span><span class="op">.</span><span class="at">errors</span>]]</span>
-<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>  <span class="co">// mccole:/report</span></span>
-<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> <span class="kw">new</span> <span class="fu">Hope</span>()</span></code></pre></div>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> <span class="kw">new</span> <span class="fu">Hope</span>()</span></code></pre></div>
 <p>This strategy relies on two things:</p>
 <ol type="1">
 <li><p><a href="https://nodejs.org/en/">Node</a> executes the code in a JavaScript module as it loads it, which means that it runs <code>new Hope()</code> and exports the newly-created object.</p></li>
@@ -161,7 +176,29 @@ Figure&nbsp;4.2: Creating a singleton, recording tests, and running them.
 </figure>
 </div>
 <p>Finally, our <code>Hope</code> class can report results as both a terse one-line summary and as a detailed listing. It can also provide the titles and results of individual tests so that if someone wants to format them in a different way (e.g., as HTML) they can do so:</p>
-<div class="sourceCode" id="cb7" data-file="test/hope.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb7" data-file="test/hope.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">terse</span> () {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="fu">cases</span>()</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">map</span>(([title<span class="op">,</span> results]) <span class="kw">=&gt;</span> <span class="vs">`</span><span class="sc">${</span>title<span class="sc">}</span><span class="vs">: </span><span class="sc">${</span>results<span class="op">.</span><span class="at">length</span><span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">join</span>(<span class="st">' '</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">verbose</span> () {</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> report <span class="op">=</span> <span class="st">''</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> prefix <span class="op">=</span> <span class="st">''</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">const</span> [title<span class="op">,</span> results] <span class="kw">of</span> <span class="kw">this</span><span class="op">.</span><span class="fu">cases</span>()) {</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>      report <span class="op">+=</span> <span class="vs">`</span><span class="sc">${</span>prefix<span class="sc">}${</span>title<span class="sc">}</span><span class="vs">:`</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>      prefix <span class="op">=</span> <span class="st">'</span><span class="sc">\n</span><span class="st">'</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> (<span class="kw">const</span> r <span class="kw">of</span> results) {</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>        report <span class="op">+=</span> <span class="vs">`</span><span class="sc">${</span>prefix<span class="sc">}</span><span class="vs">  </span><span class="sc">${</span>r<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> report</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cases</span> () {</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>      [<span class="st">'passes'</span><span class="op">,</span> <span class="kw">this</span><span class="op">.</span><span class="at">passes</span>]<span class="op">,</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>      [<span class="st">'fails'</span><span class="op">,</span> <span class="kw">this</span><span class="op">.</span><span class="at">fails</span>]<span class="op">,</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>      [<span class="st">'errors'</span><span class="op">,</span> <span class="kw">this</span><span class="op">.</span><span class="at">errors</span>]]</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div>
 <div>
 <blockquote>
 <p><strong>Who’s calling?</strong></p>
@@ -202,35 +239,7 @@ Figure&nbsp;4.2: Creating a singleton, recording tests, and running them.
 <span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">:</span> hope<span class="op">.</span><span class="fu">verbose</span>()</span>
 <span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(result)</span>
 <span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:options</span></span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> DEFAULTS <span class="op">=</span> {</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>  <span class="dt">filenames</span><span class="op">:</span> []<span class="op">,</span></span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  <span class="dt">root</span><span class="op">:</span> <span class="st">'.'</span><span class="op">,</span></span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  <span class="dt">output</span><span class="op">:</span> <span class="st">'terse'</span></span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> parse <span class="op">=</span> (args) <span class="kw">=&gt;</span> {</span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> options <span class="op">=</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">assign</span>({}<span class="op">,</span> DEFAULTS)</span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> argv <span class="op">=</span> <span class="fu">minimist</span>(args)</span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> key <span class="kw">in</span> argv) {</span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">switch</span> (key) {</span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> <span class="st">'d'</span> <span class="op">:</span></span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>        options<span class="op">.</span><span class="at">root</span> <span class="op">=</span> argv[key]</span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> <span class="st">'v'</span> <span class="op">:</span></span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>        options<span class="op">.</span><span class="at">output</span> <span class="op">=</span> <span class="st">'verbose'</span></span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
-<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> <span class="st">'_'</span><span class="op">:</span></span>
-<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>        options<span class="op">.</span><span class="at">filenames</span> <span class="op">=</span> argv[key]</span>
-<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
-<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>      <span class="cf">default</span> <span class="op">:</span></span>
-<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>        <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(<span class="vs">`unrecognized option </span><span class="sc">${</span>key<span class="sc">}</span><span class="vs">`</span>)</span>
-<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
-<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> options</span>
-<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:/options</span></span>
-<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a><span class="fu">main</span>(<span class="bu">process</span><span class="op">.</span><span class="at">argv</span><span class="op">.</span><span class="fu">slice</span>(<span class="dv">2</span>))</span></code></pre></div>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="fu">main</span>(<span class="bu">process</span><span class="op">.</span><span class="at">argv</span><span class="op">.</span><span class="fu">slice</span>(<span class="dv">2</span>))</span></code></pre></div>
 <p>By default, this program finds all files below the current working directory whose names match the pattern <code>test-*.js</code> and uses terse output. Since we may want to look for files somewhere else, or request verbose output, the program needs to handle command-line arguments.</p>
 <p>The <a href="https://www.npmjs.com/package/minimist"><code>minimist</code></a> module does this in a way that is consistent with Unix conventions. Given command-line arguments <em>after</em> the program’s name (i.e., from <code>process.argv[2]</code> onward), it looks for patterns like <code>-x something</code> and creates an object with flags as keys and values associated with them.</p>
 <div>

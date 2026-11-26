@@ -166,12 +166,48 @@ Figure&nbsp;5.3: Organization of backup file storage.
 <li><p>reads each file into memory; and</p></li>
 <li><p>calculates hashes for those files.</p></li>
 </ol>
-<div class="sourceCode" id="cb10" data-file="backup/hash-existing-promise.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb10" data-file="backup/hash-existing-promise.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs-extra-promise'</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob-promise'</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> crypto <span class="im">from</span> <span class="st">'crypto'</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> hashExisting <span class="op">=</span> (rootDir) <span class="kw">=&gt;</span> {</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> pattern <span class="op">=</span> <span class="vs">`</span><span class="sc">${</span>rootDir<span class="sc">}</span><span class="vs">/**/*`</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">new</span> <span class="bu">Promise</span>((resolve<span class="op">,</span> reject) <span class="kw">=&gt;</span> {</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">glob</span>(pattern<span class="op">,</span> {})</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">then</span>(matches <span class="kw">=&gt;</span> <span class="bu">Promise</span><span class="op">.</span><span class="fu">all</span>(</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        matches<span class="op">.</span><span class="fu">map</span>(path <span class="kw">=&gt;</span> <span class="fu">statPath</span>(path))))</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">then</span>(pairs <span class="kw">=&gt;</span> pairs<span class="op">.</span><span class="fu">filter</span>(</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        ([path<span class="op">,</span> stat]) <span class="kw">=&gt;</span> stat<span class="op">.</span><span class="fu">isFile</span>()))</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">then</span>(pairs <span class="kw">=&gt;</span> <span class="bu">Promise</span><span class="op">.</span><span class="fu">all</span>(</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        pairs<span class="op">.</span><span class="fu">map</span>(([path<span class="op">,</span> stat]) <span class="kw">=&gt;</span> <span class="fu">readPath</span>(path))))</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">then</span>(pairs <span class="kw">=&gt;</span> <span class="bu">Promise</span><span class="op">.</span><span class="fu">all</span>(</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>        pairs<span class="op">.</span><span class="fu">map</span>(([path<span class="op">,</span> content]) <span class="kw">=&gt;</span> <span class="fu">hashPath</span>(path<span class="op">,</span> content))))</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">then</span>(pairs <span class="kw">=&gt;</span> <span class="fu">resolve</span>(pairs))</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">catch</span>(err <span class="kw">=&gt;</span> <span class="fu">reject</span>(err))</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>This function uses <code>Promise.all</code> to wait for the operations on all of the files in the list to complete before going on to the next step. A different design would combine stat, read, and hash into a single step so that each file would be handled independently and use one <code>Promise.all</code> at the end to bring them all together.</p>
 <p>The first two helper functions that <code>hashExisting</code> relies on wrap asynchronous operation in promises:</p>
-<div class="sourceCode" id="cb11" data-file="backup/hash-existing-promise.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb11" data-file="backup/hash-existing-promise.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> statPath <span class="op">=</span> (path) <span class="kw">=&gt;</span> {</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">new</span> <span class="bu">Promise</span>((resolve<span class="op">,</span> reject) <span class="kw">=&gt;</span> {</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    fs<span class="op">.</span><span class="fu">statAsync</span>(path)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">then</span>(stat <span class="kw">=&gt;</span> <span class="fu">resolve</span>([path<span class="op">,</span> stat]))</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">catch</span>(err <span class="kw">=&gt;</span> <span class="fu">reject</span>(err))</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> readPath <span class="op">=</span> (path) <span class="kw">=&gt;</span> {</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">new</span> <span class="bu">Promise</span>((resolve<span class="op">,</span> reject) <span class="kw">=&gt;</span> {</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    fs<span class="op">.</span><span class="fu">readFileAsync</span>(path<span class="op">,</span> <span class="st">'utf-8'</span>)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">then</span>(content <span class="kw">=&gt;</span> <span class="fu">resolve</span>([path<span class="op">,</span> content]))</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">catch</span>(err <span class="kw">=&gt;</span> <span class="fu">reject</span>(err))</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>The final helper function calculates the hash synchronously, but we can use <code>Promise.all</code> to wait on those operations finishing anyway:</p>
-<div class="sourceCode" id="cb12" data-file="backup/hash-existing-promise.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb12" data-file="backup/hash-existing-promise.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> hashPath <span class="op">=</span> (path<span class="op">,</span> content) <span class="kw">=&gt;</span> {</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> hasher <span class="op">=</span> crypto<span class="op">.</span><span class="fu">createHash</span>(<span class="st">'sha1'</span>)<span class="op">.</span><span class="fu">setEncoding</span>(<span class="st">'hex'</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  hasher<span class="op">.</span><span class="fu">write</span>(content)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  hasher<span class="op">.</span><span class="fu">end</span>()</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> [path<span class="op">,</span> hasher<span class="op">.</span><span class="fu">read</span>()]</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Let’s try running it:</p>
 <div class="sourceCode" id="cb13" data-file="backup/run-hash-existing-promise.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> hashExisting <span class="im">from</span> <span class="st">'./hash-existing-promise.js'</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> <span class="bu">root</span> <span class="op">=</span> <span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">2</span>]</span>
@@ -195,7 +231,32 @@ Figure&nbsp;5.3: Organization of backup file storage.
 ./x-mock-hashes.md 580edfc0cb8eaca4f3700307002ae10ee97af8d2
 ./x-pre-commit.md b7d945af4554fc0f64b708fe735417bee8b33eef</code></pre>
 <p>The code we have written is clearer than it would be with callbacks (try rewriting it if you don’t believe this) but the layer of promises around everything still obscures its meaning. The same operations are easier to read when written using <code>async</code> and <code>await</code>:</p>
-<div class="sourceCode" id="cb16" data-file="backup/hash-existing-async.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb16" data-file="backup/hash-existing-async.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> statPath <span class="op">=</span> <span class="kw">async</span> (path) <span class="kw">=&gt;</span> {</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> stat <span class="op">=</span> <span class="cf">await</span> fs<span class="op">.</span><span class="fu">statAsync</span>(path)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> [path<span class="op">,</span> stat]</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> readPath <span class="op">=</span> <span class="kw">async</span> (path) <span class="kw">=&gt;</span> {</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> content <span class="op">=</span> <span class="cf">await</span> fs<span class="op">.</span><span class="fu">readFileAsync</span>(path<span class="op">,</span> <span class="st">'utf-8'</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> [path<span class="op">,</span> content]</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> hashPath <span class="op">=</span> (path<span class="op">,</span> content) <span class="kw">=&gt;</span> {</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> hasher <span class="op">=</span> crypto<span class="op">.</span><span class="fu">createHash</span>(<span class="st">'sha1'</span>)<span class="op">.</span><span class="fu">setEncoding</span>(<span class="st">'hex'</span>)</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  hasher<span class="op">.</span><span class="fu">write</span>(content)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  hasher<span class="op">.</span><span class="fu">end</span>()</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> [path<span class="op">,</span> hasher<span class="op">.</span><span class="fu">read</span>()]</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> hashExisting <span class="op">=</span> <span class="kw">async</span> (rootDir) <span class="kw">=&gt;</span> {</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> pattern <span class="op">=</span> <span class="vs">`</span><span class="sc">${</span>rootDir<span class="sc">}</span><span class="vs">/**/*`</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> options <span class="op">=</span> {}</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> matches <span class="op">=</span> <span class="cf">await</span> <span class="fu">glob</span>(pattern<span class="op">,</span> options)</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> stats <span class="op">=</span> <span class="cf">await</span> <span class="bu">Promise</span><span class="op">.</span><span class="fu">all</span>(matches<span class="op">.</span><span class="fu">map</span>(path <span class="kw">=&gt;</span> <span class="fu">statPath</span>(path)))</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> files <span class="op">=</span> stats<span class="op">.</span><span class="fu">filter</span>(([path<span class="op">,</span> stat]) <span class="kw">=&gt;</span> stat<span class="op">.</span><span class="fu">isFile</span>())</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> contents <span class="op">=</span> <span class="cf">await</span> <span class="bu">Promise</span><span class="op">.</span><span class="fu">all</span>(</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>    files<span class="op">.</span><span class="fu">map</span>(([path<span class="op">,</span> stat]) <span class="kw">=&gt;</span> <span class="fu">readPath</span>(path)))</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> hashes <span class="op">=</span> contents<span class="op">.</span><span class="fu">map</span>(</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>    ([path<span class="op">,</span> content]) <span class="kw">=&gt;</span> <span class="fu">hashPath</span>(path<span class="op">,</span> content))</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> hashes</span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>This version creates and resolves exactly the same promises as the previous one, but those promises are created for us automatically by Node. To check that it works, let’s run it for the same input files:</p>
 <div class="sourceCode" id="cb17" data-file="backup/run-hash-existing-async.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> hashExisting <span class="im">from</span> <span class="st">'./hash-existing-async.js'</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> <span class="bu">root</span> <span class="op">=</span> <span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">2</span>]</span>
@@ -426,9 +487,90 @@ Figure&nbsp;5.4: Using a mock filesystem to simplify testing.
 <span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> backup</span></code></pre></div>
 <p>The tests for this are more complicated than tests we have written previously because we want to check with actual file hashes. Let’s set up some fixtures to run tests on:</p>
-<div class="sourceCode" id="cb28" data-file="backup/test/test-backup.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb28" data-file="backup/test/test-backup.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> backup <span class="im">from</span> <span class="st">'../backup.js'</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> hashString <span class="op">=</span> (data) <span class="kw">=&gt;</span> {</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> hasher <span class="op">=</span> crypto<span class="op">.</span><span class="fu">createHash</span>(<span class="st">'sha1'</span>)<span class="op">.</span><span class="fu">setEncoding</span>(<span class="st">'hex'</span>)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  hasher<span class="op">.</span><span class="fu">write</span>(data)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  hasher<span class="op">.</span><span class="fu">end</span>()</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> hasher<span class="op">.</span><span class="fu">read</span>()</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> Contents <span class="op">=</span> {</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">aaa</span><span class="op">:</span> <span class="st">'AAA'</span><span class="op">,</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">bbb</span><span class="op">:</span> <span class="st">'BBB'</span><span class="op">,</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">ccc</span><span class="op">:</span> <span class="st">'CCC'</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> Hashes <span class="op">=</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">keys</span>(Contents)<span class="op">.</span><span class="fu">reduce</span>((obj<span class="op">,</span> key) <span class="kw">=&gt;</span> {</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>  obj[key] <span class="op">=</span> <span class="fu">hashString</span>(Contents[key])</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> obj</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>}<span class="op">,</span> {})</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> Fixture <span class="op">=</span> {</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>  <span class="dt">source</span><span class="op">:</span> {</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">'alpha.txt'</span><span class="op">:</span> Contents<span class="op">.</span><span class="at">aaa</span><span class="op">,</span></span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">'beta.txt'</span><span class="op">:</span> Contents<span class="op">.</span><span class="at">bbb</span><span class="op">,</span></span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">gamma</span><span class="op">:</span> {</span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>      <span class="st">'delta.txt'</span><span class="op">:</span> Contents<span class="op">.</span><span class="at">ccc</span></span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>  <span class="dt">backup</span><span class="op">:</span> {}</span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> InitialBackups <span class="op">=</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">keys</span>(Hashes)<span class="op">.</span><span class="fu">reduce</span>((<span class="kw">set</span><span class="op">,</span> filename) <span class="kw">=&gt;</span> {</span>
+<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a>  <span class="kw">set</span><span class="op">.</span><span class="fu">add</span>(<span class="vs">`backup/</span><span class="sc">${</span>Hashes[filename]<span class="sc">}</span><span class="vs">.bck`</span>)</span>
+<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">set</span></span>
+<span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a>}<span class="op">,</span> <span class="kw">new</span> <span class="bu">Set</span>())</span></code></pre></div>
 <p>and then run some tests:</p>
-<div class="sourceCode" id="cb29" data-file="backup/test/test-backup.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb29" data-file="backup/test/test-backup.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(<span class="st">'check entire backup process'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">beforeEach</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mock</span>(Fixture)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">afterEach</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    mock<span class="op">.</span><span class="fu">restore</span>()</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'creates an initial CSV manifest'</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> <span class="fu">backup</span>(<span class="st">'source'</span><span class="op">,</span> <span class="st">'backup'</span><span class="op">,</span> <span class="dv">0</span>)</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>((<span class="cf">await</span> <span class="fu">glob</span>(<span class="st">'backup/*'</span>))<span class="op">.</span><span class="at">length</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Expected 4 files'</span>)</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> actualBackups <span class="op">=</span> <span class="kw">new</span> <span class="bu">Set</span>(<span class="cf">await</span> <span class="fu">glob</span>(<span class="st">'backup/*.bck'</span>))</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(actualBackups<span class="op">,</span> InitialBackups<span class="op">,</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Expected 3 backup files'</span>)</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> actualManifests <span class="op">=</span> <span class="cf">await</span> <span class="fu">glob</span>(<span class="st">'backup/*.csv'</span>)</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(actualManifests<span class="op">,</span> [<span class="st">'backup/0000000000.csv'</span>]<span class="op">,</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Expected one manifest'</span>)</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'does not duplicate files unnecessarily'</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> <span class="fu">backup</span>(<span class="st">'source'</span><span class="op">,</span> <span class="st">'backup'</span><span class="op">,</span> <span class="dv">0</span>)</span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>((<span class="cf">await</span> <span class="fu">glob</span>(<span class="st">'backup/*'</span>))<span class="op">.</span><span class="at">length</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Expected 4 files after first backup'</span>)</span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> <span class="fu">backup</span>(<span class="st">'source'</span><span class="op">,</span> <span class="st">'backup'</span><span class="op">,</span> <span class="dv">1</span>)</span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>((<span class="cf">await</span> <span class="fu">glob</span>(<span class="st">'backup/*'</span>))<span class="op">.</span><span class="at">length</span><span class="op">,</span> <span class="dv">5</span><span class="op">,</span></span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Expected 5 files after second backup'</span>)</span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> actualBackups <span class="op">=</span> <span class="kw">new</span> <span class="bu">Set</span>(<span class="cf">await</span> <span class="fu">glob</span>(<span class="st">'backup/*.bck'</span>))</span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(actualBackups<span class="op">,</span> InitialBackups<span class="op">,</span></span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Expected 3 backup files after second backup'</span>)</span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> actualManifests <span class="op">=</span> (<span class="cf">await</span> <span class="fu">glob</span>(<span class="st">'backup/*.csv'</span>))<span class="op">.</span><span class="fu">sort</span>()</span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(actualManifests<span class="op">,</span></span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>      [<span class="st">'backup/0000000000.csv'</span><span class="op">,</span> <span class="st">'backup/0000000001.csv'</span>]<span class="op">,</span></span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Expected two manifests'</span>)</span>
+<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'adds a file as needed'</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> <span class="fu">backup</span>(<span class="st">'source'</span><span class="op">,</span> <span class="st">'backup'</span><span class="op">,</span> <span class="dv">0</span>)</span>
+<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>((<span class="cf">await</span> <span class="fu">glob</span>(<span class="st">'backup/*'</span>))<span class="op">.</span><span class="at">length</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span></span>
+<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Expected 4 files after first backup'</span>)</span>
+<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> fs<span class="op">.</span><span class="fu">writeFileAsync</span>(<span class="st">'source/newfile.txt'</span><span class="op">,</span> <span class="st">'NNN'</span>)</span>
+<span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> hashOfNewFile <span class="op">=</span> <span class="fu">hashString</span>(<span class="st">'NNN'</span>)</span>
+<span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> <span class="fu">backup</span>(<span class="st">'source'</span><span class="op">,</span> <span class="st">'backup'</span><span class="op">,</span> <span class="dv">1</span>)</span>
+<span id="cb29-41"><a href="#cb29-41" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">strictEqual</span>((<span class="cf">await</span> <span class="fu">glob</span>(<span class="st">'backup/*'</span>))<span class="op">.</span><span class="at">length</span><span class="op">,</span> <span class="dv">6</span><span class="op">,</span></span>
+<span id="cb29-42"><a href="#cb29-42" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Expected 6 files after second backup'</span>)</span>
+<span id="cb29-43"><a href="#cb29-43" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> expected <span class="op">=</span> <span class="kw">new</span> <span class="bu">Set</span>(InitialBackups)</span>
+<span id="cb29-44"><a href="#cb29-44" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">add</span>(<span class="vs">`backup/</span><span class="sc">${</span>hashOfNewFile<span class="sc">}</span><span class="vs">.bck`</span>)</span>
+<span id="cb29-45"><a href="#cb29-45" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> actualBackups <span class="op">=</span> <span class="kw">new</span> <span class="bu">Set</span>(<span class="cf">await</span> <span class="fu">glob</span>(<span class="st">'backup/*.bck'</span>))</span>
+<span id="cb29-46"><a href="#cb29-46" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(actualBackups<span class="op">,</span> expected<span class="op">,</span></span>
+<span id="cb29-47"><a href="#cb29-47" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Expected 4 backup files after second backup'</span>)</span>
+<span id="cb29-48"><a href="#cb29-48" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> actualManifests <span class="op">=</span> (<span class="cf">await</span> <span class="fu">glob</span>(<span class="st">'backup/*.csv'</span>))<span class="op">.</span><span class="fu">sort</span>()</span>
+<span id="cb29-49"><a href="#cb29-49" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">.</span><span class="fu">deepStrictEqual</span>(actualManifests<span class="op">,</span></span>
+<span id="cb29-50"><a href="#cb29-50" aria-hidden="true" tabindex="-1"></a>      [<span class="st">'backup/0000000000.csv'</span><span class="op">,</span> <span class="st">'backup/0000000001.csv'</span>]<span class="op">,</span></span>
+<span id="cb29-51"><a href="#cb29-51" aria-hidden="true" tabindex="-1"></a>      <span class="st">'Expected two manifests'</span>)</span>
+<span id="cb29-52"><a href="#cb29-52" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb29-53"><a href="#cb29-53" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 <pre data-file="backup/test-backup.out"><code>&gt; stjs@1.0.0 test
 &gt; mocha */test/test-*.js "-g" "check entire backup process"
   check entire backup process
