@@ -47,10 +47,10 @@
 <h2 data-number="14.1" id="style-checker-ast"><span class="header-section-number">14.1</span> How can we parse JavaScript to create an AST?</h2>
 <p>A parser for a simple language like arithmetic or JSON is relatively easy to write. A parser for a language as complex as JavaScript is much more work, so we will use one called <a href="https://github.com/acornjs/acorn">Acorn</a> instead. Acorn takes a string containing source code as input and produces an <a href="../glossary/index.html#abstract_syntax_tree">abstract syntax tree</a> (AST) whose nodes store information about what’s in the program (<a href="#fig-style-checker-parse-tree" class="quarto-xref">Figure&nbsp;<span>14.1</span></a>). An AST is for a program what the DOM is for HTML: an in-memory representation that is easy for software to inspect and manipulate.</p>
 <p>ASTs can be quite complex—for example, the JSON representation of the AST for a single constant declaration is 84 lines long:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> acorn <span class="im">from</span> <span class="st">'acorn'</span></span>
+<div class="sourceCode" id="cb1" data-file="style/parse-single-const.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> acorn <span class="im">from</span> <span class="st">'acorn'</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> ast <span class="op">=</span> acorn<span class="op">.</span><span class="fu">parse</span>(<span class="st">'const x = 0'</span><span class="op">,</span> { <span class="dt">locations</span><span class="op">:</span> <span class="kw">true</span> })</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(ast<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> <span class="dv">2</span>))</span></code></pre></div>
-<pre><code>{
+<pre data-file="style/parse-single-const.slice.out"><code>{
   "type": "Program",
   "start": 0,
   "end": 11,
@@ -82,7 +82,7 @@ Figure&nbsp;14.1: The parse tree of a simple program.
 </figure>
 </div>
 <p>Acorn’s output is in <a href="https://esprima.org/">Esprima</a> format (so-called because it was originally defined by a tool with that name). The format’s specification is very detailed, but we can usually figure out most of what we need by inspection. For example, here is the output for a 15-line program:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> acorn <span class="im">from</span> <span class="st">'acorn'</span></span>
+<div class="sourceCode" id="cb3" data-file="style/parse-const-func.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> acorn <span class="im">from</span> <span class="st">'acorn'</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> program <span class="op">=</span> <span class="vs">`const value = 2</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="vs">const double = (x) =&gt; {</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="vs">  const y = 2 * x</span></span>
@@ -93,7 +93,7 @@ Figure&nbsp;14.1: The parse tree of a simple program.
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="vs">`</span></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> ast <span class="op">=</span> acorn<span class="op">.</span><span class="fu">parse</span>(program<span class="op">,</span> { <span class="dt">locations</span><span class="op">:</span> <span class="kw">true</span> })</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(ast<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> <span class="dv">2</span>))</span></code></pre></div>
-<pre><code>{
+<pre data-file="style/parse-const-func.slice.out"><code>{
   "type": "Program",
   "start": 0,
   "end": 122,
@@ -117,7 +117,7 @@ Figure&nbsp;14.1: The parse tree of a simple program.
 <p>Yes, it really is almost 500 lines long…</p>
 <h2 data-number="14.2" id="style-checker-search"><span class="header-section-number">14.2</span> How can we find things in an AST?</h2>
 <p>If we want to find functions, variables, or anything else in an AST we need to <a href="../glossary/index.html#walk_tree">walk the tree</a>, i.e., to visit each node in turn. The <a href="https://www.npmjs.com/package/acorn-walk"><code>acorn-walk</code></a> library will do this for us using the Visitor design pattern we first saw in <a href="../templater/index.html" class="quarto-xref"><span>Chapter 9</span></a>. If we provide a function to act on nodes of type <code>Identifier</code>, <code>acorn-walk</code> will call that function each time it finds an identifier. We can use other options to say that we want to record the locations of nodes (i.e., their line numbers) and to collect comments in an array called <code>onComment</code>. Our function can do whatever we want; for demonstration purposes we will add nodes to an array called <code>state</code> and report them all at the end (<a href="#fig-style-checker-walk-tree" class="quarto-xref">Figure&nbsp;<span>14.2</span></a>).</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> acorn <span class="im">from</span> <span class="st">'acorn'</span></span>
+<div class="sourceCode" id="cb5" data-file="style/walk-ast.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> acorn <span class="im">from</span> <span class="st">'acorn'</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> walk <span class="im">from</span> <span class="st">'acorn-walk'</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> program <span class="op">=</span> <span class="vs">`// Constant</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="vs">const value = 2</span></span>
@@ -148,7 +148,7 @@ Figure&nbsp;14.1: The parse tree of a simple program.
 <span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  node <span class="kw">=&gt;</span> node<span class="op">.</span><span class="at">loc</span><span class="op">.</span><span class="at">start</span><span class="op">.</span><span class="at">line</span></span>
 <span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>)<span class="op">.</span><span class="fu">join</span>(<span class="st">', '</span>)</span>
 <span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`comments on lines </span><span class="sc">${</span>comments<span class="sc">}</span><span class="vs">`</span>)</span></code></pre></div>
-<pre><code>identifier x on line 6
+<pre data-file="style/walk-ast.out"><code>identifier x on line 6
 identifier y on line 7
 identifier double on line 11
 identifier value on line 11
@@ -181,21 +181,21 @@ Figure&nbsp;14.2: Walking a tree to perform an operation at each node.
 <h2 data-number="14.3" id="style-checker-apply"><span class="header-section-number">14.3</span> How can we apply checks?</h2>
 <p>We don’t just want to collect nodes: we want to check their properties against a set of rules. One way to do this would be to call <code>walk.simple</code> once for each rule, passing it a function that checks just that rule. Another way—the one we’ll use—is to write a <a href="../glossary/index.html#generic_function">generic function</a> that checks a rule and records any nodes that don’t satisfy it, and then call that function once for each rule inside our <code>Identifier</code> handler. This may seem like extra work, but it ensures that all of our rule-checkers store their results in the same way, which in turn means that we can write one reporting function and be sure it will handle everything.</p>
 <p>The function <code>applyCheck</code> takes the current state (where we are accumulating rule violations), a label that identifies this rule (so that violations of it can be stored together), the node, and a logical value telling it whether the node passed the test or not. If the node failed the test we make sure that <code>state</code> contains a list with the appropriate label and then append this node to it. This “create storage space on demand” pattern is widely used but doesn’t have a well-known name.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb7" data-file="style/check-name-lengths.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>We can now put a call to <code>applyCheck</code> inside the handler for <code>Identifier</code>:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb8" data-file="style/check-name-lengths.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>We can’t just use <code>applyCheck</code> as the handler for <code>Identifier</code> because <code>walk.simple</code> wouldn’t know how to call it. This is a (very simple) example of the <a href="../glossary/index.html#adapter_pattern">Adapter</a> design pattern: we write a function or class to connect the code we want to call to the already-written code that is going to call it.</p>
 <p>The output for the same sample program as before is:</p>
-<pre><code>x at line 6
+<pre data-file="style/check-name-lengths.out"><code>x at line 6
 y at line 7</code></pre>
 <p>The exercises will ask why the parameter <code>x</code> doesn’t show up as a violation of our rule that variables’ names must be at least four characters long.</p>
 <h2 data-number="14.4" id="style-checker-walker"><span class="header-section-number">14.4</span> How does the AST walker work?</h2>
 <p>The AST walker uses the Visitor pattern, but how does it actually work? We can build our own by defining a class with methods that walk the tree, take action depending on the kind of node, and then go through the children of that node (if any). The user can then derive a class of their own from this and override the set of action methods they’re interested in.</p>
 <p>One key difference between our implementation and <code>acorn-walk</code>’s is that our methods don’t need to take <code>state</code> as a parameter because it’s contained in the object that they’re part of. That simplifies the methods—one less parameter—but it does mean that anyone who wants to use our visitor has to derive a class, which is a bit more complicated than writing a function. This tradeoff is a sign that managing state is part of the problem’s <a href="../glossary/index.html#intrinsic_complexity">intrinsic complexity</a>: we can move it around, but we can’t get rid of it.</p>
 <p>The other difference between our visitor and <code>acorn-walk</code> is that our class uses <a href="../glossary/index.html#dynamic_lookup">dynamic lookup</a> (a form of introspection) to look up a method with the same name as the node type in the object. While we normally refer to a particular method of an object using <code>object.method</code>, we can also look them up by asking for <code>object[name]</code> in the same way that we would look up any other property of any other object. Our completed class looks like this:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb10" data-file="style/walker-class.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>The code we need to use it is:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> acorn <span class="im">from</span> <span class="st">'acorn'</span></span>
+<div class="sourceCode" id="cb11" data-file="style/walker-class.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> acorn <span class="im">from</span> <span class="st">'acorn'</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:walker</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Walker {</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Construct a new AST tree walker.</span></span>
@@ -266,12 +266,12 @@ y at line 7</code></pre>
 <span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a>walker<span class="op">.</span><span class="fu">walk</span>(accumulator)</span>
 <span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'definitions are'</span><span class="op">,</span> accumulator)</span></code></pre></div>
 <p>and its output is:</p>
-<pre><code>definitions are [ 'value', 'double', 'x', 'y', 'result' ]</code></pre>
+<pre data-file="style/walker-class.out"><code>definitions are [ 'value', 'double', 'x', 'y', 'result' ]</code></pre>
 <p>We think this approach to implementing the Visitor pattern is easier to understand and extend than one that relies on callbacks, but that could just be a reflection of our background and experience. As with code style, the most important thing is consistency: if we implement Visitor using classes in one place, we should implement it that way everywhere.</p>
 <h2 data-number="14.5" id="style-checker-alternatives"><span class="header-section-number">14.5</span> How else could the AST walker work?</h2>
 <p>A third approach to this problem uses the <a href="../glossary/index.html#iterator_pattern">Iterator</a> design pattern. Instead of taking the computation to the nodes, an iterator returns the elements of a structure for processing (<a href="#fig-style-checker-iterator" class="quarto-xref">Figure&nbsp;<span>14.3</span></a>). One way to think about it is that Visitor encapsulates recursion, while Iterator turns everything into a loop.</p>
 <p>We can implement the Iterator pattern in JavaScript using <a href="../glossary/index.html#generator_function">generator functions</a>. If we declare a function using <code>function *</code> (with an asterisk) instead of <code>function</code> then we can use the <code>yield</code> keyword to return a value and suspend processing to be resumed later. The result of <code>yield</code> is a two-part structure with a value and a flag showing whether or not processing is done:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="op">*</span> <span class="fu">threeWords</span> () {</span>
+<div class="sourceCode" id="cb13" data-file="style/generator-example.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="op">*</span> <span class="fu">threeWords</span> () {</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">yield</span> <span class="st">'first'</span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">yield</span> <span class="st">'second'</span></span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">yield</span> <span class="st">'third'</span></span>
@@ -281,7 +281,7 @@ y at line 7</code></pre>
 <span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(gen<span class="op">.</span><span class="fu">next</span>())</span>
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(gen<span class="op">.</span><span class="fu">next</span>())</span>
 <span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(gen<span class="op">.</span><span class="fu">next</span>())</span></code></pre></div>
-<pre><code>{ value: 'first', done: false }
+<pre data-file="style/generator-example.out"><code>{ value: 'first', done: false }
 { value: 'second', done: false }
 { value: 'third', done: false }
 { value: undefined, done: true }</code></pre>
@@ -296,7 +296,7 @@ Figure&nbsp;14.3: Finding nodes in the tree using the Iterator pattern.
 </figure>
 </div>
 <p>As another example, this generator takes a string and produces its vowels one by one:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="op">*</span> <span class="fu">getVowels</span> (text) {</span>
+<div class="sourceCode" id="cb15" data-file="style/generator-vowels-while.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="op">*</span> <span class="fu">getVowels</span> (text) {</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">const</span> char <span class="kw">of</span> text) {</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="st">'AEIOUaeiou'</span><span class="op">.</span><span class="fu">includes</span>(char)) {</span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>      <span class="kw">yield</span> char</span>
@@ -310,15 +310,15 @@ Figure&nbsp;14.3: Finding nodes in the tree using the Iterator pattern.
 <span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(current<span class="op">.</span><span class="at">value</span>)</span>
 <span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  current <span class="op">=</span> gen<span class="op">.</span><span class="fu">next</span>()</span>
 <span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<pre><code>i
+<pre data-file="style/generator-vowels-while.out"><code>i
 i
 a
 e</code></pre>
 <p>A generator function doesn’t actually generate anything; instead, it creates an object that we can then ask for values repeatedly. This gives us a way to have several generators in play at the same time.</p>
 <p>Instead of a <code>while</code> loop it is much more common to use <code>for...of</code>, which knows how to work with generators:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb17" data-file="style/generator-vowels-for.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Finally, just as <code>function *</code> says “this function is a generator”, <code>yield *</code> says “yield the values from a nested generator one by one”. We can use it to walk irregular structures like nested arrays:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="op">*</span> <span class="fu">getNodes</span> (here) {</span>
+<div class="sourceCode" id="cb18" data-file="style/generator-tree.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="op">*</span> <span class="fu">getNodes</span> (here) {</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="kw">typeof</span> here <span class="op">===</span> <span class="st">'string'</span>) {</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">yield</span> here</span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (<span class="bu">Array</span><span class="op">.</span><span class="fu">isArray</span>(here)) {</span>
@@ -334,15 +334,15 @@ e</code></pre>
 <span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(value)</span>
 <span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Let’s use generators to count the number of expressions of various types in a program. The generator function that visits each node is:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb19" data-file="style/generator-count.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>and the program that uses it is:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb20" data-file="style/generator-count.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>When we run it with our usual test program as input, we get:</p>
-<pre><code>counts are { '*': 2, '+': 1 }</code></pre>
+<pre data-file="style/generator-count.out"><code>counts are { '*': 2, '+': 1 }</code></pre>
 <p>Generators are a clean solution to many hard problems, but we find it more difficult to check variable identifiers using generators than using the class-based Visitor approach because we want to accumulate violations to report later. Again, this could be a reflection of what we’re used to rather than anything intrinsic; as with coding style, the most important thing is to be consistent.</p>
 <h2 data-number="14.6" id="style-checker-analysis"><span class="header-section-number">14.6</span> What other kinds of analysis can we do?</h2>
 <p>As one final example, consider the problem of keeping track of which methods are defined where in a deeply nested class hierarchy. (This problem comes up in some of the later chapters in this book: we wrote so many classes that incrementally extended their predecessors for pedagogical purposes that we lost track of what was defined where.) To create a table of method definitions, we first need to find the ancestors of the last class in the hierarchy:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<div class="sourceCode" id="cb22" data-file="style/find-ancestors.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> acorn <span class="im">from</span> <span class="st">'acorn'</span></span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs'</span></span>
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> path <span class="im">from</span> <span class="st">'path'</span></span>
@@ -414,9 +414,9 @@ e</code></pre>
 <span id="cb22-70"><a href="#cb22-70" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb22-71"><a href="#cb22-71" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> FindAncestors</span></code></pre></div>
 <p>Finding class definitions is a straightforward extension of what we have already done:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb23" data-file="style/find-ancestors.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>To test this code, we start with the last of these three short files:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Upper {</span>
+<div class="sourceCode" id="cb24" data-file="style/upper.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Upper {</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> () {</span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">name</span> <span class="op">=</span> <span class="st">'upper'</span></span>
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  }</span>
@@ -428,7 +428,7 @@ e</code></pre>
 <span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>module<span class="op">.</span><span class="at">exports</span> <span class="op">=</span> Upper</span></code></pre></div>
-<div class="sourceCode" id="cb25"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Upper <span class="im">from</span> <span class="st">'./upper.js'</span></span>
+<div class="sourceCode" id="cb25" data-file="style/middle.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Upper <span class="im">from</span> <span class="st">'./upper.js'</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Middle <span class="kw">extends</span> Upper {</span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> () {</span>
 <span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>()</span>
@@ -439,7 +439,7 @@ e</code></pre>
 <span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> Middle</span></code></pre></div>
-<div class="sourceCode" id="cb26"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Middle <span class="im">from</span> <span class="st">'./middle.js'</span></span>
+<div class="sourceCode" id="cb26" data-file="style/lower.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Middle <span class="im">from</span> <span class="st">'./middle.js'</span></span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Lower <span class="kw">extends</span> Middle {</span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">report</span> () {</span>
 <span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="kw">this</span><span class="op">.</span><span class="fu">additional</span>())</span>
@@ -449,11 +449,11 @@ e</code></pre>
 <span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> Lower</span></code></pre></div>
-<pre><code>Lower in lower.js
+<pre data-file="style/run-find-ancestors.out"><code>Lower in lower.js
 Middle in ./middle.js
 Upper in ./upper.js</code></pre>
 <p>Good: we can recover the chain of inheritance. Finding method definitions is also straightforward:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> FindAncestors <span class="im">from</span> <span class="st">'./find-ancestors.js'</span></span>
+<div class="sourceCode" id="cb28" data-file="style/find-methods.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> FindAncestors <span class="im">from</span> <span class="st">'./find-ancestors.js'</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> FindMethods <span class="kw">extends</span> FindAncestors {</span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">find</span> (dirname<span class="op">,</span> filename<span class="op">,</span> className) {</span>
 <span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> classes <span class="op">=</span> <span class="kw">super</span><span class="op">.</span><span class="fu">find</span>(dirname<span class="op">,</span> filename<span class="op">,</span> className)</span>
@@ -479,7 +479,7 @@ Upper in ./upper.js</code></pre>
 <span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> FindMethods</span></code></pre></div>
 <p>And finally, we can print a <a href="../glossary/index.html#markdown">Markdown</a>-formatted table showing which methods are defined in which class:</p>
-<pre><code>| method | Upper | Middle | Lower |
+<pre data-file="style/run-find-methods.raw.out"><code>| method | Upper | Middle | Lower |
 | ---- | ---- | ---- | ---- |
 | additional | . | . | X |
 | constructor | X | X | . |
@@ -665,7 +665,7 @@ Upper in ./upper.js</code></pre>
 <p>Modify <code>Walker</code> so that users can specify one action to take at a node on the way down the tree and a separate action to take on the way up. (Hint: require users to specify <code>Nodename_downward</code> and/or <code>Nodename_upward</code> methods in their class, then use string concatenation to construct method names while traversing the tree.)</p>
 <h3 data-number="14.7.4" id="aggregating-across-files"><span class="header-section-number">14.7.4</span> Aggregating across files</h3>
 <p>Create a command-line program called <code>sniff.js</code> that checks for style violations in any number of source files. The first command-line argument to <code>sniff.js</code> must be a JavaScript source file that exports a class derived from <code>Walker</code> called <code>Check</code> that implements the checks the user wants. The other command-line arguments must be the names of JavaScript source files to be checked:</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> sniff.js my-check.js source-1.js source-2.js</span></code></pre></div>
+<div class="sourceCode" id="cb30" data-file="style/x-across-files/sniff.sh"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> sniff.js my-check.js source-1.js source-2.js</span></code></pre></div>
 <h3 data-number="14.7.5" id="finding-assertions"><span class="header-section-number">14.7.5</span> Finding assertions</h3>
 <p>Write a program <code>find-assertions.js</code> that finds all calls to <code>assert</code> or <code>assert.something</code> and prints the assertion message (if any).</p>
 <h3 data-number="14.7.6" id="finding-a-missing-parameter"><span class="header-section-number">14.7.6</span> Finding a missing parameter</h3>
@@ -706,6 +706,14 @@ Johnson, John, Sergio Lubo, Nishitha Yedla, Jairo Aponte, and Bonita Sharif. 201
     <a class="pager-link next" href="../codegen/index.html">Code Generator →</a>
   </nav>
 </footer>
+<script>
+document.addEventListener('click', function (e) {
+  var link = e.target.closest && e.target.closest('a');
+  document.querySelectorAll('details.topnav-dropdown[open]').forEach(function (d) {
+    if (!d.contains(e.target) || (link && d.contains(link))) d.removeAttribute('open');
+  });
+});
+</script>
 
 
 </body></html>

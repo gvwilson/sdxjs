@@ -55,11 +55,11 @@ Figure&nbsp;15.1: Using …args to capture and spread parameters.
 </figure>
 </div>
 <p>We can use <code>...args</code> to capture all of the arguments to a function call and forward them to another function. Let’s start by creating functions with a varying number of parameters that run to completion or throw an exception, then run them to make sure they do what we want:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb1" data-file="codegen/replace-func.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>We can now write a function that takes a function as an input and creates a new function that handles all of the errors in the original function:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb2" data-file="codegen/replace-func.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Let’s try it out:</p>
-<pre><code>first time
+<pre data-file="codegen/replace-func.out"><code>first time
 zero
 one(1)
 two(1, 2)
@@ -89,13 +89,13 @@ caught Error: from error as expected</code></pre>
 </blockquote>
 </div>
 <p>Our tool will parse the JavaScript with Acorn to create an AST, modify the AST, and then use a library called <a href="https://github.com/estools/escodegen/">Escodegen</a> to turn the AST back into JavaScript. To start, let’s look at the AST for a simple function definition, which is 75 lines of pretty-printed JSON:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> acorn <span class="im">from</span> <span class="st">'acorn'</span></span>
+<div class="sourceCode" id="cb4" data-file="codegen/func-def.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> acorn <span class="im">from</span> <span class="st">'acorn'</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> text <span class="op">=</span> <span class="vs">`const func = (param) =&gt; {</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="vs">  return param + 1</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="vs">}`</span></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> ast <span class="op">=</span> acorn<span class="op">.</span><span class="fu">parse</span>(text<span class="op">,</span> { <span class="dt">sourceType</span><span class="op">:</span> <span class="st">'module'</span> })</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(ast<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> <span class="dv">2</span>))</span></code></pre></div>
-<pre><code>{
+<pre data-file="codegen/func-def.out"><code>{
   "type": "Program",
   "start": 0,
   "end": 46,
@@ -171,7 +171,7 @@ caught Error: from error as expected</code></pre>
   "sourceType": "module"
 }</code></pre>
 <p>After inspecting a few nodes, we can create some of our own and turn them into code. Here, for example, we have the JSON representation of the expression <code>40+2</code>:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> escodegen <span class="im">from</span> <span class="st">'escodegen'</span></span>
+<div class="sourceCode" id="cb6" data-file="codegen/one-plus-two.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> escodegen <span class="im">from</span> <span class="st">'escodegen'</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> result <span class="op">=</span> escodegen<span class="op">.</span><span class="fu">generate</span>({</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">type</span><span class="op">:</span> <span class="st">'BinaryExpression'</span><span class="op">,</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">operator</span><span class="op">:</span> <span class="st">'+'</span><span class="op">,</span></span>
@@ -179,19 +179,19 @@ caught Error: from error as expected</code></pre>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">right</span><span class="op">:</span> { <span class="dt">type</span><span class="op">:</span> <span class="st">'Literal'</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">2</span> }</span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>})</span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(result)</span></code></pre></div>
-<pre><code>40 + 2</code></pre>
+<pre data-file="codegen/one-plus-two.out"><code>40 + 2</code></pre>
 <h2 data-number="15.3" id="code-generator-count"><span class="header-section-number">15.3</span> How can we count how often functions are executed?</h2>
 <p>Our tool will find all the function declaration nodes in the program and insert a node to increment an entry in a global variable called <code>__counters</code>. (Prefixing the name with two underscores doesn’t guarantee that we won’t accidentally clobber a variable in the user’s program with the same name, but hopefully it makes that less likely.) Our test case is:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb8" data-file="codegen/multi-func-counter.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>and the main function of our program is:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb9" data-file="codegen/multi-func-counter.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>To insert a count we call <code>insertCounter</code> to record the function’s name and modify the node:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb10" data-file="codegen/multi-func-counter.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Notice how we don’t try to build the nodes by hand, but instead construct the string we need, use Acorn to parse that, and use the result. Doing this saves us from embedding multiple lines of JSON in our program and also ensures that if a newer version of Acorn decides to generate a different AST, our program will do the right thing automatically.</p>
 <p>Finally, we need to add a couple of helper functions:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb11" data-file="codegen/multi-func-counter.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>and run it to make sure it all works:</p>
-<pre><code>const __counters = {
+<pre data-file="codegen/multi-func-counter.out"><code>const __counters = {
 'funcOuter': 0,
 'funcInner': 0
 }
@@ -219,15 +219,15 @@ console.log(__counters)</code></pre>
 </div>
 <h2 data-number="15.4" id="code-generator-time"><span class="header-section-number">15.4</span> How can we time function execution?</h2>
 <p>Now that we have a way to insert code into functions we can use it to do many other things. For example, we can find out how long it takes functions to run by wrapping them up in code that records the start and end time of each call. As before, we find the nodes of interest and decorate them, then stitch the result together with a bit of bookkeeping:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb13" data-file="codegen/time-func.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Gathering nodes is straightforward:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb14" data-file="codegen/time-func.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>as is wrapping the function definition:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb15" data-file="codegen/time-func.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>The only big difference is how we make the wrapper function. We create it with a placeholder for the original function so that we have a spot in the AST to insert the actual code:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb16" data-file="codegen/time-func.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Let’s run one last test:</p>
-<pre><code>const __counters = {
+<pre data-file="codegen/test-time-func.out"><code>const __counters = {
 'assignment': 0,
 'readFile': 0
 }
@@ -346,6 +346,14 @@ OUTPUT
     <a class="pager-link next" href="../docgen/index.html">Documentation Generator →</a>
   </nav>
 </footer>
+<script>
+document.addEventListener('click', function (e) {
+  var link = e.target.closest && e.target.closest('a');
+  document.querySelectorAll('details.topnav-dropdown[open]').forEach(function (d) {
+    if (!d.contains(e.target) || (link && d.contains(link))) d.removeAttribute('open');
+  });
+});
+</script>
 
 
 </body></html>

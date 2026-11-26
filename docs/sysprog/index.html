@@ -100,7 +100,7 @@ Table&nbsp;2.1: Computer operation times at human scale.
 <p>Early JavaScript programs used <a href="../glossary/index.html#callback">callback functions</a> to describe asynchronous operations, but as we’re about to see, callbacks can be hard to understand even in small programs. In 2015, the language’s developers standardized a higher-level tool called promises to make callbacks easier to manage, and more recently they have added new keywords called <code>async</code> and <code>await</code> to make it easier still. We need to understand all three layers in order to debug things when they go wrong, so this chapter explores callbacks, while <a href="../async/index.html" class="quarto-xref"><span>Chapter 3</span></a> shows how promises and <code>async</code>/<code>await</code> work. This chapter also shows how to read and write files and directories with Node’s standard libraries, because we’re going to be doing that a lot.</p>
 <h2 data-number="2.1" id="systems-programming-ls"><span class="header-section-number">2.1</span> How can we list a directory?</h2>
 <p>To start, let’s try listing the contents of a <a href="../glossary/index.html#directory">directory</a> the way we would in <a href="https://www.python.org/">Python</a> or <a href="https://en.wikipedia.org/wiki/Java_(programming_language)">Java</a>:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs'</span></span>
+<div class="sourceCode" id="cb1" data-file="sysprog/list-dir-wrong.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs'</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> srcDir <span class="op">=</span> <span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">2</span>]</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> results <span class="op">=</span> fs<span class="op">.</span><span class="fu">readdir</span>(srcDir)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (<span class="kw">const</span> name <span class="kw">of</span> results) {</span>
@@ -126,8 +126,8 @@ Figure&nbsp;2.1: How Node stores command-line arguments in <code>process.argv</c
 </div>
 <p>If we run this program with the name of a directory as its argument, <code>fs.readdir</code> returns the names of the things in that directory as an array of <a href="../glossary/index.html#string">strings</a>. The program uses <code>for (const name of results)</code> to loop over the contents of that array. We could use <code>let</code> instead of <code>const</code>, but it’s good practice to declare things as <code>const</code> wherever possible so that anyone reading the program knows the variable isn’t actually going to vary—doing this reduces the <a href="../glossary/index.html#cognitive_load">cognitive load</a> on people reading the program. Finally, <code>console.log</code> is JavaScript’s equivalent of other languages’ <code>print</code> command; its strange name comes from the fact that its original purpose was to create <a href="../glossary/index.html#log_message">log messages</a> in the browser <a href="../glossary/index.html#console">console</a>.</p>
 <p>Unfortunately, our program doesn’t work:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> list-dir-wrong.js .</span></code></pre></div>
-<pre><code>node:internal/process/esm_loader:74
+<div class="sourceCode" id="cb2" data-file="sysprog/list-dir-wrong.sh"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> list-dir-wrong.js .</span></code></pre></div>
+<pre data-file="sysprog/list-dir-wrong.out"><code>node:internal/process/esm_loader:74
     internalBinding('errors').triggerUncaughtException(
                               ^
 TypeError [ERR_INVALID_CALLBACK]: Callback must be a function. Received \
@@ -167,7 +167,7 @@ Figure&nbsp;2.2: How JavaScript runs callback functions.
 </figure>
 </div>
 <p>This corrected program gives <code>fs.readdir</code> a callback function called <code>listContents</code>:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs'</span></span>
+<div class="sourceCode" id="cb4" data-file="sysprog/list-dir-function-defined.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs'</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> listContents <span class="op">=</span> (err<span class="op">,</span> files) <span class="kw">=&gt;</span> {</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'running callback'</span>)</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (err) {</span>
@@ -182,8 +182,8 @@ Figure&nbsp;2.2: How JavaScript runs callback functions.
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>fs<span class="op">.</span><span class="fu">readdir</span>(srcDir<span class="op">,</span> listContents)</span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'last line of program'</span>)</span></code></pre></div>
 <p>Node callbacks always get an error (if there is any) as their first argument and the result of a successful function call as their second. The function can tell the difference by checking to see if the error argument is <code>null</code>. If it is, the function lists the directory’s contents with <code>console.log</code>, otherwise, it uses <code>console.error</code> to display the error message. Let’s run the program with the <a href="../glossary/index.html#current_working_directory">current working directory</a> (written as ‘.’) as an argument:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> list-dir-function-defined.js .</span></code></pre></div>
-<pre><code>last line of program
+<div class="sourceCode" id="cb5" data-file="sysprog/list-dir-function-defined.sh"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> list-dir-function-defined.js .</span></code></pre></div>
+<pre data-file="sysprog/list-dir-function-defined.slice.out"><code>last line of program
 running callback
 Makefile
 copy-file-filtered.js
@@ -216,7 +216,7 @@ Figure&nbsp;2.3: When JavaScript runs callback functions.
 </div>
 <h2 data-number="2.3" id="systems-programming-anonymous"><span class="header-section-number">2.3</span> What are anonymous functions?</h2>
 <p>Most JavaScript programmers wouldn’t define the function <code>listContents</code> and then pass it as a callback. Instead, since the callback is only used in one place, it is more <a href="../glossary/index.html#idiomatic">idiomatic</a> to define it where it is needed as an <a href="../glossary/index.html#anonymous_function">anonymous function</a>. This makes it easier to see what’s going to happen when the operation completes, though it means the order of execution is quite different from the order of reading (<a href="#fig-systems-programming-anonymous-functions" class="quarto-xref">Figure&nbsp;<span>2.4</span></a>). Using an anonymous function gives us the final version of our program:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs'</span></span>
+<div class="sourceCode" id="cb7" data-file="sysprog/list-dir-function-anonymous.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs'</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> srcDir <span class="op">=</span> <span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">2</span>]</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>fs<span class="op">.</span><span class="fu">readdir</span>(srcDir<span class="op">,</span> (err<span class="op">,</span> files) <span class="kw">=&gt;</span> {</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (err) {</span>
@@ -246,7 +246,7 @@ Figure&nbsp;2.4: How and when JavaScript creates and runs anonymous callback fun
 <h2 data-number="2.4" id="systems-programming-fileset"><span class="header-section-number">2.4</span> How can we select a set of files?</h2>
 <p>Suppose we want to copy some files instead of listing a directory’s contents. Depending on the situation we might want to copy only those files given on the command line or all files except some explicitly excluded. What we <em>don’t</em> want to have to do is list the files one by one; instead, we want to be able to write patterns like <code>*.js</code>.</p>
 <p>To find files that match patterns like that, we can use the <a href="https://www.npmjs.com/package/glob"><code>glob</code></a> module. (To <a href="../glossary/index.html#globbing">glob</a> (short for “global”) is an old Unix term for matching a set of files by name.) The <code>glob</code> module provides a function that takes a pattern and a callback and does something with every filename that matched the pattern:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob'</span></span>
+<div class="sourceCode" id="cb8" data-file="sysprog/glob-all-files.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob'</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">glob</span>(<span class="st">'**/*.*'</span><span class="op">,</span> (err<span class="op">,</span> files) <span class="kw">=&gt;</span> {</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (err) {</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(err)</span>
@@ -256,7 +256,7 @@ Figure&nbsp;2.4: How and when JavaScript creates and runs anonymous callback fun
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    }</span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
-<pre><code>copy-file-filtered.js
+<pre data-file="sysprog/glob-all-files.slice.out"><code>copy-file-filtered.js
 copy-file-filtered.js.bck
 copy-file-unfiltered.js
 copy-file-unfiltered.js.bck
@@ -279,7 +279,7 @@ Figure&nbsp;2.5: Using <code>glob</code> patterns to match filenames.
 </figure>
 </div>
 <p>This program works, but we probably don’t want to copy editor backup files whose names end with <code>.bck</code>. We can get rid of them by <a href="../glossary/index.html#filter">filtering</a> the list that <code>glob</code> returns:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob'</span></span>
+<div class="sourceCode" id="cb10" data-file="sysprog/glob-get-then-filter-pedantic.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob'</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">glob</span>(<span class="st">'**/*.*'</span><span class="op">,</span> (err<span class="op">,</span> files) <span class="kw">=&gt;</span> {</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (err) {</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(err)</span>
@@ -290,7 +290,7 @@ Figure&nbsp;2.5: Using <code>glob</code> patterns to match filenames.
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    }</span>
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
-<pre><code>copy-file-filtered.js
+<pre data-file="sysprog/glob-get-then-filter-pedantic.slice.out"><code>copy-file-filtered.js
 copy-file-unfiltered.js
 copy-file-unfiltered.out
 copy-file-unfiltered.sh
@@ -313,7 +313,7 @@ Figure&nbsp;2.6: Selecting array elements using <code>Array.filter</code>.
 </figure>
 </div>
 <p>We can make our globbing program more idiomatic by removing the parentheses around the single parameter and writing just the expression we want the function to return:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob'</span></span>
+<div class="sourceCode" id="cb12" data-file="sysprog/glob-get-then-filter-idiomatic.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob'</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">glob</span>(<span class="st">'**/*.*'</span><span class="op">,</span> (err<span class="op">,</span> files) <span class="kw">=&gt;</span> {</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (err) {</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(err)</span>
@@ -326,7 +326,7 @@ Figure&nbsp;2.6: Selecting array elements using <code>Array.filter</code>.
 <span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 <p>However, it turns out that <code>glob</code> will filter for us. According to its documentation, the function takes an <code>options</code> object full of key-value settings that control its behavior. This is another common pattern in Node libraries: rather than accepting a large number of rarely-used parameters, a function can take a single object full of settings.</p>
 <p>If we use this, our program becomes:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob'</span></span>
+<div class="sourceCode" id="cb13" data-file="sysprog/glob-filter-with-options.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob'</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">glob</span>(<span class="st">'**/*.*'</span><span class="op">,</span> { <span class="dt">ignore</span><span class="op">:</span> <span class="st">'*.bck'</span> }<span class="op">,</span> (err<span class="op">,</span> files) <span class="kw">=&gt;</span> {</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (err) {</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(err)</span>
@@ -348,7 +348,7 @@ Figure&nbsp;2.6: Selecting array elements using <code>Array.filter</code>.
 </blockquote>
 </div>
 <p>To finish off our globbing program, let’s specify a source directory on the command line and include that in the pattern:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob'</span></span>
+<div class="sourceCode" id="cb14" data-file="sysprog/glob-with-source-directory.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob'</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> srcDir <span class="op">=</span> <span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">2</span>]</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">glob</span>(<span class="vs">`</span><span class="sc">${</span>srcDir<span class="sc">}</span><span class="vs">/**/*.*`</span><span class="op">,</span> { <span class="dt">ignore</span><span class="op">:</span> <span class="st">'*.bck'</span> }<span class="op">,</span> (err<span class="op">,</span> files) <span class="kw">=&gt;</span> {</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (err) {</span>
@@ -362,7 +362,7 @@ Figure&nbsp;2.6: Selecting array elements using <code>Array.filter</code>.
 <p>This program uses <a href="../glossary/index.html#string_interpolation">string interpolation</a> to insert the value of <code>srcDir</code> into a string. The template string is written in back quotes, and JavaScript converts every expression written as <code>${expression}</code> to text. We could create the pattern by concatenating strings using <code>srcDir + '/**/*.*'</code>, but most programmers find interpolation easier to read.</p>
 <h2 data-number="2.5" id="systems-programming-copy"><span class="header-section-number">2.5</span> How can we copy a set of files?</h2>
 <p>If we want to copy a set of files instead of just listing them we need a way to create the <a href="../glossary/index.html#path">paths</a> of the files we are going to create. If our program takes a second argument that specifies the desired output directory, we can construct the full output path by replacing the name of the source directory with that path:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob'</span></span>
+<div class="sourceCode" id="cb15" data-file="sysprog/glob-with-dest-directory.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob'</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> [srcDir<span class="op">,</span> dstDir] <span class="op">=</span> <span class="bu">process</span><span class="op">.</span><span class="at">argv</span><span class="op">.</span><span class="fu">slice</span>(<span class="dv">2</span>)</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">glob</span>(<span class="vs">`</span><span class="sc">${</span>srcDir<span class="sc">}</span><span class="vs">/**/*.*`</span><span class="op">,</span> { <span class="dt">ignore</span><span class="op">:</span> <span class="st">'*.bck'</span> }<span class="op">,</span> (err<span class="op">,</span> files) <span class="kw">=&gt;</span> {</span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (err) {</span>
@@ -386,7 +386,7 @@ Figure&nbsp;2.7: Assigning many values at once by destructuring.
 </figure>
 </div>
 <p>A more serious problem is that this program only works if the destination directory already exists: <code>fs</code> and equivalent libraries in other languages usually won’t create directories for us automatically. The need to do this comes up so often that there is a function called <code>ensureDir</code> to do it:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob'</span></span>
+<div class="sourceCode" id="cb16" data-file="sysprog/glob-ensure-output-directory.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob'</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs-extra'</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> path <span class="im">from</span> <span class="st">'path'</span></span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> [srcRoot<span class="op">,</span> dstRoot] <span class="op">=</span> <span class="bu">process</span><span class="op">.</span><span class="at">argv</span><span class="op">.</span><span class="fu">slice</span>(<span class="dv">2</span>)</span>
@@ -413,7 +413,7 @@ Figure&nbsp;2.7: Assigning many values at once by destructuring.
 </blockquote>
 </div>
 <p>Our file copying program currently creates empty destination directories but doesn’t actually copy any files. Let’s use <code>fs.copy</code> to do that:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob'</span></span>
+<div class="sourceCode" id="cb17" data-file="sysprog/copy-file-unfiltered.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob'</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs-extra'</span></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> path <span class="im">from</span> <span class="st">'path'</span></span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> [srcRoot<span class="op">,</span> dstRoot] <span class="op">=</span> <span class="bu">process</span><span class="op">.</span><span class="at">argv</span><span class="op">.</span><span class="fu">slice</span>(<span class="dv">2</span>)</span>
@@ -455,10 +455,10 @@ Figure&nbsp;2.8: Three levels of callback in the running example.
 </figure>
 </div>
 <p>Our program looks like it should work, but if we try to copy everything in the directory containing these lessons we get an error message:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-rf</span> /tmp/out</span>
+<div class="sourceCode" id="cb18" data-file="sysprog/copy-file-unfiltered.sh"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-rf</span> /tmp/out</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> /tmp/out</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> copy-file-unfiltered.js ../node_modules /tmp/out <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">|</span> <span class="fu">head</span> <span class="at">-n</span> 6</span></code></pre></div>
-<pre><code>[Error: ENOENT: no such file or directory, chmod \
+<pre data-file="sysprog/copy-file-unfiltered.out"><code>[Error: ENOENT: no such file or directory, chmod \
 '/tmp/out/@nodelib/fs.stat/README.md'] {
   errno: -2,
   code: 'ENOENT',
@@ -467,7 +467,7 @@ Figure&nbsp;2.8: Three levels of callback in the running example.
 }</code></pre>
 <p>The problem is that <code>node_modules/fs.stat</code> and <code>node_modules/fs.walk</code> match our globbing expression, but are directories rather than files. To prevent our program from trying to use <code>fs.copy</code> on directories, we must use <code>fs.stat</code> to get the properties of the things <code>glob</code> gives us and then check if they are files. The name “stat” is short for “status”, and since the status of something in the filesystem can be very complex, <code>fs.stat</code> returns <a href="https://nodejs.org/api/fs.html#fs_class_fs_stats">an object with methods that can answer common questions</a>.</p>
 <p>Here’s the final version of our file copying program:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob'</span></span>
+<div class="sourceCode" id="cb20" data-file="sysprog/copy-file-filtered.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob'</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs-extra'</span></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> path <span class="im">from</span> <span class="st">'path'</span></span>
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> [srcRoot<span class="op">,</span> dstRoot] <span class="op">=</span> <span class="bu">process</span><span class="op">.</span><span class="at">argv</span><span class="op">.</span><span class="fu">slice</span>(<span class="dv">2</span>)</span>
@@ -505,7 +505,7 @@ Figure&nbsp;2.8: Three levels of callback in the running example.
 <p>Write a program called <code>wherenode.js</code> that prints the full path to the version of Node it is run with.</p>
 <h3 data-number="2.6.2" id="tracing-callbacks"><span class="header-section-number">2.6.2</span> Tracing callbacks</h3>
 <p>In what order does the program below print messages?</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> red <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<div class="sourceCode" id="cb21" data-file="sysprog/x-trace-callback/trace.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> red <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'RED'</span>)</span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> green <span class="op">=</span> (func) <span class="kw">=&gt;</span> {</span>
@@ -519,7 +519,7 @@ Figure&nbsp;2.8: Three levels of callback in the running example.
 <span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="fu">blue</span>(green<span class="op">,</span> red)</span></code></pre></div>
 <h3 data-number="2.6.3" id="tracing-anonymous-callbacks"><span class="header-section-number">2.6.3</span> Tracing anonymous callbacks</h3>
 <p>In what order does the program below print messages?</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> blue <span class="op">=</span> (left<span class="op">,</span> right) <span class="kw">=&gt;</span> {</span>
+<div class="sourceCode" id="cb22" data-file="sysprog/x-trace-anonymous/trace.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> blue <span class="op">=</span> (left<span class="op">,</span> right) <span class="kw">=&gt;</span> {</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'BLUE'</span>)</span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left</span>(right)</span>
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>}</span>
@@ -542,7 +542,7 @@ Figure&nbsp;2.8: Three levels of callback in the running example.
 </ul>
 <h3 data-number="2.6.6" id="filtering-arrays"><span class="header-section-number">2.6.6</span> Filtering arrays</h3>
 <p>Fill in the blank in the code below so that the output matches the one shown. Note: you can compare strings in JavaScript using <code>&lt;</code>, <code>&gt;=</code>, and other operators, so that (for example) <code>person.personal &gt; 'P'</code> is <code>true</code> if someone’s personal name starts with a letter that comes after ‘P’ in the alphabet.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> people <span class="op">=</span> [</span>
+<div class="sourceCode" id="cb23" data-file="sysprog/x-array-filter/filter.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> people <span class="op">=</span> [</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  { <span class="dt">personal</span><span class="op">:</span> <span class="st">'Jean'</span><span class="op">,</span> <span class="dt">family</span><span class="op">:</span> <span class="st">'Jennings'</span> }<span class="op">,</span></span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  { <span class="dt">personal</span><span class="op">:</span> <span class="st">'Marlyn'</span><span class="op">,</span> <span class="dt">family</span><span class="op">:</span> <span class="st">'Wescoff'</span> }<span class="op">,</span></span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  { <span class="dt">personal</span><span class="op">:</span> <span class="st">'Ruth'</span><span class="op">,</span> <span class="dt">family</span><span class="op">:</span> <span class="st">'Lichterman'</span> }<span class="op">,</span></span>
@@ -552,14 +552,14 @@ Figure&nbsp;2.8: Three levels of callback in the running example.
 <span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>]</span>
 <span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> result <span class="op">=</span> people<span class="op">.</span><span class="fu">filter</span>(____ <span class="kw">=&gt;</span> ____)</span>
 <span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(result)</span></code></pre></div>
-<pre><code>[
+<pre data-file="sysprog/x-array-filter/filter.txt"><code>[
   { personal: 'Jean', family: 'Jennings' },
   { personal: 'Ruth', family: 'Lichterman' },
   { personal: 'Frances', family: 'Bilas' }
 ]</code></pre>
 <h3 data-number="2.6.7" id="string-interpolation"><span class="header-section-number">2.6.7</span> String interpolation</h3>
 <p>Fill in the code below so that it prints the message shown.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> people <span class="op">=</span> [</span>
+<div class="sourceCode" id="cb25" data-file="sysprog/x-string-interpolation/interpolate.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> people <span class="op">=</span> [</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  { <span class="dt">personal</span><span class="op">:</span> <span class="st">'Christine'</span><span class="op">,</span> <span class="dt">family</span><span class="op">:</span> <span class="st">'Darden'</span> }<span class="op">,</span></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  { <span class="dt">personal</span><span class="op">:</span> <span class="st">'Mary'</span><span class="op">,</span> <span class="dt">family</span><span class="op">:</span> <span class="st">'Jackson'</span> }<span class="op">,</span></span>
 <span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  { <span class="dt">personal</span><span class="op">:</span> <span class="st">'Katherine'</span><span class="op">,</span> <span class="dt">family</span><span class="op">:</span> <span class="st">'Johnson'</span> }<span class="op">,</span></span>
@@ -568,7 +568,7 @@ Figure&nbsp;2.8: Three levels of callback in the running example.
 <span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (<span class="kw">const</span> person <span class="kw">of</span> people) {</span>
 <span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`$____, $____`</span>)</span>
 <span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<pre><code>Darden, Christine
+<pre data-file="sysprog/x-string-interpolation/interpolate.txt"><code>Darden, Christine
 Jackson, Mary
 Johnson, Katherine
 Vaughan, Dorothy</code></pre>
@@ -611,6 +611,14 @@ Gregg, Brendan. 2020. <em>Systems Performance: Enterprise and the Cloud</em>. Pe
     <a class="pager-link next" href="../async/index.html">Asynchronous Programming →</a>
   </nav>
 </footer>
+<script>
+document.addEventListener('click', function (e) {
+  var link = e.target.closest && e.target.closest('a');
+  document.querySelectorAll('details.topnav-dropdown[open]').forEach(function (d) {
+    if (!d.contains(e.target) || (link && d.contains(link))) d.removeAttribute('open');
+  });
+});
+</script>
 
 
 </body></html>

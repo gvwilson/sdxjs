@@ -259,7 +259,7 @@ Table&nbsp;18.2: Result for example package dependencies.
 <p>In the worst case this procedure will create a <a href="../glossary/index.html#combinatorial_explosion">combinatorial explosion</a> of possibilities. Smart algorithms will try to add packages to the mix in an order that minimize the number of new possibilities at each stage, or create pairs and then combine them to create pairs of pairs and so on. Our algorithm will be simpler (and therefore slower), but illustrates the key idea.</p>
 <h2 data-number="18.3" id="package-manager-constraints"><span class="header-section-number">18.3</span> How can we satisfy constraints?</h2>
 <p>To avoid messing around with parsers, our programs reads a JSON data structure describing the problem; a real package manager would read the <a href="../glossary/index.html#manifest">manifests</a> of the packages in question and construct a similar data structure. We will stick to single-digit version numbers for readability, and will use this as our first test case:</p>
-<pre><code>{
+<pre data-file="packman/double-chained.json"><code>{
   "X": {
     "1": {
       "Y": ["1"]
@@ -280,7 +280,7 @@ Table&nbsp;18.2: Result for example package dependencies.
 </blockquote>
 </div>
 <p>To check if a combination of specific versions of packages is compatible with a manifest, we add each package to our active list in turn and look for violations. If there aren’t any more packages to add and we haven’t found a violation, then what we have must be a legal configuration.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> configStr <span class="im">from</span> <span class="st">'./config-str.js'</span></span>
+<div class="sourceCode" id="cb2" data-file="packman/sweep.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> configStr <span class="im">from</span> <span class="st">'./config-str.js'</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> sweep <span class="op">=</span> (manifest) <span class="kw">=&gt;</span> {</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> names <span class="op">=</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">keys</span>(manifest)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> result <span class="op">=</span> []</span>
@@ -319,16 +319,16 @@ Table&nbsp;18.2: Result for example package dependencies.
 <span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:/allows</span></span>
 <span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> sweep</span></code></pre></div>
 <p>The simplest way to find configurations is to sweep over all possibilities. For debugging purposes, our function prints possibilities as it goes:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb3" data-file="packman/sweep.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>If we run this program on the two-package example shown earlier, we get this output:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> driver.js ./sweep.js double-chained.json</span></code></pre></div>
-<pre><code>{X:1 Y:1}
+<div class="sourceCode" id="cb4" data-file="packman/sweep-double-chained.sh"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> driver.js ./sweep.js double-chained.json</span></code></pre></div>
+<pre data-file="packman/sweep-double-chained.out"><code>{X:1 Y:1}
 {X:1 Y:2} @ X/1 Y/2
 {X:2 Y:1} @ X/2 Y/1
 {X:2 Y:2}</code></pre>
 <p>When we run it on our triple-package example, we get this:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> driver.js ./sweep.js triple.json</span></code></pre></div>
-<pre><code>{X:1 Y:1 Z:1} @ Y/1 Z/1
+<div class="sourceCode" id="cb6" data-file="packman/sweep-triple.sh"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> driver.js ./sweep.js triple.json</span></code></pre></div>
+<pre data-file="packman/sweep-triple.out"><code>{X:1 Y:1 Z:1} @ Y/1 Z/1
 {X:1 Y:1 Z:2} @ X/1 Z/2
 {X:1 Y:1 Z:3} @ X/1 Z/3
 {X:1 Y:2 Z:1} @ Y/2 Z/1
@@ -489,7 +489,7 @@ Figure&nbsp;18.2: Pruning options in the search tree to reduce work.
 </figure>
 </div>
 <p>This version of the program collects possible solutions and displays them at the end. It only keeps checking a partial solution if what it has found so far looks good:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> configStr <span class="im">from</span> <span class="st">'./config-str.js'</span></span>
+<div class="sourceCode" id="cb8" data-file="packman/prune.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> configStr <span class="im">from</span> <span class="st">'./config-str.js'</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> prune <span class="op">=</span> (manifest) <span class="kw">=&gt;</span> {</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> names <span class="op">=</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">keys</span>(manifest)</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> result <span class="op">=</span> []</span>
@@ -538,9 +538,9 @@ Figure&nbsp;18.2: Pruning options in the search tree to reduce work.
 <span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> prune</span></code></pre></div>
 <p>The <code>compatible</code> function checks to see if adding something will leave us with a consistent configuration:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb9" data-file="packman/prune.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Checking as we go gets us from 18 complete solutions to 11. One is workable and two are incomplete—they represent 6 possible complete solutions that we didn’t need to finish:</p>
-<pre><code>{X:1 Y:1 Z:1} @ Y/1 Z/1
+<pre data-file="packman/prune-triple.out"><code>{X:1 Y:1 Z:1} @ Y/1 Z/1
 {X:1 Y:1 Z:2} @ X/1 Z/2
 {X:1 Y:1 Z:3} @ X/1 Z/3
 {X:1 Y:2 Z:1} @ Y/2 Z/1
@@ -556,7 +556,7 @@ Figure&nbsp;18.2: Pruning options in the search tree to reduce work.
 {X:2 Y:2 Z:2}</code></pre>
 <p>Another way to look at the work is the number of steps in the search. The full search had 18×3 = 54 steps. Pruning leaves us with (12×3) + (2×2) = 40 steps so we have eliminated roughly 1/4 of the work.</p>
 <p>What if we searched in the reverse order?</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> configStr <span class="im">from</span> <span class="st">'./config-str.js'</span></span>
+<div class="sourceCode" id="cb11" data-file="packman/reverse.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> configStr <span class="im">from</span> <span class="st">'./config-str.js'</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:reverse</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> reverse <span class="op">=</span> (manifest) <span class="kw">=&gt;</span> {</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> names <span class="op">=</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">keys</span>(manifest)</span>
@@ -605,7 +605,7 @@ Figure&nbsp;18.2: Pruning options in the search tree to reduce work.
 <span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`</span><span class="sc">${</span>title<span class="sc">}</span><span class="vs"> @ </span><span class="sc">${</span>leftN<span class="sc">}</span><span class="vs">/</span><span class="sc">${</span>leftV<span class="sc">}</span><span class="vs"> </span><span class="sc">${</span>rightN<span class="sc">}</span><span class="vs">/</span><span class="sc">${</span>rightV<span class="sc">}</span><span class="vs">`</span>)</span>
 <span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> reverse</span></code></pre></div>
-<pre><code>{Z:1 Y:1} @ Z/1 Y/1
+<pre data-file="packman/reverse-triple.out"><code>{Z:1 Y:1} @ Z/1 Y/1
 {Z:1 Y:2} @ Z/1 Y/2
 {Z:1 Y:3} @ Z/1 Y/3
 {Z:2 Y:1 X:1} @ Z/2 X/1
@@ -686,6 +686,14 @@ Taschuk, Morgan, and Greg Wilson. 2017. <span>“Ten Simple Rules for Making Res
     <a class="pager-link next" href="../vm/index.html">Virtual Machine →</a>
   </nav>
 </footer>
+<script>
+document.addEventListener('click', function (e) {
+  var link = e.target.closest && e.target.closest('a');
+  document.querySelectorAll('details.topnav-dropdown[open]').forEach(function (d) {
+    if (!d.contains(e.target) || (link && d.contains(link))) d.removeAttribute('open');
+  });
+});
+</script>
 
 
 </body></html>

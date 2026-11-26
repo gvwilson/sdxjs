@@ -37,7 +37,7 @@
 <p>Many programmers believe they’re more likely to write documentation and keep it up to date if it is close to the code. Tools that extract specially-formatted comments from code and turn them into documentation have been around since at least the 1980s; many are used for JavaScript, including <a href="https://jsdoc.app/">JSDoc</a> and <a href="https://esdoc.org/">ESDoc</a>. This chapter will use what we learned in <a href="../codegen/index.html" class="quarto-xref"><span>Chapter 15</span></a> about parsing source code to build a simple documentation generator of our own.</p>
 <h2 data-number="16.1" id="doc-generator-extract"><span class="header-section-number">16.1</span> How can we extract documentation comments?</h2>
 <p>We will use <a href="https://github.com/acornjs/acorn">Acorn</a> once again to parse our source files. This time we will use the parser’s <code>onComment</code> option, giving it an array to fill in. For the moment we won’t bother to assign the AST produced by parsing to a variable because we are just interested in the comments:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs'</span></span>
+<div class="sourceCode" id="cb1" data-file="docgen/extract-comments.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs'</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> acorn <span class="im">from</span> <span class="st">'acorn'</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> text <span class="op">=</span> fs<span class="op">.</span><span class="fu">readFileSync</span>(<span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">2</span>]<span class="op">,</span> <span class="st">'utf-8'</span>)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> options <span class="op">=</span> {</span>
@@ -47,9 +47,9 @@
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>acorn<span class="op">.</span><span class="fu">parse</span>(text<span class="op">,</span> options)</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(options<span class="op">.</span><span class="at">onComment</span><span class="op">,</span> <span class="kw">null</span><span class="op">,</span> <span class="dv">2</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// double-slash comment</span></span>
+<div class="sourceCode" id="cb2" data-file="docgen/two-kinds-of-comment.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// double-slash comment</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">/* slash-star comment */</span></span></code></pre></div>
-<pre><code>[
+<pre data-file="docgen/two-kinds-of-comment.out"><code>[
   {
     "type": "Line",
     "value": " double-slash comment",
@@ -84,7 +84,7 @@
   }
 ]</code></pre>
 <p>There is more information here than we need, so let’s slim down the JSON that we extract:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs'</span></span>
+<div class="sourceCode" id="cb4" data-file="docgen/extract-comments-subset.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs'</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> acorn <span class="im">from</span> <span class="st">'acorn'</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> text <span class="op">=</span> fs<span class="op">.</span><span class="fu">readFileSync</span>(<span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">2</span>]<span class="op">,</span> <span class="st">'utf-8'</span>)</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> options <span class="op">=</span> {</span>
@@ -102,8 +102,8 @@
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>})</span>
 <span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(subset<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> <span class="dv">2</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> extract-comments-subset.js two-kinds-of-comment.js</span></code></pre></div>
-<pre><code>[
+<div class="sourceCode" id="cb5" data-file="docgen/two-kinds-of-comment-subset.sh"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> extract-comments-subset.js two-kinds-of-comment.js</span></code></pre></div>
+<pre data-file="docgen/two-kinds-of-comment-subset.out"><code>[
   {
     "type": "Line",
     "value": " double-slash comment",
@@ -128,13 +128,13 @@ Figure&nbsp;16.1: How line comments and block comments are distinguished and rep
 </figure>
 </div>
 <p>Acorn distinguishes two kinds of comments (<a href="#fig-doc-generator-comments" class="quarto-xref">Figure&nbsp;<span>16.1</span></a>). <a href="../glossary/index.html#line_comment">Line comments</a> cannot span multiple lines; if one line comment occurs immediately after another, Acorn reports two comments:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">//</span></span>
+<div class="sourceCode" id="cb7" data-file="docgen/multi-line-double-slash-comment.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">//</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">// multi-line double-slash comment</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">//</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">//</span></span>
+<div class="sourceCode" id="cb8" data-file="docgen/multi-line-double-slash-comment.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">//</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">// multi-line double-slash comment</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">//</span></span></code></pre></div>
-<pre><code>[
+<pre data-file="docgen/multi-line-double-slash-comment.out"><code>[
   {
     "type": "Line",
     "value": "",
@@ -155,13 +155,13 @@ Figure&nbsp;16.1: How line comments and block comments are distinguished and rep
   }
 ]</code></pre>
 <p><a href="../glossary/index.html#block_comment">Block comments</a>, on the other hand, can span any number of lines. We don’t need to prefix each line with <code>*</code> but most people do for readability:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">/*</span></span>
+<div class="sourceCode" id="cb10" data-file="docgen/multi-line-slash-star-comment.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">/*</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"> * multi-line slash-star comment</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"> */</span></span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">/*</span></span>
+<div class="sourceCode" id="cb11" data-file="docgen/multi-line-slash-star-comment.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">/*</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co"> * multi-line slash-star comment</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"> */</span></span></code></pre></div>
-<pre><code>[
+<pre data-file="docgen/multi-line-slash-star-comment.out"><code>[
   {
     "type": "Block",
     "value": "\n * multi-line slash-star comment\n ",
@@ -170,10 +170,10 @@ Figure&nbsp;16.1: How line comments and block comments are distinguished and rep
   }
 ]</code></pre>
 <p>By convention, we use block comments that start with <code>/**</code> for documentation. The first two characters are recognized by the parser as “start of comment”, so the first character in the extracted text is <code>*</code>:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
+<div class="sourceCode" id="cb13" data-file="docgen/doc-comment.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"> * doc comment</span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"> */</span></span></code></pre></div>
-<pre><code>[
+<pre data-file="docgen/doc-comment.out"><code>[
   {
     "type": "Block",
     "value": "*\n * doc comment\n ",
@@ -183,7 +183,7 @@ Figure&nbsp;16.1: How line comments and block comments are distinguished and rep
 ]</code></pre>
 <h2 data-number="16.2" id="doc-generator-input"><span class="header-section-number">16.2</span> What input will we try to handle?</h2>
 <p>We will use <a href="https://en.wikipedia.org/wiki/Markdown">Markdown</a> for formatting our documentation. The <a href="../glossary/index.html#doc_comment">doc comments</a> for function definitions look like this:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
+<div class="sourceCode" id="cb15" data-file="docgen/example-plain.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co"> * # Demonstrate documentation generator.</span></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"> */</span></span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> util <span class="im">from</span> <span class="st">'./util-plain'</span></span>
@@ -215,7 +215,7 @@ Figure&nbsp;16.1: How line comments and block comments are distinguished and rep
 <span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>  <span class="co">// body would go here</span></span>
 <span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>while the ones for class definitions look like this:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
+<div class="sourceCode" id="cb16" data-file="docgen/util-plain.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co"> * # Utilities to demonstrate doc generator.</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"> */</span></span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
@@ -240,15 +240,15 @@ Figure&nbsp;16.1: How line comments and block comments are distinguished and rep
 <span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> BaseProcessor</span></code></pre></div>
 <p>The doc comments are unpleasant at the moment: they repeat the function and method names from the code, we have to create titles ourselves, and we have to remember the back-quotes for formatting code. We will fix some of these problems once we have a basic tool up and running.</p>
 <p>The next step in doing that is to translate Markdown into HTML. There are many Markdown parsers in JavaScript; after experimenting with a few, we decided to use <a href="https://markdown-it.github.io/"><code>markdown-it</code></a> along with the <a href="https://www.npmjs.com/package/markdown-it-anchor"><code>markdown-it-anchor</code></a> extension that creates HTML anchors for headings. The main program gets all the doc comments from all of the input files, converts the Markdown to HTML, and displays that:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb17" data-file="docgen/process-plain.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>To get all the comments, we extract comments from all the files, remove the leading <code>*</code> characters (which aren’t part of the documentation), and then join the results after stripping off extraneous blanks:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb18" data-file="docgen/process-plain.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Extracting the comments from a single file is done as before:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb19" data-file="docgen/process-plain.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>and removing the prefix <code>*</code> characters is a matter of splitting the text into lines, removing the leading spaces and asterisks, and putting the lines back together:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb20" data-file="docgen/process-plain.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>One thing that isn’t in this file (because we’re going to use it in later versions) is the function <code>slugify</code>. A <a href="../glossary/index.html#slug">slug</a> is a short string that identifies a header or a web page; the name comes from the era of newspapers, where a slug was a short name used to identify an article while it was in production. Our <code>slugify</code> function strips unnecessary characters out of a title, adds hyphens, and generally makes it something you might see in a <a href="../glossary/index.html#url">URL</a>:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> slugify <span class="op">=</span> (text) <span class="kw">=&gt;</span> {</span>
+<div class="sourceCode" id="cb21" data-file="docgen/slugify.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> slugify <span class="op">=</span> (text) <span class="kw">=&gt;</span> {</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="pp">encodeURIComponent</span>(</span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    text<span class="op">.</span><span class="fu">split</span>(<span class="st">' '</span>)[<span class="dv">0</span>]</span>
 <span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">replace</span>(<span class="ss">/.js</span><span class="sc">$</span><span class="ss">/</span><span class="op">,</span> <span class="st">''</span>)</span>
@@ -260,8 +260,8 @@ Figure&nbsp;16.1: How line comments and block comments are distinguished and rep
 <span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> slugify</span></code></pre></div>
 <p>Let’s run this generator and see what it produces (<a href="#fig-doc-generator-process-plain" class="quarto-xref">Figure&nbsp;<span>16.3</span></a> and <a href="#fig-doc-generator-mapping" class="quarto-xref">Figure&nbsp;<span>16.2</span></a>):</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> process-plain.js example-plain.js util-plain.js</span></code></pre></div>
-<div class="sourceCode" id="cb23"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;&lt;</span><span class="kw">body</span><span class="ot"> style</span><span class="op">=</span><span class="st">"width: 40rem; padding-left: 0.5rem; border: solid;"</span><span class="dt">&gt;</span></span>
+<div class="sourceCode" id="cb22" data-file="docgen/process-plain.sh"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> process-plain.js example-plain.js util-plain.js</span></code></pre></div>
+<div class="sourceCode" id="cb23" data-file="docgen/process-plain.html"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;&lt;</span><span class="kw">body</span><span class="ot"> style</span><span class="op">=</span><span class="st">"width: 40rem; padding-left: 0.5rem; border: solid;"</span><span class="dt">&gt;</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">h1</span><span class="ot"> id</span><span class="op">=</span><span class="st">"exampleplain"</span><span class="dt">&gt;</span>example-plain.js<span class="dt">&lt;/</span><span class="kw">h1</span><span class="dt">&gt;</span></span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">h1</span><span class="ot"> id</span><span class="op">=</span><span class="st">"demonstrate"</span><span class="dt">&gt;</span>Demonstrate documentation generator.<span class="dt">&lt;/</span><span class="kw">h1</span><span class="dt">&gt;</span></span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">h2</span><span class="ot"> id</span><span class="op">=</span><span class="st">"main"</span><span class="dt">&gt;&lt;</span><span class="kw">code</span><span class="dt">&gt;</span>main<span class="dt">&lt;/</span><span class="kw">code</span><span class="dt">&gt;</span>: Main driver.<span class="dt">&lt;/</span><span class="kw">h2</span><span class="dt">&gt;</span></span>
@@ -311,7 +311,7 @@ Figure&nbsp;16.3: The page produced by the documentation generator.
 <p>It works, but there is a double <code>h1</code> header for each file (the filename and the title comment), the anchor IDs are hard to read, there are no cross-references, and so on. Some of the visual issues can be resolved with CSS, and we can change our input format to make processing easier as long as it also makes authoring easier. However, anything that is written twice will eventually be wrong in one place or another, so our first priority is to remove duplication.</p>
 <h2 data-number="16.3" id="doc-generator-dup"><span class="header-section-number">16.3</span> How can we avoid duplicating names?</h2>
 <p>If a comment is the first thing in a file, we want to use it as title text; this will save us having to write an explicit level-1 title in a comment. For each other comment, we can extract the name of the function or method from the node on the line immediately following the doc comment. This allows us to write much tidier comments:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
+<div class="sourceCode" id="cb24" data-file="docgen/find-following-input.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co"> * Overall file header.</span></span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="co"> */</span></span>
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
@@ -335,11 +335,11 @@ Figure&nbsp;16.3: The page produced by the documentation generator.
 <span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>To extract and display information from nodes immediately following doc comments we must find all the block comments, record the last line of each, and then search the AST to find nodes that are on lines immediately following any of those trailing comment lines. (We will assume for now that there are no blank lines between the comment and the start of the class or function.) The main program finds the comments as usual, creates a set containing the line numbers we are looking for, then searches for the nodes we want:</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb25" data-file="docgen/find-following.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>The recursive search is straightforward as well—we delete line numbers from the target set and add nodes to the <a href="../glossary/index.html#accumulator">accumulator</a> as we find matches:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb26" data-file="docgen/find-following.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Finally, we use a function called <code>condense</code> to get the name we want out of the AST:</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb27" data-file="docgen/find-following.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>We need this because we get a different structure with:</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> name <span class="op">=</span> <span class="kw">function</span>() <span class="kw">=&gt;</span> {</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
@@ -347,14 +347,14 @@ Figure&nbsp;16.3: The page produced by the documentation generator.
 <div class="sourceCode" id="cb29"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">name</span>() {</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>When we run this on our test case we get:</p>
-<pre><code>[
+<pre data-file="docgen/find-following.out"><code>[
   { type: 'VariableDeclaration', start: 8, name: 'double' },
   { type: 'FunctionDeclaration', start: 13, name: 'triple' },
   { type: 'ClassDeclaration', start: 20, name: 'Example' },
   { type: 'MethodDefinition', start: 24, name: 'someMethod' }
 ]</code></pre>
 <p>We can use this to create better output (<a href="#fig-doc-generator-fill-in-headers" class="quarto-xref">Figure&nbsp;<span>16.4</span></a>):</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> MarkdownIt <span class="im">from</span> <span class="st">'markdown-it'</span></span>
+<div class="sourceCode" id="cb31" data-file="docgen/fill-in-headers.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> MarkdownIt <span class="im">from</span> <span class="st">'markdown-it'</span></span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> MarkdownAnchor <span class="im">from</span> <span class="st">'markdown-it-anchor'</span></span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> getComments <span class="im">from</span> <span class="st">'./get-comments.js'</span></span>
 <span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> getDefinitions <span class="im">from</span> <span class="st">'./get-definitions.js'</span></span>
@@ -381,7 +381,7 @@ Figure&nbsp;16.3: The page produced by the documentation generator.
 <span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(FOOT)</span>
 <span id="cb31-26"><a href="#cb31-26" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb31-27"><a href="#cb31-27" aria-hidden="true" tabindex="-1"></a><span class="fu">main</span>()</span></code></pre></div>
-<div class="sourceCode" id="cb32"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;&lt;</span><span class="kw">body</span><span class="ot"> style</span><span class="op">=</span><span class="st">"width: 40rem; padding-left: 0.5rem; border: solid;"</span><span class="dt">&gt;</span></span>
+<div class="sourceCode" id="cb32" data-file="docgen/fill-in-headers.html"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;&lt;</span><span class="kw">body</span><span class="ot"> style</span><span class="op">=</span><span class="st">"width: 40rem; padding-left: 0.5rem; border: solid;"</span><span class="dt">&gt;</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">h1</span><span class="ot"> id</span><span class="op">=</span><span class="st">"fillinheadersinput"</span><span class="dt">&gt;</span>fill-in-headers-input.js<span class="dt">&lt;/</span><span class="kw">h1</span><span class="dt">&gt;</span></span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;</span>Demonstrate documentation generator.<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
 <span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">h2</span><span class="ot"> id</span><span class="op">=</span><span class="st">"main"</span><span class="dt">&gt;</span>main<span class="dt">&lt;/</span><span class="kw">h2</span><span class="dt">&gt;</span></span>
@@ -483,6 +483,14 @@ Figure&nbsp;16.4: Filling in headers when generating documentation.
     <a class="pager-link next" href="../bundler/index.html">Module Bundler →</a>
   </nav>
 </footer>
+<script>
+document.addEventListener('click', function (e) {
+  var link = e.target.closest && e.target.closest('a');
+  document.querySelectorAll('details.topnav-dropdown[open]').forEach(function (d) {
+    if (!d.contains(e.target) || (link && d.contains(link))) d.removeAttribute('open');
+  });
+});
+</script>
 
 
 </body></html>

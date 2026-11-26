@@ -56,7 +56,7 @@ Figure&nbsp;9.1: Three different ways to implement page templating.
 <p>In this chapter we will build a simple page templating system using the third strategy. We will process each page independently by parsing the HTML and walking the DOM to find nodes with special attributes. Our program will execute the instructions in those nodes to do the equivalent of loops and if/else statements; other nodes will be copied as-is to create text.</p>
 <h2 data-number="9.1" id="page-templates-syntax"><span class="header-section-number">9.1</span> What will our system look like?</h2>
 <p>Let’s start by deciding what “done” looks like. Suppose we want to turn an array of strings into an HTML list. Our page will look like this:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<div class="sourceCode" id="cb1" data-file="templater/input-loop.html"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="dt">&gt;</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;</span>Expect three items<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">ul</span><span class="ot"> z-loop</span><span class="op">=</span><span class="st">"item:names"</span><span class="dt">&gt;</span></span>
@@ -66,7 +66,7 @@ Figure&nbsp;9.1: Three different ways to implement page templating.
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
 <p>The attribute <code>z-loop</code> tells the tool to repeat the contents of that node; the loop variable and the collection being looped over are separated by a colon. The attribute <code>z-var</code> tells the tool to fill in the node with the value of the variable.</p>
 <p>When our tool processes this page, the output will be standard HTML without any traces of how it was created:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<div class="sourceCode" id="cb2" data-file="templater/output-loop.html"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="ot"> style</span><span class="op">=</span><span class="st">"font-size: 200%; margin-left: 0.5em"</span><span class="dt">&gt;</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;</span>Expect three items<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">ul</span><span class="dt">&gt;</span></span>
@@ -85,7 +85,7 @@ Figure&nbsp;9.1: Three different ways to implement page templating.
 </blockquote>
 </div>
 <p>The next step is to define the API for filling in templates. Our tool needs the template itself, somewhere to write its output, and some variables to use in the expansion. These variables might come from a configuration file, from a YAML header in the file itself, or from some mix of the two; for the moment, we will just pass them into the expansion function as an object:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> variables <span class="op">=</span> {</span>
+<div class="sourceCode" id="cb4" data-file="templater/example-call.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> variables <span class="op">=</span> {</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">names</span><span class="op">:</span> [<span class="st">'Johnson'</span><span class="op">,</span> <span class="st">'Vaughan'</span><span class="op">,</span> <span class="st">'Jackson'</span>]</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> dom <span class="op">=</span> <span class="fu">readHtml</span>(<span class="st">'template.html'</span>) <span class="co">// eslint-disable-line</span></span>
@@ -102,7 +102,7 @@ Figure&nbsp;9.1: Three different ways to implement page templating.
 </blockquote>
 </div>
 <p>The values in a running program are sometimes called an <a href="../glossary/index.html#environment">environment</a>, so we have named our stack-handling class <code>Env</code>. Its methods let us push and pop new stack frames and find a variable given its name; if the variable can’t be found, <code>Env.find</code> returns <code>undefined</code> instead of throwing an exception (<a href="#fig-page-templates-stack" class="quarto-xref">Figure&nbsp;<span>9.2</span></a>).</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Env {</span>
+<div class="sourceCode" id="cb5" data-file="templater/env.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Env {</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (initial) {</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">stack</span> <span class="op">=</span> []</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">push</span>(<span class="bu">Object</span><span class="op">.</span><span class="fu">assign</span>({}<span class="op">,</span> initial))</span>
@@ -138,7 +138,7 @@ Figure&nbsp;9.2: Using a stack to manage variables.
 </div>
 <h2 data-number="9.3" id="page-templates-nodes"><span class="header-section-number">9.3</span> How do we handle nodes?</h2>
 <p>HTML pages have a nested structure, so we will process them using the <a href="../glossary/index.html#visitor_pattern">Visitor</a> design pattern. <code>Visitor</code>’s constructor takes the <a href="../glossary/index.html#root_tree">root node</a> of the DOM tree as an argument and saves it. When we call <code>Visitor.walk</code> without a value, it starts recursing from that saved root; if <code>.walk</code> is given a value (as it is during recursive calls), it uses that instead.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<div class="sourceCode" id="cb6" data-file="templater/visitor.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Visitor {</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (<span class="bu">root</span>) {</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">root</span> <span class="op">=</span> <span class="bu">root</span></span>
@@ -181,7 +181,7 @@ Figure&nbsp;9.3: Using the Visitor pattern to evaluate a page template.
 <li><p>If there is a handler for the node, call the handler’s <code>open</code> or <code>close</code> method.</p></li>
 <li><p>Otherwise, open or close a regular tag.</p></li>
 </ol>
-<div class="sourceCode" id="cb7"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<div class="sourceCode" id="cb7" data-file="templater/expander.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Visitor <span class="im">from</span> <span class="st">'./visitor.js'</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Env <span class="im">from</span> <span class="st">'./env.js'</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> z_if <span class="im">from</span> <span class="st">'./z-if.js'</span></span>
@@ -268,13 +268,13 @@ Figure&nbsp;9.3: Using the Visitor pattern to evaluate a page template.
 <span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> Expander</span></code></pre></div>
 <p>Checking to see if there is a handler for a particular node and getting that handler are straightforward—we just look at the node’s attributes:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb8" data-file="templater/expander.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Finally, we need a few helper methods to show tags and generate output:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb9" data-file="templater/expander.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Notice that this class adds strings to an array and joins them all right at the end rather than concatenating strings repeatedly. Doing this is more efficient and also helps with debugging, since each string in the array corresponds to a single method call.</p>
 <h2 data-number="9.4" id="page-templates-handlers"><span class="header-section-number">9.4</span> How do we implement node handlers?</h2>
 <p>At this point we have built a lot of infrastructure but haven’t actually processed any special nodes. To do that, let’s write a handler that copies a constant number into the output:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> {</span>
+<div class="sourceCode" id="cb10" data-file="templater/z-num.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> {</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">open</span><span class="op">:</span> (expander<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    expander<span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">false</span>)</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    expander<span class="op">.</span><span class="fu">output</span>(node<span class="op">.</span><span class="at">attribs</span>[<span class="st">'z-num'</span>])</span>
@@ -286,7 +286,7 @@ Figure&nbsp;9.3: Using the Visitor pattern to evaluate a page template.
 <p>When we enter a node like <code>&lt;span z-num="123"/&gt;</code> this handler asks the expander to show an opening tag followed by the value of the <code>z-num</code> attribute. When we exit the node, the handler asks the expander to close the tag. The handler doesn’t know whether things are printed immediately, added to an output list, or something else; it just knows that whoever called it implements the low-level operations it needs.</p>
 <p>Note that this expander is <em>not</em> a class, but instead an object with two functions stored under the keys <code>open</code> and <code>close</code>. We could use a class for each handler so that handlers can store any extra state they need, but <a href="../glossary/index.html#bare_object">bare objects</a> are common and useful in JavaScript (though we will see below that we <em>should</em> have used classes).</p>
 <p>So much for constants; what about variables?</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> {</span>
+<div class="sourceCode" id="cb11" data-file="templater/z-var.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> {</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">open</span><span class="op">:</span> (expander<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    expander<span class="op">.</span><span class="fu">showTag</span>(node<span class="op">,</span> <span class="kw">false</span>)</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    expander<span class="op">.</span><span class="fu">output</span>(expander<span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="fu">find</span>(node<span class="op">.</span><span class="at">attribs</span>[<span class="st">'z-var'</span>]))</span>
@@ -297,7 +297,7 @@ Figure&nbsp;9.3: Using the Visitor pattern to evaluate a page template.
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>This code is almost the same as the previous example. The only difference is that instead of copying the attribute’s value directly to the output, we use it as a key to look up a value in the environment.</p>
 <p>These two pairs of handlers look plausible, but do they work? To find out, we can build a program that loads variable definitions from a JSON file, reads an HTML template, and does the expansion:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs'</span></span>
+<div class="sourceCode" id="cb12" data-file="templater/template.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs'</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> htmlparser2 <span class="im">from</span> <span class="st">'htmlparser2'</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Expander <span class="im">from</span> <span class="st">'./expander.js'</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> main <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
@@ -317,7 +317,7 @@ Figure&nbsp;9.3: Using the Visitor pattern to evaluate a page template.
 <span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="fu">main</span>()</span></code></pre></div>
 <p>We added new variables for our test cases one-by-one as we were writing this chapter. To avoid repeating text repeatedly, we show the entire set once:</p>
-<pre><code>{
+<pre data-file="templater/vars.json"><code>{
   "firstVariable": "firstValue",
   "secondVariable": "secondValue",
   "variableName": "variableValue",
@@ -326,7 +326,7 @@ Figure&nbsp;9.3: Using the Visitor pattern to evaluate a page template.
   "names": ["Johnson", "Vaughan", "Jackson"]
 }</code></pre>
 <p>Our first test: is static text copied over as-is (<a href="#fig-page-templates-output-static-text" class="quarto-xref">Figure&nbsp;<span>9.4</span></a>)?</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<div class="sourceCode" id="cb14" data-file="templater/input-static-text.html"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="dt">&gt;</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">h1</span><span class="dt">&gt;</span>Static Text<span class="dt">&lt;/</span><span class="kw">h1</span><span class="dt">&gt;</span></span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;</span>This page has:<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
@@ -336,8 +336,8 @@ Figure&nbsp;9.3: Using the Visitor pattern to evaluate a page template.
 <span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;/</span><span class="kw">ul</span><span class="dt">&gt;</span></span>
 <span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
 <span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
-<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> template.js vars.json input-static-text.html</span></code></pre></div>
-<div class="sourceCode" id="cb16"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<div class="sourceCode" id="cb15" data-file="templater/static-text.sh"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> template.js vars.json input-static-text.html</span></code></pre></div>
+<div class="sourceCode" id="cb16" data-file="templater/output-static-text.html"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="ot"> style</span><span class="op">=</span><span class="st">"font-size: 200%; margin-left: 0.5em"</span><span class="dt">&gt;</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">h1</span><span class="dt">&gt;</span>Static Text<span class="dt">&lt;/</span><span class="kw">h1</span><span class="dt">&gt;</span></span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;</span>This page has:<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
@@ -358,12 +358,12 @@ Figure&nbsp;9.4: Static text generated by page templates.
 </figure>
 </div>
 <p>Good. Now, does the expander handle constants (<a href="#fig-page-templates-output-single-constant" class="quarto-xref">Figure&nbsp;<span>9.5</span></a>)?</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<div class="sourceCode" id="cb17" data-file="templater/input-single-constant.html"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="dt">&gt;</span></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="ot"> z-num</span><span class="op">=</span><span class="st">"123"</span><span class="dt">/&gt;&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
-<div class="sourceCode" id="cb18"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<div class="sourceCode" id="cb18" data-file="templater/output-single-constant.html"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="ot"> style</span><span class="op">=</span><span class="st">"font-size: 200%; margin-left: 0.5em"</span><span class="dt">&gt;</span></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="dt">&gt;</span>123<span class="dt">&lt;/</span><span class="kw">span</span><span class="dt">&gt;&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
@@ -379,12 +379,12 @@ Figure&nbsp;9.5: A single constant generated by page templates.
 </figure>
 </div>
 <p>What about a single variable (<a href="#fig-page-templates-output-single-variable" class="quarto-xref">Figure&nbsp;<span>9.6</span></a>)?</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<div class="sourceCode" id="cb19" data-file="templater/input-single-variable.html"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="dt">&gt;</span></span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="ot"> z-var</span><span class="op">=</span><span class="st">"variableName"</span><span class="dt">/&gt;&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
 <span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
-<div class="sourceCode" id="cb20"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<div class="sourceCode" id="cb20" data-file="templater/output-single-variable.html"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="ot"> style</span><span class="op">=</span><span class="st">"font-size: 200%; margin-left: 0.5em"</span><span class="dt">&gt;</span></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="dt">&gt;</span>variableValue<span class="dt">&lt;/</span><span class="kw">span</span><span class="dt">&gt;&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
@@ -400,13 +400,13 @@ Figure&nbsp;9.6: A single variable generated by page templates.
 </figure>
 </div>
 <p>What about a page containing multiple variables? There’s no reason it should fail if the single-variable case works, but we should still check—again, software isn’t done until it has been tested (<a href="#fig-page-templates-output-multiple-variables" class="quarto-xref">Figure&nbsp;<span>9.7</span></a>).</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<div class="sourceCode" id="cb21" data-file="templater/input-multiple-variables.html"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="dt">&gt;</span></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="ot"> z-var</span><span class="op">=</span><span class="st">"firstVariable"</span><span class="ot"> </span><span class="dt">/&gt;&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
 <span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="ot"> z-var</span><span class="op">=</span><span class="st">"secondVariable"</span><span class="ot"> </span><span class="dt">/&gt;&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
 <span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
 <span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
-<div class="sourceCode" id="cb22"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<div class="sourceCode" id="cb22" data-file="templater/output-multiple-variables.html"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="ot"> style</span><span class="op">=</span><span class="st">"font-size: 200%; margin-left: 0.5em"</span><span class="dt">&gt;</span></span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="dt">&gt;</span>firstValue<span class="dt">&lt;/</span><span class="kw">span</span><span class="dt">&gt;&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;&lt;</span><span class="kw">span</span><span class="dt">&gt;</span>secondValue<span class="dt">&lt;/</span><span class="kw">span</span><span class="dt">&gt;&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
@@ -424,7 +424,7 @@ Figure&nbsp;9.7: Multiple variables generated by page templates.
 </div>
 <h2 data-number="9.5" id="page-templates-flow"><span class="header-section-number">9.5</span> How can we implement control flow?</h2>
 <p>Our tool supports two types of control flow: conditional expressions and loops. Since we don’t support Boolean expressions like <code>and</code> and <code>or</code>, implementing a conditional is as simple as looking up a variable (which we know how to do) and then expanding the node if the value is true:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> {</span>
+<div class="sourceCode" id="cb23" data-file="templater/z-if.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> {</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">open</span><span class="op">:</span> (expander<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> doRest <span class="op">=</span> expander<span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="fu">find</span>(node<span class="op">.</span><span class="at">attribs</span>[<span class="st">'z-if'</span>])</span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (doRest) {</span>
@@ -439,13 +439,13 @@ Figure&nbsp;9.7: Multiple variables generated by page templates.
 <span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Let’s test it (<a href="#fig-page-templates-output-conditional" class="quarto-xref">Figure&nbsp;<span>9.8</span></a>):</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<div class="sourceCode" id="cb24" data-file="templater/input-conditional.html"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="dt">&gt;</span></span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="ot"> z-if</span><span class="op">=</span><span class="st">"showThis"</span><span class="dt">&gt;</span>This should be shown.<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="ot"> z-if</span><span class="op">=</span><span class="st">"doNotShowThis"</span><span class="dt">&gt;</span>This should <span class="dt">&lt;</span><span class="kw">em</span><span class="dt">&gt;</span>not<span class="dt">&lt;/</span><span class="kw">em</span><span class="dt">&gt;</span> be shown.<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
 <span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
 <span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
-<div class="sourceCode" id="cb25"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<div class="sourceCode" id="cb25" data-file="templater/output-conditional.html"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="ot"> style</span><span class="op">=</span><span class="st">"font-size: 200%; margin-left: 0.5em"</span><span class="dt">&gt;</span></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;</span>This should be shown.<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
 <span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
@@ -470,7 +470,7 @@ The <code>open</code> and <code>close</code> functions for <code>if</code> both 
 <li><p>Expand all of the node’s children with that stack frame in place.</p></li>
 <li><p>Pop the stack frame to get rid of the temporary variable.</p></li>
 </ol>
-<div class="sourceCode" id="cb26"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> {</span>
+<div class="sourceCode" id="cb26" data-file="templater/z-loop.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> {</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">open</span><span class="op">:</span> (expander<span class="op">,</span> node) <span class="kw">=&gt;</span> {</span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [indexName<span class="op">,</span> targetName] <span class="op">=</span> node<span class="op">.</span><span class="at">attribs</span>[<span class="st">'z-loop'</span>]<span class="op">.</span><span class="fu">split</span>(<span class="st">':'</span>)</span>
 <span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">delete</span> node<span class="op">.</span><span class="at">attribs</span>[<span class="st">'z-loop'</span>]</span>
@@ -488,7 +488,7 @@ The <code>open</code> and <code>close</code> functions for <code>if</code> both 
 <span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Once again, it’s not done until we test it (<a href="#fig-page-templates-output-loop" class="quarto-xref">Figure&nbsp;<span>9.9</span></a>):</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<div class="sourceCode" id="cb27" data-file="templater/input-loop.html"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="dt">&gt;</span></span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;</span>Expect three items<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
 <span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">ul</span><span class="ot"> z-loop</span><span class="op">=</span><span class="st">"item:names"</span><span class="dt">&gt;</span></span>
@@ -496,7 +496,7 @@ The <code>open</code> and <code>close</code> functions for <code>if</code> both 
 <span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;/</span><span class="kw">ul</span><span class="dt">&gt;</span></span>
 <span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">body</span><span class="dt">&gt;</span></span>
 <span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">html</span><span class="dt">&gt;</span></span></code></pre></div>
-<div class="sourceCode" id="cb28"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
+<div class="sourceCode" id="cb28" data-file="templater/output-loop.html"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">html</span><span class="dt">&gt;</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">body</span><span class="ot"> style</span><span class="op">=</span><span class="st">"font-size: 200%; margin-left: 0.5em"</span><span class="dt">&gt;</span></span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;</span>Expect three items<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
 <span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">ul</span><span class="dt">&gt;</span></span>
@@ -617,6 +617,14 @@ end</code></pre>
     <a class="pager-link next" href="../build/index.html">Build Manager →</a>
   </nav>
 </footer>
+<script>
+document.addEventListener('click', function (e) {
+  var link = e.target.closest && e.target.closest('a');
+  document.querySelectorAll('details.topnav-dropdown[open]').forEach(function (d) {
+    if (!d.contains(e.target) || (link && d.contains(link))) d.removeAttribute('open');
+  });
+});
+</script>
 
 
 </body></html>

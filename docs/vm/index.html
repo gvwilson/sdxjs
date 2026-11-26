@@ -173,7 +173,7 @@ Table&nbsp;19.1: Virtual machine op codes.
 </figure>
 </div>
 <p>We put our VM’s architectural details in a file that can be shared by other components:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> OPS <span class="op">=</span> {</span>
+<div class="sourceCode" id="cb1" data-file="vm/architecture.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> OPS <span class="op">=</span> {</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">hlt</span><span class="op">:</span> { <span class="dt">code</span><span class="op">:</span>  <span class="dv">1</span><span class="op">,</span> <span class="dt">fmt</span><span class="op">:</span> <span class="st">'--'</span> }<span class="op">,</span> <span class="co">// Halt program</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">ldc</span><span class="op">:</span> { <span class="dt">code</span><span class="op">:</span>  <span class="dv">2</span><span class="op">,</span> <span class="dt">fmt</span><span class="op">:</span> <span class="st">'rv'</span> }<span class="op">,</span> <span class="co">// Load immediate</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">ldr</span><span class="op">:</span> { <span class="dt">code</span><span class="op">:</span>  <span class="dv">3</span><span class="op">,</span> <span class="dt">fmt</span><span class="op">:</span> <span class="st">'rr'</span> }<span class="op">,</span> <span class="co">// Load register</span></span>
@@ -202,7 +202,7 @@ Table&nbsp;19.1: Virtual machine op codes.
 <p>While there isn’t a name for this design pattern, putting all the constants that define a system in one file instead of scattering them across multiple files makes them easier to find as well as ensuring consistency.</p>
 <h2 data-number="19.2" id="virtual-machine-execute"><span class="header-section-number">19.2</span> How can we execute these instructions?</h2>
 <p>As in previous chapters, we will split a class that would normally be written in one piece into several parts for exposition. We start by defining a class with an instruction pointer, some registers, and some memory along with a prompt for output:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<div class="sourceCode" id="cb2" data-file="vm/vm-base.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> {</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  OP_MASK<span class="op">,</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  OP_SHIFT<span class="op">,</span></span>
@@ -273,9 +273,9 @@ Table&nbsp;19.1: Virtual machine op codes.
 <span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> VirtualMachineBase</span></code></pre></div>
 <p>A program is just an array of numbers representing instructions. To load one, we copy those numbers into memory and reset the instruction pointer and registers:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb3" data-file="vm/vm-base.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>In order to handle the next instruction, the VM gets the value in memory that the instruction pointer currently refers to and moves the instruction pointer on by one address. It then uses <a href="../glossary/index.html#bitwise_operation">bitwise operations</a> to extract the op code and operands from the instruction (<a href="#fig-virtual-machine-unpacking" class="quarto-xref">Figure&nbsp;<span>19.2</span></a>):</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb4" data-file="vm/vm-base.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <div id="fig-virtual-machine-unpacking" class="quarto-float quarto-figure quarto-figure-center" alt="Extracting instruction fields with bitwise operations.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-virtual-machine-unpacking-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -293,7 +293,7 @@ Figure&nbsp;19.2: Using bitwise operations to unpack instructions.
 </blockquote>
 </div>
 <p>The next step is to extend our base class with one that has a <code>run</code> method. As its name suggests, this runs the program by fetching instructions and executing them until told to stop:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<div class="sourceCode" id="cb5" data-file="vm/vm.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> {</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  OPS</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>} <span class="im">from</span> <span class="st">'./architecture.js'</span></span>
@@ -385,23 +385,23 @@ Figure&nbsp;19.2: Using bitwise operations to unpack instructions.
 <span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> VirtualMachine</span></code></pre></div>
 <p>Some instructions are very similar to others, so we will only look at three here. The first stores the value of one register in the address held by another register:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb6" data-file="vm/vm.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>The first three lines check that the operation is legal; the fourth one uses the value in one register as an address, which is why it has nested array indexing.</p>
 <p>Adding the value in one register to the value in another register is simpler:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb7" data-file="vm/vm.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>as is jumping to a fixed address if the value in a register is zero:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb8" data-file="vm/vm.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <h2 data-number="19.3" id="virtual-machine-assembly"><span class="header-section-number">19.3</span> What do assembly programs look like?</h2>
 <p>We could figure out numerical op codes by hand, and in fact that’s what <a href="http://eniacprogrammers.org/">the first programmers</a> did. However, it is much easier to use an <a href="../glossary/index.html#assembler">assembler</a>, which is just a small compiler for a language that very closely represents actual machine instructions.</p>
 <p>Each command in our assembly languages matches an instruction in the VM. Here’s an assembly language program to print the value stored in R1 and then halt:</p>
-<pre><code># Print initial contents of R1.
+<pre data-file="vm/print-r1.as"><code># Print initial contents of R1.
 prr R1
 hlt</code></pre>
 <p>Its numeric representation is:</p>
-<pre><code>00010a
+<pre data-file="vm/print-r1.mx"><code>00010a
 000001</code></pre>
 <p>One thing the assembly language has that the instruction set doesn’t is <a href="../glossary/index.html#label_address">labels on addresses</a>. The label <code>loop</code> doesn’t take up any space; instead, it tells the assembler to give the address of the next instruction a name so that we can refer to that address as <code>@loop</code> in jump instructions. For example, this program prints the numbers from 0 to 2 (<a href="#fig-virtual-machine-count-up" class="quarto-xref">Figure&nbsp;<span>19.3</span></a>):</p>
-<pre><code># Count up to 3.
+<pre data-file="vm/count-up.as"><code># Count up to 3.
 # - R0: loop index.
 # - R1: loop limit.
 ldc R0 0
@@ -414,7 +414,7 @@ cpy R2 R1
 sub R2 R0
 bne R2 @loop
 hlt</code></pre>
-<pre><code>000002
+<pre data-file="vm/count-up.mx"><code>000002
 030102
 00000a
 010202
@@ -453,17 +453,17 @@ Figure&nbsp;19.4: Tracing registers and memory values for a simple counting prog
 </figure>
 </div>
 <p>The implementation of the assembler mirrors the simplicity of assembly language. The main method gets interesting lines, finds the addresses of labels, and turns each remaining line into an instruction:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb13" data-file="vm/assembler.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>To find labels, we go through the lines one by one and either save the label <em>or</em> increment the current address (because labels don’t take up space):</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb14" data-file="vm/assembler.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>To compile a single instruction we break the line into tokens, look up the format for the operands, and pack them into a single value:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb15" data-file="vm/assembler.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Combining op codes and operands into a single value is the reverse of the unpacking done by the virtual machine:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb16" data-file="vm/assembler.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Finally, we need few utility functions:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb17" data-file="vm/assembler.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Let’s try assembling a program and display its output, the registers, and the interesting contents of memory. As a test, this program counts up to three:</p>
-<pre><code># Count up to 3.
+<pre data-file="vm/count-up.as"><code># Count up to 3.
 # - R0: loop index.
 # - R1: loop limit.
 ldc R0 0
@@ -476,7 +476,7 @@ cpy R2 R1
 sub R2 R0
 bne R2 @loop
 hlt</code></pre>
-<pre><code>&gt;&gt; 0
+<pre data-file="vm/count-up-out.out"><code>&gt;&gt; 0
 &gt;&gt; 1
 &gt;&gt; 2
 R0 = 3
@@ -490,8 +490,8 @@ R3 = 0
 <p>It is tedious to write interesting programs when each value needs a unique name. We can do a lot more once we have collections like arrays, so let’s add those to our assembler. We don’t have to make any changes to the virtual machine, which doesn’t care if we think of a bunch of numbers as individuals or elements of an array, but we do need a way to create arrays and refer to them.</p>
 <p>We will allocate storage for arrays at the end of the program by using <code>.data</code> on a line of its own to mark the start of the data section and then <code>label: number</code> to give a region a name and allocate some storage space (<a href="#fig-virtual-machine-storage-allocation" class="quarto-xref">Figure&nbsp;<span>19.5</span></a>).</p>
 <p>This enhancement only requires a few changes to the assembler. First, we need to split the lines into instructions and data allocations:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
-<div class="sourceCode" id="cb21"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb20" data-file="vm/allocate-data.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb21" data-file="vm/allocate-data.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <div id="fig-virtual-machine-storage-allocation" class="quarto-float quarto-figure quarto-figure-center" alt="How the virtual machine reserves memory for arrays.">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-virtual-machine-storage-allocation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -503,9 +503,9 @@ Figure&nbsp;19.5: Allocating storage for arrays in the virtual machine.
 </figure>
 </div>
 <p>Second, we need to figure out where each allocation lies and create a label accordingly:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb22" data-file="vm/allocate-data.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>And that’s it: no other changes are needed to either compilation or execution. To test it, let’s fill an array with the numbers from 0 to 3:</p>
-<pre><code># Count up to 3.
+<pre data-file="vm/fill-array.as"><code># Count up to 3.
 # - R0: loop index.
 # - R1: loop limit.
 # - R2: array index.
@@ -524,7 +524,7 @@ bne R3 @loop
 hlt
 .data
 array: 10</code></pre>
-<pre><code>R0 = 3
+<pre data-file="vm/fill-array-out.out"><code>R0 = 3
 R1 = 3
 R2 = 14
 R3 = 0
@@ -606,6 +606,14 @@ Patterson, David A., and John L. Hennessy. 2017. <em>Computer Organization and D
     <a class="pager-link next" href="../debugger/index.html">Debugger →</a>
   </nav>
 </footer>
+<script>
+document.addEventListener('click', function (e) {
+  var link = e.target.closest && e.target.closest('a');
+  document.querySelectorAll('details.topnav-dropdown[open]').forEach(function (d) {
+    if (!d.contains(e.target) || (link && d.contains(link))) d.removeAttribute('open');
+  });
+});
+</script>
 
 
 </body></html>

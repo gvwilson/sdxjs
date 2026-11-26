@@ -101,7 +101,7 @@ Figure&nbsp;8.1: Representing the result of parsing a regular expression as an t
 <li><p>Since <code>^</code> and <code>$</code> are either special or regular depending on position, we must treat them as separate tokens or as part of a literal based on where they appear.</p></li>
 </ol>
 <p>We can translate these rules almost directly into code to create a <a href="../glossary/index.html#list">list</a> of objects whose keys are <code>kind</code> and <code>loc</code> (short for location), with the extra key <code>value</code> for literal values:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> SIMPLE <span class="op">=</span> {</span>
+<div class="sourceCode" id="cb1" data-file="parser/tokenizer-collapse.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> SIMPLE <span class="op">=</span> {</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">'*'</span><span class="op">:</span> <span class="st">'Any'</span><span class="op">,</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">'|'</span><span class="op">:</span> <span class="st">'Alt'</span><span class="op">,</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">'('</span><span class="op">:</span> <span class="st">'GroupStart'</span><span class="op">,</span></span>
@@ -143,13 +143,13 @@ Figure&nbsp;8.1: Representing the result of parsing a regular expression as an t
 <span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:/combine</span></span>
 <span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> tokenize</span></code></pre></div>
 <p>The helper function <code>combineOrPush</code> does exactly what its name says. If the thing most recently added to the list of tokens isn’t a literal, the new character becomes a new token; otherwise, we append the new character to the literal we’re building:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb2" data-file="parser/tokenizer-collapse.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>We can try this out with a three-line test program:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tokenize <span class="im">from</span> <span class="st">'./tokenizer-collapse.js'</span></span>
+<div class="sourceCode" id="cb3" data-file="parser/tokenizer-collapse-example.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tokenize <span class="im">from</span> <span class="st">'./tokenizer-collapse.js'</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> test <span class="op">=</span> <span class="st">'^a^b*'</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> result <span class="op">=</span> <span class="fu">tokenize</span>(test)</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(result<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> <span class="dv">2</span>))</span></code></pre></div>
-<pre><code>[
+<pre data-file="parser/tokenizer-collapse-example.out"><code>[
   {
     "kind": "Start",
     "loc": 0
@@ -176,7 +176,7 @@ Figure&nbsp;8.1: Representing the result of parsing a regular expression as an t
 ]</code></pre>
 <p>This simple tokenizer is readable, efficient, and wrong. The problem is that the expression <code>/ab*/</code> means “a single <code>a</code> followed by zero or more <code>b</code>”. If we combine the <code>a</code> and <code>b</code> as we read them, though, we wind up with “zero or more repetitions of <code>ab</code>”. (Don’t feel bad if you didn’t spot this: we didn’t notice the problem until we were implementing the next step.)</p>
 <p>The solution is to treat each regular character as its own literal in this stage and then combine things later. Doing this lets us get rid of the nested <code>if</code> for handling <code>^</code> and <code>$</code> as well:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> SIMPLE <span class="op">=</span> {</span>
+<div class="sourceCode" id="cb5" data-file="parser/tokenizer.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> SIMPLE <span class="op">=</span> {</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">'*'</span><span class="op">:</span> <span class="st">'Any'</span><span class="op">,</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">'|'</span><span class="op">:</span> <span class="st">'Alt'</span><span class="op">,</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">'('</span><span class="op">:</span> <span class="st">'GroupStart'</span><span class="op">,</span></span>
@@ -200,7 +200,7 @@ Figure&nbsp;8.1: Representing the result of parsing a regular expression as an t
 <span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> tokenize</span></code></pre></div>
 <p>Software isn’t done until it’s tested, so let’s build some <a href="https://mochajs.org/">Mocha</a> tests for our tokenizer. The listing below shows a few of these along with the output for the full set:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<div class="sourceCode" id="cb6" data-file="parser/test/test-tokenizer.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tokenize <span class="im">from</span> <span class="st">'../tokenizer.js'</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(<span class="st">'tokenizes correctly'</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'tokenizes a single character'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
@@ -333,7 +333,7 @@ Figure&nbsp;8.1: Representing the result of parsing a regular expression as an t
 <span id="cb6-131"><a href="#cb6-131" aria-hidden="true" tabindex="-1"></a>    ])</span>
 <span id="cb6-132"><a href="#cb6-132" aria-hidden="true" tabindex="-1"></a>  })</span>
 <span id="cb6-133"><a href="#cb6-133" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
-<pre><code>&gt; stjs@1.0.0 test /u/stjs
+<pre data-file="parser/tokenizer-test.out"><code>&gt; stjs@1.0.0 test /u/stjs
 &gt; mocha */test/test-*.js "-g" "tokenizes correctly"
   tokenizes correctly
     ✓ tokenizes a single character
@@ -384,7 +384,7 @@ Figure&nbsp;8.2: Mechanics of combining tokens while parsing regular expressions
 </figure>
 </div>
 <p>It’s time to turn these ideas into code. The main structure of our parser is:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<div class="sourceCode" id="cb8" data-file="parser/parser.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tokenize <span class="im">from</span> <span class="st">'./tokenizer.js'</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> parse <span class="op">=</span> (text) <span class="kw">=&gt;</span> {</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> result <span class="op">=</span> []</span>
@@ -468,13 +468,13 @@ Figure&nbsp;8.2: Mechanics of combining tokens while parsing regular expressions
 <span id="cb8-82"><a href="#cb8-82" aria-hidden="true" tabindex="-1"></a><span class="co">// mccole:/skip</span></span>
 <span id="cb8-83"><a href="#cb8-83" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> parse</span></code></pre></div>
 <p>We handle tokens case-by-case (with a few assertions to check that patterns are <a href="../glossary/index.html#well_formed">well formed</a>):</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb9" data-file="parser/parser.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>When we find the <code>)</code> that marks the end of a group, we take items from the end of the output list until we find the matching start and use them to create a group:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb10" data-file="parser/parser.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Finally, when we have finished with the input, we go through the output list one last time to fill in the right side of <code>Alt</code>s:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb11" data-file="parser/parser.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Once again, it’s not done until we’ve tested it:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<div class="sourceCode" id="cb12" data-file="parser/test/test-parser.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> parse <span class="im">from</span> <span class="st">'../parser.js'</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(<span class="st">'parses correctly'</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">'parses the empty string'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
@@ -623,7 +623,7 @@ Figure&nbsp;8.2: Mechanics of combining tokens while parsing regular expressions
 <span id="cb12-147"><a href="#cb12-147" aria-hidden="true" tabindex="-1"></a>    ])</span>
 <span id="cb12-148"><a href="#cb12-148" aria-hidden="true" tabindex="-1"></a>  })</span>
 <span id="cb12-149"><a href="#cb12-149" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
-<pre><code>&gt; stjs@1.0.0 test /u/stjs
+<pre data-file="parser/parser-test.out"><code>&gt; stjs@1.0.0 test /u/stjs
 &gt; mocha */test/test-*.js "-g" "parses correctly"
   parses correctly
     ✓ parses the empty string
@@ -733,6 +733,14 @@ Conery, Rob. 2021. <em>The Imposter’s Handbook: A CS Primer for Self-Taught De
     <a class="pager-link next" href="../templater/index.html">Page Templates →</a>
   </nav>
 </footer>
+<script>
+document.addEventListener('click', function (e) {
+  var link = e.target.closest && e.target.closest('a');
+  document.querySelectorAll('details.topnav-dropdown[open]').forEach(function (d) {
+    if (!d.contains(e.target) || (link && d.contains(link))) d.removeAttribute('open');
+  });
+});
+</script>
 
 
 </body></html>

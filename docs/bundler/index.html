@@ -49,25 +49,25 @@ Figure&nbsp;17.1: Combining multiple modules into one.
 <p>Bundling requires an <a href="../glossary/index.html#entry_point">entry point</a>, i.e., a place to start searching for dependencies. Given that, it finds all dependencies, combines them into one file, and ensures they can find each other correctly once loaded. The sections below go through these steps one by one.</p>
 <h2 data-number="17.1" id="module-bundler-tests"><span class="header-section-number">17.1</span> What will we use as test cases?</h2>
 <p>Our first test case is a single file that doesn’t require anything:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> main <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<div class="sourceCode" id="cb1" data-file="bundler/single/main.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> main <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'in main'</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>module<span class="op">.</span><span class="at">exports</span> <span class="op">=</span> main</span></code></pre></div>
-<pre><code>in main</code></pre>
+<pre data-file="bundler/expected-single.out"><code>in main</code></pre>
 <p>For our second test, <code>main.js</code> requires <code>other.js</code>:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> other <span class="op">=</span> <span class="pp">require</span>(<span class="st">'./other'</span>)</span>
+<div class="sourceCode" id="cb3" data-file="bundler/simple/main.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> other <span class="op">=</span> <span class="pp">require</span>(<span class="st">'./other'</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> main <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="fu">other</span>(<span class="st">'main'</span>))</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>module<span class="op">.</span><span class="at">exports</span> <span class="op">=</span> main</span></code></pre></div>
 <p>and <code>other.js</code> doesn’t require anything:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> other <span class="op">=</span> <span class="pp">require</span>(<span class="st">'./other'</span>)</span>
+<div class="sourceCode" id="cb4" data-file="bundler/simple/main.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> other <span class="op">=</span> <span class="pp">require</span>(<span class="st">'./other'</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> main <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="fu">other</span>(<span class="st">'main'</span>))</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>module<span class="op">.</span><span class="at">exports</span> <span class="op">=</span> main</span></code></pre></div>
 <p>The output we expect is:</p>
-<pre><code>other called from main</code></pre>
+<pre data-file="bundler/expected-simple.out"><code>other called from main</code></pre>
 <div>
 <blockquote>
 <p><strong>Why <code>require</code>?</strong></p>
@@ -93,7 +93,7 @@ Figure&nbsp;17.2: Dependencies in large module bundler test case.
 </figure>
 </div>
 <p>The main program is:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// main.js</span></span>
+<div class="sourceCode" id="cb6" data-file="bundler/full/main.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// main.js</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> topLeft <span class="op">=</span> <span class="pp">require</span>(<span class="st">'./top-left'</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> topRight <span class="op">=</span> <span class="pp">require</span>(<span class="st">'./top-right'</span>)</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> bottomLeft <span class="op">=</span> <span class="pp">require</span>(<span class="st">'./subdir/bottom-left'</span>)</span>
@@ -106,7 +106,7 @@ Figure&nbsp;17.2: Dependencies in large module bundler test case.
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>module<span class="op">.</span><span class="at">exports</span> <span class="op">=</span> main</span></code></pre></div>
 <p>and the other four files use <code>require</code> and <code>module.exports</code> to get what they need. The output we expect is:</p>
-<pre><code>topLeft from main
+<pre data-file="bundler/expected-full.out"><code>topLeft from main
 topRight from main with topLeft from topRight and bottomRight from \
  topRight
 bottomLeft from main with topLeft from bottomLeft and bottomRight from \
@@ -115,7 +115,7 @@ bottomRight from main</code></pre>
 <p>We do not handle circular dependencies because <code>require</code> itself doesn’t (<a href="../loader/index.html" class="quarto-xref"><span>Chapter 13</span></a>).</p>
 <h2 data-number="17.2" id="module-bundler-find"><span class="header-section-number">17.2</span> How can we find dependencies?</h2>
 <p>To get all the dependencies for one source file, we parse it and extract all of the calls to <code>require</code>. The code to do this is relatively straightforward given what we know about <a href="https://github.com/acornjs/acorn">Acorn</a>:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> acorn <span class="im">from</span> <span class="st">'acorn'</span></span>
+<div class="sourceCode" id="cb8" data-file="bundler/get-requires.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> acorn <span class="im">from</span> <span class="st">'acorn'</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs'</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> walk <span class="im">from</span> <span class="st">'acorn-walk'</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> getRequires <span class="op">=</span> (filename) <span class="kw">=&gt;</span> {</span>
@@ -134,11 +134,11 @@ bottomRight from main</code></pre>
 <span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> requires</span>
 <span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> getRequires</span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> getRequires <span class="im">from</span> <span class="st">'./get-requires.js'</span></span>
+<div class="sourceCode" id="cb9" data-file="bundler/test-get-requires.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> getRequires <span class="im">from</span> <span class="st">'./get-requires.js'</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> result <span class="op">=</span> <span class="fu">getRequires</span>(<span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">2</span>])</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(result)</span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-get-requires.js simple/main.js</span></code></pre></div>
-<pre><code>[ './other' ]</code></pre>
+<div class="sourceCode" id="cb10" data-file="bundler/test-get-requires.sh"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-get-requires.js simple/main.js</span></code></pre></div>
+<pre data-file="bundler/test-get-requires.out"><code>[ './other' ]</code></pre>
 <div>
 <blockquote>
 <p><strong>An unsolvable problem</strong></p>
@@ -163,7 +163,7 @@ Figure&nbsp;17.3: Implementing transitive closure using two sets.
 </figure>
 </div>
 <p>Finding dependencies is complicated by the fact that we can load something under different names, such as <code>./subdir/bottom-left</code> from <code>main</code> but <code>./bottom-left</code> from <code>./subdir/bottom-right</code>. As with the module loader in <a href="../loader/index.html" class="quarto-xref"><span>Chapter 13</span></a>, we use absolute paths as unique identifiers. Our code is also complicated by the fact that JavaScript’s <code>Set</code> class doesn’t have an equivalent of <code>Array.pop</code>, so we will actually maintain the “set” of pending items as a list. The resulting code is:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> path <span class="im">from</span> <span class="st">'path'</span></span>
+<div class="sourceCode" id="cb14" data-file="bundler/transitive-closure-only.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> path <span class="im">from</span> <span class="st">'path'</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> getRequires <span class="im">from</span> <span class="st">'./get-requires.js'</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> transitiveClosure <span class="op">=</span> (entryPointPath) <span class="kw">=&gt;</span> {</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> pending <span class="op">=</span> [path<span class="op">.</span><span class="fu">resolve</span>(entryPointPath)]</span>
@@ -183,11 +183,11 @@ Figure&nbsp;17.3: Implementing transitive closure using two sets.
 <span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> [<span class="op">...</span>filenames]</span>
 <span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> transitiveClosure</span></code></pre></div>
-<div class="sourceCode" id="cb15"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> transitiveClosure <span class="im">from</span> <span class="st">'./transitive-closure-only.js'</span></span>
+<div class="sourceCode" id="cb15" data-file="bundler/test-transitive-closure-only.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> transitiveClosure <span class="im">from</span> <span class="st">'./transitive-closure-only.js'</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> result <span class="op">=</span> <span class="fu">transitiveClosure</span>(<span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">2</span>])</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(result<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> <span class="dv">2</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb16"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-transitive-closure-only.js full/main.js</span></code></pre></div>
-<pre><code>[
+<div class="sourceCode" id="cb16" data-file="bundler/test-transitive-closure-only.sh"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-transitive-closure-only.js full/main.js</span></code></pre></div>
+<pre data-file="bundler/test-transitive-closure-only.out"><code>[
   "/u/stjs/module-bundler/full/main.js",
   "/u/stjs/module-bundler/full/subdir/bottom-right.js",
   "/u/stjs/module-bundler/full/subdir/bottom-left.js",
@@ -206,7 +206,7 @@ Figure&nbsp;17.4: Data structure used to map names to absolute paths.
 </figure>
 </div>
 <p>Adding this takes our transitive closure code from 23 lines to 28 lines:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> path <span class="im">from</span> <span class="st">'path'</span></span>
+<div class="sourceCode" id="cb18" data-file="bundler/transitive-closure.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> path <span class="im">from</span> <span class="st">'path'</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> getRequires <span class="im">from</span> <span class="st">'./get-requires.js'</span></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> transitiveClosure <span class="op">=</span> (entryPointPath) <span class="kw">=&gt;</span> {</span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> mapping <span class="op">=</span> {}</span>
@@ -232,11 +232,11 @@ Figure&nbsp;17.4: Data structure used to map names to absolute paths.
 <span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> mapping</span>
 <span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> transitiveClosure</span></code></pre></div>
-<div class="sourceCode" id="cb19"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> transitiveClosure <span class="im">from</span> <span class="st">'./transitive-closure.js'</span></span>
+<div class="sourceCode" id="cb19" data-file="bundler/test-transitive-closure.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> transitiveClosure <span class="im">from</span> <span class="st">'./transitive-closure.js'</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> result <span class="op">=</span> <span class="fu">transitiveClosure</span>(<span class="bu">process</span><span class="op">.</span><span class="at">argv</span>[<span class="dv">2</span>])</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(result<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> <span class="dv">2</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb20"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-transitive-closure.js full/main.js</span></code></pre></div>
-<pre><code>{
+<div class="sourceCode" id="cb20" data-file="bundler/test-transitive-closure.sh"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-transitive-closure.js full/main.js</span></code></pre></div>
+<pre data-file="bundler/test-transitive-closure.out"><code>{
   "/u/stjs/module-bundler/full/main.js": {
     "./top-left": "/u/stjs/module-bundler/full/top-left.js",
     "./top-right": "/u/stjs/module-bundler/full/top-right.js",
@@ -261,19 +261,19 @@ Figure&nbsp;17.4: Data structure used to map names to absolute paths.
 <p>The real cost, though, is the extra complexity of the data structure: it took a couple of tries to get it right, and it will be harder for the next person to understand than the original. Comprehension and maintenance would be a little easier if we could draw diagrams directly in our source code, but as long as we insist that our programs be stored in a punchcard-compatible format (i.e., as lines of text), that will remain a dream.</p>
 <h2 data-number="17.3" id="module-bundler-combine"><span class="header-section-number">17.3</span> How can we safely combine several files into one?</h2>
 <p>We now need to combine the files we have found into one while keeping each in its own namespace. We do this using the same method we used in <a href="../loader/index.html" class="quarto-xref"><span>Chapter 13</span></a>: wrap the source code in an IIFE, giving that IIFE a <code>module</code> object to fill in and an implementation of <code>require</code> to resolve dependencies <em>within the bundle</em>. For example, suppose we have this file:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> main <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<div class="sourceCode" id="cb22" data-file="bundler/sanity-check-unwrapped.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> main <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'in main'</span>)</span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>module<span class="op">.</span><span class="at">exports</span> <span class="op">=</span> main</span></code></pre></div>
 <p>The wrapped version will look like this:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> wrapper <span class="op">=</span> (module<span class="op">,</span> require) <span class="kw">=&gt;</span> { <span class="co">// eslint-disable-line</span></span>
+<div class="sourceCode" id="cb23" data-file="bundler/sanity-check-wrapped.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> wrapper <span class="op">=</span> (module<span class="op">,</span> require) <span class="kw">=&gt;</span> { <span class="co">// eslint-disable-line</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> main <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'in main'</span>)</span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  module<span class="op">.</span><span class="at">exports</span> <span class="op">=</span> main</span>
 <span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>And we can test it like this:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> wrapper <span class="op">=</span> (module<span class="op">,</span> require) <span class="kw">=&gt;</span> {</span>
+<div class="sourceCode" id="cb24" data-file="bundler/sanity-check-test.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> wrapper <span class="op">=</span> (module<span class="op">,</span> require) <span class="kw">=&gt;</span> {</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> main <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">'in main'</span>)</span>
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  }</span>
@@ -283,9 +283,9 @@ Figure&nbsp;17.4: Data structure used to map names to absolute paths.
 <span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> temp <span class="op">=</span> {}</span>
 <span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="fu">wrapper</span>(temp<span class="op">,</span> _require)</span>
 <span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>temp<span class="op">.</span><span class="fu">exports</span>()</span></code></pre></div>
-<pre><code>in main</code></pre>
+<pre data-file="bundler/sanity-check-test.out"><code>in main</code></pre>
 <p>We need to do this for multiple files, so we will put these IIFEs in a lookup table that uses the files’ absolute paths as its keys. We will also wrap loading in a function so that we don’t accidentally step on anyone else’s toys:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs'</span></span>
+<div class="sourceCode" id="cb26" data-file="bundler/combine-files.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs'</span></span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> path <span class="im">from</span> <span class="st">'path'</span></span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> HEAD <span class="op">=</span> <span class="vs">`const initialize = (creators) =&gt; {</span></span>
 <span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="vs">`</span></span>
@@ -318,9 +318,9 @@ Figure&nbsp;17.5: Assembling fragments and modules to create a bundle.
 </figure>
 </div>
 <p>We can test that this works in our two-file case:</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> combineFiles <span class="im">from</span> <span class="st">'./combine-files.js'</span></span>
+<div class="sourceCode" id="cb27" data-file="bundler/test-combine-files.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> combineFiles <span class="im">from</span> <span class="st">'./combine-files.js'</span></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="fu">combineFiles</span>(<span class="bu">process</span><span class="op">.</span><span class="at">argv</span><span class="op">.</span><span class="fu">slice</span>(<span class="dv">2</span>)))</span></code></pre></div>
-<div class="sourceCode" id="cb28"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">// eslint-disable</span></span>
+<div class="sourceCode" id="cb28" data-file="bundler/test-combine-files-simple.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">// eslint-disable</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> initialize <span class="op">=</span> (creators) <span class="kw">=&gt;</span> {</span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="co">// /u/stjs/stjs/module-bundler/simple/main.js</span></span>
 <span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>creators<span class="op">.</span><span class="fu">set</span>(<span class="st">'/u/stjs/stjs/module-bundler/simple/main.js'</span><span class="op">,</span></span>
@@ -339,7 +339,7 @@ Figure&nbsp;17.5: Assembling fragments and modules to create a bundle.
 <span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>})</span>
 <span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>and then load the result and call <code>initialize</code>:</p>
-<pre><code>Map(2) {
+<pre data-file="bundler/show-combine-files-simple.out"><code>Map(2) {
   '/u/stjs/module-bundler/simple/main.js' =&gt; [Function (anonymous)],
   '/u/stjs/module-bundler/simple/other.js' =&gt; [Function (anonymous)]
 }</code></pre>
@@ -363,7 +363,7 @@ Figure&nbsp;17.6: A function that returns functions that return functions.
 </figure>
 </div>
 <p>We also need a third structure: a cache for the modules we’ve already loaded. Putting it all together we have:</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs'</span></span>
+<div class="sourceCode" id="cb30" data-file="bundler/create-bundle.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> fs <span class="im">from</span> <span class="st">'fs'</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> path <span class="im">from</span> <span class="st">'path'</span></span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> transitiveClosure <span class="im">from</span> <span class="st">'./transitive-closure.js'</span></span>
 <span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> HEAD <span class="op">=</span> <span class="vs">`const creators = new Map()</span></span>
@@ -415,9 +415,9 @@ Figure&nbsp;17.6: A function that returns functions that return functions.
 <span id="cb30-50"><a href="#cb30-50" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> createBundle</span></code></pre></div>
 <p>This code is hard to read because we have to distinguish what is being printed in the output versus what is being executed right now and because of the levels of nesting needed to capture variables safely. Getting this right took much more time per line of finished code than anything we have seen so far except the promises in <a href="../async/index.html" class="quarto-xref"><span>Chapter 3</span></a>. However, it is all intrinsic complexity: anything that does what <code>require</code> does is going to be equally convoluted.</p>
 <p>To prove that our code works, we will look up the function <code>main</code> in the first file and call it. (If we were loading in the browser, we’d capture the exports in a variable for later use.) First, we create the bundled file:</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'// eslint-disable'</span> <span class="op">&gt;</span> bundle-single.js</span>
+<div class="sourceCode" id="cb31" data-file="bundler/test-create-bundle-single.sh"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'// eslint-disable'</span> <span class="op">&gt;</span> bundle-single.js</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> test-create-bundle.js single/main.js <span class="op">&gt;&gt;</span> bundle-single.js</span></code></pre></div>
-<div class="sourceCode" id="cb32"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co">// eslint-disable</span></span>
+<div class="sourceCode" id="cb32" data-file="bundler/bundle-single.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co">// eslint-disable</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> translate <span class="op">=</span> {</span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"/u/stjs/stjs/module-bundler/single/main.js"</span><span class="op">:</span> {}</span>
 <span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>}</span>
@@ -451,9 +451,9 @@ Figure&nbsp;17.6: A function that returns functions that return functions.
 <span id="cb32-32"><a href="#cb32-32" aria-hidden="true" tabindex="-1"></a><span class="fu">start</span>(m)</span>
 <span id="cb32-33"><a href="#cb32-33" aria-hidden="true" tabindex="-1"></a>m<span class="op">.</span><span class="fu">exports</span>()</span></code></pre></div>
 <p>and then we run it:</p>
-<pre><code>in main</code></pre>
+<pre data-file="bundler/test-bundle-single.out"><code>in main</code></pre>
 <p>That was a lot of work to print one line, but what we have should work for other files. The two-file case with <code>main</code> and <code>other</code> works:</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co">// eslint-disable</span></span>
+<div class="sourceCode" id="cb34" data-file="bundler/bundle-simple.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co">// eslint-disable</span></span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> translate <span class="op">=</span> {</span>
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"/u/stjs/stjs/module-bundler/simple/main.js"</span><span class="op">:</span> {</span>
 <span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"./other"</span><span class="op">:</span> <span class="st">"/u/stjs/stjs/module-bundler/simple/other.js"</span></span>
@@ -499,9 +499,9 @@ Figure&nbsp;17.6: A function that returns functions that return functions.
 <span id="cb34-44"><a href="#cb34-44" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> m <span class="op">=</span> {}</span>
 <span id="cb34-45"><a href="#cb34-45" aria-hidden="true" tabindex="-1"></a><span class="fu">start</span>(m)</span>
 <span id="cb34-46"><a href="#cb34-46" aria-hidden="true" tabindex="-1"></a>m<span class="op">.</span><span class="fu">exports</span>()</span></code></pre></div>
-<pre><code>other called from main</code></pre>
+<pre data-file="bundler/test-bundle-simple.out"><code>other called from main</code></pre>
 <p>and so does our most complicated test with <code>main</code> and four other files:</p>
-<pre><code>topLeft from main
+<pre data-file="bundler/test-bundle-full.out"><code>topLeft from main
 topRight from main with topLeft from topRight and bottomRight from \
 topRight
 bottomLeft from main with topLeft from bottomLeft and bottomRight from \
@@ -546,6 +546,14 @@ Petzold, Charles. 2008. <em>The Annotated Turing</em>. Wiley. ISBN 9780470229057
     <a class="pager-link next" href="../packman/index.html">Package Manager →</a>
   </nav>
 </footer>
+<script>
+document.addEventListener('click', function (e) {
+  var link = e.target.closest && e.target.closest('a');
+  document.querySelectorAll('details.topnav-dropdown[open]').forEach(function (d) {
+    if (!d.contains(e.target) || (link && d.contains(link))) d.removeAttribute('open');
+  });
+});
+</script>
 
 
 </body></html>

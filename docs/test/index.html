@@ -64,9 +64,9 @@ Figure&nbsp;4.1: Running tests that can pass, fail, or contain errors.
 </div>
 <h2 data-number="4.2" id="unit-test-design"><span class="header-section-number">4.2</span> How can we separate registration, execution, and reporting?</h2>
 <p>To start, let’s use a handful of <a href="../glossary/index.html#global_variable">global variables</a> to record tests and their results:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb1" data-file="test/dry-run.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>We don’t run tests immediately because we want to wrap each one in our own <a href="../glossary/index.html#exception_handler">exception handler</a>. Instead, the function <code>hopeThat</code> saves a descriptive message and a callback function that implements a test in the <code>HopeTest</code> array.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb2" data-file="test/dry-run.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <div>
 <blockquote>
 <p><strong>Independence</strong></p>
@@ -74,11 +74,11 @@ Figure&nbsp;4.1: Running tests that can pass, fail, or contain errors.
 </blockquote>
 </div>
 <p>Finally, the function <code>main</code> runs all registered tests:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb3" data-file="test/dry-run.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>If a test completes without an exception, it passes. If any of the <code>assert</code> calls inside the test raises an <code>AssertionError</code>, the test fails, and if it <a href="../glossary/index.html#raise_exception">raises</a> any other exception, it’s an error. After all tests are run, <code>main</code> reports the number of results of each kind.</p>
 <p>Let’s try it out:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
-<pre><code>pass 2
+<div class="sourceCode" id="cb4" data-file="test/dry-run.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<pre data-file="test/dry-run.out"><code>pass 2
 fail 1
 error 1</code></pre>
 <p>This simple “framework” does what it’s supposed to, but:</p>
@@ -91,7 +91,7 @@ error 1</code></pre>
 <h2 data-number="4.3" id="unit-test-registration"><span class="header-section-number">4.3</span> How should we structure test registration?</h2>
 <p>The next version of our testing tool solves the first two problems in the original by putting the testing machinery in a class. It uses the <a href="../glossary/index.html#singleton_pattern">Singleton</a> <a href="../glossary/index.html#design_pattern">design pattern</a> to ensure that only one object of that class is ever created <span class="citation" data-cites="Osmani2017">(<a href="../bibliography/index.html#ref-Osmani2017" role="doc-biblioref">Osmani 2017</a>)</span>. Singletons are a way to manage global variables that belong together like the ones we’re using to record tests and their results. As an extra benefit, if we decide later that we need several copies of those variables, we can just construct more instances of the class.</p>
 <p>The file <code>hope.js</code> defines the class and exports one <a href="../glossary/index.html#instance">instance</a> of it:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<div class="sourceCode" id="cb6" data-file="test/hope.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> caller <span class="im">from</span> <span class="st">'caller'</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Hope {</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> () {</span>
@@ -161,7 +161,7 @@ Figure&nbsp;4.2: Creating a singleton, recording tests, and running them.
 </figure>
 </div>
 <p>Finally, our <code>Hope</code> class can report results as both a terse one-line summary and as a detailed listing. It can also provide the titles and results of individual tests so that if someone wants to format them in a different way (e.g., as HTML) they can do so:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb7" data-file="test/hope.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <div>
 <blockquote>
 <p><strong>Who’s calling?</strong></p>
@@ -170,7 +170,7 @@ Figure&nbsp;4.2: Creating a singleton, recording tests, and running them.
 </div>
 <h2 data-number="4.4" id="unit-test-cli"><span class="header-section-number">4.4</span> How can we build a command-line interface for testing?</h2>
 <p>Most programmers don’t enjoy writing tests, so if we want them to do it, we have to make it as painless as possible. A couple of <code>import</code> statements to get <code>assert</code> and <code>hope</code> and then one function call per test is about as simple as we can make the tests themselves:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<div class="sourceCode" id="cb8" data-file="test/test-add.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> hope <span class="im">from</span> <span class="st">'./hope.js'</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>hope<span class="op">.</span><span class="fu">test</span>(<span class="st">'Sum of 1 and 2'</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="fu">assert</span>((<span class="dv">1</span> <span class="op">+</span> <span class="dv">2</span>) <span class="op">===</span> <span class="dv">3</span>))</span></code></pre></div>
 <p>But that just defines the tests—how will we find them so that we can run them? One option is to require people to <code>import</code> each of the files containing tests into another file:</p>
@@ -185,7 +185,7 @@ Figure&nbsp;4.2: Creating a singleton, recording tests, and running them.
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="op">...</span></span></code></pre></div>
 <p>Here, <code>all-the-tests.js</code> imports other files so that they will register tests as a <a href="../glossary/index.html#side_effect">side effect</a> via calls to <code>hope.test</code> and then calls <code>Hope.run</code> to execute them. It works, but sooner or later (probably sooner) someone will forget to import one of the test files.</p>
 <p>A better strategy for creating a <a href="../glossary/index.html#cli">command-line interface</a> is to load test files <a href="../glossary/index.html#dynamic_loading">dynamically</a>. While <code>import</code> is usually written as a statement, it can also be used as an <code>async</code> function that takes a path as a parameter and loads the corresponding file. The program <code>pray.js</code> (shown below) does this; as before, loading files executes the code they contain, which registers tests as a side effect:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> minimist <span class="im">from</span> <span class="st">'minimist'</span></span>
+<div class="sourceCode" id="cb10" data-file="test/pray.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> minimist <span class="im">from</span> <span class="st">'minimist'</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob <span class="im">from</span> <span class="st">'glob'</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> hope <span class="im">from</span> <span class="st">'./hope.js'</span></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> main <span class="op">=</span> <span class="kw">async</span> (args) <span class="kw">=&gt;</span> {</span>
@@ -240,8 +240,8 @@ Figure&nbsp;4.2: Creating a singleton, recording tests, and running them.
 </blockquote>
 </div>
 <p>Our <a href="../glossary/index.html#test_runner">test runner</a> is now complete, so we can try it out with some files containing tests that pass, fail, and contain errors:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> pray.js <span class="at">-v</span></span></code></pre></div>
-<pre><code>passes:
+<div class="sourceCode" id="cb11" data-file="test/pray.sh"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> pray.js <span class="at">-v</span></span></code></pre></div>
+<pre data-file="test/pray.out"><code>passes:
   /u/stjs/unit-test/test-add.js::Sum of 1 and 2
   /u/stjs/unit-test/test-sub.js::Difference of 1 and 2
 fails:
@@ -380,6 +380,14 @@ Tudose, Cătălin. 2020. <em>JUnit in Action</em>. Manning. ISBN 9781617297045.
     <a class="pager-link next" href="../backup/index.html">File Backup →</a>
   </nav>
 </footer>
+<script>
+document.addEventListener('click', function (e) {
+  var link = e.target.closest && e.target.closest('a');
+  document.querySelectorAll('details.topnav-dropdown[open]').forEach(function (d) {
+    if (!d.contains(e.target) || (link && d.contains(link))) d.removeAttribute('open');
+  });
+});
+</script>
 
 
 </body></html>

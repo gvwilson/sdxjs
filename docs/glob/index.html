@@ -93,7 +93,7 @@ Figure&nbsp;7.2: Matching a simple set of query selectors.
 </figcaption>
 </figure>
 </div>
-<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
+<div class="sourceCode" id="cb1" data-file="glob/simple-selectors.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> assert <span class="im">from</span> <span class="st">'assert'</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> select <span class="op">=</span> (<span class="bu">root</span><span class="op">,</span> selector) <span class="kw">=&gt;</span> {</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> selectors <span class="op">=</span> selector<span class="op">.</span><span class="fu">split</span>(<span class="st">' '</span>)<span class="op">.</span><span class="fu">filter</span>(s <span class="kw">=&gt;</span> s<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span>)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">firstMatch</span>(<span class="bu">root</span><span class="op">,</span> selectors)</span>
@@ -159,17 +159,17 @@ Figure&nbsp;7.2: Matching a simple set of query selectors.
 <li><p>This node <em>doesn’t</em> match the current selector, so we search the children one by one to see if there is a match further down.</p></li>
 </ol>
 <p>This algorithm is called <a href="../glossary/index.html#depth_first">depth-first search</a>: it explores one possible match to the end before considering any others. <code>firstMatch</code> relies on a helper function called <code>firstChildMatch</code>, which finds the first child of a node to match a set of selectors:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb2" data-file="glob/simple-selectors.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>and on the function <code>matchHere</code> which compares a node against a selector:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb3" data-file="glob/simple-selectors.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>This version of <code>matchHere</code> is simple but inefficient, since it breaks the selector into parts each time it is called rather than doing that once and re-using the results. We will build a more efficient version in the exercises, but let’s try out the one we have. Our test cases are all in one piece of HTML:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb4" data-file="glob/simple-selectors-test.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>The program contains a table of queries and the expected matches. The function <code>main</code> loops over it to report whether each test passes or fails:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb5" data-file="glob/simple-selectors-test.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p><code>main</code> uses a helper function called <code>getText</code> to extract text from a node or return an error message if something has gone wrong:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb6" data-file="glob/simple-selectors-test.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>When we run our program it produces this result:</p>
-<pre><code>"p": pass
+<pre data-file="glob/simple-selectors-test.out"><code>"p": pass
 "p#id-01": pass
 "p#id-02": pass
 "p.class-03": pass
@@ -227,12 +227,12 @@ Table&nbsp;7.2: Pattern matching cases.
 </figure>
 </div>
 <p>The top-level function that users call handles the special case of <code>^</code> at the start of a pattern matching the start of the target string being searched. It then tries the pattern against each successive substring of the target string until it finds a match or runs out of characters:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb8" data-file="glob/simple-regex.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p><code>matchHere</code> does the matching and recursing:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<div class="sourceCode" id="cb9" data-file="glob/simple-regex.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
 <p>Once again, we use a table of test cases and expected results to test it:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
-<pre><code>"a" X "a": pass
+<div class="sourceCode" id="cb10" data-file="glob/simple-regex.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"></code></pre></div>
+<pre data-file="glob/simple-regex.out"><code>"a" X "a": pass
 "b" X "a": pass
 "a" X "ab": pass
 "b" X "ab": pass
@@ -263,7 +263,7 @@ Figure&nbsp;7.3: Using nested objects to match regular expressions.
 </figure>
 </div>
 <p>The first step in implementing this is to write test cases, which forces us to define the syntax we are going to support:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Alt <span class="im">from</span> <span class="st">'./regex-alt.js'</span></span>
+<div class="sourceCode" id="cb12" data-file="glob/regex-initial/regex-complete.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Alt <span class="im">from</span> <span class="st">'./regex-alt.js'</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Any <span class="im">from</span> <span class="st">'./regex-any.js'</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> End <span class="im">from</span> <span class="st">'./regex-end.js'</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Lit <span class="im">from</span> <span class="st">'./regex-lit.js'</span></span>
@@ -303,7 +303,7 @@ Figure&nbsp;7.3: Using nested objects to match regular expressions.
 <span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a><span class="fu">main</span>()</span></code></pre></div>
 <p>Next, we define a <a href="../glossary/index.html#base_class">base class</a> that all matchers will inherit from. This class contains the <code>match</code> method that users will call so that we can start matching right away no matter what kind of matcher we have at the top level of our pattern.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RegexBase {</span>
+<div class="sourceCode" id="cb13" data-file="glob/regex-initial/regex-base.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RegexBase {</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">match</span> (text) {</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> text<span class="op">.</span><span class="at">length</span><span class="op">;</span> i <span class="op">+=</span> <span class="dv">1</span>) {</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="kw">this</span><span class="op">.</span><span class="fu">_match</span>(text<span class="op">,</span> i)) {</span>
@@ -325,7 +325,7 @@ Figure&nbsp;7.3: Using nested objects to match regular expressions.
 </blockquote>
 </div>
 <p>We can now define empty versions of each matching class that all say “no match here” like this one for literal characters:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
+<div class="sourceCode" id="cb14" data-file="glob/regex-initial/regex-lit.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RegexLit <span class="kw">extends</span> RegexBase {</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (chars) {</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>()</span>
@@ -337,7 +337,7 @@ Figure&nbsp;7.3: Using nested objects to match regular expressions.
 <span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> (chars) <span class="kw">=&gt;</span> <span class="kw">new</span> <span class="fu">RegexLit</span>(chars)</span></code></pre></div>
 <p>Our tests now run, but most of them fail: “most” because we expect some tests not to match, so the test runner reports <code>true</code>.</p>
-<pre><code>"a" X "a": fail
+<pre data-file="glob/regex-initial.out"><code>"a" X "a": fail
 "b" X "a": pass
 "a" X "ab": fail
 "b" X "ab": fail
@@ -360,7 +360,7 @@ Figure&nbsp;7.3: Using nested objects to match regular expressions.
 "a(b|c)d" X "xabady": pass</code></pre>
 <p>This output tells us how much work we have left to do: when all of these tests pass, we’re finished.</p>
 <p>Let’s implement a literal character string matcher first:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
+<div class="sourceCode" id="cb16" data-file="glob/regex-beginning/regex-lit.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RegexLit <span class="kw">extends</span> RegexBase {</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (chars) {</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>()</span>
@@ -379,7 +379,7 @@ Figure&nbsp;7.3: Using nested objects to match regular expressions.
 <span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> (chars) <span class="kw">=&gt;</span> <span class="kw">new</span> <span class="fu">RegexLit</span>(chars)</span></code></pre></div>
 <p>Some tests now pass, others still fail as expected:</p>
-<pre><code>"a" X "a": pass
+<pre data-file="glob/regex-beginning.out"><code>"a" X "a": pass
 "b" X "a": pass
 "a" X "ab": pass
 "b" X "ab": pass
@@ -424,7 +424,7 @@ Figure&nbsp;7.5: Using <code>rest</code> to match the remainder of a pattern.
 </figure>
 </div>
 <p>This design means we can get rid of <code>RegexSeq</code>, but it does make our tests a little harder to read:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Alt <span class="im">from</span> <span class="st">'./regex-alt.js'</span></span>
+<div class="sourceCode" id="cb18" data-file="glob/regex-recursive/regex-complete.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Alt <span class="im">from</span> <span class="st">'./regex-alt.js'</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Any <span class="im">from</span> <span class="st">'./regex-any.js'</span></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> End <span class="im">from</span> <span class="st">'./regex-end.js'</span></span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Lit <span class="im">from</span> <span class="st">'./regex-lit.js'</span></span>
@@ -461,7 +461,7 @@ Figure&nbsp;7.5: Using <code>rest</code> to match the remainder of a pattern.
 <span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a><span class="fu">main</span>()</span></code></pre></div>
 <p>Here’s how this works for matching a literal expression:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
+<div class="sourceCode" id="cb19" data-file="glob/regex-recursive/regex-lit.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RegexLit <span class="kw">extends</span> RegexBase {</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (chars<span class="op">,</span> rest) {</span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>(rest)</span>
@@ -483,7 +483,7 @@ Figure&nbsp;7.5: Using <code>rest</code> to match the remainder of a pattern.
 <span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> (chars<span class="op">,</span> rest <span class="op">=</span> <span class="kw">null</span>) <span class="kw">=&gt;</span> <span class="kw">new</span> <span class="fu">RegexLit</span>(chars<span class="op">,</span> rest)</span></code></pre></div>
 <p>The <code>_match</code> method checks whether all of the pattern matches the target text starting at the current location. If so, it checks whether the rest of the overall pattern matches what’s left. Matching the start <code>/^/</code> and end <code>/$/</code> anchors is just as straightforward:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
+<div class="sourceCode" id="cb20" data-file="glob/regex-recursive/regex-start.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RegexStart <span class="kw">extends</span> RegexBase {</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">_match</span> (text<span class="op">,</span> start) {</span>
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (start <span class="op">!==</span> <span class="dv">0</span>) {</span>
@@ -496,7 +496,7 @@ Figure&nbsp;7.5: Using <code>rest</code> to match the remainder of a pattern.
 <span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> (rest <span class="op">=</span> <span class="kw">null</span>) <span class="kw">=&gt;</span> <span class="kw">new</span> <span class="fu">RegexStart</span>(rest)</span></code></pre></div>
-<div class="sourceCode" id="cb21"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
+<div class="sourceCode" id="cb21" data-file="glob/regex-recursive/regex-end.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RegexEnd <span class="kw">extends</span> RegexBase {</span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">_match</span> (text<span class="op">,</span> start) {</span>
 <span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (start <span class="op">!==</span> text<span class="op">.</span><span class="at">length</span>) {</span>
@@ -510,7 +510,7 @@ Figure&nbsp;7.5: Using <code>rest</code> to match the remainder of a pattern.
 <span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> (rest <span class="op">=</span> <span class="kw">null</span>) <span class="kw">=&gt;</span> <span class="kw">new</span> <span class="fu">RegexEnd</span>(rest)</span></code></pre></div>
 <p>Matching either/or is done by trying the first pattern and the rest, and if that fails, trying the second pattern and the rest:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
+<div class="sourceCode" id="cb22" data-file="glob/regex-recursive/regex-alt.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RegexAlt <span class="kw">extends</span> RegexBase {</span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (left<span class="op">,</span> right<span class="op">,</span> rest) {</span>
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>(rest)</span>
@@ -538,7 +538,7 @@ Figure&nbsp;7.5: Using <code>rest</code> to match the remainder of a pattern.
 <span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> create</span></code></pre></div>
 <p>To match a repetition, we figure out the maximum number of matches that might be left, then count down until something succeeds. (We start with the maximum because matching is supposed to be greedy.) Each non-empty repetition matches at least one character, so the number of remaining characters is the maximum number of matches worth trying.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
+<div class="sourceCode" id="cb23" data-file="glob/regex-recursive/regex-any.js"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> RegexBase <span class="im">from</span> <span class="st">'./regex-base.js'</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RegexAny <span class="kw">extends</span> RegexBase {</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span> (child<span class="op">,</span> rest) {</span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">super</span>(rest)</span>
@@ -572,7 +572,7 @@ Figure&nbsp;7.5: Using <code>rest</code> to match the remainder of a pattern.
 <span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> create</span></code></pre></div>
 <p>With these classes in place, our tests all pass:</p>
-<pre><code>"a" X "a": pass
+<pre data-file="glob/regex-recursive.out"><code>"a" X "a": pass
 "b" X "a": pass
 "a" X "ab": pass
 "b" X "ab": pass
@@ -649,6 +649,14 @@ Oram, Andy, and Greg Wilson, eds. 2007. <em>Beautiful Code: Leading Programmers 
     <a class="pager-link next" href="../parser/index.html">Parsing Expressions →</a>
   </nav>
 </footer>
+<script>
+document.addEventListener('click', function (e) {
+  var link = e.target.closest && e.target.closest('a');
+  document.querySelectorAll('details.topnav-dropdown[open]').forEach(function (d) {
+    if (!d.contains(e.target) || (link && d.contains(link))) d.removeAttribute('open');
+  });
+});
+</script>
 
 
 </body></html>
