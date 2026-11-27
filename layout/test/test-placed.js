@@ -40,7 +40,7 @@ describe('places blocks', () => {
     )
   })
 
-  // [large]
+  // mccole:large
   it('places a column of two blocks', async () => {
     const fixture = new Col(
       new Block(1, 1),
@@ -88,5 +88,5 @@ describe('places blocks', () => {
       ]
     )
   })
-  // [/large]
+  // mccole:/large
 })
